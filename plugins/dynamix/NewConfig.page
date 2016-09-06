@@ -33,7 +33,7 @@ function prepareNewConfig(form) {
     }
   }
   // set preset filter to populate slots
-  $.post('/webGui/include/PrepareDisks.php',{preset:preset});
+  $.post('/webGui/include/PrepareDisks.php',{preset:preset},function(){form.submit();});
 }
 <?if (file_exists('/var/tmp/disks.ini')):?>
 function assign(id,disk) {
@@ -67,7 +67,8 @@ Use the *'Retain current configuration'* selection to populate the desired disk 
 effect of making it ***impossible*** to rebuild an existing failed drive - you have been warned!
 
 <hr>
-<form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
+<form name="newConfig" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="cmdInit" value="Apply">
 <span class="indent">Retain current configuration:</span>
 <select id="s1" name="preset" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
@@ -76,10 +77,10 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <?=mk_option_check(0,'Cache','Cache slots')?>
 </select>
 <br>
-<span class="indent"><input type="submit" name="cmdInit" value=" Apply " disabled><input type="button" value=" Done " onclick="done()"></span>
+<span class="indent"><input type="button" name="apply" value=" Apply " onclick="prepareNewConfig(this.form)" disabled><input type="button" value=" Done " onclick="done()"></span>
 <?if ($disabled):?>
 <?=$newarray ? 'Array has been <b>RESET</b> (please configure)' : 'Array must be <b>STOPPED</b>'?>
 <?else:?>
-<input type="checkbox" onClick="cmdInit.disabled=!this.checked"><small>Yes I want to do this</small>
+<input type="checkbox" onClick="apply.disabled=!this.checked"><small>Yes I want to do this</small>
 <?endif;?>
 </form>
