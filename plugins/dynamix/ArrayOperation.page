@@ -163,7 +163,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?      elseif ($var['sbSynced']==0):?>
           <tr>
           <td></td>
-          <td></td>
+          <td><input type="button" value="History" onclick="openBox('/webGui/include/ParityHistory.php','Parity/Read-Check History',490,430,false)"></td>
           <td></td>
           </tr>
 <?      elseif ($var['sbSynced2']==0):?>
