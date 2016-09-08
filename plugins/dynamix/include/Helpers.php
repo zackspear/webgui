@@ -40,7 +40,7 @@ function my_number($value) {
 function my_time($time, $fmt = NULL) {
   global $display;
   if (!$fmt) $fmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
-  return $time ? strftime($fmt, $time) : "unknown";
+  return $time ? strftime($fmt, $time) : "unset";
 }
 function my_temp($value) {
   global $display;
@@ -128,7 +128,6 @@ function mk_option_check($name, $value, $text = "") {
 }
 function day_count($time) {
   global $var;
-  if (!$time) return;
   $datetz = new DateTimeZone($var['timeZone']);
   $date = new DateTime("now", $datetz);
   $offset = $datetz->getOffset($date);
@@ -137,7 +136,7 @@ function day_count($time) {
   $days = date_diff($last,$now)->format('%a');
   switch (true) {
   case ($days<0):
-    return;
+    return "";
   case ($days==0):
     return " (today)";
   case ($days==1):
