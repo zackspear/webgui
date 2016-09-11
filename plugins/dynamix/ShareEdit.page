@@ -54,29 +54,39 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 > A *Share*, also called a *User Share*, is simply the name of a top-level directory that exists on one or more of your
 > storage devices (array and cache).  Each share can be exported for network access.  When browsing a share, we return the
 > composite view of all files and subdirectories for which that top-level directory exists on each storage device.
+>
+<?if (!$name):?>
+> *Clone source* is used to preset the settings of the new share with the settings of an existing share.
+> Select the desired share name and press **Clone** to copy the settings from that source.
+<?else:?>
+> *Clone destinations* is used to copy the settings of the current share to one or more other existing shares.
+> Select the desired destinations and press **Clone** to copy the settings to those shares.
+<?endif;?>
 
 <script>
 $(function() {
-  initDropdown1(false);
+  initDropdown1(false,true);
 <?if ($tabbed):?>
-  $('#tab1').bind({click:function(){initDropdown1(true);}});
+  $('#tab1').bind({click:function(){initDropdown1(true,true);}});
 <?endif;?>
   setDiskList(document.share_edit.shareUseCache.value);
   presetSpace(document.share_edit.shareFloor);
 });
-function initDropdown1(reset) {
-  if (reset) {
+function initDropdown1(remove,create) {
+  if (remove) {
     $('#s1').dropdownchecklist('destroy');
     $('#s2').dropdownchecklist('destroy');
 <?if ($name):?>
     $('#s3').dropdownchecklist('destroy');
 <?endif;?>
   }
-  $("#s1").dropdownchecklist({emptyText:'All', width:300, explicitClose:'...close'});
-  $("#s2").dropdownchecklist({emptyText:'None', width:300, explicitClose:'...close'});
+  if (create) {
+    $("#s1").dropdownchecklist({emptyText:'All', width:300, explicitClose:'...close'});
+    $("#s2").dropdownchecklist({emptyText:'None', width:300, explicitClose:'...close'});
 <?if ($name):?>
-  $("#s3").dropdownchecklist({emptyText:'None', width:150, explicitClose:'...close'});
+    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'please select...', width:150, explicitClose:'...close'});
 <?endif;?>
+  }
 }
 function setDiskList(cache) {
   var onOff = cache=='only' ? 'disable' : 'enable';
@@ -138,35 +148,63 @@ function prepareEdit(form) {
 <?if ($name):?>
 function cloneShare() {
   var data = {}, copied = false;
-  data['shareAllocator'] = '<?=$share['allocator']?>';
-  data['shareFloor'] = '<?=$share['floor']?>';
-  data['shareSplitLevel'] = '<?=$share['splitLevel']?>';
-  data['shareInclude'] = '<?=$share['include']?>';
-  data['shareExclude'] = '<?=$share['exclude']?>';
-  data['shareUseCache'] = '<?=$share['useCache']?>';
-  data['cmdEditShare'] = 'Apply';
+  data.shareAllocator = '<?=$share['allocator']?>';
+  data.shareFloor = '<?=$share['floor']?>';
+  data.shareSplitLevel = '<?=$share['splitLevel']?>';
+  data.shareInclude = '<?=$share['include']?>';
+  data.shareExclude = '<?=$share['exclude']?>';
+  data.shareUseCache = '<?=$share['useCache']?>';
+  data.cmdEditShare = 'Apply';
   $('select#s3 option').map(function() {
     if ($(this).prop('selected')==true) {
-      data['shareNameOrig'] = $(this).val();
-      data['shareName'] = $(this).val();
+      data.shareNameOrig = $(this).val();
+      data.shareName = $(this).val();
       $.post('/update.htm', data);
       copied = true;
     }
   });
   if (copied) swal({title:'Clone complete',text:'Share settings are cloned to the selected shares',type:'success'},function(){refresh();});
 }
+<?else:?>
+function cloneShare() {
+  var form = document.share_edit;
+  var name = $('select[name="shareClone"]').val();
+  initDropdown1(true,false);
+  $.get('/webGui/include/ShareData.php',{name:name},function(json) {
+    var data = $.parseJSON(json);
+    form.shareAllocator.value = data.allocator;
+    form.shareFloor.value = data.floor;
+    form.shareSplitLevel.value = data.splitLevel;
+    form.shareInclude.value = data.include;
+    form.shareExclude.value = data.exclude;
+    form.shareUseCache.value = data.useCache;
+    form.shareCOW.value = data.cow;
+    for (var i=0,disk; disk=data.include.split(',')[i]; i++) for (var j=0,include; include=form.shareInclude.options[j]; j++) if (include.value==disk) include.selected=true;
+    for (var i=0,disk; disk=data.exclude.split(',')[i]; i++) for (var j=0,exclude; exclude=form.shareExclude.options[j]; j++) if (exclude.value==disk) exclude.selected=true;
+    initDropdown1(false,true);
+  });
+}
 <?endif;?>
 </script>
-<?if ($name):?>
 <div style="float:right">
+<?if ($name):?>
 <span style="display:block;font-weight:bold;margin-left:2px;margin-bottom:4px">Clone destinations</span>
 <select id="s3" name="shareClone" size="1" multiple="multiple" style="display:none">
+<option>All</option>
 <?foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);?>
 </select>
-</div>
+<div style="margin-top:10px;text-align:right"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" style="margin-right:0"></div>
+<?else:?>
+<span style="display:block;font-weight:bold;margin-left:2px;margin-bottom:4px">Clone source</span>
+<select name="shareClone" size="1" onchange="$('#cloneshare').prop('disabled',false)">
+<option disabled selected>please select...</option>
+<?foreach ($shares as $list) echo mk_option("", $list['name'], $list['name']);?>
+</select>
+<div style="margin-top:10px"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" disabled></div>
 <?endif;?>
+</div>
 
-<form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit(this)" onchange="$('#cloneshare').prop('disabled',true)">
+<form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit(this)" onchange="$('#cloneshare').prop('disabled',true);$('#s3').dropdownchecklist('disable')">
 <input type="hidden" name="shareNameOrig" value="<?=$share['nameOrig']?>">
 
 Share name:
@@ -321,7 +359,7 @@ Share status:
 > Share does *not* contain any data and may be deleted if not needed any longer.
 
 Delete<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
-: <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()">
+: <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()">
 <?else:?>
 Share status:
 : <big>Share contains data</big>
@@ -329,6 +367,6 @@ Share status:
 > Share can *not* be deleted as long as it contains data. Be aware that some data can be hidden. See also [SMB Settings](/Settings/SMB) -> Hide "dot" files.
 
 &nbsp;
-: <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()">
+: <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()">
 <?endif;?>
 </form>

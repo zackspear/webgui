@@ -11,8 +11,6 @@
  */
 ?>
 <?
-$port = $_POST['port'] ?: 'eth0';
-if (exec("ip link show $port|grep -om1 'NO-CARRIER'")) {
-  echo "<b>Interface $port is down. Check cable!</b>";
-}
+$shares = parse_ini_file('state/shares.ini',true);
+echo json_encode($shares[$_GET['name']]);
 ?>
