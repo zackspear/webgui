@@ -241,6 +241,7 @@ Default SMART controller type:
 : <select name="smType" size="1" onchange="setIndex(this.form)">
   <?=mk_option($var['smType'], "", "Automatic")?>
   <?=mk_option($var['smType'], "-d ata", "ATA")?>
+  <?=mk_option($var['smType'], "-d sat", "SATA")?>
   <?=mk_option($var['smType'], "-d scsi", "SCSI")?>
   <?=mk_option($var['smType'], "-d 3ware", "3Ware")?>
   <?=mk_option($var['smType'], "-d areca", "Areca")?>
