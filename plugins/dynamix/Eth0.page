@@ -143,7 +143,7 @@ function checkNetworkSettings(form,index) {
       var none = netmask.find('option[value="none"]');
       if (none.length) {netmask.val('255.255.255.0'); none.remove();}
     }
-    if (form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
+    if (index==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
     if (dns) {
       form.DHCP_KEEPRESOLV.value = 'yes';
       form.DHCP_KEEPRESOLV.disabled = !disabled;
