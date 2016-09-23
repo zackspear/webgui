@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
-
-<!ENTITY version   "6.3-2016.09.22">
-<!ENTITY pluginURL "https://raw.github.com/limetech/webgui/master/plugins/&name;/&name;.plg">
-<!ENTITY category  "next">
+<!ENTITY branch    "6.2">
+<!ENTITY version   "6.2.1">
+<!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
+<!ENTITY category  "stable">
 
 <!ENTITY zip       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.zip">
 <!ENTITY md5       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.md5">
@@ -24,6 +24,19 @@
 <![CDATA[
 unRAID Server OS Change Log
 ===========================
+
+Version 6.2.1 2016-09-23
+------------------------
+
+Base distro:
+
+- curl: version 7.50.3 (CVE-2016-7167)
+- gnutls: version 3.4.15 (CVE-2015-6251)
+- php: version 5.6.26 (CVE-2016-7124, CVE-2016-7125, CVE-2016-7126, CVE-2016-7127, CVE-2016-7128, CVE-2016-7129, CVE-2016-7130, CVE-2016-7131, CVE-2016-7132, CVE-2016-7133, CVE-2016-7134, CVE-2016-7416, CVE-2016-7412, CVE-2016-7414, CVE-2016-7417, CVE-2016-7411, CVE-2016-7413, CVE-2016-7418)
+
+Linux kernel:
+
+- version 4.4.21 (CVE-2016-0758, CVE-2016-6480)
 
 Version 6.2 2016-09-15
 ----------------------
@@ -70,7 +83,7 @@ webGui:
 - Improved feedback for clickable links
 - Remove unneeded title messages in links
 - Save mail password encrypted in configuration file
-    
+
 Version 6.2.0-rc4 2016-08-18
 ----------------------------
 
