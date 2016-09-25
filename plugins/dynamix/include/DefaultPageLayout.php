@@ -343,7 +343,7 @@ $(function() {
 <?if (strpos(file_get_contents('/proc/cmdline'),'unraidsafemode')!==false):?>
   showNotice('System running in <b>safe</b> mode');
 <?else:?>
-<?if ($version = plugin_update_available('unRAIDServer')):?>
+<?if ($version = plugin_update_available('unRAIDServer',true)):?>
   showNotice('unRAID OS v<?=$version?> is available. <a>Download Now</a>','unRAIDServer');
 <?elseif (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/", @file_get_contents('/usr/local/emhttp/plugins/unRAIDServer/README.md'))):?>
   showNotice('Reboot required to apply unRAID OS update');
