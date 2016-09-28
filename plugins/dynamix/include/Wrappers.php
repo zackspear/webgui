@@ -33,10 +33,19 @@ function agent_fullname($agent, $state) {
   }
 }
 
-function plugin_update_available($plugin) {
-  $script = '/usr/local/emhttp/plugins/dynamix.plugin.manager/scripts/plugin';
-  $local = file_exists("/var/log/plugins/$plugin.plg") ? exec("$script version /var/log/plugins/$plugin.plg") : "";
-  $remote = file_exists("/tmp/plugins/$plugin.plg") ? exec("$script version /tmp/plugins/$plugin.plg") : "";
-  return strcmp($remote,$local)>0 ? $remote : "";
+function get_plugin_attr($attr, $file) {
+  exec("/usr/local/emhttp/plugins/dynamix.plugin.manager/scripts/plugin $attr $file", $result, $error);
+  if ($error===0) return $result[0];
+}
+
+function plugin_update_available($plugin, $os=false) {
+  $local  = get_plugin_attr('version', "/var/log/plugins/$plugin.plg");
+  $remote = get_plugin_attr('version', "/tmp/plugins/$plugin.plg");
+  if (strcmp($remote,$local)>0) {
+    if ($os) return $remote;
+    if (!$unraid = get_plugin_attr('unRAID', "/tmp/plugins/$plugin.plg")) return $remote;
+    $server = get_plugin_attr('version', "/var/log/plugins/unRAIDServer.plg");
+    if (version_compare($server, $unraid, '>=')) return $remote;
+  }
 }
 ?>

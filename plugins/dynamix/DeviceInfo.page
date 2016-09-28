@@ -437,6 +437,7 @@ SMART controller type:
   <?=mk_option($disk['smType'], "-1", "Use default")?>
   <?=mk_option($disk['smType'], "", "Automatic")?>
   <?=mk_option($disk['smType'], "-d ata", "ATA")?>
+  <?=mk_option($disk['smType'], "-d sat", "SATA")?>
   <?=mk_option($disk['smType'], "-d scsi", "SCSI")?>
   <?=mk_option($disk['smType'], "-d 3ware", "3Ware")?>
   <?=mk_option($disk['smType'], "-d areca", "Areca")?>

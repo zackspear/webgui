@@ -22,9 +22,9 @@ foreach ($files as $file) {
   $fields = explode(PHP_EOL, file_get_contents($file));
   $archive = basename($file);
   if ($extra = count($fields)>6) {
-    $td_ = "<td rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "<i class='fa fa-anchor'></i></a></td>";
+    $td_ = "<td rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "</a></td>";
   } else {
-    $td_ = "<td>"; $_td = "</td>";
+    $td_ = "<td style='white-space:nowrap'>"; $_td = "</td>";
   }
   $c = 0;
   foreach ($fields as $field) {

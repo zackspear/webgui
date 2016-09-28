@@ -77,11 +77,11 @@ function assignment(&$disk) {
   $out .= "<select class=\"slot\" name=\"slotId.{$disk['idx']}\" onChange=\"{$disk['name']}Form.submit()\">";
   $empty = ($disk['idSb']!='' ? 'no device' : 'unassigned');
   if ($disk['id']!='') {
-    $out .= "<option value=\"".my_id($disk['id'])."\" selected>".device_desc($disk)."</option>";
+  $out .= "<option value=\"{$disk['id']}\" selected>".device_desc($disk)."</option>";
     $out .= "<option value=''>$empty</option>";
   } else
     $out .= "<option value='' selected>$empty</option>";
-  foreach ($devs as $dev) {$out .= "<option value=\"".my_id($dev['id'])."\">".device_desc($dev)."</option>";}
+  foreach ($devs as $dev) {$out .= "<option value=\"{$dev['id']}\">".device_desc($dev)."</option>";}
   return "$out</select></form>";
 }
 function fs_info(&$disk) {
