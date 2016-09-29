@@ -641,11 +641,24 @@
 
 					list($gpu_bus, $gpu_slot, $gpu_function) = explode(":", str_replace('.', ':', $gpu['id']));
 
-					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'".((empty($gpudevs_used) && empty($domain['ovmf'])) ? " xvga='yes'" : "").">
+					$strXVGA = '';
+					if (empty($gpudevs_used) && empty($domain['ovmf'])) {
+						$strXVGA = " xvga='yes'";
+					}
+
+					//HACK: add special address for intel iGPU and remove x-vga attribute
+					$strSpecialAddress = '';
+					if ($gpu_bus == '00' && $gpu_slot == '02') {
+						$strXVGA = '';
+						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x".$gpu_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."'/>";
+					}
+
+					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'".$strXVGA.">
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x".$gpu_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."'/>
 									</source>
+									$strSpecialAddress
 								</hostdev>";
 
 					$gpudevs_used[] = $gpu['id'];
