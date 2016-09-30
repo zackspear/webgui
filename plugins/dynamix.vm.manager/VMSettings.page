@@ -185,26 +185,22 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 				$iso_dir = str_replace('//', '/', $iso_dir.'/');
 			}
 
-			$strManual = '';
+			$strMatch = '';
 			if (!empty($domain_cfg['MEDIADIR']) &&
 				!empty($domain_cfg['VIRTIOISO']) &&
 				dirname($domain_cfg['VIRTIOISO']) != '.' &&
-				strpos($iso_dir, dirname($domain_cfg['VIRTIOISO'])) !== 0) {
-				$strManual = 'manual';
+				is_file($domain_cfg['VIRTIOISO'])) {
+				$strMatch = 'manual';
 			}
 
-			$strMatch = $strManual;
 			foreach ($virtio_isos as $key => $value) {
-				if (empty($strMatch) &&
-					(basename($domain_cfg['VIRTIOISO']) == $value['name']) &&
-					is_file($iso_dir.$value['name'])
-					) {
+				if (($domain_cfg['VIRTIOISO'] == $iso_dir.$value['name']) && is_file($iso_dir.$value['name'])) {
 					$strMatch = $value['name'];
 				}
 				echo mk_option($strMatch, $value['name'], $value['name']);
 			}
 
-			echo mk_option($strManual, 'manual', 'Manual');
+			echo mk_option($strMatch, 'manual', 'Manual');
 		?>
 		</select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" value="<?=$domain_cfg['VIRTIOISO']?>"<?if ($var['fsState'] == "Started"):?> placeholder="Click to Select"><i class="fa fa-download" id="download_button" title="Download Windows VirtIO driver ISO"> <span>Download</span></i><span id="download_status"></span<?endif;?>>
 	</dd>
