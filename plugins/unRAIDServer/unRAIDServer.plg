@@ -25,19 +25,26 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.2.1 2016-09-26
+Version 6.2.1 2016-09-29
 ------------------------
 
 Base distro:
 
 - curl: version 7.50.3 (CVE-2016-7167)
 - gnutls: version 3.4.15 (CVE-2015-6251)
-- openssl: version 1.0.2i (CVE-2016-6304, CVE-2016-6305, CVE-2016-2183, CVE-2016-6303, CVE-2016-6302, CVE-2016-2182, CVE-2016-2180, CVE-2016-2177, CVE-2016-2178, CVE-2016-2179, CVE-2016-2181, CVE-2016-6306, CVE-2016-6307, CVE-2016-6308)
+- netatalk: version 3.1.10
+- openssl: version 1.0.2j (CVE-2016-7052, CVE-2016-6304, CVE-2016-6305, CVE-2016-2183, CVE-2016-6303, CVE-2016-6302, CVE-2016-2182, CVE-2016-2180, CVE-2016-2177, CVE-2016-2178, CVE-2016-2179, CVE-2016-2181, CVE-2016-6306, CVE-2016-6307, CVE-2016-6308)
 - php: version 5.6.26 (CVE-2016-7124, CVE-2016-7125, CVE-2016-7126, CVE-2016-7127, CVE-2016-7128, CVE-2016-7129, CVE-2016-7130, CVE-2016-7131, CVE-2016-7132, CVE-2016-7133, CVE-2016-7134, CVE-2016-7416, CVE-2016-7412, CVE-2016-7414, CVE-2016-7417, CVE-2016-7411, CVE-2016-7413, CVE-2016-7418)
 
 Linux kernel:
 
 - version 4.4.22 (CVE-2016-0758, CVE-2016-6480)
+
+Management:
+
+- bug fix: corrections in powerdown script; get time-out from new ident.cfg shutdownTimeout variable
+- bug fix: for file system type "auto", only attempt btrfs,xfs,reiserfs mounts
+- bug fix: for docker.img and libvirt.img, if path on /mnt/ check for mountpoint on any dir component, not just second component
 
 Version 6.2 2016-09-15
 ----------------------
