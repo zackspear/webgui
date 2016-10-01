@@ -107,7 +107,7 @@ function export_settings($protocol,$share) {
   return '<em>'.ucfirst($share['security']).'</em>';
 }
 function active_disks($disk) {
-  return $disk['status']!='DISK_NP' && preg_match('/^(Parity|Data|Cache)$/',$disk['type']);
+  return substr($disk['status'],0,7)!='DISK_NP' && preg_match('/^(Parity|Data|Cache)$/',$disk['type']);
 }
 $disks = array_filter($disks,'active_disks');
 $slots = count($disks) + count($devs);
@@ -144,7 +144,7 @@ echo "<td>Array Status</td>".implode('',$row0);
 <thead><tr>
 <?
 $row0 = array_fill(0,30,"<td>-</td>"); $i = 0;
-foreach ($disks as $disk) if ($disk['type']=='Cache' && $disk['status']!='DISK_NP') $row0[$i++] = "<td>Cache<br>&nbsp;".filter_var($disk['name'],FILTER_SANITIZE_NUMBER_INT)."&nbsp;</td>";
+foreach ($disks as $disk) if ($disk['type']=='Cache') $row0[$i++] = "<td>Cache<br>&nbsp;".filter_var($disk['name'],FILTER_SANITIZE_NUMBER_INT)."&nbsp;</td>";
 foreach ($devs as $dev) $row0[$i++] = "<td>{$dev['device']}</td>";
 echo "<td>Array Status</td>".implode('',$row0);
 ?>
