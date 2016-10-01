@@ -121,6 +121,12 @@ Default file system:
 >
 > The default file system type for a single or multi-device cache is always Btrfs.
 
+Shutdown time-out:
+: <input type="text" name="shutdown_timeout" maxlength="10" value="<?=$var['shutdownTimeout']?>" class="narrow">
+
+> When shutting down the server, this defines how long to wait in seconds for *graceful* shutdown before forcing
+> shutdown to continue.
+
 Tunable (poll_attributes):
 : <input type="text" name="poll_attributes" maxlength="10" value="<?=$var['poll_attributes']?>" class="narrow"><?=$var['poll_attributes_status']?>
 
@@ -241,6 +247,7 @@ Default SMART controller type:
 : <select name="smType" size="1" onchange="setIndex(this.form)">
   <?=mk_option($var['smType'], "", "Automatic")?>
   <?=mk_option($var['smType'], "-d ata", "ATA")?>
+  <?=mk_option($var['smType'], "-d sat", "SATA")?>
   <?=mk_option($var['smType'], "-d scsi", "SCSI")?>
   <?=mk_option($var['smType'], "-d 3ware", "3Ware")?>
   <?=mk_option($var['smType'], "-d areca", "Areca")?>
