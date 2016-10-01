@@ -60,7 +60,7 @@ function plus($val,$word,$last) {
   return $val>0?(($val||$last)?($val.' '.$word.($val!=1?'s':'').($last ?'':', ')):''):'';
 }
 function active_disks($disk) {
-  return $disk['status']!='DISK_NP' && preg_match('/^(Parity|Data|Cache)$/',$disk['type']);
+  return substr($disk['status'],0,7)!='DISK_NP' && preg_match('/^(Parity|Data|Cache)$/',$disk['type']);
 }
 $path   = '/webGui/images';
 $failed = ['FAILED','NOK'];
@@ -98,10 +98,7 @@ case 'disk':
         my_insert($row3[$n],"<img src=$path/$state.png>");
       break;
       default:
-        if ($disk['type']=='Parity' && $disk['status']=='DISK_NP_DSBL')
-          my_insert($row3[$n],"<img src=$path/$state.png>"); //parity is really unassigned
-        else
-          my_insert($row4[$n],"<img src=$path/$state.png>");
+        my_insert($row4[$n],"<img src=$path/$state.png>");
       break;}
       $temp = $disk['temp'];
       $hot  = strlen($disk['hotTemp']) ? $disk['hotTemp'] : $_POST['hot'];
