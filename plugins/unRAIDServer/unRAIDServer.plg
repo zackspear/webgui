@@ -4,7 +4,7 @@
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
 <!ENTITY branch    "master">
-<!ENTITY version   "6.2.1-2016.09.22">
+<!ENTITY version   "6.3.0-rc1">
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 <!ENTITY category  "next">
 
@@ -25,6 +25,76 @@
 unRAID Server OS Change Log
 ===========================
 
+Version 6.3.0-rc1 2016-10-05
+----------------------------
+
+Base distro (primary packages):
+
+- btrfs-progs: version v4.7.2
+- netatalk: version 3.1.10
+- openssl: version 1.0.2j
+- php: version 5.6.26
+- qemu: version 2.7.0
+- samba: version 4.5.0
+
+Base distro (secondary packages):
+
+- apcupsd: version 3.14.14
+- bash: version 4.4.0
+- curl: version 7.50.3
+- diffutils: version 3.5
+- e2fsprogs: version 1.43.3
+- etc: version 14.2
+- file: version 5.28
+- fuse: version 2.9.7
+- gawk: version 4.1.4
+- gdbm: version 1.12
+- glib2: version 2.46.2
+- glibc: version 2.24
+- glibc: version zoneinfo
+- glibc-solibs: version 2.24
+- gnutls: version 3.4.15
+- jemalloc: version 4.2.1
+- kmod: version 23
+- libtasn1: version 4.9
+- libxml2: version 2.9.4
+- lvm2: version 2.02.161
+- nano: version 2.7.0
+- network-scripts: version 14.2
+- nfs-utils: version 1.3.4
+- openssl-solibs version: 1.0.2j
+- pkgtools-14.2-noarch: version 13
+- reiserfsprogs: version 3.6.25
+- util-linux: version 2.28.2
+
+Base distro (desktop GUI packages):
+
+- freetype: version 2.6.5
+- harfbuzz: version 1.3.0
+- libXfont: version 1.5.2
+- mesa: version 12.0.2
+- mozilla-firefox: version 49.0.1
+- xkeyboard-config: version 2.18
+- xorg-server: version 1.18.4
+
+Linux kernel:
+
+- version 4.7.6
+- aacraid: version 1.2.1-52011
+- intel 10Gbit ethernet: revert to in-tree drivers
+- r750: version 1.2.9-16_09_27
+
+Management:
+
+- bug fix: For file system type "auto", only attempt btrfs,xfs,reiserfs mounts.
+- bug fix: For docker.img and libvirt.img, if path on /mnt/ check for mountpoint on any subdir component
+- bug fix: During shutdown force continue if array stop taking too long.
+- bug fix: Handle case in 'mover' where rsync may move a file but also return error status.
+- md/unraid: Fix bug where case of no data disks improperly detected.
+- webGui: Add "Shutdown time-out" control on Disk Settings page.
+- webGui: bug fix: Cannot manually specify virtIO iso in VM settings
+- webGui: other changes: refer to github commit log
+    
 Version 6.2.1-2016-09-22
 ------------------------
 
@@ -37,6 +107,8 @@ Base distro:
 Linux kernel:
 
 - version 4.4.21 (CVE-2016-0758, CVE-2016-6480)
+- added config options:
+  - CONFIG_SENSORS_I5500: Intel 5500/5520/X58 temperature sensor
 
 Version 6.2 2016-09-15
 ----------------------
