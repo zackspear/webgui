@@ -53,8 +53,8 @@ function checkUsername(form) {
     swal({title:"Invalid user name",text:"Do not use reserved names",type:"error"});
     return false;
   }
-  if (form.userPassword.value.length > 40 || form.userPasswordConf.value.length > 40) {
-    swal({title:"Password too long",text:"Use a password up to 40 characters",type:"error"});
+  if (form.userPassword.value.length > 128 || form.userPasswordConf.value.length > 128) {
+    swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
     return false;
   }
   if (filename) {
@@ -135,12 +135,12 @@ Custom image:
 > The image will be scaled to 48x48 pixels in size. The maximum image file upload size is 95 kB (97,280 bytes).
 
 Password:
-: <input type="password" name="userPassword" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value!=this.form.userPasswordConf.value);">
+: <input type="password" name="userPassword" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value!=this.form.userPasswordConf.value);">
 
-> Up to 40 characters.
+> Up to 128 characters.
 
 Retype password:
-: <input type="password" name="userPasswordConf" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value!=this.form.userPasswordConf.value);">
+: <input type="password" name="userPasswordConf" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value!=this.form.userPasswordConf.value);">
 
 &nbsp;
 : <input type="submit" name="cmdUserEdit" value="Add"><input type="button" value="Done" onclick="done('UserAdd')">
