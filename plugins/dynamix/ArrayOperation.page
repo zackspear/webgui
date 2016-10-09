@@ -34,6 +34,8 @@ function status_indicator() {
 }
 ?>
 <script>
+var forced = <?=$confirm['down'] ? 'false' : 'true'?>;
+
 function tab0() {
   $.removeCookie('one',{path:'/'});
   $.cookie('tab','tab0',{path:'/'});
@@ -63,12 +65,28 @@ function parity_warning(form) {
 <?endif;?>
   $('<input>').attr({type:'hidden',name:'cmdStart',value:'submit'}).appendTo($(form));
   if (form.md_invalidslot.checked) {
-    swal({title:'Proceed to start',text:text,html:true,type:'warning',confirmButtonText:'Proceed',confirmButtonColor:'#FFFFFF',showCancelButton:true},function(p){if (p) form.submit();});
+    swal({title:'Proceed to start',text:text,html:true,type:'warning',confirmButtonText:'Proceed',confirmButtonColor:'#FFFFFF',showCancelButton:true},function(){form.submit();});
   } else {
     form.submit();
   }
 }
-
+function stop_array(form) {
+  $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
+  if (forced) {
+    form.submit();
+  } else {
+    swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  }
+}
+function system(cmd) {
+  var boot = '/webGui/include/Boot.php';
+  var page = '/'+cmd+'.htm';
+  if (forced) {
+    $.post(boot,{cmd:cmd},function(){location=page;});
+  } else {
+    swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(){$.post(boot,{cmd:cmd},function(){location=page;});});
+  }
+}
 parity_status();
 
 <?if ($update):?>
@@ -104,16 +122,14 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=$var['mdState']?>">
 <table class="array_status">
-<?switch ($var['fsState']):
+<?$parity = $var['mdResync']>0 ? '<small>Disabled -- Parity operation is running</small>' : '';
+  $mover = file_exists('/var/run/mover.pid') ? '<small>Disabled -- Mover is running</small>' : '';
+  switch ($var['fsState']):
   case "Started":?>
     <tr>
     <td><?=status_indicator()?><strong>Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></strong></td>
-    <td><input type="submit" name="cmdStop" value="Stop"<?=($confirm['stop']||$var['mdResync']||file_exists('/var/run/mover.pid'))?' disabled':''?>></td>
-    <td><strong>Stop</strong> will take the array off-line.
-<?if ($confirm['stop']):?>
-      <br><input type="checkbox" name="confirmStop" value="OFF" onClick="arrayOps.cmdStop.disabled=!arrayOps.confirmStop.checked"<?=$var['mdResync']>0||file_exists('/var/run/mover.pid')?'disabled':''?>><small>Yes I want to do this</small>
-<?endif;?>
-    </td>
+    <td><input type="button" value="Stop" onclick="stop_array(this.form)"<?if ($parity||$mover):?> disabled<?endif;?>></td>
+    <td><strong>Stop</strong> will take the array off-line.<?=$parity?"<br>$parity":($mover?"<br>$mover":"")?></td>
     </tr>
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr>
@@ -121,11 +137,11 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?    foreach ($disks as $disk) if ($disk['fsStatus']=='Unmountable') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
       <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-        <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small>
+      <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small>
       </td>
       </tr>
 <?  endif;
-    if ($var['mdResync']==0):
+    if (!$parity):
       if (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
         <td></td>
@@ -150,7 +166,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
           <td>Parity is valid.</td>
           <td><input type="submit" name="cmdCheck" value="Check"></td>
           <td><strong>Check</strong> will start <strong>Parity-Check</strong>.
-            <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
+          <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
           </tr>
 <?      endif;
         if ($var['sbSyncExit']!=0):?>
@@ -158,7 +174,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
           <td></td>
           <td><input type="button" value="History" onclick="openBox('/webGui/include/ParityHistory.php','Parity/Read-Check History',490,430,false)"></td>
           <td>Last check incomplete on <strong><?=my_time($var['sbSynced2']).day_count($var['sbSynced2'])?></strong><?if ($var['sbSynced2']):?>, finding <strong><?=$var['sbSyncErrs']?></strong> error<?=$var['sbSyncErrs']==1?'':'s'?>.<?endif;?>
-            <br><i class="fa fa-dot-circle-o icon"></i><small>Error code: <?=my_error($var['sbSyncExit'])?></small></td>
+          <br><i class="fa fa-dot-circle-o icon"></i><small>Error code: <?=my_error($var['sbSyncExit'])?></small></td>
           </tr>
 <?      elseif ($var['sbSynced']==0):?>
           <tr>
@@ -187,7 +203,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
           <td></td>
           <td><input type="button" value="History" onclick="openBox('/webGui/include/ParityHistory.php','Parity/Read-Check History',490,430,false)"></td>
           <td>Last check completed on <strong><?=my_time($var['sbSynced2']).day_count($var['sbSynced2'])?></strong>, finding <strong><?=$var['sbSyncErrs']?></strong> error<?=$var['sbSyncErrs']==1?'':'s'?>.
-            <br><i class="fa fa-clock-o icon"></i><small>Duration: <?=my_check($duration,$speed)?></small></td>
+          <br><i class="fa fa-clock-o icon"></i><small>Duration: <?=my_check($duration,$speed)?></small></td>
           </tr>
 <?      endif;
       endif;
@@ -209,7 +225,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
         <td>Parity-Sync/Data-Rebuild in progress.</td>
         <td><input type="submit" name="cmdNoCheck" id="cancelButton" value="Cancel"></td>
         <td id="cancelText"><strong>Cancel</strong> will stop Parity-Sync/Data-Rebuild.
-          <br>WARNING: canceling may leave the array unprotected!</td>
+        <br>WARNING: canceling may leave the array unprotected!</td>
         </tr>
 <?    elseif (strstr($var['mdResyncAction'],"clear")):?>
         <tr>
@@ -332,7 +348,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
         <td><?=status_indicator()?><strong>Stopped</strong>. Unclean shutdown detected.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
-          <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
+        <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
         </tr>
 <?    else:?>
         <tr>
@@ -349,15 +365,15 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
         <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will record all disk information and bring the array on-line.
-          <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td>
+        <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td>
         </tr>
 <?    else:?>
         <tr>
         <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
         <td><input type="button" value="Start" onclick="parity_warning(this.form)"></td>
         <td><strong>Start</strong> will record all disk information, bring the array on-line, and start Parity-Sync.
-          <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
-          <br><input type="checkbox" name="md_invalidslot" value="99">Parity is already valid.</td>
+        <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
+        <br><input type="checkbox" name="md_invalidslot" value="99">Parity is already valid.</td>
         </tr>
 <?    endif;
       maintenance_mode();
@@ -491,51 +507,25 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?if ($var['fsState']=="Started"):?>
   <tr>
   <td></td>
-  <td><input type="submit" name="cmdSpindownAll" value="Spin Down"<?=$var['mdResync']==0 ? '':' disabled'?> style="width:80px"><input type="submit" name="cmdSpinupAll" value="Spin Up"<?=$var['mdResync']==0 ? '':' disabled'?> style="width:80px"></td>
+  <td><input type="submit" name="cmdSpindownAll" value="Spin Down"<?=$parity?' disabled':''?> style="width:80px"><input type="submit" name="cmdSpinupAll" value="Spin Up"<?=$parity?' disabled':''?> style="width:80px"></td>
   <td><strong>Spin Down</strong> will immediately spin down all disks.<br><strong>Spin Up</strong> will immediately spin up all disks.</td>
   </tr>
-<?endif;?>
-<?if ($var['fsState']=="Stopped"):?>
-  <tr>
-  <td></td>
-  <?if ($confirm['down']):?>
-   <td><input type="submit" name="reboot" value="Reboot" disabled></td>
-   <td><strong>Reboot</strong> will activate a system reset.
-   <br><input type="checkbox" name="confirmReboot" value="OFF" onClick="otherOps.reboot.disabled=!otherOps.confirmReboot.checked"><small>Yes I want to do this</small>
-   </tr>
-   <tr>
-   <td></td>
-   <td><input type="submit" name="shutdown" value="Power down" disabled></td>
-   <td><strong>Power down</strong> will activate a <em>clean</em> power down.
-   <br><input type="checkbox" name="confirmShutdown" value="OFF" onClick="otherOps.shutdown.disabled=!otherOps.confirmShutdown.checked"><small>Yes I want to do this</small>
-   </tr>
-  <?else:?>
-   <td><input type="submit" name="reboot" value="Reboot"></td>
-   <td><strong>Reboot</strong> will activate a system reset.
-   </tr>
-   <tr>
-   <td></td>
-   <td><input type="submit" name="shutdown" value="Power down"></td>
-   <td><strong>Power down</strong> will activate a <em>clean</em> power down.
-   </tr>
-  <?endif;?>
-<?else:?>
   <tr>
   <td></td>
   <td><input type="submit" name="clearStatistics" value="Clear Statistics"></td>
   <td><strong>Clear Statistics</strong> will immediately clear all disk statistics.</td>
   </tr>
-  <tr>
-  <td></td>
-  <td><input type="button" name="reboot" value="Reboot" disabled></td>
-  <td>Array must be Stopped to <strong>Reboot</strong>.
-  </tr>
-  <tr>
-  <td></td>
-  <td><input type="button" name="shutdown" value="Power down" disabled></td>
-  <td>Array must be Stopped to <strong>Power down</strong>.
-  </tr>
 <?endif;?>
+  <tr>
+  <td></td>
+  <td><input type="button" name="reboot" value="Reboot" onclick="system('reboot')"></td>
+  <td><strong>Reboot</strong> will activate a <em>clean</em> system reset.</td>
+  </tr>
+  <tr>
+  <td></td>
+  <td><input type="button" name="shutdown" value="Power down" onclick="system('shutdown')"></td>
+  <td><strong>Power down</strong> will activate a <em>clean</em> power down.</td>
+  </tr>
 </table>
 </form>
 <?if (is_dir("/mnt/cache") && is_dir("/mnt/user0") && $var['fsState']=="Started"):?>
@@ -544,7 +534,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
   <tr><td colspan="3"></td></tr>
   <tr>
   <td></td>
-<?if (file_exists("/var/run/mover.pid")):?>
+<?if ($mover):?>
   <td><input type="submit" name="cmdStartMover" value="Move now" disabled></td><td>Mover is running.</td>
 <?else:?>
   <td><input type="submit" name="cmdStartMover" value="Move now"></td><td>Click to invoke the Mover.</td>
