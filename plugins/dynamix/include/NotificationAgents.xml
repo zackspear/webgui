@@ -15,7 +15,8 @@
       ############
       MESSAGE=$(echo -e "$MESSAGE")
 
-      curl -s -k -d "user_credentials=$ACCESS_TOKEN" \
+      curl -s -k \
+      -d "user_credentials=$ACCESS_TOKEN" \
       -d "notification[title]=$TITLE" \
       -d "notification[long_message]=$MESSAGE" \
       -d "notification[source_name]=unRAID" \
@@ -55,10 +56,10 @@
       esac
 
       curl -s -k \
-      -F "apikey=${API_KEY}" \
-      -F "application=${APP_NAME}" \
-      -F "event=${TITLE}" \
-      -F "description=${MESSAGE}" \
+      -F "apikey=$API_KEY" \
+      -F "application=$APP_NAME" \
+      -F "event=$TITLE" \
+      -F "description=$MESSAGE" \
       -F "priority=$PRIORITY" \
       https://api.prowlapp.com/publicapi/add 2>&1
       ]]>
@@ -79,7 +80,8 @@
       ##########
       MESSAGE=$(echo "$MESSAGE" | sed -e 's:<br[ /]*>:\\n:gI' -e 's/<[^>]*>//g')
 
-      curl -s -k -X POST --header "Authorization: Bearer $TOKEN" \
+      curl -s -k \
+      -X POST --header "Authorization: Bearer $TOKEN" \
       --header  'Content-Type: application/json' \
       -d "{\"type\": \"note\", \"title\": \"$TITLE\", \"body\": \"$MESSAGE\"}" \
       https://api.pushbullet.com/v2/pushes 2>&1
@@ -112,7 +114,7 @@
       ;;
       esac
 
-      curl -k -s \
+      curl -s -k \
       -F "token=$APP_TOKEN" \
       -F "user=$USER_KEY" \
       -F "message=$MESSAGE" \
@@ -137,7 +139,9 @@
       ##########
       {0}
       ##########
+      TITLE=$(echo -e "$TITLE")
       MESSAGE=$(echo -e "$MESSAGE")
+
       case "$IMPORTANCE" in
       'normal' )
       PRIORITY="0"
@@ -150,7 +154,7 @@
       ;;
       esac
 
-      curl -k -s \
+      curl -s -k \
       -d "apikey=$API_KEY" \
       -d "application=$APP_NAME" \
       -d "event=$TITLE" \
@@ -160,4 +164,29 @@
       ]]>
     </Script>
   </Agent>
+  <Agent>
+    <Name>Join</Name>
+    <Variables>
+      <Variable Help="The API key can be found [a href='https://joinjoaomgcd.appspot.com' target='_blank'] [u]here[/u].[/a]" Desc="API key" Default="">API_KEY</Variable>
+      <Variable Help="Specify the fields which are included in the title of the notification." Desc="Notification Title" Default="$SUBJECT">TITLE</Variable>
+      <Variable Help="Specify the fields which are included in the message body of the notification." Desc="Notification Message" Default="$DESCRIPTION">MESSAGE</Variable>
+    </Variables>
+    <Script>
+      <![CDATA[
+      #!/bin/bash
+      ##########
+      {0}
+      ##########
+      TITLE=$(echo -e "$TITLE")
+      MESSAGE=$(echo -e "$MESSAGE")
+
+      curl -s -k -G \
+      -d "apikey=$API_KEY" \
+      --data-urlencode "title=$TITLE" \
+      --data-urlencode "text=$MESSAGE" \
+      -d "deviceId=group.all" \
+      https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush 2>&1
+      ]]>
+    </Script>
+  </Agent> 
 </Agents>
