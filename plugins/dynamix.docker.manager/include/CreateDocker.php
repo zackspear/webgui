@@ -204,8 +204,7 @@ function postToXML($post, $setOwnership = false) {
 
   for ($i = 0; $i < count($post["confName"]); $i++) {
     $Type                  = $post['confType'][$i];
-    $config                = $xml->addChild('Config');
-    $config->{0}           = xml_encode($post['confValue'][$i]);
+    $config                = $xml->addChild('Config', $post['confValue'][$i]);
     $config['Name']        = xml_encode($post['confName'][$i]);
     $config['Target']      = xml_encode($post['confTarget'][$i]);
     $config['Default']     = xml_encode($post['confDefault'][$i]);
@@ -620,7 +619,7 @@ if ($_GET['rmTemplate']) {
 ##
 
 if ($_GET['xmlTemplate']) {
-  list($xmlType, $xmlTemplate) = split(':', urldecode($_GET['xmlTemplate']));
+  list($xmlType, $xmlTemplate) = explode(':', urldecode($_GET['xmlTemplate']));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
     $templateName = $xml["Name"];
