@@ -52,7 +52,7 @@ if (isset($_POST['#apply'])) {
     $cron = "# Generated parity check schedule:\n$time $dotm $month $day $term/usr/local/sbin/mdcmd check $write &> /dev/null\n\n";
   }
   parse_cron_cfg("dynamix", "parity-check", $cron);
-  unlink($memory);
+  @unlink($memory);
 } else {
   file_put_contents($memory, http_build_query($_POST));
   $save = false;
