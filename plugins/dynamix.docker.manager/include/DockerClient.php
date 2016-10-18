@@ -675,7 +675,7 @@ class DockerClient {
 			return null;
 		}
 		$protocol = ($unchunk) ? "HTTP/1.0" : "HTTP/1.1";
-		$out="${method} {$url} ${protocol}\r\nConnection: Close\r\n\r\n";
+		$out="${method} {$url} ${protocol}\r\nHost: localhost\r\nConnection: Close\r\n\r\n";
 		fwrite($fp, $out);
 		// Strip headers out
 		$headers = '';
