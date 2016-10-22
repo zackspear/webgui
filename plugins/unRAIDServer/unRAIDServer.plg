@@ -4,7 +4,7 @@
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
 <!ENTITY branch    "master">
-<!ENTITY version   "6.3.0-rc2">
+<!ENTITY version   "6.3.0-rc3">
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 <!ENTITY category  "next">
 
@@ -24,6 +24,17 @@
 <![CDATA[
 unRAID Server OS Change Log
 ===========================
+
+Version 6.3.0-rc3 2016-10-22
+----------------------------
+
+Linux kernel:
+
+- version 4.8.4 (CVE-2016-5195)
+
+Management:
+
+- shutdown: additional logging in event of cmdStop timeout
 
 Version 6.3.0-rc2 2016-10-19
 ----------------------------
