@@ -4,8 +4,8 @@
 <!ENTITY name      "dynamix">
 <!ENTITY author    "Bergware">
 <!ENTITY branch    "master">
-<!ENTITY version   "2016.10.19">  <!-- Intended new version of Dynamix webGUI -->
-<!ENTITY unRAID    "6.3.0-rc2">  <!-- Change to new unRAID version when issued together -->
+<!ENTITY version   "2016.10.22">  <!-- Intended new version of Dynamix webGUI -->
+<!ENTITY unRAID    "6.3.0-rc3">  <!-- Change to new unRAID version when issued together -->
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 ]>
 
