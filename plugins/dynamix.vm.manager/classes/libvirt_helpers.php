@@ -11,16 +11,17 @@
  */
 ?>
 <?
+	$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 	// Load emhttp variables if needed.
 	if (! isset($var)){
-		if (! is_file("/usr/local/emhttp/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
-		$var = @parse_ini_file("/usr/local/emhttp/state/var.ini");
-		$disks = @parse_ini_file("/usr/local/emhttp/state/disks.ini", true);
+		if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
+		$var = @parse_ini_file("$docroot/state/var.ini");
+		$disks = @parse_ini_file("$docroot/state/disks.ini", true);
 		extract(parse_plugin_cfg("dynamix",true));
 	}
-	if (!isset($eth0) && is_file("/usr/local/emhttp/state/network.ini")) {
-		extract(parse_ini_file('/usr/local/emhttp/state/network.ini',true));
+	if (!isset($eth0) && is_file("$docroot/state/network.ini")) {
+		extract(parse_ini_file("$docroot/state/network.ini",true));
 	}
 
 	// Check if program is running and
@@ -494,7 +495,7 @@
 	}
 
 	function appendOrdinalSuffix($number) {
-		$ends = array('th','st','nd','rd','th','th','th','th','th','th');
+		$ends = ['th','st','nd','rd','th','th','th','th','th','th'];
 
 		if (($number % 100) >= 11 && ($number % 100) <= 13) {
 			$abbreviation = $number . 'th';
@@ -606,7 +607,7 @@
 				$arrMatch['vendorname'] = sanitizeVendor($arrMatch['vendorname']);
 				$arrMatch['productname'] = sanitizeProduct($arrMatch['productname']);
 
-				$arrValidPCIDevices[] = array(
+				$arrValidPCIDevices[] = [
 					'id' => $arrMatch['id'],
 					'type' => $arrMatch['type'],
 					'typeid' => $arrMatch['typeid'],
@@ -618,7 +619,7 @@
 					'driver' => $strDriver,
 					'name' => $arrMatch['vendorname'] . ' ' . $arrMatch['productname'],
 					'blacklisted' => $boolBlacklisted
-				);
+				];
 			}
 		}
 
@@ -680,7 +681,7 @@
 			return $cacheValidUSBDevices;
 		}
 
-		$arrValidUSBDevices = array();
+		$arrValidUSBDevices = [];
 
 		// Get a list of all usb hubs so we can blacklist them
 		exec("cat /sys/bus/usb/drivers/hub/*/modalias | grep -Po 'usb:v\K\w{9}' | tr 'p' ':'", $arrAllUSBHubs);
@@ -715,10 +716,10 @@
 				// Clean up the name
 				$arrMatch['name'] = sanitizeVendor($arrMatch['name']);
 
-				$arrValidUSBDevices[] = array(
+				$arrValidUSBDevices[] = [
 					'id' => $arrMatch['id'],
 					'name' => $arrMatch['name'],
-				);
+				];
 			}
 		}
 
@@ -868,7 +869,7 @@
 
 	function getHostCPUModel() {
 		$cpu = explode('#', exec("dmidecode -q -t 4|awk -F: '{if(/Version:/) v=$2; else if(/Current Speed:/) s=$2} END{print v\"#\"s}'"));
-		list($strCPUModel) = explode('@', str_replace(array("Processor","CPU","(C)","(R)","(TM)"), array("","","&#169;","&#174;","&#8482;"), $cpu[0]) . '@');
+		list($strCPUModel) = explode('@', str_replace(["Processor","CPU","(C)","(R)","(TM)"], ["","","&#169;","&#174;","&#8482;"], $cpu[0]) . '@');
 		return trim($strCPUModel);
 	}
 
@@ -967,10 +968,10 @@
 		// Add claimed USB devices by this VM to the available USB devices
 		/*
 		foreach($arrUSBDevs as $arrUSB) {
-			$arrValidUSBDevices[] = array(
+			$arrValidUSBDevices[] = [
 				'id' => $arrUSB['id'],
 				'name' => $arrUSB['product'],
-			);
+			];
 		}
 		*/
 

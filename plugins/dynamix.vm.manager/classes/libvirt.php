@@ -15,7 +15,7 @@
 		private $conn;
 		private $last_error;
 		private $allow_cached = true;
-		private $dominfos = array();
+		private $dominfos = [];
 		private $enabled = false;
 
 		function Libvirt($uri = false, $login = false, $pwd = false, $debug=false) {
@@ -80,7 +80,7 @@
 			$arrReturn = [];
 
 			if (!empty($disk['size'])) {
-				$disk['size'] = str_replace(array("KB","MB","GB","TB","PB"), array("K","M","G","T","P"), strtoupper($disk['size']));
+				$disk['size'] = str_replace(["KB","MB","GB","TB","PB"], ["K","M","G","T","P"], strtoupper($disk['size']));
 			}
 			if (empty($disk['driver'])) {
 				$disk['driver'] = 'raw';
@@ -845,7 +845,7 @@
 
 		function connect($uri = 'null', $login = false, $password = false) {
 			if ($login !== false && $password !== false) {
-				$this->conn=libvirt_connect($uri, false, array(VIR_CRED_AUTHNAME => $login, VIR_CRED_PASSPHRASE => $password));
+				$this->conn=libvirt_connect($uri, false, [VIR_CRED_AUTHNAME => $login, VIR_CRED_PASSPHRASE => $password]);
 			} else {
 				$this->conn=libvirt_connect($uri, false);
 			}
@@ -960,7 +960,7 @@
 			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/target/@dev', false);
 			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/source/@file', false);
 
-			$ret = array();
+			$ret = [];
 			for ($i = 0; $i < $disks['num']; $i++) {
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
@@ -970,7 +970,7 @@
 				else {
 					$this->_set_last_error();
 
-					$ret[] = array(
+					$ret[] = [
 						'device' => $disks[$i],
 						'file'   => $files[$i],
 						'type'   => '-',
@@ -978,7 +978,7 @@
 						'allocation' => '-',
 						'physical' => '-',
 						'bus' => $buses[$i]
-					);
+					];
 				}
 			}
 
@@ -1008,7 +1008,7 @@
 			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@dev', false);
 			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/source/@*', false);
 
-			$ret = array();
+			$ret = [];
 			for ($i = 0; $i < $disks['num']; $i++) {
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
@@ -1031,7 +1031,7 @@
 				else {
 					$this->_set_last_error();
 
-					$ret[] = array(
+					$ret[] = [
 						'device' => $disks[$i],
 						'file'   => $files[$i],
 						'type'   => '-',
@@ -1039,7 +1039,7 @@
 						'allocation' => '-',
 						'physical' => '-',
 						'bus' => $buses[$i]
-					);
+					];
 				}
 			}
 
@@ -1300,7 +1300,7 @@
 		function get_node_device_cap_options() {
 			$all = $this->get_node_devices();
 
-			$ret = array();
+			$ret = [];
 			for ($i = 0; $i < sizeof($all); $i++) {
 				$tmp = $this->get_node_device_caps($all[$i]);
 
@@ -1331,7 +1331,7 @@
 		}
 
 		function domain_get_info_call($name = false, $name_override = false) {
-			$ret = array();
+			$ret = [];
 
 			if ($name != false) {
 				$dom = $this->get_domain_object($name);
@@ -1522,7 +1522,7 @@
 				$seed = time();
 			srand($seed);
 
-			$ret = array();
+			$ret = [];
 			for ($i = 0; $i < 16; $i++)
 				$ret[] = $this->macbyte(rand() % 256);
 
@@ -1764,7 +1764,7 @@
 			if (!$tmp)
 				return false;
 
-			$devs = array();
+			$devs = [];
 			for ($i = 0; $i < $tmp['num']; $i++)
 				$devs[] = $tmp[$i];
 
@@ -1800,7 +1800,7 @@
 			if (!$tmp)
 				return false;
 
-			$devs = array();
+			$devs = [];
 			for ($i = 0; $i < $tmp['num']; $i++)
 				$devs[] = $tmp[$i];
 
@@ -1813,13 +1813,13 @@
 			$sources = $this->get_xpath($domain, $xpath.'/source/@dir', false);
 			$targets = $this->get_xpath($domain, $xpath.'/target/@dir', false);
 
-			$ret = array();
+			$ret = [];
 			if (!empty($sources)) {
 				for ($i = 0; $i < $sources['num']; $i++) {
-					$ret[] = array(
+					$ret[] = [
 						'source' => $sources[$i],
 						'target' => $targets[$i]
-					);
+					];
 				}
 			}
 
@@ -1852,7 +1852,7 @@
 				if ($display)
 					return $type.' ('.$targetType.' on port '.$targetPort.')';
 				else
-					return array('type' => $type, 'targetType' => $targetType, 'targetPort' => $targetPort);
+					return ['type' => $type, 'targetType' => $targetType, 'targetPort' => $targetPort];
 			}
 			else
 			if ($type == 'input') {
@@ -1862,7 +1862,7 @@
 				if ($display)
 					return $type.' on '.$bus;
 				else
-					return array('type' => $type, 'bus' => $bus);
+					return ['type' => $type, 'bus' => $bus];
 			}
 			else
 			if ($type == 'graphics') {
@@ -1873,7 +1873,7 @@
 				if ($display)
 					return $type.' on port '.$port.' with'.($autoport ? '' : 'out').' autoport enabled';
 				else
-					return array('type' => $type, 'port' => $port, 'autoport' => $autoport);
+					return ['type' => $type, 'port' => $port, 'autoport' => $autoport];
 			}
 			else
 			if ($type == 'video') {
@@ -1884,7 +1884,7 @@
 				if ($display)
 					return $type.' with '.($vram / 1024).' MB VRAM, '.$heads.' head(s)';
 				else
-					return array('type' => $type, 'vram' => $vram, 'heads' => $heads);
+					return ['type' => $type, 'vram' => $vram, 'heads' => $heads];
 			}
 			else
 				return false;
@@ -1898,11 +1898,11 @@
 			$slot = $this->get_xpath($domain, $xpath.'slot', false);
 			$func = $this->get_xpath($domain, $xpath.'function', false);
 
-			$devs = array();
+			$devs = [];
 			for ($i = 0; $i < $bus['num']; $i++) {
 				$devid = str_replace('0x', '', 'pci_'.$dom[$i].'_'.$bus[$i].'_'.$slot[$i].'_'.$func[$i]);
 				$tmp2 = $this->get_node_device_information($devid);
-				$devs[] = array(
+				$devs[] = [
 					'domain' => $dom[$i],
 					'bus' => $bus[$i],
 					'slot' => $slot[$i],
@@ -1912,7 +1912,7 @@
 					'vendor_id' => $tmp2['vendor_id'],
 					'product' => $tmp2['product_name'],
 					'product_id' => $tmp2['product_id']
-				);
+				];
 			}
 
 			// Get any pci devices contained in the qemu args
@@ -1929,10 +1929,10 @@
 					$keypair = explode('=', $arg);
 
 					if ($keypair[0] == 'host' && !empty($keypair[1])) {
-						$devid = 'pci_0000_' . str_replace(array(':', '.'), '_', $keypair[1]);
+						$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
 						$tmp2 = $this->get_node_device_information($devid);
 						list($bus, $slot, $func) = explode(":", str_replace('.', ':', $keypair[1]));
-						$devs[] = array(
+						$devs[] = [
 							'domain' => '0x0000',
 							'bus' => '0x' . $bus,
 							'slot' => '0x' . $slot,
@@ -1942,7 +1942,7 @@
 							'vendor_id' => $tmp2['vendor_id'],
 							'product' => $tmp2['product_name'],
 							'product_id' => $tmp2['product_id']
-						);
+						];
 						break;
 					}
 				}
@@ -1971,16 +1971,16 @@
 			$vid = $this->get_xpath($domain, $xpath.'vendor/@id', false);
 			$pid = $this->get_xpath($domain, $xpath.'product/@id', false);
 
-			$devs = array();
+			$devs = [];
 			for ($i = 0; $i < $vid['num']; $i++) {
 				$dev = $this->_lookup_device_usb($vid[$i], $pid[$i]);
-				$devs[] = array(
+				$devs[] = [
 					'id' => str_replace('0x', '', $vid[$i] . ':' . $pid[$i]),
 					'vendor_id' => $vid[$i],
 					'product_id' => $pid[$i],
 					'product' => $dev['product_name'],
 					'vendor' => $dev['vendor_name']
-				);
+				];
 			}
 
 			return $devs;
@@ -1992,7 +1992,7 @@
 			$devs_pci = $this->domain_get_host_devices_pci($domain);
 			$devs_usb = $this->domain_get_host_devices_usb($domain);
 
-			return array('pci' => $devs_pci, 'usb' => $devs_usb);
+			return ['pci' => $devs_pci, 'usb' => $devs_usb];
 		}
 
 		function get_nic_info($domain) {
@@ -2001,7 +2001,7 @@
 			$bridge = $this->get_xpath($domain, "//domain/devices/interface/source/@bridge", false);
 			if (!$macs)
 				return $this->_set_last_error();
-			$ret = array();
+			$ret = [];
 			for ($i = 0; $i < $macs['num']; $i++) {
 				if ($net[$i] != 'bridge')
 					$tmp = libvirt_domain_get_network_info($domain, $macs[$i]);
@@ -2009,11 +2009,11 @@
 					$ret[] = $tmp;
 				else {
 					$this->_set_last_error();
-					$ret[] = array(
+					$ret[] = [
 						'mac' => $macs[$i],
 						'network' => $bridge[$i],
 						'nic_type' => 'virtio'
-					);
+					];
 				}
 			}
 
