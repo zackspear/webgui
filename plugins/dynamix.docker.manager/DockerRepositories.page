@@ -16,7 +16,7 @@ Cond="(pgrep('docker')!==false)"
 ?>
 <?
 // Add the Docker JSON client
-require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 // Repos file
 $template_repos = $dockerManPaths['template-repos'];

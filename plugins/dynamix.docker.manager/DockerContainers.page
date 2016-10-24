@@ -17,14 +17,14 @@ Markdown="false"
 ?>
 <?
 // Add the Docker JSON client
-require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $DockerClient    = new DockerClient();
 $DockerUpdate    = new DockerUpdate();
 $DockerTemplates = new DockerTemplates();
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.ui.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/context.standalone.css">
 <style>
 body {-webkit-overflow-scrolling: touch;}
 img.started{opacity:1.0;}
@@ -207,7 +207,6 @@ img.stopped{opacity:0.3;}
 <input type="button" onclick="reloadUpdate()" value="Check for Updates"/>
 
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
-<script src="/webGui/javascript/context.js"></script>
 <script src="/plugins/dynamix.docker.manager/javascript/docker.js"></script>
 <script>
 <?if ($display['resize']):?>

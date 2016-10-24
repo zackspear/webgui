@@ -17,7 +17,8 @@ Markdown="false"
 ?>
 <?
 // Add the Docker JSON client
-require_once('/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php');
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $docker          = new DockerClient();
 $DockerUpdate    = new DockerUpdate();
 $DockerTemplates = new DockerTemplates();
@@ -163,7 +164,7 @@ if (file_exists($realfile)) {
   </dl>
 
   <form method="POST" action="/update.php" target="progressFrame">
-  <?exec("/usr/local/emhttp/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval);?>
+  <?exec("$docroot/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval);?>
 
   <dl>
     <dt>btrfs scrub status:</dt>
