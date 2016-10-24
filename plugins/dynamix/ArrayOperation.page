@@ -34,7 +34,10 @@ function status_indicator() {
 }
 ?>
 <script>
-var forced = <?=$confirm['down'] ? 'false' : 'true'?>;
+var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
+var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
+var ctrl = "<span class='status'><a style='cursor:pointer' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
+var rbtn = "<span class='status vhshift hshift'><input type='button' value='Refresh' onclick='refresh()'></span>";
 
 function tab0() {
   $.removeCookie('one',{path:'/'});
@@ -50,7 +53,7 @@ function parity_status() {
     setTimeout(parity_status,<?=abs($display['refresh'])?>);
 <?endif;?>
     if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=='Cancel') {
-      $('#cancelButton').prop('type','button').val('Done').bind({click:function(){refresh();}});
+      $('#cancelButton').val('Done').unbind().bind({click:function(){refresh();}});
       $('#cancelText').html('');
       $('#line4').html('completed');
     }
@@ -72,26 +75,40 @@ function parity_warning(form) {
 }
 function stop_array(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
-  if (forced) {
-    form.submit();
-  } else {
+  if (ask1) {
     swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  } else {
+    form.submit();
+  }
+}
+function stop_parity(form,text) {
+  $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
+  if (ask1) {
+    swal({title:'Proceed?',text:'This will stop the running '+text+' operation',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+  } else {
+    form.submit();
   }
 }
 function system(cmd) {
   var boot = '/webGui/include/Boot.php';
   var page = '/'+cmd+'.htm';
-  if (forced) {
-    $.post(boot,{cmd:cmd},function(){location=page;});
-  } else {
+  if (ask2) {
     swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(){$.post(boot,{cmd:cmd},function(){location=page;});});
+  } else {
+    $.post(boot,{cmd:cmd},function(){location=page;});
   }
 }
 parity_status();
 
+<?if ($tabbed):?>
+$('.tabs').append(ctrl);
+<?else:?>
+$('div[id=title]:not(":last")').each(function(){$(this).append(ctrl);});
+<?endif;?>
 <?if ($update):?>
 <?if ($tabbed):?>
-$('#tab'+$('input[name$="tabs"]').length).bind({click:function() {clearTimeout(timer); parity_status(); tab0();}});
+if ($.cookie('tab')=='tab0') $('i.toggle').hide();
+$('#tab'+$('input[name$="tabs"]').length).bind({click:function() {clearTimeout(timer); parity_status(); tab0(); $('i.toggle').hide('slow');}});
 <?endif;?>
 <?if (substr($var['fsState'],-3)=='ing'):?>
 function reload_page() {
@@ -113,11 +130,16 @@ function reload_page() {
 reload_page();
 <?endif;?>
 <?else:?>
-$('#tab'+$('input[name$="tabs"]').length).bind({click:function() {tab0();}});
+$('#tab'+$('input[name$="tabs"]').length).bind({click:function() {tab0(); $('i.toggle').hide('slow');}});
 <?endif;?>
 <?if ($display['refresh']==0 || ($display['refresh']<0 && $var['mdResync']>0)):?>
-$('.tabs').append("<span class='status vhshift'><input type='button' value='Refresh' onclick='refresh()'></span>");
+<?if ($tabbed):?>
+$('.tabs').append(rbtn);
+<?else:?>
+$('div[id=title]:first').append(rbtn);
 <?endif;?>
+<?endif;?>
+toggle_diskio(true);
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=$var['mdState']?>">
@@ -127,14 +149,14 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
   switch ($var['fsState']):
   case "Started":?>
     <tr>
-    <td><?=status_indicator()?><strong>Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></strong></td>
+    <td><?=status_indicator()?><span class="strong big">Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></span></td>
     <td><input type="button" value="Stop" onclick="stop_array(this.form)"<?if ($parity||$mover):?> disabled<?endif;?>></td>
     <td><strong>Stop</strong> will take the array off-line.<?=$parity?"<br>$parity":($mover?"<br>$mover":"")?></td>
     </tr>
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr>
       <td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
-<?    foreach ($disks as $disk) if ($disk['fsStatus']=='Unmountable') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+<?    foreach ($disks as $disk) if ($disk['fsStatus']=='Unmountable') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
       <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
       <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small>
@@ -211,26 +233,26 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       if ($var['mdResyncAction']=="check"):?>
         <tr>
         <td>Read-Check in progress.</td>
-        <td><input type="submit" name="cmdNoCheck" id="cancelButton" value="Cancel"></td>
+        <td><input type="button" id="cancelButton" value="Cancel" onclick="stop_parity(this.form,'Read-Check')"></td>
         <td id="cancelText"><strong>Cancel</strong> will stop the Read-Check.</td>
         </tr>
 <?    elseif (strstr($var['mdResyncAction'],"check")):?>
         <tr>
         <td>Parity-Check in progress.</td>
-        <td><input type="submit" name="cmdNoCheck" id="cancelButton" value="Cancel"></td>
+        <td><input type="button" id="cancelButton" value="Cancel" onclick="stop_parity(this.form,'Parity-Check')"></td>
         <td id="cancelText"><strong>Cancel</strong> will stop the Parity-Check.</td>
         </tr>
 <?    elseif (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
         <td>Parity-Sync/Data-Rebuild in progress.</td>
-        <td><input type="submit" name="cmdNoCheck" id="cancelButton" value="Cancel"></td>
+        <td><input type="button" id="cancelButton" value="Cancel" onclick="stop_parity(this.form,'Parity-Sync/Data-Rebuild')"></td>
         <td id="cancelText"><strong>Cancel</strong> will stop Parity-Sync/Data-Rebuild.
         <br>WARNING: canceling may leave the array unprotected!</td>
         </tr>
 <?    elseif (strstr($var['mdResyncAction'],"clear")):?>
         <tr>
         <td>Clearing in progress.</td>
-        <td><input type="submit" name="cmdNoCheck" id="cancelButton" value="Cancel"></td>
+        <td><input type="button" id="cancelButton" value="Cancel" onclick="stop_parity(this.form,'Clearing')"></td>
         <td id="cancelText"><strong>Cancel</strong> will stop Clearing.</td>
         </tr>
 <?    endif;?>
@@ -270,35 +292,35 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
     break;
   case "Mounting":?>
     <tr>
-    <td><?=status_indicator()?><strong>Starting...</strong></td>
+    <td><?=status_indicator()?><span class="strong big">Starting...</span></td>
     <td><input type="submit" name="cmdStart" value="Start" disabled></td>
     <td></td>
     </tr>
 <?  break;
   case "Formatting":?>
     <tr>
-    <td><?=status_indicator()?><strong>Started, formatting...</strong></td>
+    <td><?=status_indicator()?><span class="strong big">Started, formatting...</span></td>
     <td><input type="submit" name="cmdStart" value="Start" disabled></td>
     <td></td>
     </tr>
 <?  break;
   case "Copying":?>
     <tr>
-    <td><?=status_indicator()?><span id="fsState"><strong>Copying, <?=$var['fsCopyPrcnt']?>% complete...</strong></span></td>
+    <td><?=status_indicator()?><span id="fsState" class="strong big">Copying, <?=$var['fsCopyPrcnt']?>% complete...</span></td>
     <td><input type="submit" name="cmdNoCopy" value="Cancel"></td>
     <td></td>
     </tr>
 <?  break;
   case "Clearing":?>
     <tr>
-    <td><?=status_indicator()?><span id="fsState"><strong>Clearing, <?=$var['fsClearPrcnt']?>% complete...</strong></span></td>
+    <td><?=status_indicator()?><span id="fsState" class="strong big">Clearing, <?=$var['fsClearPrcnt']?>% complete...</span></td>
     <td><input type="submit" name="cmdNoClear" value="Cancel"></td>
     <td></td>
     </tr>
 <?  break;
   case "Stopping":?>
     <tr>
-    <td><?=status_indicator()?><strong>Stopping...</strong></td>
+    <td><?=status_indicator()?><span class="strong big">Stopping...</span></td>
     <td><input type="submit" name="cmdStop" value="Stop" disabled></td>
     <td></td>
     </tr>
@@ -306,25 +328,25 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
   case "Stopped":
     if ($var['configValid']=="error"):?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped.</strong></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped.</span></td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>Invalid, missing or expired <a href="/Tools/Registration">registration key</a>.</td>
       </tr>
 <?  elseif ($var['configValid']=="invalid"):?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped.</strong></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped.</span></td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>Too many attached devices. Please consider upgrading your <a href="/Tools/Registration">registration key</a>.</td>
       </tr>
 <?  elseif ($var['configValid']=="nokeyserver"):?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped.</strong></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped.</span></td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>Cannot contact key-server.  Please check your <a href="/Settings/NetworkSettings">network settings</a>.</td>
       </tr>
 <?  elseif ($var['configValid']=="withdrawn"):?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped.</strong></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped.</span></td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>This unRAID Server OS release has been withdrawn and may no longer be used. Please <a href="/Plugins">update</a> your server.</td>
       </tr>
@@ -333,26 +355,26 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
     case "STOPPED":
       if (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td>
         </tr>
 <?    elseif ($var['mdResyncAction']=="clear"):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. New data disks(s) detected.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. New data disks(s) detected.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td>
         </tr>
 <?    elseif ($var['sbClean']!="yes" && $var['mdResyncAction']=="check"):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Unclean shutdown detected.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
         <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
         </tr>
 <?    else:?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
         </tr>
@@ -362,14 +384,14 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
     case "NEW_ARRAY":
       if (strpos($disks['parity']['status'],"DISK_NP")===0 && (empty($disks['parity2']) || strpos($disks['parity2']['status'],"DISK_NP")===0)):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will record all disk information and bring the array on-line.
         <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td>
         </tr>
 <?    else:?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Configuration valid.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="button" value="Start" onclick="parity_warning(this.form)"></td>
         <td><strong>Start</strong> will record all disk information, bring the array on-line, and start Parity-Sync.
         <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
@@ -380,8 +402,8 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       break;
     case "UNPROTECTED_EXPANSION":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Found <?=my_word($var['mdNumNew'])?> new disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
-<?    foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Found <?=my_word($var['mdNumNew'])?> new disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
+<?    foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
       <td><input type="submit" name="cmdStart" value="Start"></td>
       <td><strong>Start</strong> will record the new disk<?=$var['mdNumNew']==1?'':'s'?> information and bring the expanded array on-line.</td>
       </tr>
@@ -390,8 +412,8 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
     case "PROTECTED_EXPANSION":
       if ($var['mdNumErased']==$var['mdNumNew']):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Found <?=my_word($var['mdNumNew'])?> new erased disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
-<?      foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Found <?=my_word($var['mdNumNew'])?> new erased disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
+<?      foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
         <td><input type="submit" name="cmdStart" value="Start" disabled></td>
         <td><strong>Start</strong> will record the new disk<?=$var['mdNumNew']==1?'':'s'?> information and bring the expanded array on-line.
         <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
@@ -399,8 +421,8 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?      maintenance_mode();
       else:?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Found <?=my_word($var['mdNumNew'])?> new disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
-<?      foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Found <?=my_word($var['mdNumNew'])?> new disk<?=$var['mdNumNew']==1?'':'s'?>.<br>
+<?      foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
         <td><input type="submit" name="cmdClear" value="Clear" disabled></td>
         <td><strong>Clear</strong> will completely clear (set to zero) the new disk<?=$var['mdNumNew']==1?'':'s'?>.
         <br>Once clear completes, the array may be Started, expanding the array to include the new disk<?=$var['mdNumNew']==1?'':'s'?>.
@@ -412,7 +434,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       break;
     case "DISABLE_DISK":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Missing disk.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Missing disk.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will disable the missing disk and then bring the array on-line.
       <br>Install a replacement disk as soon as possible.
@@ -422,7 +444,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       break;
     case "RECON_DISK":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Replacement disk installed.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Replacement disk installed.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.
       <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
@@ -432,7 +454,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
     case "SWAP_DSBL":
       if ($var['fsCopyPrcnt']=="100"):?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Ugrading disk/swapping parity.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Ugrading disk/swapping parity.</td>
         <td><input type="submit" name="cmdStart" value="Start" disabled></td>
         <td><strong>Start</strong> will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild.
         <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
@@ -440,7 +462,7 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?      maintenance_mode();
       else:?>
         <tr>
-        <td><?=status_indicator()?><strong>Stopped</strong>. Ugrading disk/swapping parity.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Ugrading disk/swapping parity.</td>
         <td><input type="submit" name="cmdCopy" value="Copy" disabled></td>
         <td><strong>Copy</strong> will copy the parity information to the new <em>parity</em> disk.
         <br>Once copy completes, the array may be Started, to initiate Data-Rebuild of the disabled disk.
@@ -450,8 +472,8 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       break;
     case "RECORD_DISKS":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Two or more disks are wrong.<br>
-<?    foreach ($disks as $disk) if ($disk['status']=='DISK_WRONG') echo "<br><font color='#3B5998'>".my_disk($disk['name'])."</font> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Two or more disks are wrong.<br>
+<?    foreach ($disks as $disk) if ($disk['status']=='DISK_WRONG') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will just record the new disk positions and bring the array on-line.
       <br>We recommend you start a Parity-Check afterwards just to be safe.
@@ -461,21 +483,21 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
       break;
     case "ERROR:INVALID_EXPANSION":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Invalid expansion.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Invalid expansion.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>You may not add new disk(s) and also remove existing disk(s).</td>
       </tr>
 <?    break;
     case "ERROR:NEW_DISK_TOO_SMALL":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Replacement disk is too small.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Replacement disk is too small.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>The replacement disk must be as big or bigger than the original.</td>
       </tr>
 <?    break;
     case "ERROR:PARITY_NOT_BIGGEST":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Disk in parity slot is not biggest.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Disk in parity slot is not biggest.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>If this is a new array, move the largest disk into the <em>parity</em> slot.
       <br>If you are adding a new disk or replacing a disabled disk, try Parity-Swap.</td>
@@ -483,14 +505,14 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
 <?    break;
     case "ERROR:TOO_MANY_MISSING_DISKS":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. Invalid configuration.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. Invalid configuration.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>Too many wrong and/or missing disks!</td>
       </tr>
 <?    break;
     case "ERROR:NO_DATA_DISKS":?>
       <tr>
-      <td><?=status_indicator()?><strong>Stopped</strong>. No data disks.</td>
+      <td><?=status_indicator()?><span class="strong big">Stopped</span>. No data disks.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>No array data disks have been assigned!</td>
       </tr>
