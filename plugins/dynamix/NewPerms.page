@@ -72,7 +72,7 @@ Closing the window before completion will terminate the background process - so 
 
 <input type="submit" name="start" value="Start" disabled><input type="button" value=" Done " onclick="done()">
 <?if ($var['fsState']!="Started"):?>
-Array must be <strong>STARTED</strong> to change permissions.
+Array must be <span class="strong big">Started</span> to change permissions.
 <?else:?>
 <input type="checkbox" onClick="start.disabled=!this.checked"><small>Yes I want to do this</small>
 <?endif;?>

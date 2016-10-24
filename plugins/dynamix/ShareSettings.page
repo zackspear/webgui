@@ -121,6 +121,6 @@ Tunable (enable Direct IO):
 > *Auto* selects No.
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be **Stopped** to change<?endif;?>
+: <input type="submit" name="changeShare" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 
 </form>

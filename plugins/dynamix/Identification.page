@@ -41,7 +41,7 @@ Model:
 > This is the server model number.
 
 &nbsp;
-: <input type="submit" name="changeNames" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be **Stopped** to change<?endif;?>
+: <input type="submit" name="changeNames" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 </form>
 <script>
 $("#NAME").keypress(function(event) {

@@ -49,9 +49,9 @@ if (file_exists($log)) {
 if ($list)
   for ($i=count($list); $i>=0; --$i) echo $list[$i];
 else
-  echo "<tr><td colspan='4' style='text-align:center'>No parity check history present!</td></tr>";
+  echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No parity check history present!</td></tr>";
 ?>
 </tbody></table>
-<center><input type="button" value="Done" onclick="top.Shadowbox.close()"></center>
+<div style="text-align:center"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>
 </body>
 </html>

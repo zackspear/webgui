@@ -3,7 +3,7 @@ Type="xmenu"
 ----
 <?PHP
 if ($var['fsState']!="Started") {
-  echo "<p class='notice'>Array must be <strong><big>started</big></strong> to view Shares.</p>";
+  echo "<p class='notice'>Array must be <span class='strong big'>started</span> to view Shares.</p>";
   return;
 }
 if (count($pages)==2) $tabbed = false;

@@ -17,11 +17,14 @@ Type="xmenu"
 function my_time2($time) {
   return $time ? my_time($time) : "Anytime";
 }
+$device = my_word($var['deviceCount']);
+$plural = $var['deviceCount']==1 ? '' : 's';
 ?>
 <style>
-.thanks{padding-left:10px;color:#6FA239;font-weight:bold;}
-.thanks.red{color:#CC0000;}
-.remark{padding:0 10px;text-align:justify;}
+span.thanks{padding-left:10px;color:#6FA239;font-weight:bold;}
+span.thanks.red{color:#F0000C;}
+span.device{font-weight:normal;font-style:italic;}
+div.remark{padding:0 10px;text-align:justify;}
 </style>
 
 <?if (strstr($var['regTy'], "error")):?>
@@ -55,7 +58,7 @@ GUID is not uninque (this is common with USB card readers).
 <?if (strstr($var['regTy'], "invalid key")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class='thanks red'>The registered GUID does not match the USB Flash boot device GUID</span>
 
@@ -66,7 +69,7 @@ Registered GUID:
 : <?=$var['regGUID'];?>
 
 Registered to:
-: <big><?=$var['regTo'];?></big>
+: <span class="big"><?=$var['regTo'];?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -76,7 +79,7 @@ Registered on:
 Expiration:
 : <?=my_time($var['regTm2']);?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key">
 
 <?else:?>
@@ -86,12 +89,12 @@ Replaceable:
 
 <?if ($var['regTm2']==0 || $var['regTm2']<time()):?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key"> <input type="button" value="Replace Key" onclick="openBox('/webGui/include/ReplaceKey.php','Replace Key',600,900);">
 
 <?else:?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key"> <input type="button" value="Replace Key" disabled>
 
 <?endif;?>
@@ -102,7 +105,7 @@ Replaceable:
 <?if (strstr($var['regTy'], "invalid installation")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class='thanks red'>Invalid <em>Trial</em> Installation</span>
 
@@ -113,7 +116,7 @@ Registered GUID:
 : <?=$var['regGUID'];?>
 
 Registered to:
-: <big><?=$var['regTo'];?></big>
+: <span class="big"><?=$var['regTo'];?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -121,7 +124,7 @@ Registered on:
 Expiration:
 : <?=my_time($var['regTm2']);?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key">
 
 </form>
@@ -130,7 +133,7 @@ Expiration:
 <?if (strstr($var['regTy'], "missing")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class='thanks red'>Wrong or Missing Key file.</span>
 
@@ -140,7 +143,7 @@ Flash GUID:
 Registered GUID:
 : <?=$var['regGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key">
 
 </form>
@@ -149,12 +152,12 @@ Registered GUID:
 <?if (strstr($var['regTy'], "unregistered")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class="thanks">Thank you for trying unRAID Server OS!</span>
 
 <div markdown="1" class="remark">
-Your server will not be usable until you purchase a registration key or install a <big>**free** 30-day *Trial*</big> key.
+Your server will not be usable until you purchase a registration key or install a <span class="big">**free** 30-day *Trial*</span> key.
 <br>Registration keys are bound to your USB Flash boot device GUID (serial number).  Please use a high-quality device
 between 512MB and 32GB in size.
 
@@ -167,7 +170,7 @@ between 512MB and 32GB in size.
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key"> <input type="button" value="Get Trial Key" onclick="openBox('/webGui/include/TrialRequest.php','Get Trial Key',600,900);">
 
 </form>
@@ -176,7 +179,7 @@ Flash GUID:
 <?if (strstr($var['regTy'], "expired")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class="thanks">Thank you for trying unRAID Server OS!</span>
 
@@ -191,7 +194,7 @@ To continue using unRAID Server OS you may purchase a registration key. Alternat
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key"> <input type="button" value="Request Extension" onclick="openBox('/webGui/include/TrialRequest.php','Request Trial Extension Key',600,900);">
 
 </form>
@@ -200,7 +203,7 @@ Flash GUID:
 <?if ($var['regTy']=="Trial"):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 <span class="thanks">Thank you for trying unRAID Server OS!</span>
 
@@ -210,7 +213,7 @@ Flash GUID:
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Purchase Key">
 
 </form>
@@ -221,7 +224,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <big><?=$var['regTo'];?></big>
+: <span class="big"><?=$var['regTo'];?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -231,12 +234,12 @@ Replaceable:
 
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="BasicGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Upgrade">
 
 </form>
@@ -247,7 +250,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <big><?=$var['regTo'];?></big>
+: <span class="big"><?=$var['regTo'];?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>&nbsp;
@@ -257,12 +260,12 @@ Replaceable:
 
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="PlusGUID" value="<?=$var['flashGUID'];?>">
-<input type="hidden" name="deviceCount" value="<?=$var['deviceCount'];?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="submit" value="Upgrade">
 
 </form>
@@ -273,7 +276,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <big><?=$var['regTo'];?></big>
+: <span class="big"><?=$var['regTo'];?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>&nbsp;
@@ -284,7 +287,7 @@ Replaceable:
 Flash GUID:
 : <?=$var['flashGUID'];?>
 
-<?=$var['deviceCount'];?> Attached storage device(s)
+<span class="device">This system has <?=$device?> attached storage device<?=$plural?>.</span>
 : <input type="button" value="Done" onclick="done()">
 
 <?else:?>

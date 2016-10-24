@@ -112,9 +112,6 @@ function active_disks($disk) {
 $disks = array_filter($disks,'active_disks');
 $slots = count($disks) + count($devs);
 ?>
-<link type="text/css" rel="stylesheet" href="/webGui/styles/context.standalone.css">
-<script src="/webGui/javascript/context.js"></script>
-
 <table class='share_status fixed'>
 <thead><tr>
 <?
@@ -172,7 +169,7 @@ echo "<td>Array Status</td>".implode('',$row0);
 <?=mk_option("", "1", "Counters")?>
 <?=mk_option("", "2", "Errors")?>
 </select>
-</td></tr><tr><td colspan='4'><center>Load Statistics</center></td></tr></thead>
+</td></tr><tr><td colspan='4' style='text-align:center'>Load Statistics</td></tr></thead>
 <tbody>
 <tr class='wide'><td>Avg. CPU load</td><td colspan='3'><div class='usage-disk sys'><span id='cpu' style='width:0'></span></div></td></tr>
 </tbody>
@@ -355,7 +352,7 @@ foreach ($shares as $name => $share):
   $security = export_settings($var['shareSMBEnabled'], $sec[$name]);
   echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td class='blue' id='share{$i}'>0</td></tr>";
 endforeach;
-if (!count($shares)) echo "<tr><td colspan='4'><center>No shares present</center></td></tr>";
+if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
 </tbody>
 <?endif;?>
@@ -368,7 +365,7 @@ foreach ($shares as $name => $share):
   $security = export_settings($var['shareAFPEnabled'], $sec_afp[$name]);
   echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td>-</td></tr>";
 endforeach;
-if (!count($shares)) echo "<tr><td colspan='4'><center>No shares present</center></td></tr>";
+if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
 </tbody>
 <?endif;?>
@@ -381,7 +378,7 @@ foreach ($shares as $name => $share):
   $security = export_settings($var['shareNFSEnabled'], $sec_nfs[$name]);
   echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td>-</td></tr>";
 endforeach;
-if (!count($shares)) echo "<tr><td colspan='4'><center>No shares present</center></td></tr>";
+if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
 </tbody>
 <?endif;?>
@@ -393,7 +390,7 @@ foreach ($shares as $name => $share):
   $comment = truncate($share['comment'],28);
   echo "<tr><td>$list</td><td>$comment</td><td>-</td><td>-</td></tr>";
 endforeach;
-if (!count($shares)) echo "<tr><td colspan='4'><center>No shares present</center></td></tr>";
+if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
 </tbody>
 <?endif;?>
@@ -459,15 +456,20 @@ function update30() {
     clearTimeout(timer2);
     timer2 = setTimeout(heatAlarm,2000);
     $('[id^="smart-"]').each(function() {
-      var opts = [];
+      var opts = [{header:$(this).attr('id'), image:'/webGui/icons/smart.png'}];
       var id = '#'+$(this).attr('id');
       var page = $(this).attr('name');
       var view = $(this).attr('class');
       var disk = id.substr(id.indexOf('-')+1);
       opts.push({text:'Attributes',icon:'fa-sitemap',action:function(e){e.preventDefault();attributes(page,disk);}});
+      opts.push({divider:true});
       opts.push({text:'Capabilities',icon:'fa-user',action:function(e){e.preventDefault();capabilities(page,disk);}});
+      opts.push({divider:true});
       opts.push({text:'Identity',icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
-      if (view == 'alert') opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      if (view == 'alert') {
+        opts.push({divider:true});
+        opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      }
       context.attach(id,opts);
     });
     timer30 = setTimeout(update30,30000);

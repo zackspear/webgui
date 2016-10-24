@@ -41,7 +41,7 @@ Hide "dot" files:
 
 <?if ($var['fsState']=="Started"):?>
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()">Array must be **Stopped** to change
+: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()">Array must be <span class="strong big">Stopped</span> to change
 <?else:?>
 &nbsp;
 : <input type="submit" name="changeShare" value="Apply"><input type="button" value="Done" onclick="done()">
