@@ -16,8 +16,9 @@ Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
 ?>
 <script>
 function cache_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'},function(data) {
-    if (data) $('#cache_device').html(data);
+  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'<?if ($tabbed):?>,diskio:diskio<?endif?>},function(data) {
+    if (data) {$('#cache_device').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>
     if ($('#tab2').is(':checked')) timer = setTimeout(cache_status,<?=abs($display['refresh'])?>);
@@ -28,7 +29,9 @@ function cache_status() {
   });
 }
 <?if ($update && $var['fsState']=='Started' && $tabbed):?>
-$('#tab2').bind({click:function() {clearTimeout(timer); cache_status();}});
+$('#tab2').bind({click:function() {clearTimeout(timer); cache_status(); $('i.toggle').show('slow');}});
+<?else:?>
+$('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 
 cache_status();
