@@ -20,7 +20,8 @@
 <meta name="robots" content="noindex">
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/font-awesome.css?v=4.5.0">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/font-awesome.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/context.standalone.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.sweetalert.css">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
@@ -157,26 +158,76 @@ function showNotice(data,plugin) {
   if (timers.countDown) {clearTimeout(timers.countDown);$('#countdown').html('');}
 }
 function notifier() {
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(data) {
-    if (data) {
-      var json = $.parseJSON(data);
-      $.each(json, function(i, object) {
-        var notify = $.parseJSON(object);
-        $.jGrowl(notify.subject+'<br>'+notify.description, {
-          sticky: true,
-          position: '<?=$notify['position']?>',
-          header: notify.event+': '+notify.timestamp,
-          theme: notify.importance+' '+notify.file,
-          themeState: '',
-          beforeOpen: function(e,m,o) {if ($('.jGrowl-notify').hasClass(notify.file)) {return(false);}},
-          close: function(e,m,o) {$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file}); return(false);}
-        });
+  var tub1 = 0, tub2 = 0, tub3 = 0;
+  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+    var data = $.parseJSON(json);
+    $.each(data, function(i, object) {
+      var notify = $.parseJSON(object);
+<?if ($notify['display']):?>
+      switch (notify.importance) {
+        case 'alert'  : tub1++; break;
+        case 'warning': tub2++; break;
+        case 'normal' : tub3++; break;
+      }
+<?else:?>
+      $.jGrowl(notify.subject+'<br>'+notify.description, {
+        group: notify.importance,
+        header: notify.event+': '+notify.timestamp,
+        theme: notify.file,
+        beforeOpen: function(e,m,o){if ($('div.jGrowl-notify').hasClass(notify.file)) return(false);},
+        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
       });
-<?if ($update):?>
-      timers.notifier = setTimeout(notifier,<?=max(5000,abs($display['refresh']))?>);
 <?endif;?>
-    }
+    });
+<?if ($notify['display']):?>
+    $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
+    $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
+    $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
+    if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
+    if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
+    if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
+<?endif;?>
+<?if ($update):?>
+    timers.notifier = setTimeout(notifier,5000);
+<?endif;?>
   });
+}
+function digits(number) {
+  if (number < 10) return 'one';
+  if (number < 100) return 'two';
+  return 'three';
+}
+function openNotifier(filter) {
+  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+    var data = $.parseJSON(json);
+    $.each(data, function(i, object) {
+      var notify = $.parseJSON(object);
+      if (notify.importance == filter) {
+        $.jGrowl(notify.subject+'<br>'+notify.description, {
+          group: notify.importance,
+          header: notify.event+': '+notify.timestamp,
+          theme: notify.file,
+          beforeOpen: function(e,m,o){if ($('div.jGrowl-notify').hasClass(notify.file)) return(false);},
+          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
+        });
+      }
+    });
+  });
+}
+function closeNotifier(filter) {
+  clearTimeout(timers.notifier);
+  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+    var data = $.parseJSON(json);
+    $.each(data, function(i, object) {
+      var notify = $.parseJSON(object);
+      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
+    });
+    $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
+    setTimeout(notifier,100);
+  });
+}
+function viewHistory(filter) {
+  location.replace('/Tools/NotificationsArchive?filter='+filter);
 }
 function watchdog() {
   $.post('/webGui/include/Watchdog.php',{mode:<?=$display['refresh']?>,dot:'<?=$display['number'][0]?>'},function(data) {
@@ -208,7 +259,12 @@ $(function() {
   if (update>3) timers.countDown = setTimeout(countDown,1000);
 <?endif;?>
   updateTime();
-  $.jGrowl.defaults.closer = false;
+  $.jGrowl.defaults.closeTemplate = '<i class="fa fa-share"></i>';
+  $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div>':'<div class="top">'?>[ close all notifications ]</div>';
+  $.jGrowl.defaults.sticky = true;
+  $.jGrowl.defaults.check = 100;
+  $.jGrowl.defaults.position = '<?=$notify['position']?>';
+  $.jGrowl.defaults.themeState = '';
   Shadowbox.setup('a.sb-enable', {modal:true});
 });
 var mobiles=['ipad','iphone','ipod','android'];
@@ -218,7 +274,7 @@ for (var i=0,mobile; mobile=mobiles[i]; i++) {
 }
 </script>
 </head>
-<body>
+<body class="<?='page_'.strtolower($myPage['name'])?>">
  <div id="template">
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
@@ -251,13 +307,18 @@ foreach ($pages as $page) {
   else
     echo "<div id='{$page['Link']}'></div>";
 }
+if ($notify['display']) {
+  echo "<span id='nav-tub1' class='tub'><i id='box-tub1' class='fa fa-square grey-text'></i><span id='txt-tub1' class='score one'>0</span></span>";
+  echo "<span id='nav-tub2' class='tub'><i id='box-tub2' class='fa fa-square grey-text'></i><span id='txt-tub2' class='score one'>0</span></span>";
+  echo "<span id='nav-tub3' class='tub'><i id='box-tub3' class='fa fa-square grey-text'></i><span id='txt-tub3' class='score one'>0</span></span>";
+}
 echo "</div></div></div>";
 
 // Build page content
 echo "<div class='tabs'>";
 $tab = 1;
 $view = $myPage['name'];
-$pages = array();
+$pages = [];
 if ($myPage['text']) $pages[$view] = $myPage;
 if ($myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
@@ -308,16 +369,16 @@ foreach ($pages as $page) {
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
 switch ($var['fsState']) {
 case 'Stopped':
-  echo '<span class="red"><strong>Array Stopped</strong></span>'; break;
+  echo '<span class="red strong">Array Stopped</span>'; break;
 case 'Starting':
-  echo '<span class="orange"><strong>Array Starting</strong></span>'; break;
+  echo '<span class="orange strong">Array Starting</span>'; break;
 default:
-  echo '<span class="green"><strong>Array Started</strong></span>'; break;
+  echo '<span class="green strong">Array Started</span>'; break;
 }
 echo "</span>&bullet;&nbsp;<span class='bitstream'>Dynamix webGui v";
-echo exec("/usr/local/emhttp/plugins/dynamix.plugin.manager/scripts/plugin version /var/log/plugins/dynamix.plg");
+echo exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin version /var/log/plugins/dynamix.plg");
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>unRAID<i class='fa fa-registered'></i> webGui <i class='fa fa-copyright'></i> 2016, Lime Technology, Inc.";
+echo "<span id='copyright'>unRAID&reg; webGui &copy;2016, Lime Technology, Inc.";
 if (isset($myPage['Author'])) {
   echo " | Page author: {$myPage['Author']}";
   if (isset($myPage['Version'])) echo ", version: {$myPage['Version']}";
@@ -328,7 +389,7 @@ echo "</span></div>";
 <script>
 $(function() {
 <?if ($notify['entity'] & 1 == 1):?>
-  $.post('/webGui/include/Notify.php',{cmd:'init'},function(x){timers.notifier = setTimeout(notifier,0);});
+  $.post('/webGui/include/Notify.php',{cmd:'init'},function(){timers.notifier = setTimeout(notifier,0);});
 <?endif;?>
   $('input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').attr('disabled','disabled');
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=file],textarea').each(function(){$(this).on('input change',function() {
@@ -345,11 +406,39 @@ $(function() {
 <?else:?>
 <?if ($version = plugin_update_available('unRAIDServer',true)):?>
   showNotice('unRAID OS v<?=$version?> is available. <a>Download Now</a>','unRAIDServer');
-<?elseif (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/", @file_get_contents('/usr/local/emhttp/plugins/unRAIDServer/README.md'))):?>
+<?elseif (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/", @file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
   showNotice('Reboot required to apply unRAID OS update');
 <?elseif ($version = plugin_update_available('dynamix')):?>
   showNotice('Dynamix webGUI v<?=$version?> is available. <a>Download Now</a>','dynamix');
 <?endif;?>
+<?endif;?>
+<?if ($notify['display']):?>
+  var opts = [{header:'Alerts', image:'/webGui/icons/alerts.png'}];
+  context.init({preventDoubleContext:false});
+  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
+  opts.push({divider:true});
+  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
+  opts.push({divider:true});
+  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
+  context.attach('#nav-tub1',opts);
+
+  var opts = [{header:'Warnings', image:'/webGui/icons/warnings.png'}];
+  context.init({preventDoubleContext:false});
+  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
+  opts.push({divider:true});
+  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
+  opts.push({divider:true});
+  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
+  context.attach('#nav-tub2',opts);
+
+  var opts = [{header:'Messages', image:'/webGui/icons/messages.png'}];
+  context.init({preventDoubleContext:false});
+  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
+  opts.push({divider:true});
+  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
+  opts.push({divider:true});
+  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
+  context.attach('#nav-tub3',opts);
 <?endif;?>
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
