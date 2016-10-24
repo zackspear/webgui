@@ -26,7 +26,7 @@ $green  = "class='green-text'";
 $orange = "class='orange-text'";
 $status = array_fill(0,6,"<td>-</td>");
 $all    = $_GET['all']=='true';
-$result = array();
+$result = [];
 
 if (file_exists("/var/run/apcupsd.pid")) {
   exec("/sbin/apcaccess 2>/dev/null", $rows);
@@ -62,7 +62,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
   if ($all && count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
   if ($power && $load) $status[4] = ($load>=90 ? "<td $red>" : "<td $green>").intval($power*$load/100)." Watts</td>";
 }
-if ($all && !$rows) $result[] = "<tr><td colspan='4'><center>No information available</center></td></tr>";
+if ($all && !$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>No information available</td></tr>";
 
 echo "<tr>".implode('', $status)."</tr>";
 if ($all) echo "\n".implode('', $result);
