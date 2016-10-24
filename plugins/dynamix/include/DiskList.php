@@ -11,7 +11,8 @@
  */
 ?>
 <?
-require_once 'Helpers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
 
 $shares  = parse_ini_file('state/shares.ini',true);
 $disks   = parse_ini_file('state/disks.ini',true);
@@ -53,7 +54,7 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 
 // Share size per disk
 $preserve = ($path==$prev || $compute=='yes');
-$ssz2 = array();
+$ssz2 = [];
 foreach (glob("state/*.ssz2", GLOB_NOSORT) as $entry) {
   if ($preserve) {
     $ssz2[basename($entry, ".ssz2")] = parse_ini_file($entry);

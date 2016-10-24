@@ -5,7 +5,6 @@ Markdown="false"
 ---
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.ui.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/context.standalone.css">
 <style>
 body{-webkit-overflow-scrolling: touch;}
 label{display:inline;}
@@ -41,23 +40,23 @@ div.Panel:hover{overflow:visible;z-index:10;}
 <span class="status" style="margin-top:-44px; margin-right:<?= ($display['refresh']==0 || ($display['refresh']<0 && $var['mdResync']>0)) ? '60' : '0' ?>px"><input type="checkbox" class="appview"></span>
 <div id="apps_icons" style="display:none">
 <?
-$allContainers = array();
+$allContainers = [];
 if ((pgrep('docker')!==false) && (empty($display['dashapps']) || $display['dashapps'] == 'icons' || $display['dashapps'] == 'docker')) {
-	require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+	require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 	$DockerClient    = new DockerClient();
 	$DockerUpdate    = new DockerUpdate();
 	$DockerTemplates = new DockerTemplates();
 
 	$allContainers = $DockerClient->getDockerContainers();
-	if ( ! $allContainers) { $allContainers = array(); }
+	if ( ! $allContainers) { $allContainers = []; }
 
 	$arrDockerInfo = $DockerTemplates->getAllInfo();
 }
 
-$allVMs = array();
+$allVMs = [];
 if ((pgrep('libvirtd')!==false) && (empty($display['dashapps']) || $display['dashapps'] == 'icons' || $display['dashapps'] == 'vms')) {
-	require_once '/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php';
-	require_once '/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php';
+	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 	$doms = $lv->get_domains();
 	if (is_array($doms)) {
@@ -66,7 +65,7 @@ if ((pgrep('libvirtd')!==false) && (empty($display['dashapps']) || $display['das
 	}
 }
 
-$contextMenus = array();
+$contextMenus = [];
 
 // Docker Apps
 foreach ($allContainers as $ct) {
@@ -149,7 +148,7 @@ foreach ($allVMs as $name) {
 	if (!empty($vmtemplateicon)) {
 		if (file_exists($vmtemplateicon)) {
 			$vmicon = $vmtemplateicon;
-		} else if (file_exists('/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/' . $vmtemplateicon)) {
+		} else if (file_exists("$docroot/plugins/dynamix.vm.manager/templates/images/" . $vmtemplateicon)) {
 			$vmicon = '/plugins/dynamix.vm.manager/templates/images/' . $vmtemplateicon;
 		}
 	}
@@ -172,7 +171,6 @@ foreach ($allVMs as $name) {
 <div id="noapps">No apps available to show</div>
 </div>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
-<script src="/webGui/javascript/context.js"></script>
 <script src="/plugins/dynamix.docker.manager/javascript/docker.js"></script>
 <script>
 function ajaxVMDispatch(currentstate, params){

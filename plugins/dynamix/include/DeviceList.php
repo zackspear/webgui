@@ -11,16 +11,19 @@
  */
 ?>
 <?
-require_once 'Helpers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
 
 $path  = $_POST['path'];
 $var   = parse_ini_file('state/var.ini');
 $devs  = parse_ini_file('state/devs.ini',true);
 $disks = parse_ini_file('state/disks.ini',true);
 $sum   = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
+$new   = '/var/tmp/diskio';
+$old   = '/var/tmp/lastio';
 extract(parse_plugin_cfg('dynamix',true));
 
-require_once 'CustomMerge.php';
+require_once "$docroot/webGui/include/CustomMerge.php";
 
 function in_parity_log($log,$timestamp) {
   if (file_exists($log)) {
@@ -77,7 +80,7 @@ function assignment(&$disk) {
   $out .= "<select class=\"slot\" name=\"slotId.{$disk['idx']}\" onChange=\"{$disk['name']}Form.submit()\">";
   $empty = ($disk['idSb']!='' ? 'no device' : 'unassigned');
   if ($disk['id']!='') {
-  $out .= "<option value=\"{$disk['id']}\" selected>".device_desc($disk)."</option>";
+    $out .= "<option value=\"{$disk['id']}\" selected>".device_desc($disk)."</option>";
     $out .= "<option value=''>$empty</option>";
   } else
     $out .= "<option value='' selected>$empty</option>";
@@ -107,6 +110,30 @@ function fs_info(&$disk) {
   } else
     echo "<td colspan='2'></td><td>{$disk['fsStatus']}</td><td></td>";
   echo "<td>".device_browse($disk)."</td>";
+}
+function disk_map(&$rows) {
+  $map = [];
+  foreach ($rows as $row) {
+    $key = explode(' ',$row);
+    $map[$key[0]] = $key[3].' '.$key[7];
+  }
+  $rows = $map;
+}
+function sectors(&$data,$i) {
+  return $data ? explode(' ',$data)[$i] : 0;
+}
+function my_diskio($id,$i) {
+  global $diskio, $lastio, $disks;
+  if (empty($diskio) || empty($lastio)) return my_scale(0,$unit,1)." $unit/s";
+  $time = max($diskio['time']-$lastio['time'],1);
+  if ($id=='A' || $id=='P') {
+    $type = $id=='A' ? '/Parity|Data/' : '/Cache/';
+    $disksum = 0;
+    foreach ($disks as $disk) if (preg_match($type,$disk['type'])) $disksum += sectors($diskio[$disk['device']],$i)-sectors($lastio[$disk['device']],$i);
+    return my_scale($disksum*512/$time,$unit,1)." $unit/s";
+  } else {
+    return my_scale((sectors($diskio[$id],$i)-sectors($lastio[$id],$i))*512/$time,$unit,1)." $unit/s";
+  }
 }
 function array_offline(&$disk,$w) {
   $warning = $w ? '<span class="red-text"><em>ALL DATA ON THIS DISK WILL BE ERASED WHEN ARRAY IS STARTED</em></span>' : '';
@@ -179,8 +206,8 @@ function array_online(&$disk) {
     echo "<td>".device_info($disk)."</td>";
     echo "<td>".device_desc($disk)."</td>";
     echo "<td>".my_temp($disk['temp'])."</td>";
-    echo "<td>".my_number($disk['numReads'])."</td>";
-    echo "<td>".my_number($disk['numWrites'])."</td>";
+    echo "<td><span class='diskio'>".my_diskio($disk['device'],0)."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($disk['device'],1)."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
     echo "<td>".my_number($disk['numErrors'])."</td>";
     fs_info($disk);
     break;
@@ -203,7 +230,7 @@ function read_disk(&$device, $item) {
     $smart = "/var/local/emhttp/smart/$device";
     if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A /dev/$device >$smart &");
     $temp = exec("awk '\$1==190||\$1==194{print \$10;exit}' $smart");
-    return $temp ? $temp : '*';
+    return $temp ?: '*';
   }
 }
 function show_totals($text) {
@@ -212,8 +239,8 @@ function show_totals($text) {
   echo "<td><img src='/webGui/images/sum.png' class='icon'>Total</td>";
   echo "<td>$text</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
-  echo "<td>".my_number($sum['numReads'])."</td>";
-  echo "<td>".my_number($sum['numWrites'])."</td>";
+  echo "<td><span class='diskio'>".my_diskio($text[0],0)."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($text[0],1)."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
   echo "<td>".my_number($sum['numErrors'])."</td>";
   echo "<td></td>";
   if (strstr($text,'Array') && ($var['startMode']=='Normal')) {
@@ -264,6 +291,21 @@ function cache_slots() {
   $out .= "</select></form>";
   return $out;
 }
+$time = time();
+$last = @parse_ini_file($new);
+if ($_POST['diskio'] && $time-$last['time']>8) {
+  @copy($new, $old);
+  $lastio = $last;
+  exec("grep -o '\(sd[a-z]*\|nvme[0-9]n1\) .*' /proc/diskstats",$diskio);
+  disk_map($diskio);
+  $diskio['time'] = $time;
+  $keys = [];
+  foreach ($diskio as $key => $data) $keys[] = "$key=$data";
+  file_put_contents($new, implode("\n",$keys));
+} else {
+  $lastio = @parse_ini_file($old);
+  $diskio = $last;
+}
 switch ($_POST['device']) {
 case 'array':
   if ($var['fsState']=='Stopped') {
@@ -284,8 +326,8 @@ case 'flash':
   echo "<td>".device_info($disk)."</td>";
   echo "<td>".device_desc($disk)."</td>";
   echo "<td>*</td>";
-  echo "<td>".my_number($disk['numReads'])."</td>";
-  echo "<td>".my_number($disk['numWrites'])."</td>";
+  echo "<td><span class='diskio'>".my_diskio($disk['device'],0)."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($disk['device'],1)."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
   echo "<td>".my_number($disk['numErrors'])."</td>";
   fs_info($disk);
   echo "</tr>";
@@ -309,22 +351,24 @@ case 'open':
     echo "<td>".device_info($dev)."</td>";
     echo "<td>".device_desc($dev)."</td>";
     echo "<td>".my_temp($dev['temp'])."</td>";
+    echo "<td><span class='diskio'>".my_diskio($dev['device'],0)."</span><span class='number'>-</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($dev['device'],1)."</span><span class='number'>-</span></td>";
     if (file_exists("/tmp/preclear_stat_{$dev['device']}")) {
       $text = exec("cut -d'|' -f3 /tmp/preclear_stat_{$dev['device']}|sed 's:\^n:\<br\>:g'");
       if (strpos($text,'Total time')===false) $text = 'Preclear in progress... '.$text;
-      echo "<td colspan='8' style='text-align:right'><em>$text</em></td>";
+      echo "<td colspan='6' style='text-align:right'><em>$text</em></td>";
     } else
-      echo "<td colspan='8'></td>";
+      echo "<td colspan='6'></td>";
     echo "</tr>";
   }
   break;
 case 'parity':
-  $data = array();
+  $data = [];
   if ($var['mdResync']>0) {
     $data[] = my_scale($var['mdResync']*1024,$unit)." $unit";
     $data[] = my_clock(floor(($var['currTime']-$var['sbUpdated'])/60));
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,substr($display['number'],0,1),'')." %)";
-    $data[] = my_scale($var['mdResyncDb']/$var['mdResyncDt']*1024,$unit, 1)." $unit/sec";
+    $data[] = my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec";
     $data[] = my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0));
     $data[] = $var['sbSyncErrs'];
     echo implode(';',$data);

@@ -18,11 +18,12 @@ $disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
 $var   = parse_ini_file("/var/local/emhttp/var.ini");
 $devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
 
-require_once '/usr/local/emhttp/webGui/include/Wrappers.php';
-require_once '/usr/local/emhttp/webGui/include/Preselect.php';
-require_once '/usr/local/emhttp/webGui/include/CustomMerge.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/Preselect.php";
+require_once "$docroot/webGui/include/CustomMerge.php";
 
-$notify = "/usr/local/emhttp/webGui/scripts/notify";
+$notify = "$docroot/webGui/scripts/notify";
 $ram    = "/var/local/emhttp/monitor.ini";
 $rom    = "/boot/config/plugins/dynamix/monitor.ini";
 $saved  = @parse_ini_file($ram,true);

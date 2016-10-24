@@ -16,7 +16,7 @@ Png="ethernet.png"
 ?>
 <?
 $build = false;
-$template = '/usr/local/emhttp/webGui/EthX.page';
+$template = "$docroot/webGui/EthX.page";
 $ini = '/var/local/emhttp/network.ini';
 $validIP = '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
 
@@ -25,7 +25,7 @@ exec("ip -br addr|grep -Po '^eth[1-9]+\s'",$ports);
 $ports = array_map('trim', $ports);
 
 // remove non-existing ethernet ports
-foreach (glob('/usr/local/emhttp/webGui/Eth[1-9]*.page',GLOB_NOSORT) as $port) {
+foreach (glob("$docroot/webGui/Eth[1-9]*.page",GLOB_NOSORT) as $port) {
   if (!in_array(strtolower(basename($port,'.page')), $ports)) {
     @unlink($port);
     $build = true;
@@ -33,7 +33,7 @@ foreach (glob('/usr/local/emhttp/webGui/Eth[1-9]*.page',GLOB_NOSORT) as $port) {
 }
 // add new ethernet ports
 foreach ($ports as $port) {
-  $file = "/usr/local/emhttp/webGui/".ucfirst($port).".page";
+  $file = "$docroot/webGui/".ucfirst($port).".page";
   if (!file_exists($file)) {
     copy($template, $file);
     exec("sed -i 's/x-settings/NetworkSettings/;s/ethX/$port/g' $file");
@@ -534,5 +534,5 @@ Network mask:
 </script>
 
 &nbsp;
-: <input type="submit" value="Apply" onclick="$('#wait_eth0').show()"><input type="button" value="Done" onclick="done()"><?=$service ? "$service must be <b>STOPPED</b> to change" : ""?>
+: <input type="submit" value="Apply" onclick="$('#wait_eth0').show()"><input type="button" value="Done" onclick="done()"><?=$service ? "$service must be <span class='strong big'>Stopped</span> to change" : ""?>
 </form>

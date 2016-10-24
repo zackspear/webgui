@@ -11,7 +11,8 @@
  */
 ?>
 <?
-require_once 'webGui/include/Wrappers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $memory = '/tmp/memory.tmp';
 if (isset($_POST['#apply'])) {

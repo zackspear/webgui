@@ -11,7 +11,7 @@
  */
 ?>
 <?
-require_once 'Markdown.php';
+require_once "$docroot/webGui/include/Markdown.php";
 
 function get_ini_key($key,$default) {
   $x = strpos($key, '[');
@@ -42,7 +42,7 @@ function build_pages($pattern) {
 
 function find_pages($item) {
   global $site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$sec_afp,$name,$display;
-  $pages = array();
+  $pages = [];
   foreach ($site as $page) {
     if (empty($page['Menu'])) continue;
     $menu = strtok($page['Menu'], ' ');

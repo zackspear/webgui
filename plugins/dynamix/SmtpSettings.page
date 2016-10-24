@@ -14,7 +14,7 @@ Title="SMTP Settings"
  */
 ?>
 <?
-require_once 'webGui/include/Encryption.php';
+require_once "$docroot/webGui/include/Encryption.php";
 
 $ssmtp['AuthPass'] = base64_decrypt($ssmtp['AuthPass']);
 $incomplete = strlen($ssmtp['root'])==0 || strlen($ssmtp['server'])==0 || strlen($ssmtp['port'])==0 || ((strlen($ssmtp['AuthUser'])==0 || strlen($ssmtp['AuthPass'])==0) && $ssmtp['AuthMethod']!='none');

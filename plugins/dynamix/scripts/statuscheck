@@ -12,10 +12,11 @@
  */
 ?>
 <?
-require_once '/usr/local/emhttp/webGui/include/Wrappers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
 exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply");
 
-$notify = "/usr/local/emhttp/webGui/scripts/notify";
+$notify = "$docroot/webGui/scripts/notify";
 $disks  = parse_ini_file("/var/local/emhttp/disks.ini",true);
 $var    = parse_ini_file("/var/local/emhttp/var.ini");
 $unraid = parse_plugin_cfg("dynamix",true);
@@ -23,7 +24,7 @@ $output = $unraid['notify']['report'];
 $hot    = $unraid['display']['hot'];
 $max    = $unraid['display']['max'];
 $server = strtoupper($var['NAME']);
-$data   = array();
+$data   = [];
 $parity = false;
 $cache  = false;
 $error0 = 0;
@@ -47,7 +48,7 @@ function my_scale($value, &$unit, $precision = NULL) {
   global $unraid;
   $scale = $unraid['display']['scale'];
   $number = $unraid['display']['number'];
-  $units = array('B','KB','MB','GB','TB','PB');
+  $units = ['B','KB','MB','GB','TB','PB'];
   if ($scale==0 && $precision===NULL) {
     $unit = '';
     return number_format($value, 0, $number[0], ($value>=10000 ? $number[1] : ''));
@@ -116,7 +117,7 @@ function my_array(&$disk) {
   if ($fail) $fail .= ')';
   $status = $fail ? ' [NOK]' : ' [OK]';
   $color = strtok($disk['color'],'-');
-  if ($color=='red'||$color=='yellow') { $error3++; $status = ' ['.str_replace(array('NP_','_'),array('',' '),$disk['status']).']'; }
+  if ($color=='red'||$color=='yellow') { $error3++; $status = ' ['.str_replace(['NP_','_'],['',' '],$disk['status']).']'; }
   $info = "{$disk['id']} ({$disk['device']})";
   if ($info==" ()") $info = 'No device identification present';
   $data[] = my_disk($name)." - $info".my_temp($temp).$fail.$status;

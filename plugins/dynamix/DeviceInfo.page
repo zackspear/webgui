@@ -81,7 +81,7 @@ $(function() {
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
 Name:
-: <big><?=my_disk($name)?></big>
+: <span class='big'><?=my_disk($name)?></span>
 
 Partition size:
 : <?=my_number($disk['size'])?> KB (K=1024)
@@ -123,7 +123,7 @@ File system type:
   <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
   <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
   <?=mk_option($disk['fsType'], "xfs", "xfs")?>
-  </select> Array must be **Stopped** to change
+  </select> Array must be <span class="strong big">Stopped</span> to change
 
 <?endif;?>
 <?elseif ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']>1):?>
@@ -209,7 +209,7 @@ btrfs filesystem df:
 <?if ($var['cacheSbNumDisks']>1):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("/usr/local/emhttp/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
 
 <div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/balancestatus.png" class="icon">Balance Status</span></div>
 
@@ -253,7 +253,7 @@ btrfs balance status:
 <?if ($disk['fsType']=="btrfs"):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("/usr/local/emhttp/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
 
 <div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/scrubstatus.png" class="icon">Scrub Status</span></div>
 
@@ -297,7 +297,7 @@ btrfs scrub status:
 <?if ($disk['fsType']=="reiserfs"):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
-<?exec("/usr/local/emhttp/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
+<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 <div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 
@@ -349,7 +349,7 @@ reiserfsck status:
 <?if ($disk['fsType']=="xfs"):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
-<?exec("/usr/local/emhttp/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
+<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 <div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 

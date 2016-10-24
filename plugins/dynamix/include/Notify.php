@@ -12,7 +12,9 @@
  */
 ?>
 <?
-$notify = "/usr/local/emhttp/webGui/scripts/notify";
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$notify  = "$docroot/webGui/scripts/notify";
+
 switch ($_POST['cmd']) {
 case 'init':
   shell_exec("$notify init");
@@ -45,7 +47,7 @@ case 'get':
   echo shell_exec("$notify get");
   break;
 case 'archive':
-  shell_exec("$notify archive '{$_POST['file']}'");
+  shell_exec("$notify archive \"{$_POST['file']}\"");
   break;
 }
 ?>

@@ -10,9 +10,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 function addLog($line) { echo "<script>addLog('$line');</script>"; }
 
-readfile("/usr/local/emhttp/logging.htm");
+readfile("$docroot/logging.htm");
 $var = parse_ini_file('state/var.ini');
 
 $parsed_url = parse_url($_GET['url']);

@@ -10,6 +10,7 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $var = parse_ini_file('state/var.ini');
 $unraid = parse_ini_file('/etc/unraid-version');
 $keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
@@ -17,7 +18,7 @@ $keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
 if (array_key_exists('getdiagnostics', $_GET)) {
     $anonymize = empty($_GET['anonymize']) ? '-a' : '';
     $diag_file = '/tmp/feedback_diagnostics_'.time().'.zip';
-    exec("/usr/local/emhttp/plugins/dynamix/scripts/diagnostics $anonymize $diag_file");
+    exec("$docroot/plugins/dynamix/scripts/diagnostics $anonymize $diag_file");
     echo base64_encode(@file_get_contents($diag_file));
     @unlink($diag_file);
     exit;
@@ -138,7 +139,7 @@ function form_submit(url, params, $panel, diagnostics) {
             data.message = data.message || '';
 
             var url_parts = url.split('/');
-            var success_message = '<center><h2>Thank You!</h2><img src="/webGui/images/feedback_'+url_parts[4]+'.jpg"/><p style="text-align:center">'+data.message+'</p></center>';
+            var success_message = '<div style="text-align:center"><h2>Thank You!</h2><img src="/webGui/images/feedback_'+url_parts[4]+'.jpg"/><p style="text-align:center">'+data.message+'</p></div>';
 
             $('#thanks_panel').html(success_message).fadeIn('fast', function() {
                 var resetfunction = window[url_parts[4]+'_reset'];

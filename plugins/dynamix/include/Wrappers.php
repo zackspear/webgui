@@ -11,11 +11,14 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false) {
-  $ram = "/usr/local/emhttp/plugins/$plugin/default.cfg";
+  global $docroot;
+  $ram = "$docroot/plugins/$plugin/default.cfg";
   $rom = "/boot/config/plugins/$plugin/$plugin.cfg";
-  $cfg = file_exists($ram) ? parse_ini_file($ram, $sections) : array();
+  $cfg = file_exists($ram) ? parse_ini_file($ram, $sections) : [];
   return file_exists($rom) ? array_replace_recursive($cfg, parse_ini_file($rom, $sections)) : $cfg;
 }
 
@@ -34,7 +37,8 @@ function agent_fullname($agent, $state) {
 }
 
 function get_plugin_attr($attr, $file) {
-  exec("/usr/local/emhttp/plugins/dynamix.plugin.manager/scripts/plugin $attr $file", $result, $error);
+  global $docroot;
+  exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin $attr $file", $result, $error);
   if ($error===0) return $result[0];
 }
 
