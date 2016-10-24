@@ -17,16 +17,16 @@ Title="Share Settings"
 <?
 if ($name == "") {
   /* default values when adding new share */
-  $share = array("nameOrig"   => "",
-                 "name"       => "",
-                 "comment"    => "",
-                 "allocator"  => "highwater",
-                 "floor"      => "",
-                 "splitLevel" => "",
-                 "include"    => "",
-                 "exclude"    => "",
-                 "useCache"   => "no",
-                 "cow"        => "auto");
+  $share = ["nameOrig"   => "",
+            "name"       => "",
+            "comment"    => "",
+            "allocator"  => "highwater",
+            "floor"      => "",
+            "splitLevel" => "",
+            "include"    => "",
+            "exclude"    => "",
+            "useCache"   => "no",
+            "cow"        => "auto"];
 } else if (array_key_exists($name, $shares)) {
   /* edit existing share */
   $share = $shares[$name];
@@ -354,7 +354,7 @@ Enable Copy-on-write:
 : <input type="submit" name="cmdEditShare" value="Add Share"><input type="button" value="Done" onclick="done()">
 <?elseif (shareEmpty($name)):?>
 Share status:
-: <big>Share is empty</big>
+: <span class="big">Share is empty</span>
 
 > Share does *not* contain any data and may be deleted if not needed any longer.
 
@@ -362,7 +362,7 @@ Delete<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form,
 : <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()">
 <?else:?>
 Share status:
-: <big>Share contains data</big>
+: <span class="big">Share contains data</span>
 
 > Share can *not* be deleted as long as it contains data. Be aware that some data can be hidden. See also [SMB Settings](/Settings/SMB) -> Hide "dot" files.
 

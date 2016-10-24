@@ -14,7 +14,7 @@ Type="xmenu"
 ?>
 <?if ($name):?>
 <?
-$refs = array(); $n = 0;
+$refs = []; $n = 0;
 
 foreach ($shares as $ref) {
   $sname = $ref['name'];
