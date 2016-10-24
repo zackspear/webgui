@@ -11,9 +11,10 @@
  */
 ?>
 <?
-	require_once('/usr/local/emhttp/webGui/include/Helpers.php');
-	require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php');
-	require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php');
+	$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	require_once "$docroot/webGui/include/Helpers.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 	$strXML = '';
 	$strUUID = '';

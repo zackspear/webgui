@@ -11,9 +11,10 @@
  */
 ?>
 <?
-require_once('/usr/local/emhttp/webGui/include/Helpers.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php');
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 $strSelectedTemplate = array_keys($arrAllTemplates)[1];
 if (!empty($_GET['template']) && !(empty($arrAllTemplates[$_GET['template']]))) {
@@ -42,7 +43,7 @@ if (!empty($_GET['uuid'])) {
 	if (!empty($strIcon)) {
 		if (is_file($strIcon)) {
 			$strIconURL = $strIcon;
-		} else if (is_file('/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/' . $strIcon)) {
+		} else if (is_file("$docroot/plugins/dynamix.vm.manager/templates/images/" . $strIcon)) {
 			$strIconURL = '/plugins/dynamix.vm.manager/templates/images/' . $strIcon;
 		}
 	} else {
@@ -291,8 +292,8 @@ if (!empty($_GET['uuid'])) {
 					<div id="template_img_chooser">
 					<?
 						$arrImagePaths = [
-							'/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/*.png' => '/plugins/dynamix.vm.manager/templates/images/',
-							'/usr/local/emhttp/boot/config/plugins/dynamix.vm.manager/templates/images/*.png' => '/boot/config/plugins/dynamix.vm.manager/templates/images/'
+							"$docroot/plugins/dynamix.vm.manager/templates/images/*.png" => '/plugins/dynamix.vm.manager/templates/images/',
+							"$docroot/boot/config/plugins/dynamix.vm.manager/templates/images/*.png" => '/boot/config/plugins/dynamix.vm.manager/templates/images/'
 						];
 						foreach ($arrImagePaths as $strGlob => $strIconURLBase) {
 							foreach (glob($strGlob) as $png_file) {
@@ -316,7 +317,7 @@ if (!empty($_GET['uuid'])) {
 		<p>If you want this VM to start with the array, set this to yes.</p>
 	</blockquote>
 
-	<div id="form_content"><? include('/usr/local/emhttp/plugins/dynamix.vm.manager/templates/'.$arrLoad['form']); ?></div>
+	<div id="form_content"><? include "$docroot/plugins/dynamix.vm.manager/templates/{$arrLoad['form']}"; ?></div>
 
 	</form>
 </div>

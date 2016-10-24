@@ -16,8 +16,8 @@ Markdown="false"
  */
 ?>
 <?
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php');
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 
 // Check for Intel VT-x (vmx) or AMD-V (svm) cpu virtualzation support
@@ -265,7 +265,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
   </dl>
 
   <form method="POST" action="/update.php" target="progressFrame">
-  <?exec("/usr/local/emhttp/webGui/scripts/btrfs_scrub status /etc/libvirt", $scrub_status, $retval);?>
+  <?exec("$docroot/webGui/scripts/btrfs_scrub status /etc/libvirt", $scrub_status, $retval);?>
 
   <dl>
     <dt>btrfs scrub status:</dt>

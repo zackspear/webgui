@@ -11,10 +11,10 @@
  */
 ?>
 <?
-
-require_once('/usr/local/emhttp/webGui/include/Helpers.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php');
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 function requireLibvirt() {
 	global $lv;
@@ -323,7 +323,7 @@ switch ($action) {
 
 	case 'get-vm-icons':
 		$arrImages = [];
-		foreach (glob("/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/*.png") as $png_file) {
+		foreach (glob("$docroot/plugins/dynamix.vm.manager/templates/images/*.png") as $png_file) {
 			$arrImages[] = [
 				'custom' => false,
 				'basename' => basename($png_file),
