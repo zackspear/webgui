@@ -239,4 +239,8 @@ function transpose_user_path($path) {
   }
   return $path;
 }
+// custom parse_ini_file function to deal with '#' comments
+function my_parse_ini_file($file) {
+  return parse_ini_string(str_replace('#',';',file_get_contents($file)));
+}
 ?>
