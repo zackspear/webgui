@@ -526,20 +526,20 @@ class DockerUpdate{
 		$changed = false;
 		$DockerTemplates = new DockerTemplates();
 		$validElements = [
-			0 => "Support",
-			1 => "Overview",
-			2 => "Category",
-			3 => "WebUI",
-			4 => "Icon"
+			"Support",
+			"Overview",
+			"Category",
+			"WebUI",
+			"Icon"
 		];
 
 		$validAttributes = [
-			0 => "Name",
-			1 => "Default",
-			2 => "Description",
-			3 => "Display",
-			4 => "Required",
-			5 => "Mask"
+			"Name",
+			"Default",
+			"Description",
+			"Display",
+			"Required",
+			"Mask"
 		];
 
 		// Get user template file and abort if fail
@@ -575,7 +575,7 @@ class DockerUpdate{
 				$value   = $this->xml_decode($local_element);
 				// Values changed, updating.
 				if ($value != $rvalue) {
-					$local_element->{0} = $this->xml_encode($rvalue);
+					$local_element[0] = $this->xml_encode($rvalue);
 					$this->debug("Updating $name from [$value] to [$rvalue]");
 					$changed = true;
 				}
@@ -618,6 +618,8 @@ class DockerUpdate{
 			$dom->formatOutput = true;
 			$dom->loadXML($template->asXML());
 			file_put_contents($file, $dom->saveXML());
+		} else {
+			$this->debug("Template is up to date.");
 		}
 	}
 }
