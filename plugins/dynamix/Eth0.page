@@ -253,6 +253,8 @@ $(function() {
   disableForm(form);
   $('#bond0').dropdownchecklist('disable');
   $('#bridge0').dropdownchecklist('disable');
+  if (form.DNS_SERVER2.value) $('#dnsserver2').show(); else $('#dnsserver2').hide();
+  if (form.DNS_SERVER3.value) $('#dnsserver3').show(); else $('#dnsserver3').hide();
 <?else:?>
   checkDNSSettings(form);
 <?endif;?>
