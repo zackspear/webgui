@@ -19,8 +19,9 @@ $tabX = '#tab'.($var['fsState']=='Stopped'||is_dir('/mnt/cache') ? '4' : '3');
 ?>
 <script>
 function open_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'open'},function(data) {
-    if (data) $('#open_devices').html(data);
+  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'open'<?if ($tabbed):?>,diskio:diskio<?endif?>},function(data) {
+    if (data) {$('#open_devices').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>
     if ($('<?=$tabX?>').is(':checked')) timer = setTimeout(open_status,<?=abs($display['refresh'])?>);
@@ -31,7 +32,9 @@ function open_status() {
   });
 }
 <?if ($update && $var['fsState']=='Started' && $tabbed):?>
-$('<?=$tabX?>').bind({click:function() {clearTimeout(timer); open_status();}});
+$('<?=$tabX?>').bind({click:function() {clearTimeout(timer); open_status(); $('i.toggle').show('slow');}});
+<?else:?>
+$('<?=$tabX?>').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 
 open_status();

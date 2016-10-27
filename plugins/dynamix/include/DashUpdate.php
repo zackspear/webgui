@@ -11,6 +11,8 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 function normalize($type,$count) {
   $words = explode('_',$type);
   foreach ($words as &$word) $word = $word==strtoupper($word) ? $word : preg_replace(['/^(ct|cnt)$/','/^blk$/'],['count','block'],strtolower($word));
@@ -25,10 +27,11 @@ function my_smart(&$source,$name,$page) {
   $select = isset($disk['smSelect']) ? $disk['smSelect'] : -1; if ($select==-1) $select = isset($var['smSelect']) ? $var['smSelect'] : 0;
   $level  = isset($disk['smLevel']) ? $disk['smLevel'] : -1; if ($level==-1) $level = isset($var['smLevel']) ? $var['smLevel'] : 1;
   $events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
-  $thumb = 'good';
+  $title  = '';
+  $thumb  = 'good';
   $file   = "state/smart/$name";
   if (file_exists("$file.ssa") && in_array(file_get_contents("$file.ssa"),$failed)) {
-    $thumb = 'bad';
+    $title = "S.M.A.R.T health-check failed\n"; $thumb = 'bad';
   } else {
     if (empty($saved["smart"]["$name.ack"])) {
       exec("awk 'NR>7{print $1,$2,$4,$6,$9,$10}' $file 2>/dev/null", $codes);
@@ -37,11 +40,13 @@ function my_smart(&$source,$name,$page) {
         list($id,$class,$value,$thres,$when,$raw) = explode(' ',$code);
         $fail = strpos($when,'FAILING_NOW')!==false;
         if (!$fail && !in_array($id,$events)) continue;
-        if ($fail || ($select ? $thres>0 && $value<=$thres*$level : $raw>0)) {$thumb = 'alert'; break;};
+        if ($fail || ($select ? $thres>0 && $value<=$thres*$level : $raw>0)) $title .= normalize($class,$fail?$when:$raw);
       }
+      if ($title) $thumb = 'alert'; else $title = "No errors reported\n";
     }
   }
-  my_insert($source, "<span id='smart-$name' name='$page' class='$thumb'><img src=\"$path/$thumb.png\" onmouseover=\"this.style.cursor='pointer'\" title=\"Click to get context menu\"></span>");
+  $title .= "Click for context menu";
+  my_insert($source, "<span id='smart-$name' name='$page' class='$thumb'><img src=\"$path/$thumb.png\" onmouseover=\"this.style.cursor='pointer'\" title=\"$title\"></span>");
 }
 function my_usage(&$source,$used) {
   my_insert($source, $used ? "<div class='usage-disk all'><span style='width:$used'>$used</span></div>" : "-");
@@ -71,8 +76,8 @@ case 'disk':
   $disks = @array_filter(parse_ini_file('state/disks.ini',true),'active_disks');
   $devs  = @parse_ini_file('state/devs.ini',true);
   $saved = @parse_ini_file('state/monitor.ini',true);
-  require_once 'CustomMerge.php';
-  require_once 'Preselect.php';
+  require_once "$docroot/webGui/include/CustomMerge.php";
+  require_once "$docroot/webGui/include/Preselect.php";
   $slots = $_POST['slots'];
   $row1 = array_fill(0,31,'<td></td>'); my_insert($row1[0],'Active');
   $row2 = array_fill(0,31,'<td></td>'); my_insert($row2[0],'Inactive');
@@ -103,8 +108,11 @@ case 'disk':
       $temp = $disk['temp'];
       $hot  = strlen($disk['hotTemp']) ? $disk['hotTemp'] : $_POST['hot'];
       $max  = strlen($disk['maxTemp']) ? $disk['maxTemp'] : $_POST['max'];
-      $beep = $temp>=$max && $max>0 ? 'max' : ($temp>=$hot && $hot>0 ? 'hot' : '');
-      if ($beep) my_insert($row5[$n],"<span class='heat-img'><img src='$path/$beep.png'></span><span class='heat-text' style='display:none'>".my_temp($temp,$_POST['unit'])."</span>");
+      $heat = $temp>=$max && $max>0 ? 'max' : ($temp>=$hot && $hot>0 ? 'hot' : '');
+      if ($heat)
+        my_insert($row5[$n],"<span class='heat-img'><img src='$path/$heat.png'></span><span class='heat-text' style='display:none'>".my_temp($temp,$_POST['unit'])."</span>");
+      else
+        if (!strpos($state,'blink') && $temp>0) my_insert($row5[$n],"<span class='temp-text'>".my_temp($temp,$_POST['unit'])."</span>");
       if ($disk['device'] && !strpos($state,'blink')) my_smart($row6[$n],$disk['name'],'Device');
       my_usage($row7[$n],($disk['type']!='Parity' && $disk['fsStatus']=='Mounted')?(round((1-$disk['fsFree']/$disk['fsSize'])*100).'%'):'');
     }

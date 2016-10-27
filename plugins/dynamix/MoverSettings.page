@@ -18,8 +18,8 @@ Cond="(($var['shareUser']!='-')&&(isset($disks['cache']))&&($disks['cache']['sta
 <?
 $cron = explode(' ',$var['shareMoverSchedule']);
 $move = $cron[2]!='*' ? 3 : ($cron[4]!='*' ? 2 : (substr($cron[1],0,1)!='*' ? 1 : 0));
-$mode = array('Hourly','Daily','Weekly','Monthly');
-$days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+$mode = ['Hourly','Daily','Weekly','Monthly'];
+$days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 ?>
 <script>
 $(function() {

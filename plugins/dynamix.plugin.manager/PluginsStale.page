@@ -16,7 +16,7 @@ Cond="glob('/boot/config/plugins-stale/*.plg')"
 ?>
 
 <?
-require_once('plugins/dynamix.plugin.manager/include/PluginHelpers.php');
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 echo "<table class='tablesorter plugins shift' id='plugin_table'><thead>";
 echo "<tr><th></th><th>Plugin</th><th>Author</th><th>Version</th><th>Status</th><th></th></tr>";

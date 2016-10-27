@@ -11,6 +11,8 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 function normalize($text, $glue='_') {
   $words = explode($glue,$text);
   foreach ($words as &$word) $word = $word==strtoupper($word) ? $word : preg_replace(['/^(ct|cnt)$/','/^blk$/'],['count','block'],strtolower($word));
@@ -30,7 +32,7 @@ function spindownDelay($port) {
   }
 }
 $disks = []; $var = [];
-require_once 'CustomMerge.php';
+require_once "$docroot/webGui/include/CustomMerge.php";
 $name = isset($_POST['name']) ? $_POST['name'] : '';
 $port = isset($_POST['port']) ? $_POST['port'] : '';
 if ($name) {
@@ -50,8 +52,8 @@ if ($name) {
 }
 switch ($_POST['cmd']) {
 case "attributes":
-  require_once 'Wrappers.php';
-  require_once 'Preselect.php';
+  require_once "$docroot/webGui/include/Wrappers.php";
+  require_once "$docroot/webGui/include/Preselect.php";
   $select = isset($disk['smSelect']) ? $disk['smSelect'] : -1; if ($select==-1) $select = isset($var['smSelect']) ? $var['smSelect'] : 0;
   $level  = isset($disk['smLevel']) ? $disk['smLevel'] : -1; if ($level==-1) $level = isset($var['smLevel']) ? $var['smLevel'] : 1;
   $events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
@@ -75,7 +77,7 @@ case "attributes":
     echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
     $empty = false;
   }
-  if ($empty) echo "<tr><td colspan='10' style='text-align:center'>Can not read attributes</td></tr>";
+  if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>Can not read attributes</td></tr>";
   break;
 case "capabilities":
   exec("smartctl -c $type /dev/$port|awk 'NR>5'",$output);
@@ -94,7 +96,7 @@ case "capabilities":
       $empty = false;
     }
   }
-  if ($empty) echo "<tr><td colspan='3' style='text-align:center'>Can not read capabilities</td></tr>";
+  if ($empty) echo "<tr><td colspan='3' style='text-align:center;padding-top:12px'>Can not read capabilities</td></tr>";
   break;
 case "identify":
   $passed = ['PASSED','OK'];
@@ -111,7 +113,7 @@ case "identify":
     echo "<tr>".normalize(preg_replace('/ is:$/',':',"$title:"),' ')."<td>$info</td></tr>";
     $empty = false;
   }
-  if ($empty) echo "<tr><td colspan='2' style='text-align:center'>Can not read identification</td></tr>";
+  if ($empty) echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
   break;
 case "save":
   exec("smartctl -a $type /dev/$port >{$_SERVER['DOCUMENT_ROOT']}/{$_POST['file']}");
@@ -133,28 +135,28 @@ case "stop":
 case "update":
   if (!exec("hdparm -C /dev/$port|grep -Pom1 'active|unknown'")) {
     $cmd = $_POST['type']=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=up&arg2=$name" : "cmdSpinup=$name";
-    echo "<a href='/update.htm?$cmd' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='orange-text'><big>Unavailable - disk must be spun up</big></span>";
+    echo "<a href='/update.htm?$cmd' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='orange-text'><span class='big'>Unavailable - disk must be spun up</span></span>";
     break;
   }
   $progress = exec("smartctl -c $type /dev/$port|grep -Pom1 '\d+%'");
   if ($progress) {
-    echo "<big><i class='fa fa-spinner fa-pulse'></i> self-test in progress, ".(100-substr($progress,0,-1))."% complete</big>";
+    echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> self-test in progress, ".(100-substr($progress,0,-1))."% complete</span>";
     break;
   }
   $result = trim(exec("smartctl -l selftest $type /dev/$port|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
-    echo "<big>No self-tests logged on this disk</big>";
+    echo "<span class='big'>No self-tests logged on this disk</span>";
     break;
   }
   if (strpos($result, "Completed without error")!==false) {
-    echo "<span class='green-text'><big>$result</big></span>";
+    echo "<span class='green-text'><span class='big'>$result</span></span>";
     break;
   }
   if (strpos($result, "Aborted")!==false or strpos($result, "Interrupted")!==false) {
-    echo "<span class='orange-text'><big>$result</big></span>";
+    echo "<span class='orange-text'><span class='big'>$result</span></span>";
     break;
   }
-  echo "<span class='red-text'><big>Errors occurred - Check SMART report</big></span>";
+  echo "<span class='red-text'><span class='big'>Errors occurred - Check SMART report</span></span>";
   break;
 case "selftest":
   echo shell_exec("smartctl -l selftest $type /dev/$port|awk 'NR>5'");

@@ -18,7 +18,7 @@ Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$
 <input type="hidden" name="shareName" value="<?=$name;?>">
 
 Share name:
-: <big><?=$name?></big>
+: <span class="big"><?=$name?></span>
 
 Export:
 : <select name="shareExportNFS" size="1">

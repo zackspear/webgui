@@ -11,7 +11,10 @@
  */
 ?>
 <?
-require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $DockerClient = new DockerClient();
 
 $_REQUEST = array_merge($_GET, $_POST);
@@ -62,9 +65,9 @@ switch ($action) {
 		if ($container) {
 			$since = array_key_exists('since', $_REQUEST) ? $_REQUEST['since'] : '';
 			$title = array_key_exists('title', $_REQUEST) ? $_REQUEST['title'] : '';
-			require_once '/usr/local/emhttp/webGui/include/ColorCoding.php';
+			require_once "$docroot/webGui/include/ColorCoding.php";
 			if (!$since) {
-				readfile("/usr/local/emhttp/plugins/dynamix.docker.manager/log.htm");
+				readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
 				echo "<script>document.title = '$title';</script>";
 				echo "<script>addLog('".addslashes("<p style='text-align:center'><span class='error label'>Error</span><span class='warn label'>Warning</span><span class='system label'>System</span><span class='array label'>Array</span><span class='login label'>Login</span></p>")."');</script>";
 				$tail = 350;

@@ -11,9 +11,12 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // Invoke the plugin command with indicated method
 function plugin($method, $arg = '') {
-  exec("/usr/local/emhttp/plugins/dynamix.plugin.manager/scripts/plugin $method $arg", $output, $retval);
+  global $docroot;
+  exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin $method $arg", $output, $retval);
   if ($retval != 0) return false;
   return implode("\n", $output);
 }

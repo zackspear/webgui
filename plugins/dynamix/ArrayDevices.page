@@ -16,9 +16,28 @@ Title="Array Devices"
 <script>
 var timer = null;
 
+function display_diskio() {
+  if ($.cookie('diskio')===undefined) {
+    $('span.number').show(); $('span.diskio').hide();
+  } else {
+    $('span.diskio').show(); $('span.number').hide();
+  }
+}
+function toggle_diskio(init) {
+  if (!init) {
+    if ($.cookie('diskio')===undefined) $.cookie('diskio','diskio',{path:'/',expires:3650}); else $.removeCookie('diskio',{path:'/'});
+  }
+  if ($.cookie('diskio')===undefined) {
+    $('i.toggle').removeClass('fa-tachometer').addClass('fa-list');
+  } else {
+    $('i.toggle').removeClass('fa-list').addClass('fa-tachometer');
+  }
+  display_diskio();
+}
 function array_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'array'},function(data) {
-    if (data) $('#array_devices').html(data);
+  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'array',diskio:diskio},function(data) {
+    if (data) {$('#array_devices').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>
     if ($('#tab1').is(':checked')) timer = setTimeout(array_status,<?=abs($display['refresh'])?>);
@@ -29,7 +48,9 @@ function array_status() {
   });
 }
 <?if ($update && $var['fsState']=='Started' && $tabbed):?>
-$('#tab1').bind({click:function() {clearTimeout(timer); array_status();}});
+$('#tab1').bind({click:function() {clearTimeout(timer); array_status(); $('i.toggle').show('slow');}});
+<?else:?>
+$('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 
 array_status();

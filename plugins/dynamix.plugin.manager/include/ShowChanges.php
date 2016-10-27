@@ -18,11 +18,13 @@
 </head>
 <body style="margin:14px 10px">
 <?
-require_once 'webGui/include/Markdown.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Markdown.php";
 
 $file = $_GET['file'];
 if (file_exists($file)) echo Markdown(file_get_contents($file)); else echo Markdown("*No release notes available!*");
 ?>
-<br><center><input type="button" value="Done" onclick="top.Shadowbox.close()"></center>
+<br><div style="text-align:center"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>
 </body>
 </html>

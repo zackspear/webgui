@@ -17,14 +17,12 @@ Cond="(pgrep('libvirtd')!==false)"
 <link type="text/css" rel="stylesheet" href="/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.filetree.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/context.standalone.css">
 <style type="text/css">
 body{-webkit-overflow-scrolling:touch;}
 .fileTree{width:305px;max-height:150px;overflow:scroll;position:absolute;z-index:100;display:none;}
 </style>
 <script src="/webGui/javascript/jquery.filetree.js"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
-<script src="/webGui/javascript/context.js"></script>
 <script src="/plugins/dynamix.vm.manager/scripts/dynamix.vm.manager.js"></script>
 
 <?
@@ -33,8 +31,8 @@ if ($var['fsState'] != "Started") {
   return;
 }
 
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt.php');
-require_once('/usr/local/emhttp/plugins/dynamix.vm.manager/classes/libvirt_helpers.php');
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
+require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
 if (count($pages)==2) $tabbed = false;
 ?>

@@ -11,14 +11,15 @@
  */
 ?>
 <?
-require_once 'Wrappers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
 
 // Helper functions
 function my_scale($value, &$unit, $decimals = NULL) {
   global $display;
   $scale = $display['scale'];
   $number = $display['number'];
-  $units = array('B','KB','MB','GB','TB','PB');
+  $units = ['B','KB','MB','GB','TB','PB'];
   if ($scale==0 && $decimals===NULL) {
     $decimals = 0;
     $unit = '';
@@ -61,7 +62,7 @@ function my_id($id) {
   return ($display['wwn'] || substr($wwn,0,2)!='_3' || preg_match('/.[_-]/',$wwn)) ? $id : substr($id,0,$len-18);
 }
 function my_word($num) {
-  $words = array('zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty');
+  $words = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty','twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty'];
   return $num<count($words) ? $words[$num] : $num;
 }
 function my_usage() {
@@ -78,7 +79,7 @@ function my_usage() {
     $used = $arraysize ? 100-round(100*$arrayfree/$arraysize) : 0;
     echo "<div class='usage-bar'><span style='width:{$used}%' class='".usage_color($display,$used,false)."'><span>{$used}%</span></span></div>";
   } else {
-    echo "<div class='usage-bar'><span><center>".($var['fsState']=='Started'?'Maintenance':'off-line')."</center></span></div>";
+    echo "<div class='usage-bar'><span style='text-align:center'>".($var['fsState']=='Started'?'Maintenance':'off-line')."</span></div>";
   }
 }
 function usage_color(&$disk,$limit,$free) {
@@ -226,8 +227,9 @@ function is_block($path) {
 }
 function autov($file) {
   global $docroot;
-  clearstatcache(true, $docroot.$file);
-  echo "$file?v=".filemtime($docroot.$file);
+  $path = $docroot.$file;
+  clearstatcache(true, $path);
+  echo "$file?v=".filemtime($path);
 }
 function transpose_user_path($path) {
   if (strpos($path, '/mnt/user/') === 0 && file_exists($path)) {
@@ -236,5 +238,12 @@ function transpose_user_path($path) {
       $path = str_replace('/mnt/user/', "/mnt/$realdisk/", $path);
   }
   return $path;
+}
+// custom parse_ini_file/string functions to deal with '#' comment lines
+function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) {
+  return parse_ini_string(preg_replace('/^#/',';',file_get_contents($file)),$sections,$scanner);
+}
+function my_parse_ini_string($text, $sections=false, $scanner=INI_SCANNER_NORMAL) {
+  return parse_ini_string(preg_replace('/^#/',';',$text),$sections,$scanner);
 }
 ?>

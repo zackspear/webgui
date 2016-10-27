@@ -23,33 +23,30 @@ function sort_by($field, $opt, $show_disk) {
 // read directory contents into 'list' array
   global $docroot,$dir;
   $path = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-  $file = array(); $list = array();
+  $file = []; $list = [];
   $i = 0;
   exec("shopt -s dotglob ; stat -L -c'%F|%n|%s|%Y' $path 2>/dev/null", $file);
   foreach ($file as $entry) {
     $attr = explode('|', $entry);
     $info = pathinfo($attr[1]);
-    $list[] = array(
+    $list[] = [
     'type' => $attr[0],
     'name' => $info['basename'],
     'fext' => strtolower($info['extension']),
     'size' => $attr[2],
     'time' => $attr[3],
-    'disk' => $show_disk?my_disk(exec("shopt -s dotglob ; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg($attr[1]))):'');
+    'disk' => $show_disk?my_disk(exec("shopt -s dotglob ; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg($attr[1]))):''];
   }
 // sort by input 'field'
   if ($field=='name') {
-    $type = array();
-    $name = array();
+    $type = []; $name = [];
     foreach ($list as $row) {
       $type[] = $row['type'];
       $name[] = strtolower($row['name']);
     }
     array_multisort($type,$opt, $name,$opt, $list);
   } else {
-    $type = array();
-    $indx = array();
-    $name = array();
+    $type = []; $indx = []; $name = [];
     foreach ($list as $row) {
       $type[] = $row['type'];
       $indx[] = $row[$field];

@@ -13,8 +13,12 @@
  */
 ?>
 <?
+$docroot = @$docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 ignore_user_abort(true);
-require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $DockerClient = new DockerClient();
 $DockerUpdate = new DockerUpdate();
 $DockerTemplates = new DockerTemplates();
@@ -473,7 +477,7 @@ if (isset($_POST['contName'])) {
   // Get the command line
   list($cmd, $Name, $Repository) = xmlToCommand($postXML, $create_paths);
 
-  readfile("/usr/local/emhttp/plugins/dynamix.docker.manager/log.htm");
+  readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
   @flush();
 
   // Saving the generated configuration file.
@@ -492,8 +496,8 @@ if (isset($_POST['contName'])) {
     echo "<pre>".htmlentities($postXML)."</pre>";
     echo "<h2>COMMAND:</h2>";
     echo "<pre>".htmlentities($cmd)."</pre>";
-    echo "<center><input type='button' value='Back' onclick='window.location=window.location.pathname+window.location.hash+\"?xmlTemplate=edit:${filename}\"'>";
-    echo "<input type='button' value='Done' onclick='done()'></center><br>";
+    echo "<div style='text-align:center'><input type='button' value='Back' onclick='window.location=window.location.pathname+window.location.hash+\"?xmlTemplate=edit:${filename}\"'>";
+    echo "<input type='button' value='Done' onclick='done()'></div><br>";
     goto END;
   }
 
@@ -501,7 +505,7 @@ if (isset($_POST['contName'])) {
   if (!$DockerClient->doesImageExist($Repository)) {
     // Pull image
     if (!pullImage($Name, $Repository)) {
-      echo '<center><input type="button" value="Done" onclick="done()"></center><br>';
+      echo '<div style="text-align:center"><input type="button" value="Done" onclick="done()"></div><br>';
       goto END;
     }
   }
@@ -546,7 +550,7 @@ if (isset($_POST['contName'])) {
   $_GET['cmd'] = $cmd;
   include($dockerManPaths['plugin'] . "/include/Exec.php");
 
-  echo '<center><input type="button" value="Done" onclick="done()"></center><br>';
+  echo '<div style="text-align:center"><input type="button" value="Done" onclick="done()"></div><br>';
   goto END;
 }
 
@@ -554,7 +558,7 @@ if (isset($_POST['contName'])) {
 ##   UPDATE CONTAINER
 ##
 if ($_GET['updateContainer']){
-  readfile("/usr/local/emhttp/plugins/dynamix.docker.manager/log.htm");
+  readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
   @flush();
 
   foreach ($_GET['ct'] as $value) {
@@ -602,7 +606,7 @@ if ($_GET['updateContainer']){
     }
   }
 
-  echo '<center><input type="button" value="Done" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\');"></center><br>';
+  echo '<div style="text-align:center"><input type="button" value="Done" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\');"></div><br>';
   goto END;
 }
 

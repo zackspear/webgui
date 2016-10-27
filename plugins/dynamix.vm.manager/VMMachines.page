@@ -40,8 +40,8 @@ if ($action) {
 				'Error: '.$lv->get_last_error();
 		}
 		elseif ($subaction == 'disk-resize') {
-      $capacity = str_replace(array("KB","MB","GB","TB","PB", " ", ","), array("K","M","G","T","P", "", ""), strtoupper($_POST['cap']));
-      $oldcap = str_replace(array("KB","MB","GB","TB","PB", " ", ","), array("K","M","G","T","P", "", ""), strtoupper($_GET['oldcap']));
+      $capacity = str_replace(["KB","MB","GB","TB","PB", " ", ","], ["K","M","G","T","P", "", ""], strtoupper($_POST['cap']));
+      $oldcap = str_replace(["KB","MB","GB","TB","PB", " ", ","], ["K","M","G","T","P", "", ""], strtoupper($_GET['oldcap']));
 			if (substr($oldcap,0,-1) < substr($capacity,0,-1)){
 				shell_exec("qemu-img resize -q " . escapeshellarg($_GET['disk']) . " $capacity");
 				$msg = $domName." disk capacity has been changed to $capacity";
@@ -124,7 +124,7 @@ if ($action) {
     }
 	} else {
 	sort($doms);
-   $contextMenus = array();
+   $contextMenus = [];
 
    for ($i = 0; $i < sizeof($doms); $i++) {
    	$name = $doms[$i];
@@ -196,8 +196,8 @@ if ($action) {
       if (!empty($vmtemplateicon)) {
          if (file_exists($vmtemplateicon)) {
             $vmicon = $vmtemplateicon;
-         } else if (file_exists('/usr/local/emhttp/plugins/dynamix.vm.manager/templates/images/' . $vmtemplateicon)) {
-            $vmicon = '/plugins/dynamix.vm.manager/templates/images/' . $vmtemplateicon;
+         } else if (file_exists("$docroot/plugins/dynamix.vm.manager/templates/images/".$vmtemplateicon)) {
+            $vmicon = "/plugins/dynamix.vm.manager/templates/images/".$vmtemplateicon;
          }
       }
 
@@ -243,7 +243,7 @@ if ($action) {
                               if($bootdev == 'cdrom')
                                  echo "selected ";
                               echo "value='?subaction=bootdev-change&amp;uuid=$uuid&amp;bootdev=cdrom'>cd</option>
-                              </select><font size='-6'>(boot)</font>
+                              </select><span class='small'>(boot)</span>
                            </th>
                            <th class='header'>Driver type</th>
                            <th class='header'>Dev Name</th>
@@ -465,10 +465,10 @@ if ($action) {
 unset($name, $val);
 if($msg){
 	if(strpos($msg, "rror:"))
-		$color = 'red';
+		$color = 'red-text';
 	else
-		$color = 'green';
-	echo "<script type='text/javascript'>$(function() { $('#countdown').html('<font class=\"".$color."\">".$msg."</font>');}); </script>";
+		$color = 'green-text';
+	echo "<script type='text/javascript'>$(function() { $('#countdown').html('<span class=\"".$color."\">".$msg."</span>');}); </script>";
 	}
 ?>
 
@@ -478,7 +478,7 @@ if($msg){
 
 <script>
 function vncOpen() {
-  $.post('/plugins/dynamix.vm.manager/classes/vnc.php',{cmd:'open',root:'<?=$docroot?>',file:'/usr/local/emhttp/plugins/dynamix.vm.manager/vncconnect.vnc'},function(data) {
+  $.post('/plugins/dynamix.vm.manager/classes/vnc.php',{cmd:'open',root:'<?=$docroot?>',file:'<?=$docroot?>/plugins/dynamix.vm.manager/vncconnect.vnc'},function(data) {
     window.location.href = data;
   });
 }

@@ -54,11 +54,11 @@ echo exec("dmidecode -q -t 2|awk -F: '/^\tManufacturer:/{m=$2;}; /^\tProduct Nam
 <div><span class="key">CPU:</span>
 <?
 function write($number) {
-  $words = array('zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty');
+  $words = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty','twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty'];
   return $number<=count($words) ? $words[$number] : $number;
 }
 $cpu = explode('#',exec("dmidecode -q -t 4|awk -F: '/^\tVersion:/{v=$2;}; /^\tCurrent Speed:/{s=$2;} END{print v\"#\"s}'"));
-$cpumodel = str_ireplace(array("Processor","(C)","(R)","(TM)"),array("","&#169;","&#174;","&#8482;"),$cpu[0]);
+$cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu[0]);
 if (strpos($cpumodel,'@')===false) {
   $cpuspeed = explode(' ',$cpu[1]);
   if ($cpuspeed[0]>=1000 && $cpuspeed[1]=='MHz') {
@@ -122,7 +122,7 @@ if (strpos($cpumodel,'@')===false) {
 $cache = explode('#',exec("dmidecode -q -t 7|awk -F: '/^\tSocket Designation:/{c=c$2\";\";}; /^\tInstalled Size:/{s=s$2\";\";} END{print c\"#\"s}'"));
 $socket = array_map('trim',explode(';',$cache[0]));
 $volume = array_map('trim',explode(';',$cache[1]));
-$name = array();
+$name = [];
 $size = "";
 for ($i=0; $i<count($socket); $i++) {
   if ($volume[$i] && $volume[$i]!='0 kB' && !in_array($socket[$i],$name)) {

@@ -22,7 +22,7 @@ function getUPSstatus() {
       $('#ups_summary').html(data[0]);
       $('#ups_status').html(data[1]);
     }
-<?if (($display['refresh']>0 || ($display['refresh']<0 && $var['mdResync']==0))):?>
+<?if ($update):?>
     setTimeout(getUPSstatus,<?=max(abs($display['refresh']),15000)?>);
 <?endif;?>
   });
@@ -32,5 +32,5 @@ $(getUPSstatus);
 
 <table class="tablesorter shift">
 <thead><tr><th style="width:15%">Key</th><th style="width:35%">Value</th><th style="width:15%">Key</th><th style="width:35%">Value</th></tr></thead>
-<tbody id="ups_status"><tr><td colspan="4"><center><i class="fa fa-spinner fa-spin icon"></i><em>Please wait, retrieving UPS information...</em></center></td></tr></tbody>
+<tbody id="ups_status"><tr><td colspan="4" style="text-align:center"><i class="fa fa-spinner fa-spin icon"></i><em>Please wait, retrieving UPS information...</em></td></tr></tbody>
 </table>

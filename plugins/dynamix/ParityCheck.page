@@ -16,9 +16,9 @@ Cond="($disks['parity']['status']!='DISK_NP_DSBL')"
 ?>
 
 <?
-$mode = array('Disabled','Daily','Weekly','Monthly','Yearly','Custom');
-$days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
-$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
+$mode = ['Disabled','Daily','Weekly','Monthly','Yearly','Custom'];
+$days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+$months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 $memory = '/tmp/memory.tmp';
 if (file_exists($memory)) {
   parse_str(file_get_contents($memory), $parity);

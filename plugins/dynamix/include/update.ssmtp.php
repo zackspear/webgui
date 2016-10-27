@@ -11,7 +11,8 @@
  */
 ?>
 <?
-require_once 'webGui/include/Encryption.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Encryption.php";
 
 $_POST['AuthPass'] = base64_encrypt($_POST['AuthPass']);
 ?>

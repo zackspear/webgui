@@ -11,7 +11,8 @@
  */
 ?>
 <?
-require_once("/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php");
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 // Autostart file
 global $dockerManPaths;
@@ -22,27 +23,27 @@ $template_repos = $dockerManPaths['template-repos'];
 if ($_POST['action'] == "autostart" ){
   $json = ($_POST['response'] == 'json') ? true : false;
 
-  if (! $json) readfile("/usr/local/emhttp/update.htm");
+  if (!$json) readfile("$docroot/update.htm");
 
   $container = urldecode(($_POST['container']));
   unset($_POST['container']);
 
   $allAutoStart = @file($autostart_file, FILE_IGNORE_NEW_LINES);
-  if ($allAutoStart===FALSE) $allAutoStart = array();
+  if ($allAutoStart===FALSE) $allAutoStart = [];
   $key = array_search($container, $allAutoStart);
   if ($key===FALSE) {
     array_push($allAutoStart, $container);
-    if ($json) echo json_encode(array( 'autostart' => true ));
+    if ($json) echo json_encode(['autostart' => true]);
   }
   else {
     unset($allAutoStart[$key]);
-    if ($json) echo json_encode(array( 'autostart' => false ));
+    if ($json) echo json_encode(['autostart' => false]);
   }
   file_put_contents($autostart_file, implode(PHP_EOL, $allAutoStart).(count($allAutoStart)? PHP_EOL : ""));
 }
 
 if ($_POST['#action'] == "templates" ){
-  readfile("/usr/local/emhttp/update.htm");
+  readfile("$docroot/update.htm");
   $repos = $_POST['template_repos'];
   file_put_contents($template_repos, $repos);
   $DockerTemplates = new DockerTemplates();
@@ -50,6 +51,6 @@ if ($_POST['#action'] == "templates" ){
 }
 
 if ( isset($_GET['is_dir'] )) {
-  echo json_encode( array( 'is_dir' => is_dir( $_GET['is_dir'] )));
+  echo json_encode(['is_dir' => is_dir($_GET['is_dir'])]);
 }
 ?>

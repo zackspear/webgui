@@ -15,8 +15,9 @@ Title="Boot Device"
 ?>
 <script>
 function boot_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'flash'},function(data) {
-    if (data) $('#boot_device').html(data);
+  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'flash'<?if ($tabbed):?>,diskio:diskio<?endif?>},function(data) {
+    if (data) {$('#boot_device').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>
     if ($('#tab3').is(':checked')) timer = setTimeout(boot_status,<?=abs($display['refresh'])?>);
@@ -27,7 +28,9 @@ function boot_status() {
   });
 }
 <?if ($update && $var['fsState']=='Started' && $tabbed):?>
-$('#tab3').bind({click:function() {clearTimeout(timer); boot_status();}});
+$('#tab3').bind({click:function() {clearTimeout(timer); boot_status(); $('i.toggle').show('slow');}});
+<?else:?>
+$('#tab3').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 
 boot_status();

@@ -15,16 +15,16 @@ function timer() {
   return Math.round((now.getTime()-start.getTime())/1000);
 }
 function online() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp'},timeout:5000})
-   .done(function(){$('div.notice').html('<span class="title">Reboot</span>Bringing system down... '+timer()); setTimeout(online,5000);})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp',update:true},timeout:5000})
+   .done(function(){$('div.notice').html('<span class="title">Reboot</span>System is going down... '+timer()); setTimeout(online,5000);})
    .fail(function(){$('div.notice').html('<span class="title">Reboot</span>System is rebooting... 0'); start=new Date(); setTimeout(offline,5000);});
 }
 function offline() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp'},timeout:5000})
-   .done(function(data){if (data.search('Running')>0) location = '/Main'; else setTimeout(offline,5000);})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp',update:true},timeout:5000})
+   .done(function(){location = '/Main';})
    .fail(function(){$('div.notice').html('<span class="title">Reboot</span>System is rebooting... '+timer()); setTimeout(offline,0);});
 }
 </script>
 </head>
-<body onload="online()"><div class='notice'><span class='title'>Reboot</span>Bringing system down... 0</div></body>
+<body onload="online()"><div class='notice'><span class='title'>Reboot</span>System is going down... 0</div></body>
 </html>

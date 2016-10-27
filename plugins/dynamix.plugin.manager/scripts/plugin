@@ -208,7 +208,7 @@ function logger($message) {
 //
 function plugin($method, $plugin_file, &$error) {
   global $unraid;
-  $methods = array("install", "remove");
+  $methods = ["install", "remove"];
 
   // parse plugin definition XML file
   $xml = simplexml_load_file($plugin_file, NULL, LIBXML_NOCDATA);

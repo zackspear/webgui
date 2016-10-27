@@ -88,6 +88,18 @@ $(function(){
 <input type="hidden" name="plugin">
 <input type="hidden" name="docker_notify">
 <input type="hidden" name="report">
+Notifications display:
+: <select name="display" size="1">
+  <?=mk_option($notify['display'], "0", "Detailed")?>
+  <?=mk_option($notify['display'], "1", "Summarized")?>
+  </select>
+
+> In *Detailed* view all notifications will be displayed on screen as soon as they arrive.<br>
+> Notifications can be acknowledged individually or all in once.
+>
+> In *Summarized* view notifications will be counted only and the number of unread notifications is shown in the menu header per category.<br>
+> Click on the counters to either acknowledge or view the unread notifications.
+
 Date format:
 : <select name="date" size="1">
   <?=mk_option($notify['date'], "d-m-Y", "DD-MM-YYYY")?>

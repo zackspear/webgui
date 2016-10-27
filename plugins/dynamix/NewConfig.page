@@ -68,7 +68,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 
 <hr>
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="cmdInit" value="Apply">
+<input type="hidden" name="cmdInit" value=" Apply ">
 <span class="indent">Retain current configuration:</span>
 <select id="s1" name="preset" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
@@ -79,7 +79,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <br>
 <span class="indent"><input type="button" name="apply" value=" Apply " onclick="prepareNewConfig(this.form)" disabled><input type="button" value=" Done " onclick="done()"></span>
 <?if ($disabled):?>
-<?=$newarray ? 'Array has been <b>RESET</b> (please configure)' : 'Array must be <b>STOPPED</b>'?>
+<?=$newarray ? "Array has been <span class='strong big'>Reset</span> (please configure)" : "Array must be <span class='strong big'>Stopped</span>"?>
 <?else:?>
 <input type="checkbox" onClick="apply.disabled=!this.checked"><small>Yes I want to do this</small>
 <?endif;?>

@@ -11,8 +11,9 @@
  */
 ?>
 <?
-require_once 'webGui/include/Markdown.php';
-require_once 'plugins/dynamix.plugin.manager/include/PluginHelpers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Markdown.php";
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $current = parse_ini_file('/etc/unraid-version');
 foreach (glob("/var/log/plugins/*.plg", GLOB_NOSORT) as $plugin_link) {
@@ -73,7 +74,7 @@ foreach (glob("/var/log/plugins/*.plg", GLOB_NOSORT) as $plugin_link) {
     $version_info .= "&nbsp;<a href='#' title='View Release Notes' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=".urlencode($txtfile)."','Release Notes',600,900); return false\"><img src='/webGui/images/information.png' class='icon'></a>";
   }
 // action
-  $action = strpos($plugin_file, "/usr/local/emhttp/plugins") !== 0 ? make_link("remove", basename($plugin_file)) : "built-in";
+  $action = strpos($plugin_file, "$docroot/plugins") !== 0 ? make_link("remove", basename($plugin_file)) : "built-in";
 // write plugin information
   echo "<tr>";
   echo "<td style='vertical-align:top;width:64px'><p style='text-align:center'>{$link}</p></td>";

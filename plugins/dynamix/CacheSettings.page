@@ -60,5 +60,5 @@ Min. free space:
 > **2000000** => 2,048,000,000 bytes
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be **Stopped** to change<?endif;?>
+: <input type="submit" name="changeShare" value="Apply" <?=$disabled?>><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 </form>

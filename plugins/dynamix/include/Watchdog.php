@@ -15,11 +15,11 @@ $var = parse_ini_file("state/var.ini");
 
 switch ($var['fsState']) {
 case 'Stopped':
-  echo '<span class="red"><strong>Array Stopped</strong></span>'; break;
+  echo '<span class="red strong">Array Stopped</span>'; break;
 case 'Starting':
-  echo '<span class="orange"><strong>Array Starting</strong></span>'; break;
+  echo '<span class="orange strong">Array Starting</span>'; break;
 default:
-  echo '<span class="green"><strong>Array Started</strong></span>'; break;
+  echo '<span class="green strong">Array Started</span>'; break;
 }
 if ($var['mdResync']) {
   $mode = '';
@@ -32,7 +32,7 @@ if ($var['mdResync']) {
   } elseif (strstr($var['mdResyncAction'],"check")) {
     $mode = 'Parity-Check';
   }
-  echo '&bullet;<span class="orange"><strong>'.$mode.' '.number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,$_POST['dot'],'').' %</strong></span>';
+  echo '&bullet;<span class="orange strong">'.$mode.' '.number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,$_POST['dot'],'').' %</span>';
   if ($_POST['mode']<0) echo '#stop';
 }
 ?>

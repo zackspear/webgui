@@ -15,14 +15,14 @@ function timer() {
   return Math.round((now.getTime()-start.getTime())/1000);
 }
 function online() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp'},timeout:5000})
-   .done(function(){$('div.notice').html('<span class="title">Shutdown</span>Bringing system down... '+timer()); setTimeout(online,5000);})
-   .fail(function(){$('div.notice').html('<span class="title">Shutdown</span>System goes offline... 0'); start=new Date(); setTimeout(offline,5000);});
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttp',update:true},timeout:5000})
+   .done(function(){$('div.notice').html('<span class="title">Shutdown</span>System is going down... '+timer()); setTimeout(online,5000);})
+   .fail(function(){$('div.notice').html('<span class="title">Shutdown</span>System is offline... 0'); start=new Date(); setTimeout(offline,5000);});
 }
 function offline() {
   var time = timer();
   if (time < 30) {
-    $('div.notice').html('<span class="title">Shutdown</span>System goes offline... '+time);
+    $('div.notice').html('<span class="title">Shutdown</span>System is offline... '+time);
     setTimeout(offline,5000);
   } else {
     $('div.notice').html('<span class="title">Shutdown</span>System is powered off...');
@@ -30,5 +30,5 @@ function offline() {
 }
 </script>
 </head>
-<body onload="online()"><div class='notice'><span class='title'>Shutdown</span>Bringing system down... 0</div></body>
+<body onload="online()"><div class='notice'><span class='title'>Shutdown</span>System is going down... 0</div></body>
 </html>

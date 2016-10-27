@@ -11,6 +11,7 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 $dockerManPaths = [
 	'plugin'            => '/usr/local/emhttp/plugins/dynamix.docker.manager',
@@ -26,11 +27,11 @@ $dockerManPaths = [
 
 #load emhttp variables if needed.
 if (!isset($var)) {
-	if (!is_file("/usr/local/emhttp/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
-	$var = @parse_ini_file("/usr/local/emhttp/state/var.ini");
+	if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
+	$var = @parse_ini_file("$docroot/state/var.ini");
 }
-if (!isset($eth0) && is_file("/usr/local/emhttp/state/network.ini")) {
-	extract(parse_ini_file('/usr/local/emhttp/state/network.ini',true));
+if (!isset($eth0) && is_file("$docroot/state/network.ini")) {
+	extract(parse_ini_file("$docroot/state/network.ini",true));
 }
 
 // Docker configuration file - guaranteed to exist
@@ -354,7 +355,7 @@ class DockerTemplates {
 
 
 	public function getIcon($Repository) {
-		global $dockerManPaths;
+		global $docroot, $dockerManPaths;
 
 		$imgUrl = $this->getTemplateValue($Repository, "Icon");
 
@@ -369,8 +370,7 @@ class DockerTemplates {
 			}
 			@copy($storagePath, $tempPath);
 		}
-
-		return (is_file($tempPath)) ? str_replace('/usr/local/emhttp', '', $tempPath) : "";
+		return (is_file($tempPath)) ? str_replace($docroot, '', $tempPath) : "";
 	}
 }
 
@@ -778,12 +778,12 @@ class DockerClient {
 
 
 	public function removeContainer($id) {
-		global $dockerManPaths;
+		global $docroot, $dockerManPaths;
 		// Purge cached container information
 		$info = DockerUtil::loadJSON($dockerManPaths['webui-info']);
 		if (isset($info[$id])) {
 			if (isset($info[$id]['icon'])) {
-				$iconRam = '/usr/local/emhttp'.$info[$id]['icon'];
+				$iconRam = $docroot.$info[$id]['icon'];
 				$iconFlash = str_replace($dockerManPaths['images-ram'], $dockerManPaths['images-storage'], $iconRam);
 				if (is_file($iconRam)) {
 					unlink($iconRam);

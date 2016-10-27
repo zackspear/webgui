@@ -12,10 +12,13 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 exec("pgrep docker", $pid);
 if (count($pid) == 1) exit(0);
 
-require_once '/usr/local/emhttp/plugins/dynamix.docker.manager/include/DockerClient.php';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $DockerClient = new DockerClient();
 $DockerTemplates = new DockerTemplates();
 
@@ -32,8 +35,8 @@ if (!isset($check)) {
   $DockerTemplates->getAllInfo(true);
   echo " Done.";
 } else {
-  require_once '/usr/local/emhttp/webGui/include/Wrappers.php';
-  $notify = "/usr/local/emhttp/webGui/scripts/notify";
+  require_once "$docroot/webGui/include/Wrappers.php";
+  $notify = "$docroot/webGui/scripts/notify";
   $unraid = parse_plugin_cfg("dynamix",true);
   $server = strtoupper($var['NAME']);
   $output = $unraid['notify']['docker_notify'];
@@ -43,7 +46,7 @@ if (!isset($check)) {
     $name = $ct['Name'];
     $image = $ct['Image'];
     if ($info[$name]['updated'] == "false") {
-      $updateStatus = (is_file($dockerManPaths['update-status'])) ? json_decode(file_get_contents($dockerManPaths['update-status']), TRUE) : array();
+      $updateStatus = (is_file($dockerManPaths['update-status'])) ? json_decode(file_get_contents($dockerManPaths['update-status']), TRUE) : [];
       $new = str_replace('sha256:', '', $updateStatus[$image]['remote']);
       $new = substr($new, 0, 4).'..'.substr($new, -4, 4);
 

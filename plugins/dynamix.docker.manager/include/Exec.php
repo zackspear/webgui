@@ -11,6 +11,8 @@
  */
 ?>
 <?
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 if ( isset( $_GET['cmd'] )) {
   $command = urldecode(($_GET['cmd']));
   $descriptorspec = [
@@ -20,7 +22,7 @@ if ( isset( $_GET['cmd'] )) {
   ];
 
   $parts = explode(" ", $command);
-  $command = escapeshellcmd(realpath($_SERVER['DOCUMENT_ROOT'].array_shift($parts)));
+  $command = escapeshellcmd(realpath($docroot.array_shift($parts)));
   if (!$command) return;
   $command .= " ".implode(" ", $parts); // should add 'escapeshellarg' here, but this requires changes in all the original arguments
   $id = mt_rand();
@@ -31,7 +33,7 @@ if ( isset( $_GET['cmd'] )) {
   echo "<p class=\"logLine\" id=\"logBody\"></p></fieldset>');</script>";
   echo "<script>show_Wait({$id});</script>";
   @flush();
-  $proc = proc_open($command." 2>&1", $descriptorspec, $pipes, '/', array());
+  $proc = proc_open($command." 2>&1", $descriptorspec, $pipes, '/', []);
   while ($out = fgets( $pipes[1] )) {
     $out = preg_replace("%[\t\n\x0B\f\r]+%", '', $out );
     @flush();

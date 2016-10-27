@@ -11,7 +11,8 @@
  */
 ?>
 <?
-require_once 'Helpers.php';
+$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
 
 $shares  = parse_ini_file('state/shares.ini',true);
 $disks   = parse_ini_file('state/disks.ini',true);
@@ -28,7 +29,7 @@ $display['scale']  = $_GET['scale'];
 $display['number'] = $_GET['number'];
 
 if (!$shares) {
-  echo "<tr><td colspan='8' style='text-align:center'><i class='fa fa-folder-open-o icon'></i>There are no exportable user shares</td></tr>";
+  echo "<tr><td colspan='8' style='text-align:center;padding-top:12px'><i class='fa fa-folder-open-o icon'></i>There are no exportable user shares</td></tr>";
   exit;
 }
 
@@ -58,7 +59,7 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 
 // Share size per disk
 $preserve = ($path==$prev || $compute=='yes');
-$ssz1 = array();
+$ssz1 = [];
 foreach (glob("state/*.ssz1", GLOB_NOSORT) as $entry) {
   if ($preserve)
     $ssz1[basename($entry, ".ssz1")] = parse_ini_file($entry);
@@ -110,5 +111,5 @@ foreach ($shares as $name => $share) {
   }
 }
 if ($row==0) {
-  echo "<tr><td colspan='8' style='text-align:center'><i class='fa fa-folder-open-o icon'></i>There are no exportable user shares</td></tr>";
+  echo "<tr><td colspan='8' style='text-align:center;padding-top:12px'><i class='fa fa-folder-open-o icon'></i>There are no exportable user shares</td></tr>";
 }

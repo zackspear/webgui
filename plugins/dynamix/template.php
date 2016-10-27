@@ -11,23 +11,23 @@
  */
 ?>
 <?
-require_once 'include/Helpers.php';
-require_once 'include/PageBuilder.php';
+// Define root path
+$docroot = $_SERVER['DOCUMENT_ROOT'];
+
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/PageBuilder.php";
 
 // Extract the 'querystring'
 // variables provided by emhttp:
 //   path=<path>   page path, e.g., path=Main/Disk
-//   prev=<path>   prev path, e.g., prev=Main (used to deterine if page was refreshed)
+//   prev=<path>   prev path, e.g., prev=Main (used to determine if page was refreshed)
 extract($_GET);
-
-// Define some paths
-$docroot = $_SERVER['DOCUMENT_ROOT'];
 
 // The current "task" is the first element of the path
 $task = strtok($path, '/');
 
 // Get the webGui configuration preferences
-extract(parse_plugin_cfg("dynamix",true));
+extract(parse_plugin_cfg('dynamix',true));
 
 // Read emhttp status
 $var     = parse_ini_file('state/var.ini');
@@ -43,7 +43,7 @@ $sec_afp = parse_ini_file('state/sec_afp.ini',true);
 extract(parse_ini_file('state/network.ini',true));
 
 // Merge SMART settings
-require_once 'include/CustomMerge.php';
+require_once "$docroot/webGui/include/CustomMerge.php";
 
 // Build webGui pages first, then plugins pages
 $site = [];
@@ -54,9 +54,9 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 
 // Here's the page we're rendering
 $myPage = $site[basename($path)];
-$pageroot = "{$docroot}/".dirname($myPage['file']);
+$pageroot = $docroot.'/'.dirname($myPage['file']);
 $update = $display['refresh']>0 || ($display['refresh']<0 && $var['mdResync']==0);
 
 // Giddyup
-require_once 'include/DefaultPageLayout.php';
+require_once "$docroot/webGui/include/DefaultPageLayout.php";
 ?>

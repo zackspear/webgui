@@ -47,7 +47,7 @@ if (isset($disks[$name])) {
 <input type="hidden" name="shareName" value="<?=$name?>">
 
 Share name:
-: <big><?=$name?></big>
+: <span class="big"><?=$name?></span>
 
 Export:
 : <select name="shareExport" size="1">
