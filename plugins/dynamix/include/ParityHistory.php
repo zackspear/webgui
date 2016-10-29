@@ -33,23 +33,23 @@ function my_duration($time) {
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-white.css">
 </head>
 <body>
-<table class='share_status' style='margin-top:0'><thead><tr><td>Date</td><td>Duration</td><td>Speed</td><td>Status</td></tr></thead><tbody>
+<table class='share_status' style='margin-top:0'><thead><tr><td>Date</td><td>Duration</td><td>Speed</td><td>Status</td><td>Errors</td></tr></thead><tbody>
 <?
 $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($line = fgets($handle)) !== false) {
-    list($date,$duration,$speed,$status) = explode('|',$line);
+    list($date,$duration,$speed,$status,$error) = explode('|',$line);
     if ($speed==0) $speed = 'Unavailable';
     $date = str_replace(' ',', ',strtr(str_replace('  ',' 0',$date),$month));
-    if ($duration>0||$status<>0) $list[] = "<tr><td>$date</td><td>".my_duration($duration)."</td><td>$speed</td><td>".($status==0?'OK':($status==-4?'Canceled':$status))."</td></tr>";
+    if ($duration>0||$status<>0) $list[] = "<tr><td>$date</td><td>".my_duration($duration)."</td><td>$speed</td><td>".($status==0?'OK':($status==-4?'Canceled':$status))."</td><td>$error</td></tr>";
   }
   fclose($handle);
 }
 if ($list)
   for ($i=count($list); $i>=0; --$i) echo $list[$i];
 else
-  echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No parity check history present!</td></tr>";
+  echo "<tr><td colspan='5' style='text-align:center;padding-top:12px'>No parity check history present!</td></tr>";
 ?>
 </tbody></table>
 <div style="text-align:center"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>

@@ -165,7 +165,7 @@ function read_parity_log($epoch,$busy=false) {
     }
     fclose($handle);
   }
-  return $line ?: ($last ?: '0|0|0|0');
+  return $line ?: $last ?: '0|0|0|0|0';
 }
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
