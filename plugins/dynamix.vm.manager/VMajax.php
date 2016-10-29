@@ -293,7 +293,7 @@ switch ($action) {
 				$arrResponse['dirty-flag'] = $json_info['dirty-flag'];
 				$arrResponse['resizable'] = true;
 			}
-		} else if (is_block($file)) {
+		} elseif (is_block($file)) {
 			$strDevSize = trim(shell_exec("blockdev --getsize64 " . escapeshellarg($file)));
 			if (!empty($strDevSize) && is_numeric($strDevSize)) {
 				$arrResponse['actual-size'] = (int)$strDevSize;
@@ -459,9 +459,9 @@ switch ($action) {
 
 		if (empty($arrDownloadVirtIO)) {
 			$arrResponse = ['error' => 'Unknown version: ' . $_POST['download_version']];
-		} else if (empty($_POST['download_path'])) {
+		} elseif (empty($_POST['download_path'])) {
 			$arrResponse = ['error' => 'Specify a ISO storage path first'];
-		} else if (!is_dir($_POST['download_path'])) {
+		} elseif (!is_dir($_POST['download_path'])) {
 			$arrResponse = ['error' => 'ISO storage path doesn\'t exist, please create the user share (or empty folder) first'];
 		} else {
 			@mkdir($_POST['download_path'], 0777, true);
@@ -539,12 +539,12 @@ switch ($action) {
 
 						$arrResponse['status'] = 'Downloading ... ' . $strPercent . '%';
 
-					} else if (pgrep($strVerifyPgrep)) {
+					} elseif (pgrep($strVerifyPgrep)) {
 
 						// Status = running md5 check
 						$arrResponse['status'] = 'Verifying ... ';
 
-					} else if (file_exists($strMD5StatusFile)) {
+					} elseif (file_exists($strMD5StatusFile)) {
 
 						// Status = running extract
 						$arrResponse['status'] = 'Cleanup ... ';
@@ -560,7 +560,7 @@ switch ($action) {
 
 						}
 
-					} else if (!file_exists($strMD5File)) {
+					} elseif (!file_exists($strMD5File)) {
 
 						// Status = running md5 check
 						$arrResponse['status'] = 'Downloading ... 100%';
@@ -578,7 +578,7 @@ switch ($action) {
 
 				}
 
-			} else if (!$boolCheckOnly) {
+			} elseif (!$boolCheckOnly) {
 
 				if (!pgrep($strInstallScriptPgrep)) {
 
@@ -608,9 +608,9 @@ switch ($action) {
 
 		if (empty($arrDownloadVirtIO)) {
 			$arrResponse = ['error' => 'Unknown version: ' . $_POST['download_version']];
-		} else if (empty($_POST['download_path'])) {
+		} elseif (empty($_POST['download_path'])) {
 			$arrResponse = ['error' => 'ISO storage path was empty'];
-		} else if (!is_dir($_POST['download_path'])) {
+		} elseif (!is_dir($_POST['download_path'])) {
 			$arrResponse = ['error' => 'ISO storage path doesn\'t exist'];
 		} else {
 			$strInstallScriptPgrep = '-f "VirtIOWin_' . $strKeyName . '_install.sh"';

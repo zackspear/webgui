@@ -43,7 +43,7 @@ if (!empty($_GET['uuid'])) {
 	if (!empty($strIcon)) {
 		if (is_file($strIcon)) {
 			$strIconURL = $strIcon;
-		} else if (is_file("$docroot/plugins/dynamix.vm.manager/templates/images/" . $strIcon)) {
+		} elseif (is_file("$docroot/plugins/dynamix.vm.manager/templates/images/" . $strIcon)) {
 			$strIconURL = '/plugins/dynamix.vm.manager/templates/images/' . $strIcon;
 		}
 	} else {

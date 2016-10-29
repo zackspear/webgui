@@ -20,30 +20,38 @@ function data_disks($disk) {
 ?>
 <script>
 function setNewPerms(form) {
-  var disks = '';
-  var all = form.includeDisk.options[0].selected;
+  var dirs = '';
   for (var i=1,item; item=form.includeDisk.options[i]; i++) {
     if (item.selected) {
-      if (disks.length) disks += '|';
-      if (!all) disks += item.value;
-      item.selected = false;
+      if (dirs.length) dirs += '|';
+      dirs += item.value;
     }
   }
-  if (all||disks) openBox('/webGui/scripts/newperms&arg1='+disks,'New Permissions',490,430);
+  for (var i=1,item; item=form.includeShare.options[i]; i++) {
+    if (item.selected) {
+      if (dirs.length) dirs += '|';
+      dirs += item.value;
+    }
+  }
+  if (dirs) swal({title:'Proceed?',text:'This will update folder & file permissions',type:'warning',showCancelButton:true},function(){openBox('/webGui/scripts/newperms&arg1='+dirs,'New Permissions',490,430,true);});
 }
 $(function() {
   $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
+  $('#s2').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
 <?if ($var['fsState']!="Started"):?>
   $('#s1').dropdownchecklist('disable');
+  $('#s2').dropdownchecklist('disable');
 <?endif;?>
 });
 </script>
-This is a one-time action to be taken after upgrading from a pre-5.0 unRAID server
-release to version 5.0.  It is also useful for restoring default ownership/permissions on files and
+This is a mandatory one-time action to be taken after upgrading from a pre-5.0 unRAID server release to unRAID v5 or a later release.
+Select **ALL DISKS** when performing this one-time action.
+
+This utility is also useful for restoring default ownership/permissions on files and
 directories when transitioning back from Active Directory to non-Active Directory integration.
 
-This utility starts a background process that goes to each of your data disks and cache disk
-and changes file and directory ownership to nobody/users (i.e., uid/gid to 99/100), and sets permissions
+The utility starts a background process that goes to each of your data disks and cache disks and selected user shares
+and changes file and directory ownership to *nobody/users* (i.e., uid/gid to 99/100), and sets permissions
 as follows:
 ~~~
 For directories:
@@ -59,21 +67,32 @@ Clicking **Start** will open another window and start the background process.
 
 Closing the window before completion will terminate the background process - so don't do that. This process can take a long time if you have many files.
 
-<form method="POST" action="/update.htm" target="progressFrame" onsubmit="setNewPerms(this);return false">
+<form method="POST" action="/update.htm" target="progressFrame">
+<span style="display:inline-block;margin-top:8px">
+<span style="display:block;margin-bottom:4px;font-weight:bold">Disks</span>
 <select id="s1" name="includeDisk" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
 <?if (isset($disks['cache'])):?>
-<option value='/mnt/cache' selected>Cache</option>
+<option value='/mnt/cache'>Cache</option>
 <?endif;?>
 <?foreach (array_filter($disks,'data_disks') as $disk):?>
-<?=mk_option(0,"/mnt/{$disk['name']}",my_disk($disk['name']))?>
+<?=mk_option(1,"/mnt/{$disk['name']}",my_disk($disk['name']))?>
 <?endforeach;?>
-</select>&nbsp;&nbsp;
-
-<input type="submit" name="start" value="Start" disabled><input type="button" value=" Done " onclick="done()">
-<?if ($var['fsState']!="Started"):?>
-Array must be <span class="strong big">Started</span> to change permissions.
+</select>
+</span>
+<span style="display:inline-block">
+<span style="display:block;margin-bottom:4px;font-weight:bold">User Shares</span>
+<select id="s2" name="includeShare" size="1" multiple="multiple" style="display:none">
+<option value=''>All</option>
+<?foreach ($shares as $share):?>
+<?=mk_option(1,"/mnt/user/{$share['name']}",$share['name'])?>
+<?endforeach;?>
+</select>
+</span>
+<br><br>
+<?if ($var['fsState']=="Started"):?>
+<input type="button" value="Start" onclick="setNewPerms(this.form)"><input type="button" value=" Done " onclick="done()">
 <?else:?>
-<input type="checkbox" onClick="start.disabled=!this.checked"><small>Yes I want to do this</small>
+<input type="button" value="Start" disabled><input type="button" value=" Done " onclick="done()"> Array must be <span class="strong big">Started</span> to change permissions.
 <?endif;?>
 </form>

@@ -41,8 +41,8 @@ foreach ($ports as $port) {
   }
 }
 // enable interface only when VMs and Docker are stopped
-$service = exec("pgrep libvirt") ? 'VMs' : '';
-$service .= exec("pgrep docker") ? ($service ? ' and ' : '').'Docker' : '';
+$service = exec("pgrep libvirt") ? 'VM manager' : '';
+$service .= exec("pgrep docker") ? ($service ? ' and ' : '').'Docker service' : '';
 
 // eth0 port status
 $no_eth0 = exec("ip link show eth0|grep -Pom1 '(NO-CARRIER|state DOWN)'");
@@ -536,5 +536,5 @@ Network mask:
 </script>
 
 &nbsp;
-: <input type="submit" value="Apply" onclick="$('#wait_eth0').show()"><input type="button" value="Done" onclick="done()"><?=$service ? "$service must be <span class='strong big'>Stopped</span> to change" : ""?>
+: <input type="submit" value="Apply" onclick="$('#wait_eth0').show()"><input type="button" value="Done" onclick="done()"><?=$service ? "$service must be <span class='strong big'>Stopped</span> to change (see Settings)" : ""?>
 </form>

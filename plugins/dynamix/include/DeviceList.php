@@ -92,7 +92,7 @@ function fs_info(&$disk) {
   if ($disk['fsStatus']=='-') {
     echo "<td colspan='5'></td>";
     return;
-  } else if ($disk['fsStatus']=='Mounted') {
+  } elseif ($disk['fsStatus']=='Mounted') {
     echo "<td>{$disk['fsType']}</td>";
     echo "<td>".my_scale($disk['fsSize']*1024,$unit)." $unit</td>";
     if ($display['text']%10==0) {
@@ -380,8 +380,9 @@ case 'parity':
     $duration = $var['sbSynced2'] - $var['sbSynced'];
     $status = $var['sbSyncExit'];
     $speed = ($status==0) ? my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/s" : "Unavailable";
+    $error = $var['sbSyncErrs'];
     $year = date('Y',$var['sbSynced2']);
-    if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status\n",FILE_APPEND);
+    if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error\n",FILE_APPEND);
   }
   break;
 }

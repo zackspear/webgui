@@ -148,7 +148,7 @@ foreach ($allVMs as $name) {
 	if (!empty($vmtemplateicon)) {
 		if (file_exists($vmtemplateicon)) {
 			$vmicon = $vmtemplateicon;
-		} else if (file_exists("$docroot/plugins/dynamix.vm.manager/templates/images/" . $vmtemplateicon)) {
+		} elseif (file_exists("$docroot/plugins/dynamix.vm.manager/templates/images/" . $vmtemplateicon)) {
 			$vmicon = '/plugins/dynamix.vm.manager/templates/images/' . $vmtemplateicon;
 		}
 	}

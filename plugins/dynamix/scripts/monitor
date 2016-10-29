@@ -70,7 +70,7 @@ function my_check($time,$speed) {
   $secs = $hmss%60;
   return plus($days,'day',($hour|$mins|$secs)==0).plus($hour,'hour',($mins|$secs)==0).plus($mins,'minute',$secs==0).plus($secs,'second',true).". Average speed: $speed";
 }
-function read_write_parity_log($epoch,$duration,$speed,$status) {
+function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
   $log = '/boot/config/parity-checks.log';
   $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
   if (file_exists($log)) {
@@ -82,7 +82,7 @@ function read_write_parity_log($epoch,$duration,$speed,$status) {
   }
   if (empty($line)) {
     $year = date('Y',$epoch);
-    $line = "$year $timestamp|$duration|$speed|$status";
+    $line = "$year $timestamp|$duration|$speed|$status|$error";
     if ($status==0||file_exists($log)) file_put_contents($log,"$line\n",FILE_APPEND);
   }
   return $line;
@@ -295,10 +295,10 @@ if ($var['mdResync']>0) {
     $duration = $var['sbSynced2'] - $var['sbSynced'];
     $status = $var['sbSyncExit'];
     $speed = $status==0 ? my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/s" : "Unavailable";
-    list($entry,$duration,$speed,$status) = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status));
+    list($entry,$duration,$speed,$status,$error) = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
-    exec("$notify -e \"unRAID $last\" -s \"Notice [$server] - $last finished ({$var['sbSyncErrs']} errors)\" -d \"$info\" -i \"$level\"");
+    exec("$notify -e \"unRAID $last\" -s \"Notice [$server] - $last finished ($error errors)\" -d \"$info\" -i \"$level\"");
     unset($saved[$item][$name]);
   }
 }
@@ -338,7 +338,7 @@ if ($retval===0) {
       exec("$notify -e \"Docker critical image disk utilization\" -s \"Alert [$server] - Docker image disk utilization of ${warn}%\" -d \"$info\" -i \"alert\"");
       $saved[$item][$name] = $warn;
     }
-  } else if ($warn>=$high2 && $high2>0) {
+  } elseif ($warn>=$high2 && $high2>0) {
     if ($warn>$last) {
       exec("$notify -e \"Docker high image disk utilization\" -s \"Warning [$server] - Docker image disk utilization of ${warn}%\" -d \"$info\" -i \"warning\"");
       $saved[$item][$name] = $warn;

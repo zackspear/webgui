@@ -309,7 +309,7 @@
 				foreach($domain['vcpu'] as $i => $vcpu) {
 					$vcpupinstr .= "<vcpupin vcpu='$i' cpuset='$vcpu'/>";
 				}
-			} else if (!empty($domain['vcpus'])) {
+			} elseif (!empty($domain['vcpus'])) {
 				$vcpus = $domain['vcpus'];
 				for ($i=0; $i < $vcpus; $i++) {
 					$vcpupinstr .= "<vcpupin vcpu='$i' cpuset='$i'/>";

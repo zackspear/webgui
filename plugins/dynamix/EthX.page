@@ -263,5 +263,5 @@ Network mask:
 </script>
 
 &nbsp;
-: <input type="submit" value="Apply" onclick="$(waitid).show()"><input type="button" value="Done" onclick="done()"><input type="button" name="#shut_ethX" value="Port <?=$cmd?>" onclick="portToggle('ethX','<?=$cmd?>')"><?if ($service) echo "$service must be <span class='strong big'>Stopped</span> to change"?>
+: <input type="submit" value="Apply" onclick="$(waitid).show()"><input type="button" value="Done" onclick="done()"><input type="button" name="#shut_ethX" value="Port <?=$cmd?>" onclick="portToggle('ethX','<?=$cmd?>')"><?=$service ? "$service must be <span class='strong big'>Stopped</span> to change (see Settings)" : ""?>
 </form>
