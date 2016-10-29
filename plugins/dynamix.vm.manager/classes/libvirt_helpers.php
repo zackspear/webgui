@@ -585,7 +585,7 @@
 					if (preg_match('/.+\[(?P<gpuname>.+)\]/', $arrMatch['productname'], $arrGPUMatch)) {
 						$arrMatch['productname'] = $arrGPUMatch['gpuname'];
 					}
-				} else if (preg_match($arrWhitelistAudioClassIDregex, $arrMatch['typeid'])) {
+				} elseif (preg_match($arrWhitelistAudioClassIDregex, $arrMatch['typeid'])) {
 					$strClass = 'audio';
 				}
 

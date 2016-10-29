@@ -1007,7 +1007,7 @@
 						$extra = '';
 						if (count(array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 							$extra .= ' checked="checked"';
-						} else if (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
+						} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 							//$extra .= ' disabled="disabled"';
 							continue;
 						}

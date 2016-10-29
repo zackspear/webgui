@@ -83,7 +83,7 @@
 
 		if (empty($arrDownloadLibreELEC)) {
 			$arrResponse = ['error' => 'Unknown version: ' . $_POST['download_version']];
-		} else if (empty($_POST['download_path'])) {
+		} elseif (empty($_POST['download_path'])) {
 			$arrResponse = ['error' => 'Please choose a folder the LibreELEC image will download to'];
 		} else {
 			@mkdir($_POST['download_path'], 0777, true);
@@ -162,7 +162,7 @@
 					}
 				}
 
-			} else if (file_exists($strTempFile)) {
+			} elseif (file_exists($strTempFile)) {
 
 				if (pgrep($strDownloadPgrep)) {
 
@@ -175,12 +175,12 @@
 
 					$arrResponse['status'] = 'Downloading ... ' . $strPercent . '%';
 
-				} else if (pgrep($strVerifyPgrep)) {
+				} elseif (pgrep($strVerifyPgrep)) {
 
 					// Status = running md5 check
 					$arrResponse['status'] = 'Verifying ... ';
 
-				} else if (file_exists($strMD5StatusFile)) {
+				} elseif (file_exists($strMD5StatusFile)) {
 
 					// Status = running extract
 					$arrResponse['status'] = 'Extracting ... ';
@@ -198,7 +198,7 @@
 						}
 					}
 
-				} else if (!file_exists($strMD5File)) {
+				} elseif (!file_exists($strMD5File)) {
 
 					// Status = running md5 check
 					$arrResponse['status'] = 'Downloading ... 100%';
@@ -214,7 +214,7 @@
 
 				}
 
-			} else if (!$boolCheckOnly) {
+			} elseif (!$boolCheckOnly) {
 
 				if (!pgrep($strInstallScriptPgrep)) {
 
@@ -898,7 +898,7 @@
 							$extra = '';
 							if (count(array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
-							} else if (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
+							} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 								//$extra .= ' disabled="disabled"';
 								continue;
 							}
