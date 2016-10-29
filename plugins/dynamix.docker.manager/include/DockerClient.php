@@ -80,9 +80,9 @@ class DockerTemplates {
 		if ($type == "all") {
 			$dirs[] = $dockerManPaths['templates-user'];
 			$dirs[] = $dockerManPaths['templates-storage'];
-		} else if ($type == "user") {
+		} elseif ($type == "user") {
 			$dirs[] = $dockerManPaths['templates-user'];
-		} else if ($type == "default") {
+		} elseif ($type == "default") {
 			$dirs[] = $dockerManPaths['templates-storage'];
 		} else {
 			$dirs[] = $type;
@@ -102,7 +102,7 @@ class DockerTemplates {
 				$this->removeDir(realpath($path) . '/' . $file);
 			}
 			return rmdir($path);
-		} else if (is_file($path)) {
+		} elseif (is_file($path)) {
 			return unlink($path);
 		}
 		return false;
@@ -526,20 +526,20 @@ class DockerUpdate{
 		$changed = false;
 		$DockerTemplates = new DockerTemplates();
 		$validElements = [
-			"Support",
-			"Overview",
-			"Category",
-			"WebUI",
-			"Icon"
+			0 => "Support",
+			1 => "Overview",
+			2 => "Category",
+			3 => "WebUI",
+			4 => "Icon"
 		];
 
 		$validAttributes = [
-			"Name",
-			"Default",
-			"Description",
-			"Display",
-			"Required",
-			"Mask"
+			0 => "Name",
+			1 => "Default",
+			2 => "Description",
+			3 => "Display",
+			4 => "Required",
+			5 => "Mask"
 		];
 
 		// Get user template file and abort if fail
@@ -575,12 +575,12 @@ class DockerUpdate{
 				$value   = $this->xml_decode($local_element);
 				// Values changed, updating.
 				if ($value != $rvalue) {
-					$local_element[0] = $this->xml_encode($rvalue);
+					$local_element->{0} = $this->xml_encode($rvalue);
 					$this->debug("Updating $name from [$value] to [$rvalue]");
 					$changed = true;
 				}
 			// Compare atributes on Config if they are in the validAttributes list
-			} else if ($name == "Config") {
+			} elseif ($name == "Config") {
 				$type   = $this->xml_decode($remote_element['Type']);
 				$target = $this->xml_decode($remote_element['Target']);
 				if ($type == "Port") {
@@ -618,8 +618,6 @@ class DockerUpdate{
 			$dom->formatOutput = true;
 			$dom->loadXML($template->asXML());
 			file_put_contents($file, $dom->saveXML());
-		} else {
-			$this->debug("Template is up to date.");
 		}
 	}
 }
@@ -969,7 +967,7 @@ class DockerUtil {
 		if (strpos($strRepo, 'sha256:') === 0) {
 			// sha256 was provided instead of actual repo name so truncate it for display:
 			$strRepo = substr(str_replace('sha256:', '', $strRepo), 0, 12);
-		} else if (strpos($strRepo, '/') === false) {
+		} elseif (strpos($strRepo, '/') === false) {
 			// Prefix library/ if there's no author (maybe a Docker offical image?)
 			$strRepo = 'library/'.$strRepo;
 		}

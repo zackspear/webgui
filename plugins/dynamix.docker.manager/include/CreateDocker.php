@@ -224,12 +224,12 @@ function postToXML($post, $setOwnership = false) {
       $port->HostPort      = $post['confValue'][$i];
       $port->ContainerPort = $post['confTarget'][$i];
       $port->Protocol      = $post['confMode'][$i];
-    } else if ($Type == "Path") {
+    } elseif ($Type == "Path") {
       $path               = $xml->Data->addChild("Volume");
       $path->HostDir      = $post['confValue'][$i];
       $path->ContainerDir = $post['confTarget'][$i];
       $path->Mode         = $post['confMode'][$i];
-    } else if ($Type == "Variable") {
+    } elseif ($Type == "Variable") {
       $variable        = $xml->Environment->addChild("Variable");
       $variable->Value = $post['confValue'][$i];
       $variable->Name  = $post['confTarget'][$i];
