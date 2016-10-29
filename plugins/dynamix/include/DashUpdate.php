@@ -181,7 +181,7 @@ case 'port':
       $mtu = file_get_contents("/sys/class/net/$port/mtu");
       if (substr($port,0,4)=='bond') {
         $ports[$i++] = exec("grep -Pom1 '^Bonding Mode: \K.+' /proc/net/bonding/$port").", mtu $mtu";
-      } else if ($port=='lo') {
+      } elseif ($port=='lo') {
         $ports[$i++] = str_replace('yes','loopback',exec("ethtool lo|grep -Pom1 '^\s+Link detected: \K.+'"));
       } else {
         unset($info);

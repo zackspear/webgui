@@ -92,7 +92,7 @@ function fs_info(&$disk) {
   if ($disk['fsStatus']=='-') {
     echo "<td colspan='5'></td>";
     return;
-  } else if ($disk['fsStatus']=='Mounted') {
+  } elseif ($disk['fsStatus']=='Mounted') {
     echo "<td>{$disk['fsType']}</td>";
     echo "<td>".my_scale($disk['fsSize']*1024,$unit)." $unit</td>";
     if ($display['text']%10==0) {

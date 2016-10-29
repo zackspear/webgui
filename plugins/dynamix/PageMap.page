@@ -34,7 +34,7 @@ function show_map($menu, $level) {
     $link="<a href='/{$page['name']}'>{$page['name']}</a>";
     if ($page['Type'] == "menu") {
       echo "{$level} ({$link}) - {$page['Title']}<br>";
-    } else if ($page['Type'] == "xmenu") {
+    } elseif ($page['Type'] == "xmenu") {
       echo "{$level} [{$link}] - {$page['Title']}<br>";
     } else {
       echo "{$level} {$link} - {$page['Title']}<br>";

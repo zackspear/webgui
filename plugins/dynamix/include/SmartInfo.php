@@ -69,8 +69,8 @@ case "attributes":
     $color = "";
     $highlight = strpos($info[8],'FAILING_NOW')!==false || ($select ? $info[5]>0 && $info[3]<=$info[5]*$level : $info[9]>0);
     if (in_array($info[0], $events) && $highlight) $color = " class='warn'";
-    else if (in_array($info[0], $temps)) {
-      if ($info[9]>=$max) $color = " class='alert'"; else if ($info[9]>=$hot) $color = " class='warn'";
+    elseif (in_array($info[0], $temps)) {
+      if ($info[9]>=$max) $color = " class='alert'"; elseif ($info[9]>=$hot) $color = " class='warn'";
     }
     if ($info[8]=='-') $info[8] = 'Never';
     if ($info[0]==9 && is_numeric($info[9])) duration($info[9]);

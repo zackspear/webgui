@@ -27,7 +27,7 @@ if ($name == "") {
             "exclude"    => "",
             "useCache"   => "no",
             "cow"        => "auto"];
-} else if (array_key_exists($name, $shares)) {
+} elseif (array_key_exists($name, $shares)) {
   /* edit existing share */
   $share = $shares[$name];
 } else {
