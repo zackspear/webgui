@@ -33,7 +33,7 @@ function setNewPerms(form) {
       dirs += item.value;
     }
   }
-  if (dirs) swal({title:'Proceed?',text:'This will update folder & file permissions',type:'warning',showCancelButton:true},function(){openBox('/webGui/scripts/newperms&arg1='+dirs,'New Permissions',490,430);});
+  if (dirs) swal({title:'Proceed?',text:'This will update folder & file permissions',type:'warning',showCancelButton:true},function(){openBox('/webGui/scripts/newperms&arg1='+dirs,'New Permissions',490,430,true);});
 }
 $(function() {
   $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
@@ -91,8 +91,8 @@ Closing the window before completion will terminate the background process - so 
 </span>
 <br><br>
 <?if ($var['fsState']=="Started"):?>
-<input type="button" value="Start" onclick="setNewPerms(this.form)"><input type="button" value="Done" onclick="done()">
+<input type="button" value="Start" onclick="setNewPerms(this.form)"><input type="button" value=" Done " onclick="done()">
 <?else:?>
-<input type="button" value="Start" disabled><input type="button" value="Done" onclick="done()"> Array must be <span class="strong big">Started</span> to change permissions.
+<input type="button" value="Start" disabled><input type="button" value=" Done " onclick="done()"> Array must be <span class="strong big">Started</span> to change permissions.
 <?endif;?>
 </form>
