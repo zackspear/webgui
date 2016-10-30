@@ -28,7 +28,7 @@ function ifname($name) {
 }
 
 if ($run && file_exists($cfg)) {
-  $old = parse_ini_file($cfg);
+  $old = parse_ini_string(preg_replace('/^#/m',';',file_get_contents($cfg)));
   if (isset($old['SYSNICS'])) {
     // new syntax
     $ifname = ifname($set);
