@@ -240,10 +240,10 @@ function transpose_user_path($path) {
   return $path;
 }
 // custom parse_ini_file/string functions to deal with '#' comment lines
-function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) {
-  return parse_ini_string(preg_replace('/^#/m',';',file_get_contents($file)),$sections,$scanner);
-}
 function my_parse_ini_string($text, $sections=false, $scanner=INI_SCANNER_NORMAL) {
   return parse_ini_string(preg_replace('/^#/m',';',$text),$sections,$scanner);
+}
+function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) {
+  return my_parse_ini_string(file_get_contents($file),$sections,$scanner);
 }
 ?>
