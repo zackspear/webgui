@@ -751,7 +751,7 @@ class DockerClient {
 
 
 	public function stopContainer($id) {
-		$this->getDockerJSON("/containers/${id}/stop", "POST", $code);
+		$this->getDockerJSON("/containers/${id}/stop?t=10", "POST", $code);
 		$this->allContainersCache = null; // flush cache
 		$codes = [
 			"204" => true, // No error
@@ -764,7 +764,7 @@ class DockerClient {
 
 
 	public function restartContainer($id) {
-		$this->getDockerJSON("/containers/${id}/restart", "POST", $code);
+		$this->getDockerJSON("/containers/${id}/restart?t=10", "POST", $code);
 		$this->allContainersCache = null; // flush cache
 		$codes = [
 			"204" => true, // No error
