@@ -1,6 +1,6 @@
 Menu="Tasks:70"
 Type="xmenu"
-Cond="(pgrep('libvirtd')!==false)"
+Cond="exec(\"grep -o '^SERVICE=.enable' /boot/config/domain.cfg 2>/dev/null\")"
 ---
 <?PHP
 /* Copyright 2005-2016, Lime Technology
@@ -14,6 +14,12 @@ Cond="(pgrep('libvirtd')!==false)"
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+if ($var['fsState'] != "Started") {
+  echo "<p class='notice'>Array must be <span class='strong big'>started</span> to view Virtual Machines.</p>";
+  return;
+}
+?>
 <link type="text/css" rel="stylesheet" href="/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.filetree.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
@@ -24,13 +30,7 @@ body{-webkit-overflow-scrolling:touch;}
 <script src="/webGui/javascript/jquery.filetree.js"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 <script src="/plugins/dynamix.vm.manager/scripts/dynamix.vm.manager.js"></script>
-
 <?
-if ($var['fsState'] != "Started") {
-  echo "<p class='notice'>Array must be Started to manage Virtual Machines.</p>";
-  return;
-}
-
 require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
 require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
 
