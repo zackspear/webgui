@@ -330,6 +330,12 @@ $('.tabs').append("<span class='status vhshift'><input type='button' value='Refr
         <tr>
         <td><?=status_indicator()?><strong>Stopped</strong>. Unclean shutdown detected.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><strong>Start</strong> will bring the array on-line.</td>
+        </tr>
+<?    elseif ($var['sbClean']!="yes" && strstr($var['mdResyncAction'],"check")):?>
+        <tr>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
+        <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
         </tr>
