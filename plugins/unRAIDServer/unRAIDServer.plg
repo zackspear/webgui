@@ -25,8 +25,25 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc4 2016-11-02 (in progress)
+Version 6.3.0-rc4 2016-11-03 (in progress)
 ----------------------------
+
+Base distro:
+
+- docker: version 1.12.3
+- glibc-zoneinfo: version 2016g
+- grep: version 2.26
+- kernel-firmware: version 20161001git
+- libX11: version 1.6.4 (CVE-2016-7942, CVE-2016-7943)
+- libXfixes: version 5.0.3 (CVE-2016-7944)
+- libXi: version 1.7.8 (CVE-2016-7945, CVE-2016-7946)
+- libXrandr: version 1.5.1 (CVE-2016-7947, CVE-2016-7948)
+- libXrender: version 0.9.10 (CVE-2016-7949, CVE-2016-7950)
+- libXtst: version 1.2.3 (CVE-2016-7951, CVE-2016-7952)
+- libXv: version 1.0.11 (CVE-2016-5407)
+- lvm2: version 2.02.166
+- mozilla-firefox: version 49.0.2
+- mpfr: version 3.1.5
 
 Linux kernel:
 
