@@ -323,17 +323,17 @@ Use cache disk:
 > **No** prohibits new files and subdirectories from being written onto the Cache disk/pool.
 >
 > **Yes** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  If there is insufficant space on the Cache disk/pool, then
+> enough free space exists on the Cache disk/pool.  If there is insufficient space on the Cache disk/pool, then
 > new files and directories are created on the array.  When the *mover* is invoked, files and subdirectories are
-> transfered off the Cache disk/pool and onto the array.
+> transferred off the Cache disk/pool and onto the array.
 >
 > **Only** indicates that all new files and subdirectories must be writen to the Cache disk/pool.  If there
 > is insufficient free space on the Cache disk/pool, *create* operations will fail with *out of space* status.
 >
 > **Prefer** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  If there is insufficant space on the Cache disk/pool, then
+> enough free space exists on the Cache disk/pool.  If there is insufficient space on the Cache disk/pool, then
 > new files and directories are created on the array.  When the *mover* is invoked, files and subdirectories are
-> transfered off the array and onto Cache disk/pool.
+> transferred off the array and onto Cache disk/pool.
 
 Enable Copy-on-write:
 : <select name="shareCOW" size="1"<?if ($name):?> disabled<?endif;?>>

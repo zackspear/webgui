@@ -25,6 +25,30 @@
 unRAID Server OS Change Log
 ===========================
 
+Version 6.3.0-rc4 2016-11-02 (in progress)
+----------------------------
+
+Linux kernel:
+
+- version 4.8.6
+- md/unraid version: 2.7.1
+  - make the 'check' command "correct"/"nocorrect" argument case insensitive
+  - mark superblock 'clean' upon initialization
+
+Management:
+
+- emhttp: add API command cmdStopMover and API status variable shareMoverActive (yes/no)
+- emhttp: ensure disk shares have proper permissions set even if not being exported
+- emhttp: fix detecton of unclean shutdown to trigger automatic parity check upon Start if necessary
+- emhttp: fix mac address not set in avahi afp share advertisement (regression introduced in -rc2)
+- emhttp: unmount docker/libvirt loopback if docker/libvirt fail to start properly
+- mover: add start/stop/status subcommands (experimental)
+- mover: dereference files on user shares to get st_dev/st_ino instead of from shfs stat structure
+- shfs: eliminate 'use_ino' option dependency (fixes NFS issue on buggy clients)
+- update: hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt} smartmontools/drivedb.h
+- webGui: correct handling of unclean shutdown detection
+- webGui: fixed some help text typos
+
 Version 6.3.0-rc3 2016-10-22
 ----------------------------
 
@@ -60,13 +84,13 @@ Linux kernel:
 
 - version 4.8.2
 - r750: version 1.2.10-16_10_13
+- md/unraid: kernel 4.8 API changes; support FUA and SYNC write operation flags
 
 Management:
 
 - bug fix: Samba listening on the wrong interface in a VLAN-enable config
 - emhttp: added starting/stopping docker/libvirt events
 - emhttp: removed 'reboot', 'shutdown', 'changeNetwork' API calls; eliminated emhttp-managed network vars
-- md/unraid: kernel 4.8 API changes; support FUA and SYNC write operation flags
 - shutdown: save diagnostics in event of cmdStop timeout
 - vm manager: add 'virtio-win-0.1.126-2' and 'virtio-win-0.1.126-1' to VirtIO-ISOs list
 - webGui: Added "Join" notification agent
@@ -133,6 +157,7 @@ Linux kernel:
 - aacraid: version 1.2.1-52011
 - intel 10Gbit ethernet: revert to in-tree drivers
 - r750: version 1.2.9-16_09_27
+- md/unraid: Fix bug where case of no data disks improperly detected.
 
 Management:
 
@@ -140,7 +165,6 @@ Management:
 - bug fix: For docker.img and libvirt.img, if path on /mnt/ check for mountpoint on any subdir component
 - bug fix: During shutdown force continue if array stop taking too long.
 - bug fix: Handle case in 'mover' where rsync may move a file but also return error status.
-- md/unraid: Fix bug where case of no data disks improperly detected.
 - webGui: Add "Shutdown time-out" control on Disk Settings page.
 - webGui: bug fix: Cannot manually specify virtIO iso in VM settings
 - webGui: other changes: refer to github commit log
