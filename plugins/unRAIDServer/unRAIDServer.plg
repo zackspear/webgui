@@ -65,7 +65,9 @@ Management:
 - mover: dereference files on user shares to get st_dev/st_ino instead of from shfs stat structure
 - shfs: eliminate 'use_ino' option dependency (fixes NFS issue on buggy clients)
 - update: hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt} smartmontools/drivedb.h
+- webGui: correct button positions on confirmation dialogs
 - webGui: correct handling of unclean shutdown detection
+- webGui: fixed Docker/VMs tab stay visible when array is stopped
 - webGui: fixed some help text typos
 
 Version 6.3.0-rc3 2016-10-22
