@@ -377,7 +377,7 @@ function xmlToCommand($xml, $create_paths=false) {
     $hostConfig      = strlen($config['Value']) ? $config['Value'] : $config['Default'];
     $containerConfig = strval($config['Target']);
     $Mode            = strval($config['Mode']);
-    if (!strlen($containerConfig)) continue;
+    if ($confType != "device" && !strlen($containerConfig)) continue;
     if ($confType == "path") {
       $Volumes[] = sprintf('"%s":"%s":%s', $hostConfig, $containerConfig, $Mode);
       if ( ! file_exists($hostConfig) && $create_paths ) {
@@ -397,7 +397,7 @@ function xmlToCommand($xml, $create_paths=false) {
     } elseif ($confType == "variable") {
       $Variables[] = sprintf('"%s"="%s"', $containerConfig, $hostConfig);
     } elseif ($confType == "device") {
-      $Devices[] = '"'.$containerConfig.'"';
+      $Devices[] = '"'.$hostConfig.'"';
     }
   }
   $cmd = sprintf('/plugins/dynamix.docker.manager/scripts/docker create %s %s %s %s %s %s %s %s %s',
