@@ -25,7 +25,7 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc4 2016-11-04 (in progress)
+Version 6.3.0-rc4 2016-11-08 (in progress)
 ----------------------------
 
 Base distro:
@@ -35,6 +35,7 @@ Base distro:
 - glibc-zoneinfo: version 2016i
 - grep: version 2.26
 - kernel-firmware: version 20161001git
+- libusb: version 1.0.21
 - libX11: version 1.6.4 (CVE-2016-7942, CVE-2016-7943)
 - libXfixes: version 5.0.3 (CVE-2016-7944)
 - libXi: version 1.7.8 (CVE-2016-7945, CVE-2016-7946)
@@ -46,6 +47,7 @@ Base distro:
 - mozilla-firefox: version 49.0.2
 - mpfr: version 3.1.5
 - nano: version 2.7.1
+- samba: version 4.5.1
 
 Linux kernel:
 
@@ -65,10 +67,13 @@ Management:
 - mover: dereference files on user shares to get st_dev/st_ino instead of from shfs stat structure
 - shfs: eliminate 'use_ino' option dependency (fixes NFS issue on buggy clients)
 - update: hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt} smartmontools/drivedb.h
+- webGui: combine PCI Devices and IOMMU Groups on Sysdev page; Sort IOMMU and USB Devices properly
 - webGui: correct button positions on confirmation dialogs
 - webGui: correct handling of unclean shutdown detection
+- webGui: fixed device passthrough for Docker
 - webGui: fixed Docker/VMs tab stay visible when array is stopped
 - webGui: fixed some help text typos
+- webGui: update to font-awesome 4.7.0
 
 Version 6.3.0-rc3 2016-10-22
 ----------------------------
