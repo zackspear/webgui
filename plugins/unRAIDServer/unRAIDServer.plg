@@ -25,13 +25,13 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc4 2016-11-08 (in progress)
+Version 6.3.0-rc4 2016-11-10 (in progress)
 ----------------------------
 
 Base distro:
 
 - curl: version 7.51.0 (CVE-2016-8615, CVE-2016-8616, CVE-2016-8617, CVE-2016-8618, CVE-2016-8619, CVE-2016-8620, CVE-2016-8621, CVE-2016-8622, CVE-2016-8623, CVE-2016-8624, CVE-2016-8625)
-- docker: version 1.12.3
+- docker: version 1.12.3 (CVE-2016-8867)
 - glibc-zoneinfo: version 2016i
 - grep: version 2.26
 - kernel-firmware: version 20161001git
