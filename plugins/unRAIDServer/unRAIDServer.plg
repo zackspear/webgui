@@ -4,7 +4,7 @@
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
 <!ENTITY branch    "master">
-<!ENTITY version   "6.3.0-rc3">
+<!ENTITY version   "6.3.0-rc4">
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 <!ENTITY category  "next">
 
@@ -25,7 +25,7 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc4 2016-11-10 (in progress)
+Version 6.3.0-rc4 2016-11-11
 ----------------------------
 
 Base distro:
