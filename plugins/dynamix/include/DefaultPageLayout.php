@@ -419,7 +419,7 @@ $(function() {
   opts.push({divider:true});
   opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
+  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
   context.attach('#nav-tub1',opts);
 
   var opts = [{header:'Warnings', image:'/webGui/icons/warnings.png'}];
@@ -428,7 +428,7 @@ $(function() {
   opts.push({divider:true});
   opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
+  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
   context.attach('#nav-tub2',opts);
 
   var opts = [{header:'Messages', image:'/webGui/icons/messages.png'}];
@@ -437,7 +437,7 @@ $(function() {
   opts.push({divider:true});
   opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-box-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
+  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
   context.attach('#nav-tub3',opts);
 <?endif;?>
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
