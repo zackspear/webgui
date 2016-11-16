@@ -1,0 +1,21 @@
+#!/bin/bash
+# btrfs_check start <dev> <id> <options> 
+# btrfs_check status <dev> <id>
+# btrfs_check cancel <dev> 
+
+case "$1" in
+'start')
+  exec /sbin/btrfs check $4 $2 &> /var/lib/btrfs/check.status.$3 &
+;;
+'status')
+  if [ -f /var/lib/btrfs/check.status.$3 ]; then
+    cat /var/lib/btrfs/check.status.$3
+  else
+    echo "Not available"
+  fi;
+  pgrep -f "/sbin/btrfs_check.*$2" >/dev/null
+;;
+'cancel')
+  pkill -f "/sbin/btrfs_check.*$2"
+;;
+esac
