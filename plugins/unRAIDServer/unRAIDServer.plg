@@ -25,12 +25,13 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc5 2016-11-16 (in process)
+Version 6.3.0-rc5 2016-11-18 (in process)
 ----------------------------
 
 Management:
 
 - add btrfs_check script to facilitate btrfs file system check
+- samba: include OS X vfs_fruit optimizations by default
 - shutdown: bug fix: overall shutdown timeout read from wrong cfg file
 - shutdown: add config setting for overall VM shutdown timeout
 - webGui: add filesystem Check for btrfs volumes in Maintenance mode
