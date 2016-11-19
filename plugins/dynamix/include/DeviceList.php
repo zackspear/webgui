@@ -311,7 +311,7 @@ case 'array':
   if ($var['fsState']=='Stopped') {
     foreach ($disks as $disk) {if ($disk['type']=='Parity') array_offline($disk,true);}
     echo "<tr class='tr_last'><td style='height:12px' colspan='11'></td></tr>";
-    foreach ($disks as $disk) {if ($disk['type']=='Data') array_offline($disk,false);}
+    foreach ($disks as $disk) {if ($disk['type']=='Data') array_offline($disk,$var['mdResyncAction']=='clear');}
     echo "<tr class='tr_last'><td><img src='/webGui/images/sum.png' class='icon'>Slots:</td><td colspan='9'>".array_slots()."</td><td></td></tr>";
   } else {
     foreach ($disks as $disk) {if ($disk['type']=='Parity' && $disk['status']!='DISK_NP_DSBL') array_online($disk);}
