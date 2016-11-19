@@ -386,7 +386,7 @@
 							<relaxed state='on'/>
 							<vapic state='on'/>
 							<spinlocks state='on' retries='8191'/>
-							<vendor id='none'/>
+							<vendor_id state='on' value='none'/>
 						</hyperv>";
 
 				$clock = "<clock offset='" . $domain['clock'] . "'>
@@ -707,12 +707,6 @@
 				}
 			}
 
-			$memorybacking='<nosharepages/>';
-			if (!empty($pcidevs)) {
-				$memorybacking .= '<locked/>';
-			}
-
-
 			return "<domain type='$type' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
 						<uuid>$uuid</uuid>
 						<name>$name</name>
@@ -721,7 +715,7 @@
 						<currentMemory>$mem</currentMemory>
 						<memory>$maxmem</memory>
 						<memoryBacking>
-							$memorybacking
+							<nosharepages/>
 						</memoryBacking>
 						$cpustr
 						<os>
