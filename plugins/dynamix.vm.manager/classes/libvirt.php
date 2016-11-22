@@ -327,6 +327,12 @@
 				// detect if the processor is hyperthreaded:
 				$intCPUThreadsPerCore = max(intval(shell_exec('/usr/bin/lscpu | grep \'Thread(s) per core\' | awk \'{print $4}\'')), 1);
 
+				// detect if the processor is AMD, and if so, force single threaded
+				$strCPUInfo = file_get_contents('/proc/cpuinfo');
+				if (strpos($strCPUInfo, 'AuthenticAMD') !== false) {
+					$intCPUThreadsPerCore = 1;
+				}
+
 				// even amount of cores assigned and cpu is hyperthreaded: pass that info along to the cpu section below
 				if ($intCPUThreadsPerCore > 1 && ($vcpus % $intCPUThreadsPerCore == 0)) {
 					$intCores = $vcpus / $intCPUThreadsPerCore;
