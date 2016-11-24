@@ -229,6 +229,19 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 		<p>NOTE: You can also specify a network bridge on a per-VM basis.</p>
 	</blockquote>
 	<dl>
+		<dt>VM shutdown time-out:</dt>
+		<dd>
+			<input type="number" name="TIMEOUT" value="<?=$domain_cfg['TIMEOUT']?>" class="narrow">
+			<?if (!empty($var['shutdownTimeout']) && !empty($domain_cfg['TIMEOUT']) && (int)$domain_cfg['TIMEOUT'] > (int)$var['shutdownTimeout']):?>
+			<span id="arraystopped"><i class="fa fa-warning icon warning"></i> exceeds Disk Shutdown <?=$var['shutdownTimeout']?>s time-out (<a href="/Settings/DiskSettings">edit</a>)</span>
+			<?endif;?>
+		</dd>
+	</dl>
+	<blockquote class="inline_help">
+		<p>When shutting down the server, this defines how long to wait in seconds for <em>graceful</em> VM shutdown before forcing shutdown to continue.</p>
+		<p>NOTE: It's recommended to shut down guest VMs from within the VM.</p>
+	</blockquote>
+	<dl>
 		<dt>Enable PCIe ACS Override:</dt>
 		<dd>
 			<select id="pcie_acs_override" class="narrow">

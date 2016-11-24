@@ -466,6 +466,9 @@
 	if (!empty($domain_cfg['MEDIADIR'])) {
 		$domain_cfg['MEDIADIR'] = rtrim($domain_cfg['MEDIADIR'], '/') . '/';
 	}
+	if (empty($domain_cfg['TIMEOUT'])) {
+		$domain_cfg['TIMEOUT'] = 60;
+	}
 
 	$domain_bridge = (!($domain_cfg['BRNAME'])) ? 'virbr0' : $domain_cfg['BRNAME'];
 	$msg = (empty($domain_bridge)) ? "Error: Setup Bridge in Settings/Network Settings" : false;
