@@ -122,7 +122,7 @@ Default file system:
 > The default file system type for a single or multi-device cache is always Btrfs.
 
 Shutdown time-out:
-: <input type="text" name="shutdown_timeout" maxlength="10" value="<?=$var['shutdownTimeout']?>" class="narrow">
+: <input type="text" name="shutdownTimeout" maxlength="10" value="<?=$var['shutdownTimeout']?>" class="narrow">
 
 > When shutting down the server, this defines how long to wait in seconds for *graceful* shutdown before forcing
 > shutdown to continue.
