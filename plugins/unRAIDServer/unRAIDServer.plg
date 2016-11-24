@@ -10,7 +10,7 @@
 
 <!ENTITY zip       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.zip">
 <!ENTITY md5       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.md5">
-<!ENTITY files     "bzimage,bzroot*,make_bootable.bat,make_bootable_mac,memtest,*.txt,syslinux/syslinux.cfg-">
+<!ENTITY files     "bzimage,bzroot*,make_bootable.bat,make_bootable_linux,make_bootable_mac,memtest,*.txt,syslinux/syslinux.cfg-">
 
 <!ENTITY infozip   "infozip-6.0-i486-1.txz">
 ]>
@@ -25,16 +25,40 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc5 2016-11-18 (in process)
+Version 6.3.0-rc5 2016-11-24 (in process)
 ----------------------------
+
+Base distro:
+
+- bash: version 4.4.005
+- grep: version 2.26 (rev2)
+- kernel-firmware: version 20161118git
+- libvirt: version 2.4.0
+- mozilla-firefox: version 50.0
+- ntp: version 4.2.8p9 (CVE-2016-9311, CVE-2016-9310, CVE-2016-7427, CVE-2016-7428, CVE-2016-9312, CVE-2016-7431, CVE-2016-7434, CVE-2016-7429, CVE-2016-7426, CVE-2016-7433)
+
+Linux kernel:
+
+- version 4.8.10 (CVE-2016-7039)
 
 Management:
 
 - add btrfs_check script to facilitate btrfs file system check
+- bug fix: firefox correctly connects to emhttp port number
 - samba: include OS X vfs_fruit optimizations by default
 - shutdown: bug fix: overall shutdown timeout read from wrong cfg file
+- shutdown: bug fix: saving shutdown timeout value
 - shutdown: add config setting for overall VM shutdown timeout
+- update: hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt} smartmontools/drivedb.h
 - webGui: add filesystem Check for btrfs volumes in Maintenance mode
+- webGui: add vm shutdown time-out option
+- webGui: generate VM xml with cpu topology as single-threaded when host cpu is AMD
+- webGui: special text aside new disks to clear
+- webGui: split out Europe/Istanbul as its own timezone
+
+Other:
+
+- make_bootable_linux: use readlink instead of realpath since it is more compatible
 
 Version 6.3.0-rc4 2016-11-11
 ----------------------------
