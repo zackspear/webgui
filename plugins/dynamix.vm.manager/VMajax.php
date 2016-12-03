@@ -82,6 +82,15 @@ switch ($action) {
 						['error' => $lv->get_last_error()];
 		break;
 
+	case 'domain-pmsuspend':
+		requireLibvirt();
+		// No support in libvirt-php to do a dompmsuspend, use virsh tool instead
+		exec("virsh dompmsuspend " . escapeshellarg($uuid) . " disk 2>&1", $arrOutput, $intReturnCode);
+		$arrResponse = ($intReturnCode == 0) ?
+						['success' => true, 'state' => $lv->domain_get_state($domName)] :
+						['error' => str_replace('error: ', '', implode('. ', $arrOutput))];
+		break;
+
 	case 'domain-pmwakeup':
 		requireLibvirt();
 		// No support in libvirt-php to do a dompmwakeup, use virsh tool instead

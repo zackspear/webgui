@@ -214,6 +214,11 @@ function addVMContext(name, uuid, template, state, vncurl, log){
       ajaxVMDispatch(state, { action: "domain-restart", uuid: uuid });
     }});
 
+    opts.push({text: "Hibernate", icon: "fa-bed", action: function(e) {
+      e.preventDefault();
+      ajaxVMDispatch(state, { action: "domain-pmsuspend", uuid: uuid });
+    }});
+
     opts.push({text: "Force Stop", icon: "fa-bomb", action: function(e) {
       e.preventDefault();
       ajaxVMDispatch(state, { action: "domain-destroy", uuid: uuid });
