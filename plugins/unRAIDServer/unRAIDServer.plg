@@ -25,6 +25,24 @@
 unRAID Server OS Change Log
 ===========================
 
+Version 6.3.0-rc6 2016-12-02 (in process)
+----------------------------
+
+Base distro:
+
+- mozilla-firefox: version 50.0.2 (CVE-2016-9078, CVE-2016-9079)
+
+Linux kernel:
+
+- version 4.8.12 (CVE-2016-8650)
+
+Management:
+
+- network: must set forwarding delay before setting stp 'on'; need 1 sec delay between stop/start in restart
+- samba: move OS X "vfs_fruit" optimization from 'global' to individual share settings
+- shutdown: increase default shutdown delay from 60 to 90 sec; eliminate extraneous console messages
+- webGui: add Hibernate option to VM context menu
+
 Version 6.3.0-rc5 2016-11-25
 ----------------------------
 
