@@ -25,7 +25,7 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc6 2016-12-02 (in process)
+Version 6.3.0-rc6 2016-12-05 (in process)
 ----------------------------
 
 Base distro:
@@ -41,6 +41,7 @@ Management:
 - network: must set forwarding delay before setting stp 'on'; need 1 sec delay between stop/start in restart
 - samba: move OS X "vfs_fruit" optimization from 'global' to individual share settings
 - shutdown: increase default shutdown delay from 60 to 90 sec; eliminate extraneous console messages
+- update: hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt} smartmontools/drivedb.h
 - webGui: add Hibernate option to VM context menu
 
 Version 6.3.0-rc5 2016-11-25
