@@ -4,7 +4,7 @@
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
 <!ENTITY branch    "master">
-<!ENTITY version   "6.3.0-rc5">
+<!ENTITY version   "6.3.0-rc6">
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 <!ENTITY category  "next">
 
@@ -25,12 +25,15 @@
 unRAID Server OS Change Log
 ===========================
 
-Version 6.3.0-rc6 2016-12-05 (in process)
+Version 6.3.0-rc6 2016-12-07
 ----------------------------
 
 Base distro:
 
+- inotify-tools: version 3.14
 - mozilla-firefox: version 50.0.2 (CVE-2016-9078, CVE-2016-9079)
+- ntfs-3g: version 2016.2.22
+- rsyslog: version 8.23.0
 
 Linux kernel:
 
