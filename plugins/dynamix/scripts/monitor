@@ -237,9 +237,22 @@ foreach ($disks as $disk) {
 // count disk errors
   if ($disk['numErrors']>0) $errors[] = "$text - $info (errors {$disk['numErrors']})";
 // check file system of cache pool
+  $item = 'pool';
   if ($name=='cache' && $disk['fsType']=='btrfs') {
-    if (exec("/sbin/btrfs filesystem show {$disk['uuid']}|grep -c 'missing'")>0) exec("$notify -e \"unRAID $text message\" -s \"Warning [$server] - Cache pool BTRFS missing device(s)\" -d \"$info\" -i \"warning\"");
-    if (exec("/sbin/btrfs filesystem df /mnt/cache|grep -c '^Data'")>1) exec("$notify -e \"unRAID $text message\" -s \"Warning [$server] - Cache pool BTRFS too many profiles\" -d \"$info\" -i \"warning\"");
+    $attr = 'missing';
+    if (exec("/sbin/btrfs filesystem show {$disk['uuid']}|grep -c 'missing'")>0) {
+      if (empty($saved[$item][$attr])) {
+        exec("$notify -e \"unRAID $text message\" -s \"Warning [$server] - Cache pool BTRFS missing device(s)\" -d \"$info\" -i \"warning\"");
+        $saved[$item][$attr] = 1;
+      }
+    } elseif (isset($saved[$item][$attr])) unset($saved[$item][$attr]);
+    $attr = 'profile';
+    if (exec("/sbin/btrfs filesystem df /mnt/cache|grep -c '^Data'")>1) {
+      if (empty($saved[$item][$attr])) {
+        exec("$notify -e \"unRAID $text message\" -s \"Warning [$server] - Cache pool BTRFS too many profiles\" -d \"$info\" -i \"warning\"");
+        $saved[$item][$attr] = 1;
+      }
+    } elseif (isset($saved[$item][$attr])) unset($saved[$item][$attr]);
   }
 }
 
