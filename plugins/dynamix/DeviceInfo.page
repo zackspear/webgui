@@ -106,7 +106,7 @@ File system status:
 <?endif;?>
 <?if ($disk['type']=="Data" || ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']==1)):?>
 <?if ($var['fsState']=="Stopped"):?>
-<?$disabled = $var['mdState']=="RECON_DISK" ? "disabled" : "";?>
+<?$disabled = $var['mdState']=="RECON_DISK" || $var['mdState']=="SWAP_DSBL" ? "disabled" : "";?>
 
 File system type:
 : <select name="diskFsType.<?=$disk['idx'];?>" size="1" <?=$disabled?>>
