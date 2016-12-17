@@ -196,6 +196,11 @@ foreach ($devices as $device) {
   }
   exec("smartctl -a $type /dev/$dev 2>/dev/null|todos >/$diag/smart/$name-$date.txt");
 }
+// create cache pool information
+if (is_dir('/mnt/cache') && $disks['cache']['fsType']=='btrfs') {
+  exec("/sbin/btrfs filesystem show /mnt/cache 2>/dev/null|todos >/$diag/system/btrfs-show.txt");
+  exec("/sbin/btrfs filesystem df /mnt/cache 2>/dev/null|todos >/$diag/system/btrfs-df.txt");
+}
 // create resulting zip file and remove temp folder
 exec("zip -qmr $zip /$diag");
 if ($cli) echo "done.\nZIP file '$zip' created.\n";
