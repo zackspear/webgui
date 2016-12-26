@@ -84,6 +84,7 @@ Closing the window before completion will terminate the background process - so 
 <span style="display:block;margin-bottom:4px;font-weight:bold">User Shares</span>
 <select id="s2" name="includeShare" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
+<?uksort($shares,'strnatcasecmp');?>
 <?foreach ($shares as $share):?>
 <?=mk_option(1,"/mnt/user/{$share['name']}",$share['name'])?>
 <?endforeach;?>

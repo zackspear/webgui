@@ -32,6 +32,8 @@ if (!$shares) {
   echo "<tr><td colspan='8' style='text-align:center;padding-top:12px'><i class='fa fa-folder-open-o icon'></i>There are no exportable user shares</td></tr>";
   exit;
 }
+// Natural sorting of share names
+uksort($shares,'strnatcasecmp');
 
 // Display export settings
 function user_share_settings($protocol,$share) {
