@@ -211,6 +211,7 @@ btrfs filesystem df:
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
+<?$balance_status = str_replace('No balance found', 'No balance operation running', $balance_status);?>
 
 <div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/balancestatus.png" class="icon">Balance Status</span></div>
 
@@ -221,13 +222,34 @@ btrfs balance status:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<?
+function raid($i) {
+  global $btrfs;
+  return count($btrfs)==2 ? strtolower(substr($btrfs[$i],0,-1)) : 'raid1';
+}
+exec("btrfs filesystem df /mnt/{$disk['name']}|grep -Po '^(Data|Metadata), \K.+:'", $btrfs);
+exec("btrfs filesystem show /mnt/{$disk['name']}|grep -Po '(Total devices \K\d+|missing)'", $total);
+$pool = count($total)==1 ? $total[0] : 0;
+$raid = "-dconvert=".raid(0)." -mconvert=".raid(1);
+?>
 
 &nbsp;
-: <input type="submit" value="Balance"><input type="text" name="#arg[3]" maxlength="256" value="-dconvert=raid1 -mconvert=raid1"> Options (see Help)
+: <input type="submit" value="Balance" <?=$pool?'':'disabled'?>>RAID mode:
+  <select name="#arg[3]" class="auto" size="1" <?=$pool?'':'disabled'?>>
+  <?=mk_option($raid, "-dconvert=single -mconvert=raid1", "Single", $pool>1?'disabled':'')?>
+  <?=mk_option($raid, "-dconvert=raid1 -mconvert=raid1", "RAID1", $pool<2?'disabled':'')?>
+  <?=mk_option($raid, "-dconvert=raid0 -mconvert=raid1", "RAID0", $pool<2?'disabled':'')?>
+  <?=mk_option($raid, "-dconvert=raid10 -mconvert=raid10", "RAID10", $pool<4?'disabled':'')?>
+  <?=mk_option($raid, "-dconvert=raid5 -mconvert=raid1", "RAID5", $pool<3?'disabled':'')?>
+  <?=mk_option($raid, "-dconvert=raid6 -mconvert=raid1", "RAID6", $pool<4?'disabled':'')?>
+  </select> *(see Help)*
 
 > **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices.
 >
-> The default *Options* are appropriate for btrfs-raid1.  Do not change this unless you know what you are doing!
+> The default mode is appropriate for btrfs-raid1.
+> The availability of different RAID modes is depending on the number of devices in the cache pool.
+>
+> *Do not change this setting unless you know what you are doing!*
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
