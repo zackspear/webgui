@@ -106,9 +106,10 @@ File system status:
 <?endif;?>
 <?if ($disk['type']=="Data" || ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']==1)):?>
 <?if ($var['fsState']=="Stopped"):?>
+<?$disabled = $var['mdState']=="RECON_DISK" || $var['mdState']=="SWAP_DSBL" ? "disabled" : "";?>
 
 File system type:
-: <select name="diskFsType.<?=$disk['idx'];?>" size="1">
+: <select name="diskFsType.<?=$disk['idx'];?>" size="1" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", "auto")?>
   <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
   <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>

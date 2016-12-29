@@ -16,6 +16,9 @@ Type="xmenu"
 <?
 $refs = []; $n = 0;
 
+// Natural sorting of share names
+uksort($shares,'strnatcasecmp');
+
 foreach ($shares as $ref) {
   $sname = $ref['name'];
   $refs[] = $sname;

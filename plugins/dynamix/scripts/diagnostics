@@ -139,32 +139,32 @@ foreach (glob("/var/log/syslog*") as $file) {
 $max = 1*1024*1024; //=1MB
 $docker = "/var/log/docker.log";
 if (file_exists($docker)) {
-  $log = "/$diag/logs/docker.log";
-  exec("todos <$docker >$log");
+  $log = "/$diag/logs/docker";
+  exec("todos <$docker >$log.txt");
   if (filesize($docker)>=$max) {
-    exec("tail -n 200 $log >$log.last200");
-    exec("truncate -s '<$max' $log");
+    exec("tail -n 200 $log.txt >$log.last200.txt");
+    exec("truncate -s '<$max' $log.txt");
   }
 }
 // copy libvirt information (if existing)
 $libvirtd = "/var/log/libvirt/libvirtd.log";
 if (file_exists($libvirtd)) {
   $log = "/$diag/logs/libvirt";
-  exec("todos <$libvirtd >$log");
+  exec("todos <$libvirtd >$log.txt");
   if (filesize($libvirtd)>=$max) {
-    exec("tail -n 200 $log.log >$log.last200");
-    exec("truncate -s '<$max' $log");
+    exec("tail -n 200 $log.txt >$log.last200.txt");
+    exec("truncate -s '<$max' $log.txt");
   }
 }
 // copy VMs information (if existing)
 $qemu = glob("/var/log/libvirt/qemu/*.log*");
 if ($qemu) {
   foreach ($qemu as $file) {
-    $log = "/$diag/qemu/".escapeshellarg(basename($file));
-    exec("todos <".escapeshellarg($file)." >$log");
+    $log = "/$diag/qemu/".escapeshellarg(basename($file,'.log'));
+    exec("todos <".escapeshellarg($file)." >$log.txt");
     if (filesize($file)>=$max) {
-      exec("tail -n 200 $log.log >$log.last200");
-      exec("truncate -s '<$max' $log");
+      exec("tail -n 200 $log.txt >$log.last200.txt");
+      exec("truncate -s '<$max' $log.txt");
     }
   }
 } else
@@ -195,6 +195,11 @@ foreach ($devices as $device) {
     }
   }
   exec("smartctl -a $type /dev/$dev 2>/dev/null|todos >/$diag/smart/$name-$date.txt");
+}
+// create cache pool information
+if (is_dir('/mnt/cache') && $disks['cache']['fsType']=='btrfs') {
+  exec("/sbin/btrfs filesystem show /mnt/cache 2>/dev/null|todos >/$diag/system/btrfs-show.txt");
+  exec("/sbin/btrfs filesystem df /mnt/cache 2>/dev/null|todos >/$diag/system/btrfs-df.txt");
 }
 // create resulting zip file and remove temp folder
 exec("zip -qmr $zip /$diag");
