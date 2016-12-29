@@ -26,7 +26,7 @@ function make_link($method, $arg) {
   $check = $method=='update' ? "" : "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>";
   $disabled = $check ? " disabled" : "";
   $cmd = $method == "delete" ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg";
-  return "{$check}<input type='button' id='$id' value='{$method}' onclick='openBox(\"{$cmd}\",\"{$method} Plugin\",600,900,true)'{$disabled}>";
+  return "{$check}<input type='button' id='$id' value='{$method}' onclick='openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
 }
 
 // trying our best to find an icon
