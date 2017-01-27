@@ -23,7 +23,7 @@ $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Markdown.php";
 
 $file = $_GET['file'];
-if (file_exists($file)) echo Markdown(file_get_contents($file)); else echo Markdown("*No release notes available!*");
+if (file_exists($file) && strpos(realpath($file), '/tmp/plugins/') === 0 && substr($file, -4) == '.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*No release notes available!*");
 ?>
 <br><div style="text-align:center"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>
 </body>

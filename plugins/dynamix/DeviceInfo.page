@@ -28,11 +28,11 @@ function displayTemp($temp) {
 function doDispatch(form) {
   var fields = {};
 <?if ($display['unit']=='F'):?>
-  if (form.<?=$name?>_hotTemp.value>0) form.<?=$name?>_hotTemp.value = Math.round((form.<?=$name?>_hotTemp.value-32)*5/9);
-  if (form.<?=$name?>_maxTemp.value>0) form.<?=$name?>_maxTemp.value = Math.round((form.<?=$name?>_maxTemp.value-32)*5/9);
+  if (form.<?=addslashes(htmlspecialchars($name))?>_hotTemp.value>0) form.<?=addslashes(htmlspecialchars($name))?>_hotTemp.value = Math.round((form.<?=addslashes(htmlspecialchars($name))?>_hotTemp.value-32)*5/9);
+  if (form.<?=addslashes(htmlspecialchars($name))?>_maxTemp.value>0) form.<?=addslashes(htmlspecialchars($name))?>_maxTemp.value = Math.round((form.<?=addslashes(htmlspecialchars($name))?>_maxTemp.value-32)*5/9);
 <?endif;?>
   fields['#cfg'] = "/boot/config/smart-one.cfg";
-  $(form).find('input[name^="<?=$name?>_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
+  $(form).find('input[name^="<?=addslashes(htmlspecialchars($name))?>_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
   $.post('/webGui/include/Dispatcher.php',fields);
 }
 function prepareDeviceInfo(form) {
@@ -81,7 +81,7 @@ $(function() {
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
 Name:
-: <span class='big'><?=my_disk($name)?></span>
+: <span class='big'><?=htmlspecialchars(my_disk($name))?></span>
 
 Partition size:
 : <?=my_number($disk['size'])?> KB (K=1024)
@@ -93,7 +93,7 @@ Partition format:
 <?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
 
 Comments:
-: <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=$disk['comment']?>">
+: <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
 > This text will appear under the *Comments* column for the share in Windows Explorer.
 > Enter anything you like, up to 256 characters.
@@ -154,7 +154,7 @@ Spin down delay:
 
 <?if (isset($disk['fsSize'])):?>
 Warning disk utilization threshold (%):
-: <input type="number" min="0" max="100" name="<?=$name?>_warning" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
+: <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_warning" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
 
 > *Warning disk utilization* sets the warning threshold for this hard disk utilization. Exceeding this threshold will result in a warning notification.
 >
@@ -163,7 +163,7 @@ Warning disk utilization threshold (%):
 > A value of zero will disable the warning threshold (including notifications).
 
 Critical disk utilization threshold (%):
-: <input type="number" min="0" max="100" name="<?=$name?>_critical" class="narrow" value="<?=strlen($disk['critical'])?$disk['critical']:''?>" placeholder="<?=$display['critical']?>")>
+: <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_critical" class="narrow" value="<?=strlen($disk['critical'])?$disk['critical']:''?>" placeholder="<?=$display['critical']?>")>
 
 > *Critical disk utilization* sets the critical threshold for this hard disk utilization. Exceeding this threshold will result in an alert notification.
 >
@@ -171,14 +171,14 @@ Critical disk utilization threshold (%):
 
 <?endif;?>
 Warning disk temperature threshold (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=$name?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
+: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
 
 > *Warning disk temperature* sets the warning threshold for this hard disk temperature. Exceeding this threshold will result in a warning notification.
 >
 > A value of zero will disable the warning threshold (including notifications).
 
 Critical disk temperature threshold (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=$name?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
+: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
 
 > *Critical disk temperature* sets the critical threshold for this hard disk temperature. Exceeding this threshold will result in an alert notification.
 >
@@ -453,9 +453,9 @@ xfs_repair status:
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-one.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
-<input type="hidden" name="#section" value="<?=$name?>">
+<input type="hidden" name="#section" value="<?=htmlspecialchars($name)?>">
 <input type="hidden" name="smEvents" value="">
-<input type="hidden" name="smGlue" value="<?=$var['smGlue']?>">
+<input type="hidden" name="smGlue" value="<?=htmlspecialchars($var['smGlue'])?>">
 SMART notification value:
 : <select name="smSelect" size="1">
   <?=mk_option($disk['smSelect'], "-1", "Use default")?>
@@ -499,7 +499,7 @@ SMART controller type:
   <input type="text" name="smPort1" maxlength="3" value="<?=$disk['smPort1']?>" style="display:none;width:32px">
   <input type="text" name="smPort2" maxlength="3" value="<?=$disk['smPort2']?>" style="display:none;width:32px">
   <input type="text" name="smPort3" maxlength="3" value="<?=$disk['smPort3']?>" style="display:none;width:32px"><span id="devtext" style="display:none;font-weight:bold">/dev/</span>
-  <input type="text" name="smDevice" value="<?=isset($disk['smDevice'])?$disk['smDevice']:''?>" style="display:none;width:32px" placeholder="<?=$disk['device']?>"><span id="helptext" style="display:none;font-style:italic">enter disk index and device name as applicable to your controller</span>
+  <input type="text" name="smDevice" value="<?=isset($disk['smDevice'])?$disk['smDevice']:''?>" style="display:none;width:32px" placeholder="<?=htmlspecialchars($disk['device'])?>"><span id="helptext" style="display:none;font-style:italic">enter disk index and device name as applicable to your controller</span>
 
 > By default automatic controller selection is done by smartctl to read the SMART information. Certain controllers however need specific settings for smartctl to work.
 > Use this setting to select your controller type and fill-in the specific disk index and device name for your situation. Use the manufacturer's documentation to find the relevant information.

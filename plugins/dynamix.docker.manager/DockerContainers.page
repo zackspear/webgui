@@ -129,13 +129,13 @@ img.stopped{opacity:0.3;}
 			</td>
 			<td>
 				<?if($info[$ct['Name']]['template']):?>
-					<a class="exec" onclick="editContainer('<?=addslashes($ct['Name']);?>','<?=addslashes($info[$ct['Name']]['template']);?>');"><?=htmlspecialchars($ct['Name']);?></a>
+					<a class="exec" onclick="editContainer('<?=addslashes(htmlspecialchars($ct['Name']));?>','<?=addslashes(htmlspecialchars($info[$ct['Name']]['template']));?>');"><?=htmlspecialchars($ct['Name']);?></a>
 				<?else:?>
 					<?=htmlspecialchars($ct['Name']);?>
 				<?endif;?>
 				<div class="advanced" style="color:#888; width: 160px;">Container ID: <?=htmlspecialchars($ct['Id']);?></div>
 				<?if($ct['BaseImage']):?>
-					<div class="advanced" style="color:#888; width: 160px;"><i class="fa fa-cubes" style="margin-right: 5px"></i><?=${ct[BaseImage]}?></div>
+					<div class="advanced" style="color:#888; width: 160px;"><i class="fa fa-cubes" style="margin-right: 5px"></i><?=htmlspecialchars(${ct[BaseImage]})?></div>
 				<?endif;?>
 				<div class="advanced" style="color:#888; width: 160px;">By:
 				<?if($Registry = $info[$ct['Name']]['registry']):?>
@@ -149,20 +149,20 @@ img.stopped{opacity:0.3;}
 				<?
 				$updateStatus = $info[$ct['Name']]['updated'];
 				if ($updateStatus == "false") {
-					echo "<a class=\"exec\" onclick=\"updateContainer('" . addslashes($ct["Name"]) . "');\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> update ready</span></a>";
+					echo "<a class=\"exec\" onclick=\"updateContainer('" . addslashes(htmlspecialchars($ct["Name"])) . "');\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> update ready</span></a>";
 				} elseif ($updateStatus == "true") {
 					echo "<span style=\"color:#44B012;white-space:nowrap;\"><i class=\"fa fa-check\"></i> up-to-date</span>";
-					echo "<div class=\"advanced\"><a class=\"exec\" onclick=\"updateContainer('" . addslashes($ct["Name"]) . "');\" style=\"color:#888;\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> force update</span></a></div>";
+					echo "<div class=\"advanced\"><a class=\"exec\" onclick=\"updateContainer('" . addslashes(htmlspecialchars($ct["Name"])) . "');\" style=\"color:#888;\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> force update</span></a></div>";
 				} else {
 					echo "<span style=\"color:#FF2400;white-space:nowrap;\"><i class=\"fa fa-exclamation-triangle\"></i> not available</span>";
-					echo "<div class=\"advanced\"><a class=\"exec\" onclick=\"updateContainer('" . addslashes($ct["Name"]) . "');\" style=\"color:#888;\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> force update</span></a></div>";
+					echo "<div class=\"advanced\"><a class=\"exec\" onclick=\"updateContainer('" . addslashes(htmlspecialchars($ct["Name"])) . "');\" style=\"color:#888;\"><span style=\"white-space:nowrap;\"><i class=\"fa fa-cloud-download\"></i> force update</span></a></div>";
 				}
 				?>
 			</td>
 			<td style="white-space:nowrap;"><span class="docker_readmore"><?= implode("<br>", $ports); ?></span></td>
 			<td style="word-break:break-all;"><span class="docker_readmore"><?= implode("<br>", $paths); ?></span></td>
 			<td data-sort-value="<?=$is_autostart?>"><input type="checkbox" class="autostart" container="<?=htmlspecialchars($ct['Name']);?>" <?=$info[$ct['Name']]['autostart'] ? "checked" : ""?>></td>
-			<td><a class="log" onclick="containerLogs('<?=addslashes($ct['Name']);?>','<?=$ct['Id'];?>', false, false)"><img class="basic" src="/plugins/dynamix/icons/log.png"/><div class="advanced" style="width: 124px;"><?=htmlspecialchars($ct['Status'])?></div><div class="advanced" style="color:#888;">Created <?=htmlspecialchars($ct['Created'])?></div></a></td>
+			<td><a class="log" onclick="containerLogs('<?=addslashes(htmlspecialchars($ct['Name']));?>','<?=$ct['Id'];?>', false, false)"><img class="basic" src="/plugins/dynamix/icons/log.png"/><div class="advanced" style="width: 124px;"><?=htmlspecialchars($ct['Status'])?></div><div class="advanced" style="color:#888;">Created <?=htmlspecialchars($ct['Created'])?></div></a></td>
 		</tr>
 		<?}?>
 
@@ -189,16 +189,16 @@ img.stopped{opacity:0.3;}
 			</td>
 			<td data-sort-value="ZZZZZZZZZZZ">
 				<i>(orphan image)</i>
-				<div style="color:#888; width: 160px;">Image ID: <?=$image['Id']?></div>
+				<div style="color:#888; width: 160px;">Image ID: <?=htmlspecialchars($image['Id'])?></div>
 				<?if(strpos(implode($image['Tags']), "&lt;none&gt;:&lt;none&gt;") === false):?>
-					<div style="color:#888; width: 160px;"><?=implode("<br>", $image['Tags'])?></div>
+					<div style="color:#888; width: 160px;"><?=implode("<br>", array_map('htmlspecialchars',$image['Tags']))?></div>
 				<?endif;?>
 			</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
-			<td><div class="advanced" style="width: 124px; color:#888;">Created <?=$image['Created']?></div></td>
+			<td><div class="advanced" style="width: 124px; color:#888;">Created <?=htmlspecialchars($image['Created'])?></div></td>
 		</tr>
 		<?}?>
 	</tbody>
@@ -258,7 +258,7 @@ $(function() {
 	$('#docker_containers tr:even').addClass('odd');
 
 	context.init({ preventDoubleContext: false });
-	<?=implode("\n\t", $contextMenus);?>
+	<?=htmlspecialchars(implode("\n\t", $contextMenus));?>
 
 	$('.docker_readmore').readmore({maxHeight:48, moreLink: '<a href="#" style="text-align:center;"><i class="fa fa-chevron-down"></i></a>', lessLink: '<a href="#" style="text-align:center;"><i class="fa fa-chevron-up"></i></a>'});
 });

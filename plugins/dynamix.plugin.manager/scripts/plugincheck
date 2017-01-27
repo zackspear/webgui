@@ -16,10 +16,11 @@ $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply");
+$var     = parse_ini_file('/var/local/emhttp/var.ini');
+exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply\&csrf_token={$var['csrf_token']}");
+$var     = parse_ini_file('/var/local/emhttp/var.ini');
 
 $current = parse_ini_file('/etc/unraid-version');
-$var     = parse_ini_file('/var/local/emhttp/var.ini');
 $unraid  = parse_plugin_cfg('dynamix', true);
 $notify  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper($var['NAME']);
@@ -35,7 +36,7 @@ foreach (glob("/tmp/plugins/*.plg", GLOB_NOSORT) as $file) {
     $unRAID = plugin('unRAID', $file);
     if ($unRAID === false || version_compare($current['version'], $unRAID, '>=')) {
       $name = basename($file, '.plg');
-      exec("$notify -e 'Plugin - $name [$new]' -s 'Notice [$server] - Version update $new' -d 'A new version of $name is available' -i 'normal $output' -x");
+      exec("$notify -e ".escapeshellarg("Plugin - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
     }
   }
 }

@@ -15,22 +15,25 @@ $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $file = $_POST['file'];
 switch ($_POST['cmd']) {
 case 'save':
+  if (is_file("$docroot/$file") && strpos(realpath("$docroot/$file"), $docroot.'/') !== 0) exit;
   $source = $_POST['source'];
   if (pathinfo($source, PATHINFO_EXTENSION) == 'txt') {
-    exec("zip -qlj $docroot/$file $source");
+    exec("zip -qlj ".escapeshellarg("$docroot/$file")." ".escapeshellarg($source));
   } else {
     $tmp = "/var/tmp/".basename($source).".txt";
     copy($source, $tmp);
-    exec("zip -qlj $docroot/$file $tmp");
+    exec("zip -qlj ".escapeshellarg("$docroot/$file")." ".escapeshellarg($tmp));
     @unlink($tmp);
   }
   echo "/$file";
   break;
 case 'delete':
-  @unlink("$docroot/$file");
+  if (strpos(realpath("$docroot/$file"), $docroot.'/') === 0) @unlink("$docroot/$file");
   break;
 case 'diag':
-  exec("$docroot/webGui/scripts/diagnostics {$_POST['anonymize']} $docroot/$file");
+  if (is_file("$docroot/$file") && strpos(realpath("$docroot/$file"), $docroot.'/') !== 0) exit;
+  $anon = empty($_POST['anonymize']) ? '' : escapeshellarg($_POST['anonymize']);
+  exec("$docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file"));
   echo "/$file";
   break;
 }

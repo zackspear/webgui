@@ -43,7 +43,7 @@ if ($action) {
       $capacity = str_replace(["KB","MB","GB","TB","PB", " ", ","], ["K","M","G","T","P", "", ""], strtoupper($_POST['cap']));
       $oldcap = str_replace(["KB","MB","GB","TB","PB", " ", ","], ["K","M","G","T","P", "", ""], strtoupper($_GET['oldcap']));
 			if (substr($oldcap,0,-1) < substr($capacity,0,-1)){
-				shell_exec("qemu-img resize -q " . escapeshellarg($_GET['disk']) . " $capacity");
+				shell_exec("qemu-img resize -q ".escapeshellarg($_GET['disk'])." ".escapeshellarg($capacity));
 				$msg = $domName." disk capacity has been changed to $capacity";
 			}else {
 				$msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";
@@ -220,7 +220,8 @@ if ($action) {
 
       // Log file
       if (!empty($log)) {
-         echo "<td><a class='log' href='#' onclick=\"openWindow('/webGui/scripts/tail_log&arg1=$log', '$name QEMU Log', 600, 900); return false;\"><img class='basic' src='/webGui/icons/log.png'/></a></td>";
+         echo "<td><a class='log' href='#' 
+onclick=\"openWindow('/webGui/scripts/tail_log&arg1=".addslashes(htmlspecialchars($log))."', '".addslashes(htmlspecialchars($name))." QEMU Log', 600, 900); return false;\"><img class='basic' src='/webGui/icons/log.png'/></a></td>";
       } else {
          echo "<td><img class='basic' src='/webGui/icons/log.png' style='opacity: 0.3' title='Log not available'/></a></td>";
       }
@@ -594,7 +595,7 @@ function addVMContext(name, uuid, template, state, vncurl, log){
 
   if (log !== "") {
     if (location.pathname.indexOf("/Dashboard") === 0) {
-      opts.push({text: "Logs", icon: "fa-navicon", action: function(e){ e.preventDefault(); openWindow('/webGui/scripts/tail_log&arg1=' + log + ')', 'Log for: ' + name, 600, 900); } });
+      opts.push({text: "Logs", icon: "fa-navicon", action: function(e){ e.preventDefault(); openWindow('/webGui/scripts/tail_log&arg1=' + log, 'Log for: ' + name, 600, 900); } });
     }
   }
 
@@ -662,6 +663,6 @@ $(function() {
 <?endif;?>
 
    context.init({ preventDoubleContext: false });
-   <?=implode("\n\t", $contextMenus);?>
+   <?=implode("\n\t", $contextMenus)?>
 });
 </script>

@@ -12,7 +12,7 @@
 ?>
 <?
 $port = $_POST['port'] ?: 'eth0';
-if (exec("ip link show $port|grep -om1 'NO-CARRIER'")) {
+if (exec("ip link show ".escapeshellarg($port)."|grep -om1 'NO-CARRIER'")) {
   echo "<b>Interface $port is down. Check cable!</b>";
 }
 ?>

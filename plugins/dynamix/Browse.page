@@ -67,7 +67,7 @@ function parent_link($text) {
     return $text;
   else {
     $parent = urlencode_path(dirname($dir));
-    return "<a href='/$path?dir=$parent'>$text</a>";
+    return "<a href=\"".htmlspecialchars("/$path?dir=$parent")."\">".htmlspecialchars($text)."</a>";
   }
 }
 
@@ -87,13 +87,13 @@ $disk_order=($column=='disk'?$order:'A');
 ?>
 <table id="indexer">
   <tr>
-  <td><a href="<?='/'.$path.'?dir='.$dir.'&column=fext&order='.$fext_order?>">Type</a></td>
-  <td><a href="<?='/'.$path.'?dir='.$dir.'&column=name&order='.$name_order?>">Name</a></td>
-  <td><a href="<?='/'.$path.'?dir='.$dir.'&column=size&order='.$size_order?>">Size</a></td>
+  <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir)."&column=fext&order=$fext_order")?>">Type</a></td>
+  <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir)."&column=name&order=$name_order")?>">Name</a></td>
+  <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir)."&column=size&order=$size_order")?>">Size</a></td>
 <?if ($show_disk):?>
-  <td><a href="<?='/'.$path.'?dir='.$dir.'&column=disk&order='.$disk_order;?>">Location</a></td>
+  <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir)."&column=disk&order=$disk_order")?>">Location</a></td>
 <?endif;?>
-  <td><a href="<?='/'.$path.'?dir='.$dir.'&column=time&order='.$time_order?>">Last Modified</a></td>
+  <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir)."&column=time&order=$time_order")?>">Last Modified</a></td>
   </tr>
 <?if ($dir):?>
   <tr>
@@ -113,14 +113,14 @@ $disk_order=($column=='disk'?$order:'A');
       $dirs++;
       $warn = "";
 ?>    <td><div class="icon-folder"></div></td>
-      <td><a href="<?='/'.$path.'?dir='.urlencode_path($dir.'/'.$entry['name'])?>"><?=$entry['name']?></a></td>
+      <td><a href="<?=htmlspecialchars("/$path?dir=".urlencode_path($dir.'/'.$entry['name']))?>"><?=htmlspecialchars($entry['name'])?></a></td>
       <td></td>
 <?  else:
       $files++;
       $total+=$entry['size'];
       $warn = strstr($entry['disk'],",") ? ' class="warning"' : '';
 ?>    <td><div class="icon-file icon-<?=strtolower($entry['fext'])?>"></div></td>
-      <td><a href="<?=urlencode_path(autov($dir.'/'.$entry['name']));?>" <?=$warn?$warn:'class="none"'?>><?=$entry['name']?></a></td>
+      <td><a href="<?=htmlspecialchars(urlencode_path(autov($dir.'/'.$entry['name'])));?>" <?=$warn?$warn:'class="none"'?>><?=htmlspecialchars($entry['name'])?></a></td>
       <td<?=$warn?>><?=my_scale($entry['size'],$unit).' '.$unit?></td>
 <?  endif;?>
 <?if ($show_disk):?>

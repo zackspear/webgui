@@ -160,7 +160,7 @@ foreach ($sPorts as $port) {
     echo "$port: ".exec("grep -Pom1 '^Bonding Mode: \K.+' /proc/net/bonding/bond0").", mtu $mtu";
   } else {
     unset($info);
-    exec("ethtool $port|grep -Po '^\s+(Speed|Duplex|Link\sdetected): \K[^U\\n]+'",$info);
+    exec("ethtool ".escapeshellarg($port)."|grep -Po '^\s+(Speed|Duplex|Link\sdetected): \K[^U\\n]+'",$info);
     echo (array_pop($info)=='yes' && $info[0]) ? "$port: ".str_replace(['M','G'],[' M',' G'],$info[0]).", ".strtolower($info[1])." duplex, mtu $mtu" : "$port: not connected";
   }
 }
@@ -178,7 +178,7 @@ foreach ($sPorts as $port) {
 <div><span class="key"></span>
 <input type="button" value="Close" onclick="top.Shadowbox.close()">
 <?if ($_GET['more']):?>
-<a href="<?=$_GET['more']?>" class="button" target="_parent">More</a>
+<a href="<?=htmlspecialchars($_GET['more'])?>" class="button" target="_parent">More</a>
 <?endif;?>
 </div></div>
 </body>

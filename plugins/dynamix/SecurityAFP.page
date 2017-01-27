@@ -26,10 +26,10 @@ $(checkShareSettingsAFP);
 > appears only when AFP is enabled on the Network Services page.
 
 <form markdown="1" name="afp_security_form" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="shareName" value="<?=$name;?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
-: <span class="big"><?=$name?></span>
+: <span class="big"><?=htmlspecialchars($name)?></span>
 
 Export:
 : <select name="shareExportAFP" size="1" onchange="checkShareSettingsAFP()">
@@ -50,7 +50,7 @@ TimeMachine volume size limit:
 > for backup.  For example, setting this value to "1024" would limit the reported disk space to 1GB.
 
 Volume dbpath:
-: <input type="text" name="shareVoldbpathAFP" maxlen="20" value="<?=$sec_afp[$name]['voldbpath'];?>">
+: <input type="text" name="shareVoldbpathAFP" maxlen="20" value="<?=htmlspecialchars($sec_afp[$name]['voldbpath'])?>">
 
 > Sets where to store netatalk database information.  A directory with same name as the share will be
 > created here.
@@ -96,7 +96,7 @@ Security:
 
 <?if ($sec_afp[$name]['security'] == 'secure'):?>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="shareName" value="<?=$name;?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <div id="title" class="nocontrol"><dt>User Access</dt><i>Guests have <b>read-only</b> access.</i></div>
 <?input_secure_users($sec_afp);?>
 
@@ -106,7 +106,7 @@ Security:
 
 <?elseif ($sec_afp[$name]['security'] == 'private'):?>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="shareName" value="<?=$name;?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <div id="title" class="nocontrol"><dt>User Access</dt><i>Guests have <b>no</b> access.</i></div>
 <?input_private_users($sec_afp);?>
 

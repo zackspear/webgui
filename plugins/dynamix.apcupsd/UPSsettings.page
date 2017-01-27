@@ -75,7 +75,7 @@ UPS cable:
 > + USB, Simple, Smart, Ether, or Custom to specify a special cable.
 
 Custom UPS cable:
-: <input type="text" name="CUSTOMUPSCABLE" class="narrow" maxlength="40" value="<?=$cfg['CUSTOMUPSCABLE'];?>">
+: <input type="text" name="CUSTOMUPSCABLE" class="narrow" maxlength="40" value="<?=htmlspecialchars($cfg['CUSTOMUPSCABLE']);?>">
 
 > Specify a special cable by model number, only applicable when *UPS cable* is set to Custom.
 >
@@ -106,7 +106,7 @@ UPS type:
 > + **ModBus** - serial device for use with newest SmartUPS models supporting the MODBUS protocol
 
 Device:
-: <input type="text" name="DEVICE" maxlength="200" value="<?=$cfg['DEVICE'];?>">
+: <input type="text" name="DEVICE" maxlength="200" value="<?=htmlspecialchars($cfg['DEVICE']);?>">
 
 > Enter the *device* which correspondes to your situation, only applicable when *UPS type* is not set to USB.
 >
@@ -118,17 +118,17 @@ Device:
 > + **modbus** - /dev/tty**
 
 Battery level to initiate shutdown (%):
-: <input type="text" name="BATTERYLEVEL" class="narrow" maxlength="3" value="<?=$cfg['BATTERYLEVEL'];?>">
+: <input type="text" name="BATTERYLEVEL" class="narrow" maxlength="3" value="<?=htmlspecialchars($cfg['BATTERYLEVEL']);?>">
 
 > If during a power failure, the remaining battery percentage (as reported by the UPS) is below or equal to *Battery level*, apcupsd will initiate a system shutdown.
 
 Runtime left to initiate shutdown (minutes):
-: <input type="text" name="MINUTES" class="narrow" maxlength="3" value="<?=$cfg['MINUTES'];?>">
+: <input type="text" name="MINUTES" class="narrow" maxlength="3" value="<?=htmlspecialchars($cfg['MINUTES']);?>">
 
 > If during a power failure, the remaining runtime in minutes (as calculated internally by the UPS) is below or equal to *minutes*, apcupsd, will initiate a system shutdown.
 
 Time on battery before shutdown (seconds):
-: <input type="text" name="TIMEOUT" class="narrow" maxlength="4" value="<?=$cfg['TIMEOUT'];?>">
+: <input type="text" name="TIMEOUT" class="narrow" maxlength="4" value="<?=htmlspecialchars($cfg['TIMEOUT']);?>">
 
 > If during a power failure, the UPS has run on batteries for *time-out* many seconds or longer; apcupsd will initiate a system shutdown. A value of zero disables this timer.
 >

@@ -70,7 +70,7 @@ function tab_title($text,$path,$png) {
   global $docroot;
   $file = "$path/icons/".($png ? $png : strtolower(str_replace(' ','',$text)).".png");
   if (!file_exists("$docroot/$file")) $file = "webGui/icons/default.png";
-  return "<img src='/$file' class='icon'>".my_disk($text);
+  return "<img src='/$file' class='icon'>".htmlspecialchars(my_disk($text));
 }
 
 // hack to embed function output in a quoted string (e.g., in a page Title)

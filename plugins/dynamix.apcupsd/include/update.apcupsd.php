@@ -18,12 +18,12 @@ $cable = $new['UPSCABLE']=='custom' ? $new['CUSTOMUPSCABLE'] : $new['UPSCABLE'];
 
 exec("/etc/rc.d/rc.apcupsd stop");
 exec("sed -i -e '/^NISIP/c\\NISIP 0.0.0.0' $conf");
-exec("sed -i -e '/^UPSTYPE/c\\UPSTYPE '{$new['UPSTYPE']}'' $conf");
-exec("sed -i -e '/^DEVICE/c\\DEVICE '{$new['DEVICE']}'' $conf");
-exec("sed -i -e '/^BATTERYLEVEL/c\\BATTERYLEVEL '{$new['BATTERYLEVEL']}'' $conf");
-exec("sed -i -e '/^MINUTES/c\\MINUTES '{$new['MINUTES']}'' $conf");
-exec("sed -i -e '/^TIMEOUT/c\\TIMEOUT '{$new['TIMEOUT']}'' $conf");
-exec("sed -i -e '/^UPSCABLE/c\\UPSCABLE '{$cable}'' $conf");
+exec("sed -i -e '/^UPSTYPE/c\\UPSTYPE '".str_replace("'","\\'",$new['UPSTYPE'])."'' $conf");
+exec("sed -i -e '/^DEVICE/c\\DEVICE '".str_replace("'","\\'",$new['DEVICE'])."'' $conf");
+exec("sed -i -e '/^BATTERYLEVEL/c\\BATTERYLEVEL '".str_replace("'","\\'",$new['BATTERYLEVEL'])."'' $conf");
+exec("sed -i -e '/^MINUTES/c\\MINUTES '".str_replace("'","\\'",$new['MINUTES'])."'' $conf");
+exec("sed -i -e '/^TIMEOUT/c\\TIMEOUT '".str_replace("'","\\'",$new['TIMEOUT'])."'' $conf");
+exec("sed -i -e '/^UPSCABLE/c\\UPSCABLE '".str_replace("'","\\'",$cable)."'' $conf");
 
 if ($new['KILLUPS']=='yes' && $new['SERVICE']=='enable')
   exec("! grep -q apccontrol /etc/rc.d/rc.6 && sed -i -e 's:/sbin/poweroff:/etc/apcupsd/apccontrol killpower; /sbin/poweroff:' /etc/rc.d/rc.6");

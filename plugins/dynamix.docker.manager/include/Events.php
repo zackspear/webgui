@@ -86,11 +86,11 @@ switch ($action) {
 					}
 				}
 
-				echo "<script>addLog('".addslashes("<$span>".htmlentities($line)."</span>")."');</script>";
+				echo "<script>addLog('".addslashes("<$span>".htmlspecialchars($line)."</span>")."');</script>";
 				@flush();
 			};
 			$DockerClient->getContainerLog($container, $echo, $tail, $since);
-			echo '<script>setTimeout("loadLog(\''.addslashes($container).'\',\''.time().'\')", 2000);</script>';
+			echo '<script>setTimeout("loadLog(\''.addslashes(htmlspecialchars($container)).'\',\''.time().'\')", 2000);</script>';
 			@flush();
 			exit;
 		}

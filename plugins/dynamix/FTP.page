@@ -43,7 +43,7 @@ FTP server:
 > This setting is not saved, i.e. upon system reboot it will revert to its default setting.
 
 FTP user(s):
-: <input type="text" name="#arg[2]" size="40" maxlength="80" value="<?=$ftp_userlist;?>">
+: <input type="text" name="#arg[2]" size="40" maxlength="80" value="<?=htmlspecialchars($ftp_userlist)?>">
 
 > Enter the user names (separated by spaces) permitted to access the server using FTP.
 > To disallow any user access, clear this setting.

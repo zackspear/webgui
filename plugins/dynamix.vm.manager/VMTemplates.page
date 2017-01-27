@@ -48,9 +48,9 @@ Cond="(pgrep('libvirtd')!==false)"
 	}
 ?>
 <div class="vmtemplate">
-	<a href="/VMs/AddVM?template=<?=htmlentities(urlencode($strName))?>">
-		<img src="/plugins/dynamix.vm.manager/templates/images/<?=$arrTemplate['icon']?>" title="<?=$strName?>">
-		<p><?=$strName?></p>
+	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
+		<img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>">
+		<p><?=htmlspecialchars($strName)?></p>
 	</a>
 </div>
 <? endforeach; ?>

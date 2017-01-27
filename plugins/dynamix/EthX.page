@@ -110,7 +110,7 @@ Enable bridging:
 
 <?endif;?>
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=$ethX["DESCRIPTION:$i"]?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 
@@ -169,7 +169,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=$ethX["DESCRIPTION:$i"]?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 
@@ -221,7 +221,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:INDEX" maxlength="40" value="<?=$ethX["DESCRIPTION:INDEX"]?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:INDEX" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 

@@ -103,7 +103,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 	<br><p class="notice">You must reboot for changes to take effect</p>
 <?endif;?>
 <form id="settingsForm" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="<?=$domain_cfgfile;?>" />
+<input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>" />
 
 <dl>
 	<dt>Enable VMs:</dt>
@@ -132,7 +132,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 
 	<dl>
 		<dt>Libvirt storage location:</dt>
-		<dd><?=$domain_cfg['IMAGE_FILE'];?></dd>
+		<dd><?=htmlspecialchars($domain_cfg['IMAGE_FILE'])?></dd>
 	</dl>
 	<blockquote class="inline_help">
 		<p>This is the libvirt volume.</p>
@@ -140,7 +140,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 <?else: /* Libvirt is stopped */ ?>
 	<dl>
 		<dt>Libvirt vdisk size:</dt>
-		<dd><input id="IMAGE_SIZE" type="number" min="1" name="IMAGE_SIZE" value="<?=$domain_cfg['IMAGE_SIZE'];?>" style="width:50px;" required="required" />GB <span id="SIZE_ERROR" class="errortext"></span></dd>
+		<dd><input id="IMAGE_SIZE" type="number" min="1" name="IMAGE_SIZE" value="<?=htmlspecialchars($domain_cfg['IMAGE_SIZE']);?>" style="width:50px;" required="required" />GB <span id="SIZE_ERROR" class="errortext"></span></dd>
 	</dl>
 	<blockquote class="inline_help">
 		<p>If the system needs to create a new libvirt image file, this is the default size to use specified in GB.</p>
@@ -149,7 +149,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 
 	<dl>
 		<dt>Libvirt storage location:</dt>
-		<dd><input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=$domain_cfg['IMAGE_FILE'];?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" /> <?php if (file_exists($domain_cfg['IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> Delete Image File</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span></dd>
+		<dd><input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" /> <?php if (file_exists($domain_cfg['IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> Delete Image File</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span></dd>
 	</dl>
 	<blockquote class="inline_help">
 		<p>You must specify an image file for Libvirt.  The system will automatically create this file when the Libvirt service is first started.</p>
@@ -158,7 +158,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 
 	<dl>
 		<dt>Default VM storage path:</dt>
-		<dd><input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="DOMAINDIR" value="<?=$domain_cfg['DOMAINDIR']?>" placeholder="Click to Select"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?></dd>
+		<dd><input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="DOMAINDIR" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="Click to Select"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?></dd>
 	</dl>
 	<blockquote class="inline_help">
 		<p>Specify a user share that contains all your VM subdirectories with vdisks</p>
@@ -166,7 +166,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 
 	<dl>
 		<dt>Default ISO storage path:</dt>
-		<dd><input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="MEDIADIR" value="<?=$domain_cfg['MEDIADIR']?>" placeholder="Click to Select"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?></dd>
+		<dd><input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="MEDIADIR" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="Click to Select"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?></dd>
 	</dl>
 	<blockquote class="inline_help">
 		<p>Specify a user share that contains all your installation media for operating systems</p>
@@ -202,7 +202,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 
 			echo mk_option($strMatch, 'manual', 'Manual');
 		?>
-		</select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" value="<?=$domain_cfg['VIRTIOISO']?>"<?if ($var['fsState'] == "Started"):?> placeholder="Click to Select"><i class="fa fa-download" id="download_button" title="Download Windows VirtIO driver ISO"> <span>Download</span></i><span id="download_status"></span<?endif;?>>
+		</select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"<?if ($var['fsState'] == "Started"):?> placeholder="Click to Select"><i class="fa fa-download" id="download_button" title="Download Windows VirtIO driver ISO"> <span>Download</span></i><span id="download_status"></span<?endif;?>>
 	</dd>
 </dl>
 <blockquote class="inline_help">
@@ -231,9 +231,9 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 	<dl>
 		<dt>VM shutdown time-out:</dt>
 		<dd>
-			<input type="number" name="TIMEOUT" value="<?=$domain_cfg['TIMEOUT']?>" class="narrow">
+			<input type="number" name="TIMEOUT" value="<?=htmlspecialchars($domain_cfg['TIMEOUT'])?>" class="narrow">
 			<?if (!empty($var['shutdownTimeout']) && !empty($domain_cfg['TIMEOUT']) && (int)$domain_cfg['TIMEOUT'] > (int)$var['shutdownTimeout']):?>
-			<span id="arraystopped"><i class="fa fa-warning icon warning"></i> exceeds Disk Shutdown <?=$var['shutdownTimeout']?>s time-out (<a href="/Settings/DiskSettings">edit</a>)</span>
+			<span id="arraystopped"><i class="fa fa-warning icon warning"></i> exceeds Disk Shutdown <?=htmlspecialchars($var['shutdownTimeout'])?>s time-out (<a href="/Settings/DiskSettings">edit</a>)</span>
 			<?endif;?>
 		</dd>
 	</dl>
@@ -257,14 +257,14 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 </div>
 
 <dl>
-	<dt><?if (file_exists("/var/log/libvirt/libvirtd.log")):?><input type="button" class="advanced" onclick="openWindow('/webGui/scripts/tail_log&amp;arg1=libvirt/libvirtd.log','Log Information',600,900);" value="View libvirt log"/><?endif;?>&nbsp;</dt>
+	<dt><?if (file_exists("/var/log/libvirt/libvirtd.log")):?><input type="button" class="advanced" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','Libvirt Log',600,900);" value="View libvirt log"/><?endif;?>&nbsp;</dt>
 	<dd><input type="button" id="applyBtn" value="Apply"/><input type="button" value="Done" onclick="done()"></dd>
 </dl>
 </form>
 
 <?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
 <blockquote class="inline_help">
-	<p>View the log for libvirt: <a id="openlog" title="/var/log/libvirt/libvirtd.log" href="#" onclick="openWindow('/webGui/scripts/tail_log&amp;arg1=libvirt/libvirtd.log','Log Information',600,900);">/var/log/libvirt/libvirtd.log</a></p>
+	<p>View the log for libvirt: <a id="openlog" title="/var/log/libvirt/libvirtd.log" href="#" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','Libvirt Log',600,900);">/var/log/libvirt/libvirtd.log</a></p>
 </blockquote>
 <?endif;?>
 

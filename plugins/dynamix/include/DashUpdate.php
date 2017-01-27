@@ -34,7 +34,7 @@ function my_smart(&$source,$name,$page) {
     $title = "S.M.A.R.T health-check failed\n"; $thumb = 'bad';
   } else {
     if (empty($saved["smart"]["$name.ack"])) {
-      exec("awk 'NR>7{print $1,$2,$4,$6,$9,$10}' $file 2>/dev/null", $codes);
+      exec("awk 'NR>7{print $1,$2,$4,$6,$9,$10}' ".escapeshellarg($file)." 2>/dev/null", $codes);
       foreach ($codes as $code) {
         if (!$code) continue;
         list($id,$class,$value,$thres,$when,$raw) = explode(' ',$code);
@@ -123,7 +123,7 @@ case 'disk':
     foreach ($disks as $disk) if ($disk['type']=='Cache') $funcRenderRow($i++,$disk);
     foreach ($devs as $dev) {
       $device = $dev['device'];
-      $state = exec("hdparm -C /dev/$device|grep -Po active") ? 'blue-on' : 'blue-blink';
+      $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
       if ($state=='blue-on') my_smart($row6[$i],$device,'New');
       my_insert($row3[$i++],"<img src=$path/$state.png>");
     }
@@ -147,7 +147,7 @@ case 'disk':
     foreach ($disks as $disk) if ($disk['type']=='Cache') $funcRenderRow($i++,$disk);
     foreach ($devs as $dev) {
       $device = $dev['device'];
-      $state = exec("hdparm -C /dev/$device|grep -Po active") ? 'blue-on' : 'blue-blink';
+      $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
       if ($state=='blue-on') my_smart($row6[$i],$device,'New');
       my_insert($row3[$i++],"<img src=$path/$state.png>");
     }
@@ -180,12 +180,12 @@ case 'port':
     foreach ($ports as $port) {
       $mtu = file_get_contents("/sys/class/net/$port/mtu");
       if (substr($port,0,4)=='bond') {
-        $ports[$i++] = exec("grep -Pom1 '^Bonding Mode: \K.+' /proc/net/bonding/$port").", mtu $mtu";
+        $ports[$i++] = exec("grep -Pom1 '^Bonding Mode: \K.+' ".escapeshellarg("/proc/net/bonding/$port")).", mtu $mtu";
       } elseif ($port=='lo') {
         $ports[$i++] = str_replace('yes','loopback',exec("ethtool lo|grep -Pom1 '^\s+Link detected: \K.+'"));
       } else {
         unset($info);
-        exec("ethtool $port|grep -Po '^\s+(Speed|Duplex|Link\sdetected): \K[^U\\n]+'",$info);
+        exec("ethtool ".escapeshellarg($port)."|grep -Po '^\s+(Speed|Duplex|Link\sdetected): \K[^U\\n]+'",$info);
         $ports[$i++] = (array_pop($info)=='yes' && $info[0]) ? str_replace(['M','G'],[' M',' G'],$info[0]).", ".strtolower($info[1])." duplex, mtu $mtu" : "not connected";
       }
     }

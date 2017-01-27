@@ -323,6 +323,6 @@ $(function() {
 	});
 
 	context.init({ preventDoubleContext: false });
-	<?=implode("\n\t", $contextMenus);?>
+	<?=implode("\n\t", $contextMenus)?>
 });
 </script>

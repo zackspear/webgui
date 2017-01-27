@@ -280,14 +280,14 @@ if (!empty($_GET['uuid'])) {
 <div id="content" style="margin-top:-21px;margin-left:0px">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
-	<input type="hidden" name="template[name]" value="<?=$strSelectedTemplate?>" />
+	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplate)?>" />
 
 	<table>
 		<tr>
 			<td>Icon:</td>
 			<td>
-				<input type="hidden" name="template[icon]" id="template_icon" value="<?=$arrLoad['icon']?>" />
-				<img id="template_img" src="<?=htmlentities($strIconURL)?>" width="48" height="48" title="Change Icon..."/>
+				<input type="hidden" name="template[icon]" id="template_icon" value="<?=htmlspecialchars($arrLoad['icon'])?>" />
+				<img id="template_img" src="<?=htmlspecialchars($strIconURL)?>" width="48" height="48" title="Change Icon..."/>
 				<div id="template_img_chooser_outer">
 					<div id="template_img_chooser">
 					<?

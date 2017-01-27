@@ -45,7 +45,7 @@ echo "<ul class='jqueryFileTree'>";
 
 // Parent dirs
 if ($_POST['show_parent'] == "true" ) {
-	echo "<li class='directory collapsed'>{$checkbox}<a href='#' rel='" . htmlentities(dirname($postDir), ENT_QUOTES) . "/'>..</a></li>";
+	echo "<li class='directory collapsed'>{$checkbox}<a href='#' rel='" . htmlspecialchars(dirname($postDir), ENT_QUOTES) . "/'>..</a></li>";
 }
 
 if( file_exists($postDir) ) {
@@ -59,8 +59,8 @@ if( file_exists($postDir) ) {
 		foreach( $files as $file ) {
 			if( file_exists($postDir . $file) && $file != '.' && $file != '..' ) {
 				if( is_dir($postDir . $file) ) {
-					$htmlRel	= htmlentities($returnDir . $file, ENT_QUOTES);
-					$htmlName	= htmlentities((strlen($file) > 33) ? substr($file,0,33).'...' : $file);
+					$htmlRel	= htmlspecialchars($returnDir . $file, ENT_QUOTES);
+					$htmlName	= htmlspecialchars((strlen($file) > 33) ? substr($file,0,33).'...' : $file);
 
 					echo "<li class='directory collapsed'>{$checkbox}<a href='#' rel='" . $htmlRel . "/'>" . $htmlName . "</a></li>";
 				}
@@ -71,8 +71,8 @@ if( file_exists($postDir) ) {
 		foreach( $files as $file ) {
 			if( file_exists($postDir . $file) && $file != '.' && $file != '..' ) {
 				if( !is_dir($postDir . $file) ) {
-					$htmlRel	= htmlentities($returnDir . $file, ENT_QUOTES);
-					$htmlName	= htmlentities($file);
+					$htmlRel	= htmlspecialchars($returnDir . $file, ENT_QUOTES);
+					$htmlName	= htmlspecialchars($file);
 					$ext		= strtolower(preg_replace('/^.*\./', '', $file));
 
     				foreach ($filters as $filter) {

@@ -61,7 +61,7 @@ case "attributes":
   $unraid = parse_plugin_cfg('dynamix',true);
   $max = $unraid['display']['max'];
   $hot = $unraid['display']['hot'];
-  exec("smartctl -A $type /dev/$port|awk 'NR>7'",$output);
+  exec("smartctl -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>7'",$output);
   $empty = true;
   foreach ($output as $line) {
     if (!$line) continue;
@@ -80,7 +80,7 @@ case "attributes":
   if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>Can not read attributes</td></tr>";
   break;
 case "capabilities":
-  exec("smartctl -c $type /dev/$port|awk 'NR>5'",$output);
+  exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
   $row = ['','',''];
   $empty = true;
   foreach ($output as $line) {
@@ -101,8 +101,8 @@ case "capabilities":
 case "identify":
   $passed = ['PASSED','OK'];
   $failed = ['FAILED','NOK'];
-  exec("smartctl -i $type /dev/$port|awk 'NR>4'",$output);
-  exec("smartctl -H $type /dev/$port|grep -Pom1 '^SMART.*: [A-Z]+'|sed 's:self-assessment test result::'",$output);
+  exec("smartctl -i $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
+  exec("smartctl -H $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '^SMART.*: [A-Z]+'|sed 's:self-assessment test result::'",$output);
   $empty = true;
   foreach ($output as $line) {
     if (!strlen($line)) continue;
@@ -116,34 +116,36 @@ case "identify":
   if ($empty) echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
   break;
 case "save":
-  exec("smartctl -a $type /dev/$port >{$_SERVER['DOCUMENT_ROOT']}/{$_POST['file']}");
+  exec("smartctl -a $type ".escapeshellarg("/dev/$port")." >".escapeshellarg("{$_SERVER['DOCUMENT_ROOT']}/{$_POST['file']}"));
   break;
 case "delete":
-  @unlink("/var/tmp/{$_POST['file']}");
+  if (strpos(realpath("/var/tmp/{$_POST['file']}"), "/var/tmp/") === 0) {
+    @unlink("/var/tmp/{$_POST['file']}");
+  }
   break;
 case "short":
   spindownDelay($port);
-  exec("smartctl -t short $type /dev/$port");
+  exec("smartctl -t short $type ".escapeshellarg("/dev/$port"));
   break;
 case "long":
   spindownDelay($port);
-  exec("smartctl -t long $type /dev/$port");
+  exec("smartctl -t long $type ".escapeshellarg("/dev/$port"));
   break;
 case "stop":
-  exec("smartctl -X $type /dev/$port");
+  exec("smartctl -X $type ".escapeshellarg("/dev/$port"));
   break;
 case "update":
-  if (!exec("hdparm -C /dev/$port|grep -Pom1 'active|unknown'")) {
+  if (!exec("hdparm -C ".escapeshellarg("/dev/$port")."|grep -Pom1 'active|unknown'")) {
     $cmd = $_POST['type']=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=up&arg2=$name" : "cmdSpinup=$name";
-    echo "<a href='/update.htm?$cmd' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='orange-text'><span class='big'>Unavailable - disk must be spun up</span></span>";
+    echo "<a href='/update.htm?$cmd&csrf_token={$var['csrf_token']}' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='orange-text'><span class='big'>Unavailable - disk must be spun up</span></span>";
     break;
   }
-  $progress = exec("smartctl -c $type /dev/$port|grep -Pom1 '\d+%'");
+  $progress = exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
   if ($progress) {
     echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> self-test in progress, ".(100-substr($progress,0,-1))."% complete</span>";
     break;
   }
-  $result = trim(exec("smartctl -l selftest $type /dev/$port|grep -m1 '^# 1'|cut -c26-55"));
+  $result = trim(exec("smartctl -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
     echo "<span class='big'>No self-tests logged on this disk</span>";
     break;
@@ -159,10 +161,10 @@ case "update":
   echo "<span class='red-text'><span class='big'>Errors occurred - Check SMART report</span></span>";
   break;
 case "selftest":
-  echo shell_exec("smartctl -l selftest $type /dev/$port|awk 'NR>5'");
+  echo shell_exec("smartctl -l selftest $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'");
   break;
 case "errorlog":
-  echo shell_exec("smartctl -l error $type /dev/$port|awk 'NR>5'");
+  echo shell_exec("smartctl -l error $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'");
   break;
 }
 ?>

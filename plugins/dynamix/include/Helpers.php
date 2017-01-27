@@ -171,7 +171,7 @@ function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
 function pgrep($process_name) {
-  $pid = exec("pgrep $process_name", $output, $retval);
+  $pid = exec("pgrep ".escapeshellarg($process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
 }
 function input_secure_users($sec) {

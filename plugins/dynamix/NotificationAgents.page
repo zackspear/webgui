@@ -115,11 +115,11 @@ foreach ($xml->Agent as $agent) {
   echo '</select></dd></dl>';
   echo '<script>scripts["'.$name.'"]='.json_encode($script).';enabledAgents["'.$name.'"]="'.$enabledAgent.'";disabledAgents["'.$name.'"]="'.$disabledAgent.'";</script>';
   $i = 1;
-  foreach ($agent->Variables->children() as $var) {
-    $vName = preg_replace('#\[([^\]]*)\]#', '<$1>', (string) $var);
-    $vDesc = ucfirst(strtolower(preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $var->attributes()->Desc)));
-    $vDefault = preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $var->attributes()->Default);
-    $vHelp = preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $var->attributes()->Help);
+  foreach ($agent->Variables->children() as $v) {
+    $vName = preg_replace('#\[([^\]]*)\]#', '<$1>', (string) $v);
+    $vDesc = ucfirst(strtolower(preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $v->attributes()->Desc)));
+    $vDefault = preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $v->attributes()->Default);
+    $vHelp = preg_replace('#\[([^\]]*)\]#', '<$1>', (String) $v->attributes()->Help);
     echo '<dl><dt>'.$vDesc.':</dt><dd>';
     if (preg_match('/title|message/', ${vDesc})) {
       echo '<select id="slot_'.$i.'" name="'.$vName.'" size="1" multiple style="display:none">';

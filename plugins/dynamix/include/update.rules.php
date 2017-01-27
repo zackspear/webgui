@@ -14,8 +14,8 @@
 $cfg = $_POST['#cfg'];
 foreach ($_POST as $name => $mac) {
   if ($name[0]=='#') continue;
-  $row = exec("grep -n '$mac' $cfg|cut -d: -f1");
-  if ($row) exec("sed -ri '{$row}s/(NAME=\")[^\"]+/\\1{$name}/' $cfg");
+  $row = exec("grep -n '$mac' ".escapeshellarg($cfg)."|cut -d: -f1");
+  if ($row) exec("sed -ri '{$row}s/(NAME=\")[^\"]+/\\1{$name}/' ".escapeshellarg($cfg));
 }
 exec("touch /tmp/network-rules.tmp");
 $save = false;

@@ -20,14 +20,14 @@ $zip = str_replace(' ','_',strtolower($var['NAME']))."-syslog-".date('Ymd-Hi')."
 function cleanUp() {
   if (document.hasFocus()) {
     $('input[value="Downloading..."]').val('Download').prop('disabled',false);
-    $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=$zip?>'});
+    $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($zip))?>'});
   } else {
     setTimeout(cleanUp,4000);
   }
 }
 function syslog() {
   $('input[value="Download"]').val('Downloading...').prop('disabled',true);
-  $.post('/webGui/include/Download.php',{cmd:'save',source:'/var/log/syslog',file:'<?=$zip?>'},function(zip) {
+  $.post('/webGui/include/Download.php',{cmd:'save',source:'/var/log/syslog',file:'<?=addslashes(htmlspecialchars($zip))?>'},function(zip) {
     location = zip;
     setTimeout(cleanUp,4000);
   });
@@ -74,7 +74,7 @@ foreach ($logs as $log) {
   foreach (file($log) as $line) {
     $span = "span class='text'";
     foreach ($match as $type) foreach ($type['text'] as $text) if (preg_match("/$text/i",$line)) {$span = "span class='{$type['class']}'"; break 2;}
-    echo "<$span>".htmlentities($line)."</span>";
+    echo "<$span>".htmlspecialchars($line)."</span>";
   }
 }
 echo "</pre>";

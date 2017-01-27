@@ -37,13 +37,13 @@ function stopContainer($name) {
   $waitID = mt_rand();
 
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
-  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Stopping container: ".addslashes($name)."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Stopping container: ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
   @flush();
 
   $retval = $DockerClient->stopContainer($name);
   $out = ($retval === true) ? "Successfully stopped container '$name'" : "Error: ".$retval;
 
-  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes($out)."</b>');</script>\n";
+  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
   @flush();
 }
 
@@ -52,13 +52,13 @@ function removeContainer($name) {
   $waitID = mt_rand();
 
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
-  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing container: ".addslashes($name)."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing container: ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
   @flush();
 
   $retval = $DockerClient->removeContainer($name);
   $out = ($retval === true) ? "Successfully removed container '$name'" : "Error: ".$retval;
 
-  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes($out)."</b>');</script>\n";
+  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
   @flush();
 }
 
@@ -67,13 +67,13 @@ function removeImage($image) {
   $waitID = mt_rand();
 
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
-  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing orphan image: ".addslashes($image)."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing orphan image: ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
   @flush();
 
   $retval = $DockerClient->removeImage($image);
   $out = ($retval === true) ? "Successfully removed image '$image'" : "Error: ".$retval;
 
-  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes($out)."</b>');</script>\n";
+  echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
   @flush();
 }
 
@@ -83,7 +83,7 @@ function pullImage($name, $image) {
   if (!preg_match("/:[\w]*$/i", $image)) $image .= ":latest";
 
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
-  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Pulling image: ".addslashes($image)."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+  echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Pulling image: ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
   @flush();
 
   $alltotals = [];
@@ -123,7 +123,7 @@ function pullImage($name, $image) {
 
         case 'Downloading':
           if ($laststatus[$id] != $status) {
-            echo "<script>addToID('${id}','".addslashes($status)."');</script>\n";
+            echo "<script>addToID('${id}','".addslashes(htmlspecialchars($status))."');</script>\n";
           }
           $total = $cnt['progressDetail']['total'];
           $current = $cnt['progressDetail']['current'];
@@ -143,7 +143,7 @@ function pullImage($name, $image) {
             echo "<script>progress('${id}',' 100% of ".$DockerClient->formatBytes($alltotals[$id])."');</script>\n";
           }
           if ($laststatus[$id] != $status) {
-            echo "<script>addToID('${id}','".addslashes($status)."');</script>\n";
+            echo "<script>addToID('${id}','".addslashes(htmlspecialchars($status))."');</script>\n";
           }
           break;
       }
@@ -152,7 +152,7 @@ function pullImage($name, $image) {
 
     } else {
       if (strpos($status, 'Status: ') === 0) {
-        echo "<script>addLog('".addslashes($status)."');</script>\n";
+        echo "<script>addLog('".addslashes(htmlspecialchars($status))."');</script>\n";
       }
       if (strpos($status, 'Digest: ') === 0) {
         $DockerUpdate->setUpdateStatus($image, substr($status, 8));
@@ -165,7 +165,7 @@ function pullImage($name, $image) {
   @flush();
 
   if (!empty($strError)) {
-    echo "<script>addLog('<br><span class=\"error\"><b>Error:</b> ".addslashes($strError)."</span>');</script>\n";
+    echo "<script>addLog('<br><span class=\"error\"><b>Error:</b> ".addslashes(htmlspecialchars($strError))."</span>');</script>\n";
     @flush();
     return false;
   }
@@ -244,7 +244,6 @@ function postToXML($post, $setOwnership = false) {
 }
 
 function xmlToVar($xml) {
-  global $var;
   $xml           = (is_file($xml)) ? simplexml_load_file($xml) : simplexml_load_string($xml);
 
   $out                = [];
@@ -335,16 +334,16 @@ function xmlToVar($xml) {
 
     if (isset($xml->Environment->Variable)) {
       $varNum = 0;
-      foreach ($xml->Environment->Variable as $var) {
-        if (empty(xml_decode($var->Name))) continue;
+      foreach ($xml->Environment->Variable as $varitem) {
+        if (empty(xml_decode($varitem->Name))) continue;
         $varNum += 1;
         $out['Config'][] = [
           'Name'        => "Key ${varNum}",
-          'Target'      => xml_decode($var->Name),
-          'Default'     => xml_decode($var->Value),
-          'Value'       => xml_decode($var->Value),
+          'Target'      => xml_decode($varitem->Name),
+          'Default'     => xml_decode($varitem->Value),
+          'Value'       => xml_decode($varitem->Value),
           'Mode'        => '',
-          'Description' => 'Container Variable: '.xml_decode($var->Name),
+          'Description' => 'Container Variable: '.xml_decode($varitem->Name),
           'Type'        => 'Variable',
           'Display'     => 'always',
           'Required'    => 'false',
@@ -493,9 +492,9 @@ if (isset($_POST['contName'])) {
   // Run dry
   if ($dry_run) {
     echo "<h2>XML</h2>";
-    echo "<pre>".htmlentities($postXML)."</pre>";
+    echo "<pre>".htmlspecialchars($postXML)."</pre>";
     echo "<h2>COMMAND:</h2>";
-    echo "<pre>".htmlentities($cmd)."</pre>";
+    echo "<pre>".htmlspecialchars($cmd)."</pre>";
     echo "<div style='text-align:center'><input type='button' value='Back' onclick='window.location=window.location.pathname+window.location.hash+\"?xmlTemplate=edit:${filename}\"'>";
     echo "<input type='button' value='Done' onclick='done()'></div><br>";
     goto END;
@@ -1172,7 +1171,7 @@ $showAdditionalInfo = '';
             ?>
           </select>
           <? if (!empty($rmadd)) {
-            echo "<a onclick=\"rmTemplate('".addslashes($rmadd)."');\" style=\"cursor:pointer;\"><img src=\"/plugins/dynamix.docker.manager/images/remove.png\" title=\"".htmlspecialchars($rmadd)."\" width=\"30px\"></a>";
+            echo "<a onclick=\"rmTemplate('".addslashes(htmlspecialchars($rmadd))."');\" style=\"cursor:pointer;\"><img src=\"/plugins/dynamix.docker.manager/images/remove.png\" title=\"".htmlspecialchars($rmadd)."\" width=\"30px\"></a>";
           }?>
         </td>
       </tr>

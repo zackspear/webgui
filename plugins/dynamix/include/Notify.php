@@ -47,7 +47,7 @@ case 'get':
   echo shell_exec("$notify get");
   break;
 case 'archive':
-  shell_exec("$notify archive \"{$_POST['file']}\"");
+  shell_exec("$notify archive ".escapeshellarg($_POST['file']));
   break;
 }
 ?>

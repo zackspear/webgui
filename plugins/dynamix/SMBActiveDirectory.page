@@ -19,16 +19,16 @@ AD join status:
 : <?=$var['joinStatus'];?>&nbsp;
 
 AD domain name (FQDN):
-: <input type="text" name="DOMAIN" maxlength="80" value="<?=$var['DOMAIN'];?>">
+: <input type="text" name="DOMAIN" maxlength="80" value="<?=htmlspecialchars($var['DOMAIN'])?>">
 
 AD short domain name:
-: <input type="text" name="DOMAIN_SHORT" maxlength="40" value="<?=$var['DOMAIN_SHORT'];?>">
+: <input type="text" name="DOMAIN_SHORT" maxlength="40" value="<?=htmlspecialchars($var['DOMAIN_SHORT'])?>">
 
 AD account login:
-: <input type="text" name="DOMAIN_LOGIN" maxlength="40" value="<?=$var['DOMAIN_LOGIN'];?>">
+: <input type="text" name="DOMAIN_LOGIN" maxlength="40" value="<?=htmlspecialchars($var['DOMAIN_LOGIN'])?>">
 
 AD account password:
-: <input type="password" name="DOMAIN_PASSWD" maxlength="40" value="<?=$var['DOMAIN_PASSWD'];?>">
+: <input type="password" name="DOMAIN_PASSWD" maxlength="40" value="<?=htmlspecialchars($var['DOMAIN_PASSWD'])?>">
 
 &nbsp;
 : <?if ($var['joinStatus']=="Joined"):?>
@@ -41,10 +41,10 @@ AD account password:
 
 <form markdown="1" name="shareOwnership" method="POST" action="/update.htm" target="progressFrame">
 AD initial owner:
-: <input type="text" name="shareInitialOwner" maxlength="40" value="<?=$var['shareInitialOwner'];?>">
+: <input type="text" name="shareInitialOwner" maxlength="40" value="<?=htmlspecialchars($var['shareInitialOwner'])?>">
 
 AD initial group:
-: <input type="text" name="shareInitialGroup" maxlength="40" value="<?=$var['shareInitialGroup'];?>">
+: <input type="text" name="shareInitialGroup" maxlength="40" value="<?=htmlspecialchars($var['shareInitialGroup'])?>">
 
 &nbsp;
 : <input type="submit" name="changeShare" value="Apply"><input type="button" value="Done" onclick="done()">

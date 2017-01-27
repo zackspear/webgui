@@ -15,7 +15,7 @@ Title="Edit User"
 ?>
 
 <?if (!array_key_exists($name, $users)):?>
-  <p class="notice">User <?=$name?> has been deleted.</p><br>
+  <p class="notice">User <?=htmlspecialchars($name)?> has been deleted.</p><br>
   <input type="button" value="Done" onClick="done()">
 <?return;?>
 <?endif;?>
@@ -58,9 +58,9 @@ function restore() {
 function upload(remove) {
   // save or delete upload when APPLY is pressed
   if (remove || filename=='reset') {
-    $.post("/webGui/include/FileUpload.php",{cmd:'delete',path:path,filename:'<?=$name?>.png'});
+    $.post("/webGui/include/FileUpload.php",{cmd:'delete',path:path,filename:'<?=addslashes(htmlspecialchars($name))?>.png'});
   } else if (filename) {
-    $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'<?=$name?>.png'});
+    $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'<?=addslashes(htmlspecialchars($name))?>.png'});
   }
 }
 
@@ -117,12 +117,12 @@ $(function(){
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="upload(<?=$name=="root" ? 'false' : 'this.confirmDelete.checked'?>)">
-<input type="hidden" name="userName" value="<?=$name?>">
+<input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
 User name:
-: <?=$name?>
+: <?=htmlspecialchars($name)?>
 
 Description:
-: <input type="text" name="userDesc" maxlength="64" value="<?=$users[$name]['desc'];?>">
+: <input type="text" name="userDesc" maxlength="64" value="<?=htmlspecialchars($users[$name]['desc'])?>">
 
 > Up to 64 characters.
 
@@ -146,7 +146,7 @@ Delete<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form,
 </form>
 <br><br>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkPassword(this)">
-<input type="hidden" name="userName" value="<?=$name?>">
+<input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
 Password:
 : <input type="password" name="userPassword" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled = (this.form.userPassword.value != this.form.userPasswordConf.value);">
 

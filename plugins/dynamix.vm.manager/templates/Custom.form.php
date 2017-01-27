@@ -206,17 +206,17 @@
 	}
 ?>
 
-<input type="hidden" name="template[os]" id="template_os" value="<?=$arrConfig['template']['os']?>">
-<input type="hidden" name="domain[persistent]" value="<?=$arrConfig['domain']['persistent']?>">
-<input type="hidden" name="domain[uuid]" value="<?=$arrConfig['domain']['uuid']?>">
-<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=$arrConfig['domain']['clock']?>">
-<input type="hidden" name="domain[arch]" value="<?=$arrConfig['domain']['arch']?>">
-<input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlentities($arrConfig['domain']['name'])?>">
+<input type="hidden" name="template[os]" id="template_os" value="<?=htmlspecialchars($arrConfig['template']['os'])?>">
+<input type="hidden" name="domain[persistent]" value="<?=htmlspecialchars($arrConfig['domain']['persistent'])?>">
+<input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($arrConfig['domain']['uuid'])?>">
+<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
+<input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
+<input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
 
 <table>
 	<tr>
 		<td>Name:</td>
-		<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. My Workstation" value="<?=htmlentities($arrConfig['domain']['name'])?>" required /></td>
+		<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. My Workstation" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 	</tr>
 </table>
 <blockquote class="inline_help">
@@ -226,7 +226,7 @@
 <table>
 	<tr class="advanced">
 		<td>Description:</td>
-		<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlentities($arrConfig['domain']['desc'])?>" /></td>
+		<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
 	</tr>
 </table>
 <div class="advanced">
@@ -365,7 +365,7 @@
 			?>
 			</select>
 			<?php if (!empty($arrConfig['domain']['state'])) { ?>
-				<input type="hidden" name="domain[ovmf]" value="<?=$arrConfig['domain']['ovmf']?>">
+				<input type="hidden" name="domain[ovmf]" value="<?=htmlspecialchars($arrConfig['domain']['ovmf'])?>">
 			<?php } ?>
 		</td>
 	</tr>
@@ -408,7 +408,7 @@
 	<tr>
 		<td>OS Install ISO:</td>
 		<td>
-			<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=$domain_cfg['MEDIADIR']?>" name="media[cdrom]" value="<?=$arrConfig['media']['cdrom']?>" placeholder="Click and Select cdrom image to install operating system">
+			<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[cdrom]" value="<?=htmlspecialchars($arrConfig['media']['cdrom'])?>" placeholder="Click and Select cdrom image to install operating system">
 		</td>
 	</tr>
 	<tr class="advanced">
@@ -432,7 +432,7 @@
 	<tr class="advanced">
 		<td>VirtIO Drivers ISO:</td>
 		<td>
-			<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=$domain_cfg['MEDIADIR']?>" name="media[drivers]" value="<?=$arrConfig['media']['drivers']?>" placeholder="Download, Click and Select virtio drivers image">
+			<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[drivers]" value="<?=htmlspecialchars($arrConfig['media']['drivers'])?>" placeholder="Download, Click and Select virtio drivers image">
 		</td>
 	</tr>
 	<tr class="advanced">
@@ -538,14 +538,14 @@
 
 					echo mk_option($default_option, 'manual', 'Manual');
 				?>
-				</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[<?=$i?>][new]" class="disk" id="disk_<?=$i?>" value="<?=$arrDisk['new']?>" placeholder="Separate sub-folder and image will be created based on Name"><div class="disk_preview"></div>
+				</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[<?=$i?>][new]" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="Separate sub-folder and image will be created based on Name"><div class="disk_preview"></div>
 			</td>
 		</tr>
 
 		<tr class="disk_file_options">
 			<td>vDisk Size:</td>
 			<td>
-				<input type="text" name="disk[<?=$i?>][size]" value="<?=$arrDisk['size']?>" class="narrow" placeholder="e.g. 10M, 1G, 10G...">
+				<input type="text" name="disk[<?=$i?>][size]" value="<?=htmlspecialchars($arrDisk['size'])?>" class="narrow" placeholder="e.g. 10M, 1G, 10G...">
 			</td>
 		</tr>
 
@@ -694,14 +694,14 @@
 		<tr class="advanced">
 			<td>unRAID Share:</td>
 			<td>
-				<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=$arrShare['source']?>" name="shares[<?=$i?>][source]" placeholder="e.g. /mnt/user/..." title="path of unRAID share" />
+				<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" name="shares[<?=$i?>][source]" placeholder="e.g. /mnt/user/..." title="path of unRAID share" />
 			</td>
 		</tr>
 
 		<tr class="advanced">
 			<td>unRAID Mount tag:</td>
 			<td>
-				<input type="text" value="<?=$arrShare['target']?>" name="shares[<?=$i?>][target]" placeholder="e.g. shares (name of mount tag inside vm)" title="mount tag inside vm" />
+				<input type="text" value="<?=htmlspecialchars($arrShare['target'])?>" name="shares[<?=$i?>][target]" placeholder="e.g. shares (name of mount tag inside vm)" title="mount tag inside vm" />
 			</td>
 		</tr>
 	</table>
@@ -888,7 +888,7 @@
 		<tr class="advanced">
 			<td>Network MAC:</td>
 			<td>
-				<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=$arrNic['mac']?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+				<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
 			</td>
 		</tr>
 
@@ -956,7 +956,7 @@
 				if (!empty($arrValidUSBDevices)) {
 					foreach($arrValidUSBDevices as $i => $arrDev) {
 					?>
-					<label for="usb<?=$i?>"><input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=$arrDev['id']?>" <?php if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"'; ?>/> <?=$arrDev['name']?> (<?=$arrDev['id']?>)</label><br/>
+					<label for="usb<?=$i?>"><input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?php if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"'; ?>/> <?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?php
 					}
 				} else {
@@ -1013,7 +1013,7 @@
 						}
 						$intAvailableOtherPCIDevices++;
 				?>
-					<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=$arrDev['id']?>" <?=$extra?>/> <?=$arrDev['name']?> | <?=$arrDev['type']?> (<?=$arrDev['id']?>)</label><br/>
+					<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> <?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 				<?
 					}
 				}

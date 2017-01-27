@@ -13,11 +13,11 @@
 <?
 $port = $_POST['port'];
 $cmd = strtolower($_POST['cmd']);
-exec("ip link set $port $cmd");
+exec("ip link set ".escapeshellarg($port)." ".escapeshellarg($cmd));
 $pass = $cmd=='up' ? 'UP>' : '';
 $wait = 5;
 while ($wait > 0) {
-  if (exec("ip link show $port|grep -om1 'UP>'")==$pass) break;
+  if (exec("ip link show ".escapeshellarg($port)."|grep -om1 'UP>'")==$pass) break;
   sleep(1);
   $wait--;
 }

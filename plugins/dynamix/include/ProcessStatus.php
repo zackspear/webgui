@@ -17,7 +17,7 @@ case 'crontab':
   $pid = file_exists("/boot/config/plugins/{$_POST['plugin']}/{$_POST['job']}.cron");
   break;
 case 'preclear_disk':
-  $pid = exec("ps -o pid,command --ppid 1|awk -F/ '/$name .*{$_POST['device']}$/{print $1;exit}'");
+  $pid = exec("ps -o pid,command --ppid 1|awk -F/ ".escapeshellarg("/$name .*{$_POST['device']}$/{print $1;exit}"));
   break;
 case is_numeric($name):
   $pid = exec("lsof -i:$name -Pn|awk '/\(LISTEN\)/{print $2;exit}'");
@@ -26,7 +26,7 @@ case 'pid':
   $pid = file_exists("/var/run/{$_POST['plugin']}.pid");
   break;
 default:
-  $pid = exec("pidof -s -x '$name'");
+  $pid = exec("pidof -s -x ".escapeshellarg($name));
   break;
 }
 if (isset($_POST['update'])) {$span = ""; $_span = "";}

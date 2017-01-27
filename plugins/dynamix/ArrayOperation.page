@@ -89,13 +89,12 @@ function stop_parity(form,text) {
     form.submit();
   }
 }
-function system(cmd) {
-  var boot = '/webGui/include/Boot.php';
-  var page = '/'+cmd+'.htm';
+function shut_down(form,cmd) {
+  $(form).append('<input type="hidden" name="cmd" value="'+cmd+'">');
   if (ask2) {
-    swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(){$.post(boot,{cmd:cmd},function(){location=page;});});
+    swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
   } else {
-    $.post(boot,{cmd:cmd},function(){location=page;});
+    form.submit();
   }
 }
 parity_status();
@@ -142,7 +141,7 @@ $('div[id=title]:first').append(rbtn);
 toggle_diskio(true);
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="startState" value="<?=$var['mdState']?>">
+<input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
 <table class="array_status">
 <?$parity = $var['mdResync']>0 ? '<small>Disabled -- Parity operation is running</small>' : '';
   $mover = file_exists('/var/run/mover.pid') ? '<small>Disabled -- Mover is running</small>' : '';
@@ -529,10 +528,10 @@ toggle_diskio(true);
   <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
+<?if ($var['fsState']=="Started"):?>
 <form name="otherOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=$var['mdState']?>">
 <table class="array_status">
-<?if ($var['fsState']=="Started"):?>
   <tr>
   <td></td>
   <td><input type="submit" name="cmdSpindownAll" value="Spin Down"<?=$parity?' disabled':''?> style="width:80px"><input type="submit" name="cmdSpinupAll" value="Spin Up"<?=$parity?' disabled':''?> style="width:80px"></td>
@@ -543,20 +542,9 @@ toggle_diskio(true);
   <td><input type="submit" name="clearStatistics" value="Clear Statistics"></td>
   <td><strong>Clear Statistics</strong> will immediately clear all disk statistics.</td>
   </tr>
-<?endif;?>
-  <tr>
-  <td></td>
-  <td><input type="button" name="reboot" value="Reboot" onclick="system('reboot')"></td>
-  <td><strong>Reboot</strong> will activate a <em>clean</em> system reset.</td>
-  </tr>
-  <tr>
-  <td></td>
-  <td><input type="button" name="shutdown" value="Power down" onclick="system('shutdown')"></td>
-  <td><strong>Power down</strong> will activate a <em>clean</em> power down.</td>
-  </tr>
 </table>
 </form>
-<?if (is_dir("/mnt/cache") && is_dir("/mnt/user0") && $var['fsState']=="Started"):?>
+<?if (is_dir("/mnt/cache") && is_dir("/mnt/user0")):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table class="array_status">
   <tr><td colspan="3"></td></tr>
@@ -571,6 +559,16 @@ toggle_diskio(true);
 </table>
 </form>
 <?endif;?>
+<?endif;?>
+<form name="shutdownOps" method="POST" action="/webGui/include/Boot.php">
+<table class="array_status">
+  <tr>
+  <td></td>
+  <td><input type="button" name="reboot" value="Reboot" onclick="shut_down(this.form,'reboot')"><input type="button" name="shutdown" value="Power down" onclick="shut_down(this.form,'shutdown')"></td>
+  <td><strong>Reboot</strong> will activate a <em>clean</em> system reset.<br><strong>Power down</strong> will activate a <em>clean</em> power down.</td>
+  </tr>
+</table>
+</form>
 <?
 if (isset($display['sleep'])) @include $display['sleep'];
 ?>

@@ -43,7 +43,7 @@ function device_info(&$disk) {
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
   if ($var['fsState']=='Started' && $type!='Flash') {
     $cmd = $type=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=$action&arg2=$name" : "cmdSpin$action=$name";
-    $ctrl = "<a href='update.htm?$cmd' title='Click to spin $action device' class='none' target='progressFrame' onclick=\"$.removeCookie('one',{path:'/'});\"><i class='fa fa-sort-$action spacing'></i></a>";
+    $ctrl = "<a href='update.htm?$cmd&csrf_token={$var['csrf_token']}' title='Click to spin $action device' class='none' target='progressFrame' onclick=\"$.removeCookie('one',{path:'/'});\"><i class='fa fa-sort-$action spacing'></i></a>";
   } else
     $ctrl = '';
   switch ($disk['color']) {
@@ -58,14 +58,14 @@ function device_info(&$disk) {
     case 'grey-off': $help = 'Device not present'; break;
   }
   $status = "$ctrl<a class='info nohand' onclick='return false'><img src='/webGui/images/{$disk['color']}.png' class='icon'><span>$help</span></a>";
-  $link = strpos($disk['status'], 'DISK_NP')===false ? "<a href='$path/$type?name=$name'>".$fancyname."</a>" : $fancyname;
+  $link = strpos($disk['status'], 'DISK_NP')===false ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".$fancyname."</a>" : $fancyname;
   return $status.$link;
 }
 function device_browse(&$disk) {
   global $path;
   if ($disk['fsStatus']=='Mounted') {
     $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
-    return "<a href='$path/Browse?dir=$dir'><img src='/webGui/images/explore.png' title='Browse $dir'></a>";
+    return "<a href=\"".htmlspecialchars("$path/Browse?dir=$dir")."\"><img src='/webGui/images/explore.png' title='Browse $dir'></a>";
   }
 }
 function device_desc(&$disk) {
@@ -225,10 +225,10 @@ function read_disk(&$device, $item) {
   global $var;
   switch ($item) {
   case 'color':
-    return exec("hdparm -C /dev/$device|grep -Po active") ? 'blue-on' : 'blue-blink';
+    return exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
   case 'temp':
     $smart = "/var/local/emhttp/smart/$device";
-    if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A /dev/$device >$smart &");
+    if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A ".escapeshellarg("/dev/$device")." >".escapeshellarg($smart)." &");
     $temp = exec("awk '\$1==190||\$1==194{print \$10;exit}' $smart");
     return $temp ?: '*';
   }

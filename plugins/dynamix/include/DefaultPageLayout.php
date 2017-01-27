@@ -130,17 +130,26 @@ function chkDelete(form, button) {
 }
 function openBox(cmd,title,height,width,load) {
   // open shadowbox window (run in foreground)
-  var run = cmd.split('?')[0].substr(-4)=='.php' ? cmd : '/logging.htm?cmd='+cmd;
+  var run = cmd.split('?')[0].substr(-4)=='.php' ? cmd : '/logging.htm?cmd='+cmd+'&csrf_token=<?=$var['csrf_token']?>';
   var options = load ? {modal:true,onClose:function(){location=location;}} : {modal:true};
   Shadowbox.open({content:run, player:'iframe', title:title, height:height, width:width, options:options});
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
-  var run = '/logging.htm?title='+title+'&cmd='+cmd;
+  var window_name = title.replace(/ /g,"_");
+  var form_html =
+  '<form action="/logging.htm" method="post" target="' + window_name + '">' +
+  '<input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>" />' +
+  '<input type="hidden" name="title" value="' + title + '" />' +
+  '<input type="hidden" name="cmd" value="' + cmd + '" />' +
+  '</form>';
+  var form = $(form_html);
+  $('body').append(form);
   var top = (screen.height-height)/2;
   var left = (screen.width-width)/2;
   var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;
-  window.open(run, 'log', options);
+  window.open('', window_name, options);
+  form.submit();
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
@@ -272,6 +281,12 @@ var device=navigator.platform.toLowerCase();
 for (var i=0,mobile; mobile=mobiles[i]; i++) {
   if (device.indexOf(mobile)>=0) {$('#footer').css('position','static'); break;}
 }
+$(document).ajaxSend(function(elm, xhr, s){
+  if (s.type == "POST") {
+    s.data += s.data?"&":"";
+    s.data += "csrf_token=<?=$var['csrf_token']?>";
+  }
+});
 </script>
 </head>
 <body class="<?='page_'.strtolower($myPage['name'])?>">
@@ -327,7 +342,7 @@ $tabbed = $display['tabs']==0 && count($pages)>1;
 foreach ($pages as $page) {
   $close = false;
   if (isset($page['Title'])) {
-    eval("\$title=\"{$page['Title']}\";");
+    eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
     if ($tabbed) {
       echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
       echo tab_title($title,$page['root'],isset($page['Png'])?$page['Png']:false);
@@ -344,7 +359,7 @@ foreach ($pages as $page) {
   if (isset($page['Type']) && $page['Type']=='menu') {
     $pgs = find_pages($page['name']);
     foreach ($pgs as $pg) {
-      @eval("\$title=\"{$pg['Title']}\";");
+      @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
       $link = "$path/{$pg['name']}";
       if ($icon = isset($pg['Icon'])) {
         $icon = "{$pg['root']}/images/{$pg['Icon']}";
@@ -462,6 +477,8 @@ $(function() {
       });
     });
   }
+
+  $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:'<?=$var['csrf_token']?>'}));
 });
 </script>
 </body>

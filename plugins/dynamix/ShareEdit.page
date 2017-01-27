@@ -32,7 +32,7 @@ if ($name == "") {
   $share = $shares[$name];
 } else {
   /* handle share deleted case */
-  echo "<p class='notice'>Share $name has been deleted.</p><input type='button' value='Done' onclick='done()'>";
+  echo "<p class='notice'>Share ".htmlspecialchars($name)." has been deleted.</p><input type='button' value='Done' onclick='done()'>";
   return;
 }
 
@@ -148,12 +148,12 @@ function prepareEdit(form) {
 <?if ($name):?>
 function cloneShare() {
   var data = {}, copied = false;
-  data.shareAllocator = '<?=$share['allocator']?>';
-  data.shareFloor = '<?=$share['floor']?>';
-  data.shareSplitLevel = '<?=$share['splitLevel']?>';
-  data.shareInclude = '<?=$share['include']?>';
-  data.shareExclude = '<?=$share['exclude']?>';
-  data.shareUseCache = '<?=$share['useCache']?>';
+  data.shareAllocator = '<?=addslashes(htmlspecialchars($share['allocator']))?>';
+  data.shareFloor = '<?=addslashes(htmlspecialchars($share['floor']))?>';
+  data.shareSplitLevel = '<?=addslashes(htmlspecialchars($share['splitLevel']))?>';
+  data.shareInclude = '<?=addslashes(htmlspecialchars($share['include']))?>';
+  data.shareExclude = '<?=addslashes(htmlspecialchars($share['exclude']))?>';
+  data.shareUseCache = '<?=addslashes(htmlspecialchars($share['useCache']))?>';
   data.cmdEditShare = 'Apply';
   $('select#s3 option').map(function() {
     if ($(this).prop('selected')==true) {
@@ -205,10 +205,10 @@ function cloneShare() {
 </div>
 
 <form markdown="1" name="share_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return prepareEdit(this)" onchange="$('#cloneshare').prop('disabled',true);$('#s3').dropdownchecklist('disable')">
-<input type="hidden" name="shareNameOrig" value="<?=$share['nameOrig']?>">
+<input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
 
 Share name:
-: <input type="text" name="shareName" maxlength="40" value="<?=$name?>">
+: <input type="text" name="shareName" maxlength="40" value="<?=htmlspecialchars($name)?>">
 
 > The share name can be up to 40 characters, and is case-sensitive with these restrictions:
 >
@@ -218,7 +218,7 @@ Share name:
 > We highly recommend to make your life easier and avoid special characters.
 
 Comments:
-: <input type="text" name="shareComment" maxlength="256" value="<?=$share['comment']?>">
+: <input type="text" name="shareComment" maxlength="256" value="<?=htmlspecialchars($share['comment'])?>">
 
 > Anything you like, up to 256 characters.
 
@@ -248,7 +248,7 @@ Allocation method:
 > Choose the disk that currently has the most free space.
 
 Minimum free space:
-: <input type="text" name="shareFloor" maxlength="16" value="<?=$share['floor']?>">
+: <input type="text" name="shareFloor" maxlength="16" value="<?=htmlspecialchars($share['floor'])?>">
 
 > The *minimum free space* available to allow writing to any disk belonging to the share.<br>
 >

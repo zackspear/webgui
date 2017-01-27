@@ -40,7 +40,7 @@ if ($run && file_exists($cfg)) {
 
 // stop interface with existing (old) configuration
 // don't execute when only interface description has changed
-if ($run) exec("/etc/rc.d/rc.inet1 {$ifname}_stop >/dev/null");
+if ($run) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
 
 if ($bonding = $ini['eth0']['BONDING']=='yes') {
   $ini['eth0']['BONDNICS'] = str_replace(',',' ',$ini['eth0']['BONDNICS']);
@@ -48,7 +48,7 @@ if ($bonding = $ini['eth0']['BONDING']=='yes') {
 // ensure additional NICs in bond are set free
   if ($run && $set=='eth0') foreach ($bond0 as $nic) {
     if (isset($old['SYSNICS'])) $nic = ifname($nic);
-    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 {$nic}_stop >/dev/null");
+    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
   }
 }
 
@@ -58,7 +58,7 @@ if ($bridging = $ini['eth0']['BRIDGING']=='yes') {
 // ensure additional NICs in bridge are set free
   if ($run && $set=='eth0' && !$bonding) foreach ($br0 as $nic) {
     if (isset($old['SYSNICS'])) $nic = ifname($nic);
-    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 {$nic}_stop >/dev/null");
+    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_start")." >/dev/null");
   }
 }
 
@@ -93,6 +93,6 @@ $new[] = "SYSNICS=\"$i\"";
 file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
-if ($run) exec("/etc/rc.d/rc.inet1 {$ifname}_start >/dev/null");
+if ($run) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_start")." >/dev/null");
 exit(0);
 ?>

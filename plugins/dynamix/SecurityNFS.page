@@ -15,33 +15,33 @@ Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$
  */
 ?>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="shareName" value="<?=$name;?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
-: <span class="big"><?=$name?></span>
+: <span class="big"><?=htmlspecialchars($name)?></span>
 
 Export:
 : <select name="shareExportNFS" size="1">
   <?=mk_option($sec_nfs[$name]['export'], "-", "No");?>
   <?=mk_option($sec_nfs[$name]['export'], "e", "Yes");?>
   </select>
-    
+
 Security:
 : <select name="shareSecurityNFS" size="1">
   <?=mk_option($sec_nfs[$name]['security'], "public", "Public");?>
   <?=mk_option($sec_nfs[$name]['security'], "secure", "Secure");?>
   <?=mk_option($sec_nfs[$name]['security'], "private", "Private");?>
   </select>
-    
+
 &nbsp;
 : <input type="submit" name="changeShareSecurityNFS" value="Apply"><input type="button" value="Done" onclick="done()">
 </form>
-   
+
 <?if ($sec_nfs[$name]['security']=="private"):?>
 <form markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
-<input type="hidden" name="shareName" value="<?=$name;?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 Rule:
-: <input type="text" name="shareHostListNFS" maxlength="256" value="<?=$sec_nfs[$name]['hostList'];?>">
+: <input type="text" name="shareHostListNFS" maxlength="256" value="<?=htmlspecialchars($sec_nfs[$name]['hostList'])?>">
 
 &nbsp;
 : <input type="submit" name="changeShareAccessNFS" value="Apply"><input type="button" value="Done" onclick="done()">

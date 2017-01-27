@@ -99,7 +99,7 @@
 	.CodeMirror pre.CodeMirror-placeholder { color: #999; }
 </style>
 
-<input type="hidden" name="domain[uuid]" value="<?=$strUUID?>">
+<input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($strUUID)?>">
 
 <textarea id="addcode" name="xmldesc" placeholder="Copy &amp; Paste Domain XML Configuration Here." autofocus><?= htmlspecialchars($strXML); ?></textarea>
 

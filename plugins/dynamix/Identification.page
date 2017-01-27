@@ -22,7 +22,7 @@ $name_warn = preg_match('/'.$name_regex.'/', $var['NAME']) ? 'none' : 'block';
 <form markdown="1" name="NameSettings" method="POST" action="/update.htm" target="progressFrame">
 
 Server name:
-: <input type="text" name="NAME" id="NAME" maxlength="15" pattern="<?=$name_regex;?>" value="<?=$var['NAME'];?>" title="Only alphanumeric characters (&quot;A-Z&quot;, &quot;a-z&quot;, and &quot;0-9&quot;), dashes (&quot;-&quot;), and dots (&quot;.&quot;); and, the first and last characters must be alphanumeric" <?=$disabled?> required> <span id="name_warning" style="display:<?=$name_warn?>"><i class="fa fa-warning icon warning"></i> Not compatible with NetBIOS</span>
+: <input type="text" name="NAME" id="NAME" maxlength="15" pattern="<?=$name_regex;?>" value="<?=htmlspecialchars($var['NAME'])?>" title="Only alphanumeric characters (&quot;A-Z&quot;, &quot;a-z&quot;, and &quot;0-9&quot;), dashes (&quot;-&quot;), and dots (&quot;.&quot;); and, the first and last characters must be alphanumeric" <?=$disabled?> required> <span id="name_warning" style="display:<?=$name_warn?>"><i class="fa fa-warning icon warning"></i> Not compatible with NetBIOS</span>
 
 > The network identity of your server.  Also known as *hostname* or *short hostname*. Windows networking
 > refers to this as the *NetBIOS name* and must be 15 characters or less in length.
@@ -30,13 +30,13 @@ Server name:
 > and, the first and last characters must be alphanumeric.
 
 Description:
-: <input type="text" name="COMMENT" value="<?=$var['COMMENT'];?>" <?=$disabled?>>
+: <input type="text" name="COMMENT" value="<?=htmlspecialchars($var['COMMENT'])?>" <?=$disabled?>>
 
 > This is a text field that is seen next to a server when listed within Network or Network Neighborhood
 > (Windows), or Finder (Mac OS X).
 
 Model:
-: <input type="text" name="SYS_MODEL" value="<?=$var['SYS_MODEL'];?>" <?=$disabled?>>
+: <input type="text" name="SYS_MODEL" value="<?=htmlspecialchars($var['SYS_MODEL'])?>" <?=$disabled?>>
 
 > This is the server model number.
 

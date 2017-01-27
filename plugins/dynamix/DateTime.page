@@ -40,17 +40,17 @@ Use NTP:
 > We **highly** recommend the use of a network time server, especially if you plan on using Active Directory.
 
 NTP server 1:
-: <input type="text" name="NTP_SERVER1" maxlength="80" value="<?=$var['NTP_SERVER1']?>">
+: <input type="text" name="NTP_SERVER1" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
 
 > This is the primary NTP server to use.  Enter a FQDN or an IP address.
 
 NTP server 2:
-: <input type="text" name="NTP_SERVER2" maxlength="80" value="<?=$var['NTP_SERVER2']?>">
+: <input type="text" name="NTP_SERVER2" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
 
 > This is the alternate NTP server to use if NTP Server 1 is down.
 
 NTP server 3:
-: <input type="text" name="NTP_SERVER3" maxlength="80" value="<?=$var['NTP_SERVER3']?>">
+: <input type="text" name="NTP_SERVER3" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
 
 > This is the alternate NTP Server to use if NTP Servers 1 and 2 are both down.
 

@@ -69,7 +69,7 @@ Registered GUID:
 : <?=$var['regGUID'];?>
 
 Registered to:
-: <span class="big"><?=$var['regTo'];?></span>
+: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -116,7 +116,7 @@ Registered GUID:
 : <?=$var['regGUID'];?>
 
 Registered to:
-: <span class="big"><?=$var['regTo'];?></span>
+: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -224,7 +224,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <span class="big"><?=$var['regTo'];?></span>
+: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -250,7 +250,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <span class="big"><?=$var['regTo'];?></span>
+: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>&nbsp;
@@ -276,7 +276,7 @@ Flash GUID:
 <span class="thanks">Thank you for choosing unRAID Server OS!</span>
 
 Registered to:
-: <span class="big"><?=$var['regTo'];?></span>
+: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
 
 Registered on:
 : <?=my_time($var['regTm']);?>&nbsp;

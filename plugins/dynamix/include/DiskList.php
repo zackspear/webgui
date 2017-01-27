@@ -47,7 +47,7 @@ function shareInclude($name) {
 }
 
 // Compute all disk shares
-if ($compute=='yes') foreach ($disks as $name => $disk) if ($disk['exportable']=='yes') exec("webGui/scripts/disk_size \"$name\" \"ssz2\"");
+if ($compute=='yes') foreach ($disks as $name => $disk) if ($disk['exportable']=='yes') exec("webGui/scripts/disk_size ".escapeshellarg($name)." ssz2");
 
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUserExclude'])), 'globalInclude');
@@ -99,11 +99,11 @@ foreach ($disks as $name => $disk) {
       echo "<td></td>";
       echo "<td class='disk-$row-1'>".my_scale($sharesize*1024, $unit)." $unit</td>";
       echo "<td class='disk-$row-2'>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-      echo "<td><a href='/update.htm?cmd=$cmd' target='progressFrame' title='Recompute...' onclick='$(\".disk-$row-1\").html(\"Please wait...\");$(\".disk-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
+      echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' title='Recompute...' onclick='$(\".disk-$row-1\").html(\"Please wait...\");$(\".disk-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
       echo "</tr>";
     }
   } else {
-    echo "<td><a href='/update.htm?cmd=$cmd' target='progressFrame' onclick=\"$(this).text('Please wait...')\">Compute...</a></td>";
+    echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$(this).text('Please wait...')\">Compute...</a></td>";
     echo "<td>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
     echo "<td><a href='$path/Browse?dir=/mnt/$name'><img src='/webGui/images/explore.png' title='Browse /mnt/$name'></a></td>";
     echo "</tr>";

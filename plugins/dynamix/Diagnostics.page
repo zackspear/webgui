@@ -23,7 +23,7 @@ function cleanUp() {
   if (document.hasFocus()) {
     $('input[value="Downloading..."]').val('Download').prop('disabled',false);
     $('#pleaseWait').hide('slow');
-    $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=$zip?>'});
+    $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($zip))?>'});
   } else {
     setTimeout(cleanUp,2000);
   }
@@ -32,7 +32,7 @@ function diagnostics() {
   $('input[value="Download"]').val('Downloading...').prop('disabled',true);
   $('#pleaseWait').show('slow');
   var anonymize = $('#anonymize').is(':checked') ? '' : '-a';
-  $.post('/webGui/include/Download.php',{cmd:'diag',file:'<?=$zip?>',anonymize:anonymize},function(zip) {
+  $.post('/webGui/include/Download.php',{cmd:'diag',file:'<?=addslashes(htmlspecialchars($zip))?>',anonymize:anonymize},function(zip) {
     location = zip;
     setTimeout(cleanUp,4000);
   });

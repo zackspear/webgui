@@ -15,5 +15,11 @@ $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
-if (strpos($_POST['log'],'*')===false) @unlink("{$dynamix['notify']['path']}/archive/{$_POST['log']}"); else array_map('unlink',glob("{$dynamix['notify']['path']}/archive/{$_POST['log']}",GLOB_NOSORT));
+$killfiles = [];
+if (strpos($_POST['log'],'*')===false) $killfiles = [ realpath("{$dynamix['notify']['path']}/archive/{$_POST['log']}") ]; else $killfiles = glob("{$dynamix['notify']['path']}/archive/{$_POST['log']}",GLOB_NOSORT);
+foreach ($killfiles as $killfile) {
+	if (strpos($killfile, "{$dynamix['notify']['path']}/archive/") === 0) {
+		@unlink($killfile);
+	}
+}
 ?>

@@ -436,7 +436,7 @@ function update3() {
 function update15() {
 <?if ($var['fsState']=='Started'):?>
   var tag = $('.smb').is(':visible') ? 'smb' : $('.afp').is(':visible') ? 'afp' : $('.nfs').is(':visible') ? 'nfs' : '';
-  $.post('<?=$url?>',{cmd:'shares',com:tag,names:'<?=addslashes($names)?>'},function(data) {
+  $.post('<?=$url?>',{cmd:'shares',com:tag,names:'<?=addslashes(htmlspecialchars($names))?>'},function(data) {
     if (data) $.each(data.split('#'),function(k,v) {$('#share'+(k+1)).html(v);});
     setTimeout(update15,15000);
   });

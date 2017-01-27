@@ -44,10 +44,10 @@ if (isset($disks[$name])) {
 </div>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#clonesmb').prop('disabled',true);$('#s4').dropdownchecklist('disable')">
-<input type="hidden" name="shareName" value="<?=$name?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
-: <span class="big"><?=$name?></span>
+: <span class="big"><?=htmlspecialchars($name)?></span>
 
 Export:
 : <select name="shareExport" size="1">
@@ -103,7 +103,7 @@ if (isset($disks[$name])) {
 </div>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#cloneuser').prop('disabled',true);$('#s5').dropdownchecklist('disable')">
-<input type="hidden" name="shareName" value="<?=$name?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <?input_secure_users($sec);?>
 
 &nbsp;
@@ -132,7 +132,7 @@ if (isset($disks[$name])) {
 <div style="margin-top:10px;text-align:right"><input type="button" id="cloneuser" value="Clone" onclick="cloneUser()" style="margin-right:0"></div>
 </div>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#cloneuser').prop('disabled',true);$('#s5').dropdownchecklist('disable')">
-<input type="hidden" name="shareName" value="<?=$name?>">
+<input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <?input_private_users($sec);?>
 
 &nbsp;
@@ -160,8 +160,8 @@ function initDropdown2(reset) {
 }
 function cloneSMB() {
   var data = {}, copied = false;
-  data.shareExport = '<?=$sec[$name]['export']?>';
-  data.shareSecurity = '<?=$sec[$name]['security']?>';
+  data.shareExport = '<?=addslashes(htmlspecialchars($sec[$name]['export']))?>';
+  data.shareSecurity = '<?=addslashes(htmlspecialchars($sec[$name]['security']))?>';
   data.changeShareSecurity = 'Apply';
   $('select#s4 option').map(function() {
     if ($(this).prop('selected')==true) {

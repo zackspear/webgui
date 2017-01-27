@@ -13,7 +13,7 @@
 <?
 // write syslinux file
 write_log("Saving file $file");
-exec("mkdir -p ".dirname($file));
+exec("mkdir -p ".escapeshellarg(dirname($file)));
 file_put_contents($file, str_replace(["\r\n","\r"], "\n", $_POST['text']));
 // discard settings
 $save = false;

@@ -429,21 +429,21 @@
 	}
 </style>
 
-<input type="hidden" name="domain[persistent]" value="<?=$arrConfig['domain']['persistent']?>">
-<input type="hidden" name="domain[uuid]" value="<?=$arrConfig['domain']['uuid']?>">
-<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=$arrConfig['domain']['clock']?>">
-<input type="hidden" name="domain[arch]" value="<?=$arrConfig['domain']['arch']?>">
-<input type="hidden" name="domain[oldname]" value="<?=htmlentities($arrConfig['domain']['name'])?>">
+<input type="hidden" name="domain[persistent]" value="<?=htmlspecialchars($arrConfig['domain']['persistent'])?>">
+<input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($arrConfig['domain']['uuid'])?>">
+<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
+<input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
+<input type="hidden" name="domain[oldname]" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
 
-<input type="hidden" name="disk[0][image]" id="disk_0" value="<?=$arrConfig['disk'][0]['image']?>">
-<input type="hidden" name="disk[0][dev]" value="<?=$arrConfig['disk'][0]['dev']?>">
+<input type="hidden" name="disk[0][image]" id="disk_0" value="<?=htmlspecialchars($arrConfig['disk'][0]['image'])?>">
+<input type="hidden" name="disk[0][dev]" value="<?=htmlspecialchars($arrConfig['disk'][0]['dev'])?>">
 <input type="hidden" name="disk[0][readonly]" value="1">
 
 <div class="installed">
 	<table>
 		<tr>
 			<td>Name:</td>
-			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. OpenELEC" value="<?=htmlentities($arrConfig['domain']['name'])?>" required /></td>
+			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. OpenELEC" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -453,7 +453,7 @@
 	<table>
 		<tr class="advanced">
 			<td>Description:</td>
-			<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlentities($arrConfig['domain']['desc'])?>" /></td>
+			<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -516,8 +516,8 @@
 		<tr>
 			<td>Config Folder:</td>
 			<td>
-				<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=$arrConfig['shares'][0]['source']?>" name="shares[0][source]" placeholder="e.g. /mnt/user/appdata/openelec" title="path on unRAID share to save OpenELEC settings" required/>
-				<input type="hidden" value="<?=$arrConfig['shares'][0]['target']?>" name="shares[0][target]" />
+				<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrConfig['shares'][0]['source'])?>" name="shares[0][source]" placeholder="e.g. /mnt/user/appdata/openelec" title="path on unRAID share to save OpenELEC settings" required/>
+				<input type="hidden" value="<?=htmlspecialchars($arrConfig['shares'][0]['target'])?>" name="shares[0][target]" />
 			</td>
 		</tr>
 	</table>
@@ -779,7 +779,7 @@
 			<tr class="advanced">
 				<td>Network MAC:</td>
 				<td>
-					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=$arrNic['mac']?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
 				</td>
 			</tr>
 
@@ -847,7 +847,7 @@
 					if (!empty($arrValidUSBDevices)) {
 						foreach($arrValidUSBDevices as $i => $arrDev) {
 						?>
-						<label for="usb<?=$i?>"><input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=$arrDev['id']?>" <?php if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"'; ?>/> <?=$arrDev['name']?> (<?=$arrDev['id']?>)</label><br/>
+						<label for="usb<?=$i?>"><input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?php if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"'; ?>/> <?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 						<?php
 						}
 					} else {
@@ -904,7 +904,7 @@
 							}
 							$intAvailableOtherPCIDevices++;
 					?>
-						<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=$arrDev['id']?>" <?=$extra?>/> <?=$arrDev['name']?> | <?=$arrDev['type']?> (<?=$arrDev['id']?>)</label><br/>
+						<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> <?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
 					}

@@ -105,12 +105,12 @@ Preset service:
 > Select a preset service to set the basic service settings.
 
 Sending email address:
-: <input type="text" name="root" value="<?=$ssmtp['root']?>">
+: <input type="text" name="root" value="<?=htmlspecialchars($ssmtp['root'])?>">
 
 > Email address of your mail account. This address is used as sender of the notifications.
 
 Email recipients:
-: <input type="text" name="RcptTo" value="<?=$ssmtp['RcptTo']?>">
+: <input type="text" name="RcptTo" value="<?=htmlspecialchars($ssmtp['RcptTo'])?>">
 
 > Recipients of status and error notifications. Specify one or more email addresses, separate multiple email addresses with a space.
 
@@ -123,17 +123,17 @@ Priority in header:
 > Set email header with high importance, when there is a problem with unRaid.
 
 Email subject prefix:
-: <input type="text" name="Subject" value="<?=$ssmtp['Subject']?>">
+: <input type="text" name="Subject" value="<?=htmlspecialchars($ssmtp['Subject'])?>">
 
 > Set a prefix for easy recognition of unRAID messages.
 
 Mail server:
-: <input type="text" name="server" value="<?=$ssmtp['server']?>">
+: <input type="text" name="server" value="<?=htmlspecialchars($ssmtp['server'])?>">
 
 > Specify the name of the email server. Use the preset service selection to have this filled-in automatically.
 
 Mail server port:
-: <input type="text" name="port" class="narrow"  maxlength="5"  value="<?=$ssmtp['port']?>">
+: <input type="text" name="port" class="narrow"  maxlength="5"  value="<?=htmlspecialchars($ssmtp['port'])?>">
 
 > Specify the port of the email server. Use the preset service selection to have this filled-in automatically.
 
@@ -162,7 +162,7 @@ Define a TLS certificate:
 > Select only when you have a certificate which required for communication.
 
 TLS certificate location:
-: <input type="text" name="TLSCert" value="<?=$ssmtp['TLSCert']?>">
+: <input type="text" name="TLSCert" value="<?=htmlspecialchars($ssmtp['TLSCert'])?>">
 
 > The file name of an RSA certificate to use for TLS - as required.
 
@@ -176,10 +176,10 @@ Authentication method:
 > Select the correct authentication method for your email server. Use test to verify that access is working properly.
 
 Username:
-: <input type="text" name="AuthUser" value="<?=$ssmtp['AuthUser']?>">
+: <input type="text" name="AuthUser" value="<?=htmlspecialchars($ssmtp['AuthUser'])?>">
 
 Password:
-: <input type="password" name="AuthPass" value="<?=$ssmtp['AuthPass']?>">
+: <input type="password" name="AuthPass" value="<?=htmlspecialchars($ssmtp['AuthPass'])?>">
 
 > Enter the username and password to login to your email account. Be aware that the password is stored unencrypted in the email configuration file.
 

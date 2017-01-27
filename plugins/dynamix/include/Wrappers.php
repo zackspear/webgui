@@ -38,7 +38,7 @@ function agent_fullname($agent, $state) {
 
 function get_plugin_attr($attr, $file) {
   global $docroot;
-  exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin $attr $file", $result, $error);
+  exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin ".escapeshellarg($attr)." ".escapeshellarg($file), $result, $error);
   if ($error===0) return $result[0];
 }
 

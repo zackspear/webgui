@@ -28,7 +28,7 @@ if ( isset( $_GET['cmd'] )) {
   $id = mt_rand();
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
   echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Command:</legend>";
-  echo "root@localhost:# ".addslashes($command)."<br>";
+  echo "root@localhost:# ".addslashes(htmlspecialchars($command))."<br>";
   echo "<span id=\"wait{$id}\">Please wait </span>";
   echo "<p class=\"logLine\" id=\"logBody\"></p></fieldset>');</script>";
   echo "<script>show_Wait({$id});</script>";
@@ -37,7 +37,7 @@ if ( isset( $_GET['cmd'] )) {
   while ($out = fgets( $pipes[1] )) {
     $out = preg_replace("%[\t\n\x0B\f\r]+%", '', $out );
     @flush();
-    echo "<script>addLog(\"" . htmlentities($out) . "\");</script>\n";
+    echo "<script>addLog(\"" . htmlspecialchars($out) . "\");</script>\n";
     @flush();
   }
   $retval = proc_close($proc);

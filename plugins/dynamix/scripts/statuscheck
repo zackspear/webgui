@@ -12,10 +12,11 @@
  */
 ?>
 <?
-exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply");
+$var    = parse_ini_file("/var/local/emhttp/var.ini");
+exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply\&csrf_token={$var['csrf_token']}");
+$var    = parse_ini_file("/var/local/emhttp/var.ini");
 
 $disks  = parse_ini_file("/var/local/emhttp/disks.ini",true);
-$var    = parse_ini_file("/var/local/emhttp/var.ini");
 
 $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
@@ -185,7 +186,7 @@ $warn = ($error0 || $error3) ? "alert" : (($error1 || $error2) ? "warning" : "no
 $stat = $warn=="normal" ? "[PASS]" : "[FAIL]";
 $info = "Array has $size disk".($size==1 ? "" : "s").($parity ? " ({$word}parity".($cache ? " & cache)" : ")") : ($cache ? " ({$word}cache)" : ""));
 $message = implode('\n', $data);
-exec("$notify -s \"Notice [$server] - array health report $stat\" -d \"$info\" -m \"$message\" -i \"$warn $output\"");
+exec("$notify -s ".escapeshellarg("Notice [$server] - array health report $stat")." -d ".escapeshellarg("$info")." -m ".escapeshellarg("$message")." -i ".escapeshellarg("$warn $output"));
 
 exit(0);
 ?>
