@@ -4,7 +4,7 @@
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
 <!ENTITY branch    "master">
-<!ENTITY version   "6.3.0-rc6">
+<!ENTITY version   "6.3.0-rc9">
 <!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
 <!ENTITY category  "next">
 
@@ -24,6 +24,42 @@
 <![CDATA[
 unRAID Server OS Change Log
 ===========================
+
+Version 6.3.0-rc9 2017-01-27
+----------------------------
+
+Base distro:
+
+- add pv: version 1.6.0
+- docker: version 1.12.6 (CVE-2016-9962)
+- containerd: version 0.2.5
+- glibc-zoneinfo: version 2016j
+- gnutls: version 3.5.8 (CVE-2017-5334, CVE-2017-5335, CVE-2017-5336, CVE-2017-5337)
+- libpng: version 1.6.27 (CVE-2016-10087)
+- mozilla-firefox: version 51.0 (CVE-2017-5375, CVE-2017-5376, CVE-2017-5377, CVE-2017-5378, CVE-2017-5379, CVE-2017-5380, CVE-2017-5390, CVE-2017-5389, CVE-2017-5396, CVE-2017-5381, CVE-2017-5382, CVE-2017-5383, CVE-2017-5384, CVE-2017-5385, CVE-2017-5386, CVE-2017-5394, CVE-2017-5391, CVE-2017-5392, CVE-2017-5393, CVE-2017-5395, CVE-2017-5387, CVE-2017-5388, CVE-2017-5374, CVE-2017-5373)
+- openssh: version 7.4p1 (CVE-2016-10009, CVE-2016-10010, CVE-2016-10011, CVE-2016-10012)
+- php: version 7.0.15 (CVE-2016-10161, CVE-2016-10162, CVE-2017-5340, CVE-2016-7479, CVE-2016-10158, CVE-2016-10160, CVE-2016-10159)
+- samba: version 4.5.3 (CVE-2016-2123, CVE-2016-2125, CVE-2016-2126)
+- update hwdata/{pci.ids,usb.ids,oui.txt,manuf.txt}
+
+Linux kernel:
+
+- version 4.9.6
+- added CONFIG_DRM_I915: Intel 8xx/9xx/G3x/G4x/HD Graphics (but blacklisted to prevent auto-load)
+
+Management:
+
+- libvirt: disable nested virtualizaton by default
+- shfs: correct return value of system.LOCATION extended attribute to eliminate bash "warning: command substitution: ignored null byte in input"
+- webGui: Add BTRFS file system checking notifications
+- webGui: Avoid wget to cache plugin files and postpone plugin updates
+- webGui: Capitalize method name in plugin operations.
+- webGui: Natural sorting of user share names
+- webGui: Save docker, VM and libvirt logs as .txt files in diagnostics
+- webGui: Disable filesystem selection when data-rebuild is pending
+- webGui: Add cache pool BTRFS info (if existing) to diagnostics
+- webGui: added new Europe/Saratov timezone
+- webGui: additional XSS and CSRF hardening
 
 Version 6.3.0-rc6 2016-12-07
 ----------------------------
