@@ -54,7 +54,7 @@ function shareInclude($name) {
 }
 
 // Compute all user shares
-if ($compute=='yes') foreach ($shares as $name => $share) exec("webGui/scripts/share_size ".escapeshellarg($name)." ".escapeshellarg($ssz1));
+if ($compute=='yes') foreach ($shares as $name => $share) exec("webGui/scripts/share_size ".escapeshellarg($name)." ssz1");
 
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUserExclude'])), 'globalInclude');
