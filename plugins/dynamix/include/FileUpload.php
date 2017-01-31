@@ -9,17 +9,15 @@ $safeexts = ['.png'];
 switch ($cmd) {
 case 'load':
   if (isset($_POST['filedata'])) {
-    if (strpos(realpath("$temp/$file"), $temp) === 0) {
-      exec("rm -f $temp/*.png");
-      $result = file_put_contents("$temp/$file", base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
-    }
+    exec("rm -f $temp/*.png");
+    $result = file_put_contents("$temp/".basename($file), base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
   }
   break;
 case 'save':
   foreach ($safepaths as $safepath) {
-    if (strpos(realpath("$path/{$_POST['output']}"), $safepath) === 0 && in_array(substr(realpath("$path/{$_POST['output']}"), -4), $safeexts)) {
+    if (strpos(dirname("$path/{$_POST['output']}"), $safepath) === 0 && in_array(substr(basename($_POST['output']), -4), $safeexts)) {
       exec("mkdir -p ".escapeshellarg(realpath($path)));
-      $result = @rename("$temp/$file", "$path/{$_POST['output']}");
+      $result = @rename("$temp/".basename($file), "$path/{$_POST['output']}");
       break;
     }
   }
