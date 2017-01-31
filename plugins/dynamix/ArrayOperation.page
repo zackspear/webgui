@@ -102,7 +102,7 @@ parity_status();
 <?if ($tabbed):?>
 $('.tabs').append(ctrl);
 <?else:?>
-$('div[id=title]:not(":last")').each(function(){$(this).append(ctrl);});
+$('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
 <?endif;?>
 <?if ($update):?>
 <?if ($tabbed):?>
