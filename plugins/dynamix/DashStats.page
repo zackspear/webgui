@@ -276,7 +276,7 @@ foreach ($users as $user):
       if (strpos($sec[$share['name']]['readList'],$list)!==false) $read++;
     endforeach;
   endif;
-  echo "<tr><td>$list</td><td>$desc</td><td>$write</td><td>$read</td></tr>";
+  echo "<tr><td><a href='/Users/UserEdit?name=$list'>$list</a></td><td>$desc</td><td>$write</td><td>$read</td></tr>";
 endforeach;
 ?>
 </tbody>
@@ -296,7 +296,7 @@ foreach ($users as $user):
       if (strpos($sec_afp[$share['name']]['readList'],$list)!==false) $read++;
     endforeach;
   endif;
-  echo "<tr><td>$list</td><td>$desc</td><td>$write</td><td>$read</td></tr>";
+  echo "<tr><td><a href='/Users/UserEdit?name=$list'>$list</a></td><td>$desc</td><td>$write</td><td>$read</td></tr>";
 endforeach;
 ?>
 </tbody>
@@ -308,7 +308,7 @@ foreach ($users as $user):
   $list = truncate($user['name'],12);
   $desc = truncate($user['desc'],28);
   $write = '-'; $read = '-';
-  echo "<tr><td>$list</td><td>$desc</td><td>$write</td><td>$read</td></tr>";
+  echo "<tr><td><a href='/Users/UserEdit?name=$list'>$list</a></td><td>$desc</td><td>$write</td><td>$read</td></tr>";
 endforeach;
 ?>
 </tbody>
@@ -319,7 +319,7 @@ endforeach;
 foreach ($users as $user):
   $list = truncate($user['name'],12);
   $desc = truncate($user['desc'],28);
-  echo "<tr><td>$list</td><td>$desc</td><td>-</td><td>-</td></tr>";
+  echo "<tr><td><a href='/Users/UserEdit?name=$list'>$list</a></td><td>$desc</td><td>-</td><td>-</td></tr>";
 endforeach;
 ?>
 </tbody>
@@ -348,9 +348,10 @@ $i = 0;
 foreach ($shares as $name => $share):
   $i++;
   $list = truncate($name,12);
+  $hrefLink = str_replace(" ","+",$name);
   $comment = truncate($share['comment'],28);
   $security = export_settings($var['shareSMBEnabled'], $sec[$name]);
-  echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td class='blue' id='share{$i}'>0</td></tr>";
+  echo "<tr><td><a href='/Shares/Share?name=$hrefLink'>$list</a></td><td>$comment</td><td>$security</td><td class='blue' id='share{$i}'>0</td></tr>";
 endforeach;
 if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
@@ -361,9 +362,10 @@ if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-
 <?
 foreach ($shares as $name => $share):
   $list = truncate($name,12);
+  $hrefLink = str_replace(" ","+",$name);
   $comment = truncate($share['comment'],28);
   $security = export_settings($var['shareAFPEnabled'], $sec_afp[$name]);
-  echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td>-</td></tr>";
+  echo "<tr><td><a href='/Shares/Share?name=$hrefLink'>$list</a></td><td>$comment</td><td>$security</td><td>-</td></tr>";
 endforeach;
 if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
@@ -374,9 +376,10 @@ if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-
 <?
 foreach ($shares as $name => $share):
   $list = truncate($name,12);
+  $hrefLink = str_replace(" ","+",$name);
   $comment = truncate($share['comment'],28);
   $security = export_settings($var['shareNFSEnabled'], $sec_nfs[$name]);
-  echo "<tr><td>$list</td><td>$comment</td><td>$security</td><td>-</td></tr>";
+  echo "<tr><td><a href='/Shares/Share?name=$hrefLink'>$list</a></td><td>$comment</td><td>$security</td><td>-</td></tr>";
 endforeach;
 if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
@@ -387,8 +390,9 @@ if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-
 <?
 foreach ($shares as $name => $share):
   $list = truncate($name,12);
+  $hrefLink = str_replace(" ","+",$name);
   $comment = truncate($share['comment'],28);
-  echo "<tr><td>$list</td><td>$comment</td><td>-</td><td>-</td></tr>";
+  echo "<tr><td><a href='/Shares/Share?name=$hrefLink'>$list</a></td><td>$comment</td><td>-</td><td>-</td></tr>";
 endforeach;
 if (!count($shares)) echo "<tr><td colspan='4' style='text-align:center;padding-top:12px'>No shares present</td></tr>";
 ?>
