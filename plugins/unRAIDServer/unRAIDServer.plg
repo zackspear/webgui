@@ -3,12 +3,12 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
-<!ENTITY version   "6.3.0">
+<!ENTITY version   "6.3.0-stable">
 <!ENTITY pluginURL "https://raw.github.com/limetech/&name;/master/&name;.plg">
 
 <!ENTITY category  "stable">
-<!ENTITY zip       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.zip">
-<!ENTITY md5       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.md5">
+<!ENTITY zip       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-6.3.0-x86_64.zip">
+<!ENTITY md5       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-6.3.0-x86_64.md5">
 <!ENTITY files     "bzimage,bzroot*,make_bootable.bat,make_bootable_linux,make_bootable_mac,memtest,*.txt,syslinux/syslinux.cfg-">
 
 <!ENTITY infozip   "infozip-6.0-i486-1.txz">
@@ -69,7 +69,6 @@ Management:
 - webGui: Add cache pool BTRFS info (if existing) to diagnostics
 - webGui: added new Europe/Saratov timezone
 - webGui: additional XSS and CSRF hardening
-
 Version 6.3.0-rc6 2016-12-07
 ----------------------------
 
