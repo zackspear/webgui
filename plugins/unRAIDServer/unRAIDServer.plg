@@ -3,11 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
-<!ENTITY branch    "master">
-<!ENTITY version   "6.3.0-rc9">
-<!ENTITY pluginURL "https://raw.github.com/limetech/webgui/&branch;/plugins/&name;/&name;.plg">
-<!ENTITY category  "next">
+<!ENTITY version   "6.3.0">
+<!ENTITY pluginURL "https://raw.github.com/limetech/&name;/master/&name;.plg">
 
+<!ENTITY category  "stable">
 <!ENTITY zip       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.zip">
 <!ENTITY md5       "https://s3.amazonaws.com/dnld.lime-technology.com/&category;/unRAIDServer-&version;-x86_64.md5">
 <!ENTITY files     "bzimage,bzroot*,make_bootable.bat,make_bootable_linux,make_bootable_mac,memtest,*.txt,syslinux/syslinux.cfg-">
@@ -24,6 +23,16 @@
 <![CDATA[
 unRAID Server OS Change Log
 ===========================
+
+Version 6.3.0 2017-02-02
+------------------------
+
+Management:
+
+- emhttp: added 'svcs_restarting' event
+- emhttp: include "vfs objects =" line for each share named in generated /etc/samba/smb-shared.conf file
+- webGui: Fix regression changing display banner
+- webGui: Fix regression with 'Compute All' on Share page
 
 Version 6.3.0-rc9 2017-01-27
 ----------------------------
