@@ -53,7 +53,7 @@ and configuration files are collected:
   <br>copy the current *syslog* file and any previous existing *syslog* files.
 + *System*
   <br>save output of the following commands:
-  <br>lsscsi, lspci, free, lsof, ps, ethtool & ifconfig.
+  <br>lsscsi, lspci, lsusb, free, lsof, ps, ethtool & ifconfig.
   <br>display of iommu groups.
   <br>display of command line parameters (e.g. pcie acs override, pci stubbing, etc).
   <br>save system variables.
