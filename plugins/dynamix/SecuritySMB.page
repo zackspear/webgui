@@ -59,6 +59,20 @@ Export:
 > This setting determines whether the share is visible and/or accessible.  The 'Yes (hidden)' setting
 > will *hide* the share from *browsing* but is still accessible if you know the share name.
 
+<?if ($name !== 'flash'):?>
+
+Enhanced OS X interoperability:
+: <select name="shareFruit" size="1">
+  <?=mk_option($sec[$name]['fruit'], "no", "No");?>
+  <?=mk_option($sec[$name]['fruit'], "yes", "Yes");?>
+  </select>
+
+> When set to 'Yes' provides enhanced compatibility with Apple SMB clients, resulting, for example, in faster
+> Finder browsing.  This may cause some issues with Windows clients, however.  Please also refer to
+> the [VFS_FRUIT MAN PAGE](https://www.mankier.com/8/vfs_fruit).
+
+<?endif;?>
+
 Security:
 : <select name="shareSecurity" size="1">
   <?=mk_option($sec[$name]['security'], "public", "Public");?>
@@ -161,6 +175,7 @@ function initDropdown2(reset) {
 function cloneSMB() {
   var data = {}, copied = false;
   data.shareExport = '<?=addslashes(htmlspecialchars($sec[$name]['export']))?>';
+  data.shareFruit = '<?=addslashes(htmlspecialchars($sec[$name]['fruit']))?>';
   data.shareSecurity = '<?=addslashes(htmlspecialchars($sec[$name]['security']))?>';
   data.changeShareSecurity = 'Apply';
   $('select#s4 option').map(function() {
