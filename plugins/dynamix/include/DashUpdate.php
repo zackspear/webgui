@@ -86,7 +86,7 @@ case 'disk':
   $row5 = array_fill(0,31,'<td></td>'); my_insert($row5[0],'Heat alarm');
   $row6 = array_fill(0,31,'<td></td>'); my_insert($row6[0],'SMART status');
   $row7 = array_fill(0,31,'<td></td>'); my_insert($row7[0],'Utilization');
-  $funcRenderRow = function($n,$disk) use (&$row1,&$row2,&$row3,&$row4,&$row5,&$row6,&$row7,$path,$_POST) {
+  $funcRenderRow = function($n,$disk) use (&$row1,&$row2,&$row3,&$row4,&$row5,&$row6,&$row7,$path) {
     if ($n>0) {
       $state = $disk['color'];
       switch ($state) {
