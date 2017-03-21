@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "unRAIDServer">
 <!ENTITY author    "LimeTech">
-<!ENTITY version   "6.3.2">
+<!ENTITY version   "6.4.0-rc1">
 <!ENTITY pluginURL "https://raw.github.com/limetech/&name;/master/&name;.plg">
 
 <!ENTITY category  "stable">
@@ -23,6 +23,104 @@
 <![CDATA[
 unRAID Server OS Change Log
 ===========================
+
+Version 6.4.0-rc1 2017-03-21
+----------------------------
+
+Base distro:
+
+- acpid: version 2.0.28
+- apcupsd: version 3.14.14 (rev2, added modbus-usb support)
+- btrfs-progs: version 4.9
+- cairo: version 1.14.8
+- containerd: version 0.2.5
+- coreutils: version 8.26
+- coreutils: version 8.27
+- cryptsetup: version 1.7.3
+- curl: version 7.53.1 (CVE-2017-2629)
+- dbus: version 1.10.14
+- docker: version 17.03.0-ce
+- dosfstools: version 4.1
+- eudev: version 3.2.1
+- file: version 5.29
+- flex: version 2.6.3
+- fontconfig: version 2.12.1
+- gd: version 2.2.4
+- glibc-zoneinfo: version 2017a
+- gnutls: version 3.5.8 (CVE-2017-5334, CVE-2017-5335, CVE-2017-5336, CVE-2017-5337)
+- gptfdisk: version 1.0.1
+- grep: version 3.0
+- harfbuzz: version 1.4.4
+- hdparm: version 9.51
+- htop: version 2.0.2
+- iproute2: version 4.9.0
+- iptables: version 1.6.1
+- irqbalance: version 1.2.0
+- jemalloc: version 4.5.0
+- kmod: version 24
+- libdrm: version 2.4.75
+- libepoxy: version 1.4.1
+- libevent: version 2.1.8
+- libgcrypt: version 1.7.5
+- libjpeg-turbo: version 1.5.1
+- libnetfilter_conntrack: version 1.0.6
+- libnftnl: version 1.0.7
+- libnl3: version 3.2.29
+- libpcap: version 1.8.1
+- libpng: version 1.6.27 (CVE-2016-10087)
+- libseccomp: version 2.3.2
+- libtasn1: version 4.10
+- libusb-compat: version 0.1.5
+- libvirt: version 3.1.0
+- libX11: version 1.6.5
+- libXfont2: version 2.0.1
+- libXi: version 1.7.9
+- libXpm: version 3.5.12
+- lvm2: version 2.02.168
+- lz4: version 1.7.5
+- mc: version 4.8.19
+- mesa: version 17.0.1
+- mozilla-firefox: version 52.0 (CVE-2017-5400, CVE-2017-5401, CVE-2017-5402, CVE-2017-5403, CVE-2017-5404, CVE-2017-5406, CVE-2017-5407, CVE-2017-5408, CVE-2017-5410, CVE-2017-5412, CVE-2017-5413, CVE-2017-5414, CVE-2017-5415, CVE-2017-5416, CVE-2017-5417, CVE-2017-5426, CVE-2017-5427, CVE-2017-5418, CVE-2017-5419, CVE-2017-5420, CVE-2017-5405, CVE-2017-5421, CVE-2017-5422, CVE-2017-5399, CVE-2017-5398)
+- nano: version 2.7.5
+- ncurses: version 6.0
+- nettle: version 3.3
+- nfs-utils: version 2.1.1
+- nginx: version 1.10.3
+- openssh: version 7.4p1 (CVE-2016-10009, CVE-2016-10010, CVE-2016-10011, CVE-2016-10012)
+- openssl: version 1.0.2k (CVE-2017-3731, CVE-2017-3732, CVE-2016-7055)
+- php: version 7.1.2
+- procps-ng: version 3.3.12
+- qemu: version 2.8.0
+- rsyslog: version 8.25.0
+- samba: version 4.6.0
+- sed: version 4.4
+- sessreg: version 1.1.1
+- shadow: version 4.2.1 (rev2) (CVE-2017-2616)
+- sqlite: version 3.16.2
+- util-linux: version 2.29.2 (CVE-2017-2616)
+- wget: version 1.19.1
+- xauth: version 1.0.10
+- xf86-input-evdev: version 2.10.5
+- xf86-input-keyboard: version 1.9.0
+- xf86-input-mouse: version 1.9.2
+- xf86-input-synaptics: version 1.9.0
+- xf86-video-mga: version 1.6.5
+- xfsprogs: version 4.8.0
+- xorg-server: version 1.19.2
+- xterm: version 327
+- xz: version 5.2.3
+- zlib: version 1.2.10
+
+Linux kernel:
+
+- version 4.10.3
+- added IPv6 support
+- modules now compressed with XZ
+
+Management:
+
+- emhttp: Listen on localhost:81 only; get rid of "linger" option on connection socket.
+- integrate nginx http-server
 
 Version 6.3.2 2017-02-16
 ------------------------
