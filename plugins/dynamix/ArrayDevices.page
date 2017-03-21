@@ -87,13 +87,13 @@ if ($display['total']) echo "<tr class='tr_last'><td colspan='11'>&nbsp;</td></t
 > includes the device model number, serial number, linux device id, and the device size.
 >
 > **Temp.** (temperature) is read directly from the device. You configure which units to use on
-> the [Display Preferences](Settings/Display) page.  We do not read the temperature of spun-down hard
+> the [Display Preferences](Settings/DisplaySettings) page.  We do not read the temperature of spun-down hard
 > drives since this typically causes them to spin up; instead we display the `*` symbol.  We also
 > display the `*` symbol for SSD and Flash devices, though sometimes these devices do report a valid
 > temperature, and sometimes they return the value `0`.
 >
 > **Size, Used, Free** reports the total device size, used space, and remaining space for files.  These
-> units are also configured on the [Display Preferences](Settings/Display) page.  The
+> units are also configured on the [Display Preferences](Settings/DisplaySettings) page.  The
 > amount of space used will be non-zero even for an empty disk due to file system overhead.
 >
 > *Note: for a multi-device cache pool, this data is for the entire pool as returned by btrfs.*
@@ -111,7 +111,7 @@ if ($display['total']) echo "<tr class='tr_last'><td colspan='11'>&nbsp;</td></t
 > **View** column contains a folder icon indicating the device is *mounted*. Click the icon to
 > browse the file system.
 >
-> If "Display array totals" is enable on the [Display Preferences](Settings/Display) page, a
+> If "Display array totals" is enable on the [Display Preferences](Settings/DisplaySettings) page, a
 > **Total** line is included which provides a tally of the device statistics, including the average temperature
 > of your devices.
 >
