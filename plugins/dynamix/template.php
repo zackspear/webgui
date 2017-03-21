@@ -23,6 +23,20 @@ require_once "$docroot/webGui/include/PageBuilder.php";
 //   prev=<path>   prev path, e.g., prev=Main (used to determine if page was refreshed)
 extract($_GET);
 
+// Need the following to make php-fpm & nginx work
+if (empty($path)) {
+  $path = substr(explode("?", $_SERVER["REQUEST_URI"])[0], 1);
+  $prev = '';
+
+  if (empty($path)) {
+    $path = 'Main';
+  }
+}
+
+// Tell emhttp to refresh vars
+$var     = parse_ini_file('state/var.ini');
+file_get_contents("http://127.0.0.1:81/update.htm?cmdStatus=Apply&csrf_token={$var['csrf_token']}");
+
 // The current "task" is the first element of the path
 $task = strtok($path, '/');
 
