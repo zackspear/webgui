@@ -76,6 +76,7 @@ foreach (glob("$get/*.ini") as $file) {
 // individual commands execution (suppress errors)
 exec("lsscsi -vgl 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsscsi.txt"));
 exec("lspci -knn 2>/dev/null|todos >".escapeshellarg("/$diag/system/lspci.txt"));
+exec("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
 exec("free -mt 2>/dev/null|todos >".escapeshellarg("/$diag/system/memory.txt"));
 exec("ps -ef 2>/dev/null|todos >".escapeshellarg("/$diag/system/ps.txt"));
 exec("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
@@ -194,7 +195,7 @@ foreach ($devices as $device) {
       break;
     }
   }
-  exec("smartctl -a ".escapeshellarg($type)." ".escapeshellarg("/dev/$dev")." 2>/dev/null|todos >".escapeshellarg("/$diag/smart/$name-$date.txt"));
+  exec("smartctl -a $type ".escapeshellarg("/dev/$dev")." 2>/dev/null|todos >".escapeshellarg("/$diag/smart/$name-$date.txt"));
 }
 // create cache pool information
 if (is_dir('/mnt/cache') && $disks['cache']['fsType']=='btrfs') {

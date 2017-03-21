@@ -134,15 +134,21 @@ function openBox(cmd,title,height,width,load) {
   var options = load ? {modal:true,onClose:function(){location=location;}} : {modal:true};
   Shadowbox.open({content:run, player:'iframe', title:title, height:height, width:width, options:options});
 }
+
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
   var window_name = title.replace(/ /g,"_");
   var form_html =
   '<form action="/logging.htm" method="post" target="' + window_name + '">' +
   '<input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>" />' +
-  '<input type="hidden" name="title" value="' + title + '" />' +
-  '<input type="hidden" name="cmd" value="' + cmd + '" />' +
-  '</form>';
+  '<input type="hidden" name="title" value="' + title + '" />';
+  var vars = cmd.split('&');
+  form_html += '<input type="hidden" name="cmd" value="' + vars[0] + '" />';
+  for (var i = 1; i < vars.length; i++) {
+    var pair = vars[i].split('=');
+    form_html += '<input type="hidden" name="' + pair[0] + '" value="' + pair[1] + '" />';
+  }
+  form_html += '</form>';
   var form = $(form_html);
   $('body').append(form);
   var top = (screen.height-height)/2;
