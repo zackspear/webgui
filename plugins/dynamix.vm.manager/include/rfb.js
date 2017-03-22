@@ -348,7 +348,8 @@ var RFB;
                 uri = this._encrypt ? 'wss' : 'ws';
             }
 
-            uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
+            //uri += '://' + this._rfb_host + ':' + this._rfb_port + '/' + this._rfb_path;
+            uri += '://' + this._rfb_host + '/wsproxy/' + this._rfb_port + '/' + this._rfb_path;
             Util.Info("connecting to " + uri);
 
             this._sock.open(uri, this._wsProtocols);
