@@ -429,13 +429,6 @@ function update3() {
     if (data) $.each(data.split('#'),function(k,v) {$('#fan'+k).html(v);});
   });
 <?endif;?>
-  $.post('<?=$url?>',{cmd:'cpu'},function(data) {
-    if (data) $.each(data.split('#'),function(k,v) {
-      var c = k==0 ? '' : k-1;
-      $('#cpu'+c).animate({width:v},{step:function(){$('#cpu'+c).css('overflow','visible');}}).text(v);
-    });
-    setTimeout(update3,3000);
-  });
 }
 function update15() {
 <?if ($var['fsState']=='Started'):?>
@@ -557,5 +550,16 @@ $(function() {
   $('.tabs').append("<span class='status vhshift'><input type='button' value='Refresh' onclick='refresh()'></span>");
 <?endif;?>
   context.init({preventDoubleContext:false});
+
+  var cpuload_sub = new NchanSubscriber('/sub/cpuload');
+  cpuload_sub.on("message", function(message, message_metadata) {
+    // message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
+    //  The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
+    var json = $.parseJSON(message);
+    $.each(json["cpuload"],function(k,v) {
+      $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
+    });
+  });
+  cpuload_sub.start();
 });
 </script>
