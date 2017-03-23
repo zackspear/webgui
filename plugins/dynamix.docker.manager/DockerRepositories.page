@@ -1,6 +1,6 @@
 Menu="Docker:2"
 Title="Docker Repositories"
-Cond="(pgrep('docker')!==false)"
+Cond="(pgrep('dockerd')!==false)"
 ---
 <?PHP
 /* Copyright 2005-2016, Lime Technology

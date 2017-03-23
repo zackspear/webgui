@@ -62,7 +62,7 @@ if (file_exists($realfile)) {
   after the array has been started.</p>
 </blockquote>
 
-<?if (pgrep('docker') === false):?>
+<?if (pgrep('dockerd') === false):?>
 
 <div class="advanced">
   <dl>
@@ -154,7 +154,7 @@ if (file_exists($realfile)) {
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
   <input type="hidden" name="#command" value="/plugins/dynamix.docker.manager/scripts/docker_rm" />
 </form>
-<?if (pgrep('docker') !== false):?>
+<?if (pgrep('dockerd') !== false):?>
 <div class="advanced">
   <div id="title"><span class="left"><img src="/plugins/dynamix.docker.manager/icons/vcard.png" class="icon">Docker volume info</span></div>
 

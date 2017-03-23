@@ -1,6 +1,6 @@
 Menu="Docker:1"
 Title="Docker Containers"
-Cond="(pgrep('docker')!==false)"
+Cond="(pgrep('dockerd')!==false)"
 Markdown="false"
 ---
 <?PHP

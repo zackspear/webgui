@@ -1,6 +1,6 @@
 Menu="Dashboard:1"
 Title="Apps"
-Cond="(((pgrep('docker')!==false) || (pgrep('libvirtd')!==false)) && ($display['dashapps']!='none'))"
+Cond="(((pgrep('dockerd')!==false) || (pgrep('libvirtd')!==false)) && ($display['dashapps']!='none'))"
 Markdown="false"
 ---
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.ui.css">
@@ -41,7 +41,7 @@ div.Panel:hover{overflow:visible;z-index:10;}
 <div id="apps_icons" style="display:none">
 <?
 $allContainers = [];
-if ((pgrep('docker')!==false) && (empty($display['dashapps']) || $display['dashapps'] == 'icons' || $display['dashapps'] == 'docker')) {
+if ((pgrep('dockerd')!==false) && (empty($display['dashapps']) || $display['dashapps'] == 'icons' || $display['dashapps'] == 'docker')) {
 	require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 	$DockerClient    = new DockerClient();
 	$DockerUpdate    = new DockerUpdate();

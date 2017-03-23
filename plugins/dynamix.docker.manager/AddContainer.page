@@ -1,5 +1,5 @@
 Title="Add Container"
-Cond="(pgrep('docker')!==false)"
+Cond="(pgrep('dockerd')!==false)"
 Markdown="false"
 ---
 <?PHP
