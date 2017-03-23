@@ -27,7 +27,7 @@ $dockerManPaths = [
 
 #load emhttp variables if needed.
 if (!isset($var)) {
-	if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
+	if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')");
 	$var = @parse_ini_file("$docroot/state/var.ini");
 }
 if (!isset($eth0) && is_file("$docroot/state/network.ini")) {
@@ -88,7 +88,7 @@ class DockerTemplates {
 			$dirs[] = $type;
 		}
 		foreach ($dirs as $dir) {
-			if (!is_dir($dir)) @mkdir($dir, 0770, true);
+			if (!is_dir($dir)) @mkdir($dir, 0755, true);
 			$tmpls = array_merge($tmpls, $this->listDir($dir, "xml"));
 		}
 		return $tmpls;
@@ -362,8 +362,8 @@ class DockerTemplates {
 		preg_match_all("/(.*?):([\w]*$)/i", $Repository, $matches);
 		$tempPath    = sprintf("%s/%s-%s-%s.png", $dockerManPaths['images-ram'], preg_replace('%\/|\\\%', '-', $matches[1][0]), $matches[2][0], 'icon');
 		$storagePath = sprintf("%s/%s-%s-%s.png", $dockerManPaths['images-storage'], preg_replace('%\/|\\\%', '-', $matches[1][0]), $matches[2][0], 'icon');
-		if (!is_dir(dirname($tempPath))) @mkdir(dirname($tempPath), 0770, true);
-		if (!is_dir(dirname($storagePath))) @mkdir(dirname($storagePath), 0770, true);
+		if (!is_dir(dirname($tempPath))) @mkdir(dirname($tempPath), 0755, true);
+		if (!is_dir(dirname($storagePath))) @mkdir(dirname($storagePath), 0755, true);
 		if (!is_file($tempPath)) {
 			if (!is_file($storagePath)) {
 				$this->download_url($imgUrl, $storagePath);
@@ -992,7 +992,7 @@ class DockerUtil {
 
 
 	public static function saveJSON($path, $content) {
-		if (!is_dir(dirname($path))) @mkdir(dirname($path), 0770, true);
+		if (!is_dir(dirname($path))) @mkdir(dirname($path), 0755, true);
 
 		return file_put_contents($path, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 	}

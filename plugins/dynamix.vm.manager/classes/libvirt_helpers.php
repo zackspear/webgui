@@ -15,7 +15,7 @@
 
 	// Load emhttp variables if needed.
 	if (! isset($var)){
-		if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null localhost:$(lsof -nPc emhttp | grep -Po 'TCP[^\d]*\K\d+')");
+		if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')");
 		$var = @parse_ini_file("$docroot/state/var.ini");
 		$disks = @parse_ini_file("$docroot/state/disks.ini", true);
 		extract(parse_plugin_cfg("dynamix",true));
