@@ -485,6 +485,7 @@ if ($method == "remove") {
   if ($installed_plugin_file !== false) {
     // remove the symlink
     unlink("/var/log/plugins/$plugin");
+    @unlink("/tmp/plugins/$plugin");
     if (plugin("remove", $installed_plugin_file, $error) === false) {
       // but if can't remove, restore the symlink
       symlink($installed_plugin_file, "/var/log/plugins/$plugin");
