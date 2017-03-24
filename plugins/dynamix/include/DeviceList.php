@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,9 +18,8 @@ $path  = $_POST['path'];
 $var   = parse_ini_file('state/var.ini');
 $devs  = parse_ini_file('state/devs.ini',true);
 $disks = parse_ini_file('state/disks.ini',true);
+$diskio= parse_ini_file('state/diskload.ini');
 $sum   = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
-$new   = '/var/tmp/diskio';
-$old   = '/var/tmp/lastio';
 extract(parse_plugin_cfg('dynamix',true));
 
 require_once "$docroot/webGui/include/CustomMerge.php";
@@ -113,28 +112,19 @@ function fs_info(&$disk) {
     echo "<td colspan='2'></td><td>{$disk['fsStatus']}</td><td></td>";
   echo "<td>".device_browse($disk)."</td>";
 }
-function disk_map(&$rows) {
-  $map = [];
-  foreach ($rows as $row) {
-    $key = explode(' ',$row);
-    $map[$key[0]] = $key[3].' '.$key[7];
-  }
-  $rows = $map;
-}
 function sectors(&$data,$i) {
-  return $data ? explode(' ',$data)[$i] : 0;
+  return explode(' ',$data)[$i];
 }
 function my_diskio($id,$i) {
-  global $diskio, $lastio, $disks;
-  if (empty($diskio) || empty($lastio)) return my_scale(0,$unit,1)." $unit/s";
-  $time = max($diskio['time']-$lastio['time'],1);
+  global $diskio, $disks;
+  if (empty($diskio)) return my_scale(0,$unit,1)." $unit/s";
   if ($id=='A' || $id=='P') {
     $type = $id=='A' ? '/Parity|Data/' : '/Cache/';
-    $disksum = 0;
-    foreach ($disks as $disk) if (preg_match($type,$disk['type'])) $disksum += sectors($diskio[$disk['device']],$i)-sectors($lastio[$disk['device']],$i);
-    return my_scale($disksum*512/$time,$unit,1)." $unit/s";
+    $sum = 0;
+    foreach ($disks as $disk) if (preg_match($type,$disk['type'])) $sum += sectors($diskio[$disk['device']],$i);
+    return my_scale($sum,$unit,1)." $unit/s";
   } else {
-    return my_scale((sectors($diskio[$id],$i)-sectors($lastio[$id],$i))*512/$time,$unit,1)." $unit/s";
+    return my_scale(sectors($diskio[$id],$i),$unit,1)." $unit/s";
   }
 }
 function array_offline(&$disk,$w) {
@@ -294,21 +284,6 @@ function cache_slots() {
   }
   $out .= "</select></form>";
   return $out;
-}
-$time = time();
-$last = @parse_ini_file($new);
-if ($_POST['diskio'] && $time-$last['time']>8) {
-  @copy($new, $old);
-  $lastio = $last;
-  exec("grep -o '\(sd[a-z]*\|nvme[0-9]n1\) .*' /proc/diskstats",$diskio);
-  disk_map($diskio);
-  $diskio['time'] = $time;
-  $keys = [];
-  foreach ($diskio as $key => $data) $keys[] = "$key=$data";
-  file_put_contents($new, implode("\n",$keys));
-} else {
-  $lastio = @parse_ini_file($old);
-  $diskio = $last;
 }
 switch ($_POST['device']) {
 case 'array':
