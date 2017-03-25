@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,4 +20,5 @@ $preselect = [['code' =>   5, 'set' => true, 'text' => 'Reallocated sectors coun
               ['code' => 198, 'set' => true, 'text' => 'Uncorrectable sector count']];
 
 for ($x = 0; $x < count($preselect); $x++) if ($preselect[$x]['set']) $numbers[] = $preselect[$x]['code'];
+$numbers = implode('|',$numbers);
 ?>

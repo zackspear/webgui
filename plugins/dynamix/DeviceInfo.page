@@ -17,11 +17,11 @@ Png="devicesettings.png"
 <?
 require_once "$docroot/webGui/include/Preselect.php";
 $disk = &$disks[$name];
-$events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
+$events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 
 function displayTemp($temp) {
   global $display;
-  return $display['unit']=='F' ? round(9/5*$temp)+32 : $temp;
+  return $display['unit']=='F' ? round($temp*9/5)+32 : $temp;
 }
 ?>
 <script>

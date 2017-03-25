@@ -16,7 +16,7 @@ Icon="disk-settings.png"
 ?>
 <?
 require_once "$docroot/webGui/include/Preselect.php";
-$events = isset($var['smEvents']) ? explode('|', $var['smEvents']) : $numbers;
+$events = explode('|',$var['smEvents'] ?? $numbers);
 
 function displayTemp($temp) {
   global $display;
@@ -44,7 +44,7 @@ function prepareDiskSettings(form) {
   var custom = custom.length ? custom.split(',') : [];
   for (var i=0; i < custom.length; i++) events.push(custom[i].trim());
   form.smEvents.value = events.join('|');
-  if (form.smEvents.value == '<?=implode('|',$numbers)?>') form.smEvents.value = '';
+  if (form.smEvents.value == '<?=$numbers?>') form.smEvents.value = '';
   if (form.smLevel.value == 1.00) form.smLevel.value = '';
 }
 function setIndex(form) {
