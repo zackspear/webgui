@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,8 +20,9 @@ foreach ($_POST as $field => $value) {
   $keys[$section][$key] = $value;
 }
 foreach ($keys as $section => $block) {
-  $text .= "[$section]\n";
-  foreach ($block as $key => $value) $text .= "$key=\"$value\"\n";
+  $pairs = "";
+  foreach ($block as $key => $value) if (strlen($value) && $value != -1) $pairs .= "$key=\"$value\"\n";
+  if ($pairs) $text .= "[$section]\n".$pairs;
 }
-file_put_contents($_POST['#cfg'], $text);
+if ($text) file_put_contents($_POST['#cfg'], $text); else @unlink($_POST['#cfg']);
 ?>

@@ -3,8 +3,8 @@ Title="$name Settings"
 Png="devicesettings.png"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -45,6 +45,8 @@ function prepareDeviceInfo(form) {
   var custom = custom.length ? custom.split(',') : [];
   for (var i=0; i < custom.length; i++) events.push(custom[i].trim());
   form.smEvents.value = events.join('|');
+  if (form.smEvents.value == '<?=implode('|',$events)?>') form.smEvents.value = '';
+  if (form.smLevel.value == 1.00) form.smLevel.value = '';
 }
 function setGlue(form) {
   var data = [{glue:'' ,more:0},
@@ -486,7 +488,7 @@ SMART notification tolerance level:
 SMART controller type:
 : <select name="smType" size="1" onchange="setGlue(this.form)">
   <?=mk_option($disk['smType'], "-1", "Use default")?>
-  <?=mk_option($disk['smType'], "", "Automatic")?>
+  <?=mk_option($disk['smType'], " ", "Automatic")?>
   <?=mk_option($disk['smType'], "-d ata", "ATA")?>
   <?=mk_option($disk['smType'], "-d sat", "SATA")?>
   <?=mk_option($disk['smType'], "-d scsi", "SCSI")?>

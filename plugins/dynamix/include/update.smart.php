@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,8 +11,16 @@
  */
 ?>
 <?
-if (isset($_POST['#default'])) {
-  $text = '';
+if (!isset($_POST['#default'])) {
+  $top = isset($_POST['#top']);
+  foreach ($_POST as $key => $value) if ($key[0] != '#') {
+    if (!strlen($value) || ($top && !$value) || $value == -1) {
+      unset($_POST[$key]);
+      if (isset($_POST['#section'])) unset($keys[$_POST['#section']][$key]); else unset($keys[$key]);
+    }
+  }
+} else {
+  $text = "";
   if (isset($_POST['#section'])) {
     unset($keys[$_POST['#section']]);
     foreach ($keys as $section => $block) {
