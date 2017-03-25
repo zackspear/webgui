@@ -324,8 +324,8 @@ case 'open':
     echo "<td>".device_info($disk)."</td>";
     echo "<td>".device_desc($disk)."</td>";
     echo "<td>".my_temp($disk['temp'])."</td>";
-    echo "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>-</span></td>";
-    echo "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>-</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($data[2])."</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number($data[3])."</span></td>";
     if (file_exists("/tmp/preclear_stat_$dev")) {
       $text = exec("cut -d'|' -f3 /tmp/preclear_stat_$dev|sed 's:\^n:\<br\>:g'");
       if (strpos($text,'Total time')===false) $text = 'Preclear in progress... '.$text;
