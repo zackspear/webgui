@@ -1,21 +1,9 @@
 #!/bin/bash
-
-# set offset values
-awk '/(sd[a-z]*|nvme[0-9]n1) /{print $4,$8}' /proc/diskstats >/var/tmp/reset
-
-# reset counters and exit
-if [[ $1 == reset ]]; then
-  echo -n >/var/local/emhttp/diskload.ini
-  for dev in $(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3}' /proc/diskstats); do
-    echo $dev=0 0 0 0 >>/var/local/emhttp/diskload.ini
-  done
-  exit
-fi
-
+ini=/var/local/emhttp/diskload.ini
 declare -a sector reads writes
+
 # t = poll interval in seconds
 t=6
-
 # get sector size of each disk
 c=0
 for dev in $(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3}' /proc/diskstats); do
@@ -26,14 +14,13 @@ done
 
 # start daemon
 while :; do
-  stats=($(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3,$6,$10,$4,$8}' /proc/diskstats))
-  reset=($(cat /var/tmp/reset))
+  stats=($(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3,$6,$10}' /proc/diskstats))
   c=0; s=${#stats[@]}
-  echo -n >/var/local/emhttp/diskload.ini
-  for ((i=0;i<s;i+=5)); do
+  echo -n >$ini
+  for ((i=0;i<s;i+=3)); do
     reads[c]=$((stats[i+1]-reads[c]))
     writes[c]=$((stats[i+2]-writes[c]))
-    echo ${stats[i]}=$((reads[c]*sector[c]/t)) $((writes[c]*sector[c]/t)) $((stats[i+3]-reset[c*2])) $((stats[i+4]-reset[c*2+1])) >>/var/local/emhttp/diskload.ini
+    echo ${stats[i]}=$((reads[c]*sector[c]/t)) $((writes[c]*sector[c]/t)) >>$ini
     reads[c]=${stats[i+1]}
     writes[c]=${stats[i+2]}
     ((c++))

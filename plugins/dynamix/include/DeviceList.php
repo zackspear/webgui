@@ -19,7 +19,7 @@ $var   = parse_ini_file('state/var.ini');
 $devs  = parse_ini_file('state/devs.ini',true);
 $disks = parse_ini_file('state/disks.ini',true);
 $diskio= parse_ini_file('state/diskload.ini');
-$sum   = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
+$sum   = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 extract(parse_plugin_cfg('dynamix',true));
 
 require_once "$docroot/webGui/include/CustomMerge.php";
@@ -112,21 +112,8 @@ function fs_info(&$disk) {
     echo "<td colspan='2'></td><td>{$disk['fsStatus']}</td><td></td>";
   echo "<td>".device_browse($disk)."</td>";
 }
-function pull($dev,$i) {
-  global $diskio;
-  return explode(' ',$diskio[$dev])[$i];
-}
-function my_diskio($dev,$i) {
-  global $disks;
-  if ($dev=='A' || $dev=='P') {
-    $type = $dev=='A' ? '/Parity|Data/' : '/Cache/';
-
-    $sum = 0;
-    foreach ($disks as $disk) if (preg_match($type,$disk['type'])) $sum += pull($disk['device'],$i);
-    return my_scale($sum,$unit,1)." $unit/s";
-  } else {
-    return my_scale(pull($dev,$i),$unit,1)." $unit/s";
-  }
+function my_diskio($data) {
+  return my_scale($data,$unit,1)." $unit/s";
 }
 function array_offline(&$disk,$w) {
   $warning = $w ? '<span class="red-text"><em>ALL DATA ON THIS DISK WILL BE ERASED WHEN ARRAY IS STARTED</em></span>' : '';
@@ -165,12 +152,14 @@ function array_offline(&$disk,$w) {
   echo "</tr>";
 }
 function array_online(&$disk) {
-  global $sum;
-  $dev = $disk['device'];
+  global $sum, $diskio;
+  $data = explode(' ',$diskio[$disk['device']]);
   if (is_numeric($disk['temp'])) {
     $sum['count']++;
     $sum['temp'] += $disk['temp'];
   }
+  $sum['ioReads'] += $data[0];
+  $sum['ioWrites'] += $data[1];
   $sum['numReads'] += $disk['numReads'];
   $sum['numWrites'] += $disk['numWrites'];
   $sum['numErrors'] += $disk['numErrors'];
@@ -200,8 +189,8 @@ function array_online(&$disk) {
     echo "<td>".device_info($disk)."</td>";
     echo "<td>".device_desc($disk)."</td>";
     echo "<td>".my_temp($disk['temp'])."</td>";
-    echo "<td><span class='diskio'>".my_diskio($dev,0)."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
-    echo "<td><span class='diskio'>".my_diskio($dev,1)."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
     echo "<td>".my_number($disk['numErrors'])."</td>";
     fs_info($disk);
     break;
@@ -233,8 +222,8 @@ function show_totals($text) {
   echo "<td><img src='/webGui/images/sum.png' class='icon'>Total</td>";
   echo "<td>$text</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
-  echo "<td><span class='diskio'>".my_diskio($text[0],0)."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
-  echo "<td><span class='diskio'>".my_diskio($text[0],1)."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
   echo "<td>".my_number($sum['numErrors'])."</td>";
   echo "<td></td>";
   if (strstr($text,'Array') && ($var['startMode']=='Normal')) {
@@ -302,14 +291,14 @@ case 'array':
   break;
 case 'flash':
   $disk = &$disks['flash'];
-  $dev = $disk['device'];
+  $data = explode(' ',$diskio[$disk['device']]);
   $disk['fsUsed'] = $disk['fsSize']-$disk['fsFree'];
   echo "<tr>";
   echo "<td>".device_info($disk)."</td>";
   echo "<td>".device_desc($disk)."</td>";
   echo "<td>*</td>";
-  echo "<td><span class='diskio'>".my_diskio($dev,0)."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
-  echo "<td><span class='diskio'>".my_diskio($dev,1)."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
+  echo "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
   echo "<td>".my_number($disk['numErrors'])."</td>";
   fs_info($disk);
   echo "</tr>";
