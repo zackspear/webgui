@@ -204,14 +204,14 @@ function my_clock($time) {
   $mins = $time%60;
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
-function read_disk(&$device, $item) {
+function read_disk($dev, $part) {
   global $var;
-  switch ($item) {
+  switch ($part) {
   case 'color':
-    return exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
+    return exec("hdparm -C ".escapeshellarg("/dev/$dev")."|grep -Po active") ? 'blue-on' : 'blue-blink';
   case 'temp':
-    $smart = "/var/local/emhttp/smart/$device";
-    if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A ".escapeshellarg("/dev/$device")." >".escapeshellarg($smart)." &");
+    $smart = "/var/local/emhttp/smart/$dev";
+    if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A ".escapeshellarg("/dev/$dev")." >".escapeshellarg($smart)." &");
     $temp = exec("awk '\$1==190||\$1==194{print \$10;exit}' $smart");
     return $temp ?: '*';
   }
@@ -313,19 +313,21 @@ case 'cache':
   }
   break;
 case 'open':
-  foreach ($devs as $dev) {
-    $dev['name'] = $dev['device'];
-    $dev['type'] = 'New';
-    $dev['color'] = read_disk($dev['device'],'color');
-    $dev['temp'] = read_disk($dev['device'],'temp');
+  foreach ($devs as $disk) {
+    $dev = $disk['device'];
+    $data = explode(' ',$diskio[$dev]);
+    $disk['name'] = $dev;
+    $disk['type'] = 'New';
+    $disk['color'] = read_disk($dev,'color');
+    $disk['temp'] = read_disk($dev,'temp');
     echo "<tr>";
-    echo "<td>".device_info($dev)."</td>";
-    echo "<td>".device_desc($dev)."</td>";
-    echo "<td>".my_temp($dev['temp'])."</td>";
-    echo "<td><span class='diskio'>".my_diskio($dev['device'],0)."</span><span class='number'>-</span></td>";
-    echo "<td><span class='diskio'>".my_diskio($dev['device'],1)."</span><span class='number'>-</span></td>";
-    if (file_exists("/tmp/preclear_stat_{$dev['device']}")) {
-      $text = exec("cut -d'|' -f3 /tmp/preclear_stat_{$dev['device']}|sed 's:\^n:\<br\>:g'");
+    echo "<td>".device_info($disk)."</td>";
+    echo "<td>".device_desc($disk)."</td>";
+    echo "<td>".my_temp($disk['temp'])."</td>";
+    echo "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>-</span></td>";
+    echo "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>-</span></td>";
+    if (file_exists("/tmp/preclear_stat_$dev")) {
+      $text = exec("cut -d'|' -f3 /tmp/preclear_stat_$dev|sed 's:\^n:\<br\>:g'");
       if (strpos($text,'Total time')===false) $text = 'Preclear in progress... '.$text;
       echo "<td colspan='6' style='text-align:right'><em>$text</em></td>";
     } else
