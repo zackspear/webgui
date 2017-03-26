@@ -144,7 +144,7 @@ function checkNetworkSettings(form,index) {
     }
     if (index==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
     if (dns) {
-      form.DHCP_KEEPRESOLV.value = 'yes';
+      form.DHCP_KEEPRESOLV.value = disabled ? 'no' : 'yes';
       form.DHCP_KEEPRESOLV.disabled = !disabled;
       checkDNSSettings(form);
     }
