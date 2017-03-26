@@ -131,7 +131,7 @@ function checkNetworkSettings(form,index) {
       netmask.prop('disabled',disabled);
       if (ipaddr.val()=='') netmask.append('<option value="none" selected="selected"></option>');
       if (i==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
-      if (dns) form.DHCP_KEEPRESOLV.disabled = !disabled;
+      if (dns && i==0) form.DHCP_KEEPRESOLV.disabled = !disabled;
     });
   } else {
     var disabled = $(form).find('select[name="USE_DHCP:'+index+'"]').val()!='no';
@@ -143,7 +143,7 @@ function checkNetworkSettings(form,index) {
       if (none.length) {netmask.val('255.255.255.0'); none.remove();}
     }
     if (index==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
-    if (dns) {
+    if (dns && index==0) {
       form.DHCP_KEEPRESOLV.value = disabled ? 'no' : 'yes';
       form.DHCP_KEEPRESOLV.disabled = !disabled;
       checkDNSSettings(form);
