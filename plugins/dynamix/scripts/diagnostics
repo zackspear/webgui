@@ -74,6 +74,7 @@ foreach (glob("$get/*.ini") as $file) {
   if ($all || $ini != "users") file_put_contents("/$diag/system/vars.txt",preg_replace(["/\n/","/^Array/"],["\r\n",$ini],anonymize(print_r(parse_ini_file($file,true),true),1)),FILE_APPEND);
 }
 // individual commands execution (suppress errors)
+exec("lscpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/lscpu.txt"));
 exec("lsscsi -vgl 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsscsi.txt"));
 exec("lspci -knn 2>/dev/null|todos >".escapeshellarg("/$diag/system/lspci.txt"));
 exec("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
