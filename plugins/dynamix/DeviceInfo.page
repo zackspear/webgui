@@ -326,7 +326,7 @@ btrfs check status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Mainenance** mode.
+> **Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
@@ -375,7 +375,7 @@ reiserfsck status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Mainenance** mode.
+> **Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
@@ -422,7 +422,7 @@ xfs_repair status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Mainenance** mode.
+> **Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
