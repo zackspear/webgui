@@ -3,8 +3,8 @@ Title="Disk Settings"
 Icon="disk-settings.png"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,7 +16,7 @@ Icon="disk-settings.png"
 ?>
 <?
 require_once "$docroot/webGui/include/Preselect.php";
-$events = isset($var['smEvents']) ? explode('|', $var['smEvents']) : $numbers;
+$events = explode('|',$var['smEvents'] ?? $numbers);
 
 function displayTemp($temp) {
   global $display;
@@ -44,6 +44,8 @@ function prepareDiskSettings(form) {
   var custom = custom.length ? custom.split(',') : [];
   for (var i=0; i < custom.length; i++) events.push(custom[i].trim());
   form.smEvents.value = events.join('|');
+  if (form.smEvents.value == '<?=$numbers?>') form.smEvents.value = '';
+  if (form.smLevel.value == 1.00) form.smLevel.value = '';
 }
 function setIndex(form) {
   form.smIndex.value = form.smType.selectedIndex;
@@ -216,6 +218,7 @@ Default critical disk temperature threshold (&deg;<?=$display['unit']?>):
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDiskSettings(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-all.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
+<input type="hidden" name="#top" value="1">
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smIndex" value="0">
 Default SMART notification value:

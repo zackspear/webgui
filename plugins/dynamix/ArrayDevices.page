@@ -36,7 +36,7 @@ function toggle_diskio(init) {
 }
 function array_status() {
   var diskio = $.cookie('diskio')===undefined ? 0 : 1;
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'array',diskio:diskio},function(data) {
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'array'},function(data) {
     if (data) {$('#array_devices').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>

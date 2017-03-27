@@ -3,8 +3,8 @@ Title="$name Settings"
 Png="devicesettings.png"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,11 +17,11 @@ Png="devicesettings.png"
 <?
 require_once "$docroot/webGui/include/Preselect.php";
 $disk = &$disks[$name];
-$events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
+$events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 
 function displayTemp($temp) {
   global $display;
-  return $display['unit']=='F' ? round(9/5*$temp)+32 : $temp;
+  return $display['unit']=='F' ? round($temp*9/5)+32 : $temp;
 }
 ?>
 <script>
@@ -45,6 +45,8 @@ function prepareDeviceInfo(form) {
   var custom = custom.length ? custom.split(',') : [];
   for (var i=0; i < custom.length; i++) events.push(custom[i].trim());
   form.smEvents.value = events.join('|');
+  if (form.smEvents.value == '<?=implode('|',$events)?>') form.smEvents.value = '';
+  if (form.smLevel.value == 1.00) form.smLevel.value = '';
 }
 function setGlue(form) {
   var data = [{glue:'' ,more:0},
@@ -91,7 +93,6 @@ Partition format:
 
 <?if ($disk['type']!="Parity"):?>
 <?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
-
 Comments:
 : <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
@@ -99,10 +100,8 @@ Comments:
 > Enter anything you like, up to 256 characters.
 
 <?endif;?>
-
 File system status:
 : <?=$disk['fsStatus']?><?if ($disk['fsError']) echo " - {$disk['fsError']}";?>&nbsp;
-
 <?endif;?>
 <?if ($disk['type']=="Data" || ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']==1)):?>
 <?if ($var['fsState']=="Stopped"):?>
@@ -115,7 +114,6 @@ File system type:
   <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
   <?=mk_option($disk['fsType'], "xfs", "xfs")?>
   </select>
-
 <?else:?>
 
 File system type:
@@ -125,13 +123,11 @@ File system type:
   <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
   <?=mk_option($disk['fsType'], "xfs", "xfs")?>
   </select> Array must be <span class="strong big">Stopped</span> to change
-
 <?endif;?>
 <?elseif ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']>1):?>
 
 File system type:
 : <?=$disk['fsType'];?>&nbsp;
-
 <?endif;?>
 
 Spin down delay:
@@ -185,10 +181,8 @@ Critical disk temperature threshold (&deg;<?=$display['unit']?>):
 > A value of zero will disable the critical threshold (including notifications).
 
 <?if (($var['spinupGroups']=="yes")&&($disk['type']!="Cache")):?>
-
 Spinup group(s):
 : <input type="text" name="diskSpinupGroup.<?=$disk['idx'];?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
-
 <?endif;?>
 
 &nbsp;
@@ -202,11 +196,10 @@ btrfs filesystem show:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem show {$disk['uuid']}")."</pre>";?>
 
 <?if ($disk['fsStatus']=="Mounted"):?>
-
 btrfs filesystem df:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>";?>
-
 <?endif;?>
+
 <?if ($var['cacheSbNumDisks']>1):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
@@ -241,9 +234,6 @@ btrfs balance status:
 
 <?endif;?>
 <?else:?>
-
-&nbsp;
-: <input type="submit" value="Balance" disabled>
 
 > **Balance** is only available when the Device is Mounted.
 
@@ -288,14 +278,12 @@ btrfs scrub status:
 <?endif;?>
 <?else:?>
 
-&nbsp;
-: <input type="submit" value="Scrub" disabled>
-
 > **Scrub** is only available when the Device is Mounted.
 
 <?endif;?>
 </form>
 <?endif?>
+<?if ($disk['fsType']=="btrfs"):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
@@ -338,13 +326,11 @@ btrfs check status:
 <?endif;?>
 <?else:?>
 
-&nbsp;
-: <input type="submit" value="Check" disabled>
-
 > **Check** is only available when array is Started in **Mainenance** mode.
 
 <?endif;?>
 </form>
+<?endif;?>
 <?if ($disk['fsType']=="reiserfs"):?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
@@ -388,9 +374,6 @@ reiserfsck status:
 
 <?endif;?>
 <?else:?>
-
-&nbsp;
-: <input type="submit" value="Check" disabled>
 
 > **Check** is only available when array is Started in **Mainenance** mode.
 
@@ -439,9 +422,6 @@ xfs_repair status:
 <?endif;?>
 <?else:?>
 
-&nbsp;
-: <input type="submit" value="Check" disabled>
-
 > **Check** is only available when array is Started in **Mainenance** mode.
 
 <?endif;?>
@@ -486,7 +466,7 @@ SMART notification tolerance level:
 SMART controller type:
 : <select name="smType" size="1" onchange="setGlue(this.form)">
   <?=mk_option($disk['smType'], "-1", "Use default")?>
-  <?=mk_option($disk['smType'], "", "Automatic")?>
+  <?=mk_option($disk['smType'], " ", "Automatic")?>
   <?=mk_option($disk['smType'], "-d ata", "ATA")?>
   <?=mk_option($disk['smType'], "-d sat", "SATA")?>
   <?=mk_option($disk['smType'], "-d scsi", "SCSI")?>

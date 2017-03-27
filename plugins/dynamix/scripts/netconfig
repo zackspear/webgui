@@ -58,7 +58,7 @@ if ($bridging = $ini['eth0']['BRIDGING']=='yes') {
 // ensure additional NICs in bridge are set free
   if ($run && $set=='eth0' && !$bonding) foreach ($br0 as $nic) {
     if (isset($old['SYSNICS'])) $nic = ifname($nic);
-    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_start")." >/dev/null");
+    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
   }
 }
 
