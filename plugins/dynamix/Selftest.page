@@ -111,7 +111,7 @@ function saveSMART() {
   });
 }
 function testUpdate(init) {
-  $.post('/webGui/include/SmartInfo.php',{cmd:'update',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>',type:'<?=addslashes(htmlspecialchars($type))?>'},function(data) {
+  $.post('/webGui/include/SmartInfo.php',{cmd:'update',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>',type:'<?=addslashes(htmlspecialchars($type))?>',csrf:'<?=$var['csrf_token']?>'},function(data) {
     $('#test_result').html(data);
     if (data.indexOf('%')>=0) {
       if ($('#smart_selftest').length) {

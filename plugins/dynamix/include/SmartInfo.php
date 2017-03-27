@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?? '/usr/local/emhttp';
 
 function normalize($text, $glue='_') {
   $words = explode($glue,$text);
@@ -31,32 +31,40 @@ function spindownDelay($port) {
     if ($disk['device']==$port) { file_put_contents("/var/tmp/diskSpindownDelay.{$disk['idx']}", $disk['spindownDelay']); break; }
   }
 }
+function get(&$ref,$n,$d) {
+  global $var;
+  $val = $ref[$n] ?? -1; if ($val==-1) $val = $var[$n] ?? $d;
+  return $val;
+}
+function exist(&$ref) {
+  return isset($ref) && strlen($ref);
+}
+function append(&$ref, &$info) {
+  if (isset($info)) $ref .= ($ref ? " " : "").$info;
+}
 $disks = []; $var = [];
 require_once "$docroot/webGui/include/CustomMerge.php";
-$name = isset($_POST['name']) ? $_POST['name'] : '';
-$port = isset($_POST['port']) ? $_POST['port'] : '';
+$name = $_POST['name'] ?? '';
+$port = $_POST['port'] ?? '';
 if ($name) {
   $disk = &$disks[$name];
-  $type = isset($disk['smType']) ? $disk['smType'] : -1; if ($type==-1) $type = isset($var['smType']) ? $var['smType'] : '';
+  $type = get($disk,'smType','');
   if ($type) {
     $ports = [];
-    if (isset($disk['smDevice']) && strlen($disk['smDevice'])) $port = $disk['smDevice'];
-    if (isset($disk['smPort1']) && strlen($disk['smPort1'])) $ports[] = $disk['smPort1'];
-    if (isset($disk['smPort2']) && strlen($disk['smPort2'])) $ports[] = $disk['smPort2'];
-    if (isset($disk['smPort3']) && strlen($disk['smPort3'])) $ports[] = $disk['smPort3'];
-    if ($ports) {
-      $glue = isset($disk['smGlue']) ? $disk['smGlue'] : ',';
-      $type .= ','.implode($glue,$ports);
-    }
+    if (exist($disk['smDevice'])) $port = $disk['smDevice'];
+    if (exist($disk['smPort1'])) $ports[] = $disk['smPort1'];
+    if (exist($disk['smPort2'])) $ports[] = $disk['smPort2'];
+    if (exist($disk['smPort3'])) $ports[] = $disk['smPort3'];
+    if ($ports) $type .= ','.implode($disk['smGlue'] ?? ',',$ports);
   }
 }
 switch ($_POST['cmd']) {
 case "attributes":
   require_once "$docroot/webGui/include/Wrappers.php";
   require_once "$docroot/webGui/include/Preselect.php";
-  $select = isset($disk['smSelect']) ? $disk['smSelect'] : -1; if ($select==-1) $select = isset($var['smSelect']) ? $var['smSelect'] : 0;
-  $level  = isset($disk['smLevel']) ? $disk['smLevel'] : -1; if ($level==-1) $level = isset($var['smLevel']) ? $var['smLevel'] : 1;
-  $events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
+  $select = get($disk,'smSelect',0);
+  $level  = get($disk,'smLevel',1);
+  $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
   $temps = [190,194];
   $unraid = parse_plugin_cfg('dynamix',true);
   $max = $unraid['display']['max'];
@@ -87,9 +95,9 @@ case "capabilities":
     if (!$line) continue;
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
-    if (isset($info[0])) $row[0] .= ($row[0] ? " " : "").$info[0];
-    if (isset($info[1])) $row[1] .= ($row[1] ? " " : "").$info[1];
-    if (isset($info[2])) $row[2] .= ($row[2] ? " " : "").$info[2];
+    append($row[0],$info[0]);
+    append($row[1],$info[1]);
+    append($row[2],$info[2]);
     if (substr($row[2],-1)=='.') {
       echo "<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>";
       $row = ['','',''];
@@ -116,7 +124,7 @@ case "identify":
   if ($empty) echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
   break;
 case "save":
-  exec("smartctl -a $type ".escapeshellarg("/dev/$port")." >".escapeshellarg("{$_SERVER['DOCUMENT_ROOT']}/{$_POST['file']}"));
+  exec("smartctl -a $type ".escapeshellarg("/dev/$port")." >".escapeshellarg("$docroot/{$_POST['file']}"));
   break;
 case "delete":
   if (strpos(realpath("/var/tmp/{$_POST['file']}"), "/var/tmp/") === 0) {
@@ -137,7 +145,7 @@ case "stop":
 case "update":
   if (!exec("hdparm -C ".escapeshellarg("/dev/$port")."|grep -Pom1 'active|unknown'")) {
     $cmd = $_POST['type']=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=up&arg2=$name" : "cmdSpinup=$name";
-    echo "<a href='/update.htm?$cmd&csrf_token={$var['csrf_token']}' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='orange-text'><span class='big'>Unavailable - disk must be spun up</span></span>";
+    echo "<a href='/update.htm?$cmd&csrf_token={$_POST['csrf']}' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='big orange-text'>Unavailable - disk must be spun up</span>";
     break;
   }
   $progress = exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
@@ -151,14 +159,14 @@ case "update":
     break;
   }
   if (strpos($result, "Completed without error")!==false) {
-    echo "<span class='green-text'><span class='big'>$result</span></span>";
+    echo "<span class='big green-text'>$result</span>";
     break;
   }
   if (strpos($result, "Aborted")!==false or strpos($result, "Interrupted")!==false) {
-    echo "<span class='orange-text'><span class='big'>$result</span></span>";
+    echo "<span class='big orange-text'>$result</span>";
     break;
   }
-  echo "<span class='red-text'><span class='big'>Errors occurred - Check SMART report</span></span>";
+  echo "<span class='big red-text'>Errors occurred - Check SMART report</span>";
   break;
 case "selftest":
   echo shell_exec("smartctl -l selftest $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'");

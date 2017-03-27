@@ -16,8 +16,7 @@ Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
 ?>
 <script>
 function cache_status() {
-  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'<?if ($tabbed):?>,diskio:diskio<?endif?>},function(data) {
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'},function(data) {
     if (data) {$('#cache_device').html(data); display_diskio();}
 <?if ($update && $var['fsState']=='Started'):?>
 <?if ($tabbed):?>
