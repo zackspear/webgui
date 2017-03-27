@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2016, Bergware International.
- * Copyright 2016, Lime Technology
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -58,7 +58,7 @@ if ($bridging = $ini['eth0']['BRIDGING']=='yes') {
 // ensure additional NICs in bridge are set free
   if ($run && $set=='eth0' && !$bonding) foreach ($br0 as $nic) {
     if (isset($old['SYSNICS'])) $nic = ifname($nic);
-    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_start")." >/dev/null");
+    if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
   }
 }
 
@@ -78,12 +78,12 @@ foreach ($ini as $name => $port) {
     if (!$bonding && preg_match('/^(BONDING_MODE|BONDING_MIIMON|BONDNICS|BONDNAME)/',$key)) continue;
     if (!$bridge && preg_match('/^(BRSTP|BRFD|BRNICS|BRNAME)/',$key)) continue;
     list($item,$x) = explode(':',$key,2);
-    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR|NETMASK|DESCRIPTION)/',$key)) {
+    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR6?|NETMASK6?|DESCRIPTION|PROTOCOL)/',$key)) {
       if ($x0 != $x) {$x0 = $x; $j++;}
       $vlan = ",$j]";
     } else $vlan = '';
     if (!$vlan && preg_match('/^VLANID/',$key)) continue;
-    $new[] = $item.(preg_match('/^(GATEWAY|DNS_SERVER|DHCP_KEEPRESOLV)/',$key)?'':'['.$i.($vlan?'':']')).$vlan."=\"$val\"";
+    $new[] = $item.(preg_match('/^(GATEWAY|DNS6?_SERVER|DHCP_KEEPRESOLV)/',$key)?'':'['.$i.($vlan?'':']')).$vlan."=\"$val\"";
   }
   if ($trunk) $new[] = "VLANS[$i]=\"".($j+1)."\"";
   $i++;

@@ -3,8 +3,8 @@ Title="Interface ethX"
 Png="ethernet.png"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -66,6 +66,7 @@ $(function() {
   var form = document.ethX_settings;
   checkNetworkAccess(form,'ethX');
   checkNetworkSettings(form);
+  selectProtocol(form,'ethX');
 <?if (!$tabbed):?>
   $('div[id=title]').each(function(){
     if ($(this).text().indexOf('Interface ethX')==0) $(this).append("<span id='wait_ethX' class='status red' style='display:none;font-size:small;font-style:italic'>Please wait... configuring interfaces</span>");
@@ -114,6 +115,13 @@ Interface description:
 
 > Use this field to give addditional information about the purpose of the connection.
 
+Network protocol:
+: <select name="PROTOCOL:<?=$i?>" size="1" onchange="selectProtocol(this.form,'ethX',<?=$i?>)">
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv4', 'IPv4 only');?>
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv6', 'IPv6 only');?>
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv4+ipv6', 'IPv4 + IPv6');?>
+  </select>
+
 IP address assignment:
 : <select name="USE_DHCP:<?=$i?>" size="1" onchange="checkNetworkSettings(this.form,<?=$i?>)">
   <?=mk_option($ethX["USE_DHCP:$i"], 'yes', 'Automatic');?>
@@ -127,12 +135,13 @@ IP address assignment:
 > *Static* - the IP address is manually set for this interface<br>
 > *None* - no IP address is assigned to the interface
 
-IP address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP?>" title="IP address A.B.C.D">
+<div class="ethX-ipv4-<?=$i?>" style="display:none" markdown="1">
+IPv4 address:
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
-> Greyed out when using DHCP server. Otherwise specify here the IP address of the interface.
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of the interface.
 
-Network mask:
+IPv4 network mask:
 : <select name="NETMASK:<?=$i?>" size="1">
   <?=mk_option($ethX["NETMASK:$i"], "255.255.0.0", "255.255.0.0");?>
   <?=mk_option($ethX["NETMASK:$i"], "255.255.252.0", "255.255.252.0");?>
@@ -148,6 +157,19 @@ Network mask:
 
 > Greyed out when using DHCP server. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+</div>
+<div class="ethX-ipv6-<?=$i?>" style="display:none" markdown="1">
+IPv6 address:
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
+
+IPv6 prefix:
+: <input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]?>" class="trim">
+
+> Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+</div>
 Desired MTU:
 : <input type="number" name="MTU" min="68" max="9198" value="<?=$locked?$eth0['MTU']:$ethX['MTU']?>" class="narrow">
 
@@ -173,6 +195,13 @@ Interface description:
 
 > Use this field to give addditional information about the purpose of the connection.
 
+Network protocol:
+: <select name="PROTOCOL:<?=$i?>" size="1" onchange="selectProtocol(this.form,'ethX',<?=$i?>)">
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv4', 'IPv4 only');?>
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv6', 'IPv6 only');?>
+  <?=mk_option($eth0["PROTOCOL:$i"], 'ipv4+ipv6', 'IPv4 + IPv6');?>
+  </select>
+
 IP address assignment:
 : <select name="USE_DHCP:<?=$i?>" size="1" onchange="checkNetworkSettings(this.form,<?=$i?>)">
   <?=mk_option($ethX["USE_DHCP:$i"], 'yes', 'Automatic');?>
@@ -186,12 +215,13 @@ IP address assignment:
 > *Static* - the IP address is manually set for this interface<br>
 > *None* - no IP address is assigned to the interface
 
-IP address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP?>" title="IP address A.B.C.D">
+<div class="ethX-ipv4-<?=$i?>" style="display:none" markdown="1">
+IPv4 address:
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
-> Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IP address of the interface.
+> Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IPv4 address of the interface.
 
-Network mask:
+IPv4 network mask:
 : <select name="NETMASK:<?=$i?>" size="1">
   <?=mk_option($ethX["NETMASK:$i"], "255.255.0.0", "255.255.0.0");?>
   <?=mk_option($ethX["NETMASK:$i"], "255.255.252.0", "255.255.252.0");?>
@@ -207,6 +237,19 @@ Network mask:
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+</div>
+<div class="ethX-ipv6-<?=$i?>" style="display:none" markdown="1">
+IPv6 address:
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
+
+IPv6 prefix:
+: <input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]?>" class="trim">
+
+> Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+</div>
 </div>
 <?endif;?>
 </div>
@@ -225,6 +268,13 @@ Interface description:
 
 > Use this field to give addditional information about the purpose of the connection.
 
+Network protocol:
+: <select name="PROTOCOL:INDEX" size="1" onchange="selectProtocol(this.form,'ethX',INDEX)">
+  <?=mk_option($eth0["PROTOCOL:INDEX"], 'ipv4', 'IPv4 only');?>
+  <?=mk_option($eth0["PROTOCOL:INDEX"], 'ipv6', 'IPv6 only');?>
+  <?=mk_option($eth0["PROTOCOL:INDEX"], 'ipv4+ipv6', 'IPv4 + IPv6');?>
+  </select>
+
 IP address assignment:
 : <select name="USE_DHCP:INDEX" size="1" onchange="checkNetworkSettings(this.form,INDEX)">
   <?=mk_option($ethX["USE_DHCP:INDEX"], 'yes', 'Automatic');?>
@@ -238,12 +288,13 @@ IP address assignment:
 > *Static* - the IP address is manually set for this interface<br>
 > *None* - no IP address is assigned to the interface
 
-IP address:
-: <input type="text" name="IPADDR:INDEX" maxlength="40" value="<?=$ethX["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP?>" title="IP address A.B.C.D">
+<div class="ethX-ipv4-INDEX" style="display:none" markdown="1">
+IPv4 address:
+: <input type="text" name="IPADDR:INDEX" maxlength="40" value="<?=$ethX["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
-> Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IP address of the interface.
+> Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IPv4 address of the interface.
 
-Network mask:
+IPv4 network mask:
 : <select name="NETMASK:INDEX" size="1">
   <?=mk_option($ethX["NETMASK:INDEX"], "255.255.0.0", "255.255.0.0");?>
   <?=mk_option($ethX["NETMASK:INDEX"], "255.255.252.0", "255.255.252.0");?>
@@ -259,6 +310,19 @@ Network mask:
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+</div>
+<div class="ethX-ipv6-INDEX" style="display:none" markdown="1">
+IPv6 address:
+: <input type="text" name="IPADDR6:INDEX" maxlength="80" value="<?=$ethX["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
+
+IPv6 prefix:
+: <input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=$ethX["NETMASK6:INDEX"]?>" class="trim">
+
+> Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+</div>
 </div>
 </script>
 
