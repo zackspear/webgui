@@ -372,23 +372,16 @@ switch ($action) {
 		break;
 
 	case 'acs-override-enable':
-		// Check the /boot/syslinux/syslinux.cfg for the existance of pcie_acs_override=downstream, add it in if not found
+		// Check each boot option in /boot/syslinux/syslinux.cfg for the existance of pcie_acs_override=downstream, add it in if not found
 		$arrSyslinuxCfg = file('/boot/syslinux/syslinux.cfg');
-		$strCurrentLabel = '';
 		$boolModded = false;
 		foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
-			if (stripos(trim($strSyslinuxCfg), 'label ') === 0) {
-				$strCurrentLabel = trim(str_ireplace('label ', '', $strSyslinuxCfg));
-			}
 			if (stripos($strSyslinuxCfg, 'append ') !== false) {
 				if (stripos($strSyslinuxCfg, 'pcie_acs_override=') === false) {
 					// pcie_acs_override=downstream was not found so append it in
 					$strSyslinuxCfg = str_ireplace('append ', 'append pcie_acs_override=downstream ', $strSyslinuxCfg);
 					$boolModded = true;
 				}
-
-				// We just modify the first append line, other boot menu items are untouched
-				break;
 			}
 		}
 
@@ -397,18 +390,14 @@ switch ($action) {
 			file_put_contents('/boot/syslinux/syslinux.cfg', implode('', $arrSyslinuxCfg));
 		}
 
-		$arrResponse = ['success' => true, 'label' => $strCurrentLabel];
+		$arrResponse = ['success' => true, 'modified' => $boolModded];
 		break;
 
 	case 'acs-override-disable':
-		// Check the /boot/syslinux/syslinux.cfg for the existance of pcie_acs_override=, remove it if found
+		// Check the /boot/syslinux/syslinux.cfg for the existance of pcie_acs_override=, remove them if found
 		$arrSyslinuxCfg = file('/boot/syslinux/syslinux.cfg');
-		$strCurrentLabel = '';
 		$boolModded = false;
 		foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
-			if (stripos(trim($strSyslinuxCfg), 'label ') === 0) {
-				$strCurrentLabel = trim(str_ireplace('label ', '', $strSyslinuxCfg));
-			}
 			if (stripos($strSyslinuxCfg, 'append ') !== false) {
 				if (stripos($strSyslinuxCfg, 'pcie_acs_override=') !== false) {
 					// pcie_acs_override= was found so remove the two variations
@@ -416,9 +405,6 @@ switch ($action) {
 					$strSyslinuxCfg = str_ireplace('pcie_acs_override=multifunction ', '', $strSyslinuxCfg);
 					$boolModded = true;
 				}
-
-				// We just modify the first append line, other boot menu items are untouched
-				break;
 			}
 		}
 
@@ -427,7 +413,7 @@ switch ($action) {
 			file_put_contents('/boot/syslinux/syslinux.cfg', implode('', $arrSyslinuxCfg));
 		}
 
-		$arrResponse = ['success' => true, 'label' => $strCurrentLabel];
+		$arrResponse = ['success' => true, 'modified' => $boolModded];
 		break;
 
 	case 'virtio-win-iso-info':
