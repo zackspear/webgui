@@ -195,17 +195,15 @@ Spinup group(s):
 btrfs filesystem show:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem show {$disk['uuid']}")."</pre>";?>
 
-<?if ($disk['fsStatus']=="Mounted"):?>
-btrfs filesystem df:
-: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>";?>
 <?endif;?>
-
-<?if ($var['cacheSbNumDisks']>1):?>
+<?if ($disk['fsType']=="btrfs"):?>
+<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/balancestatus.png" class="icon">Balance Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
 
-<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/balancestatus.png" class="icon">Balance Status</span></div>
+btrfs filesystem df:
+: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>";?>
 
 btrfs balance status:
 : <?echo "<pre>" . implode("\n", $balance_status) . "</pre>";?>
@@ -216,11 +214,19 @@ btrfs balance status:
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
 
 &nbsp;
-: <input type="submit" value="Balance"><input type="text" name="#arg[3]" maxlength="256" value="-dconvert=raid1 -mconvert=raid1"> Options (see Help)
+: <input type="submit" value="Balance"><input type="text" name="#arg[3]" maxlength="256" value=""> Options (see Help)
 
-> **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices.
+> **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices, for example,
+> to convert the pool from raid1 to raid0 or vice-versa.
 >
-> The default *Options* are appropriate for btrfs-raid1.  Do not change this unless you know what you are doing!
+> Without any options specified a "full balance" is performed which will basically rewrite everything in the filesystem.
+> The run time is potentially very long, depending on the filesystem size.
+>
+> unRAID uses these default options when creating a multiple-device pool:
+>
+> `-dconvert=raid1 -mconvert=raid1`
+>
+> For more complete documentation, please refer to the btrfs-balance [Manpage](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-balance).
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
@@ -235,18 +241,17 @@ btrfs balance status:
 <?endif;?>
 <?else:?>
 
-> **Balance** is only available when the Device is Mounted.
+&nbsp;
+: <input type="submit" value="Balance" disabled>**Balance** is only available when array is Started.
 
 <?endif;?>
 </form>
 <?endif;?>
-<?endif;?>
 <?if ($disk['fsType']=="btrfs"):?>
+<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/scrubstatus.png" class="icon">Scrub Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
-
-<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/scrubstatus.png" class="icon">Scrub Status</span></div>
 
 btrfs scrub status:
 : <?echo "<pre>" . implode("\n", $scrub_status) . "</pre>";?>
@@ -278,17 +283,17 @@ btrfs scrub status:
 <?endif;?>
 <?else:?>
 
-> **Scrub** is only available when the Device is Mounted.
+&nbsp;
+: <input type="submit" value="Scrub" disabled>**Scrub** is only available when array is Started.
 
 <?endif;?>
 </form>
 <?endif?>
 <?if ($disk['fsType']=="btrfs"):?>
+<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
-
-<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 
 btrfs check status:
 : <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
@@ -326,17 +331,17 @@ btrfs check status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Maintenance** mode.
+&nbsp;
+: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if ($disk['fsType']=="reiserfs"):?>
+<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
-
-<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 
 reiserfsck status:
 : <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
@@ -375,17 +380,17 @@ reiserfsck status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Maintenance** mode.
+&nbsp;
+: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if ($disk['fsType']=="xfs"):?>
+<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
-
-<div id="title" class="nocontrol"><span class="left"><img src="/plugins/dynamix/icons/filesystemstatus.png" class="icon">Check Filesystem Status</span></div>
 
 xfs_repair status:
 : <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
@@ -422,7 +427,8 @@ xfs_repair status:
 <?endif;?>
 <?else:?>
 
-> **Check** is only available when array is Started in **Maintenance** mode.
+&nbsp;
+: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
 
 <?endif;?>
 </form>
