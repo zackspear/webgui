@@ -5,7 +5,9 @@
 
 case "$1" in
 'start')
-  exec /sbin/btrfs balance start $3 $2 &>/dev/null &
+  options=$3
+  [[ -z "${options// }" ]] && options="--full-balance"
+  exec /sbin/btrfs balance start $options $2 &>/dev/null &
 ;;
 'status')
   /sbin/btrfs balance status $2
