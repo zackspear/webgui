@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -111,10 +111,10 @@ function check_temp($name,$temp,$text,$info) {
 function check_smart($name,$port,$text,$info) {
   global $var,$disks,$notify,$saved,$server,$numbers;
   $disk = &$disks[$name];
-  $select = isset($disk['smSelect']) ? $disk['smSelect'] : -1; if ($select==-1) $select = isset($all['smSelect']) ? $var['smSelect'] : 0;
-  $level = isset($disk['smLevel']) ? $disk['smLevel'] : -1; if ($level==-1) $level = isset($var['smLevel']) ? $var['smLevel'] : 1;
-  $events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
-  $type = isset($disk['smType']) ? $disk['smType'] : -1; if ($type==-1) $type = isset($var['smType']) ? $var['smType'] : '';
+  $select = $disk['smSelect'] ?? -1; if ($select==-1) $select = $var['smSelect'] ?? 0;
+  $level  = $disk['smLevel'] ?? -1; if ($level==-1) $level = $var['smLevel'] ?? 1;
+  $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
+  $type = $disk['smType'] ?? -1; if ($type==-1) $type = $var['smType'] ?? '';
   if ($type) {
     $ports = [];
     if (!empty($disk['smDevice'])) $port = $disk['smDevice'];
