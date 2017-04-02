@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?? '/usr/local/emhttp';
 
 function normalize($type,$count) {
   $words = explode('_',$type);
@@ -24,9 +24,9 @@ function my_insert(&$source,$string) {
 function my_smart(&$source,$name,$page) {
   global $var,$disks,$path,$failed,$numbers,$saved;
   $disk   = &$disks[$name];
-  $select = isset($disk['smSelect']) ? $disk['smSelect'] : -1; if ($select==-1) $select = isset($var['smSelect']) ? $var['smSelect'] : 0;
-  $level  = isset($disk['smLevel']) ? $disk['smLevel'] : -1; if ($level==-1) $level = isset($var['smLevel']) ? $var['smLevel'] : 1;
-  $events = isset($disk['smEvents']) ? explode('|',$disk['smEvents']) : (isset($var['smEvents']) ? explode('|',$var['smEvents']) : $numbers);
+  $select = $disk['smSelect'] ?? -1; if ($select==-1) $select = $var['smSelect'] ?? 0;
+  $level  = $disk['smLevel'] ?? -1; if ($level==-1) $level = $var['smLevel'] ?? 1;
+  $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
   $title  = '';
   $thumb  = 'good';
   $file   = "state/smart/$name";
