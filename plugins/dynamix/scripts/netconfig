@@ -78,12 +78,12 @@ foreach ($ini as $name => $port) {
     if (!$bonding && preg_match('/^(BONDING_MODE|BONDING_MIIMON|BONDNICS|BONDNAME)/',$key)) continue;
     if (!$bridge && preg_match('/^(BRSTP|BRFD|BRNICS|BRNAME)/',$key)) continue;
     list($item,$x) = explode(':',$key,2);
-    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR6?|NETMASK6?|DESCRIPTION|PROTOCOL)/',$key)) {
+    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR6?|NETMASK6?|GATEWAY6?|METRIC6?|DESCRIPTION|PROTOCOL)/',$key)) {
       if ($x0 != $x) {$x0 = $x; $j++;}
       $vlan = ",$j]";
     } else $vlan = '';
     if (!$vlan && preg_match('/^VLANID/',$key)) continue;
-    $new[] = $item.(preg_match('/^(GATEWAY|DNS6?_SERVER|DHCP_KEEPRESOLV)/',$key)?'':'['.$i.($vlan?'':']')).$vlan."=\"$val\"";
+    $new[] = $item.(preg_match('/^(DNS6?_SERVER|DHCP_KEEPRESOLV)/',$key)?'':'['.$i.($vlan?'':']')).$vlan."=\"$val\"";
   }
   if ($trunk) $new[] = "VLANS[$i]=\"".($j+1)."\"";
   $i++;
@@ -93,6 +93,9 @@ $new[] = "SYSNICS=\"$i\"";
 file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
-if ($run) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_start")." >/dev/null");
+if ($run) {
+  exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_start")." >/dev/null");
+  exec("/usr/local/sbin/create_network_ini >/dev/null");
+}
 exit(0);
 ?>

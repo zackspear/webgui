@@ -111,7 +111,7 @@ Enable bridging:
 
 <?endif;?>
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 
@@ -137,7 +137,7 @@ IP address assignment:
 
 <div class="ethX-ipv4-<?=$i?>" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv4 address of the interface.
 
@@ -157,10 +157,16 @@ IPv4 network mask:
 
 > Greyed out when using DHCP server. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+IPv4 default gateway:
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
+
 </div>
 <div class="ethX-ipv6-<?=$i?>" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
 
@@ -168,6 +174,12 @@ IPv6 prefix:
 : <input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]?>" class="trim">
 
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+IPv6 default gateway:
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
 </div>
 Desired MTU:
@@ -191,7 +203,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 
@@ -217,7 +229,7 @@ IP address assignment:
 
 <div class="ethX-ipv4-<?=$i?>" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IPv4 address of the interface.
 
@@ -237,10 +249,16 @@ IPv4 network mask:
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+IPv4 default gateway:
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
+
 </div>
 <div class="ethX-ipv6-<?=$i?>" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
 
@@ -248,6 +266,12 @@ IPv6 prefix:
 : <input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]?>" class="trim">
 
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+IPv6 default gateway:
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
 </div>
 </div>
@@ -264,7 +288,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:INDEX" maxlength="40" value="<?=htmlspecialchars($ethX["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
 
 > Use this field to give addditional information about the purpose of the connection.
 
@@ -290,7 +314,7 @@ IP address assignment:
 
 <div class="ethX-ipv4-INDEX" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:INDEX" maxlength="40" value="<?=$ethX["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=$ethX["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IPv4 address of the interface.
 
@@ -310,10 +334,16 @@ IPv4 network mask:
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+IPv4 default gateway:
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$ethX["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$ethX["METRIC:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
+
 </div>
 <div class="ethX-ipv6-INDEX" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:INDEX" maxlength="80" value="<?=$ethX["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=$ethX["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the interface.
 
@@ -321,6 +351,12 @@ IPv6 prefix:
 : <input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=$ethX["NETMASK6:INDEX"]?>" class="trim">
 
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+IPv6 default gateway:
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$ethX["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$ethX["METRIC6:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
 </div>
 </div>

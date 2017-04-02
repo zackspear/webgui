@@ -66,6 +66,7 @@ refresh(); // automatically include new ethernet ports
 Array.prototype.dups = function(){return this.sort().filter(function(v,i,o){return i&&v===o[i-1]?v:0;}).length;}
 
 function prepareSettings(form) {
+  var dns = form.DHCP_KEEPRESOLV !== undefined;
   if (form.BONDING !== undefined) {
     var member = '';
     for (var i=0,item; item=form.BONDNICS.options[i]; i++) {
@@ -93,7 +94,6 @@ function prepareSettings(form) {
     item.disabled = false;
     if (member.indexOf(',')>0) form.BRSTP.value = 'yes';
   }
-  if (form.DHCP_KEEPRESOLV !== undefined) form.DHCP_KEEPRESOLV.disabled = false;
   if (form.TYPE.value == 'access') {
     $(form).find('input[name^="VLANID:"]').prop('disabled',true);
     $(form).find('input[name^="DESCRIPTION:"]').not('input[name$=":0"]').prop('disabled',true);
@@ -103,6 +103,10 @@ function prepareSettings(form) {
     $(form).find('input[name^="IPADDR6:"]').not('input[name$=":0"]').prop('disabled',true);
     $(form).find('select[name^="NETMASK:"]').not('select[name$=":0"]').prop('disabled',true);
     $(form).find('input[name^="NETMASK6:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('select[name^="GATEWAY:"]').not('select[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="GATEWAY6:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="METRIC:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="METRIC6:"]').not('input[name$=":0"]').prop('disabled',true);
   } else {
     var vlans = [];
     $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
@@ -117,25 +121,44 @@ function prepareSettings(form) {
     if (protocol == 'ipv6') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',true);
       $(form).find('select[name="NETMASK:'+i+'"]').prop('disabled',true);
-      if (i==0) $(form).find('input[name="GATEWAY"]').prop('disabled',true);
+      $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',true);
+      $(form).find('input[name="METRIC:'+i+'"]').prop('disabled',true);
       if (i==0) $(form).find('input[name^="DNS_SERVER"]').prop('disabled',true);
     }
     if (protocol == 'ipv4') {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',true);
       $(form).find('input[name="NETMASK6:'+i+'"]').prop('disabled',true);
-      if (i==0) $(form).find('input[name="GATEWAY6"]').prop('disabled',true);
+      $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',true);
+      $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',true);
       if (i==0) $(form).find('input[name^="DNS6_SERVER"]').prop('disabled',true);
+    }
+    if (protocol != 'ipv6') {
+      var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
+      var gateway = $(form).find('input[name="GATEWAY:'+i+'"]');
+      if (metric) gateway.val(gateway.val()+'#'+metric);
+    }
+    if (protocol != 'ipv4') {
+      var metric6 = $(form).find('input[name="METRIC6:'+i+'"]').val();
+      var gateway6 = $(form).find('input[name="GATEWAY6:'+i+'"]');
+      if (metric6) gateway6.val(gateway6.val()+'#'+metric6);
     }
   });
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
     if ($(this).prop('disabled')==false && $(this).val()=='yes') {
       var i = $(this).attr('name').substr(9);
       var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-      if (protocol != 'ipv6') $(form).find('input[name="IPADDR:'+i+'"]').val('Obtaining IPv4 address...');
-      if (protocol != 'ipv4') $(form).find('input[name="IPADDR6:'+i+'"]').val('Obtaining IPv6 address...');
+      if (protocol != 'ipv6') {
+        $(form).find('input[name="IPADDR:'+i+'"]').val('Obtaining IPv4 address...');
+        $(form).find('input[name="GATEWAY:'+i+'"]').val('Obtaining IPv4 gateway...');
+      }
+      if (protocol != 'ipv4') {
+        $(form).find('input[name="IPADDR6:'+i+'"]').val('Obtaining IPv6 address...');
+        $(form).find('input[name="GATEWAY6:'+i+'"]').val('Obtaining IPv6 gateway...');
+      }
     }
   });
-  if ($(form).find('select[name="DHCP_KEEPRESOLV"]').val()=='no') {
+  if (dns && form.DHCP_KEEPRESOLV.value=='no') {
+    form.DHCP_KEEPRESOLV.disabled = false;
     var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
     if (protocol != 'ipv6') $(form).find('input[name^="DNS_SERVER"]').val('Obtaining DNSv4 server...');
     if (protocol != 'ipv4') $(form).find('input[name^="DNS6_SERVER"]').val('Obtaining DNSv6 server...');
@@ -155,7 +178,7 @@ function selectProtocol(form,port,index) {
         case 'ipv6': net4.hide(); net6.show(); break;
         case 'ipv4+ipv6': net4.show(); net6.show(); break;
       }
-      checkNetworkSettings(form,i);
+      checkNetworkSettings(form,i,true);
     });
   } else {
     var protocol = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
@@ -170,54 +193,32 @@ function selectProtocol(form,port,index) {
     if (index==0) checkDNSSettings(form);
   }
 }
-function checkNetworkSettings(form,index) {
+function checkNetworkSettings(form,index,open) {
   var dns = form.DHCP_KEEPRESOLV !== undefined;
-  if (index == null) {
-    $(form).find('select[name^="USE_DHCP:"]').each(function() {
-      var i = $(this).attr('name').substr(9);
-      var disabled = $(this).val()!='no';
-      var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-      if (protocol != 'ipv6') {
-        var ipaddr = $(form).find('input[name="IPADDR:'+i+'"]');
-        var netmask = $(form).find('select[name="NETMASK:'+i+'"]');
-        ipaddr.prop('disabled',disabled).prop('required',!disabled);
-        netmask.prop('disabled',disabled);
-        if (ipaddr.val()=='') netmask.append('<option value="none" selected="selected"></option>');
-        if (i==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
-      }
-      if (protocol != 'ipv4') {
-        var ipaddr6 = $(form).find('input[name="IPADDR6:'+i+'"]');
-        var netmask6 = $(form).find('input[name="NETMASK6:'+i+'"]');
-        ipaddr6.prop('disabled',disabled).prop('required',!disabled);
-        netmask6.prop('disabled',disabled).prop('required',!disabled);
-        if (i==0 && form.GATEWAY6 !== undefined) {form.GATEWAY6.disabled = disabled; form.GATEWAY6.required = !disabled;}
-      }
-      if (dns && i==0) form.DHCP_KEEPRESOLV.disabled = !disabled;
-    });
-  } else {
-    var disabled = $(form).find('select[name="USE_DHCP:'+index+'"]').val()!='no';
-    var protocol = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
-    if (protocol != 'ipv6') {
-      $(form).find('input[name="IPADDR:'+index+'"]').prop('disabled',disabled).prop('required',!disabled);
-      var netmask = $(form).find('select[name="NETMASK:'+index+'"]');
-      netmask.prop('disabled',disabled);
-      if (index==0 && form.GATEWAY !== undefined) {form.GATEWAY.disabled = disabled; form.GATEWAY.required = !disabled;}
-      if (!disabled) {
-        var none = netmask.find('option[value="none"]');
-        if (none.length) {netmask.val('255.255.255.0'); none.remove();}
-      }
+  var disabled = $(form).find('select[name="USE_DHCP:'+index+'"]').val()!='no';
+  var protocol = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
+  if (protocol != 'ipv6') {
+    $(form).find('input[name="IPADDR:'+index+'"]').prop('disabled',disabled).prop('required',!disabled);
+    var netmask = $(form).find('select[name="NETMASK:'+index+'"]');
+    var gateway = $(form).find('input[name="GATEWAY:'+index+'"]');
+    netmask.prop('disabled',disabled);
+    gateway.prop('disabled',disabled);
+    if (!disabled) {
+      var none = netmask.find('option[value="none"]');
+      if (none.length) {netmask.val('255.255.255.0'); none.remove();}
     }
-    if (protocol != 'ipv4') {
-      $(form).find('input[name="IPADDR6:'+index+'"]').prop('disabled',disabled).prop('required',!disabled);
-      var netmask6 = $(form).find('input[name="NETMASK6:'+index+'"]');
-      netmask6.prop('disabled',disabled).prop('required',!disabled);
-      if (index==0 && form.GATEWAY6 !== undefined) {form.GATEWAY6.disabled = disabled; form.GATEWAY6.required = !disabled;}
-    }
-    if (dns && index==0) {
-      form.DHCP_KEEPRESOLV.value = disabled ? 'no' : 'yes'
-      form.DHCP_KEEPRESOLV.disabled = !disabled;
-      checkDNSSettings(form);
-    }
+  }
+  if (protocol != 'ipv4') {
+    $(form).find('input[name="IPADDR6:'+index+'"]').prop('disabled',disabled).prop('required',!disabled);
+    var netmask6 = $(form).find('input[name="NETMASK6:'+index+'"]');
+    var gateway6 = $(form).find('input[name="GATEWAY6:'+index+'"]');
+    netmask6.prop('disabled',disabled).prop('required',!disabled);
+    gateway6.prop('disabled',disabled);
+  }
+  if (dns && index==0) {
+    if (!open) form.DHCP_KEEPRESOLV.value = disabled ? 'no' : 'yes';
+    form.DHCP_KEEPRESOLV.disabled = !disabled;
+    checkDNSSettings(form);
   }
 }
 function checkDNSSettings(form) {
@@ -280,7 +281,6 @@ function addVLAN(port,disabled) {
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
   var element = $('[id^="index-'+port+'-"]').last();
   $(element).after(template);
-  checkNetworkSettings($('form[name="'+$(element).parent().attr('name')+'"]'));
   selectProtocol($('form[name="'+$(element).parent().attr('name')+'"]'),port);
   $(element).find('input').first().trigger('change');
 }
@@ -329,7 +329,6 @@ $(function() {
   checkBondingSettings(form,0);
   checkBridgingSettings(form,0);
   checkNetworkAccess(form,'eth0');
-  checkNetworkSettings(form);
   selectProtocol(form,'eth0');
 <?if ($service):?>
   disableForm(form);
@@ -427,7 +426,7 @@ Bridging members:
 
 </div>
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($eth0["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($eth0["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this optional field to provide addditional information about the purpose of the connection.
 
@@ -452,7 +451,7 @@ IP address assignment:
 
 <div class="eth0-ipv4-<?=$i?>" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$eth0["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$eth0["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv4 address of the system.
 
@@ -473,14 +472,15 @@ IPv4 network mask:
 > Greyed out when using DHCP server. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
 IPv4 default gateway:
-: <input type="text" name="GATEWAY" maxlength="40" value="<?=$eth0['GATEWAY']?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$eth0["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
 
 </div>
 <div class="eth0-ipv6-<?=$i?>" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$eth0["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$eth0["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the system.
 
@@ -490,7 +490,8 @@ IPv6 prefix:
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
 
 IPv6 default gateway:
-: <input type="text" name="GATEWAY6" maxlength="80" value="<?=$eth0['GATEWAY6']?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$eth0["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
@@ -508,22 +509,22 @@ DNS server assignment:
 
 <div class="eth0-ipv4-<?=$i?>" style="display:none" markdown="1">
 IPv4 DNS server:
-: <input type="text" name="DNS_SERVER1" maxlength="80" value="<?=$eth0['DNS_SERVER1'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="DNS_SERVER1" maxlength="15" value="<?=$eth0['DNS_SERVER1'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
-> This is the primary DNS server to use. Enter a FQDN or an IP address.
+> This is the primary DNS server to use. Enter an IPv4 address.
 >
 > Note: for *Active Directory* you **must** ensure this is set to the IP address of your AD Domain server.
 
 <div id="dnsserver2" style="display:none" markdown="1">
 IPv4 DNS server 2:
-: <input type="text" name="DNS_SERVER2" maxlength="80" value="<?=$eth0['DNS_SERVER2'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="DNS_SERVER2" maxlength="15" value="<?=$eth0['DNS_SERVER2'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > This is the DNS server to use when DNS server 1 is down.
 
 </div>
 <div id="dnsserver3" style="display:none" markdown="1">
 IPv4 DNS server 3:
-: <input type="text" name="DNS_SERVER3" maxlength="80" value="<?=$eth0['DNS_SERVER3'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="DNS_SERVER3" maxlength="15" value="<?=$eth0['DNS_SERVER3'];?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > This is the DNS server to use when DNS servers 1 and 2 are both down.
 
@@ -531,20 +532,20 @@ IPv4 DNS server 3:
 </div>
 <div class="eth0-ipv6-<?=$i?>" style="display:none" markdown="1">
 IPv6 DNS server:
-: <input type="text" name="DNS6_SERVER1" maxlength="80" value="<?=$eth0['DNS6_SERVER1'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="DNS6_SERVER1" maxlength="39" value="<?=$eth0['DNS6_SERVER1'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
-> This is the primary DNS IPv6 server to use. Enter a FQDN or an IPv6 address.
+> This is the primary DNS IPv6 server to use. Enter an IPv6 address.
 
 <div id="dns6server2" style="display:none" markdown="1">
 IPv6 DNS server 2:
-: <input type="text" name="DNS6_SERVER2" maxlength="80" value="<?=$eth0['DNS6_SERVER2'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="DNS6_SERVER2" maxlength="39" value="<?=$eth0['DNS6_SERVER2'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > This is the DNS IPv6 server to use when DNS IPv6 server 1 is down.
 
 </div>
 <div id="dns6server3" style="display:none" markdown="1">
 IPv6 DNS server 3:
-: <input type="text" name="DNS6_SERVER3" maxlength="80" value="<?=$eth0['DNS6_SERVER3'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="DNS6_SERVER3" maxlength="39" value="<?=$eth0['DNS6_SERVER3'];?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > This is the DNS IPv6 server to use when DNS IPv6 servers 1 and 2 are both down.
 
@@ -571,7 +572,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="40" value="<?=htmlspecialchars($eth0["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($eth0["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
 > Use this optional field to provide addditional information about the purpose of the connection.
 
@@ -599,7 +600,7 @@ IP address assignment:
 
 <div class="eth0-ipv4-<?=$i?>" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="40" value="<?=$eth0["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$eth0["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv4 address of the system.
 
@@ -619,10 +620,16 @@ IPv4 network mask:
 
 > Greyed out when using DHCP server. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+IPv4 default gateway:
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$eth0["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
+
 </div>
 <div class="eth0-ipv6-<?=$i?>" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="80" value="<?=$eth0["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$eth0["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the system.
 
@@ -630,6 +637,12 @@ IPv6 prefix:
 : <input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$eth0["NETMASK6:$i"]?>" class="trim">
 
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+IPv6 default gateway:
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$eth0["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
 </div>
 </div>
@@ -646,7 +659,7 @@ VLAN number:
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
 
 Interface description:
-: <input type="text" name="DESCRIPTION:INDEX" maxlength="40" value="<?=htmlspecialchars($eth0["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
+: <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars($eth0["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
 
 > Use this optional field to provide addditional information about the purpose of the connection.
 
@@ -672,7 +685,7 @@ IP address assignment:
 
 <div class="eth0-ipv4-INDEX" style="display:none" markdown="1">
 IPv4 address:
-: <input type="text" name="IPADDR:INDEX" maxlength="40" value="<?=$eth0["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=$eth0["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the IPv4 address of the system.
 
@@ -692,10 +705,16 @@ IPv4 network mask:
 
 > Greyed out when using DHCP server or NONE assignment. Otherwise specify here the associated network mask, by default 255.255.255.0 is selected.
 
+IPv4 default gateway:
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$eth0["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$eth0["METRIC:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv4 address of your router.
+
 </div>
 <div class="eth0-ipv6-INDEX" style="display:none" markdown="1">
 IPv6 address:
-: <input type="text" name="IPADDR6:INDEX" maxlength="80" value="<?=$eth0["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=$eth0["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
 
 > Greyed out when using DHCP server. Otherwise specify here the IPv6 address of the system.
 
@@ -703,6 +722,12 @@ IPv6 prefix:
 : <input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=$eth0["NETMASK6:INDEX"]?>" class="trim">
 
 > Greyed out when using DHCP server. Otherwise specify here the associated prefix value of 1 to 128.
+
+IPv6 default gateway:
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$eth0["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$eth0["METRIC6:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+
+> Greyed out when using DHCP server. Otherwise specify here the IPv6 address of your router.
 
 </div>
 </div>
