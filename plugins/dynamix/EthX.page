@@ -65,7 +65,6 @@ function portcheck_ethX() {
 $(function() {
   var form = document.ethX_settings;
   checkNetworkAccess(form,'ethX');
-  checkNetworkSettings(form);
   selectProtocol(form,'ethX');
 <?if (!$tabbed):?>
   $('div[id=title]').each(function(){

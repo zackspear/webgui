@@ -63,10 +63,37 @@ div.shade-black{background-color:#0C0C0C;}
 <?if ($build):?>
 refresh(); // automatically include new ethernet ports
 <?endif;?>
-Array.prototype.dups = function(){return this.sort().filter(function(v,i,o){return i&&v===o[i-1]?v:0;}).length;}
+Array.prototype.same = function(){return this.sort().filter(function(v,i,o){return i&&v===o[i-1]?v:0;}).length;}
 
 function prepareSettings(form) {
   var dns = form.DHCP_KEEPRESOLV !== undefined;
+  var metrics = [];
+  $(form).find('input[name^="METRIC"]').each(function(){metrics.push($(this).val());});
+  if (metrics.same()) {
+    swal('Duplicate metrics','List of default gateways contains duplicate metric values','error');
+    return false;
+  }
+  if (form.TYPE.value == 'access') {
+    $(form).find('input[name^="VLANID:"]').prop('disabled',true);
+    $(form).find('input[name^="DESCRIPTION:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('select[name^="PROTOCOL:"]').not('select[name$=":0"]').prop('disabled',true);
+    $(form).find('select[name^="USE_DHCP:"]').not('select[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="IPADDR:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="IPADDR6:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('select[name^="NETMASK:"]').not('select[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="NETMASK6:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('select[name^="GATEWAY:"]').not('select[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="GATEWAY6:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="METRIC:"]').not('input[name$=":0"]').prop('disabled',true);
+    $(form).find('input[name^="METRIC6:"]').not('input[name$=":0"]').prop('disabled',true);
+  } else {
+    var vlans = [];
+    $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
+    if (vlans.same()) {
+      swal('VLAN assignment mismatch','List of VLANs contains duplicate VLAN numbers','error');
+      return false;
+    }
+  }
   if (form.BONDING !== undefined) {
     var member = '';
     for (var i=0,item; item=form.BONDNICS.options[i]; i++) {
@@ -93,27 +120,6 @@ function prepareSettings(form) {
     item.selected = true;
     item.disabled = false;
     if (member.indexOf(',')>0) form.BRSTP.value = 'yes';
-  }
-  if (form.TYPE.value == 'access') {
-    $(form).find('input[name^="VLANID:"]').prop('disabled',true);
-    $(form).find('input[name^="DESCRIPTION:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('select[name^="PROTOCOL:"]').not('select[name$=":0"]').prop('disabled',true);
-    $(form).find('select[name^="USE_DHCP:"]').not('select[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="IPADDR:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="IPADDR6:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('select[name^="NETMASK:"]').not('select[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="NETMASK6:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('select[name^="GATEWAY:"]').not('select[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="GATEWAY6:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="METRIC:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="METRIC6:"]').not('input[name$=":0"]').prop('disabled',true);
-  } else {
-    var vlans = [];
-    $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
-    if (vlans.dups()) {
-      swal('VLAN mismatch','List contains duplicate VLAN numbers','error');
-      return false;
-    }
   }
   $(form).find('select[name^="PROTOCOL:"]').each(function() {
     var protocol = $(this).val() || 'ipv4';
