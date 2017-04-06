@@ -114,7 +114,7 @@ class DockerTemplates {
 		$Dest = ($Dest) ? $Dest : $dockerManPaths['templates-storage'];
 		$Urls = ($Urls) ? $Urls : $dockerManPaths['template-repos'];
 		$repotemplates = [];
-		$output = "";
+		$output = [];
 		$tmp_dir = "/tmp/tmp-".mt_rand();
 		if (!file_exists($dockerManPaths['template-repos'])) {
 			@mkdir(dirname($dockerManPaths['template-repos']), 0777, true);
