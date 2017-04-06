@@ -2,8 +2,8 @@ Menu="NetworkSettings"
 Title="Routing Table"
 ---
 <?PHP
-/* Copyright 2017, Lime Technology
- * Copyright 2017, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -48,7 +48,7 @@ $(routeTable);
 <tbody id="route_list"></tbody>
 </table>
 
-<div style="margin-top:24px;padding:0 4px;">
+<div class="shade-<?=$display['theme']?>" style="margin-top:12px;padding:12px 4px;">
 <form markdown="1" name="add_routes" method="POST" action="/webGui/include/RoutingTable.php" target="progressFrame" onsubmit="setTimeout(resetTable,500)">
 Enter route + gateway + metric:
 : <input type="text" name="route" maxlength="39" value="" class="fixed" placeholder="IPv4/nn or IPv6/nn route" required>

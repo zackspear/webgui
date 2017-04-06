@@ -78,7 +78,7 @@ foreach ($ini as $name => $port) {
     if (!$bonding && preg_match('/^(BONDING_MODE|BONDING_MIIMON|BONDNICS|BONDNAME)/',$key)) continue;
     if (!$bridge && preg_match('/^(BRSTP|BRFD|BRNICS|BRNAME)/',$key)) continue;
     list($item,$x) = explode(':',$key,2);
-    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR6?|NETMASK6?|GATEWAY6?|METRIC6?|DESCRIPTION|PROTOCOL)/',$key)) {
+    if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP|IPADDR6?|NETMASK6?|GATEWAY6?|METRIC6?|PRIVACY6|DESCRIPTION|PROTOCOL)/',$key)) {
       if ($x0 != $x) {$x0 = $x; $j++;}
       $vlan = ",$j]";
     } else $vlan = '';
