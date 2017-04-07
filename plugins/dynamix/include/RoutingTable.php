@@ -26,7 +26,7 @@ case 'Add Route':
   break;
 default:
   exec("ip -4 route show|grep -v '^127.0.0.0'",$ipv4);
-  exec("ip -6 route show|grep -Pv '^(ff00|fe80)::/'",$ipv6);
+  exec("ip -6 route show|grep -Pv '^(fe80|ff0[0-9])::/'",$ipv6);
   foreach ($ipv4 as $info) {
     $cell = explode(' ',$info);
     $route = $cell[0];
