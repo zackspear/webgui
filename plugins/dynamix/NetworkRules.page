@@ -42,7 +42,7 @@ info['<?='_'.str_replace(':','',$val['mac'])?>'] = "<?=$val['info']?>";
 function check_rules(form) {
   var mac = [];
   $(form).find('select[name^="eth"]').each(function(){mac.push($(this).val());});
-  if (mac.dups()) {
+  if (mac.same()) {
     swal('MAC address mismatch','Rules contain duplicate MAC address assignments','error');
     return false;
   } else {
