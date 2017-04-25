@@ -68,7 +68,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 
 <hr>
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="cmdInit" value=" Apply ">
+<input type="hidden" name="cmdInit" value="apply">
 <span class="indent">Retain current configuration:</span>
 <select id="s1" name="preset" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
