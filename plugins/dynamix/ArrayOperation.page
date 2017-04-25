@@ -545,7 +545,7 @@ toggle_diskio(true);
   </tr>
 </table>
 </form>
-<?if (is_dir("/mnt/cache") && is_dir("/mnt/user0")):?>
+<?if ($var['shareCacheEnabled']=="yes" && is_dir("/mnt/cache")):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table class="array_status">
   <tr><td colspan="3"></td></tr>
