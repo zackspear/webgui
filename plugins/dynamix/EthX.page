@@ -1,4 +1,4 @@
-Menu="x-settings"
+Menu="parentname:nnn"
 Title="Interface ethX"
 Png="ethernet.png"
 ---
@@ -15,38 +15,28 @@ Png="ethernet.png"
  */
 ?>
 <?
-// get bond membership
-$bond_ethX = $eth0['BONDING']=='yes' ? in_array('ethX',explode(',',$eth0['BONDNICS'])) : false;
-
-// get bridge membership
-$bridge_ethX = $eth0['BRIDGING']=='yes' ? in_array('ethX',explode(',',$eth0['BRNICS'])) : false;
-
-$locked = $bond_ethX || $bridge_ethX ;
+$locked = locked('ethX','ethX');
 
 // get VLAN interfaces
 $vlan_ethX = [0];
-if (!$locked && isset($ethX)) foreach ($ethX as $key => $val) if (substr($key,0,6)=='VLANID') $vlan_ethX[] = substr($key,7);
+if (!$locked && isset($ethX)) foreach ($ethX as $key => $val) if (strpos($key,$vlan_id)===0) $vlan_ethX[] = substr($key,strlen($vlan_id));
 
 $cmd = 'Down';
+$more = true;
 if (!exec("ip link show ethX|grep -om1 'UP>'")) {
-  $more = true;
   $reason = "Interface is shutdown (inactive)";
-  $class = 'blue';
+  $class = 'big blue';
   $cmd = 'Up';
-} elseif ($bond_ethX) {
-  $more = true;
-  $reason = "Interface is member of ".$eth0['BONDNAME']." (see interface eth0)";
-  $class = 'green';
-} elseif ($bridge_ethX) {
-  $more = true;
-  $reason = "Interface is member of ".$eth0['BRNAME']." (see interface eth0)";
-  $class = 'green';
+} elseif (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
+  $root = explode(' ',$locked);
+  $reason = "Interface is member of ".$root[0]." (see interface ".$root[1].")";
+  $class = 'big green';
 } elseif (empty($ethX)) {
-  $more = true;
   $reason = "Interface is not configured";
-  $class = 'red';
+  $class = 'big red';
 } else {
   $more = false;
+  $class = 'big';
 }
 ?>
 <script>
@@ -64,6 +54,16 @@ function portcheck_ethX() {
 }
 $(function() {
   var form = document.ethX_settings;
+<?if ($tabbed && !$service):?>
+  $('#tabX').bind({click:function(){
+    $('#bond-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bridge-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+  }});
+<?endif;?>
+  $('#bond-ethX').dropdownchecklist({emptyText:'None', width:131});
+  $('#bridge-ethX').dropdownchecklist({emptyText:'None', width:131});
+  checkBondingSettings(form,0,'ethX');
+  checkBridgingSettings(form,0,'ethX');
   checkNetworkAccess(form,'ethX');
   selectProtocol(form,'ethX');
 <?if (!$tabbed):?>
@@ -86,29 +86,78 @@ $(function() {
 <input type="hidden" name="#section" value="ethX">
 <input type="hidden" name="#command" value="/webGui/scripts/netconfig">
 <input type="hidden" name="#arg[1]" value="">
-<input type="hidden" name="BRNAME" value="">
-<input type="hidden" name="BRNICS" value="ethX">
+<input type="hidden" name="BONDNAME" value="bondX">
+<input type="hidden" name="BONDING_MIIMON" value="100">
+<input type="hidden" name="BRNAME" value="brX">
 <input type="hidden" name="BRSTP" value="no">
 <input type="hidden" name="BRFD" value="0">
 <?foreach ($vlan_ethX as $i):?>
 <div id="index-ethX-<?=$i?>" markdown="1">
 <?if ($i==0):?>
 MAC address:
-: <?if ($more):?><span class="<?=$class?>"><?endif;?><?=strtoupper(exec("ip link show ethX|grep -Pom1 'ether \K\S+'"))?><?if ($more):?> - <?=$reason?></span><?endif;?>
+: <span class="<?=$class?>"><?=strtoupper(exec("ip link show ethX|grep -Pom1 'ether \K\S+'"))?><?if ($more):?> - <?=$reason?><?endif;?></span>
 
 > This is the hardware address of the interface.
 > When tagging is enabled all VLANs on this interface will share the same hardware address.
 
-<?if (!$locked):?>
+Enable bonding:
+: <select name="BONDING" size="1" onchange="checkBondingSettings(this.form,1,'ethX')">
+  <?=mk_option($ethX['BONDING'], "no", "No");?>
+  <?=mk_option($ethX['BONDING'], "yes", "Yes");?>
+  </select>
+
+> Bonding is a feature that combines multiple physical Ethernet interfaces into a single *bonded* interface named **bond0**.
+> This can be used to improve the connection redundancy and/or throughput of the system.
+> Different bonding modes are supported (see below), but some modes require proper switch support.
+
+<div id="bond-members-ethX" style="display:none" markdown="1">
+Bonding mode:
+: <select name="BONDING_MODE" size="1" onchange="checkBondingSettings(this.form,-1,'ethX')">
+  <?=mk_option($ethX['BONDING_MODE'], "0", "balance-rr (0)");?>
+  <?=mk_option($ethX['BONDING_MODE'], "1", "active-backup (1)",isset($ethX['BONDING_MODE'])?'':'selected');?>
+  <?=mk_option($ethX['BONDING_MODE'], "2", "balance-xor (2)");?>
+  <?=mk_option($ethX['BONDING_MODE'], "3", "broadcast (3)");?>
+  <?=mk_option($ethX['BONDING_MODE'], "4", "802.3ad (4)");?>
+  <?=mk_option($ethX['BONDING_MODE'], "5", "balance-tlb (5)");?>
+  <?=mk_option($ethX['BONDING_MODE'], "6", "balance-alb (6)");?>
+  </select>
+  <span id="attention0" style="display:none"><b>Attention:</b> this mode requires a network switch with proper setup and support...</span>
+
+> Mode 1 (active-backup) is the recommended default. Other modes allow you to set up a specific environment, but may require proper switch support.
+> Choosing a unsupported mode can result in a disrupted communication. Use with caution.
+
+Bonding members of bondX:
+: <select id="bond-ethX" name="BONDNICS" size="1" multiple="multiple" style="display:none">
+  <?=mk_option($ethX['BONDNICS'],'ethX','ethX','selected disabled')?>
+  <?foreach ($ports as $port):?>
+  <?if ($port!='ethX' && !locked('ethX',$port)) echo mk_option_check($ethX['BONDNICS'],$port,$port)?>
+  <?endforeach;?>
+  </select>
+
+> Select which interfaces are member of the *bonded* interface. By default ethX is a member, while other interfaces are optional.
+
+</div>
+
 Enable bridging:
-: <select name="BRIDGING" size="1">
+: <select name="BRIDGING" size="1" onchange="checkBridgingSettings(this.form,1,'ethX')">
   <?=mk_option($ethX['BRIDGING'], "no", "No");?>
   <?=mk_option($ethX['BRIDGING'], "yes", "Yes");?>
   </select>
 
 > Bridging is a feature which creates a virtual bridge and allows VMs to communicate directly with the physical Ethernet port.
 
-<?endif;?>
+<div id="bridge-members-ethX" style="display:none" markdown="1">
+Bridging members of brX:
+: <select id="bridge-ethX" name="BRNICS" size="1" multiple="multiple" style="display:none">
+  <?=mk_option($ethX['BRNICS'],'ethX','ethX','selected disabled')?>
+  <?foreach ($ports as $port):?>
+  <?if ($port!='ethX' && !locked('ethX',$port)) echo mk_option_check($ethX['BRNICS'],$port,$port)?>
+  <?endforeach;?>
+  </select>
+
+> Select which interfaces are member of the *bridged* interface. By default ethX is a member, while other interfaces are optional.
+
+</div>
 Interface description:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
@@ -158,7 +207,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -176,7 +225,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 
@@ -190,7 +238,7 @@ IPv6 privacy extensions:
 
 </div>
 Desired MTU:
-: <input type="number" name="MTU" min="68" max="9198" value="<?=$locked?$eth0['MTU']:$ethX['MTU']?>" class="narrow">
+: <input type="number" name="MTU" min="68" max="9198" value="<?=$locked?$ethX['MTU']:$ethX['MTU']?>" class="narrow">
 
 > This is the MTU size to use on the physical Ethernet interface.
 > If left blank, the MTU will automatically be determined (by default 1500 bytes).
@@ -258,7 +306,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -276,7 +324,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$ethX["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 
@@ -351,7 +398,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$ethX["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$ethX["METRIC:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$ethX["METRIC:INDEX"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -369,7 +416,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$ethX["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$ethX["METRIC6:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 

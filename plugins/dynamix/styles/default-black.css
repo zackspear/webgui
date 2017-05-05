@@ -210,7 +210,7 @@ img.icon{margin:-3px 4px 0 0;}
 div.content{position:absolute;top:45px;left:0;width:100%;padding-bottom:30px;z-index:-1;clear:both;}
 div.content.shift{margin-top:-70px;}
 div.tabs{position:relative;margin:24px 0 0 0;}
-div.tab{float:left;}
+div.tab{float:left;margin:0 0 12px 0;}
 div.tab input[id^="tab"]{display:none;}
 div.tab [type=radio]+label:hover{background:#000000;color:#478406;cursor:pointer;}
 div.tab [type=radio]:checked+label{cursor:default;background:-webkit-radial-gradient(#303030,#505050);background:linear-gradient(#303030,#505050);color:#808080;}
