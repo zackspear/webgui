@@ -94,7 +94,7 @@ var UI;
             UI.initSetting('resize', 'scale');  // LT: default was 'off' before
             UI.initSetting('shared', true);
             UI.initSetting('view_only', false);
-            UI.initSetting('path', 'websockify');
+            UI.initSetting('path', '');
             UI.initSetting('repeaterID', '');
             UI.initSetting('token', '');
 
