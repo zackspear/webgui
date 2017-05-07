@@ -1,8 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2015-2016, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- *
- * Adaptations by Bergware International (May 2016)
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -10,10 +8,12 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
+ *
+ * Added custom network and IPv6 support - Bergware April 2017
  */
 ?>
 <?
-$docroot = @$docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 ignore_user_abort(true);
 
@@ -31,6 +31,15 @@ $DockerTemplates = new DockerTemplates();
 #   ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 
 $echo = function($m){ echo "<pre>".print_r($m, true)."</pre>"; };
+
+exec("docker network ls --filter driver='macvlan' --format='{{.Name}}'", $custom);
+$subnet = ['bridge'=>'', 'host'=>'', 'none'=>''];
+foreach ($custom as $network) {
+  $subnets = [];
+  $values = exec("docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}} {{end}}' $network");
+  foreach (explode(' ',$values) as $value) $subnets[] = strpos($value,':')===false ?  "IPv4: $value" : "IPv6: $value";
+  $subnet[$network] = implode(', ',$subnets);
+}
 
 function stopContainer($name) {
   global $DockerClient;
@@ -189,6 +198,7 @@ function postToXML($post, $setOwnership = false) {
   $xml->Repository         = xml_encode(trim($post['contRepository']));
   $xml->Registry           = xml_encode(trim($post['contRegistry']));
   $xml->Network            = xml_encode($post['contNetwork']);
+  $xml->MyIP               = xml_encode($post['contMyIP']);
   $xml->Privileged         = (strtolower($post["contPrivileged"]) == 'on') ? 'true' : 'false';
   $xml->Support            = xml_encode($post['contSupport']);
   $xml->Overview           = xml_encode($post['contOverview']);
@@ -251,6 +261,7 @@ function xmlToVar($xml) {
   $out['Repository']  = xml_decode($xml->Repository);
   $out['Registry']    = xml_decode($xml->Registry);
   $out['Network']     = (isset($xml->Network)) ? xml_decode($xml->Network) : xml_decode($xml->Network['Default']);
+  $out['MyIP']        = isset($xml->MyIP) ? xml_decode($xml->MyIP) : '';
   $out['Privileged']  = xml_decode($xml->Privileged);
   $out['Support']     = xml_decode($xml->Support);
   $out['Overview']    = stripslashes(xml_decode($xml->Overview));
@@ -362,6 +373,7 @@ function xmlToCommand($xml, $create_paths=false) {
   $cmdName       = (strlen($xml['Name'])) ? '--name="'.$xml['Name'].'"' : "";
   $cmdPrivileged = (strtolower($xml['Privileged']) == 'true') ? '--privileged="true"' : "";
   $cmdNetwork    = '--net="'.strtolower($xml['Network']).'"';
+  $cmdMyIP       = $xml['MyIP'] ? (strpos($xml['MyIP'],':')===false?'--ip="':'--ip6="').$xml['MyIP'].'"' : '';
   $Volumes       = [''];
   $Ports         = [''];
   $Variables     = [''];
@@ -386,10 +398,10 @@ function xmlToCommand($xml, $create_paths=false) {
       }
     } elseif ($confType == 'port') {
       # Export ports as variable if Network is set to host
-      if (strtolower($xml['Network']) == 'host') {
+      if (preg_match('/^(host|eth[0-9]|br[0-9]|bond[0-9])/',strtolower($xml['Network']))) {
         $Variables[] = strtoupper(sprintf('"%s_PORT_%s"="%s"', $Mode, $containerConfig, $hostConfig));
       # Export ports as port if Network is set to bridge
-      } elseif (strtolower($xml['Network']) == 'bridge') {
+      } elseif (strtolower($xml['Network'])== 'bridge') {
         $Ports[] = sprintf("%s:%s/%s", $hostConfig, $containerConfig, $Mode);
       # No export of ports if Network is set to none
       }
@@ -399,9 +411,10 @@ function xmlToCommand($xml, $create_paths=false) {
       $Devices[] = '"'.$hostConfig.'"';
     }
   }
-  $cmd = sprintf('/plugins/dynamix.docker.manager/scripts/docker create %s %s %s %s %s %s %s %s %s',
+  $cmd = sprintf('/plugins/dynamix.docker.manager/scripts/docker create %s %s %s %s %s %s %s %s %s %s',
                  $cmdName,
                  $cmdNetwork,
+                 $cmdMyIP,
                  $cmdPrivileged,
                  implode(' -e ', $Variables),
                  implode(' -p ', $Ports),
@@ -1041,7 +1054,7 @@ $showAdditionalInfo = '';
       } else {
         targetDiv.hide();
       }
-      if (network==0 || network==1) {
+      if (network==0 || network==1 || network>2) {
         valueDiv.find('#dt2').text('Host Port:');
         valueDiv.show();
       } else {
@@ -1355,12 +1368,19 @@ $showAdditionalInfo = '';
       <tr <?=$showAdditionalInfo?>>
         <td>Network Type:</td>
         <td>
-          <select name="contNetwork" class="narrow">
-            <option value="bridge">Bridge</option>
-            <option value="host">Host</option>
-            <option value="none">None</option>
+          <select name="contNetwork" class="narrow" onchange="showSubnet(this.value)">
+          <?=mk_option(0,'bridge','Bridge')?>
+          <?=mk_option(0,'host','Host')?>
+          <?=mk_option(0,'none','None')?>
+          <?foreach ($custom as $network):?>
+          <?=mk_option(0,$network,$network)?>
+          <?endforeach;?>
           </select>
         </td>
+      </tr>
+      <tr class="myIP" style="display:none">
+        <td>Fixed IP address (optional):</td>
+        <td><input type="text" name="contMyIP" class="textPath"><span id="myIP"></span></td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
         <td colspan="2" class="inline_help">
@@ -1519,6 +1539,20 @@ $showAdditionalInfo = '';
 </div>
 
 <script type="text/javascript">
+  var subnet = {};
+<?foreach ($subnet as $network => $value):?>
+  subnet['<?=$network?>'] = 'Subnet - <?=$value?>';
+<?endforeach;?>
+
+  function showSubnet(bridge) {
+    if (bridge.match(/^(br|eth|bond)[0-9]/) !== null) {
+      $('.myIP').show();
+      $('#myIP').html(subnet[bridge]);
+    } else {
+      $('.myIP').hide();
+      $('input[name="contMyIP"]').val('');
+    }
+  }
   function reloadTriggers() {
     $(".basic").toggle(!$(".advanced-switch:first").is(":checked"));
     $(".advanced").toggle($(".advanced-switch:first").is(":checked"));
@@ -1606,6 +1640,9 @@ $showAdditionalInfo = '';
     } else {
       $('#canvas').find('#Overview:first').hide();
     }
+
+    // Show associated subnet with fixed IP (if existing)
+    showSubnet($('select[name="contNetwork"]').val());
 
     // Add list of deployed host ports
     $("#configLocationPorts").html(makeUsedPorts(UsedPorts,$('input[name="contName"]').val()));

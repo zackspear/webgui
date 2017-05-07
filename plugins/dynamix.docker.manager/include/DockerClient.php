@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2014-2016, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -8,10 +8,12 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
+ *
+ * Added custom network and IPv6 support - Bergware April 2017
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 $dockerManPaths = [
 	'plugin'            => '/usr/local/emhttp/plugins/dynamix.docker.manager',
@@ -260,9 +262,21 @@ class DockerTemplates {
 		}
 
 		$WebUI = $this->getTemplateValue($Repository, "WebUI");
-
+		$myIP = $this->getTemplateValue($Repository, "MyIP");
+		$network = $this->getTemplateValue($Repository, "Network");
+		if (!$myIP) {
+      if (preg_match('%^(br|eth|bond)[0-9]%',$network)) {
+			  $name = $this->getTemplateValue($Repository, "Name");
+			  $ipv4 = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name");
+			  $ipv6 = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}}{{end}}' $name");
+        $myIP = $ipv4 ?: $ipv6 ?: $eth0['IPADDR:0'];
+      } else {
+        $myIP = $eth0["IPADDR:0"];
+      }
+		}
 		if (preg_match("%\[IP\]%", $WebUI)) {
-			$WebUI = preg_replace("%\[IP\]%", $eth0["IPADDR:0"], $WebUI);
+			$replace = strpos($myIP,':')===false ? '%\[IP\]%' : '%IP%';
+			$WebUI = preg_replace($replace, $myIP, $WebUI);
 		}
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];

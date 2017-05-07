@@ -4,8 +4,8 @@ Icon="dynamix.docker.manager.png"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2014-2016, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,8 @@ Markdown="false"
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
+ *
+ * Added custom network and IPv6 support - Bergware April 2017
  */
 ?>
 <?
@@ -299,7 +301,7 @@ $(function() {
     $.cookie('dockersettings_view_mode', $('.advancedview').is(':checked') ? 'advanced' : 'basic', { expires: 3650 });
   });
 
-  showStatus('pid','docker');
+  showStatus('pid','dockerd');
 
   <?if ($var['fsState'] == "Started"):?>
     $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
