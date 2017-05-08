@@ -245,21 +245,6 @@ function closeNotifier(filter) {
 function viewHistory(filter) {
   location.replace('/Tools/NotificationsArchive?filter='+filter);
 }
-function watchdog() {
-  $.post('/webGui/include/Watchdog.php',{mode:<?=$display['refresh']?>,dot:'<?=$display['number'][0]?>'},function(data) {
-    if (data) {
-      $.each(data.split('#'),function(k,v) {
-<?if ($update):?>
-        if (v!='stop') $('#statusbar').html(v); else setTimeout(refresh,0);
-      });
-      timers.watchdog = setTimeout(watchdog,<?=abs($display['refresh'])?>);
-<?else:?>
-        if (v!='stop') $('#statusbar').html(v);
-      });
-<?endif;?>
-    }
-  });
-}
 function countDown() {
   counting--;
   if (counting==0) counting = update;
@@ -419,7 +404,6 @@ $(function() {
     form.find('input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').removeAttr('disabled');
     form.find('input[value="Done"]').val('Reset').prop('onclick',null).click(function(){refresh(form.offset().top)});
   });});
-  timers.watchdog = setTimeout(watchdog,50);
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top',{path:'/'});
@@ -486,6 +470,9 @@ $(function() {
   }
 
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:'<?=$var['csrf_token']?>'}));
+  var watchdog = new NchanSubscriber('/sub/watchdog');
+  watchdog.on('message', function(data){$('#statusbar').html(data);});
+  watchdog.start();
 });
 </script>
 </body>
