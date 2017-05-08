@@ -1,6 +1,8 @@
 <?PHP
 /* Copyright 2005-2017, Lime Technology
- * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2015-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ *
+ * Adaptations by Bergware International (May 2016)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -8,8 +10,6 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * Added custom network and IPv6 support - Bergware April 2017
  */
 ?>
 <?
@@ -34,12 +34,7 @@ $echo = function($m){ echo "<pre>".print_r($m, true)."</pre>"; };
 
 exec("docker network ls --filter driver='macvlan' --format='{{.Name}}'", $custom);
 $subnet = ['bridge'=>'', 'host'=>'', 'none'=>''];
-foreach ($custom as $network) {
-  $subnets = [];
-  $values = exec("docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}} {{end}}' $network");
-  foreach (explode(' ',$values) as $value) $subnets[] = strpos($value,':')===false ?  "IPv4: $value" : "IPv6: $value";
-  $subnet[$network] = implode(', ',$subnets);
-}
+foreach ($custom as $network) $subnet[$network] = exec("docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}}{{end}}' $network");
 
 function stopContainer($name) {
   global $DockerClient;
@@ -373,7 +368,7 @@ function xmlToCommand($xml, $create_paths=false) {
   $cmdName       = (strlen($xml['Name'])) ? '--name="'.$xml['Name'].'"' : "";
   $cmdPrivileged = (strtolower($xml['Privileged']) == 'true') ? '--privileged="true"' : "";
   $cmdNetwork    = '--net="'.strtolower($xml['Network']).'"';
-  $cmdMyIP       = $xml['MyIP'] ? (strpos($xml['MyIP'],':')===false?'--ip="':'--ip6="').$xml['MyIP'].'"' : '';
+  $cmdMyIP       = $xml['MyIP'] ? '--ip="'.$xml['MyIP'].'"' : '';
   $Volumes       = [''];
   $Ports         = [''];
   $Variables     = [''];
@@ -1541,13 +1536,13 @@ $showAdditionalInfo = '';
 <script type="text/javascript">
   var subnet = {};
 <?foreach ($subnet as $network => $value):?>
-  subnet['<?=$network?>'] = 'Subnet - <?=$value?>';
+  subnet['<?=$network?>'] = '<?=$value?>';
 <?endforeach;?>
 
   function showSubnet(bridge) {
     if (bridge.match(/^(br|eth|bond)[0-9]/) !== null) {
       $('.myIP').show();
-      $('#myIP').html(subnet[bridge]);
+      $('#myIP').html('Subnet: '+subnet[bridge]);
     } else {
       $('.myIP').hide();
       $('input[name="contMyIP"]').val('');

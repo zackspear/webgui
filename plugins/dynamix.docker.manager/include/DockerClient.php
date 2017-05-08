@@ -8,8 +8,6 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * Added custom network and IPv6 support - Bergware April 2017
  */
 ?>
 <?
@@ -264,19 +262,12 @@ class DockerTemplates {
 		$WebUI = $this->getTemplateValue($Repository, "WebUI");
 		$myIP = $this->getTemplateValue($Repository, "MyIP");
 		$network = $this->getTemplateValue($Repository, "Network");
-		if (!$myIP) {
-      if (preg_match('%^(br|eth|bond)[0-9]%',$network)) {
-			  $name = $this->getTemplateValue($Repository, "Name");
-			  $ipv4 = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name");
-			  $ipv6 = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}}{{end}}' $name");
-        $myIP = $ipv4 ?: $ipv6 ?: $eth0['IPADDR:0'];
-      } else {
-        $myIP = $eth0["IPADDR:0"];
-      }
+		if (!$myIP && preg_match('%^(br|eth|bond)[0-9]%',$network)) {
+			$name = $this->getTemplateValue($Repository, "Name");
+			$myIP = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name");
 		}
 		if (preg_match("%\[IP\]%", $WebUI)) {
-			$replace = strpos($myIP,':')===false ? '%\[IP\]%' : '%IP%';
-			$WebUI = preg_replace($replace, $myIP, $WebUI);
+			$WebUI = preg_replace("%\[IP\]%", $myIP ?: $eth0["IPADDR:0"], $WebUI);
 		}
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];
