@@ -1,5 +1,5 @@
 html,body{font-family:arimo;font-size:12px;color:#303030;background-color:#FFFFFF;padding:0;margin:0;}
-#template{min-width:1070px;max-width:1270px;margin:0 auto;}
+#template{min-width:1080px;margin:0 10px;}
 img{border:0;text-decoration:none;vertical-align:middle;}
 p{text-align:justify;}
 p.centered{text-align:left;}
@@ -35,7 +35,7 @@ select.slot{min-width:400px;max-width:400px;}
 input.narrow{width:132px;}
 input.trim{width:50px;}
 #header{height:90px;}
-#header.image{background-size:1270px 90px; border-radius:5px;color:#202020;}
+#header.image{background-size:100% 90px; border-radius:5px;color:#202020;}
 #header .logo{float:left;margin-top:20px;margin-left:20px;}
 #header .logo img{margin:0 0 2px 1px;}
 #header .logo a{color:#478406;font-size:18px;}
@@ -154,13 +154,13 @@ table.share_status tbody tr.warn{color:#E68A00;background-color:#FEEFB3;}
 table.share_status.share tr td:last-child{width:4%;text-align:right;padding-right:10px;}
 table.share_status.fixed{border:1px solid #D0D0D0;}
 table.share_status.fixed thead tr>td+td{font-size:11px;}
-table.share_status.fixed tr>td+td{width:38px;text-align:center;padding:0;}
+table.share_status.fixed tr>td+td{min-width:30px;text-align:center;padding:0;}
 table.share_status.fixed tbody tr{border-bottom:1px #D0D0D0 dotted;}
 table.share_status.fixed tbody tr:nth-child(even){background-color:#FFFFFF;}
 table.share_status.fixed tbody tr td:nth-child(even){background-color:#F8F8F8;}
 table.share_status.table{margin-top:36px;}
 table.share_status.table tr>td{width:50%;}
-table.share_status.dash{float:left;width:33%;margin-top:36px;margin-right:6px;border:1px solid #D0D0D0;}
+table.share_status.dash{float:left;width:33%;margin-top:36px;border:1px solid #D0D0D0;}
 table.share_status.dash thead tr:last-child>td{font-weight:bold;border-bottom:1px solid #D0D0D0;}
 table.share_status.dash tbody td.blue{color:#3B5998;}
 table.share_status.dash.line {table-layout:fixed;}
@@ -174,10 +174,10 @@ table.share_status.dash.line tr>td[colspan="4"]{width:100%;}
 table.share_status.dash.line tr>td:last-child{white-space:normal;}
 table.share_status.dash tr.h48{height:48px;}
 table.share_status.dash td:first-child{width:25%;}
-table.share_status.m36{width:36%;margin-right:0;}
+table.share_status.m36{width:36%;float:right;}
 table.share_status.m36 tr>td+td+td{width:14%;}
 table.share_status.m36 tr>td+td+td+td{width:8%;text-align:center;}
-table.share_status.m0{width:30%;}
+table.share_status.m0{width:30%;margin-left:0.5%;}
 table.share_status.m0 tr>td+td+td{width:12%;text-align:center;}
 [name=arrayOps]{margin-top:12px;}
 span.error{color:#F0000C;background-color:#FF9E9E;display:block;width:100%;}
