@@ -43,7 +43,7 @@ Shadowbox.init({skipSetup:true});
 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
-var expiretime = <?=($var['regTy']=='Trial')?$var['regTm2']:0?>;
+var expiretime = <?=$var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0?>;
 var before = new Date();
 
 // Page refresh timer
@@ -79,12 +79,13 @@ function updateTime() {
   if (expiretime > 0) {
     var remainingtime = expiretime - now.getTime()/1000;
     if (remainingtime <= 0) {
-      $('#licenseexpire').html(' - Expired').addClass('warning');
+      $('#licenseexpire').html('<em> (click here for details)</em>');
+      $('#licensetype').addClass('warning')
     } else {
       days = parseInt(remainingtime/86400);
       hour = parseInt(remainingtime/3600%24);
       mins = parseInt(remainingtime/60%60);
-      $('#licenseexpire').html(' - '+((days|hour|mins)?(days?plus(days,'day',true):(hour?plus(hour,'hour',true):plus(mins,'minute',true))):'less than a minute')+' remaining');
+      $('#licenseexpire').html(' - '+((days|hour|mins)?(days?plus(days,'day',true):(hour?plus(hour,'hour',true):plus(mins,'minute',true))):'less than a minute')+' remaining (click here for details)');
     }
   }
   setTimeout(updateTime,1000);
@@ -286,7 +287,7 @@ $(document).ajaxSend(function(elm, xhr, s){
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="#" onclick="openBox('/webGui/include/Feedback.php','Feedback',450,450,false);return false;"><img src="/webGui/images/limetech-logo-<?=$display['theme']?>.png" title="Feedback" border="0"/></a><br/>
-   <a href="/Tools/Registration"><strong>unRAID Server <em><?=$var['regTy']?></em><span id="licenseexpire"></span></strong></a>
+   <a href="/Tools/Registration"><span id="licensetype"><strong>unRAID Server <em><?=$var['regTy']?></em><span id="licenseexpire"></span></strong></span></a>
    </div>
    <div class="block">
     <span class="text-left">Server<br/>Description<br/>Version<br/>Uptime</span>
@@ -404,6 +405,7 @@ $(function() {
     form.find('input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').removeAttr('disabled');
     form.find('input[value="Done"]').val('Reset').prop('onclick',null).click(function(){refresh(form.offset().top)});
   });});
+
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top',{path:'/'});
