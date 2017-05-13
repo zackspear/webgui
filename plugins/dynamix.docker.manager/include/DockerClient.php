@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2014-2016, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 $dockerManPaths = [
 	'plugin'            => '/usr/local/emhttp/plugins/dynamix.docker.manager',
@@ -260,9 +260,14 @@ class DockerTemplates {
 		}
 
 		$WebUI = $this->getTemplateValue($Repository, "WebUI");
-
+		$myIP = $this->getTemplateValue($Repository, "MyIP");
+		$network = $this->getTemplateValue($Repository, "Network");
+		if (!$myIP && preg_match('%^(br|eth|bond)[0-9]%',$network)) {
+			$name = $this->getTemplateValue($Repository, "Name");
+			$myIP = exec("docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $name");
+		}
 		if (preg_match("%\[IP\]%", $WebUI)) {
-			$WebUI = preg_replace("%\[IP\]%", $eth0["IPADDR:0"], $WebUI);
+			$WebUI = preg_replace("%\[IP\]%", $myIP ?: $eth0["IPADDR:0"], $WebUI);
 		}
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];

@@ -1,4 +1,4 @@
-Menu="NetworkSettings"
+Menu="NetworkSettings:100"
 Title="Interface eth0"
 Png="ethernet.png"
 ---
@@ -15,6 +15,8 @@ Png="ethernet.png"
  */
 ?>
 <?
+$members = parse_ini_file('state/network.ini',true);
+
 $build = false;
 $template = "$docroot/webGui/EthX.page";
 $ini = '/var/local/emhttp/network.ini';
@@ -22,8 +24,17 @@ $validIP4 = '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[
 $validIP6 = '((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4}))*::((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4}))*|((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4})){7}';
 
 // get available ethernet ports (excluding eth0)
-exec("ip -br addr|awk '/^eth[0-9]+\s/{print $1}'|grep -v '^eth0$'",$ports);
+exec("ls --indicator-style=none  /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$ports);
 
+function locked($source,$port) {
+  global $members;
+  foreach ($members as $member => $value) {
+    if ($member == $source) continue;
+    if ($value['BONDING']=='yes' && in_array($port,explode(',',$value['BONDNICS']))) return $value['BONDNAME'].' '.$member;
+    if ($value['BRIDGING']=='yes' && in_array($port,explode(',',$value['BRNICS']))) return $value['BRNAME'].' '.$member;
+  }
+  return false;
+}
 // remove non-existing ethernet ports
 foreach (glob("$docroot/webGui/Eth[1-9]*.page",GLOB_NOSORT) as $port) {
   if (!in_array(strtolower(basename($port,'.page')), $ports)) {
@@ -32,11 +43,16 @@ foreach (glob("$docroot/webGui/Eth[1-9]*.page",GLOB_NOSORT) as $port) {
   }
 }
 // add new ethernet ports
-foreach ($ports as $port) {
-  $file = "$docroot/webGui/".ucfirst($port).".page";
+foreach ($ports as $ethX) {
+  $file = "$docroot/webGui/".ucfirst($ethX).".page";
   if (!file_exists($file)) {
+    $X = filter_var($ethX,FILTER_SANITIZE_NUMBER_INT);
+    $nnn = 100 + $X;
+    $tabX = 'tab'.($X+1);
+    $bondX = 'bond'.$X;
+    $brX = 'br'.$X;
     copy($template, $file);
-    exec("sed -i 's/x-settings/NetworkSettings/;s/ethX/$port/g' $file");
+    exec("sed -i 's/parentname:nnn/NetworkSettings:$nnn/;s/tabX/$tabX/;s/bondX/$bondX/g;s/brX/$brX/g;s/ethX/$ethX/g' $file");
     $build = true;
   }
 }
@@ -48,8 +64,9 @@ $service .= exec("pgrep docker") ? ($service ? ' and ' : '').'Docker service' : 
 $no_eth0 = exec("ip link show eth0|grep -Pom1 '(NO-CARRIER|state DOWN)'");
 
 // get VLAN interfaces
+$vlan_id = 'VLANID:';
 $vlan_eth0 = [0];
-if (isset($eth0)) foreach ($eth0 as $key => $val) if (substr($key,0,6)=='VLANID') $vlan_eth0[] = substr($key,7);
+if (isset($eth0)) foreach ($eth0 as $key => $val) if (strpos($key,$vlan_id)===0) $vlan_eth0[] = substr($key,strlen($vlan_id));
 ?>
 <style>
 span.pin i{font-size:16px;cursor:pointer;}
@@ -85,7 +102,6 @@ function prepareSettings(form) {
     $(form).find('select[name^="GATEWAY:"]').not('select[name$=":0"]').prop('disabled',true);
     $(form).find('input[name^="GATEWAY6:"]').not('input[name$=":0"]').prop('disabled',true);
     $(form).find('input[name^="METRIC:"]').not('input[name$=":0"]').prop('disabled',true);
-    $(form).find('input[name^="METRIC6:"]').not('input[name$=":0"]').prop('disabled',true);
     $(form).find('select[name^="PRIVACY6:"]').not('select[name$=":0"]').prop('disabled',true);
   } else {
     var vlans = [];
@@ -95,36 +111,34 @@ function prepareSettings(form) {
       return false;
     }
   }
-  if (form.BONDING !== undefined) {
-    var member = '';
-    for (var i=0,item; item=form.BONDNICS.options[i]; i++) {
-      if (item.selected) {
-        if (member.length) member += ',';
-        member += item.value;
-        item.selected = false;
-      }
+  var member = '';
+  for (var i=0,item; item=form.BONDNICS.options[i]; i++) {
+    if (item.selected) {
+      if (member.length) member += ',';
+      member += item.value;
+      item.selected = false;
     }
-    item = form.BONDNICS.options[0];
-    item.value = member;
-    item.selected = true;
-    item.disabled = false;
-    var member = '';
-    for (var i=0,item; item=form.BRNICS.options[i]; i++) {
-      if (item.selected) {
-        if (member.length) member += ',';
-        member += item.value;
-        item.selected = false;
-      }
-    }
-    item = form.BRNICS.options[0];
-    item.value = form.BONDING.value=='yes' ? form.BONDNAME.value : member;
-    item.selected = true;
-    item.disabled = false;
-    if (member.indexOf(',')>0) form.BRSTP.value = 'yes';
   }
+  item = form.BONDNICS.options[0];
+  item.value = member;
+  item.selected = true;
+  item.disabled = false;
+  var member = '';
+  for (var i=0,item; item=form.BRNICS.options[i]; i++) {
+    if (item.selected) {
+      if (member.length) member += ',';
+      member += item.value;
+      item.selected = false;
+    }
+  }
+  item = form.BRNICS.options[0];
+  item.value = form.BONDING.value=='yes' ? form.BONDNAME.value : member;
+  item.selected = true;
+  item.disabled = false;
+  if (member.indexOf(',')>0) form.BRSTP.value = 'yes';
   $(form).find('select[name^="PROTOCOL:"]').each(function() {
     var protocol = $(this).val() || 'ipv4';
-    var i = $(this).attr('name').substr(9);
+    var i = $(this).attr('name').split(':')[1];
     if (protocol == 'ipv6') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',true);
       $(form).find('select[name="NETMASK:'+i+'"]').prop('disabled',true);
@@ -136,7 +150,6 @@ function prepareSettings(form) {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',true);
       $(form).find('input[name="NETMASK6:'+i+'"]').prop('disabled',true);
       $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',true);
-      $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',true);
       $(form).find('select[name="PRIVACY6:'+i+'"]').prop('disabled',true);
       if (i==0) $(form).find('input[name^="DNS6_SERVER"]').prop('disabled',true);
     }
@@ -145,14 +158,9 @@ function prepareSettings(form) {
       var gateway = $(form).find('input[name="GATEWAY:'+i+'"]');
       if (metric) gateway.val(gateway.val()+'#'+metric);
     }
-    if (protocol != 'ipv4') {
-      var metric6 = $(form).find('input[name="METRIC6:'+i+'"]').val();
-      var gateway6 = $(form).find('input[name="GATEWAY6:'+i+'"]');
-      if (metric6) gateway6.val(gateway6.val()+'#'+metric6);
-    }
   });
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
-    var i = $(this).attr('name').substr(9);
+    var i = $(this).attr('name').split(':')[1];
     if ($(this).prop('disabled')==false && $(this).val()=='yes') {
       var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
       if (protocol != 'ipv6') {
@@ -172,14 +180,13 @@ function prepareSettings(form) {
     if (protocol != 'ipv6') $(form).find('input[name^="DNS_SERVER"]').val('Obtaining DNSv4 server...');
     if (protocol != 'ipv4') $(form).find('input[name^="DNS6_SERVER"]').val('Obtaining DNSv6 server...');
   }
-  form.BRNAME.value = 'br'+$(form).find('input[name="#section"]').val().substr(3);
   return true;
 }
 function selectProtocol(form,port,index) {
   if (index == null) {
     $(form).find('select[name^="PROTOCOL:"]').each(function() {
       var protocol = $(this).val() || 'ipv4';
-      var i = $(this).attr('name').substr(9);
+      var i = $(this).attr('name').split(':')[1];
       var net4 = $('.'+port+'-ipv4-'+i);
       var net6 = $('.'+port+'-ipv6-'+i);
       switch (protocol) {
@@ -229,7 +236,6 @@ function checkNetworkSettings(form,index,open) {
   }
   if (dns && index==0) {
     if (!open) form.DHCP_KEEPRESOLV.value = disabled ? 'no' : 'yes';
-    form.DHCP_KEEPRESOLV.disabled = !disabled;
     checkDNSSettings(form);
   }
 }
@@ -253,28 +259,29 @@ function checkDNSSettings(form) {
     if (!form.DNS6_SERVER3.value && disabled) $('#dns6server3').hide(); else $('#dns6server3').show();
   }
 }
-function checkBondingSettings(form,ctrl) {
+function checkBondingSettings(form,ctrl,port) {
   var disabled = form.BONDING.value=='no';
   var mode = form.BONDING_MODE.value;
   if (ctrl>=0) {
     var me = ctrl==0 ? null : 'slow';
     if (disabled) {
-      $('#bond-members').hide(me);
+      $('#bond-members-'+port).hide(me);
     } else {
-      $('#bond-members').show(me);
-      $('#bond0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+      $('#bond-members-'+port).show(me);
+      $('#bond-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
     }
-    if (ctrl==1) checkBridgingSettings(form,1);
+    if (ctrl==1) checkBridgingSettings(form,1,port);
   }
   if (mode==1 || mode>4 || disabled) {$('#attention0').hide();} else {$('#attention0').show();}
 }
-function checkBridgingSettings(form,ctrl) {
+function checkBridgingSettings(form,ctrl,port) {
   var me = ctrl==0 ? null : 'slow';
+  var i = 0;
   if (form.BRIDGING.value=='yes' && form.BONDING.value=='no') {
-    $('#bridge-members').show(me);
-    $('#bridge0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bridge-members-'+port).show(me);
+    $('#bridge-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
   } else {
-    $('#bridge-members').hide(me);
+    $('#bridge-members-'+port).hide(me);
   }
 }
 function checkNetworkAccess(form,port) {
@@ -332,20 +339,20 @@ $(function() {
   var form = document.eth0_settings;
 <?if ($tabbed && !$service):?>
   $('#tab1').bind({click:function(){
-    $('#bond0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
-    $('#bridge0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
   }});
 <?endif;?>
-  $('#bond0').dropdownchecklist({emptyText:'None', width:131});
-  $('#bridge0').dropdownchecklist({emptyText:'None', width:131});
-  checkBondingSettings(form,0);
-  checkBridgingSettings(form,0);
+  $('#bond-eth0').dropdownchecklist({emptyText:'None', width:131});
+  $('#bridge-eth0').dropdownchecklist({emptyText:'None', width:131});
+  checkBondingSettings(form,0,'eth0');
+  checkBridgingSettings(form,0,'eth0');
   checkNetworkAccess(form,'eth0');
   selectProtocol(form,'eth0');
 <?if ($service):?>
   disableForm(form);
-  $('#bond0').dropdownchecklist('disable');
-  $('#bridge0').dropdownchecklist('disable');
+  $('#bond-eth0').dropdownchecklist('disable');
+  $('#bridge-eth0').dropdownchecklist('disable');
   if (form.DNS_SERVER2.value) $('#dnsserver2').show(); else $('#dnsserver2').hide();
   if (form.DNS_SERVER3.value) $('#dnsserver3').show(); else $('#dnsserver3').hide();
 <?else:?>
@@ -367,20 +374,20 @@ $(function() {
 <input type="hidden" name="#arg[1]" value="">
 <input type="hidden" name="BONDNAME" value="bond0">
 <input type="hidden" name="BONDING_MIIMON" value="100">
-<input type="hidden" name="BRNAME" value="">
+<input type="hidden" name="BRNAME" value="br0">
 <input type="hidden" name="BRSTP" value="no">
 <input type="hidden" name="BRFD" value="0">
 <?foreach ($vlan_eth0 as $i):?>
 <div id="index-eth0-<?=$i?>" markdown="1">
 <?if ($i==0):?>
 MAC address:
-: <?=strtoupper(exec("ip link show eth0|grep -Pom1 'ether \K\S+'"))?>
+: <span class='big'><?=strtoupper(exec("ip link show eth0|grep -Pom1 'ether \K\S+'"))?></span>
 
 > This is the hardware address of the interface.
 > When tagging is enabled all VLANs on this interface will share the same hardware address.
 
 Enable bonding:
-: <select name="BONDING" size="1" onchange="checkBondingSettings(this.form,1)">
+: <select name="BONDING" size="1" onchange="checkBondingSettings(this.form,1,'eth0')">
   <?=mk_option($eth0['BONDING'], "no", "No");?>
   <?=mk_option($eth0['BONDING'], "yes", "Yes");?>
   </select>
@@ -389,9 +396,9 @@ Enable bonding:
 > This can be used to improve the connection redundancy and/or throughput of the system.
 > Different bonding modes are supported (see below), but some modes require proper switch support.
 
-<div id="bond-members" style="display:none" markdown="1">
+<div id="bond-members-eth0" style="display:none" markdown="1">
 Bonding mode:
-: <select name="BONDING_MODE" size="1" onchange="checkBondingSettings(this.form,-1)">
+: <select name="BONDING_MODE" size="1" onchange="checkBondingSettings(this.form,-1,'eth0')">
   <?=mk_option($eth0['BONDING_MODE'], "0", "balance-rr (0)");?>
   <?=mk_option($eth0['BONDING_MODE'], "1", "active-backup (1)",isset($eth0['BONDING_MODE'])?'':'selected');?>
   <?=mk_option($eth0['BONDING_MODE'], "2", "balance-xor (2)");?>
@@ -405,11 +412,11 @@ Bonding mode:
 > Mode 1 (active-backup) is the recommended default. Other modes allow you to set up a specific environment, but may require proper switch support.
 > Choosing a unsupported mode can result in a disrupted communication. Use with caution.
 
-Bonding members:
-: <select id="bond0" name="BONDNICS" size="1" multiple="multiple" style="display:none">
+Bonding members of bond0:
+: <select id="bond-eth0" name="BONDNICS" size="1" multiple="multiple" style="display:none">
   <?=mk_option($eth0['BONDNICS'],'eth0','eth0','selected disabled')?>
   <?foreach ($ports as $port):?>
-  <?=mk_option_check($eth0['BONDNICS'],$port,$port)?>
+  <?if (!locked('eth0',$port)) echo mk_option_check($eth0['BONDNICS'],$port,$port)?>
   <?endforeach;?>
   </select>
 
@@ -417,7 +424,7 @@ Bonding members:
 
 </div>
 Enable bridging:
-: <select name="BRIDGING" size="1" onchange="checkBridgingSettings(this.form,1)">
+: <select name="BRIDGING" size="1" onchange="checkBridgingSettings(this.form,1,'eth0')">
   <?=mk_option($eth0['BRIDGING'], "no", "No");?>
   <?=mk_option($eth0['BRIDGING'], "yes", "Yes");?>
   </select>
@@ -425,12 +432,12 @@ Enable bridging:
 > Bridging is a feature which creates a virtual bridge and allows VMs to communicate directly with the physical Ethernet port.
 > Both bonding and bridging can be combined to let VMs communicate over a *bonded* interface.
 
-<div id="bridge-members" style="display:none" markdown="1">
-Bridging members:
-: <select id="bridge0" name="BRNICS" size="1" multiple="multiple" style="display:none">
+<div id="bridge-members-eth0" style="display:none" markdown="1">
+Bridging members of br0:
+: <select id="bridge-eth0" name="BRNICS" size="1" multiple="multiple" style="display:none">
   <?=mk_option($eth0['BRNICS'],'eth0','eth0','selected disabled')?>
   <?foreach ($ports as $port):?>
-  <?=mk_option_check($eth0['BRNICS'],$port,$port)?>
+  <?if (!locked('eth0',$port)) echo mk_option_check($eth0['BRNICS'],$port,$port)?>
   <?endforeach;?>
   </select>
 
@@ -485,7 +492,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$eth0["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -503,7 +510,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$eth0["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 
@@ -642,7 +648,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$eth0["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -660,7 +666,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$eth0["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 
@@ -735,7 +740,7 @@ IPv4 network mask:
 
 IPv4 default gateway:
 : <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$eth0["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="IPv4 address A.B.C.D">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$eth0["METRIC:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$eth0["METRIC:INDEX"]?>" class="trim"><i class="fa fa-sort-numeric-asc"></i> <em>optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
 
@@ -753,7 +758,6 @@ IPv6 prefix:
 
 IPv6 default gateway:
 : <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$eth0["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="IPv6 address nnnn:xxxx::yyyy">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$eth0["METRIC6:INDEX"]?>" class="trim"><em><i class="fa fa-sort-numeric-asc"></i> optional metric (lowest is preferred)</em>
 
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
 
