@@ -14,14 +14,14 @@
 $task = $_POST['task'];
 switch ($task) {
 case 'delete':
-  $gateway = $_POST['gateway'];
-  $route = $_POST['route'];
+  $gateway =str_replace(' ','-', trim($_POST['gateway']));
+  $route = trim($_POST['route']);
   if ($gateway && $route) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$gateway}_{$route}_del"));
   break;
 case 'Add Route':
-  $gateway = $_POST['gateway'];
-  $route = $_POST['route'];
-  $metric = strlen($_POST['metric']) ? $_POST['metric'] : 1;
+  $gateway =str_replace(' ','-', trim($_POST['gateway']));
+  $route = trim($_POST['route']);
+  $metric = strlen($_POST['metric']) ? trim($_POST['metric']) : 1;
   if ($gateway && $route) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$gateway}_{$route}_{$metric}_add"));
   break;
 default:
