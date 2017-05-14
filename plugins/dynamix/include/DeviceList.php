@@ -250,7 +250,7 @@ function array_slots() {
   $max = $var['MAX_ARRAYSZ'];
   $out = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $out .= "<input type='hidden' name='csrf_token' value='{$var['csrf_token']}'>";
-  $out .= "<input type='hidden' name='changeSlots' value='Apply'>";
+  $out .= "<input type='hidden' name='changeSlots' value='apply'>";
   $out .= "<select class='auto' name='SYS_ARRAY_SLOTS' onChange='this.form.submit()'>";
   for ($n=$min; $n<=$max; $n++) {
     $selected = ($n == $var['SYS_ARRAY_SLOTS'])? ' selected' : '';
@@ -265,7 +265,7 @@ function cache_slots() {
   $max = $var['MAX_CACHESZ'];
   $out = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $out .= "<input type='hidden' name='csrf_token' value='{$var['csrf_token']}'>";
-  $out .= "<input type='hidden' name='changeSlots' value='Apply'>";
+  $out .= "<input type='hidden' name='changeSlots' value='apply'>";
   $out .= "<select class='auto' name='SYS_CACHE_SLOTS' onChange='this.form.submit()'>";
   for ($n=$min; $n<=$max; $n++) {
     $option = $n ? $n : 'none';
