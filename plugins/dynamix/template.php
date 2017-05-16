@@ -34,8 +34,7 @@ if (empty($path)) {
 }
 
 // Tell emhttp to refresh vars
-$var     = parse_ini_file('state/var.ini');
-file_get_contents("http://127.0.0.1:81/update.htm?cmdStatus=Apply&csrf_token={$var['csrf_token']}");
+exec("curl -s --unix-socket /var/run/emhttpd.socket http://localhost/status.htm");
 
 // The current "task" is the first element of the path
 $task = strtok($path, '/');

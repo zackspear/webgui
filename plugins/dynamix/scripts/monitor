@@ -12,12 +12,10 @@
  */
 ?>
 <?
+exec("curl -s --unix-socket /var/run/emhttpd.socket http://localhost/status.htm");
 $var   = parse_ini_file("/var/local/emhttp/var.ini");
-exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply\&csrf_token={$var['csrf_token']}");
-$var   = parse_ini_file("/var/local/emhttp/var.ini");
-
-$disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
 $devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
+$disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
 
 $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";

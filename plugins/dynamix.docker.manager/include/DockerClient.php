@@ -25,11 +25,7 @@ $dockerManPaths = [
 	'update-status'     => '/var/lib/docker/unraid-update-status.json'
 ];
 
-#load emhttp variables if needed.
-if (!isset($var)) {
-	if (!is_file("$docroot/state/var.ini")) shell_exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')");
-	$var = @parse_ini_file("$docroot/state/var.ini");
-}
+#load network variables if needed.
 if (!isset($eth0) && is_file("$docroot/state/network.ini")) {
 	extract(parse_ini_file("$docroot/state/network.ini",true));
 }
@@ -247,7 +243,7 @@ class DockerTemplates {
 
 
 	public function getControlURL($name) {
-		global $var,$eth0;
+		global $eth0;
 		$DockerClient = new DockerClient();
 
 		$Repository = "";

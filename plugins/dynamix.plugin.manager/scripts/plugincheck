@@ -17,9 +17,6 @@ require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $var     = parse_ini_file('/var/local/emhttp/var.ini');
-exec("wget -qO /dev/null 127.0.0.1:$(lsof -i -P -sTCP:LISTEN|grep -Pom1 '^emhttp.*:\K\d+')/update.htm?cmdStatus=apply\&csrf_token={$var['csrf_token']}");
-$var     = parse_ini_file('/var/local/emhttp/var.ini');
-
 $current = parse_ini_file('/etc/unraid-version');
 $unraid  = parse_plugin_cfg('dynamix', true);
 $notify  = "$docroot/webGui/scripts/notify";
