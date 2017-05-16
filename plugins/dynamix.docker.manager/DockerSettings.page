@@ -1,7 +1,6 @@
 Menu="OtherSettings"
 Title="Docker"
 Icon="dynamix.docker.manager.png"
-Markdown="false"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -22,6 +21,7 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 $docker          = new DockerClient();
 $DockerUpdate    = new DockerUpdate();
 $DockerTemplates = new DockerTemplates();
+$DockerStopped   = pgrep('dockerd')===false;
 
 // Check for nodatacow flag on Docker file; display warning
 $realfile = $dockercfg['DOCKER_IMAGE_FILE'];
@@ -34,6 +34,25 @@ if (file_exists($realfile)) {
     }
   }
 }
+unset($custom);
+exec("ls --indicator-style=none /sys/class/net|grep -P '^br[0-9]'",$custom);
+exec("ls --indicator-style=none /sys/class/net|grep -P '^(bond|eth)[0-9]'",$other);
+foreach ($other as $network) {
+  if (substr($network,0,4)=='bond') {
+    $br = str_replace('bond','br',$network);
+    if (!in_array($br,$custom)) $custom[] = $network;
+  } else {
+    $br = str_replace('eth','br',$network);
+    $bond = str_replace('eth','bond',$network);
+    if (!in_array($br,$custom) && !in_array($bond,$custom)) $custom[] = $network;
+  }
+}
+$include = [];
+$include6 = [];
+foreach ($custom as $network) {
+  if ($route = exec("ip -4 route show dev $network|grep -Po '^[12]\S+'")) $include[$network] = $route;
+  if ($route6 = exec("ip -6 route show dev $network|grep -Po '^[1-9]\S+'")) $include6[$network] = $route6;
+}
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.filetree.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
@@ -43,176 +62,194 @@ if (file_exists($realfile)) {
   .basic{display: block;}
   .advanced{display:none;white-space: nowrap;}
 </style>
-<span class="status" style="margin-top: -10px;"><input type="checkbox" class="advancedview"></span>
-<form id="settingsForm" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="<?=$docker_cfgfile;?>" />
+<span class="status"><input type="checkbox" class="advancedview"></span>
 
-<dl>
-  <dt>Enable Docker:</dt>
-  <dd>
-    <select id="DOCKER_ENABLED" name="DOCKER_ENABLED" class="narrow">
-    <?= mk_option($dockercfg['DOCKER_ENABLED'], 'no', 'No'); ?>
-    <?= mk_option($dockercfg['DOCKER_ENABLED'], 'yes', 'Yes'); ?>
-    </select> <?if ($var['fsState'] != "Started"):?><span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($dockercfg['DOCKER_ENABLED']=='yes')?'Docker will be available after Array is Started':'Apply to activate Docker after Array is Started'?></span><?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE'])) || !is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?><span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> One or more paths do not exist (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">view</a>)</span><?endif;?>
-  </dd>
-</dl>
-<blockquote class="inline_help">
-  <p>Before you can start the Docker service for the first time, please specify an image
-  file for Docker to install to.  Once started, Docker will always automatically start
-  after the array has been started.</p>
-</blockquote>
+<form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="<?=$docker_cfgfile;?>">
+Enable Docker:
+: <select id="DOCKER_ENABLED" name="DOCKER_ENABLED" class="narrow">
+  <?= mk_option($dockercfg['DOCKER_ENABLED'], 'no', 'No'); ?>
+  <?= mk_option($dockercfg['DOCKER_ENABLED'], 'yes', 'Yes'); ?>
+  </select>
+  <?if ($var['fsState'] != "Started"):?>
+  <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($dockercfg['DOCKER_ENABLED']=='yes')?'Docker will be available after Array is Started':'Apply to activate Docker after Array is Started'?></span>
+  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE'])) || !is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
+  <span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> One or more paths do not exist (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">view</a>)</span>
+  <?endif;?>
 
-<?if (pgrep('dockerd') === false):?>
+> Before you can start the Docker service for the first time, please specify an image file for Docker to install to.
+>
+> Once started, Docker will always automatically start after the array has been started.
 
-<div class="advanced">
-  <dl>
-    <dt>Docker vdisk size:</dt>
-    <dd><input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=$dockercfg['DOCKER_IMAGE_SIZE'];?>" style="width:50px;" required="required" />GB <span id="SIZE_ERROR" class="errortext"></span></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>If the system needs to create a new docker image file, this is the default size to use specified in GB.</p>
-    <p>To resize an existing image file, specify the new size here.  Next time the Docker service is started the file (and file system) will increased to the new size (but never decreased).</p>
-  </blockquote>
+<?if ($DockerStopped):?>
+<div markdown="1" class="advanced">
+Docker vdisk size:
+: <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=$dockercfg['DOCKER_IMAGE_SIZE'];?>" style="width:50px;" required="required" />GB <span id="SIZE_ERROR" class="errortext"></span></dd>
 
-  <dl>
-    <dt>Docker storage location:</dt>
-    <dd><input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE'];?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" /> <?php if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> Delete Image File</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>You must specify an image file for Docker.  The system will automatically create this file when the Docker service is first started.</p>
-  </blockquote>
+> If the system needs to create a new docker image file, this is the default size to use specified in GB.
+>
+> To resize an existing image file, specify the new size here.  Next time the Docker service is started the file (and file system) will increased to the new size (but never decreased).
+
+Docker storage location:
+: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE'];?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" /> <?php if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> Delete Image File</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span></dd>
+
+> You must specify an image file for Docker.  The system will automatically create this file when the Docker service is first started.
+
 </div>
-
 <?else: /* IF DOCKER STARTED */?>
+<div markdown="1" class="advanced">
+Docker version:
+: <? $arrInfo = $docker->getInfo(); echo $arrInfo['Version']; ?>
 
-<div class="advanced">
-  <dl>
-    <dt>Docker version:</dt>
-    <dd><? $arrInfo = $docker->getInfo(); echo $arrInfo['Version']; ?></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>This is the docker version.</p>
-  </blockquote>
+> This is the docker version.
 
-  <dl>
-    <dt>Docker storage location:</dt>
-    <dd><?=$dockercfg['DOCKER_IMAGE_FILE'];?></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>This is the docker volume.</p>
-  </blockquote>
+Docker storage location:
+: <?=$dockercfg['DOCKER_IMAGE_FILE'];?>
+
+> This is the docker volume.
+
 </div>
+<?endif;?>
+<div markdown="1" class="advanced">
+Default appdata storage location:
+: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH'];?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" data-pickfolders="true" /> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?>
 
+> You can specify a folder to automatically generate and store subfolders containing configuration files for each Docker app (via the /config mapped volume).
+>
+> Only used when adding new Docker apps.  Editing existing Docker apps will not be affected by this setting.
+
+<!--
+Auto-map user shares to containers as /unraid:
+: <select id="DOCKER_APP_UNRAID_PATH" name="DOCKER_APP_UNRAID_PATH" class="narrow">
+  <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], ($dockercfg['DOCKER_APP_UNRAID_PATH'] != '' ? $dockercfg['DOCKER_APP_UNRAID_PATH'] : '/mnt/user'), 'Yes'); ?>
+  <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], '', 'No'); ?>
+  </select>
+
+> You can expose all of your user shares (/mnt/user) to a folder named /unraid within Docker containers.
+>
+> Only used when adding new Docker apps.  Editing existing Docker apps will not be affected by this setting.
+-->
+</div>
+<div markdown="1" class="advanced">
+Template Authoring Mode:
+: <select id="DOCKER_AUTHORING_MODE" name="DOCKER_AUTHORING_MODE" class="narrow">
+  <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', 'No'); ?>
+  <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'yes', 'Yes'); ?>
+  </select>
+
+> If set to **Yes**, when creating/editing containers the interface will be present with some extra fields related to template authoring.
+
+</div>
+<div markdown="1" class="advanced">
+<?foreach ($include as $network => $route):?>
+
+<?if ($DockerStopped):?>
+DHCPv4 pool of custom network <?=$network?> (optional):
+: <input type="text" name="DOCKER_DHCP_<?=strtoupper($network)?>" value="<?=$dockercfg['DOCKER_DHCP_'.strtoupper($network)]?>" class="narrow">Subnet: <span id="DOCKER_DHCP_<?=strtoupper($network)?>"><?=$route?></span>
+<?elseif ($dockercfg['DOCKER_DHCP_'.strtoupper($network)]):?>
+DHCPv4 pool of custom network <?=$network?>:
+: <?=$dockercfg['DOCKER_DHCP_'.strtoupper($network)]?>
 <?endif;?>
 
-<div class="advanced">
-  <dl>
-    <dt>Default appdata storage location:</dt>
-    <dd><input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH'];?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" data-pickfolders="true" /> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>You can specify a folder to automatically generate and store subfolders containing configuration files for each Docker app (via the /config mapped volume).</p>
-    <p>Only used when adding new Docker apps.  Editing existing Docker apps will not be affected by this setting.</p>
-  </blockquote>
+<?endforeach;?>
+> Enter a pool range within the allocated subnet which is used for DHCPv4 assignments by Docker. E.g. 192.168.1.128/25
 
-  <!--dl>
-    <dt>Auto-map user shares to containers as /unraid:</dt>
-    <dd>
-      <select id="DOCKER_APP_UNRAID_PATH" name="DOCKER_APP_UNRAID_PATH" class="narrow">
-      <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], ($dockercfg['DOCKER_APP_UNRAID_PATH'] != '' ? $dockercfg['DOCKER_APP_UNRAID_PATH'] : '/mnt/user'), 'Yes'); ?>
-      <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], '', 'No'); ?>
-      </select>
-    </dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>You can expose all of your user shares (/mnt/user) to a folder named /unraid within Docker containers.</p>
-    <p>Only used when adding new Docker apps.  Editing existing Docker apps will not be affected by this setting.</p>
-  </blockquote-->
+<?foreach ($include6 as $network => $route):?>
+
+<?if ($DockerStopped):?>
+DHCPv6 pool of custom network <?=$network?> (optional):
+: <input type="text" name="DOCKER_DHCP6_<?=strtoupper($network)?>" value="<?=$dockercfg['DOCKER_DHCP6_'.strtoupper($network)]?>" class="narrow">Subnet: <span id="DOCKER_DHCP6_<?=strtoupper($network)?>"><?=$route?></span>
+<?elseif ($dockercfg['DOCKER_DHCP6_'.strtoupper($network)]):?>
+DHCPv6 pool of custom network <?=$network?>:
+: <?=$dockercfg['DOCKER_DHCP6_'.strtoupper($network)]?>
+<?endif;?>
+
+> Enter a pool range within the allocated subnet which is used for DHCPv6 assignments by Docker. E.g. 2a02:abcd:9ef5:100:1::/80
+<?endforeach;?>
 </div>
-
-<div class="advanced">
-  <dl>
-    <dt>Template Authoring Mode:</dt>
-    <dd>
-    <select id="DOCKER_AUTHORING_MODE" name="DOCKER_AUTHORING_MODE" class="narrow">
-    <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', 'No'); ?>
-    <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'yes', 'Yes'); ?>
-    </select>
-    </dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p>If set to <b>Yes</b>, when creating/editing containers the interface will be present with some extra fields related to template authoring.</p>
-  </blockquote>
-</div>
-
-<dl>
-  <dt>&nbsp;</dt>
-  <dd><input id="applyBtn" type="button" value="Apply"><input type="button" value="Done" onclick="done()"></dd>
-</dl>
-
+&nbsp;
+: <input id="applyBtn" type="button" value="Apply"><input type="button" value="Done" onclick="done()">
 </form>
+
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
   <input type="hidden" name="#command" value="/plugins/dynamix.docker.manager/scripts/docker_rm" />
 </form>
-<?if (pgrep('dockerd') !== false):?>
-<div class="advanced">
-  <div id="title"><span class="left"><img src="/plugins/dynamix.docker.manager/icons/vcard.png" class="icon">Docker volume info</span></div>
 
-  <dl>
-    <dt>btrfs filesystem show:</dt>
-    <dd><?="<pre>".shell_exec("btrfs filesystem show /var/lib/docker")."</pre>"?></dd>
-  </dl>
+<?if (!$DockerStopped):?>
+<div markdown="1" class="advanced">
+<div id="title"><span class="left"><img src="/plugins/dynamix.docker.manager/icons/vcard.png" class="icon">Docker volume info</span></div>
+btrfs filesystem show:
+: <?="<pre>".shell_exec("btrfs filesystem show /var/lib/docker")."</pre>"?>
 
-  <form method="POST" action="/update.php" target="progressFrame">
-  <?exec("$docroot/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval);?>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<?exec("$docroot/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval);?>
+btrfs scrub status:
+: <?="<pre>".implode("\n", $scrub_status)."</pre>"?>
 
-  <dl>
-    <dt>btrfs scrub status:</dt>
-    <dd><?="<pre>".implode("\n", $scrub_status)."</pre>"?></dd>
-  </dl>
+<?if ($retval != 0):?>
+<input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/var/lib/docker">
+<input type="hidden" name="#arg[3]" value="-r">
+&nbsp;
+: <input type="submit" value="Scrub"><label><input type="checkbox" name="#arg[3]" value=""> Correct file system errors</label>
 
-  <?if ($retval != 0):?>
-  <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
-  <input type="hidden" name="#arg[1]" value="start">
-  <input type="hidden" name="#arg[2]" value="/var/lib/docker">
-  <input type="hidden" name="#arg[3]" value="-r">
+> **Scrub** runs the *btrfs scrub* program to check file system integrity.
+>
+> If repair is needed you should check the *Correct file system errors* and run a second Scrub pass; this will permit *btrfs scrub* to fix the file system.
 
-  <dl>
-    <dt>&nbsp;</dt>
-    <dd><input type="submit" value="Scrub"><label><input type="checkbox" name="#arg[3]" value=""> Correct file system errors</label></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p><b>Scrub</b> runs the <i>btrfs scrub</i> program to check file system integrity.</p>
-    <p>If repair is needed you should check the <i>Correct file system errors</i> and run a second Scrub pass; this will permit <i>btrfs scrub</i> to fix the file system.</p>
-  </blockquote>
+<?else:?>
+<input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/var/lib/docker">
+&nbsp;
+: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
 
-  <?else:?>
-  <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
-  <input type="hidden" name="#arg[1]" value="cancel">
-  <input type="hidden" name="#arg[2]" value="/var/lib/docker">
+> **Cancel** will cancel the Scrub operation in progress.
 
-  <dl>
-    <dt>&nbsp;</dt>
-    <dd><input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> <i>Running</i></dd>
-  </dl>
-  <blockquote class="inline_help">
-    <p><b>Cancel</b> will cancel the Scrub operation in progress.</p>
-  </blockquote>
-
-  </form>
-  <?endif;?>
+</form>
+<?endif;?>
 </div>
 <?endif;?>
+
 <script src="/webGui/javascript/jquery.filetree.js"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 <script>
+function ip2int(ip) {
+  return ip.split('.').reduce(function(ipInt,octet){return (ipInt<<8)+parseInt(octet,10)},0)>>>0;
+}
+function checkDHCPv4() {
+  var good = true;
+  $('#settingsForm').find('input[name^="DOCKER_DHCP_"]').each(function(){
+    if ($(this).val()) {
+      var id = $(this).attr('name');
+      var pool = $(this).val().split('/');
+      var base = $('#'+id).text().split('/');
+      if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
+      var ippool = ip2int(pool[0]);
+      var ipbase = ip2int(base[0]);
+      if (good && (ippool < ipbase || ippool+2**(32-pool[1]) > ipbase+2**(32-base[1]))) {good = false; swal('Invalid pool address','Pool address is out of range','error');}
+    }
+  });
+  return good;
+}
+function checkDHCPv6() {
+  var good = true;
+  $('#settingsForm').find('input[name^="DOCKER_DHCP6_"]').each(function(){
+    var id = $(this).attr('name');
+    var pool = $(this).val().split('/');
+    var base = $('#'+id).text().split('/');
+    if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
+  });
+  return good;
+}
 $(function() {
   $("#applyBtn").click(function(){
+    if (!checkDHCPv4() || !checkDHCPv6()) return;
     if ($("#deleteCheckbox").length && $("#deleteCheckbox").is(":checked")) {
       $("#removeForm").submit();
       return;
     }
-
     if ($("#DOCKER_IMAGE_SIZE").length && $("#DOCKER_IMAGE_FILE").length) {
       var isError = false;
       var size = $("#DOCKER_IMAGE_SIZE").val();

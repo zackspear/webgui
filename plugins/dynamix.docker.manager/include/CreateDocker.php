@@ -32,9 +32,10 @@ $DockerTemplates = new DockerTemplates();
 
 $echo = function($m){ echo "<pre>".print_r($m, true)."</pre>"; };
 
+unset($custom);
 exec("docker network ls --filter driver='macvlan' --format='{{.Name}}'", $custom);
 $subnet = ['bridge'=>'', 'host'=>'', 'none'=>''];
-foreach ($custom as $network) $subnet[$network] = exec("docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}}{{end}}' $network");
+foreach ($custom as $network) $subnet[$network] = substr(exec("docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}}, {{end}}' $network"),0,-1);
 
 function stopContainer($name) {
   global $DockerClient;
@@ -1139,7 +1140,7 @@ $showAdditionalInfo = '';
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="" />
 </form>
 
-<div id="canvas" style="z-index:1;margin-top:-21px;">
+<div id="canvas" style="z-index:1;">
   <form method="POST" autocomplete="off" onsubmit="prepareConfig(this)">
     <table class="settings">
       <? if ($xmlType == "edit"):
