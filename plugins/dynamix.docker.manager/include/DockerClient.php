@@ -326,12 +326,10 @@ class DockerTemplates {
 
 			if (!$tmp['icon'] || $reload) {
 				$icon = $this->getIcon($image);
-				$tmp['icon'] = ($icon) ? $icon : null;
+				$tmp['icon'] = $icon ?: null;
 			}
-			if (!$tmp['url'] || $reload) {
-				$WebUI = $this->getControlURL($name);
-				$tmp['url'] = ($WebUI) ? $WebUI : null;
-			}
+			$WebUI = $this->getControlURL($name);
+			$tmp['url'] = $WebUI ?: null;
 
 			$Registry = $this->getTemplateValue($image, "Registry");
 			$tmp['registry'] = ($Registry) ? $Registry : null;
