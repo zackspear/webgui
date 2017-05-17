@@ -29,7 +29,7 @@ while :; do
     DATA="$DATA&bullet;<span class='orange strong'>$MODE ${w:-0}.${p: -1} %</span>"
   fi
   if [[ $DATA != $PREV ]]; then
-    curl -s -X POST -d "$DATA" http://127.0.0.1/pub/watchdog?buffer_length=1 &>/dev/null
+    curl -s --unix-socket /var/run/nginx.socket -X POST -d "$DATA" http://localhost/pub/watchdog?buffer_length=1 &>/dev/null
     PREV=$DATA
   fi
   sleep 3
