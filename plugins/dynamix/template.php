@@ -16,6 +16,7 @@ $docroot = $_SERVER['DOCUMENT_ROOT'];
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/PageBuilder.php";
+require_once "$docroot/webGui/include/publish.php";
 
 // Extract the 'querystring'
 // variables provided by emhttp:
@@ -33,9 +34,6 @@ if (empty($path)) {
   }
 }
 
-// Tell emhttp to refresh vars
-exec("curl -s --unix-socket /var/run/emhttpd.socket http://localhost/status.htm");
-
 // The current "task" is the first element of the path
 $task = strtok($path, '/');
 
@@ -43,6 +41,7 @@ $task = strtok($path, '/');
 extract(parse_plugin_cfg('dynamix',true));
 
 // Read emhttp status
+refresh_emhttp_state();
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $devs    = parse_ini_file('state/devs.ini',true);

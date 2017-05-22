@@ -12,10 +12,11 @@
 ?>
 <?
 	$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+        require_once "$docroot/webGui/include/publish.php";
 
 	// Load emhttp variables if needed.
-	if (! isset($var)){
-                exec("curl -s --unix-socket /var/run/emhttpd.socket http://localhost/status.htm");
+	if (!isset($var)){
+                refresh_emhttp_state();
 		$var = @parse_ini_file("$docroot/state/var.ini");
 		$disks = @parse_ini_file("$docroot/state/disks.ini", true);
 		extract(parse_plugin_cfg("dynamix",true));

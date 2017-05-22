@@ -1,4 +1,5 @@
 #!/bin/bash
+# todo: this should generate/publish json-encoded string
 ini=/var/local/emhttp/diskload.ini
 declare -a sector reads writes
 
@@ -12,7 +13,7 @@ for dev in $(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3}' /proc/diskstats); do
   ((c++))
 done
 
-# start daemon
+# poll
 while :; do
   stats=($(awk '/(sd[a-z]*|nvme[0-9]n1) /{print $3,$6,$10,$4,$8}' /proc/diskstats))
   c=0; s=${#stats[@]}
@@ -26,4 +27,4 @@ while :; do
     ((c++))
   done
   sleep $t
-done &
+done
