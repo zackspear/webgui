@@ -535,7 +535,7 @@ toggle_diskio(true);
 <table class="array_status">
   <tr>
   <td></td>
-  <td><input type="submit" name="cmdSpindownAll" value="Spin Down"<?=$parity?' disabled':''?> style="width:80px"><input type="submit" name="cmdSpinupAll" value="Spin Up"<?=$parity?' disabled':''?> style="width:80px"></td>
+  <td><input type="submit" name="cmdSpindownAll" value="Spin Down"<?=$parity?' disabled':''?>><input type="submit" name="cmdSpinupAll" value="Spin Up"<?=$parity?' disabled':''?>></td>
   <td><strong>Spin Down</strong> will immediately spin down all disks.<br><strong>Spin Up</strong> will immediately spin up all disks.</td>
   </tr>
   <tr>
