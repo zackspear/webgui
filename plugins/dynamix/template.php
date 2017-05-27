@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -67,7 +67,7 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 // Here's the page we're rendering
 $myPage = $site[basename($path)];
 $pageroot = $docroot.'/'.dirname($myPage['file']);
-$update = $display['refresh']>0 || ($display['refresh']<0 && $var['mdResync']==0);
+$update = true; // set for legacy
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";

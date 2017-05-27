@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -45,10 +45,6 @@ Shadowbox.init({skipSetup:true});
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
 var expiretime = <?=$var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0?>;
 var before = new Date();
-
-// Page refresh timer
-var update = <?=abs($display['refresh'])/1000?>;
-var counting = update;
 
 // page timer events
 var timers = {};
@@ -172,7 +168,6 @@ function showNotice(data,plugin) {
   else
     var href = "href=\"/Plugins\"";
   $('#user-notice').html(data.replace(/<a>(.*?)<\/a>/,"<a "+href+">$1</a>"));
-  if (timers.countDown) {clearTimeout(timers.countDown);$('#countdown').html('');}
 }
 function notifier() {
   var tub1 = 0, tub2 = 0, tub3 = 0;
@@ -204,9 +199,7 @@ function notifier() {
     if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
     if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
 <?endif;?>
-<?if ($update):?>
     timers.notifier = setTimeout(notifier,5000);
-<?endif;?>
   });
 }
 function digits(number) {
@@ -246,20 +239,11 @@ function closeNotifier(filter) {
 function viewHistory(filter) {
   location.replace('/Tools/NotificationsArchive?filter='+filter);
 }
-function countDown() {
-  counting--;
-  if (counting==0) counting = update;
-  $('#countdown').html('<small>Page refresh in '+counting+' sec</small>');
-  timers.countDown = setTimeout(countDown,1000);
-}
 $(function() {
   var tab = $.cookie('one')||$.cookie('tab')||'tab1';
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
   if ($.cookie('help')=='help') {$('.inline_help').show(); $('#nav-item.HelpButton').addClass('active');}
   $('#'+tab).attr('checked', true);
-<?if ($update):?>
-  if (update>3) timers.countDown = setTimeout(countDown,1000);
-<?endif;?>
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-share"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div>':'<div class="top">'?>[ close all notifications ]</div>';
