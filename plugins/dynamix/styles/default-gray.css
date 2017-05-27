@@ -99,7 +99,7 @@ span[id^='txt-tub']{margin-top:7px;}
 #indexer tr>td+td{width:auto;text-align:left;}
 #indexer tr>td+td+td{width:12%;}
 #indexer td:last-child{text-align:right;}
-#indexer tr:first-child{font-weight:bold;}
+#indexer tr:first-child{font-size:14px;font-weight:bold;}
 #indexer tr:first-child>td{padding-bottom:4px;}
 #indexer tr:last-child>td{text-align:left;border-bottom:none;}
 #indexer td{padding:2px 0;}
