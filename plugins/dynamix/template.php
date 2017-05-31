@@ -18,25 +18,6 @@ require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/PageBuilder.php";
 require_once "$docroot/webGui/include/publish.php";
 
-// Extract the 'querystring'
-// variables provided by emhttp:
-//   path=<path>   page path, e.g., path=Main/Disk
-//   prev=<path>   prev path, e.g., prev=Main (used to determine if page was refreshed)
-extract($_GET);
-
-// Need the following to make php-fpm & nginx work
-if (empty($path)) {
-  $path = substr(explode("?", $_SERVER["REQUEST_URI"])[0], 1);
-  $prev = '';
-
-  if (empty($path)) {
-    $path = 'Main';
-  }
-}
-
-// The current "task" is the first element of the path
-$task = strtok($path, '/');
-
 // Get the webGui configuration preferences
 extract(parse_plugin_cfg('dynamix',true));
 
@@ -63,6 +44,23 @@ build_pages('webGui/*.page');
 foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
   if ($plugin != 'plugins/dynamix') build_pages("$plugin/*.page");
 }
+
+// Extract the 'querystring'
+extract($_GET);
+
+// Need the following to make php-fpm & nginx work
+if (empty($path)) {
+  $path = substr(explode("?", $_SERVER["REQUEST_URI"])[0], 1);
+  $prev = '';
+
+  if (empty($path)) {
+    $regTypes = array("Trial", "Basic", "Plus", "Pro");
+    $path = in_array($var['regTy'], $regTypes)? 'Main' : 'Tools/Registration';
+  }
+}
+
+// The current "task" is the first element of the path
+$task = strtok($path, '/');
 
 // Here's the page we're rendering
 $myPage = $site[basename($path)];
