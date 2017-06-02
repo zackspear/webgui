@@ -85,7 +85,7 @@ function removeImage($image) {
 function pullImage($name, $image) {
   global $DockerClient, $DockerTemplates, $DockerUpdate;
   $waitID = mt_rand();
-  if (!preg_match("/:[\w]*$/i", $image)) $image .= ":latest";
+  if (!preg_match("/:\S+$/", $image)) $image .= ":latest";
 
   echo "<p class=\"logLine\" id=\"logBody\"></p>";
   echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Pulling image: ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
