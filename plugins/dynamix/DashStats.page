@@ -2,8 +2,8 @@ Menu="Dashboard"
 Title="Statistics"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -546,9 +546,6 @@ $(function() {
   update60();
   update30();
   update15();
-<?if ($display['refresh']==0 || ($display['refresh']<0 && $var['mdResync']>0)):?>
-  $('.tabs').append("<span class='status vhshift'><input type='button' value='Refresh' onclick='refresh()'></span>");
-<?endif;?>
   context.init({preventDoubleContext:false});
 
   var cpuload_sub = new NchanSubscriber('/sub/cpuload');

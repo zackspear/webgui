@@ -2,8 +2,8 @@ Menu="Main:5"
 Title="Array Operation"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -45,18 +45,16 @@ function tab0() {
 function parity_status() {
   $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'parity'},function(data) {
     if (data) {$.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});}
-<?if ($update):?>
 <?if ($tabbed):?>
-    if ($('#tab'+$('input[name$="tabs"]').length).is(':checked')) timer = setTimeout(parity_status,<?=abs($display['refresh'])?>);
+    if ($('#tab'+$('input[name$="tabs"]').length).is(':checked')) timer = setTimeout(parity_status,3000);
 <?else:?>
-    setTimeout(parity_status,<?=abs($display['refresh'])?>);
+    setTimeout(parity_status,3000);
 <?endif;?>
     if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=='Cancel') {
       $('#cancelButton').val('Done').unbind().bind({click:function(){refresh();}});
       $('#cancelText').html('');
       $('#line4').html('completed');
     }
-<?endif;?>
   });
 }
 function parity_warning(form) {
@@ -100,13 +98,10 @@ parity_status();
 
 <?if ($tabbed):?>
 $('.tabs').append(ctrl);
-<?else:?>
-$('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
-<?endif;?>
-<?if ($update):?>
-<?if ($tabbed):?>
 if ($.cookie('tab')=='tab0') $('i.toggle').hide();
 $('#tab'+$('input[name$="tabs"]').length).bind({click:function() {clearTimeout(timer); parity_status(); tab0(); $('i.toggle').hide('slow');}});
+<?else:?>
+$('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
 <?endif;?>
 <?if (substr($var['fsState'],-3)=='ing'):?>
 function reload_page() {
@@ -120,15 +115,12 @@ function reload_page() {
     break;
     default:
       if (data) $('#fsState').html(data);
-      setTimeout(reload_page,<?=abs($display['refresh'])?>);
+      setTimeout(reload_page,3000);
     break;
     }
   });
 }
 reload_page();
-<?endif;?>
-<?else:?>
-$('#tab'+$('input[name$="tabs"]').length).bind({click:function() {tab0(); $('i.toggle').hide('slow');}});
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100, trigger:'custom', triggerOpen:{mouseenter: true}, triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);

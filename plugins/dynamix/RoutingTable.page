@@ -29,9 +29,7 @@ function deleteRoute(button,gateway,route) {
 function routeTable() {
   $.post('/webGui/include/RoutingTable.php',{task:'update'},function(data){
     if (data) $('#route_list').html(data);
-<?if ($update):?>
-    timers.routeTable = setTimeout(routeTable,<?=max(abs($display['refresh']),10000)?>);
-<?endif;?>
+    timers.routeTable = setTimeout(routeTable,10000);
   });
 }
 function resetTable() {

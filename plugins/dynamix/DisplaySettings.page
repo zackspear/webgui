@@ -3,8 +3,8 @@ Title="Display Settings"
 Icon="display-settings.png"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -159,13 +159,6 @@ Number scaling:
   <?=mk_option($display['scale'], "5", "PB")?>
   </select>
 
-Number alignment:
-: <select name="align" size="1">
-  <?=mk_option($display['align'], "left", "Left")?>
-  <?=mk_option($display['align'], "center", "Center")?>
-  <?=mk_option($display['align'], "right", "Right")?>
-  </select>
-
 Page view:
 : <select name="tabs" size="1">
   <?=mk_option($display['tabs'], "0", "Tabbed")?>
@@ -182,13 +175,6 @@ Listing height:
 : <select name="resize" size="1">
   <?=mk_option($display['resize'], "0", "Automatic")?>
   <?=mk_option($display['resize'], "1", "Fixed")?>
-  </select>
-
-Table view spacing:
-: <select name="view" size="1">
-  <?=mk_option($display['view'], "", "Normal")?>
-  <?=mk_option($display['view'], "small", "Narrow")?>
-  <?=mk_option($display['view'], "wide", "Wide")?>
   </select>
 
 Display world-wide-name in device ID:
@@ -271,21 +257,6 @@ Temperature unit:
 > Selects the temperature unit for the disk temperature thresholds. Changing the unit will adjust the existing value in the disk temperature thresholds as appropriate.
 >
 > Make sure any newly entered values represent the selected temperature unit.
-
-Page update frequency:
-: <select name="refresh" size="1" onchange="presetPassive(this.selectedIndex)">
-  <?=mk_option($display['refresh'], "0", "Disabled")?>
-  <?=mk_option($display['refresh'], $display['refresh']<0?"-3000":"3000", "Real-time")?>
-  <?=mk_option($display['refresh'], $display['refresh']<0?"-10000":"10000", "Regular")?>
-  <?=mk_option($display['refresh'], $display['refresh']<0?"-60000":"60000", "Slow")?>
-  </select><span id="passive"<?=$display['refresh']==0?" style='display:none'":""?>>&nbsp;<input type="checkbox" name="#passive"<?=$display['refresh']<0?' checked':''?> onchange="presetRefresh(this.form)">disable page updates while parity operation is running.</span>
-
-> *Page update* determines how often the browser will query the unRAID server to obtain the latest information.
->
-> By default 'real-time' is selected. In case issues are experienced in the operation of the unRAID server, then the update frequency can be lowered or disabled altogether.
-> In the latter case a 'refresh' button appears in the top of the screen to do manual page refreshing.
->
-> A special option exists to disable screen updates while a parity operation is in progress. Use this option when degradation of the parity operation is observed.
 
 <input type="submit" name="#default" value="Default" onclick="filename='reset'">
 : <input type="submit" name="#apply" value="Apply"><input type="button" value="Done" onclick="done()">

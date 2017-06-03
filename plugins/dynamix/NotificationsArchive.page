@@ -2,9 +2,9 @@ Menu="UNRAID-OS"
 Title="Archived Notifications"
 ---
 <?PHP
-/* Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
- * Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
+ * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -53,9 +53,7 @@ function archiveList(init) {
     }
     $('#archive_list .expand-child td').hide();
     for (var i = 0; i < rows.length; i++) $('#archive_list .expand-child.row'+rows[i]+' td').show();
-<?if ($update):?>
-    setTimeout(archiveList,<?=max(abs($display['refresh']),30000)?>);
-<?endif;?>
+    setTimeout(archiveList,30000);
   });
 }
 function askConfirmation() {
