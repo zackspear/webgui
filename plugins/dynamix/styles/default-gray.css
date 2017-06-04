@@ -1,5 +1,6 @@
-html{font-family:arimo}
+html{font-family:arimo;-ms-overflow-style:-ms-autohiding-scrollbar}
 body{font-size:13px;color:#606E7F;background-color:#1B1D1B;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::-webkit-scrollbar{display:none}
 #template{min-width:1080px;max-width:100%;margin:0}
 img{border:0;text-decoration:none;vertical-align:middle}
 p{text-align:left}
@@ -48,15 +49,14 @@ form+p{display:none}
 #header .text-left{float:left;text-align:right;padding-right:5px;border-right:solid medium #5D6833}
 #header .text-right{float:right;text-align:left;padding-left:5px;padding-right:20px}
 #menu{position:fixed;top:0;left:0;bottom:12px;width:65px;padding:0;margin:0;background:#383A34;z-index:100;box-shadow:inset -1px 0 2px #121510}
-#nav-block::-webkit-scrollbar{display:none}
-#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl;-ms-overflow-style:-ms-autohiding-scrollbar;overflow:-moz-scrollbars-none}
+#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl}
 #nav-block>div{direction:ltr}
-#nav-item{width:24px;text-align:left;padding:12px 20px;border-bottom:#42453E 1px solid;font-size:0;overflow:hidden}
+#nav-item{width:24px;text-align:left;padding:14px 24px 14px 16px;border-bottom:#42453E 1px solid;font-size:0;overflow:hidden}
 #nav-item:hover,#nav-item:hover a{width:140px;color:#5D6833;background:#ABC056;border-bottom:none;-webkit-transition:all 0.4s ease-in-out;transition:all 0.4s ease-in-out}
 #nav-item img{display:none}
 #nav-item a{color:#A6A7A7;text-decoration:none}
-#nav-item a:before{font-family:FontAwesome;font-size:25px;margin-right:20px}
 #nav-item a:hover{font-size:18px}
+#nav-item a:before{font-family:fontawesome;font-size:26px;margin-right:25px}
 #nav-item a[href='/Dashboard']:before{content:'\f0e4'}
 #nav-item a[href='/Main']:before{content:'\f015'}
 #nav-item a[href='/Shares']:before{content:'\f07b'}
@@ -81,7 +81,7 @@ form+p{display:none}
 #nav-tub1{position:fixed;top:56px;left:330px}
 #nav-tub2{position:fixed;top:56px;left:360px}
 #nav-tub3{position:fixed;top:56px;left:390px}
-span[id^='txt-tub']{margin-top:7px}
+span.tub span[id^='txt-tub']{margin-top:7px}
 #title{color:#39587f;margin:20px 0 10px 0;padding:10px 0;clear:both;background:#1B1D1B;border-bottom:#606E7F 1px solid}
 #title span.left{font-size:20px;text-transform:uppercase}
 #title span.right{font-size:20px;padding-right:10px;float:right}
