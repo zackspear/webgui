@@ -49,14 +49,14 @@ form+p{display:none}
 #header .text-right{float:right;text-align:left;padding-left:5px;padding-right:20px}
 #menu{position:fixed;top:0;left:-16px;bottom:12px;width:81px;padding:0;margin:0;background:#383A34;z-index:100;box-shadow:inset -1px 0 2px #121510}
 #nav-block::-webkit-scrollbar{width:16px}
-#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;width:240px;overflow-y:scroll;overflow-x:hidden;direction:rtl}
+#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl}
 #nav-block>div{direction:ltr}
 #nav-item{width:23px;text-align:left;padding:12px 20px;border-bottom:#42453E 1px solid;font-size:0;overflow:hidden}
-#nav-item:hover,#nav-item:hover a,#nav-item.active a{color:#5D6833;background:#ABC056;overflow:visible}
+#nav-item:hover,#nav-item:hover a{width:140px;color:#5D6833;background:#ABC056;border-bottom:none;-webkit-transition:all 0.4s ease-in-out;transition:all 0.4s ease-in-out}
 #nav-item img{display:none}
 #nav-item a{color:#A6A7A7;text-decoration:none}
 #nav-item a:before{font-family:FontAwesome;font-size:25px;margin-right:20px}
-#nav-item a:hover{font-size:18px;padding:12px 24px 12px 6px;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out}
+#nav-item a:hover{font-size:18px}
 #nav-item a:hover:before{padding-left:0}
 #nav-item a[href='/Dashboard']:before{content:'\f0e4'}
 #nav-item a[href='/Main']:before{content:'\f015'}
@@ -69,7 +69,7 @@ form+p{display:none}
 #nav-item a[href='/Apps']:before{content:'\f0db'}
 #nav-item a[href='/Stats']:before{content:'\f1fe'}
 #nav-item a[href='/Tools']:before{content:'\f0ad'}
-#nav-item.active{background:#ABC056}
+#nav-item.active,#nav-item.active a{color:#5D6833;background:#ABC056}
 #nav-item.HelpButton.active:hover{background:#ABC056}
 #nav-item.HelpButton.active{background:#121510}
 #nav-item.HelpButton a:before{content:'\f059'}
@@ -195,7 +195,7 @@ table.share_status.m36 tr>td+td+td{width:14%}
 table.share_status.m36 tr>td+td+td+td{width:8%;text-align:center}
 table.share_status.m0{width:30%;margin-left:1.5%}
 table.share_status.m0 tr>td+td+td{width:12%;text-align:center}
-tr.alert,t{color:#F0000C;background-color:#FF9E9E}
+tr.alert{color:#F0000C;background-color:#FF9E9E}
 tr.warn{color:#E68A00;background-color:#FEEFB3}
 tr.past{color:#D63301;background-color:#FFDDD1}
 [name=arrayOps]{margin-top:12px}
