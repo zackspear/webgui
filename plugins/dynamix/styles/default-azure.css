@@ -56,14 +56,14 @@ form+p{display:none}
 #nav-item img{display:none}
 #nav-item a{color:#A6A7A7;text-decoration:none}
 #nav-item a:hover{font-size:18px}
-#nav-item a:before{font-family:fontawesome;font-size:26px;margin-right:25px}
+#nav-item a:before{font-family:docker-icon,fontawesome;font-size:26px;margin-right:25px}
 #nav-item a[href='/Dashboard']:before{content:'\f0e4'}
 #nav-item a[href='/Main']:before{content:'\f015'}
 #nav-item a[href='/Shares']:before{content:'\f07b'}
 #nav-item a[href='/Users']:before{content:'\f0c0'}
 #nav-item a[href='/Settings']:before{content:'\f085'}
 #nav-item a[href='/Plugins']:before{content:'\f1e6'}
-#nav-item a[href='/Docker']:before{content:'\f1b3'}
+#nav-item a[href='/Docker']:before{content:'\f100'}
 #nav-item a[href='/VMs']:before{content:'\f108'}
 #nav-item a[href='/Apps']:before{content:'\f0db'}
 #nav-item a[href='/Stats']:before{content:'\f1fe'}
