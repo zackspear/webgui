@@ -47,11 +47,11 @@ form+p{display:none}
 #header .block{margin:10px 5px 0 0;float:right;text-align:right;padding:2px 8px}
 #header .text-left{float:left;text-align:right;padding-right:5px;border-right:solid medium #5D6833}
 #header .text-right{float:right;text-align:left;padding-left:5px;padding-right:20px}
-#menu{position:fixed;top:0;left:-16px;bottom:12px;width:81px;padding:0;margin:0;background:#383A34;z-index:100;box-shadow:inset -1px 0 2px #EDEAEF}
-#nav-block::-webkit-scrollbar{width:16px}
-#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl}
+#menu{position:fixed;top:0;left:0;bottom:12px;width:65px;padding:0;margin:0;background:#383A34;z-index:100;box-shadow:inset -1px 0 2px #EDEAEF}
+#nav-block::-webkit-scrollbar{display:none}
+#nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl;-ms-overflow-style:-ms-autohiding-scrollbar;overflow:-moz-scrollbars-none}
 #nav-block>div{direction:ltr}
-#nav-item{width:23px;text-align:left;padding:12px 20px;border-bottom:#42453E 1px solid;font-size:0;overflow:hidden}
+#nav-item{width:24px;text-align:left;padding:12px 20px;border-bottom:#42453E 1px solid;font-size:0;overflow:hidden}
 #nav-item:hover,#nav-item:hover a{width:140px;color:#5D6833;background:#ABC056;border-bottom:none;-webkit-transition:all 0.4s ease-in-out;transition:all 0.4s ease-in-out}
 #nav-item img{display:none}
 #nav-item a{color:#A6A7A7;text-decoration:none}
