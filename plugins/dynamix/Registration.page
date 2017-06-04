@@ -35,7 +35,8 @@ div.remark{padding:0 10px;text-align:justify;}
 <input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 <span class="thanks">Thank you for trying unRAID Server OS!</span>
 <div markdown="1" class="remark">
-Your server will not be usable until you purchase a registration key or install a <span class="big">**free** 30-day *Pro Trial*</span> key.
+Your server will not be usable until you purchase a Registration key or install a free 30-day *Trial* key. A *Trial*
+key provides all the functionality of a *Pro* Registration key.
 
 Registration keys are bound to your USB Flash boot device serial number (GUID).  Please use a high quality name brand device
 between 1GB and 32GB in size.
@@ -71,10 +72,11 @@ Flash GUID:
 <input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 <span class="thanks">Thank you for trying unRAID Server OS!</span>
 <div markdown="1" class="remark">
-Your *Trial* key includes all the functionality and device support of a *Pro* key.
+Your *Trial* key includes all the functionality and device support of a *Pro* Registration key.
 
 After your *Trial* key has reached expiration, your server **still functions normally** until the next time you <code>Stop</code> the array.
-At that point, you many either purchase a registration key, or request a *Trial* extension.
+
+At that point, you many either purchase a Registration key, or request a *Trial* extension.
 </div>
 
 ***Trial*** key expires on:
@@ -105,7 +107,7 @@ Flash GUID:
 <div markdown="1" class="remark">
 <span class='red-text'>Your *Trial* key has expired.</span>
 
-To continue using unRAID Server OS you may purchase a registration key. Alternately, you may request a *Trial* extension key.
+To continue using unRAID Server OS you may purchase a Registration key. Alternately, you may request a *Trial* extension key.
 
 Most *Trial* extension requests are processed immediately but please allow up to one business day to receive your *Trial* extension key.
 </div>
@@ -133,7 +135,9 @@ Flash GUID:
 <input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 <span class='thanks red'>Invalid <em>Trial</em> Installation</span>
 <div markdown="1" class="remark">
-It is not possible to use a *Trial* key with an existing unRAID OS configuration.
+It is not possible to use a *Trial* key with an existing unRAID OS installation.
+
+You may purchase a Registration key corresponding to this USB Flash device to continue using this installation.
 
 For more information, please <?=$contact_support?>.
 </div>
@@ -151,7 +155,7 @@ Registered GUID:
 : <?=$var['regGUID'];?>
 
 Registered to:
-: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
+: <?=htmlspecialchars($var['regTo'])?>
 
 Registered on:
 : <?=my_time($var['regTm']);?>
@@ -255,13 +259,12 @@ Flash GUID:
 <input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 <span class='thanks red'>Missing Key File</span>
 <div markdown="1" class="remark">
-It appears that your registration key file is corrupted or missing.  The key file should be located in the
-[config](Registration/Browse?dir=/boot/config) directory 
-on your USB Flash boot device.
+It appears that your Registration key file is corrupted or missing.  The key file should be located in the
+[config](Registration/Browse?dir=/boot/config) directory on your USB Flash boot device.
 
-If you do not have a backup copy of your key file, <?=$contact_support?>.
+If you do not have a backup copy of your Registration key file, <?=$contact_support?>.
 
-If this was a <em>Trial</em> installation, you may purchase a key.
+If this was a <em>Trial</em> installation, you may purchase a Registration key.
 </div>
 
 Flash Vendor:
@@ -286,20 +289,22 @@ Flash GUID:
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID']?>">
 <input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
 <span class='thanks red'>The registered GUID does not match the USB Flash boot device GUID</span>
+<?if (strstr($var['regTy'], "Trial")):?>
 <div markdown="1" class="remark">
-The registration key file does not correspond to the USB Flash boot device.  Please copy the correct key file to the [config](Registration/Browse?dir=/boot/config) directory
-on your USB Flash boot device.
+*Trial* installations are only valid with the originally registered USB Flash device.
 
-If you do not have a backup copy of your key file, <?=$contact_support?>.
+To continue using this installation with this USB Flash device, you may purchase a Registration key.
 </div>
-
-<?if (!strstr($var['regTy'], "Trial")):?>
+<?else:?>
 <div markdown="1" class="remark">
-If you want to replace your registration key with a new key bound to this USB Flash device, click Replace Key below. An original key may be
+The Registration key file does not correspond to the USB Flash boot device.  Please copy the correct key file to the [config](Registration/Browse?dir=/boot/config) directory
+on your USB Flash boot device. If you do not have a backup copy of your key file, <?=$contact_support?>.
+
+If you want to replace your Registration key with a new key bound to this USB Flash device, click Replace Key below. An original key may be
 replaced anytime. Thereafter, a replacement key may be replaced again after one year has passed.  If you require
 another replacement key sooner, <?=$contact_support?>.
 
-**Note:** Replacing a registration key results in permanently *blacklisting* the previous USB Flash GUID.
+**Note:** Replacing a Registration key results in permanently *blacklisting* the previous USB Flash GUID.
 </div>
 <?endif;?>
 
@@ -316,7 +321,7 @@ Registered GUID:
 : <?=$var['regGUID']?>
 
 Registered to:
-: <span class="big"><?=htmlspecialchars($var['regTo'])?></span>
+: <?=htmlspecialchars($var['regTo'])?>
 
 Registered on:
 : <?=my_time($var['regTm'])?>
@@ -354,7 +359,7 @@ Replaceable:
 <?if (strstr($var['regTy'], "blacklisted")):?>
 <span class='thanks red'>Blacklisted USB Flash GUID</span>
 <div markdown="1" class="remark">
-This USB Flash boot device has been *blacklisted*. This can occur as a result of transfering your key to
+This USB Flash boot device has been *blacklisted*. This can occur as a result of transfering your Registration key to
 a replacement USB Flash device, and you are currently booted from your old USB Flash device.
 
 A USB Flash device may also be *blacklisted* if there is no serial number, or if we discover the serial number
