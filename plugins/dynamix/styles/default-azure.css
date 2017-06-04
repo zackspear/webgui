@@ -57,7 +57,6 @@ form+p{display:none}
 #nav-item a{color:#A6A7A7;text-decoration:none}
 #nav-item a:before{font-family:FontAwesome;font-size:25px;margin-right:20px}
 #nav-item a:hover{font-size:18px}
-#nav-item a:hover:before{padding-left:0}
 #nav-item a[href='/Dashboard']:before{content:'\f0e4'}
 #nav-item a[href='/Main']:before{content:'\f015'}
 #nav-item a[href='/Shares']:before{content:'\f07b'}
