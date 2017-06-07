@@ -142,28 +142,28 @@ Template Authoring Mode:
 </div>
 <div markdown="1" class="advanced">
 <?foreach ($include as $network => $route):?>
+<?$docker_dhcp = 'DOCKER_DHCP_'.strtoupper(str_replace('.','_',$network))?>
 
 <?if ($DockerStopped):?>
 DHCPv4 pool of custom network <?=$network?> (optional):
-<?$network = strtoupper(str_replace('.','_',$network))?>
-: <input type="text" name="DOCKER_DHCP_<?=$network?>" value="<?=$dockercfg['DOCKER_DHCP_'.$network]?>" class="narrow">Subnet: <span id="DOCKER_DHCP_<?=$network?>"><?=$route?></span>
-<?elseif ($dockercfg['DOCKER_DHCP_'.strtoupper($network)]):?>
+: <input type="text" name="<?=$docker_dhcp?>" value="<?=$dockercfg[$docker_dhcp]?>" class="narrow">Subnet: <span id="<?=$docker_dhcp?>"><?=$route?></span>
+<?elseif ($dockercfg[$docker_dhcp]):?>
 DHCPv4 pool of custom network <?=$network?>:
-: <?=$dockercfg['DOCKER_DHCP_'.strtoupper($network)]?>
+: <?=$dockercfg[$docker_dhcp]?>
 <?endif;?>
 
 <?endforeach;?>
 > Enter a pool range within the allocated subnet which is used for DHCPv4 assignments by Docker. E.g. 192.168.1.128/25
 
 <?foreach ($include6 as $network => $route):?>
+<?$docker_dhcp6 = strtoupper(str_replace('.','_',$network))?>
 
 <?if ($DockerStopped):?>
 DHCPv6 pool of custom network <?=$network?> (optional):
-<?$network = strtoupper(str_replace('.','_',$network))?>
-: <input type="text" name="DOCKER_DHCP6_<?=$network?>" value="<?=$dockercfg['DOCKER_DHCP6_'.$network]?>" class="narrow">Subnet: <span id="DOCKER_DHCP6_<?=$network?>"><?=$route?></span>
-<?elseif ($dockercfg['DOCKER_DHCP6_'.strtoupper($network)]):?>
+: <input type="text" name="<?=$docker_dhcp6?>" value="<?=$dockercfg[$docker_dhcp6]?>" class="narrow">Subnet: <span id="<?=$docker_dhcp6?>"><?=$route?></span>
+<?elseif ($dockercfg[$docker_dhcp6]):?>
 DHCPv6 pool of custom network <?=$network?>:
-: <?=$dockercfg['DOCKER_DHCP6_'.strtoupper($network)]?>
+: <?=$dockercfg[$docker_dhcp6]?>
 <?endif;?>
 
 > Enter a pool range within the allocated subnet which is used for DHCPv6 assignments by Docker. E.g. 2a02:abcd:9ef5:100:1::/80
