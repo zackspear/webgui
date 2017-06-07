@@ -156,7 +156,7 @@ DHCPv4 pool of custom network <?=$network?>:
 > Enter a pool range within the allocated subnet which is used for DHCPv4 assignments by Docker. E.g. 192.168.1.128/25
 
 <?foreach ($include6 as $network => $route):?>
-<?$docker_dhcp6 = strtoupper(str_replace('.','_',$network))?>
+<?$docker_dhcp6 = 'DOCKER_DHCP6_'.strtoupper(str_replace('.','_',$network))?>
 
 <?if ($DockerStopped):?>
 DHCPv6 pool of custom network <?=$network?> (optional):
