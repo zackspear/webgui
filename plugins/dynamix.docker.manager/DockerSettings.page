@@ -145,7 +145,8 @@ Template Authoring Mode:
 
 <?if ($DockerStopped):?>
 DHCPv4 pool of custom network <?=$network?> (optional):
-: <input type="text" name="DOCKER_DHCP_<?=strtoupper($network)?>" value="<?=$dockercfg['DOCKER_DHCP_'.strtoupper($network)]?>" class="narrow">Subnet: <span id="DOCKER_DHCP_<?=strtoupper($network)?>"><?=$route?></span>
+<?$network = strtoupper(str_replace('.','_',$network))?>
+: <input type="text" name="DOCKER_DHCP_<?=$network?>" value="<?=$dockercfg['DOCKER_DHCP_'.$network]?>" class="narrow">Subnet: <span id="DOCKER_DHCP_<?=$network?>"><?=$route?></span>
 <?elseif ($dockercfg['DOCKER_DHCP_'.strtoupper($network)]):?>
 DHCPv4 pool of custom network <?=$network?>:
 : <?=$dockercfg['DOCKER_DHCP_'.strtoupper($network)]?>
@@ -158,7 +159,8 @@ DHCPv4 pool of custom network <?=$network?>:
 
 <?if ($DockerStopped):?>
 DHCPv6 pool of custom network <?=$network?> (optional):
-: <input type="text" name="DOCKER_DHCP6_<?=strtoupper($network)?>" value="<?=$dockercfg['DOCKER_DHCP6_'.strtoupper($network)]?>" class="narrow">Subnet: <span id="DOCKER_DHCP6_<?=strtoupper($network)?>"><?=$route?></span>
+<?$network = strtoupper(str_replace('.','_',$network))?>
+: <input type="text" name="DOCKER_DHCP6_<?=$network?>" value="<?=$dockercfg['DOCKER_DHCP6_'.$network]?>" class="narrow">Subnet: <span id="DOCKER_DHCP6_<?=$network?>"><?=$route?></span>
 <?elseif ($dockercfg['DOCKER_DHCP6_'.strtoupper($network)]):?>
 DHCPv6 pool of custom network <?=$network?>:
 : <?=$dockercfg['DOCKER_DHCP6_'.strtoupper($network)]?>
@@ -225,6 +227,7 @@ function checkDHCPv4() {
       var id = $(this).attr('name');
       var pool = $(this).val().split('/');
       var base = $('#'+id).text().split('/');
+      if (good && typeof(pool[1])=='undefined') {good = false; swal('Missing subnet size','Pool subnet size is not defined','error');}
       if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
       var ippool = ip2int(pool[0]);
       var ipbase = ip2int(base[0]);
@@ -236,10 +239,13 @@ function checkDHCPv4() {
 function checkDHCPv6() {
   var good = true;
   $('#settingsForm').find('input[name^="DOCKER_DHCP6_"]').each(function(){
-    var id = $(this).attr('name');
-    var pool = $(this).val().split('/');
-    var base = $('#'+id).text().split('/');
-    if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
+    if ($(this).val()) {
+      var id = $(this).attr('name');
+      var pool = $(this).val().split('/');
+      var base = $('#'+id).text().split('/');
+      if (good && typeof(pool[1])=='undefined') {good = false; swal('Missing subnet size','Pool subnet size is not defined','error');}
+      if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
+    }
   });
   return good;
 }
