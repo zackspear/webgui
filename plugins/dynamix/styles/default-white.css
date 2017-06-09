@@ -124,18 +124,18 @@ table.disk_status select{background:transparent}
 table.disk_status tbody tr:nth-child(even){background-color:#F8F8F8}
 table.disk_status.stats tr>td+td{text-align:left;padding-left:0;padding-right:12px}
 table.array_status td{padding:12px 0}
-table.array_status tr>td{text-align:left;white-space:nowrap;padding-left:12px;width:33%}
-table.array_status tr>td+td{padding-left:2px;width:17%}
+table.array_status tr>td{text-align:left;white-space:nowrap;padding-left:12px;width:30%}
+table.array_status tr>td+td{padding-left:2px;width:20%}
 table.array_status tr>td+td+td{width:auto}
 table.array_status td.line{border-top:1px solid #F0F0F0}
 table.settings{padding-top:8px}
-table.settings td:first-child{font-weight:bold;width:33%;padding-left:12px}
+table.settings td:first-child{font-weight:bold;width:35%;padding-left:12px}
 table.settings tr>td+td{white-space:nowrap}
 table.settings.shifted{padding:0;margin-left:-26px;margin-top:0}
 table.settings.shifted td:first-child{font-size:12px;padding-left:0}
 table.access_list{border-spacing:0;margin-top:10px;border:0}
 table.access_list tr:first-child td{font-size:15px;vertical-align:middle;text-align:left;border-top-left-radius:5px;border-top-right-radius:5px;border:1px solid #E0E0E0;border-bottom:1px solid #D8D8D8;background:-webkit-radial-gradient(#E0E0E0,#D0D0D0);background:linear-gradient(#E0E0E0,#D0D0D0)}
-table.access_list td:first-child{font-weight:bold;width:33%;padding-left:12px}
+table.access_list td:first-child{font-weight:bold;width:35%;padding-left:12px}
 table.access_list tr:first-child td:first-child{font-weight:normal}
 table.access_list tr>td+td{white-space:nowrap}
 table.share_status{white-space:nowrap}
@@ -158,7 +158,7 @@ table.share_status.fixed tbody tr:nth-child(even){background-color:#FFFFFF}
 table.share_status.fixed tbody tr td:nth-child(even){background-color:#F8F8F8}
 table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
-table.share_status.dash{float:left;width:33%;margin-top:36px;border:1px solid #D0D0D0}
+table.share_status.dash{float:left;width:35%;margin-top:36px;border:1px solid #D0D0D0}
 table.share_status.dash thead tr:last-child>td{font-weight:bold;border-bottom:1px solid #D0D0D0}
 table.share_status.dash tbody td.blue{color:#3B5998}
 table.share_status.dash.line {width:49%;margin-right:2%;table-layout:fixed}
@@ -224,7 +224,7 @@ pre.up{margin-top:-20px}
 pre{border:1px solid #D0D0D0;font-family:bitstream;padding:4px 6px;overflow:auto}
 iframe#progressFrame{position:fixed;bottom:32px;left:0;margin:0;padding:8px 8px 0 8px;width:100%;height:12px;line-height:12px;border-style:none;overflow:hidden;font-family:bitstream;font-size:11px;color:#505050;white-space:nowrap;z-index:-10}
 dl{margin:0;padding-left:12px;line-height:26px}
-dt{clear:left;float:left;width:33%;font-weight:bold}
+dt{clear:left;float:left;width:35%;font-weight:bold}
 dd{margin-bottom:12px;white-space:nowrap}
 dd p{margin:0 0 4px 0}
 dd blockquote {padding-left:0}

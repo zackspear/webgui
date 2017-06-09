@@ -146,12 +146,12 @@ table.disk_status.stats tr>td+td{text-align:left;padding-left:0;padding-right:12
 table.array_status {line-height:30px}
 table.array_status td{padding:12px 0}
 table.array_status td:first-child{text-transform:uppercase}
-table.array_status tr>td{text-align:left;white-space:nowrap;padding-left:12px;width:33%}
-table.array_status tr>td+td{padding-left:2px;width:17%}
+table.array_status tr>td{text-align:left;white-space:nowrap;padding-left:12px;width:30%}
+table.array_status tr>td+td{padding-left:2px;width:20%}
 table.array_status tr>td+td+td{width:auto}
 table.array_status td.line{border-top:1px solid #EDEAEF}
 table.settings{padding-top:8px;line-height:42px}
-table.settings td:first-child{text-transform:uppercase;width:33%;padding-left:12px}
+table.settings td:first-child{text-transform:uppercase;width:35%;padding-left:12px}
 table.settings tr>td+td{line-height:16px}
 table.settings.shifted{padding:0;margin-left:0;margin-top:0}
 table.settings.shifted td:first-child{padding-left:0}
@@ -173,7 +173,7 @@ table.share_status.fixed tbody tr{border-bottom:1px #EDEAEF solid}
 table.share_status.fixed tbody tr td:first-child{padding-right:10px}
 table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
-table.share_status.dash{float:left;width:30%;margin-top:36px;margin-right:6px;border:none}
+table.share_status.dash{float:left;width:35%;margin-top:36px;margin-right:6px;border:none}
 table.share_status.dash thead tr:first-child td{line-height:30px}
 table.share_status.dash thead tr:last-child>td{border-bottom:1px solid #606E7F;text-align:left;color:#606E7F}
 table.share_status.dash tbody td.blue{color:#606E7F}
@@ -251,7 +251,7 @@ pre.up{margin-top:0}
 pre{border:1px solid #EDEAEF;font-family:bitstream;font-size:12px;padding:0;overflow:auto;margin-bottom:10px;padding:10px}
 iframe#progressFrame{position:fixed;bottom:32px;left:60px;margin:0;padding:8px 8px 0 8px;width:100%;height:12px;line-height:12px;border-style:none;overflow:hidden;font-family:bitstream;font-size:11px;color:#808080;white-space:nowrap;z-index:-2}
 dl{margin-top:0;padding-left:12px;line-height:26px}
-dt{clear:left;float:left;width:33%;text-transform:uppercase}
+dt{clear:left;float:left;width:35%;text-transform:uppercase}
 dd{margin-bottom:12px;white-space:nowrap;font-weight:normal}
 dd p{margin:0 0 4px 0}
 dd blockquote {padding-left:0}
