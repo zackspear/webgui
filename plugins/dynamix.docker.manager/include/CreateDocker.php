@@ -465,6 +465,35 @@ function getUsedPorts() {
   return $ports;
 }
 
+function getUsedIPs() {
+  global $dockerManPaths,$eth0;
+  $docker = new DockerClient();
+  $docker = $docker->getDockerContainers();
+  if (!$docker) $docker = [];
+  $names = $ips = [];
+  foreach ($docker as $ct) $names[] = strtolower($ct['Name']);
+  foreach (glob($dockerManPaths['templates-user'].'/*.xml',GLOB_NOSORT) as $file) {
+    $name = strtolower(getXmlVal($file,'Name'));
+    if (!in_array($name,$names)) continue;
+    $list = [];
+    $list['Name'] = $name;
+    $mode = strtolower(getXmlVal($file,'Mode'));
+    if ($mode == 'none')
+      $list['ip'] = '-';
+    if ($mode == 'bridge')
+      $list['ip'] = 'dynamic';
+    elseif ($mode == 'host')
+      $list['ip'] = $eth0['IPADDR:0'];
+    else {
+      $list['ip'] = getXmlVal($file,'MyIP',null,0);
+      if (!$list['ip']) $list['ip'] = 'dynamic';
+    }
+    $list['ip'] .= " ($mode)";
+    $ips[] = $list;
+  }
+  return $ips;
+}
+
 #    ██████╗ ██████╗ ██████╗ ███████╗
 #   ██╔════╝██╔═══██╗██╔══██╗██╔════╝
 #   ██║     ██║   ██║██║  ██║█████╗
@@ -682,6 +711,7 @@ if ($_GET['xmlTemplate']) {
   }
 }
 echo "<script>var UsedPorts=".json_encode(getUsedPorts()).";</script>";
+echo "<script>var UsedIPs=".json_encode(getUsedIPs()).";</script>";
 $authoringMode = ($dockercfg["DOCKER_AUTHORING_MODE"] == "yes") ? true : false;
 $authoring     = $authoringMode ? 'advanced' : 'noshow';
 $showAdditionalInfo = '';
@@ -831,8 +861,17 @@ $showAdditionalInfo = '';
   function makeUsedPorts(container,current) {
     var html = [];
     for (var i=0; i < container.length; i++) {
-      var highlight = container[i].Name.toLowerCase()==current.toLowerCase() ? "color:#F0000C" : "";
+      var highlight = container[i].Name.toLowerCase()==current.toLowerCase() ? "font-weight:bold" : "";
       html.push($("#templateUsedPorts").html().format(highlight,container[i].Name,container[i].Port));
+    }
+    return html.join('');
+  }
+
+  function makeUsedIPs(container,current) {
+    var html = [];
+    for (var i=0; i < container.length; i++) {
+      var highlight = container[i].Name.toLowerCase()==current.toLowerCase() ? "font-weight:bold" : "";
+      html.push($("#templateUsedIPs").html().format(highlight,container[i].Name,container[i].ip));
     }
     return html.join('');
   }
@@ -1419,6 +1458,13 @@ $showAdditionalInfo = '';
     <table class="settings">
       <tr>
         <td></td>
+        <td id="ipsused_toggle" class="ipsused_collapsed"><a onclick="toggleIPsUsed()" style="font-size: 1.2em;cursor: pointer"><i class="fa fa-chevron-down"></i> Show deployed IP addresses ...</a></td>
+      </tr>
+    </table>
+    <div id="configLocationIPs" style="display:none"></div><br>
+    <table class="settings">
+      <tr>
+        <td></td>
         <td><a href="javascript:addConfigPopup()" style="font-size: 1.2em"><i class="fa fa-plus"></i> Add another Path, Port or Variable</a></td>
       </tr>
     </table>
@@ -1534,6 +1580,12 @@ $showAdditionalInfo = '';
 </table>
 </div>
 
+<div id="templateUsedIPs" style="display:none">
+<table class='settings'>
+  <tr><td></td><td style="{0}"><span style="width:120px;display:inline-block;padding-left:20px">{1}</span>{2}</td></tr>
+</table>
+</div>
+
 <script type="text/javascript">
   var subnet = {};
 <?foreach ($subnet as $network => $value):?>
@@ -1576,6 +1628,18 @@ $showAdditionalInfo = '';
       $('#configLocationPorts').slideUp('fast');
       readm.removeClass('portsused_expanded').addClass('portsused_collapsed');
       readm.find('a').html('<i class="fa fa-chevron-down"></i> Show deployed host ports ...');
+    }
+  }
+  function toggleIPsUsed() {
+    var readm = $('#ipsused_toggle');
+    if ( readm.hasClass('ipsused_collapsed') ) {
+      readm.removeClass('ipsused_collapsed').addClass('ipsused_expanded');
+      $('#configLocationIPs').slideDown('fast');
+      readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide deployed IP addresses ...');
+    } else {
+      $('#configLocationIPs').slideUp('fast');
+      readm.removeClass('ipsused_expanded').addClass('ipsused_collapsed');
+      readm.find('a').html('<i class="fa fa-chevron-down"></i> Show deployed IP addresses ...');
     }
   }
   function load_contOverview() {
@@ -1642,6 +1706,9 @@ $showAdditionalInfo = '';
 
     // Add list of deployed host ports
     $("#configLocationPorts").html(makeUsedPorts(UsedPorts,$('input[name="contName"]').val()));
+
+    // Add list of deployed IP addresses
+    $("#configLocationIPs").html(makeUsedIPs(UsedIPs,$('input[name="contName"]').val()));
 
     // Add switchButton
     $('.switch-on-off').each(function(){var checked = $(this).is(":checked");$(this).switchButton({labels_placement: "right", checked:checked});});
