@@ -14,7 +14,30 @@ Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * all copies or substantial portions of the Software.
  */
 ?>
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<?
+function clone_list_nfs($disk) {
+  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || $disk['name']=='cache');
+}
+?>
+> *Clone settings to* is used to copy the SMB security settings of the current selected share to one or more other existing shares.
+>
+> Select the desired destinations and press **Clone** to copy the SMB security settings to those shares.
+
+<div style="position:absolute;right:0">
+<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<select id="s8" name="nfsClone" size="1" multiple="multiple" style="display:none">
+<option>All</option>
+<?
+if (isset($disks[$name])) {
+  foreach (array_filter($disks,'clone_list_nfs') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
+} else {
+  foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
+}
+?>
+</select><input type="button" id="clonenfs" value="Clone" onclick="cloneNFS()" style="margin-left:8px">
+</div>
+
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#clonenfs').prop('disabled',true);$('#s8').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
@@ -47,3 +70,32 @@ Rule:
 : <input type="submit" name="changeShareAccessNFS" value="Apply"><input type="button" value="Done" onclick="done()">
 </form>
 <?endif;?>
+
+<script>
+$(function() {
+  initDropdown4(false);
+<?if ($tabbed):?>
+  $('<?=$var['shareAFPEnabled']=='no'?'#tab1':'#tab2'?>').bind({click:function(){initDropdown4(true);}});
+<?endif;?>
+});
+function initDropdown4(reset) {
+  if (reset) {
+    $('#s8').dropdownchecklist('destroy');
+  }
+  $("#s8").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+}
+function cloneNFS() {
+  var data = {}, copied = false;
+  data.shareExportNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['export']))?>';
+  data.shareSecurityNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['security']))?>';
+  data.changeShareSecurityNFS = 'Apply';
+  $('select#s8 option').map(function() {
+    if ($(this).prop('selected')==true) {
+      data.shareName = $(this).val();
+      $.post('/update.htm', data);
+      copied = true;
+    }
+  });
+  if (copied) swal({title:'Clone complete',text:'NFS security settings are cloned to the selected shares',type:'success'},function(){refresh();});
+}
+</script>

@@ -56,10 +56,10 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 > composite view of all files and subdirectories for which that top-level directory exists on each storage device.
 >
 <?if (!$name):?>
-> *Clone source* is used to preset the settings of the new share with the settings of an existing share.
+> *Clone settings from* is used to preset the settings of the new share with the settings of an existing share.
 > Select the desired share name and press **Clone** to copy the settings from that source.
 <?else:?>
-> *Clone destinations* is used to copy the settings of the current share to one or more other existing shares.
+> *Clone settings to* is used to copy the settings of the current share to one or more other existing shares.
 > Select the desired destinations and press **Clone** to copy the settings to those shares.
 <?endif;?>
 
@@ -84,7 +84,7 @@ function initDropdown1(remove,create) {
     $("#s1").dropdownchecklist({emptyText:'All', width:300, explicitClose:'...close'});
     $("#s2").dropdownchecklist({emptyText:'None', width:300, explicitClose:'...close'});
 <?if ($name):?>
-    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'please select...', width:150, explicitClose:'...close'});
+    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
 <?endif;?>
   }
 }
@@ -186,21 +186,19 @@ function cloneShare() {
 }
 <?endif;?>
 </script>
-<div style="float:right">
+<div style="position:absolute;right:0">
 <?if ($name):?>
-<span style="display:block;font-weight:bold;margin-left:2px;margin-bottom:4px">Clone destinations</span>
+<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
 <select id="s3" name="shareClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);?>
-</select>
-<div style="margin-top:10px;text-align:right"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" style="margin-right:0"></div>
+</select><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" style="margin-left:8px">
 <?else:?>
-<span style="display:block;font-weight:bold;margin-left:2px;margin-bottom:4px">Clone source</span>
+<span style="font-weight:bold;margin-right:4px">Clone settings from</span>
 <select name="shareClone" size="1" onchange="$('#cloneshare').prop('disabled',false)">
-<option disabled selected>please select...</option>
+<option disabled selected>select...</option>
 <?foreach ($shares as $list) echo mk_option("", $list['name'], $list['name']);?>
-</select>
-<div style="margin-top:10px"><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" disabled></div>
+</select><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" style="margin-left:8px" disabled>
 <?endif;?>
 </div>
 
