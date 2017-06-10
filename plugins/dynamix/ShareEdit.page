@@ -254,7 +254,7 @@ Minimum free space:
 > Include units KB, MB, GB and TB as appropriate, e.g. 10MB.
 
 Split level:
-: <select name="shareSplitLevel" size="1" style="width:320px">
+: <select name="shareSplitLevel" size="1">
   <?=mk_option($share['splitLevel'], "", "Automatically split any directory as required")?>
   <?=mk_option($share['splitLevel'], "1", "Automatically split only the top level directory as required")?>
   <?=mk_option($share['splitLevel'], "2", "Automatically split only the top two directory levels as required")?>
