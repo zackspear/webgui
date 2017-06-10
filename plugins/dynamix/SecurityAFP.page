@@ -14,33 +14,47 @@ Cond="(($var['shareAFPEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * all copies or substantial portions of the Software.
  */
 ?>
-<?
-function clone_list_afp($disk) {
-  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || $disk['name']=='cache');
-}
-?>
 > This section is used to configure the security settings for the share when accessed using AFP and
 > appears only when AFP is enabled on the Network Services page.
-
-> *Clone settings to* is used to copy the AFP security settings of the current selected share to one or more other existing shares.
 >
-> Select the desired destinations and press **Clone** to copy the AFP security settings to those shares.
+> *Read settings from* is used to preset the AFP security settings of the current selected share with the settings of an existing share.
+>
+> Select the desired share name and press **Read** to copy the AFP security settings from the selected source.
+>
+> *Write settings to* is used to copy the AFP security settings of the current selected share to one or more other existing shares.
+>
+> Select the desired destinations and press **Write** to copy the AFP security settings to the selected shares.
 
-<div style="position:absolute;right:0">
-<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
-<select id="s6" name="afpClone" size="1" multiple="multiple" style="display:none">
-<option>All</option>
+<div class="clone1">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
+<select name="readafp" size="1" class="clone" onchange="toggleButton('readafp',false)">
+<option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
-  foreach (array_filter($disks,'clone_list_afp') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="cloneafp" value="Clone" onclick="cloneAFP()" style="margin-left:8px">
+</select><input type="button" id="readafp" value="Read" class="clone" onclick="readAFP()" disabled>
+</div>
+<div class="clone2">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
+<select id="afp1" name="writeafp" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeafp',this.id)">
+<?
+$rows = [];
+if (isset($disks[$name])) {
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], my_disk($list['name']));
+} else {
+  foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
+}
+if ($rows) echo "<option>All</option>";
+foreach ($rows as $row) echo $row;
+?>
+</select><input type="button" id="writeafp" value="Write" class="clone" onclick="writeAFP()" disabled>
 </div>
 
-<form markdown="1" name="afp_security_form" method="POST" action="/update.htm" target="progressFrame" onchange="$('#cloneafp').prop('disabled',true);$('#s6').dropdownchecklist('disable')">
+<form markdown="1" name="afp_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeafp',true);$('#afp1').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
@@ -112,25 +126,44 @@ Security:
 <?if ($sec_afp[$name]['security'] == 'secure'):?>
 <div id="title" class="nocontrol"><dt>AFP User Access</dt><i>Guests have <b>read-only</b> access.</i></div>
 
-> *Clone settings to* is used to copy the AFP User Access settings of the current share to one or more other existing shares.
+> *Read settings from* is used to preset the AFP User Access settings of the current selected share with the settings of an existing share.
 >
-> Select the desired destinations and press **Clone** to copy the AFP User access settings to those shares.
+> Select the desired share name and press **Read** to copy the AFP security settings from the selected source.
+>
+> *Write settings to* is used to copy the AFP User Access settings of the current share to one or more other existing shares.
+>
+> Select the desired destinations and press **Write** to copy the AFP User access settings to the selected shares.
 
-<div style="position:absolute;right:0">
-<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
-<select id="s7" name="afpClone" size="1" multiple="multiple" style="display:none">
-<option>All</option>
+<div class="clone1">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
+<select name="readuserafp" size="1" class="clone" onchange="toggleButton('readuserafp',false)">
+<option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
-  foreach ($disks as $list) if ($list['name']!=$name && ($list['type']=='Data' || $list['name']=='cache') && $sec_afp[$list['name']]['security']=='secure') echo mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='secure') echo mk_option("", $list['name'], my_disk($list['name']));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='secure') echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="cloneuserafp" value="Clone" onclick="cloneUserAFP()" style="margin-left:8px">
+</select><input type="button" id="readuserafp" value="Read" class="clone" onclick="readUserAFP()" disabled>
+</div>
+<div class="clone2">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
+<select id="afp2" name="writeuserafp" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeuserafp',this.id)">
+<?
+$rows = [];
+if (isset($disks[$name])) {
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='secure') $rows[] = mk_option("", $list['name'], my_disk($list['name']));
+} else {
+  foreach ($shares as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='secure') $rows[] = mk_option("", $list['name'], $list['name']);
+}
+if ($rows) echo "<option>All</option>";
+foreach ($rows as $row)echo $row;
+?>
+</select><input type="button" id="writeuserafp" value="Write" class="clone" onclick="writeUserAFP()" disabled>
 </div>
 
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#cloneuserafp').prop('disabled',true);$('#s7').dropdownchecklist('disable')">
+<form markdown="1" name="afp_user_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeuserafp',true);$('#afp2').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <?input_secure_users($sec_afp);?>
 
@@ -141,25 +174,44 @@ if (isset($disks[$name])) {
 <?elseif ($sec_afp[$name]['security'] == 'private'):?>
 <div id="title" class="nocontrol"><dt>AFP User Access</dt><i>Guests have <b>no</b> access.</i></div>
 
-> *Clone settings to* is used to copy the AFP User Access settings of the current share to one or more other existing shares.
+> *Read settings from* is used to preset the AFP User Access settings of the current selected share with the settings of an existing share.
 >
-> Select the desired destinations and press **Clone** to copy the AFP User access settings to those shares.
+> Select the desired share name and press **Read** to copy the AFP security settings from the selected source.
+>
+> *Write settings to* is used to copy the AFP User Access settings of the current share to one or more other existing shares.
+>
+> Select the desired destinations and press **Write** to copy the AFP User access settings to the selected shares.
 
-<div style="position:absolute;right:0">
-<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
-<select id="s7" name="afpClone" size="1" multiple="multiple" style="display:none">
-<option>All</option>
+<div class="clone1">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
+<select name="readuserafp" size="1" class="clone" onchange="toggleButton('readuserafp',false)">
+<option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
-  foreach (array_filter($disks,'clone_list_afp') as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='private') echo mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='private') echo mk_option("", $list['name'], my_disk($list['name']));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='private') echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="cloneuserafp" value="Clone" onclick="cloneUserAFP()" style="margin-left:8px">
+</select><input type="button" id="readuserafp" value="Read" class="clone" onclick="readUserAFP()" disabled>
+</div>
+<div class="clone2">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
+<select id="afp2" name="writeuserafp" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeuserafp',this.id)">
+<?
+$rows = [];
+if (isset($disks[$name])) {
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='private') $rows[] = mk_option("", $list['name'], my_disk($list['name']));
+} else {
+  foreach ($shares as $list) if ($list['name']!=$name && $sec_afp[$list['name']]['security']=='private') $rows[] = mk_option("", $list['name'], $list['name']);
+}
+if ($rows) echo "<option>All</option>";
+foreach($rows as $row) echo $row;
+?>
+</select><input type="button" id="writeuserafp" value="Write" class="clone" onclick="writeUserAFP()" disabled>
 </div>
 
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#cloneuserafp').prop('disabled',true);$('#s7').dropdownchecklist('disable')">
+<form markdown="1" name="afp_user_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeuserafp',true);$('#afp2').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <?input_private_users($sec_afp);?>
 
@@ -170,44 +222,77 @@ if (isset($disks[$name])) {
 
 <script>
 $(function() {
-  checkShareSettingsAFP(document.afp_security_form);
-  initDropdown3(false);
+  checkShareSettingsAFP(document.afp_edit);
+  initDropdownAFP(false);
 <?if ($tabbed):?>
-  $('#tab1').bind({click:function(){initDropdown3(true);}});
+  $('#tab2').bind({click:function(){initDropdownAFP(true);}});
 <?endif;?>
 <?if (count($users)==1):?>
-  $('#cloneuserafp').prop('disabled',true);
-  $('#s7').dropdownchecklist('disable');
+  toggleButton('readuserafp',true);
+  toggleButton('writeuserafp',true);
+  $('#afp2').dropdownchecklist('disable');
 <?endif;?>
 });
 function checkShareSettingsAFP(form) {
   form.shareVolsizelimitAFP.disabled = form.shareExportAFP.value!="et";
 }
-function initDropdown3(reset) {
+function initDropdownAFP(reset) {
   if (reset) {
-    $('#s6').dropdownchecklist('destroy');
-    $('#s7').dropdownchecklist('destroy');
+    $('#afp1').dropdownchecklist('destroy');
+    $('#afp2').dropdownchecklist('destroy');
   }
-  $("#s6").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
-  $("#s7").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#afp1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#afp2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
 }
-function cloneAFP() {
+function readAFP() {
+  var form = document.afp_edit;
+  var name = $('select[name="readafp"]').val();
+  $.get('/webGui/include/ProtocolData.php',{protocol:'afp',name:name},function(json) {
+    var data = $.parseJSON(json);
+    form.shareExportAFP.value = data.export;
+    form.shareVolsizelimitAFP.value = data.volsizelimit;
+    form.shareVoldbpathAFP.value = data.voldbpath;
+    form.shareSecurityAFP.value = data.security;
+  });
+  $(form).find('select').trigger('change');
+}
+function writeAFP() {
   var data = {}, copied = false;
   data.shareExportAFP = '<?=addslashes(htmlspecialchars($sec_afp[$name]['export']))?>';
   data.shareVolsizelimitAFP = '<?=addslashes(htmlspecialchars($sec_afp[$name]['volsizelimit']))?>';
   data.shareVoldbpathAFP = '<?=addslashes(htmlspecialchars($sec_afp[$name]['voldbpath']))?>';
   data.shareSecurityAFP = '<?=addslashes(htmlspecialchars($sec_afp[$name]['security']))?>';
   data.changeShareSecurityAFP = 'Apply';
-  $('select#s6 option').map(function() {
+  $('select#afp1 option').map(function() {
     if ($(this).prop('selected')==true) {
       data.shareName = $(this).val();
       $.post('/update.htm', data);
       copied = true;
     }
   });
-  if (copied) swal({title:'Clone complete',text:'AFP security settings are cloned to the selected shares',type:'success'},function(){refresh();});
+  if (copied) swal({title:'Clone complete',text:'AFP security settings are written to the selected shares',type:'success'},function(){refresh();});
 }
-function cloneUserAFP() {
+function readUserAFP() {
+  var form = document.afp_user_edit;
+  var name = $('select[name="readuserafp"]').val();
+  var users = {};
+<?
+  foreach ($users as $user) {
+    if ($user['name'] == "root") continue;
+    echo "users['{$user['name']}'] = {$user['idx']};\n";
+  }
+?>
+  $.get('/webGui/include/ProtocolData.php',{protocol:'afp',name:name},function(json) {
+    var data = $.parseJSON(json);
+    var readList = data.readList.split(',');
+    var writeList = data.writeList.split(',');
+    $(form).find('select[name^="userAccess."]').each(function(){$(this).val('no-access');});
+    for (var i=0; i < readList.length; i++) $(form).find('select[name="userAccess.'+users[readList[i]]+'"]').val('read-only');
+    for (var i=0; i < writeList.length; i++) $(form).find('select[name="userAccess.'+users[writeList[i]]+'"]').val('read-write');
+  });
+  $(form).find('select').trigger('change');
+}
+function writeUserAFP() {
   var data = {}, copied = false;
   data['userAccess.0'] = 'no-access';
 <?
@@ -226,13 +311,13 @@ function cloneUserAFP() {
   }
 ?>
   data.changeShareAccessAFP = 'Apply';
-  $('select#s7 option').map(function() {
+  $('select#afp2 option').map(function() {
     if ($(this).prop('selected')==true) {
       data.shareName = $(this).val();
       $.post('/update.htm', data);
       copied = true;
     }
   });
-  if (copied) swal({title:'Clone complete',text:'User access settings are cloned to the selected shares',type:'success'},function(){refresh();});
+  if (copied) swal({title:'Clone complete',text:'AFP User Access settings are written to the selected shares',type:'success'},function(){refresh();});
 }
 </script>

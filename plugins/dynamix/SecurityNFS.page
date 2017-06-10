@@ -14,30 +14,44 @@ Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * all copies or substantial portions of the Software.
  */
 ?>
-<?
-function clone_list_nfs($disk) {
-  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || $disk['name']=='cache');
-}
-?>
-> *Clone settings to* is used to copy the NFS security settings of the current selected share to one or more other existing shares.
+> *Read settings from* is used to preset the NFS security settings of the current selected share with the settings of an existing share.
 >
-> Select the desired destinations and press **Clone** to copy the NFS security settings to those shares.
+> Select the desired share name and press **Read** to copy the NFS security settings from the selected source.
+>
+> *Write settings to* is used to copy the NFS security settings of the current selected share to one or more other existing shares.
+>
+> Select the desired destinations and press **Write** to copy the NFS security settings to the selected shares.
 
-<div style="position:absolute;right:0">
-<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
-<select id="s8" name="nfsClone" size="1" multiple="multiple" style="display:none">
-<option>All</option>
+<div class="clone1">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
+<select name="readnfs" size="1" class="clone" onchange="toggleButton('readnfs',false)">
+<option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
-  foreach (array_filter($disks,'clone_list_nfs') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="clonenfs" value="Clone" onclick="cloneNFS()" style="margin-left:8px">
+</select><input type="button" id="readnfs" value="Read" class="clone" onclick="readNFS()" disabled>
+</div>
+<div class="clone2">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
+<select id="nfs1" name="writenfs" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writenfs',this.id)">
+<?
+$rows = [];
+if (isset($disks[$name])) {
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], my_disk($list['name']));
+} else {
+  foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
+}
+if ($rows) echo "<option>All</option>";
+foreach ($rows as $row) echo $row;
+?>
+</select><input type="button" id="writenfs" value="Write" class="clone" onclick="writeNFS()" disabled>
 </div>
 
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onchange="$('#clonenfs').prop('disabled',true);$('#s8').dropdownchecklist('disable')">
+<form markdown="1" name="nfs_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writenfs',true);$('#nfs1').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
 Share name:
@@ -73,29 +87,39 @@ Rule:
 
 <script>
 $(function() {
-  initDropdown4(false);
+  initDropdownNFS(false);
 <?if ($tabbed):?>
-  $('<?=$var['shareAFPEnabled']=='no'?'#tab1':'#tab2'?>').bind({click:function(){initDropdown4(true);}});
+  $('<?=$var['shareAFPEnabled']=='no'?'#tab2':'#tab3'?>').bind({click:function(){initDropdownNFS(true);}});
 <?endif;?>
 });
-function initDropdown4(reset) {
+function initDropdownNFS(reset) {
   if (reset) {
-    $('#s8').dropdownchecklist('destroy');
+    $('#nfs1').dropdownchecklist('destroy');
   }
-  $("#s8").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#nfs1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
 }
-function cloneNFS() {
+function readNFS() {
+  var form = document.nfs_edit;
+  var name = $('select[name="readnfs"]').val();
+  $.get('/webGui/include/ProtocolData.php',{protocol:'nfs',name:name},function(json) {
+    var data = $.parseJSON(json);
+    form.shareExportNFS.value = data.export;
+    form.shareSecurityNFS.value = data.security;
+  });
+  $(form).find('select').trigger('change');
+}
+function writeNFS() {
   var data = {}, copied = false;
   data.shareExportNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['export']))?>';
   data.shareSecurityNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['security']))?>';
   data.changeShareSecurityNFS = 'Apply';
-  $('select#s8 option').map(function() {
+  $('select#nfs1 option').map(function() {
     if ($(this).prop('selected')==true) {
       data.shareName = $(this).val();
       $.post('/update.htm', data);
       copied = true;
     }
   });
-  if (copied) swal({title:'Clone complete',text:'NFS security settings are cloned to the selected shares',type:'success'},function(){refresh();});
+  if (copied) swal({title:'Clone complete',text:'NFS security settings are written to the selected shares',type:'success'},function(){refresh();});
 }
 </script>
