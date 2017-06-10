@@ -188,13 +188,13 @@ function cloneShare() {
 </script>
 <div style="position:absolute;right:0">
 <?if ($name):?>
-<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
 <select id="s3" name="shareClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);?>
 </select><input type="button" id="cloneshare" value="Clone" onclick="cloneShare()" style="margin-left:8px">
 <?else:?>
-<span style="font-weight:bold;margin-right:4px">Clone settings from</span>
+<span style="margin-right:4px">Clone settings from</span><i class="fa fa-arrow-left" style="margin-right:4px"></i>
 <select name="shareClone" size="1" onchange="$('#cloneshare').prop('disabled',false)">
 <option disabled selected>select...</option>
 <?foreach ($shares as $list) echo mk_option("", $list['name'], $list['name']);?>

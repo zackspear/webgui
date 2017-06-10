@@ -24,7 +24,7 @@ function clone_list_smb($disk) {
 > Select the desired destinations and press **Clone** to copy the SMB security settings to those shares.
 
 <div style="position:absolute;right:0">
-<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
 <select id="s4" name="smbClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?
@@ -87,14 +87,14 @@ Security:
 </form>
 
 <?if ($sec[$name]['security'] == 'secure'):?>
-<div id="title" class="nocontrol"><dt>User Access</dt><i>Guests have <b>read-only</b> access.</i></div>
+<div id="title" class="nocontrol"><dt>SMB User Access</dt><i>Guests have <b>read-only</b> access.</i></div>
 
-> *Clone settings to* is used to copy the User access settings of the current share to one or more other existing shares.
+> *Clone settings to* is used to copy the SMB User Access settings of the current share to one or more other existing shares.
 >
-> Select the desired destinations and press **Clone** to copy the  User access settings to those shares.
+> Select the desired destinations and press **Clone** to copy the SMB User access settings to those shares.
 
 <div style="position:absolute;right:0">
-<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
 <select id="s5" name="smbClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?
@@ -116,14 +116,14 @@ if (isset($disks[$name])) {
 </form>
 
 <?elseif ($sec[$name]['security'] == 'private'):?>
-<div id="title" class="nocontrol"><dt>User Access</dt><i>Guests have <b>no</b> access.</i></div>
+<div id="title" class="nocontrol"><dt>SMB User Access</dt><i>Guests have <b>no</b> access.</i></div>
 
-> *Clone settings to* is used to copy the User access settings of the current share to one or more other existing shares.
+> *Clone settings to* is used to copy the SMB User Access settings of the current share to one or more other existing shares.
 >
-> Select the desired destinations and press **Clone** to copy the  User access settings to those shares.
+> Select the desired destinations and press **Clone** to copy the SMB User access settings to those shares.
 
 <div style="position:absolute;right:0">
-<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
 <select id="s5" name="smbClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?

@@ -19,12 +19,12 @@ function clone_list_nfs($disk) {
   return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || $disk['name']=='cache');
 }
 ?>
-> *Clone settings to* is used to copy the SMB security settings of the current selected share to one or more other existing shares.
+> *Clone settings to* is used to copy the NFS security settings of the current selected share to one or more other existing shares.
 >
-> Select the desired destinations and press **Clone** to copy the SMB security settings to those shares.
+> Select the desired destinations and press **Clone** to copy the NFS security settings to those shares.
 
 <div style="position:absolute;right:0">
-<span style="font-weight:bold;margin-right:4px">Clone settings to</span>
+<span style="margin-right:4px">Clone settings to</span><i class="fa fa-arrow-right" style="margin-right:4px"></i>
 <select id="s8" name="nfsClone" size="1" multiple="multiple" style="display:none">
 <option>All</option>
 <?
