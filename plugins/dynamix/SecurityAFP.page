@@ -225,7 +225,7 @@ $(function() {
   checkShareSettingsAFP(document.afp_edit);
   initDropdownAFP(false);
 <?if ($tabbed):?>
-  $('#tab2').bind({click:function(){initDropdownAFP(true);}});
+  $('<?=$path=='Shares/Share'?'#tab2':'#tab1'?>').bind({click:function(){initDropdownAFP(true);}});
 <?endif;?>
 <?if (count($users)==1):?>
   toggleButton('readuserafp',true);

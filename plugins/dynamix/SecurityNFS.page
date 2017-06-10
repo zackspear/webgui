@@ -89,7 +89,11 @@ Rule:
 $(function() {
   initDropdownNFS(false);
 <?if ($tabbed):?>
-  $('<?=$var['shareAFPEnabled']=='no'?'#tab2':'#tab3'?>').bind({click:function(){initDropdownNFS(true);}});
+<?
+$path=='Shares/Share' ? $t=2 : $t=1;
+if ($var['shareAFPEnabled']!='no') $t++;
+?>
+  $('#tab<?=$t?>').bind({click:function(){initDropdownNFS(true);}});
 <?endif;?>
 });
 function initDropdownNFS(reset) {
