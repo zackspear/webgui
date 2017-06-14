@@ -99,6 +99,68 @@ Flash GUID:
 
 
 
+<?if (strstr($var['regTy'], "no connection")):?>
+<form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
+<input type="hidden" name="TrialGUID" value="<?=$var['flashGUID']?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
+<span class="thanks">Thank you for trying unRAID Server OS!</span>
+<div markdown="1" class="remark">
+<span class='red-text'>Cannot connect to key-server!</span>
+
+Your *Trial* key requires an internet connection.  Please check your [Nework Settings](NetworkSettings).
+</div>
+
+***Trial*** key expires on:
+: <?=my_time($var['regTm2'])?>
+
+Flash Vendor:
+: <?=$var['flashVendor']?>
+
+Flash Product:
+: <?=$var['flashProduct']?>
+
+Flash GUID:
+: <?=$var['flashGUID']?>
+
+<span class="device"><?=$attached_devices?></span>
+: <input type="submit" value="Purchase Key"> <input type="button" value="Request Extension" disabled>
+
+</form>
+<?endif;?>
+
+
+
+<?if (strstr($var['regTy'], "withdrawn")):?>
+<form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
+<input type="hidden" name="TrialGUID" value="<?=$var['flashGUID']?>">
+<input type="hidden" name="deviceCount" value="<?=$var['deviceCount']?>">
+<span class="thanks">Thank you for trying unRAID Server OS!</span>
+<div markdown="1" class="remark">
+<span class='red-text'>Release has been withdrawn!</span>
+
+This release has been withdrawn for use with *Trial* keys.
+</div>
+
+***Trial*** key expires on:
+: <?=my_time($var['regTm2'])?>
+
+Flash Vendor:
+: <?=$var['flashVendor']?>
+
+Flash Product:
+: <?=$var['flashProduct']?>
+
+Flash GUID:
+: <?=$var['flashGUID']?>
+
+<span class="device"><?=$attached_devices?></span>
+: <input type="submit" value="Purchase Key"> <input type="button" value="Request Extension" disabled>
+
+</form>
+<?endif;?>
+
+
+
 <?if (strstr($var['regTy'], "expired")):?>
 <form markdown="1" method="GET" action="https://lime-technology.com/getkey" target="_blank">
 <input type="hidden" name="TrialGUID" value="<?=$var['flashGUID']?>">
