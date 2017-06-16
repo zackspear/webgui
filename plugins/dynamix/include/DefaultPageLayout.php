@@ -30,7 +30,9 @@
 .inline_help{display:none}
 <?
 $banner = '/boot/config/plugins/dynamix/banner.png';
-echo "#header.image{background-image:url(".(file_exists($banner) ? autov($banner) : '/webGui/images/banner.png').")}\n";
+echo "#header.image{background-image:url(";
+echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
+echo ")}\n";
 if ($display['theme']=='gray' || $display['theme']=='azure') {
   $pages = find_pages('Tasks');
   foreach ($pages as $page) if ($page['Code']) echo "#nav-item a[href='/{$page['name']}']:before{content:'\\{$page['Code']}'}\n";
