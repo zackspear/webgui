@@ -30,7 +30,9 @@
 .inline_help{display:none}
 <?
 $banner = '/boot/config/plugins/dynamix/banner.png';
-echo "#header.image{background-image:url(".(file_exists($banner) ? autov($banner) : '/webGui/images/banner.png').")}\n";
+echo "#header.image{background-image:url(";
+echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
+echo ")}\n";
 if ($display['theme']=='gray' || $display['theme']=='azure') {
   $pages = find_pages('Tasks');
   foreach ($pages as $page) if ($page['Code']) echo "#nav-item a[href='/{$page['name']}']:before{content:'\\{$page['Code']}'}\n";
@@ -372,7 +374,7 @@ default:
 echo "</span>&bullet;&nbsp;<span class='bitstream'>Dynamix webGui v";
 echo exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin version /var/log/plugins/dynamix.plg");
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>unRAID&reg; webGui &copy;2016, Lime Technology, Inc.";
+echo "<span id='copyright'>unRAID&reg; webGui &copy;2017, Lime Technology, Inc.";
 if (isset($myPage['Author'])) {
   echo " | Page author: {$myPage['Author']}";
   if (isset($myPage['Version'])) echo ", version: {$myPage['Version']}";
