@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -12,16 +12,18 @@
  */
 ?>
 <?
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
+
 $var = parse_ini_file('state/var.ini');
+$webgui = parse_plugin_cfg('dynamix',true);
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-white.css">
-
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
 <style>
-span.key{width:82px;display:inline-block;font-weight:bold;}
-div.box{margin-top:8px;font-size:12px;line-height:30px;color:#303030;margin-left:40px;}
+span.key{width:92px;display:inline-block;font-weight:bold}
+div.box{margin-top:8px;line-height:30px;margin-left:40px;font-size:12px}
 </style>
-
 <script>
 // server uptime & update period
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
@@ -38,7 +40,6 @@ function updateTime() {
   setTimeout(updateTime, 1000);
 }
 </script>
-
 <body onLoad="updateTime()">
 <div class="box">
 <div><span class="key">Model:</span>
@@ -175,10 +176,10 @@ foreach ($sPorts as $port) {
   echo $openssl_ver;
 ?></div>
 <div><span class="key">Uptime:</span>&nbsp;<span id="uptime"></span></div>
-<div><span class="key"></span>
+<div style="margin-top:24px;margin-bottom:12px"><span class="key"></span>
 <input type="button" value="Close" onclick="top.Shadowbox.close()">
 <?if ($_GET['more']):?>
-<a href="<?=htmlspecialchars($_GET['more'])?>" class="button" target="_parent">More</a>
+<a href="<?=htmlspecialchars($_GET['more'])?>" class="button" style="text-decoration:none" target="_parent">More</a>
 <?endif;?>
 </div></div>
 </body>
