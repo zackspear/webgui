@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,10 @@
  */
 ?>
 <?
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Wrappers.php";
+
+$webgui = parse_plugin_cfg('dynamix',true);
 $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May '=>'-05-',' Jun '=>'-06-',' Jul '=>'-07-',' Aug '=>'-08-',' Sep '=>'-09-',' Oct '=>'-10-',' Nov '=>'-11-',' Dec '=>'-12-'];
 
 function plus($val, $word, $last) {
@@ -30,10 +34,10 @@ function my_duration($time) {
 <html lang="en">
 <head>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-white.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
 </head>
 <body>
-<table class='share_status' style='margin-top:0'><thead><tr><td>Date</td><td>Duration</td><td>Speed</td><td>Status</td><td>Errors</td></tr></thead><tbody>
+<table class='share_status' style='margin-top:0;font-size:12px'><thead><tr><td>Date</td><td>Duration</td><td>Speed</td><td>Status</td><td>Errors</td></tr></thead><tbody>
 <?
 $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
