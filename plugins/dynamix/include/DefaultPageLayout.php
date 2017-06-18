@@ -28,6 +28,8 @@
 
 <style>
 .inline_help{display:none}
+.upgrade_notice{position:fixed;top:1px;left:0;width:100%;height:40px;line-height:40px;color:#E68A00;background:#FEEFB3;border-bottom:#E68A00 1px solid;text-align:center;font-size:15px;z-index:999}
+.upgrade_notice i{margin:14px;float:right;cursor:pointer}
 <?
 $banner = '/boot/config/plugins/dynamix/banner.png';
 echo "#header.image{background-image:url(";
@@ -136,7 +138,6 @@ function openBox(cmd,title,height,width,load) {
   var options = load ? {modal:true,onClose:function(){location=location;}} : {modal:true};
   Shadowbox.open({content:run, player:'iframe', title:title, height:height, width:width, options:options});
 }
-
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
   var window_name = title.replace(/ /g,"_");
@@ -171,7 +172,19 @@ function showNotice(data,plugin) {
     var href = "href=\"#\" onclick=\"openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2="+plugin+".plg','Update Plugin',600,900,true)\"";
   else
     var href = "href=\"/Plugins\"";
-  $('#user-notice').html(data.replace(/<a>(.*?)<\/a>/,"<a "+href+">$1</a>"));
+  $('#user-notice').html(data.replace(/<a>(.*)<\/a>/,"<a "+href+">$1</a>"));
+}
+function showUpgrade(data,plugin) {
+  var href = "href=\"#\" onclick=\"hideUpgrade();openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2="+plugin+".plg','Update Plugin',600,900,true)\"";
+  if ($.cookie('os_upgrade')==null)
+    $('.upgrade_notice').html(data.replace(/<a(.*)>(.*)<\/a>/,"<a "+href+"$1>$2</a>")+"<i class='fa fa-close' title='Close' onclick='hideUpgrade(true)'></i>").show();
+}
+function hideUpgrade(set) {
+  $('.upgrade_notice').hide();
+  if (set)
+    $.cookie('os_upgrade','true',{path:'/'});
+  else
+    $.removeCookie('os_upgrade',{path:'/'});
 }
 function notifier() {
   var tub1 = 0, tub2 = 0, tub3 = 0;
@@ -272,6 +285,7 @@ $(document).ajaxSend(function(elm, xhr, s){
 </head>
 <body class="<?='page_'.strtolower($myPage['name'])?>">
  <div id="template">
+  <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="#" onclick="openBox('/webGui/include/Feedback.php','Feedback',450,450,false);return false;"><img src="/webGui/images/limetech-logo-<?=$display['theme']?>.png" title="Feedback" border="0"/></a><br/>
@@ -400,12 +414,10 @@ $(function() {
 <?if (strpos(file_get_contents('/proc/cmdline'),'unraidsafemode')!==false):?>
   showNotice('System running in <b>safe</b> mode');
 <?else:?>
-<?if ($version = plugin_update_available('unRAIDServer',true)):?>
-  showNotice('unRAID OS v<?=$version?> is available. <a>Download Now</a>','unRAIDServer');
-<?elseif (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/", @file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
-  showNotice('Reboot required to apply unRAID OS update');
-<?elseif ($version = plugin_update_available('dynamix')):?>
-  showNotice('Dynamix webGUI v<?=$version?> is available. <a>Download Now</a>','dynamix');
+<?if (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
+  showUpgrade('<b>Reboot required</b> to apply unRAID OS update');
+<?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
+  showUpgrade('unRAID OS v<?=$version?> is available. <a>Download Now</a>','unRAIDServer');
 <?endif;?>
 <?endif;?>
 <?if ($notify['display']):?>

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 // Invoke the plugin command with indicated method
 function plugin($method, $arg = '') {
@@ -21,12 +21,12 @@ function plugin($method, $arg = '') {
   return implode("\n", $output);
 }
 
-function make_link($method, $arg) {
+function make_link($method, $arg, $extra='') {
   $id = basename($arg, ".plg").$method;
-  $check = $method=='update' ? "" : "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>";
+  $check = $method=='remove' ? "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>" : "";
   $disabled = $check ? " disabled" : "";
-  $cmd = $method == "delete" ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg";
-  return "{$check}<input type='button' id='$id' value='{$method}' onclick='openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
+  $cmd = $method == "delete" ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
+  return "{$check}<input type='button' id='$id' value='".ucfirst($method)."' onclick='hideUpgrade();openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
 }
 
 // trying our best to find an icon
@@ -46,5 +46,8 @@ function icon($name) {
   if (file_exists($icon)) return $icon;
 // last resort - plugin manager icon
   return "plugins/dynamix.plugin.manager/images/dynamix.plugin.manager.png";
+}
+function mk_option($select,$value) {
+  return "<option value='$value'".($select==$value?" selected":"").">".ucfirst($value)."</option>";
 }
 ?>
