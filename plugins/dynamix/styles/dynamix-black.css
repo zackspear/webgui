@@ -5,14 +5,14 @@ div.jGrowl.top-right{right:10px;top:-34px}
 div.jGrowl.bottom-left{left:10px;bottom:24px}
 div.jGrowl.bottom-right{right:10px;bottom:24px}
 div.jGrowl.center{top:-34px;left:40%}
-div.jGrowl div.jGrowl-notify.alert{color:#F0000C;background:#FF9E9E;opacity:0.96;border:1px solid #F0000C;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.warning{color:#E68A00;background:#FEEFB3;opacity:0.96;border:1px solid #E68A00;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.normal{color:#4F8A10;background:#DFF2BF;opacity:0.96;border:1px solid #4F8A10;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.default{color:#42453E;background:#FAFAF7;opacity:0.96;border:1px solid #42453E;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.alert{color:#F0000C;background-color:#FF9E9E;opacity:0.96;border:1px solid #F0000C;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.warning{color:#E68A00;background-color:#FEEFB3;opacity:0.96;border:1px solid #E68A00;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.normal{color:#4F8A10;background-color:#DFF2BF;opacity:0.96;border:1px solid #4F8A10;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.default{color:#42453E;background-color:#FAFAF7;opacity:0.96;border:1px solid #42453E;box-shadow:2px 2px 1px #888888}
 div.jGrowl div.jGrowl-notify{min-height:40px;width:380px;padding:10px;margin:5px 0;text-align:left;border-radius:6px}
 div.jGrowl div.jGrowl-notify div.jGrowl-header{font-weight:bold}
 div.jGrowl div.jGrowl-notify div.jGrowl-close{float:right;cursor:pointer}
-div.jGrowl div.jGrowl-closer{width:400px;color:#FAFAF7;background:#42453E;opacity:0.96;border:1px solid #42453e;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
+div.jGrowl div.jGrowl-closer{width:400px;color:#FAFAF7;background-color:#42453E;opacity:0.96;border:1px solid #42453e;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
 div.jGrowl div.jGrowl-closer.top{position:fixed;top:0}
 @media print{div.jGrowl{display:none}}
 .ui-dropdownchecklist{background:-webkit-radial-gradient(#505050,#303030);background:linear-gradient(#505050,#303030);border:none;box-shadow:0 2px 0 #404040;border-radius:4px;outline:none;cursor:pointer;height:23px;line-height:23px}
@@ -38,7 +38,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:0}
 #sb-loading{position:relative;height:100%}
 #sb-loading-inner{position:absolute;font-size:18px;line-height:20px;height:20px;top:50%;margin-top:-12px;width:100%;text-align:center}
 #sb-loading-inner span{background:url(../images/loading.gif) no-repeat;padding-left:22px;display:inline-block}
-#sb-body,#sb-loading{background:#1B1D1B}
+#sb-body,#sb-loading{background-color:#1B1D1B}
 #sb-info,#sb-info-inner{height:20px;line-height:20px}
 #sb-info-inner{font-size:12px}
 #sb-nav{float:right;height:16px;padding:2px 0;width:45%}
@@ -52,8 +52,8 @@ table.tablesorter thead tr th{font-size:13px;font-weight:normal;background:-webk
 table.tablesorter thead tr .header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
 table.tablesorter thead tr .headerSortUp{background-image:url(../images/sort-asc.png)}
 table.tablesorter thead tr .headerSortDown{background-image:url(../images/sort-desc.png)}
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background:#101010}
-table.tablesorter tbody tr:nth-child(even){background:#0C0C0C}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background-color:#101010}
+table.tablesorter tbody tr:nth-child(even){background-color:#0C0C0C}
 table.tablesorter tbody tr.tr_last{background:#181818;border-top:1px solid #202020;border-bottom:1px solid #202020}
 table.tablesorter tbody tr.tr_last td{padding:8px 20px 8px 6px}
 table.tablesorter tbody td{padding:4px 20px 4px 6px;vertical-align:middle;text-align:justify}

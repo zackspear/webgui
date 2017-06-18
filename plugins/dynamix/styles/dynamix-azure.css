@@ -5,14 +5,14 @@ div.jGrowl.top-right{right:10px;top:59px}
 div.jGrowl.bottom-left{left:70px;bottom:24px}
 div.jGrowl.bottom-right{right:10px;bottom:24px}
 div.jGrowl.center{top:59px;left:40%}
-div.jGrowl div.jGrowl-notify.alert{color:#F0000C;background:#FF9E9E;opacity:0.96;border:1px solid #F0000C;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.warning{color:#E68A00;background:#FEEFB3;opacity:0.96;border:1px solid #E68A00;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.normal{color:#4F8A10;background:#DFF2BF;opacity:0.96;border:1px solid #4F8A10;box-shadow:2px 2px 1px #888888}
-div.jGrowl div.jGrowl-notify.default{color:#42453E;background:#808080;opacity:0.96;border:1px solid #42453E;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.alert{color:#F0000C;background-color:#FF9E9E;opacity:0.96;border:1px solid #F0000C;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.warning{color:#E68A00;background-color:#FEEFB3;opacity:0.96;border:1px solid #E68A00;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.normal{color:#4F8A10;background-color:#DFF2BF;opacity:0.96;border:1px solid #4F8A10;box-shadow:2px 2px 1px #888888}
+div.jGrowl div.jGrowl-notify.default{color:#42453E;background-color:#808080;opacity:0.96;border:1px solid #42453E;box-shadow:2px 2px 1px #888888}
 div.jGrowl div.jGrowl-notify{min-height:40px;width:380px;padding:10px;margin:5px 0;text-align:left;border-radius:6px}
 div.jGrowl div.jGrowl-notify div.jGrowl-header{font-weight:bold}
 div.jGrowl div.jGrowl-notify div.jGrowl-close{float:right;cursor:pointer}
-div.jGrowl div.jGrowl-closer{width:400px;color:#808080;background:#121510;opacity:0.96;border:2px solid #B0B0B0;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
+div.jGrowl div.jGrowl-closer{width:400px;color:#808080;background-color:#121510;opacity:0.96;border:2px solid #B0B0B0;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
 div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 @media print{div.jGrowl{display:none}}
 .ui-dropdownchecklist{background:transparent;border:none;box-shadow:0 1px 0 #606E7F;outline:none;height:30px;line-height:30px;cursor:pointer}
@@ -20,7 +20,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 .ui-dropdownchecklist-group{font-weight:normal;font-style:italic;padding:1px 9px 1px 15px}
 .ui-dropdownchecklist-selector-wrapper{vertical-align:middle;font-size:0}
 .ui-state-active{border-color:#0072C6;background:transparent}
-.ui-dropdownchecklist-dropcontainer{color:#606E7F;background:#EDEAEF}
+.ui-dropdownchecklist-dropcontainer{color:#606E7F;background-color:#EDEAEF}
 .ui-state-disabled{border-color:#808080;background:#C7C5CB;opacity:0.5}
 .ui-dropdownchecklist-indent{padding-left:7px}
 .ui-dropdownchecklist-text{font-family:arimo;font-size:13px;color:#606E7F}
@@ -38,7 +38,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 #sb-loading{position:relative;height:100%}
 #sb-loading-inner{position:absolute;font-size:18px;line-height:20px;height:20px;top:50%;margin-top:-12px;width:100%;text-align:center}
 #sb-loading-inner span{background:url(../images/loading.gif) no-repeat;padding-left:22px;display:inline-block}
-#sb-body,#sb-loading{background:#E4E2E4}
+#sb-body,#sb-loading{background-color:#E4E2E4}
 #sb-info,#sb-info-inner{height:20px;line-height:20px}
 #sb-info-inner{font-size:13px}
 #sb-nav{float:right;height:16px;padding:2px 0;width:45%}
@@ -53,7 +53,7 @@ table.tablesorter thead tr th{text-transform:uppercase;font-weight:normal;color:
 table.tablesorter thead tr .header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
 table.tablesorter thead tr .headerSortUp{background-image:url(../images/sort-asc.png)}
 table.tablesorter thead tr .headerSortDown{background-image:url(../images/sort-desc.png)}
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background:#EDEAEF}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background-color:#EDEAEF}
 table.tablesorter tbody tr{border-bottom:#EDEAEF 1px solid}
 table.tablesorter tbody tr.tr_last{border-bottom:1px solid #606E7F}
 table.tablesorter tbody tr.tr_last td{padding:8px 20px 8px 6px}
@@ -233,4 +233,4 @@ div.icon-eml{background:url('../images/file-types.png') -96px -144px;width:16px;
 .tooltipster-sidetip .tooltipster-arrow-uncropped{position:relative}
 .tooltipster-sidetip.tooltipster-bottom .tooltipster-arrow-uncropped{top:-10px}
 .tooltipster-sidetip.tooltipster-right .tooltipster-arrow-uncropped{left:-10px}
-.fileTree{background:#FFF}
+.fileTree{background-color:#FFF}
