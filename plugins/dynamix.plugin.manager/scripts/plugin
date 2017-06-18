@@ -7,13 +7,15 @@
 $usage = <<<EOF
 Process plugin files.
 
-Usage: plugin install PLUGIN-FILE
+Usage: plugin install PLUGIN-FILE [forced]
   install a plugin
 
   PLUGIN-FILE is a plugin definition XML file with ".plg" extension.
 
   PLUGIN-FILE can be a local file, or a URL.  If a URL, the plugin file is first downloaded to /tmp/plugins.
 
+  forced is optional and can be used to install a lower version than currently running.
+  
   This command will process all FILE elements in PLUGIN-FILE which are tagged with the "install" method (or
   that have no method tag).
 
@@ -56,7 +58,7 @@ Usage: plugin check PLUGIN
 Usage: plugin checkall
   check all installed plugins
 
-  Runs 'plugin check PLUGIN' for each plugin file linked-to in /var/lib/plugins.
+  Runs 'plugin check PLUGIN' for each plugin file linked-to in /var/log/plugins.
 
 Usage: plugin update PLUGIN
   update the plugin
@@ -438,14 +440,18 @@ if ($method == "install") {
       echo "plugin: $error\n";
       exit(1);
     }
-    // do not re-install if same plugin already installed or has higher version
-    if (strcmp($version, $installed_version) < 0) {
-      echo "plugin: not installing older version\n";
-      exit(1);
-    }
-    if (strcmp($version, $installed_version) == 0) {
-      echo "plugin: not reinstalling same version\n";
-      exit(1);
+    // check version installation?
+    $forced = $argc==4 ? $argv[3] : false;
+    if (!$forced) {
+      // do not re-install if same plugin already installed or has higher version
+      if (strcmp($version, $installed_version) < 0) {
+        echo "plugin: not installing older version\n";
+        exit(1);
+      }
+      if (strcmp($version, $installed_version) == 0) {
+        echo "plugin: not reinstalling same version\n";
+        exit(1);
+      }
     }
     if (plugin("install", $plugin_file, $error) === false) {
       echo "plugin: $error\n";

@@ -1,0 +1,47 @@
+Menu="About"
+Title="Update OS"
+---
+<?PHP
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+
+<?$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, updating and retrieving system information ...</em></td><tr>"?>
+<script>
+var original = null;
+
+function change_release(release) {
+  $('#os_list').html("<?=$empty?>");
+  if (original) {
+    if (release != original) release = '';
+  } else {
+    if (release) original = release;
+  }
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',release:release},function(data) {
+    if (data) $('#os_list').html(data);
+    $('#os_table').trigger('update',true);
+  });
+}
+$(function() {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true'},function(data) {
+    if (data) $('#os_list').html(data);
+    $('#os_table').tablesorter({sortList:[[1,0]],headers:{0:{sorter:false},5:{sorter:false}}});
+<?if (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
+    $('#change_release').prop('disabled',true);
+<?endif;?>
+  });
+});
+</script>
+
+<table class='tablesorter plugins shift' id='os_table'>
+<thead><tr><th></th><th>System</th><th>Author</th><th>Version</th><th>Status</th><th>Release</th></tr></thead>
+<tbody id="os_list"><?=$empty?></tbody>
+</table>
