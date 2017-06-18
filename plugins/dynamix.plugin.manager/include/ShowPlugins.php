@@ -42,9 +42,11 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //toggle stable/next release?
   if ($os && $release) {
     $toggle = plugin('version',$plugin_file);
+    $cat = strpos($toggle,'rc')!==false ? 'stable' : 'next';
     $tmp_plg = "$name-.plg";
     $tmp_file = "/var/tmp/$name.plg";
     copy($plugin_file,$tmp_file);
+    exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$cat}\">|' $tmp_file");
     exec("sed -ri 's|^(<!ENTITY pluginURL).*|\\1 \"{$https[$release]}\">|' $tmp_file");
     symlink($tmp_file,"/var/log/plugins/$tmp_plg");
     plugin('check',$tmp_plg);
