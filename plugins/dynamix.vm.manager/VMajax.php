@@ -388,6 +388,7 @@ switch ($action) {
 		if ($boolModded) {
 			// Write Changes to syslinux.cfg
 			file_put_contents('/boot/syslinux/syslinux.cfg', implode('', $arrSyslinuxCfg));
+                        @copy('/boot/syslinux/syslinux.cfg', '/boot/EFI/boot/syslinux.cfg');
 		}
 
 		$arrResponse = ['success' => true, 'modified' => $boolModded];
@@ -411,6 +412,7 @@ switch ($action) {
 		if ($boolModded) {
 			// Write Changes to syslinux.cfg
 			file_put_contents('/boot/syslinux/syslinux.cfg', implode('', $arrSyslinuxCfg));
+                        @copy('/boot/syslinux/syslinux.cfg', '/boot/EFI/boot/syslinux.cfg');
 		}
 
 		$arrResponse = ['success' => true, 'modified' => $boolModded];
