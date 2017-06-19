@@ -17,15 +17,25 @@ $docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 function plugin($method, $arg = '') {
   global $docroot;
   exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin ".escapeshellarg($method)." ".escapeshellarg($arg), $output, $retval);
-  if ($retval != 0) return false;
-  return implode("\n", $output);
+  return $retval==0 ? implode("\n", $output) : false;
+}
+
+function check_plugin($arg, $google='8.8.8.8') {
+  $inet = 3;
+  // ping google DNS server first to ensure internet is present
+  while (1) {
+    if (exec("ping -qnc1 $google|awk '/received/{print $4}'")==1) break;
+    $inet--;
+    if ($inet) sleep(1); else break;
+  }
+  return $inet ? plugin('check',$arg) : false;
 }
 
 function make_link($method, $arg, $extra='') {
-  $id = basename($arg, ".plg").$method;
+  $id = basename($arg, '.plg').$method;
   $check = $method=='remove' ? "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>" : "";
-  $disabled = $check ? " disabled" : "";
-  $cmd = $method == "delete" ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
+  $disabled = $check ? ' disabled' : '';
+  $cmd = $method == 'delete' ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
   return "{$check}<input type='button' id='$id' value='".ucfirst($method)."' onclick='hideUpgrade();openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
 }
 
