@@ -34,8 +34,8 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   $custom = in_array($name,$builtin);
 //switch between system and custom plugins
   if (($system && !$custom) || (!$system && $custom)) continue;
-//forced plugin check?
-  if ($stale || $system) plugin('check',$name.'.plg');
+//forced plugin check
+  check_plugin("$name.plg");
 //OS update?
   $os = $system && $name==$builtin[0];
   $toggle = false;
@@ -49,9 +49,10 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
     exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$cat}\">|' $tmp_file");
     exec("sed -ri 's|^(<!ENTITY pluginURL).*|\\1 \"{$https[$release]}\">|' $tmp_file");
     symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-    plugin('check',$tmp_plg);
-    copy("/tmp/plugins/$tmp_plg",$tmp_file);
-    $plugin_file = $tmp_file;
+    if (check_plugin($tmp_plg)) {
+      copy("/tmp/plugins/$tmp_plg",$tmp_file);
+      $plugin_file = $tmp_file;
+    }
   }
 //link/icon
   $icon = icon($name);
