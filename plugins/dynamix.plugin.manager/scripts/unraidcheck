@@ -24,16 +24,18 @@ $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['plugin'];
 $builtin = ['unRAIDServer','dynamix'];
 
-plugin('checkall');
-foreach (glob("/tmp/plugins/*.plg", GLOB_NOSORT) as $file) {
-  $plg = basename($file);
-  $name = basename($plg, '.plg');
-  if (in_array($name,$builtin)) continue;
+foreach ($builtin as $name) {
+  $plg = "$name.plg";
+  plugin('check',$plg);
+  $file = "/tmp/plugins/$plg";
   $old = plugin('version', "/var/log/plugins/$plg");
   $new = plugin('version', $file);
   // silently suppress bad download of PLG file
   if (strcmp($new, $old) > 0) {
-    exec("$notify -e ".escapeshellarg("Plugin - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
+    $unRAID = plugin('unRAID', $file);
+    if ($unRAID === false || version_compare($current['version'], $unRAID, '>=')) {
+      exec("$notify -e ".escapeshellarg("System - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
+    }
   }
 }
 exit(0);
