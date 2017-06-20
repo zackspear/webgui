@@ -232,7 +232,7 @@ function writeSMB() {
   var data = {}, copied = false;
   data.shareExport = '<?=addslashes(htmlspecialchars($sec[$name]['export']))?>';
   data.shareFruit = '<?=addslashes(htmlspecialchars($sec[$name]['fruit']))?>';
-  data.shareSecurity = '<?=addslashes(htmlspecialchars($sec[$name]['shareSecurity']))?>';
+  data.shareSecurity = '<?=addslashes(htmlspecialchars($sec[$name]['security']))?>';
   data.changeShareSecurity = 'Apply';
   $('select#smb1 option').map(function() {
     if ($(this).prop('selected')==true) {
