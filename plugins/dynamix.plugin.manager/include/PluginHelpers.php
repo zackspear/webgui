@@ -26,7 +26,7 @@ function check_plugin($arg, $google='8.8.8.8') {
   while (1) {
     if (exec("ping -qnc1 $google|awk '/received/{print $4}'")==1) break;
     $inet--;
-    if ($inet) sleep(1); else break;
+    if (!$inet) break;
   }
   return $inet ? plugin('check',$arg) : false;
 }
