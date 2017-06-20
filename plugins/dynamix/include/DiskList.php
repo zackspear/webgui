@@ -22,7 +22,6 @@ $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 $sec_afp = parse_ini_file('state/sec_afp.ini',true);
 $compute = $_GET['compute'];
 $path    = $_GET['path'];
-$prev    = $_GET['prev'];
 
 $display           = [];
 $display['scale']  = $_GET['scale'];
@@ -53,14 +52,9 @@ if ($compute=='yes') foreach ($disks as $name => $disk) if ($disk['exportable']=
 $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUserExclude'])), 'globalInclude');
 
 // Share size per disk
-$preserve = ($path==$prev || $compute=='yes');
 $ssz2 = [];
 foreach (glob("state/*.ssz2", GLOB_NOSORT) as $entry) {
-  if ($preserve) {
-    $ssz2[basename($entry, ".ssz2")] = parse_ini_file($entry);
-  } else {
-    unlink($entry);
-  }
+  $ssz2[basename($entry, ".ssz2")] = parse_ini_file($entry);
 }
 
 // Build table

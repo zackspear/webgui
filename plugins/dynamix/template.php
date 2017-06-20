@@ -49,15 +49,8 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 extract($_GET);
 
 // Need the following to make php-fpm & nginx work
-if (empty($path)) {
-  $path = substr(explode("?", $_SERVER["REQUEST_URI"])[0], 1);
-  $prev = '';
-
-  if (empty($path)) {
-    $regTypes = array("Trial", "Basic", "Plus", "Pro");
-    $path = in_array($var['regTy'], $regTypes)? 'Main' : 'Tools/Registration';
-  }
-}
+if (empty($path))
+  $path = substr(explode('?', $_SERVER['REQUEST_URI'])[0], 1);
 
 // The current "task" is the first element of the path
 $task = strtok($path, '/');
@@ -66,6 +59,10 @@ $task = strtok($path, '/');
 $myPage = $site[basename($path)];
 $pageroot = $docroot.'/'.dirname($myPage['file']);
 $update = true; // set for legacy
+
+// Maybe delete stale share size files
+if ($myPage['name'] != 'Shares')
+  foreach(glob('/var/local/emhttp/*.ssz*', GLOB_NOSORT) as $sszfile) @unlink($sszfile);
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
