@@ -245,6 +245,10 @@ if (!empty($_GET['uuid'])) {
 		display: none;
 	}
 
+	#vmform .four {
+		overflow: auto;
+	}
+
 	#vmform .four label {
 		float: left;
 		display: table-cell;
