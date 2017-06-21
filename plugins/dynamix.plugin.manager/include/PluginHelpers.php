@@ -21,13 +21,8 @@ function plugin($method, $arg = '') {
 }
 
 function check_plugin($arg, $google='8.8.8.8') {
-  $inet = 3;
-  // ping google DNS server first to ensure internet is present
-  while (1) {
-    if (exec("ping -qnc1 $google|awk '/received/{print $4}'")==1) break;
-    $inet--;
-    if (!$inet) break;
-  }
+// ping google DNS server first to ensure internet is present
+  $inet = exec("ping -qnc2 -i0.2 $google|awk '/received/{print $4}'");
   return $inet ? plugin('check',$arg) : false;
 }
 

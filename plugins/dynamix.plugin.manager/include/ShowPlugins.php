@@ -16,7 +16,6 @@ require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $current = parse_ini_file('/etc/unraid-version');
-$stale   = $_GET['stale'] ?? false;
 $release = $_GET['release'] ?? false;
 $system  = $_GET['system'] ?? false;
 $empty   = true;
@@ -35,7 +34,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //switch between system and custom plugins
   if (($system && !$custom) || (!$system && $custom)) continue;
 //forced plugin check
-  check_plugin("$name.plg");
+  $checked = check_plugin("$name.plg");
 //OS update?
   $os = $system && $name==$builtin[0];
   $toggle = false;
@@ -73,12 +72,12 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //category
   $cat = strpos($version,'rc')!==false ? 'next' : 'stable';
 //status
-  $status = 'no update';
+  $status = 'unknown';
   $changes_file = $plugin_file;
   $URL = plugin('pluginURL',$plugin_file);
   if ($URL !== false) {
     $filename = "/tmp/plugins/".(($os && $release) ? $tmp_plg : basename($URL));
-    if (file_exists($filename)) {
+    if ($checked && file_exists($filename)) {
       if ($toggle && $toggle != $version) {
         $status = make_link('install',$plugin_file,'forced');
       } else {
@@ -96,10 +95,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
           $status = "up-to-date";
         }
       }
-    } else {
-      if ($stale) $status = "unknown";
-    }
-    $nofetch |= ($status == 'no update');
+    } else $nofetch = true;
   }
   $changes = plugin('changes',$changes_file);
   if ($changes !== false) {
