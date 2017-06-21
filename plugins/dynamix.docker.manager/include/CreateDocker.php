@@ -291,11 +291,14 @@ function xmlToVar($xml) {
     }
   }
 
+  # some xml templates advertise as V2 but omit the new <Network> element
+  # check for and use the V1 <Networking> element when this occurs
+  if (empty($out['Network']) && isset($xml->Networking->Mode)) {
+    $out['Network'] = xml_decode($xml->Networking->Mode);
+  }
+
   # V1 compatibility
   if ($xml["version"] != "2") {
-    if (isset($xml->Networking->Mode)) {
-      $out['Network'] = xml_decode($xml->Networking->Mode);
-    }
     if (isset($xml->Description)) {
       $out['Overview'] = stripslashes(xml_decode($xml->Description));
     }
