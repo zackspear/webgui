@@ -14,7 +14,7 @@ Title="Update OS"
  */
 ?>
 
-<?$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, updating and retrieving system information ...</em></td><tr>"?>
+<?$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, retrieving and updating system information ...</em></td><tr>"?>
 <script>
 var original = null;
 
