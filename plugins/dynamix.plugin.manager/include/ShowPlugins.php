@@ -16,8 +16,9 @@ require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $current = parse_ini_file('/etc/unraid-version');
-$release = $_GET['release'] ?? false;
+$branch  = $_GET['branch'] ?? false;
 $system  = $_GET['system'] ?? false;
+$audit   = $_GET['audit'] ?? false;
 $empty   = true;
 $builtin = ['unRAIDServer','dynamix'];
 $https   = ['stable' => 'https://raw.github.com/limetech/\&name;/master/\&name;.plg',
@@ -32,20 +33,20 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   $custom = in_array($name,$builtin);
 //switch between system and custom plugins
   if (($system && !$custom) || (!$system && $custom)) continue;
-//forced plugin check
-  $checked = check_plugin("$name.plg");
+//forced plugin check?
+  $checked = ($audit || $branch) ? check_plugin("$name.plg") : true;
 //OS update?
   $os = $system && $name==$builtin[0];
   $toggle = false;
 //toggle stable/next release?
-  if ($os && $release) {
+  if ($os && $branch) {
     $toggle = plugin('version',$plugin_file);
     $cat = strpos($toggle,'rc')!==false ? 'stable' : 'next';
     $tmp_plg = "$name-.plg";
     $tmp_file = "/var/tmp/$name.plg";
     copy($plugin_file,$tmp_file);
     exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$cat}\">|' $tmp_file");
-    exec("sed -ri 's|^(<!ENTITY pluginURL).*|\\1 \"{$https[$release]}\">|' $tmp_file");
+    exec("sed -ri 's|^(<!ENTITY pluginURL).*|\\1 \"{$https[$branch]}\">|' $tmp_file");
     symlink($tmp_file,"/var/log/plugins/$tmp_plg");
     if (check_plugin($tmp_plg)) {
       copy("/tmp/plugins/$tmp_plg",$tmp_file);
@@ -75,7 +76,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   $changes_file = $plugin_file;
   $URL = plugin('pluginURL',$plugin_file);
   if ($URL !== false) {
-    $filename = "/tmp/plugins/".(($os && $release) ? $tmp_plg : basename($URL));
+    $filename = "/tmp/plugins/".(($os && $branch) ? $tmp_plg : basename($URL));
     if ($checked && file_exists($filename)) {
       if ($toggle && $toggle != $version) {
         $status = make_link('install',$plugin_file,'forced');
@@ -88,10 +89,10 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
             $status = make_link("update",basename($plugin_file));
             $changes_file = $filename;
           } else {
-            $status = "up-to-date";
+            $status = filemtime($filename) >= filemtime($plugin_file) ? 'up-to-date' : 'need check';
           }
         } else {
-          $status = "up-to-date";
+          $status = filemtime($filename) >= filemtime($plugin_file) ? 'up-to-date' : 'need check';
         }
       }
     }

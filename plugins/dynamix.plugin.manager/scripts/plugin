@@ -367,14 +367,29 @@ if ($argc < 2) {
   exit(1);
 }
 $method = $argv[1];
+$builtin = ['unRAIDServer','dynamix'];
 
 // plugin checkall
 // check all installed plugins
 //
 if ($method == "checkall") {
   foreach (glob("/var/log/plugins/*", GLOB_NOSORT) as $link) {
+    if (in_array(basename($link,'.plg'),$builtin)) continue;
     // only consider symlinks
     $installed_plugin_file = @readlink($link);
+    if ($installed_plugin_file === false) continue;
+    if (plugin("pluginURL", $installed_plugin_file, $error) === false) continue;
+    $plugin = basename($installed_plugin_file);
+    echo "plugin: checking $plugin ...\n";
+    exec(realpath($argv[0]) . " check $plugin", $output, $retval);
+  }
+  exit(0);
+}
+
+if ($method == "checkos") {
+  foreach ($builtin as $link) {
+    // only consider symlinks
+    $installed_plugin_file = @readlink("/var/log/plugins/$link.plg");
     if ($installed_plugin_file === false) continue;
     if (plugin("pluginURL", $installed_plugin_file, $error) === false) continue;
     $plugin = basename($installed_plugin_file);

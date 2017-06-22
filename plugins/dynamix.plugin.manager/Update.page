@@ -14,34 +14,40 @@ Title="Update OS"
  */
 ?>
 
-<?$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, retrieving and updating system information ...</em></td><tr>"?>
+<?
+$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, retrieving and updating system information ...</em></td><tr>";
+$audit = $notify['unraidos'] ? 1 : 0;
+?>
 <script>
 var original = null;
 
-function update_table(release) {
+function update_table(branch) {
   $('#os_list').html("<?=$empty?>");
   if (original) {
-    if (release != original) release = '';
+    if (branch != original) branch = '';
   } else {
-    if (release) original = release;
+    if (branch) original = branch;
   }
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',release:release},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',branch:branch},function(data) {
     if (data) $('#os_list').html(data);
     $('#os_table').trigger('update',true);
   });
 }
 $(function() {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true'},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',audit:<?=$audit?>},function(data) {
     if (data) $('#os_list').html(data);
     $('#os_table').tablesorter({sortList:[[1,0]],headers:{0:{sorter:false},5:{sorter:false}}});
 <?if (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
-    $('#change_release').prop('disabled',true);
+    $('#change_branch').prop('disabled',true);
 <?endif;?>
   });
+<?if (!$audit):?>
+  $('.tabs').append("<span class='status vhshift'><input type='button' value='Check for Updates' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"Plugin Update Check\",490,430,true)'></span>");
+<?endif;?>
 });
 </script>
 
 <table class='tablesorter plugins shift' id='os_table'>
-<thead><tr><th></th><th>System</th><th>Author</th><th>Version</th><th>Status</th><th>Release</th></tr></thead>
+<thead><tr><th></th><th>Component</th><th>Author</th><th>Version</th><th>Status</th><th>Branch</th></tr></thead>
 <tbody id="os_list"><?=$empty?></tbody>
 </table>
