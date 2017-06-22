@@ -56,9 +56,9 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //link/icon
   $icon = icon($name);
   if ($launch = plugin('launch',$plugin_file))
-    $link = "<a href='/$launch'><img src='/$icon'></a>";
+    $link = "<a href='/$launch'><img src='/$icon' class='list'></a>";
   else
-    $link = "<img src='/$icon'>";
+    $link = "<img src='/$icon' class='list'>";
 //description
   $readme = "plugins/{$name}/README.md";
   if (file_exists($readme))
