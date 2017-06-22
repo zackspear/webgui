@@ -19,7 +19,6 @@ $current = parse_ini_file('/etc/unraid-version');
 $release = $_GET['release'] ?? false;
 $system  = $_GET['system'] ?? false;
 $empty   = true;
-$nofetch = false;
 $builtin = ['unRAIDServer','dynamix'];
 $https   = ['stable' => 'https://raw.github.com/limetech/\&name;/master/\&name;.plg',
             'next'   => 'https://s3.amazonaws.com/dnld.lime-technology.com/\&category;/\&name;.plg'];
@@ -95,7 +94,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
           $status = "up-to-date";
         }
       }
-    } else $nofetch = true;
+    }
   }
   $changes = plugin('changes',$changes_file);
   if ($changes !== false) {
@@ -128,5 +127,4 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   @unlink("/var/log/plugins/$tmp_plg");
 }
 if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> No plugins installed</td><tr>";
-elseif ($nofetch) echo "<tr><td></td><td><input type='button' value='Retry' onclick='update_table()'><em>Communication failed for one or more updates!</em></td><td></td><td></td><td></td><td></td><tr>";
 ?>
