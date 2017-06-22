@@ -114,7 +114,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   echo "<td>";
   if ($system) {
     if ($os) {
-      echo "<select id='change_release' class='auto' onchange='update_table(this.value)'>";
+      echo "<select id='change_branch' class='auto' onchange='update_table(this.value)'>";
       echo mk_options($cat,'stable');
       echo mk_options($cat,'next');
       echo "</select>";
