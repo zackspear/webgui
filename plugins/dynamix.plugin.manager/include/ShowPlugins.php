@@ -34,7 +34,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //switch between system and custom plugins
   if (($system && !$custom) || (!$system && $custom)) continue;
 //forced plugin check?
-  $checked = ($audit || $branch) ? check_plugin("$name.plg") : true;
+  $checked = ($audit || $branch) ? check_plugin(basename($plugin_file)) : true;
 //OS update?
   $os = $system && $name==$builtin[0];
   $toggle = false;
