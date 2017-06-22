@@ -115,8 +115,8 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   if ($system) {
     if ($os) {
       echo "<select id='change_release' class='auto' onchange='change_release(this.value)'>";
-      echo mk_option($cat,'stable');
-      echo mk_option($cat,'next');
+      echo mk_options($cat,'stable');
+      echo mk_options($cat,'next');
       echo "</select>";
     }
   } else {
