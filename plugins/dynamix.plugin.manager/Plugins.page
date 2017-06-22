@@ -28,13 +28,6 @@ if ($stale) foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as
 </style>
 <script src="/webGui/javascript/jquery.filetree.js"></script>
 <script>
-function update_table() {
-  $('#plugin_list').html("<?=$empty?>");
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{},function(data) {
-    if (data) $('#plugin_list').html(data);
-    $('#plugin_table').trigger('update',true);
-  });
-}
 <?if ($display['resize']):?>
 function resize(bind) {
   var width = [];
