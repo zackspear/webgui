@@ -114,7 +114,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   echo "<td>";
   if ($system) {
     if ($os) {
-      echo "<select id='change_release' class='auto' onchange='change_release(this.value)'>";
+      echo "<select id='change_release' class='auto' onchange='update_table(this.value)'>";
       echo mk_options($cat,'stable');
       echo mk_options($cat,'next');
       echo "</select>";
@@ -128,5 +128,5 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   @unlink("/var/log/plugins/$tmp_plg");
 }
 if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> No plugins installed</td><tr>";
-elseif ($nofetch) echo "<tr><td colspan='4'></td><td><input type='button' value='Retry' onclick='change_release()'></td><td></td><tr>";
+elseif ($nofetch) echo "<tr><td></td><td><input type='button' value='Retry' onclick='update_table()'><em>Communication failed for one or more updates!</em></td><td></td><td></td><td></td><td></td><tr>";
 ?>

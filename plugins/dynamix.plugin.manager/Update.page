@@ -18,7 +18,7 @@ Title="Update OS"
 <script>
 var original = null;
 
-function change_release(release) {
+function update_table(release) {
   $('#os_list').html("<?=$empty?>");
   if (original) {
     if (release != original) release = '';

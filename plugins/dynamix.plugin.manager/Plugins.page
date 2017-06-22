@@ -17,6 +17,7 @@ Tabs="true"
 ?>
 
 <?
+$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, retrieving and updating plugin information ...</em></td><tr>";
 // Remove stale /tmp/plugin/*.plg entries
 $stale = ($path != $prev);
 if ($stale) foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as $entry) if (!file_exists("/var/log/plugins/".basename($entry))) @unlink($entry);
@@ -27,6 +28,13 @@ if ($stale) foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as
 </style>
 <script src="/webGui/javascript/jquery.filetree.js"></script>
 <script>
+function update_table() {
+  $('#plugin_list').html("<?=$empty?>");
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{},function(data) {
+    if (data) $('#plugin_list').html(data);
+    $('#plugin_table').trigger('update',true);
+  });
+}
 <?if ($display['resize']):?>
 function resize(bind) {
   var width = [];
@@ -55,5 +63,5 @@ $(function() {
 </script>
 <table class='tablesorter plugins shift' id='plugin_table'>
 <thead><tr><th></th><th>Plugin</th><th>Author</th><th>Version</th><th>Status</th><th>Uninstall</th></tr></thead>
-<tbody id="plugin_list"><tr><td colspan='6' style='text-align:center;padding-top:12px'><i class="fa fa-spinner fa-spin icon"></i><em>Please wait, retrieving and updating plugin information ...</em></td><tr></tbody>
+<tbody id="plugin_list"><?=$empty?></tbody>
 </table>
