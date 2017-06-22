@@ -17,9 +17,10 @@ Tabs="true"
 ?>
 
 <?
+$empty = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, retrieving and updating plugin information ...</em></td><tr>";
 // Remove stale /tmp/plugin/*.plg entries
-$stale = ($path != $prev);
-if ($stale) foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as $entry) if (!file_exists("/var/log/plugins/".basename($entry))) @unlink($entry);
+foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as $entry) if (!file_exists("/var/log/plugins/".basename($entry))) @unlink($entry);
+$audit = $notify['version'] ? 1 : 0;
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.filetree.css">
 <style>
@@ -41,7 +42,7 @@ function resize(bind) {
 }
 <?endif;?>
 $(function() {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{stale:'<?=$stale?>'},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:<?=$audit?>},function(data) {
     if (data) $('#plugin_list').html(data);
 <?if ($display['resize']):?>
     resize();
@@ -51,9 +52,12 @@ $(function() {
     $('.desc_readmore').readmore({maxHeight:58});
   });
   $('#plugin_tree').fileTree({root:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
+<?if (!$audit):?>
+  $('.tabs').append("<span class='status vhshift'><input type='button' value='Check for Updates' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"Plugin Update Check\",490,430,true)'></span>");
+<?endif;?>
 });
 </script>
 <table class='tablesorter plugins shift' id='plugin_table'>
 <thead><tr><th></th><th>Plugin</th><th>Author</th><th>Version</th><th>Status</th><th>Uninstall</th></tr></thead>
-<tbody id="plugin_list"><tr><td colspan='6' style='text-align:center;padding-top:12px'><i class="fa fa-spinner fa-spin icon"></i><em>Please wait, retrieving and updating plugin information ...</em></td><tr></tbody>
+<tbody id="plugin_list"><?=$empty?></tbody>
 </table>

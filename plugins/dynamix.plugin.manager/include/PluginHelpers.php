@@ -52,7 +52,7 @@ function icon($name) {
 // last resort - plugin manager icon
   return "plugins/dynamix.plugin.manager/images/dynamix.plugin.manager.png";
 }
-function mk_option($select,$value) {
+function mk_options($select,$value) {
   return "<option value='$value'".($select==$value?" selected":"").">".ucfirst($value)."</option>";
 }
 ?>
