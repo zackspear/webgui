@@ -14,8 +14,12 @@ Title="GUI Access"
  */
 ?>
 <?
-$emhttp = preg_split('/\s+/',exec("grep '/usr/local/sbin/emhttp' /boot/config/go"));
-while ($emhttp[0] != '/usr/local/sbin/emhttp') $emhttp = array_shift($emhttp);
+$emhttp = preg_split('/\s+/',exec("grep -Pm1 '/usr/local/sbin/emhttp' /boot/config/go"));
+while (true) {
+  // strip any leading commands
+  if (strpos($emhttp[0],'emhttp')!==false) break;
+  array_shift($emhttp);
+}
 list($cmd,$options,$ports,$spare) = $emhttp;
 if ($ports[0] == '-') {
   $options .= substr($ports,1);
@@ -28,7 +32,7 @@ switch ($options) {
   case '-p' : $protocol = $http ? 'http' : 'https'; break;
   case '-rp':
   case '-pr': $protocol = 'redirect'; break;
-  default:    $protocol = 'http';
+  default   : $protocol = 'http';
 }
 ?>
 <script>
