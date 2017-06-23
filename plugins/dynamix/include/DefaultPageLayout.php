@@ -385,8 +385,6 @@ case 'Starting':
 default:
   echo '<span class="green strong">Array Started</span>'; break;
 }
-echo "</span>&bullet;&nbsp;<span class='bitstream'>Dynamix webGui v";
-echo exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin version /var/log/plugins/dynamix.plg");
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
 echo "<span id='copyright'>unRAID&reg; webGui &copy;2017, Lime Technology, Inc.";
 if (isset($myPage['Author'])) {

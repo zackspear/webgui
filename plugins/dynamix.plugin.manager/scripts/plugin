@@ -435,6 +435,8 @@ if ($method == "install") {
     exit(1);
   }
   $max = plugin("max", $plugin_file, $error);
+  if (empty($max))
+    $max = plugin("unRAID", $plugin_file, $error);
   if ($max && version_compare($unraid['version'],$max,'>')) {
     echo "plugin: installed unRAID version is too high, require at most version $max\n";
     exit(1);
@@ -584,6 +586,8 @@ if ($method == "update") {
     exit(1);
   }
   $max = plugin("max", $plugin_file, $error);
+  if (empty($max))
+    $max = plugin("unRAID", $plugin_file, $error);
   if ($max && version_compare($unraid['version'],$max,'>')) {
     echo "plugin: installed unRAID version is too high, require at most version $max\n";
     exit(1);
