@@ -69,12 +69,22 @@ function setGUI(form) {
     $('input[name="#arg[2]"]').val((form.http.value||'80')+','+(form.https.value||'443'));
     break;
   }
+  var port = $('input[name="#arg[2]"]').val();
+  $.post('/webGui/include/PortFree.php',{port:port},function(data){
+    if (data) {
+      var port = data.split(',')[0];
+      var process = data.split(',')[1];
+      swal('Port already in use',"Port "+port+" is used by process '"+process+"'",'error');
+    } else {
+      form.submit();
+    }
+  });
 }
 $(function() {
   showPorts(document.access_mode);
 });
 </script>
-<form markdown="1" name="access_mode" method="POST" action="/update.php" target="progressFrame" onsubmit="setGUI(this)">
+<form markdown="1" name="access_mode" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#command" value="/webGui/scripts/accessmode">
 <input type="hidden" name="#arg[1]" value="">
 <input type="hidden" name="#arg[2]" value="">
@@ -96,5 +106,5 @@ HTTPS port:
 </div>
 
 &nbsp;
-: <input type="submit" value="Apply"><input type="button" value="Done" onclick="done()">
+: <input type="button" value="Apply" onclick="setGUI(this.form)"><input type="button" value="Done" onclick="done()">
 </form>
