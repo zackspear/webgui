@@ -22,7 +22,7 @@ $unraid  = parse_plugin_cfg('dynamix', true);
 $notify  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['plugin'];
-$builtin = ['unRAIDServer','dynamix'];
+$builtin = ['unRAIDServer'];
 
 foreach ($builtin as $name) {
   $plg = "$name.plg";
@@ -32,10 +32,7 @@ foreach ($builtin as $name) {
   $new = plugin('version', $file);
   // silently suppress bad download of PLG file
   if (strcmp($new, $old) > 0) {
-    $unRAID = plugin('unRAID', $file);
-    if ($unRAID === false || version_compare($current['version'], $unRAID, '>=')) {
-      exec("$notify -e ".escapeshellarg("System - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
-    }
+    exec("$notify -e ".escapeshellarg("System - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
   }
 }
 exit(0);
