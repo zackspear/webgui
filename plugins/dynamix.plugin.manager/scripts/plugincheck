@@ -22,14 +22,11 @@ $unraid  = parse_plugin_cfg('dynamix', true);
 $notify  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['plugin'];
-$builtin = ['unRAIDServer','dynamix'];
 
 plugin('checkall');
 foreach (glob("/tmp/plugins/*.plg", GLOB_NOSORT) as $file) {
-  $plg = basename($file);
-  $name = basename($plg, '.plg');
-  if (in_array($name,$builtin)) continue;
-  $old = plugin('version', "/var/log/plugins/$plg");
+  $name = basename($file, '.plg');
+  $old = plugin('version', "/var/log/plugins/$name.plg");
   $new = plugin('version', $file);
   // silently suppress bad download of PLG file
   if (strcmp($new, $old) > 0) {

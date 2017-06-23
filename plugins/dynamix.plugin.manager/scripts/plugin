@@ -367,10 +367,10 @@ if ($argc < 2) {
   exit(1);
 }
 $method = $argv[1];
-$builtin = ['unRAIDServer','dynamix'];
+$builtin = ['unRAIDServer'];
 
 // plugin checkall
-// check all installed plugins
+// check all installed plugins, except built-in
 //
 if ($method == "checkall") {
   foreach (glob("/var/log/plugins/*", GLOB_NOSORT) as $link) {
@@ -386,6 +386,9 @@ if ($method == "checkall") {
   exit(0);
 }
 
+// plugin checkos
+// check built-in only
+//
 if ($method == "checkos") {
   foreach ($builtin as $link) {
     // only consider symlinks

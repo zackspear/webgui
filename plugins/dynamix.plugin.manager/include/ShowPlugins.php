@@ -15,12 +15,11 @@ $docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$current = parse_ini_file('/etc/unraid-version');
-$branch  = $_GET['branch'] ?? false;
 $system  = $_GET['system'] ?? false;
+$branch  = $_GET['branch'] ?? false;
 $audit   = $_GET['audit'] ?? false;
 $empty   = true;
-$builtin = ['unRAIDServer','dynamix'];
+$builtin = ['unRAIDServer'];
 $https   = ['stable' => 'https://raw.github.com/limetech/\&name;/master/\&name;.plg',
             'next'   => 'https://s3.amazonaws.com/dnld.lime-technology.com/\&category;/\&name;.plg'];
 
@@ -34,7 +33,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //switch between system and custom plugins
   if (($system && !$custom) || (!$system && $custom)) continue;
 //forced plugin check?
-  $checked = ($audit || $branch) ? check_plugin(basename($plugin_file)) : true;
+  $checked = $audit ? check_plugin(basename($plugin_file)) : true;
 //OS update?
   $os = $system && $name==$builtin[0];
   $toggle = false;
@@ -74,25 +73,21 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //status
   $status = 'unknown';
   $changes_file = $plugin_file;
-  $URL = plugin('pluginURL',$plugin_file);
-  if ($URL !== false) {
-    $filename = "/tmp/plugins/".(($os && $branch) ? $tmp_plg : basename($URL));
+  $url = plugin('pluginURL',$plugin_file);
+  if ($url !== false) {
+    $filename = "/tmp/plugins/".(($os && $branch) ? $tmp_plg : basename($url));
     if ($checked && file_exists($filename)) {
       if ($toggle && $toggle != $version) {
         $status = make_link('install',$plugin_file,'forced');
       } else {
         $latest = plugin('version',$filename);
         if (strcmp($latest,$version) > 0) {
-          $unRAID = plugin('unRAID',$filename);
-          if ($unRAID === false || version_compare($current['version'],$unRAID,'>=')) {
-            $version .= "<br><span class='red-text'>{$latest}</span>";
-            $status = make_link("update",basename($plugin_file));
-            $changes_file = $filename;
-          } else {
-            $status = filemtime($filename) >= filemtime($plugin_file) ? 'up-to-date' : 'need check';
-          }
+          $version .= "<br><span class='red-text'>{$latest}</span>";
+          $status = make_link("update",basename($plugin_file));
+          $changes_file = $filename;
         } else {
-          $status = filemtime($filename) >= filemtime($plugin_file) ? 'up-to-date' : 'need check';
+          //status is considered outdated when older than 1 day
+          $status = filectime($filename) > (time()-86400) ? 'up-to-date' : 'need check';
         }
       }
     }
