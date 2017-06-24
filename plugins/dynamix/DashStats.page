@@ -114,6 +114,7 @@ $slots = count($disks) + count($devs);
 ?>
 <?if ($slots<30):?>
 <style>
+table.share_status.fixed{width:<?=min(round(($slots+1)*10/3+13),100)?>%}
 table.share_status.fixed td:nth-child(<?=$slots+1?>)~td{display:none}
 </style>
 <?endif;?>
