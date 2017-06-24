@@ -25,13 +25,13 @@ function showCPUs($uuid) {
 	foreach ($cpus as $pair) {
 		unset($cpu1,$cpu2);
 		list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
-		$extra = in_array($cpu1, $arrConfig['domain']['vcpu']) ? 'disabled checked' : 'disabled';
+		$check = in_array($cpu1, $arrConfig['domain']['vcpu']) ? 'fa-check-square-o' : 'fa-square-o';
 		if (!$cpu2) {
-			echo "<label for='vcpu$cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1</label>";
+			echo "<label><i class='fa $check'></i>&nbsp;&nbsp;cpu $cpu1</label>";
 		} else {
-			echo "<label for='vcpu$cpu1' class='cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1 / $cpu2</label>";
-			$extra = in_array($cpu2, $arrConfig['domain']['vcpu']) ? 'disabled checked' : 'disabled';
-			echo "<label for='vcpu$cpu2' class='cpu2'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu2' value='$cpu2' $extra></label>";
+			echo "<label class='cpu1'><i class='fa $check'></i>&nbsp;&nbsp;cpu $cpu1 / $cpu2</label>";
+			$check = in_array($cpu2, $arrConfig['domain']['vcpu']) ? 'fa-check-square-o' : 'fa-square-o';
+			echo "<label class='cpu2'><i class='fa $check'></i></label>";
 		}
 	}
 	echo "</div>";
@@ -498,11 +498,11 @@ if($msg){
 <? endif ?>
 
 <style>
-div.four{font-size:12px;width:300px}
+div.four{font-family:arimo;font-size:12px;color:#A0A0A0;width:300px}
 div.four label{float:left;display:table-cell;width:25%}
 div.four label:nth-child(4n+4){float:none;clear:both}
-div.four label.cpu1{width:32%}
-div.four label.cpu2{width:23%}
+div.four label.cpu1{width:27%}
+div.four label.cpu2{width:33%}
 </style>
 
 <script>
