@@ -10,14 +10,10 @@
  */
 ?>
 <?
-$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Wrappers.php";
-
 $var = parse_ini_file('state/var.ini');
-$webgui = parse_plugin_cfg('dynamix',true);
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-popup.css">
 <script src="/webGui/javascript/dynamix.js"></script>
 <script>
 function registerTrial(email, guid) {
@@ -52,7 +48,7 @@ function registerTrial(email, guid) {
 }
 </script>
 <body>
-<div style="margin-top:20px;font-size:12px;line-height:30px;margin-left:40px">
+<div style="margin-top:20px;line-height:30px;margin-left:40px">
 <div id="status_panel"></div>
 <form markdown="1" id="trial_form">
 

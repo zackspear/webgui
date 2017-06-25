@@ -13,17 +13,14 @@
 <?
 $docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Markdown.php";
-require_once "$docroot/webGui/include/Wrappers.php";
-
-$webgui = parse_plugin_cfg('dynamix',true);
 ?>
 <!DOCTYPE HTML>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-popup.css">
 </head>
-<body style="margin:14px 10px;font-size:12px">
+<body style="margin:14px 10px">
 <?
 $file = $_GET['file'];
 if (file_exists($file) && strpos(realpath($file), '/tmp/plugins/') === 0 && substr($file, -4) == '.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*No release notes available!*");

@@ -10,12 +10,8 @@
  */
 ?>
 <?
-$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Wrappers.php";
-
 $var = parse_ini_file('state/var.ini');
 $unraid = parse_ini_file('/etc/unraid-version');
-$webgui = parse_plugin_cfg('dynamix',true);
 $keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
 
 if (array_key_exists('getdiagnostics', $_GET)) {
@@ -28,7 +24,7 @@ if (array_key_exists('getdiagnostics', $_GET)) {
 }
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-popup.css">
 <style>
 #spinner_image{position:fixed;left:46%;top:46%;width:16px;height:16px;display:none}
 #control_panel{position:fixed;left:5px;right:5px;top:0;padding-top:8px;line-height:24px;white-space:nowrap}
@@ -42,7 +38,7 @@ input[type=button]{margin-right:0;float:right}
 input[type=email]{margin-top:8px;float:left}
 </style>
 <body>
-<div style="margin-top:0;font-size:12px;line-height:30px;margin-left:5px;margin-right:5px">
+<div style="margin-top:0;line-height:30px;margin-left:5px;margin-right:5px">
 <div id="control_panel" class="four">
 <label for="optOnlinePoll"><input type="radio" name="mode" id="optOnlinePoll" value="onlinepoll" checked="checked" /> Online Poll</label>
 <label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featurerequest"/> Feature Request</label>

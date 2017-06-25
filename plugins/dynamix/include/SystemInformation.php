@@ -12,17 +12,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Wrappers.php";
-
 $var = parse_ini_file('state/var.ini');
-$webgui = parse_plugin_cfg('dynamix',true);
 ?>
 <link type="text/css" rel="stylesheet" href="/webGui/styles/default-fonts.css">
-<link type="text/css" rel="stylesheet" href="/webGui/styles/default-<?=$webgui['display']['theme']?>.css">
+<link type="text/css" rel="stylesheet" href="/webGui/styles/default-popup.css">
 <style>
 span.key{width:92px;display:inline-block;font-weight:bold}
-div.box{margin-top:8px;line-height:30px;margin-left:40px;font-size:12px}
+div.box{margin-top:8px;line-height:30px;margin-left:40px}
 </style>
 <script>
 // server uptime & update period
