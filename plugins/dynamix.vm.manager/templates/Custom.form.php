@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2015-2016, Derek Macias, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2015-2017, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-	$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 	require_once "$docroot/webGui/include/Helpers.php";
 	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt.php";
 	require_once "$docroot/plugins/dynamix.vm.manager/classes/libvirt_helpers.php";
@@ -264,18 +264,22 @@
 		<td>Logical CPUs:</td>
 		<td>
 			<div class="textarea four">
-			<?php
-				for ($i = 0; $i < $maxcpu; $i++) {
-					$extra = '';
-					if (in_array($i, $arrConfig['domain']['vcpu'])) {
-						$extra .= ' checked="checked"';
-						if (count($arrConfig['domain']['vcpu']) == 1) {
-							$extra .= ' disabled="disabled"';
-						}
-					}
-				?>
-				<label for="vcpu<?=$i?>"><input type="checkbox" name="domain[vcpu][]" class="domain_vcpu" id="vcpu<?=$i?>" value="<?=$i?>" <?=$extra;?>/> CPU <?=$i?></label>
-			<?php } ?>
+			<?
+			exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
+			foreach ($cpus as $pair) {
+				unset($cpu1,$cpu2);
+				list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
+				$extra = in_array($cpu1, $arrConfig['domain']['vcpu']) ? ' checked' : '';
+				if (count($arrConfig['domain']['vcpu']) == 1) $extra .= ' disabled';
+				if (!$cpu2) {
+					echo "<label for='vcpu$cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1</label>";
+				} else {
+					echo "<label for='vcpu$cpu1' class='cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1 / $cpu2</label>";
+					$extra = in_array($cpu2, $arrConfig['domain']['vcpu']) ? ' checked' : '';
+					echo "<label for='vcpu$cpu2' class='cpu2'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu2' value='$cpu2' $extra></label>";
+				}
+			}
+			?>
 			</div>
 		</td>
 	</tr>
