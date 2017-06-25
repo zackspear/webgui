@@ -205,7 +205,8 @@
       ############
       TITLE=$(echo -e "$TITLE")
       MESSAGE=$(echo -e "$MESSAGE")
-      curl -X POST -d "payload={\"username\": \"$APP_NAME\", \"text\": \"*$TITLE* \n $MESSAGE\"}" $WEBH_URL 2>&1
+      curl -X POST --header 'Content-Type: application/json' \
+      -d "{\"username\": \"$APP_NAME\", \"text\": \"*$TITLE* \n $MESSAGE\"}" $WEBH_URL 2>&1
       ]]>
     </Script>
   </Agent>
