@@ -1078,7 +1078,7 @@ $showAdditionalInfo = '';
     $(el).prop('disabled',disabled);
     switch ($(el)[0].selectedIndex) {
     case 0: // Path
-      mode.html("<dt>Access Mode:</dt><dd><select name='Mode' class='narrow'><option value='rw'>Read/Write</option><option value='rw,slave'>RW/Slave</option><option value='ro'>Read Only</option><option value='ro,slave'>RO/Slave</option></select></dd>");
+      mode.html("<dt>Access Mode:</dt><dd><select name='Mode' class='narrow'><option value='rw'>Read/Write</option><option value='rw,slave'>RW/Slave</option><option value='rw,shared'>RW/Shared</option><option value='ro'>Read Only</option><option value='ro,slave'>RO/Slave</option><option value='ro,shared'>RO/Shared</option></select></dd>");
       value.bind("click", function(){openFileBrowser(this,$(this).val(), 'sh', true, false);});
       targetDiv.find('#dt1').text('Container Path:');
       valueDiv.find('#dt2').text('Host Path:');
