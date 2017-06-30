@@ -22,7 +22,6 @@ require_once "$docroot/webGui/include/publish.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 // Read emhttp status
-refresh_emhttp_state();
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $devs    = parse_ini_file('state/devs.ini',true);
@@ -60,7 +59,7 @@ $myPage = $site[basename($path)];
 $pageroot = $docroot.'/'.dirname($myPage['file']);
 $update = true; // set for legacy
 
-// Maybe delete stale share size files
+// hack: maybe delete stale share size files
 if ($myPage['name'] != 'Shares')
   foreach(glob('/var/local/emhttp/*.ssz*', GLOB_NOSORT) as $sszfile) @unlink($sszfile);
 

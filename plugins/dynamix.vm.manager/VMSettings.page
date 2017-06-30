@@ -104,6 +104,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 <?endif;?>
 <form id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>" />
+<input type="hidden" name="#command" value="/plugins/dynamix/scripts/refresh_emhttp_state" />
 
 <dl>
 	<dt>Enable VMs:</dt>

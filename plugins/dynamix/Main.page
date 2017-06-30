@@ -1,2 +1,6 @@
 Menu="Tasks:1"
 Type="xmenu"
+---
+<?PHP
+refresh_emhttp_state();
+?>
