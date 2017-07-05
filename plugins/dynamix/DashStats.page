@@ -545,8 +545,8 @@ function toggle_net(init) {
 }
 function parseINI(data){
     var regex = {
-        section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
-        param: /^\s*([^=]+?)\s*=\s*(.*?)\s*$/,
+        section: /^\s*\[\s*\"*([^\]]*)\s*\"*\]\s*$/,
+        param: /^\s*([^=]+?)\s*=\s*\"*(.*?)\s*\"*$/,
         comment: /^\s*;.*$/
     };
     var value = {};
