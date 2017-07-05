@@ -66,7 +66,7 @@ foreach ($custom as $network) {
 
 <form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=$docker_cfgfile;?>">
-<input type="hidden" name="#command" value="/plugins/dynamix/scripts/refresh_emhttp_state" />
+<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emhttpd_update" />
 Enable Docker:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED" class="narrow">
   <?= mk_option($dockercfg['DOCKER_ENABLED'], 'no', 'No'); ?>

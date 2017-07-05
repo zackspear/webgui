@@ -12,8 +12,6 @@
  */
 ?>
 <?
-require_once "/usr/local/emhttp/webGui/include/publish.php";
-refresh_emhttp_state();
 $var   = parse_ini_file("/var/local/emhttp/var.ini");
 $devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
 $disks = parse_ini_file("/var/local/emhttp/disks.ini",true);

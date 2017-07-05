@@ -16,7 +16,6 @@ $docroot = $_SERVER['DOCUMENT_ROOT'];
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/PageBuilder.php";
-require_once "$docroot/webGui/include/publish.php";
 
 // Get the webGui configuration preferences
 extract(parse_plugin_cfg('dynamix',true));
