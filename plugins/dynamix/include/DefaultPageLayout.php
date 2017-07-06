@@ -503,7 +503,7 @@ $(function() {
   var watchdog = new NchanSubscriber('/sub/var');
   watchdog.on('message', function(data){
     var ini=parseINI(data);
-    var status;
+    var status, progress;
     if (ini['fsState']=="Stopped") {
       status="<span class='red strong'>Array Stopped</span>";
     }else if (ini['fsState']=="Starting") {
@@ -512,14 +512,16 @@ $(function() {
       status="<span class='green strong'>Array Started</span>";
       if (ini['mdResync'] > 0) {
         var action;
-        if (ini['mdResyncAction'].indexOf("recon"))      action="Parity-Sync / Data-Rebuild";
-        else if (ini['mdResyncAction'].indexOf("clear")) action="Clearing";
-        else if (ini['mdResyncAction'] == "check")       action="Read-Check";
-        else if (ini['mdResyncAction'].indexOf("check")) action="Parity-Check";
+        if (ini['mdResyncAction'].indexOf("recon")>=0)      action="Parity-Sync / Data-Rebuild";
+        else if (ini['mdResyncAction'].indexOf("clear")>=0) action="Clearing";
+        else if (ini['mdResyncAction'] == "check")          action="Read-Check";
+        else if (ini['mdResyncAction'].indexOf("check")>=0) action="Parity-Check";
         action += " " + (ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1) + " %";
         status += "&bullet;<span class='orange strong'>"+action+"</span>";
       }
     }
+    if (ini['fsProgress'].length)
+      status += "&bullet;<span class='green strong'>"+ini['fsProgress']+"</span>";
     $('#statusbar').html(status);
   });
   watchdog.start();
