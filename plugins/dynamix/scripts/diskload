@@ -1,5 +1,4 @@
 #!/bin/bash
-# todo: this should generate/publish json-encoded string
 ini=/var/local/emhttp/diskload.ini
 declare -a sector reads writes
 

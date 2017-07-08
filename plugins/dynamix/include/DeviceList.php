@@ -338,7 +338,7 @@ case 'parity':
   $data = [];
   if ($var['mdResync']>0) {
     $data[] = my_scale($var['mdResync']*1024,$unit)." $unit";
-    $data[] = my_clock(floor(($var['currTime']-$var['sbUpdated'])/60));
+    $data[] = my_clock(floor((time()-$var['sbUpdated'])/60));
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,substr($display['number'],0,1),'')." %)";
     $data[] = my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec";
     $data[] = my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0));

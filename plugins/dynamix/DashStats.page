@@ -114,6 +114,7 @@ $slots = count($disks) + count($devs);
 ?>
 <?if ($slots<30):?>
 <style>
+table.share_status.fixed{width:<?=min(round(($slots+1)*10/3+13),100)?>%}
 table.share_status.fixed td:nth-child(<?=$slots+1?>)~td{display:none}
 </style>
 <?endif;?>
@@ -542,6 +543,35 @@ function toggle_net(init) {
     $('.net_closed').show();
   }
 }
+function parseINI(data){
+    var regex = {
+        section: /^\s*\[\s*\"*([^\]]*)\s*\"*\]\s*$/,
+        param: /^\s*([^=]+?)\s*=\s*\"*(.*?)\s*\"*$/,
+        comment: /^\s*;.*$/
+    };
+    var value = {};
+    var lines = data.split(/[\r\n]+/);
+    var section = null;
+    lines.forEach(function(line){
+        if(regex.comment.test(line)){
+            return;
+        }else if(regex.param.test(line)){
+            var match = line.match(regex.param);
+            if(section){
+                value[section][match[1]] = match[2];
+            }else{
+                value[match[1]] = match[2];
+            }
+        }else if(regex.section.test(line)){
+            var match = line.match(regex.section);
+            value[match[1]] = {};
+            section = match[1];
+        }else if(line.length == 0 && section){
+            section = null;
+        };
+    });
+    return value;
+}
 $(function() {
   dropdown('enter_share');
   dropdown('enter_view');
@@ -557,9 +587,14 @@ $(function() {
   cpuload_sub.on("message", function(message, message_metadata) {
     // message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
     //  The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
-    var json = $.parseJSON(message);
-    $.each(json["cpuload"],function(k,v) {
-      $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
+//    var json = $.parseJSON(message);
+//    $.each(json["cpuload"],function(k,v) {
+//      $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
+//    });
+    // message is the cpuload.ini file contents
+    var ini = parseINI(message);
+    $.each(ini,function(k,v) {
+      $('#'+k).animate({width:v['host']+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v['host']+'%');
     });
   });
   cpuload_sub.start();

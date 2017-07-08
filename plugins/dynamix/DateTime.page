@@ -18,7 +18,7 @@ Icon="date-time.png"
 
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
 Current date and time:
-: <?=my_time($var['currTime'])?>
+: <?=my_time(time())?>
 
 Time zone:
 : <select name="timeZone" size="1"><?
@@ -55,7 +55,7 @@ NTP server 3:
 > This is the alternate NTP Server to use if NTP Servers 1 and 2 are both down.
 
 New date and time:
-: <input type="text" name="newDateTime" maxlength="40" value="<?=my_time($var['currTime'], "%F %T")?>">
+: <input type="text" name="newDateTime" maxlength="40" value="<?=my_time(time(), "%F %T")?>">
 
 > Enter the current time-of-day.  Use format YYYY-MM-DD HH:MM:SS. Greyed out when using NTP.
 

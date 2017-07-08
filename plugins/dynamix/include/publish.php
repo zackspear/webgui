@@ -22,10 +22,6 @@ function curl_socket($socket, $url, $postdata = NULL)
     curl_exec($ch);
     curl_close($ch);
 }
-function refresh_emhttp_state()
-{
-    curl_socket("/var/run/emhttpd.socket", "http://localhost/status.htm");
-}
 function publish($endpoint, $message)
 {
     curl_socket("/var/run/nginx.socket", "http://localhost/pub/$endpoint?buffer_length=1", $message);
