@@ -84,6 +84,7 @@ input.trim{width:50px}
 .green{color:#4F8A10;padding-left:5px;padding-right:5px}
 .red{color:#F0000C;padding-left:5px;padding-right:5px}
 .orange{color:#E68A00;padding-left:5px;padding-right:5px}
+.blue{color:#3B5998;padding-left:5px;padding-right:5px}
 .green-text,.passed{color:#4F8A10}
 .red-text,.failed{color:#F0000C}
 .orange-text,.warning{color:#E68A00}
