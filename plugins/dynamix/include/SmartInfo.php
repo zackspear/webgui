@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 function normalize($text, $glue='_') {
   $words = explode($glue,$text);
@@ -121,7 +121,21 @@ case "identify":
     echo "<tr>".normalize(preg_replace('/ is:$/',':',"$title:"),' ')."<td>$info</td></tr>";
     $empty = false;
   }
-  if ($empty) echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
+  if ($empty) {
+    echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
+  } else {
+    $file = '/boot/config/disk.log';
+    $disks = parse_ini_file('state/disks.ini',true);
+    $extra = file_exists($file) ? parse_ini_file($file,true) : [];
+    $disk = $disks[$name]['id'];
+    $info = &$extra[$disk];
+    $periods = ['6','12','18','24','36','48','60'];
+    echo "<tr><td>Manufacturing date:</td><td><input type='date' class='narrow' value='{$info['date']}' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
+    echo "<tr><td>Date of purchase:</td><td><input type='date' class='narrow' value='{$info['purchase']}' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
+    echo "<tr><td>Warranty period:</td><td><select size='1' class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>unknown</option>";
+    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']==$period?" selected":"").">$period months</option>";
+    echo "</select></td></tr>";
+  }
   break;
 case "save":
   exec("smartctl -a $type ".escapeshellarg("/dev/$port")." >".escapeshellarg("$docroot/{$_POST['file']}"));
