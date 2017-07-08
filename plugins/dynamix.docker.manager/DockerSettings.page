@@ -229,9 +229,13 @@ function checkDHCPv4() {
       var base = $('#'+id).text().split('/');
       if (good && typeof(pool[1])=='undefined') {good = false; swal('Missing subnet size','Pool subnet size is not defined','error');}
       if (good && pool[1]<=base[1]) {good = false; swal('Invalid subnet size','Pool subnet size is too large','error');}
-      var ippool = ip2int(pool[0]);
-      var ipbase = ip2int(base[0]);
-      if (good && (ippool < ipbase || ippool+2**(32-pool[1]) > ipbase+2**(32-base[1]))) {good = false; swal('Invalid pool address','Pool address is out of range','error');}
+      if (typeof(pool[1])=='undefined') pool[1] = 0;
+      if (typeof(base[1])=='undefined') base[1] = 32;
+      var toppool = ip2int(pool[0]);
+      var topbase = ip2int(base[0]);
+      var endpool = toppool+2**(32-pool[1]);
+      var endbase = topbase+2**(32-base[1]);
+      if (good && (toppool < topbase || endpool > endbase)) {good = false; swal('Invalid pool address','Pool address is out of range','error');}
     }
   });
   return good;
