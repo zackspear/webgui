@@ -6,6 +6,8 @@ Icon="dynamix.docker.manager.png"
 /* Copyright 2005-2017, Lime Technology
  * Copyright 2014-2017, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
+ * Additional updates by Bergware International (July 2017)
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
  * as published by the Free Software Foundation.
@@ -64,13 +66,13 @@ foreach ($custom as $network) {
 </style>
 <span class="status"><input type="checkbox" class="advancedview"></span>
 
-<form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="<?=$docker_cfgfile;?>">
-<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emhttpd_update" />
+<form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="<?=$docker_cfgfile?>">
+<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emhttpd_update">
 Enable Docker:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED" class="narrow">
-  <?= mk_option($dockercfg['DOCKER_ENABLED'], 'no', 'No'); ?>
-  <?= mk_option($dockercfg['DOCKER_ENABLED'], 'yes', 'Yes'); ?>
+  <?=mk_option($dockercfg['DOCKER_ENABLED'], 'no', 'No')?>
+  <?=mk_option($dockercfg['DOCKER_ENABLED'], 'yes', 'Yes')?>
   </select>
   <?if ($var['fsState'] != "Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($dockercfg['DOCKER_ENABLED']=='yes')?'Docker will be available after Array is Started':'Apply to activate Docker after Array is Started'?></span>
@@ -85,35 +87,82 @@ Enable Docker:
 <?if ($DockerStopped):?>
 <div markdown="1" class="advanced">
 Docker vdisk size:
-: <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=$dockercfg['DOCKER_IMAGE_SIZE'];?>" style="width:50px;" required="required" />GB <span id="SIZE_ERROR" class="errortext"></span></dd>
+: <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=$dockercfg['DOCKER_IMAGE_SIZE']?>" style="width:50px;" required="required">GB <span id="SIZE_ERROR" class="errortext"></span>
 
 > If the system needs to create a new docker image file, this is the default size to use specified in GB.
 >
 > To resize an existing image file, specify the new size here.  Next time the Docker service is started the file (and file system) will increased to the new size (but never decreased).
 
 Docker storage location:
-: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE'];?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" /> <?php if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> Delete Image File</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span></dd>
+: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required">
+  <?if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])):?>
+  <span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox"> Delete Image File</label></span>
+  <?endif;?>
+  <?if ($var['fsState'] != "Started"):?>
+  <span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span>
+  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?>
+  <span><i class="fa fa-warning icon warning"></i> Path does not exist</span>
+  <?endif;?><span id="IMAGE_ERROR" class="errortext"></span>
 
 > You must specify an image file for Docker.  The system will automatically create this file when the Docker service is first started.
 
+Docker LOG rotation:
+: <select name="DOCKER_LOG_ROTATION" class="narrow" onchange="showLogOptions(this.value)">
+  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION'], 'no', 'Disabled')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION'], 'yes', 'Enabled')?>
+  </select>
+
+> By default LOG rotation is disabled and will create a single LOG file of unlimited size.
+>
+> Enable LOG rotation to limit the size of the LOG file and specify the number of files to keep in the rotation scheme.
+
+<div markdown="1" id="DOCKER_LOG_OPTIONS" style="display:none">
+Docker LOG maximum file size:
+: <select name="DOCKER_LOG_SIZE" class="narrow">
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '10m', '10 MB')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '20m', '20 MB')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '50m', '50 MB')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '100m', '100 MB')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '500m', '500 MB')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '1g', '1000 MB')?>
+  </select>
+
+Docker LOG number of files:
+: <select name="DOCKER_LOG_FILES" class="narrow">
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '1', '1')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '2', '2')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '3', '3')?>
+  </select>
 </div>
-<?else: /* IF DOCKER STARTED */?>
+
+</div>
+<?else: /* DOCKER STARTED */?>
 <div markdown="1" class="advanced">
 Docker version:
-: <? $arrInfo = $docker->getInfo(); echo $arrInfo['Version']; ?>
+: <?$arrInfo = $docker->getInfo(); echo $arrInfo['Version']?>
 
 > This is the docker version.
 
 Docker storage location:
-: <?=$dockercfg['DOCKER_IMAGE_FILE'];?>
+: <?=$dockercfg['DOCKER_IMAGE_FILE']?>
 
 > This is the docker volume.
+
+Docker LOG rotation:
+: <?=$dockercfg['DOCKER_LOG_ROTATION']=='yes'?'Enabled':'Disabled'?>
+
+> By default a single unlimited LOG file is created. Otherwise LOG file size and number of files are limited when LOG rotation is enabled.
 
 </div>
 <?endif;?>
 <div markdown="1" class="advanced">
 Default appdata storage location:
-: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH'];?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" data-pickfolders="true" /> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span><?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?><span><i class="fa fa-warning icon warning"></i> Path does not exist</span><?endif;?>
+: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH']?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=(is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/')?>" data-pickfolders="true">
+  <?if ($var['fsState'] != "Started"):?>
+  <span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span>
+  <?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
+  <span><i class="fa fa-warning icon warning"></i> Path does not exist</span>
+  <?endif;?>
 
 > You can specify a folder to automatically generate and store subfolders containing configuration files for each Docker app (via the /config mapped volume).
 >
@@ -122,8 +171,8 @@ Default appdata storage location:
 <!--
 Auto-map user shares to containers as /unraid:
 : <select id="DOCKER_APP_UNRAID_PATH" name="DOCKER_APP_UNRAID_PATH" class="narrow">
-  <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], ($dockercfg['DOCKER_APP_UNRAID_PATH'] != '' ? $dockercfg['DOCKER_APP_UNRAID_PATH'] : '/mnt/user'), 'Yes'); ?>
-  <?= mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], '', 'No'); ?>
+  <?=mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], ($dockercfg['DOCKER_APP_UNRAID_PATH'] != '' ? $dockercfg['DOCKER_APP_UNRAID_PATH'] : '/mnt/user'), 'Yes')?>
+  <?=mk_option($dockercfg['DOCKER_APP_UNRAID_PATH'], '', 'No')?>
   </select>
 
 > You can expose all of your user shares (/mnt/user) to a folder named /unraid within Docker containers.
@@ -134,8 +183,8 @@ Auto-map user shares to containers as /unraid:
 <div markdown="1" class="advanced">
 Template Authoring Mode:
 : <select id="DOCKER_AUTHORING_MODE" name="DOCKER_AUTHORING_MODE" class="narrow">
-  <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', 'No'); ?>
-  <?= mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'yes', 'Yes'); ?>
+  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', 'No')?>
+  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'yes', 'Yes')?>
   </select>
 
 > If set to **Yes**, when creating/editing containers the interface will be present with some extra fields related to template authoring.
@@ -175,7 +224,7 @@ DHCPv6 pool of custom network <?=$network?>:
 </form>
 
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
-  <input type="hidden" name="#command" value="/plugins/dynamix.docker.manager/scripts/docker_rm" />
+  <input type="hidden" name="#command" value="/plugins/dynamix.docker.manager/scripts/docker_rm">
 </form>
 
 <?if (!$DockerStopped):?>
@@ -185,7 +234,7 @@ btrfs filesystem show:
 : <?="<pre>".shell_exec("btrfs filesystem show /var/lib/docker")."</pre>"?>
 
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
-<?exec("$docroot/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_scrub status /var/lib/docker", $scrub_status, $retval)?>
 btrfs scrub status:
 : <?="<pre>".implode("\n", $scrub_status)."</pre>"?>
 
@@ -254,6 +303,13 @@ function checkDHCPv6() {
   });
   return good;
 }
+function showLogOptions(log) {
+  if (log == 'no') {
+    $('#DOCKER_LOG_OPTIONS').hide('slow');
+  } else {
+    $('#DOCKER_LOG_OPTIONS').show('slow');
+  }
+}
 $(function() {
   $("#applyBtn").click(function(){
     if (!checkDHCPv4() || !checkDHCPv6()) return;
@@ -303,7 +359,7 @@ $(function() {
     $("#DOCKER_IMAGE_FILE").on("input change", function(){
       $("#IMAGE_ERROR").fadeOut();
       $("#applyBtn").prop("disabled", false);
-      <? if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])) { ?>
+<?if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])):?>
       if ($(this).val() != "<?=$dockercfg['DOCKER_IMAGE_FILE']?>") {
         $("#deleteCheckbox").prop("disabled", true).attr("checked", false);
         $("#deletePanel").fadeOut();
@@ -311,7 +367,7 @@ $(function() {
         $("#deleteCheckbox").attr("checked", false).prop("disabled", false);
         $("#deletePanel").fadeIn();
       }
-      <? } ?>
+<?endif;?>
     });
 
 <?if ($var['fsState'] == "Started"):?>
@@ -348,9 +404,11 @@ $(function() {
   });
 
   showStatus('pid','dockerd');
-
-  <?if ($var['fsState'] == "Started"):?>
-    $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
-  <?endif;?>
+<?if ($DockerStopped):?>
+  showLogOptions(document.settingsForm.DOCKER_LOG_ROTATION.value);
+<?endif;?>
+<?if ($var['fsState'] == "Started"):?>
+  $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
+<?endif;?>
 });
 </script>
