@@ -521,7 +521,7 @@ $(function() {
       }
     }
     if (ini['fsProgress'].length)
-      status += "&bullet;<span class='green strong'>"+ini['fsProgress']+"</span>";
+      status += "&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
     $('#statusbar').html(status);
   });
   watchdog.start();
