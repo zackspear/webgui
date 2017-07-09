@@ -41,8 +41,17 @@ function resize(bind) {
   }
 }
 <?endif;?>
+function noAudit() {
+  hideUpgrade();
+  $.cookie('noAudit','true',{path:'/'});
+}
 $(function() {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:<?=$audit?>},function(data) {
+  var audit = <?=$audit?>;
+  if ($.cookie('noAudit') != null) {
+    $.removeCookie('noAudit',{path:'/'});
+    audit = 0;
+  }
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:audit},function(data) {
     if (data) $('#plugin_list').html(data);
 <?if ($display['resize']):?>
     resize();

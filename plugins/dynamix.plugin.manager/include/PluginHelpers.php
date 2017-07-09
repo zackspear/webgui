@@ -31,7 +31,8 @@ function make_link($method, $arg, $extra='') {
   $check = $method=='remove' ? "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>" : "";
   $disabled = $check ? ' disabled' : '';
   $cmd = $method == 'delete' ? "/plugins/dynamix.plugin.manager/scripts/plugin_rm&arg1=$arg" : "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
-  return "{$check}<input type='button' id='$id' value='".ucfirst($method)."' onclick='hideUpgrade();openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
+  $clr = $method == 'delete' ? "" : "noAudit();";
+  return "{$check}<input type='button' id='$id' value='".ucfirst($method)."' onclick='{$clr}openBox(\"{$cmd}\",\"".ucwords($method)." Plugin\",600,900,true)'{$disabled}>";
 }
 
 // trying our best to find an icon
