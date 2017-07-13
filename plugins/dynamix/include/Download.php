@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $file = $_POST['file'];
 switch ($_POST['cmd']) {
 case 'save':
@@ -36,5 +36,13 @@ case 'diag':
   exec("$docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file"));
   echo "/$file";
   break;
-}
+case 'unlink':
+  $disk = exec("ls -l '$docroot/$file'");
+  $disk = substr($disk,strpos($disk,'>')+2);
+  exec("rm -f '$docroot/$file' '$disk'");
+  break;
+case 'backup':
+  echo exec("$docroot/webGui/scripts/usb_backup");
+  break;
+}  
 ?>
