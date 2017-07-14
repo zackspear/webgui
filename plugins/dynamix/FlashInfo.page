@@ -13,8 +13,6 @@ Title="Flash Device Settings"
  * all copies or substantial portions of the Software.
  */
 ?>
-<style>ul,li{margin:0;padding-top:0;padding-bottom:0;}</style>
-
 <script>
 function cleanUp(zip) {
   if (document.hasFocus()) {
