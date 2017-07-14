@@ -58,10 +58,6 @@ $myPage = $site[basename($path)];
 $pageroot = $docroot.'/'.dirname($myPage['file']);
 $update = true; // set for legacy
 
-// hack: maybe delete stale share size files
-if ($myPage['name'] != 'Shares')
-  foreach(glob('/var/local/emhttp/*.ssz*', GLOB_NOSORT) as $sszfile) @unlink($sszfile);
-
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
 ?>
