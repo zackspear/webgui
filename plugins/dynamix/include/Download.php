@@ -37,9 +37,9 @@ case 'diag':
   echo "/$file";
   break;
 case 'unlink':
-  $disk = exec("ls -l '$docroot/$file'");
-  $disk = substr($disk,strpos($disk,'>')+2);
-  exec("rm -f '$docroot/$file' '$disk'");
+  $backup = exec("ls -l '$docroot/$file'");
+  $backup = substr($backup,strpos($backup,'>')+2);
+  exec("rm -f '$docroot/$file' '$backup'");
   break;
 case 'backup':
   echo exec("$docroot/webGui/scripts/usb_backup");
