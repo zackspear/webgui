@@ -31,7 +31,7 @@ function backup() {
   $.post('/webGui/include/Download.php',{cmd:'backup'},function(zip) {
     if (zip) {
       location = '/'+zip;
-      setTimeout(function(){cleanUp(zip);},4000);
+      setTimeout(function(){cleanUp(zip);},6000);
     } else {
       $('input[value="Creating USB backup..."]').val('USB backup');
       $('#pleaseWait').hide('slow');
@@ -65,4 +65,5 @@ Flash GUID:
 &nbsp;
 : <input type="button" value="USB backup" onclick="backup()"><input type="button" value="Done" onclick="done()">
 
-<br><div id="pleaseWait" style="display:none;font-weight:bold;color:red;text-align:center">Please wait... creating USB backup zip file (this may take several minutes)</div>
+<br><div id="pleaseWait" style="display:none;text-align:center"><span class="red-text strong">Please wait... creating USB backup zip file (this may take several minutes)</span>
+<br><br><span class="small">Do not leave this page until backup operation is finished</span></div>

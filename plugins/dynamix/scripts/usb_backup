@@ -14,19 +14,22 @@
 <?
 $docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $var = file_exists('/var/local/emhttp/var.ini') ? parse_ini_file('/var/local/emhttp/var.ini') : [];
-$out = ['previous','syslinux'];
+$dir = ['system','appdata','isos'];
+$out = ['prev','previous','syslinux'];
 
 $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
 $mydate = date('Ymd-Hi');
 $backup = "$server-usb-backup-$mydate.zip";
 
-list($used,$free) = explode(',',exec("df /boot|awk 'END{print $3,$4}'"));
-$usb = $free > $used;
-foreach (glob('/mnt/user/*',GLOB_ONLYDIR) as $share) {
-  $free = exec("df $share|awk 'END{print $4}'");
-  if ($free > $used) {$zip = $share; break;}
+$used = exec("df /boot|awk 'END{print $3}'") * 1.5;
+$free = exec("df /|awk 'END{print $4}'");
+if ($free > $used) $zip = "/$backup"; else {
+  foreach ($dir as $share) {
+    if (!is_dir("/mnt/user/$share")) continue;
+    $free = exec("df /mnt/user/$share|awk 'END{print $4}'");
+    if ($free > $used) {$zip = "/mnt/user/$share/$backup"; break;}
+  }
 }
-$zip = $zip ? "$zip/$backup" : ($usb ? "/boot/$backup" : "");
 if ($zip) {
   chdir("/boot");
   foreach (glob("*",GLOB_NOSORT+GLOB_ONLYDIR) as $folder) {
