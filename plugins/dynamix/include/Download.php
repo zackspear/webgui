@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -42,7 +42,7 @@ case 'unlink':
   exec("rm -f '$docroot/$file' '$backup'");
   break;
 case 'backup':
-  echo exec("$docroot/webGui/scripts/usb_backup");
+  echo exec("$docroot/webGui/scripts/flash_backup");
   break;
 }  
 ?>

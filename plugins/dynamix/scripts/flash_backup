@@ -19,7 +19,7 @@ $out = ['prev','previous','syslinux'];
 
 $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
 $mydate = date('Ymd-Hi');
-$backup = "$server-usb-backup-$mydate.zip";
+$backup = "$server-flash-backup-$mydate.zip";
 
 $used = exec("df /boot|awk 'END{print $3}'") * 1.5;
 $free = exec("df /|awk 'END{print $4}'");
