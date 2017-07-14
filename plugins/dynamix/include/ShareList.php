@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
 
 $shares  = parse_ini_file('state/shares.ini',true);
@@ -22,6 +22,7 @@ $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 $sec_afp = parse_ini_file('state/sec_afp.ini',true);
 $compute = $_GET['compute'];
 $path    = $_GET['path'];
+$fill    = $_GET['fill'];
 
 $display           = [];
 $display['scale']  = $_GET['scale'];
@@ -60,9 +61,10 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 
 // Share size per disk
 $ssz1 = [];
-foreach (glob("state/*.ssz1", GLOB_NOSORT) as $entry) {
-  $ssz1[basename($entry, ".ssz1")] = parse_ini_file($entry);
-}
+if ($fill)
+  foreach (glob("state/*.ssz1", GLOB_NOSORT) as $entry) $ssz1[basename($entry, ".ssz1")] = parse_ini_file($entry);
+else
+  exec("rm -f /var/local/emhttp/*.ssz1");
 
 // Build table
 $row = 0;
@@ -97,11 +99,11 @@ foreach ($shares as $name => $share) {
       echo "<td></td>";
       echo "<td class='share-$row-1'>".my_scale($disksize*1024, $unit)." $unit</td>";
       echo "<td class='share-$row-2'>".my_scale($disks[$diskname]['fsFree']*1024, $unit)." $unit</td>";
-      echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' title='Recompute...' onclick='$(\".share-$row-1\").html(\"Please wait...\");$(\".share-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
+      echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' title='Recompute...' onclick='$.cookie(\"ssz\",\"ssz\",{path:\"/\"});$(\".share-$row-1\").html(\"Please wait...\");$(\".share-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
       echo "</tr>";
     }
   } else {
-    echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$(this).text('Please wait...')\">Compute...</a></td>";
+    echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('Please wait...')\">Compute...</a></td>";
     echo "<td>".my_scale($share['free']*1024, $unit)." $unit</td>";
     echo "<td><a href='$path/Browse?dir=/mnt/user/".urlencode($name)."'><img src='/webGui/images/explore.png' title='Browse /mnt/user/".urlencode($name)."'></a></td>";
     echo "</tr>";
