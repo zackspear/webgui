@@ -14,7 +14,7 @@
 <?
 $docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $var = file_exists('/var/local/emhttp/var.ini') ? parse_ini_file('/var/local/emhttp/var.ini') : [];
-$dir = ['system','appdata','isos'];
+$dir = ['system','appdata','isos','domains'];
 $out = ['prev','previous','syslinux'];
 
 $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
