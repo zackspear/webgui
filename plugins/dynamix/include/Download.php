@@ -37,8 +37,7 @@ case 'diag':
   echo "/$file";
   break;
 case 'unlink':
-  $backup = exec("ls -l '$docroot/$file'");
-  $backup = substr($backup,strpos($backup,'>')+2);
+  $backup = readlink("$docroot/$file");
   exec("rm -f '$docroot/$file' '$backup'");
   break;
 case 'backup':
