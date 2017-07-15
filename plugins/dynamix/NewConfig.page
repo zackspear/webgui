@@ -37,7 +37,7 @@ function prepareNewConfig(form) {
   $.post('/webGui/include/PrepareDisks.php',{preset:preset},function(){form.submit();});
 }
 <?if ($disksini):?>
-function assign(id,disk,last) {
+function assign(id,disk) {
   var pair = {changeDevice:'Apply'};
   pair['slotId.'+id] = disk;
   $.post('/update.htm',pair);
