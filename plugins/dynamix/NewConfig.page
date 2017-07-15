@@ -2,8 +2,8 @@ Menu="UNRAID-OS"
 Title="New Config"
 ---
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,8 @@ Title="New Config"
 ?>
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
-$disabled = $var['fsState']=="Started" || $newarray ? 'disabled' : '';
+$disabled = $var['fsState']=="Started";
+$disksini = file_exists('/var/tmp/disks.ini');
 ?>
 <style>
 span.indent{display:inline-block;width:200px;margin-top:11px;}
@@ -35,23 +36,24 @@ function prepareNewConfig(form) {
   // set preset filter to populate slots
   $.post('/webGui/include/PrepareDisks.php',{preset:preset},function(){form.submit();});
 }
-<?if (file_exists('/var/tmp/disks.ini')):?>
+<?if ($disksini):?>
 function assign(id,disk) {
   var pair = {changeDevice:'Apply'};
   pair['slotId.'+id] = disk;
   $.post('/update.htm',pair);
 }
-<?
-$disks = parse_ini_file('/var/tmp/disks.ini',true);
-foreach ($disks as $disk) echo "assign('{$disk['idx']}','{$disk['id']}');";
-unlink('/var/tmp/disks.ini');
-?>
 <?endif;?>
 $(function() {
   $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
 <?if ($disabled):?>
   $('#s1').dropdownchecklist('disable');
 <?endif;?>
+<?
+if ($disksini) {
+  $disks = parse_ini_file('/var/tmp/disks.ini',true);
+  foreach ($disks as $disk) echo "assign('{$disk['idx']}','{$disk['id']}');\n";
+}
+?>
 });
 </script>
 
@@ -78,8 +80,11 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 </select>
 <br>
 <span class="indent"><input type="button" name="apply" value=" Apply " onclick="prepareNewConfig(this.form)" disabled><input type="button" value=" Done " onclick="done()"></span>
-<?if ($disabled):?>
-<?=$newarray ? "Array has been <span class='strong big'>Reset</span> (please configure)" : "Array must be <span class='strong big'>Stopped</span>"?>
+<?if ($disksini || $newarray):?>
+<?@unlink('/var/tmp/disks.ini')?>
+Array has been <span class='strong big'>Reset</span> (please configure)
+<?elseif ($disabled):?>
+Array must be <span class='strong big'>Stopped</span>
 <?else:?>
 <input type="checkbox" onClick="apply.disabled=!this.checked"><small>Yes I want to do this</small>
 <?endif;?>
