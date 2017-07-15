@@ -51,7 +51,7 @@ $(function() {
 <?
 if ($disksini) {
   $disks = parse_ini_file('/var/tmp/disks.ini',true);
-  foreach ($disks as $disk) echo "  assign('{$disk['idx']}','{$disk['id']}');\n";
+  foreach ($disks as $disk) echo "assign('{$disk['idx']}','{$disk['id']}');\n";
 }
 ?>
 });
