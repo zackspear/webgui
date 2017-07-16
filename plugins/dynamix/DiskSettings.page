@@ -144,11 +144,11 @@ Tunable (enable NCQ):
 > If set to **Yes** then *Native Command Queuing* is enabled for all array devices that support NCQ.
 >
 > Note: After changing from **No** to **Yes** you must reboot the server for the change to take effect.  Changing
-> from **Yes* to **No** however, takes effect immediately.
+> from **Yes** to **No** however, takes effect immediately.
 >
 > Most users find that overall system performance is better with NCQ disabled.
 >
-> *Auto* selects `No`.
+> **Auto** selects `No`.
 
 Tunable (nr_requests):
 : <input type="text" name="nr_requests" maxlength="10" value="<?=$var['nr_requests']?>" class="narrow"><?=$var['nr_requests_status']?>
