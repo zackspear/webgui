@@ -16,7 +16,6 @@ Title="New Config"
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
 $disabled = $var['fsState']=="Started";
-
 if ($newarray) {
   @unlink('/boot/config/smart-one.cfg');
   @unlink('/boot/config/smart-all.cfg');

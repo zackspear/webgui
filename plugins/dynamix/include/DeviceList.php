@@ -77,6 +77,7 @@ function assignment(&$disk) {
   global $var, $devs;
   $out = "<form method='POST' name=\"{$disk['name']}Form\" action='/update.htm' target='progressFrame'>";
   $out .= "<input type='hidden' name='changeDevice' value='apply'>";
+  $out .= "<input type='hidden' name='csrf_token' value='{$var['csrf_token']}'>";
   $out .= "<select class=\"slot\" name=\"slotId.{$disk['idx']}\" onChange=\"{$disk['name']}Form.submit()\">";
   $empty = ($disk['idSb']!='' ? 'no device' : 'unassigned');
   if ($disk['id']!='') {
