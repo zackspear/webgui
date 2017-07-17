@@ -16,6 +16,11 @@ Title="New Config"
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
 $disabled = $var['fsState']=="Started";
+if ($newarray) {
+  @unlink('/boot/config/smart-one.cfg');
+  @unlink('/boot/config/smart-all.cfg');
+  @unlink('/boot/config/plugins/dynamix/monitor.ini');
+}
 ?>
 <style>
 span.indent{display:inline-block;width:200px;margin-top:11px;}
@@ -65,7 +70,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <?=mk_option_check(0,'cache','Cache slots')?>
 </select>
 <br>
-<span class="indent"><input type="submit" name="cmdInit" value="Apply " disabled><input type="button" value="Done " onclick="done()"></span>
+<span class="indent"><input type="submit" class="lock" name="cmdInit" value="Apply" disabled><input type="button" class="lock" value="Done" onclick="done()"></span>
 <?if ($newarray):?>
 Array has been <span class='strong big'>Reset</span> (please configure)
 <?elseif ($disabled):?>
