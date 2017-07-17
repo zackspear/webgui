@@ -16,7 +16,6 @@ Title="New Config"
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
 $disabled = $var['fsState']=="Started";
-$disksini = file_exists('/var/tmp/disks.ini');
 ?>
 <style>
 span.indent{display:inline-block;width:200px;margin-top:11px;}
@@ -24,36 +23,20 @@ span.indent{display:inline-block;width:200px;margin-top:11px;}
 
 <script>
 function prepareNewConfig(form) {
-  // assemble preset value
-  var preset = '';
   for (var i=1,item; item=form.preset.options[i]; i++) {
-    if (item.selected) {
-      if (preset.length) preset += ',';
-      preset += item.value;
-      item.selected = false;
+    switch (item.value) {
+      case 'parity': if (item.selected) form.preserveParity.disabled = false; break;
+      case 'data'  : if (item.selected) form.preserveData.disabled = false; break;
+      case 'cache' : if (item.selected) form.preserveCache.disabled = false; break;
     }
   }
-  // set preset filter to populate slots
-  $.post('/webGui/include/PrepareDisks.php',{preset:preset},function(){form.submit();});
+  form.preset.disabled = true;
 }
-<?if ($disksini):?>
-function assign(id,disk) {
-  var pair = {changeDevice:'Apply'};
-  pair['slotId.'+id] = disk;
-  $.post('/update.htm',pair);
-}
-<?endif;?>
 $(function() {
   $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
 <?if ($disabled):?>
   $('#s1').dropdownchecklist('disable');
 <?endif;?>
-<?
-if ($disksini) {
-  $disks = parse_ini_file('/var/tmp/disks.ini',true);
-  foreach ($disks as $disk) echo "assign('{$disk['idx']}','{$disk['id']}');\n";
-}
-?>
 });
 </script>
 
@@ -69,23 +52,25 @@ Use the *'Retain current configuration'* selection to populate the desired disk 
 effect of making it ***impossible*** to rebuild an existing failed drive - you have been warned!
 
 <hr>
-<form name="newConfig" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="cmdInit" value="apply">
+<form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
+<input type="hidden" name="preserveParity" value="yes" disabled>
+<input type="hidden" name="preserveData" value="yes" disabled>
+<input type="hidden" name="preserveCache" value="yes" disabled>
+
 <span class="indent">Retain current configuration:</span>
 <select id="s1" name="preset" size="1" multiple="multiple" style="display:none">
 <option value=''>All</option>
-<?=mk_option_check(0,'Parity','Parity slots')?>
-<?=mk_option_check(0,'Data','Data slots')?>
-<?=mk_option_check(0,'Cache','Cache slots')?>
+<?=mk_option_check(0,'parity','Parity slots')?>
+<?=mk_option_check(0,'data','Data slots')?>
+<?=mk_option_check(0,'cache','Cache slots')?>
 </select>
 <br>
-<span class="indent"><input type="button" name="apply" value=" Apply " onclick="prepareNewConfig(this.form)" disabled><input type="button" value=" Done " onclick="done()"></span>
-<?if ($disksini || $newarray):?>
-<?@unlink('/var/tmp/disks.ini')?>
+<span class="indent"><input type="submit" name="cmdInit" value="Apply " disabled><input type="button" value="Done " onclick="done()"></span>
+<?if ($newarray):?>
 Array has been <span class='strong big'>Reset</span> (please configure)
 <?elseif ($disabled):?>
 Array must be <span class='strong big'>Stopped</span>
 <?else:?>
-<input type="checkbox" onClick="apply.disabled=!this.checked"><small>Yes I want to do this</small>
+<input type="checkbox" onClick="cmdInit.disabled=!this.checked"><small>Yes I want to do this</small>
 <?endif;?>
 </form>
