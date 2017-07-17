@@ -16,6 +16,12 @@ Title="New Config"
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
 $disabled = $var['fsState']=="Started";
+
+if ($newarray) {
+  @unlink('/boot/config/smart-one.cfg');
+  @unlink('/boot/config/smart-all.cfg');
+  @unlink('/boot/config/plugins/dynamix/monitor.ini');
+}
 ?>
 <style>
 span.indent{display:inline-block;width:200px;margin-top:11px;}
