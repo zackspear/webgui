@@ -259,7 +259,7 @@ foreach ($devs as $dev) {
   $name = $dev['device'];
   if (empty($name)) continue;
   $smart = "/var/local/emhttp/smart/$name";
-  if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A ".escapeshellarg("/dev/$name")." > ".escapeshellarg($smart));
+  if (!file_exists($smart) || (time()-filectime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A ".escapeshellarg("/dev/$name")." > ".escapeshellarg($smart));
   $temp = exec("awk '\$1==190||\$1==194{print \$10;exit}' ".escapeshellarg($smart));
   $text = "device $name";
   $info = !empty($dev['id']) ? "{$dev['id']} ($name)": "No device identification ($name)";
