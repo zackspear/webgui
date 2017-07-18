@@ -125,6 +125,7 @@ if ($action) {
                <tr>
                   <th class='header'><i class='fa fa-th-list'></i></th>
                   <th class='header'>Name</th>
+                  <th class='header'>Description</th>
                   <th class='header'>CPUs</th>
                   <th class='header'>Memory</th>
                   <th class='header'>Hard Drives</th>
@@ -151,6 +152,7 @@ if ($action) {
    for ($i = 0; $i < sizeof($doms); $i++) {
    	$name = $doms[$i];
       $res = $lv->get_domain_by_name($name);
+      $desc = $lv->domain_get_description($res);
       $uuid = $lv->domain_get_uuid($res);
       $dom = $lv->domain_get_info($res);
       $id = $lv->domain_get_id($res);
@@ -234,6 +236,7 @@ if ($action) {
                   </div>
                </td>
                <td><a href='#' onclick=\"return toggle_id('name$i');\" title='click for more VM info'>$name</a></td>
+               <td>$desc</td>
                <td><a class='vcpu$i' style='cursor:pointer'>$vcpu</a></td>
                <td>$mem</td>
                <td title='$diskdesc'>$disks</td>
