@@ -149,7 +149,7 @@
 					$arrResponse['localfolder'] = dirname($strExtractedFile);
 
 				} else {
-					if (pgrep($strExtractPgrep)) {
+					if (pgrep($strExtractPgrep, false)) {
 
 						// Status = running extract
 						$arrResponse['status'] = 'Extracting ... ';
@@ -164,7 +164,7 @@
 
 			} elseif (file_exists($strTempFile)) {
 
-				if (pgrep($strDownloadPgrep)) {
+				if (pgrep($strDownloadPgrep, false)) {
 
 					// Get Download percent completed
 					$intSize = filesize($strTempFile);
@@ -175,7 +175,7 @@
 
 					$arrResponse['status'] = 'Downloading ... ' . $strPercent . '%';
 
-				} elseif (pgrep($strVerifyPgrep)) {
+				} elseif (pgrep($strVerifyPgrep, false)) {
 
 					// Status = running md5 check
 					$arrResponse['status'] = 'Verifying ... ';
@@ -185,7 +185,7 @@
 					// Status = running extract
 					$arrResponse['status'] = 'Extracting ... ';
 
-					if (!pgrep($strExtractPgrep)) {
+					if (!pgrep($strExtractPgrep, false)) {
 						// Examine md5 status
 						$strMD5StatusContents = file_get_contents($strMD5StatusFile);
 
@@ -203,7 +203,7 @@
 					// Status = running md5 check
 					$arrResponse['status'] = 'Downloading ... 100%';
 
-					if (!pgrep($strInstallScriptPgrep) && !$boolCheckOnly) {
+					if (!pgrep($strInstallScriptPgrep, false) && !$boolCheckOnly) {
 
 						// Run all commands
 						file_put_contents($strInstallScript, $strAllCmd);
@@ -216,7 +216,7 @@
 
 			} elseif (!$boolCheckOnly) {
 
-				if (!pgrep($strInstallScriptPgrep)) {
+				if (!pgrep($strInstallScriptPgrep, false)) {
 
 					// Run all commands
 					file_put_contents($strInstallScript, $strAllCmd);
@@ -229,7 +229,7 @@
 
 			}
 
-			$arrResponse['pid'] = pgrep($strInstallScriptPgrep);
+			$arrResponse['pid'] = pgrep($strInstallScriptPgrep, false);
 
 		}
 

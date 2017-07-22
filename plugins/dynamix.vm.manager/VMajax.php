@@ -507,7 +507,7 @@ switch ($action) {
 
 				if (!file_exists($strLogFile)) {
 
-					if (!pgrep($strDownloadPgrep)) {
+					if (!pgrep($strDownloadPgrep, false)) {
 
 						// Status = done
 						$arrResponse['status'] = 'Done';
@@ -523,7 +523,7 @@ switch ($action) {
 
 				} else {
 
-					if (pgrep($strDownloadPgrep)) {
+					if (pgrep($strDownloadPgrep, false)) {
 
 						// Get Download percent completed
 						$intSize = filesize($strTargetFile);
@@ -534,7 +534,7 @@ switch ($action) {
 
 						$arrResponse['status'] = 'Downloading ... ' . $strPercent . '%';
 
-					} elseif (pgrep($strVerifyPgrep)) {
+					} elseif (pgrep($strVerifyPgrep, false)) {
 
 						// Status = running md5 check
 						$arrResponse['status'] = 'Verifying ... ';
@@ -560,7 +560,7 @@ switch ($action) {
 						// Status = running md5 check
 						$arrResponse['status'] = 'Downloading ... 100%';
 
-						if (!pgrep($strInstallScriptPgrep) && !$boolCheckOnly) {
+						if (!pgrep($strInstallScriptPgrep, false) && !$boolCheckOnly) {
 
 							// Run all commands
 							file_put_contents($strInstallScript, $strAllCmd);
@@ -575,7 +575,7 @@ switch ($action) {
 
 			} elseif (!$boolCheckOnly) {
 
-				if (!pgrep($strInstallScriptPgrep)) {
+				if (!pgrep($strInstallScriptPgrep, false)) {
 
 					// Run all commands
 					file_put_contents($strInstallScript, $strAllCmd);
@@ -588,7 +588,7 @@ switch ($action) {
 
 			}
 
-			$arrResponse['pid'] = pgrep($strInstallScriptPgrep);
+			$arrResponse['pid'] = pgrep($strInstallScriptPgrep, false);
 
 		}
 		break;
@@ -609,7 +609,7 @@ switch ($action) {
 			$arrResponse = ['error' => 'ISO storage path doesn\'t exist'];
 		} else {
 			$strInstallScriptPgrep = '-f "VirtIOWin_' . $strKeyName . '_install.sh"';
-			$pid = pgrep($strInstallScriptPgrep);
+			$pid = pgrep($strInstallScriptPgrep, false);
 			if (!$pid) {
 				$arrResponse = ['error' => 'Not running'];
 			} else {

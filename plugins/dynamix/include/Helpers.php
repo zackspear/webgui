@@ -170,8 +170,8 @@ function read_parity_log($epoch,$busy=false) {
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
-function pgrep($process_name) {
-  $pid = exec("pgrep ".escapeshellarg($process_name), $output, $retval);
+function pgrep($process_name,$escape_arg=true) {
+  $pid = exec("pgrep ".($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
 }
 function input_secure_users($sec) {
