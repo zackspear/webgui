@@ -345,7 +345,7 @@ toggle_diskio(true);
         </tr>
 <?    elseif ($var['mdResyncAction']=="clear"):?>
         <tr>
-        <td><?=status_indicator()?><span class="strong big">Stopped</span>. New data disks(s) detected.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. New data disk(s) detected.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td>
         </tr>
