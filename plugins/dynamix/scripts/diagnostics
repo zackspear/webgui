@@ -64,6 +64,8 @@ if ($cli) {
 }
 // create folder structure
 exec("mkdir -p ".escapeshellarg("/$diag/system")." ".escapeshellarg("/$diag/config")." ".escapeshellarg("/$diag/logs")." ".escapeshellarg("/$diag/shares")." ".escapeshellarg("/$diag/smart")." ".escapeshellarg("/$diag/qemu"));
+// get utilization of running processes
+exec("top -bn1 -o%CPU 2>/dev/null|todos >".escapeshellarg("/$diag/system/top.txt"));
 // make unRAID version reference
 $unraid = parse_ini_file('/etc/unraid-version');
 file_put_contents("/$diag/unRAID-".$unraid['version'].".txt",$unraid['version']);
@@ -81,7 +83,7 @@ exec("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
 exec("free -mt 2>/dev/null|todos >".escapeshellarg("/$diag/system/memory.txt"));
 exec("ps -ef 2>/dev/null|todos >".escapeshellarg("/$diag/system/ps.txt"));
 exec("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
-exec("lsmod 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsmod.txt"));
+exec("lsmod|sort 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsmod.txt"));
 exec("df -h 2>/dev/null|todos >".escapeshellarg("/$diag/system/df.txt"));
 exec("ifconfig -a -s 2>/dev/null|grep -Po '^(eth|bond)[0-9]+'", $ports);
 // create ethernet information information (suppress errors)
@@ -200,8 +202,7 @@ foreach ($devices as $device) {
 }
 // create cache pool information
 if (is_dir('/mnt/cache') && $disks['cache']['fsType']=='btrfs') {
-  exec("/sbin/btrfs filesystem show /mnt/cache 2>/dev/null|todos >".escapeshellarg("/$diag/system/btrfs-show.txt"));
-  exec("/sbin/btrfs filesystem df /mnt/cache 2>/dev/null|todos >".escapeshellarg("/$diag/system/btrfs-df.txt"));
+  exec("/sbin/btrfs filesystem usage /mnt/cache 2>/dev/null|todos >".escapeshellarg("/$diag/system/btrfs-usage.txt"));
 }
 // create resulting zip file and remove temp folder
 exec("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
