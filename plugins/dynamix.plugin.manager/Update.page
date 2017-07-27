@@ -21,6 +21,10 @@ $audit = $notify['unraidos'] ? 1 : 0;
 <script>
 var original = null;
 
+function noAudit() {
+  hideUpgrade();
+  $.cookie('noAudit','true',{path:'/'});
+}
 function update_table(branch) {
   $('#os_list').html("<?=$empty?>");
   if (original) {
