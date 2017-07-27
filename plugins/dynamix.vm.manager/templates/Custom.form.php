@@ -133,7 +133,7 @@
 			$wsport = $lv->domain_get_ws_port($dom);
 
 			if ($vncport > 0) {
-				$vnc = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$eth0['IPADDR:0'].'&port='.$wsport;
+				$vnc = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=' . $wsport . '&path=';
 				$arrResponse['vncurl'] = $vnc;
 			}
 		}
