@@ -1579,13 +1579,13 @@ $showAdditionalInfo = '';
 </div>
 
 <div id="templateUsedPorts" style="display:none">
-<table class='settings'>
+<table class='settings wide'>
   <tr><td></td><td style="{0}"><span style="width:120px;display:inline-block;padding-left:20px">{1}</span>{2}</td></tr>
 </table>
 </div>
 
 <div id="templateUsedIPs" style="display:none">
-<table class='settings'>
+<table class='settings wide'>
   <tr><td></td><td style="{0}"><span style="width:120px;display:inline-block;padding-left:20px">{1}</span>{2}</td></tr>
 </table>
 </div>
