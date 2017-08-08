@@ -153,7 +153,8 @@ function array_offline(&$disk,$w) {
 }
 function array_online(&$disk) {
   global $sum, $diskio;
-  $data = $diskio ? explode(' ',$diskio[$disk['device']]) : [];
+  $dev = $disk['device'];
+  $data = isset($diskio[$dev]) ? explode(' ',$diskio[$dev]) : [];
   if (is_numeric($disk['temp'])) {
     $sum['count']++;
     $sum['temp'] += $disk['temp'];
