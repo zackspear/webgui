@@ -204,7 +204,7 @@ function postToXML($post, $setOwnership = false) {
   $xml->TemplateURL        = xml_encode($post['contTemplateURL']);
   $xml->Icon               = xml_encode(trim($post['contIcon']));
   $xml->ExtraParams        = xml_encode($post['contExtraParams']);
-  $xml->PostParams         = xml_encode($post['contPostParams']);
+  $xml->PostArgs           = xml_encode($post['contPostArgs']);
   $xml->DateInstalled      = xml_encode(time());
 
   # V1 compatibility
@@ -268,7 +268,7 @@ function xmlToVar($xml) {
   $out['TemplateURL'] = xml_decode($xml->TemplateURL);
   $out['Icon']        = xml_decode($xml->Icon);
   $out['ExtraParams'] = xml_decode($xml->ExtraParams);
-  $out['PostParams']  = xml_decode($xml->PostParams);
+  $out['PostArgs']    = xml_decode($xml->PostArgs);
 
   $out['Config'] = [];
   if (isset($xml->Config)) {
@@ -425,7 +425,7 @@ function xmlToCommand($xml, $create_paths=false) {
                  implode(' --device=', $Devices),
                  $xml['ExtraParams'],
                  $xml['Repository'],
-                 $xml['PostParams']);
+                 $xml['PostArgs']);
 
   $cmd = trim(preg_replace('/\s+/', ' ', $cmd));
   return [$cmd, $xml['Name'], $xml['Repository']];
@@ -1409,8 +1409,8 @@ $showAdditionalInfo = '';
         </td>
       </tr>
       <tr class="advanced">
-        <td>Post Parameters:</td>
-        <td><input type="text" name="contPostParams" class="textPath"></td>
+        <td>Post Arguments:</td>
+        <td><input type="text" name="contPostArgs" class="textPath"></td>
       </tr>
       <tr class="advanced">
         <td colspan="2" class="inline_help">
