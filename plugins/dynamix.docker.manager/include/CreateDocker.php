@@ -729,49 +729,20 @@ $showAdditionalInfo = '';
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.filetree.css">
 <link rel="stylesheet" type="text/css" href="/plugins/dynamix.docker.manager/styles/style-<?=$display['theme'];?>.css">
 <style>
-  body{-webkit-overflow-scrolling:touch;}
-  table.settings tr>td+td{font-size:12px;white-space:normal;text-align:justify;padding-right:12px;}
-  .fileTree{width:240px;height:150px;overflow:scroll;position:absolute;z-index:100;display:none;margin-bottom: 100px;}
-  #TemplateSelect{width:255px;}
-  textarea.textTemplate{width:90%;}
-  option.list{padding:0 0 0 7px;font-size:11px;}
-  optgroup.bold{font-weight:bold;font-size:12px;margin-top:5px;}
-  optgroup.title{background-color:#625D5D;color:#FFFFFF;text-align:center;margin-top:10px;}
-  .textPath{width:270px;}
-  .show{display:block;}
-  .desc{padding:6px;line-height:15px;width:inherit;}
-  .toggleMode{cursor:pointer;color:#a3a3a3;letter-spacing:0;padding:0;padding-right:10px;font-family:arimo;font-size:12px;line-height:1.3em;font-weight:bold;margin:0;}
-  .toggleMode:hover,.toggleMode:focus,.toggleMode:active,.toggleMode .active{color:#625D5D;}
-  .basic{display:table-row;}
-  .advanced{display:none;}
-  .noshow{display: none;}
-  .required:after {content: " * ";color: #E80000}
-  .inline_help{font-weight:normal;}
-  .switch-wrapper {
-    display: inline-block;
-    position: relative;
-    top: 3px;
-    vertical-align: middle;
-  }
-  .spacer{padding-right: 20px}
-  .label-warning, .label-success, .label-important {
-    padding: 1px 4px 2px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    font-size: 10.998px;
-    font-weight: bold;
-    line-height: 14px;
-    color: #ffffff;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-  .label-warning{background-color:#f89406;}
-  .label-success{background-color:#468847;}
-  .label-important{background-color:#b94a48;}
-  .selectVariable{width:320px;}
-  .switch-button-label.off{color:inherit;}
+table.settings tr>td+td{white-space:normal;text-align:justify;padding-right:12px}
+option.list{padding:0 0 0 7px}
+optgroup.bold{font-weight:bold;margin-top:5px}
+optgroup.title{background-color:#625D5D;color:#FFFFFF;text-align:center;margin-top:10px}
+.textTemplate{width:60%}
+.fileTree{width:240px;max-height:200px;overflow-y:scroll;position:absolute;z-index:100;display:none}
+.show{display:block}
+.basic{display:table-row}
+.advanced{display:none}
+.noshow{display:none}
+.inline_help{font-weight:normal}
+.switch-wrapper{display:inline-block;position:relative;top:3px;vertical-align:middle;}
+.switch-button-label.off{color:inherit;}
+.selectVariable{width:320px}
 </style>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 <script src="/webGui/javascript/jquery.filetree.js"></script>
@@ -785,7 +756,7 @@ $showAdditionalInfo = '';
     <?else:?>
     var last = $('input[name$="tabs"]').length;
     var elementId = "normalAdvanced";
-    $('.tabs').append("<span id='"+elementId+"' class='status vhshift' style='display: none;'>"+content+"&nbsp;</span>");
+    $('.tabs').append("<span id='"+elementId+"' class='status vhshift' style='display:none;'>"+content+"&nbsp;</span>");
     if ($('#tab'+this_tab).is(':checked')) {
       $('#'+elementId).show();
     }
@@ -1150,7 +1121,7 @@ $showAdditionalInfo = '';
       filter: filter,
       allowBrowsing: true
     },
-    function(file){if(on_files){p.val(file);if(close_on_select){ft.slideUp('fast',function (){ft.remove();});}}},
+    function(file){if(on_files){p.val(file);if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
     function(folder){if(on_folders){p.val(folder);if(close_on_select){$(ft).slideUp('fast',function (){$(ft).remove();});}}}
     );
     // Format fileTree according to parent position, height and width
@@ -1180,14 +1151,14 @@ $showAdditionalInfo = '';
     $("input[name='contCategory']").val(values.join(" "));
   }
 </script>
-<div id="docker_tabbed" style="display: inline; float: right; margin: -47px 0px;"></div>
-<div id="dialogAddConfig" style="display: none"></div>
+<div id="docker_tabbed" style="float:right;margin-top:-47px"></div>
+<div id="dialogAddConfig" style="display:none"></div>
 <form method="GET" id="formTemplate">
   <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="" />
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="" />
 </form>
 
-<div id="canvas" style="z-index:1;">
+<div id="canvas">
   <form method="POST" autocomplete="off" onsubmit="prepareConfig(this)">
     <table class="settings">
       <? if ($xmlType == "edit"):
@@ -1232,7 +1203,7 @@ $showAdditionalInfo = '';
         </td>
       </tr>
       <tr>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>Templates are a quicker way to setting up Docker Containers on your unRAID server.  There are two types of templates:</p>
 
@@ -1257,10 +1228,10 @@ $showAdditionalInfo = '';
       <?endif;?>
       <tr <?=$showAdditionalInfo?>>
         <td>Name:</td>
-        <td><input type="text" name="contName" class="textPath" required></td>
+        <td><input type="text" name="contName" required></td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>Give the container a name or leave it as default.</p>
           </blockquote>
@@ -1268,14 +1239,14 @@ $showAdditionalInfo = '';
       </tr>
       <tr id="Overview" class="basic">
         <td>Overview:</td>
-        <td id="contDescription" style="color:#3B5998"></td>
+        <td><div id="contDescription" class="blue-text textTemplate"></div></td>
       </tr>
       <tr id="Overview" class="advanced">
         <td>Overview:</td>
         <td><textarea name="contOverview" rows="10" class="textTemplate"></textarea></td>
       </tr>
       <tr>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>A description for the application container.  Supports basic HTML mark-up.</p>
           </blockquote>
@@ -1283,10 +1254,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr <?=$showAdditionalInfo?>>
         <td>Repository:</td>
-        <td><input type="text" name="contRepository" class="textPath" required></td>
+        <td><input type="text" name="contRepository" required></td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>The repository for the application on the Docker Registry.  Format of authorname/appname.
             Optionally you can add a : after appname and request a specific version for the container image.</p>
@@ -1340,10 +1311,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="<?=$authoring;?>">
         <td>Support Thread:</td>
-        <td><input type="text" name="contSupport" class="textPath"></td>
+        <td><input type="text" name="contSupport"></td>
       </tr>
       <tr class="<?=$authoring;?>">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>Link to a support thread on Lime-Technology's forum.</p>
           </blockquote>
@@ -1351,10 +1322,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="advanced">
         <td>Docker Hub URL:</td>
-        <td><input type="text" name="contRegistry" class="textPath"></td>
+        <td><input type="text" name="contRegistry"></td>
       </tr>
       <tr class="advanced">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>The path to the container's repository location on the Docker Hub.</p>
           </blockquote>
@@ -1362,10 +1333,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="<?=$authoring;?>">
         <td>Template URL:</td>
-        <td><input type="text" name="contTemplateURL" class="textPath"></td>
+        <td><input type="text" name="contTemplateURL"></td>
       </tr>
       <tr class="<?=$authoring;?>">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>This URL is used to keep the template updated.</p>
           </blockquote>
@@ -1373,10 +1344,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="advanced">
         <td>Icon URL:</td>
-        <td><input type="text" name="contIcon" class="textPath"></td>
+        <td><input type="text" name="contIcon"></td>
       </tr>
       <tr class="advanced">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>Link to the icon image for your application (only displayed on dashboard if Show Dashboard apps under Display Settings is set to Icons).</p>
           </blockquote>
@@ -1384,10 +1355,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="advanced">
         <td>WebUI:</td>
-        <td><input type="text" name="contWebUI" class="textPath"></td>
+        <td><input type="text" name="contWebUI"></td>
       </tr>
       <tr class="advanced">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>When you click on an application icon from the Docker Containers page, the WebUI option will link to the path in this field.
             Use [IP] to identify the IP of your host and [PORT:####] replacing the #'s for your port.</p>
@@ -1396,10 +1367,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="advanced">
         <td>Extra Parameters:</td>
-        <td><input type="text" name="contExtraParams" class="textPath"></td>
+        <td><input type="text" name="contExtraParams"></td>
       </tr>
       <tr class="advanced">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>If you wish to append additional commands to your Docker container at run-time, you can specify them here.<br>
             For example, if you wish to pin an application to live on a specific CPU core, you can enter "--cpuset=0" in this field.
@@ -1410,10 +1381,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="advanced">
         <td>Post Arguments:</td>
-        <td><input type="text" name="contPostArgs" class="textPath"></td>
+        <td><input type="text" name="contPostArgs"></td>
       </tr>
       <tr class="advanced">
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>If you wish to append additional arguments AFTER the container definition, you can specify them here.
             The content of this field is container specific.</p>
@@ -1435,10 +1406,10 @@ $showAdditionalInfo = '';
       </tr>
       <tr class="myIP" style="display:none">
         <td>Fixed IP address (optional):</td>
-        <td><input type="text" name="contMyIP" class="textPath"><span id="myIP"></span></td>
+        <td><input type="text" name="contMyIP"><span id="myIP"></span></td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>If the Bridge type is selected, the application’s network access will be restricted to only communicating on the ports specified in the port mappings section.
             If the Host type is selected, the application will be given access to communicate using any port on the host that isn’t already mapped to another in-use application/service.
@@ -1448,11 +1419,11 @@ $showAdditionalInfo = '';
         </td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
-        <td style="line-height:40px">Privileged:</td>
+        <td>Privileged:</td>
         <td><input type="checkbox" name="contPrivileged" class="switch-on-off"></td>
       </tr>
       <tr <?=$showAdditionalInfo?>>
-        <td colspan="2" class="inline_help">
+        <td colspan="2">
           <blockquote class="inline_help">
             <p>For containers that require the use of host-device access directly or need full exposure to host capabilities, this option will need to be selected.
             <br>For more information, see this link: <a href="https://docs.docker.com/reference/run/#runtime-privilege-linux-capabilities-and-lxc-configuration" target="_blank">https://docs.docker.com/reference/run/#runtime-privilege-linux-capabilities-and-lxc-configuration</a></p>
@@ -1460,36 +1431,36 @@ $showAdditionalInfo = '';
         </td>
       </tr>
     </table>
-    <div id="configLocation"></div><br>
-    <table class="settings">
+    <div id="configLocation" style="margin-top:12px"></div>
+    <table class="settings wide" style="margin-top:12px">
       <tr>
         <td></td>
-        <td id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="font-size: 1.2em;cursor: pointer"><i class="fa fa-chevron-down"></i> Show advanced settings ...</a></td>
+        <td id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show advanced settings ...</a></td>
       </tr>
     </table>
     <div id="configLocationAdvanced" style="display:none"></div><br>
-    <table class="settings">
+    <table class="settings wide">
       <tr>
         <td></td>
-        <td id="portsused_toggle" class="portsused_collapsed"><a onclick="togglePortsUsed()" style="font-size: 1.2em;cursor: pointer"><i class="fa fa-chevron-down"></i> Show deployed host ports ...</a></td>
+        <td id="portsused_toggle" class="portsused_collapsed"><a onclick="togglePortsUsed()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show deployed host ports ...</a></td>
       </tr>
     </table>
     <div id="configLocationPorts" style="display:none"></div><br>
-    <table class="settings">
+    <table class="settings wide">
       <tr>
         <td></td>
-        <td id="ipsused_toggle" class="ipsused_collapsed"><a onclick="toggleIPsUsed()" style="font-size: 1.2em;cursor: pointer"><i class="fa fa-chevron-down"></i> Show deployed IP addresses ...</a></td>
+        <td id="ipsused_toggle" class="ipsused_collapsed"><a onclick="toggleIPsUsed()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show deployed IP addresses ...</a></td>
       </tr>
     </table>
     <div id="configLocationIPs" style="display:none"></div><br>
-    <table class="settings">
+    <table class="settings wide">
       <tr>
         <td></td>
-        <td><a href="javascript:addConfigPopup()" style="font-size: 1.2em"><i class="fa fa-plus"></i> Add another Path, Port or Variable</a></td>
+        <td><a href="javascript:addConfigPopup()"><i class="fa fa-plus"></i> Add another Path, Port or Variable</a></td>
       </tr>
     </table>
     <br>
-    <table class="settings">
+    <table class="settings wide">
       <tr>
         <td></td>
         <td>
@@ -1525,18 +1496,18 @@ $showAdditionalInfo = '';
       </select>
     </dd>
     <dt>Name:</dt>
-    <dd><input type="text" name="Name" class="textPath"></dd>
+    <dd><input type="text" name="Name"></dd>
     <div id="Target">
       <dt id="dt1">Target:</dt>
-      <dd><input type="text" name="Target" class="textPath"></dd>
+      <dd><input type="text" name="Target"></dd>
     </div>
     <div id="Value">
       <dt id="dt2">Value:</dt>
-      <dd><input type="text" name="Value" class="textPath"></dd>
+      <dd><input type="text" name="Value"></dd>
     </div>
     <div id="Default" class="advanced">
       <dt>Default Value:</dt>
-      <dd><input type="text" name="Default" class="textPath"></dd>
+      <dd><input type="text" name="Default"></dd>
     </div>
     <div id="Mode"></div>
     <dt>Description:</dt>
@@ -1583,12 +1554,12 @@ $showAdditionalInfo = '';
   <input type="hidden" name="confDisplay[]" value="{6}">
   <input type="hidden" name="confRequired[]" value="{7}">
   <input type="hidden" name="confMask[]" value="{8}">
-  <table class="settings" style="padding-top: 18px;">
+  <table class="settings wide">
     <tr>
-      <td class="{11}" style="vertical-align: top;">{0}:</td>
+      <td class="{11}" style="vertical-align:top;">{0}:</td>
       <td>
-        <input type="text" class="textPath" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>&nbsp;{10}
-        <div style='color:#C98C21;line-height:1.6em;'>{4}</div>
+        <input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>&nbsp;{10}
+        <div class="orange-text">{4}</div>
       </td>
     </tr>
   </table>
