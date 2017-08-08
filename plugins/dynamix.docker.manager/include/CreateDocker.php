@@ -204,6 +204,7 @@ function postToXML($post, $setOwnership = false) {
   $xml->TemplateURL        = xml_encode($post['contTemplateURL']);
   $xml->Icon               = xml_encode(trim($post['contIcon']));
   $xml->ExtraParams        = xml_encode($post['contExtraParams']);
+  $xml->PostParams         = xml_encode($post['contPostParams']);
   $xml->DateInstalled      = xml_encode(time());
 
   # V1 compatibility
@@ -257,7 +258,7 @@ function xmlToVar($xml) {
   $out['Name']        = preg_replace('/\s+/', '', xml_decode($xml->Name));
   $out['Repository']  = xml_decode($xml->Repository);
   $out['Registry']    = xml_decode($xml->Registry);
-  $out['Network']     = (isset($xml->Network)) ? xml_decode($xml->Network) : xml_decode($xml->Network['Default']);
+  $out['Network']     = isset($xml->Network) ? xml_decode($xml->Network) : xml_decode($xml->Network['Default']);
   $out['MyIP']        = isset($xml->MyIP) ? xml_decode($xml->MyIP) : '';
   $out['Privileged']  = xml_decode($xml->Privileged);
   $out['Support']     = xml_decode($xml->Support);
@@ -267,6 +268,7 @@ function xmlToVar($xml) {
   $out['TemplateURL'] = xml_decode($xml->TemplateURL);
   $out['Icon']        = xml_decode($xml->Icon);
   $out['ExtraParams'] = xml_decode($xml->ExtraParams);
+  $out['PostParams']  = xml_decode($xml->PostParams);
 
   $out['Config'] = [];
   if (isset($xml->Config)) {
@@ -275,13 +277,14 @@ function xmlToVar($xml) {
       $c['Value'] = strlen(xml_decode($config)) ? xml_decode($config) : xml_decode($config['Default']);
       foreach ($config->attributes() as $key => $value) {
         $value = xml_decode($value);
+        $val = strtolower($value);
         if ($key == 'Mode') {
           switch (xml_decode($config['Type'])) {
             case 'Path':
-              $value = (strtolower($value) == 'rw' || strtolower($value) == 'rw,slave' || strtolower($value) == 'ro' || strtolower($value) == 'ro,slave') ? $value : "rw";
+              $value = ($val=='rw'||$val=='rw,slave'||$val=='rw,shared'||$val=='ro'||$val=='ro,slave'||$val=='ro,shared') ? $value : "rw";
               break;
             case 'Port':
-              $value = (strtolower($value) == 'tcp' || strtolower($value) == 'udp' ) ? $value : "tcp";
+              $value = ($val=='tcp'||$val=='udp') ? $value : "tcp";
               break;
           }
         }
@@ -411,7 +414,7 @@ function xmlToCommand($xml, $create_paths=false) {
       $Devices[] = '"'.$hostConfig.'"';
     }
   }
-  $cmd = sprintf('/plugins/dynamix.docker.manager/scripts/docker create %s %s %s %s %s %s %s %s %s %s',
+  $cmd = sprintf('/plugins/dynamix.docker.manager/scripts/docker create %s %s %s %s %s %s %s %s %s %s %s',
                  $cmdName,
                  $cmdNetwork,
                  $cmdMyIP,
@@ -421,9 +424,10 @@ function xmlToCommand($xml, $create_paths=false) {
                  implode(' -v ', $Volumes),
                  implode(' --device=', $Devices),
                  $xml['ExtraParams'],
-                 $xml['Repository']);
+                 $xml['Repository'],
+                 $xml['PostParams']);
 
-  $cmd = preg_replace('/\s+/', ' ', $cmd);
+  $cmd = trim(preg_replace('/\s+/', ' ', $cmd));
   return [$cmd, $xml['Name'], $xml['Repository']];
 }
 
@@ -1397,10 +1401,22 @@ $showAdditionalInfo = '';
       <tr class="advanced">
         <td colspan="2" class="inline_help">
           <blockquote class="inline_help">
-            <p>If you wish to append additional commands to your Docker container at run-time, you can specify them here.
+            <p>If you wish to append additional commands to your Docker container at run-time, you can specify them here.<br>
             For example, if you wish to pin an application to live on a specific CPU core, you can enter "--cpuset=0" in this field.
             Change 0 to the core # on your system (starting with 0).  You can pin multiple cores by separation with a comma or a range of cores by separation with a dash.
             For all possible Docker run-time commands, see here: <a href="https://docs.docker.com/reference/run/" target="_blank">https://docs.docker.com/reference/run/</a></p>
+          </blockquote>
+        </td>
+      </tr>
+      <tr class="advanced">
+        <td>Post Parameters:</td>
+        <td><input type="text" name="contPostParams" class="textPath"></td>
+      </tr>
+      <tr class="advanced">
+        <td colspan="2" class="inline_help">
+          <blockquote class="inline_help">
+            <p>If you wish to append additional arguments AFTER the container definition, you can specify them here.
+            The content of this field is container specific.</p>
           </blockquote>
         </td>
       </tr>
