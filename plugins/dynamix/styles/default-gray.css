@@ -1,7 +1,7 @@
 html{font-family:arimo;-ms-overflow-style:-ms-autohiding-scrollbar}
 body{font-size:14px;color:#606E7F;background-color:#1B1D1B;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 ::-webkit-scrollbar{display:none}
-#template{min-width:1080px;max-width:100%;margin:0}
+#template{min-width:1080px;max-width:1920px;margin:0}
 img{border:0;text-decoration:none;vertical-align:middle}
 p{text-align:left}
 p.centered{text-align:left}

@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
 
 $path  = $_POST['path'];
@@ -138,12 +138,12 @@ function array_offline(&$disk,$w) {
     echo "<td colspan='8'>$warning</td>";
     break;
   case 'DISK_NP_MISSING':
-    echo "<td>".device_info($disk)."<span class='diskinfo'><em>Missing</em></span></td>";
+    echo "<td>".device_info($disk)."<br><span class='diskinfo'><em>Missing</em></span></td>";
     echo "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale($disk['sizeSb']*1024,$unit)." $unit</em></td>";
     echo "<td colspan='9'></td>";
     break;
   case 'DISK_WRONG':
-    echo "<td>".device_info($disk)."<span class='diskinfo'><em>Wrong</em></span></td>";
+    echo "<td>".device_info($disk)."<br><span class='diskinfo'><em>Wrong</em></span></td>";
     echo "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale($disk['sizeSb']*1024,$unit)." $unit</em></td>";
     echo "<td>".my_temp($disk['temp'])."</td>";
     echo "<td colspan='8'>$warning</td>";
@@ -153,7 +153,8 @@ function array_offline(&$disk,$w) {
 }
 function array_online(&$disk) {
   global $sum, $diskio;
-  $data = $diskio ? explode(' ',$diskio[$disk['device']]) : [];
+  $dev = $disk['device'];
+  $data = isset($diskio[$dev]) ? explode(' ',$diskio[$dev]) : [];
   if (is_numeric($disk['temp'])) {
     $sum['count']++;
     $sum['temp'] += $disk['temp'];

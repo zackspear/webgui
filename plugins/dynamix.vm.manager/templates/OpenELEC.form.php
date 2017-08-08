@@ -559,13 +559,12 @@
 			foreach ($cpus as $pair) {
 				unset($cpu1,$cpu2);
 				list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
-				$extra = in_array($cpu1, $arrConfig['domain']['vcpu']) ? ' checked' : '';
-				if (count($arrConfig['domain']['vcpu']) == 1) $extra .= ' disabled';
+				$extra = in_array($cpu1, $arrConfig['domain']['vcpu']) ? ($arrConfig['domain']['vcpus'] > 1 ? 'checked' : 'checked disabled') : '';
 				if (!$cpu2) {
 					echo "<label for='vcpu$cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1</label>";
 				} else {
 					echo "<label for='vcpu$cpu1' class='cpu1'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra> cpu $cpu1 / $cpu2</label>";
-					$extra = in_array($cpu2, $arrConfig['domain']['vcpu']) ? ' checked' : '';
+					$extra = in_array($cpu2, $arrConfig['domain']['vcpu']) ? ($arrConfig['domain']['vcpus'] > 1 ? 'checked' : 'checked disabled') : '';
 					echo "<label for='vcpu$cpu2' class='cpu2'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu2' value='$cpu2' $extra></label>";
 				}
 			}
