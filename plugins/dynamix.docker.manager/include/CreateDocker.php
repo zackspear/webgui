@@ -739,6 +739,7 @@ optgroup.title{background-color:#625D5D;color:#FFFFFF;text-align:center;margin-t
 .basic{display:table-row}
 .advanced{display:none}
 .noshow{display:none}
+.required:after{content:" *";color:#E80000}
 .inline_help{font-weight:normal}
 .switch-wrapper{display:inline-block;position:relative;top:3px;vertical-align:middle;}
 .switch-button-label.off{color:inherit;}
