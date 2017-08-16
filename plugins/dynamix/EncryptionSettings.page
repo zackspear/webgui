@@ -1,0 +1,108 @@
+Menu="UserPreferences"
+Title="Encryption Settings"
+Icon="encryption-settings.png"
+---
+<?PHP
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+$keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile'] : '';
+$online = $var['fsState']=='Stopped' ? '' : 'disabled';
+?>
+<script>
+<?if ($keyfile):?>
+function checkInput(form) {
+  form.keyfile.disabled = true;
+  return true;
+}
+function toggleButton(checked) {
+  $('input[name="#apply"]').prop('disabled',!checked);
+}
+<?else:?>
+function checkInput(form) {
+  if (form.text.value || form.file.value) {
+    form.input.disabled = true;
+    form.local.disabled = true;
+    return true;
+  }
+  return false;
+}
+function selectInput(form) {
+  if (form.input.value == 'text') {
+    form.file.value = '';
+    $('#text').show(); $('#file').hide();
+  } else {
+    form.text.value = '';
+    $('#text').hide(); $('#file').show();
+  }
+}
+function showPass(checked) {
+  $('input[name="text"').attr('type',checked ? 'text' : 'password');
+}
+function getFileContent(event,form) {
+  var input = event.target;
+  var reader = new FileReader();
+  reader.onload = function(){form.file.value = reader.result;};
+  reader.readAsText(input.files[0]);
+}
+<?endif;?>
+</script>
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="return checkInput(this)">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<input type="hidden" name="file" value="">
+Encryption key:
+: &nbsp;<?=$keyfile ?: 'Not present'?>
+
+> Shows the path and name of the current keyfile, if present.
+>
+> This keyfile is read upon array start and is used to encrypt/decrypt content of devices which have encryption enabled.
+
+<?if ($keyfile):?>
+Delete <input type="checkbox" name="keyfile" onchange="toggleButton(this.checked)">
+: <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
+
+> The keyfile can be deleted in order to create a new encryption key. This however will invalidate all existing encrypted content.
+> Devices need to be reformatted and content is permanently lost when the encryption key is changed.
+>
+> For the really 'paranoid'. It is allowed to delete the keyfile *after* the array is started and re-enter the keyfile *while* the array is stopped.
+> This ensures there is no *clear* encryption key present on the system when the array is online.
+
+<?else:?>
+Encryption input:
+: <select name="input" size="1" onchange="selectInput(this.form)"<?=$online?>>
+  <?=mk_option(1, "text", "Passphrase")?>
+  <?=mk_option(1, "file", "Keyfile")?>
+  </select>
+
+> Select manual input or file input of the encryption key. Note that the encryption key needs to be re-entered each time the system is rebooted.
+>
+> The array will **not** start automatically when encrypted volumes are present.
+
+<div id="text" markdown="1">
+Enter passphrase:
+: <input type="password" name="text" value=""<?=$online?>><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
+
+> Enter a secure passphrase as encryption key. **Memorize** this passphrase, if lost device content can not be recovered.
+
+</div>
+<div id="file" markdown="1" style="display:none">
+Select local keyfile:
+: <input type="file" name="local" onchange="getFileContent(event,this.form)"<?=$online?>>
+
+> Select a local keyfile with a stored encryption key. **Keep** your local keyfile secured, if lost device content can not be recovered.
+
+</div>
+<input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
+: <input type="submit" name="#apply" value="Apply"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+<?endif;?>
+</form>

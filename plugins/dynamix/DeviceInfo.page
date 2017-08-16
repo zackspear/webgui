@@ -23,6 +23,19 @@ function displayTemp($temp) {
   global $display;
   return $display['unit']=='F' ? round($temp*9/5)+32 : $temp;
 }
+function luks_status($luksState) {
+  switch ($luksState) {
+    case 0: return 'Not encrypted'; break;
+    case 1: return 'Encrypted'; break;
+    case 2: return 'Missing encryption key'; break;
+    case 3: return 'Wrong encryption key'; break;
+   default: return 'Unknown error'; break;
+  }
+}
+function maintenance_mode() {
+  global $var;
+  return ($var['fsState']=="Started" && $var['startMode']=="Maintenance") ? '' : 'disabled';
+}
 ?>
 <script>
 function doDispatch(form) {
@@ -91,45 +104,11 @@ Partition size:
 Partition format:
 : <?=$disk['format']?>
 
-<?if ($disk['type']!="Parity"):?>
-<?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
-Comments:
-: <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
-
-> This text will appear under the *Comments* column for the share in Windows Explorer.
-> Enter anything you like, up to 256 characters.
+<?if ($var['spinupGroups']=="yes" && $disk['type']=="Data"):?>
+Spinup group(s):
+: <input type="text" name="diskSpinupGroup.<?=$disk['idx'];?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
 
 <?endif;?>
-File system status:
-: <?=$disk['fsStatus']?><?if ($disk['fsError']) echo " - {$disk['fsError']}";?>&nbsp;
-<?endif;?>
-<?if ($disk['type']=="Data" || ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']==1)):?>
-<?if ($var['fsState']=="Stopped"):?>
-<?$disabled = $var['mdState']=="RECON_DISK" || $var['mdState']=="SWAP_DSBL" ? "disabled" : "";?>
-
-File system type:
-: <select name="diskFsType.<?=$disk['idx'];?>" size="1" <?=$disabled?>>
-  <?=mk_option($disk['fsType'], "auto", "auto")?>
-  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
-  <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
-  <?=mk_option($disk['fsType'], "xfs", "xfs")?>
-  </select>
-<?else:?>
-
-File system type:
-: <select name="diskFsType.<?=$disk['idx'];?>" size="1" disabled>
-  <?=mk_option($disk['fsType'], "auto", "auto")?>
-  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
-  <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
-  <?=mk_option($disk['fsType'], "xfs", "xfs")?>
-  </select> Array must be <span class="strong big">Stopped</span> to change
-<?endif;?>
-<?elseif ($disk['type']=="Cache" && $var['SYS_CACHE_SLOTS']>1):?>
-
-File system type:
-: <?=$disk['fsType'];?>&nbsp;
-<?endif;?>
-
 Spin down delay:
 : <select name="diskSpindownDelay.<?=$disk['idx']?>" size="1">
   <?=mk_option($disk['spindownDelay'], "-1", "Use default")?>
@@ -148,7 +127,58 @@ Spin down delay:
   <?=mk_option($disk['spindownDelay'], "9",  "9 hours")?>
   </select><span id="smart_selftest" class='orange-text'></span>
 
-<?if (isset($disk['fsSize'])):?>
+Warning disk temperature threshold (&deg;<?=$display['unit']?>):
+: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
+
+> *Warning disk temperature* sets the warning threshold for this hard disk temperature. Exceeding this threshold will result in a warning notification.
+>
+> A value of zero will disable the warning threshold (including notifications).
+
+Critical disk temperature threshold (&deg;<?=$display['unit']?>):
+: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
+
+> *Critical disk temperature* sets the critical threshold for this hard disk temperature. Exceeding this threshold will result in an alert notification.
+>
+> A value of zero will disable the critical threshold (including notifications).
+
+<?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
+File system status:
+: <?=$disk['fsStatus']?>&nbsp;
+
+<?if ($var['fsState']=="Stopped"):?>
+<?$disabled = $var['mdState']=="SWAP_DSBL" ? "disabled" : "";?>
+<?if ($disk['type']=="Data" || $var['SYS_CACHE_SLOTS']==1):?>
+File system type:
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx'];?>" size="1" <?=$disabled?>>
+  <?=mk_option($disk['fsType'], "auto", "auto")?>
+  <?=mk_option($disk['fsType'], "xfs", "xfs")?>
+  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
+  <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
+  <?=mk_option($disk['fsType'], "luks:xfs", "xfs - encrypted")?>
+  <?=mk_option($disk['fsType'], "luks:btrfs", "btrfs - encrypted")?>
+  <?=mk_option($disk['fsType'], "luks:reiserfs", "reiserfs - encrypted")?>
+  </select>
+
+<?elseif ($var['SYS_CACHE_SLOTS']>1):?>
+File system type:
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx'];?>" size="1" <?=$disabled?>>
+  <?=mk_option($disk['fsType'], "auto", "auto")?>
+  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
+  <?=mk_option($disk['fsType'], "luks:btrfs", "btrfs - encrypted")?>
+  </select>
+
+<?endif;?>
+<?else:?>
+File system type:
+: <?=str_replace('luks:','',$disk['fsType']).(strpos($disk['fsType'],'luks:')!==false ? ' - encrypted' : '')?>&nbsp;
+
+<?endif;?>
+Comments:
+: <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
+
+> This text will appear under the *Comments* column for the share in Windows Explorer.
+> Enter anything you like, up to 256 characters.
+
 Warning disk utilization threshold (%):
 : <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_warning" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
 
@@ -165,24 +195,6 @@ Critical disk utilization threshold (%):
 >
 > A value of zero will disable the critical threshold (including notifications).
 
-<?endif;?>
-Warning disk temperature threshold (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
-
-> *Warning disk temperature* sets the warning threshold for this hard disk temperature. Exceeding this threshold will result in a warning notification.
->
-> A value of zero will disable the warning threshold (including notifications).
-
-Critical disk temperature threshold (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
-
-> *Critical disk temperature* sets the critical threshold for this hard disk temperature. Exceeding this threshold will result in an alert notification.
->
-> A value of zero will disable the critical threshold (including notifications).
-
-<?if (($var['spinupGroups']=="yes")&&($disk['type']!="Cache")):?>
-Spinup group(s):
-: <input type="text" name="diskSpinupGroup.<?=$disk['idx'];?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
 <?endif;?>
 
 &nbsp;

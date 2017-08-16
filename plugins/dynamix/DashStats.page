@@ -131,6 +131,7 @@ echo "<td>Array Status</td>".implode('',$row0);
 ?>
 </tr></thead>
 <tbody id='dash0'>
+<?init_row('Encrypted')?>
 <?init_row('Active')?>
 <?init_row('Inactive')?>
 <?init_row('Unassigned')?>
@@ -152,6 +153,7 @@ echo "<td>Array Status</td>".implode('',$row0);
 ?>
 </tr></thead>
 <tbody id='dash1'>
+<?init_row('Encrypted')?>
 <?init_row('Active')?>
 <?init_row('Inactive')?>
 <?init_row('Unassigned')?>

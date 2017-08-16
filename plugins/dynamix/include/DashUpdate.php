@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 function normalize($type,$count) {
   $words = explode('_',$type);
@@ -79,42 +79,53 @@ case 'disk':
   require_once "$docroot/webGui/include/CustomMerge.php";
   require_once "$docroot/webGui/include/Preselect.php";
   $slots = $_POST['slots'];
-  $row1 = array_fill(0,31,'<td></td>'); my_insert($row1[0],'Active');
-  $row2 = array_fill(0,31,'<td></td>'); my_insert($row2[0],'Inactive');
-  $row3 = array_fill(0,31,'<td></td>'); my_insert($row3[0],'Unassigned');
-  $row4 = array_fill(0,31,'<td></td>'); my_insert($row4[0],'Faulty');
-  $row5 = array_fill(0,31,'<td></td>'); my_insert($row5[0],'Heat alarm');
-  $row6 = array_fill(0,31,'<td></td>'); my_insert($row6[0],'SMART status');
-  $row7 = array_fill(0,31,'<td></td>'); my_insert($row7[0],'Utilization');
-  $funcRenderRow = function($n,$disk) use (&$row1,&$row2,&$row3,&$row4,&$row5,&$row6,&$row7,$path) {
+  $row1 = array_fill(0,31,'<td></td>'); my_insert($row1[0],'Encrypted');
+  $row2 = array_fill(0,31,'<td></td>'); my_insert($row2[0],'Active');
+  $row3 = array_fill(0,31,'<td></td>'); my_insert($row3[0],'Inactive');
+  $row4 = array_fill(0,31,'<td></td>'); my_insert($row4[0],'Unassigned');
+  $row5 = array_fill(0,31,'<td></td>'); my_insert($row5[0],'Faulty');
+  $row6 = array_fill(0,31,'<td></td>'); my_insert($row6[0],'Heat alarm');
+  $row7 = array_fill(0,31,'<td></td>'); my_insert($row7[0],'SMART status');
+  $row8 = array_fill(0,31,'<td></td>'); my_insert($row8[0],'Utilization');
+  $funcRenderRow = function($n,$disk) use (&$row1,&$row2,&$row3,&$row4,&$row5,&$row6,&$row7,&$row8,$path) {
     if ($n>0) {
+      if (isset($disk['luksState'])) {
+        switch ($disk['luksState']) {
+          case 0: $luks = ""; break;
+          case 1: $luks = "<i class='green-text fa fa-lock'></i>"; break;
+          case 2: $luks = "<i class='red-text fa fa-unlock'></i>"; break;
+          case 3: $luks = "<i class='red-text fa fa-unlock'></i>"; break;
+         default: $luks = "<i class='red-text fa fa-unlock'></i>"; break;
+        }
+      } else $luks = "";
+      my_insert($row1[$n],$luks);
       $state = $disk['color'];
       switch ($state) {
       case 'grey-off':
       break; //ignore
       case 'green-on':
-        my_insert($row1[$n],"<img src=$path/$state.png>");
+        my_insert($row2[$n],"<img src=$path/$state.png>");
       break;
       case 'green-blink':
-        my_insert($row2[$n],"<img src=$path/$state.png>");
+        my_insert($row3[$n],"<img src=$path/$state.png>");
       break;
       case 'blue-on':
       case 'blue-blink':
-        my_insert($row3[$n],"<img src=$path/$state.png>");
+        my_insert($row4[$n],"<img src=$path/$state.png>");
       break;
       default:
-        my_insert($row4[$n],"<img src=$path/$state.png>");
+        my_insert($row5[$n],"<img src=$path/$state.png>");
       break;}
       $temp = $disk['temp'];
       $hot  = strlen($disk['hotTemp']) ? $disk['hotTemp'] : $_POST['hot'];
       $max  = strlen($disk['maxTemp']) ? $disk['maxTemp'] : $_POST['max'];
       $heat = $temp>=$max && $max>0 ? 'max' : ($temp>=$hot && $hot>0 ? 'hot' : '');
       if ($heat)
-        my_insert($row5[$n],"<span class='heat-img'><img src='$path/$heat.png'></span><span class='heat-text' style='display:none'>".my_temp($temp,$_POST['unit'])."</span>");
+        my_insert($row6[$n],"<span class='heat-img'><img src='$path/$heat.png'></span><span class='heat-text' style='display:none'>".my_temp($temp,$_POST['unit'])."</span>");
       else
-        if (!strpos($state,'blink') && $temp>0) my_insert($row5[$n],"<span class='temp-text'>".my_temp($temp,$_POST['unit'])."</span>");
-      if ($disk['device'] && !strpos($state,'blink')) my_smart($row6[$n],$disk['name'],'Device');
-      my_usage($row7[$n],($disk['type']!='Parity' && $disk['fsStatus']=='Mounted')?(round((1-$disk['fsFree']/$disk['fsSize'])*100).'%'):'');
+        if (!strpos($state,'blink') && $temp>0) my_insert($row6[$n],"<span class='temp-text'>".my_temp($temp,$_POST['unit'])."</span>");
+      if ($disk['device'] && !strpos($state,'blink')) my_smart($row7[$n],$disk['name'],'Device');
+      my_usage($row8[$n],($disk['type']!='Parity' && $disk['fsStatus']=='Mounted')?(round((1-$disk['fsFree']/$disk['fsSize'])*100).'%'):'');
     }
   };
   foreach ($disks as $disk) if ($disk['type']=='Parity') $funcRenderRow($i++,$disk);
@@ -125,7 +136,7 @@ case 'disk':
       $device = $dev['device'];
       $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
       if ($state=='blue-on') my_smart($row6[$i],$device,'New');
-      my_insert($row3[$i++],"<img src=$path/$state.png>");
+      my_insert($row4[$i++],"<img src=$path/$state.png>");
     }
   }
   echo "<tr>".implode('',$row1)."</tr>";
@@ -135,21 +146,23 @@ case 'disk':
   echo "<tr>".implode('',$row5)."</tr>";
   echo "<tr>".implode('',$row6)."</tr>";
   echo "<tr>".implode('',$row7)."</tr>";
+  echo "<tr>".implode('',$row8)."</tr>";
   if ($slots > 30) {
     echo '#'; $i = 1;
-    $row1 = array_fill(0,31,'<td></td>'); my_insert($row1[0],'Active');
-    $row2 = array_fill(0,31,'<td></td>'); my_insert($row2[0],'Inactive');
-    $row3 = array_fill(0,31,'<td></td>'); my_insert($row3[0],'Unassigned');
-    $row4 = array_fill(0,31,'<td></td>'); my_insert($row4[0],'Faulty');
-    $row5 = array_fill(0,31,'<td></td>'); my_insert($row5[0],'Heat alarm');
-    $row6 = array_fill(0,31,'<td></td>'); my_insert($row6[0],'SMART status');
-    $row7 = array_fill(0,31,'<td></td>'); my_insert($row7[0],'Utilization');
+    $row1 = array_fill(0,31,'<td></td>'); my_insert($row1[0],'Encrypted');
+    $row2 = array_fill(0,31,'<td></td>'); my_insert($row2[0],'Active');
+    $row3 = array_fill(0,31,'<td></td>'); my_insert($row3[0],'Inactive');
+    $row4 = array_fill(0,31,'<td></td>'); my_insert($row4[0],'Unassigned');
+    $row5 = array_fill(0,31,'<td></td>'); my_insert($row5[0],'Faulty');
+    $row6 = array_fill(0,31,'<td></td>'); my_insert($row6[0],'Heat alarm');
+    $row7 = array_fill(0,31,'<td></td>'); my_insert($row7[0],'SMART status');
+    $row8 = array_fill(0,31,'<td></td>'); my_insert($row8[0],'Utilization');
     foreach ($disks as $disk) if ($disk['type']=='Cache') $funcRenderRow($i++,$disk);
     foreach ($devs as $dev) {
       $device = $dev['device'];
       $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
       if ($state=='blue-on') my_smart($row6[$i],$device,'New');
-      my_insert($row3[$i++],"<img src=$path/$state.png>");
+      my_insert($row4[$i++],"<img src=$path/$state.png>");
     }
     echo "<tr>".implode('',$row1)."</tr>";
     echo "<tr>".implode('',$row2)."</tr>";
@@ -158,6 +171,7 @@ case 'disk':
     echo "<tr>".implode('',$row5)."</tr>";
     echo "<tr>".implode('',$row6)."</tr>";
     echo "<tr>".implode('',$row7)."</tr>";
+    echo "<tr>".implode('',$row8)."</tr>";
   }
 break;
 case 'sys':

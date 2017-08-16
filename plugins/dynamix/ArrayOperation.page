@@ -140,7 +140,7 @@ toggle_diskio(true);
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr>
       <td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
-<?    foreach ($disks as $disk) if ($disk['fsStatus']=='Unmountable') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
+<?    foreach ($disks as $disk) if (strstr($disk['fsStatus'],'Unmountable')) echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
       <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
       <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small>

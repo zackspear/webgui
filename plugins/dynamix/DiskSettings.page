@@ -114,9 +114,12 @@ Default partition format:
 
 Default file system:
 : <select name="defaultFsType" size="1">
-  <?=mk_option($var['defaultFsType'], "btrfs", "Btrfs");?>
-  <?=mk_option($var['defaultFsType'], "reiserfs", "ReiserFS");?>
-  <?=mk_option($var['defaultFsType'], "xfs", "XFS");?>
+  <?=mk_option($var['defaultFsType'], "xfs", "xfs");?>
+  <?=mk_option($var['defaultFsType'], "btrfs", "btrfs");?>
+  <?=mk_option($var['defaultFsType'], "reiserfs", "reiserfs");?>
+  <?=mk_option($var['defaultFsType'], "luks:xfs", "luks:xfs - encrypted");?>
+  <?=mk_option($var['defaultFsType'], "luks:btrfs", "luks:btrfs - encrypted");?>
+  <?=mk_option($var['defaultFsType'], "luks:reiserfs", "luks:reiserfs - encrypted");?>
   </select>
 
 > Defines the default file system type to create when an *unmountable* array device is formatted.

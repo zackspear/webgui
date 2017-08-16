@@ -75,8 +75,14 @@ foreach ($shares as $name => $share) {
     case 'green-on':  $help = 'All files protected'; break;
     case 'yellow-on': $help = 'Some or all files unprotected'; break;
   }
+  switch ($share['luksStatus']) {
+    case 0: $luks = ""; break;
+    case 1: $luks = "<i class='padlock green-text fa fa-lock' title='All files in share encrypted'></i>"; break;
+    case 2: $luks = "<i class='padlock red-text fa fa-unlock-alt' title='Some files in share unencrypted'></i>"; break;
+   default: $luks = ""; break;
+  }
   echo "<tr>";
-  echo "<td><a class='info nohand' onclick='return false'><img src='$ball' class='icon'><span style='left:18px'>$help</span></a><a href='$path/Share?name=".urlencode($name)."' onclick=\"$.cookie('one','tab1',{path:'/'})\">$name</a></td>";
+  echo "<td><a class='info nohand' onclick='return false'><img src='$ball' class='icon'><span style='left:18px'>$help</span></a><a href='$path/Share?name=".urlencode($name)."' onclick=\"$.cookie('one','tab1',{path:'/'})\">$name</a>$luks</td>";
   echo "<td>{$share['comment']}</td>";
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
