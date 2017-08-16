@@ -39,19 +39,22 @@ function checkInput(form) {
 function selectInput(form) {
   if (form.input.value == 'text') {
     form.file.value = '';
+    form.local.value = '';
     $('#text').show(); $('#file').hide();
   } else {
     form.text.value = '';
+    form.textConf.value = '';
     $('#text').hide(); $('#file').show();
   }
+  form.apply.disabled = true;
 }
 function showPass(checked) {
-  $('input[name="text"').attr('type',checked ? 'text' : 'password');
+  $('input[name="text"],input[name="textConf"]').attr('type',checked ? 'text' : 'password');
 }
 function getFileContent(event,form) {
   var input = event.target;
   var reader = new FileReader();
-  reader.onload = function(){form.file.value = reader.result;};
+  reader.onload = function(){form.file.value = reader.result; form.apply.disabled = false;};
   reader.readAsText(input.files[0]);
 }
 <?endif;?>
@@ -89,20 +92,23 @@ Encryption input:
 > The array will **not** start automatically when encrypted volumes are present.
 
 <div id="text" markdown="1">
-Enter passphrase:
-: <input type="password" name="text" value=""<?=$online?>><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
+Passphrase:
+: <input type="password" name="text" maxlength="512" value=""<?=$online?>><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
 
-> Enter a secure passphrase as encryption key. **Memorize** this passphrase, if lost device content can not be recovered.
+Retype passphrase:
+: <input type="password" name="textConf" maxlength="512" value=""<?=$online?> onKeyUp="this.form.apply.disabled=(this.form.text.value!=this.form.textConf.value)">
+
+> Enter a secure passphrase as encryption key. The passphrase can be up to 512 characters. **Memorize** this passphrase, if lost device content can not be recovered.
 
 </div>
 <div id="file" markdown="1" style="display:none">
-Select local keyfile:
+Keyfile:
 : <input type="file" name="local" onchange="getFileContent(event,this.form)"<?=$online?>>
 
 > Select a local keyfile with a stored encryption key. **Keep** your local keyfile secured, if lost device content can not be recovered.
 
 </div>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
-: <input type="submit" name="#apply" value="Apply"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+: <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 <?endif;?>
 </form>
