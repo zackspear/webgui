@@ -1,6 +1,6 @@
 Menu="parentname:nnn"
 Title="Interface ethX"
-Png="ethernet.png"
+Tag="tag"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -66,11 +66,15 @@ function find_pages($item) {
   return $pages;
 }
 
-function tab_title($text,$path,$png) {
+function tab_title($name,$path,$tag) {
   global $docroot;
-  $file = "$path/icons/".($png ? $png : strtolower(str_replace(' ','',$text)).".png");
-  if (!file_exists("$docroot/$file")) $file = "webGui/icons/default.png";
-  return "<img src='/$file' class='icon'>".htmlspecialchars(my_disk($text));
+  if (!$tag || substr($tag,-4)=='.png') {
+    $file = "$path/icons/".($tag ?: strtolower(str_replace(' ','',$name)).".png");
+    if (!file_exists("$docroot/$file")) $file = 'webGui/icons/default.png';
+    return "<img src='/$file' class='icon'>".htmlspecialchars(my_disk($name));
+  } else {
+    return "<i class='title fa fa-$tag'></i>".htmlspecialchars(my_disk($name));
+  }
 }
 
 // hack to embed function output in a quoted string (e.g., in a page Title)

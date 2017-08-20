@@ -1,6 +1,6 @@
 Menu="NetworkSettings:100"
 Title="Interface eth0"
-Png="ethernet.png"
+Tag="tag"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

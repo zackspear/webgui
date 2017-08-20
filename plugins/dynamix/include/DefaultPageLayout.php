@@ -339,13 +339,13 @@ foreach ($pages as $page) {
     eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
     if ($tabbed) {
       echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
-      echo tab_title($title,$page['root'],isset($page['Png'])?$page['Png']:false);
+      echo tab_title($title,$page['root'],$page['Tag']??false);
       echo "</label><div class='content'>";
       $close = true;
     } else {
       if ($tab==1) echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
       echo "<div id='title'><span class='left'>";
-      echo tab_title($title,$page['root'],isset($page['Png'])?$page['Png']:false);
+      echo tab_title($title,$page['root'],$page['Tag']??false);
       echo "</span></div>";
     }
     $tab++;
@@ -355,12 +355,19 @@ foreach ($pages as $page) {
     foreach ($pgs as $pg) {
       @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
       $link = "$path/{$pg['name']}";
-      if ($icon = isset($pg['Icon'])) {
-        $icon = "{$pg['root']}/images/{$pg['Icon']}";
-        if (!file_exists($icon)) { $icon = "{$pg['root']}/{$pg['Icon']}"; if (!file_exists($icon)) $icon = false; }
+      $icon = $pg['Icon'] ?? false;
+      if ($icon) {
+        if (substr($icon,-4)=='.png') {
+          $icon = "{$pg['root']}/images/$icon";
+          if (!file_exists($icon)) {$icon = "{$pg['root']}/$icon"; if (!file_exists($icon)) $icon = '/webGui/images/default.png';}
+          $icon = "<img class=\"PanelImg\" src=\"$icon\">";
+        } else {
+          $icon = "<i class='PanelIcon fa fa-$icon'></i>";
+        }
+      } else {
+        $icon = "<img class=\"PanelImg\" src=\"/webGui/images/default.png\">";
       }
-      if (!$icon) $icon = "/webGui/images/default.png";
-      echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><img class=\"PanelImg\" src=\"$icon\"><br><div class=\"PanelText\">$title</div></a></div>";
+      echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\">$icon<div class=\"PanelText\">$title</div></a></div>";
     }
   }
   $text = $page['text'];
