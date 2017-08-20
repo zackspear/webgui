@@ -1,6 +1,7 @@
 Menu="OtherSettings"
 Title="Docker"
 Icon="dynamix.docker.manager.png"
+Tag="docker"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -229,7 +230,7 @@ DHCPv6 pool of custom network <?=$network?>:
 
 <?if (!$DockerStopped):?>
 <div markdown="1" class="advanced">
-<div id="title"><span class="left"><img src="/plugins/dynamix.docker.manager/icons/vcard.png" class="icon">Docker volume info</span></div>
+<div id="title"><span class="left"><i class="title fa fa-address-card-o"></i>Docker volume info</span></div>
 btrfs filesystem show:
 : <?="<pre>".shell_exec("btrfs filesystem show /var/lib/docker")."</pre>"?>
 

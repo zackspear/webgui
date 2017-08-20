@@ -1,5 +1,6 @@
 Menu="NetworkSettings"
 Title="Routing Table"
+Tag="share-alt"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

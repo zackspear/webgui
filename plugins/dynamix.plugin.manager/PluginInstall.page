@@ -1,5 +1,6 @@
 Menu="Plugins"
 Title="Install Plugin"
+Tag="download"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

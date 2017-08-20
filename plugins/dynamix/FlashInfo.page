@@ -1,5 +1,6 @@
 Menu="Flash"
 Title="Flash Device Settings"
+Tag="usb"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

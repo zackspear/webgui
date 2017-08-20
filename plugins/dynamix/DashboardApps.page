@@ -1,5 +1,6 @@
 Menu="Dashboard:1"
 Title="Apps"
+Tag="map"
 Cond="(((pgrep('dockerd')!==false) || (pgrep('libvirtd')!==false)) && ($display['dashapps']!='none'))"
 Markdown="false"
 ---

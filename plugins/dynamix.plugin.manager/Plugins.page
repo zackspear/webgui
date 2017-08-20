@@ -1,6 +1,7 @@
 Menu="Tasks:50"
 Type="xmenu"
 Title="Installed Plugins"
+Tag="puzzle-piece"
 Tabs="true"
 ---
 <?PHP

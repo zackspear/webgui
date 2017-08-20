@@ -1,5 +1,6 @@
 Menu="Shares:1"
 Title="User Shares"
+Tag="user-circle"
 Cond="$var['fsState']=="Started" && $var['shareUser']=='e'"
 ---
 <?PHP

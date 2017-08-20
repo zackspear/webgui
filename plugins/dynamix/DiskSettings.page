@@ -1,6 +1,7 @@
 Menu="OtherSettings"
 Title="Disk Settings"
 Icon="disk-settings.png"
+Tag="database"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -216,7 +217,7 @@ Default critical disk temperature threshold (&deg;<?=$display['unit']?>):
 : <input type="submit" name="changeDisk" value="Apply"><input type="button" value="Done" onclick="done()">
 </form>
 
-<div id="title"><span class="left"><img src="/webGui/icons/smartchecks.png" class="icon">Global SMART Settings</span></div>
+<div id="title"><span class="left"><i class="title fa fa-plus-square"></i>Global SMART Settings</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDiskSettings(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-all.cfg">

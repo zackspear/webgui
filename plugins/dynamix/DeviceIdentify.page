@@ -1,5 +1,6 @@
 Menu="Device New"
 Title="Identity"
+Tag="user"
 Cond="strpos($disks[$name]['status'],'_NP')===false"
 ---
 <?PHP

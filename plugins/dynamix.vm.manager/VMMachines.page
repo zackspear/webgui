@@ -1,5 +1,6 @@
 Menu="VMs:1"
 Title="Virtual Machines"
+Tag="columns"
 Cond="(pgrep('libvirtd')!==false)"
 ---
 <?PHP

@@ -1,6 +1,7 @@
 Menu="UserPreferences"
 Title="Display Settings"
 Icon="display-settings.png"
+Tag="desktop"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
