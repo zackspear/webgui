@@ -80,7 +80,7 @@ foreach ($list as $entry) {
     $total+=$entry['size'];
     $type = strpos(',',$entry['disk'])===false ? '' : 'warning';
     echo "<td sort='F' data='{$entry['fext']}'><div class='icon-file icon-".strtolower($entry['fext'])."'></div></td>";
-    echo "<td sort='F' class='$type'><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$entry['name']))."\">".htmlspecialchars($entry['name'])."</a></td>";
+    echo "<td sort='F'><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$entry['name']))."\" class=\"".($type?:'none')."\">".htmlspecialchars($entry['name'])."</a></td>";
     echo "<td sort='F' data='{$entry['size']}' class='$type'>".my_scale($entry['size'],$unit)." $unit</td>";
     echo "<td sort='F' data='{$entry['time']}' class='$type'>".my_time($entry['time'],"%F {$display['time']}")."</td>";
     echo "<td sort='F' class='$type'>{$entry['disk']}</td>";
