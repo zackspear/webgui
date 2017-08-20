@@ -24,7 +24,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:0}
 .ui-state-disabled{background:linear-gradient(#F0F0F0,#F8F8F8);background:-webkit-radial-gradient(#F0F0F0,#F8F8F8)}
 .ui-dropdownchecklist-indent{padding-left:7px}
 .ui-dropdownchecklist-text{font-family:arimo;font-size:12px;color:#303030}
-.ui-dropdownchecklist-item{}
+.ui-dropdownchecklist-item input{vertical-align:top}
 #sb-info-inner,#sb-loading-inner,div.sb-message{color:#808080}
 #sb-title,#sb-title-inner{border-top-left-radius:10px;border-top-right-radius:10px;width:100%;height:50px;line-height:50px;font-size:18px;font-weight:bold;background:#C0C0C0;color:#606060;text-indent:10px;text-align:center}
 #sb-title,#sb-info{position:relative;margin:0;padding:0;overflow:hidden}
