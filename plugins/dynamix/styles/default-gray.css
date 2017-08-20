@@ -15,6 +15,7 @@ a.info:hover span{display:block;white-space:nowrap;font-variant:small-caps;posit
 a.nohand{cursor:default}
 i.spacing{margin-left:0;margin-right:10px}
 i.icon{margin-right:4px}
+i.title{display:none}
 pre ul{margin:0;padding-top:0;padding-bottom:0;padding-left:28px}
 pre li{margin:0;padding-top:0;padding-bottom:0;padding-left:18px}
 big{font-size:15px;font-weight:bold;text-transform:uppercase}
@@ -93,18 +94,6 @@ span.tub span[id^='txt-tub']{margin-top:7px}
 #statusraid{float:left;padding-left:10px}
 #countdown{margin:0 auto}
 #copyright{font-family:bitstream;font-size:11px;float:right;padding-right:10px}
-#indexer{margin:0 auto}
-#indexer tr>td{border-bottom:#121510 1px solid}
-#indexer td:first-child{width:4%}
-#indexer tr>td+td{width:auto;text-align:left}
-#indexer tr>td+td+td{width:12%}
-#indexer td:last-child{text-align:right}
-#indexer tr:first-child{font-size:15px;font-weight:bold}
-#indexer tr:first-child>td{padding-bottom:4px}
-#indexer tr:last-child>td{text-align:left;border-bottom:none}
-#indexer td{padding:2px 0}
-#indexer span{font-size:11px}
-#indexer div{margin-left:8px}
 .green{color:#4F8A10;padding-left:5px;padding-right:5px}
 .red{color:#F0000C;padding-left:5px;padding-right:5px}
 .orange{color:#E68A00;padding-left:5px;padding-right:5px}
@@ -249,8 +238,9 @@ div.Panel{width:25%;height:auto;float:left;margin:0;padding:5px;border-right:#12
 div.Panel:hover{background-color:#121510}
 div.Panel:hover .PanelText{text-decoration:underline}
 div.Panel br,.vmtemplate br{display:none}
-div.Panel img.PanelImg{float:left;width:auto;max-width:32px;height:32px;margin:10px 20px 10px 10px}
-div.Panel .PanelText{font-size:15px;padding-top:10px;text-align:center}
+div.Panel img.PanelImg{float:left;width:auto;max-width:32px;height:32px;margin:10px}
+div.Panel i.PanelIcon{float:left;font-size:32px;margin:10px}
+div.Panel .PanelText{font-size:15px;padding-top:16px;text-align:center}
 div.user-list{float:left;padding:10px;margin-right:10px;margin-bottom:24px;border:1px solid #121510;border-radius:5px;line-height:20px;height:100px;width:100px}
 div.user-list img{width:auto;max-width:48px;height:48px;margin-bottom:16px}
 div.user-list:hover{background-color:#121510}

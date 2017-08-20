@@ -49,10 +49,10 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:0}
 #sb-counter a.sb-counter-current{text-decoration:underline}
 table.tablesorter{margin:0 0 15px 0}
 table.tablesorter thead tr th{font-size:13px;font-weight:normal;background:-webkit-radial-gradient(#E0E0E0,#C0C0C0);background:linear-gradient(#E0E0E0,#C0C0C0);padding:5px 20px 5px 6px;white-space:nowrap;text-align:left}
-table.tablesorter thead tr .header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
-table.tablesorter thead tr .headerSortUp{background-image:url(../images/sort-asc.png)}
-table.tablesorter thead tr .headerSortDown{background-image:url(../images/sort-desc.png)}
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background-color:#E0E0E0}
+table.tablesorter thead tr .tablesorter-header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
+table.tablesorter thead tr .tablesorter-headerAsc{background-image:url(../images/sort-asc.png)}
+table.tablesorter thead tr .tablesorter-headerDesc{background-image:url(../images/sort-desc.png)}
+table.tablesorter thead tr .tablesorter-headerAsc, table.tablesorter thead tr .tablesorter-headerDesc{background-color:#E0E0E0}
 table.tablesorter tbody tr:nth-child(even){background-color:#F8F8F8}
 table.tablesorter tbody tr.tr_last{background:#F0F0F0;border-top:1px solid #E8E8E8;border-bottom:1px solid #E8E8E8}
 table.tablesorter tbody tr.tr_last td{padding:8px 20px 8px 6px}
@@ -64,6 +64,11 @@ table.tablesorter.plugins td:last-child{width:96px;padding:0}
 table.tablesorter.shift{margin-top:-21px}
 table.tablesorter thead.fixed{display:table;width:100%}
 table.tablesorter tbody.fixed{display:block;overflow:auto}
+table.tablesorter.indexer thead th:first-child{width:4%}
+table.tablesorter.indexer thead th,table.tablesorter.indexer tbody td,table.tablesorter.indexer tfoot td{padding-left:10px}
+table.tablesorter.indexer thead tr>th+th{width:auto;text-align:left}
+table.tablesorter.indexer thead tr>th+th+th{width:14%}
+table.tablesorter.indexer tfoot td{padding-top:10px;font-size:11px}
 span.select ul{display:none;list-style-type:none;margin:0 0 2px 0;padding:0}
 span.select ul.unused{display:block}
 span.select ul li.nosort{font-weight:bold}
