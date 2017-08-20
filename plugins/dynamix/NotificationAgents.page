@@ -1,5 +1,6 @@
 Menu="Notifications:3"
 Title="Notification Agents"
+Tag="rss-square"
 ---
 <script>
 var scripts = new Object();

@@ -47,12 +47,12 @@ function archiveList(init) {
 <?if ($display['resize']):?>
       resize();
 <?endif;?>
-      $('#archive_table').tablesorter({headers:{5:{sorter:false}}});
+      $('#archive_table').tablesorter({headers:{5:{sorter:false}},textExtraction:function(n,t,i){return ($(n).attr('data') ? $(n).attr('data') : $(n).text());}});
     } else {
-      $('#archive_table').trigger('update',true);
+      $('#archive_table').trigger('update');
     }
-    $('#archive_list .expand-child td').hide();
-    for (var i = 0; i < rows.length; i++) $('#archive_list .expand-child.row'+rows[i]+' td').show();
+    $('#archive_list .tablesorter-childRow td').hide();
+    for (var i = 0; i < rows.length; i++) $('#archive_list .tablesorter-childRow.row'+rows[i]+' td').show();
     setTimeout(archiveList,30000);
   });
 }
@@ -60,7 +60,7 @@ function askConfirmation() {
   swal({title:"Are you sure?",text:"This will delete all notification files!",type:"warning",showCancelButton:true},function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify'},function(){archiveList();});});
 }
 function openClose(row) {
-  var extra = '#archive_list .expand-child.row'+row+' td';
+  var extra = '#archive_list .tablesorter-childRow.row'+row+' td';
   if ($(extra).is(":visible")) {
     $(extra).hide();
     rows.remove(row);
@@ -80,6 +80,6 @@ $(function(){
 </script>
 <table class="tablesorter left shift" id="archive_table">
 <thead><tr><th>Time</th><th>Event</th><th>Subject</th><th>Description</th><th>Importance</th><th style="text-align:right"><?if ($files):?><a href="#" onclick="askConfirmation();return false" title="Delete all notifications"><i class="fa fa-trash"></i></a><?endif;?></th></tr></thead>
-<tbody id="archive_list"></tbody>
+<tbody id="archive_list"><tr><td colspan="5" style="text-align:center;padding-top:12px"><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, loading information ...</em></td></tr></tbody>
 </table>
 <input type="button" value="Done" onclick="done()">

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot = $docroot ?: $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
@@ -26,20 +26,20 @@ foreach ($files as $file) {
   $empty = false;
   $archive = basename($file);
   if ($extra = count($fields)>6) {
-    $td_ = "<td rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "</a></td>";
+    $td_ = "<td data='xxx' rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "</a></td>";
   } else {
-    $td_ = "<td style='white-space:nowrap'>"; $_td = "</td>";
+    $td_ = "<td data='xxx' style='white-space:nowrap'>"; $_td = "</td>";
   }
   $c = 0;
   foreach ($fields as $field) {
     if ($c==5) break;
     $item = $field ? explode('=', $field, 2) : ["","-"];
-    echo (!$c++) ? "<tr>$td_".date("{$dynamix['notify']['date']} {$dynamix['notify']['time']}", $item[1])."$_td" : "<td>{$item[1]}</td>";
+    echo (!$c++) ? "<tr>".str_replace('xxx',$item[1],$td_).date("{$dynamix['notify']['date']} {$dynamix['notify']['time']}", $item[1])."$_td" : "<td>{$item[1]}</td>";
   }
   echo "<td style='text-align:right'><a href='#' onclick='$.post(\"/webGui/include/DeleteLogFile.php\",{log:\"$archive\"},function(){archiveList();});return false' title='Delete notification'><i class='fa fa-trash-o'></i></a></td></tr>";
   if ($extra) {
     $item = explode('=', $field, 2);
-    echo "<tr class='expand-child row$row'><td colspan='5'>{$item[1]}</td></tr><tr class='expand-child row$row'><td colspan='5'></td></tr>";
+    echo "<tr class='tablesorter-childRow row$row'><td colspan='5'>{$item[1]}</td></tr><tr class='tablesorter-childRow row$row'><td colspan='5'></td></tr>";
     $row++;
   }
 }
