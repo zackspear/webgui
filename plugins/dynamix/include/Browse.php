@@ -42,22 +42,20 @@ echo "<tbody>";
 foreach ($item as $entry) {
   $attr = explode('|',$entry);
   $info = pathinfo($attr[1]);
-  $disk = $set;
+  $disk = $user ? $loc[++$i] : $set;
+  $devs = explode(',',$disk);
+  $type = preg_replace('/\d+/','',$devs[0]);
+  $show = false;
   $luks = '';
-  if ($user) {
-    $disk = $loc[++$i];
-    $devs = explode(',',$disk);
-    $type = preg_replace('/\d+/','',$devs[0]);
-    $show = false;
-    foreach ($devs as $dev) $show |= strpos($disks[$type.str_replace($type,'',$dev)]['fsType'],'luks:')!==false;
-    if ($show) foreach ($devs as $dev) {
-      switch ($disks[$type.str_replace($type,'',$dev)]['luksState']) {
-      case 0: $luks .= "<i class='padlock grey-text fa fa-unlock-alt' title='Not encrypted'></i>"; break;
-      case 1: $luks .= "<i class='padlock green-text fa fa-lock' title='Encrypted'></i>"; break;
-      case 2: $luks .= "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
-      case 3: $luks .= "<i class='padlock red-text fa fa-unlock' title='Wrong encryption key'></i>"; break;
-     default: $luks .= "<i class='padlock red-text fa fa-unlock' title='Unknown error'></i>"; break;}
-    }
+  foreach ($devs as $dev)
+    $show |= strpos($disks[$type.str_replace($type,'',$dev)]['fsType'],'luks:')!==false;
+  if ($show) foreach ($devs as $dev) {
+    switch ($disks[$type.str_replace($type,'',$dev)]['luksState']) {
+    case 0: $luks .= "<i class='padlock grey-text fa fa-unlock-alt' title='Not encrypted'></i>"; break;
+    case 1: $luks .= "<i class='padlock green-text fa fa-lock' title='Encrypted'></i>"; break;
+    case 2: $luks .= "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
+    case 3: $luks .= "<i class='padlock red-text fa fa-unlock' title='Wrong encryption key'></i>"; break;
+   default: $luks .= "<i class='padlock red-text fa fa-unlock' title='Unknown error'></i>"; break;}
   }
   $list[] = [
   'type' => $attr[0],
