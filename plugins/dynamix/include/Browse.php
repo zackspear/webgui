@@ -78,7 +78,7 @@ foreach ($list as $entry) {
   } else {
     $files++;
     $total+=$entry['size'];
-    $type = strpos(',',$entry['disk'])===false ? '' : 'warning';
+    $type = strpos($entry['disk'],',')===false ? '' : 'warning';
     echo "<td sort='F' data='{$entry['fext']}'><div class='icon-file icon-".strtolower($entry['fext'])."'></div></td>";
     echo "<td sort='F'><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$entry['name']))."\" class=\"".($type?:'none')."\">".htmlspecialchars($entry['name'])."</a></td>";
     echo "<td sort='F' data='{$entry['size']}' class='$type'>".my_scale($entry['size'],$unit)." $unit</td>";
