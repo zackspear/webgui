@@ -21,7 +21,7 @@ function parent_link() {
 }
 
 function trim_slash($url){
-  return str_replace('//','/',$url);
+  return preg_replace('/\/\/+/','/',$url);
 }
 
 extract(parse_plugin_cfg('dynamix',true));
