@@ -47,7 +47,7 @@ function archiveList(init) {
 <?if ($display['resize']):?>
       resize();
 <?endif;?>
-      $('#archive_table').tablesorter({headers:{5:{sorter:false}},textExtraction:function(n,t,i){return ($(n).attr('data') ? $(n).attr('data') : $(n).text());}});
+      $('#archive_table').tablesorter({headers:{5:{sorter:false}},textExtraction:function(n,t,i){return $(n).attr('data')||$(n).text();}});
     } else {
       $('#archive_table').trigger('update');
     }
