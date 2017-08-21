@@ -127,6 +127,12 @@ function mk_option_check($name, $value, $text = "") {
     return "<option value='$name'$checked>".my_disk($name)."</option>";
   }
 }
+function mk_option_luks($name, $value, $luks) {
+  if (strpos($name, 'disk')!==false) {
+    $checked = in_array($name,explode(',',$value)) ? " selected" : "";
+    return "<option luks='$luks' value='$name'$checked>".my_disk($name)."</option>";
+  }
+}
 function day_count($time) {
   global $var;
   if (!$time) return;
