@@ -20,7 +20,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 .ui-dropdownchecklist-group{font-weight:normal;font-style:italic;padding:1px 9px 1px 11px}
 .ui-dropdownchecklist-selector-wrapper{vertical-align:middle;font-size:0}
 .ui-state-active{border-color:#0072C6;background:transparent}
-.ui-dropdownchecklist-dropcontainer{color:#606E7F;background-color:#EDEAEF;border:#606E7F 1px solid}
+.ui-dropdownchecklist-dropcontainer{color:#606E7F;background-color:#EDEAEF;border:#0072C6 1px solid}
 .ui-state-disabled{border-color:#808080;background:#C7C5CB;opacity:0.5}
 .ui-dropdownchecklist-indent{padding-left:7px}
 .ui-dropdownchecklist-text{font-family:arimo;font-size:13px;color:#606E7F}
