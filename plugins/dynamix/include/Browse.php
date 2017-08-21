@@ -16,9 +16,13 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function parent_link() {
   global $dir,$path;
-  if ($dir=='/' || $dir=='/boot' || dirname($dir)=='/mnt' || dirname($dir)=='/mnt/user') return "";
+  if ($dir=='/' || dirname($dir)=='/mnt' || dirname($dir)=='/mnt/user') return "";
   $parent = urlencode_path(dirname($dir));
   return "<a href=\"".htmlspecialchars("/$path?dir=$parent")."\">Parent Directory...</a>";
+}
+
+function trim_slash($url){
+  return str_replace('//','/',$url);
 }
 
 extract(parse_plugin_cfg('dynamix',true));
@@ -28,7 +32,7 @@ $path = $_GET['path'];
 $user = $_GET['user'];
 $list = [];
 $all = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$fix = explode('/',str_replace('//','/',$dir))[2];
+$fix = explode('/',trim_slash($dir))[2];
 
 exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
@@ -65,19 +69,17 @@ foreach ($file as $row) {
     'disk' => my_disk($disk).$luks
   ];
 }
-// folders first
 $sort = [];
 foreach ($list as $row) $sort[] = $row['type'];
 array_multisort($sort,$list);
 
-// create separate TBODY for folders and files
 $dirs=0; $files=0; $total=0;
 foreach ($list as $row) {
   if ($row['type']=='directory') {
     if ($dirs==0) echo "<tbody>";
     echo "<tr>";
     echo "<td data=''><div class='icon-folder'></div></td>";
-    echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path($dir.'/'.$row['name']))."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(trim_slash($dir.'/'.$row['name'])))."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='0'>&lt;DIR&gt;</td>";
     echo "<td data='{$row['time']}'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td>{$row['disk']}</td>";
@@ -91,7 +93,7 @@ foreach ($list as $row) {
     $type = strpos($row['disk'],',')===false ? '' : 'warning';
     echo "<tr>";
     echo "<td data='{$row['fext']}'><div class='icon-file icon-".strtolower($row['fext'])."'></div></td>";
-    echo "<td><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$row['name']))."\" class=\"".($type?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td><a href=\"".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\" class=\"".($type?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='{$row['size']}' class='$type'>".my_scale($row['size'],$unit)." $unit</td>";
     echo "<td data='{$row['time']}' class='$type'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td class='$type'>{$row['disk']}</td>";
