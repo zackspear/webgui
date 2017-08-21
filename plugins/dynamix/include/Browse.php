@@ -16,9 +16,8 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function parent_link() {
   global $dir,$path;
-  if (!$dir || $dir=='/' || dirname($dir)=='/mnt' || dirname($dir)=='/mnt/user') return "";
-  $parent = urlencode_path(dirname($dir));
-  return "<a href=\"".htmlspecialchars("/$path?dir=$parent")."\">Parent Directory...</a>";
+  return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user')
+  ? "<a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(dirname($dir)))."\">Parent Directory...</a>" : "";
 }
 
 function trim_slash($url){
