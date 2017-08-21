@@ -28,29 +28,28 @@ $path = $_GET['path'];
 $user = $_GET['user'];
 $list = [];
 $all = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$set = explode('/',str_replace('//','/',$dir))[2];
+$fix = explode('/',str_replace('//','/',$dir))[2];
 
-exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$item);
+exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
-  exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null",$loc);
-  $loc = explode("\n",preg_replace("/(disk|cache)/","\n$1",$loc[0])); $i = 0;
+  exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null",$set);
+  $set = explode("\n",preg_replace("/(disk|cache)/","\n$1",$set[0])); $i = 0;
 }
 
 echo "<thead><tr><th>Type</th><th>Name</th><th>Size</th><th>Last Modified</th><th>Location</th></tr></thead>";
-if ($link = parent_link()) echo "<tbody><tr><td><div class='icon-dirup'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
+if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><div class='icon-dirup'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
 echo "<tbody>";
-foreach ($item as $entry) {
-  $attr = explode('|',$entry);
+foreach ($file as $row) {
+  $attr = explode('|',$row);
   $info = pathinfo($attr[1]);
-  $disk = $user ? $loc[++$i] : $set;
-  $devs = explode(',',$disk);
-  $type = preg_replace('/\d+/','',$devs[0]);
+  $disk = $user ? $set[++$i] : $fix;
+  $rows = explode(',',$disk);
+  $type = preg_replace('/\d+/','',$rows[0]);
   $show = false;
   $luks = '';
-  foreach ($devs as $dev)
-    $show |= strpos($disks[$type.str_replace($type,'',$dev)]['fsType'],'luks:')!==false;
-  if ($show) foreach ($devs as $dev) {
-    switch ($disks[$type.str_replace($type,'',$dev)]['luksState']) {
+  foreach ($rows as $row) $show |= strpos($disks[$type.str_replace($type,'',$row)]['fsType'],'luks:')!==false;
+  if ($show) foreach ($rows as $row) {
+    switch ($disks[$type.str_replace($type,'',$row)]['luksState']) {
     case 0: $luks .= "<i class='padlock grey-text fa fa-unlock-alt' title='Not encrypted'></i>"; break;
     case 1: $luks .= "<i class='padlock green-text fa fa-lock' title='Encrypted'></i>"; break;
     case 2: $luks .= "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
@@ -58,34 +57,48 @@ foreach ($item as $entry) {
    default: $luks .= "<i class='padlock red-text fa fa-unlock' title='Unknown error'></i>"; break;}
   }
   $list[] = [
-  'type' => $attr[0],
-  'name' => $info['basename'],
-  'fext' => strtolower($info['extension']),
-  'size' => $attr[2],
-  'time' => $attr[3],
-  'disk' => my_disk($disk).$luks];
+    'type' => $attr[0],
+    'name' => $info['basename'],
+    'fext' => strtolower($info['extension']),
+    'size' => $attr[2],
+    'time' => $attr[3],
+    'disk' => my_disk($disk).$luks
+  ];
 }
+// folders first
+$sort = [];
+foreach ($list as $row) $sort[] = $row['type'];
+array_multisort($sort,$list);
+
+// create separate TBODY for folders and files
 $dirs=0; $files=0; $total=0;
-foreach ($list as $entry) {
-  echo "<tr>";
-  if ($entry['type']=='directory') {
+foreach ($list as $row) {
+  if ($row['type']=='directory') {
+    if ($dirs==0) echo "<tbody>";
+    echo "<tr>";
+    echo "<td data=''><div class='icon-folder'></div></td>";
+    echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path($dir.'/'.$row['name']))."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td data='0'>&lt;DIR&gt;</td>";
+    echo "<td data='{$row['time']}'>".my_time($row['time'],"%F {$display['time']}")."</td>";
+    echo "<td>{$row['disk']}</td>";
+    echo "</tr>";
     $dirs++;
-    echo "<td sort='D' data=''><div class='icon-folder'></div></td>";
-    echo "<td sort='D'><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path($dir.'/'.$entry['name']))."\">".htmlspecialchars($entry['name'])."</a></td>";
-    echo "<td sort='D' data='0'>&lt;DIR&gt;</td>";
-    echo "<td sort='D' data='{$entry['time']}'>".my_time($entry['time'],"%F {$display['time']}")."</td>";
-    echo "<td sort='D'>{$entry['disk']}</td>";
   } else {
+    if ($files==0) {
+      if ($dirs>0) echo "</tbody>";
+      echo "<tbody>";
+    }
+    $type = strpos($row['disk'],',')===false ? '' : 'warning';
+    echo "<tr>";
+    echo "<td data='{$row['fext']}'><div class='icon-file icon-".strtolower($row['fext'])."'></div></td>";
+    echo "<td><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$row['name']))."\" class=\"".($type?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td data='{$row['size']}' class='$type'>".my_scale($row['size'],$unit)." $unit</td>";
+    echo "<td data='{$row['time']}' class='$type'>".my_time($row['time'],"%F {$display['time']}")."</td>";
+    echo "<td class='$type'>{$row['disk']}</td>";
+    echo "</tr>";
     $files++;
-    $total+=$entry['size'];
-    $type = strpos($entry['disk'],',')===false ? '' : 'warning';
-    echo "<td sort='F' data='{$entry['fext']}'><div class='icon-file icon-".strtolower($entry['fext'])."'></div></td>";
-    echo "<td sort='F'><a href=\"".htmlspecialchars(urlencode_path($dir.'/'.$entry['name']))."\" class=\"".($type?:'none')."\">".htmlspecialchars($entry['name'])."</a></td>";
-    echo "<td sort='F' data='{$entry['size']}' class='$type'>".my_scale($entry['size'],$unit)." $unit</td>";
-    echo "<td sort='F' data='{$entry['time']}' class='$type'>".my_time($entry['time'],"%F {$display['time']}")."</td>";
-    echo "<td sort='F' class='$type'>{$entry['disk']}</td>";
+    $total+=$row['size'];
   }
-  echo "</tr>";
 }
 echo "</tbody>";
 $objs = $dirs+$files;

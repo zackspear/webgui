@@ -25,7 +25,7 @@ $(function(){
       $.cookie('col',sort[0],{path:'/'});
       $.cookie('dir',sort[1],{path:'/'});
     });
-    table.tablesorter({sortList:[[col,dir]],textExtraction:function(n,t,i){return $(n).attr('sort')+($(n).attr('data') ? $(n).attr('data') : $(n).text());}});
+    table.tablesorter({sortList:[[col,dir]],textExtraction:function(n,t,i){return ($(n).attr('data') ? $(n).attr('data') : $(n).text());}});
   });
 });
 </script>
