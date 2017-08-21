@@ -1,5 +1,6 @@
 Menu="UNRAID-OS"
 Title="Archived Notifications"
+Tag="list"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
