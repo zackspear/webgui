@@ -15,6 +15,8 @@ Tag="hand-paper-o"
  */
 ?>
 <?
+$width = strstr('gray,azure',$display['theme']) ? [166,305]:[131,300];
+
 function data_disks($disk) {
   return ($disk['type']=='Data' && $disk['status']=='DISK_OK');
 }
@@ -37,8 +39,8 @@ function setNewPerms(form) {
   if (dirs) swal({title:'Proceed?',text:'This will update folder & file permissions',type:'warning',showCancelButton:true},function(){openBox('/webGui/scripts/newperms&arg1='+dirs,'New Permissions',490,430,true);});
 }
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
-  $('#s2').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
+  $('#s1').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'...close'});
+  $('#s2').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'...close'});
 <?if ($var['fsState']!="Started"):?>
   $('#s1').dropdownchecklist('disable');
   $('#s2').dropdownchecklist('disable');

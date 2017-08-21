@@ -15,6 +15,9 @@ Cond="(($var['shareAFPEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+$width = strstr('gray,azure',$display['theme']) ? [123,305]:[123,300];
+?>
 > This section is used to configure the security settings for the share when accessed using AFP and
 > appears only when AFP is enabled on the Network Services page.
 >
@@ -242,8 +245,8 @@ function initDropdownAFP(reset) {
     $('#afp1').dropdownchecklist('destroy');
     $('#afp2').dropdownchecklist('destroy');
   }
-  $("#afp1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
-  $("#afp2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#afp1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
+  $("#afp2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
 }
 function readAFP() {
   var form = document.afp_edit;

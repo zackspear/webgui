@@ -15,6 +15,8 @@ Tag="share-alt-square"
  */
 ?>
 <?
+$width = strstr('gray,azure',$display['theme']) ? [123,305]:[123,300];
+
 if ($name == "") {
   /* default values when adding new share */
   $share = ["nameOrig"   => "",
@@ -272,10 +274,10 @@ function initDropdown(remove,create) {
 <?endif;?>
   }
   if (create) {
-    $("#s1").dropdownchecklist({emptyText:'All', width:300, explicitClose:'...close'});
-    $("#s2").dropdownchecklist({emptyText:'None', width:300, explicitClose:'...close'});
+    $("#s1").dropdownchecklist({emptyText:'All', width:<?=$width[1]?>, explicitClose:'...close'});
+    $("#s2").dropdownchecklist({emptyText:'None', width:<?=$width[1]?>, explicitClose:'...close'});
 <?if ($name):?>
-    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
 <?endif;?>
   }
 }

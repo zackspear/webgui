@@ -15,6 +15,9 @@ Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+$width = strstr('gray,azure',$display['theme']) ? [123,305]:[123,300];
+?>
 > *Read settings from* is used to preset the SMB security settings of the current selected share with the settings of an existing share.
 >
 > Select the desired share name and press **Read** to copy the SMB security settings from the selected source.
@@ -215,8 +218,8 @@ function initDropdownSMB(reset) {
     $('#smb1').dropdownchecklist('destroy');
     $('#smb2').dropdownchecklist('destroy');
   }
-  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
-  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
+  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
 }
 function readSMB() {
   var form = document.smb_edit;

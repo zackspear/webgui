@@ -15,8 +15,8 @@ Cond="($disks['parity']['status']!='DISK_NP_DSBL')"
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
+$width = strstr('gray,azure',$display['theme']) ? [166,305]:[131,300];
 $mode = ['Disabled','Daily','Weekly','Monthly','Yearly','Custom'];
 $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -33,8 +33,8 @@ if (file_exists($memory)) {
 <script>
 <?if ($parity['mode']==5):?>
 $(function() {
-  $("#s1").dropdownchecklist({emptyText:'Every day', width:131, explicitClose:'...close'});
-  $("#s2").dropdownchecklist({emptyText:'Every month', width:131, explicitClose:'...close'});
+  $("#s1").dropdownchecklist({emptyText:'Every day', width:<?=$width[0]?>, explicitClose:'...close'});
+  $("#s2").dropdownchecklist({emptyText:'Every month', width:<?=$width[0]?>, explicitClose:'...close'});
 });
 // Simulate a single input field
 function prepareParity(form) {
