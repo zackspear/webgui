@@ -72,10 +72,10 @@ $sort = [];
 foreach ($list as $row) $sort[] = $row['type'];
 array_multisort($sort,$list);
 
+echo "<tbody>";
 $dirs=0; $files=0; $total=0;
 foreach ($list as $row) {
   if ($row['type']=='directory') {
-    if ($dirs==0) echo "<tbody>";
     echo "<tr>";
     echo "<td data=''><div class='icon-folder'></div></td>";
     echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(trim_slash($dir.'/'.$row['name'])))."\">".htmlspecialchars($row['name'])."</a></td>";
@@ -85,10 +85,7 @@ foreach ($list as $row) {
     echo "</tr>";
     $dirs++;
   } else {
-    if ($files==0) {
-      if ($dirs>0) echo "</tbody>";
-      echo "<tbody>";
-    }
+    if ($files==0 && $dirs>0) echo "</tbody><tbody>";
     $type = strpos($row['disk'],',')===false ? '' : 'warning';
     echo "<tr>";
     echo "<td data='{$row['fext']}'><div class='icon-file icon-".strtolower($row['fext'])."'></div></td>";
