@@ -38,7 +38,7 @@ if ($user) {
 
 echo "<thead><tr><th>Type</th><th>Name</th><th>Size</th><th>Last Modified</th><th>Location</th></tr></thead>";
 if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><div class='icon-dirup'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
-echo "<tbody>";
+
 foreach ($file as $row) {
   $attr = explode('|',$row);
   $info = pathinfo($attr[1]);
