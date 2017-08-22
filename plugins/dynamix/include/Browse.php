@@ -19,11 +19,9 @@ function parent_link() {
   return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user')
   ? "<a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(dirname($dir)))."\">Parent Directory...</a>" : "";
 }
-
 function trim_slash($url){
   return preg_replace('/\/\/+/','/',$url);
 }
-
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
 $dir = $_GET['dir'];
@@ -47,12 +45,12 @@ foreach ($file as $row) {
   $info = pathinfo($attr[1]);
   $disk = $user ? $set[++$i] : $fix;
   $rows = explode(',',$disk);
-  $type = preg_replace('/\d+/','',$rows[0]);
+  $tag = preg_replace('/\d+/','',$rows[0]);
   $show = false;
   $luks = '';
-  foreach ($rows as $row) $show |= strpos($disks[$type.str_replace($type,'',$row)]['fsType'],'luks:')!==false;
+  foreach ($rows as $row) $show |= strpos($disks[$tag.str_replace($tag,'',$row)]['fsType'],'luks:')!==false;
   if ($show) foreach ($rows as $row) {
-    switch ($disks[$type.str_replace($type,'',$row)]['luksState']) {
+    switch ($disks[$tag.str_replace($tag,'',$row)]['luksState']) {
     case 0: $luks .= "<i class='padlock grey-text fa fa-unlock-alt' title='Not encrypted'></i>"; break;
     case 1: $luks .= "<i class='padlock green-text fa fa-lock' title='Encrypted'></i>"; break;
     case 2: $luks .= "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
@@ -86,13 +84,13 @@ foreach ($list as $row) {
     $dirs++;
   } else {
     if ($files==0 && $dirs>0) echo "</tbody><tbody>";
-    $type = strpos($row['disk'],',')===false ? '' : 'warning';
+    $tag = strpos($row['disk'],',')===false ? '' : 'warning';
     echo "<tr>";
-    echo "<td data='{$row['fext']}'><div class='icon-file icon-".strtolower($row['fext'])."'></div></td>";
-    echo "<td><a href=\"".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\" class=\"".($type?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
-    echo "<td data='{$row['size']}' class='$type'>".my_scale($row['size'],$unit)." $unit</td>";
-    echo "<td data='{$row['time']}' class='$type'>".my_time($row['time'],"%F {$display['time']}")."</td>";
-    echo "<td class='$type'>{$row['disk']}</td>";
+    echo "<td data='{$row['fext']}'><div class='icon-file icon-{$row['fext']}'></div></td>";
+    echo "<td><a href=\"".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\" class=\"".($tag?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td data='{$row['size']}' class='$tag'>".my_scale($row['size'],$unit)." $unit</td>";
+    echo "<td data='{$row['time']}' class='$tag'>".my_time($row['time'],"%F {$display['time']}")."</td>";
+    echo "<td class='$tag'>{$row['disk']}</td>";
     echo "</tr>";
     $files++;
     $total+=$row['size'];
