@@ -160,7 +160,11 @@ if (!empty($_GET['uuid'])) {
 
 	#vmform table.multiple {
 		margin: 10px 0;
-		<?if ($display['theme'] == 'black'):?>
+		<?if ($display['theme']=='gray'):?>
+		background:#121510;
+		<?elseif ($display['theme']=='azure'):?>
+		background:#EDEAEF;
+		<?elseif ($display['theme']=='black'):?>
 		background:linear-gradient(90deg, #0A0A0A, #000000);
 		<?else:?>
 		background:linear-gradient(90deg, #F5F5F5, #FFFFFF);

@@ -484,10 +484,14 @@
 	function bcolor($row) {
 		global $display;
 
-		if (empty($display) || $display['theme'] == "white")
-			return ($row % 2 == 0) ? "transparent" : "#F8F8F8";
-
-		return ($row % 2 == 0) ? "transparent" : "#0C0C0C";
+		if ($display['theme']=='gray')
+			return "transparent";
+		elseif ($display['theme']=='azure')
+			return "transparent";
+		elseif ($display['theme']=='black')
+			return ($row % 2 == 0) ? "transparent":"#0C0C0C";
+		else
+			return ($row % 2 == 0) ? "transparent":"#F8F8F8";
 	}
 
 	function mk_dropdown_options($arrOptions, $strSelected) {
