@@ -1,5 +1,6 @@
 Menu="UNRAID-OS"
 Title="New Config"
+Tag="hand-paper-o"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -16,6 +17,7 @@ Title="New Config"
 <?
 $newarray = $var['mdState']=='NEW_ARRAY';
 $disabled = $var['fsState']=="Started";
+$width = strstr('gray,azure',$display['theme']) ? [166,305]:[131,300];
 if ($newarray) {
   @unlink('/boot/config/smart-one.cfg');
   @unlink('/boot/config/smart-all.cfg');
@@ -38,7 +40,7 @@ function prepareNewConfig(form) {
   form.preset.disabled = true;
 }
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'None', width:131, firstItemChecksAll:true, explicitClose:'...close'});
+  $('#s1').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'...close'});
 <?if ($disabled):?>
   $('#s1').dropdownchecklist('disable');
 <?endif;?>

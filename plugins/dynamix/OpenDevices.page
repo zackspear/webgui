@@ -1,5 +1,6 @@
 Menu="Main:4"
 Title="Unassigned Devices"
+Tag="unlink"
 Cond="((count($devs)>0)&&($var['fsState']=='Started'))"
 ---
 <?PHP

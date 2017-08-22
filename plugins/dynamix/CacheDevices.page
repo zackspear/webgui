@@ -1,5 +1,6 @@
 Menu="Main:2"
 Title="Cache Devices"
+Tag="upload"
 Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
 ---
 <?PHP

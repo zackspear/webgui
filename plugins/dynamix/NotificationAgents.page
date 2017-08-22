@@ -1,5 +1,6 @@
 Menu="Notifications:3"
 Title="Notification Agents"
+Tag="rss-square"
 ---
 <script>
 var scripts = new Object();
@@ -7,6 +8,7 @@ var enabledAgents = new Object();
 var disabledAgents = new Object();
 var openPage = true;
 
+<?$width = strstr('gray,azure',$display['theme']) ? [166,305]:[131,300];?>
 <?if ($tabbed):?>
 $('#tab3').bind({click:function(){initDropdown();}});
 $(function(){if ($('#tab3').is(':checked')) initDropdown();});
@@ -65,7 +67,7 @@ function testService(name) {
   form.submit();
 }
 function initDropdown() {
-  if (openPage) {$("[id^='slot_']").dropdownchecklist({width:300,explicitClose:'...close'}); openPage = false;}
+  if (openPage) {$("[id^='slot_']").dropdownchecklist({width:<?=$width[1]?>,explicitClose:'...close'}); openPage = false;}
 }
 </script>
 <form method="POST" id="formExec" action="/update.php" target="progressFrame">

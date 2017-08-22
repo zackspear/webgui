@@ -1,6 +1,6 @@
 Menu="NetworkSettings:100"
 Title="Interface eth0"
-Png="ethernet.png"
+Tag="tag"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -22,6 +22,7 @@ $template = "$docroot/webGui/EthX.page";
 $ini = '/var/local/emhttp/network.ini';
 $validIP4 = '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
 $validIP6 = '((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4}))*::((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4}))*|((?:[0-9A-Fa-f]{1,4}))((?::[0-9A-Fa-f]{1,4})){7}';
+$width = strstr('gray,azure',$display['theme']) ? [166,305]:[131,300];
 
 // get available ethernet ports (excluding eth0)
 exec("ls --indicator-style=none  /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$ports);
@@ -268,7 +269,7 @@ function checkBondingSettings(form,ctrl,port) {
       $('#bond-members-'+port).hide(me);
     } else {
       $('#bond-members-'+port).show(me);
-      $('#bond-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+      $('#bond-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
     }
     if (ctrl==1) checkBridgingSettings(form,1,port);
   }
@@ -279,7 +280,7 @@ function checkBridgingSettings(form,ctrl,port) {
   var i = 0;
   if (form.BRIDGING.value=='yes' && form.BONDING.value=='no') {
     $('#bridge-members-'+port).show(me);
-    $('#bridge-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bridge-'+port).dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
   } else {
     $('#bridge-members-'+port).hide(me);
   }
@@ -339,12 +340,12 @@ $(function() {
   var form = document.eth0_settings;
 <?if ($tabbed && !$service):?>
   $('#tab1').bind({click:function(){
-    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
-    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
   }});
 <?endif;?>
-  $('#bond-eth0').dropdownchecklist({emptyText:'None', width:131});
-  $('#bridge-eth0').dropdownchecklist({emptyText:'None', width:131});
+  $('#bond-eth0').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+  $('#bridge-eth0').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
   checkBondingSettings(form,0,'eth0');
   checkBridgingSettings(form,0,'eth0');
   checkNetworkAccess(form,'eth0');

@@ -1,6 +1,6 @@
 Menu="parentname:nnn"
 Title="Interface ethX"
-Png="ethernet.png"
+Tag="tag"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -56,12 +56,12 @@ $(function() {
   var form = document.ethX_settings;
 <?if ($tabbed && !$service):?>
   $('#tabX').bind({click:function(){
-    $('#bond-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
-    $('#bridge-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:131});
+    $('#bond-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+    $('#bridge-ethX').dropdownchecklist('destroy').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
   }});
 <?endif;?>
-  $('#bond-ethX').dropdownchecklist({emptyText:'None', width:131});
-  $('#bridge-ethX').dropdownchecklist({emptyText:'None', width:131});
+  $('#bond-ethX').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
+  $('#bridge-ethX').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>});
   checkBondingSettings(form,0,'ethX');
   checkBridgingSettings(form,0,'ethX');
   checkNetworkAccess(form,'ethX');

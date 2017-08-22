@@ -1,5 +1,6 @@
 Menu="Disk Share Flash"
 Title="SMB Security Settings"
+Tag="windows"
 Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$sec):0))"
 ---
 <?PHP
@@ -13,6 +14,9 @@ Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  */
+?>
+<?
+$width = strstr('gray,azure',$display['theme']) ? [123,305]:[123,300];
 ?>
 > *Read settings from* is used to preset the SMB security settings of the current selected share with the settings of an existing share.
 >
@@ -214,8 +218,8 @@ function initDropdownSMB(reset) {
     $('#smb1').dropdownchecklist('destroy');
     $('#smb2').dropdownchecklist('destroy');
   }
-  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
-  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
+  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
 }
 function readSMB() {
   var form = document.smb_edit;

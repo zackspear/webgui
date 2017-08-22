@@ -1,6 +1,7 @@
 Menu="UserPreferences"
 Title="Encryption Settings"
 Icon="encryption-settings.png"
+Tag="key"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

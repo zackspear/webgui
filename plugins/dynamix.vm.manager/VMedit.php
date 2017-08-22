@@ -99,19 +99,19 @@ if (!empty($_GET['uuid'])) {
 		margin-top: 0;
 	}
 	#vmform div#title + table {
-		margin-top: -21px;
+		margin-top:<?=strstr('gray,azure',$display['theme'])?0:-21?>px;
 	}
 	#vmform table tr {
 		vertical-align: top;
-		line-height: 24px;
+		line-height:<?=strstr('gray,azure',$display['theme'])?40:24?>px;
 	}
 	#vmform table tr td:nth-child(odd) {
-		width: 150px;
+		width: 220px;
 		text-align: right;
 		padding-right: 10px;
 	}
 	#vmform table tr td:nth-child(even) {
-		width: 80px;
+		width: 100px;
 	}
 	#vmform table tr td:last-child {
 		width: inherit;
@@ -160,13 +160,17 @@ if (!empty($_GET['uuid'])) {
 
 	#vmform table.multiple {
 		margin: 10px 0;
-		<?if ($display['theme'] == 'black'):?>
+		<?if ($display['theme']=='gray'):?>
+		background:#121510;
+		<?elseif ($display['theme']=='azure'):?>
+		background:#EDEAEF;
+		<?elseif ($display['theme']=='black'):?>
 		background:linear-gradient(90deg, #0A0A0A, #000000);
 		<?else:?>
 		background:linear-gradient(90deg, #F5F5F5, #FFFFFF);
 		<?endif;?>
-		background-size: 600px 100%;
-		background-position: -600px;
+		background-size: 800px 100%;
+		background-position: -800px;
 		background-repeat: no-repeat;
 		background-clip: content-box;
 		transition: background 0.3s linear;
@@ -230,7 +234,13 @@ if (!empty($_GET['uuid'])) {
 		position: absolute;
 		display: none;
 		border-radius:5px;
-		<?if ($display['theme'] == 'black'):?>
+		<?if ($display['theme']=='gray'):?>
+		border:1px solid #606E7F;
+		background:#121510;
+		<?elseif ($display['theme']=='azure'):?>
+		border:1px solid #606E7F;
+		background:#EDEAEF;
+		<?elseif ($display['theme']=='black'):?>
 		border:1px solid #202020;
 		background:-webkit-radial-gradient(#303030,#101010);
 		background:linear-gradient(#303030,#101010);
@@ -277,15 +287,18 @@ if (!empty($_GET['uuid'])) {
 		color: #BBB;
 		transform: translate(0px, 1px);
 	}
-
-	<?if ($display['theme'] == 'black'):?>
+	<?if ($display['theme']=='gray'):?>
+	span#dropbox{border:1px solid #606E7F;border-radius:5px;background:#121510;padding:28px 12px;line-height:72px;margin-right:16px;}
+	<?elseif ($display['theme']=='azure'):?>
+	span#dropbox{border:1px solid #606E7F;border-radius:5px;background:#EDEAEF;padding:28px 12px;line-height:72px;margin-right:16px;}
+	<?elseif ($display['theme']=='black'):?>
 	span#dropbox{border:1px solid #202020;border-radius:5px;background:-webkit-radial-gradient(#303030,#101010);background:linear-gradient(#303030,#101010);padding:28px 12px;line-height:72px;margin-right:16px;}
 	<?else:?>
 	span#dropbox{border:1px solid #D0D0D0;border-radius:5px;background:-webkit-radial-gradient(#B0B0B0,#F0F0F0);background:linear-gradient(#B0B0B0,#F0F0F0);padding:28px 12px;line-height:72px;margin-right:16px;}
 	<?endif;?>
 </style>
-<span class="status advancedview_panel" style="margin-top:-44px;"><input type="checkbox" class="advancedview"></span>
-<div id="content" style="margin-top:-21px;margin-left:0px">
+<span class="status advancedview_panel" style="margin-top:-44px"><input type="checkbox" class="advancedview"></span>
+<div id="content" style="margin-top:<?=strstr('gray,azure',$display['theme'])?0:-21?>px;margin-left:0px">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
 	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplate)?>" />
@@ -316,9 +329,9 @@ if (!empty($_GET['uuid'])) {
 	</table>
 
 	<table>
-		<tr style="line-height: 15px; vertical-align: middle;">
+		<tr style="line-height: 16px; vertical-align: middle;">
 			<td>Autostart:</td>
-			<td><div style="margin-left: -10px"><input type="checkbox" id="domain_autostart" name="domain[autostart]" style="display: none" class="autostart" value="1" <? if ($arrLoad['autostart']) echo 'checked'; ?>></div></td>
+			<td><div style="margin-left: -10px<?=strstr('gray,azure',$display['theme'])?';padding-top:6px':''?>"><input type="checkbox" id="domain_autostart" name="domain[autostart]" style="display: none" class="autostart" value="1" <? if ($arrLoad['autostart']) echo 'checked'; ?>></div></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">

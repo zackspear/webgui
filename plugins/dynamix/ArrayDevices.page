@@ -1,5 +1,6 @@
 Menu="Main:1"
 Title="Array Devices"
+Tag="database"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

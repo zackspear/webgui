@@ -1,5 +1,6 @@
 Menu="Shares:2"
 Title="Disk Shares"
+Tag="user-circle-o"
 Cond="$var['fsState']=='Started' && $var['shareDisk']!='no'"
 ---
 <?PHP

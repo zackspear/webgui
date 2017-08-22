@@ -1,5 +1,6 @@
 Menu="Share:1"
 Title="Share Settings"
+Tag="share-alt-square"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -14,6 +15,8 @@ Title="Share Settings"
  */
 ?>
 <?
+$width = strstr('gray,azure',$display['theme']) ? [123,305]:[123,300];
+
 if ($name == "") {
   /* default values when adding new share */
   $share = ["nameOrig"   => "",
@@ -175,7 +178,7 @@ Split level:
 Included disk(s):
 : <select id="s1" name="shareInclude" size="1" multiple="multiple" style="display:none">
   <?foreach ($myDisks as $disk):?>
-  <?=mk_option_check($disk, $share['include'])?>
+  <?=mk_option_luks($disk, $share['include'], strstr($disks[$disk]['fsType'],':',true))?>
   <?endforeach;?>
   </select>
 
@@ -185,7 +188,7 @@ Included disk(s):
 Excluded disk(s):
 : <select id="s2" name="shareExclude" size="1" multiple="multiple" style="display:none">
   <?foreach ($myDisks as $disk):?>
-  <?=mk_option_check($disk, $share['exclude'])?>
+  <?=mk_option_luks($disk, $share['exclude'], strstr($disks[$disk]['fsType'],':',true))?>
   <?endforeach;?>
   </select>
 
@@ -252,7 +255,6 @@ Share status:
 : <input type="submit" name="cmdEditShare" value="Apply"><input type="button" value="Done" onclick="done()">
 <?endif;?>
 </form>
-
 <script>
 $(function() {
   initDropdown(false,true);
@@ -271,23 +273,23 @@ function initDropdown(remove,create) {
 <?endif;?>
   }
   if (create) {
-    $("#s1").dropdownchecklist({emptyText:'All', width:300, explicitClose:'...close'});
-    $("#s2").dropdownchecklist({emptyText:'None', width:300, explicitClose:'...close'});
+    $('#s1').dropdownchecklist({emptyText:'All', width:<?=$width[1]?>, explicitClose:'...close'});
+    $('#s2').dropdownchecklist({emptyText:'None', width:<?=$width[1]?>, explicitClose:'...close'});
 <?if ($name):?>
-    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:120, explicitClose:'...close'});
+    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
 <?endif;?>
   }
 }
 function setDiskList(cache) {
-  var onOff = cache=='only' ? 'disable' : 'enable';
-  $("#s1").dropdownchecklist(onOff);
-  $("#s2").dropdownchecklist(onOff);
+  var onOff = cache=='only' ? 'disable':'enable';
+  $('#s1').dropdownchecklist(onOff);
+  $('#s2').dropdownchecklist(onOff);
 }
 function presetSpace(shareFloor) {
   var unit = ['KB','MB','GB','TB','PB'];
   var scale = shareFloor.value;
   if (scale.replace(/[0-9.,\s]/g,'').length>0) return;
-  var base = scale>0 ? Math.floor(Math.log(scale)/Math.log(1000)) : 0;
+  var base = scale>0 ? Math.floor(Math.log(scale)/Math.log(1000)):0;
   if (base>=unit.length) base = unit.length-1;
   shareFloor.value = (scale/Math.pow(1000, base))+unit[base];
 }

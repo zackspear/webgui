@@ -1,5 +1,6 @@
 Menu="Docker:1"
 Title="Docker Containers"
+Tag="cubes"
 Cond="(pgrep('dockerd')!==false)"
 Markdown="false"
 ---

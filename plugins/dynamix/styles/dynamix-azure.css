@@ -20,11 +20,12 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 .ui-dropdownchecklist-group{font-weight:normal;font-style:italic;padding:1px 9px 1px 11px}
 .ui-dropdownchecklist-selector-wrapper{vertical-align:middle;font-size:0}
 .ui-state-active{border-color:#0072C6;background:transparent}
-.ui-dropdownchecklist-dropcontainer{color:#606E7F;background-color:#EDEAEF}
+.ui-dropdownchecklist-dropcontainer{color:#606E7F;background-color:#EDEAEF;border:#0072C6 1px solid}
 .ui-state-disabled{border-color:#808080;background:#C7C5CB;opacity:0.5}
 .ui-dropdownchecklist-indent{padding-left:7px}
 .ui-dropdownchecklist-text{font-family:arimo;font-size:13px;color:#606E7F}
-.ui-dropdownchecklist-item{}
+.ui-dropdownchecklist-item{height:22px;line-height:22px}
+.ui-dropdownchecklist-item input{vertical-align:top}
 #sb-info-inner,#sb-loading-inner,div.sb-message{color:#808080}
 #sb-title,#sb-title-inner{border-top-left-radius:10px;border-top-right-radius:10px;width:100%;height:50px;line-height:50px;font-size:18px;font-weight:bold;background:#C0C0C0;color:#606060;text-indent:10px;text-align:center}
 #sb-title,#sb-info{position:relative;margin:0;padding:0;overflow:hidden}
@@ -50,10 +51,10 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 table.tablesorter{margin:0 0 15px 0}
 table.tablesorter thead tr{border-bottom:#606E7F 1px solid}
 table.tablesorter thead tr th{text-transform:uppercase;font-weight:normal;color:#9794A0;padding:5px 20px 5px 6px;white-space:nowrap;text-align:left}
-table.tablesorter thead tr .header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
-table.tablesorter thead tr .headerSortUp{background-image:url(../images/sort-asc.png)}
-table.tablesorter thead tr .headerSortDown{background-image:url(../images/sort-desc.png)}
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp{background-color:#EDEAEF}
+table.tablesorter thead tr .tablesorter-header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
+table.tablesorter thead tr .tablesorter-headerAsc{background-image:url(../images/sort-asc.png)}
+table.tablesorter thead tr .tablesorter-headerDesc{background-image:url(../images/sort-desc.png)}
+table.tablesorter thead tr .tablesorter-headerAsc, table.tablesorter thead tr .tablesorter-headerDesc{background-color:#EDEAEF}
 table.tablesorter tbody tr{border-bottom:#EDEAEF 1px solid}
 table.tablesorter tbody tr.tr_last{border-bottom:1px solid #606E7F}
 table.tablesorter tbody tr.tr_last td{padding:8px 20px 8px 6px}
@@ -68,6 +69,12 @@ table.tablesorter.shift{margin-top:10px}
 table.tablesorter.kvm{display:block;padding-top:24px}
 table.tablesorter thead.fixed{display:table;width:100%}
 table.tablesorter tbody.fixed{display:block;overflow:auto}
+table.tablesorter.indexer thead th:first-child{width:4%}
+table.tablesorter.indexer thead th,table.tablesorter.indexer tbody td,table.tablesorter.indexer tfoot td{padding-left:10px}
+table.tablesorter.indexer thead tr>th+th{width:auto;text-align:left}
+table.tablesorter.indexer thead tr>th+th+th{width:14%}
+table.tablesorter.indexer tfoot td{padding-top:10px;font-size:11px}
+table.tablesorter.indexer tfoot tr{border-bottom:none}
 span.select ul{display:none;list-style-type:none;margin:0 0 2px 0;padding:0}
 span.select ul.unused{display:block}
 span.select ul li.nosort{font-weight:bold}

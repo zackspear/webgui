@@ -2,6 +2,7 @@ Menu="UserPreferences"
 Type="xmenu"
 Title="Notification Settings"
 Icon="notifications.png"
+Tag="phone-square"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
