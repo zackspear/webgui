@@ -41,7 +41,12 @@ function update_table(branch) {
 $(function() {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',audit:<?=$audit?>},function(data) {
     if (data) $('#os_list').html(data);
-    $('#os_table').tablesorter({sortList:[[1,0]],headers:{0:{sorter:false},5:{sorter:false}}});
+    $('#os_table').tablesorter({
+      sortList:[[4,0],[1,0]],
+      sortAppend:[[1,0]],
+      headers:{0:{sorter:false},5:{sorter:false}},
+      textExtraction:function(n,t,i){return $(n).attr('data')||$(n).text();}
+    });
 <?if (preg_match("/^\*\*REBOOT REQUIRED\!\*\*/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md"))):?>
     $('#change_branch').prop('disabled',true);
 <?endif;?>
