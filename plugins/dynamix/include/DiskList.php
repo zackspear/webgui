@@ -112,6 +112,6 @@ foreach ($disks as $name => $disk) {
   }
 }
 if ($row==0) {
-  echo "<tr><td colspan='8' style='text-align:center'><i class='fa fa-folder-open-o icon'></i>There are no exportable disk shares</td></tr>";
+  echo "<tr><td colspan='8' style='text-align:center;padding-top:12px'><i class='fa fa-folder-open-o icon'></i>There are no exportable disk shares</td></tr>";
 }
 ?>
