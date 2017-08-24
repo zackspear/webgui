@@ -92,6 +92,11 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
       }
     }
   }
+  if (strpos($status,'update')!==false) $rank = '0';
+  elseif (strpos($status,'install')!==false) $rank = '1';
+  elseif ($status=='need check') $rank = '2';
+  elseif ($status=='up-to-date') $rank = '3';
+  else $rank = '4';
   $changes = plugin('changes',$changes_file);
   if ($changes !== false) {
     $txtfile = "/tmp/plugins/".basename($plugin_file,'.plg').".txt";
@@ -101,11 +106,11 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
 //write plugin information
   $empty = false;
   echo "<tr>";
-  echo "<td style='vertical-align:top;width:64px'><p style='text-align:center'>{$link}</p></td>";
-  echo "<td><span class='desc_readmore' style='display:block'>{$desc}</span></td>";
-  echo "<td>{$author}</td>";
-  echo "<td>{$version}</td>";
-  echo "<td>{$status}</td>";
+  echo "<td style='vertical-align:top;width:64px'><p style='text-align:center'>$link</p></td>";
+  echo "<td><span class='desc_readmore' style='display:block'>$desc</span></td>";
+  echo "<td>$author</td>";
+  echo "<td>$version</td>";
+  echo "<td data='$rank'>$status</td>";
   echo "<td>";
   if ($system) {
     if ($os) {

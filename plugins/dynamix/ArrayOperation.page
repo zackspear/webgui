@@ -66,7 +66,7 @@ function parity_warning(form) {
 <?endif;?>
   $('<input>').attr({type:'hidden',name:'cmdStart',value:'submit'}).appendTo($(form));
   if (form.md_invalidslot.checked) {
-    swal({title:'Proceed to start',text:text,html:true,type:'warning',confirmButtonText:'Proceed',confirmButtonColor:'#FFFFFF',showCancelButton:true},function(){form.submit();});
+    swal({title:'Proceed to start',text:text,html:true,type:'warning',confirmButtonText:'Proceed',showCancelButton:true},function(){form.submit();});
   } else {
     form.submit();
   }
