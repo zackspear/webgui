@@ -99,7 +99,7 @@ foreach ($arrSyslinuxCfg as &$strSyslinuxCfg) {
 		display: none;
 	}
 </style>
-<span class="status" style="margin-top: -10px;"><input type="checkbox" class="advancedview"></span>
+<span class="status" style="margin-top:<?=strstr('gray,azure',$display['theme'])?0:-10?>px;"><input type="checkbox" class="advancedview"></span>
 <?if ($boolACSEnabled != $boolACSInSyslinux):?>
 	<br><p class="notice">You must reboot for changes to take effect</p>
 <?endif;?>
