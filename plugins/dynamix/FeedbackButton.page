@@ -1,6 +1,6 @@
 Menu="Buttons"
 Title="Feedback"
-Icon="feedback.png"
+Icon="comment-o"
 Tag="commenting"
 ---
 <?PHP
