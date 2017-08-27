@@ -29,7 +29,7 @@ $path = $_GET['path'];
 $user = $_GET['user'];
 $list = [];
 $all = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$fix = explode('/',trim_slash($dir))[2];
+$fix = substr($dir,0,4)=='/mnt' ? explode('/',trim_slash($dir))[2] : 'flash';
 
 exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
