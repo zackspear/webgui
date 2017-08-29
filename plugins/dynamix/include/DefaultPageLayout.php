@@ -311,9 +311,10 @@ echo "<div id='nav-right'>";
 $pages = find_pages('Buttons');
 foreach ($pages as $page) {
   eval("?>{$page['text']}");
-  if (empty($page['Link']))
-    echo "<div id='nav-item' class='{$page['name']}'><a href='#' onclick='{$page['name']}();return false;'><img src='/{$page['root']}/icons/{$page['Icon']}' class='system'>{$page['Title']}</a></div>";
-  else
+  if (empty($page['Link'])) {
+    $icon = substr($page['Icon'],-4)=='.png' ? "<img src='/{$page['root']}/icons/{$page['Icon']}' class='system'>" : "<i class='system fa fa-{$page['Icon']}'></i>";
+    echo "<div id='nav-item' class='{$page['name']}'><a href='#' onclick='{$page['name']}();return false;'>$icon{$page['Title']}</a></div>";
+  } else
     echo "<div id='{$page['Link']}'></div>";
 }
 if ($notify['display']) {

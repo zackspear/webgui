@@ -1,6 +1,6 @@
 Menu="Buttons"
 Title="Help"
-Icon="help.png"
+Icon="question-circle-o"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology

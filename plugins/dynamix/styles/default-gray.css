@@ -78,6 +78,7 @@ form+p{display:none}
 #nav-item.InfoButton a:before{content:'\f05a'}
 #nav-item.LogButton a:before{content:'\f14b'}
 #nav-item.PowerButton a:before{content:'\f011'}
+#nav-item a i{display:none}
 #nav-user{display:block;float:left;text-align:center;border:none}
 #nav-user.probe{font-size:11px;margin-left:3px;margin-right:8px}
 #nav-tub1{position:fixed;top:56px;left:330px}
