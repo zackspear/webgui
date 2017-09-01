@@ -1,0 +1,91 @@
+Menu="Identification"
+Title="SSL Certificate Settings"
+Icon="ident.png"
+Tag="expeditedssl"
+---
+<?PHP
+/* Copyright 2005-2017, Lime Technology
+ * Copyright 2012-2017, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<script>
+function provisionSSL(internalip, keyfile, form) {
+    var result = true;
+    var failure = function(data) {
+        var status = data.status;
+        var obj = data.responseJSON;
+        var msg = "Sorry, an error ("+status+") occurred provisioning your SSL certificate. " +
+                  "The error is: "+obj.error+".";
+        swal('Oops',msg,'error');
+        result = false;
+    };
+
+    $.post('https://keys.lime-technology.com/account/ssl/provisioncert',{internalip:internalip,externalip:'no',keyfile:keyfile},function(data) {
+        $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:'<?=$var['csrf_token']?>'},function(data) {
+            var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
+                      "for local IP address "+internalip+" has been created on unraid.net.";
+            swal({title:'',text:msg,type:'success'},function(){form.submit();});
+        }).fail(failure);
+    }).fail(failure);
+    return result;
+}
+</script>
+<?
+$keyfile = base64_encode(file_get_contents($var['regFILE']));
+$disabled = file_exists("/boot/config/ssl/certs/certificate_bundle.pem") ? 'disabled' : '';
+?>
+<form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
+Use SSL/TLS:
+: <select name="USE_SSL" size="1" class="narrow">
+  <?=mk_option($var['USE_SSL'], "auto", "Auto")?>
+  <?=mk_option($var['USE_SSL'], "no", "No")?>
+  <?=mk_option($var['USE_SSL'], "yes", "Yes")?>
+  <?=mk_option($var['USE_SSL'], "only", "Only")?>
+  </select>
+
+> Determines how the webGui responds to http and/or https protocol.
+>
+> Select **No** to disable https.
+>
+> Select **Yes** to enable https; in this case http is also redirected to https.
+>
+> Select **Only** to enable only https.
+>
+> With **Auto** selected, https is enabled and http is redirected if a non-self-signed SSL certificate is
+> installed; otherwise, https is disabled.
+>
+> We **highly** recommend using a static IP address if https is enabled.
+
+http port:
+: <input type="text" name="PORT" maxlength="80" value="<?=htmlspecialchars($var['PORT'])?>">
+
+> Enter the http port, default is 80.
+
+https port:
+: <input type="text" name="PORTSSL" maxlength="80" value="<?=htmlspecialchars($var['PORTSSL'])?>">
+
+> Enter the https port, default is 443.
+
+&nbsp;
+: <input type="submit" name="changeNames" value="Apply"><input type="button" value="Done" onclick="done()">
+
+</form>
+<form markdown="1" name="Provision" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="changeNames" value="apply">
+Certificate info:
+: <?echo "<pre>".shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem")."</pre>";?>
+
+&nbsp;
+: <input type="button" value="Provision" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this.form)" <?=$disabled?>><input type="button" value="Renew" disabled>
+
+> **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
+> then upload to your server.
+
+</form>

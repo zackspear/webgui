@@ -1,4 +1,5 @@
 Menu="OtherSettings"
+Type="xmenu"
 Title="Identification"
 Icon="ident.png"
 Tag="id-badge"
