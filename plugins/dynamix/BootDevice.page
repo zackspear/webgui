@@ -1,6 +1,6 @@
 Menu="Main:3"
 Title="Boot Device"
-Tag="bank"
+Tag="paw"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
