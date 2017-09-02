@@ -79,7 +79,7 @@ foreach ($list as $row) {
     echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(trim_slash($dir.'/'.$row['name'])))."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='0'>&lt;DIR&gt;</td>";
     echo "<td data='{$row['time']}'>".my_time($row['time'],"%F {$display['time']}")."</td>";
-    echo "<td>{$row['disk']}</td>";
+    echo "<td class='loc'>{$row['disk']}</td>";
     echo "</tr>";
     $dirs++;
   } else {
@@ -90,7 +90,7 @@ foreach ($list as $row) {
     echo "<td><a href=\"".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\" class=\"".($tag?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='{$row['size']}' class='$tag'>".my_scale($row['size'],$unit)." $unit</td>";
     echo "<td data='{$row['time']}' class='$tag'>".my_time($row['time'],"%F {$display['time']}")."</td>";
-    echo "<td class='$tag'>{$row['disk']}</td>";
+    echo "<td class='loc $tag'>{$row['disk']}</td>";
     echo "</tr>";
     $files++;
     $total+=$row['size'];

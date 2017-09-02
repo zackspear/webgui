@@ -13,6 +13,7 @@ Tag="navicon"
  * all copies or substantial portions of the Software.
  */
 ?>
+<style>.loc{text-align:left;white-space:nowrap}</style>
 <script>
 $(function(){
   $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(htmlspecialchars($dir))?>",path:"<?=$path?>",user:<?=strpos($dir,'/mnt/user')===0?1:0?>},function(data){
