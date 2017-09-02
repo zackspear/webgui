@@ -27,12 +27,16 @@ function provisionSSL(internalip, keyfile, form) {
         result = false;
     };
 
-    $.post('https://keys.lime-technology.com/account/ssl/provisioncert',{internalip:internalip,externalip:'no',keyfile:keyfile},function(data) {
+    $.post('https://keys.lime-technology.com/account/ssl/provisioncert',{internalip:internalip,keyfile:keyfile},function(data) {
+      if (data.bundle) {
         $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:'<?=$var['csrf_token']?>'},function(data) {
-            var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
-                      "for local IP address "+internalip+" has been created on unraid.net.";
-            swal({title:'',text:msg,type:'success'},function(){form.submit();});
+          var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
+                    "for local IP address "+internalip+" has been created on unraid.net.";
+          swal({title:'',text:msg,type:'success'},function(){form.submit();});
         }).fail(failure);
+      } else {
+        failure({"status": 403, "responseJSON": {"error": "Server was unable to provision SSL certificate"}});
+      }
     }).fail(failure);
     return result;
 }
@@ -64,12 +68,12 @@ Use SSL/TLS:
 > We **highly** recommend using a static IP address if https is enabled.
 
 http port:
-: <input type="text" name="PORT" maxlength="80" value="<?=htmlspecialchars($var['PORT'])?>">
+: <input type="number" name="PORT" min="0" max="65535" value="<?=htmlspecialchars($var['PORT'])?>">
 
 > Enter the http port, default is 80.
 
 https port:
-: <input type="text" name="PORTSSL" maxlength="80" value="<?=htmlspecialchars($var['PORTSSL'])?>">
+: <input type="number" name="PORTSSL" min="0" max="65535" value="<?=htmlspecialchars($var['PORTSSL'])?>">
 
 > Enter the https port, default is 443.
 
