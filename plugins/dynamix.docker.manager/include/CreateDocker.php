@@ -1436,7 +1436,7 @@ optgroup.title{background-color:#625D5D;color:#FFFFFF;text-align:center;margin-t
     <table class="settings wide" style="margin-top:12px">
       <tr>
         <td></td>
-        <td id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show advanced settings ...</a></td>
+        <td id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show more settings ...</a></td>
       </tr>
     </table>
     <div id="configLocationAdvanced" style="display:none"></div><br>
@@ -1603,11 +1603,11 @@ optgroup.title{background-color:#625D5D;color:#FFFFFF;text-align:center;margin-t
     if ( readm.hasClass('readmore_collapsed') ) {
       readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
       $('#configLocationAdvanced').slideDown('fast');
-      readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide advanced settings ...');
+      readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide more settings ...');
     } else {
       $('#configLocationAdvanced').slideUp('fast');
       readm.removeClass('readmore_expanded').addClass('readmore_collapsed');
-      readm.find('a').html('<i class="fa fa-chevron-down"></i> Show advanced settings ...');
+      readm.find('a').html('<i class="fa fa-chevron-down"></i> Show more settings ...');
     }
   }
   function togglePortsUsed() {
