@@ -27,13 +27,17 @@ function provisionSSL(internalip, keyfile, form) {
         result = false;
     };
 
-    $.post('https://keys.lime-technology.com/account/ssl/provisioncert',{internalip:internalip,keyfile:keyfile},function(data) {
+    $.post("https://keys.lime-technology.com/account/ssl/provisioncert",{internalip:internalip,keyfile:keyfile},function(data) {
       if (data.bundle) {
-        $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:'<?=$var['csrf_token']?>'},function(data) {
-          var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
-                    "for local IP address "+internalip+" has been created on unraid.net.";
-          swal({title:'',text:msg,type:'success'},function(){form.submit();});
-        }).fail(failure);
+        $.get("//"+data.internal_dns+"/dnscheck",function() {
+          $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data) {
+            var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
+                      "for local IP address "+internalip+" has been created on unraid.net.";
+            swal({title:'',text:msg,type:'success'},function(){form.submit();});
+          }).fail(failure);
+        }).fail(function(){
+          failure({"status": 403, "responseJSON": {"error": "Your router or configured DNS servers are protecting against DNS rebinding thus preventing this SSL certificate from working.  See help for more details and workarounds"}});
+        });
       } else {
         failure({"status": 403, "responseJSON": {"error": "Server was unable to provision SSL certificate"}});
       }
