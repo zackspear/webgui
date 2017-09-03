@@ -96,4 +96,32 @@ Certificate info:
 > **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
 > then upload to your server.
 
+> Note: **Provision** may fail if your router or upstream DNS server has
+> [DNS rebinding protection](https://en.wikipedia.org/wiki/DNS_rebinding) enabled.  DNS rebinding
+> protection prevents DNS from resolving a private IP network range.  DNS rebinding protection is meant as
+> a security feature on a local LAN which includes legacy devices with buggy/insecure "web" interfaces.
+
+> One source of DNS rebinding protection could be your ISP DNS server.  In this case the problem may be solved by
+> switching to a different DNS server such as Google's public DNS.
+
+> More commonly, DNS rebinding protection could be enabled in your router.  Most consumer routers do not implement DNS
+> rebinding protection; but, if they do, a configuration setting should be available to turn it off.
+
+> Higher end routers usually do enable DNS rebinding protection however.  Typically there are ways of turning it off
+> entirely or selectively based on domain.  Examples:
+
+> **DD-WRT:** If you are using "dnsmasq" with DNS rebinding protection enabled, you can add this line to your router
+> configuration file:
+
+> `rebind-domain-ok=/unraid.net/`
+
+> **pfSense:** If you are using pfSense internal DNS resolver service, you can add these Custom Option lines:
+
+> `server:`<br>
+> `private-domain: "unraid.net"`
+
+> **Ubiquiti UGS router:** you can add this configuration line:
+
+> `set service dns forwarding options rebind-domain-ok=/unraid.net/`
+
 </form>
