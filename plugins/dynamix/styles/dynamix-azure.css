@@ -56,15 +56,19 @@ table.tablesorter thead tr .tablesorter-headerAsc{background-image:url(../images
 table.tablesorter thead tr .tablesorter-headerDesc{background-image:url(../images/sort-desc.png)}
 table.tablesorter thead tr .tablesorter-headerAsc, table.tablesorter thead tr .tablesorter-headerDesc{background-color:#EDEAEF}
 table.tablesorter tbody tr{border-bottom:#EDEAEF 1px solid}
+table.tablesorter tbody tr.tablesorter-childRow{border-bottom:none}
 table.tablesorter tbody tr.tr_last{border-bottom:1px solid #606E7F}
 table.tablesorter tbody tr.tr_last td{padding:8px 20px 8px 6px}
 table.tablesorter tbody tr td{padding:4px 20px 4px 6px;vertical-align:middle;text-align:justify}
-table.tablesorter.left tbody td{text-align:left}
 table.tablesorter.plugins td:first-child{width:64px;text-align:center}
 table.tablesorter.plugins tr>td+td+td{width:9%;white-space:nowrap}
 table.tablesorter.plugins td:last-child{width:96px;padding:0}
 table.tablesorter .desc_readmore strong,table.tablesorter .desc_readmore h4{font-size:13px}
 table.tablesorter .desc_readmore h4,table.tablesorter .desc_readmore p:first-child{margin:0}
+table.tablesorter.left th,table.tablesorter.left td{text-align:left;width:20%}
+table.tablesorter.left th:first-child,table.tablesorter.left td:first-child{width:8%}
+table.tablesorter.left th:nth-last-child(2),table.tablesorter.left td:nth-last-child(2){width:8%}
+table.tablesorter.left th:last-child,table.tablesorter.left td:last-child{text-align:right;width:4%}
 table.tablesorter.shift{margin-top:10px}
 table.tablesorter.kvm{display:block;padding-top:24px}
 table.tablesorter thead.fixed{display:table;width:100%}
