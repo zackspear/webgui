@@ -47,7 +47,7 @@ function provisionSSL(internalip, keyfile, form) {
 </script>
 <?
 $keyfile = base64_encode(file_get_contents($var['regFILE']));
-$disabled = file_exists("/boot/config/ssl/certs/certificate_bundle.pem") ? 'disabled' : '';
+$disabled = file_exists("/boot/config/ssl/certs/certificate_bundle.pem") || $var['USE_SSL']!="auto" ? 'disabled' : '';
 ?>
 <form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
 Use SSL/TLS:
@@ -55,21 +55,16 @@ Use SSL/TLS:
   <?=mk_option($var['USE_SSL'], "auto", "Auto")?>
   <?=mk_option($var['USE_SSL'], "no", "No")?>
   <?=mk_option($var['USE_SSL'], "yes", "Yes")?>
-  <?=mk_option($var['USE_SSL'], "only", "Only")?>
   </select>
 
 > Determines how the webGui responds to http and/or https protocol.
 >
-> Select **No** to disable https.
+> Select **No** to disable https (but https is redirected to http).
 >
-> Select **Yes** to enable https; in this case http is also redirected to https.
+> Select **Yes** to enable https and redirect http to https.
 >
-> Select **Only** to enable only https.
->
-> With **Auto** selected, https is enabled and http is redirected if a non-self-signed SSL certificate is
-> installed; otherwise, https is disabled.
->
-> We **highly** recommend using a static IP address if https is enabled.
+> With **Auto** selected, behaves like **Yes** if a non-self-signed SSL certificate is
+> installed; otherwise, behaves like **No**.
 
 http port:
 : <input type="number" name="PORT" min="0" max="65535" value="<?=htmlspecialchars($var['PORT'])?>">
@@ -82,11 +77,11 @@ https port:
 > Enter the https port, default is 443.
 
 &nbsp;
-: <input type="submit" name="changeNames" value="Apply"><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changePorts" value="Apply"><input type="button" value="Done" onclick="done()">
 
 </form>
 <form markdown="1" name="Provision" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="changeNames" value="apply">
+<input type="hidden" name="changePorts" value="apply">
 Certificate info:
 : <?echo "<pre>".shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem")."</pre>";?>
 
@@ -94,7 +89,7 @@ Certificate info:
 : <input type="button" value="Provision" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this.form)" <?=$disabled?>><input type="button" value="Renew" disabled>
 
 > **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
-> then upload to your server.
+> then upload to your server.  Note: We **highly** recommend using a static IP address in this case.
 
 > Note: **Provision** may fail if your router or upstream DNS server has
 > [DNS rebinding protection](https://en.wikipedia.org/wiki/DNS_rebinding) enabled.  DNS rebinding
@@ -123,5 +118,8 @@ Certificate info:
 > **Ubiquiti USG router:** you can add this configuration line:
 
 > `set service dns forwarding options rebind-domain-ok=/unraid.net/`
+
+> **OpenDNS:** Go to Settings -> Security and *remove* the checkbox next to
+>  "Suspicious Responses - Block internal IP addresses". It is an all-or-nothing setting.
 
 </form>
