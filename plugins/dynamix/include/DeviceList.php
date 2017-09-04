@@ -74,7 +74,7 @@ function device_browse(&$disk) {
 }
 function device_desc(&$disk) {
   global $var;
-  $size = my_scale($disk['size']*1024,$unit);
+  $size = my_scale($disk['size'] ? $disk['size']*1024 : $disk['sectors']*$disk['sector_size'],$unit);
   $log = $var['fsState']=='Started' ? "<a href=\"#\" title=\"Disk Log Information\" onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"fa fa-hdd-o icon\"></i></a>" : "";
   return  $log.my_id($disk['id'])." - $size $unit ({$disk['device']})";
 }
