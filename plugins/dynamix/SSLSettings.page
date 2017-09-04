@@ -82,8 +82,11 @@ https port:
 </form>
 <form markdown="1" name="Provision" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changePorts" value="apply">
-Certificate info:
-: <?echo "<pre>".shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem")."</pre>";?>
+Certificate issuer:
+: <?echo shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem|sed -n -e 's/^.*Issuer: //p'")?>
+
+Certificate expiration:
+: <?echo shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem|sed -n -e 's/^.*Not After : //p'")?>
 
 &nbsp;
 : <input type="button" value="Provision" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this.form)" <?=$disabled?>><input type="button" value="Renew" disabled>
