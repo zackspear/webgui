@@ -80,7 +80,7 @@ $(function(){
 // Adjust the width of thead cells when window resizes
 </script>
 <table class="tablesorter left shift" id="archive_table">
-<thead><tr><th>Time</th><th>Event</th><th>Subject</th><th>Description</th><th>Importance</th><th style="text-align:right"><?if ($files):?><a href="#" onclick="askConfirmation();return false" title="Delete all notifications"><i class="fa fa-trash"></i></a><?endif;?></th></tr></thead>
-<tbody id="archive_list"><tr><td colspan="5" style="text-align:center;padding-top:12px"><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, loading information ...</em></td></tr></tbody>
+<thead><tr><th>Time</th><th>Event</th><th>Subject</th><th>Description</th><th>Importance</th><th><?if ($files):?><a href="#" onclick="askConfirmation();return false" title="Delete all notifications"><i class="fa fa-trash"></i></a><?endif;?></th></tr></thead>
+<tbody id="archive_list"><tr><td></td><td colspan="4" style="text-align:center;padding-top:12px"><i class='fa fa-spinner fa-spin icon'></i><em>Please wait, loading information ...</em></td><td></td></tr></tbody>
 </table>
 <input type="button" value="Done" onclick="done()">

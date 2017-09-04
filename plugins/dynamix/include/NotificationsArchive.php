@@ -34,15 +34,15 @@ foreach ($files as $file) {
   foreach ($fields as $field) {
     if ($c==5) break;
     $text = $field ? explode('=',$field,2)[1] : "-";
-    $tag = $c<4 ? "" : " data='".str_replace(['alert','warning','normal'],['0','1','2'],$text)."'";
+    $tag = ($c<4) ? "" : " data='".str_replace(['alert','warning','normal'],['0','1','2'],$text)."'";
     echo (!$c++) ? "<tr>".str_replace('*',$text,$td_).date($dynamix['notify']['date'].' '.$dynamix['notify']['time'],$text)."$_td" : "<td$tag>$text</td>";
   }
-  echo "<td style='text-align:right'><a href='#' onclick='$.post(\"/webGui/include/DeleteLogFile.php\",{log:\"$archive\"},function(){archiveList();});return false' title='Delete notification'><i class='fa fa-trash-o'></i></a></td></tr>";
+  echo "<td><a href='#' onclick='$.post(\"/webGui/include/DeleteLogFile.php\",{log:\"$archive\"},function(){archiveList();});return false' title='Delete notification'><i class='fa fa-trash-o'></i></a></td></tr>";
   if ($extra) {
     $text = explode('=',$field,2)[1];
-    echo "<tr class='tablesorter-childRow row$row'><td colspan='5'>$text</td></tr><tr class='tablesorter-childRow row$row'><td colspan='5'></td></tr>";
+    echo "<tr class='tablesorter-childRow row$row'><td colspan='4'>$text</td><td></td></tr><tr class='tablesorter-childRow row$row'><td colspan='5'></td></tr>";
     $row++;
   }
 }
-if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><em>No notifications present</em></td></tr>";
+if ($empty) echo "<tr><td></td><td colspan='4' style='text-align:center;padding-top:12px'><em>No notifications present</em></td><td></td></tr>";
 ?>
