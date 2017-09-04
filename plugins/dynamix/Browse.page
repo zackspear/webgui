@@ -16,7 +16,7 @@ Tag="navicon"
 <style>.loc{text-align:left;white-space:nowrap}</style>
 <script>
 $(function(){
-  $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(htmlspecialchars($dir))?>",path:"<?=$path?>",user:<?=strpos($dir,'/mnt/user')===0?1:0?>},function(data){
+  $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(urlencode($dir))?>",path:"<?=$path?>",user:<?=strpos($dir,'/mnt/user')===0?1:0?>},function(data){
     var table = $('table.indexer');
     var col = $.cookie('col')||1;
     var dir = $.cookie('dir')||0;

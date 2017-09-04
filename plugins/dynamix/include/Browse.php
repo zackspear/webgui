@@ -17,14 +17,14 @@ require_once "$docroot/webGui/include/Helpers.php";
 function parent_link() {
   global $dir,$path;
   return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user')
-  ? "<a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(dirname($dir)))."\">Parent Directory...</a>" : "";
+  ? "<a href=\"/$path?dir=".htmlspecialchars(urlencode_path(dirname($dir)))."\">Parent Directory</a>" : "";
 }
 function trim_slash($url){
   return preg_replace('/\/\/+/','/',$url);
 }
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
-$dir = $_GET['dir'];
+$dir = urldecode($_GET['dir']);
 $path = $_GET['path'];
 $user = $_GET['user'];
 $list = [];
@@ -76,7 +76,7 @@ foreach ($list as $row) {
   if ($row['type']=='directory') {
     echo "<tr>";
     echo "<td data=''><div class='icon-folder'></div></td>";
-    echo "<td><a href=\"".htmlspecialchars("/$path?dir=".urlencode_path(trim_slash($dir.'/'.$row['name'])))."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td><a href=\"/$path?dir=".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='0'>&lt;DIR&gt;</td>";
     echo "<td data='{$row['time']}'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td class='loc'>{$row['disk']}</td>";
@@ -87,7 +87,7 @@ foreach ($list as $row) {
     $tag = strpos($row['disk'],',')===false ? '' : 'warning';
     echo "<tr>";
     echo "<td data='{$row['fext']}'><div class='icon-file icon-{$row['fext']}'></div></td>";
-    echo "<td><a href=\"".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$row['name'])))."\" class=\"".($tag?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
+    echo "<td><a href=\"".htmlspecialchars(trim_slash($dir.'/'.$row['name']))."\" class=\"".($tag?:'none')."\">".htmlspecialchars($row['name'])."</a></td>";
     echo "<td data='{$row['size']}' class='$tag'>".my_scale($row['size'],$unit)." $unit</td>";
     echo "<td data='{$row['time']}' class='$tag'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td class='loc $tag'>{$row['disk']}</td>";
