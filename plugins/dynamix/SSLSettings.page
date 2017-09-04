@@ -120,7 +120,7 @@ Certificate info:
 > `server:`<br>
 > `private-domain: "unraid.net"`
 
-> **Ubiquiti UGS router:** you can add this configuration line:
+> **Ubiquiti USG router:** you can add this configuration line:
 
 > `set service dns forwarding options rebind-domain-ok=/unraid.net/`
 
