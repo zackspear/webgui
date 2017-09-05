@@ -57,24 +57,24 @@ Use SSL/TLS:
   <?=mk_option($var['USE_SSL'], "yes", "Yes")?>
   </select>
 
-> Determines how the webGui responds to http and/or https protocol.
+> Determines how the webGui responds to HTTP and/or HTTPS protocol.
 >
-> Select **No** to disable https (but https is redirected to http).
+> Select **No** to disable HTTPS (but HTTPS is redirected to HTTP).
 >
-> Select **Yes** to enable https and redirect http to https.
+> Select **Yes** to enable HTTPS and redirect HTTP to HTTPS.
 >
 > With **Auto** selected, behaves like **Yes** if a non-self-signed SSL certificate is
 > installed; otherwise, behaves like **No**.
 
-http port:
-: <input type="number" name="PORT" min="0" max="65535" value="<?=htmlspecialchars($var['PORT'])?>">
+HTTP port:
+: <input type="number" name="PORT" class="trim" min="0" max="65535" value="<?=htmlspecialchars($var['PORT'])?>">
 
-> Enter the http port, default is 80.
+> Enter the HTTP port, default is 80.
 
-https port:
-: <input type="number" name="PORTSSL" min="0" max="65535" value="<?=htmlspecialchars($var['PORTSSL'])?>">
+HTTPS port:
+: <input type="number" name="PORTSSL" class="trim" min="0" max="65535" value="<?=htmlspecialchars($var['PORTSSL'])?>">
 
-> Enter the https port, default is 443.
+> Enter the HTTPS port, default is 443.
 
 &nbsp;
 : <input type="submit" name="changePorts" value="Apply"><input type="button" value="Done" onclick="done()">
