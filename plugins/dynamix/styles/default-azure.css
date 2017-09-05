@@ -1,6 +1,5 @@
-html{font-family:arimo;-ms-overflow-style:-ms-autohiding-scrollbar}
+html{font-family:arimo}
 body{font-size:14px;color:#606E7F;background-color:#E4E2E4;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-::-webkit-scrollbar{display:none}
 @media (max-width:1920px){#template{min-width:1080px;margin:0}}
 @media (min-width:1921px){#template{min-width:1080px;max-width:1920px;margin:0 auto}}
 img{border:0;text-decoration:none;vertical-align:middle}
@@ -52,6 +51,8 @@ form+p{display:none}
 #header .text-right{float:right;text-align:left;padding-left:5px;padding-right:20px}
 #menu{position:fixed;top:0;left:0;bottom:12px;width:65px;padding:0;margin:0;background:#383A34;z-index:100;box-shadow:inset -1px 0 2px #EDEAEF}
 #nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl}
+#nav-block::-webkit-scrollbar{display:none}
+#nav-block{-ms-overflow-style:none;overflow:-moz-scrollbars-none}
 #nav-block>div{direction:ltr}
 #nav-item{width:24px;text-align:left;padding:14px 24px 14px 16px;border-bottom:#42453E 1px solid;font-size:18px;overflow:hidden}
 #nav-item:hover{width:150px;color:#5D6833;background:#ABC056;border-bottom-color:#5D6833;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out}
