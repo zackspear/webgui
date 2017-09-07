@@ -16,33 +16,33 @@ Tag="expeditedssl"
  */
 ?>
 <script>
-function provisionSSL(internalip, keyfile, form) {
-    var result = true;
+function provisionSSL(internalip, keyfile, button) {
+    $(button).prop("disabled", true).html("<i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\"></i> Provisioning");
+
     var failure = function(data) {
         var status = data.status;
         var obj = data.responseJSON;
         var msg = "Sorry, an error ("+status+") occurred provisioning your SSL certificate. " +
                   "The error is: "+obj.error+".";
-        swal('Oops',msg,'error');
-        result = false;
+        $(button).prop("disabled", false).html("Provision");
+        swal("Oops",msg,"error");
     };
 
     $.post("https://keys.lime-technology.com/account/ssl/provisioncert",{internalip:internalip,keyfile:keyfile},function(data) {
-      if (data.bundle) {
-        $.get("//"+data.internal_dns+"/dnscheck",function() {
-          $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data) {
-            var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
-                      "for local IP address "+internalip+" has been created on unraid.net.";
-            swal({title:'',text:msg,type:'success'},function(){form.submit();});
-          }).fail(failure);
-        }).fail(function(){
-          failure({"status": 403, "responseJSON": {"error": "Your router or configured DNS servers are protecting against DNS rebinding thus preventing this SSL certificate from working.  See help for more details and workarounds"}});
-        });
-      } else {
-        failure({"status": 403, "responseJSON": {"error": "Server was unable to provision SSL certificate"}});
-      }
+        if (data.bundle) {
+            $.get("//"+data.internal_dns+"/dnscheck",function() {
+                $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data) {
+                    var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
+                              "for local IP address "+internalip+" has been created on unraid.net.";
+                    swal({title:"",text:msg,type:"success",allowEscapeKey:false},function(){button.form.submit();});
+                }).fail(failure);
+            }).fail(function(){
+                failure({"status": 403, "responseJSON": {"error": "Your router or configured DNS servers are protecting against DNS rebinding thus preventing this SSL certificate from working.  See help for more details and workarounds"}});
+            });
+        } else {
+            failure({"status": 403, "responseJSON": {"error": "Server was unable to provision SSL certificate"}});
+        }
     }).fail(failure);
-    return result;
 }
 </script>
 <?
@@ -89,7 +89,7 @@ Certificate expiration:
 : <?echo shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem|sed -n -e 's/^.*Not After : //p'")?>
 
 &nbsp;
-: <input type="button" value="Provision" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this.form)" <?=$disabled?>><input type="button" value="Renew" disabled>
+: <button type="button" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this)" <?=$disabled?>>Provision</button><button type="button" disabled>Renew</button>
 
 > **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
 > then upload to your server.  Note: We **highly** recommend using a static IP address in this case.
