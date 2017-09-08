@@ -15,6 +15,22 @@ Tag="snowflake-o"
  */
 ?>
 <?
+function help_text() {
+  global $flag;
+  switch ($flag) {
+    case 'file': return "<em>To unlock encrypted devices<br>select the keyfile which was originally set</em>";
+    case 'text': return "<em>To unlock encrypted devices<br>enter the passphrase which was originally set</em>";
+    default: return "<em>Encrypted device(s) present<br>Encryption settings required</em>";
+  }
+}
+function input_text() {
+  global $flag;
+  switch ($flag) {
+    case 'file': return "Keyfile: <input type='file' name='local' onchange='getFileContent(event,this.form)'";
+    case 'text': return "Passphrase: <input type='password' name='text' maxlength='512' value='' onKeyUp=\"$('input[name=cmdStart]').prop('disabled',this.value.length==0)\"><input id='eye' type='checkbox' onchange='showPass(this.checked)'>show passphrase";
+    default: return "<a href='/Settings/EncryptionSettings'><i class='fa fa-key'></i> GO TO ENCRYPTION SETTINGS</a>";
+  }
+}
 function maintenance_mode() {
   echo "<tr>";
   echo "<td></td>";
@@ -33,12 +49,48 @@ function status_indicator() {
   }
   return "<a class='info nohand' onclick='return false'><img src='$ball' class='icon'><span>$help</span></a>";
 }
+$keyfile = file_exists($var['luksKeyfile']);
+$cfg = '/boot/config/keyfile.cfg';
+$luks = false; foreach ($disks as $disk) $luks |= substr($disk['fsType'],0,5)=='luks:';
+$flag = $luks ? (file_exists($cfg) ? file_get_contents($cfg) : false) : false;
 ?>
 <script>
 var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
 var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
 var ctrl = "<span class='status'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
+function showPass(checked) {
+  $('input[name="text"]').attr('type',checked ? 'text' : 'password');
+}
+function getFileContent(event,form) {
+  var input = event.target;
+  var reader = new FileReader();
+  reader.onload = function(){form.file.value=reader.result; form.cmdStart.disabled=false;};
+  reader.readAsText(input.files[0]);
+}
+function keyUpload(form) {
+<?if ($flag=='file'):?>
+  form.file.disabled = true;
+  form.local.disabled = true;
+  $.post('/webGui/include/KeyUpload.php',{text:'',file:form.file.value});
+<?elseif ($flag=='text'):?>
+  form.text.disabled = true;
+  $.post('/webGui/include/KeyUpload.php',{text:form.text.value,file:''});
+<?endif;?>
+}
+function verify(form) {
+  swal({title:'What do you want to do?',text:'Erase data OR correct encryption key',type:'warning',confirmButtonText:'Format',cancelButtonText:'Stop Array',showCancelButton:true},function(p){
+    if (p) {
+      $(form).append('<input type="hidden" name="cmdFormat" value="Format">');
+      form.submit();
+    } else {
+      $.post('/webGui/include/KeyUpload.php',{text:'',file:''},function(){
+        $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
+        form.submit();
+      });
+    }
+  });
+}
 function tab0() {
   $.removeCookie('one',{path:'/'});
   $.cookie('tab','tab0',{path:'/'});
@@ -128,6 +180,7 @@ toggle_diskio(true);
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
+<input type="hidden" name="file" value="" disabled>
 <table class="array_status">
 <?$parity = $var['mdResync']>0 ? '<small>Disabled -- Parity operation is running</small>' : '';
   $mover = file_exists('/var/run/mover.pid') ? '<small>Disabled -- Mover is running</small>' : '';
@@ -141,11 +194,20 @@ toggle_diskio(true);
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr>
       <td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
-<?    foreach ($disks as $disk) if (strstr($disk['fsStatus'],'Unmountable')) echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
-      <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+<?    $verify = false;
+      foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false) {
+        echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";
+        if (strpos($disk['fsStatus'],'encryption')!==false) $verify = true;
+      }
+?>    </td>
+<?    if ($verify):?>
+      <td><input type="button" id="cmdFix" value="Fix" onclick="verify(this.form)"><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+      <td><strong>Fix</strong> allows to format all <strong>unmountable disks</strong> <u>OR</u> to stop the array and correct the <strong>encryption key</strong></td>
+<?    else:?>
+      <td><input type="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small>
-      </td>
+      <input type="checkbox" name="confirmFormat" value="OFF" onClick="arrayOps.cmdFormat.disabled=!arrayOps.confirmFormat.checked"><small>Yes I want to do this</small></td>
+<?    endif;?>
       </tr>
 <?  endif;
     if (!$parity):
@@ -340,9 +402,15 @@ toggle_diskio(true);
     case "STOPPED":
       if (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
+<?      if ($luks && !$keyfile):?>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Missing encryption keyfile<br><br><?=help_text()?></td>
+        <td><input type="submit" name="cmdStart" value="Start" onclick="keyUpload(this.form)" disabled></td>
+        <td><?=input_text()?></td>
+<?      else:?>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td>
+<?      endif;?>
         </tr>
 <?    elseif ($var['mdResyncAction']=="clear"):?>
         <tr>
@@ -365,9 +433,15 @@ toggle_diskio(true);
         </tr>
 <?    else:?>
         <tr>
+<?      if ($luks && !$keyfile):?>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Missing encryption keyfile<br><br><?=help_text()?></td>
+        <td><input type="submit" name="cmdStart" value="Start" onclick="keyUpload(this.form)" disabled></td>
+        <td><?=input_text()?></td>
+<?      else:?>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
+<?      endif;?>
         </tr>
 <?    endif;
       maintenance_mode();
@@ -375,18 +449,30 @@ toggle_diskio(true);
     case "NEW_ARRAY":
       if (strpos($disks['parity']['status'],"DISK_NP")===0 && (empty($disks['parity2']) || strpos($disks['parity2']['status'],"DISK_NP")===0)):?>
         <tr>
+<?      if ($luks && !$keyfile):?>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Missing encryption keyfile<br><br><?=help_text()?></td>
+        <td><input type="submit" name="cmdStart" value="Start" onclick="keyUpload(this.form)" disabled></td>
+        <td><?=input_text()?></td>
+<?      else:?>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="submit" name="cmdStart" value="Start"></td>
         <td><strong>Start</strong> will record all disk information and bring the array on-line.
         <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td>
+<?      endif;?>
         </tr>
 <?    else:?>
         <tr>
+<?      if ($luks && !$keyfile):?>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Missing encryption keyfile<br><br><?=help_text()?></td>
+        <td><input type="submit" name="cmdStart" value="Start" onclick="keyUpload(this.form)" disabled></td>
+        <td><?=input_text()?></td>
+<?      else:?>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
         <td><input type="button" value="Start" onclick="parity_warning(this.form)"></td>
         <td><strong>Start</strong> will record all disk information, bring the array on-line, and start Parity-Sync.
         <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
         <br><input type="checkbox" name="md_invalidslot" value="99">Parity is already valid.</td>
+<?      endif;?>
         </tr>
 <?    endif;
       maintenance_mode();

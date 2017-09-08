@@ -60,10 +60,10 @@ function device_info(&$disk,$online) {
   $link = (strpos($disk['status'], 'DISK_NP')===false || $disk['name']=="cache") ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".$fancyname."</a>" : $fancyname;
   switch ($disk['luksState']) {
     case 0: $luks = ""; break;
-    case 1: $luks = "<i class='padlock ".($online?'green':'grey')."-text fa fa-lock' title='Encrypted'></i>"; break;
-    case 2: $luks = "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
-    case 3: $luks = "<i class='padlock red-text fa fa-unlock' title='Wrong encryption key'></i>"; break;
-   default: $luks = "<i class='padlock red-text fa fa-unlock' title='Unknown error'></i>"; break;
+    case 1: $luks = "<i class='padlock fa ".($online?'fa-unlock-alt green-text':'fa-lock grey-text')."' title='Encrypted'></i>"; break;
+    case 2: $luks = "<i class='padlock fa fa-lock red-text' title='Missing encryption key'></i>"; break;
+    case 3: $luks = "<i class='padlock fa fa-lock red-text' title='Wrong encryption key'></i>"; break;
+   default: $luks = "<i class='padlock fa fa-lock red-text' title='Unknown error'></i>"; break;
   }
   return $status.$link.$luks;
 }
