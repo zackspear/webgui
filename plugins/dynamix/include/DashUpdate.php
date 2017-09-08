@@ -135,7 +135,7 @@ case 'disk':
     foreach ($devs as $dev) {
       $device = $dev['device'];
       $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
-      if ($state=='blue-on') my_smart($row6[$i],$device,'New');
+      if ($state=='blue-on') my_smart($row7[$i],$device,'New');
       my_insert($row4[$i++],"<img src=$path/$state.png>");
     }
   }
@@ -161,7 +161,7 @@ case 'disk':
     foreach ($devs as $dev) {
       $device = $dev['device'];
       $state = exec("hdparm -C ".escapeshellarg("/dev/$device")."|grep -Po active") ? 'blue-on' : 'blue-blink';
-      if ($state=='blue-on') my_smart($row6[$i],$device,'New');
+      if ($state=='blue-on') my_smart($row7[$i],$device,'New');
       my_insert($row4[$i++],"<img src=$path/$state.png>");
     }
     echo "<tr>".implode('',$row1)."</tr>";
