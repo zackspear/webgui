@@ -51,11 +51,11 @@ foreach ($file as $row) {
   foreach ($rows as $row) $show |= strpos($disks[$tag.str_replace($tag,'',$row)]['fsType'],'luks:')!==false;
   if ($show) foreach ($rows as $row) {
     switch ($disks[$tag.str_replace($tag,'',$row)]['luksState']) {
-    case 0: $luks .= "<i class='padlock grey-text fa fa-unlock-alt' title='Not encrypted'></i>"; break;
-    case 1: $luks .= "<i class='padlock green-text fa fa-lock' title='Encrypted'></i>"; break;
-    case 2: $luks .= "<i class='padlock red-text fa fa-unlock' title='Missing encryption key'></i>"; break;
-    case 3: $luks .= "<i class='padlock red-text fa fa-unlock' title='Wrong encryption key'></i>"; break;
-   default: $luks .= "<i class='padlock red-text fa fa-unlock' title='Unknown error'></i>"; break;}
+    case 0: $luks .= "<i class='padlock grey-text fa fa-unlock' title='Not encrypted'></i>"; break;
+    case 1: $luks .= "<i class='padlock green-text fa fa-unlock-alt' title='Encrypted'></i>"; break;
+    case 2: $luks .= "<i class='padlock red-text fa fa-lock' title='Missing encryption key'></i>"; break;
+    case 3: $luks .= "<i class='padlock red-text fa fa-lock' title='Wrong encryption key'></i>"; break;
+   default: $luks .= "<i class='padlock red-text fa fa-lock' title='Unknown error'></i>"; break;}
   }
   $list[] = [
     'type' => $attr[0],

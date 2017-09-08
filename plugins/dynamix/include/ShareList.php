@@ -77,8 +77,8 @@ foreach ($shares as $name => $share) {
   }
   switch ($share['luksStatus']) {
     case 0: $luks = ""; break;
-    case 1: $luks = "<i class='padlock green-text fa fa-lock' title='All files in share encrypted'></i>"; break;
-    case 2: $luks = "<i class='padlock orange-text fa fa-lock' title='Some files in share unencrypted'></i>"; break;
+    case 1: $luks = "<i class='padlock green-text fa fa-unlock-alt' title='All files in share encrypted'></i>"; break;
+    case 2: $luks = "<i class='padlock orange-text fa fa-unlock-alt' title='Some files in share unencrypted'></i>"; break;
    default: $luks = ""; break;
   }
   echo "<tr>";

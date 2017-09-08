@@ -18,6 +18,9 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile'] : '';
 $online = $var['fsState']=='Stopped' ? '' : 'disabled';
+$cfg = '/boot/config/keyfile.cfg';
+$luks = false; foreach ($disks as $disk) $luks |= substr($disk['fsType'],0,5)=='luks:';
+$flag = $luks ? (file_exists($cfg) ? file_get_contents($cfg) : false) : false;
 ?>
 <script>
 <?if ($keyfile):?>
@@ -26,7 +29,7 @@ function checkInput(form) {
   return true;
 }
 function toggleButton(checked) {
-  $('input[name="#apply"]').prop('disabled',!checked);
+  $('input[name="#apply"],input[name="reset"]').prop('disabled',!checked);
 }
 <?else:?>
 function checkInput(form) {
@@ -64,25 +67,52 @@ function getFileContent(event,form) {
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
 <input type="hidden" name="file" value="">
+<input type="hidden" name="flag" value="true">
+<?if ($keyfile):?>
 Encryption key:
-: &nbsp;<?=$keyfile ?: 'Not present'?>
+: <?=$keyfile?>
 
 > Shows the path and name of the current keyfile, if present.
 >
 > This keyfile is read during array Start and is used to encrypt/decrypt content of encrypted devices.
 
-<?if ($keyfile):?>
-Delete <input type="checkbox" name="keyfile" onchange="toggleButton(this.checked)">
-: <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
-
-> With array Stopped, the keyfile may be deleted in order to specify a different encryption key. Note that once a device
+> With array Stopped, the keyfile may be deleted and the user can specify a new encryption key. Note that once a device
 > is formatted with a particular key it may only be opened using that same key. Changing the encryption key requires
 > encrypted devices to be reformatted **resulting in permanent loss of all existing data on those devices.**
 
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online.  Note that plugins are installed and may execute before and during the array Start process.
 
+<?if ($flag):?>
+> Select **Reset** to forget the selected encryption input and start with a *clean* installation.
+
+<?endif;?>
+Delete <input type="checkbox" name="keyfile" onchange="toggleButton(this.checked)"><?if ($flag):?> Reset <input type="checkbox" name="reset" disabled><?endif;?>
+: <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
+
 <?else:?>
+<?if ($flag=='file'):?>
+<span class="orange-text big">To unlock encrypted devices, select the keyfile which was originally set</span>
+: &nbsp;
+
+Keyfile:
+: <input type="file" name="local" onchange="getFileContent(event,this.form)"<?=$online?>>
+
+&nbsp;
+: <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+<?elseif ($flag=='text'):?>
+<span class="orange-text big">To unlock encrypted devices, enter the passphrase which was originally set</span>
+: &nbsp;
+
+Passphrase:
+: <input type="password" name="text" maxlength="512" value=""<?=$online?> onKeyUp="this.form.apply.disabled=(this.form.text.value.length==0)"><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
+
+&nbsp;
+: <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+<?else:?>
+Encryption key:
+: Not present
+
 Encryption input:
 : <select name="input" size="1" onchange="selectInput(this.form)"<?=$online?>>
   <?=mk_option(1, "text", "Passphrase")?>
@@ -122,5 +152,6 @@ Keyfile:
 </div>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
 : <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+<?endif;?>
 <?endif;?>
 </form>
