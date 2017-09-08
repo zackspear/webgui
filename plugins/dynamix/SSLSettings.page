@@ -44,10 +44,29 @@ function provisionSSL(internalip, keyfile, button) {
         }
     }).fail(failure);
 }
+
+function updateDNS(internalip, keyfile, button) {
+    $(button).prop("disabled", true).html("<i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\"></i> Updating DNS");
+
+    var failure = function(data) {
+        var status = data.status;
+        var obj = data.responseJSON;
+        var msg = "Sorry, an error ("+status+") occurred updating unraid.net DNS records. " +
+                  "The error is: "+obj.error+".";
+        $(button).prop("disabled", false).html("Update DNS");
+        swal('Oops',msg,'error');
+    };
+
+    $.post("https://keys.lime-technology.com/account/ssl/updatedns",{internalip:internalip,keyfile:keyfile},function(data) {
+        $(button).prop("disabled", false).html("Update DNS");
+        swal("","Your local IP address "+internalip+" has been updated for unraid.net.","success");
+    }).fail(failure);
+}
 </script>
 <?
 $keyfile = base64_encode(file_get_contents($var['regFILE']));
 $disabled = file_exists("/boot/config/ssl/certs/certificate_bundle.pem") || $var['USE_SSL']!="auto" ? 'disabled' : '';
+$disabled_updatedns = file_exists("/boot/config/ssl/certs/certificate_bundle.pem") ? '' : 'disabled';
 ?>
 <form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
 Use SSL/TLS:
@@ -89,7 +108,7 @@ Certificate expiration:
 : <?echo shell_exec("/usr/bin/openssl x509 -text -noout -in /etc/ssl/certs/unraid_bundle.pem|sed -n -e 's/^.*Not After : //p'")?>
 
 &nbsp;
-: <button type="button" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this)" <?=$disabled?>>Provision</button><button type="button" disabled>Renew</button>
+: <button type="button" onclick="provisionSSL('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this)" <?=$disabled?>>Provision</button><button type="button" disabled>Renew</button><button type="button" onclick="updateDNS('<?=$eth0['IPADDR:0']?>', '<?=$keyfile?>', this)" <?=$disabled_updatedns?>>Update DNS</button>
 
 > **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
 > then upload to your server.  Note: We **highly** recommend using a static IP address in this case.
