@@ -52,10 +52,10 @@ foreach ($file as $row) {
   if ($show) foreach ($rows as $row) {
     switch ($disks[$tag.str_replace($tag,'',$row)]['luksState']) {
     case 0: $luks .= "<i class='padlock grey-text fa fa-unlock' title='Not encrypted'></i>"; break;
-    case 1: $luks .= "<i class='padlock green-text fa fa-unlock-alt' title='Encrypted'></i>"; break;
-    case 2: $luks .= "<i class='padlock red-text fa fa-lock' title='Missing encryption key'></i>"; break;
-    case 3: $luks .= "<i class='padlock red-text fa fa-lock' title='Wrong encryption key'></i>"; break;
-   default: $luks .= "<i class='padlock red-text fa fa-lock' title='Unknown error'></i>"; break;}
+    case 1: $luks .= "<i class='padlock green-text fa fa-unlock-alt' title='Encrypted and unlocked'></i>"; break;
+    case 2: $luks .= "<i class='padlock red-text fa fa-lock' title='Locked: missing encryption key'></i>"; break;
+    case 3: $luks .= "<i class='padlock red-text fa fa-lock' title='Locked: wrong encryption key'></i>"; break;
+   default: $luks .= "<i class='padlock red-text fa fa-lock' title='Locked: unknown error'></i>"; break;}
   }
   $list[] = [
     'type' => $attr[0],
