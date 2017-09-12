@@ -514,24 +514,26 @@ $(function() {
   watchdog.on('message', function(data){
     var ini=parseINI(data);
     var status, progress;
-    if (ini['fsState']=="Stopped") {
-      status="<span class='red strong'>Array Stopped</span>";
-    }else if (ini['fsState']=="Starting") {
-      status="<span class='orange strong'>Array Starting</span>";
-    }else {
-      status="<span class='green strong'>Array Started</span>";
+    if (ini['fsProgress']) {
+      var flux=$.cookie('flux')||(ini['fsProgress'].search(/^Mount/)==0 ? 'Starting' : 'Stopping');
+      if ($.cookie('flux')==null) $.cookie('flux',flux);
+      status="<span class='orange strong'>Array "+flux+"</span>&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
+    } else if (ini['fsState']=="Stopped") {
+      status=$.cookie('flux')=="Starting" ? "<span class='green strong'>Array Started</span>" : "<span class='red strong'>Array Stopped</span>";
+      $.removeCookie('flux');
+    } else {
+      status=$.cookie('flux')=="Stopping" ? "<span class='red strong'>Array Stopped</span>" : "<span class='green strong'>Array Started</span>";
+      $.removeCookie('flux');
       if (ini['mdResync'] > 0) {
         var action;
         if (ini['mdResyncAction'].indexOf("recon")>=0)      action="Parity-Sync / Data-Rebuild";
         else if (ini['mdResyncAction'].indexOf("clear")>=0) action="Clearing";
         else if (ini['mdResyncAction'] == "check")          action="Read-Check";
         else if (ini['mdResyncAction'].indexOf("check")>=0) action="Parity-Check";
-        action += " " + (ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1) + " %";
-        status += "&bullet;<span class='orange strong'>"+action+"</span>";
+        action+=" "+(ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1)+" %";
+        status+="&bullet;<span class='orange strong'>"+action+"</span>";
       }
     }
-    if (ini['fsProgress'].length)
-      status += "&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
     $('#statusbar').html(status);
   });
   watchdog.start();
