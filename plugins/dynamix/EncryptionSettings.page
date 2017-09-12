@@ -18,9 +18,9 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile'] : '';
 $online = $var['fsState']=='Stopped' ? '' : 'disabled';
-$cfg = '/boot/config/keyfile.cfg';
+$ini = '/var/local/emhttp/keyfile.ini';
 $luks = false; foreach ($disks as $disk) $luks |= substr($disk['fsType'],0,5)=='luks:';
-$flag = $luks ? (file_exists($cfg) ? file_get_contents($cfg) : false) : false;
+$flag = $luks ? (file_exists($ini) ? file_get_contents($ini) : false) : false;
 ?>
 <script>
 <?if ($keyfile):?>
@@ -29,7 +29,7 @@ function checkInput(form) {
   return true;
 }
 function toggleButton(checked) {
-  $('input[name="#apply"],input[name="reset"]').prop('disabled',!checked);
+  $('input[name="#apply"]').prop('disabled',!checked);
 }
 <?else:?>
 function checkInput(form) {
@@ -83,11 +83,7 @@ Encryption key:
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online.  Note that plugins are installed and may execute before and during the array Start process.
 
-<?if ($flag):?>
-> Select **Reset** to forget the selected encryption input and start with a *clean* installation.
-
-<?endif;?>
-Delete <input type="checkbox" name="keyfile" onchange="toggleButton(this.checked)"><?if ($flag):?> Reset <input type="checkbox" name="reset" disabled><?endif;?>
+Delete <input type="checkbox" name="keyfile" onchange="toggleButton(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
 
 <?else:?>
