@@ -513,14 +513,16 @@ $(function() {
   var watchdog = new NchanSubscriber('/sub/var');
   watchdog.on('message', function(data){
     var ini=parseINI(data);
+    var progress=ini['fsProgress'];
     var status;
-    if (ini['fsProgress']) {
-      var flux=$.cookie('flux')||(ini['fsProgress'].search(/^Mount/)==0 ? 'Starting' : (ini['fsProgress'].search(/^Spin/)==0 ? 'Stopping' : null));
+    if (progress) {
+      var flux=$.cookie('flux')||(progress.search(/^(Open|Mount)/)==0 ? 'Starting' : (progress.search(/^Spin/)==0 ? 'Stopping' : null));
       if ($.cookie('flux')==null && flux) $.cookie('flux',flux);
-      if (flux) {
+      if (flux && progress.search(/^Fail/)==-1) {
         status="<span class='orange strong'>Array "+flux+"</span>&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
       } else {
         status=(ini['fsState']=="Stopped" ? "<span class='red strong'>Array Stopped</span>" : "<span class='green strong'>Array Started</span>")+"&bullet;<span class='orange strong'>"+ini['fsProgress']+"</span>";
+        $.removeCookie('flux');
       }
     } else if (ini['fsState']=="Stopped") {
       status=$.cookie('flux')=="Starting" ? "<span class='green strong'>Array Started</span>" : "<span class='red strong'>Array Stopped</span>";
