@@ -402,6 +402,9 @@ echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation
 echo "</span></div>";
 ?>
 <script>
+// Firefox specific workaround
+if (typeof InstallTrigger!=='undefined') $('#nav-block').addClass('mozilla');
+
 function parseINI(data){
     var regex = {
         section: /^\s*\[\s*\"*([^\]]*)\s*\"*\]\s*$/,

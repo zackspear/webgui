@@ -53,6 +53,7 @@ form+p{display:none}
 #nav-block{position:absolute;top:0;bottom:12px;color:#5D6833;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl}
 #nav-block::-webkit-scrollbar{display:none}
 #nav-block{-ms-overflow-style:none;overflow:-moz-scrollbars-none}
+#nav-block.mozilla{margin-left:-17px;overflow-y:scroll}
 #nav-block>div{direction:ltr}
 #nav-item{width:24px;text-align:left;padding:14px 24px 14px 16px;border-bottom:#42453E 1px solid;font-size:18px;overflow:hidden}
 #nav-item:hover{width:150px;color:#5D6833;background:#ABC056;border-bottom-color:#5D6833;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out}
