@@ -513,7 +513,7 @@ $(function() {
   var watchdog = new NchanSubscriber('/sub/var');
   watchdog.on('message', function(data){
     var ini=parseINI(data);
-    var status, progress;
+    var status;
     if (ini['fsProgress']) {
       var flux=$.cookie('flux')||(ini['fsProgress'].search(/^Mount/)==0 ? 'Starting' : 'Stopping');
       if ($.cookie('flux')==null) $.cookie('flux',flux);
