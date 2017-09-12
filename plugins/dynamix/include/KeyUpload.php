@@ -11,22 +11,17 @@
  */
 ?>
 <?
-$var = parse_ini_file('/var/local/emhttp/var.ini');
-$cfg = '/boot/config/keyfile.cfg';
+$var  = parse_ini_file('/var/local/emhttp/var.ini');
 $luks = $var['luksKeyfile'];
-$text = $_POST['text'] ?? false;
-$file = $_POST['file'] ?? false;
-$flag = $_POST['flag'] ?? false;
+$text = $_POST['text'] ?? '';
+$file = $_POST['file'] ?? '';
 
 if ($text) {
   file_put_contents($luks, $text);
-  if ($flag) file_put_contents($cfg,'text');
 } elseif ($file) {
   file_put_contents($luks, $file);
-  if ($flag) file_put_contents($cfg,'file');
 } else {
   @unlink($luks);
-  if ($_POST['reset']) @unlink($cfg);
 }
 $save = false;
 ?>
