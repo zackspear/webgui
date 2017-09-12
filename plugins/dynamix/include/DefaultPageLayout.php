@@ -515,9 +515,14 @@ $(function() {
     var ini=parseINI(data);
     var status;
     if (ini['fsProgress']) {
-      var flux=$.cookie('flux')||(ini['fsProgress'].search(/^Mount/)==0 ? 'Starting' : 'Stopping');
-      if ($.cookie('flux')==null) $.cookie('flux',flux);
-      status="<span class='orange strong'>Array "+flux+"</span>&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
+      var flux=$.cookie('flux')||(ini['fsProgress'].search(/^Mount/)==0 ? 'Starting' : (ini['fsProgress'].search(/^Spin/)==0 ? 'Stopping' : null));
+      if ($.cookie('flux')==null && flux) $.cookie('flux',flux);
+      if (flux) {
+        status="<span class='orange strong'>Array "+flux+"</span>";
+      } else {
+        status=ini['fsState']=="Stopped" ? "<span class='red strong'>Array Stopped</span>" : "<span class='green strong'>Array Started</span>";
+      }
+      status+="&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
     } else if (ini['fsState']=="Stopped") {
       status=$.cookie('flux')=="Starting" ? "<span class='green strong'>Array Started</span>" : "<span class='red strong'>Array Stopped</span>";
       $.removeCookie('flux');
