@@ -41,13 +41,13 @@ var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
 var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
 var ctrl = "<span class='status'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
-function verify(form) {
+function verify(form,hide) {
   swal({title:'Found wrong encryption key',text:'Format unmountable disk(s) and erase all data?',type:'warning',confirmButtonText:'Format',cancelButtonText:'Ignore',showCancelButton:true},function(p){
     if (p) {
       $(form).append('<input type="hidden" name="cmdFormat" value="Format">');
       form.submit();
     } else {
-      $.post('/webGui/include/HideFormatButton.php',{hide:'yes'},function(){refresh();});
+      $.post('/webGui/include/HideFormatButton.php',{hide:hide},function(){refresh();});
     }
   });
 }
@@ -154,13 +154,14 @@ toggle_diskio(true);
       <tr>
       <td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
 <?    $verify = false;
+      $yesno = 'yes';
       foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false) {
         echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";
-        if (strpos($disk['fsStatus'],'Wrong')!==false) $verify = true;
+        if (strpos($disk['fsStatus'],'Wrong')!==false) $verify = true; else $yesno = 'no';
       }
 ?>    </td>
 <?    if ($verify):?>
-      <td><input type="button" id="cmdFormat" value="Format" disabled onclick="verify(this.form)"><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+      <td><input type="button" id="cmdFormat" value="Format" disabled onclick="verify(this.form,'<?=$yesno?>')"><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
 <?    else:?>
       <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
 <?    endif;?>
