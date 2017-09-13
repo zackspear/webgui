@@ -215,7 +215,7 @@ btrfs filesystem show:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem show {$disk['uuid']}")."</pre>";?>
 
 <?endif;?>
-<?if (strpos($disk['fsType'],"btrfs")):?>
+<?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>Balance Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
@@ -261,12 +261,12 @@ btrfs balance status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Balance" disabled>**Balance** is only available when array is Started.
+: <input type="submit" value="Balance" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Balance</b> is only available when array is Started." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType'],"btrfs")):?>
+<?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>Scrub Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($disk['fsStatus']=="Mounted"):?>
@@ -303,12 +303,12 @@ btrfs scrub status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Scrub" disabled>**Scrub** is only available when array is Started.
+: <input type="submit" value="Scrub" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Scrub</b> is only available when array is Started." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
 <?endif?>
-<?if (strpos($disk['fsType'],"btrfs")):?>
+<?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
@@ -351,12 +351,12 @@ btrfs check status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="Check" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Check</b> is only available when array is Started in <b>Maintenance</b> mode." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType'],"reiserfs")):?>
+<?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
@@ -405,7 +405,7 @@ reiserfsck status:
 <?endif;?>
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType'],"xfs")):?>
+<?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
