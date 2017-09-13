@@ -261,7 +261,7 @@ btrfs balance status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Balance" disabled>**Balance** is only available when array is Started.
+: <input type="submit" value="Balance" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Balance</b> is only available when array is Started." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
@@ -303,7 +303,7 @@ btrfs scrub status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Scrub" disabled>**Scrub** is only available when array is Started.
+: <input type="submit" value="Scrub" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Scrub</b> is only available when array is Started." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
@@ -351,7 +351,7 @@ btrfs check status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="Check" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Check</b> is only available when array is Started in <b>Maintenance</b> mode." : "See Cache Settings."?>
 
 <?endif;?>
 </form>
