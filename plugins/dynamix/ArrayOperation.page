@@ -296,7 +296,7 @@ toggle_diskio(true);
 <?    endif;
     endif;
     break;
-  case "Mounting":?>
+  case "Starting":?>
     <tr>
     <td><?=status_indicator()?><span class="strong big">Starting...</span></td>
     <td><input type="submit" name="cmdStart" value="Start" disabled></td>

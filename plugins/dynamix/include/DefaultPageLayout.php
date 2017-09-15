@@ -389,6 +389,8 @@ case 'Stopped':
   echo '<span class="red strong">Array Stopped</span>'; break;
 case 'Starting':
   echo '<span class="orange strong">Array Starting</span>'; break;
+case 'Stopping':
+  echo '<span class="orange strong">Array Stopping</span>'; break;
 default:
   echo '<span class="green strong">Array Started</span>'; break;
 }
@@ -513,33 +515,28 @@ $(function() {
   var watchdog = new NchanSubscriber('/sub/var');
   watchdog.on('message', function(data){
     var ini=parseINI(data);
+    var state=ini['fsState'];
     var progress=ini['fsProgress'];
     var status;
-    if (progress) {
-      var flux=$.cookie('flux')||(progress.search(/^(Open|Mount)/)==0 ? 'Starting' : (progress.search(/^Spin/)==0 ? 'Stopping' : null));
-      if ($.cookie('flux')==null && flux) $.cookie('flux',flux);
-      if (flux && progress.search(/^Fail/)==-1) {
-        status="<span class='orange strong'>Array "+flux+"</span>&bullet;<span class='blue strong'>"+ini['fsProgress']+"</span>";
-      } else {
-        status=(ini['fsState']=="Stopped" ? "<span class='red strong'>Array Stopped</span>" : "<span class='green strong'>Array Started</span>")+"&bullet;<span class='orange strong'>"+ini['fsProgress']+"</span>";
-        $.removeCookie('flux');
-      }
-    } else if (ini['fsState']=="Stopped") {
-      status=$.cookie('flux')=="Starting" ? "<span class='green strong'>Array Started</span>" : "<span class='red strong'>Array Stopped</span>";
-      $.removeCookie('flux');
+
+    if (state=="Stopped") {
+      status="<span class='red strong'>Array Stopped</span>";
+    } else if (state=="Started") {
+      status="<span class='green strong'>Array Started</span>";
     } else {
-      status=$.cookie('flux')=="Stopping" ? "<span class='red strong'>Array Stopped</span>" : "<span class='green strong'>Array Started</span>";
-      $.removeCookie('flux');
-      if (ini['mdResync'] > 0) {
-        var action;
-        if (ini['mdResyncAction'].indexOf("recon")>=0)      action="Parity-Sync / Data-Rebuild";
-        else if (ini['mdResyncAction'].indexOf("clear")>=0) action="Clearing";
-        else if (ini['mdResyncAction'] == "check")          action="Read-Check";
-        else if (ini['mdResyncAction'].indexOf("check")>=0) action="Parity-Check";
-        action+=" "+(ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1)+" %";
-        status+="&bullet;<span class='orange strong'>"+action+"</span>";
-      }
+      status="<span class='orange strong'>Array "+state+"</span>";
     }
+    if (ini['mdResync'] > 0) {
+      var action;
+      if (ini['mdResyncAction'].indexOf("recon")>=0)      action="Parity-Sync / Data-Rebuild";
+      else if (ini['mdResyncAction'].indexOf("clear")>=0) action="Clearing";
+      else if (ini['mdResyncAction'] == "check")          action="Read-Check";
+      else if (ini['mdResyncAction'].indexOf("check")>=0) action="Parity-Check";
+      action+=" "+(ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1)+" %";
+      status+="&bullet;<span class='orange strong'>"+action+"</span>";
+    }
+    if (progress)
+      status+="&bullet;<span class='blue strong'>"+progress+"</span>";
     $('#statusbar').html(status);
   });
   watchdog.start();
