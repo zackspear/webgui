@@ -30,14 +30,14 @@ function provisionSSL(internalip, keyfile, button) {
 
     $.post("https://keys.lime-technology.com/account/ssl/provisioncert",{internalip:internalip,keyfile:keyfile},function(data) {
         if (data.bundle) {
-            $.get("//"+data.internal_dns+"/dnscheck",function() {
+            $.get("//"+data.internal_dns+":<?=$var['PORT']?>/dnscheck",function() {
                 $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data) {
                     var msg = "Your Let's Encrypt SSL Certificate has been provisioned and a DNS record " +
                               "for local IP address "+internalip+" has been created on unraid.net.";
                     swal({title:"",text:msg,type:"success",allowEscapeKey:false},function(){button.form.submit();});
                 }).fail(failure);
             }).fail(function(){
-                failure({"status": 403, "responseJSON": {"error": "Your router or configured DNS servers are protecting against DNS rebinding thus preventing this SSL certificate from working.  See help for more details and workarounds"}});
+                failure({"status": 403, "responseJSON": {"error": "Your router or DNS server has DNS rebinding protection enabled, preventing "+data.internal_dns+" "+internalip+" resolution.  See Help for more details and workarounds"}});
             });
         } else {
             failure({"status": 403, "responseJSON": {"error": "Server was unable to provision SSL certificate"}});
@@ -113,6 +113,9 @@ Certificate expiration:
 > **Provision** may be used to allocate a *free* SSL Certficiate from [Let's Encrypt](https://letsencrypt.org/) and
 > then upload to your server.  Note: We **highly** recommend using a static IP address in this case.
 
+> **Update DNS** may be used to manually initiate updating the DNS A-record of your server FQDN on unraid.net.  Note
+> that DNS propagation change could take anywhere from 1 minute to several hours (we set TTL to 60 seconds).
+
 > Note: **Provision** may fail if your router or upstream DNS server has
 > [DNS rebinding protection](https://en.wikipedia.org/wiki/DNS_rebinding) enabled.  DNS rebinding
 > protection prevents DNS from resolving a private IP network range.  DNS rebinding protection is meant as
@@ -143,5 +146,8 @@ Certificate expiration:
 
 > **OpenDNS:** Go to Settings -> Security and *remove* the checkbox next to
 >  "Suspicious Responses - Block internal IP addresses". It is an all-or-nothing setting.
+
+> When all else fails, you can create an entry in your PC's *hosts* file to override external DNS and
+> directly resolve your servers unraid.net FQDN to its local IP address.
 
 </form>
