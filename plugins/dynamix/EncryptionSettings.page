@@ -56,13 +56,13 @@ function getFileContent(event,form) {
   var input = event.target;
   var reader = new FileReader();
   reader.onload = function(){form.file.value = reader.result; form.apply.disabled = false;};
-  reader.readAsText(input.files[0]);
+  reader.readAsDataURL(input.files[0]);
 }
 <?endif;?>
 </script>
 <form markdown="1" name="encrypt_start" method="POST" action="/update.htm" target="progressFrame">
 Restricted Start:
-: <select name="luksStartMode" size="1" <?=$online?>>
+: <select name="luksStartMode" size="1">
   <?=mk_option($var['luksStartMode'], "0", "Yes")?>
   <?=mk_option($var['luksStartMode'], "1", "No")?>
   </select>
