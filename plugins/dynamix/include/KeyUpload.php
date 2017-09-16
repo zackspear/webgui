@@ -16,14 +16,11 @@ $ini = '/var/local/emhttp/keyfile.ini';
 $luks = $var['luksKeyfile'];
 $text = $_POST['text'] ?? false;
 $file = $_POST['file'] ?? false;
-$flag = $_POST['flag'] ?? false;
 
 if ($text) {
   file_put_contents($luks, $text);
-  if ($flag) file_put_contents($ini,'text');
 } elseif ($file) {
-  file_put_contents($luks, $file);
-  if ($flag) file_put_contents($ini,'file');
+  file_put_contents($luks, base64_decode(preg_replace('/^data:.*;base64,/','',$file)));
 } else {
   @unlink($luks);
 }

@@ -56,7 +56,7 @@ function getFileContent(event,form) {
   var input = event.target;
   var reader = new FileReader();
   reader.onload = function(){form.file.value = reader.result; form.apply.disabled = false;};
-  reader.readAsText(input.files[0]);
+  reader.readAsDataURL(input.files[0]);
 }
 <?endif;?>
 </script>
