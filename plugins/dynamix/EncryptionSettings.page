@@ -17,6 +17,7 @@ Tag="key"
 ?>
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile'] : '';
+$confirm = $var['fsNumEncrypted']==0;
 $online = $var['fsState']=='Stopped' ? '' : 'disabled';
 ?>
 <script>
@@ -44,7 +45,9 @@ function selectInput(form) {
     $('#text').show(); $('#file').hide();
   } else {
     form.text.value = '';
+<?if ($confirm):?>
     form.textConf.value = '';
+<?endif;?>
     $('#text').hide(); $('#file').show();
   }
   form.apply.disabled = true;
@@ -116,6 +119,7 @@ Encryption input:
 > The array will **not** Start automatically when encrypted volumes are present.
 
 <div id="text" markdown="1">
+<?if ($confirm):?>
 Passphrase:
 : <input type="password" name="text" maxlength="512" value=""<?=$online?> onKeyUp="this.form.apply.disabled=(this.form.text.value!=this.form.textConf.value)"><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
 
@@ -126,12 +130,21 @@ Retype passphrase:
 > first 128 characters of the [ASCII table](https://en.wikipedia.org/wiki/ASCII), as they will always have the same binary
 > representation. Other characters may have different encoding depending on system configuration and your passphrase will
 > not work with a different encoding. If you want a longer passphrase or to include binary data, upload a keyfile instead.
-
+>
 > Please refer to the [cryptsetup FAQ](https://gitlab.com/cryptsetup/cryptsetup/wikis/FrequentlyAskedQuestions#5-security-aspects)
 > for what constitutes a *secure* passphrase.
-
+>
 > **Memorize** this passphrase. **IF LOST, ENCRYPTED CONTENT CANNOT BE RECOVERED!**
 
+<?else:?>
+Passphrase:
+: <input type="password" name="text" maxlength="512" value=""<?=$online?> onKeyUp="this.form.apply.disabled=(this.form.text.value=='')"><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
+
+> Enter the correct passphrase to unlock the encrypted devices present in this system.
+>
+> **Memorize** this passphrase. **IF LOST, ENCRYPTED CONTENT CANNOT BE RECOVERED!**
+
+<?endif;?>
 </div>
 <div id="file" markdown="1" style="display:none">
 Keyfile:
