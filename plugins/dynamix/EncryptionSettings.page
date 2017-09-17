@@ -36,6 +36,7 @@ function prepareInput(form) {
   if (form.text.value || form.file.value) {
     form.input.disabled = true;
     form.local.disabled = true;
+    form.copy.disabled = true;
   }
 }
 function toggleApply(form) {
