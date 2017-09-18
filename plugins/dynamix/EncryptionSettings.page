@@ -21,9 +21,6 @@ $online = $var['fsState']=='Stopped' ? '':'disabled';
 ?>
 <script>
 <?if ($keyfile):?>
-function prepareInput(form) {
-  form.keyfile.disabled = true;
-}
 function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
 }
@@ -31,6 +28,10 @@ function toggleApply(checked) {
 var forced = <?=$var['fsNumEncrypted']==0 ? 'true':'false'?>;
 var confirm = forced || <?=$var['luksRestricted']!='yes' ? 'true':'false'?>;
 
+function toggleApply(form) {
+  var disabled = confirm ? form.text.value!=form.copy.value:form.text.value=='';
+  form.apply.disabled = disabled;
+}
 function prepareInput(form) {
   $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
   if (form.text.value || form.file.value) {
@@ -38,10 +39,6 @@ function prepareInput(form) {
     form.local.disabled = true;
     form.copy.disabled = true;
   }
-}
-function toggleApply(form) {
-  var disabled = confirm ? form.text.value!=form.copy.value:form.text.value=='';
-  form.apply.disabled = disabled;
 }
 function selectInput(form) {
   if (form.input.value == 'text') {
@@ -77,11 +74,10 @@ $(function(){
 });
 <?endif;?>
 </script>
-<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
+<?if ($keyfile):?>
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
-<input type="hidden" name="file" value="">
-<?if ($keyfile):?>
 Encryption key:
 : <?=$keyfile?>
 
@@ -96,10 +92,22 @@ Encryption key:
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online. Note that plugins are installed and may execute before and during the array Start process.
 
-Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)">
+Delete <input type="checkbox" onchange="toggleApply(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
+</form>
+<?if ($var['luksRestricted']=='no' && $online):?>
+<form markdown="1" name="start_settings" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="luksRestricted" value="yes">
+Reset **RESTRICTED START** to normal operation<input type="checkbox" onchange="this.form.changeDisk.disabled=!this.checked">
+: <input type="submit" name="changeDisk" value="Reset" disabled>
+</form>
+<?endif;?>
 
 <?else:?>
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<input type="hidden" name="file" value="">
 Encryption key:
 : Not present
 
@@ -158,5 +166,5 @@ Keyfile:
 </div>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
 : <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
-<?endif;?>
 </form>
+<?endif;?>
