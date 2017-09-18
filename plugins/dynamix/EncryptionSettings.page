@@ -18,27 +18,33 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile']:'';
 $online = $var['fsState']=='Stopped' ? '':'disabled';
+$allwrong = $var['fsState']=='Stopped' && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
 ?>
 <script>
 <?if ($keyfile):?>
+function prepareInput(form) {
+  form.keyfile.disabled = true;
+}
 function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
 }
 <?else:?>
 var forced = <?=$var['fsNumEncrypted']==0 ? 'true':'false'?>;
-var confirm = forced || <?=$var['luksRestricted']!='yes' ? 'true':'false'?>;
 
-function toggleApply(form) {
-  var disabled = confirm ? form.text.value!=form.copy.value:form.text.value=='';
-  form.apply.disabled = disabled;
-}
 function prepareInput(form) {
-  $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
+  if (form.luksReformat && form.luksReformat.checked)
+    $.post('/update.htm',{luksRestricted:form.luksRestricted.value,luksReformat:'yes',changeDisk:'apply'});
+  else
+    $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
   if (form.text.value || form.file.value) {
     form.input.disabled = true;
     form.local.disabled = true;
     form.copy.disabled = true;
   }
+}
+function toggleApply(form) {
+  var disabled = forced ? form.text.value!=form.copy.value : form.text.value=='';
+  form.apply.disabled = disabled;
 }
 function selectInput(form) {
   if (form.input.value == 'text') {
@@ -59,8 +65,7 @@ function showPass(checked) {
 }
 function showRetype(form) {
   if (form.input.value=='file') return;
-  confirm = forced || form.luksRestricted.value!='yes';
-  toggleApply(form);
+  confirm = forced || form.luksReformat.checked;
   if (confirm) $('#retype').show(); else $('#retype').hide();
 }
 function getFileContent(event,form) {
@@ -70,14 +75,15 @@ function getFileContent(event,form) {
   reader.readAsDataURL(input.files[0]);
 }
 $(function(){
-  if (confirm) $('#retype').show();
+  if (forced) $('#retype').show();
 });
 <?endif;?>
 </script>
-<?if ($keyfile):?>
-<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<input type="hidden" name="file" value="">
+<?if ($keyfile):?>
 Encryption key:
 : <?=$keyfile?>
 
@@ -92,38 +98,20 @@ Encryption key:
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online. Note that plugins are installed and may execute before and during the array Start process.
 
-Delete <input type="checkbox" onchange="toggleApply(this.checked)">
+Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
-</form>
-<?if ($var['luksRestricted']=='no' && $online):?>
-<form markdown="1" name="start_settings" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="luksRestricted" value="yes">
-Reset **RESTRICTED START** to normal operation<input type="checkbox" onchange="this.form.changeDisk.disabled=!this.checked">
-: <input type="submit" name="changeDisk" value="Reset" disabled>
-</form>
-<?endif;?>
 
 <?else:?>
-<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
-<input type="hidden" name="#file" value="unused">
-<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
-<input type="hidden" name="file" value="">
 Encryption key:
 : Not present
 
 Restricted Start:
-: <select name="luksRestricted" size="1" onchange="showRetype(this.form)"<?=$online?>>
+: <select name="luksRestricted" size="1" <?=$online?>>
   <?=mk_option($var['luksRestricted'], "yes", "Yes")?>
   <?=mk_option($var['luksRestricted'], "no", "No")?>
   </select>
 
-> When set to **Yes** the array cannot Start if the encryption passphrase/keyfile is missing or wrong.
-> This is the normal setting.
->
-> When set to **No** the array may be Started and:
->
-> * If the passphrase/keyfile is **missing**, then encrypted volumes will not be mounted and cannot be formatted.
-> * If the passphrase/keyfile is **different**, then encrypted volumes will appear Unmountable and may be formatted with the new key.
+> When set to **Yes** the array cannot Start if the encryption passphrase/keyfile is *missing*.
 
 Encryption input:
 : <select name="input" size="1" onchange="selectInput(this.form)"<?=$online?>>
@@ -139,11 +127,6 @@ Encryption input:
 Passphrase:
 : <input type="password" name="text" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)"><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
 
-<div id="retype" markdown="1" style="display:none">
-Retype passphrase:
-: <input type="password" name="copy" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)">
-
-</div>
 > Enter a passphrase of up to 512 characters. It is highly advisable to only use the 95 printable characters from the
 > first 128 characters of the [ASCII table](https://en.wikipedia.org/wiki/ASCII), as they will always have the same binary
 > representation. Other characters may have different encoding depending on system configuration and your passphrase will
@@ -154,6 +137,20 @@ Retype passphrase:
 >
 > **Memorize** this passphrase. **IF LOST, ENCRYPTED CONTENT CANNOT BE RECOVERED!**
 
+<?if ($allwrong):?>
+
+&nbsp;
+: <input name="luksReformat" type="checkbox" onchange="showRetype(this.form)" <?=$online?>>permit reformat
+
+> To permit re-Format of encrypted devices, check this box and retype the passphrase.
+
+<?endif;?>
+
+<div id="retype" markdown="1" style="display:none">
+Retype passphrase:
+: <input type="password" name="copy" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)">
+
+</div>
 </div>
 <div id="file" markdown="1" style="display:none">
 Keyfile:
@@ -165,6 +162,6 @@ Keyfile:
 
 </div>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
-: <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
-</form>
+: <input type="submit" name="apply" value="Apply"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 <?endif;?>
+</form>
