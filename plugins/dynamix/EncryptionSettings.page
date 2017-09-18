@@ -21,9 +21,6 @@ $online = $var['fsState']=='Stopped' ? '':'disabled';
 ?>
 <script>
 <?if ($keyfile):?>
-function prepareInput(form) {
-  form.keyfile.disabled = true;
-}
 function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
 }
@@ -31,6 +28,10 @@ function toggleApply(checked) {
 var forced = <?=$var['fsNumEncrypted']==0 ? 'true':'false'?>;
 var confirm = forced || <?=$var['luksRestricted']!='yes' ? 'true':'false'?>;
 
+function toggleApply(form) {
+  var disabled = confirm ? form.text.value!=form.copy.value:form.text.value=='';
+  form.apply.disabled = disabled;
+}
 function prepareInput(form) {
   $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
   if (form.text.value || form.file.value) {
@@ -38,10 +39,6 @@ function prepareInput(form) {
     form.local.disabled = true;
     form.copy.disabled = true;
   }
-}
-function toggleApply(form) {
-  var disabled = confirm ? form.text.value!=form.copy.value:form.text.value=='';
-  form.apply.disabled = disabled;
 }
 function selectInput(form) {
   if (form.input.value == 'text') {
@@ -78,7 +75,7 @@ $(function(){
 <?endif;?>
 </script>
 <?if ($keyfile):?>
-<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
 Encryption key:
@@ -95,7 +92,7 @@ Encryption key:
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online. Note that plugins are installed and may execute before and during the array Start process.
 
-Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)">
+Delete <input type="checkbox" onchange="toggleApply(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
 </form>
 <?if ($var['luksRestricted']=='no' && $online):?>
