@@ -77,11 +77,10 @@ $(function(){
 });
 <?endif;?>
 </script>
+<?if ($keyfile):?>
 <form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
-<input type="hidden" name="file" value="">
-<?if ($keyfile):?>
 Encryption key:
 : <?=$keyfile?>
 
@@ -98,8 +97,20 @@ Encryption key:
 
 Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
+</form>
+<?if ($var['luksRestricted']=='no' && $online):?>
+<form markdown="1" name="start_settings" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="luksRestricted" value="yes">
+Reset **RESTRICTED START** to normal operation<input type="checkbox" onchange="this.form.changeDisk.disabled=!this.checked">
+: <input type="submit" name="changeDisk" value="Reset" disabled>
+</form>
+<?endif;?>
 
 <?else:?>
+<form markdown="1" name="encrypt_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareInput(this)">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<input type="hidden" name="file" value="">
 Encryption key:
 : Not present
 
@@ -158,5 +169,5 @@ Keyfile:
 </div>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
 : <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
-<?endif;?>
 </form>
+<?endif;?>
