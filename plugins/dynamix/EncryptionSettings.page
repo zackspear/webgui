@@ -102,7 +102,7 @@ Encryption key:
 > With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
 > the array is online. Note that plugins are installed and may execute before and during the array Start process.
 
-Delete <input type="checkbox" onchange="toggleApply(this.checked)">
+Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)">
 : <input type="submit" name="#apply" value="Delete" disabled><input type="button" value="Done" class="lock" onclick="done()">
 
 <?else:?>
