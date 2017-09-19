@@ -125,7 +125,7 @@ case 'disk':
       else
         if (!strpos($state,'blink') && $temp>0) my_insert($row6[$n],"<span class='temp-text'>".my_temp($temp,$_POST['unit'])."</span>");
       if ($disk['device'] && !strpos($state,'blink')) my_smart($row7[$n],$disk['name'],'Device');
-      my_usage($row8[$n],($disk['type']!='Parity' && $disk['fsStatus']=='Mounted')?(round((1-$disk['fsFree']/$disk['fsSize'])*100).'%'):'');
+      my_usage($row8[$n],($disk['type']!='Parity' && $disk['fsStatus']=='Mounted')?(($disk['fsSize'] ? round((1-$disk['fsFree']/$disk['fsSize'])*100):0).'%'):'');
     }
   };
   foreach ($disks as $disk) if ($disk['type']=='Parity') $funcRenderRow($i++,$disk);
