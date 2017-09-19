@@ -18,7 +18,7 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile']:'';
 $online = $var['fsState']=='Stopped' ? '':'disabled';
-$allwrong = $var['fsState']=='Stopped' && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
+$allwrong = !$online && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
 ?>
 <script>
 <?if ($keyfile):?>
@@ -158,7 +158,7 @@ Keyfile:
 </div>
 <?if ($allwrong):?>
 &nbsp;
-: <input name="luksReformat" type="checkbox" onchange="showRetype(this.form)" <?=$online?>>permit reformat
+: <input name="luksReformat" type="checkbox" onchange="showRetype(this.form)">permit reformat
 
 > To permit re-Format of encrypted devices, check this box and retype the passphrase.
 
