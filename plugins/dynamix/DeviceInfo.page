@@ -33,8 +33,7 @@ function luks_status($luksState) {
   }
 }
 function maintenance_mode() {
-  global $var;
-  global $disk;
+  global $var, $disk;
   return ($var['fsState']=="Started" && $var['startMode']=="Maintenance" && $disk['luksState']<=1);
 }
 
