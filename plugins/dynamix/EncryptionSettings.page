@@ -18,12 +18,12 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile']:'';
 $online = $var['fsState']=='Stopped' ? '':'disabled';
-$allwrong = $var['fsState']=='Stopped' && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
+$allwrong = !$online && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
 ?>
 <script>
 <?if ($keyfile):?>
 function prepareInput(form) {
-  form.keyfile.disabled = true;
+  form.luksReformat.disabled = true;
 }
 function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
@@ -32,18 +32,20 @@ function toggleApply(checked) {
 var forced = <?=$var['fsNumEncrypted']==0 ? 'true':'false'?>;
 
 function prepareInput(form) {
-  if (form.luksReformat && form.luksReformat.checked)
+  if (form.luksReformat.checked) {
     $.post('/update.htm',{luksRestricted:form.luksRestricted.value,luksReformat:'yes',changeDisk:'apply'});
-  else
+  } else {
     $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
+  }
   if (form.text.value || form.file.value) {
     form.input.disabled = true;
     form.local.disabled = true;
     form.copy.disabled = true;
+    form.luksReformat.disabled = true;
   }
 }
 function toggleApply(form) {
-  var disabled = forced ? form.text.value!=form.copy.value : form.text.value=='';
+  var disabled = (forced || form.luksReformat.checked) ? form.text.value!=form.copy.value : form.text.value=='';
   form.apply.disabled = disabled;
 }
 function selectInput(form) {
@@ -64,9 +66,8 @@ function showPass(checked) {
   $('input[name="text"],input[name="copy"]').attr('type',checked ? 'text':'password');
 }
 function showRetype(form) {
-  if (form.input.value=='file') return;
-  confirm = forced || form.luksReformat.checked;
-  if (confirm) $('#retype').show(); else $('#retype').hide();
+  if (forced || form.luksReformat.checked) $('#retype').show(); else $('#retype').hide();
+  if (form.input.value=='text') form.apply.disabled = true;
 }
 function getFileContent(event,form) {
   var input = event.target;
@@ -83,6 +84,9 @@ $(function(){
 <input type="hidden" name="#file" value="unused">
 <input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
 <input type="hidden" name="file" value="">
+<?if (!$allwrong):?>
+<input type="hidden" name="luksReformat" type="checkbox">
+<?endif;?>
 <?if ($keyfile):?>
 Encryption key:
 : <?=$keyfile?>
@@ -137,15 +141,6 @@ Passphrase:
 >
 > **Memorize** this passphrase. **IF LOST, ENCRYPTED CONTENT CANNOT BE RECOVERED!**
 
-<?if ($allwrong):?>
-
-&nbsp;
-: <input name="luksReformat" type="checkbox" onchange="showRetype(this.form)" <?=$online?>>permit reformat
-
-> To permit re-Format of encrypted devices, check this box and retype the passphrase.
-
-<?endif;?>
-
 <div id="retype" markdown="1" style="display:none">
 Retype passphrase:
 : <input type="password" name="copy" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)">
@@ -161,7 +156,14 @@ Keyfile:
 > **Backup** your local keyfile. **IF LOST, ENCRYPTED CONTENT CANNOT BE RECOVERED!**
 
 </div>
+<?if ($allwrong):?>
+&nbsp;
+: <input name="luksReformat" type="checkbox" onchange="showRetype(this.form)">permit reformat
+
+> To permit re-Format of encrypted devices, check this box and retype the passphrase.
+
+<?endif;?>
 <input type="button" value="Benchmark" onclick="openBox('/webGui/include/CryptoBenchmark.php','Encryption Benchmarking',600,640)">
-: <input type="submit" name="apply" value="Apply"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+: <input type="submit" name="apply" value="Apply" class="lock"><input type="button" value="Done" onclick="done()"><?if ($online):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
 <?endif;?>
 </form>
