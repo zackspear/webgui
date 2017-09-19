@@ -34,7 +34,8 @@ function luks_status($luksState) {
 }
 function maintenance_mode() {
   global $var;
-  return ($var['fsState']=="Started" && $var['startMode']=="Maintenance") ? '' : 'disabled';
+  global $disk;
+  return ($var['fsState']=="Started" && $var['startMode']=="Maintenance" && $disk['luksState']<=1);
 }
 
 $luks_disabled = file_exists($var['luksKeyfile']) ? '' : 'disabled';
@@ -311,7 +312,7 @@ btrfs scrub status:
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
-<?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
+<?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 btrfs check status:
@@ -350,8 +351,17 @@ btrfs check status:
 <?endif;?>
 <?else:?>
 
+<?if (!preg_match('/^cache\d+$/',$disk['name'])):?>
 &nbsp;
-: <input type="submit" value="Check" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Check</b> is only available when array is Started in <b>Maintenance</b> mode." : "See Cache Settings."?>
+: <input type="submit" value="Check" disabled> (see Help)
+
+> **Check** is only available when array is Started in **Maintenance** mode, and for encrypted devices, the
+> encryption key must not be missing.
+
+<?else:?>
+&nbsp;
+: <input type="submit" value="Check" disabled> See Cache Settings.
+<?endif;?>
 
 <?endif;?>
 </form>
@@ -359,7 +369,7 @@ btrfs check status:
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
-<?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
+<?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 reiserfsck status:
@@ -400,7 +410,10 @@ reiserfsck status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="Check" disabled> (see Help)
+
+> **Check** is only available when array is Started in **Maintenance** mode, and for encrypted devices, the
+> encryption key must not be missing.
 
 <?endif;?>
 </form>
@@ -408,7 +421,7 @@ reiserfsck status:
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
-<?if ($var['fsState']=="Started" && $var['startMode']=='Maintenance'):?>
+<?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 xfs_repair status:
@@ -447,7 +460,10 @@ xfs_repair status:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled>**Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="Check" disabled> (see Help)
+
+> **Check** is only available when array is Started in **Maintenance** mode, and for encrypted devices, the
+> encryption key must not be missing.
 
 <?endif;?>
 </form>
