@@ -18,7 +18,7 @@ Tag="key"
 <?
 $keyfile = file_exists($var['luksKeyfile']) ? $var['luksKeyfile']:'';
 $online = $var['fsState']=='Stopped' ? '':'disabled';
-$allwrong = !$online && $var['fsNumEncrypted']>0 && $var['fsNumEncrypted']==$var['fsNumWrongKey'];
+$allwrong = !$online && $var['fsEncryption']=='wrong';
 ?>
 <script>
 <?if ($keyfile):?>
@@ -29,13 +29,11 @@ function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
 }
 <?else:?>
-var forced = <?=$var['fsNumEncrypted']==0 ? 'true':'false'?>;
+var forced = <?=$var['fsEncryption']=='no' ? 'true':'false'?>;
 
 function prepareInput(form) {
   if (form.luksReformat.checked) {
-    $.post('/update.htm',{luksRestricted:form.luksRestricted.value,luksReformat:'yes',changeDisk:'apply'});
-  } else {
-    $.post('/update.htm',{luksRestricted:form.luksRestricted.value,changeDisk:'apply'});
+    $.post('/update.htm',{luksReformat:'yes',changeDisk:'apply'});
   }
   if (form.text.value || form.file.value) {
     form.input.disabled = true;
@@ -108,14 +106,6 @@ Delete <input type="checkbox" name="keyfile" onchange="toggleApply(this.checked)
 <?else:?>
 Encryption key:
 : Not present
-
-Restricted Start:
-: <select name="luksRestricted" size="1" <?=$online?>>
-  <?=mk_option($var['luksRestricted'], "yes", "Yes")?>
-  <?=mk_option($var['luksRestricted'], "no", "No")?>
-  </select>
-
-> When set to **Yes** the array cannot Start if the encryption passphrase/keyfile is *missing*.
 
 Encryption input:
 : <select name="input" size="1" onchange="selectInput(this.form)"<?=$online?>>
