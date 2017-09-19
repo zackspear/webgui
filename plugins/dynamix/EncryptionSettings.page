@@ -23,6 +23,7 @@ $allwrong = !$online && $var['fsEncryption']=='wrong';
 <script>
 <?if ($keyfile):?>
 function prepareInput(form) {
+  form.keyfile.disabled = true;
   form.luksReformat.disabled = true;
 }
 function toggleApply(checked) {
