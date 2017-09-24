@@ -1,7 +1,6 @@
 Menu="Scheduler:2"
 Title="Mover Settings"
 Tag="calendar-check-o"
-Cond="(($var['shareUser']!='-')&&(isset($disks['cache']))&&($disks['cache']['status']!='DISK_NP')&&($var['shareCacheEnabled']=='yes'))"
 ---
 <?PHP
 /* Copyright 2005-2017, Lime Technology
@@ -15,8 +14,17 @@ Cond="(($var['shareUser']!='-')&&(isset($disks['cache']))&&($disks['cache']['sta
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
+if (empty($disks['cache']) || $disks['cache']['status']=='DISK_NP') {
+  echo "<span class='big orange-text'>No Cache disk present!</span>";
+  return;
+} elseif ($var['shareCacheEnabled']!='yes') {
+  echo "<span class='big orange-text'>Cache disk not enabled!</span>";
+  return;
+} elseif ($var['shareUser']=='-') {
+  echo "<span class='big orange-text'>User shares not enabled!</span>";
+  return;
+}
 $cron = explode(' ',$var['shareMoverSchedule']);
 $move = $cron[2]!='*' ? 3 : ($cron[4]!='*' ? 2 : (substr($cron[1],0,1)!='*' ? 1 : 0));
 $mode = ['Hourly','Daily','Weekly','Monthly'];
