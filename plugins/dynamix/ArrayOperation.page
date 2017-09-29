@@ -36,6 +36,9 @@ function status_indicator() {
   return "<a class='info nohand' onclick='return false'><img src='$ball' class='icon'><span>$help</span></a>";
 }
 ?>
+<style>
+td.gap{padding-left:26px!important}
+</style>
 <script>
 var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
 var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
@@ -66,7 +69,7 @@ function parity_warning(form) {
 <?else:?>
   var text = '<i>Parity valid</i> requires <b>ALL</b> disks to have their original content';
 <?endif;?>
-  $('<input>').attr({type:'hidden',name:'cmdStart',value:'submit'}).appendTo($(form));
+  $(form).append('<input type="hidden" name="cmdStart" value="Start">');
   if (form.md_invalidslot.checked) {
     swal({title:'Proceed to start',text:text,html:true,type:'warning',confirmButtonText:'Proceed',showCancelButton:true},function(){form.submit();});
   } else {
@@ -96,6 +99,47 @@ function shut_down(form,cmd) {
   } else {
     form.submit();
   }
+}
+function prepareInput(form) {
+  $(form).append('<input type="hidden" name="cmdStart" value="Start">');
+  if (form.input===undefined) {
+    form.submit();
+  } else {
+    var data = {};
+    data['#file'] = 'unused';
+    data['#include'] = 'webGui/include/KeyUpload.php';
+    data['text'] = form.text.value;
+    data['file'] = form.file.value;
+    form.input.disabled = true;
+    form.local.disabled = true;
+    form.file.disabled = true;
+    form.text.disabled = true;
+    $.post('/update.php',data,function(){form.submit();});
+  }
+}
+function selectInput(form) {
+  if (form.input.value == 'text') {
+    form.file.value = '';
+    form.local.value = '';
+    $('#text').show();
+    $('#file').hide();
+  } else {
+    form.text.value = '';
+    $('#text').hide();
+    $('#file').show();
+  }
+}
+function toggleStart(data) {
+  $('#cmdStart').prop('disabled',data=='');
+}
+function showPass(checked) {
+  $('input[name="text"]').attr('type',checked ? 'text':'password');
+}
+function getFileContent(event,form) {
+  var input = event.target;
+  var reader = new FileReader();
+  reader.onload = function(){form.file.value=reader.result;toggleStart('ok');};
+  reader.readAsDataURL(input.files[0]);
 }
 parity_status();
 
@@ -130,6 +174,7 @@ toggle_diskio(true);
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
+<input type="hidden" name="file" value="">
 <table class="array_status">
 <?$parity = $var['mdResync']>0 ? '<small>Disabled -- Parity operation is running</small>' : '';
   $mover = file_exists('/var/run/mover.pid') ? '<small>Disabled -- Mover is running</small>' : '';
@@ -146,9 +191,9 @@ toggle_diskio(true);
 <?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
       echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
 ?>    </td>
-      <td><input type="submit" id="cmdFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+      <td><input type="submit" id="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <input type="checkbox" name="confirmFormat" value="OFF" onClick="$('#cmdFormat').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small></td>
+      <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small></td>
       </tr>
 <?  endif;
     if (!$parity):
@@ -341,39 +386,46 @@ toggle_diskio(true);
 <?  else:
     switch ($var['mdState']):
     case "STOPPED":
+      $encrypt = ($var['fsEncryption']=='wrong' || $var['fsEncryption']=='missing') ? 'disabled':'';
       if (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
-        <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td>
         </tr>
 <?    elseif ($var['mdResyncAction']=="clear"):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. New data disk(s) detected.</td>
-        <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td>
         </tr>
 <?    elseif ($var['sbClean']!="yes" && $var['mdResyncAction']=="check"):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
-        <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
         </tr>
 <?    elseif ($var['sbClean']!="yes" && strstr($var['mdResyncAction'],"check")):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
-        <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
         <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
         </tr>
 <?    else:?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
-        <td><input type="submit" name="cmdStart" value="Start"></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
         </tr>
 <?    endif;
       maintenance_mode();
+      if ($encrypt):
+?>    <tr><td></td><td class="gap">Encryption key:</td><td><?=$var['fsEncryption']=='wrong'?$var['luksKeyfile']:'Not present'?></td></tr>
+      <tr><td></td><td class="gap">Encryption input:</td><td><select name="input" size="1" onchange="selectInput(this.form)"><?=mk_option(1,"text","Passphrase")?><?=mk_option(1,"file","Keyfile")?></select></td></tr>
+      <tr id="text"><td></td><td class="gap">Passphrase:</td><td><input type="password" name="text" maxlength="512" value="" onkeyup="toggleStart(this.value)"><input type="checkbox" onchange="showPass(this.checked)">show passphrase</td></tr>
+      <tr id="file" style="display:none"><td></td><td class="gap">Keyfile:</td><td><input type="file" name="local" onchange="getFileContent(event,this.form)"></td></tr>
+<?    endif;
       break;
     case "NEW_ARRAY":
       if (strpos($disks['parity']['status'],"DISK_NP")===0 && (empty($disks['parity2']) || strpos($disks['parity2']['status'],"DISK_NP")===0)):?>
@@ -410,7 +462,7 @@ toggle_diskio(true);
 <?      foreach ($disks as $disk) if ($disk['status']=='DISK_NEW') echo "<br><span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")";?></td>
         <td><input type="submit" name="cmdStart" value="Start" disabled></td>
         <td><strong>Start</strong> will record the new disk<?=$var['mdNumNew']==1?'':'s'?> information and bring the expanded array on-line.
-        <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+        <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
         </tr>
 <?      maintenance_mode();
       else:?>
@@ -422,7 +474,7 @@ toggle_diskio(true);
         <br>Once clear completes, the array may be Started, expanding the array to include the new disk<?=$var['mdNumNew']==1?'':'s'?>.
         <br><strong>Caution: any data on the new disk<?=$var['mdNumNew']==1?'':'s'?> will be erased!</strong>
         <br>If you want to preserve the data on the new disk<?=$var['mdNumNew']==1?'':'s'?>, reset the array configuration and rebuild parity instead.
-        <br><input type="checkbox" name="confirmClear" value="OFF" onClick="arrayOps.cmdClear.disabled=!arrayOps.confirmClear.checked"><small>Yes I want to do this</small></td>
+        <br><input type="checkbox" name="confirmClear" value="OFF" onclick="arrayOps.cmdClear.disabled=!arrayOps.confirmClear.checked"><small>Yes I want to do this</small></td>
         </tr>
 <?    endif;
       break;
@@ -432,7 +484,7 @@ toggle_diskio(true);
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will disable the missing disk and then bring the array on-line.
       <br>Install a replacement disk as soon as possible.
-      <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+      <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
       </tr>
 <?    maintenance_mode();
       break;
@@ -441,26 +493,26 @@ toggle_diskio(true);
       <td><?=status_indicator()?><span class="strong big">Stopped</span>. Replacement disk installed.</td>
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.
-      <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+      <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
       </tr>
 <?    maintenance_mode();
       break;
     case "SWAP_DSBL":
       if ($var['fsCopyPrcnt']=="100"):?>
         <tr>
-        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Ugrading disk/swapping parity.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td>
         <td><input type="submit" name="cmdStart" value="Start" disabled></td>
         <td><strong>Start</strong> will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild.
-        <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+        <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
         </tr>
 <?      maintenance_mode();
       else:?>
         <tr>
-        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Ugrading disk/swapping parity.</td>
+        <td><?=status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td>
         <td><input type="submit" name="cmdCopy" value="Copy" disabled></td>
         <td><strong>Copy</strong> will copy the parity information to the new <em>parity</em> disk.
         <br>Once copy completes, the array may be Started, to initiate Data-Rebuild of the disabled disk.
-        <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdCopy.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+        <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdCopy.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
         </tr>
 <?    endif;
       break;
@@ -471,7 +523,7 @@ toggle_diskio(true);
       <td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td><strong>Start</strong> will just record the new disk positions and bring the array on-line.
       <br>We recommend you start a Parity-Check afterwards just to be safe.
-      <br><input type="checkbox" name="confirmStart" value="OFF" onClick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
+      <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdStart.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td>
       </tr>
 <?    maintenance_mode();
       break;

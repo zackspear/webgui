@@ -523,6 +523,8 @@ $(function() {
       status="<span class='red strong'>Array Stopped</span>";
     } else if (state=="Started") {
       status="<span class='green strong'>Array Started</span>";
+    } else if (state=="Formatting") {
+      status="<span class='green strong'>Array Started</span>&bullet;<span class='orange strong'>Formatting device(s)</span>";
     } else {
       status="<span class='orange strong'>Array "+state+"</span>";
     }
