@@ -120,7 +120,7 @@ Encryption input:
 
 <div id="text" markdown="1">
 Passphrase:
-: <input type="password" name="text" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)"><?if (!$online):?><input id="eye" type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
+: <input type="password" name="text" maxlength="512" value=""<?=$online?> onkeyup="toggleApply(this.form)"><?if (!$online):?><input type="checkbox" onchange="showPass(this.checked)">show passphrase<?endif;?>
 
 > Enter a passphrase of up to 512 characters. It is highly advisable to only use the 95 printable characters from the
 > first 128 characters of the [ASCII table](https://en.wikipedia.org/wiki/ASCII), as they will always have the same binary
@@ -134,7 +134,7 @@ Passphrase:
 
 <div id="retype" markdown="1" style="display:none">
 Retype passphrase:
-: <input type="password" name="copy" maxlength="512" value=""<?=$online?> onKeyUp="toggleApply(this.form)">
+: <input type="password" name="copy" maxlength="512" value=""<?=$online?> onkeyup="toggleApply(this.form)">
 
 </div>
 </div>
