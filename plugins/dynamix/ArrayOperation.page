@@ -16,6 +16,7 @@ Tag="snowflake-o"
 ?>
 <?
 $hide = '/var/tmp/hide_format_button.tmp';
+$stop = ($var['fsEncryption']=='wrong' || ($var['fsEncryption']=='missing' && $var['luksRestricted']=='yes')) ? 'disabled':'';
 
 function maintenance_mode() {
   echo "<tr>";
@@ -130,7 +131,9 @@ function selectInput(form) {
   }
 }
 function toggleStart(data) {
+<?if ($stop):?>
   $('#cmdStart').prop('disabled',data=='');
+<?endif;?>
 }
 function showPass(checked) {
   $('input[name="text"]').attr('type',checked ? 'text':'password');
@@ -386,42 +389,41 @@ toggle_diskio(true);
 <?  else:
     switch ($var['mdState']):
     case "STOPPED":
-      $encrypt = ($var['fsEncryption']=='wrong' || $var['fsEncryption']=='missing') ? 'disabled':'';
       if (strstr($var['mdResyncAction'],"recon")):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
-        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$stop?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td>
         </tr>
 <?    elseif ($var['mdResyncAction']=="clear"):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. New data disk(s) detected.</td>
-        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$stop?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td>
         </tr>
 <?    elseif ($var['sbClean']!="yes" && $var['mdResyncAction']=="check"):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
-        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$stop?>></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
         </tr>
 <?    elseif ($var['sbClean']!="yes" && strstr($var['mdResyncAction'],"check")):?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td>
-        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$stop?>></td>
         <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
         <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td>
         </tr>
 <?    else:?>
         <tr>
         <td><?=status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td>
-        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$encrypt?>></td>
+        <td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"<?=$stop?>></td>
         <td><strong>Start</strong> will bring the array on-line.</td>
         </tr>
 <?    endif;
       maintenance_mode();
-      if ($encrypt):
-?>    <tr><td></td><td class="gap">Encryption key:</td><td><?=$var['fsEncryption']=='wrong'?$var['luksKeyfile']:'Not present'?></td></tr>
+      if ($var['fsEncryption']=='wrong' || $var['fsEncryption']=='missing'):
+?>    <tr><td></td><td class="gap">Encryption status:</td><td><span class="red-text"><?=$var['fsEncryption']=='wrong'?'Wrong key':'Missing key'?></span></td></tr>
       <tr><td></td><td class="gap">Encryption input:</td><td><select name="input" size="1" onchange="selectInput(this.form)"><?=mk_option(1,"text","Passphrase")?><?=mk_option(1,"file","Keyfile")?></select></td></tr>
       <tr id="text"><td></td><td class="gap">Passphrase:</td><td><input type="password" name="text" maxlength="512" value="" onkeyup="toggleStart(this.value)"><input type="checkbox" onchange="showPass(this.checked)">show passphrase</td></tr>
       <tr id="file" style="display:none"><td></td><td class="gap">Keyfile:</td><td><input type="file" name="local" onchange="getFileContent(event,this.form)"></td></tr>
