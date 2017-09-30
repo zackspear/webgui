@@ -183,21 +183,16 @@ toggle_diskio(true);
   $mover = file_exists('/var/run/mover.pid') ? '<small>Disabled -- Mover is running</small>' : '';
   switch ($var['fsState']):
   case "Started":?>
-    <tr>
-    <td><?=status_indicator()?><span class="strong big">Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></span></td>
+    <tr><td><?=status_indicator()?><span class="strong big">Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></span></td>
     <td><input type="button" value="Stop" onclick="stop_array(this.form)"<?if ($parity||$mover):?> disabled<?endif;?>></td>
-    <td><strong>Stop</strong> will take the array off-line.<?=$parity?"<br>$parity":($mover?"<br>$mover":"")?></td>
-    </tr>
+    <td><strong>Stop</strong> will take the array off-line.<?=$parity?"<br>$parity":($mover?"<br>$mover":"")?></td></tr>
 <?  if ($var['fsNumUnmountable']>0 && !file_exists($hide)):?>
-      <tr>
-      <td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
+      <tr><td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
 <?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
       echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
-?>    </td>
-      <td><input type="submit" id="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+?>    </td><td><input type="submit" id="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small></td>
-      </tr>
+      <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small></td></tr>
 <?  endif;
     if (!$parity):
       if (strstr($var['mdResyncAction'],"recon")):?>
