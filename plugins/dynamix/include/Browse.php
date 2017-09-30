@@ -22,6 +22,9 @@ function parent_link() {
 function trim_slash($url){
   return preg_replace('/\/\/+/','/',$url);
 }
+function my_name($name) {
+  return implode(', ',array_map('my_disk',explode(',',$name)));
+}
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
 $dir = urldecode($_GET['dir']);
@@ -34,7 +37,7 @@ $fix = substr($dir,0,4)=='/mnt' ? explode('/',trim_slash($dir))[2] : 'flash';
 exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
   exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null",$set);
-  $set = explode("\n",preg_replace("/(disk|cache)/","\n$1",$set[0])); $i = 0;
+  $set = explode("\n",str_replace(",\n",",",preg_replace("/(cache|disk)/","\n$1",$set[0]))); $i = 0;
 }
 
 echo "<thead><tr><th>Type</th><th>Name</th><th>Size</th><th>Last Modified</th><th>Location</th></tr></thead>";
@@ -63,7 +66,7 @@ foreach ($file as $row) {
     'fext' => strtolower($info['extension']),
     'size' => $attr[2],
     'time' => $attr[3],
-    'disk' => my_disk($disk).$luks
+    'disk' => my_name($disk).$luks
   ];
 }
 $sort = [];
