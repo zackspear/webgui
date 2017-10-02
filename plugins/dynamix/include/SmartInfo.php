@@ -69,23 +69,31 @@ case "attributes":
   $unraid = parse_plugin_cfg('dynamix',true);
   $max = $unraid['display']['max'];
   $hot = $unraid['display']['hot'];
-  exec("smartctl -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>7'",$output);
-  $empty = true;
-  foreach ($output as $line) {
-    if (!$line) continue;
-    $info = explode(' ', trim(preg_replace('/\s+/',' ',$line)), 10);
-    $color = "";
-    $highlight = strpos($info[8],'FAILING_NOW')!==false || ($select ? $info[5]>0 && $info[3]<=$info[5]*$level : $info[9]>0);
-    if (in_array($info[0], $events) && $highlight) $color = " class='warn'";
-    elseif (in_array($info[0], $temps)) {
-      if ($info[9]>=$max) $color = " class='alert'"; elseif ($info[9]>=$hot) $color = " class='warn'";
+  exec("smartctl -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
+  if (strpos($output[0], 'SMART Attributes Data Structure') === 0) {
+    $output = array_slice($output, 3);
+    $empty = true;
+    foreach ($output as $line) {
+      if (!$line) continue;
+      $info = explode(' ', trim(preg_replace('/\s+/',' ',$line)), 10);
+      $color = "";
+      $highlight = strpos($info[8],'FAILING_NOW')!==false || ($select ? $info[5]>0 && $info[3]<=$info[5]*$level : $info[9]>0);
+      if (in_array($info[0], $events) && $highlight) $color = " class='warn'";
+      elseif (in_array($info[0], $temps)) {
+        if ($info[9]>=$max) $color = " class='alert'"; elseif ($info[9]>=$hot) $color = " class='warn'";
+      }
+      if ($info[8]=='-') $info[8] = 'Never';
+      if ($info[0]==9 && is_numeric($info[9])) duration($info[9]);
+      echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
+      $empty = false;
     }
-    if ($info[8]=='-') $info[8] = 'Never';
-    if ($info[0]==9 && is_numeric($info[9])) duration($info[9]);
-    echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
-    $empty = false;
+    if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>Can not read attributes</td></tr>";
+  } else {
+    // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
+    foreach ($output as $line) {
+      echo "<tr><td colspan='10'>".str_replace(' ', '&nbsp;', htmlspecialchars($line))."</td></tr>";
+    }
   }
-  if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>Can not read attributes</td></tr>";
   break;
 case "capabilities":
   exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
