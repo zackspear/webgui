@@ -68,6 +68,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   $author = plugin('author',$plugin_file) ?: "anonymous";
 //version
   $version = plugin('version',$plugin_file) ?: "unknown";
+  $date = str_replace('.','',$version);
 //category
   $cat = strpos($version,'rc')!==false ? 'next' : 'stable';
 //status
@@ -82,7 +83,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
       } else {
         $latest = plugin('version',$filename);
         if (strcmp($latest,$version) > 0) {
-          $version .= "<br><span class='red-text'>{$latest}</span>";
+          $version .= "<br><span class='red-text'>$latest</span>";
           $status = make_link("update",basename($plugin_file));
           $changes_file = $filename;
         } else {
@@ -109,7 +110,7 @@ foreach (glob("/var/log/plugins/*.plg",GLOB_NOSORT) as $plugin_link) {
   echo "<td style='vertical-align:top;width:64px'><p style='text-align:center'>$link</p></td>";
   echo "<td><span class='desc_readmore' style='display:block'>$desc</span></td>";
   echo "<td>$author</td>";
-  echo "<td>$version</td>";
+  echo "<td data='$date'>$version</td>";
   echo "<td data='$rank'>$status</td>";
   echo "<td>";
   if ($system) {
