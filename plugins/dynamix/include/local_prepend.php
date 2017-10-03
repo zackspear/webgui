@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($var)) $var = parse_ini_file('state/var.ini');
     if (!isset($var['csrf_token'])) csrf_terminate("uninitialized");
     if (!isset($_POST['csrf_token'])) csrf_terminate("missing");
-    if ($var['csrf_token'] != $_POST['csrf_token']) csrf_terminate("wrong {$_POST['csrf_token']}:{$var['csrf_token']}");
+    if ($var['csrf_token'] != $_POST['csrf_token']) csrf_terminate("wrong");
     unset($_POST['csrf_token']);
 }
 ?>
