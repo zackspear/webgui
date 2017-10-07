@@ -41,8 +41,6 @@ function status_indicator() {
 td.gap{padding-left:26px!important}
 </style>
 <script>
-var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
-var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
 var ctrl = "<span class='status'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
 function tab0() {
@@ -79,27 +77,27 @@ function parity_warning(form) {
 }
 function stop_array(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
-  if (ask1) {
-    swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();}); else $('input[name="cmdStop"]').remove();});
-  } else {
-    $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();});
-  }
+<?if ($confirm['stop']):?>
+  swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();}); else $('input[name="cmdStop"]').remove();});
+<?else:?>
+  $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();});
+<?endif;?>
 }
 function stop_parity(form,text) {
   $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
-  if (ask1) {
-    swal({title:'Proceed?',text:'This will stop the running '+text+' operation',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
-  } else {
-    form.submit();
-  }
+<?if ($confirm['stop']):?>
+  swal({title:'Proceed?',text:'This will stop the running '+text+' operation',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+<?else:?>
+  form.submit();
+<?endif;?>
 }
 function shut_down(form,cmd) {
   $(form).append('<input type="hidden" name="cmd" value="'+cmd+'">');
-  if (ask2) {
-    swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
-  } else {
-    form.submit();
-  }
+<?if ($confirm['down']):?>
+  swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
+<?else:?>
+  form.submit();
+<?endif;?>
 }
 function prepareInput(form) {
   $(form).append('<input type="hidden" name="cmdStart" value="Start">');
