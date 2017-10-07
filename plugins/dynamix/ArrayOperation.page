@@ -261,7 +261,7 @@ toggle_diskio(true);
     <tr><td><?=status_indicator()?><span class="strong big">Starting...</span></td><td><input type="submit" name="cmdStart" value="Start" disabled></td><td></td></tr>
 <?  break;
   case "Formatting":?>
-    <tr><td><?=status_indicator()?><span class="strong big">Started, formatting...</span></td><td><input type="submit" name="cmdStart" value="Start" disabled></td><td></td></tr>
+    <tr><td><?=status_indicator()?><span class="strong big">Started, formatting...</span></td><td><input type="submit" name="cmdStop" value="Stop" disabled></td><td></td></tr>
 <?  break;
   case "Copying":?>
     <tr><td><?=status_indicator()?><span id="fsState" class="strong big">Copying, <?=$var['fsCopyPrcnt']?>% complete...</span></td><td><input type="submit" name="cmdNoCopy" value="Cancel"></td><td></td></tr>
