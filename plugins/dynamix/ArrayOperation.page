@@ -195,7 +195,7 @@ toggle_diskio(true);
 <?    if ($var['mdResync']==0):
 ?>    <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small>
 <?    else:
-?>    <small>Disabled -- Parity operation is running!</small>
+?>    <small>Disabled -- Parity operation is running</small>
 <?    endif;
 ?>    </td></tr>
 <?  endif;
