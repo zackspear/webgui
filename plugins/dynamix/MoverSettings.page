@@ -15,15 +15,16 @@ Tag="calendar-check-o"
  */
 ?>
 <?
+$disabled = '';
 if (empty($disks['cache']) || $disks['cache']['status']=='DISK_NP') {
-  echo "<span class='big orange-text'>No Cache disk present!</span>";
-  return;
+  echo "<p class='notice'>No Cache disk present!</p>";
+  $disabled = 'disabled';
 } elseif ($var['shareCacheEnabled']!='yes') {
-  echo "<span class='big orange-text'>Cache disk not enabled!</span>";
-  return;
+  echo "<p class='notice'>Cache disk not enabled!</p>";
+  $disabled = 'disabled';
 } elseif ($var['shareUser']=='-') {
-  echo "<span class='big orange-text'>User shares not enabled!</span>";
-  return;
+  echo "<p class='notice'>User shares not enabled!</p>";
+  $disabled = 'disabled';
 }
 $cron = explode(' ',$var['shareMoverSchedule']);
 $move = $cron[2]!='*' ? 3 : ($cron[4]!='*' ? 2 : (substr($cron[1],0,1)!='*' ? 1 : 0));
@@ -127,6 +128,6 @@ Mover logging:
 <?if (file_exists("/var/run/mover.pid")):?>
 : <input type="submit" name="cmdStartMover" value="Move now" disabled> Mover is running.
 <?else:?>
-: <input type="submit" name="cmdStartMover" value="Move now"> Click to invoke the Mover.
+: <input type="submit" name="cmdStartMover" value="Move now"<?=$disabled?>> Click to invoke the Mover.
 <?endif;?>
 </form>
