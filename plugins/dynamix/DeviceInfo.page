@@ -64,14 +64,15 @@ function prepareDeviceInfo(form) {
   if (form.smLevel.value == 1.00) form.smLevel.value = '';
 }
 function setGlue(form) {
-  var data = [{glue:'' ,more:0},
-              {glue:'' ,more:0},
-              {glue:'' ,more:0},
-              {glue:',',more:1,min1:0,max1:127},
-              {glue:'/',more:2,min1:1,max1:128,min2:1,max2:8},
-              {glue:'/',more:3,min1:1,max1:4,min2:1,max2:128,min3:1,max3:4},
-              {glue:'' ,more:0},
-              {glue:',',more:1,min1:0,max1:127}
+  var data = [{glue:'' ,more:0}, // auto
+              {glue:'' ,more:0}, // ata
+              {glue:'' ,more:0}, // sata
+              {glue:'' ,more:0}, // scsi
+              {glue:',',more:1,min1:0,max1:127}, // 3ware
+              {glue:'/',more:2,min1:1,max1:128,min2:1,max2:8}, // areca
+              {glue:'/',more:3,min1:1,max1:4,min2:1,max2:128,min3:1,max3:4}, // highpoint
+              {glue:'' ,more:0}, // marvell
+              {glue:',',more:1,min1:0,max1:127} // megaraid
              ];
   var n = form.smType.selectedIndex > 0 ? form.smType.selectedIndex-1 : <?=isset($var['smIndex'])?$var['smIndex']:0?>;
   var x = data[n]['more'];
