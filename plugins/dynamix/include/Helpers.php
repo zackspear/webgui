@@ -15,20 +15,23 @@ $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 
 // Helper functions
-function my_scale($value, &$unit, $decimals = NULL) {
+function my_scale($value, &$unit, $decimals=NULL, $scale=NULL) {
   global $display;
-  $scale = $display['scale'];
+  $scale = $scale ?? $display['scale'];
   $number = $display['number'];
-  $units = ['B','KB','MB','GB','TB','PB'];
-  if ($scale==0 && $decimals===NULL) {
+  $units = ['B','KB','MB','GB','TB','PB','EB','ZB','YB'];
+  $size = count($units);
+  if ($scale==0 && ($decimals===NULL || $decimals<0)) {
     $decimals = 0;
     $unit = '';
   } else {
     $base = $value ? floor(log($value, 1000)) : 0;
     if ($scale>0 && $base>$scale) $base = $scale;
+    if ($base>$size) $base = $size-1;
     $value /= pow(1000, $base);
-    if ($decimals===NULL) $decimals = $value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100==0 ? 0 : 2));
-    if ($scale<0 && round($value,$decimals)==1000) { $value = 1; $base++; }
+    if ($decimals===NULL) $decimals = $value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100===0 ? 0 : 2));
+    elseif ($decimals<0) $decimals = ($value>10 || round($value*10)%10===0) ? 0 : abs($decimals);
+    if ($scale<0 && round($value,-1)==1000) {$value = 1; $base++;}
     $unit = $units[$base];
   }
   return number_format($value, $decimals, $number[0], $value>=10000 ? $number[1] : '');
@@ -38,7 +41,7 @@ function my_number($value) {
   $number = $display['number'];
   return number_format($value, 0, $number[0], ($value>=10000 ? $number[1] : ''));
 }
-function my_time($time, $fmt = NULL) {
+function my_time($time, $fmt=NULL) {
   global $display;
   if (!$fmt) $fmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
   return $time ? strftime($fmt, $time) : "unknown";
@@ -82,7 +85,7 @@ function my_usage() {
     echo "<div class='usage-bar'><span style='text-align:center'>".($var['fsState']=='Started'?'Maintenance':'off-line')."</span></div>";
   }
 }
-function usage_color(&$disk,$limit,$free) {
+function usage_color(&$disk, $limit, $free) {
   global $display;
   if ($display['text']==1 || intval($display['text']/10)==1) return '';
   $critical = !empty($disk['critical']) ? $disk['critical'] : $display['critical'];
@@ -97,7 +100,7 @@ function usage_color(&$disk,$limit,$free) {
     return 'greenbar';
   }
 }
-function my_check($time,$speed) {
+function my_check($time, $speed) {
   if (!$time) return 'unavailable (no parity-check entries logged)';
   $days = floor($time/86400);
   $hmss = $time-$days*86400;
@@ -114,10 +117,10 @@ function my_error($code) {
     return "<strong>$code</strong>";
   }
 }
-function mk_option($select, $value, $text, $extra = "") {
+function mk_option($select, $value, $text, $extra="") {
   return "<option value='$value'".($value==$select ? " selected" : "").(strlen($extra) ? " $extra" : "").">$text</option>";
 }
-function mk_option_check($name, $value, $text = "") {
+function mk_option_check($name, $value, $text="") {
   if ($text) {
     $checked = in_array($value,explode(',',$name)) ? " selected" : "";
     return "<option value='$value'$checked>$text</option>";
@@ -160,7 +163,7 @@ function day_count($time) {
 function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '.$word.($val!=1?'s':'').($last ?'':', ')) : '') : '';
 }
-function read_parity_log($epoch,$busy=false) {
+function read_parity_log($epoch, $busy=false) {
   $log = '/boot/config/parity-checks.log';
   if (file_exists($log)) {
     $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
@@ -176,7 +179,7 @@ function read_parity_log($epoch,$busy=false) {
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
-function pgrep($process_name,$escape_arg=true) {
+function pgrep($process_name, $escape_arg=true) {
   $pid = exec("pgrep ".($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
 }
@@ -229,7 +232,7 @@ function input_private_users($sec) {
   echo "</table>";
 }
 function is_block($path) {
-  return (@filetype(realpath($path)) == 'block');
+  return (@filetype(realpath($path))=='block');
 }
 function autov($file) {
   global $docroot;
