@@ -50,7 +50,7 @@ if (isset($_POST['#apply'])) {
     $month = isset($_POST['month']) ? $_POST['month'] : '*';
     $day = isset($_POST['day']) ? $_POST['day'] : '*';
     $write = isset($_POST['write']) ? $_POST['write'] : '';
-    $cron = "# Generated parity check schedule:\n$time $dotm $month $day $term/usr/local/sbin/mdcmd check $write &> /dev/null\n\n";
+    $cron = "# Generated parity check schedule:\n$time $dotm $month $day $term/usr/local/sbin/mdcmd check $write &> /dev/null || :\n\n";
   }
   parse_cron_cfg("dynamix", "parity-check", $cron);
   @unlink($memory);
