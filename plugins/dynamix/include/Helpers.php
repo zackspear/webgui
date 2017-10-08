@@ -30,7 +30,7 @@ function my_scale($value, &$unit, $decimals=NULL, $scale=NULL) {
     if ($base>$size) $base = $size-1;
     $value /= pow(1000, $base);
     if ($decimals===NULL) $decimals = $value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100===0 ? 0 : 2));
-    elseif ($decimals<0) $decimals = ($value>=10 || round($value*10)%10===0) ? 0 : abs($decimals);
+    elseif ($decimals<0) $decimals = round($value*10)%10===0 ? 0 : abs($decimals);
     if ($scale<0 && round($value,-1)==1000) {$value = 1; $base++;}
     $unit = $units[$base];
   }
