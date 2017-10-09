@@ -70,7 +70,7 @@ case "attributes":
   $max = $unraid['display']['max'];
   $hot = $unraid['display']['hot'];
   exec("smartctl -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
-  if (strpos($output[0], 'SMART Attributes Data Structure') === 0) {
+  if (strpos($output[0], 'SMART Attributes Data Structure')===0) {
     $output = array_slice($output, 3);
     $empty = true;
     foreach ($output as $line) {
@@ -91,7 +91,9 @@ case "attributes":
   } else {
     // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
     foreach ($output as $line) {
-      echo "<tr><td colspan='10'>".str_replace(' ', '&nbsp;', htmlspecialchars($line))."</td></tr>";
+      if (strpos($line,':')===false) continue;
+      list($name,$value) = explode(':', $line);
+      echo "<tr><td>-</td><td>".ucfirst(strtolower($name))."</td><td colspan='8'>$value</td></tr>";
     }
   }
   break;
