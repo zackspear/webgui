@@ -252,7 +252,7 @@ Enable VLANs:
 <?else:?>
 <div class="access-ethX shade-<?=$display['theme']?>" style="display:none" markdown="1">
 VLAN number:
-: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=$ethX["VLANID:$i"]?>" class="narrow" required>
+: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=$ethX["VLANID:$i"]?>" class="narrow gap" required>
   <span class="pin" onclick="removeVLAN($('#index-ethX-<?=$i?>'),<?=$service?'true':'false'?>)"><i class="fa fa-minus-circle red"></i><em>remove VLAN</em></span>
 
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
@@ -344,7 +344,7 @@ IPv6 privacy extensions:
 <script type="text/html" id="network-template-ethX" markdown="1">
 <div id="index-ethX-INDEX" class="access-ethX shade-<?=$display['theme']?>" markdown="1">
 VLAN number:
-: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=$ethX["VLANID:INDEX"]?>" class="narrow" required>
+: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=$ethX["VLANID:INDEX"]?>" class="narrow gap" required>
   <span class="pin" onclick="removeVLAN($('#index-ethX-INDEX'),false)"><i class="fa fa-minus-circle red"></i><em>remove VLAN</em></span>
 
 > Give each VLAN a unique identifier. Numbers range from 1 to 4095.
