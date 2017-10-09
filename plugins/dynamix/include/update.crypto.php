@@ -17,11 +17,17 @@ if ($index < count($tests)) {
   $test = $tests[$index];
   list($name,$size) = explode(':',$test);
   if (!$size) {
+    $default = $test==$_GET['hash'];
     if ($index>0) $test .= '|tail -1';
-    echo shell_exec("/usr/sbin/cryptsetup benchmark -h $test");
+    if ($default) echo "<b>";
+    echo preg_replace(['/^(# Tests.*\n)/','/\n$/'],["$1\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -h $test"));
+    echo $default ? " (default)</b>\n" : "\n";
   } else {
+    $default = $test==$_GET['luks'];
     if ($index>5) $size .= '|tail -1';
-    echo preg_replace('/^# Tests.*\n/',"\n",shell_exec("/usr/sbin/cryptsetup benchmark -c $name -s $size"));
+    if ($default) echo "<b>";
+    echo preg_replace(['/^# Tests.*\n/','/\n$/'],["\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -c $name -s $size"));
+    echo $default ? " (default)</b>\n" : "\n";
   }
 } else {
   $bm = popen('/usr/sbin/cryptsetup --help','r');
@@ -32,6 +38,6 @@ if ($index < count($tests)) {
     elseif (strpos($text,'LUKS1:')!==false) echo str_replace("\t"," ",$text);
   }
   pclose($bm);
-  echo "<div style='text-align:center'><input type='button' value='Done' onclick='top.Shadowbox.close()'></div>";
+  echo "<div style='text-align:center;margin-top:12px'><input type='button' value='Done' onclick='top.Shadowbox.close()'></div>";
 }
 ?>
