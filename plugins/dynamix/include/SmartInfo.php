@@ -93,7 +93,7 @@ case "attributes":
     foreach ($output as $line) {
       if (strpos($line,':')===false) continue;
       list($name,$value) = explode(':', $line);
-      echo "<tr><td>-</td><td>".ucfirst(strtolower($name))."</td><td colspan='8'>$value</td></tr>";
+      echo "<tr><td>-</td><td>".ucfirst(strtolower($name))."</td><td colspan='8'>".trim($value)."</td></tr>";
     }
   }
   break;
