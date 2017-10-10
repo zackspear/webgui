@@ -10,6 +10,12 @@
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+list($luks,$size,$hash,$rng) = explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"));
+$luks = str_replace('-plain64','',trim(explode(':',$luks)[1]));
+$size = str_replace(' bits','',trim(explode(':',$size)[1]));
+$hash = trim(explode(':',$hash)[1]);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +32,7 @@ var test = 'sha1,sha256,sha512,ripemd160,whirlpool,aes-cbc:128,serpent-cbc:128,t
 
 function benchmark(index,last){
   if (index > last) return;
-  $.get('/webGui/include/update.crypto.php',{index:index,test:test},function(data){
+  $.get('/webGui/include/update.crypto.php',{index:index,test:test,luks:'<?=$luks?>:<?=$size?>',hash:'<?=$hash?>'},function(data){
     $('pre').append(data);
     benchmark(index+1,last);
   });

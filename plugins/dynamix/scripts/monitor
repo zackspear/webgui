@@ -42,7 +42,7 @@ function my_temp($value) {
 function my_disk($name) {
   return ucfirst(preg_replace('/^(disk|cache)([0-9]+)/','$1 $2',$name));
 }
-function my_scale($value,&$unit,$precision = NULL) {
+function my_scale($value,&$unit,$precision=NULL) {
   global $unraid;
   $scale = $unraid['display']['scale'];
   $number = $unraid['display']['number'];
@@ -88,8 +88,8 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
 function check_temp($name,$temp,$text,$info) {
   global $notify,$disks,$saved,$unraid,$server;
   $disk = &$disks[$name];
-  $hot  = strlen($disk['hotTemp']) ? $disk['hotTemp'] : $unraid['display']['hot'];
-  $max  = strlen($disk['maxTemp']) ? $disk['maxTemp'] : $unraid['display']['max'];
+  $hot  = $disk['hotTemp'] ?? $unraid['display']['hot'];
+  $max  = $disk['maxTemp'] ?? $unraid['display']['max'];
   $warn = $temp>=$max && $max>0 ? 'alert' : ($temp>=$hot && $hot>0 ? 'warning' : '');
   $item = 'temp';
   $last = isset($saved[$item][$name]) ? $saved[$item][$name] : 0;
@@ -177,8 +177,8 @@ function check_usage($name,$used,$text,$info) {
   global $notify,$disks,$saved,$unraid,$server;
   if ($used == -1) return;
   $disk = &$disks[$name];
-  $warning  = strlen($disk['warning']) ? $disk['warning'] : $unraid['display']['warning'];
-  $critical = strlen($disk['critical']) ? $disk['critical'] : $unraid['display']['critical'];
+  $warning  = $disk['warning'] ?? $unraid['display']['warning'];
+  $critical = $disk['critical'] ?? $unraid['display']['critical'];
   $warn = $used>=$critical && $critical>0 ? 'alert' : ($used>=$warning && $warning>0 ? 'warning' : '');
   $item = 'used';
   $last = isset($saved[$item][$name]) ? $saved[$item][$name] : 0;
@@ -302,7 +302,7 @@ if ($var['mdResync']>0) {
     } elseif (strstr($var['mdResyncAction'],"check")) {
       $last = 'Parity check';
     }
-    $info = "Size: ".my_scale($var['mdResyncSize']*1024, $unit)." $unit";
+    $info = "Size: ".my_scale($var['mdResyncSize']*1024,$unit)." $unit";
     exec("$notify -e ".escapeshellarg("unRAID $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\"");
     $saved[$item][$name] = $last;
   }

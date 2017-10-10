@@ -535,7 +535,7 @@ $(function() {
       else if (ini['mdResyncAction'] == "check")          action="Read-Check";
       else if (ini['mdResyncAction'].indexOf("check")>=0) action="Parity-Check";
       action+=" "+(ini['mdResyncPos']/(ini['mdResync']/100+1)).toFixed(1)+" %";
-      status+="&bullet;<span class='orange strong'>"+action+"</span>";
+      status+="&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>')+"</span>";
     }
     if (progress)
       status+="&bullet;<span class='blue strong'>"+progress+"</span>";

@@ -74,7 +74,7 @@ function device_browse(&$disk) {
 }
 function device_desc(&$disk) {
   global $var;
-  $size = my_scale($disk['size'] ? $disk['size']*1024 : $disk['sectors']*$disk['sector_size'],$unit);
+  $size = my_scale($disk['size'] ? $disk['size']*1024 : $disk['sectors']*$disk['sector_size'],$unit,-1);
   $log = $var['fsState']=='Started' ? "<a href=\"#\" title=\"Disk Log Information\" onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"fa fa-hdd-o icon\"></i></a>" : "";
   return  $log.my_id($disk['id'])." - $size $unit ({$disk['device']})";
 }
@@ -103,7 +103,7 @@ function fs_info(&$disk) {
     return;
   } elseif ($disk['fsStatus']=='Mounted') {
     echo "<td>".str_replace('luks:','',$disk['fsType'])."</td>";
-    echo "<td>".my_scale($disk['fsSize']*1024,$unit)." $unit</td>";
+    echo "<td>".my_scale($disk['fsSize']*1024,$unit,-1)." $unit</td>";
     if ($display['text']%10==0) {
       echo "<td>".my_scale($disk['fsUsed']*1024,$unit)." $unit</td>";
     } else {
@@ -236,7 +236,7 @@ function show_totals($text) {
   echo "<td>".my_number($sum['numErrors'])."</td>";
   echo "<td></td>";
   if (strstr($text,'Array') && ($var['startMode']=='Normal')) {
-    echo "<td>".my_scale($sum['fsSize']*1024,$unit)." $unit</td>";
+    echo "<td>".my_scale($sum['fsSize']*1024,$unit,-1)." $unit</td>";
     if ($display['text']%10==0) {
       echo "<td>".my_scale($sum['fsUsed']*1024,$unit)." $unit</td>";
     } else {

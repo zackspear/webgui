@@ -15,7 +15,6 @@ Tag="snowflake-o"
  */
 ?>
 <?
-$hide = '/var/tmp/hide_format_button.tmp';
 $stop = ($var['fsEncryption']=='wrong' || ($var['fsEncryption']=='missing' && $var['luksRestricted']=='yes')) ? 'disabled':'';
 
 function maintenance_mode() {
@@ -41,8 +40,6 @@ function status_indicator() {
 td.gap{padding-left:26px!important}
 </style>
 <script>
-var ask1 = <?=$confirm['stop'] ? 'true' : 'false'?>;
-var ask2 = <?=$confirm['down'] ? 'true' : 'false'?>;
 var ctrl = "<span class='status'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
 function tab0() {
@@ -79,27 +76,27 @@ function parity_warning(form) {
 }
 function stop_array(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
-  if (ask1) {
-    swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();}); else $('input[name="cmdStop"]').remove();});
-  } else {
-    $.post('/webGui/include/HideFormatButton.php',{hide:'no'},function(){form.submit();});
-  }
+<?if ($confirm['stop']):?>
+  swal({title:'Proceed?',text:'This will stop the array',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+<?else:?>
+  form.submit();
+<?endif;?>
 }
 function stop_parity(form,text) {
   $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
-  if (ask1) {
-    swal({title:'Proceed?',text:'This will stop the running '+text+' operation',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
-  } else {
-    form.submit();
-  }
+<?if ($confirm['stop']):?>
+  swal({title:'Proceed?',text:'This will stop the running '+text+' operation',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+<?else:?>
+  form.submit();
+<?endif;?>
 }
 function shut_down(form,cmd) {
   $(form).append('<input type="hidden" name="cmd" value="'+cmd+'">');
-  if (ask2) {
-    swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
-  } else {
-    form.submit();
-  }
+<?if ($confirm['down']):?>
+  swal({title:'Proceed?',text:'This will '+cmd+' the system',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
+<?else:?>
+  form.submit();
+<?endif;?>
 }
 function prepareInput(form) {
   $(form).append('<input type="hidden" name="cmdStart" value="Start">');
@@ -186,13 +183,19 @@ toggle_diskio(true);
     <tr><td><?=status_indicator()?><span class="strong big">Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></span></td>
     <td><input type="button" value="Stop" onclick="stop_array(this.form)"<?if ($parity||$mover):?> disabled<?endif;?>></td>
     <td><strong>Stop</strong> will take the array off-line.<?=$parity?"<br>$parity":($mover?"<br>$mover":"")?></td></tr>
-<?  if ($var['fsNumUnmountable']>0 && !file_exists($hide)):?>
+<?  if ($var['fsNumUnmountable']>0):?>
       <tr><td><strong>Unmountable disk<?=$var['fsNumUnmountable']==1?'':'s'?> present:</strong><br>
 <?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
-      echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
-?>    </td><td><input type="submit" id="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+      echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";?>
+      </td><td><input type="submit" id="submit" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)"><small>Yes I want to do this</small></td></tr>
+<?    if ($var['mdResync']==0):?>
+      <input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#submit').prop('disabled',!arrayOps.confirmFormat.checked)">
+      <small>Yes I want to do this&nbsp;<i class="fa fa-asterisk red-text" style="cursor:help" title="All data is permanently lost.&#10;This is not used to recover data."></i></small>
+<?    else:?>
+      <small>Disabled -- Parity operation is running</small>
+<?    endif;?>
+      </td></tr>
 <?  endif;
     if (!$parity):
       if (strstr($var['mdResyncAction'],"recon")):?>
@@ -261,7 +264,7 @@ toggle_diskio(true);
     <tr><td><?=status_indicator()?><span class="strong big">Starting...</span></td><td><input type="submit" name="cmdStart" value="Start" disabled></td><td></td></tr>
 <?  break;
   case "Formatting":?>
-    <tr><td><?=status_indicator()?><span class="strong big">Started, formatting...</span></td><td><input type="submit" name="cmdStart" value="Start" disabled></td><td></td></tr>
+    <tr><td><?=status_indicator()?><span class="strong big">Started, formatting...</span></td><td><input type="submit" name="cmdStop" value="Stop" disabled></td><td></td></tr>
 <?  break;
   case "Copying":?>
     <tr><td><?=status_indicator()?><span id="fsState" class="strong big">Copying, <?=$var['fsCopyPrcnt']?>% complete...</span></td><td><input type="submit" name="cmdNoCopy" value="Cancel"></td><td></td></tr>
@@ -306,8 +309,8 @@ toggle_diskio(true);
         <td><strong>Start</strong> will bring the array on-line.</td></tr>
 <?    endif;
       maintenance_mode();
-      if ($var['fsEncryption']=='wrong' || $var['fsEncryption']=='missing'):
-?>    <tr><td></td><td class="gap">Encryption status:</td><td><span class="red-text"><?=$var['fsEncryption']=='wrong'?'Wrong key':'Missing key'?></span></td></tr>
+      if ($var['fsEncryption']=='wrong' || $var['fsEncryption']=='missing'):?>
+      <tr><td></td><td class="gap">Encryption status:</td><td><span class="red-text"><?=$var['fsEncryption']=='wrong'?'Wrong key':'Missing key'?></span></td></tr>
       <tr><td></td><td class="gap">Encryption input:</td><td><select name="input" size="1" onchange="selectInput(this.form)"><?=mk_option(1,"text","Passphrase")?><?=mk_option(1,"file","Keyfile")?></select></td></tr>
       <tr id="text"><td></td><td class="gap">Passphrase:</td><td><input type="password" name="text" maxlength="512" value="" onkeyup="toggleStart(this.value)"><input type="checkbox" onchange="showPass(this.checked)">show passphrase</td></tr>
       <tr id="file" style="display:none"><td></td><td class="gap">Keyfile:</td><td><input type="file" name="local" onchange="getFileContent(event,this.form)"></td></tr>
