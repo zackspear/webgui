@@ -14,7 +14,7 @@
 $docroot = $docroot ?: @$_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 if ( isset( $_GET['cmd'] )) {
-  $command = urldecode(($_GET['cmd']));
+  $command = rawurldecode(($_GET['cmd']));
   $descriptorspec = [
     0 => ["pipe", "r"],   // stdin is a pipe that the child will read from
     1 => ["pipe", "w"],   // stdout is a pipe that the child will write to
