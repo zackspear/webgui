@@ -203,7 +203,7 @@ div.icon-eml{background:url('../images/file-types.png') -96px -144px;width:16px;
 @keyframes tooltipster-scaling{50%{transform:scale(1.1)}100%{transform:scale(1)}}
 .tooltipster-update-scale{animation:tooltipster-scaling .6s}
 /*.tooltipster-sidetip .tooltipster-box{background:#565656;border:2px solid #000;border-radius:4px}*/
-.tooltipster-sidetip .tooltipster-box{border-radius:5px;border:none;border-bottom:3px solid #478406;background: -webkit-radial-gradient(#303030,#000000);background: linear-gradient(#303030,#000000)}
+.tooltipster-sidetip .tooltipster-box{border-radius:5px;border:none;background: -webkit-radial-gradient(#303030,#000000);background: linear-gradient(#303030,#000000)}
 .tooltipster-sidetip.tooltipster-bottom .tooltipster-box{margin-top:8px}
 .tooltipster-sidetip.tooltipster-left .tooltipster-box{margin-right:8px}
 .tooltipster-sidetip.tooltipster-right .tooltipster-box{margin-left:8px}
@@ -231,7 +231,14 @@ div.icon-eml{background:url('../images/file-types.png') -96px -144px;width:16px;
 /*.tooltipster-sidetip.tooltipster-right .tooltipster-arrow-border{border-right-color:#000}*/
 .tooltipster-sidetip.tooltipster-right .tooltipster-arrow-border{border-right-color:#2a2a2a}
 /*.tooltipster-sidetip.tooltipster-top .tooltipster-arrow-border{border-top-color:#000}*/
-.tooltipster-sidetip.tooltipster-top .tooltipster-arrow-border{border-top-color:#478406}
 .tooltipster-sidetip .tooltipster-arrow-uncropped{position:relative}
 .tooltipster-sidetip.tooltipster-bottom .tooltipster-arrow-uncropped{top:-10px}
 .tooltipster-sidetip.tooltipster-right .tooltipster-arrow-uncropped{left:-10px}
+.tooltipster-sidetip.tooltipster-top .tooltipster-box{border-bottom:3px solid #478406}
+.tooltipster-sidetip.tooltipster-bottom .tooltipster-box{border-top:3px solid #478406}
+.tooltipster-sidetip.tooltipster-bottom .tooltipster-arrow-border{border-bottom-color:#478406}
+.tooltipster-sidetip.tooltipster-top .tooltipster-arrow-border{border-top-color:#478406}
+.tooltipster-sidetip.tooltipster-left .tooltipster-arrow-border{border-left-color:#478406}
+.tooltipster-sidetip.tooltipster-right .tooltipster-arrow-border{border-right-color:#478406}
+.tooltipster-sidetip.tooltipster-left .tooltipster-box{border-right:3px solid #478406}
+.tooltipster-sidetip.tooltipster-right .tooltipster-box{border-left:3px solid #478406}
