@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
+/* Copyright 2019, Lime Technology
  * Copyright 2019, Andrew Zawadzki.
  *
  * This program is free software; you can redistribute it and/or
@@ -9,7 +9,9 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  */
-require_once("/usr/local/emhttp/plugins/dynamix.plugin.manager/include/PluginHelpers.php");
+
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 function download_url($url, $path = "", $bg = false, $timeout=45){
 	if ( ! strpos($url,"?") ) $url .= "?".time();
