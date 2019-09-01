@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
         list($user,$pwhash) = explode(':', trim($strCredentials));
 
         // Validate credentials
-        if (($_POST['username'] == $user || ($_POST['username'] == 'admin' && $user == 'root')) && password_verify($_POST['password'], $pwhash)) {
+        if ($_POST['username'] == $user && password_verify($_POST['password'], $pwhash)) {
             // Successful login
             $_SESSION["unraid_login"] = time();
             $_SESSION["unraid_user"] = $_POST['username'];
@@ -323,11 +323,19 @@ $theme_dark = in_array($display['theme'],['black','gray']);
 
                 <form action="/login" method="POST">
                     <p>
-                        <input name="username" type="text" placeholder="Username" value="admin" required>
+                        <input name="username" type="text" placeholder="Username" required>
                         <input name="password" type="password" placeholder="Password" required>
                         <input name="csrf_token" type="hidden" value="<?=$var['csrf_token']?>">
                     </p>
                     <? if ($error) echo '<p class="error">'.$error.'</p>'; ?>
+                    <script type="text/javascript">
+                        document.cookie = "cookietest=1";
+                        cookieEnabled = document.cookie.indexOf("cookietest=")!=-1;
+                        document.cookie = "cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";
+                        if (!cookieEnabled) {
+                            document.write('<p class="error">Browser cookie support required for login</p>');
+                        }
+                    </script>
                     <p>
                         <button type="submit" class="button button--small">Login</button>
                     </p>
