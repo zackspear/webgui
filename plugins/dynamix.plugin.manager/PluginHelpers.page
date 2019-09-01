@@ -56,7 +56,7 @@ function caPluginUpdateCheck(plugin,options=[],callback) {
 
 		if ( options.debug == true ) result.updateAvailable = true;
 		var name = options.name ? options.name : "this plugin ("+plugin+")";
-		if ( ! options.element ) {
+		if ( ! options.element && ! options.dontShow ) {
 			if ( result.updateAvailable ) {
 				var HTML = "An upgrade to "+name+" is available.  Click <a class='ca_PluginUpdateInstall' onclick='ca_pluginUpdateInstall(&quot;"+plugin+"&quot;);'>here</a> to install version "+result.version+" <a class='bannerInfo fa fa-info-circle' onclick=ca_pluginUpdateShowInfo('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=%2Ftmp%2Fplugins%2F"+pluginFilename+".txt','Release&nbsp;Notes',600,900); return false;'></a>";
 				addBannerWarning(HTML,false,options.noDismiss);
