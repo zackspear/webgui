@@ -15,7 +15,6 @@ Tag="snowflake-o"
  */
 ?>
 <?
-$keyfile = file_exists($var['luksKeyfile']);
 $encrypt = false;
 /* only one of $forced, $missing, or $wrong will be true, or all will be false */
 $forced = $missing = $wrong = false;
@@ -23,14 +22,12 @@ $forced = $missing = $wrong = false;
 foreach ($disks as $disk) {
   if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
     $encrypt = true;
-    if (!$keyfile) {
-      if ($disk['luksState']==0) $forced = true; else $missing = true;
-    } else {
-      if ($disk['luksState']==3) $wrong = true;
-    }
+    if ($disk['luksState']==0) $forced = true;
+    if ($disk['luksState']==2) $missing = true;
+    if ($disk['luksState']==3) $wrong = true;
   }
 }
-if ($forced && $missing) $forced = false;
+if ($forced && ($missing || $wrong)) $forced = false;
 
 function check_encryption() {
   global $forced, $missing, $wrong;
@@ -483,16 +480,6 @@ $(function(){
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
-<?if ($keyfile):?>
-<form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="unused">
-<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
-<table class="array_status noshift">
- <tr><td></td><td><input type="submit" name="#apply" value="Delete" disabled></td><td><strong>Delete</strong> will delete the encryption keyfile.
- <br><input type="checkbox" onchange="toggleApply(this.checked)"><small>Yes I want to do this</small></td></tr>
-</table>
-</form>
-<?endif;?>
 <?
 if (isset($display['sleep'])) @include $display['sleep'];
 ?>
@@ -587,15 +574,9 @@ enable_stop();
 <div></div>
 > #### Encryption input
 >
-> Passphrase or file is stored in /root/keyfile.<br>
-> This keyfile is read during array Start and is used to encrypt/decrypt content of encrypted devices.
->
 > With array Stopped, the user can specify a new encryption key. Note that once a device
 > is formatted with a particular key it may only be opened using that same key. Changing the encryption key requires
 > encrypted devices to be reformatted **resulting in permanent loss of all existing data on those devices.**
->
-> With array Started, the keyfile may be deleted to ensure there is no encryption key present on the server when
-> the array is online. Note that plugins are installed and may execute before and during the array Start process.
 >
 > #### Passphrase
 >
