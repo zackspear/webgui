@@ -29,7 +29,8 @@ $arrWhitelist = [
   '/webGui/styles/font-cases.woff',
   '/webGui/styles/font-cases.ttf',
   '/webGui/styles/font-cases.svg',
-  '/webGui/images/case-model.png'
+  '/webGui/images/case-model.png',
+  '/webGui/images/green-on.png'
 ];
 foreach ($arrWhitelist as $strWhitelist) {
   if (strpos($_SERVER['REQUEST_URI'], $strWhitelist) === 0) {
