@@ -1,5 +1,5 @@
 <?php
-session_start();
+session_start(['read_and_close' => true]);
 
 // authorized
 if (isset($_SESSION["unraid_login"])) {
@@ -25,6 +25,10 @@ $arrWhitelist = [
   '/webGui/styles/clear-sans.ttf',
   '/webGui/styles/clear-sans.svg',
   '/webGui/styles/default-cases.css',
+  '/webGui/styles/font-cases.eot',
+  '/webGui/styles/font-cases.woff',
+  '/webGui/styles/font-cases.ttf',
+  '/webGui/styles/font-cases.svg',
   '/webGui/images/case-model.png'
 ];
 foreach ($arrWhitelist as $strWhitelist) {
