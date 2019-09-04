@@ -640,7 +640,7 @@ $(function() {
 <?endif;?>
 <?endif;?>
 <?if ($notify['display']):?>
-  var opts = [{header:'Alerts', image:'/webGui/icons/alerts.png'}];
+  var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
   opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
   opts.push({divider:true});
@@ -649,7 +649,7 @@ $(function() {
   opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
   context.attach('#nav-tub1',opts);
 
-  var opts = [{header:'Warnings', image:'/webGui/icons/warnings.png'}];
+  var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
   opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
   opts.push({divider:true});
@@ -658,7 +658,7 @@ $(function() {
   opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
   context.attach('#nav-tub2',opts);
 
-  var opts = [{header:'Messages', image:'/webGui/icons/messages.png'}];
+  var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
   opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
   opts.push({divider:true});
