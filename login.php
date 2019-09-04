@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
     // User Logout
     unset($_SESSION['unraid_login']);
     unset($_SESSION['unraid_user']);
+    session_regenerate_id();
     $error = 'Successfully logged out';
 } else if (!empty($_POST['username']) && !empty($_POST['password'])) {
     // User Login attempt
