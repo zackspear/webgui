@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
             // Successful login
             $_SESSION['unraid_login'] = time();
             $_SESSION['unraid_user'] = $_POST['username'];
+            session_regenerate_id();
             session_write_close();
             header("Location: /".$var['START_PAGE']);
             exit;
