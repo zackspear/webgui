@@ -1,5 +1,5 @@
 <?php
-session_set_cookie_params(0, '/', $_SERVER['HTTP_HOST'], true, true);
+session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), true, true);
 session_start();
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
