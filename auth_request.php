@@ -1,5 +1,5 @@
 <?php
-session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), true, true);
+session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), array_key_exists('HTTPS', $_SERVER), true);
 session_start();
 
 // authorized
