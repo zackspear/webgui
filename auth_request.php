@@ -1,11 +1,17 @@
 <?php
-session_start(['read_and_close' => true]);
+session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), true, true);
+session_start();
 
 // authorized
 if (isset($_SESSION["unraid_login"])) {
+  if (time() - $_SESSION['unraid_login'] > 300) {
+    $_SESSION['unraid_login'] = time();
+  }
+  session_write_close();
   http_response_code(200);
   exit;
 }
+session_write_close();
 
 $arrWhitelist = [
   '/webGui/styles/clear-sans-bold-italic.eot',
