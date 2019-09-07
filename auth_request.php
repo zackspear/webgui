@@ -1,4 +1,5 @@
 <?php
+session_name("unraid_".md5(strstr($_SERVER['HTTP_HOST'].':', ':', true)));
 session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), array_key_exists('HTTPS', $_SERVER), true);
 session_start();
 
