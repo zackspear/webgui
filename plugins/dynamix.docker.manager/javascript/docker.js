@@ -1,7 +1,7 @@
 var eventURL = '/plugins/dynamix.docker.manager/include/Events.php';
 
 function addDockerContainerContext(container, image, template, started, paused, update, autostart, webui, shell, id, Support, Project, Registry) {
-  var opts = [{header:container, image:'/plugins/dynamix.docker.manager/images/dynamix.docker.manager.png'}];
+  var opts = [];
   if (started && !paused) {
     if (webui !== '' && webui != '#') opts.push({text:'WebUI', icon:'fa-globe', href:webui, target:'_blank'});
     opts.push({text:'Console', icon:'fa-terminal', action:function(e){e.preventDefault(); dockerTerminal(container,shell);}});
@@ -44,7 +44,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
   context.attach('#'+id, opts);
 }
 function addDockerImageContext(image, imageTag) {
-  var opts = [{header:'(orphan image)'}];
+  var opts = [];
   opts.push({text:'Remove', icon:'fa-trash', action:function(e){e.preventDefault(); rmImage(image, imageTag);}});
   context.attach('#'+image, opts);
 }

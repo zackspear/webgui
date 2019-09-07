@@ -1,4 +1,6 @@
 <?php
+session_name("unraid_".md5(strstr($_SERVER['HTTP_HOST'].':', ':', true)));
+session_set_cookie_params(0, '/', strstr($_SERVER['HTTP_HOST'].':', ':', true), array_key_exists('HTTPS', $_SERVER), true);
 session_start();
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
@@ -9,8 +11,9 @@ $error = '';
 
 if ($_SERVER['REQUEST_URI'] == '/logout') {
     // User Logout
-    unset($_SESSION["unraid_login"]);
-    unset($_SESSION["unraid_user"]);
+    unset($_SESSION['unraid_login']);
+    unset($_SESSION['unraid_user']);
+    session_regenerate_id();
     $error = 'Successfully logged out';
 } else if (!empty($_POST['username']) && !empty($_POST['password'])) {
     // User Login attempt
@@ -20,8 +23,10 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
         // Validate credentials
         if ($_POST['username'] == $user && password_verify($_POST['password'], $pwhash)) {
             // Successful login
-            $_SESSION["unraid_login"] = time();
-            $_SESSION["unraid_user"] = $_POST['username'];
+            $_SESSION['unraid_login'] = time();
+            $_SESSION['unraid_user'] = $_POST['username'];
+            session_regenerate_id();
+            session_write_close();
             header("Location: /".$var['START_PAGE']);
             exit;
         }
@@ -30,6 +35,8 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
     // Invalid login
     $error = 'Invalid Username or Password';
 }
+
+session_write_close();
 
 $boot   = "/boot/config/plugins/dynamix";
 $myfile = "case-model.cfg";
@@ -292,6 +299,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
     }
     </style>
     <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
+    <link type="image/png" rel="shortcut icon" href="/webGui/images/green-on.png">
 </head>
 
 <body>

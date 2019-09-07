@@ -669,7 +669,7 @@ function changeView(item) {
 }
 function smartMenu(table) {
   $(table).find('[id^="smart-"]').each(function() {
-    var opts = [{header:$(this).attr('id'), image:'/webGui/icons/smart.png'}];
+    var opts = [];
     var id = '#'+$(this).attr('id');
     var page = $(this).attr('name');
     var view = $(this).attr('class');
