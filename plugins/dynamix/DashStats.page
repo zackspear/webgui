@@ -582,7 +582,7 @@ function toggleVPN(id,vtun) {
   var up = $('#vpn-active');
   var down = $('#vpn-inactive');
   if (id.hasClass('inactive')) {
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':'start','#vtun':vtun},function(up){if (up){
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':'start','#vtun':vtun},function(on){if (on){
       id.removeClass('inactive');
       up.text(up.text()*1+1);
       if (down.text()>0) down.text(down.text()*1-1);
