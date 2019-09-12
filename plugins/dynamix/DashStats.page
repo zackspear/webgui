@@ -172,7 +172,7 @@ div.left{float:left;width:66%;margin-top:-12px}
 div.right{float:right;margin:-12px 20px 0 0;text-align:center}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
-span.inner{width:134px}
+span.inner{width:155px}
 span.ups{width:124px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
@@ -582,7 +582,7 @@ function toggleVPN(id,vtun) {
   var up = $('#vpn-active');
   var down = $('#vpn-inactive');
   if (id.hasClass('inactive')) {
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':'start','#vtun':vtun},function(up){if (up){
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':'start','#vtun':vtun},function(on){if (on){
       id.removeClass('inactive');
       up.text(up.text()*1+1);
       if (down.text()>0) down.text(down.text()*1-1);

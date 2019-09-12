@@ -3,8 +3,8 @@ Title="Array Operation"
 Tag="snowflake-o"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,6 +15,7 @@ Tag="snowflake-o"
  */
 ?>
 <?
+$keyfile = file_exists($var['luksKeyfile']);
 $encrypt = false;
 /* only one of $forced, $missing, or $wrong will be true, or all will be false */
 $forced = $missing = $wrong = false;
@@ -117,23 +118,61 @@ function getFileContent(event,form) {
   reader.onload = function(){form.file.value=reader.result;selectInput(form);};
   reader.readAsDataURL(input.files[0]);
 }
+function base64(text) {
+  var xlat = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  var size = text.length;
+  var tail = size % 3;
+  var code = '';
+  var l, t, x;
+
+  function encode(i) {
+    return xlat.charAt(i & 0x3F);
+  }
+  function shift(n) {
+    return encode(n >> 18) + encode(n >> 12) + encode(n >> 6) + encode(n);
+  }
+  for (x=0, l=size-tail; x<l; x+=3) {
+    code += shift((text.charCodeAt(x) << 16) + (text.charCodeAt(x+1) << 8) + text.charCodeAt(x+2));
+  }
+  switch (tail) {
+  case 1:
+    t = text.charCodeAt(size-1);
+    code += encode(t >> 2);
+    code += encode(t << 4);
+    code += '==';
+    break;
+  case 2:
+    t = (text.charCodeAt(size-2) << 8) + text.charCodeAt(size-1);
+    code += encode(t >> 10);
+    code += encode(t >> 4);
+    code += encode(t << 2);
+    code += '=';
+    break;
+  }
+  return code;
+}
 function prepareInput(form) {
   $(form).append('<input type="hidden" name="cmdStart" value="Start">');
   if (form.input === undefined) {
     form.submit();
-  } else {
-    var data = {};
-    data['#file'] = 'unused';
-    data['#include'] = 'webGui/include/KeyUpload.php';
-    data['text'] = form.text.value;
-    data['file'] = form.file.value;
-    form.input.disabled = true;
-    form.local.disabled = true;
-    form.file.disabled = true;
-    form.text.disabled = true;
-    form.copy.disabled = true;
-    $.post('/update.php',data,function(){form.submit();});
+    return;
   }
+  form.input.disabled = true;
+  form.local.disabled = true;
+  form.file.disabled = true;
+  form.text.disabled = true;
+  form.copy.disabled = true;
+  var text = base64(form.text.value);
+  if (text) {
+    $(form).append('<input type="hidden" name="luksKey" value="'+text+'">');
+    form.submit();
+    return;
+  }
+  var data = {};
+  data['#file'] = 'unused';
+  data['#include'] = 'webGui/include/KeyUpload.php';
+  data['file'] = form.file.value;
+  $.post('/update.php',data,function(){form.submit();});
 }
 function parityWarning(form) {
   if (form.md_invalidslot.checked) {
@@ -480,6 +519,16 @@ $(function(){
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
+<?if ($keyfile):?>
+<form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<table class="array_status noshift">
+ <tr><td></td><td><input type="submit" name="#apply" value="Delete" disabled></td><td><strong>Delete</strong> will delete the encryption keyfile.
+ <br><input type="checkbox" onchange="toggleApply(this.checked)"><small>Yes I want to do this</small></td></tr>
+</table>
+</form>
+<?endif;?>
 <?
 if (isset($display['sleep'])) @include $display['sleep'];
 ?>
