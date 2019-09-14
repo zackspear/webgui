@@ -22,6 +22,7 @@ function download_url($url, $path = "") {
 	curl_setopt($ch,CURLOPT_TIMEOUT,45);
 	curl_setopt($ch,CURLOPT_ENCODING,"");
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	$out = curl_exec($ch);
 	curl_close($ch);
 	if ( $path )
