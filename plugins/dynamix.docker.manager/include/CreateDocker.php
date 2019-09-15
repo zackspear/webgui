@@ -896,7 +896,7 @@ button[type=button]{margin:0 20px 0 0}
           </blockquote>
         </td>
       </tr>
-      <tr class='noshow'"> <!-- Deprecated for author to enter or change, but needs to be present -->
+      <tr class='noshow'> <!-- Deprecated for author to enter or change, but needs to be present -->
         <td>Template URL:</td>
         <td><input type="text" name="contTemplateURL"></td>
       </tr>
