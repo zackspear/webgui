@@ -333,7 +333,6 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                     <p>
                         <input name="username" type="text" placeholder="Username" required>
                         <input name="password" type="password" placeholder="Password" required>
-                        <input name="csrf_token" type="hidden" value="<?=$var['csrf_token']?>">
                     </p>
                     <? if ($error) echo '<p class="error">'.$error.'</p>'; ?>
                     <script type="text/javascript">
