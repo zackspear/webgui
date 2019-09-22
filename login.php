@@ -1,6 +1,6 @@
 <?php
 session_name("unraid_".md5(strstr($_SERVER['HTTP_HOST'].':', ':', true)));
-session_set_cookie_params(0, '/', null, array_key_exists('HTTPS', $_SERVER), true);
+session_set_cookie_params(0, '/; samesite=strict', null, array_key_exists('HTTPS', $_SERVER), true);
 session_start();
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
@@ -333,7 +333,6 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                     <p>
                         <input name="username" type="text" placeholder="Username" required>
                         <input name="password" type="password" placeholder="Password" required>
-                        <input name="csrf_token" type="hidden" value="<?=$var['csrf_token']?>">
                     </p>
                     <? if ($error) echo '<p class="error">'.$error.'</p>'; ?>
                     <script type="text/javascript">

@@ -13,10 +13,21 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-function download_url($url, $path = "", $bg = false, $timeout=45){
-	if ( ! strpos($url,"?") ) $url .= "?".time();
-	exec("curl --compressed --connect-timeout 15 --max-time $timeout --silent --insecure --location --fail ".($path ? " -o '$path' " : "")." $url ".($bg ? ">/dev/null 2>&1 &" : "2>/dev/null"), $out, $exit_code );
-	return ($exit_code === 0 ) ? implode("\n", $out) : false;
+function download_url($url, $path = "") {
+	$ch = curl_init();
+	curl_setopt($ch,CURLOPT_URL,$url);
+	curl_setopt($ch,CURLOPT_FRESH_CONNECT,true);
+	curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+	curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,15);
+	curl_setopt($ch,CURLOPT_TIMEOUT,45);
+	curl_setopt($ch,CURLOPT_ENCODING,"");
+	curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+	$out = curl_exec($ch);
+	curl_close($ch);
+	if ( $path )
+		file_put_contents($path,$out);
+
+	return $out ?: false;
 }
 
 $options = $_POST['options'];
