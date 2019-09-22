@@ -305,12 +305,15 @@ class DockerTemplates {
 		$name = preg_replace("%\/|\\\%", '-', $matches[1][0]);
 		$version = $matches[2][0];
 		$iconRAM = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images-ram'], $name, $version, 'icon');
-		$iconUSB = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images'], $name, $version, 'icon');
+		$icon    = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images'], $name, $version, 'icon');
 		if (!is_dir(dirname($iconRAM))) mkdir(dirname($iconRAM), 0755, true);
-		if (!is_dir(dirname($iconUSB))) mkdir(dirname($iconUSB), 0755, true);
+		if (!is_dir(dirname($icon))) mkdir(dirname($icon), 0755, true);
 		if (!is_file($iconRAM)) {
-			if (!is_file($iconUSB)) $this->download_url($imgUrl, $iconUSB);
-			@copy($iconUSB, $iconRAM);
+			if (!is_file($icon)) $this->download_url($imgUrl, $icon);
+			@copy($icon, $iconRAM);
+		}
+		if ( !is_file($icon) && is_file($iconRAM) ) {
+			@copy($iconRAM,$icon);
 		}
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';
 	}
