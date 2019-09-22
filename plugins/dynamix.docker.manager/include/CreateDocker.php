@@ -85,6 +85,17 @@ if (isset($_POST['contName'])) {
   if (!is_dir($userTmplDir)) mkdir($userTmplDir, 0777, true);
   if ($Name) {
     $filename = sprintf('%s/my-%s.xml', $userTmplDir, $Name);
+		if ( is_file($filename) ) {
+			$oldXML = simplexml_load_file($filename);
+			if ($oldXML->Icon != $_POST['contIcon']) {
+				if (! strpos($Repository,":")) {
+					$Repository .= ":latest";
+				}
+				$iconPath = $DockerTemplates->getIcon($Repository);
+				@unlink("$docroot/$iconPath");
+				@unlink("{$dockerManPaths['images']}/".basename($iconPath));
+			}
+		}
     file_put_contents($filename, $postXML);
   }
   // Run dry
@@ -137,7 +148,15 @@ if (isset($_POST['contName'])) {
   }
   if ($startContainer) $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
   execCommand($cmd);
- echo '<div style="text-align:center"><button type="button" onclick="done()">Done</button></div><br>';
+	if ( $newIcon ) {
+		if (! strpos($Repository,":")) {
+			$Repository .= ":latest";
+		}
+		$iconPath = $DockerTemplates->getIcon($Repository);
+		@unlink("$docroot/$iconPath");
+		@unlink("{$dockerManPaths['images']}/".basename($iconPath));
+	}
+  echo '<div style="text-align:center"><button type="button" onclick="done()">Done</button></div><br>';
   goto END;
 }
 
