@@ -23,7 +23,7 @@ $dockerManPaths = [
 	'template-repos' => "/boot/config/plugins/dockerMan/template-repos",
 	'templates-user' => "/boot/config/plugins/dockerMan/templates-user",
 	'templates-usb'  => "/boot/config/plugins/dockerMan/templates",
-	'images-usb'     => "/boot/config/plugins/dockerMan/images",
+	'images'         => "/var/lib/docker/unraid/images",
 	'user-prefs'     => "/boot/config/plugins/dockerMan/userprefs.cfg",
 	'plugin'         => "$docroot/plugins/dynamix.docker.manager",
 	'images-ram'     => "$docroot/state/plugins/dynamix.docker.manager/images",
@@ -305,12 +305,15 @@ class DockerTemplates {
 		$name = preg_replace("%\/|\\\%", '-', $matches[1][0]);
 		$version = $matches[2][0];
 		$iconRAM = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images-ram'], $name, $version, 'icon');
-		$iconUSB = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images-usb'], $name, $version, 'icon');
+		$icon    = sprintf('%s/%s-%s-%s.png', $dockerManPaths['images'], $name, $version, 'icon');
 		if (!is_dir(dirname($iconRAM))) mkdir(dirname($iconRAM), 0755, true);
-		if (!is_dir(dirname($iconUSB))) mkdir(dirname($iconUSB), 0755, true);
+		if (!is_dir(dirname($icon))) mkdir(dirname($icon), 0755, true);
 		if (!is_file($iconRAM)) {
-			if (!is_file($iconUSB)) $this->download_url($imgUrl, $iconUSB);
-			@copy($iconUSB, $iconRAM);
+			if (!is_file($icon)) $this->download_url($imgUrl, $icon);
+			@copy($icon, $iconRAM);
+		}
+		if ( !is_file($icon) && is_file($iconRAM) ) {
+			@copy($iconRAM,$icon);
 		}
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';
 	}
@@ -747,7 +750,7 @@ class DockerClient {
 		if (isset($info[$name])) {
 			if (isset($info[$name]['icon'])) {
 				$iconRAM = $docroot.$info[$name]['icon'];
-				$iconUSB = str_replace($dockerManPaths['images-ram'], $dockerManPaths['images-usb'], $iconRAM);
+				$iconUSB = str_replace($dockerManPaths['images-ram'], $dockerManPaths['images'], $iconRAM);
 				if ($cache>=1 && is_file($iconRAM)) unlink($iconRAM);
 				if ($cache==2 && $code===true && is_file($iconUSB)) unlink($iconUSB);
 			}
