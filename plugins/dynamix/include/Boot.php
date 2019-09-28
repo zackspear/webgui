@@ -20,6 +20,7 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <html>
 <head>
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/default-fonts.css')?>">
 <style>
 html{font-family:clear-sans;font-size:62.5%;height:100%}
