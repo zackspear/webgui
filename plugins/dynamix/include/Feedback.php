@@ -26,6 +26,11 @@ if (array_key_exists('getdiagnostics', $_GET)) {
     exit;
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <style>
@@ -40,6 +45,7 @@ textarea{width:100%;height:250px;margin:10px 0}
 input[type=button]{margin-right:0;float:right}
 input[type=email]{margin-top:8px;float:left}
 </style>
+</head>
 <body>
 <div style="margin-top:0;line-height:30px;margin-left:5px;margin-right:5px">
 <div id="control_panel" class="four">
@@ -198,3 +204,4 @@ $(function() {
 });
 </script>
 </body>
+</html>

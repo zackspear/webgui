@@ -16,6 +16,11 @@ require_once "$docroot/webGui/include/Helpers.php";
 $var = parse_ini_file('state/var.ini');
 $keyfile = base64_encode(file_get_contents($var['regFILE']));
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
@@ -51,6 +56,7 @@ function replaceKey(email, guid, keyfile) {
   }
 }
 </script>
+</head>
 <body>
 <div style="margin-top:20px;line-height:30px;margin-left:40px">
 <div id="status_panel"></div>
@@ -67,3 +73,4 @@ Once a replacement key is generated, your old USB Flash device will be <b>blackl
 </form>
 </div>
 </body>
+</html>
