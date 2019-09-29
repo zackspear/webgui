@@ -17,7 +17,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 ?>
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
