@@ -606,6 +606,7 @@ $('.back_to_top').click(function(event) {
   return false;
 });
 $(function() {
+  shortcut.add('F1',function(){HelpButton();});
 <?if ($var['regTy']=='unregistered'):?>
   $('#licensetype').addClass('orange-text');
 <?elseif (!in_array($var['regTy'],['Trial','Basic','Plus','Pro'])):?>
