@@ -589,6 +589,8 @@ enable_stop();
 > <span class='fixedwidth'>Parity history</span>Ctrl+H<br>
 > <span class='fixedwidth'>Spin disks down</span>Ctrl+Down<br>
 > <span class='fixedwidth'>Spin disks up</span>Ctrl+Up<br>
+> <span class='fixedwidth'>Clear statistics</span>Ctrl+0<br>
+> <span class='fixedwidth'>Toggle statistics</span>Ctrl+1<br>
 > <span class='fixedwidth'>Start mover</span>Ctrl+M<br>
 > <span class='fixedwidth'>System reboot</span>Ctrl+R<br>
 > <span class='fixedwidth'>System shutdown</span>Ctrl+X<br>
