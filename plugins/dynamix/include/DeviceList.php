@@ -47,10 +47,6 @@ function device_info(&$disk,$online) {
   $fancyname = $disk['type']=='New' ? $name : my_disk($name);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
-  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk['status'],'_NP')===false) {
-    $ctrl = "<i id='dev-$name' class='fa fa-sort-$action fa-fw' style='cursor:pointer' title='Click to spin $action device' onclick=\"toggle_state('$type','$name','$action')\"></i>";
-  } else
-    $ctrl = "<i class='fa fa-sort-down fa-fw' style='visibility:hidden'></i>";
   switch ($disk['color']) {
     case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
     case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
@@ -62,7 +58,12 @@ function device_info(&$disk,$online) {
     case 'red-off': $orb = 'times'; $color = 'red'; $help = $disk['type']=='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
     case 'grey-off': $orb = 'square'; $color = 'grey'; $help = 'Device not present'; break;
   }
-  $status = "$ctrl<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
+  $ctrl = '';
+  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk['status'],'_NP')===false) {
+    $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
+    $help .= "<br>Click to spin $action device";
+  }
+  $status = "<a class='info nohand' onclick='return false'><i ".($type!='Flash'?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
