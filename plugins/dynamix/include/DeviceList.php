@@ -63,7 +63,7 @@ function device_info(&$disk,$online) {
     $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
     $help .= "<br>Click to spin $action device";
   }
-  $status = "<a class='info nohand' onclick='return false'><i ".($type!='Flash'?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
+  $status = "<a class='info nohand' onclick='return false'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
