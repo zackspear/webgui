@@ -467,13 +467,13 @@ foreach ($users as $user) {
   $name = $user['name'];
   $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".truncate($name,20)."</a>";
   $desc = truncate($user['desc'],40);
-  if ($list=='root') {
+  if ($name=='root') {
     $write = '-'; $read = '-';
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec[$share['name']]['writeList'],$list)!==false) $write++;
-      if (strpos($sec[$share['name']]['readList'],$list)!==false) $read++;
+      if (strpos($sec[$share['name']]['writeList'],$name)!==false) $write++;
+      if (strpos($sec[$share['name']]['readList'],$name)!==false) $read++;
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
@@ -487,13 +487,13 @@ foreach ($users as $user) {
   $name = $user['name'];
   $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".truncate($name,20)."</a>";
   $desc = truncate($user['desc'],40);
-  if ($list=='root') {
+  if ($name=='root') {
     $write = '-'; $read = '-';
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec_afp[$share['name']]['writeList'],$list)!==false) $write++;
-      if (strpos($sec_afp[$share['name']]['readList'],$list)!==false) $read++;
+      if (strpos($sec_afp[$share['name']]['writeList'],$name)!==false) $write++;
+      if (strpos($sec_afp[$share['name']]['readList'],$name)!==false) $read++;
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
