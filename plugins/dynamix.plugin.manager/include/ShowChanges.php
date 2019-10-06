@@ -16,9 +16,10 @@ require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/webGui/include/Helpers.php";
 ?>
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
 <head>
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 </head>

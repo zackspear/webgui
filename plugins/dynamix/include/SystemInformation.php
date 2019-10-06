@@ -31,6 +31,11 @@ function dmidecode($key,$n,$all=true) {
   return $all ? $properties : $properties[0];
 }
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <style>
@@ -56,6 +61,7 @@ function updateTime() {
   setTimeout(updateTime, 1000);
 }
 </script>
+</head>
 <body onLoad="updateTime()">
 <div class="box">
 <div><span class="key">Model:</span>
@@ -226,3 +232,4 @@ foreach ($sPorts as $port) {
 <?endif;?>
 </div></div>
 </body>
+</html>

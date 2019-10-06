@@ -46,7 +46,8 @@ extract(parse_plugin_cfg('dynamix',true));
 $theme_dark = in_array($display['theme'],['black','gray']);
 ?>
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache">
@@ -54,6 +55,8 @@ $theme_dark = in_array($display['theme'],['black','gray']);
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
     <title><?=$var['NAME']?>/Login</title>
     <style>
     /************************
