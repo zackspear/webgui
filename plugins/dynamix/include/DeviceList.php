@@ -63,7 +63,7 @@ function device_info(&$disk,$online) {
     $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
     $help .= "<br>Click to spin $action device";
   }
-  $status = "<a class='info' onclick='return false'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
+  $status = "<a class='info'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
@@ -74,22 +74,22 @@ function device_info(&$disk,$online) {
       if (!vfs_luks($disk['fsType']))
         $luks = "<i class='nolock fa fa-lock'></i>";
       else
-        $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-unlock orange-text'></i><span>Device to be encrypted</span></a>";
+        $luks = "<a class='info'><i class='padlock fa fa-unlock orange-text'></i><span>Device to be encrypted</span></a>";
       break;
     case 1:
       if ($online) {
-        $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-unlock-alt green-text'></i><span>Device encrypted and unlocked</span></a>";
+        $luks = "<a class='info'><i class='padlock fa fa-unlock-alt green-text'></i><span>Device encrypted and unlocked</span></a>";
         break;
       }
       /* fall thru */
     case 2:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock green-text'></i><span>Device encrypted</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock green-text'></i><span>Device encrypted</span></a>";
       break;
     case 3:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>Device locked: wrong encryption key</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock red-text'></i><span>Device locked: wrong encryption key</span></a>";
       break;
    default:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>Device locked: unknown error</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock red-text'></i><span>Device locked: unknown error</span></a>";
       break;
   } else $luks = '';
   return $status.$luks.$link;
@@ -370,7 +370,7 @@ case 'flash':
   $disk['fsUsed'] = $disk['fsSize']-$disk['fsFree'];
   $flash = &$sec['flash']; $share = "";
   if ($var['shareSMBEnabled']=='yes' && $flash['export']=='e' && $flash['security']=='public')
-    $share = "<a class='info nohand' onclick='return false'><i class='fa fa-warning fa-fw orange-text'></i><span>Flash device is set as public share<br>Please change share SMB security<br>Click on <b>FLASH</b> above this message</span></a>";
+    $share = "<a class='info'><i class='fa fa-warning fa-fw orange-text'></i><span>Flash device is set as public share<br>Please change share SMB security<br>Click on <b>FLASH</b> above this message</span></a>";
   echo "<tr>";
   echo "<td>".$share.device_info($disk,true)."</td>";
   echo "<td>".device_desc($disk)."</td>";
