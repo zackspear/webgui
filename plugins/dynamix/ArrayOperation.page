@@ -61,7 +61,7 @@ function status_indicator() {
    case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = 'Started, array unprotected'; break;
    case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $help = 'Stopped'; break;
   }
-  echo "<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
+  echo "<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
 }
 function missing_cache() {
   global $disks;
@@ -267,6 +267,11 @@ reload_page();
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
+<?
+$parity = $var['mdResync'] ? '<br><small>Disabled -- Parity operation is running</small>' : '';
+$mover = file_exists('/var/run/mover.pid') ? '<br><small>Disabled -- Mover is running</small>' : '';
+$btrfs = exec('pgrep -cf /sbin/btrfs') ? '<br><small>Disabled -- BTRFS operation is running</small>' : '';
+?>
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
@@ -276,10 +281,7 @@ $(function(){
 <input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
 <input type="hidden" name="file" value="">
 <table class="array_status">
-<?$parity = $var['mdResync'] ? '<br><small>Disabled -- Parity operation is running</small>' : '';
-  $mover = file_exists('/var/run/mover.pid') ? '<br><small>Disabled -- Mover is running</small>' : '';
-  $btrfs = exec('pgrep -cf /sbin/btrfs') ? '<br><small>Disabled -- BTRFS operation is running</small>' : '';
-  switch ($var['fsState']):
+<?switch ($var['fsState']):
   case "Started":?>
     <tr><td><?status_indicator()?><span class="strong">Started<?=(($var['startMode']=='Maintenance')?' - Maintenance Mode':'')?></span></td>
     <td><input type="button" value="Stop" onclick="stopArray(this.form)"<?if ($parity||$mover||$btrfs):?> disabled<?endif;?>></td>
@@ -561,7 +563,6 @@ enable_stop();
 >
 > <i class='fa fa-warning orb grey-orb'></i>Array is Stopped, Parity is invalid.
 >
-
 <?if ($var['fsState'] == "Stopped"):?>
 > #### Assigning Devices
 >

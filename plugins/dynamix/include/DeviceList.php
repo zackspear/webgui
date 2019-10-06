@@ -47,10 +47,6 @@ function device_info(&$disk,$online) {
   $fancyname = $disk['type']=='New' ? $name : my_disk($name);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
-  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk['status'],'_NP')===false) {
-    $ctrl = "<i id='dev-$name' class='fa fa-sort-$action fa-fw' style='cursor:pointer' title='Click to spin $action device' onclick=\"toggle_state('$type','$name','$action')\"></i>";
-  } else
-    $ctrl = "<i class='fa fa-sort-down fa-fw' style='visibility:hidden'></i>";
   switch ($disk['color']) {
     case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
     case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
@@ -62,7 +58,12 @@ function device_info(&$disk,$online) {
     case 'red-off': $orb = 'times'; $color = 'red'; $help = $disk['type']=='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
     case 'grey-off': $orb = 'square'; $color = 'grey'; $help = 'Device not present'; break;
   }
-  $status = "$ctrl<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
+  $ctrl = '';
+  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk['status'],'_NP')===false) {
+    $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
+    $help .= "<br>Click to spin $action device";
+  }
+  $status = "<a class='info'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
@@ -73,22 +74,22 @@ function device_info(&$disk,$online) {
       if (!vfs_luks($disk['fsType']))
         $luks = "<i class='nolock fa fa-lock'></i>";
       else
-        $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-unlock orange-text'></i><span>Device to be encrypted</span></a>";
+        $luks = "<a class='info'><i class='padlock fa fa-unlock orange-text'></i><span>Device to be encrypted</span></a>";
       break;
     case 1:
       if ($online) {
-        $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-unlock-alt green-text'></i><span>Device encrypted and unlocked</span></a>";
+        $luks = "<a class='info'><i class='padlock fa fa-unlock-alt green-text'></i><span>Device encrypted and unlocked</span></a>";
         break;
       }
       /* fall thru */
     case 2:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock green-text'></i><span>Device encrypted</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock green-text'></i><span>Device encrypted</span></a>";
       break;
     case 3:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>Device locked: wrong encryption key</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock red-text'></i><span>Device locked: wrong encryption key</span></a>";
       break;
    default:
-      $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>Device locked: unknown error</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-lock red-text'></i><span>Device locked: unknown error</span></a>";
       break;
   } else $luks = '';
   return $status.$luks.$link;
@@ -107,7 +108,7 @@ function device_desc(&$disk) {
     case 'Data'  :
     case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
   }
-  $log = $var['fsState']=='Started' ? "<a href=\"#\" title=\"Disk Log Information\" style=\"text-decoration:none\" onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"icon-$type icon\"></i></a>" : "";
+  $log = $var['fsState']=='Started' ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"icon-$type icon\"></i><span>Disk log information</span></a>" : "";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }
 function assignment(&$disk) {
@@ -369,7 +370,7 @@ case 'flash':
   $disk['fsUsed'] = $disk['fsSize']-$disk['fsFree'];
   $flash = &$sec['flash']; $share = "";
   if ($var['shareSMBEnabled']=='yes' && $flash['export']=='e' && $flash['security']=='public')
-    $share = "<a class='info nohand' onclick='return false'><i class='fa fa-warning fa-fw orange-text'></i><span>Flash device is set as public share<br>Please change share SMB security<br>Click on <b>FLASH</b> above this message</span></a>";
+    $share = "<a class='info'><i class='fa fa-warning fa-fw orange-text'></i><span>Flash device is set as public share<br>Please change share SMB security<br>Click on <b>FLASH</b> above this message</span></a>";
   echo "<tr>";
   echo "<td>".$share.device_info($disk,true)."</td>";
   echo "<td>".device_desc($disk)."</td>";

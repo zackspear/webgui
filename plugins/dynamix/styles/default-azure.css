@@ -15,6 +15,7 @@ a.info{position:relative}
 a.info span{display:none;white-space:nowrap;font-variant:small-caps;position:absolute;top:16px;left:12px;color:#4f4f4f;line-height:2rem;padding:5px 8px;border:1px solid #42453e;border-radius:3px;background-color:#edeaef}
 a.info:hover span{display:block;z-index:1}
 a.nohand{cursor:default}
+a.hand{cursor:pointer;text-decoration:none}
 i.spacing{margin-left:0;margin-right:10px}
 i.icon{font-size:1.6rem;margin-right:8px;vertical-align:middle}
 i.title{display:none}

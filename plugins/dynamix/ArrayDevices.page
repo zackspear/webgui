@@ -3,8 +3,8 @@ Title="Array Devices"
 Tag="database"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,9 +23,9 @@ function toggle_state(device,name,action) {
     else if (name.match(/^cache/)!==null) event = 'cache_status';
     else if (name.match(/^flash/)!==null) event = 'boot_status';
     else event = 'open_status';
-    $('#dev-'+name).removeClass('fa-sort-up fa-sort-down').addClass('fa-refresh fa-spin');
+    $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
   } else if (device!='Clear') {
-    $('[id^="dev-"]').removeClass('fa-sort-up fa-sort-down').addClass('fa-refresh fa-spin');
+    $('[id^="dev-"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     button = '[id^=button-]';
   }
   pauseEvents(event);
