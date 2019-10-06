@@ -145,36 +145,43 @@ Tunable (poll_attributes):
 Tunable (enable NCQ):
 : <select name="queueDepth" size="1">
   <?=mk_option($var['queueDepth'], "auto", "Auto")?>
-  <?=mk_option($var['queueDepth'], "0", "Yes")?>
   <?=mk_option($var['queueDepth'], "1", "No")?>
   </select>
 
-> If set to **Yes** then *Native Command Queuing* is enabled for all array devices that support NCQ.
+> If set to **No** then *Native Command Queuing* is disabled for all array devices that support NCQ.
 >
-> Note: After changing from **No** to **Yes** you must reboot the server for the change to take effect.  Changing
-> from **Yes** to **No** however, takes effect immediately.
->
-> Most users find that overall system performance is better with NCQ disabled.
->
-> **Auto** selects `No`.
+> **Auto** leaves the setting for each device as-is.
 
 Tunable (nr_requests):
 : <input type="text" name="nr_requests" maxlength="10" value="<?=$var['nr_requests']?>" class="narrow"><?=$var['nr_requests_status']?>
 
 > This defines the `nr_requests` device driver setting for all array devices.
+>
+> **Auto** leaves the setting for each device as-is.
+>
+> Note: if you set to blank and click Apply, the setting is restored to its default.
 
 Tunable (md_num_stripes):
 : <input type="text" name="md_num_stripes" maxlength="10" value="<?=$var['md_num_stripes']?>" class="narrow"><?=$var['md_num_stripes_status']?>
 
-Tunable (md_sync_window):
-: <input type="text" name="md_sync_window" maxlength="10" value="<?=$var['md_sync_window']?>" class="narrow"><?=$var['md_sync_window_status']?>
-
-Tunable (md_sync_thresh):
-: <input type="text" name="md_sync_thresh" maxlength="10" value="<?=$var['md_sync_thresh']?>" class="narrow"><?=$var['md_sync_thresh_status']?>
-
-> These tunables let you control certain properties of the Unraid driver.
+> This is the size of the *stripe pool* in number of *stripes*.  A *stripe* refers to a data structure that faclitiates parallel 4K read/write
+> operations necessary for a parity-protected array.
 >
-> Note: For each of these settings, if you set to blank and click Apply, the setting is restored to its default.
+> Note: if you set to blank and click Apply, the setting is restored to its default.
+
+Tunable (md_queue_limit):
+: <input type="text" name="md_queue_limit" maxlength="10" value="<?=$var['md_queue_limit']?>" class="narrow"><?=$var['md_queue_limit_status']?>
+
+> This is a number in [1..100] which is the maximum steady-load percentage of the stripe pool permitted to be in use.
+>
+> Note: if you set to blank and click Apply, the setting is restored to its default.
+
+Tunable (md_sync_limit):
+: <input type="text" name="md_sync_limit" maxlength="10" value="<?=$var['md_sync_limit']?>" class="narrow"><?=$var['md_sync_limit_status']?>
+
+> This is a number in [0..100] which is the maximum percentage of the stripe pool allocated for parity sync/check in the presence of other I/O.
+>
+> Note: if you set to blank and click Apply, the setting is restored to its default.
 
 Tunable (md_write_method):
 : <select name="md_write_method" size="1">
