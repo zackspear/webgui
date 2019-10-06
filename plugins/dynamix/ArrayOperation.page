@@ -61,7 +61,7 @@ function status_indicator() {
    case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = 'Started, array unprotected'; break;
    case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $help = 'Stopped'; break;
   }
-  echo "<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
+  echo "<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
 }
 function missing_cache() {
   global $disks;
