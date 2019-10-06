@@ -63,7 +63,7 @@ function device_info(&$disk,$online) {
     $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
     $help .= "<br>Click to spin $action device";
   }
-  $status = "<a class='info nohand' onclick='return false'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
+  $status = "<a class='info' onclick='return false'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
@@ -108,7 +108,7 @@ function device_desc(&$disk) {
     case 'Data'  :
     case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
   }
-  $log = $var['fsState']=='Started' ? "<a class='info' style='cursor:pointer' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"icon-$type icon\"></i><span>Disk log information</span></a>" : "";
+  $log = $var['fsState']=='Started' ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','Disk Log Information',600,900,false);return false\"><i class=\"icon-$type icon\"></i><span>Disk log information</span></a>" : "";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }
 function assignment(&$disk) {
