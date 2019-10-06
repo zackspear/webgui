@@ -74,7 +74,6 @@ function missing_cache() {
 tr#copy,tr#file{display:none}
 td.gap{padding-left:26px!important}
 span#pass{display:none;margin-left:20px}
-span.fixedwidth{display:inline-block;width:160px}
 </style>
 <script>
 var ctrl = "<span class='status <?=$tabbed?'':'vhshift'?>'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
@@ -276,24 +275,6 @@ $btrfs = exec('pgrep -cf /sbin/btrfs') ? '<br><small>Disabled -- BTRFS operation
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
-  shortcut.add('Ctrl+1',function(){toggle_diskio();});
-<?if ($var['fsState']=='Started' && !($parity||$mover||$btrfs)):?>
-  shortcut.add('Ctrl+S',function(){stopArray(document.arrayOps);});
-<?endif;?>
-<?if ($var['fsState']=='Started' && !$var['mdResyncPos']):?>
-  shortcut.add('Ctrl+P',function(){$(document.arrayOps).append('<input type="hidden" name="cmdCheck" value="c">').submit();});
-<?endif;?>
-  shortcut.add('Ctrl+H',function(){openBox('/webGui/include/ParityHistory.php','Parity/Read-Check History',600,900,false);});
-<?if (!$parity):?>
-  shortcut.add('Ctrl+Down',function(){toggle_state('down');});
-  shortcut.add('Ctrl+Up',function(){toggle_state('up');});
-<?endif;?>
-  shortcut.add('Ctrl+0',function(){toggle_state('Clear');});
-<?if (!$mover):?>
-  shortcut.add('Ctrl+M',function(){$(document.mover_schedule).append('<input type="hidden" name="cmdStartMover" value="m">').submit();});
-<?endif;?>
-  shortcut.add('Ctrl+R',function(){shutdown_now(document.shutdownOps,'reboot');});
-  shortcut.add('Ctrl+X',function(){shutdown_now(document.shutdownOps,'shutdown');});
 });
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
@@ -581,19 +562,6 @@ enable_stop();
 > <i class='fa fa-warning orb yellow-orb'></i>Array is Started, but Parity is invalid.
 >
 > <i class='fa fa-warning orb grey-orb'></i>Array is Stopped, Parity is invalid.
->
-> **<span class='fixedwidth'>Operation</span>Shortcut**
->
-> <span class='fixedwidth'>Array stop</span>Ctrl+S<br>
-> <span class='fixedwidth'>Parity check</span>Ctrl+P<br>
-> <span class='fixedwidth'>Parity history</span>Ctrl+H<br>
-> <span class='fixedwidth'>Spin disks down</span>Ctrl+Down<br>
-> <span class='fixedwidth'>Spin disks up</span>Ctrl+Up<br>
-> <span class='fixedwidth'>Clear statistics</span>Ctrl+0<br>
-> <span class='fixedwidth'>Toggle statistics</span>Ctrl+1<br>
-> <span class='fixedwidth'>Start mover</span>Ctrl+M<br>
-> <span class='fixedwidth'>System reboot</span>Ctrl+R<br>
-> <span class='fixedwidth'>System shutdown</span>Ctrl+X<br>
 >
 <?if ($var['fsState'] == "Stopped"):?>
 > #### Assigning Devices
