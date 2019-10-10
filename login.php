@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
             $_SESSION['unraid_user'] = $_POST['username'];
             session_regenerate_id();
             session_write_close();
+            exec("logger ".escapeshellarg("WebUI: Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));        
             header("Location: /".$var['START_PAGE']);
             exit;
         }
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
 
     // Invalid login
     $error = 'Invalid Username or Password';
+    exec("logger ".escapeshellarg("WebUI: Unsuccessful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));
 }
 
 session_write_close();
