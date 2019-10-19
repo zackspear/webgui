@@ -1,18 +1,18 @@
 <?php
-session_name("unraid_".md5(strstr($_SERVER['HTTP_HOST'].':', ':', true)));
-session_set_cookie_params(0, '/; samesite=strict', null, array_key_exists('HTTPS', $_SERVER), true);
-session_start();
-
-// authorized
-if (isset($_SESSION["unraid_login"])) {
-  if (time() - $_SESSION['unraid_login'] > 300) {
-    $_SESSION['unraid_login'] = time();
+// only start the session if a session cookie exists
+if (isset($_COOKIE[session_name()])) {
+  session_start();
+  // authorized?
+  if (isset($_SESSION["unraid_login"])) {
+    if (time() - $_SESSION['unraid_login'] > 300) {
+      $_SESSION['unraid_login'] = time();
+    }
+    session_write_close();
+    http_response_code(200);
+    exit;
   }
   session_write_close();
-  http_response_code(200);
-  exit;
 }
-session_write_close();
 
 $arrWhitelist = [
   '/webGui/styles/clear-sans-bold-italic.eot',

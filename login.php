@@ -1,8 +1,4 @@
 <?php
-session_name("unraid_".md5(strstr($_SERVER['HTTP_HOST'].':', ':', true)));
-session_set_cookie_params(0, '/; samesite=strict', null, array_key_exists('HTTPS', $_SERVER), true);
-session_start();
-
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
 
@@ -11,9 +7,14 @@ $error = '';
 
 if ($_SERVER['REQUEST_URI'] == '/logout') {
     // User Logout
-    unset($_SESSION['unraid_login']);
-    unset($_SESSION['unraid_user']);
-    session_regenerate_id();
+    if (isset($_COOKIE[session_name()])) {
+        session_start();
+        // delete session file
+        session_destroy();
+        // delete the session cookie
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', 0, '/', $params['domain'], $params['secure'], isset($params['httponly']));
+    }
     $error = 'Successfully logged out';
 } else if (!empty($_POST['username']) && !empty($_POST['password'])) {
     // User Login attempt
@@ -22,10 +23,11 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
 
         // Validate credentials
         if ($_POST['username'] == $user && password_verify($_POST['password'], $pwhash)) {
-            // Successful login
+            // Successful login, start session
+            session_start();
             $_SESSION['unraid_login'] = time();
             $_SESSION['unraid_user'] = $_POST['username'];
-            session_regenerate_id();
+            session_regenerate_id(true);
             session_write_close();
             exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));        
             header("Location: /".$var['START_PAGE']);
@@ -38,7 +40,6 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
     exec("logger -t webGUI ".escapeshellarg("Unsuccessful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));
 }
 
-session_write_close();
 
 $boot   = "/boot/config/plugins/dynamix";
 $myfile = "case-model.cfg";
