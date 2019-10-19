@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
     // User Logout
     if (isset($_COOKIE[session_name()])) {
         session_start();
+        unset($_SESSION['unraid_login']);
+        unset($_SESSION['unraid_user']);
         // delete session file
         session_destroy();
         // delete the session cookie
