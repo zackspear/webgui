@@ -723,7 +723,7 @@ function update1() {
       } else {
         $('td#'+vtun+'-hs-'+n[vtun]).text('not received');
       }
-      $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i>&nbsp;&nbsp;&nbsp;'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i>');
+      $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i>&nbsp;&nbsp;&nbsp;'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i>');
     }
     setTimeout(update1,1000);
   });
