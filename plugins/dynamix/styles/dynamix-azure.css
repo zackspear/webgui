@@ -29,7 +29,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 #sb-info-inner,#sb-loading-inner,div.sb-message{color:#1c1b1b;background-color:#f2f2f2}
 #sb-title,#sb-title-inner{border-top-left-radius:10px;border-top-right-radius:10px;width:100%;height:5rem;line-height:5rem;font-family:clear-sans;font-size:1.8rem;font-weight:bold;letter-spacing:1.8px;background:#c0c0c0;color:#606060;text-indent:10px;text-align:center}
 #sb-title,#sb-info{position:relative;margin:0;padding:0;overflow:hidden}
-#sb-container{position:fixed;margin:0;padding:0;top:0;left:0;z-index:999;text-align:left;visibility:hidden;display:none}
+#sb-container{position:fixed;margin:0;padding:0;top:0;left:0;z-index:10000;text-align:left;visibility:hidden;display:none}
 #sb-overlay{position:relative;height:100%;width:100%}
 #sb-wrapper{position:absolute;visibility:hidden;width:100px;border:1px #808080 solid;border-radius:10px;color:#1c1b1b;background:#f2f2f2}
 #sb-wrapper-inner{overflow:hidden;height:10rem}
@@ -44,7 +44,7 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 #sb-info-inner{font-family:clear-sans;font-size:1.3rem}
 #sb-nav{float:right;height:16px;padding:2px 0;width:45%}
 #sb-nav a{display:block;float:right;height:16px;width:16px;margin-left:3px;cursor:pointer;background-repeat:no-repeat}
-#sb-nav-close{background-image:url(../images/close.png);position:absolute;display:block;z-index:999;width:32px;height:32px;top:-16px;right:-16px;cursor:pointer}
+#sb-nav-close{background-image:url(../images/close.png);position:absolute;display:block;z-index:10000;width:32px;height:32px;top:-16px;right:-16px;cursor:pointer}
 #sb-counter{float:left;width:45%}
 #sb-counter a{padding:0 4px 0 0;text-decoration:none;cursor:pointer}
 #sb-counter a.sb-counter-current{text-decoration:underline}
