@@ -202,23 +202,29 @@ Use cache (for new files/directories):
   <?=mk_option($share['useCache'], "prefer", "Prefer")?>
   </select><span id="moverAction"></span>
 
-> Specify whether new files and directories written on the share can be written onto the Cache disk/pool
-> if present.
+> Specify whether new files and directories written on the share can be written onto the Cache disk/pool if present.  
+> This setting also affects *mover* behavior.
 >
-> **No** prohibits new files and subdirectories from being written onto the Cache disk/pool.
+> **No** prohibits new files and subdirectories from being written onto the Cache disk/pool.  
+> *Mover* will take no action so any existing files for this share that are on the cache are left there.
 >
 > **Yes** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  If there is insufficient space on the Cache disk/pool, then
-> new files and directories are created on the array.  When the *mover* is invoked, files and subdirectories are
-> transferred off the Cache disk/pool and onto the array.
+> enough free space exists on the Cache disk/pool.  
+> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
+> When the *mover* is invoked, files and subdirectories are transferred off the Cache disk/pool and onto the array.
 >
-> **Only** indicates that all new files and subdirectories must be writen to the Cache disk/pool.  If there
-> is insufficient free space on the Cache disk/pool, *create* operations will fail with *out of space* status.
+> **Only** indicates that all new files and subdirectories must be writen to the Cache disk/pool.  
+> If there is insufficient free space on the Cache disk/pool, *create* operations will fail with *out of space* status.  
+> *Mover* will take no action so any existing files for this share that are on the array are left there.
 >
 > **Prefer** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  If there is insufficient space on the Cache disk/pool, then
-> new files and directories are created on the array.  When the *mover* is invoked, files and subdirectories are
-> transferred off the array and onto Cache disk/pool.
+> enough free space exists on the Cache disk/pool.  
+> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
+> When the *mover* is invoked, files and subdirectories are transferred off the array and onto the Cache disk/pool.
+>
+> **NOTE:** Mover will never move any files that are currently in use.  
+> Tnis means if you want to move files associated with system services such as Docker or VMs then you need to
+> disable these services while nover is running.  
 
 Enable Copy-on-write:
 : <select name="shareCOW" size="1"<?if ($name):?> disabled<?endif;?>>
