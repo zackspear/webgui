@@ -151,6 +151,8 @@ Tunable (enable NCQ):
 > If set to **No** then *Native Command Queuing* is disabled for all array devices that support NCQ.
 >
 > **Auto** leaves the setting for each device as-is.
+>
+> Note: You must reboot after selecting Auto for setting to take effect.
 
 Tunable (nr_requests):
 : <input type="text" name="nr_requests" maxlength="10" value="<?=$var['nr_requests']?>" class="narrow"><?=$var['nr_requests_status']?>
@@ -159,7 +161,22 @@ Tunable (nr_requests):
 >
 > **Auto** leaves the setting for each device as-is.
 >
-> Note: if you set to blank and click Apply, the setting is restored to its default.
+> Note: if you set to blank and click Apply, the setting is restored to its default, and you must reboot for setting to take effect.
+
+Tunable (scheduler):
+: <select name="md_scheduler" size="1">
+  <?=mk_option($var['md_scheduler'], "auto", "Auto")?>
+  <?=mk_option($var['md_scheduler'], "mq-deadline", "mq-deadline")?>
+  <?=mk_option($var['md_scheduler'], "kyber", "kyber")?>
+  <?=mk_option($var['md_scheduler'], "bfq", "bfq")?>
+  <?=mk_option($var['md_scheduler'], "none", "none")?>
+  </select>
+
+> Selects which kernel I/O scheduler to use for all array devices.
+>
+> **Auto** leaves the setting for each device as-is (mq-deadline).
+>
+> Note: You must reboot after selecting Auto for setting to take effect.
 
 Tunable (md_num_stripes):
 : <input type="text" name="md_num_stripes" maxlength="10" value="<?=$var['md_num_stripes']?>" class="narrow"><?=$var['md_num_stripes_status']?>
@@ -167,7 +184,7 @@ Tunable (md_num_stripes):
 > This is the size of the *stripe pool* in number of *stripes*.  A *stripe* refers to a data structure that faclitiates parallel 4K read/write
 > operations necessary for a parity-protected array.
 >
-> Note: if you set to blank and click Apply, the setting is restored to its default.
+> Note: if you set to blank and click Apply, the setting is restored to its default, and will take effect after reboot.
 
 Tunable (md_queue_limit):
 : <input type="text" name="md_queue_limit" maxlength="10" value="<?=$var['md_queue_limit']?>" class="narrow"><?=$var['md_queue_limit_status']?>
