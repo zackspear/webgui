@@ -224,7 +224,7 @@ Use cache (for new files/directories):
 >
 > **NOTE:** Mover will never move any files that are currently in use.  
 > Tnis means if you want to move files associated with system services such as Docker or VMs then you need to
-> disable these services while nover is running.  
+> disable these services while mover is running.  
 
 Enable Copy-on-write:
 : <select name="shareCOW" size="1"<?if ($name):?> disabled<?endif;?>>
