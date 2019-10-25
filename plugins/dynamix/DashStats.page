@@ -237,7 +237,7 @@ form[name=boot]{display:none}
 <i id='mycase' class='fa fa-hdd-o'></i><br>
 <?endif;?>
 </span>
-<input type='button' value='Edit' onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","Select Case Model",600,980,true,"setCase");return false'>
+<input type='button' value='Edit' onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","Select Case Model",700,980,true,"setCase");return false'>
 </div>
 </td><td></td></tr>
 </tbody>

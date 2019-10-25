@@ -2,13 +2,14 @@
 src:url('font-cases.eot?20190217');src:url('font-cases.eot?20190217#iefix') format('embedded-opentype'),url('font-cases.ttf?20190217') format('truetype'),url('font-cases.woff?20190217') format('woff'),url('font-cases.svg?20190217#cases') format('svg')}
 [class^='case-'],[class*=' case-']{font-family:cases!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none}
 .case-1u-disks:before{content:'\e90d'}
-.case-1u-vents:before{content:'\e90e'}
+.case-1u-vents:before{content:'\e90e'} 
 .case-2u-disks:before{content:'\e90b'}
 .case-2u-poweredge:before{content:'\e91d'}
 .case-2u-vents:before{content:'\e90c'}
+.case-3u-avs-10-4:before{content:'\e91a'}
 .case-3u-disks:before{content:'\e90a'}
 .case-3u-fans:before{content:'\e909'}
-.case-3u-md1510:before{content:'\e91a'}
+.case-3u-vents:before{content:'\e921'}
 .case-4u-disks:before{content:'\e908'}
 .case-4u-fans:before{content:'\e907'}
 .case-4u-storinator:before{content:'\e91b'}
@@ -25,12 +26,16 @@ src:url('font-cases.eot?20190217');src:url('font-cases.eot?20190217#iefix') form
 .case-mid-tower:before{content:'\e916'}
 .case-mini-tower:before{content:'\e917'}
 .case-nineteen-hundred:before{content:'\e903'}
+.case-node-202:before{content:'\e922'}
 .case-node-804:before{content:'\e904'}
 .case-nova-x2m:before{content:'\e90f'}
+.case-obsidian-550d:before{content:'\e923'}
+.case-obsidian-550d:before{content:'\e924'}
 .case-poweredge-t630:before{content:'\e912'}
 .case-router:before{content:'\e91f'}
 .case-sff:before{content:'\e918'}
 .case-storinator-ws:before{content:'\e91c'}
 .case-stormtrooper:before{content:'\e91e'}
 .case-v350:before{content:'\e919'}
+.case-vivopc:before{content:'\e925'}
 .case-vm:before{content:'\e920'}
