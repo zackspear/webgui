@@ -1,5 +1,5 @@
 @font-face{font-family:cases;font-weight:normal;font-style:normal;
-src:url('font-cases.eot?20190217');src:url('font-cases.eot?20190217#iefix') format('embedded-opentype'),url('font-cases.ttf?20190217') format('truetype'),url('font-cases.woff?20190217') format('woff'),url('font-cases.svg?20190217#cases') format('svg')}
+src:url('font-cases.eot?20191026');src:url('font-cases.eot?20191026#iefix') format('embedded-opentype'),url('font-cases.ttf?20191026') format('truetype'),url('font-cases.woff?20191026') format('woff'),url('font-cases.svg?20191026#cases') format('svg')}
 [class^='case-'],[class*=' case-']{font-family:cases!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none}
 .case-1u-disks:before{content:'\e907'}
 .case-1u-vents:before{content:'\e908'}
