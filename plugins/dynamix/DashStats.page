@@ -472,8 +472,20 @@ foreach ($users as $user) {
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec[$share['name']]['writeList'],$name)!==false) $write++;
-      if (strpos($sec[$share['name']]['readList'],$name)!==false) $read++;
+      $access = $sec[$share['name']];
+      if ($access['export']=='-') continue;
+      switch ($access['security']) {
+      case 'public':
+        $write++;
+        break;
+      case 'secure':
+        if (in_array($name,explode(',',$access['writeList']))) $write++; else $read++;
+        break;
+      case 'private':
+        if (in_array($name,explode(',',$access['writeList']))) $write++;
+        if (in_array($name,explode(',',$access['readList']))) $read++;
+        break;
+      }
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
@@ -492,8 +504,20 @@ foreach ($users as $user) {
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec_afp[$share['name']]['writeList'],$name)!==false) $write++;
-      if (strpos($sec_afp[$share['name']]['readList'],$name)!==false) $read++;
+      $access = $sec_afp[$share['name']];
+      if ($access['export']=='-') continue;
+      switch ($access['security']) {
+      case 'public':
+        $write++;
+        break;
+      case 'secure':
+        if (in_array($name,explode(',',$access['writeList']))) $write++; else $read++;
+        break;
+      case 'private':
+        if (in_array($name,explode(',',$access['writeList']))) $write++;
+        if (in_array($name,explode(',',$access['readList']))) $read++;
+        break;
+      }
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
