@@ -83,7 +83,7 @@ foreach ($cases as $case) if (substr($case,0,6)=='.case-') $models[] = substr($c
 sort($models);
 foreach ($models as $model) {
   $name = substr($model,5);
-  $title = str_replace('3u-md1510','avs-10/4',$name);
+  $title = str_replace('3u-avs-10-4','3u-avs-10/4',$name);
   $select = $name==$casemodel ? 'color:#e68a00' : '';
   echo "<a style='text-decoration:none;cursor:pointer;$select' onclick='setCase(\"$name\")'><div class='case-list' id='$name'><i class='$model'></i><div class='case-name'>$title</div></div></a>";
 }
