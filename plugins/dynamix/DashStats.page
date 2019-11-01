@@ -739,13 +739,17 @@ function update1() {
       var info = row[i].split(';');
       vtun = info[0];
       if (typeof n[vtun]=='undefined') n[vtun] = 0; else n[vtun]++;
-      if (info[1] > 0) {
-        var hr = parseInt(info[1]/3600).pad();
-        var mn = parseInt(info[1]/60%60).pad();
-        var sc = parseInt(info[1]%60).pad();
-        $('td#'+vtun+'-hs-'+n[vtun]).text(hr+':'+mn+':'+sc+' ago');
-      } else {
+      if (info[1] == 0) {
         $('td#'+vtun+'-hs-'+n[vtun]).text('not received');
+      } else if (info[1] > 86400) {
+        var d = parseInt(info[1]/86400);
+        var s = d==1 ? s = '' : s = 's';
+        $('td#'+vtun+'-hs-'+n[vtun]).text(d+' day'+s+' ago');
+      } else {
+        var h = parseInt(info[1]/3600).pad();
+        var m = parseInt(info[1]/60%60).pad();
+        var s = parseInt(info[1]%60).pad();
+        $('td#'+vtun+'-hs-'+n[vtun]).text(h+':'+m+':'+s+' ago');
       }
       $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i>&nbsp;&nbsp;&nbsp;'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i>');
     }
