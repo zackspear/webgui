@@ -743,7 +743,7 @@ function update1() {
         $('td#'+vtun+'-hs-'+n[vtun]).text('not received');
       } else if (info[1] > 86400) {
         var d = parseInt(info[1]/86400);
-        var s = d==1 ? s = '' : s = 's';
+        var s = d==1 ? '' : 's';
         $('td#'+vtun+'-hs-'+n[vtun]).text(d+' day'+s+' ago');
       } else {
         var h = parseInt(info[1]/3600).pad();
