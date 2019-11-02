@@ -130,9 +130,8 @@ function prepareInput(form) {
   form.file.disabled = true;
   form.text.disabled = true;
   form.copy.disabled = true;
-  var text = base64(form.text.value);
-  if (text) {
-    $(form).append('<input type="hidden" name="luksKey" value="'+text+'">');
+  if (form.text.value) {
+    $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
     form.submit();
     return;
   }
