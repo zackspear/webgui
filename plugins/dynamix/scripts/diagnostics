@@ -85,9 +85,9 @@ foreach (glob("$get/*.ini") as $file) {
   if ($all || $ini != "users") file_put_contents("/$diag/system/vars.txt",preg_replace(["/\n/","/^Array/"],["\r\n",$ini],anonymize(print_r(parse_ini_file($file,true),true),1)),FILE_APPEND);
 }
 // Create loads.txt
-$cpuload = exert("uptime")."  Cores: ".exert("nproc")."\r\n".(string)@file_get_contents("/var/local/emhttp/cpuload.ini")."\r\n";
-$diskload = (array)@file("/var/local/emhttp/diskload.ini");
-$disks = (array)@parse_ini_file("/var/local/emhttp/disks.ini",true);
+$cpuload = exert("uptime")."  Cores: ".exert("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
+$diskload = (array)@file("$get/diskload.ini");
+$disks = (array)@parse_ini_file("$get/disks.ini",true);
 $loadTxt = [];
 foreach ($diskload as $loadLine) {
   $load = explode('=',$loadLine);
