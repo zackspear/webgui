@@ -19,11 +19,12 @@ function curl_socket($socket, $url, $postdata = NULL)
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
     }
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_exec($ch);
+    $result = curl_exec($ch);
     curl_close($ch);
+    return $result;
 }
 function publish($endpoint, $message)
 {
-    curl_socket("/var/run/nginx.socket", "http://localhost/pub/$endpoint?buffer_length=1", $message);
+    return curl_socket("/var/run/nginx.socket", "http://localhost/pub/$endpoint?buffer_length=1", $message);
 }
 ?>
