@@ -3,8 +3,8 @@ Title="Share Settings"
 Tag="share-alt-square"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -223,7 +223,7 @@ Use cache (for new files/directories):
 > When the *mover* is invoked, files and subdirectories are transferred off the array and onto the Cache disk/pool.
 >
 > **NOTE:** Mover will never move any files that are currently in use.  
-> Tnis means if you want to move files associated with system services such as Docker or VMs then you need to
+> This means if you want to move files associated with system services such as Docker or VMs then you need to
 > disable these services while mover is running.  
 
 Enable Copy-on-write:

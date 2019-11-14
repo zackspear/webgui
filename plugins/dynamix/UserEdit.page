@@ -41,6 +41,7 @@ i.top{position:absolute;padding-top:4px;cursor:pointer;}
 </style>
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
 <script>
 var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
@@ -50,6 +51,8 @@ function checkPassword(form) {
     swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
     return false;
   }
+  form.userPassword.value = base64(form.userPassword.value);
+  form.userPasswordConf.value = base64(form.userPasswordConf.value);
   return true;
 }
 

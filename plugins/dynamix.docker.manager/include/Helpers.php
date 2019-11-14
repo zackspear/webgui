@@ -380,11 +380,9 @@ function pullImage($name, $image, $echo=true) {
   $strError = '';
   $DockerClient->pullImage($image, function ($line) use (&$alltotals, &$laststatus, &$waitID, &$strError, $image, $DockerClient, $DockerUpdate, $echo) {
     $cnt = json_decode($line, true);
-    $id = (isset($cnt['id'])) ? trim($cnt['id']) : '';
-    $status = (isset($cnt['status'])) ? trim($cnt['status']) : '';
-    if (isset($cnt['error'])) {
-      $strError = $cnt['error'];
-    }
+    $id = $cnt['id'] ?? '';
+    $status = $cnt['status'] ?? '';
+    if ($cnt['error']) $strError = $cnt['error'];
     if ($waitID !== false) {
       if ($echo) {
         echo "<script>stop_Wait($waitID);</script>\n";
@@ -406,26 +404,26 @@ function pullImage($name, $image, $echo=true) {
           break;
         case 'Downloading':
           if ($laststatus[$id] != $status) {
-            if ($echo) echo "<script>addToID('${id}','".addslashes(htmlspecialchars($status))."');</script>\n";
+            if ($echo) echo "<script>addToID('$id','".addslashes(htmlspecialchars($status))."');</script>\n";
           }
           $total = $cnt['progressDetail']['total'];
           $current = $cnt['progressDetail']['current'];
           if ($total > 0) {
             $percentage = round(($current / $total) * 100);
-            if ($echo) echo "<script>progress('${id}',' ".$percentage."% of ".$DockerClient->formatBytes($total)."');</script>\n";
+            if ($echo) echo "<script>progress('$id',' ".$percentage."% of ".$DockerClient->formatBytes($total)."');</script>\n";
           } else {
             // Docker must not know the total download size (http-chunked or something?)
             // just show the current download progress without the percentage
             $alltotals[$id] = $current;
-            if ($echo) echo "<script>progress('${id}',' ".$DockerClient->formatBytes($current)."');</script>\n";
+            if ($echo) echo "<script>progress('$id',' ".$DockerClient->formatBytes($current)."');</script>\n";
           }
           break;
         default:
           if ($laststatus[$id] == "Downloading") {
-            if ($echo) echo "<script>progress('${id}',' 100% of ".$DockerClient->formatBytes($alltotals[$id])."');</script>\n";
+            if ($echo) echo "<script>progress('$id',' 100% of ".$DockerClient->formatBytes($alltotals[$id])."');</script>\n";
           }
           if ($laststatus[$id] != $status) {
-            if ($echo) echo "<script>addToID('${id}','".addslashes(htmlspecialchars($status))."');</script>\n";
+            if ($echo) echo "<script>addToID('".($id=='latest'?rand():$id)."','".addslashes(htmlspecialchars($status))."');</script>\n";
           }
           break;
       }
