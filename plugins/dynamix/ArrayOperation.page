@@ -276,6 +276,17 @@ $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
 });
+function formatWarning(val) {
+  if (val==true) 
+    swal({
+      title: 'Format Unmountable disks',
+      text: 'Create an empty file system on the disks shown as <b>Unmountable</b> discarding all data currently on the disks and update parity to reflect this. '
+           + 'This is typically done when a new disk is added to the array to get it ready for files to be written to it.<br/>'
+           + '<p><br/><b>IMPORTANT</b>'
+           + '<p>A format is <b>NEVER</b> part of a data recovery or disk rebuild process and if done in such circumstances will normally lead to loss of all data on the disks being formatted.',
+      html: true
+    });
+}
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
@@ -291,9 +302,9 @@ $(function(){
 <?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
       echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";?>
       </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
-      <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
-      <small>Yes I want to do this&nbsp;<i class="fa fa-asterisk red-text" ></i></small><span><b>All data is permanently lost !!!<br>This is not used to recover data</b><br><i>Format is never part of a rebuild</i></span></a>
+      <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks.<br>
+      <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="formatWarning(this.checked),$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
+     <small>Yes I want to do this</small></a>
       </td></tr>
 <?  endif;
     if (!$var['mdResyncPos']):
