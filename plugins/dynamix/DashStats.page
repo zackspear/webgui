@@ -172,7 +172,7 @@ div.left{float:left;width:66%;margin-top:-12px}
 div.right{float:right;margin:-12px 20px 0 0;text-align:center}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
-span.inner{width:155px}
+span.inner{width:<?=$theme1?153:140?>px}
 span.ups{width:124px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
@@ -237,7 +237,7 @@ form[name=boot]{display:none}
 <i id='mycase' class='fa fa-hdd-o'></i><br>
 <?endif;?>
 </span>
-<input type='button' value='Edit' onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","Select Case Model",600,980,true,"setCase");return false'>
+<input type='button' value='Edit' onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","Select Case Model",700,980,true,"setCase");return false'>
 </div>
 </td><td></td></tr>
 </tbody>
@@ -245,7 +245,7 @@ form[name=boot]{display:none}
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-motherboard'></i><div class='section'>Motherboard<br><span id='mb-temp'></span><br><br></div>
 <i class='fa fa-fw chevron' id='mb_view' onclick='toggleChevron("mb_view",0)'></i>
-<a href='/Dashboard/ManagementAccess' title='Go to access settings'><i class='fa fa-fw fa-cog chevron'></i></a>
+<a href='#' onclick='InfoButton();' title='Show Information'><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='mb_view'><td></td><td colspan='3'><?=$board?><br><?=$bios?><br><?=$biosdate?></td><td></td></tr>
 </tbody>
@@ -276,7 +276,7 @@ foreach ($cpus as $pair) {
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-ram'></i><div class='section'>Memory<br><span><?="$memory_installed $unit $memory_type $ecc"?><span id='util'>Utilization: <span class='sys0'>0%</span></span><br><br></div>
 <i class='fa fa-fw chevron' id='mem_view' onclick='toggleChevron("mem_view",0)'></i>
-<a href='/Dashboard/DiskSettings' title='Go to disk settings'><i class='fa fa-fw fa-cog chevron'></i></a>
+<a href='/Dashboard/Processes' title='View Running Processes'><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='mem_view'><td></td><td>Maximum size: <?="$memory_maximum $unit"?><?=$low?'*':''?></td><td><i class='mm'>RAM</i><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></td>
 <td><i class='mm'>Flash</i><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></td><td></td></tr>
@@ -472,8 +472,20 @@ foreach ($users as $user) {
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec[$share['name']]['writeList'],$name)!==false) $write++;
-      if (strpos($sec[$share['name']]['readList'],$name)!==false) $read++;
+      $access = $sec[$share['name']];
+      if ($access['export']=='-') continue;
+      switch ($access['security']) {
+      case 'public':
+        $write++;
+        break;
+      case 'secure':
+        if (in_array($name,explode(',',$access['writeList']))) $write++; else $read++;
+        break;
+      case 'private':
+        if (in_array($name,explode(',',$access['writeList']))) $write++;
+        if (in_array($name,explode(',',$access['readList']))) $read++;
+        break;
+      }
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
@@ -492,8 +504,20 @@ foreach ($users as $user) {
   } else {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
-      if (strpos($sec_afp[$share['name']]['writeList'],$name)!==false) $write++;
-      if (strpos($sec_afp[$share['name']]['readList'],$name)!==false) $read++;
+      $access = $sec_afp[$share['name']];
+      if ($access['export']=='-') continue;
+      switch ($access['security']) {
+      case 'public':
+        $write++;
+        break;
+      case 'secure':
+        if (in_array($name,explode(',',$access['writeList']))) $write++; else $read++;
+        break;
+      case 'private':
+        if (in_array($name,explode(',',$access['writeList']))) $write++;
+        if (in_array($name,explode(',',$access['readList']))) $read++;
+        break;
+      }
     }
   }
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
@@ -715,13 +739,17 @@ function update1() {
       var info = row[i].split(';');
       vtun = info[0];
       if (typeof n[vtun]=='undefined') n[vtun] = 0; else n[vtun]++;
-      if (info[1] > 0) {
-        var hr = parseInt(info[1]/3600).pad();
-        var mn = parseInt(info[1]/60%60).pad();
-        var sc = parseInt(info[1]%60).pad();
-        $('td#'+vtun+'-hs-'+n[vtun]).text(hr+':'+mn+':'+sc+' ago');
-      } else {
+      if (info[1] == 0) {
         $('td#'+vtun+'-hs-'+n[vtun]).text('not received');
+      } else if (info[1] > 86400) {
+        var d = parseInt(info[1]/86400);
+        var s = d==1 ? '' : 's';
+        $('td#'+vtun+'-hs-'+n[vtun]).text(d+' day'+s+' ago');
+      } else {
+        var h = parseInt(info[1]/3600).pad();
+        var m = parseInt(info[1]/60%60).pad();
+        var s = parseInt(info[1]%60).pad();
+        $('td#'+vtun+'-hs-'+n[vtun]).text(h+':'+m+':'+s+' ago');
       }
       $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i>&nbsp;&nbsp;&nbsp;'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i>');
     }

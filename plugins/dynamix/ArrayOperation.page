@@ -75,6 +75,7 @@ tr#copy,tr#file{display:none}
 td.gap{padding-left:26px!important}
 span#pass{display:none;margin-left:20px}
 </style>
+<script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
 <script>
 var ctrl = "<span class='status <?=$tabbed?'':'vhshift'?>'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
@@ -118,39 +119,6 @@ function getFileContent(event,form) {
   reader.onload = function(){form.file.value=reader.result;selectInput(form);};
   reader.readAsDataURL(input.files[0]);
 }
-function base64(text) {
-  var xlat = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  var size = text.length;
-  var tail = size % 3;
-  var code = '';
-  var l, t, x;
-
-  function encode(i) {
-    return xlat.charAt(i & 0x3F);
-  }
-  function shift(n) {
-    return encode(n >> 18) + encode(n >> 12) + encode(n >> 6) + encode(n);
-  }
-  for (x=0, l=size-tail; x<l; x+=3) {
-    code += shift((text.charCodeAt(x) << 16) + (text.charCodeAt(x+1) << 8) + text.charCodeAt(x+2));
-  }
-  switch (tail) {
-  case 1:
-    t = text.charCodeAt(size-1);
-    code += encode(t >> 2);
-    code += encode(t << 4);
-    code += '==';
-    break;
-  case 2:
-    t = (text.charCodeAt(size-2) << 8) + text.charCodeAt(size-1);
-    code += encode(t >> 10);
-    code += encode(t >> 4);
-    code += encode(t << 2);
-    code += '=';
-    break;
-  }
-  return code;
-}
 function prepareInput(form) {
   $(form).append('<input type="hidden" name="cmdStart" value="Start">');
   if (form.input === undefined) {
@@ -162,9 +130,8 @@ function prepareInput(form) {
   form.file.disabled = true;
   form.text.disabled = true;
   form.copy.disabled = true;
-  var text = base64(form.text.value);
-  if (text) {
-    $(form).append('<input type="hidden" name="luksKey" value="'+text+'">');
+  if (form.text.value) {
+    $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
     form.submit();
     return;
   }
