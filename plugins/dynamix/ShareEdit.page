@@ -93,7 +93,7 @@ foreach ($rows as $row) echo $row;
 <input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
 
 Share name:
-: <input type="text" name="shareName" maxlength="40" value="<?=htmlspecialchars($name)?>">
+: <input type="text" name="shareName" maxlength="40" value="<?=htmlspecialchars($name)?>" pattern="^[^/\\]*$" title="Slashes are not allowed">
 
 > The share name can be up to 40 characters, and is case-sensitive with these restrictions:
 >
