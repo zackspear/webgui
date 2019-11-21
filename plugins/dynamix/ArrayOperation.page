@@ -249,8 +249,9 @@ function formatWarning(val) {
       title: 'Format Unmountable disks',
       text: 'Create an empty file system on the disks shown as <b>Unmountable</b> discarding all data currently on the disks and update parity to reflect this. '
            + 'This is typically done when a new disk is added to the array to get it ready for files to be written to it.<br/>'
-           + '<p><br/><b>IMPORTANT</b>'
+           + '<p><br/><b>WARNING</b>'
            + '<p>A format is <b>NEVER</b> part of a data recovery or disk rebuild process and if done in such circumstances will normally lead to loss of all data on the disks being formatted.',
+      type: "warning",
       html: true
     });
 }
