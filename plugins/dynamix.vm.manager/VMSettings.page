@@ -80,7 +80,8 @@ body{-webkit-overflow-scrolling:touch}
 <span class="status vhshift"><input type="checkbox" class="advancedview"></span>
 <form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>">
-<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emhttpd_update">
+<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emcmd">
+<input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
 Enable VMs:
 : <select id="SERVICE" name="SERVICE">
   <?= mk_option($libvirt_service, 'disable', 'No'); ?>

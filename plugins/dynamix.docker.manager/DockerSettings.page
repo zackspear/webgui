@@ -136,7 +136,8 @@ span.disabled{color:#404040}
 <form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDocker(this)">
 <input type="hidden" name="#file" value="<?=$docker_cfgfile?>">
 <input type="hidden" name="#include" value="/plugins/dynamix.docker.manager/include/PruneConfig.php">
-<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emhttpd_update">
+<input type="hidden" name="#command" value="/plugins/dynamix/scripts/emcmd">
+<input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="DOCKER_CUSTOM_NETWORKS" value="<?=implode(' ',$unset)?> ">
 Enable Docker:
