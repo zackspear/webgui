@@ -4,9 +4,9 @@ Icon="icon-docker"
 Tag="icon-docker"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2014-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -133,7 +133,7 @@ span.disabled{color:#404040}
 </style>
 <span class="status vhshift"><input type="checkbox" class="advancedview"></span>
 
-<form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDocker(this)">
+<form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareDocker(this)">
 <input type="hidden" name="#file" value="<?=$docker_cfgfile?>">
 <input type="hidden" name="#include" value="/plugins/dynamix.docker.manager/include/PruneConfig.php">
 <input type="hidden" name="#command" value="/plugins/dynamix/scripts/emcmd">
@@ -165,7 +165,7 @@ Docker vDisk size:
 > To resize an existing image file, specify the new size here. Next time the Docker service is started the file (and file system) will increased to the new size (but never decreased).
 
 Docker vDisk location:
-: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required">
+: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" pattern="^[^\\]*\.(img|IMG)$">
   <?if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])):?>
   <span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox"> Delete Image File</label></span>
   <?endif;?>
@@ -180,7 +180,7 @@ Docker vDisk location:
 > It is recommended to create this image file outside the array, e.g. on the Cache pool. For best performance SSD devices are preferred.
 
 Default appdata storage location:
-: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH']?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=(is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/')?>" data-pickfolders="true">
+: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH']?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=(is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/')?>" data-pickfolders="true" pattern="^[^\\]*/$">
   <?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> Modify with caution: unable to validate path until Array is Started</span>
   <?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
@@ -560,6 +560,14 @@ btrfs scrub status:
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 function prepareDocker(form) {
+  var bye = false;
+  $(form).find('input[type="text"]').each(function(){
+    if ($(this).attr('pattern')) {
+      var pattern = new RegExp($(this).attr('pattern'));
+      if (!pattern.test($(this).val())) {$(this).css('color','red'); bye = true;}
+    }
+  });
+  if (bye) return false;
   $(form).find('input:hidden[name^="DOCKER_DHCP_"]').each(function(){
     var id = '#'+$(this).attr('name')+'_';
     if ($(id+'dhcp').prop('checked') && $(id+'edit').prop('checked')) {
@@ -631,6 +639,7 @@ function prepareDocker(form) {
     }
     $(size6).prop('disabled',true);
   });
+  return true;
 }
 function changeEdit(id,ip) {
   var checked = $('#'+id).prop('checked');
