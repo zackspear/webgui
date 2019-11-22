@@ -40,7 +40,7 @@ foreach ($container as $ct) {
   list($name,$size) = explode('|',$ct);
   list($writable,$dummy,$total) = explode(' ',str_replace(['(',')'],'',$size));
   list($value,$base) = explode(' ',gap($total));
-  $list[] = ['name' => $name, 'total' => $value*pow(1000,array_search($base,$unit)), 'writable' => $writable, 'log' => exec("docker inspect --format='{{.LogPath}}' $name|xargs du -b|cut -f1")];
+  $list[] = ['name' => $name, 'total' => $value*pow(1000,array_search($base,$unit)), 'writable' => $writable, 'log' => (exec("docker inspect --format='{{.LogPath}}' $name|xargs du -b 2>/dev/null |cut -f1")) ?: "0"];
 }
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
 foreach ($list as $ct) echo align($ct['name'],-30).align(autoscale($ct['total'])).align($ct['writable']).align(autoscale($ct['log']))."\n";
