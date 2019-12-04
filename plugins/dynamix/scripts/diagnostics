@@ -235,7 +235,10 @@ if ($qemu) {
 // copy VM XML config files
 exert("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml")." 2>/dev/null");
 // anonymize MAC OSK info
-exert("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("/$diag/xml/*.xml")." 2>/dev/null");
+$all_xml = glob("/$diag/xml/*.xml");
+foreach ($all_xml as $xml) {
+  exert("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
+}
 
 // copy syslog information (anonymize if applicable)
 $max = 2*1024*1024; //=2MB
