@@ -22,8 +22,9 @@ $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 
 <script>
 function zipfile(){
-  var d = new Date();
-  return '<?=$zip?>-diagnostics-'+d.toISOString().substr(0,16).replace(/[-:]/g,'').replace('T','-')+'.zip';
+  var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+  var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+  return '<?=$zip?>-diagnostics-'+localISOTime.substr(0,16).replace(/[-:]/g,'').replace('T','-')+'.zip';
 }
 function cleanUp(file) {
   if (document.hasFocus()) {
