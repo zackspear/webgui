@@ -221,7 +221,7 @@ Use SSL/TLS:
 > provisioned and downloaded to your server.
 >
 > Note: After provisioning a Let's Encrypt SSL certificate you may turn off the *updatedns* and *newcert*
-> background processes by chaning this field to **Yes**.
+> background processes by changing this field to **Yes**.
 >
 > **nginx certificate handling details**
 >
