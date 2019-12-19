@@ -226,19 +226,19 @@ Use SSL/TLS:
 > **nginx certificate handling details**
 >
 > The nginx startup script looks for a SSL certificate on the USB boot flash in this order:<br>
-> `config/ssl/certs/certficate_bundle.pem`<br>
+> `config/ssl/certs/certificate_bundle.pem`<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem`
 >
 > If neither file exists, a self-signed SSL certificate is automatically created and stored in<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem`<br>
 >
 > Provisioning a Let's Encrypt certificate writes the certificate to<br>
-> `config/ssl/certs/certficate_bundle.pem`<br>
+> `config/ssl/certs/certificate_bundle.pem`<br>
 >
 > **nginx stapling support**
 >
 > Whether nginx enables OCSP Staping is determined by which certificate is in use:<br>
-> `config/ssl/certs/certficate_bundle.pem` => Yes<br>
+> `config/ssl/certs/certificate_bundle.pem` => Yes<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem` => No
 
 HTTP port:
