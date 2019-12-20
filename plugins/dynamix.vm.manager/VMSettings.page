@@ -293,7 +293,7 @@ $(function(){
     }
     var run = true;
     $("#settingsForm").find('input[type="text"]').each(function(){
-      if ($(this).attr('pattern')) {
+      if ($(this).is(':visible') && $(this).attr('pattern')) {
         var pattern = new RegExp($(this).attr('pattern'));
         if (!pattern.test($(this).val())) {$(this).css('color','red'); run = false;}
       }
