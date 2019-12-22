@@ -287,7 +287,7 @@ class DockerTemplates {
 			if (!$tmp['updated'] || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$vs = $DockerUpdate->getUpdateStatus($image);
-				$tmp['updated'] = $vs===null ? null : ($vs===true ? 'true' : 'false');
+				$tmp['updated'] = $vs===null ? 'undef' : ($vs===true ? 'true' : 'false');
 			}
 			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
