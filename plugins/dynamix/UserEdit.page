@@ -192,7 +192,7 @@ function updateAccess(form,data,n,i) {
   var name = ",<?=$name?>,";
   if (data) {
     if (n<i) {
-      $.post('/update.htm',data[n], function(){setTimeout(function(){updateAccess(form,data,++n,i);},1000);});
+      $.post('/update.htm',data[n], function(){setTimeout(function(){updateAccess(form,data,++n,i);},3000);});
     } else {
       $('div.spinner').html(unraid_logo).hide();
       $('input[value="Reset"]').val('Done').prop('disabled',false).prop('onclick',null).off('click').click(function(){done('UserEdit');});
@@ -205,6 +205,7 @@ function updateAccess(form,data,n,i) {
         var share = decodeURI($(this).prop('id'));
         var access = '';
         data[i] = {};
+        data[i]['shareName'] = share;
         data[i]['userAccess.0'] = '<?=$no?>';
         for (var user in users) {
           var idx = users[user];
@@ -223,7 +224,6 @@ function updateAccess(form,data,n,i) {
           }
           data[i]['userAccess.'+idx] = access;
         }
-        data[i]['shareName'] = share;
         data[i]['changeShareAccess'] = 'Apply';
         i++;
       }
