@@ -409,7 +409,6 @@ button[type=button]{margin:0 20px 0 0}
   function addConfigPopup() {
     var title = 'Add Configuration';
     var popup = $( "#dialogAddConfig" );
-    var network = $('select[name="contNetwork"]')[0].selectedIndex;
 
     // Load popup the popup with the template info
     popup.html($("#templatePopupConfig").html());
@@ -471,7 +470,6 @@ button[type=button]{margin:0 20px 0 0}
   function editConfigPopup(num,disabled) {
     var title = 'Edit Configuration';
     var popup = $("#dialogAddConfig");
-    var network = $('select[name="contNetwork"]')[0].selectedIndex;
 
     // Load popup the popup with the template info
     popup.html($("#templatePopupConfig").html());
@@ -586,6 +584,7 @@ button[type=button]{margin:0 20px 0 0}
     var value      = valueDiv.find('input[name=Value]');
     var target     = targetDiv.find('input[name=Target]');
     var network    = $('select[name="contNetwork"]')[0].selectedIndex;
+    var driver     = drivers[$('select[name="contNetwork"]')[0].value];
 
     value.unbind();
     target.unbind();
@@ -606,14 +605,14 @@ button[type=button]{margin:0 20px 0 0}
     case 1: // Port
       mode.html("<dt>Connection Type:</dt><dd><select name='Mode'><option value='tcp'>TCP</option><option value='udp'>UDP</option></select></dd>");
       value.addClass("numbersOnly");
-      if (network==0) {
+      if (driver=='bridge') {
         if (target.val()) target.prop('disabled',<?=$disableEdit?>); else target.addClass("numbersOnly");
         targetDiv.find('#dt1').text('Container Port:');
         targetDiv.show();
       } else {
         targetDiv.hide();
       }
-      if (network==0 || network==1 || network>2) {
+      if (network!=2) {
         valueDiv.find('#dt2').text('Host Port:');
         valueDiv.show();
       } else {
@@ -699,6 +698,8 @@ button[type=button]{margin:0 20px 0 0}
     });
     $("input[name='contCategory']").val(values.join(" "));
   }
+  var drivers = {};
+  <?foreach ($driver as $d => $v) echo "drivers['$d']='$v';\n";?>
 </script>
 <div id="docker_tabbed" style="float:right;margin-top:-47px"></div>
 <div id="dialogAddConfig" style="display:none"></div>
