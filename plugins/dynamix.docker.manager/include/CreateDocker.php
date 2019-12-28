@@ -583,7 +583,6 @@ button[type=button]{margin:0 20px 0 0}
 
     var value      = valueDiv.find('input[name=Value]');
     var target     = targetDiv.find('input[name=Target]');
-    var network    = $('select[name="contNetwork"]')[0].selectedIndex;
     var driver     = drivers[$('select[name="contNetwork"]')[0].value];
 
     value.unbind();
@@ -612,7 +611,7 @@ button[type=button]{margin:0 20px 0 0}
       } else {
         targetDiv.hide();
       }
-      if (network!=2) {
+      if (driver!='null') {
         valueDiv.find('#dt2').text('Host Port:');
         valueDiv.show();
       } else {
