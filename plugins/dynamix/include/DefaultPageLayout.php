@@ -12,7 +12,7 @@
 ?>
 <?
 $display['font'] = $_COOKIE['fontSize'] ?? $display['font'];
-$theme   = $display['theme'];
+$theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
