@@ -122,16 +122,15 @@ $(function(){
 
 <form markdown="1" name="user_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkUsername(this)">
 User name:
-: <input type="text" name="userName" maxlength="32" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')">
+: <input type="text" name="userName" maxlength="32" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')" pattern="^[a-z_][a-z0-9_-]*[$]?$">
 
 > Usernames may be up to 32 characters long and must start with a **lower case letter** or an underscore,
 > followed by **lower case letters**, digits, underscores, or dashes. They can end with a dollar sign.
-> In regular expression terms: `[a-z_][a-z0-9_-]*[$]?`
 
 Description:
-: <input type="text" name="userDesc" maxlength="64">
+: <input type="text" name="userDesc" maxlength="64" pattern='[^&:"]*'>
 
-> Up to 64 characters.
+> Up to 64 characters. The characters ampersand (&amp;) quote (&quot;) and colon (:) are not allowed.
 
 Custom image:
 : <span id="dropbox"><?=$void?></span><em>Drag-n-drop a PNG file or click the image at the left.</em><input type="file" id="drop" accept=".png" style="display:none">

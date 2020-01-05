@@ -131,9 +131,9 @@ User name:
 : <?=htmlspecialchars($name)?>
 
 Description:
-: <input type="text" name="userDesc" maxlength="64" value="<?=htmlspecialchars($users[$name]['desc'])?>">
+: <input type="text" name="userDesc" maxlength="64" value="<?=htmlspecialchars($users[$name]['desc'])?>" pattern='[^&:"]*'>
 
-> Up to 64 characters.
+> Up to 64 characters. The characters ampersand (&amp;) quote (&quot;) and colon (:) are not allowed.
 
 Custom image:
 : <span id="dropbox">
