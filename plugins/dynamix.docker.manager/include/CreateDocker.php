@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2015-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,7 +20,6 @@ require_once "$docroot/webGui/include/Helpers.php";
 libxml_use_internal_errors(false); # Enable xml errors
 
 $var = parse_ini_file('state/var.ini');
-$cfg = parse_ini_file('boot/config/docker.cfg');
 ignore_user_abort(true);
 
 $DockerClient = new DockerClient();

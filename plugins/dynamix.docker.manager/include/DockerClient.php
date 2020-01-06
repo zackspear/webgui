@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2014-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -33,6 +33,7 @@ $dockerManPaths = [
 // load network variables if needed.
 if (!isset($eth0)) extract(parse_ini_file("$docroot/state/network.ini",true));
 $host = $eth0['IPADDR:0'] ?? '0.0.0.0';
+$system = '/sys/class/net';
 
 // get network drivers
 $driver = DockerUtil::driver();
@@ -712,6 +713,10 @@ class DockerClient {
 	}
 
 	public function startContainer($id) {
+		global $dockercfg, $system;
+		if ($dockercfg['DOCKER_ALLOW_ACCESS']=='yes') {
+			foreach (DockerUtil::shim($id) as $shim => $ip) if (file_exists("$system/$shim") && $ip) exec("ip route add $ip dev $shim 2>/dev/null");
+		}
 		$this->getDockerJSON("/containers/$id/start", 'POST', $code);
 		$this->flushCache($this::$containersCache);
 		return $code;
@@ -724,6 +729,10 @@ class DockerClient {
 	}
 
 	public function stopContainer($id, $t=10) {
+		global $dockercfg, $system;
+		if ($dockercfg['DOCKER_ALLOW_ACCESS']=='yes') {
+			foreach (DockerUtil::shim($id) as $shim => $ip) if (file_exists("$system/$shim") && $ip) exec("ip route del $ip dev $shim 2>/dev/null");
+		}
 		$this->getDockerJSON("/containers/$id/stop?t=$t", 'POST', $code);
 		$this->flushCache($this::$containersCache);
 		return $code;
@@ -942,9 +951,17 @@ class DockerUtil {
 		return $a ? $array : $data;
 	}
 
+	public static function shim($id) {
+		$shim = []; $i = 0;
+		$nets = static::docker("inspect --format='{{json .NetworkSettings.Networks}}' $id|jq|grep -Po '^  \"\\K[^\"]+'|grep -Pv 'host|bridge|none'",true);
+		$ips = explode(' ',static::docker("inspect --format='{{range .NetworkSettings.Networks}}{{.IPAMConfig.IPv4Address}} {{end}}' $id 2>/dev/null"));
+		foreach ($nets as $net) $shim["$net-shim"] = $ips[$i++];
+		return $shim;
+	}
+
 	public static function myIP($name, $version=4) {
 		$ipaddr = $version==4 ? 'IPAddress' : 'GlobalIPv6Address';
-		return static::docker("inspect --format='{{range .NetworkSettings.Networks}}{{.$ipaddr}}{{end}}' $name");
+		return rtrim(static::docker("inspect --format='{{range .NetworkSettings.Networks}}{{.$ipaddr}} {{end}}' $name"));
 	}
 	public static function driver() {
 		$list = [];
