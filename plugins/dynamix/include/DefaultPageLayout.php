@@ -504,6 +504,7 @@ foreach ($pages as $page) {
 unset($pages,$page,$pgs,$pg,$icon);
 ?>
 </div></div>
+<div class="spinner fixed"></div>
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer

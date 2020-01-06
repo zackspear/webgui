@@ -53,6 +53,7 @@ function addLog(logLine) {
 }
 
 function disablePage() {
+  for (var i=0,div; div=top.document.getElementsByClassName('spinner')[i]; i++) div.style.display = 'block';
   for (var i=0,element; element=top.document.querySelectorAll('input,button,select')[i]; i++) element.disabled = true;
   for (var i=0,link; link=top.document.getElementsByTagName('a')[i]; i++) link.style.color = "gray"; //fake disable
 }
