@@ -43,9 +43,6 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
   if ($plugin != 'plugins/dynamix') build_pages("$plugin/*.page");
 }
 
-// Extract the 'querystring'
-extract($_GET);
-
 // Need the following to make php-fpm & nginx work
 if (empty($path))
   $path = substr(explode('?', $_SERVER['REQUEST_URI'])[0], 1);
