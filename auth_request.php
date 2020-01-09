@@ -39,14 +39,12 @@ $arrWhitelist = [
   '/webGui/images/case-model.png',
   '/webGui/images/green-on.png'
 ];
-foreach ($arrWhitelist as $strWhitelist) {
-  if (strpos($_SERVER['REQUEST_URI'], $strWhitelist) === 0) {
-    http_response_code(200);
-    exit;
-  }
+if (in_array($_SERVER['REQUEST_URI'],$arrWhitelist)) {
+  // authorized
+  http_response_code(200);
+} else {
+  // non-authorized
+  //error_log(print_r($_SERVER, true));
+  http_response_code(401);
 }
-
-// non-authorized
-//error_log(print_r($_SERVER, true));
-http_response_code(401);
 exit;

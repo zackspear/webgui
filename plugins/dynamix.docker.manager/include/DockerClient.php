@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2014-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,7 +13,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-libxml_use_internal_errors(true); # Suppress any warnings from xml errors. 
+libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
 
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
 
@@ -762,7 +762,7 @@ class DockerClient {
 	}
 
 	public function pullImage($image, $callback=null) {
-		$header       = null;
+		$header = null;
 		$registryAuth = $this->getRegistryAuth( $image );
 		if ( $registryAuth ) {
 			$header = 'X-Registry-Auth: ' . base64_encode( json_encode( [
@@ -944,16 +944,19 @@ class DockerUtil {
 
 	public static function myIP($name, $version=4) {
 		$ipaddr = $version==4 ? 'IPAddress' : 'GlobalIPv6Address';
-		return static::docker("inspect --format='{{range .NetworkSettings.Networks}}{{.$ipaddr}}{{end}}' $name");
+		return rtrim(static::docker("inspect --format='{{range .NetworkSettings.Networks}}{{.$ipaddr}} {{end}}' $name"));
 	}
+
 	public static function driver() {
 		$list = [];
 		foreach (static::docker("network ls --format='{{.Name}}={{.Driver}}'",true) as $network) {list($name,$driver) = explode('=',$network); $list[$name] = $driver;}
 		return $list;
 	}
+
 	public static function custom() {
 		return static::docker("network ls --filter driver='bridge' --filter driver='macvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
 	}
+
 	public static function network($more) {
 		$list = ['bridge'=>'', 'host'=>'', 'none'=>''];
 		foreach ($more as $net) $list[$net] = substr(static::docker("network inspect --format='{{range .IPAM.Config}}{{.Subnet}}, {{end}}' $net"),0,-1);

@@ -227,7 +227,6 @@ Docker LOG number of files:
 > Specifies the number of LOG files when LOG rotation is done.
 
 </div>
-
 Template Authoring Mode:
 : <select id="DOCKER_AUTHORING_MODE" name="DOCKER_AUTHORING_MODE">
   <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', 'No')?>
@@ -235,6 +234,15 @@ Template Authoring Mode:
   </select>
 
 > If set to **Yes**, when creating/editing containers the interface will be present with some extra fields related to template authoring.
+
+Host access to custom networks:
+: <select name="DOCKER_ALLOW_ACCESS">
+  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], '', 'Disabled')?>
+  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], 'yes', 'Enabled')?>
+  </select>
+
+> Allows direct communication between the host and containers using a custom (macvlan) network.<br>
+> By default this is prohibited.
 
 Preserve user defined networks:
 : <select name="DOCKER_USER_NETWORKS">
@@ -431,6 +439,12 @@ Docker LOG rotation:
 : <?=$dockercfg['DOCKER_LOG_ROTATION']=='yes'?'Enabled':'Disabled'?>
 
 > By default a single unlimited LOG file is created. Otherwise LOG file size and number of files are limited when LOG rotation is enabled.
+
+Host access to custom networks:
+: <?=$dockercfg['DOCKER_ALLOW_ACCESS']==''?'Disabled':'Enabled'?>
+
+> Allows direct communication between the host and containers using a custom (macvlan) network.<br>
+> By default this is prohibited.
 
 Preserve user defined networks:
 : <?=$dockercfg['DOCKER_USER_NETWORKS']=='preserve'?'Yes':'No'?>
