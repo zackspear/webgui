@@ -46,7 +46,7 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 // get variables
 $name = $_GET['name'];
 $dir = $_GET['dir'];
-$path = substr(explode('?', $_SERVER['REQUEST_URI'])[0], 1);
+$path = empty($_GET['path']) ? substr(explode('?', $_SERVER['REQUEST_URI'])[0], 1) : $_GET['path'];
 
 // The current "task" is the first element of the path
 $task = strtok($path, '/');
