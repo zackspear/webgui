@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
             $_SESSION['unraid_user'] = $_POST['username'];
             session_regenerate_id(true);
             session_write_close();
-            exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));        
+            exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));
             header("Location: /".$var['START_PAGE']);
             exit;
         }
