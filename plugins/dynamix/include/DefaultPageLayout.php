@@ -335,8 +335,7 @@ function digits(number) {
 function openNotifier(filter) {
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
       if (notify.importance == filter) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
@@ -353,8 +352,7 @@ function closeNotifier(filter) {
   clearTimeout(timers.notifier);
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
       if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
