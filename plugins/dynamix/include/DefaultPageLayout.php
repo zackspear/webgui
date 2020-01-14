@@ -299,8 +299,7 @@ function notifier() {
   var tub1 = 0, tub2 = 0, tub3 = 0;
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
       switch (notify.importance) {
         case 'alert'  : tub1++; break;
