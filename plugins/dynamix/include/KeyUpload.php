@@ -23,8 +23,8 @@ if ($text) {
 } elseif ($file) {
   file_put_contents($luks, base64_decode(preg_replace('/^data:.*;base64,/','',$file)));
   @unlink($tmp);
-} else {
-  @unlink($luks);
+} elseif (file_exists($luks)) {
+  unlink($luks);
   touch($tmp);
 }
 $save = false;
