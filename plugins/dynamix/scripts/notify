@@ -218,13 +218,12 @@ case 'get':
       if (!$field) continue;
       list($key,$val) = explode('=', $field);
       if ($time) {$val = date($notify['date'].' '.$notify['time'], $val); $time = false;}
-      $output[$i][] = '\"'.trim($key).'\":\"'.trim($val).'\"';
+      $output[$i][trim($key)] = trim($val);  
     }
-    $output[$i++][] = '\"file\":\"'.basename($file).'\"';
+    $output[$i++]["file"] = basename($file);
     chmod($file,0000);
   }
-  for ($n=0; $n<$i; $n++) $json[] = '"{'.implode(',', $output[$n]).'}"';
-  echo '['.implode(',', $json).']';
+  echo json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   break;
 
 case 'archive':
