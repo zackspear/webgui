@@ -16,9 +16,10 @@ Tag="snowflake-o"
 ?>
 <?
 $keyfile = file_exists($var['luksKeyfile']);
+$missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
-$forced = $present = $missing = $wrong = false;
+$forced = $present = $wrong = false;
 foreach ($disks as $disk) {
   if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
     $encrypt = true;

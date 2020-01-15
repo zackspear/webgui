@@ -13,6 +13,7 @@
 <?
 $var = parse_ini_file('/var/local/emhttp/var.ini');
 $ini = '/var/local/emhttp/keyfile.ini';
+$tmp = '/var/tmp/missing.tmp';
 $luks = $var['luksKeyfile'];
 $text = $_POST['text'] ?? false;
 $file = $_POST['file'] ?? false;
@@ -21,8 +22,10 @@ if ($text) {
   file_put_contents($luks, $text);
 } elseif ($file) {
   file_put_contents($luks, base64_decode(preg_replace('/^data:.*;base64,/','',$file)));
+  @unlink($tmp);
 } else {
   @unlink($luks);
+  touch($tmp);
 }
 $save = false;
 ?>
