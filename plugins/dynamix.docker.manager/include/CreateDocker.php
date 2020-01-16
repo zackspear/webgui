@@ -842,8 +842,9 @@ button[type=button]{margin:0 20px 0 0}
               <option value="Network:Proxy">Network:Proxy</option>
               <option value="Network:Voip">Network:Voip</option>
               <option value="Network:Management">Network:Management</option>
-              <option value="Network:Other">Network:Other</option>
               <option value="Network:Messenger">Network:Messenger</option>
+              <option value="Network:VPN">Network:VPN</option>
+              <option value="Network:Other">Network:Other</option>
             </optgroup>
             <optgroup label="Development Status">
               <option value="Status:Stable">Status:Stable</option>
