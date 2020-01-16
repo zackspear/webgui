@@ -34,6 +34,7 @@ $themes2 = in_array($theme,['gray','azure']);
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/context.standalone.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.sweetalert.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/sweetalert2.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
 

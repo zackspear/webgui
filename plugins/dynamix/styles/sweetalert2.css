@@ -1,0 +1,14 @@
+.swal-button{background-color:#7cd1f9;color:#fff;border:none;box-shadow:none;border-radius:5px;font-weight:600;font-size:14px;padding:10px 24px;margin:0;cursor:pointer}
+.swal-button:not([disabled]):hover{background-color:#78cbf2}
+.swal-button:active{background-color:#70bce0}
+.swal-button:focus{outline:none;box-shadow:0 0 0 1px #fff,0 0 0 3px rgba(43,114,165,.29)}
+.swal-button[disabled]{opacity:.5;cursor:default}
+.swal-button::-moz-focus-inner{border:0}
+.swal-button--cancel{color:#555;background-color:#efefef}
+.swal-button--cancel:not([disabled]):hover{background-color:#e8e8e8}
+.swal-button--cancel:active{background-color:#d7d7d7}
+.swal-button--cancel:focus{box-shadow:0 0 0 1px #fff,0 0 0 3px rgba(116,136,150,.29)}
+.swal-button--danger{background-color:#e64942}
+.swal-button--danger:not([disabled]):hover{background-color:#df4740}
+.swal-button--danger:active{background-color:#cf423b}
+.swal-button--danger:focus{box-shadow:0 0 0 1px #fff,0 0 0 3px rgba(165,43,43,.29)}
