@@ -306,7 +306,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
         }
     }
     </style>
-    <link type="text/css" rel="stylesheet" href="/webGui/styles/default-cases.css">
+    <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
     <link type="image/png" rel="shortcut icon" href="/webGui/images/green-on.png">
 </head>
 
@@ -328,7 +328,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                 <?if (substr($mycase,-4)!='.png'):?>
                 <span class='case-<?=$mycase?>'></span>
                 <?else:?>
-                <img src="/webGui/images/<?=$mycase?>">
+                <img src='<?=autov("/webGui/images/$mycase")?>'>
                 <?endif;?>
             <?else:?>
                 <span class='case-define-r5'></span>
