@@ -39,7 +39,7 @@ $arrWhitelist = [
   '/webGui/images/case-model.png',
   '/webGui/images/green-on.png'
 ];
-if (in_array(preg_replace(['/\?v=\d+/','/\?\d+/'],'',$_SERVER['REQUEST_URI']),$arrWhitelist)) {
+if (in_array(preg_replace(['/\?v=\d+$/','/\?\d+$/'],'',$_SERVER['REQUEST_URI']),$arrWhitelist)) {
   // authorized
   http_response_code(200);
 } else {
