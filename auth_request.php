@@ -37,7 +37,9 @@ $arrWhitelist = [
   '/webGui/styles/font-cases.ttf',
   '/webGui/styles/font-cases.svg',
   '/webGui/images/case-model.png',
-  '/webGui/images/green-on.png'
+  '/webGui/images/green-on.png',
+  '/webGui/images/red-on.png',
+  '/webGui/images/yellow-on.png'
 ];
 if (in_array(preg_replace(['/\?v=\d+$/','/\?\d+$/'],'',$_SERVER['REQUEST_URI']),$arrWhitelist)) {
   // authorized

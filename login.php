@@ -307,7 +307,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
     }
     </style>
     <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
-    <link type="image/png" rel="shortcut icon" href="/webGui/images/green-on.png">
+    <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
 </head>
 
 <body>
