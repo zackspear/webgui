@@ -80,7 +80,6 @@ switch ($_POST['action']) {
 		$existing = file_get_contents("/tmp/reboot_notifications");
 		$newReboots = str_replace($message,"",$existing);
 		file_put_contents("/tmp/reboot_notifications",$newReboots);
-		file_put_contents("/tmp/blah","here");
 		break;
 }	
 ?>
