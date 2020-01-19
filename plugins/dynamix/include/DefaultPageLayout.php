@@ -286,7 +286,6 @@ function showUpgrade(data,noDismiss=false) {
 
 function addRebootNotice(message="You must reboot for changes to take effect") {
   addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+message,false,true);
-
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'addRebootNotice',message:message});
 }
 
@@ -295,7 +294,6 @@ function removeRebootNotice(message="You must reboot for changes to take effect"
   if ( bannerIndex < 0 ) {
     return;
   }
-  console.log(bannerIndex);
   removeBannerWarning(bannerIndex);
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
