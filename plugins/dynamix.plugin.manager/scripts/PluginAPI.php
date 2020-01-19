@@ -30,7 +30,7 @@ function download_url($url, $path = "") {
 
 	return $out ?: false;
 }
-file_put_contents("/tmp/trace",$_POST['action']);
+
 switch ($_POST['action']) {
 	case 'checkPlugin':
 		$options = $_POST['options'];
