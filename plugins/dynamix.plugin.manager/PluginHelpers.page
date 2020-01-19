@@ -24,8 +24,6 @@ a.bannerInfo {cursor:pointer;text-decoration:none;}
 </style>
 <script>
 
-
-
 function ca_hidePluginUpdate(plugin,version,element) {
 	$.cookie(plugin,version);
 	$(element).hide();
@@ -84,6 +82,5 @@ function caPluginUpdateCheck(plugin,options=[],callback) {
 		}
 	});
 }
-
 
 </script>
