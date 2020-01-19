@@ -18,6 +18,10 @@ Code="e93f"
 ?>
 <script>
 function TerminalButton() {
+  if (/MSIE|Edge/.test(navigator.userAgent)) {
+    swal({title:'Unsupported Feature',text:'Sorry, this feature is not supported by MSIE/Edge.<br>Please try a different browser',html:true,type:'error'});
+    return;
+  }
   var d = new Date();
   var height = 600;
   var width = 900;

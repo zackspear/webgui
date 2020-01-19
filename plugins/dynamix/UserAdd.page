@@ -3,8 +3,8 @@ Title="Add User"
 Tag="user"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2019, Lime Technology
+ * Copyright 2012-2019, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -55,15 +55,17 @@ function checkUsername(form) {
     swal({title:"Invalid user name",text:"Do not use reserved names",type:"error"});
     return false;
   }
-  if (form.userPassword.value.length > 128 || form.userPasswordConf.value.length > 128) {
+  if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
     swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
     return false;
   }
   if (filename) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:username+'.png'});
   }
-  form.userPassword.value = base64(form.userPassword.value);
-  form.userPasswordConf.value = base64(form.userPasswordConf.value);
+  form.userPassword.value = base64(form.userPasswordGUI.value);
+  form.userPasswordConf.value = base64(form.userPasswordConfGUI.value);
+  form.userPasswordGUI.disabled = true;
+  form.userPasswordConfGUI.disabled = true;
   return true;
 }
 
@@ -122,16 +124,15 @@ $(function(){
 
 <form markdown="1" name="user_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkUsername(this)">
 User name:
-: <input type="text" name="userName" maxlength="32" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')">
+: <input type="text" name="userName" maxlength="32" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')" pattern="^[a-z_][a-z0-9_-]*[$]?$">
 
 > Usernames may be up to 32 characters long and must start with a **lower case letter** or an underscore,
 > followed by **lower case letters**, digits, underscores, or dashes. They can end with a dollar sign.
-> In regular expression terms: `[a-z_][a-z0-9_-]*[$]?`
 
 Description:
-: <input type="text" name="userDesc" maxlength="64">
+: <input type="text" name="userDesc" maxlength="64" pattern='[^&:"]*'>
 
-> Up to 64 characters.
+> Up to 64 characters. The characters ampersand (&amp;) quote (&quot;) and colon (:) are not allowed.
 
 Custom image:
 : <span id="dropbox"><?=$void?></span><em>Drag-n-drop a PNG file or click the image at the left.</em><input type="file" id="drop" accept=".png" style="display:none">
@@ -139,12 +140,14 @@ Custom image:
 > The image will be scaled to 48x48 pixels in size. The maximum image file upload size is 95 kB (97,280 bytes).
 
 Password:
-: <input type="password" name="userPassword" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPassword.value!=this.form.userPasswordConf.value)">
+<input type="hidden" name="userPassword" value="">
+: <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
 
 > Up to 128 characters.
 
 Retype password:
-: <input type="password" name="userPasswordConf" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPassword.value!=this.form.userPasswordConf.value)">
+<input type="hidden" name="userPasswordConf" value="">
+: <input type="password" name="userPasswordConfGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
 
 &nbsp;
 : <input type="submit" name="cmdUserEdit" value="Add" disabled><input type="button" value="Done" onclick="done('UserAdd')">

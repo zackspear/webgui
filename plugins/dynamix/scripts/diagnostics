@@ -17,7 +17,7 @@ $all = isset($opt['a']) || isset($opt['all']);
 $zip = $all ? $argv[2] : $argv[1];
 $cli = empty($zip);
 $get = "/var/local/emhttp";
-$var = file_exists("$get/var.ini") ? parse_ini_file("$get/var.ini") : [];
+$var = (array)@parse_ini_file("$get/var.ini");
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/extra','/boot/syslinux','/var/log','/var/log/plugins','/var/log/packages','/tmp'];
@@ -85,13 +85,14 @@ foreach (glob("$get/*.ini") as $file) {
   if ($all || $ini != "users") file_put_contents("/$diag/system/vars.txt",preg_replace(["/\n/","/^Array/"],["\r\n",$ini],anonymize(print_r(parse_ini_file($file,true),true),1)),FILE_APPEND);
 }
 // Create loads.txt
-$cpuload = exert("uptime")."  Cores: ".exert("nproc")."\r\n".file_get_contents("/var/local/emhttp/cpuload.ini")."\r\n";
-$diskload = file("/var/local/emhttp/diskload.ini");
-$disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
-foreach ( $diskload as $loadLine ) {
-  $load = explode("=",$loadLine);
-  foreach ( $disks as $disk ) {
-    if ( $load[0] == $disk['device'] ) {
+$cpuload = exert("uptime")."  Cores: ".exert("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
+$diskload = (array)@file("$get/diskload.ini");
+$disks = (array)@parse_ini_file("$get/disks.ini",true);
+$loadTxt = [];
+foreach ($diskload as $loadLine) {
+  $load = explode('=',$loadLine);
+  foreach ($disks as $disk) {
+    if ($load[0]==$disk['device']) {
       $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
       break;
     }
@@ -135,8 +136,8 @@ exert("cp /boot/config/*.{cfg,conf,dat} /boot/config/go ".escapeshellarg("/$diag
 if (!$all) exert("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
 
 // don't anonymize system share names
-$vardomain = file_exists('/boot/config/domain.cfg') ? parse_ini_file('/boot/config/domain.cfg') : [];
-$vardocker = file_exists('/boot/config/docker.cfg') ? parse_ini_file('/boot/config/docker.cfg') : [];
+$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
 $showshares = [];
 $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1)).'.cfg';
 $showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1)).'.cfg';
@@ -159,7 +160,7 @@ foreach ($files as $file) {
   file_put_contents($dest,"# Share exists on ".shareDisks($share)."\r\n",FILE_APPEND);
 }
 // create default user shares information
-$shares = file_exists("$get/shares.ini") ? parse_ini_file("$get/shares.ini", true) : [];
+$shares = (array)@parse_ini_file("$get/shares.ini", true);
 foreach ($shares as $share) {
   $name = $share['name'];
   if (!in_array("/boot/config/shares/$name.cfg",$files)) file_put_contents(anonymize("/$diag/shares/$name.cfg",2),"# This share has default settings.\r\n# Share exists on ".shareDisks($name)."\r\n");
@@ -176,7 +177,7 @@ if (file_exists($docker)) {
   }
 }
 // create SMART reports (suppress errors)
-$disks = file_exists("$get/disks.ini") ? parse_ini_file("$get/disks.ini", true) : [];
+$disks = (array)@parse_ini_file("$get/disks.ini", true);
 include_once "$docroot/webGui/include/CustomMerge.php";
 include_once "$docroot/webGui/include/Wrappers.php";
 exert("ls -l /dev/disk/by-id/[asun]* 2>/dev/null|sed '/-part/d;s|^.*/by-id/[^-]*-||;s|-> ../../||;s|:|-|'", $devices);
@@ -234,7 +235,10 @@ if ($qemu) {
 // copy VM XML config files
 exert("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml")." 2>/dev/null");
 // anonymize MAC OSK info
-exert("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("/$diag/xml/*.xml")." 2>/dev/null");
+$all_xml = glob("/$diag/xml/*.xml");
+foreach ($all_xml as $xml) {
+  exert("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
+}
 
 // copy syslog information (anonymize if applicable)
 $max = 2*1024*1024; //=2MB
@@ -258,6 +262,12 @@ foreach (glob("/var/log/syslog*") as $file) {
   // truncate syslog if too big
   if (basename($file)=='syslog' && filesize($file)>=$max) exert("tail -n 200 ".escapeshellarg("$log.txt")." >".escapeshellarg("$log.last200.txt"));
   exert("truncate -s '<$max' ".escapeshellarg("$log.txt"));
+}
+// copy graphql-api.log
+$graphql = "/var/log/graphql-api.log";
+if (file_exists($graphql)) {
+  $log = "/$diag/logs/graphql-api.txt";
+  exert("todos <$graphql >".escapeshellarg($log));
 }
 // create resulting zip file and remove temp folder
 exert("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));

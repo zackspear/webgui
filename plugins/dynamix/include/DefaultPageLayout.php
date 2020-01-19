@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,7 +12,7 @@
 ?>
 <?
 $display['font'] = $_COOKIE['fontSize'] ?? $display['font'];
-$theme   = $display['theme'];
+$theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
@@ -299,8 +299,7 @@ function notifier() {
   var tub1 = 0, tub2 = 0, tub3 = 0;
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
       switch (notify.importance) {
         case 'alert'  : tub1++; break;
@@ -336,8 +335,7 @@ function digits(number) {
 function openNotifier(filter) {
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
       if (notify.importance == filter) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
@@ -354,8 +352,7 @@ function closeNotifier(filter) {
   clearTimeout(timers.notifier);
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
-    $.each(data, function(i, object) {
-      var notify = $.parseJSON(object);
+    $.each(data, function(i, notify) {
       if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
@@ -504,6 +501,7 @@ foreach ($pages as $page) {
 unset($pages,$page,$pgs,$pg,$icon);
 ?>
 </div></div>
+<div class="spinner fixed"></div>
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer
@@ -520,7 +518,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> Array Started</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>Unraid&reg; webGui &copy;2019, Lime Technology, Inc.";
+echo "<span id='copyright'>Unraid&reg; webGui &copy;2020, Lime Technology, Inc.";
 echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title='Online manual'><i class='fa fa-book'></i> manual</a>";
 echo "</span></div>";
 ?>

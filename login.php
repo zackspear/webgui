@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
             $_SESSION['unraid_user'] = $_POST['username'];
             session_regenerate_id(true);
             session_write_close();
-            exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));        
+            exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));
             header("Location: /".$var['START_PAGE']);
             exit;
         }
@@ -307,7 +307,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
     }
     </style>
     <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
-    <link type="image/png" rel="shortcut icon" href="/webGui/images/green-on.png">
+    <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
 </head>
 
 <body>
@@ -339,7 +339,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
 
                 <form action="/login" method="POST">
                     <p>
-                        <input name="username" type="text" placeholder="Username" required>
+                        <input name="username" type="text" placeholder="Username" autocapitalize="none" autofocus required>
                         <input name="password" type="password" placeholder="Password" required>
                     </p>
                     <? if ($error) echo '<p class="error">'.$error.'</p>'; ?>

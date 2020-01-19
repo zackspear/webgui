@@ -1,8 +1,6 @@
 /*
  * noVNC base CSS
- * Copyright (C) 2012 Joel Martin
- * Copyright (C) 2016 Samuel Mannehed for Cendio AB
- * Copyright (C) 2016 Pierre Ossman for Cendio AB
+ * Copyright (C) 2019 The noVNC Authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -631,6 +629,16 @@ select:active {
 }
 #noVNC_setting_path {
   width: 100px;
+}
+
+/* Version */
+
+.noVNC_version_wrapper {
+  font-size: small;
+}
+
+.noVNC_version {
+  margin-left: 1rem;
 }
 
 /* Connection Controls */

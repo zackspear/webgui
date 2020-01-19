@@ -313,6 +313,12 @@
 	];
 
 	$virtio_isos = [
+		'virtio-win-0.1.173-2' => [
+			'name' => 'virtio-win-0.1.173-2.iso',
+			'url' => 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.173-2/virtio-win-0.1.173.iso',
+			'size' => 394303488,
+			'md5' => '88fcd398b7d54301b559d1762240aa67'
+		],
 		'virtio-win-0.1.160-1' => [
 			'name' => 'virtio-win-0.1.160-1.iso',
 			'url' => 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.160-1/virtio-win-0.1.160.iso',

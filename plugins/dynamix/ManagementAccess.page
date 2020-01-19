@@ -182,7 +182,6 @@ SSH port:
 
 > Enter the SSH port, default port is 22.
 
-<?if (file_exists('/var/log/plugins/dynamix.wireguard.plg')):?>
 Use UPnP:
 : <select name="USE_UPNP" size="1">
   <?=mk_option($var['USE_UPNP'], "yes", "Yes")?>
@@ -191,7 +190,6 @@ Use UPnP:
 
 > Enable (default) or disable the UPnP function on the server. This function allows automatic forwarding of ports on the router, only applicable when UPnP is enabled on the router itself.
 
-<?endif;?>
 Use SSL/TLS:
 : <select name="USE_SSL" size="1" onchange="updateSSL(this.form)">
   <?=mk_option($var['USE_SSL'], "auto", "Auto")?>
@@ -221,24 +219,24 @@ Use SSL/TLS:
 > provisioned and downloaded to your server.
 >
 > Note: After provisioning a Let's Encrypt SSL certificate you may turn off the *updatedns* and *newcert*
-> background processes by chaning this field to **Yes**.
+> background processes by changing this field to **Yes**.
 >
 > **nginx certificate handling details**
 >
 > The nginx startup script looks for a SSL certificate on the USB boot flash in this order:<br>
-> `config/ssl/certs/certficate_bundle.pem`<br>
+> `config/ssl/certs/certificate_bundle.pem`<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem`
 >
 > If neither file exists, a self-signed SSL certificate is automatically created and stored in<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem`<br>
 >
 > Provisioning a Let's Encrypt certificate writes the certificate to<br>
-> `config/ssl/certs/certficate_bundle.pem`<br>
+> `config/ssl/certs/certificate_bundle.pem`<br>
 >
 > **nginx stapling support**
 >
 > Whether nginx enables OCSP Staping is determined by which certificate is in use:<br>
-> `config/ssl/certs/certficate_bundle.pem` => Yes<br>
+> `config/ssl/certs/certificate_bundle.pem` => Yes<br>
 > `config/ssl/certs/<server-name>_unraid_bundle.pem` => No
 
 HTTP port:

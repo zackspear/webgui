@@ -15,8 +15,8 @@ fi
 [[ -z $USE_TELNET ]] && USE_TELNET=yes
 [[ -z $PORTTELNET ]] && PORTTELNET=23
 [[ -z $USE_SSH ]] && USE_SSH=yes
-[[ -z $USE_UPNP ]] && USE_UPNP=yes
 [[ -z $PORTSSH ]] && PORTSSH=22
+[[ -z $USE_UPNP ]] && USE_UPNP=no
 
 # get management IP addresses
 if [[ $BIND_MGT == yes ]]; then

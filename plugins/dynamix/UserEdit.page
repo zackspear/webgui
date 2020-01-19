@@ -47,12 +47,14 @@ var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
 
 function checkPassword(form) {
-  if (form.userPassword.value.length > 128 || form.userPasswordConf.value.length > 128) {
+  if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
     swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
     return false;
   }
-  form.userPassword.value = base64(form.userPassword.value);
-  form.userPasswordConf.value = base64(form.userPasswordConf.value);
+  form.userPassword.value = base64(form.userPasswordGUI.value);
+  form.userPasswordConf.value = base64(form.userPasswordConfGUI.value);
+  form.userPasswordGUI.disabled = true;
+  form.userPasswordConfGUI.disabled = true;
   return true;
 }
 
@@ -131,9 +133,9 @@ User name:
 : <?=htmlspecialchars($name)?>
 
 Description:
-: <input type="text" name="userDesc" maxlength="64" value="<?=htmlspecialchars($users[$name]['desc'])?>">
+: <input type="text" name="userDesc" maxlength="64" value="<?=htmlspecialchars($users[$name]['desc'])?>" pattern='[^&:"]*'>
 
-> Up to 64 characters.
+> Up to 64 characters. The characters ampersand (&amp;) quote (&quot;) and colon (:) are not allowed.
 
 Custom image:
 : <span id="dropbox">
@@ -157,12 +159,14 @@ Delete<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form,
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkPassword(this)">
 <input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
 Password:
-: <input type="password" name="userPassword" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value != this.form.userPasswordConf.value);">
+<input type="hidden" name="userPassword" value="">
+: <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
 
 > Up to 128 characters.
 
 Retype password:
-: <input type="password" name="userPasswordConf" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPassword.value != this.form.userPasswordConf.value);">
+<input type="hidden" name="userPasswordConf" value="">
+: <input type="password" name="userPasswordConfGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
 
 &nbsp;
 : <input type="submit" name="cmdUserEdit" value="Change" disabled><input type="button" value="Done" onclick="done('UserEdit')">
@@ -184,15 +188,15 @@ foreach ($users as $user) {
 }
 foreach ($shares as $share => $data) {
   echo "security[\"$share\"]=\"{$sec[$share]['security']}\";\n";
-  echo "readList[\"$share\"]=\",{$sec[$share]['readList']},\";\n";
-  echo "writeList[\"$share\"]=\",{$sec[$share]['writeList']},\";\n";
+  echo "readList[\"$share\"]=\"{$sec[$share]['readList']}\";\n";
+  echo "writeList[\"$share\"]=\"{$sec[$share]['writeList']}\";\n";
 }
 ?>
 function updateAccess(form,data,n,i) {
-  var name = ",<?=$name?>,";
+  var name = "<?=$name?>";
   if (data) {
     if (n<i) {
-      $.post('/update.htm',data[n], function(){setTimeout(function(){updateAccess(form,data,++n,i);},1000);});
+      $.post('/update.htm',data[n], function(){setTimeout(function(){updateAccess(form,data,++n,i);},3000);});
     } else {
       $('div.spinner').html(unraid_logo).hide();
       $('input[value="Reset"]').val('Done').prop('disabled',false).prop('onclick',null).off('click').click(function(){done('UserEdit');});
@@ -203,8 +207,11 @@ function updateAccess(form,data,n,i) {
     $(form).find('select').each(function(){
       if ($(this).prop('id')) {
         var share = decodeURI($(this).prop('id'));
+        var read = readList[share].split(',');
+        var write = writeList[share].split(',');
         var access = '';
         data[i] = {};
+        data[i]['shareName'] = share;
         data[i]['userAccess.0'] = '<?=$no?>';
         for (var user in users) {
           var idx = users[user];
@@ -213,17 +220,16 @@ function updateAccess(form,data,n,i) {
             access = '<?=$rw?>';
             break;
           case 'secure':
-            if (','+user+',' == name) access = $(this).val();
-            else access = writeList[share].indexOf(name)!==-1 ? '<?=$rw?>' : '<?=$ro?>';
+            if (user == name) access = $(this).val();
+            else access = write.includes(user) ? '<?=$rw?>' : '<?=$ro?>';
             break;
           case 'private':
-            if (','+user+',' == name) access = $(this).val();
-            else access = writeList[share].indexOf(name)!==-1 ? '<?=$rw?>' : (readList[share].indexOf(name)!==-1 ? '<?=$ro?>' : '<?=$no?>');
+            if (user == name) access = $(this).val();
+            else access = write.includes(user) ? '<?=$rw?>' : (read.includes(user) ? '<?=$ro?>' : '<?=$no?>');
             break;
           }
           data[i]['userAccess.'+idx] = access;
         }
-        data[i]['shareName'] = share;
         data[i]['changeShareAccess'] = 'Apply';
         i++;
       }

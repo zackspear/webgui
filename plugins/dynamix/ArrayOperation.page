@@ -3,8 +3,8 @@ Title="Array Operation"
 Tag="snowflake-o"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,19 +16,20 @@ Tag="snowflake-o"
 ?>
 <?
 $keyfile = file_exists($var['luksKeyfile']);
+$missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
-/* only one of $forced, $missing, or $wrong will be true, or all will be false */
-$forced = $missing = $wrong = false;
-
+/* only one of $present, $missing, or $wrong will be true, or all will be false */
+$forced = $present = $wrong = false;
 foreach ($disks as $disk) {
   if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
     $encrypt = true;
     if ($disk['luksState']==0) $forced = true;
+    if ($disk['luksState']==1) $present = true;
     if ($disk['luksState']==2) $missing = true;
     if ($disk['luksState']==3) $wrong = true;
   }
 }
-if ($forced && ($missing || $wrong)) $forced = false;
+if ($forced && ($present || $missing || $wrong)) $forced = false;
 
 function check_encryption() {
   global $forced, $missing, $wrong;
@@ -42,7 +43,7 @@ function check_encryption() {
   echo mk_option(1,'text','Passphrase');
   echo mk_option(1,'file','Keyfile');
   echo "</select></td></tr>";
-  echo "<tr id='text'><td></td><td class='gap'>Passphrase:</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)'><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>show passphrase</td></tr>";
+  echo "<tr id='text'><td></td><td class='gap'>Passphrase:</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)' placeholder='use printable characters only'><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>show passphrase</td></tr>";
   echo "<tr id='copy'><td></td><td class='gap'>Retype passphrase:</td><td><input type='password' name='copy' maxlength='512' value='' onkeyup='selectInput(this.form)'></td></tr>";
   echo "<tr id='file'><td></td><td class='gap'>Keyfile:</td><td><input type='file' name='local' onchange='getFileContent(event,this.form)'></td></tr>";
 }
@@ -80,6 +81,10 @@ span#pass{display:none;margin-left:20px}
 var ctrl = "<span class='status <?=$tabbed?'':'vhshift'?>'><a style='cursor:pointer' class='tooltip_diskio' title='Toggle reads/writes display' onclick='toggle_diskio();return false'><i class='toggle fa'></i></a></span>";
 
 function selectInput(form) {
+<?if ($wrong && $keyfile):?>
+  form.input.value = 'file';
+  form.input.disabled = true;
+<?endif;?>
   if (form.input.value == 'text') {
     form.file.value = '';
     form.local.value = '';
@@ -131,8 +136,18 @@ function prepareInput(form) {
   form.text.disabled = true;
   form.copy.disabled = true;
   if (form.text.value) {
-    $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
-    form.submit();
+    var valid = new RegExp('^[ -~]+$');
+    if (valid.test(form.text.value)) {
+      $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
+      form.submit();
+    } else {
+      form.input.disabled = false;
+      form.local.disabled = false;
+      form.file.disabled = false;
+      form.text.disabled = false;
+      form.copy.disabled = false;
+      swal({title:'Printable Characters Only',text:'Use <b>ASCII</b> characters from space " " to tilde "~"<br>Otherwise use the <b>keyfile</b> method for UTF8 input',html:true,type:'error'});
+    }
     return;
   }
   var data = {};
@@ -243,6 +258,18 @@ $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
 });
+function formatWarning(val) {
+  if (val==true)
+    swal({
+      title: 'Format Unmountable disks',
+      text: 'Create an empty file system on the disks shown as <b>Unmountable</b> discarding all data currently on the disks and update parity to reflect this. '
+           + 'This is typically done when a new disk is added to the array to get it ready for files to be written to it.<br/>'
+           + '<p><br/><b>WARNING</b>'
+           + '<p>A format is <b>NEVER</b> part of a data recovery or disk rebuild process and if done in such circumstances will normally lead to loss of all data on the disks being formatted.',
+      type: "warning",
+      html: true
+    });
+}
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
@@ -258,9 +285,9 @@ $(function(){
 <?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
       echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";?>
       </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="Format" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
-      <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks, discarding all data currently on those disks.<br>
-      <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
-      <small>Yes I want to do this&nbsp;<i class="fa fa-asterisk red-text" ></i></small><span><b>All data is permanently lost !!!<br>This is not used to recover data</b><br><i>Format is never part of a rebuild</i></span></a>
+      <td><strong>Format</strong> will create a file system in all <strong>Unmountable</strong> disks.<br>
+      <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="formatWarning(this.checked),$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
+     <small>Yes I want to do this</small></a>
       </td></tr>
 <?  endif;
     if (!$var['mdResyncPos']):
@@ -334,7 +361,7 @@ $(function(){
       <tr><td>Estimated speed:</td><td id="line3"></td><td></td></tr>
       <tr><td>Estimated finish:</td><td id="line4"></td><td></td></tr>
 <?    if (strstr($var['mdResyncAction'],"check ")):?>
-      <tr><td>Sync errors <?if ($var['mdResyncCorr']==0):?>detected:<?else:?>corrected:<?endif;?></td><td id="line5"></td><td></td></tr>
+        <tr><td>Sync errors <?if ($var['mdResyncCorr']==0):?>detected:<?else:?>corrected:<?endif;?></td><td id="line5"></td><td></td></tr>
 <?    endif;
     endif;
     break;
@@ -367,100 +394,111 @@ $(function(){
       <tr><td><?status_indicator()?><span class="strong big">Stopped.</span></td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
       <td>This Unraid OS release has been withdrawn and may no longer be used. Please <a href="/Plugins">update</a> your server.</td></tr>
 <?  else:
-    switch ($var['mdState']):
-    case "STOPPED":
-      if (strstr($var['mdResyncAction'],"recon")):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td></tr>
-<?    elseif ($var['mdResyncAction']=="clear"):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. New data disk(s) detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td></tr>
-<?    elseif ($var['sbClean']!="yes" && $var['mdResyncAction']=="check"):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will bring the array on-line.</td></tr>
-<?    elseif ($var['sbClean']!="yes" && strstr($var['mdResyncAction'],"check")):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
-        <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td></tr>
-<?    elseif (missing_cache()):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Missing Cache disk.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)" disabled></td>
-        <td><strong>Start</strong> will remove the missing cache disk and then bring the array on-line.
+      switch ($var['mdState']):
+      case "STOPPED":
+        if (strstr($var['mdResyncAction'],"recon")):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td></tr>
+<?      elseif ($var['mdResyncAction']=="clear"):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. New data disk(s) detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will bring the array on-line and start <strong>Clearing</strong> new data disk(s).</td></tr>
+<?      elseif ($var['sbClean']!="yes" && $var['mdResyncAction']=="check"):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will bring the array on-line.</td></tr>
+<?      elseif ($var['sbClean']!="yes" && strstr($var['mdResyncAction'],"check")):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Unclean shutdown detected.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will bring the array on-line and start <strong>Parity-Check</strong>.
+          <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>Write corrections to parity</small></td></tr>
+<?      elseif (missing_cache()):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Missing Cache disk.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)" disabled></td>
+          <td><strong>Start</strong> will remove the missing cache disk and then bring the array on-line.
+          <br><input type="checkbox" name="confirmStart" value="OFF" onclick="$('#cmdStart').prop('disabled',!arrayOps.confirmStart.checked)"><small>Yes I want to do this</small></td></tr>
+<?      else:?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will bring the array on-line.</td></tr>
+<?      endif;
+        maintenance_mode();
+        check_encryption();
+        break;
+      case "NEW_ARRAY":
+        if (strpos($disks['parity']['status'],"DISK_NP")===0 && strpos($disks['parity2']['status'],"DISK_NP")===0):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will record all disk information and bring the array on-line.
+          <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td></tr>
+<?      else:?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="parityWarning(this.form)"></td>
+          <td><strong>Start</strong> will record all disk information, bring the array on-line, and start Parity-Sync.
+          <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
+          <br><input type="checkbox" name="md_invalidslot" value="99">Parity is already valid.</td></tr>
+<?      endif;
+        maintenance_mode();
+        check_encryption();
+        break;
+      case "DISABLE_DISK":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Missing disk.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)" disabled></td>
+        <td><strong>Start</strong> will disable the missing disk and then bring the array on-line. Install a replacement disk as soon as possible.
         <br><input type="checkbox" name="confirmStart" value="OFF" onclick="$('#cmdStart').prop('disabled',!arrayOps.confirmStart.checked)"><small>Yes I want to do this</small></td></tr>
-<?    else:?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will bring the array on-line.</td></tr>
-<?    endif;
-      maintenance_mode();
-      check_encryption();
-      break;
-    case "NEW_ARRAY":
-      if (strpos($disks['parity']['status'],"DISK_NP")===0 && strpos($disks['parity2']['status'],"DISK_NP")===0):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will record all disk information and bring the array on-line.
-        <br>The array will be immediately available, but <strong>unprotected</strong> since <em>parity</em> has not been assigned.</td></tr>
-<?    else:?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Configuration valid.</td><td><input type="button" id="cmdStart" value="Start" onclick="parityWarning(this.form)"></td>
-        <td><strong>Start</strong> will record all disk information, bring the array on-line, and start Parity-Sync.
-        <br>The array will be immediately available, but <strong>unprotected</strong> until Parity-Sync completes.
-        <br><input type="checkbox" name="md_invalidslot" value="99">Parity is already valid.</td></tr>
-<?    endif;
-      maintenance_mode();
-      check_encryption();
-      break;
-    case "DISABLE_DISK":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Missing disk.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)" disabled></td>
-      <td><strong>Start</strong> will disable the missing disk and then bring the array on-line. Install a replacement disk as soon as possible.
-      <br><input type="checkbox" name="confirmStart" value="OFF" onclick="$('#cmdStart').prop('disabled',!arrayOps.confirmStart.checked)"><small>Yes I want to do this</small></td></tr>
-<?    maintenance_mode();
-      check_encryption();
-      break;
-    case "RECON_DISK":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Replacement disk installed.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-      <td><strong>Start</strong> will start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td></tr>
-<?    maintenance_mode();
-      check_encryption();
-      break;
-    case "SWAP_DSBL":
-      if ($var['fsCopyPrcnt']=="100"):?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
-        <td><strong>Start</strong> will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild.</td></tr>
 <?      maintenance_mode();
         check_encryption();
-      else:?>
-        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td><td><input type="submit" name="cmdCopy" value="Copy" disabled></td>
-        <td><strong>Copy</strong> will copy the parity information to the new <em>parity</em> disk.
-        <br>Once copy completes, the array may be Started, to initiate Data-Rebuild of the disabled disk.
-        <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdCopy.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td></tr>
-<?    endif;
-      break;
-    case "ERROR:INVALID_EXPANSION":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Invalid expansion.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
-      <td>You may not add new disk(s) and also remove existing disk(s).</td></tr>
-<?    break;
-    case "ERROR:NEW_DISK_TOO_SMALL":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Replacement disk is too small.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
-      <td>The replacement disk must be as big or bigger than the original.</td></tr>
-<?    break;
-    case "ERROR:PARITY_NOT_BIGGEST":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Disk in parity slot is not biggest.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
-      <td>If this is a new array, move the largest disk into the <em>parity</em> slot.
-      <br>If you are adding a new disk or replacing a disabled disk, try Parity-Swap.</td></tr>
-<?    break;
-    case "ERROR:TOO_MANY_MISSING_DISKS":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Invalid configuration.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
-      <td>Too many wrong and/or missing disks!</td></tr>
-<?    break;
-    case "ERROR:NO_DATA_DISKS":?>
-      <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. No data disks.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
-      <td>No array data disks have been assigned!</td></tr>
-<?    break;
-    endswitch;
-  endif;
+        break;
+      case "RECON_DISK":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Replacement disk installed.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+        <td><strong>Start</strong> will start <strong>Parity-Sync</strong> and/or <strong>Data-Rebuild</strong>.</td></tr>
+<?      maintenance_mode();
+        check_encryption();
+        break;
+      case "SWAP_DSBL":
+        if ($var['fsCopyPrcnt']=="100"):?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td><td><input type="button" id="cmdStart" value="Start" onclick="prepareInput(this.form)"></td>
+          <td><strong>Start</strong> will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild.</td></tr>
+<?        maintenance_mode();
+          check_encryption();
+        else:?>
+          <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Upgrading disk/swapping parity.</td><td><input type="submit" name="cmdCopy" value="Copy" disabled></td>
+          <td><strong>Copy</strong> will copy the parity information to the new <em>parity</em> disk.
+          <br>Once copy completes, the array may be Started, to initiate Data-Rebuild of the disabled disk.
+          <br><input type="checkbox" name="confirmStart" value="OFF" onclick="arrayOps.cmdCopy.disabled=!arrayOps.confirmStart.checked"><small>Yes I want to do this</small></td></tr>
+<?      endif;
+        break;
+      case "ERROR:INVALID_EXPANSION":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Invalid expansion.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
+        <td>You may not add new disk(s) and also remove existing disk(s).</td></tr>
+<?      break;
+      case "ERROR:NEW_DISK_TOO_SMALL":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Replacement disk is too small.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
+        <td>The replacement disk must be as big or bigger than the original.</td></tr>
+<?      break;
+      case "ERROR:PARITY_NOT_BIGGEST":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Disk in parity slot is not biggest.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
+        <td>If this is a new array, move the largest disk into the <em>parity</em> slot.
+        <br>If you are adding a new disk or replacing a disabled disk, try Parity-Swap.</td></tr>
+<?      break;
+      case "ERROR:TOO_MANY_MISSING_DISKS":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. Invalid configuration.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
+        <td>Too many wrong and/or missing disks!</td></tr>
+<?      break;
+      case "ERROR:NO_DATA_DISKS":?>
+        <tr><td><?status_indicator()?><span class="strong big">Stopped</span>. No data disks.</td><td><input type="submit" name="cmdStart" value="Start" disabled></td>
+        <td>No array data disks have been assigned!</td></tr>
+<?      break;
+      endswitch;
+    endif;
   endswitch;?>
   <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
 <?if ($var['fsState']=="Started"):?>
+<?if ($keyfile):?>
+<form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<table class="array_status noshift">
+<tr><td></td><td><input type="submit" name="#apply" value="Delete" disabled></td><td><strong>Delete</strong> will delete the encryption keyfile.
+<br><input type="checkbox" onchange="toggleApply(this.checked)"><small>Yes I want to do this</small></td></tr>
+<tr><td></td><td class="line" colspan="2"></td></tr>
+</table>
+</form>
+<?endif;?><!-- markdown fix -->
 <table class="array_status noshift">
  <tr><td></td><td><input type="button" id="button-down" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('down')" value="Spin Down"<?=$parity?' disabled':''?>><input type="button" id="button-up" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('up')" value="Spin Up"<?=$parity?' disabled':''?>></td>
  <td><strong>Spin Down</strong> will immediately spin down all disks.<br><strong>Spin Up</strong> will immediately spin up all disks.</td></tr>
@@ -480,7 +518,16 @@ $(function(){
 </table>
 </form>
 <?endif;?>
-<?endif;?>
+<?elseif ($wrong && $keyfile):?>
+<form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="unused">
+<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
+<table class="array_status noshift">
+ <tr><td></td><td><input type="submit" name="#apply" value="Delete"></td><td><strong>Delete</strong> will delete the encryption keyfile.</td></tr>
+ <tr><td></td><td class="line" colspan="2"></td></tr>
+</table>
+</form>
+<?endif;?><!-- markdown fix -->
 <form name="shutdownOps" method="POST" action="/webGui/include/Boot.php">
 <table class="array_status noshift">
  <tr><td></td><td><input type="button" name="reboot" value="Reboot" onclick="shutdown_now(this.form,'reboot')"><input type="button" name="shutdown" value="Power down" onclick="shutdown_now(this.form,'shutdown')"></td>
@@ -488,19 +535,7 @@ $(function(){
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
-<?if ($keyfile):?>
-<form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="unused">
-<input type="hidden" name="#include" value="webGui/include/KeyUpload.php">
-<table class="array_status noshift">
- <tr><td></td><td><input type="submit" name="#apply" value="Delete" disabled></td><td><strong>Delete</strong> will delete the encryption keyfile.
- <br><input type="checkbox" onchange="toggleApply(this.checked)"><small>Yes I want to do this</small></td></tr>
-</table>
-</form>
-<?endif;?>
-<?
-if (isset($display['sleep'])) @include $display['sleep'];
-?>
+<!-- markdown fix --></p><?if (isset($display['sleep'])) @include $display['sleep'];?>
 <?if ($btrfs):?>
 <script>
 function enable_stop() {
