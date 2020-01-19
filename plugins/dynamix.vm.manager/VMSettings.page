@@ -446,7 +446,8 @@ $(function(){
     });
   }
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:'reboot'}, function(data){
-    if (data.modified) $('div.notice.reboot').show(); else $('div.notice.reboot').hide();
+    var rebootMessage = "VM Settings: A reboot is required to apply changes";
+    if (data.modified) addRebootNotice(rebootMessage); else removeRebootNotice(rebootMessage);
   });
 });
 </script>
