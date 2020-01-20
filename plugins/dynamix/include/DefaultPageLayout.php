@@ -227,11 +227,15 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
   if ( warning ) {
     text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
   }
-  var arrayEntry = bannerWarnings.push("placeholder") - 1;
+
   if ( ! noDismiss ) {
     text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
   }
-  bannerWarnings[arrayEntry] = text;
+	if ( bannerWarnings.indexOf(text) < 0 ) {
+		var arrayEntry = bannerWarnings.push("placeholder") - 1;
+		bannerWarnings[arrayEntry] = text;
+	}
+	
   if ( ! bannerWarningInterval ) {
     showBannerWarnings();
     bannerWarningInterval = setInterval(function() {
@@ -294,6 +298,7 @@ function removeRebootNotice(message="You must reboot for changes to take effect"
   if ( bannerIndex < 0 ) {
     return;
   }
+	console.log("banner index: "+bannerIndex);
   removeBannerWarning(bannerIndex);
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
