@@ -3,8 +3,8 @@ Title="Interface ethX"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -105,7 +105,6 @@ Interface description:
 
 > Use this field to give addditional information about the purpose of the connection.
 
-
 <div markdown="1" id="view-ethX" style="display:none">
 MAC address:
 : <?=strtoupper(exec("ip link show ethX|grep -Pom1 'ether \K\S+'"))?>
@@ -185,14 +184,14 @@ Bonding members of bondX:
 > Select which interfaces are member of the *bonded* interface. By default ethX is a member, while other interfaces are optional.
 
 </div>
-
 Enable bridging:
 : <select name="BRIDGING" size="1" onchange="checkBridgingSettings(this.form,1,'ethX')">
   <?=mk_option($ethX['BRIDGING'], "no", "No");?>
   <?=mk_option($ethX['BRIDGING'], "yes", "Yes");?>
   </select>
 
-> Bridging is a feature which creates a virtual bridge and allows VMs to communicate directly with the physical Ethernet port.
+> Bridging is a feature which creates a virtual bridge and allows VMs and Docker containers to communicate directly with the physical Ethernet port.
+> Both bonding and bridging can be combined to let VMs or containers communicate over a *bonded* interface.
 
 <div markdown="1" id="bridge-members-ethX" style="display:none">
 Bridging members of brX:
@@ -206,8 +205,6 @@ Bridging members of brX:
 > Select which interfaces are member of the *bridged* interface. By default ethX is a member, while other interfaces are optional.
 
 </div>
-</div>
-<div markdown="1" class="slave-ethX">
 Network protocol:
 : <select name="PROTOCOL:0" size="1" onchange="selectProtocol(this.form,'ethX',0)">
   <?=mk_option($ethX["PROTOCOL:0"], 'ipv4', 'IPv4 only');?>
@@ -340,6 +337,9 @@ Network protocol:
   <?=mk_option($ethX["PROTOCOL:$i"], 'ipv6', 'IPv6 only');?>
   <?=mk_option($ethX["PROTOCOL:$i"], 'ipv4+ipv6', 'IPv4 + IPv6');?>
   </select>
+
+> Select which protocol(s) are used. By default IPv4 only is used.<br>
+> When both IPv4 and IPv6 is selected, each protocol can be configured independently.
 
 <div markdown="1" class="ipv4-ethX-<?=$i?>" style="display:none">
 IPv4 address assignment:
