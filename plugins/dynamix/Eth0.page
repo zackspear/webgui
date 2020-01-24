@@ -340,8 +340,8 @@ function addVLAN(port) {
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
   var element = $('[id^="index-'+port+'-"]').last();
-  $(element).after(template).find('input').first().trigger('change');
-  selectProtocol($('form[name="'+$(element).parent().attr('name')+'"]'),port,index);
+  $(element).after(template);
+  $('form[name="'+$(element).parent().attr('name')+'"]').find('select').first().trigger('change');
 }
 function removeVLAN(element) {
   var id = $(element).attr('id').split('-');
