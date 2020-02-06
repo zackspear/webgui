@@ -88,19 +88,19 @@ var before = new Date();
 // page timer events
 var timers = {};
 
-function pauseEvents(id){
-  $.each(timers, function(i, timer) {
+function pauseEvents(id) {
+  $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
   });
 }
-function resumeEvents(id,delay){
+function resumeEvents(id,delay) {
   var startDelay = delay||50;
-  $.each(timers, function(i, timer) {
+  $.each(timers, function(i,timer) {
     if (!id || i==id) timers[i] = setTimeout(i+'()', startDelay);
     startDelay += 50;
   });
 }
-function plus(value, label, last) {
+function plus(value,label,last) {
   return value>0 ? (value+' '+label+(value!=1?'s':'')+(last?'':', ')) : '';
 }
 function updateTime() {
@@ -222,21 +222,14 @@ var osUpgradeWarning = false;
 
 function addBannerWarning(text,warning=true,noDismiss=false) {
   var cookieText = text.replace(/[^a-z0-9]/gi,'');
-  if ( $.cookie(cookieText) == "true" ) { return false; }
-  
-  if ( warning ) {
-    text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
-  }
+  if ($.cookie(cookieText) == "true") return false;
+  if (warning) text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
   var arrayEntry = bannerWarnings.push("placeholder") - 1;
-  if ( ! noDismiss ) {
-    text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
-  }
+  if (!noDismiss) text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
   bannerWarnings[arrayEntry] = text;
-  if ( ! bannerWarningInterval ) {
+  if (!bannerWarningInterval) {
     showBannerWarnings();
-    bannerWarningInterval = setInterval(function() {
-      showBannerWarnings()
-    },10000);
+    bannerWarningInterval = setInterval(showBannerWarnings,10000);
   }
   return arrayEntry;
 }
@@ -254,33 +247,28 @@ function removeBannerWarning(entry) {
 function bannerFilterArray(array) {
   var newArray = [];
   array.filter(function(value,index,arr) {
-    if ( value ) {
-      newArray.push(value);
-    }
-  }); 
+    if (value) newArray.push(value);
+  });
   return newArray;
 }
 
 function showBannerWarnings() {
   var allWarnings = bannerFilterArray(Object.values(bannerWarnings));
-  if ( allWarnings.length == 0 ) {
+  if (allWarnings.length == 0) {
     $(".upgrade_notice").hide();
     clearInterval(bannerWarningInterval);
     bannerWarningInterval = false;
     return;
   }
-  if ( currentBannerWarning >= allWarnings.length ) {
-    currentBannerWarning = 0;
-  }
+  if (currentBannerWarning >= allWarnings.length) currentBannerWarning = 0;
   $(".upgrade_notice").show().html(allWarnings[currentBannerWarning]);
   currentBannerWarning++;
 }
 
-function showUpgrade(data,noDismiss=false) {
+function showUpgrade(text,noDismiss=false) {
   if ($.cookie('os_upgrade')==null) {
-    if (osUpgradeWarning)
-      removeBannerWarning(osUpgradeWarning);
-    osUpgradeWarning = addBannerWarning(data.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='hideUpgrade();openUpgrade();'>$1</a>"),false,noDismiss);
+    if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
+    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
 }
 function hideUpgrade(set) {
@@ -291,6 +279,7 @@ function hideUpgrade(set) {
     $.removeCookie('os_upgrade',{path:'/'});
 }
 function openUpgrade() {
+  hideUpgrade();
   swal({title:'Update Unraid OS',text:'Do you want to update to the new version?',type:'warning',showCancelButton:true},function(){
     openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg','Update Unraid OS',600,900,true);
   });
@@ -502,6 +491,7 @@ unset($pages,$page,$pgs,$pg,$icon);
 ?>
 </div></div>
 <div class="spinner fixed"></div>
+<form name="rebootNow" method="POST" action="/webGui/include/Boot.php"><input type="hidden" name="cmd" value="reboot"></form>
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer
@@ -629,9 +619,9 @@ $(function() {
 <?else:?>
 <?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20);?>
 <?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
-  showUpgrade('<b>Reboot required</b> to apply Unraid OS update',true);
+  showUpgrade('<b>Reboot Now</b> to upgrade Unraid OS',true);
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
-  showUpgrade('<b>Reboot required</b> to downgrade Unraid OS',true);
+  showUpgrade('<b>Reboot Now</b> to downgrade Unraid OS',true);
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
   showUpgrade('Unraid OS v<?=$version?> is available. <a>Update Now</a>');
 <?endif;?>
