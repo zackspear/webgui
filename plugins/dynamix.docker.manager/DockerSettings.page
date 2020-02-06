@@ -177,6 +177,8 @@ Docker vDisk location:
 
 > You must specify an image file for Docker. The system will automatically create this file when the Docker service is first started.
 >
+> The image file name must have the extension .img, e.g. If not the input is not accepted and marked red.
+>
 > It is recommended to create this image file outside the array, e.g. on the Cache pool. For best performance SSD devices are preferred.
 
 Default appdata storage location:
@@ -188,6 +190,8 @@ Default appdata storage location:
   <?endif;?>
 
 > You can specify a folder to automatically generate and store subfolders containing configuration files for each Docker app (via the /config mapped volume).
+>
+> The folder's path must end with a trailing slash (/) character. If not the input is not accepted and marked red.
 >
 > It is recommended to create this folder outside the array, e.g. on the Cache pool. For best performance SSD devices are preferred.
 >
