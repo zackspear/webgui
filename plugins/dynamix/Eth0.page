@@ -3,8 +3,8 @@ Title="Interface eth0"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -340,8 +340,8 @@ function addVLAN(port) {
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
   var element = $('[id^="index-'+port+'-"]').last();
-  $(element).after(template).find('input').first().trigger('change');
-  selectProtocol($('form[name="'+$(element).parent().attr('name')+'"]'),port,index);
+  $(element).after(template);
+  $('form[name="'+$(element).parent().attr('name')+'"]').find('select').first().trigger('change');
 }
 function removeVLAN(element) {
   var id = $(element).attr('id').split('-');
@@ -540,8 +540,8 @@ Enable bridging:
   <?=mk_option($eth0['BRIDGING'], "yes", "Yes");?>
   </select>
 
-> Bridging is a feature which creates a virtual bridge and allows VMs to communicate directly with the physical Ethernet port.
-> Both bonding and bridging can be combined to let VMs communicate over a *bonded* interface.
+> Bridging is a feature which creates a virtual bridge and allows VMs and Docker containers to communicate directly with the physical Ethernet port.
+> Both bonding and bridging can be combined to let VMs or containers communicate over a *bonded* interface.
 
 <div markdown="1" id="bridge-members-eth0" style="display:none">
 Bridging members of br0:

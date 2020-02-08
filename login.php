@@ -357,7 +357,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                 </form>
             </div>
 
-            <p><a href="https://wiki.unraid.net/Unraid_6/Frequently_Asked_Questions#I.27ve_forgotten_my_root_password_to_my_system.2C_how_do_I_restore_access.3F" target="_blank">Password recovery</a></p>
+            <p><a href="https://wiki.unraid.net/Unraid_6/Troubleshooting#Lost_root_Password" target="_blank">Password recovery</a></p>
         </div>
     </section>
 </body>

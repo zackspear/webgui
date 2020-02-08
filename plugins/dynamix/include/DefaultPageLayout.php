@@ -227,15 +227,11 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
   if ( warning ) {
     text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
   }
-
+  var arrayEntry = bannerWarnings.push("placeholder") - 1;
   if ( ! noDismiss ) {
     text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
   }
-  if ( bannerWarnings.indexOf(text) < 0 ) {
-    var arrayEntry = bannerWarnings.push("placeholder") - 1;
-    bannerWarnings[arrayEntry] = text;
-  } else return bannerWarnings.indexOf(text);
-  
+  bannerWarnings[arrayEntry] = text;
   if ( ! bannerWarningInterval ) {
     showBannerWarnings();
     bannerWarningInterval = setInterval(function() {
@@ -287,22 +283,6 @@ function showUpgrade(data,noDismiss=false) {
     osUpgradeWarning = addBannerWarning(data.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='hideUpgrade();openUpgrade();'>$1</a>"),false,noDismiss);
   }
 }
-
-function addRebootNotice(message="You must reboot for changes to take effect") {
-  addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+message,false,true);
-  $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'addRebootNotice',message:message});
-}
-
-function removeRebootNotice(message="You must reboot for changes to take effect") {
-  var bannerIndex = bannerWarnings.indexOf("<i class='fa fa-warning' style='float:initial;'></i> "+message);
-  if ( bannerIndex < 0 ) {
-    return;
-  }
-  console.log("banner index: "+bannerIndex);
-  removeBannerWarning(bannerIndex);
-  $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
-}
-
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
   if (set)
@@ -407,21 +387,6 @@ $.ajaxPrefilter(function(s, orig, xhr){
     s.data += s.data?"&":"";
     s.data += "csrf_token=<?=$var['csrf_token']?>";
   }
-});
-
-// add any pre-existing reboot notices  
-$(function() {
-<?
-  $rebootNotice = @file("/tmp/reboot_notifications") ?: array();
-  foreach ($rebootNotice as $notice):
-?>
-    var rebootMessage = "<?=trim($notice)?>";
-    if ( rebootMessage ) {
-      addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
-    }
-<?
-  endforeach;
-?>
 });
 </script>
 </head>
