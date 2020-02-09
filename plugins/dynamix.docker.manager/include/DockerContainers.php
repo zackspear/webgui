@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -51,7 +51,7 @@ foreach ($containers as $ct) {
   $running = $info['running'] ? 1 : 0;
   $paused = $info['paused'] ? 1 : 0;
   $is_autostart = $info['autostart'] ? 'true':'false';
-  $updateStatus = $info['updated']=='true'||$info['updated']=='undef' ? 'true':'false';
+  $updateStatus = ($info['updated']=='true'||$info['updated']=='undef') && strpos($ct['NetworkMode'],':???')===false ? 'true':'false';
   $template = $info['template'];
   $shell = $info['shell'];
   $webGui = html_entity_decode($info['url']);

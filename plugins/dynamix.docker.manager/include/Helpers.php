@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -238,14 +238,14 @@ function xmlToVar($xml) {
 
 function xmlSecurity(&$template) {
   foreach ($template as &$element) {
-    if ( is_array($element) ) {
+    if (is_array($element)) {
       xmlSecurity($element);
     } else {
-      if ( is_string($element) ) {
+      if (is_string($element)) {
         $tempElement = htmlspecialchars_decode($element);
         $tempElement = str_replace("[","<",$tempElement);
         $tempElement = str_replace("]",">",$tempElement);
-        if ( preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement) ) {
+        if (preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement)) {
           $element = "REMOVED";
         }
       }
@@ -258,7 +258,7 @@ function xmlToCommand($xml, $create_paths=false) {
   $xml           = xmlToVar($xml);
   $cmdName       = strlen($xml['Name']) ? '--name='.escapeshellarg($xml['Name']) : '';
   $cmdPrivileged = strtolower($xml['Privileged'])=='true' ? '--privileged=true' : '';
-  $cmdNetwork    = '--net='.escapeshellarg(strtolower($xml['Network']));
+  $cmdNetwork    = preg_match('/\-\-net(work)?=/',$xml['ExtraParams']) ? "" : '--net='.escapeshellarg(strtolower($xml['Network']));
   $cmdMyIP       = '';
   foreach (explode(' ',str_replace(',',' ',$xml['MyIP'])) as $myIP) if ($myIP) $cmdMyIP .= (strpos($myIP,':')?'--ip6=':'--ip=').escapeshellarg($myIP).' ';
   $cmdCPUset     = strlen($xml['CPUset']) ? '--cpuset-cpus='.escapeshellarg($xml['CPUset']) : '';
@@ -268,7 +268,7 @@ function xmlToCommand($xml, $create_paths=false) {
   $Labels        = [''];
   $Devices       = [''];
   // Bind Time
-  $Variables[]   = 'TZ="' . $var['timeZone'] . '"';
+  $Variables[]   = 'TZ="'.$var['timeZone'].'"';
   // Add HOST_OS variable
   $Variables[]   = 'HOST_OS="Unraid"';
 
@@ -280,7 +280,7 @@ function xmlToCommand($xml, $create_paths=false) {
     if ($confType != "device" && !strlen($containerConfig)) continue;
     if ($confType == "path") {
       $Volumes[] = escapeshellarg($hostConfig).':'.escapeshellarg($containerConfig).':'.escapeshellarg($Mode);
-      if ( ! file_exists($hostConfig) && $create_paths ) {
+      if (!file_exists($hostConfig) && $create_paths) {
         @mkdir($hostConfig, 0777, true);
         @chown($hostConfig, 99);
         @chgrp($hostConfig, 100);
@@ -439,7 +439,7 @@ function pullImage($name, $image, $echo=true) {
     if ($echo) @flush();
   });
   if ($echo) {
-    echo "<script>addLog('<br><b>TOTAL DATA PULLED:</b> " . $DockerClient->formatBytes(array_sum($alltotals)) . "');</script>\n";
+    echo "<script>addLog('<br><b>TOTAL DATA PULLED:</b> ".$DockerClient->formatBytes(array_sum($alltotals))."');</script>\n";
     @flush();
   }
   if (!empty($strError)) {
@@ -469,7 +469,7 @@ function execCommand($command, $echo=true) {
     @flush();
   }
   $proc = proc_open($command." 2>&1", $descriptorspec, $pipes, '/', []);
-  while ($out = fgets( $pipes[1] )) {
+  while ($out = fgets($pipes[1])) {
     $out = preg_replace("%[\t\n\x0B\f\r]+%", '', $out);
     if ($echo) {
       echo '<script>addLog("'.htmlspecialchars($out).'");</script>';
@@ -524,16 +524,15 @@ function getAllocations() {
   return $ports;
 }
 
-function getCurlHandle($url, $method = 'GET') {
-	$ch = curl_init();
-	curl_setopt( $ch, CURLOPT_URL, $url );
-	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-	if ($method === 'HEAD') {
-		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'HEAD' );
-		curl_setopt( $ch, CURLOPT_HEADER, 1 );
-		curl_setopt( $ch, CURLOPT_NOBODY, true );
-    }
-
-    return $ch;
+function getCurlHandle($url, $method='GET') {
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  if ($method === 'HEAD') {
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD');
+    curl_setopt($ch, CURLOPT_HEADER, 1);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+  }
+  return $ch;
 }
 ?>

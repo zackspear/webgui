@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2015-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,6 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 libxml_use_internal_errors(false); # Enable xml errors
 
@@ -35,7 +34,7 @@ $DockerTemplates = new DockerTemplates();
 
 $custom = DockerUtil::custom();
 $subnet = DockerUtil::network($custom);
-$cpus   = cpu_list();
+$cpus   = DockerUtil::cpus();
 
 function cpu_pinning() {
   global $xml,$cpus;
@@ -84,10 +83,10 @@ if (isset($_POST['contName'])) {
   if (!is_dir($userTmplDir)) mkdir($userTmplDir, 0777, true);
   if ($Name) {
     $filename = sprintf('%s/my-%s.xml', $userTmplDir, $Name);
-    if ( is_file($filename) ) {
+    if (is_file($filename)) {
       $oldXML = simplexml_load_file($filename);
       if ($oldXML->Icon != $_POST['contIcon']) {
-        if (! strpos($Repository,":")) {
+        if (!strpos($Repository,":")) {
           $Repository .= ":latest";
         }
         $iconPath = $DockerTemplates->getIcon($Repository);
@@ -176,12 +175,12 @@ if ($_GET['updateContainer']){
     // determine if the container is still running
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
       // since container was already running, put it back it to a running state after update
-      $cmd = str_replace('/plugins/dynamix.docker.manager/scripts/docker create ', '/plugins/dynamix.docker.manager/scripts/docker run -d ', $cmd);
+      $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
       // attempt graceful stop of container first
       stopContainer($Name);
     }
     // force kill container if still running after 10 seconds
-    if ( ! $_GET['communityApplications'] ) {
+    if (!$_GET['communityApplications']) {
       removeContainer($Name);
     }
     execCommand($cmd);
@@ -399,7 +398,7 @@ button[type=button]{margin:0 20px 0 0}
   function getVal(el, name) {
     var el = $(el).find("*[name="+name+"]");
     if (el.length) {
-      return ( $(el).attr('type') == 'checkbox' ) ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
+      return ($(el).attr('type') == 'checkbox') ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
     } else {
       return "";
     }
@@ -407,7 +406,7 @@ button[type=button]{margin:0 20px 0 0}
 
   function addConfigPopup() {
     var title = 'Add Configuration';
-    var popup = $( "#dialogAddConfig" );
+    var popup = $("#dialogAddConfig");
 
     // Load popup the popup with the template info
     popup.html($("#templatePopupConfig").html());
@@ -436,10 +435,10 @@ button[type=button]{margin:0 20px 0 0}
           ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
             Opts[e] = getVal(Element, e);
           });
-          if (! Opts.Name ){
+          if (!Opts.Name){
             Opts.Name = makeName(Opts.Type);
           }
-          if (! Opts.Description ) {
+          if (!Opts.Description) {
             Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
           }
           if (Opts.Required == "true") {
@@ -461,7 +460,7 @@ button[type=button]{margin:0 20px 0 0}
       }
     });
     $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css( 'width', "100%");
+    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
     $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
     $(".ui-button-text").css('padding','0px 5px');
   }
@@ -517,10 +516,10 @@ button[type=button]{margin:0 20px 0 0}
             Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>Edit</button>";
             Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>Remove</button>";
           }
-          if (! Opts.Name ){
+          if (!Opts.Name){
             Opts.Name = makeName(Opts.Type);
           }
-          if (! Opts.Description ) {
+          if (!Opts.Description) {
             Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
           }
           Opts.Number = num;
@@ -545,7 +544,7 @@ button[type=button]{margin:0 20px 0 0}
       }
     });
     $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css( 'width', "100%");
+    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
     $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
     $(".ui-button-text").css('padding','0px 5px');
     $('.desc_readmore').readmore({maxHeight:10});
@@ -668,8 +667,7 @@ button[type=button]{margin:0 20px 0 0}
       allowBrowsing: true
     },
     function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function (){$(ft).remove();});}}}
-    );
+    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function (){$(ft).remove();});}}});
     // Format fileTree according to parent position, height and width
     ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
     // close if click elsewhere
@@ -1181,7 +1179,7 @@ button[type=button]{margin:0 20px 0 0}
   }
   function toggleReadmore() {
     var readm = $('#readmore_toggle');
-    if ( readm.hasClass('readmore_collapsed') ) {
+    if (readm.hasClass('readmore_collapsed')) {
       readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
       $('#configLocationAdvanced').slideDown('fast');
       readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide more settings ...');
@@ -1193,7 +1191,7 @@ button[type=button]{margin:0 20px 0 0}
   }
   function toggleAllocations() {
     var readm = $('#allocations_toggle');
-    if ( readm.hasClass('readmore_collapsed') ) {
+    if (readm.hasClass('readmore_collapsed')) {
       readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
       $('#dockerAllocations').slideDown('fast');
       readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide docker allocations ...');
@@ -1272,7 +1270,7 @@ button[type=button]{margin:0 20px 0 0}
       echo "$('.advanced-switch').siblings('.switch-button-background').click();";
     }?>
   });
-  if ( window.location.href.indexOf("/Apps/") > 0 ) {
+  if (window.location.href.indexOf("/Apps/") > 0) {
     $(".TemplateDropDown").hide();
   }
 </script>
