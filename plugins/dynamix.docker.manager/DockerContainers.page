@@ -37,6 +37,7 @@ th.load{width:140px}
 input.wait{width:24px;margin:0 4px;padding:0 5px;border:none;box-shadow:none;background-color:transparent}
 table tbody td{line-height:normal}
 </style>
+<div class="spinner fixed" style="display:none"></div>
 <div id="iframe-popup" style="display:none;-webkit-overflow-scrolling:touch;"></div>
 <span class="status" style="margin-top:<?=$width?>px"><span><input type="checkbox" class="advancedview"></span></span>
 <table id="docker_containers" class="tablesorter shift">
@@ -101,7 +102,7 @@ var sortableHelper = function(e,i){
 function loadlist() {
   $.get('/plugins/dynamix.docker.manager/include/DockerContainers.php',function(d) {
     var data = d.split(/\0/);
-    $('div.spinner').hide('slow').remove();
+    $('div.spinner').hide('slow');
     $('#docker_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',cancel:'span.docker_readmore,input',delay:100,opacity:0.5,zIndex:9999,
     update:function(e,ui){
       var row = $('#docker_list').find('tr:first');
@@ -131,11 +132,15 @@ function loadlist() {
     if ($.cookie('docker_listview_mode')=='advanced') {$('.advanced').show(); $('.basic').hide();}
     context.init({preventDoubleContext:false,left:true,above:false});
     $('input[type=button]').prop('disabled',false).show('slow');
-    var update = false;
-    for (var i=0,ct; ct=docker[i]; i++) if (ct.update=='false') {update = true; break;};
-    if (!update) $('input#updateAll').prop('disabled',true);
+    var update = false, rebuild = false;
+    for (var i=0,ct; ct=docker[i]; i++) {
+      if (ct.update==0) update = true;
+      if (ct.update==2) rebuild = true;
+    }
     listview();
     if (data[2]==1) {$('#busy').show(); setTimeout(loadlist,5000);} else if ($('#busy').is(':visible')) {$('#busy').hide(); setTimeout(loadlist,3000);}
+    if (!update) $('input#updateAll').prop('disabled',true);
+    if (rebuild) rebuildAll();
   });
 }
 function sizes() {
@@ -153,6 +158,7 @@ watchDocker.on('message', function(data){
   }
 });
 $(function() {
+  $('div.spinner').html(unraid_logo);
   $('.advancedview').switchButton({labels_placement:'left', on_label:'Advanced View', off_label:'Basic View', checked:$.cookie('docker_listview_mode')=='advanced'});
   $('.advancedview').change(function(){
     $('.advanced').toggle('slow');

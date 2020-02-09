@@ -7,8 +7,8 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:'Console', icon:'fa-terminal', action:function(e){e.preventDefault(); dockerTerminal(container,shell);}});
     opts.push({divider:true});
   }
-  if (!update) {
-    opts.push({text:'Update', icon:'fa-arrow-down', action:function(e){e.preventDefault(); execUpContainer(container);}});
+  if (update==0) {
+    opts.push({text:'Update', icon:'fa-cloud-download', action:function(e){e.preventDefault(); execUpContainer(container);}});
     opts.push({divider:true});
   }
   if (started) {
@@ -58,8 +58,8 @@ function dockerTerminal(container,shell) {
 }
 function execUpContainer(container) {
   var title = 'Updating the container: '+container;
-  var address = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
-  popupWithIframe(title, address, true, 'loadlist');
+  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
+  popupWithIframe(title, cmd, true, 'loadlist');
 }
 function popupWithIframe(title, cmd, reload, func) {
   pauseEvents();
@@ -126,6 +126,7 @@ function rmContainer(container, image, id) {
     showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
+    $('div.spinner').show('slow');
     if ($('#removeimagechk').prop('checked')) {
       eventControl({action:'remove_all', container:id, name:container, image:image},'loadlist');
     } else {
@@ -145,6 +146,7 @@ function rmImage(image, imageName) {
     showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
+    $('div.spinner').show('slow');
     eventControl({action:'remove_image', image:image},'loadlist');
   });
 }
@@ -190,12 +192,18 @@ function checkAll() {
 }
 function updateAll() {
   $('input[type=button]').prop('disabled',true);
-  $('#docker_list').append("<div class='spinner fixed'></div>");
-  $('div.spinner').html(unraid_logo).show('slow');
-  var list = '';
-  for (var i=0,ct; ct=docker[i]; i++) if (ct.update=='false') list += '&ct[]='+encodeURI(ct.name);
-  var address = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+list;
-  popupWithIframe('Updating all Containers', address, true, 'loadlist');
+  $('div.spinner').show('slow');
+  var ct = '';
+  for (var i=0,d; d=docker[i]; i++) if (d.update==0) ct += '&ct[]='+encodeURI(d.name);
+  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;
+  popupWithIframe('Updating all Containers', cmd, true, 'loadlist');
+}
+function rebuildAll() {
+  $('input[type=button]').prop('disabled',true);
+  $('div.spinner').show('slow');
+  var ct = [];
+  for (var i=0,d; d=docker[i]; i++) if (d.update==2) ct.push(encodeURI(d.name));
+  $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true,mute:true,ct},function(){loadlist();});
 }
 function containerLogs(container, id) {
   var height = 600;

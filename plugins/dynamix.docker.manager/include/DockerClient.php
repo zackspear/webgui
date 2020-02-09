@@ -845,7 +845,7 @@ class DockerClient {
 			$c['CPUset']      = $info['HostConfig']['CpusetCpus'];
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
 			$c['Ports']       = [];
-			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::docker("inspect --format='{{.Name}}' $id")?:'/???');
+			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
 			if ($driver[$c['NetworkMode']]=='bridge') {
 				$ports = &$info['HostConfig']['PortBindings'];
 				$nat = true;
@@ -968,6 +968,9 @@ class DockerUtil {
 	public static function cpus() {
 		exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
 		return $cpus;
+	}
+	public static function ctMap($ct, $type='Name') {
+		return static::docker("inspect --format='{{.$type}}' $ct");
 	}
 }
 ?>

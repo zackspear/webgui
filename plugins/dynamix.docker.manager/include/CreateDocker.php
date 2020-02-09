@@ -156,11 +156,14 @@ if (isset($_POST['contName'])) {
 ##########################
 
 if ($_GET['updateContainer']){
-  readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
-  @flush();
+  $echo = $_GET['mute'] ? false : true;
+  if ($echo) {
+    readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
+    @flush();
+  }
   foreach ($_GET['ct'] as $value) {
     $tmpl = $DockerTemplates->getUserTemplate(urldecode($value));
-    if (!$tmpl) {
+    if ($echo && !$tmpl) {
       echo "<script>addLog('<p>Configuration not found. Was this container created using this plugin?</p>');</script>";
       @flush();
       continue;
@@ -169,27 +172,23 @@ if ($_GET['updateContainer']){
     list($cmd, $Name, $Repository) = xmlToCommand($tmpl);
     $Registry = getXmlVal($xml, "Registry");
     $oldImageID = $DockerClient->getImageID($Repository);
-    // Pull image
-    if (!pullImage($Name, $Repository)) continue;
+    // pull image
+    if ($echo) if (!pullImage($Name, $Repository)) continue;
     $oldContainerInfo = $DockerClient->getContainerDetails($Name);
     // determine if the container is still running
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
       // since container was already running, put it back it to a running state after update
       $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
       // attempt graceful stop of container first
-      stopContainer($Name);
+      stopContainer($Name, $echo);
     }
     // force kill container if still running after 10 seconds
-    if (!$_GET['communityApplications']) {
-      removeContainer($Name);
-    }
-    execCommand($cmd);
+    if (!$_GET['communityApplications']) removeContainer($Name, $echo);
+    execCommand($cmd, $echo);
     $DockerClient->flushCaches();
     $newImageID = $DockerClient->getImageID($Repository);
-    if ($oldImageID && $oldImageID != $newImageID) {
-      // remove old orphan image since it's no longer used by this container
-      removeImage($oldImageID);
-    }
+    // remove old orphan image since it's no longer used by this container
+    if ($oldImageID && $oldImageID != $newImageID) removeImage($oldImageID, $echo);
   }
   echo '<div style="text-align:center"><button type="button" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\')">Done</button></div><br>';
   goto END;
@@ -381,11 +380,11 @@ button[type=button]{margin:0 20px 0 0}
     }
     return newConfig.prop('outerHTML');
   }
-  
+
   function escapeQuote(string) {
     return string.replace(new RegExp('"','g'),"&quot;");
   }
-  
+
   function makeAllocations(container,current) {
     var html = [];
     for (var i=0,ct; ct=container[i]; i++) {
@@ -556,20 +555,19 @@ button[type=button]{margin:0 20px 0 0}
   }
 
   function prepareConfig(form) {
-    var types = [], values = [], targets = [];
+    var types = [], values = [], targets = [], vcpu = [];
     if ($('select[name="contNetwork"]').val()=='host') {
       $(form).find('input[name="confType[]"]').each(function(){types.push($(this).val());});
       $(form).find('input[name="confValue[]"]').each(function(){values.push($(this));});
       $(form).find('input[name="confTarget[]"]').each(function(){targets.push($(this));});
       for (var i=0; i < types.length; i++) if (types[i]=='Port') $(targets[i]).val($(values[i]).val());
     }
-    var vcpu = [];
     $(form).find('input[id^="box"]').each(function(){if ($(this).prop('checked')) vcpu.push($('#'+$(this).prop('id').replace('box','cpu')).text());});
     form.contCPUset.value = vcpu.join(',');
   }
 
   function makeName(type) {
-    i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
+    var i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
     return "Host "+type.replace('Variable','Key')+" "+i;
   }
 

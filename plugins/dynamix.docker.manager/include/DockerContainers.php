@@ -51,7 +51,7 @@ foreach ($containers as $ct) {
   $running = $info['running'] ? 1 : 0;
   $paused = $info['paused'] ? 1 : 0;
   $is_autostart = $info['autostart'] ? 'true':'false';
-  $updateStatus = ($info['updated']=='true'||$info['updated']=='undef') && strpos($ct['NetworkMode'],':???')===false ? 'true':'false';
+  $updateStatus = strpos($ct['NetworkMode'],':???')!==false ? 2 : ($info['updated']=='true' ? 1 : ($info['updated']=='undef' ? 3 : 0));
   $template = $info['template'];
   $shell = $info['shell'];
   $webGui = html_entity_decode($info['url']);
@@ -59,11 +59,11 @@ foreach ($containers as $ct) {
   $project = html_entity_decode($info['Project']);
   $registry = html_entity_decode($info['registry']);
   $menu[] = sprintf("addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s');", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project),addslashes($registry));
-  $docker[] = "docker.push({name:'$name',id:'$id',state:$running,pause:$paused,update:'$updateStatus'});";
+  $docker[] = "docker.push({name:'$name',id:'$id',state:$running,pause:$paused,update:$updateStatus});";
   $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
   $status = $running ? ($paused ? 'paused' : 'started') : 'stopped';
   $color = $status=='started' ? 'green-text' : ($status=='paused' ? 'orange-text' : 'red-text');
-  $update = $updateStatus=='false' ? 'blue-text' : '';
+  $update = $updateStatus==0 ? 'blue-text' : '';
   $icon = $info['icon'] ?: '/plugins/dynamix.docker.manager/images/question.png';
   $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
   $wait = var_split($autostart[array_search($name,$names)],1);
@@ -97,15 +97,23 @@ foreach ($containers as $ct) {
     echo htmlspecialchars($author);
   }
   echo "</span></td><td class='updatecolumn'>";
-  if ($updateStatus=='false') {
+  switch ($updateStatus) {
+  case 0:
     echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> update ready</span></div>";
     echo "<a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> apply update</span></a>";
-  } elseif ($updateStatus=='true') {
+    break;
+   case 1:
     echo "<span class='green-text' style='white-space:nowrap;'><i class='fa fa-check fa-fw'></i> up-to-date</span>";
     echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> force update</span></a></div>";
-  } else {
+    break;
+  case 2:
+    echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> rebuild ready</span></div>";
+    echo "<a class='exec'><span style='white-space:nowrap;'><i class='fa fa-recycle fa-fw'></i> rebuilding</span></a>";
+    break;
+  default:
     echo "<span class='orange-text' style='white-space:nowrap;'><i class='fa fa-warning'></i> not available</span>";
     echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> force update</span></a></div>";
+    break;
   }
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> $version</div></td>";
   echo "<td>{$ct['NetworkMode']}</td>";
