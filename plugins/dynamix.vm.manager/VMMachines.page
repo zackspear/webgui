@@ -111,7 +111,7 @@ table tbody td{line-height:normal}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
 <thead><tr><th class="vmname"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th>Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="eight">Autostart</th></tr></thead>
-<tbody id="kvm_list"><tr><td colspan='8'><div class="spinner"></div></td></tr></tbody>
+<tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="Add VM" style="display:none">
 <input type="button" onclick="startAll()" value="Start All" style="display:none">
@@ -147,6 +147,8 @@ var sortableHelper = function(e,i){
 };
 function loadlist() {
   $.get('/plugins/dynamix.vm.manager/include/VMMachines.php',{show:$.cookie('vmshow')},function(d) {
+    clearTimeout(timers.vm);
+    $('div.spinner.fixed').hide('slow');
     var data = d.split(/\0/);
     $('#kvm_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
     update:function(e,ui){
@@ -197,6 +199,7 @@ $(function() {
   $('#countdown').html("<span class='<?-$color?>'><?=$msg?></span>");
 <?endif;?>
   $('#btnAddVM').click(function AddVMEvent(){$('.tab>input#tab2').click();});
+  timers.vm = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   loadlist();
 });
 </script>

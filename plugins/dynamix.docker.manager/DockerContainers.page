@@ -41,7 +41,7 @@ table tbody td{line-height:normal}
 <span class="status" style="margin-top:<?=$width?>px"><span><input type="checkbox" class="advancedview"></span></span>
 <table id="docker_containers" class="tablesorter shift">
 <thead><tr><th><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Application</th><th>Version</th><th>Network</th><th>Port Mappings <small>(App to Host)</small></th><th>Volume Mappings <small>(App to Host)</small></th><th class="load advanced">CPU & Memory load</th><th class="nine">Autostart</th><th class="five">Log</th></tr></thead>
-<tbody id="docker_list"><tr><td class="advanced"></td><td colspan='7'><div class="spinner"></div></td><td class="advanced"></td></tr></tbody>
+<tbody id="docker_list"><tr><td colspan='9'></td></tr></tbody>
 </table>
 <input type="button" onclick="addContainer()" value="Add Container" style="display:none">
 <input type="button" onclick="startAll()" value="Start All" style="display:none">
@@ -100,8 +100,9 @@ var sortableHelper = function(e,i){
 };
 function loadlist() {
   $.get('/plugins/dynamix.docker.manager/include/DockerContainers.php',function(d) {
+    clearTimeout(timers.docker);
+    $('div.spinner.fixed').hide('slow');
     var data = d.split(/\0/);
-    $('div.spinner').hide('slow');
     $('#docker_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',cancel:'span.docker_readmore,input',delay:100,opacity:0.5,zIndex:9999,
     update:function(e,ui){
       var row = $('#docker_list').find('tr:first');
@@ -164,6 +165,7 @@ $(function() {
     $.cookie('docker_listview_mode',$('.advancedview').is(':checked')?'advanced':'basic',{expires:3650});
     listview();
   });
+  timers.docker = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   loadlist();
   watchDocker.start();
 });
