@@ -596,6 +596,7 @@ $('.back_to_top').click(function(event) {
   return false;
 });
 $(function() {
+  setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},150); // display animation if page loading takes longer than 150ms
   shortcut.add('F1',function(){HelpButton();});
 <?if ($var['regTy']=='unregistered'):?>
   $('#licensetype').addClass('orange-text');
@@ -681,7 +682,6 @@ $(function() {
     });
   }
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:'<?=$var['csrf_token']?>'}));
-  setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},150); // display animation if page loading takes longer than 150ms
   watchdog.start();
 });
 </script>
