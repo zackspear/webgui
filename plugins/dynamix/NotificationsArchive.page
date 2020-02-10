@@ -44,10 +44,8 @@ function resize(bind) {
 <?endif;?>
 function archiveList(init) {
   $.get('/webGui/include/NotificationsArchive.php',{filter:'<?=addslashes(htmlspecialchars($_GET['filter']))?>'},function(data) {
-    if (init) {
-      clearTimeout(timers.archive);
-      $('div.spinner.fixed').hide('slow');
-    }
+    if (init) clearTimeout(timers.archive);
+    $('div.spinner.fixed').hide('slow');
     if (data) $('#archive_list').html(data);
     if (init) {
 <?if ($display['resize']):?>

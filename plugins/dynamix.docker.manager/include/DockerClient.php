@@ -69,7 +69,7 @@ class DockerTemplates {
 	}
 
 	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 60 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
+		exec('curl --max-time 20 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
 		return $exit_code===0 ? implode("\n", $out) : false;
 	}
 
@@ -286,8 +286,7 @@ class DockerTemplates {
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			if (!$tmp['updated'] || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
-				$vs = $DockerUpdate->getUpdateStatus($image);
-				$tmp['updated'] = $vs===null ? 'undef' : ($vs===true ? 'true' : 'false');
+				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
@@ -339,7 +338,7 @@ class DockerUpdate{
 	}
 
 	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 30 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
+		exec('curl --max-time 20 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
 		return ($exit_code===0) ? implode("\n", $out) : false;
 	}
 
@@ -348,7 +347,7 @@ class DockerUpdate{
 		foreach ($headers as $header) {
 			$strHeaders .= ' -H '.escapeshellarg($header);
 		}
-		exec('curl --max-time 30 --silent --insecure --location --fail -i '.$strHeaders.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
+		exec('curl --max-time 20 --silent --insecure --location --fail -i '.$strHeaders.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
 		return ($exit_code===0) ? implode("\n", $out) : false;
 	}
 
@@ -380,6 +379,7 @@ class DockerUpdate{
 		 * Step 2: Get www-authenticate header from manifest url to generate token url
 		 */
 		$ch = getCurlHandle($manifestURL, 'HEAD');
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
 		$response = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
@@ -412,6 +412,7 @@ class DockerUpdate{
 		if ($registryAuth) {
 			curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
 		}
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
 		$response = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting token: '.curl_error($ch));
@@ -469,7 +470,7 @@ class DockerUpdate{
 		global $dockerManPaths;
 		$DockerClient = new DockerClient();
 		$updateStatus = DockerUtil::loadJSON($dockerManPaths['update-status']);
-		$images = ($image) ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0];}, $DockerClient->getDockerImages());
+		$images = $image ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0];}, $DockerClient->getDockerImages());
 		foreach ($images as $img) {
 			$localVersion = null;
 			if (!empty($updateStatus[$img]) && array_key_exists('local', $updateStatus[$img])) {

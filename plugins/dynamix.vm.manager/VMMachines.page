@@ -145,9 +145,9 @@ var sortableHelper = function(e,i){
   });
   return i;
 };
-function loadlist() {
+function loadlist(init) {
   $.get('/plugins/dynamix.vm.manager/include/VMMachines.php',{show:$.cookie('vmshow')},function(d) {
-    clearTimeout(timers.vm);
+    if (init) clearTimeout(timers.vm);
     $('div.spinner.fixed').hide('slow');
     var data = d.split(/\0/);
     $('#kvm_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
@@ -200,6 +200,6 @@ $(function() {
 <?endif;?>
   $('#btnAddVM').click(function AddVMEvent(){$('.tab>input#tab2').click();});
   timers.vm = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
-  loadlist();
+  loadlist(true);
 });
 </script>
