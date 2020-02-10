@@ -4,9 +4,9 @@ Icon="icon-virtualization"
 Tag="columns"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2015-2019, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -21,12 +21,10 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 // Check for Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support
 // If either kvm_intel or kvm_amd are loaded then Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support was found
-$strLoadedModules = shell_exec("/etc/rc.d/rc.libvirt test");
-if (empty($strLoadedModules)) {
-  echo "<p class='notice'>Your hardware does not have Intel VT-x or AMD-V capability. This is required to create VMs in KVM.";
+$hardware = !empty(shell_exec("/etc/rc.d/rc.libvirt test"));
+if (!$hardware) {
+  echo "<p class='notice'>Your hardware does not have Intel VT-x or AMD-V capability. This is required to create VMs in KVM. Please disable the VM function. ";
   echo "<a href='http://lime-technology.com/wiki/index.php/UnRAID_Manual_6#Hardware-Assisted_Virtualization_.28HVM.29' target='_blank'> Click here to see the Unraid Wiki for more information</a></p>";
-  echo "<input type='button' value='Done' onclick='done()'>";
-  exit;
 }
 
 function scan($area, $text) {
@@ -77,7 +75,9 @@ body{-webkit-overflow-scrolling:touch}
 #remove_button span{font-family:clear-sans}
 </style>
 
+<?if ($hardware):?>
 <span class="status vhshift"><input type="checkbox" class="advancedview"></span>
+<?endif;?>
 <form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>">
 <input type="hidden" name="#command" value="/plugins/dynamix/scripts/emcmd">
@@ -87,14 +87,17 @@ Enable VMs:
   <?= mk_option($libvirt_service, 'disable', 'No'); ?>
   <?= mk_option($libvirt_service, 'enable', 'Yes'); ?>
   </select>
+  <?if ($hardware):?>
   <?if ($var['fsState'] != "Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($libvirt_service=='enable')?'VMs will be available after Array is Started':'Apply to activate VMs after Array is Started'?></span>
   <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE'])) || !is_dir($domain_cfg['DOMAINDIR']) || !is_dir($domain_cfg['MEDIADIR'])):?>
   <span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> One or more paths do not exist (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">view</a>)</span>
   <?endif;?>
+  <?endif;?>
 
 > Stopping the VM Manager will first attempt to shutdown all running VMs. After 60 seconds, any remaining VM instances will be terminated.
 
+<?if ($hardware):?>
 <div class="advanced" markdown="1">
 <?if ($libvirt_running == 'yes'):?>
 <?$libvirt_info = libvirt_version('libvirt')?>
@@ -229,6 +232,7 @@ VFIO allow unsafe interrupts:
 <input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','Libvirt Log',600,900);" value="View libvirt log"/>
 <?else:?>
 &nbsp;
+<?endif;?>
 <?endif;?>
 : <input type="button" id="applyBtn" value="Apply" disabled><input type="button" value="Done" onclick="done()">
 </form>
@@ -400,6 +404,7 @@ $(function(){
     $('.advanced').show();
     $('.basic').hide();
   }
+<?if ($hardware):?>
   $('.advancedview').switchButton({
     labels_placement: "left",
     on_label: 'Advanced View',
@@ -411,6 +416,7 @@ $(function(){
     $('.basic').toggle('slow');
     $.cookie('vmsettings_view_mode', $('.advancedview').is(':checked') ? 'advanced' : 'basic', {expires:3650});
   });
+<?endif;?>
   showStatus('pid','libvirt/libvirtd');
   <?if ($var['fsState'] == "Started"):?>
     $("input[data-pickroot]").fileTreeAttach();
