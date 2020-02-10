@@ -45,7 +45,6 @@ function resize(bind) {
 function archiveList(init) {
   $.get('/webGui/include/NotificationsArchive.php',{filter:'<?=addslashes(htmlspecialchars($_GET['filter']))?>'},function(data) {
     if (init) clearTimeout(timers.archive);
-    $('div.spinner.fixed').hide('slow');
     if (data) $('#archive_list').html(data);
     if (init) {
 <?if ($display['resize']):?>
@@ -57,6 +56,7 @@ function archiveList(init) {
     }
     $('#archive_list .tablesorter-childRow td').hide();
     for (var i = 0; i < rows.length; i++) $('#archive_list .tablesorter-childRow.row'+rows[i]+' td').show();
+    $('div.spinner.fixed').hide('slow');
     setTimeout(archiveList,30000);
   });
 }

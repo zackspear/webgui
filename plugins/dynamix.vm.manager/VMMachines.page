@@ -148,7 +148,6 @@ var sortableHelper = function(e,i){
 function loadlist(init) {
   $.get('/plugins/dynamix.vm.manager/include/VMMachines.php',{show:$.cookie('vmshow')},function(d) {
     if (init) clearTimeout(timers.vm);
-    $('div.spinner.fixed').hide('slow');
     var data = d.split(/\0/);
     $('#kvm_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
     update:function(e,ui){
@@ -188,6 +187,7 @@ function loadlist(init) {
       },'json');
     });
     context.init({preventDoubleContext:false,left:true,above:false});
+    $('div.spinner.fixed').hide('slow');
     $('input[type=button]').prop('disabled',false).show('slow');
     $('.text').click(showInput);
     $('.input').blur(hideInput);
