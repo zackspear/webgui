@@ -49,7 +49,6 @@ function loadlist(id) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
     clearTimeout(timers.plugins);
-    $('div.spinner.fixed').hide('slow');
     if (id) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
@@ -72,6 +71,7 @@ function loadlist(id) {
 <?if ($check):?>
     $('#checkall').find('input').prop('disabled',false).show();
 <?endif;?>
+    $('div.spinner.fixed').hide('slow');
   });
 }
 $(function() {

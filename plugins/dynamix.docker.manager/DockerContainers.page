@@ -98,9 +98,10 @@ var sortableHelper = function(e,i){
   });
   return i;
 };
-function loadlist(init) {
+function loadlist() {
+  timers.docker = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.get('/plugins/dynamix.docker.manager/include/DockerContainers.php',function(d) {
-    if (init) clearTimeout(timers.docker);
+    clearTimeout(timers.docker);
     var data = d.split(/\0/);
     $('#docker_list').html(data[0]).sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',cancel:'span.docker_readmore,input',delay:100,opacity:0.5,zIndex:9999,
     update:function(e,ui){
@@ -165,8 +166,7 @@ $(function() {
     $.cookie('docker_listview_mode',$('.advancedview').is(':checked')?'advanced':'basic',{expires:3650});
     listview();
   });
-  timers.docker = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
-  loadlist(true);
+  loadlist();
   watchDocker.start();
 });
 </script>
