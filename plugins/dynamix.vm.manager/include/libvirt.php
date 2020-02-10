@@ -321,16 +321,21 @@
 			$intCPUThreadsPerCore = 1;
 
 			$cpumode = '';
+			$cpucache = '';
+			$cpufeatures = '';
 			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'host-passthrough') {
 				$cpumode .= "mode='host-passthrough'";
+				$cpucache = "<cache mode='passthrough'/>";
 
 				// detect if the processor is hyperthreaded:
 				$intCPUThreadsPerCore = max(intval(shell_exec('/usr/bin/lscpu | grep \'Thread(s) per core\' | awk \'{print $4}\'')), 1);
-
-				// detect if the processor is AMD, and if so, force single threaded
-				$strCPUInfo = file_get_contents('/proc/cpuinfo');
-				if (strpos($strCPUInfo, 'AuthenticAMD') !== false) {
-					$intCPUThreadsPerCore = 1;
+				
+				// detect if the processor is AMD + multithreaded, and if so, enable topoext cpu feature
+				if ($intCPUThreadsPerCore > 1) {
+					$strCPUInfo = file_get_contents('/proc/cpuinfo');
+					if (strpos($strCPUInfo, 'AuthenticAMD') !== false) {
+						$cpufeatures .= "<feature policy='require' name='topoext'/>";
+					}
 				}
 
 				// even amount of cores assigned and cpu is hyperthreaded: pass that info along to the cpu section below
@@ -342,6 +347,8 @@
 
 			$cpustr = "<cpu $cpumode>
 							<topology sockets='1' cores='{$intCores}' threads='{$intThreads}'/>
+							$cpucache
+							$cpufeatures
 						</cpu>
 						<vcpu placement='static'>{$vcpus}</vcpu>
 						<cputune>
