@@ -44,6 +44,7 @@ function resize(bind) {
 }
 <?endif;?>
 function loadlist(id) {
+  $('div.spinner.fixed').show('slow');
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:<?=$check?>},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
@@ -72,16 +73,12 @@ function loadlist(id) {
 <?endif;?>
   });
 }
-function spinner() {
-  $('div.spinner.fixed').show('slow');
-}
 $(function() {
-  spinner();
   loadlist();
   $('#plugin_tree').fileTree({root:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
-  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value='Update All Plugins' onclick='spinner();openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=updateall\",\"Update All Plugins\",600,600,true,\"loadlist\",\":return\")'></span>");
+  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value='Update All Plugins' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=updateall\",\"Update All Plugins\",600,600,true,\"loadlist\",\":return\")'></span>");
 <?if ($check):?>
-  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='Check For Updates' onclick='spinner();openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"Plugin Update Check\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='Check For Updates' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"Plugin Update Check\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 <?endif;?>
 });
 </script>
