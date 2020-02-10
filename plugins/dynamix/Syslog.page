@@ -4,8 +4,8 @@ Icon="icon-log"
 Tag="list"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -84,7 +84,10 @@ function showLog(log) {
     var type = $(this).attr('class').replace('label','').replace(/-/g,'');
     $(this).removeClass().addClass(type+' label');
   });
+  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.post('/webGui/include/Syslog.php',{log:log},function(data){
+    clearTimeout(timers.syslog);
+    $('div.spinner.fixed').hide('slow');
     $('pre.up').html(data);
 <?if ($display['resize']):?>
     resize();
@@ -92,7 +95,10 @@ function showLog(log) {
   });
 }
 $(function() {
+  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.post('/webGui/include/Syslog.php',{log:'<?=$log?>'},function(data){
+    clearTimeout(timers.syslog);
+    $('div.spinner.fixed').hide('slow');
     $('pre.up').html(data);
 <?if ($display['resize']):?>
     resize();
