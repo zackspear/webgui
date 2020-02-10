@@ -524,14 +524,20 @@ function getAllocations() {
   return $ports;
 }
 
+
 function getCurlHandle($url, $method='GET') {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+  curl_setopt($ch, CURLOPT_ENCODING, "");
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  curl_setopt($ch, CURLOPT_REFERER, "");
   if ($method === 'HEAD') {
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD');
-    curl_setopt($ch, CURLOPT_HEADER, 1);
+    curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_NOBODY, true);
   }
   return $ch;

@@ -68,9 +68,21 @@ class DockerTemplates {
 		return false;
 	}
 
-	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 20 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return $exit_code===0 ? implode("\n", $out) : false;
+	public function download_url($url, $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		return $out;
 	}
 
 	public function listDir($root, $ext=null) {
@@ -300,6 +312,7 @@ class DockerTemplates {
 	public function getIcon($Repository) {
 		global $docroot, $dockerManPaths;
 		$imgUrl = $this->getTemplateValue($Repository, 'Icon');
+		if (!$imgUrl) return '';
 		preg_match_all("/(.*?):([\S]*$)/i", $Repository, $matches);
 		$name = preg_replace("%\/|\\\%", '-', $matches[1][0]);
 		$version = $matches[2][0];
@@ -337,18 +350,39 @@ class DockerUpdate{
 		return strval(html_entity_decode($string, ENT_XML1, 'UTF-8'));
 	}
 
-	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 20 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return ($exit_code===0) ? implode("\n", $out) : false;
+	public function download_url($url, $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		return $out;
 	}
 
-	public function download_url_and_headers($url, $headers=[], $path='', $bg=false) {
-		$strHeaders = '';
-		foreach ($headers as $header) {
-			$strHeaders .= ' -H '.escapeshellarg($header);
-		}
-		exec('curl --max-time 20 --silent --insecure --location --fail -i '.$strHeaders.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return ($exit_code===0) ? implode("\n", $out) : false;
+	public function download_url_and_headers($url, $headers=[], $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		return $out;
 	}
 
 	// DEPRECATED: Only used for Docker Index V1 type update checks
