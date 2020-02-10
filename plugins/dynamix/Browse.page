@@ -23,7 +23,6 @@ $(function(){
   timers.browse = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(urlencode($dir))?>",path:"<?=$path?>",user:<?=strpos($dir,'/mnt/user')===0?1:0?>},function(data){
     clearTimeout(timers.browse);
-    $('div.spinner.fixed').hide('slow');
     var table = $('table.indexer');
     var col = $.cookie('col')||1;
     var dir = $.cookie('dir')||0;
@@ -33,6 +32,7 @@ $(function(){
       $.cookie('col',sort[0],{path:'/'});
       $.cookie('dir',sort[1],{path:'/'});
     });
+    $('div.spinner.fixed').hide('slow');
     table.tablesorter({sortList:[[col,dir],[1,0]],sortAppend:[[1,0]],textAttribute:'data'});
   });
 });
