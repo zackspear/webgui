@@ -356,7 +356,6 @@ $(function() {
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
   if ($.cookie('help')=='help') {$('.inline_help').show(); $('#nav-item.HelpButton').addClass('active');}
   $('#'+tab).attr('checked', true);
-  $('div.spinner.fixed').html(unraid_logo);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div>':'<div class="top">'?>[ close all notifications ]</div>';
@@ -382,7 +381,6 @@ $.ajaxPrefilter(function(s, orig, xhr){
 </head>
 <body>
  <div id="template">
-  <div class="spinner fixed"></div>
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
@@ -492,6 +490,7 @@ foreach ($pages as $page) {
 unset($pages,$page,$pgs,$pg,$icon);
 ?>
 </div></div>
+<div class="spinner fixed"></div>
 <form name="rebootNow" method="POST" action="/webGui/include/Boot.php"><input type="hidden" name="cmd" value="reboot"></form>
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
@@ -596,6 +595,7 @@ $('.back_to_top').click(function(event) {
   return false;
 });
 $(function() {
+  $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},150); // display animation if page loading takes longer than 150ms
   shortcut.add('F1',function(){HelpButton();});
 <?if ($var['regTy']=='unregistered'):?>
