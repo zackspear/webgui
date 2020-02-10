@@ -6,8 +6,8 @@ Tabs="true"
 Code="e944"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -72,8 +72,7 @@ function loadlist(id) {
   });
 }
 function spinner() {
-  $('#plugin_list').append("<div class='spinner fixed'></div>");
-  $('div.spinner').html(unraid_logo).show('slow');
+  $('div.spinner.fixed').show('slow');
 }
 $(function() {
   loadlist();

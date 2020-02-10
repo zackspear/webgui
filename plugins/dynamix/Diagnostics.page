@@ -4,8 +4,8 @@ Icon="icon-diagnostics"
 Tag="tv"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -47,7 +47,6 @@ function diagnostics(file) {
   });
 }
 </script>
-<div class="spinner" style="display:none"></div>
 <div id="pleaseWait" style="display:none;font-weight:bold;color:red;text-align:center;margin:0">Please wait... collecting diagnostic information (this may take several minutes)</div>
 This utility is used for troubleshooting purposes. It will collect all of the system information and configuration files, and package these files in a single ZIP file which can be saved locally.
 Subsequently, this file can be included in your correspondence with Limetech or the Unraid forum.
