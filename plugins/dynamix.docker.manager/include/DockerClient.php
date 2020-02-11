@@ -505,14 +505,10 @@ class DockerUpdate{
 	public function inspectLocalVersion($image) {
 		$DockerClient = new DockerClient();
 		$inspect      = $DockerClient->getDockerJSON('/images/'.$image.'/json');
-		if (empty($inspect['RepoDigests'])) {
-			return null;
-		}
+		if (empty($inspect['RepoDigests'])) return null;
 
 		$shaPos = strpos($inspect['RepoDigests'][0], '@sha256:');
-		if ($shaPos === false) {
-			return null;
-		}
+		if ($shaPos === false) return null;
 
 		return substr($inspect['RepoDigests'][0], $shaPos + 1);
 	}
