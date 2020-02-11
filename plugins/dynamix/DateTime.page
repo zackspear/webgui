@@ -4,8 +4,8 @@ Icon="icon-clock"
 Tag="clock-o"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -32,7 +32,7 @@ Time zone:
 > Select your applicable time zone from the drop-down list.
 
 Use NTP:
-: <select name="USE_NTP" size="1" class="narrow" onchange="checkDateTimeSettings(this.form)">
+: <select name="USE_NTP" size="1" onchange="checkDateTimeSettings(this.form)">
   <?=mk_option($var['USE_NTP'], "yes", "Yes")?>
   <?=mk_option($var['USE_NTP'], "no", "No")?>
   </select>
@@ -43,27 +43,27 @@ Use NTP:
 > Note: if using `pool.ntp.org` time servers, please also refer to [their documentation](http://www.pool.ntp.org/en/use.html).
 
 NTP server 1:
-: <input type="text" name="NTP_SERVER1" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
+: <input type="text" name="NTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
 
 > This is the primary NTP server to use.  Enter a FQDN or an IP address.
 
 NTP server 2:
-: <input type="text" name="NTP_SERVER2" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
+: <input type="text" name="NTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
 
 > This is the alternate NTP server to use if NTP Server 1 is down.
 
 NTP server 3:
-: <input type="text" name="NTP_SERVER3" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
+: <input type="text" name="NTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
 
 > This is the alternate NTP Server to use if NTP Servers 1 and 2 are both down.
 
 NTP server 4:
-: <input type="text" name="NTP_SERVER4" maxlength="80" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
+: <input type="text" name="NTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
 
 > This is the alternate NTP Server to use if NTP Servers 1, 2, and 3 are all down.
 
 New date and time:
-: <input type="text" name="newDateTime" maxlength="40" value="<?=my_time(time(), "%F %T")?>">
+: <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(), "%F %T")?>">
 
 > Enter the current time-of-day.  Use format YYYY-MM-DD HH:MM:SS. Greyed out when using NTP.
 

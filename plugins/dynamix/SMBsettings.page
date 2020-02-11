@@ -3,8 +3,8 @@ Title="SMB Settings"
 Tag="windows"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -51,7 +51,7 @@ Enhanced macOS interoperability:
 > Please also refer to the [VFS_FRUIT MAN PAGE](https://www.mankier.com/8/vfs_fruit).
 
 Enable NetBIOS:
-: <select name="USE_NETBIOS" size="1" class="narrow" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
+: <select name="USE_NETBIOS" size="1" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
   <?=mk_option($var['USE_NETBIOS'], "no", "No")?>
   <?=mk_option($var['USE_NETBIOS'], "yes", "Yes")?>
   </select>
@@ -60,7 +60,7 @@ Enable NetBIOS:
 > clients must use SMBv2 or higher.
 
 Enable WSD:
-: <select name="USE_WSD" size="1" class="narrow" onchange="checkWSDSettings()" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
+: <select name="USE_WSD" size="1" onchange="checkWSDSettings()" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
   <?=mk_option($var['USE_WSD'], "no", "No")?>
   <?=mk_option($var['USE_WSD'], "yes", "Yes")?>
   </select>
@@ -69,7 +69,7 @@ Enable WSD:
 > old LAN setup based on SMBv1.
 
 WSD options [experimental]:
-: <input type="text" name="WSD_OPT" maxlength="80" value="<?=htmlspecialchars($var['WSD_OPT'])?>" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
+: <input type="text" name="WSD_OPT" maxlength="80" class="narrow" value="<?=htmlspecialchars($var['WSD_OPT'])?>" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
 
 > This is a command line otions string passed to the WSD daemon upon startup.  Leave this field blank unless
 > instructed by support to put something here.
