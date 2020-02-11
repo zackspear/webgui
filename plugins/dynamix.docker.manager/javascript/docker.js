@@ -56,11 +56,6 @@ function dockerTerminal(container,shell) {
   var win = window.open('', container, 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
   $.get(eventURL,{action:'terminal',name:container,shell:shell},function(){win.location='/dockerterminal/'+container+'/'; win.focus();});
 }
-function execUpContainer(container) {
-  var title = 'Updating the container: '+container;
-  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
-  popupWithIframe(title, cmd, true, 'loadlist');
-}
 function popupWithIframe(title, cmd, reload, func) {
   pauseEvents();
   $('#iframe-popup').html('<iframe id="myIframe" frameborder="0" scrolling="yes" width="100%" height="99%"></iframe>');
@@ -88,6 +83,11 @@ function popupWithIframe(title, cmd, reload, func) {
   $('.ui-dialog .ui-dialog-titlebar').addClass('menu');
   $('.ui-dialog .ui-dialog-title').css('text-align', 'center').css('width', '100%');
   $('.ui-dialog .ui-dialog-content').css('padding', '12');
+}
+function execUpContainer(container) {
+  var title = 'Updating the container: '+container;
+  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
+  popupWithIframe(title, cmd, true, 'loadlist');
 }
 function addContainer() {
   var path = location.pathname;
@@ -192,7 +192,6 @@ function checkAll() {
 }
 function updateAll() {
   $('input[type=button]').prop('disabled',true);
-  $('div.spinner.fixed').show('slow');
   var ct = '';
   for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURI(d.name);
   var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;

@@ -308,7 +308,7 @@ button[type=button]{margin:0 20px 0 0}
     for (var x=1; x<=last; x++) if(x != this_tab) $('#tab'+x).bind({click:function(){$('#'+elementId).hide();}});
     <?endif;?>
     $('.advanced-switch').switchButton({labels_placement: "left", on_label: 'Advanced View', off_label: 'Basic View'});
-    $('.advanced-switch').change(function () {
+    $('.advanced-switch').change(function() {
       var status = $(this).is(':checked');
       toggleRows('advanced', status, 'basic');
       load_contOverview();
@@ -665,13 +665,13 @@ button[type=button]{margin:0 20px 0 0}
       allowBrowsing: true
     },
     function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function (){$(ft).remove();});}}});
+    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
     // Format fileTree according to parent position, height and width
     ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
     // close if click elsewhere
-    $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function (){$(ft).remove();});}});
+    $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
     // close if parent changed
-    p.bind("keydown", function(){ft.slideUp('fast', function (){$(ft).remove();});});
+    p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
     // Open fileTree
     ft.slideDown('fast');
   }
