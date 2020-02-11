@@ -393,7 +393,6 @@ class DockerUpdate{
 
 	public function getRemoteVersionV2($image) {
 		list($strRepo, $strTag) = explode(':', DockerUtil::ensureImageTag($image));
-
 		/*
 		 * Step 1: Check whether or not the image is in a private registry, get corresponding auth data and generate manifest url
 		 */
@@ -405,72 +404,57 @@ class DockerUpdate{
 			$manifestURL = sprintf('https://registry-1.docker.io/v2/%s/manifests/%s', $strRepo, $strTag);
 		}
 		//$this->debug('Manifest URL: '.$manifestURL);
-
 		/*
 		 * Step 2: Get www-authenticate header from manifest url to generate token url
 		 */
 		$ch = getCurlHandle($manifestURL, 'HEAD');
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-		$response = curl_exec($ch);
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
-
-		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $response, $matches);
+		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $reply, $matches);
 		if (empty($matches[1])) {
 			//this->debug('Error: Www-Authenticate header is empty or missing');
 			return null;
 		}
-
 		$strArgs = explode(',', $matches[1]);
 		$args = [];
 		foreach ($strArgs as $arg) {
 			$arg = explode('=', $arg);
 			$args[$arg[0]] = trim($arg[1], "\" \r\n");
 		}
-
-		if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) {
-			return null;
-		}
+		if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) return null;
 		$url = $args['realm'].'?service='.urlencode($args['service']).'&scope='.urlencode($args['scope']);
 		//$this->debug('Token URL: '.$url);
-
 		/**
 		 * Step 3: Get token from API and authenticate via username / password if in private registry and auth data was found
 		 */
 		$ch = getCurlHandle($url);
-		if ($registryAuth) {
-			curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
-		}
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-		$response = curl_exec($ch);
+		if ($registryAuth) curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting token: '.curl_error($ch));
 			return null;
 		}
-		$response = json_decode($response, true);
-		if (!$response || empty($response['token'])) {
+		$reply = json_decode($reply, true);
+		if (!$reply || empty($reply['token'])) {
 			//$this->debug('Error: Token response was empty or missing token');
 			return null;
 		}
-		$token = $response['token'];
-
+		$token = $reply['token'];
 		/**
 		 * Step 4: Get Docker-Content-Digest header from manifest file
 		 */
-		$ch = getCurlHandle($manifestURL, 'HEAD');
-		curl_setopt($ch, CURLOPT_HTTPHEADER, [
-			'Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json',
-			'Authorization: Bearer '.$token
-		]);
-
-		$response = curl_exec($ch);
+		$ch = getCurlHandle($manifestURL, 'HEAD', $header);
+		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json', 'Authorization: Bearer '.$token];
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
-		preg_match('@Docker-Content-Digest:\s*(.*)@', $response, $matches);
+		preg_match('@Docker-Content-Digest:\s*(.*)@', $reply, $matches);
 		if (empty($matches[1])) {
 			//$this->debug('Error: Docker-Content-Digest header is empty or missing');
 			return null;
