@@ -126,7 +126,7 @@ function rmContainer(container, image, id) {
     showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
-    $('div.spinner').show('slow');
+    $('div.spinner.fixed').show('slow');
     if ($('#removeimagechk').prop('checked')) {
       eventControl({action:'remove_all', container:id, name:container, image:image},'loadlist');
     } else {
