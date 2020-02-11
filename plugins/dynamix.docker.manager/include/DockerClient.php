@@ -80,7 +80,7 @@ class DockerTemplates {
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
 		curl_close($ch);
-		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
 		return $out;
 	}
 
@@ -361,7 +361,7 @@ class DockerUpdate{
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
 		curl_close($ch);
-		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
 		return $out;
 	}
 
@@ -378,7 +378,7 @@ class DockerUpdate{
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
 		curl_close($ch);
-		if ($path && $out) file_put_contents($path,$out); else @unlink($path);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
 		return $out;
 	}
 
