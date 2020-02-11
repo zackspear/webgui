@@ -98,6 +98,11 @@ if (empty($vms)) {
 th.th1{width:25%}
 th.th2{width:15%}
 th.th3{width:70px}
+div.four{font-size:1.1rem;width:260px}
+div.four label{float:left;display:table-cell;width:25%}
+div.four label:nth-child(4n+4){float:none;clear:both}
+div.four label.cpu1{width:32%}
+div.four label.cpu2{width:26%}
 table.domdisk thead th:nth-child(1){width:76%;}
 table.domdisk thead th:nth-child(2){width:8%;}
 table.domdisk thead th:nth-child(3){width:8%;}
