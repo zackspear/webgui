@@ -96,7 +96,8 @@ if (empty($vms)) {
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <style>
 th.th1{width:25%}
-th.th2{width:10%}
+th.th2{width:15%}
+th.th3{width:4%}
 table.domdisk thead th:nth-child(1){width:76%;}
 table.domdisk thead th:nth-child(2){width:8%;}
 table.domdisk thead th:nth-child(3){width:8%;}
@@ -106,7 +107,7 @@ table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
 table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th>Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="th2">Autostart</th></tr></thead>
+<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th class="th2">Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="th3">Autostart</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="Add VM" style="display:none">
