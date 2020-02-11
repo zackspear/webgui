@@ -4,8 +4,8 @@ Tag="windows"
 Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$sec):0))"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -27,8 +27,8 @@ $width = [123,300];
 > Select the desired destinations and press **Write** to copy the SMB security settings to the selected shares.
 
 <div class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
-<select name="readsmb" size="1" class="clone" onchange="toggleButton('readsmb',false)">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readsmb" size="1" class="clone" onchange="toggleButton('readsmb',false)">
 <option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
@@ -37,11 +37,11 @@ if (isset($disks[$name])) {
   foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="readsmb" value="Read" class="clone" onclick="readSMB()" disabled>
+</select></span><input type="button" id="readsmb" value="Read" class="clone" onclick="readSMB()" disabled>
 </div>
 <div class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
-<select id="smb1" name="writesmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writesmb',this.id)">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="smb1" name="writesmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writesmb',this.id)">
 <?
 $rows = [];
 if (isset($disks[$name])) {
@@ -52,7 +52,7 @@ if (isset($disks[$name])) {
 if ($rows) echo "<option>(All)</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select><input type="button" id="writesmb" value="Write" class="clone" onclick="writeSMB()" disabled>
+</select></span><input type="button" id="writesmb" value="Write" class="clone" onclick="writeSMB()" disabled>
 </div>
 
 <form markdown="1" name="smb_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writesmb',true);$('#smb1').dropdownchecklist('disable')">
@@ -126,8 +126,8 @@ Security:
 > Select the desired destinations and press **Write** to copy the SMB User access settings to the selected shares.
 
 <div class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
-<select name="readusersmb" size="1" class="clone" onchange="toggleButton('readusersmb',false)">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readusersmb" size="1" class="clone" onchange="toggleButton('readusersmb',false)">
 <option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
@@ -136,11 +136,11 @@ if (isset($disks[$name])) {
   foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="readusersmb" value="Read" class="clone" onclick="readUserSMB()" disabled>
+</select></span><input type="button" id="readusersmb" value="Read" class="clone" onclick="readUserSMB()" disabled>
 </div>
 <div class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
-<select id="smb2" name="writeusersmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeusersmb',this.id)">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="smb2" name="writeusersmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeusersmb',this.id)">
 <?
 $rows = [];
 if (isset($disks[$name])) {
@@ -151,7 +151,7 @@ if (isset($disks[$name])) {
 if ($rows) echo "<option>(All)</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select><input type="button" id="writeusersmb" value="Write" class="clone" onclick="writeUserSMB()" disabled>
+</select></span><input type="button" id="writeusersmb" value="Write" class="clone" onclick="writeUserSMB()" disabled>
 </div>
 
 <form markdown="1" name="smb_user_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeusersmb',true);$('#smb2').dropdownchecklist('disable')">
@@ -174,8 +174,8 @@ foreach ($rows as $row) echo $row;
 > Select the desired destinations and press **Write** to copy the SMB User access settings to the selected shares.
 
 <div class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
-<select name="readusersmb" size="1" class="clone" onchange="toggleButton('readusersmb',false)">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readusersmb" size="1" class="clone" onchange="toggleButton('readusersmb',false)">
 <option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
@@ -184,11 +184,11 @@ if (isset($disks[$name])) {
   foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="readusersmb" value="Read" class="clone" onclick="readUserSMB()" disabled>
+</select></span><input type="button" id="readusersmb" value="Read" class="clone" onclick="readUserSMB()" disabled>
 </div>
 <div class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
-<select id="smb2" name="writeusersmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeusersmb',this.id)">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="smb2" name="writeusersmb" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeusersmb',this.id)">
 <?
 $rows = [];
 if (isset($disks[$name])) {
@@ -199,7 +199,7 @@ if (isset($disks[$name])) {
 if ($rows) echo "<option>(All)</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select><input type="button" id="writeusersmb" value="Write" class="clone" onclick="writeUserSMB()" disabled>
+</select></span><input type="button" id="writeusersmb" value="Write" class="clone" onclick="writeUserSMB()" disabled>
 </div>
 
 <form markdown="1" name="smb_user_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeusersmb',true);$('#smb2').dropdownchecklist('disable')">
@@ -246,20 +246,31 @@ function readSMB() {
   });
   $(form).find('select').trigger('change');
 }
-function writeSMB() {
-  var data = {}, copied = false;
-  data.shareExport = '<?=addslashes(htmlspecialchars($sec[$name]['export']))?>';
-  data.shareFruit = '<?=addslashes(htmlspecialchars($sec[$name]['fruit']))?>';
-  data.shareSecurity = '<?=addslashes(htmlspecialchars($sec[$name]['security']))?>';
-  data.changeShareSecurity = 'Apply';
-  $('select#smb1 option').map(function() {
-    if ($(this).prop('selected')==true && $(this).val()!='(All)') {
-      data.shareName = $(this).val();
-      $.post('/update.htm', data);
-      copied = true;
+function writeSMB(data,n,i) {
+  if (data) {
+    if (n<i) {
+      $.post('/update.htm',data[n], function(){setTimeout(function(){writeSMB(data,++n,i);},3000);});
+    } else {
+      toggleButton('writesmb',false);
+      $('div.spinner.fixed').hide();
     }
-  });
-  if (copied) swal({title:'Clone complete',text:'SMB security settings are written to the selected shares',type:'success'},function(){refresh();});
+  } else {
+    var data = [], i = 0;
+    $('select#smb1 option').map(function() {
+      if ($(this).prop('selected')==true && $(this).val()!='(All)') {
+        data[i] = {};
+        data[i]['shareName'] = $(this).val();
+        data[i]['shareExport'] = '<?=addslashes(htmlspecialchars($sec[$name]['export']))?>';
+        data[i]['shareFruit'] = '<?=addslashes(htmlspecialchars($sec[$name]['fruit']))?>';
+        data[i]['shareSecurity'] = '<?=addslashes(htmlspecialchars($sec[$name]['security']))?>';
+        data[i]['changeShareSecurity'] = 'Apply';
+        i++;
+      }
+    });
+    toggleButton('writesmb',true);
+    $('div.spinner.fixed').show('slow');
+    writeSMB(data,0,i);
+  }
 }
 function readUserSMB() {
   var form = document.smb_user_edit;
@@ -281,32 +292,43 @@ function readUserSMB() {
   });
   $(form).find('select').trigger('change');
 }
-function writeUserSMB() {
-  var data = {}, copied = false;
-  data['userAccess.0'] = 'no-access';
+function writeUserSMB(data,n,i) {
+  if (data) {
+    if (n<i) {
+      $.post('/update.htm',data[n], function(){setTimeout(function(){writeUserSMB(data,++n,i);},3000);});
+    } else {
+      toggleButton('writeusersmb',false);
+      $('div.spinner.fixed').hide();
+    }
+  } else {
+    var data = [], i = 0;
+    $('select#smb2 option').map(function() {
+      if ($(this).prop('selected')==true && $(this).val()!='(All)') {
+        data[i] = {};
+        data[i]['shareName'] = $(this).val();
+        data[i]['userAccess.0'] = 'no-access';
 <?
-  $read_list = explode(",", $sec[$name]['readList']);
-  $write_list = explode(",", $sec[$name]['writeList']);
-  foreach ($users as $user) {
-    if ($user['name'] == "root") continue;
-    $idx = $user['idx'];
-    $userAccess = null;
-    if ($sec[$name]['security']=='secure') {
-      $userAccess = in_array($user['name'], $write_list) ? "read-write" : "read-only";
-    } elseif ($sec[$name]['security'] == 'private') {
-      $userAccess = in_array($user['name'], $write_list) ? "read-write" : (in_array($user['name'], $read_list) ? "read-only" : "no-access");
-    }
-    if ($userAccess) echo "  data['userAccess.$idx'] = '$userAccess';\n";
-  }
+        $read_list = explode(",", $sec[$name]['readList']);
+        $write_list = explode(",", $sec[$name]['writeList']);
+        foreach ($users as $user) {
+          if ($user['name'] == "root") continue;
+          $idx = $user['idx'];
+          $userAccess = null;
+          if ($sec[$name]['security']=='secure') {
+            $userAccess = in_array($user['name'], $write_list) ? "read-write" : "read-only";
+          } elseif ($sec[$name]['security'] == 'private') {
+            $userAccess = in_array($user['name'], $write_list) ? "read-write" : (in_array($user['name'], $read_list) ? "read-only" : "no-access");
+          }
+          if ($userAccess) echo "data[i]['userAccess.$idx'] = '$userAccess';\n";
+        }
 ?>
-  data.changeShareAccess = 'Apply';
-  $('select#smb2 option').map(function() {
-    if ($(this).prop('selected')==true && $(this).val()!='(All)') {
-      data.shareName = $(this).val();
-      $.post('/update.htm', data);
-      copied = true;
-    }
-  });
-  if (copied) swal({title:'Clone complete',text:'SMB User Access settings are written to the selected shares',type:'success'},function(){refresh();});
+        data[i]['changeShareAccess'] = 'Apply';
+        i++;
+      }
+    });
+    toggleButton('writeusersmb',true);
+    $('div.spinner.fixed').show('slow');
+    writeUserSMB(data,0,i);
+  }
 }
 </script>
