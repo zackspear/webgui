@@ -76,7 +76,6 @@ class DockerTemplates {
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
 		curl_setopt($ch, CURLOPT_ENCODING, "");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
@@ -358,7 +357,6 @@ class DockerUpdate{
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
 		curl_setopt($ch, CURLOPT_ENCODING, "");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
@@ -376,7 +374,6 @@ class DockerUpdate{
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
 		curl_setopt($ch, CURLOPT_ENCODING, "");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_REFERER, "");
 		$out = curl_exec($ch) ?: false;
