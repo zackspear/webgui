@@ -97,7 +97,7 @@ if (empty($vms)) {
 <style>
 th.th1{width:25%}
 th.th2{width:15%}
-th.th3{width:4%}
+th.th3{width:70px}
 table.domdisk thead th:nth-child(1){width:76%;}
 table.domdisk thead th:nth-child(2){width:8%;}
 table.domdisk thead th:nth-child(3){width:8%;}
