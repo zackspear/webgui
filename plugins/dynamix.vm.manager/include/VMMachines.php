@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -113,7 +113,7 @@ foreach ($vms as $vm) {
 
   /* Disk device information */
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
-  echo "<td colspan='7' style='overflow:hidden'>";
+  echo "<td colspan='8' style='margin:0;padding:0'>";
   echo "<table class='tablesorter domdisk' id='domdisk_table'>";
   echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>Disk devices</b></th><th>Bus</th><th>Capacity</th><th>Allocation</th></tr></thead>";
   echo "<tbody id='domdisk_list'>";
@@ -152,7 +152,6 @@ foreach ($vms as $vm) {
     $bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
     echo "<tr><td>$disk</td><td>$bus</td><td>$capacity</td><td>$allocation</td></tr>";
   }
-
   echo "</tbody></table>";
   echo "</td></tr>";
 }

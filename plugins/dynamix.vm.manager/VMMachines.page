@@ -93,31 +93,26 @@ if (empty($vms)) {
   : 'Libvirt is not running. Goto Settings tab then click Start.';
 }
 ?>
-<link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<style type="text/css">
-.fileTree{width:300px;max-height:150px;overflow-y:scroll;position:absolute;z-index:100;display:none}
-div.four{font-size:1.1rem;width:300px}
-div.four label{float:left;display:table-cell;width:25%}
-div.four label:nth-child(4n+4){float:none;clear:both}
-div.four label.cpu1{width:32%}
-div.four label.cpu2{width:26%}
-th.vmname{width:350px}
-th.eight{width:8%}
-table.domdisk tbody tr:nth-child(even){background-color:transparent}
-table tbody td{line-height:normal}
+<style>
+th.th1{width:25%}
+th.th2{width:10%}
+table.domdisk thead th:nth-child(1){width:76%;}
+table.domdisk thead th:nth-child(2){width:8%;}
+table.domdisk thead th:nth-child(3){width:8%;}
+table.domdisk thead tr th:nth-child(1){padding-left:72px}
+table.domdisk tbody tr td:nth-child(1){padding-left:72px}
+table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
+table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
 </style>
-<table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="vmname"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th>Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="eight">Autostart</th></tr></thead>
+<table id="kvm_table" class="tablesorter four">
+<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th>Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="th2">Autostart</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="Add VM" style="display:none">
 <input type="button" onclick="startAll()" value="Start All" style="display:none">
 <input type="button" onclick="stopAll()" value="Stop All" style="display:none">
 
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
