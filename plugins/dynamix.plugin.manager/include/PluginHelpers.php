@@ -17,7 +17,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 function plugin($method, $arg = '') {
   global $docroot;
   exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin ".escapeshellarg($method)." ".escapeshellarg($arg), $output, $retval);
-  return $retval==0 ? end($output) : false;
+  return $retval==0 ? implode("\n", $output) : false;
 }
 
 function check_plugin($arg, &$ncsi) {

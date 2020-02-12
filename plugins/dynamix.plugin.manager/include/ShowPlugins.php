@@ -57,7 +57,8 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     copy($plugin_file,$tmp_file);
     exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
     symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-    if (version_compare(check_plugin($tmp_plg,$ncsi),$past,'>')) {
+    $next = end(explode("\n",check_plugin($tmp_plg,$ncsi)));
+    if (version_compare($next,$past,'>')) {
       copy("/tmp/plugins/$tmp_plg",$tmp_file);
       $plugin_file = $tmp_file;
     }
