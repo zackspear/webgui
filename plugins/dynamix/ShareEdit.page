@@ -3,8 +3,8 @@ Title="Share Settings"
 Tag="share-alt-square"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -67,25 +67,25 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 <?endif;?>
 
 <div id="" class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
-<select name="readshare" size="1" class="clone" onchange="toggleButton('readshare',false)">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readshare" size="1" class="clone" onchange="toggleButton('readshare',false)">
 <option disabled selected>select...</option>
 <?
 foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option("", $list['name'], $list['name']);
 ?>
-</select><input type="button" id="readshare" value="Read" class="clone" onclick="readShare()" disabled>
+</select></span><input type="button" id="readshare" value="Read" class="clone" onclick="readShare()" disabled>
 </div>
 <?if ($name):?>
 <div id="" class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
-<select id="s3" name="writeshare" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeshare',this.id)">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="s3" name="writeshare" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeshare',this.id)">
 <?
 $rows = [];
 foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
 if ($rows) echo "<option>(All)</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select><input type="button" id="writeshare" value="Write" class="clone" onclick="writeShare()" disabled>
+</select></span><input type="button" id="writeshare" value="Write" class="clone" onclick="writeShare()" disabled>
 </div>
 <?endif;?>
 
@@ -372,23 +372,34 @@ function readShare() {
   });
   $(form).find('select').trigger('change');
 }
-function writeShare() {
-  var data = {}, copied = false;
-  data.shareAllocator = '<?=addslashes(htmlspecialchars($share['allocator']))?>';
-  data.shareFloor = '<?=addslashes(htmlspecialchars($share['floor']))?>';
-  data.shareSplitLevel = '<?=addslashes(htmlspecialchars($share['splitLevel']))?>';
-  data.shareInclude = '<?=addslashes(htmlspecialchars($share['include']))?>';
-  data.shareExclude = '<?=addslashes(htmlspecialchars($share['exclude']))?>';
-  data.shareUseCache = '<?=addslashes(htmlspecialchars($share['useCache']))?>';
-  data.cmdEditShare = 'Apply';
-  $('select#s3 option').map(function() {
-    if ($(this).prop('selected')==true && $(this).val()!='(All)') {
-      data.shareNameOrig = $(this).val();
-      data.shareName = $(this).val();
-      $.post('/update.htm', data);
-      copied = true;
+function writeShare(data,n,i) {
+  if (data) {
+    if (n<i) {
+      $.post('/update.htm',data[n], function(){setTimeout(function(){writeShare(data,++n,i);},3000);});
+    } else {
+      toggleButton('writeshare',false);
+      $('div.spinner.fixed').hide();
     }
-  });
-  if (copied) swal({title:'Clone complete',text:'Share settings are cloned to the selected shares',type:'success'},function(){refresh();});
+  } else {
+    var data = [], i = 0;
+    $('select#s3 option').map(function() {
+      if ($(this).prop('selected')==true && $(this).val()!='(All)') {
+        data[i] = {};
+        data[i]['shareName'] = $(this).val();
+        data[i]['shareNameOrig'] = $(this).val();
+        data[i]['shareAllocator'] = '<?=addslashes(htmlspecialchars($share['allocator']))?>';
+        data[i]['shareFloor'] = '<?=addslashes(htmlspecialchars($share['floor']))?>';
+        data[i]['shareSplitLevel'] = '<?=addslashes(htmlspecialchars($share['splitLevel']))?>';
+        data[i]['shareInclude'] = '<?=addslashes(htmlspecialchars($share['include']))?>';
+        data[i]['shareExclude'] = '<?=addslashes(htmlspecialchars($share['exclude']))?>';
+        data[i]['shareUseCache'] = '<?=addslashes(htmlspecialchars($share['useCache']))?>';
+        data[i]['cmdEditShare'] = 'Apply';
+        i++;
+      }
+    });
+    toggleButton('writeshare',true);
+    $('div.spinner.fixed').show('slow');
+    writeShare(data,0,i);
+  }
 }
 </script>

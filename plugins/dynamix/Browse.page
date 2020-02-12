@@ -3,8 +3,8 @@ Tag="navicon"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,7 +20,9 @@ Markdown="false"
 </style>
 <script>
 $(function(){
+  timers.browse = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(urlencode($dir))?>",path:"<?=$path?>",user:<?=strpos($dir,'/mnt/user')===0?1:0?>},function(data){
+    clearTimeout(timers.browse);
     var table = $('table.indexer');
     var col = $.cookie('col')||1;
     var dir = $.cookie('dir')||0;
@@ -30,12 +32,13 @@ $(function(){
       $.cookie('col',sort[0],{path:'/'});
       $.cookie('dir',sort[1],{path:'/'});
     });
+    $('div.spinner.fixed').hide('slow');
     table.tablesorter({sortList:[[col,dir],[1,0]],sortAppend:[[1,0]],textAttribute:'data'});
   });
 });
 </script>
 <table class="indexer tablesorter shift">
  <thead><tr><th>Type</th><th class='sorter-text'>Name</th><th>Size</th><th>Last Modified</th><th>Location</th></tr></thead>
- <tbody><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody>
+ <tbody><tr><td colspan="5"></td></tr></tbody>
 </table>
 <input type="button" value="Done" onclick="done('Browse')">

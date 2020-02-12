@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2014-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -68,9 +68,20 @@ class DockerTemplates {
 		return false;
 	}
 
-	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 60 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return $exit_code===0 ? implode("\n", $out) : false;
+	public function download_url($url, $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
+		return $out;
 	}
 
 	public function listDir($root, $ext=null) {
@@ -286,8 +297,7 @@ class DockerTemplates {
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			if (!$tmp['updated'] || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
-				$vs = $DockerUpdate->getUpdateStatus($image);
-				$tmp['updated'] = $vs===null ? 'undef' : ($vs===true ? 'true' : 'false');
+				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
@@ -301,6 +311,7 @@ class DockerTemplates {
 	public function getIcon($Repository) {
 		global $docroot, $dockerManPaths;
 		$imgUrl = $this->getTemplateValue($Repository, 'Icon');
+		if (!$imgUrl) return '';
 		preg_match_all("/(.*?):([\S]*$)/i", $Repository, $matches);
 		$name = preg_replace("%\/|\\\%", '-', $matches[1][0]);
 		$version = $matches[2][0];
@@ -312,7 +323,7 @@ class DockerTemplates {
 			if (!is_file($icon)) $this->download_url($imgUrl, $icon);
 			@copy($icon, $iconRAM);
 		}
-		if ( !is_file($icon) && is_file($iconRAM) ) {
+		if (!is_file($icon) && is_file($iconRAM)) {
 			@copy($iconRAM,$icon);
 		}
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';
@@ -338,18 +349,37 @@ class DockerUpdate{
 		return strval(html_entity_decode($string, ENT_XML1, 'UTF-8'));
 	}
 
-	public function download_url($url, $path='', $bg=false) {
-		exec('curl --max-time 30 --silent --insecure --location --fail '.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return ($exit_code===0) ? implode("\n", $out) : false;
+	public function download_url($url, $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
+		return $out;
 	}
 
-	public function download_url_and_headers($url, $headers=[], $path='', $bg=false) {
-		$strHeaders = '';
-		foreach ($headers as $header) {
-			$strHeaders .= ' -H '.escapeshellarg($header);
-		}
-		exec('curl --max-time 30 --silent --insecure --location --fail -i '.$strHeaders.($path ? ' -o '.escapeshellarg($path) : '').' '.escapeshellarg($url).' '.($bg ? '>/dev/null 2>&1 &' : '2>/dev/null'), $out, $exit_code);
-		return ($exit_code===0) ? implode("\n", $out) : false;
+	public function download_url_and_headers($url, $headers=[], $path='') {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+		curl_setopt($ch, CURLOPT_ENCODING, "");
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_REFERER, "");
+		$out = curl_exec($ch) ?: false;
+		curl_close($ch);
+		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
+		return $out;
 	}
 
 	// DEPRECATED: Only used for Docker Index V1 type update checks
@@ -363,88 +393,74 @@ class DockerUpdate{
 
 	public function getRemoteVersionV2($image) {
 		list($strRepo, $strTag) = explode(':', DockerUtil::ensureImageTag($image));
-
 		/*
 		 * Step 1: Check whether or not the image is in a private registry, get corresponding auth data and generate manifest url
 		 */
 		$DockerClient = new DockerClient();
-		$registryAuth = $DockerClient->getRegistryAuth( $image );
-		if ( $registryAuth ) {
-			$manifestURL = sprintf( '%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['imageName'], $registryAuth['imageTag'] );
+		$registryAuth = $DockerClient->getRegistryAuth($image);
+		if ($registryAuth) {
+			$manifestURL = sprintf('%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['imageName'], $registryAuth['imageTag']);
 		} else {
-			$manifestURL = sprintf( 'https://registry-1.docker.io/v2/%s/manifests/%s', $strRepo, $strTag );
+			$manifestURL = sprintf('https://registry-1.docker.io/v2/%s/manifests/%s', $strRepo, $strTag);
 		}
-		//$this->debug('Manifest URL: ' . $manifestURL);
-
+		//$this->debug('Manifest URL: '.$manifestURL);
 		/*
 		 * Step 2: Get www-authenticate header from manifest url to generate token url
 		 */
 		$ch = getCurlHandle($manifestURL, 'HEAD');
-		$response = curl_exec( $ch );
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
-			//$this->debug('Error: curl error getting manifest: ' . curl_error($ch));
+			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
-
-		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $response, $matches);
+		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $reply, $matches);
 		if (empty($matches[1])) {
 			//this->debug('Error: Www-Authenticate header is empty or missing');
 			return null;
 		}
-
 		$strArgs = explode(',', $matches[1]);
 		$args = [];
 		foreach ($strArgs as $arg) {
 			$arg = explode('=', $arg);
 			$args[$arg[0]] = trim($arg[1], "\" \r\n");
 		}
-
-		if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) {
-			return null;
-		}
-		$url = $args['realm'] . '?service=' . urlencode($args['service']) . '&scope=' . urlencode($args['scope']);
-		//$this->debug('Token URL: ' . $url);
-
+		if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) return null;
+		$url = $args['realm'].'?service='.urlencode($args['service']).'&scope='.urlencode($args['scope']);
+		//$this->debug('Token URL: '.$url);
 		/**
 		 * Step 3: Get token from API and authenticate via username / password if in private registry and auth data was found
 		 */
 		$ch = getCurlHandle($url);
-		if ($registryAuth) {
-			curl_setopt( $ch, CURLOPT_USERPWD, $registryAuth['username'] . ':' . $registryAuth['password'] );
-		}
-		$response = curl_exec( $ch );
+		if ($registryAuth) curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
-			//$this->debug('Error: curl error getting token: ' . curl_error($ch));
+			//$this->debug('Error: curl error getting token: '.curl_error($ch));
 			return null;
 		}
-		$response = json_decode($response, true);
-		if (!$response || empty($response['token'])) {
+		$reply = json_decode($reply, true);
+		if (!$reply || empty($reply['token'])) {
 			//$this->debug('Error: Token response was empty or missing token');
 			return null;
 		}
-		$token = $response['token'];
-
+		$token = $reply['token'];
 		/**
 		 * Step 4: Get Docker-Content-Digest header from manifest file
 		 */
-		$ch = getCurlHandle($manifestURL, 'HEAD');
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
-			'Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json',
-			'Authorization: Bearer ' . $token
-		]);
-
-		$response = curl_exec( $ch );
+		$ch = getCurlHandle($manifestURL, 'HEAD', $header);
+		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json', 'Authorization: Bearer '.$token];
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
-			//$this->debug('Error: curl error getting manifest: ' . curl_error($ch));
+			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
-		preg_match('@Docker-Content-Digest:\s*(.*)@', $response, $matches);
+		preg_match('@Docker-Content-Digest:\s*(.*)@', $reply, $matches);
 		if (empty($matches[1])) {
 			//$this->debug('Error: Docker-Content-Digest header is empty or missing');
 			return null;
 		}
 		$digest = trim($matches[1]);
-		//$this->debug('Remote Digest: ' . $digest);
+		//$this->debug('Remote Digest: '.$digest);
 		return $digest;
 	}
 
@@ -469,7 +485,7 @@ class DockerUpdate{
 		global $dockerManPaths;
 		$DockerClient = new DockerClient();
 		$updateStatus = DockerUtil::loadJSON($dockerManPaths['update-status']);
-		$images = ($image) ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0];}, $DockerClient->getDockerImages());
+		$images = $image ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0];}, $DockerClient->getDockerImages());
 		foreach ($images as $img) {
 			$localVersion = null;
 			if (!empty($updateStatus[$img]) && array_key_exists('local', $updateStatus[$img])) {
@@ -486,19 +502,15 @@ class DockerUpdate{
 		DockerUtil::saveJSON($dockerManPaths['update-status'], $updateStatus);
 	}
 
-	public function inspectLocalVersion( $image ) {
+	public function inspectLocalVersion($image) {
 		$DockerClient = new DockerClient();
-		$inspect      = $DockerClient->getDockerJSON( '/images/' . $image . '/json' );
-		if ( empty( $inspect['RepoDigests'] ) ) {
-			return null;
-		}
+		$inspect      = $DockerClient->getDockerJSON('/images/'.$image.'/json');
+		if (empty($inspect['RepoDigests'])) return null;
 
-		$shaPos = strpos( $inspect['RepoDigests'][0], '@sha256:' );
-		if ( $shaPos === false ) {
-			return null;
-		}
+		$shaPos = strpos($inspect['RepoDigests'][0], '@sha256:');
+		if ($shaPos === false) return null;
 
-		return substr( $inspect['RepoDigests'][0], $shaPos + 1 );
+		return substr($inspect['RepoDigests'][0], $shaPos + 1);
 	}
 
 	public function setUpdateStatus($image, $version) {
@@ -563,7 +575,7 @@ class DockerUpdate{
 					$local_element = $template->xpath("//Config[@Type='$type'][@Target='$target']")[0];
 				}
 				// If the local template already have the pertinent Config element, loop through it's attributes and update those on validAttributes
-				if (! empty($local_element)) {
+				if (!empty($local_element)) {
 					foreach ($remote_element->attributes() as $key => $value) {
 						$rvalue  = $this->xml_decode($value);
 						$value = $this->xml_decode($local_element[$key]);
@@ -763,13 +775,13 @@ class DockerClient {
 
 	public function pullImage($image, $callback=null) {
 		$header = null;
-		$registryAuth = $this->getRegistryAuth( $image );
-		if ( $registryAuth ) {
-			$header = 'X-Registry-Auth: ' . base64_encode( json_encode( [
+		$registryAuth = $this->getRegistryAuth($image);
+		if ($registryAuth) {
+			$header = 'X-Registry-Auth: '.base64_encode(json_encode([
 					'username'      => $registryAuth['username'],
 					'password'      => $registryAuth['password'],
 					'serveraddress' => $registryAuth['apiUrl'],
-				] ) ) . "\r\n";
+				]))."\r\n";
 		}
 
 		$ret = $this->getDockerJSON("/images/create?fromImage=".urlencode($image), 'POST', $code, $callback, false, $header);
@@ -789,7 +801,7 @@ class DockerClient {
 			return false;
 		}
 		$dockerConfig = json_decode(file_get_contents($dockerConfig), true);
-		if ( empty( $dockerConfig['auths'] ) || empty( $dockerConfig['auths'][ $matches[1] ] ) ) {
+		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $matches[1] ])) {
 			return false;
 		}
 		list($user, $password) = explode(':', base64_decode($dockerConfig['auths'][ $matches[1] ]['auth']));
@@ -800,7 +812,7 @@ class DockerClient {
 			'registryName' => $matches[1],
 			'imageName'    => $matches[2],
 			'imageTag'     => $matches[3],
-			'apiUrl'       => 'https://' . $matches[1] . '/v2/',
+			'apiUrl'       => 'https://'.$matches[1].'/v2/',
 		];
 	}
 
@@ -841,9 +853,11 @@ class DockerClient {
 			$c['Volumes']     = $info['HostConfig']['Binds'];
 			$c['Created']     = $this->humanTiming($ct['Created']);
 			$c['NetworkMode'] = $ct['HostConfig']['NetworkMode'];
+			[$net, $id]       = explode(':',$c['NetworkMode']);
 			$c['CPUset']      = $info['HostConfig']['CpusetCpus'];
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
 			$c['Ports']       = [];
+			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
 			if ($driver[$c['NetworkMode']]=='bridge') {
 				$ports = &$info['HostConfig']['PortBindings'];
 				$nat = true;
@@ -949,7 +963,7 @@ class DockerUtil {
 
 	public static function driver() {
 		$list = [];
-		foreach (static::docker("network ls --format='{{.Name}}={{.Driver}}'",true) as $network) {list($name,$driver) = explode('=',$network); $list[$name] = $driver;}
+		foreach (static::docker("network ls --format='{{.Name}}={{.Driver}}'",true) as $network) {list($net,$driver) = explode('=',$network); $list[$net] = $driver;}
 		return $list;
 	}
 
@@ -957,10 +971,18 @@ class DockerUtil {
 		return static::docker("network ls --filter driver='bridge' --filter driver='macvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
 	}
 
-	public static function network($more) {
+	public static function network($custom) {
 		$list = ['bridge'=>'', 'host'=>'', 'none'=>''];
-		foreach ($more as $net) $list[$net] = substr(static::docker("network inspect --format='{{range .IPAM.Config}}{{.Subnet}}, {{end}}' $net"),0,-1);
+		foreach ($custom as $net) $list[$net] = implode(', ',array_filter(static::docker("network inspect --format='{{range .IPAM.Config}}{{println .Subnet}}{{end}}' $net",true)));
 		return $list;
+	}
+
+	public static function cpus() {
+		exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
+		return $cpus;
+	}
+	public static function ctMap($ct, $type='Name') {
+		return static::docker("inspect --format='{{.$type}}' $ct");
 	}
 }
 ?>

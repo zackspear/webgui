@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2015-2019, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,6 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 libxml_use_internal_errors(false); # Enable xml errors
 
@@ -35,7 +34,7 @@ $DockerTemplates = new DockerTemplates();
 
 $custom = DockerUtil::custom();
 $subnet = DockerUtil::network($custom);
-$cpus   = cpu_list();
+$cpus   = DockerUtil::cpus();
 
 function cpu_pinning() {
   global $xml,$cpus;
@@ -84,10 +83,10 @@ if (isset($_POST['contName'])) {
   if (!is_dir($userTmplDir)) mkdir($userTmplDir, 0777, true);
   if ($Name) {
     $filename = sprintf('%s/my-%s.xml', $userTmplDir, $Name);
-    if ( is_file($filename) ) {
+    if (is_file($filename)) {
       $oldXML = simplexml_load_file($filename);
       if ($oldXML->Icon != $_POST['contIcon']) {
-        if (! strpos($Repository,":")) {
+        if (!strpos($Repository,":")) {
           $Repository .= ":latest";
         }
         $iconPath = $DockerTemplates->getIcon($Repository);
@@ -157,11 +156,14 @@ if (isset($_POST['contName'])) {
 ##########################
 
 if ($_GET['updateContainer']){
-  readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
-  @flush();
+  $echo = $_GET['mute'] ? false : true;
+  if ($echo) {
+    readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
+    @flush();
+  }
   foreach ($_GET['ct'] as $value) {
     $tmpl = $DockerTemplates->getUserTemplate(urldecode($value));
-    if (!$tmpl) {
+    if ($echo && !$tmpl) {
       echo "<script>addLog('<p>Configuration not found. Was this container created using this plugin?</p>');</script>";
       @flush();
       continue;
@@ -170,27 +172,23 @@ if ($_GET['updateContainer']){
     list($cmd, $Name, $Repository) = xmlToCommand($tmpl);
     $Registry = getXmlVal($xml, "Registry");
     $oldImageID = $DockerClient->getImageID($Repository);
-    // Pull image
-    if (!pullImage($Name, $Repository)) continue;
+    // pull image
+    if ($echo) if (!pullImage($Name, $Repository)) continue;
     $oldContainerInfo = $DockerClient->getContainerDetails($Name);
     // determine if the container is still running
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
       // since container was already running, put it back it to a running state after update
-      $cmd = str_replace('/plugins/dynamix.docker.manager/scripts/docker create ', '/plugins/dynamix.docker.manager/scripts/docker run -d ', $cmd);
+      $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
       // attempt graceful stop of container first
-      stopContainer($Name);
+      stopContainer($Name, $echo);
     }
     // force kill container if still running after 10 seconds
-    if ( ! $_GET['communityApplications'] ) {
-      removeContainer($Name);
-    }
-    execCommand($cmd);
+    if (!$_GET['communityApplications']) removeContainer($Name, $echo);
+    execCommand($cmd, $echo);
     $DockerClient->flushCaches();
     $newImageID = $DockerClient->getImageID($Repository);
-    if ($oldImageID && $oldImageID != $newImageID) {
-      // remove old orphan image since it's no longer used by this container
-      removeImage($oldImageID);
-    }
+    // remove old orphan image since it's no longer used by this container
+    if ($oldImageID && $oldImageID != $newImageID) removeImage($oldImageID, $echo);
   }
   echo '<div style="text-align:center"><button type="button" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\')">Done</button></div><br>';
   goto END;
@@ -310,7 +308,7 @@ button[type=button]{margin:0 20px 0 0}
     for (var x=1; x<=last; x++) if(x != this_tab) $('#tab'+x).bind({click:function(){$('#'+elementId).hide();}});
     <?endif;?>
     $('.advanced-switch').switchButton({labels_placement: "left", on_label: 'Advanced View', off_label: 'Basic View'});
-    $('.advanced-switch').change(function () {
+    $('.advanced-switch').change(function() {
       var status = $(this).is(':checked');
       toggleRows('advanced', status, 'basic');
       load_contOverview();
@@ -382,11 +380,11 @@ button[type=button]{margin:0 20px 0 0}
     }
     return newConfig.prop('outerHTML');
   }
-  
+
   function escapeQuote(string) {
     return string.replace(new RegExp('"','g'),"&quot;");
   }
-  
+
   function makeAllocations(container,current) {
     var html = [];
     for (var i=0,ct; ct=container[i]; i++) {
@@ -399,7 +397,7 @@ button[type=button]{margin:0 20px 0 0}
   function getVal(el, name) {
     var el = $(el).find("*[name="+name+"]");
     if (el.length) {
-      return ( $(el).attr('type') == 'checkbox' ) ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
+      return ($(el).attr('type') == 'checkbox') ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
     } else {
       return "";
     }
@@ -407,7 +405,7 @@ button[type=button]{margin:0 20px 0 0}
 
   function addConfigPopup() {
     var title = 'Add Configuration';
-    var popup = $( "#dialogAddConfig" );
+    var popup = $("#dialogAddConfig");
 
     // Load popup the popup with the template info
     popup.html($("#templatePopupConfig").html());
@@ -436,10 +434,10 @@ button[type=button]{margin:0 20px 0 0}
           ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
             Opts[e] = getVal(Element, e);
           });
-          if (! Opts.Name ){
+          if (!Opts.Name){
             Opts.Name = makeName(Opts.Type);
           }
-          if (! Opts.Description ) {
+          if (!Opts.Description) {
             Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
           }
           if (Opts.Required == "true") {
@@ -461,7 +459,7 @@ button[type=button]{margin:0 20px 0 0}
       }
     });
     $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css( 'width', "100%");
+    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
     $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
     $(".ui-button-text").css('padding','0px 5px');
   }
@@ -517,10 +515,10 @@ button[type=button]{margin:0 20px 0 0}
             Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>Edit</button>";
             Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>Remove</button>";
           }
-          if (! Opts.Name ){
+          if (!Opts.Name){
             Opts.Name = makeName(Opts.Type);
           }
-          if (! Opts.Description ) {
+          if (!Opts.Description) {
             Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
           }
           Opts.Number = num;
@@ -545,7 +543,7 @@ button[type=button]{margin:0 20px 0 0}
       }
     });
     $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css( 'width', "100%");
+    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
     $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
     $(".ui-button-text").css('padding','0px 5px');
     $('.desc_readmore').readmore({maxHeight:10});
@@ -557,20 +555,19 @@ button[type=button]{margin:0 20px 0 0}
   }
 
   function prepareConfig(form) {
-    var types = [], values = [], targets = [];
+    var types = [], values = [], targets = [], vcpu = [];
     if ($('select[name="contNetwork"]').val()=='host') {
       $(form).find('input[name="confType[]"]').each(function(){types.push($(this).val());});
       $(form).find('input[name="confValue[]"]').each(function(){values.push($(this));});
       $(form).find('input[name="confTarget[]"]').each(function(){targets.push($(this));});
       for (var i=0; i < types.length; i++) if (types[i]=='Port') $(targets[i]).val($(values[i]).val());
     }
-    var vcpu = [];
     $(form).find('input[id^="box"]').each(function(){if ($(this).prop('checked')) vcpu.push($('#'+$(this).prop('id').replace('box','cpu')).text());});
     form.contCPUset.value = vcpu.join(',');
   }
 
   function makeName(type) {
-    i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
+    var i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
     return "Host "+type.replace('Variable','Key')+" "+i;
   }
 
@@ -668,14 +665,13 @@ button[type=button]{margin:0 20px 0 0}
       allowBrowsing: true
     },
     function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function (){$(ft).remove();});}}}
-    );
+    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
     // Format fileTree according to parent position, height and width
     ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
     // close if click elsewhere
-    $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function (){$(ft).remove();});}});
+    $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
     // close if parent changed
-    p.bind("keydown", function(){ft.slideUp('fast', function (){$(ft).remove();});});
+    p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
     // Open fileTree
     ft.slideDown('fast');
   }
@@ -1182,7 +1178,7 @@ button[type=button]{margin:0 20px 0 0}
   }
   function toggleReadmore() {
     var readm = $('#readmore_toggle');
-    if ( readm.hasClass('readmore_collapsed') ) {
+    if (readm.hasClass('readmore_collapsed')) {
       readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
       $('#configLocationAdvanced').slideDown('fast');
       readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide more settings ...');
@@ -1194,7 +1190,7 @@ button[type=button]{margin:0 20px 0 0}
   }
   function toggleAllocations() {
     var readm = $('#allocations_toggle');
-    if ( readm.hasClass('readmore_collapsed') ) {
+    if (readm.hasClass('readmore_collapsed')) {
       readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
       $('#dockerAllocations').slideDown('fast');
       readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide docker allocations ...');
@@ -1273,7 +1269,7 @@ button[type=button]{margin:0 20px 0 0}
       echo "$('.advanced-switch').siblings('.switch-button-background').click();";
     }?>
   });
-  if ( window.location.href.indexOf("/Apps/") > 0 ) {
+  if (window.location.href.indexOf("/Apps/") > 0) {
     $(".TemplateDropDown").hide();
   }
 </script>
