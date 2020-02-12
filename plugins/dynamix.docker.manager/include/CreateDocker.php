@@ -818,6 +818,7 @@ button[type=button]{margin:0 20px 0 0}
               <option value="GameServers:">Game Servers</option>
               <option value="HomeAutomation:">HomeAutomation</option>
               <option value="Productivity:">Productivity</option>
+              <option value="Security:">Security</option>
               <option value="Tools:">Tools</option>
               <option value="Other:">Other</option>
             </optgroup>
