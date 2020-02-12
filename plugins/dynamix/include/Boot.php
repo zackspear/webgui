@@ -22,6 +22,7 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/default-fonts.css')?>">
+<meta name="referrer" content="same-origin">
 <style>
 html{font-family:clear-sans;font-size:62.5%;height:100%}
 body{font-size:1.3rem;color:#1c1c1c;background:#f2f2f2;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
