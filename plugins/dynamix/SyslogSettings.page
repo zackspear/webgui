@@ -4,8 +4,8 @@ Icon="icon-eula"
 Tag="file-text-o"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -40,7 +40,7 @@ $(function(){
 <input type="hidden" name="#command" value="/webGui/scripts/rsyslog_config">
 
 Local syslog server:
-: <span class="span"><select name="local_server" class="narrow" onchange="localFolder(this.value,'slow')">
+: <span class="span"><select name="local_server" onchange="localFolder(this.value,'slow')">
   <?=mk_option($syslog['local_server'], "", "Disabled")?>
   <?=mk_option($syslog['local_server'], "1", "Enabled")?>
   </select></span>
@@ -58,7 +58,7 @@ Local syslog server:
 
 <div markdown="1" id="local_folder" style="display:none">
 Local syslog folder:
-: <select name="server_folder" class="narrow">
+: <select name="server_folder">
   <?=mk_option(0,'','&lt;custom&gt;','disabled')?>
   <?foreach ($shares as $share){echo mk_option($syslog['server_folder'], '/mnt/user/'.$share['name'], $share['name']);}?>
   </select>
@@ -67,7 +67,7 @@ Local syslog folder:
 > It is recommended that you use a share located on the cache drive to prevent array disk spinups.
 
 Local syslog rotation:
-: <select name="log_rotation" class="narrow" onchange="logOptions(this.value,'slow')">
+: <select name="log_rotation" onchange="logOptions(this.value,'slow')">
   <?=mk_option($syslog['log_rotation'], "", "Disabled")?>
   <?=mk_option($syslog['log_rotation'], "1", "Enabled")?>
   </select>
@@ -78,7 +78,7 @@ Local syslog rotation:
 
 <div markdown="1" id="log_options" style="display:none">
 Local syslog maximum file size:
-: <select name="log_size" class="narrow">
+: <select name="log_size">
   <?=mk_option($syslog['log_size'], '1M', '1 MB')?>
   <?=mk_option($syslog['log_size'], '2M', '2 MB')?>
   <?=mk_option($syslog['log_size'], '5M', '5 MB')?>
@@ -93,7 +93,7 @@ Local syslog maximum file size:
 > Specifies the maximum LOG size. When exceeded LOG rotation will occur.
 
 Local syslog number of files:
-: <select name="log_files" class="narrow">
+: <select name="log_files">
   <?=mk_option($syslog['log_files'], '1', '1')?>
   <?=mk_option($syslog['log_files'], '2', '2')?>
   <?=mk_option($syslog['log_files'], '3', '3')?>
@@ -117,7 +117,7 @@ Remote syslog server:
 > This will send a copy of the syslog messages to the designated server.
 
 Mirror syslog to flash:
-: <select name="syslog_flash" class="narrow" size="1">
+: <select name="syslog_flash" size="1">
   <?=mk_option($syslog['syslog_flash'], "", "No")?>
   <?=mk_option($syslog['syslog_flash'], "1", "Yes")?>
   </select>

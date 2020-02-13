@@ -5,9 +5,9 @@ Icon="icon-ups"
 Tag="battery-3"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
  * Copyright 2015, Dan Landon.
- * Copyright 2012-2018, Bergware International.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -107,7 +107,7 @@ UPS type:
 > + **ModBus** - serial device for use with newest SmartUPS models supporting the MODBUS protocol
 
 Device:
-: <input type="text" name="DEVICE" maxlength="200" value="<?=htmlspecialchars($cfg['DEVICE']);?>">
+: <input type="text" name="DEVICE" maxlength="200" class="narrow" value="<?=htmlspecialchars($cfg['DEVICE']);?>">
 
 > Enter the *device* which correspondes to your situation, only applicable when *UPS type* is not set to USB.
 >

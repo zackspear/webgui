@@ -33,12 +33,8 @@ case 'vm':
   // initial cores/threads assignment
   $cores = $vcpus;
   $threads = 1;
-  $vendor = exec("grep -Pom1 '^vendor_id\\s+: \\K\\S+' /proc/cpuinfo");
-  if ($vendor == 'AuthenticAMD') {
-    $ht = 1; // force single threaded for AMD
-  } else {
-    $ht = exec("lscpu|grep -Po '^Thread\\(s\\) per core:\\s+\\K\\d+'") ?: 1; // fetch hyperthreading
-  }
+  $ht = exec("lscpu|grep -Po '^Thread\\(s\\) per core:\\s+\\K\\d+'") ?: 1; // fetch hyperthreading
+
   // adjust for hyperthreading
   if ($vcpus > $ht && $vcpus%$ht===0) {
     $cores /= $ht;

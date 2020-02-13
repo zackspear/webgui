@@ -4,8 +4,8 @@ Icon="icon-log"
 Tag="list"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -77,28 +77,26 @@ function toggle(checked) {
 function resize() {
   $('pre.up').height(Math.max(window.innerHeight-320,330));
 }
-function showLog(log) {
+function showLog(log,init) {
   logfile = log;
   $('span.label input[type=checkbox]').prop('checked',true);
   $('span.label').each(function(){
     var type = $(this).attr('class').replace('label','').replace(/-/g,'');
     $(this).removeClass().addClass(type+' label');
   });
+  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
   $.post('/webGui/include/Syslog.php',{log:log},function(data){
+    clearTimeout(timers.syslog);
     $('pre.up').html(data);
 <?if ($display['resize']):?>
     resize();
+    if (init) $(window).bind('resize',function(){resize();});
 <?endif;?>
+    $('div.spinner.fixed').hide('slow');
   });
 }
 $(function() {
-  $.post('/webGui/include/Syslog.php',{log:'<?=$log?>'},function(data){
-    $('pre.up').html(data);
-<?if ($display['resize']):?>
-    resize();
-    $(window).bind('resize',function(){resize();});
-<?endif;?>
-  });
+  showLog(logfile,true);
 });
 $('.tabs').append("<span class='status'><?=$select?><span class='lite label'><label>Text<input type='checkbox' class='ctrl' onclick='highlight(!this.checked,\"N\")' checked></label></span><span class='error label'><label>Error<input type='checkbox' onclick='highlight(this.checked,\"E\")' checked></label></span><span class='warn label'><label>Warning<input type='checkbox' onclick='highlight(this.checked,\"W\")' checked></label></span><span class='system label'><label>System<input type='checkbox' onclick='highlight(this.checked,\"S\")' checked></label></span><span class='array label'><label>Array<input type='checkbox' onclick='highlight(this.checked,\"A\")' checked></label></span><span class='login label'><label>Login<input type='checkbox' onclick='highlight(this.checked,\"L\")' checked></label></span><span class='lite label'><input type='checkbox' class='ctrl' onclick='toggle(this.checked)' checked></span></span>");
 </script>

@@ -4,8 +4,8 @@ Icon="icon-update"
 Tag="upload"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,7 +16,7 @@ Tag="upload"
  */
 ?>
 <?
-$empty = "<tr><td colspan='6'><div class='spinner'></div></td><tr>";
+$empty = "<tr><td colspan='6'><div class='spinner'></div></td></tr>";
 $version = $branch = $date = 'unknown';
 $bzroot = file_exists('/boot/previous/bzroot');
 $check = $notify['unraidos'] ? 0 : 1;
@@ -36,7 +36,7 @@ if (file_exists('/boot/previous/changes.txt')) {
 <style>
 input[value='Install'],input[value='Update'],input[value='Restore']{margin:0}
 <?if (strstr('white,black',$display['theme'])):?>
-span.vhshift{margin-top:11px!important}
+span.vhshift{margin-top:13px!important}
 <?endif;?>
 </style>
 <script>

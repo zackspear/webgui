@@ -4,8 +4,8 @@ Tag="linux"
 Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$sec_nfs):0))"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -27,8 +27,8 @@ $width = [123,300];
 > Select the desired destinations and press **Write** to copy the NFS security settings to the selected shares.
 
 <div class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left clone"></i>
-<select name="readnfs" size="1" class="clone" onchange="toggleButton('readnfs',false)">
+<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readnfs" size="1" class="clone" onchange="toggleButton('readnfs',false)">
 <option disabled selected>select...</option>
 <?
 if (isset($disks[$name])) {
@@ -37,11 +37,11 @@ if (isset($disks[$name])) {
   foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select><input type="button" id="readnfs" value="Read" class="clone" onclick="readNFS()" disabled>
+</select></span><input type="button" id="readnfs" value="Read" class="clone" onclick="readNFS()" disabled>
 </div>
 <div class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right clone"></i>
-<select id="nfs1" name="writenfs" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writenfs',this.id)">
+<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="nfs1" name="writenfs" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writenfs',this.id)">
 <?
 $rows = [];
 if (isset($disks[$name])) {
@@ -52,7 +52,7 @@ if (isset($disks[$name])) {
 if ($rows) echo "<option>(All)</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select><input type="button" id="writenfs" value="Write" class="clone" onclick="writeNFS()" disabled>
+</select></span><input type="button" id="writenfs" value="Write" class="clone" onclick="writeNFS()" disabled>
 </div>
 
 <form markdown="1" name="nfs_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writenfs',true);$('#nfs1').dropdownchecklist('disable')">
@@ -116,18 +116,29 @@ function readNFS() {
   });
   $(form).find('select').trigger('change');
 }
-function writeNFS() {
-  var data = {}, copied = false;
-  data.shareExportNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['export']))?>';
-  data.shareSecurityNFS = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['security']))?>';
-  data.changeShareSecurityNFS = 'Apply';
-  $('select#nfs1 option').map(function() {
-    if ($(this).prop('selected')==true && $(this).val()!='(All)') {
-      data.shareName = $(this).val();
-      $.post('/update.htm', data);
-      copied = true;
+function writeNFS(data,n,i) {
+  if (data) {
+    if (n<i) {
+      $.post('/update.htm',data[n], function(){setTimeout(function(){writeNFS(data,++n,i);},3000);});
+    } else {
+      toggleButton('writenfs',false);
+      $('div.spinner.fixed').hide();
     }
-  });
-  if (copied) swal({title:'Clone complete',text:'NFS security settings are written to the selected shares',type:'success'},function(){refresh();});
+  } else {
+    var data = [], i = 0;
+    $('select#nfs1 option').map(function(i) {
+      if ($(this).prop('selected')==true && $(this).val()!='(All)') {
+        data[i] = {};
+        data[i]['shareName'] = $(this).val();
+        data[i]['shareExportNFS'] = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['export']))?>';
+        data[i]['shareSecurityNFS'] = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['security']))?>';
+        data[i]['changeShareSecurityNFS'] = 'Apply';
+        i++;
+      }
+    });
+    toggleButton('writenfs',true);
+    $('div.spinner.fixed').show('slow');
+    writeNFS(data,0,i);
+  }
 }
 </script>

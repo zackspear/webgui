@@ -827,7 +827,6 @@
 			'cz' => 'Czech (cz)',
 			'da' => 'Danish (da)',
 			'nl' => 'Dutch (nl)',
-			'nl-be' => 'Dutch-Belgium (nl-be)',
 			'en-gb' => 'English-United Kingdom (en-gb)',
 			'en-us' => 'English-United States (en-us)',
 			'es' => 'Español (es)',

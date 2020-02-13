@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -48,16 +48,17 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   $checked = (!$audit && !$check) ? check_plugin(basename($plugin_file),$ncsi) : true;
 //OS update?
   $os = $system && $name==$builtin[0];
-  $toggle = false;
+  $past = false;
 //toggle stable/next release?
   if ($os && $branch) {
-    $toggle = plugin('version',$plugin_file);
+    $past = plugin('version',$plugin_file);
     $tmp_plg = "$name-.plg";
     $tmp_file = "/var/tmp/$name.plg";
     copy($plugin_file,$tmp_file);
     exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
     symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-    if (check_plugin($tmp_plg,$ncsi)) {
+    $next = end(explode("\n",check_plugin($tmp_plg,$ncsi)));
+    if (version_compare($next,$past,'>')) {
       copy("/tmp/plugins/$tmp_plg",$tmp_file);
       $plugin_file = $tmp_file;
     }
@@ -108,7 +109,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   if ($url !== false) {
     $filename = "/tmp/plugins/".(($os && $branch) ? $tmp_plg : basename($url));
     if ($checked && file_exists($filename)) {
-      if ($toggle && $toggle != $version) {
+      if ($past && $past != $version) {
         $status = make_link('install',$plugin_file,'forced');
       } else {
         $latest = plugin('version',$filename);

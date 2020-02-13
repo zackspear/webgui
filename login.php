@@ -62,6 +62,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
+    <meta name="referrer" content="same-origin">
     <title><?=$var['NAME']?>/Login</title>
     <style>
     /************************
