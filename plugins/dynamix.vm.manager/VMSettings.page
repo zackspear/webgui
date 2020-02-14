@@ -235,8 +235,6 @@ VFIO allow unsafe interrupts:
 <?endif;?>
 : <input type="button" id="applyBtn" value="Apply" disabled><input type="button" value="Done" onclick="done()">
 </form>
-<div class="notice reboot" style="display:none;margin-bottom:24px">System must be rebooted for changes to take effect!</div>
-
 <?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
 
 > View the log for libvirt: <a id="openlog" title="/var/log/libvirt/libvirtd.log" href="#" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','Libvirt Log',600,900);">/var/log/libvirt/libvirtd.log</a>
@@ -451,7 +449,8 @@ $(function(){
     });
   }
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:'reboot'}, function(data){
-    if (data.modified) $('div.notice.reboot').show(); else $('div.notice.reboot').hide();
+    var rebootMessage = "VM Settings: A reboot is required to apply changes";
+    if (data.modified) addRebootNotice(rebootMessage); else removeRebootNotice(rebootMessage);
   });
 });
 </script>
