@@ -65,6 +65,7 @@ function validatePassword(input) {
   if (!input) {
     $('#strength-bar').css('background-color','transparent');
     $('#strength-text').html('');
+    $('.usage-disk.sys').addClass('none');
   } else {
     var bar = zxcvbn(input);
     switch (bar.score) {
@@ -76,6 +77,7 @@ function validatePassword(input) {
     }
     $('#strength-bar').css('width',Math.min(input.length*100/64,100)+'%');
     $('#strength-text').html(strength[bar.score]);
+    $('.usage-disk.sys').removeClass('none');
   }
 }
 
@@ -182,7 +184,7 @@ Delete<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form,
 Password:
 <input type="hidden" name="userPassword" value="">
 : <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
-  <span><span class="usage-disk sys"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
+  <span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
 
 > Up to 128 characters.
 
