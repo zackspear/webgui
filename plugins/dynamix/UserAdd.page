@@ -3,8 +3,8 @@ Title="Add User"
 Tag="user"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -30,11 +30,13 @@ span#dropbox{border:1px solid #f2f2f2;border-radius:5px;background:#262626;paddi
 <?else:?>
 span#dropbox{border:1px solid #1c1c1c;border-radius:5px;background:#e8e8e8;padding:28px 12px;line-height:72px;margin-right:16px;}
 <?endif;?>
-i.top{position:absolute;padding-top:4px;cursor:pointer;}
+i.top{position:absolute;padding-top:4px;cursor:pointer}
+.usage-disk.sys{display:inline-block;width:12rem;top:<?=$themes2?'12':'2'?>px;margin-left:0;border-radius:4px}
 </style>
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.zxcvbn.js')?>"></script>
 <script>
 var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
@@ -67,6 +69,25 @@ function checkUsername(form) {
   form.userPasswordGUI.disabled = true;
   form.userPasswordConfGUI.disabled = true;
   return true;
+}
+
+function validatePassword(input) {
+  var strength = {0:'worst', 1:'bad', 2:'weak', 3:'good', 4:'strong'};
+  if (!input) {
+    $('#strength-bar').css('background-color','transparent');
+    $('#strength-text').html('');
+  } else {
+    var bar = zxcvbn(input);
+    switch (bar.score) {
+      case 0: $('#strength-bar').css('background-color','red'); break;
+      case 1: $('#strength-bar').css('background-color','yellow'); break;
+      case 2: $('#strength-bar').css('background-color','orange'); break;
+      case 3: $('#strength-bar').css('background-color','blue'); break;
+      case 4: $('#strength-bar').css('background-color','green'); break;
+    }
+    $('#strength-bar').css('width',Math.min(input.length*100/64,100)+'%');
+    $('#strength-text').html(strength[bar.score]);
+  }
 }
 
 $(function(){
@@ -141,7 +162,8 @@ Custom image:
 
 Password:
 <input type="hidden" name="userPassword" value="">
-: <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
+: <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
+  <span><span class="usage-disk sys"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
 
 > Up to 128 characters.
 
