@@ -36,7 +36,7 @@ i.top{position:absolute;padding-top:4px;cursor:pointer}
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
-<script src="<?autov('/webGui/javascript/jquery.zxcvbn.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.zxcvbn.js')?>" async></script>
 <script>
 var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
