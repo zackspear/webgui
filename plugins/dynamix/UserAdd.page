@@ -72,13 +72,14 @@ function checkUsername(form) {
 }
 
 function validatePassword(input) {
+  var custom = ['unraid','limetech','lime-technology','bergware','squidly'];
   var strength = {0:'worst', 1:'bad', 2:'weak', 3:'good', 4:'strong'};
   if (!input) {
     $('#strength-bar').css('background-color','transparent');
     $('#strength-text').html('');
     $('.usage-disk.sys').addClass('none');
   } else {
-    var bar = zxcvbn(input);
+    var bar = zxcvbn(input,custom);
     switch (bar.score) {
       case 0: $('#strength-bar').css('background-color','red'); break;
       case 1: $('#strength-bar').css('background-color','yellow'); break;
