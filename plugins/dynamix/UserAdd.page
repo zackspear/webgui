@@ -31,7 +31,8 @@ span#dropbox{border:1px solid #f2f2f2;border-radius:5px;background:#262626;paddi
 span#dropbox{border:1px solid #1c1c1c;border-radius:5px;background:#e8e8e8;padding:28px 12px;line-height:72px;margin-right:16px}
 <?endif;?>
 i.top{position:absolute;padding-top:4px;cursor:pointer}
-.usage-disk.sys{display:inline-block;width:12rem;top:<?=$themes2?'12':'2'?>px;margin-left:0;border-radius:4px}
+i#showPass.checked{opacity:0.5}
+.usage-disk.sys{display:inline-block;width:10rem;top:<?=$themes2?'1.2':'.7'?>rem;margin-left:12px;border-radius:4px}
 </style>
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
@@ -41,10 +42,16 @@ i.top{position:absolute;padding-top:4px;cursor:pointer}
 var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
 
-function restore() {
-  // restore original image
-  $('#dropbox').html("<?=$void?>");
-  filename = '';
+function showPassword() {
+  if ($('#showPass').hasClass('checked')) {
+    $('#showPass').removeClass('checked');
+    var type = 'password';
+  } else {
+    $('#showPass').addClass('checked');
+    var type = 'text';
+  }
+  $('input[name="userPasswordGUI"]').attr('type',type);
+  $('input[name="userPasswordConfGUI"]').attr('type',type);
 }
 
 function checkUsername(form) {
@@ -73,7 +80,8 @@ function checkUsername(form) {
 
 function validatePassword(input) {
   var custom = ['unraid','limetech','lime-technology','bergware','squidly'];
-  var strength = {0:'worst', 1:'bad', 2:'weak', 3:'good', 4:'strong'};
+  var strength = ['Worst','Bad','Weak','Good','Strong'];
+  var emoji = ['&#128565;','&#128553;','&#128532;','&#128512;','&#128526;'];
   if (!input) {
     $('#strength-bar').css('background-color','transparent');
     $('#strength-text').html('');
@@ -88,9 +96,15 @@ function validatePassword(input) {
       case 4: $('#strength-bar').css('background-color','green'); break;
     }
     $('#strength-bar').css('width',Math.min(input.length*100/64,100)+'%');
-    $('#strength-text').html(strength[bar.score]);
+    $('#strength-text').html(emoji[bar.score]+' '+strength[bar.score]+'. '+bar.feedback.warning);
     $('.usage-disk.sys').removeClass('none');
   }
+}
+
+function restore() {
+  // restore original image
+  $('#dropbox').html("<?=$void?>");
+  filename = '';
 }
 
 $(function(){
@@ -166,7 +180,7 @@ Custom image:
 Password:
 <input type="hidden" name="userPassword" value="">
 : <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
-  <span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
+  <i id="showPass" class="fa fa-eye" style="cursor:pointer" title="Show / Hide password" onclick="showPassword()"></i><span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
 
 > Up to 128 characters.
 
