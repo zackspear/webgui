@@ -157,7 +157,7 @@ function btrfsBalance(path) {
       $('#btrfs-balance').text(data);
       setTimeout(function(){btrfsBalance(path);},1000);
     } else {
-      $.removeCookie('btrfs-balance');
+      $.removeCookie('btrfs-balance-<?=$disk['name']?>');
       refresh();
     }
   });
@@ -168,7 +168,7 @@ function btrfsScrub(path) {
       $('#btrfs-scrub').text(data);
       setTimeout(function(){btrfsScrub(path);},1000);
     } else {
-      $.removeCookie('btrfs-scrub');
+      $.removeCookie('btrfs-scrub-<?=$disk['name']?>');
       refresh();
     }
   });
@@ -179,7 +179,7 @@ function btrfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){btrfsCheck(path);},1000);
     } else {
-      $.removeCookie('btrfs-check');
+      $.removeCookie('btrfs-check-<?=$disk['name']?>');
       refresh();
     }
   });
@@ -190,7 +190,7 @@ function rfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){rfsCheck(path);},1000);
     } else {
-      $.removeCookie('rfs-check');
+      $.removeCookie('rfs-check-<?=$disk['name']?>');
       refresh();
     }
   });
@@ -201,7 +201,7 @@ function xfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){xfsCheck(path);},1000);
     } else {
-      $.removeCookie('xfs-check');
+      $.removeCookie('xfs-check-<?=$disk['name']?>');
       refresh();
     }
   });
