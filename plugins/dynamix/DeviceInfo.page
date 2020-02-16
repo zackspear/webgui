@@ -222,11 +222,11 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
-  if ($.cookie('btrfs-balance')) btrfsBalance($.cookie('btrfs-balance'));
-  if ($.cookie('btrfs-scrub')) btrfsScrub($.cookie('btrfs-scrub'));
-  if ($.cookie('btrfs-check')) btrfsCheck($.cookie('btrfs-check'));
-  if ($.cookie('rfs-check')) rfsCheck($.cookie('rfs-check'));
-  if ($.cookie('xfs-check')) xfsCheck($.cookie('xfs-check'));
+  if ($.cookie('btrfs-balance-<?=$disk['name']?>')) btrfsBalance($.cookie('btrfs-balance-<?=$disk['name']?>'));
+  if ($.cookie('btrfs-scrub-<?=$disk['name']?>')) btrfsScrub($.cookie('btrfs-scrub-<?=$disk['name']?>'));
+  if ($.cookie('btrfs-check-<?=$disk['name']?>')) btrfsCheck($.cookie('btrfs-check-<?=$disk['name']?>'));
+  if ($.cookie('rfs-check-<?=$disk['name']?>')) rfsCheck($.cookie('rfs-check-<?=$disk['name']?>'));
+  if ($.cookie('xfs-check-<?=$disk['name']?>')) xfsCheck($.cookie('xfs-check-<?=$disk['name']?>'));
 });
 </script>
 
@@ -341,7 +341,7 @@ Critical disk utilization threshold (%):
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>Balance Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance','/mnt/<?=$disk['name']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
 
@@ -392,7 +392,7 @@ btrfs balance status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>Scrub Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub','/mnt/<?=$disk['name']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
 
@@ -434,7 +434,7 @@ btrfs scrub status:
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
@@ -488,7 +488,7 @@ btrfs check status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
@@ -537,7 +537,7 @@ reiserfsck status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
