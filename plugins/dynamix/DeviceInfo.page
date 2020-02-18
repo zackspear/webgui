@@ -355,9 +355,21 @@ btrfs balance status:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[3]" value="">
 
 &nbsp;
-: <input type="submit" value="Balance"><input type="text" name="#arg[3]" maxlength="256" value=""> Options (see Help)
+: <input type="submit" value="Balance">
+<?if ($var['SYS_CACHE_SLOTS']>1):?>
+  <select name="dconvert" onchange="$(this.form).find('input[name=&quot;#arg[3]&quot;]').val(this.value)">
+  <?=mk_option(1,'','Perform full balance');?>
+  <?=mk_option(1,'-dconvert=single -mconvert=raid1','Convert to single mode');?>
+  <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1','Convert to raid0 mode');?>
+  <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1','Convert to raid1 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option($dconvert,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
+  </select>
+<?else:?>
+  *Perform full balance*
+<?endif;?>
 
 > **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices, for example,
 > to convert the pool from raid1 to raid0 or vice-versa.
