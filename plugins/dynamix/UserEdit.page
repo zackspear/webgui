@@ -25,6 +25,7 @@ Tag="user"
 $user = "/boot/config/plugins/dynamix/users/$name.png";
 $void = "<img src='/webGui/images/user.png' width='48' height='48' id='image' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='Click to select PNG file'>";
 $icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
+$zxcvbn = file_exists('/boot/config/plugins/dynamix/zxcvbn.js');
 ?>
 
 <style>
@@ -44,7 +45,9 @@ i#showPass.checked{opacity:0.5}
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
-<script src="<?autov('/webGui/javascript/jquery.zxcvbn.js')?>" async></script>
+<?if ($zxcvbn):?>
+<script src="<?autov('/boot/config/plugins/dynamix/zxcvbn.js')?>" async></script>
+<?endif;?>
 <script>
 var path = '/boot/config/plugins/dynamix/users';
 var filename = '';
@@ -74,6 +77,7 @@ function checkPassword(form) {
 }
 
 function validatePassword(input) {
+<?if ($zxcvbn):?>
   var custom = ['unraid','limetech','lime-technology','bergware','squidly'];
   var strength = ['Worst','Bad','Weak','Good','Strong'];
   var emoji = ['&#128565;','&#128553;','&#128532;','&#128512;','&#128526;'];
@@ -94,6 +98,7 @@ function validatePassword(input) {
     $('#strength-text').html(emoji[bar.score]+' '+strength[bar.score]+'. '+bar.feedback.warning);
     $('.usage-disk.sys').removeClass('none');
   }
+<?endif;?>
 }
 
 function restore() {
