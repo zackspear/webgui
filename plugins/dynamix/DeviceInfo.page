@@ -369,9 +369,9 @@ btrfs balance status:
   <?=mk_option(1,'-dconvert=single -mconvert=raid1','Convert to single mode');?>
   <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1','Convert to raid0 mode');?>
   <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1','Convert to raid1 mode');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option($dconvert,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option($dconvert,'-dconvert=raid5 -mconvert=raid1','Convert to raid5 mode');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option($dconvert,'-dconvert=raid6 -mconvert=raid1','Convert to raid6 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1','Convert to raid5 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1','Convert to raid6 mode');?>
   </select><span id="mode-warning" class="red-text"></span>
 <?else:?>
   *Perform full balance*
@@ -461,12 +461,12 @@ btrfs check status:
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value="--readonly"> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> Options (see Help)
 
 > **Check** will run the *btrfs check* program to check file system integrity on the device.
 >
@@ -480,9 +480,9 @@ btrfs check status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="Cancel"> *Running*
@@ -515,12 +515,12 @@ reiserfsck status:
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value=""> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> Options (see Help)
 
 > **Check** will run the *reiserfsck* program to check file system integrity on the device.
 >
@@ -535,9 +535,9 @@ reiserfsck status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="Cancel"> *Running*
@@ -564,12 +564,12 @@ xfs_repair status:
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value="-n"> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> Options (see Help)
 
 > **Check** will run the *xfs_repair* program to check file system integrity on the device.
 >
@@ -583,8 +583,8 @@ xfs_repair status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
 
 &nbsp;
 : <input type="submit" value="Cancel"> *Running*
