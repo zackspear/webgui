@@ -206,6 +206,10 @@ function xfsCheck(path) {
     }
   });
 }
+function updateMode(form,mode) {
+  $(form).find('input[name="#arg[3]"]').val(mode);
+  if (mode.indexOf('raid5')>0||mode.indexOf('raid6')>0) $('#mode-warning').text('RAiD5/6 still has some issues and should be used for testing purposes only'); else $('#mode-warning').text('');
+}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
@@ -360,13 +364,15 @@ btrfs balance status:
 &nbsp;
 : <input type="submit" value="Balance">
 <?if ($var['SYS_CACHE_SLOTS']>1):?>
-  <select name="dconvert" onchange="$(this.form).find('input[name=&quot;#arg[3]&quot;]').val(this.value)">
+  <select name="dconvert" onchange="updateMode(this.form,this.value)">
   <?=mk_option(1,'','Perform full balance');?>
   <?=mk_option(1,'-dconvert=single -mconvert=raid1','Convert to single mode');?>
   <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1','Convert to raid0 mode');?>
   <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1','Convert to raid1 mode');?>
   <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option($dconvert,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
-  </select>
+  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option($dconvert,'-dconvert=raid5 -mconvert=raid1','Convert to raid5 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option($dconvert,'-dconvert=raid6 -mconvert=raid1','Convert to raid6 mode');?>
+  </select><span id="mode-warning" class="red-text"></span>
 <?else:?>
   *Perform full balance*
 <?endif;?>
