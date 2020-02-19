@@ -40,7 +40,7 @@ span#dropbox{border:1px solid #1c1c1c;border-radius:5px;background:#e8e8e8;paddi
 <?endif;?>
 i.top{position:absolute;padding-top:4px;cursor:pointer}
 i#showPass.checked{opacity:0.5}
-.usage-disk.sys{display:inline-block;width:10rem;top:<?=$themes2?'1.2':'.7'?>rem;margin-left:12px;border-radius:4px}
+.usage-disk.sys{display:inline-block;width:10rem;top:<?=$themes2?'1.2':'.2'?>rem;margin-left:12px;border-radius:4px}
 </style>
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
