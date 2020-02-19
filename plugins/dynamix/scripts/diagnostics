@@ -238,6 +238,7 @@ exert("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml")." 2>/dev/null")
 $all_xml = glob("/$diag/xml/*.xml");
 foreach ($all_xml as $xml) {
   exert("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
+  exert("sed -ri 's/(passwd=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
 }
 
 // copy syslog information (anonymize if applicable)
