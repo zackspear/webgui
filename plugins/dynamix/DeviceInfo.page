@@ -379,9 +379,11 @@ btrfs balance status:
 > **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices, for example,
 > to convert the pool from raid1 to raid0 or vice-versa.
 >
-> A *Full Balance* basically rewrites everything in the filesystem and affects btrfs data extents; metadata always uses raid1 (and is converted to raid1 if necessary by any balance operation)
+> When a *full balance* is perfomred, it basically rewrites everything in the current filesystem.
 >
-> The run time is potentially very long, depending on the filesystem size.
+> A *mode conversion* affects the btrfs data extents; metadata always uses raid1 and is converted to raid1 if necessary by any balance operation.
+>
+> The run time is potentially very long, depending on the filesystem size and speed of the device.
 >
 > Unraid uses these default options when creating a multiple-device pool:
 >
