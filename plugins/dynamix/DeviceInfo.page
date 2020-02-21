@@ -3,8 +3,8 @@ Title="$name Settings"
 Tag="hdd-o"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -148,6 +148,67 @@ function setGlue(form,reset) {
     $('#helptext').hide();
   }
 }
+function prepareFS(form,cookie,value) {
+  if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
+}
+function btrfsBalance(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'balance',path:path},function(data) {
+    if (data.indexOf('running')>0) {
+      $('#btrfs-balance').text(data);
+      setTimeout(function(){btrfsBalance(path);},1000);
+    } else {
+      $.removeCookie('btrfs-balance-<?=$disk['name']?>');
+      refresh();
+    }
+  });
+}
+function btrfsScrub(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
+    if (data.indexOf('running')>0) {
+      $('#btrfs-scrub').text(data);
+      setTimeout(function(){btrfsScrub(path);},1000);
+    } else {
+      $.removeCookie('btrfs-scrub-<?=$disk['name']?>');
+      refresh();
+    }
+  });
+}
+function btrfsCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
+    $('#btrfs-check').text(data);
+    if (data.slice(-1)!='\0') {
+      setTimeout(function(){btrfsCheck(path);},1000);
+    } else {
+      $.removeCookie('btrfs-check-<?=$disk['name']?>');
+      refresh();
+    }
+  });
+}
+function rfsCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
+    $('#rfs-check').text(data);
+    if (data.slice(-1)!='\0') {
+      setTimeout(function(){rfsCheck(path);},1000);
+    } else {
+      $.removeCookie('rfs-check-<?=$disk['name']?>');
+      refresh();
+    }
+  });
+}
+function xfsCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
+    $('#xfs-check').text(data);
+    if (data.slice(-1)!='\0') {
+      setTimeout(function(){xfsCheck(path);},1000);
+    } else {
+      $.removeCookie('xfs-check-<?=$disk['name']?>');
+      refresh();
+    }
+  });
+}
+function updateMode(form,mode) {
+  $(form).find('input[name="#arg[3]"]').val(mode);
+}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
@@ -164,6 +225,11 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
+  if ($.cookie('btrfs-balance-<?=$disk['name']?>')) btrfsBalance($.cookie('btrfs-balance-<?=$disk['name']?>'));
+  if ($.cookie('btrfs-scrub-<?=$disk['name']?>')) btrfsScrub($.cookie('btrfs-scrub-<?=$disk['name']?>'));
+  if ($.cookie('btrfs-check-<?=$disk['name']?>')) btrfsCheck($.cookie('btrfs-check-<?=$disk['name']?>'));
+  if ($.cookie('rfs-check-<?=$disk['name']?>')) rfsCheck($.cookie('rfs-check-<?=$disk['name']?>'));
+  if ($.cookie('xfs-check-<?=$disk['name']?>')) xfsCheck($.cookie('xfs-check-<?=$disk['name']?>'));
 });
 </script>
 
@@ -278,7 +344,7 @@ Critical disk utilization threshold (%):
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>Balance Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
 
@@ -286,27 +352,46 @@ btrfs filesystem df:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>";?>
 
 btrfs balance status:
-: <?echo "<pre>" . implode("\n", $balance_status) . "</pre>";?>
+: <?echo "<pre id='btrfs-balance'>".implode("\n", $balance_status)."</pre>";?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[3]" value="">
 
 &nbsp;
-: <input type="submit" value="Balance"><input type="text" name="#arg[3]" maxlength="256" value=""> Options (see Help)
+: <input type="submit" value="Balance">
+<?if ($var['SYS_CACHE_SLOTS']>1):?>
+  <select onchange="updateMode(this.form,this.value)">
+  <?=mk_option(1,'','Perform full balance');?>
+  <?=mk_option(1,'-dconvert=single -mconvert=raid1','Convert to single mode');?>
+  <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1','Convert to raid0 mode');?>
+  <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1','Convert to raid1 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1','Convert to raid5 mode *see help');?>
+  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1','Convert to raid6 mode *see help');?>
+  </select>
+<?else:?>
+  *Perform full balance*
+<?endif;?>
 
 > **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices, for example,
 > to convert the pool from raid1 to raid0 or vice-versa.
 >
-> Without any options specified a "full balance" is performed which will basically rewrite everything in the filesystem.
-> The run time is potentially very long, depending on the filesystem size.
+> When a *full balance* is perfomred, it basically rewrites everything in the current filesystem.
+>
+> A *mode conversion* affects the btrfs data extents; metadata always uses raid1 and is converted to raid1 if necessary by any balance operation.
+>
+> The run time is potentially very long, depending on the filesystem size and speed of the device.
 >
 > Unraid uses these default options when creating a multiple-device pool:
 >
 > `-dconvert=raid1 -mconvert=raid1`
 >
-> For more complete documentation, please refer to the btrfs-balance [Manpage](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-balance).
+> For more complete documentation, please refer to the btrfs-balance [Manpage](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-balance)
+>
+> *Note: raid5 and raid6 are generally still considered **experimental** by the Linux community*
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
@@ -314,7 +399,7 @@ btrfs balance status:
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
 
 &nbsp;
-: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="Cancel">
 
 > **Cancel** will cancel the balance operation in progress.
 
@@ -329,12 +414,12 @@ btrfs balance status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>Scrub Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
 
 btrfs scrub status:
-: <?echo "<pre>" . implode("\n", $scrub_status) . "</pre>";?>
+: <?echo "<pre id='btrfs-scrub'>".implode("\n", $scrub_status)."</pre>";?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
@@ -356,7 +441,7 @@ btrfs scrub status:
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
 
 &nbsp;
-: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="Cancel">
 
 > **Cancel** will cancel the Scrub operation in progress.
 
@@ -371,21 +456,21 @@ btrfs scrub status:
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 btrfs check status:
-: <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
+: <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>";?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value="--readonly"> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> Options (see Help)
 
 > **Check** will run the *btrfs check* program to check file system integrity on the device.
 >
@@ -399,12 +484,12 @@ btrfs check status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="Cancel"> *Running*
 
 > **Cancel** will cancel the Check operation in progress.
 
@@ -425,21 +510,21 @@ btrfs check status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 reiserfsck status:
-: <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
+: <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>";?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value=""> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> Options (see Help)
 
 > **Check** will run the *reiserfsck* program to check file system integrity on the device.
 >
@@ -454,12 +539,12 @@ reiserfsck status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="Cancel"> *Running*
 
 > **Cancel** will cancel the Check operation in progress.
 
@@ -474,21 +559,21 @@ reiserfsck status:
 <?endif;?>
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
 
 xfs_repair status:
-: <?echo "<pre>" . implode("\n", $check_status) . "</pre>";?>
+: <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>";?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
-<input type="hidden" name="#arg[1]"  value="start">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]"  value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" maxlength="256" value="-n"> Options (see Help)
+: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> Options (see Help)
 
 > **Check** will run the *xfs_repair* program to check file system integrity on the device.
 >
@@ -502,11 +587,11 @@ xfs_repair status:
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
-<input type="hidden" name="#arg[1]"  value="cancel">
-<input type="hidden" name="#arg[2]"  value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
 
 &nbsp;
-: <input type="button" value="Refresh" onclick="refresh()"><input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="Cancel"> *Running*
 
 > **Cancel** will cancel the Check operation in progress.
 

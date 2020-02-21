@@ -152,8 +152,10 @@ function is() {
 }
 function notice() {
   // notice to reboot system after changes
+  var message = "CPU Isolation: A reboot is required to apply changes";
+	
   $.post('/webGui/include/CPUset.php',{id:'cmd'},function(d){
-    if (d==1) $('div.notice.isol').show(); else $('div.notice.isol').hide();
+    if (d==1) addRebootNotice(message); else removeRebootNotice(message);
   });
 }
 function reset(form) {
