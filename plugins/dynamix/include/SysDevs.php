@@ -12,12 +12,12 @@
 ?>
 <?
 function in_array_r($needle, $haystack, $strict = false) {
-    foreach ($haystack as $item) {
-        if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
-            return true;
-        }
+  foreach ($haystack as $item) {
+    if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 switch ($_POST['table']) {
 case 't1':
@@ -42,10 +42,10 @@ case 't1':
     foreach ($groups as $line) {
       if (!$line) continue;
       if ($line[0]=='I') {
-        if ($spacer) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
-        echo "</tr><tr><td>$line:</td><td>";
+	if ($spacer) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
+	echo "</tr><tr><td>$line:</td><td>";
 	$iommu = substr($line, 12);
-        $append = true;
+	$append = true;
       } else {
 	$line = preg_replace("/^\t/","",$line);
 	$pciaddress = substr($line, 12, 7);
@@ -65,8 +65,8 @@ case 't1':
 	echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
 	echo $line;
 	echo "</td></tr>";
-        switch (true) {
-          case (strpos($line, 'USB controller') !== false):
+	switch (true) {
+	  case (strpos($line, 'USB controller') !== false):
 	    if ($isbound) {
 	      echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
 	    } else {
@@ -76,35 +76,35 @@ case 't1':
 	      }
 	      unset($getusb);
 	    }
-            break;
-          case (strpos($line, 'SATA controller') !== false):
-          case (strpos($line, 'Serial Attached SCSI controller') !== false):
-          case (strpos($line, 'RAID bus controller') !== false):
-          case (strpos($line, 'SCSI storage controller') !== false):
-          case (strpos($line, 'IDE interface') !== false):
-          case (strpos($line, 'Mass storage controller') !== false):
-          case (strpos($line, 'Non-Volatile memory controller') !== false):
-            if ($isbound) {
-              echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
-            } else {
+	    break;
+	  case (strpos($line, 'SATA controller') !== false):
+	  case (strpos($line, 'Serial Attached SCSI controller') !== false):
+	  case (strpos($line, 'RAID bus controller') !== false):
+	  case (strpos($line, 'SCSI storage controller') !== false):
+	  case (strpos($line, 'IDE interface') !== false):
+	  case (strpos($line, 'Mass storage controller') !== false):
+	  case (strpos($line, 'Non-Volatile memory controller') !== false):
+	    if ($isbound) {
+	      echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
+	    } else {
 	      exec('ls -al /sys/block/sd* | grep -i "'.$pciaddress.'"',$getsata);
 	      exec('ls -al /sys/block/hd* | grep -i "'.$pciaddress.'"',$getsata);
 	      exec('ls -al /sys/block/sr* | grep -i "'.$pciaddress.'"',$getsata);
 	      exec('ls -al /sys/block/nvme* | grep -i "'.$pciaddress.'"',$getsata);
-              foreach($getsata as $satadevice) {
+	      foreach($getsata as $satadevice) {
 	        $satadevice = substr($satadevice, strrpos($satadevice, '/', -1)+1);
-                $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
+	        $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
 	        foreach ($search as $deviceline) {
-                  echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
+	          echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
 	        }
-              }
+	      }
 	      unset($search);
-              unset($getsata);
-            }
-            break;
-        }
+	      unset($getsata);
+	    }
+	    break;
+	}
 	unset($isbound);
-        $append = false;
+	$append = false;
       }
     }
   }
