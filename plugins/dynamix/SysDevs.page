@@ -4,8 +4,8 @@ Icon="icon-hardware"
 Tag="server"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -28,6 +28,29 @@ $(function(){
   $('#t3').load('/webGui/include/SysDevs.php',{table:'t3'});
   $('#t4').load('/webGui/include/SysDevs.php',{table:'t4'});
 });
+function applyCfg() {
+  var message = "System Devices: A reboot is required to apply changes";
+  var string = "BIND=";
+  var elements = document.getElementById("vfiopci").elements;
+  for (var i = 0, element; element = elements[i++];) {
+    if (element.type === "checkbox"  && element.checked === true)
+    string = string + element.value + " ";
+  }
+  string = string.trim();
+  if (string === "BIND=") {
+    string = "";
+  }
+  $.get( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
+  .done(function(d) {
+    if (d==1) {
+      addRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>ALERT: Changes saved. Reboot to take effect.</b>";
+    } else {
+      removeRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>No changes.</b>";
+    }
+  });
+}
 </script>
 
 **PCI Devices and IOMMU Groups**
@@ -39,7 +62,12 @@ $(function(){
 To see natural IOMMU groups for your hardware, go to the <b><a href="/Settings/VMSettings">VM Manager</a></b> page and set the <b>PCIe ACS override</b> setting to <b>Disabled</b>.</p>
 <?endif;?>
 
-<pre><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></pre><br>
+<? if (is_file("/boot/config/vfio-pci.cfg")) $file = file_get_contents("/boot/config/vfio-pci.cfg"); ?>
+<pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form>
+<input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();"><span id="warning"></span>
+</form>
+</pre><br>
+
 
 **CPU Thread Pairings**
 
