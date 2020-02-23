@@ -57,9 +57,7 @@ case 't1':
         }
         unset($outputvfio);
         echo "</td><td>";
-        exec('if [[ -e /sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset ]]; then echo "YES";fi',$flrcheck);
-        if ($flrcheck[0]=="YES") { echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>"; }
-        unset($flrcheck);
+        if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
         echo "</td><td>";
         echo in_array_r($pciaddress, $inuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
         echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
