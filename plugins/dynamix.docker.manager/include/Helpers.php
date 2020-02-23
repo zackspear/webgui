@@ -245,7 +245,7 @@ function xmlSecurity(&$template) {
         $tempElement = htmlspecialchars_decode($element);
         $tempElement = str_replace("[","<",$tempElement);
         $tempElement = str_replace("]",">",$tempElement);
-        if (preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement)) {
+        if (preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement) || (stripos($tempElement,"<link") !== false) ) {
           $element = "REMOVED";
         }
       }
