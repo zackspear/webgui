@@ -42,69 +42,69 @@ case 't1':
     foreach ($groups as $line) {
       if (!$line) continue;
       if ($line[0]=='I') {
-	if ($spacer) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
-	echo "</tr><tr><td>$line:</td><td>";
-	$iommu = substr($line, 12);
-	$append = true;
+        if ($spacer) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
+        echo "</tr><tr><td>$line:</td><td>";
+        $iommu = substr($line, 12);
+        $append = true;
       } else {
-	$line = preg_replace("/^\t/","",$line);
-	$pciaddress = substr($line, 12, 7);
-	echo ($append)?"":"<tr><td></td><td>";
-	exec("lspci -v -s $pciaddress", $outputvfio);
-	if (preg_grep("/vfio-pci/i", $outputvfio)) {
-	  echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"Kernel driver in use: vfio-pci\"></i>";
-	  $isbound = "true";
-	}
-	unset($outputvfio);
-	echo "</td><td>";
-	exec('if [[ -e /sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset ]]; then echo "YES";fi',$flrcheck);
-	if ($flrcheck[0]=="YES") { echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>"; }
-	unset($flrcheck);
-	echo "</td><td>";
-	echo in_array_r($pciaddress, $inuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
-	echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
-	echo $line;
-	echo "</td></tr>";
-	switch (true) {
-	  case (strpos($line, 'USB controller') !== false):
-	    if ($isbound) {
-	      echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
-	    } else {
-	      exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:;fi;done',$getusb);
-	      foreach($getusb as $usbdevice) {
-	        echo "<tr><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$usbdevice</td></tr>";
-	      }
-	      unset($getusb);
-	    }
-	    break;
-	  case (strpos($line, 'SATA controller') !== false):
-	  case (strpos($line, 'Serial Attached SCSI controller') !== false):
-	  case (strpos($line, 'RAID bus controller') !== false):
-	  case (strpos($line, 'SCSI storage controller') !== false):
-	  case (strpos($line, 'IDE interface') !== false):
-	  case (strpos($line, 'Mass storage controller') !== false):
-	  case (strpos($line, 'Non-Volatile memory controller') !== false):
-	    if ($isbound) {
-	      echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
-	    } else {
-	      exec('ls -al /sys/block/sd* | grep -i "'.$pciaddress.'"',$getsata);
-	      exec('ls -al /sys/block/hd* | grep -i "'.$pciaddress.'"',$getsata);
-	      exec('ls -al /sys/block/sr* | grep -i "'.$pciaddress.'"',$getsata);
-	      exec('ls -al /sys/block/nvme* | grep -i "'.$pciaddress.'"',$getsata);
-	      foreach($getsata as $satadevice) {
-	        $satadevice = substr($satadevice, strrpos($satadevice, '/', -1)+1);
-	        $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
-	        foreach ($search as $deviceline) {
-	          echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
-	        }
-	      }
-	      unset($search);
-	      unset($getsata);
-	    }
-	    break;
-	}
-	unset($isbound);
-	$append = false;
+        $line = preg_replace("/^\t/","",$line);
+        $pciaddress = substr($line, 12, 7);
+        echo ($append)?"":"<tr><td></td><td>";
+        exec("lspci -v -s $pciaddress", $outputvfio);
+        if (preg_grep("/vfio-pci/i", $outputvfio)) {
+          echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"Kernel driver in use: vfio-pci\"></i>";
+          $isbound = "true";
+        }
+        unset($outputvfio);
+        echo "</td><td>";
+        exec('if [[ -e /sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset ]]; then echo "YES";fi',$flrcheck);
+        if ($flrcheck[0]=="YES") { echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>"; }
+        unset($flrcheck);
+        echo "</td><td>";
+        echo in_array_r($pciaddress, $inuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
+        echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
+        echo $line;
+        echo "</td></tr>";
+        switch (true) {
+          case (strpos($line, 'USB controller') !== false):
+            if ($isbound) {
+              echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
+            } else {
+              exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:;fi;done',$getusb);
+              foreach($getusb as $usbdevice) {
+                echo "<tr><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$usbdevice</td></tr>";
+              }
+              unset($getusb);
+            }
+            break;
+          case (strpos($line, 'SATA controller') !== false):
+          case (strpos($line, 'Serial Attached SCSI controller') !== false):
+          case (strpos($line, 'RAID bus controller') !== false):
+          case (strpos($line, 'SCSI storage controller') !== false):
+          case (strpos($line, 'IDE interface') !== false):
+          case (strpos($line, 'Mass storage controller') !== false):
+          case (strpos($line, 'Non-Volatile memory controller') !== false):
+            if ($isbound) {
+              echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
+            } else {
+              exec('ls -al /sys/block/sd* | grep -i "'.$pciaddress.'"',$getsata);
+              exec('ls -al /sys/block/hd* | grep -i "'.$pciaddress.'"',$getsata);
+              exec('ls -al /sys/block/sr* | grep -i "'.$pciaddress.'"',$getsata);
+              exec('ls -al /sys/block/nvme* | grep -i "'.$pciaddress.'"',$getsata);
+              foreach($getsata as $satadevice) {
+                $satadevice = substr($satadevice, strrpos($satadevice, '/', -1)+1);
+                $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
+                foreach ($search as $deviceline) {
+                  echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
+                }
+              }
+              unset($search);
+              unset($getsata);
+            }
+            break;
+        }
+        unset($isbound);
+        $append = false;
       }
     }
   }
