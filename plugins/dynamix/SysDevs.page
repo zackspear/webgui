@@ -63,8 +63,6 @@ To see natural IOMMU groups for your hardware, go to the <b><a href="/Settings/V
 <?endif;?>
 
 <pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form>
-<input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();"><span id="warning"></span>
-</form>
 </pre><br>
 
 
