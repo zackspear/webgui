@@ -11,14 +11,10 @@
  */
 ?>
 <?
-if (is_file("/boot/config/vfio-pci.cfg")) {
-  $old = rtrim(file_get_contents("/boot/config/vfio-pci.cfg"));
-} else {
-  $old = "";
-}
+$old = (is_file("/boot/config/vfio-pci.cfg")) ? rtrim(file_get_contents("/boot/config/vfio-pci.cfg")) : '';
 $new = $_GET["cfg"];
 if ($old !== $new) {
-  exec("cp /boot/config/vfio-pci.cfg /boot/config/vfio-pci.cfg.bak");
+  exec("cp -f /boot/config/vfio-pci.cfg /boot/config/vfio-pci.cfg.bak");
   exec("echo \"$new\" >/boot/config/vfio-pci.cfg", $output, $myreturn );
   if ($myreturn !== "0") {
     echo "1";
