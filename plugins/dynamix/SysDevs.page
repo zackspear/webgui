@@ -56,15 +56,23 @@ function applyCfg() {
 **PCI Devices and IOMMU Groups**
 
 > This displays a list of IOMMU groups available on your system along with the output of the `lspci` command for each IOMMU group.  The numeric identifiers are used to configure PCI pass-through.
+>
+> Devices you select will be bound to the vfio-pci driver at boot, which makes them available for assignment to a virtual machine, and also prevents the Linux kernel from automatically binding them to any present host driver.
+>
+> **Note that selecting a device will bind not only the specified device(s), but *all* other devices in the same IOMMU group as well.**
+>
+> &nbsp;<i class="fa fa-circle orb green-orb middle"></i>&nbsp;This symbol indicates the device is currently bound to the vfio-pci driver.
+>
+> &nbsp;<i class="fa fa-retweet grey-orb middle"></i>&nbsp;&nbsp;&nbsp;This symbol indicates the device supports FLR (Function Level Reset).
+>
+> <input type="checkbox" value="" disabled>&nbsp;&nbsp;If a checkbox is greyed out it means the device is in use by Unraid and can not be passed through.
 
 <?if (strpos(file_get_contents('/proc/cmdline'), 'pcie_acs_override=') !== false):?>
 <p class="notice" style="line-height:30px;height:auto">Warning: Your system has booted with the PCIe ACS Override setting enabled. The below list doesn't not reflect the way IOMMU would naturally group devices.<br>
 To see natural IOMMU groups for your hardware, go to the <b><a href="/Settings/VMSettings">VM Manager</a></b> page and set the <b>PCIe ACS override</b> setting to <b>Disabled</b>.</p>
 <?endif;?>
 
-<pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form>
-</pre><br>
-
+<pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 
 **CPU Thread Pairings**
 

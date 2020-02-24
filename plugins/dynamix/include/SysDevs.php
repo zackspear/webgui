@@ -106,7 +106,7 @@ case 't1':
         $append = false;
       }
     }
-    echo '<tr><td></td><td></td><td></td><td><input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();" '.(($noiommu) ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
+    echo '<tr><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();" '.(($noiommu) ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
   }
   break;
 case 't2':
