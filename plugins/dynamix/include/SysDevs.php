@@ -36,6 +36,19 @@ case 't1':
         unset($linereturn);
       }
     }
+    $networks = (array)parse_ini_file('state/network.ini',true);
+    $networklist = array_column($networks, 'BRNICS');
+    foreach ($networklist as $line) {
+      if (!empty($line)) {
+        exec('readlink /sys/class/net/'.$line,$linereturn);
+        preg_match_all('/..:..\../', $linereturn[0], $inuse);
+        foreach ($inuse[0] as $line) {
+          $lines[] = $line;
+        }
+        unset($inuse);
+        unset($linereturn);
+      }
+    }
     $iommuinuse = array ();
     foreach ($lines as $pciinuse){
       $string = exec("ls /sys/kernel/iommu_groups/*/devices/0000:$pciinuse -1 -d");
