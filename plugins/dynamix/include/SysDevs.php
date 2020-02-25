@@ -74,20 +74,21 @@ case 't1':
         }
         unset($outputvfio);
         echo "</td><td>";
-        if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
-        echo "</td><td>";
-        echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
-        echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
-        echo $line;
-        echo "</td></tr>";
+        if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
+          if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
+          echo "</td><td>";
+          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
+          echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
+        } else { echo "</td><td>"; }
+        echo "</td><td>$line</td></tr>";
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
             if ($isbound) {
-              echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
             } else {
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:;fi;done',$getusb);
               foreach($getusb as $usbdevice) {
-                echo "<tr><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$usbdevice</td></tr>";
+                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$usbdevice</td></tr>";
               }
               unset($getusb);
             }
@@ -100,7 +101,7 @@ case 't1':
           case (strpos($line, 'Mass storage controller') !== false):
           case (strpos($line, 'Non-Volatile memory controller') !== false):
             if ($isbound) {
-              echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
             } else {
               exec('ls -al /sys/block/sd* | grep -i "'.$pciaddress.'"',$getsata);
               exec('ls -al /sys/block/hd* | grep -i "'.$pciaddress.'"',$getsata);
@@ -110,7 +111,7 @@ case 't1':
                 $satadevice = substr($satadevice, strrpos($satadevice, '/', -1)+1);
                 $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
                 foreach ($search as $deviceline) {
-                  echo '<tr><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
+                  echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
                 }
               }
               unset($search);
@@ -122,7 +123,7 @@ case 't1':
         $append = false;
       }
     }
-    echo '<tr><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();" '.(($noiommu) ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
+    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();" '.(($noiommu) ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
   }
   break;
 case 't2':
