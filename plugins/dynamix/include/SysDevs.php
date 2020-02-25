@@ -13,28 +13,6 @@
 <?
 switch ($_POST['table']) {
 case 't1':
-  if (is_file("/boot/config/vfio-pci.cfg")) $file = file_get_contents("/boot/config/vfio-pci.cfg");
-  $disks = (array)parse_ini_file('state/disks.ini',true);
-  $devicelist = array_column($disks, 'device');
-  $lines = array ();
-  foreach ($devicelist as $line) {
-    if (!empty($line)) {
-      exec('udevadm info --path=$(udevadm info -q path /dev/'.$line.' | cut -d / -f 1-7) --query=path',$linereturn);
-      preg_match_all('/..:..\../', $linereturn[0], $inuse);
-      foreach ($inuse[0] as $line) {
-        $lines[] = $line;
-      }
-      unset($inuse);
-      unset($linereturn);
-    }
-  }
-  $iommuinuse = array ();
-  foreach ($lines as $pciinuse){
-    $string = exec("ls /sys/kernel/iommu_groups/*/devices/0000:$pciinuse -1 -d");
-    $string = substr($string,25,2);
-    $iommuinuse[] = (strpos($string,'/')) ? strstr($string, '/', true) : $string;
-  }
-  exec('lsscsi -s',$lsscsi);
   exec('for group in $(ls /sys/kernel/iommu_groups/ -1|sort -n);do echo "IOMMU group $group";for device in $(ls -1 "/sys/kernel/iommu_groups/$group"/devices/);do echo -n $\'\t\';lspci -ns "$device"|awk \'BEGIN{ORS=" "}{print "["$3"]"}\';lspci -s "$device";done;done',$groups);
   if (empty($groups)) {
     exec('lspci -n|awk \'{print "["$3"]"}\'',$iommu);
@@ -43,6 +21,28 @@ case 't1':
     foreach ($lspci as $line) echo "<tr><td>".$iommu[$i++]."</td><td>$line</td></tr>";
     $noiommu = true;
   } else {
+    if (is_file("/boot/config/vfio-pci.cfg")) $file = file_get_contents("/boot/config/vfio-pci.cfg");
+    $disks = (array)parse_ini_file('state/disks.ini',true);
+    $devicelist = array_column($disks, 'device');
+    $lines = array ();
+    foreach ($devicelist as $line) {
+      if (!empty($line)) {
+        exec('udevadm info --path=$(udevadm info -q path /dev/'.$line.' | cut -d / -f 1-7) --query=path',$linereturn);
+        preg_match_all('/..:..\../', $linereturn[0], $inuse);
+        foreach ($inuse[0] as $line) {
+          $lines[] = $line;
+        }
+        unset($inuse);
+        unset($linereturn);
+      }
+    }
+    $iommuinuse = array ();
+    foreach ($lines as $pciinuse){
+      $string = exec("ls /sys/kernel/iommu_groups/*/devices/0000:$pciinuse -1 -d");
+      $string = substr($string,25,2);
+      $iommuinuse[] = (strpos($string,'/')) ? strstr($string, '/', true) : $string;
+    }
+    exec('lsscsi -s',$lsscsi);
     foreach ($groups as $line) {
       if (!$line) continue;
       if ($line[0]=='I') {
