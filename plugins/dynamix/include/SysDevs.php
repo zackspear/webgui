@@ -11,25 +11,28 @@
  */
 ?>
 <?
-function in_array_r($needle, $haystack, $strict = false) {
-  foreach ($haystack as $item) {
-    if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
-      return true;
-    }
-  }
-  return false;
-}
 switch ($_POST['table']) {
 case 't1':
   if (is_file("/boot/config/vfio-pci.cfg")) $file = file_get_contents("/boot/config/vfio-pci.cfg");
   $disks = (array)parse_ini_file('state/disks.ini',true);
   $devicelist = array_column($disks, 'device');
+  $lines = array ();
   foreach ($devicelist as $line) {
     if (!empty($line)) {
       exec('udevadm info --path=$(udevadm info -q path /dev/'.$line.' | cut -d / -f 1-7) --query=path',$linereturn);
-      preg_match_all('/..:..\../', $linereturn[0], $inuse[]);
+      preg_match_all('/..:..\../', $linereturn[0], $inuse);
+      foreach ($inuse[0] as $line) {
+        $lines[] = $line;
+      }
+      unset($inuse);
       unset($linereturn);
     }
+  }
+  $iommuinuse = array ();
+  foreach ($lines as $pciinuse){
+    $string = exec("ls /sys/kernel/iommu_groups/*/devices/0000:$pciinuse -1 -d");
+    $string = substr($string,25,2);
+    $iommuinuse[] = (strpos($string,'/')) ? strstr($string, '/', true) : $string;
   }
   exec('lsscsi -s',$lsscsi);
   exec('for group in $(ls /sys/kernel/iommu_groups/ -1|sort -n);do echo "IOMMU group $group";for device in $(ls -1 "/sys/kernel/iommu_groups/$group"/devices/);do echo -n $\'\t\';lspci -ns "$device"|awk \'BEGIN{ORS=" "}{print "["$3"]"}\';lspci -s "$device";done;done',$groups);
@@ -60,7 +63,7 @@ case 't1':
         echo "</td><td>";
         if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
         echo "</td><td>";
-        echo in_array_r($pciaddress, $inuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
+        echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
         echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
         echo $line;
         echo "</td></tr>";
