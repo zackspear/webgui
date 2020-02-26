@@ -72,7 +72,6 @@ case 't1':
           echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"Kernel driver in use: vfio-pci\"></i>";
           $isbound = "true";
         }
-        unset($outputvfio);
         echo "</td><td>";
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
           if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
@@ -80,7 +79,10 @@ case 't1':
           echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
           echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
         } else { echo "</td><td>"; }
-        echo "</td><td>$line</td></tr>";
+        echo '</td><td title="';
+        foreach ($outputvfio as $line2) echo "$line2&#10;";
+        echo '">'.$line.'</td></tr>';
+        unset($outputvfio);
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
             if ($isbound) {
