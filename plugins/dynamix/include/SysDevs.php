@@ -154,16 +154,9 @@ case 't4':
 ?>
 <script>
 $("input[type='checkbox']").change(function() {
-  if(this.checked) {
-    var matches = document.querySelectorAll("." + this.className);
-    for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
-      matches[i].checked = true;
-    }
-  } else {
-    var matches = document.querySelectorAll("." + this.className);
-    for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
-      matches[i].checked = false;
-    }
+  var matches = document.querySelectorAll("." + this.className);
+  for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
+    matches[i].checked = this.checked ? true : false;
   }
 });
 </script>
