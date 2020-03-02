@@ -76,7 +76,7 @@ case 't1':
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
           if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
           echo "</td><td>";
-          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" value="'.$pciaddress.'" ';
+          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress.'" ';
           echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
         } else { echo "</td><td>"; }
         echo '</td><td title="';
@@ -152,3 +152,18 @@ case 't4':
   break;
 }
 ?>
+<script>
+$("input[type='checkbox']").change(function() {
+  if(this.checked) {
+    var matches = document.querySelectorAll("." + this.className);
+    for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
+      matches[i].checked = true;
+    }
+  } else {
+    var matches = document.querySelectorAll("." + this.className);
+    for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
+      matches[i].checked = false;
+    }
+  }
+});
+</script>
