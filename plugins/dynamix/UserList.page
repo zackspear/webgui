@@ -3,8 +3,8 @@ Title="Users"
 Tag="users"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -25,5 +25,5 @@ ksort($users);
 <?endforeach;?>
 <div style='clear:both'></div>
 <form method="POST" action="<?=$path?>/UserAdd">
-<input type="submit" value="Add User"><?if ($submenu):?><input type="button" value="Done" onclick="done()"><?endif;?>
+<input type="submit" value="_(Add User)_"><?if ($submenu):?><input type="button" value="_(Done)_" onclick="done()"><?endif;?>
 </form>

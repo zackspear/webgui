@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -32,14 +32,14 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
 list($protocol, $hostname, $internalport) = explode(":", rtrim(file_get_contents("/var/run/nginx.origin")));
 $hostname = substr($hostname, 2);
 if (!preg_match('/.*\.unraid\.net$/', $hostname)) {
-  response_complete(406, '{"error":"Nothing to do"}');
+  response_complete(406, '{"error":"'._('Nothing to do').'"}');
 }
 
 // keyfile
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
-  response_complete(406, '{"error":"Registration key required"}');
+  response_complete(406, '{"error":"'._('Registration key required').'"}');
 }
 $keyfile = @base64_encode($keyfile);
 
@@ -63,5 +63,5 @@ if ($result === false) {
   response_complete(500, '{"error":"'.$error.'"}');
 }
 
-response_complete($httpcode, $result, 'success');
+response_complete($httpcode, $result, _('success'));
 ?>

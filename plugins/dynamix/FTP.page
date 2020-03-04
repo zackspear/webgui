@@ -4,8 +4,8 @@ Icon="icon-ftp"
 Tag="globe"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018 Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020 Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,6 @@ Tag="globe"
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
 $ftp_userlist_file = "/boot/config/vsftpd.user_list";
 $ftp_userlist = "";
@@ -34,30 +33,36 @@ $(function() {
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#command" value="/webGui/scripts/ftpusers">
 
-FTP server:
-: <select name="#arg[1]" size="1">
-  <?=mk_option($ftp_server, "0", "Disabled")?>
-  <?=mk_option($ftp_server, "1", "Enabled")?>
+_(FTP server)_:
+: <select name="#arg[1]">
+  <?=mk_option($ftp_server, "0", _("Disabled"))?>
+  <?=mk_option($ftp_server, "1", _("Enabled"))?>
   </select>
 
+:help69
 > Enable or disable the FTP server daemon. By default the FTP server is enabled.
 > This setting is not saved, i.e. upon system reboot it will revert to its default setting.
+:end
 
-FTP user(s):
+_(FTP user(s))_:
 : <input type="text" name="#arg[2]" size="40" maxlength="80" value="<?=htmlspecialchars($ftp_userlist)?>">
 
+:help70
 > Enter the user names (separated by spaces) permitted to access the server using FTP.
 > To disallow any user access, clear this setting.
 >
 > **Note:** do not enter user name `root` since this may cause problems in the future.
+:end
 
 &nbsp;
-: <input type="submit" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 
 </form>
 
+:help71
 > ### Overview
 >
 > Unraid includes the popular `vsftpd` FTP server.  The configuration of `vsftp` is currently very
 > simple: **All** user names entered above are permitted to access the server via FTP and will have
 > *full read/write/delete access* to the entire server, so use with caution.
+:end

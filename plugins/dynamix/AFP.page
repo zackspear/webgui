@@ -4,8 +4,8 @@ Icon="icon-apple"
 Tag="apple"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,32 +15,35 @@ Tag="apple"
  * all copies or substantial portions of the Software.
  */
 ?>
-<div class='notice' style='margin-bottom:24px'>Please note that AFP is <strong>deprecated</strong>, please use SMB instead.</div>
+<div class='notice' style='margin-bottom:24px'>_(Please note that AFP is **deprecated**, please use SMB instead)_.</div>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
-Enable AFP:
+_(Enable AFP)_:
 : <select name="shareAFPEnabled" size="1">
-  <?=mk_option($var['shareAFPEnabled'], "no", "No");?>
-  <?=mk_option($var['shareAFPEnabled'], "yes", "Yes");?>
+  <?=mk_option($var['shareAFPEnabled'], "no", _('No'))?>
+  <?=mk_option($var['shareAFPEnabled'], "yes", _('Yes'))?>
   </select>
 
+:help81
 > Select 'Yes' enable [AFP](/Help) protocol support.
 >
 > Note: changing this value with array Started may cause a brief interruption in network services.
+:end
 
-Connected users:
+_(Connected users)_:
 : <?if ($var['shareAFPEnabled']=="yes"):
       $AFPUsers = exec("ps anucx|grep -c 'afpd'");
       if ($AFPUsers>0) $AFPUsers--;
       echo $AFPUsers;
     else:
-      echo "<i>not available</i>";
+      echo "<i>"._('not available')."</i>";
     endif;?>
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
+:help82
 > ### Overview
 > AFP for Unraid includes both `netatalk` to implement Apple Filing Protocol, and `avahi`
 > to implement Zeroconf, aka, Bonjour.
@@ -74,3 +77,4 @@ Connected users:
 >
 > It may be necessary to log out and back in, or even to restart the computer for the change to take effect
 > (this is what the article states).
+:end

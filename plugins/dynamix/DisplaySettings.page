@@ -4,8 +4,8 @@ Icon="icon-display"
 Tag="desktop"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,12 +15,11 @@ Tag="desktop"
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
 $void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='Click to select PNG file'>";
 $icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
+$keys = parse_ini_file('webGui/include/languages.key');
 ?>
-
 <style>
 span#dropbox{margin-right:20px;}
 i.top{position:relative;padding-left:4px;cursor:pointer;}
@@ -74,20 +73,20 @@ $(function() {
     url:'/webGui/include/FileUpload.php',
     beforeEach:function(file) {
       if (!file.type.match(/^image\/png/)) {
-        swal({title:"Warning",text:"Only PNG images are allowed!",type:"warning"});
+        swal({title:"_(Warning)_",text:"_(Only PNG images are allowed)_!",type:"warning"});
         return false;
       }
     },
     error: function(err, file, i) {
       switch (err) {
       case 'BrowserNotSupported':
-        swal({title:"Browser error",text:"Your browser does not support HTML5 file uploads!",type:"error"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error"});
         break;
       case 'TooManyFiles':
-        swal({title:"Too many files",text:"Please select one file only!",type:"error"});
+        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"File too large",text:"Maximum file upload size is 512 kB (524,288 bytes)",type:"error"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512 kB)_ (524,288 _(bytes)_)",type:"error"});
         break;
       }
     },
@@ -105,7 +104,7 @@ $(function() {
         $('select[name="banner"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"Upload error",text:response,type:"error"});
+        swal({title:"_(Upload error)_",text:response,type:"error"});
       }
     }
   });
@@ -119,173 +118,193 @@ $(function() {
 });
 </script>
 
+:help100
 > The display settings below determine how items are displayed on screen. Use these settings to tweak the visual effects to your likings.
 >
 > You can experiment with these settings as desired, they only affect visual properties.
+:end
 
 <form markdown="1" name="display_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="saveFontSize();upload();">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="display">
-Font size:
-: <select name="font" id='font' size="1">
-  <?=mk_option($display['font'], "50%", "Very small")?>
-  <?=mk_option($display['font'], "56.25%", "Small")?>
-  <?=mk_option($display['font'], "", "Normal")?>
-  <?=mk_option($display['font'], "68.75%", "Large")?>
-  <?=mk_option($display['font'], "75%", "Very large")?>
-  <?=mk_option($display['font'],"80%","Huge")?>
+_(Language)_:
+: <select name="locale">
+  <?=mk_option($display['locale'], "","English")?>
+  <?foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) echo mk_option($display['locale'],basename($dir),$keys[basename($dir)])?>
   </select>
 
+_(Font size)_:
+: <select name="font" id='font'>
+  <?=mk_option($display['font'], "50%",_('Very small'))?>
+  <?=mk_option($display['font'], "56.25%",_('Small'))?>
+  <?=mk_option($display['font'], "",_('Normal'))?>
+  <?=mk_option($display['font'], "68.75%",_('Large'))?>
+  <?=mk_option($display['font'], "75%",_('Very large'))?>
+  <?=mk_option($display['font'],"80%",_('Huge'))?>
+  </select>
+
+:help101
 > This is a per device setting
-  
-Date format:
-: <select name="date" size="1" onchange="presetTime(this.form)">
-  <?=mk_option($display['date'], "%c", "System Setting")?>
-  <?=mk_option($display['date'], "%A, %Y %B %e", "Day, YYYY Month D")?>
-  <?=mk_option($display['date'], "%A, %e %B %Y", "Day, D Month YYYY")?>
-  <?=mk_option($display['date'], "%A, %B %e, %Y", "Day, Month D, YYYY")?>
-  <?=mk_option($display['date'], "%A, %m/%d/%Y", "Day, MM/DD/YYYY")?>
-  <?=mk_option($display['date'], "%A, %d-%m-%Y", "Day, DD-MM-YYYY")?>
-  <?=mk_option($display['date'], "%A, %d.%m.%Y", "Day, DD.MM.YYYY")?>
-  <?=mk_option($display['date'], "%A, %Y-%m-%d", "Day, YYYY-MM-DD")?>
+:end
+
+_(Date format)_:
+: <select name="date" onchange="presetTime(this.form)">
+  <?=mk_option($display['date'], "%c","_(System Setting)_")?>
+  <?=mk_option($display['date'], "%A, %Y %B %e",_('Day, YYYY Month D'))?>
+  <?=mk_option($display['date'], "%A, %e %B %Y",_('Day, D Month YYYY'))?>
+  <?=mk_option($display['date'], "%A, %B %e, %Y",_('Day, Month D, YYYY'))?>
+  <?=mk_option($display['date'], "%A, %m/%d/%Y",_('Day, MM/DD/YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d-%m-%Y",_('Day, DD-MM-YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d.%m.%Y",_('Day, DD.MM.YYYY'))?>
+  <?=mk_option($display['date'], "%A, %Y-%m-%d",_('Day, YYYY-MM-DD'))?>
   </select>
 
-Time format:
-: <select name="time" size="1">
-  <?=mk_option($display['time'], "%I:%M %p", "12 hours")?>
-  <?=mk_option($display['time'], "%R", "24 hours")?>
+_(Time format)_:
+: <select name="time">
+  <?=mk_option($display['time'], "%I:%M %p",_('12 hours'))?>
+  <?=mk_option($display['time'], "%R",_('24 hours'))?>
   </select>
 
-Number format:
-: <select name="number" size="1">
-  <?=mk_option($display['number'], ".,", "[D] dot : [G] comma")?>
-  <?=mk_option($display['number'], ". ", "[D] dot : [G] space")?>
-  <?=mk_option($display['number'], ".",  "[D] dot : [G] none")?>
-  <?=mk_option($display['number'], ",.", "[D] comma : [G] dot")?>
-  <?=mk_option($display['number'], ", ", "[D] comma : [G] space")?>
-  <?=mk_option($display['number'], ",",  "[D] comma : [G] none")?>
+_(Number format)_:
+: <select name="number">
+  <?=mk_option($display['number'], ".,",_('[D] dot : [G] comma'))?>
+  <?=mk_option($display['number'], ". ",_('[D] dot : [G] space'))?>
+  <?=mk_option($display['number'], ".",_('[D] dot : [G] none'))?>
+  <?=mk_option($display['number'], ",.",_('[D] comma : [G] dot'))?>
+  <?=mk_option($display['number'], ", ",_('[D] comma : [G] space'))?>
+  <?=mk_option($display['number'], ",",_('[D] comma : [G] none'))?>
   </select>
 
-Number scaling:
-: <select name="scale" size="1">
-  <?=mk_option($display['scale'], "-1", "Automatic")?>
-  <?=mk_option($display['scale'], "0", "Disabled")?>
-  <?=mk_option($display['scale'], "1", "KB")?>
-  <?=mk_option($display['scale'], "2", "MB")?>
-  <?=mk_option($display['scale'], "3", "GB")?>
-  <?=mk_option($display['scale'], "4", "TB")?>
-  <?=mk_option($display['scale'], "5", "PB")?>
+_(Number scaling)_:
+: <select name="scale">
+  <?=mk_option($display['scale'], "-1",_('Automatic'))?>
+  <?=mk_option($display['scale'], "0",_('Disabled'))?>
+  <?=mk_option($display['scale'], "1",_('KB'))?>
+  <?=mk_option($display['scale'], "2",_('MB'))?>
+  <?=mk_option($display['scale'], "3",_('GB'))?>
+  <?=mk_option($display['scale'], "4",_('TB'))?>
+  <?=mk_option($display['scale'], "5",_('PB'))?>
   </select>
 
-Page view:
-: <select name="tabs" size="1">
-  <?=mk_option($display['tabs'], "0", "Tabbed")?>
-  <?=mk_option($display['tabs'], "1", "Non-tabbed")?>
+_(Page view)_:
+: <select name="tabs">
+  <?=mk_option($display['tabs'], "0",_('Tabbed'))?>
+  <?=mk_option($display['tabs'], "1",_('Non-tabbed'))?>
   </select>
 
-Placement of Users menu:
-: <select name="users" size="1">
-  <?=mk_option($display['users'], "Tasks:3", "Header menu")?>
-  <?=mk_option($display['users'], "UserPreferences", "Settings menu")?>
+_(Placement of Users menu)_:
+: <select name="users">
+  <?=mk_option($display['users'], "Tasks:3",_('Header menu'))?>
+  <?=mk_option($display['users'], "UserPreferences",_('Settings menu'))?>
   </select>
 
-Listing height:
-: <select name="resize" size="1">
-  <?=mk_option($display['resize'], "0", "Automatic")?>
-  <?=mk_option($display['resize'], "1", "Fixed")?>
+_(Listing height)_:
+: <select name="resize">
+  <?=mk_option($display['resize'], "0",_('Automatic'))?>
+  <?=mk_option($display['resize'], "1",_('Fixed'))?>
   </select>
 
-Display world-wide-name in device ID:
-: <select name="wwn" size="1">
-  <?=mk_option($display['wwn'], "0", "Disabled")?>
-  <?=mk_option($display['wwn'], "1", "Automatic")?>
+_(Display world-wide-name in device ID)_:
+: <select name="wwn">
+  <?=mk_option($display['wwn'], "0",_('Disabled'))?>
+  <?=mk_option($display['wwn'], "1",_('Automatic'))?>
   </select>
 
+:help102
 > World Wide Name (WWN) is a unique identifier used for SAS attached devices.
 >
 > Select *Disabled* to suppress the appending of WWN to the device identification
 >
 > Select "Automatic" to append WWN to the device identification in case of SAS devices
+:end
 
-Display array totals:
-: <select name="total" size="1">
-  <?=mk_option($display['total'], "0", "No")?>
-  <?=mk_option($display['total'], "1", "Yes")?>
+_(Display array totals)_:
+: <select name="total">
+  <?=mk_option($display['total'], "0",_('No'))?>
+  <?=mk_option($display['total'], "1",_('Yes'))?>
   </select>
 
-Show array utilization indicator:
-: <select name="usage" size="1">
-  <?=mk_option($display['usage'], "0", "No")?>
-  <?=mk_option($display['usage'], "1", "Yes")?>
+_(Show array utilization indicator)_:
+: <select name="usage">
+  <?=mk_option($display['usage'], "0",_('No'))?>
+  <?=mk_option($display['usage'], "1",_('Yes'))?>
   </select>
 
-Header custom text color:
-: <input type="text" class="narrow" name="header" value="<?=$display['header']?>" maxlength="6" pattern="[0-9a-fA-F]{3,6}" title="HTML color code of 3 or 6 hexadecimal digits">
+_(Header custom text color)_:
+: <input type="text" class="narrow" name="header" value="<?=$display['header']?>" maxlength="6" pattern="[0-9a-fA-F]{3,6}" title="_(HTML color code of 3 or 6 hexadecimal digits)_">
 
+:help103
 > Overrule the default text color in the header. This can be used to match the text color with a background image.
+:end
 
-Header custom background color:
-: <input type="text" class="narrow" name="background" value="<?=$display['background']?>" maxlength="6" pattern="[0-9a-fA-F]{3,6}" title="HTML color code of 3 or 6 hexadecimal digits">
+_(Header custom background color)_:
+: <input type="text" class="narrow" name="background" value="<?=$display['background']?>" maxlength="6" pattern="[0-9a-fA-F]{3,6}" title="_(HTML color code of 3 or 6 hexadecimal digits)_">
 
+:help104
 > Overrule the default background color in the header. This can be used to match the background color with a custom text color.
+:end
 
-Show banner:
-: <select name="banner" size="1" onchange="presetBanner(this.form)">
-  <?=mk_option($display['banner'], "", "No")?>
-  <?=mk_option($display['banner'], "image", "Yes")?>
+_(Show banner)_:
+: <select name="banner" onchange="presetBanner(this.form)">
+  <?=mk_option($display['banner'], "",_('No'))?>
+  <?=mk_option($display['banner'], "image",_('Yes'))?>
   </select>
 
 <div id="custom" markdown="1" style="display:none">
-Custom banner:
+_(Custom banner)_:
 <input type="hidden" name="#custom" value="">
 : <span id="dropbox">
 <?if (file_exists($banner)):?>
-  <img src="<?=autov($banner)?>" width="330" height="30" onclick="$('#drop').click()" style="cursor:pointer" title="Click to select PNG file"><?=$icon?>
+  <img src="<?=autov($banner)?>" width="330" height="30" onclick="$('#drop').click()" style="cursor:pointer" title="_(Click to select PNG file)_"><?=$icon?>
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>Drag-n-drop a PNG file or click the image at the left.</em><input type="file" id="drop" accept=".png" style="display:none">
+  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_.</em><input type="file" id="drop" accept=".png" style="display:none">
 </div>
 
+:help6
 > Image will be scaled to 1920x90 pixels. The maximum image file upload size is 512 kB (524,288 bytes).
+:end
 
-Show Dashboard apps:
-: <select name="dashapps" size="1">
-  <?=mk_option($display['dashapps'], "icons", "Docker + VMs")?>
-  <?=mk_option($display['dashapps'], "docker", "Docker only")?>
-  <?=mk_option($display['dashapps'], "vms", "VMs only")?>
-  <?=mk_option($display['dashapps'], "none", "None")?>
+_(Show Dashboard apps)_:
+: <select name="dashapps">
+  <?=mk_option($display['dashapps'], "icons",_('Docker + VMs'))?>
+  <?=mk_option($display['dashapps'], "docker",_('Docker only'))?>
+  <?=mk_option($display['dashapps'], "vms",_('VMs only'))?>
+  <?=mk_option($display['dashapps'], "none",_('None'))?>
   </select>
 
-Dynamix color theme:
-: <select name="theme" size="1">
+_(Dynamix color theme)_:
+: <select name="theme">
   <?foreach (glob("$docroot/webGui/styles/dynamix-*.css") as $themes):?>
   <?$theme = substr(basename($themes,'.css'),8);?>
-  <?=mk_option($display['theme'], $theme, ucfirst($theme))?>
+  <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
   <?endforeach;?>
   </select>
 
-Used / Free columns:
-: <select name="text" size="1">
-  <?=mk_option($display['text'], "0", "Text")?>
-  <?=mk_option($display['text'], "1", "Bar (gray)")?>
-  <?=mk_option($display['text'], "2", "Bar (color)")?>
-  <?=mk_option($display['text'], "10", "Text - Bar (gray)")?>
-  <?=mk_option($display['text'], "20", "Text - Bar (color)")?>
-  <?=mk_option($display['text'], "11", "Bar (gray) - Text")?>
-  <?=mk_option($display['text'], "21", "Bar (color) - Text")?>
+_(Used / Free columns)_:
+: <select name="text">
+  <?=mk_option($display['text'], "0",_('Text'))?>
+  <?=mk_option($display['text'], "1",_('Bar (gray)'))?>
+  <?=mk_option($display['text'], "2",_('Bar (color)'))?>
+  <?=mk_option($display['text'], "10",_('Text - Bar (gray)'))?>
+  <?=mk_option($display['text'], "20",_('Text - Bar (color)'))?>
+  <?=mk_option($display['text'], "11",_('Bar (gray) - Text)'))?>
+  <?=mk_option($display['text'], "21",_('Bar (color) - Text)'))?>
   </select>
 
-Temperature unit:
-: <select name="unit" size="1">
-  <?=mk_option($display['unit'], "C", "Celsius")?>
-  <?=mk_option($display['unit'], "F", "Fahrenheit")?>
+_(Temperature unit)_:
+: <select name="unit">
+  <?=mk_option($display['unit'], "C",_('Celsius'))?>
+  <?=mk_option($display['unit'], "F",_('Fahrenheit'))?>
   </select>
 
+:help7
 > Selects the temperature unit for the disk temperature thresholds. Changing the unit will adjust the existing value in the disk temperature thresholds as appropriate.
 >
 > Make sure any newly entered values represent the selected temperature unit.
+:end
 
-<input type="submit" name="#default" value="Default" onclick="filename='reset'">
-: <input type="submit" name="#apply" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+<input type="submit" name="#default" value="_(Default)_" onclick="filename='reset'">
+: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

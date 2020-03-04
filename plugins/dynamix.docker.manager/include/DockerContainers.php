@@ -13,6 +13,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
@@ -24,7 +28,7 @@ $user_prefs      = $dockerManPaths['user-prefs'];
 $autostart_file  = $dockerManPaths['autostart-file'];
 
 if (!$containers && !$images) {
-  echo "<tr><td colspan='7' style='text-align:center;padding-top:12px'>No Docker containers installed</td></tr>";
+  echo "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No Docker containers installed')."</td></tr>";
   return;
 }
 
@@ -85,10 +89,10 @@ foreach ($containers as $ct) {
   } else {
     $appname = htmlspecialchars($name);
   }
-  echo "<span class='outer'><span id='$id' class='hand'>$image</span><span class='inner'><span class='appname $update'>$appname</span><br><i id='load-$id' class='fa fa-$shape $status $color'></i><span class='state'>$status</span></span></span>";
-  echo "<span class='advanced'>Container ID: $id<br>";
+  echo "<span class='outer'><span id='$id' class='hand'>$image</span><span class='inner'><span class='appname $update'>$appname</span><br><i id='load-$id' class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
+  echo "<span class='advanced'>"._('Container ID').": $id<br>";
   if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars(${ct['BaseImage']})."<br>";
-  echo "By: ";
+  echo _('By').": ";
   $registry = $info['registry'];
   list($author,$version) = explode(':',$ct['Image']);
   if ($registry) {
@@ -99,20 +103,20 @@ foreach ($containers as $ct) {
   echo "</span></td><td class='updatecolumn'>";
   switch ($updateStatus) {
   case 0:
-    echo "<span class='green-text' style='white-space:nowrap;'><i class='fa fa-check fa-fw'></i> up-to-date</span>";
-    echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> force update</span></a></div>";
+    echo "<span class='green-text' style='white-space:nowrap;'><i class='fa fa-check fa-fw'></i> "._('up-to-date')."</span>";
+    echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('force update')."</span></a></div>";
     break;
   case 1:
-    echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> update ready</span></div>";
-    echo "<a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> apply update</span></a>";
+    echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> "._('update ready')."</span></div>";
+    echo "<a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('apply update')."</span></a>";
     break;
   case 2:
-    echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> rebuild ready</span></div>";
-    echo "<a class='exec'><span style='white-space:nowrap;'><i class='fa fa-recycle fa-fw'></i> rebuilding</span></a>";
+    echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> ".('rebuild ready')."</span></div>";
+    echo "<a class='exec'><span style='white-space:nowrap;'><i class='fa fa-recycle fa-fw'></i> "._('rebuilding')."</span></a>";
     break;
   default:
-    echo "<span class='orange-text' style='white-space:nowrap;'><i class='fa fa-unlink'></i> not available</span>";
-    echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> force update</span></a></div>";
+    echo "<span class='orange-text' style='white-space:nowrap;'><i class='fa fa-unlink'></i> "._('not available')."</span>";
+    echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('force update')."</span></a></div>";
     break;
   }
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> $version</div></td>";
@@ -122,7 +126,7 @@ foreach ($containers as $ct) {
   echo "<td class='advanced'><span class='cpu-$id'>0%</span><div class='usage-disk mm'><span id='cpu-$id' style='width:0'></span><span></span></div>";
   echo "<br><span class='mem-$id'>0 / 0</span></td>";
   echo "<td><input type='checkbox' id='$id-auto' class='autostart' container='".htmlspecialchars($name)."'".($info['autostart'] ? ' checked':'').">";
-  echo "<span id='$id-wait' style='float:right;display:none'>wait<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title='seconds'></span></td>";
+  echo "<span id='$id-wait' style='float:right;display:none'>wait<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title='"._('seconds')."'></span></td>";
   echo "<td><a class='log' onclick=\"containerLogs('".addslashes(htmlspecialchars($name))."','$id',false,false)\"><img class='basic' src='/plugins/dynamix/icons/log.png'><div class='advanced'>";
   echo htmlspecialchars(str_replace('Up','Uptime',$ct['Status']))."</div><div class='advanced' style='margin-top:4px'>Created ".htmlspecialchars($ct['Created'])."</div></a></td></tr>";
 }

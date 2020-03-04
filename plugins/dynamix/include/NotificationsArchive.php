@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'tools';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
@@ -35,9 +39,9 @@ foreach ($files as $file) {
     if ($c==5) break;
     $text = $field ? explode('=',$field,2)[1] : "-";
     $tag = ($c<4) ? "" : " data='".str_replace(['alert','warning','normal'],['0','1','2'],$text)."'";
-    echo (!$c++) ? "<tr>".str_replace('*',$text,$td_).date($dynamix['notify']['date'].' '.$dynamix['notify']['time'],$text)."$_td" : "<td$tag>$text</td>";
+    echo (!$c++) ? "<tr>".str_replace('*',$text,$td_).date($dynamix['notify']['date'].' '.$dynamix['notify']['time'],$text)."$_td" : "<td$tag>"._($text)."</td>";
   }
-  echo "<td><a href='#' onclick='$.post(\"/webGui/include/DeleteLogFile.php\",{log:\"$archive\"},function(){archiveList();});return false' title='Delete notification'><i class='fa fa-trash-o'></i></a></td></tr>";
+  echo "<td><a href='#' onclick='$.post(\"/webGui/include/DeleteLogFile.php\",{log:\"$archive\"},function(){archiveList();});return false' title='"._('Delete notification')."'><i class='fa fa-trash-o'></i></a></td></tr>";
   if ($extra) {
     $text = explode('=',$field,2)[1];
     echo "<tr class='tablesorter-childRow row$row'><td colspan='4'>$text</td><td></td></tr><tr class='tablesorter-childRow row$row'><td colspan='5'></td></tr>";

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
+
 $cpus = explode(';',$_POST['cpus']);
 
 function scan($area, $text) {
@@ -26,7 +30,7 @@ function create($id, $name, $vcpu) {
   $text = [];
   $unit = str_replace([' ','(',')','[',']'],'',$name);
   $name = urlencode($name);
-  echo "<td><span id='$id-$unit' style='color:#267CA8;display:none'><i class='fa fa-refresh fa-spin'></i> updating</span></td>";
+  echo "<td><span id='$id-$unit' style='color:#267CA8;display:none'><i class='fa fa-refresh fa-spin'></i> "._('updating')."</span></td>";
   for ($c = 0; $c < $loop; $c++) {
     $max = ($c == $loop-1 ? ($total%32?:32) : 32);
     for ($n = 0; $n < $max; $n++) {
@@ -118,7 +122,7 @@ case 'is':
     sort($isolcpus,SORT_NUMERIC);
     $isolcpus = array_unique($isolcpus,SORT_NUMERIC);
   }
-  echo "<tr><td>Isolated CPUs</td>";
+  echo "<tr><td>"._('Isolated CPUs')."</td>";
   create('is', 'isolcpus', $isolcpus);
   echo "</tr>";
   break;

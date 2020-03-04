@@ -4,7 +4,7 @@ Code="e92a"
 ----
 <?PHP
 if ($var['fsState']=="Stopped") {
-  echo "<p class='notice shift'>Array must be <span class='strong big'>Started</span> to view Shares.</p>";
+  echo "<p class='notice shift'>"._('Array must be **Started** to view Shares').".</p>";
   return;
 }
 if (count($pages)==2) $tabbed = false;

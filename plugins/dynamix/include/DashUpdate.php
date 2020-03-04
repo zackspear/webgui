@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 function normalize($type,$count) {
@@ -23,7 +27,7 @@ function my_unit($value,$unit) {
   return ($unit=='F' ? round(9/5*$value+32) : $value)." $unit";
 }
 function my_clock($time) {
-  if (!$time) return 'less than a minute';
+  if (!$time) return _('less than a minute');
   $days = floor($time/1440);
   $hour = $time/60%24;
   $mins = $time%60;
@@ -122,6 +126,8 @@ function device_name(&$disk, $array) {
       case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
     }
     $name = my_disk($disk['name']);
+    [$p1,$p2] = explode(' ',$name);
+    $name = _($p1).($p2?" $p2":"");
     return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("$path/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
   } else {
     $name = $disk['device'];
@@ -144,7 +150,7 @@ function device_status(&$disk, $array, &$error, &$warning) {
     case 'red-off'     : $color = 'red';    $text = 'faulty';     $error++; break;
     case 'grey-off'    : $color = 'grey';   $text = 'no device';  break;
   }
-  return "<i class='fa fa-circle orb $color-orb middle'></i>$text";
+  return "<i class='fa fa-circle orb $color-orb middle'></i>"._($text);
 }
 function device_temp(&$disk, &$red, &$orange) {
   $spin = strpos($disk['color'],'blink')===false;
@@ -171,7 +177,7 @@ function device_smart(&$disk, $name, &$fail, &$smart) {
   $events = explode('|',get_value($disk,'smEvents',$numbers));
   $title  = '';
   $thumb  = 'thumbs-o-up';
-  $text   = 'healthy';
+  $text   = _('healthy');
   $color  = 'green';
   $file   = "state/smart/$name";
   if (file_exists("$file.ssa") && in_array(file_get_contents("$file.ssa"),$failed)) {
@@ -186,10 +192,10 @@ function device_smart(&$disk, $name, &$fail, &$smart) {
         if (!$failing && !in_array($id,$events)) continue;
         if ($failing || ($select ? $thres>0 && $value<=$thres*$level : $raw>0)) $title .= normalize($class,$failing?$when:$raw);
       }
-      if ($title) {$thumb = 'thumbs-o-down'; $color = 'orange'; $text = 'error'; $smart++;} else $title = "No errors reported\n";
+      if ($title) {$thumb = 'thumbs-o-down'; $color = 'orange'; $text = _('error'); $smart++;} else $title = _('No errors reported')."\n";
     }
   }
-  $title .= "Click for context menu";
+  $title .= _('Click for context menu');
   return "<span id='smart-$name' name='$page' class='fa fa-$thumb $color-text' style='margin-right:8px' onmouseover='this.style.cursor=\"pointer\"' title='$title'></span>$text";
 }
 function device_usage(&$disk, $array, &$full, &$high) {
@@ -358,18 +364,18 @@ case 'status':
   }
   if ($var['mdResync']==0) {
     if ($parity_slots==$parity_disabled) {
-      echo "<span class='red'>Parity disk".($parity_slots==1?'':'s')." not present</span>";
+      echo "<span class='red'>"._('Parity disk'.($parity_slots==1?'':'s')." not present")."</span>";
     } elseif ($parity_slots > $parity_invalid) {
       if ($parity_invalid==0) {
-        echo "<span class='green'>Parity is valid</span>";
+        echo "<span class='green'>"._('Parity is valid')."</span>";
       } else {
-        echo "<span class='orange'>Parity is degraded: $parity_invalid invalid device".($parity_invalid==1?'':'s')."</span>";
+        echo "<span class='orange'>"._('Parity is degraded').": $parity_invalid "._('invalid device'.($parity_invalid==1?'':'s'))."</span>";
       }
     } else {
       if (empty($var['mdInvalidDisk'])) {
-        echo "<span class='red strong'>Parity is invalid</span>";
+        echo "<span class='red strong'>"._('Parity is invalid')."</span>";
       } else {
-        echo "<span class='red strong'>Data is invalid</span>";
+        echo "<span class='red strong'>"._('Data is invalid')."</span>";
       }
     }
   } else {
@@ -384,56 +390,57 @@ case 'status':
     } elseif (strstr($var['mdResyncAction'],"check")) {
       $mode = 'Parity-Check';
     }
-    echo "<span class='orange'>$mode in progress... Completed: ".number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,$number[0],$number[1])." %.</span>";
+    echo "<span class='orange'>"._($mode).' '._('in progress').'... '._('Completed').': '.number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,$number[0],$number[1])." %.</span>";
   }
   break;
 case 'parity':
+  extract(parse_plugin_cfg('dynamix', true));
   $var  = parse_ini_file("state/var.ini");
   $time = $_POST['time'];
   $idle = $var['mdResync']==0;
   if ($var['sbSyncExit']!=0) {
-    echo "Last check incomplete on <strong>".my_time($var['sbSynced2'],$time).day_count($var['sbSynced2'])."</strong>, finding <strong>{$var['sbSyncErrs']}</strong> error".($var['sbSyncErrs']==1?'.':'s.');
-    echo "<br><i class='fa fa-dot-circle-o'></i> Error code: ".my_error($var['sbSyncExit']);
+    echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced2']).my_lang(day_count($var['sbSynced2']),1))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+    echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($var['sbSyncExit']);
   } elseif ($var['sbSynced']==0) {
     list($date,$duration,$speed,$status,$error) = last_parity_log();
     if (!$date) {
-      echo "Parity has not been checked yet.";
+      echo _('Parity has not been checked yet');
     } elseif ($status==0) {
-      echo "Last checked on <strong>".my_time($date).day_count($date,$time)."</strong>, finding <strong>$error</strong> error".($error==1?'.':'s.');
-      echo "<br><i class='fa fa-clock-o'></i> Duration: ".my_check($duration,$speed);
+      echo sprintf(_('Last checked on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1))).'<br> '.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_lang(my_check($duration,$speed),2);
     } else {
-      echo "Last check incomplete on <strong>".my_time($date,$time).day_count($date)."</strong>, finding <strong>$error</strong> error".($error==1?'.':'s.');
-      echo "<br><i class='fa fa-dot-circle-o'></i> Error code: ".my_error($status);
+      echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
     }
   } elseif ($var['sbSynced2']==0) {
     if ($idle) {
       list($entry,$duration,$speed,$status,$error) = explode('|', read_parity_log($var['sbSynced'],!$idle));
       if ($status==0) {
-        echo "Last checked on <strong>".my_time($var['sbSynced'],$time).day_count($var['sbSynced'])."</strong>, finding <strong>$error</strong> error".($error==1?'.':'s.');
-        echo "<br><i class='fa fa-clock-o'></i> Duration: ".my_check($duration,$speed);
+        echo sprintf(_('Last checked on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+        echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_lang(my_check($duration,$speed),2);
       } else {
-        echo "Last check incomplete on <strong>".my_time($var['sbSynced'],$time).day_count($var['sbSynced'])."</strong>, finding <strong>$error</strong> error".($error==1?'.':'s.');
-        echo "<br><i class='fa fa-dot-circle-o'></i> Error code: ".my_error($status);
+        echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+        echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
       }
     } else {
-      echo "Activity started on <strong>".my_time($var['sbSynced'],$time).day_count($var['sbSynced'])."</strong>, finding <span id='errors'><strong>{$var['sbSyncErrs']}</strong> error".($var['sbSyncErrs']==1?'.':'s.')."</span>";
-      echo "<br><i class='fa fa-clock-o'></i> Elapsed time: ".my_clock(floor((time()-$var['sbUpdated'])/60))."<span class='finish'><i class='fa fa-flag-checkered'></i> Estimated finish: ".my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0))."</span>";
+      echo sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),my_lang(my_time($var['sbUpdated']).my_lang(day_count($var['sbSynced']),1))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+      echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": ".my_lang(my_clock(floor((time()-$var['sbUpdated'])/60)),2);
+      echo "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '.my_lang(my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2);
     }
   } else {
     $status = 0;
     $duration = $var['sbSynced2']-$var['sbSynced'];
     $speed = $duration?my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/sec":'';
-    echo "Last checked on <strong>".my_time($var['sbSynced2'],$time).day_count($var['sbSynced2'])."</strong>, finding <strong>{$var['sbSyncErrs']}</strong> error".($var['sbSyncErrs']==1?'.':'s.');
-    echo "<br><i class='fa fa-clock-o'></i> Duration: ".my_check($duration,$speed);
+    echo sprintf(_('Last check completed on **%s**'),my_lang(my_time($var['sbSynced2']).my_lang(day_count($var['sbSynced2']),1))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+    echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_lang(my_check($duration,$speed),2);
   }
   if ($idle) {
-    extract(parse_plugin_cfg('dynamix', true));
     list($m,$h) = explode(' ', $parity['hour']);
     $time = time();
     switch ($parity['mode']) {
     case 0: // check disabled
       echo "\0";
-      echo "<i class='fa fa-warning'></i> Scheduled parity check is disabled";
+      echo "<i class='fa fa-warning'></i> "._('Scheduled parity check is disabled');
       return;
     case 1: // daily check
       $t = mktime($h,$m,0)-$time;
@@ -491,10 +498,8 @@ case 'parity':
       break;
     }
     echo "\0";
-    echo "Next check scheduled on <strong>";
-    echo strftime($_POST['time'],$time+$t);
-    echo "</strong><br><i class='fa fa-clock-o'></i> Due in: ";
-    echo my_clock(floor($t/60));
+    echo sprintf(_('Next check scheduled on **%s**'),my_lang(strftime($_POST['time'],$time+$t)));
+    echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": ".my_lang(my_clock(floor($t/60)),2);
   } else {
     echo "\0";
   }

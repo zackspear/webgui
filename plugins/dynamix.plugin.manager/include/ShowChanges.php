@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'plugins';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/webGui/include/Helpers.php";
 ?>
@@ -29,7 +33,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 $file = $_GET['file'];
 $tmp = $_GET['tmp'] ? '/var/tmp' : '/tmp/plugins/';
 
-if (file_exists($file) && strpos(realpath($file),$tmp)===0 && substr($file,-4)=='.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*No release notes available!*");
+if (file_exists($file) && strpos(realpath($file),$tmp)===0 && substr($file,-4)=='.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*"._('No release notes available')."!*");
 ?>
 <br><div style="text-align:center"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>
 </body>

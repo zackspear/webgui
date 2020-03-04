@@ -3,8 +3,8 @@ Title="SMTP Settings"
 Tag="envelope"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -25,7 +25,7 @@ var counter,pid;
 
 $(function() {
   $('#testbutton').click(function(){
-    $('#testresult').html('Test running:<span class="orange">obtaining <span id="testcounter"></span>...</span>');
+    $('#testresult').html('_(Test running)_:<span class="orange">_(obtaining)_ <span id="testcounter"></span>...</span>');
     counter = 20;
     mailtest();
     $.get('/webGui/include/SMTPtest.php',function(data){clearTimeout(pid); $('#testresult').html(data)});
@@ -36,7 +36,7 @@ $(function() {
 function mailcheck(form) {
   var email = /^\S+@\S+\.\S+/;
   if (!email.test(form.root.value)) {
-    swal({title:"Invalid email address",text:"Please enter a valid sending email address",type:"error"});
+    swal({title:"_(Invalid email address)_",text:"_(Please enter a valid sending email address)_",type:"error"});
     return false;
   }
   return true;
@@ -73,7 +73,7 @@ function settings(form, data) {
 <input type="hidden" name="#include" value="/webGui/include/update.ssmtp.php">
 <input type="hidden" name="#command" value="/webGui/scripts/notify">
 <input type="hidden" name="#arg[1]" value="smtp-init">
-Preset service:
+_(Preset service)_:
 : <select name="service" size="1" onchange="settings(this.form,this.value)">
 <?=mk_option($ssmtp['service'], "smtp.gmail.com:465:YES:NO:login", "Gmail")?>
 <?=mk_option($ssmtp['service'], "smtp.gmail.com:587:YES:YES:login", "Gmail with TLS")?>
@@ -100,91 +100,117 @@ Preset service:
 <?=mk_option($ssmtp['service'], "smtp.mail.com:465:YES:NO:login", "Mail.com")?>
 <?=mk_option($ssmtp['service'], "smtp.gmx.com:465:YES:NO:login", "GMX.com")?>
 <?=mk_option($ssmtp['service'], "smtp.zoho.com:465:YES:NO:login", "zoho Mail")?>
-<?=mk_option($ssmtp['service'], "::NO:NO:none", "Custom")?>
+<?=mk_option($ssmtp['service'], "::NO:NO:none", _("Custom"))?>
 </select>
 
+:help188
 > Select a preset service to set the basic service settings.
+:end
 
-Sending email address:
+_(Sending email address)_:
 : <input type="text" name="root" value="<?=htmlspecialchars($ssmtp['root'])?>">
 
+:help189
 > Email address of your mail account. This address is used as sender of the notifications.
+:end
 
-Email recipients:
+_(Email recipients)_:
 : <input type="text" name="RcptTo" value="<?=htmlspecialchars($ssmtp['RcptTo'])?>">
 
+:help190
 > Recipients of status and error notifications. Specify one or more email addresses, separate multiple email addresses with a space.
+:end
 
-Priority in header:
-: <select name="SetEmailPriority" size="1">
-  <?=mk_option($ssmtp['SetEmailPriority'], "False", "No")?>
-  <?=mk_option($ssmtp['SetEmailPriority'], "True", "Yes")?>
+_(Priority in header)_:
+: <select name="SetEmailPriority">
+  <?=mk_option($ssmtp['SetEmailPriority'], "False", _("No"))?>
+  <?=mk_option($ssmtp['SetEmailPriority'], "True", _("Yes"))?>
   </select>
 
+:help191
 > Set email header with high importance, when there is a problem with unRaid.
+:end
 
-Email subject prefix:
+_(Email subject prefix)_:
 : <input type="text" name="Subject" value="<?=htmlspecialchars($ssmtp['Subject'])?>">
 
+:help192
 > Set a prefix for easy recognition of Unraid messages.
+:end
 
-Mail server:
+_(Mail server)_:
 : <input type="text" name="server" value="<?=htmlspecialchars($ssmtp['server'])?>">
 
+:help193
 > Specify the name of the email server. Use the preset service selection to have this filled-in automatically.
+:end
 
-Mail server port:
+_(Mail server port)_:
 : <input type="text" name="port" class="narrow"  maxlength="5"  value="<?=htmlspecialchars($ssmtp['port'])?>">
 
+:help194
 > Specify the port of the email server. Use the preset service selection to have this filled-in automatically.
+:end
 
-Use SSL/TLS:
-: <select name="UseTLS" size="1">
-  <?=mk_option($ssmtp['UseTLS'], "NO", "No")?>
-  <?=mk_option($ssmtp['UseTLS'], "YES", "Yes")?>
+_(Use SSL/TLS)_:
+: <select name="UseTLS">
+  <?=mk_option($ssmtp['UseTLS'], "NO", _("No"))?>
+  <?=mk_option($ssmtp['UseTLS'], "YES", _("Yes"))?>
   </select>
 
+:help195
 > Specifies whether to use SSL/TLS to talk to the SMTP server.
+:end
 
-Use STARTTLS:
-: <select name="UseSTARTTLS" size="1">
-  <?=mk_option($ssmtp['UseSTARTTLS'], "NO", "No")?>
-  <?=mk_option($ssmtp['UseSTARTTLS'], "YES", "Yes")?>
+_(Use STARTTLS)_:
+: <select name="UseSTARTTLS">
+  <?=mk_option($ssmtp['UseSTARTTLS'], "NO", _("No"))?>
+  <?=mk_option($ssmtp['UseSTARTTLS'], "YES", _("Yes"))?>
   </select>
 
+:help196
 > Specifies whether to use STARTTLS before starting SSL negotiation - See RFC 2487.
+:end
 
-Define a TLS certificate:
-: <select name="UseTLSCert" size="1" onchange="tls(this.form)">
-  <?=mk_option($ssmtp['UseTLSCert'], "NO", "No")?>
-  <?=mk_option($ssmtp['UseTLSCert'], "YES", "Yes")?>
+_(Define a TLS certificate)_:
+: <select name="UseTLSCert" onchange="tls(this.form)">
+  <?=mk_option($ssmtp['UseTLSCert'], "NO", _("No"))?>
+  <?=mk_option($ssmtp['UseTLSCert'], "YES", _("Yes"))?>
   </select>
 
+:help197
 > Select only when you have a certificate which required for communication.
+:end
 
-TLS certificate location:
+_(TLS certificate location)_:
 : <input type="text" name="TLSCert" value="<?=htmlspecialchars($ssmtp['TLSCert'])?>">
 
+:help198
 > The file name of an RSA certificate to use for TLS - as required.
+:end
 
-Authentication method:
-: <select name="AuthMethod" size="1" onchange="pwd(this.form)">
-  <?=mk_option($ssmtp['AuthMethod'], "none", "None")?>
-  <?=mk_option($ssmtp['AuthMethod'], "cram-md5", "CRAM-MD5")?>
-  <?=mk_option($ssmtp['AuthMethod'], "login", "Login")?>
+_(Authentication method)_:
+: <select name="AuthMethod" onchange="pwd(this.form)">
+  <?=mk_option($ssmtp['AuthMethod'], "none", _("None"))?>
+  <?=mk_option($ssmtp['AuthMethod'], "cram-md5", _("CRAM-MD5"))?>
+  <?=mk_option($ssmtp['AuthMethod'], "login", _("Login"))?>
   </select>
 
+:help199
 > Select the correct authentication method for your email server. Use test to verify that access is working properly.
+:end
 
-Username:
+_(Username)_:
 : <input type="text" name="AuthUser" value="<?=htmlspecialchars($ssmtp['AuthUser'])?>">
 
-Password:
+_(Password)_:
 : <input type="password" name="AuthPass" value="<?=htmlspecialchars($ssmtp['AuthPass'])?>">
 
+:help200
 > Enter the username and password to login to your email account. Be aware that the password is stored unencrypted in the email configuration file.
+:end
 
 &nbsp;
-: <input type="submit" name="#apply" value="Apply" disabled><input type="button" value="Done" onclick="done()">
-  <span id="testresult"><input type="button" id="testbutton" value="Test"<?if ($incomplete):?> disabled<?endif;?>></span>
+: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+  <span id="testresult"><input type="button" id="testbutton" value="_(Test)_"<?if ($incomplete):?> disabled<?endif;?>></span>
 </form>

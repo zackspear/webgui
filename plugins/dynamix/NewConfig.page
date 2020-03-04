@@ -4,8 +4,8 @@ Icon="icon-config"
 Tag="cog"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -27,7 +27,7 @@ if ($newarray) {
 }
 ?>
 <style>
-span.indent{display:inline-block;width:240px;margin-top:11px;}
+span.indent{display:inline-block;width:240px;margin-top:30px;}
 </style>
 
 <script>
@@ -42,13 +42,14 @@ function prepareNewConfig(form) {
   form.preset.disabled = true;
 }
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'...close'});
+  $('#s1').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'..._(close)_'});
 <?if ($disabled):?>
   $('#s1').dropdownchecklist('disable');
 <?endif;?>
 });
 </script>
 
+:plug4
 This is a utility to reset the array disk configuration so that all disks appear as "New" disks, as
 if it were a fresh new server.
 
@@ -59,6 +60,7 @@ Use the *'Preserve current assignments'* selection to populate the desired disk 
 
 **DO NOT USE THIS UTILITY THINKING IT WILL REBUILD A FAILED DRIVE** - it will have the opposite
 effect of making it ***impossible*** to rebuild an existing failed drive - you have been warned!
+:end
 
 <hr>
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
@@ -66,20 +68,20 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <input type="hidden" name="preserveData" value="yes" disabled>
 <input type="hidden" name="preserveCache" value="yes" disabled>
 
-<span class="indent">Preserve current assignments:</span>
-<select id="s1" name="preset" size="1" multiple="multiple" style="display:none">
-<option value=''>All</option>
-<?=mk_option_check(0,'parity','Parity slots')?>
-<?=mk_option_check(0,'data','Data slots')?>
-<?=mk_option_check(0,'cache','Cache slots')?>
+<span class="indent">_(Preserve current assignments)_:</span>
+<select id="s1" name="preset" multiple="multiple" style="display:none">
+<option value=''>_(All)_</option>
+<?=mk_option_check(0,'parity',_('Parity slots'))?>
+<?=mk_option_check(0,'data',_('Data slots'))?>
+<?=mk_option_check(0,'cache',_('Cache slots'))?>
 </select>
 <br>
-<span class="indent"><input type="submit" class="lock" name="cmdInit" value="Apply" disabled><input type="button" class="lock" value="Done" onclick="done()"></span>
+<span class="indent"><input type="submit" class="lock" name="cmdInit" value="_(Apply)_" disabled><input type="button" class="lock" value="_(Done)_" onclick="done()"></span>
 <?if ($newarray):?>
-Array has been <span class='strong big'>Reset</span> (please configure)
+_(Array has been **Reset**)_ (_(please configure)_)
 <?elseif ($disabled):?>
-Array must be <span class='strong big'>Stopped</span>
+_(Array must be **Stopped** to change)_
 <?else:?>
-<input type="checkbox" onClick="cmdInit.disabled=!this.checked"><small>Yes I want to do this</small>
+<input type="checkbox" onClick="cmdInit.disabled=!this.checked"><small>_(Yes, I want to do this)_</small>
 <?endif;?>
 </form>

@@ -41,7 +41,7 @@ function showCPUs($uuid) {
   echo "</div>";
 }
 $uuid = $_GET['uuid'];
-$subaction = $_GET['subaction'] ?? '';
+$subaction = $_GET['subaction'] ?? false;
 if ($_GET['refresh']) {
   $vm = $_GET['name'];
   if ($lv->domain_is_active($vm)) {
@@ -97,7 +97,7 @@ if (empty($vms)) {
 <style>
 th.th1{width:25%}
 th.th2{width:15%}
-th.th3{width:70px}
+th.th3{width:80px}
 div.four{font-size:1.1rem;width:260px}
 div.four label{float:left;display:table-cell;width:25%}
 div.four label:nth-child(4n+4){float:none;clear:both}
@@ -112,12 +112,12 @@ table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
 table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Name</th><th class="th2">Description</th><th>CPUs</th><th>Memory</th><th>vDisks</th><th>Graphics</th><th class="th3">Autostart</th></tr></thead>
+<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
-<input type="button" onclick="addVM()" id="btnAddVM" value="Add VM" style="display:none">
-<input type="button" onclick="startAll()" value="Start All" style="display:none">
-<input type="button" onclick="stopAll()" value="Stop All" style="display:none">
+<input type="button" onclick="addVM()" id="btnAddVM" value="_(Add VM)_" style="display:none">
+<input type="button" onclick="startAll()" value="_(Start All)_" style="display:none">
+<input type="button" onclick="stopAll()" value="_(Stop All)_" style="display:none">
 
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
@@ -182,7 +182,7 @@ function loadlist() {
       functionBefore:function(instance,helper){instance.content("<?=showCPUs($uuid)?>");}
     });
 <?}?>
-    $('.autostart').switchButton({labels_placement:"right"});
+    $('.autostart').switchButton({labels_placement:'right', on_label:'_(On)_', off_label:'_(Off)_'});
     $('.autostart').change(function() {
       $.post('/plugins/dynamix.vm.manager/include/VMajax.php',{action:'domain-autostart',uuid:$(this).attr('uuid'),autostart:$(this).prop('checked'),response:'json'},function(data){
         $(this).prop('checked', data.autostart);
@@ -198,7 +198,7 @@ function loadlist() {
 $(function() {
 <?if ($msg):?>
   <?$color = strpos($msg, "rror:")!==false ? 'red-text':'green-text'?>
-  $('#countdown').html("<span class='<?-$color?>'><?=$msg?></span>");
+  $('#countdown').html("<span class='<?-$color?>'><?=_($msg)?></span>");
 <?endif;?>
   $('#btnAddVM').click(function AddVMEvent(){$('.tab>input#tab2').click();});
   loadlist();

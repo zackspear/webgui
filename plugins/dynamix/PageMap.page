@@ -4,8 +4,8 @@ Icon="icon-pagemap"
 Tag="map-o"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -50,4 +50,4 @@ show_map("Tasks", 1);
 show_map("Buttons", 1);
 echo "</div>";
 ?>
-<input type="button" value="Done" onclick="done()">
+<input type="button" value="_(Done)_" onclick="done()">

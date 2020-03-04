@@ -20,7 +20,7 @@ Markdown="false"
 <?
 $width = strstr('white,black',$display['theme']) ? -58: -44;
 $top = strstr('white,black',$display['theme']) ? 40 : 20;
-$busy = "<i class='fa fa-spin fa-circle-o-notch'></i> Please wait... starting up containers";
+$busy = "<i class='fa fa-spin fa-circle-o-notch'></i> "._('Please wait')."... "._('starting up containers');
 $cpus = cpu_list();
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
@@ -40,17 +40,17 @@ table tbody td{line-height:normal}
 <div id="iframe-popup" style="display:none;-webkit-overflow-scrolling:touch;"></div>
 <span class="status" style="margin-top:<?=$width?>px"><span><input type="checkbox" class="advancedview"></span></span>
 <table id="docker_containers" class="tablesorter shift">
-<thead><tr><th><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>Application</th><th>Version</th><th>Network</th><th>Port Mappings <small>(App to Host)</small></th><th>Volume Mappings <small>(App to Host)</small></th><th class="load advanced">CPU & Memory load</th><th class="nine">Autostart</th><th class="five">Log</th></tr></thead>
+<thead><tr><th><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Log)_</th></tr></thead>
 <tbody id="docker_list"><tr><td colspan='9'></td></tr></tbody>
 </table>
-<input type="button" onclick="addContainer()" value="Add Container" style="display:none">
-<input type="button" onclick="startAll()" value="Start All" style="display:none">
-<input type="button" onclick="stopAll()" value="Stop All" style="display:none">
-<input type="button" onclick="pauseAll()" value="Pause All" style="display:none">
-<input type="button" onclick="resumeAll()" value="Resume All" style="display:none">
-<input type="button" onclick="checkAll()" value="Check for Updates" id="checkAll" style="display:none">
-<input type="button" onclick="updateAll()" value="Update All" id="updateAll" style="display:none">
-<input type="button" onclick="sizes()" value="Container Size" style="display:none">
+<input type="button" onclick="addContainer()" value="_(Add Container)_" style="display:none">
+<input type="button" onclick="startAll()" value="_(Start All)_" style="display:none">
+<input type="button" onclick="stopAll()" value="_(Stop All)_" style="display:none">
+<input type="button" onclick="pauseAll()" value="_(Pause All)_" style="display:none">
+<input type="button" onclick="resumeAll()" value="_(Resume All)_" style="display:none">
+<input type="button" onclick="checkAll()" value="_(Check for Updates)_" id="checkAll" style="display:none">
+<input type="button" onclick="updateAll()" value="_(Update All)_" id="updateAll" style="display:none">
+<input type="button" onclick="sizes()" value="_(Container Size)_" style="display:none">
 
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/docker.js')?>"></script>
@@ -118,7 +118,7 @@ function loadlist() {
     $('.iconstatus').each(function(){
       if ($(this).hasClass('stopped')) $('div.'+$(this).prop('id')).hide();
     });
-    $('.autostart').switchButton({labels_placement:'right'});
+    $('.autostart').switchButton({labels_placement:'right', on_label:'_(On)_', off_label:'_(Off)_'});
     $('.autostart').change(function(){
       var more = $.cookie('docker_listview_mode')=='advanced';
       var wait = $('#'+$(this).prop('id').replace('auto','wait'));
@@ -145,7 +145,7 @@ function loadlist() {
   });
 }
 function sizes() {
-  openBox('/plugins/dynamix.docker.manager/include/ContainerSize.php','Container Size',600,600);
+  openBox('/plugins/dynamix.docker.manager/include/ContainerSize.php','_(Container Size)_',600,600);
 }
 var watchDocker = new NchanSubscriber('/sub/dockerload');
 watchDocker.on('message', function(data){
@@ -159,7 +159,7 @@ watchDocker.on('message', function(data){
   }
 });
 $(function() {
-  $('.advancedview').switchButton({labels_placement:'left', on_label:'Advanced View', off_label:'Basic View', checked:$.cookie('docker_listview_mode')=='advanced'});
+  $('.advancedview').switchButton({labels_placement:'left', on_label:'_(Advanced View)_', off_label:'_(Basic View)_', checked:$.cookie('docker_listview_mode')=='advanced'});
   $('.advancedview').change(function(){
     $('.advanced').toggle('slow');
     $('.basic').toggle('slow');

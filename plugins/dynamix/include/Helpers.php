@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -189,54 +189,6 @@ function urlencode_path($path) {
 function pgrep($process_name, $escape_arg=true) {
   $pid = exec("pgrep ".($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
-}
-function input_secure_users($sec) {
-  global $name, $users;
-  echo "<table class='settings'>";
-  $write_list = explode(",", $sec[$name]['writeList']);
-  foreach ($users as $user) {
-    $idx = $user['idx'];
-    if ($user['name'] == "root") {
-      echo "<input type='hidden' name='userAccess.$idx' value='no-access'>";
-      continue;
-    }
-    if (in_array( $user['name'], $write_list))
-      $userAccess = "read-write";
-    else
-      $userAccess = "read-only";
-    echo "<tr><td>{$user['name']}</td>";
-    echo "<td><select name='userAccess.$idx' size='1'>";
-    echo mk_option($userAccess, "read-write", "Read/Write");
-    echo mk_option($userAccess, "read-only", "Read-only");
-    echo "</select></td></tr>";
-  }
-  echo "</table>";
-}
-function input_private_users($sec) {
-  global $name, $users;
-  echo "<table class='settings'>";
-  $read_list = explode(",", $sec[$name]['readList']);
-  $write_list = explode(",", $sec[$name]['writeList']);
-  foreach ($users as $user) {
-    $idx = $user['idx'];
-    if ($user['name'] == "root") {
-      echo "<input type='hidden' name='userAccess.$idx' value='no-access'>";
-      continue;
-    }
-    if (in_array( $user['name'], $read_list))
-      $userAccess = "read-only";
-    elseif (in_array( $user['name'], $write_list))
-      $userAccess = "read-write";
-    else
-      $userAccess = "no-access";
-    echo "<tr><td>{$user['name']}</td>";
-    echo "<td><select name='userAccess.$idx' size='1'>";
-    echo mk_option($userAccess, "read-write", "Read/Write");
-    echo mk_option($userAccess, "read-only", "Read-only");
-    echo mk_option($userAccess, "no-access", "No Access");
-    echo "</select></td></tr>";
-  }
-  echo "</table>";
 }
 function is_block($path) {
   return (@filetype(realpath($path))=='block');

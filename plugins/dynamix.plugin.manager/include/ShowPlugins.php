@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'plugins';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
@@ -93,13 +97,13 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   else
     $desc = Markdown("**{$name}**");
 //author
-  $author = plugin('author',$plugin_file) ?: "anonymous";
+  $author = plugin('author',$plugin_file) ?: _('anonymous');
 //version
-  $version = plugin('version',$plugin_file) ?: "unknown";
+  $version = plugin('version',$plugin_file) ?: _('unknown');
   $date = str_replace('.','',$version);
 //support
   $support = plugin('support',$plugin_file) ?: "";
-  $support = $support ? "<a href='$support' target='_blank'>Support Thread</a>" : "";
+  $support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
 //category
   $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
 //status
@@ -143,7 +147,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
   echo "<td>$author</td>";
   echo "<td data='$date'>$version</td>";
-  echo "<td data='$rank'>$status</td>";
+  echo "<td data='$rank'>"._($status)."</td>";
   echo "<td>";
   if ($system) {
     if ($os) {

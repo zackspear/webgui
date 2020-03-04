@@ -17,7 +17,7 @@ Tag="user"
 
 <?
 $void = "<img src='/webGui/images/user.png' width='48' height='48' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='Click to select PNG file'>";
-$icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
+$icon = "<i class='fa fa-trash top' title='_(Restore default image)_' onclick='restore()'></i>";
 $zxcvbn = file_exists('/boot/config/plugins/dynamix/zxcvbn.js');
 ?>
 
@@ -47,28 +47,27 @@ var filename = '';
 
 function showPassword() {
   if ($('#showPass').hasClass('checked')) {
-    $('#showPass').removeClass('checked');
+    $('#showPass').removeClass('checked fa-eye-slash').addClass('fa-eye');
     var type = 'password';
   } else {
-    $('#showPass').addClass('checked');
+    $('#showPass').addClass('checked fa-eye-slash').removeClass('fa-eye');
     var type = 'text';
   }
   $('input[name="userPasswordGUI"]').attr('type',type);
   $('input[name="userPasswordConfGUI"]').attr('type',type);
 }
-
 function checkUsername(form) {
   var username = form.userName.value.trim();
   if (!username.match('^[a-z_][a-z0-9_-]*[$]?$')) {
-    swal({title:"Invalid user name",text:"Use only lowercase letters, digits, underscores and dashes",type:"error"});
+    swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error"});
     return false;
   }
   if (username.match('^(disk[0-9]+|cache[0-9]*|parity[0-9]*|flash)$')) {
-    swal({title:"Invalid user name",text:"Do not use reserved names",type:"error"});
+    swal({title:"_(Invalid user name)_",text:"_(Do not use reserved names)_",type:"error"});
     return false;
   }
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
-    swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
+    swal({title:"_(Password too long)_",text:"_(Use a password up to 128 characters)_",type:"error"});
     return false;
   }
   if (filename) {
@@ -80,7 +79,6 @@ function checkUsername(form) {
   form.userPasswordConfGUI.disabled = true;
   return true;
 }
-
 function validatePassword(input) {
 <?if ($zxcvbn):?>
   var custom = ['unraid','limetech','lime-technology','bergware','squidly'];
@@ -105,13 +103,11 @@ function validatePassword(input) {
   }
 <?endif;?>
 }
-
 function restore() {
   // restore original image
   $('#dropbox').html("<?=$void?>");
   filename = '';
 }
-
 $(function(){
   var dropbox = $('#dropbox');
   // attach the drag-n-drop feature to the 'dropbox' element
@@ -129,13 +125,13 @@ $(function(){
     error: function(error, file, i) {
       switch (error) {
       case 'BrowserNotSupported':
-        swal({title:"Browser error",text:"Your browser does not support HTML5 file uploads!",type:"error"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error"});
         break;
       case 'TooManyFiles':
-        swal({title:"Too many files",text:"Please select one file only!",type:"error"});
+        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"File too large",text:"Maximum file upload size is 95 kB (97,280 bytes)",type:"error"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 95 kB)_ (97,280 _(bytes)_)",type:"error"});
         break;
       }
     },
@@ -153,7 +149,7 @@ $(function(){
         $('input[name="userDesc"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"Upload error",text:response,type:"error"});
+        swal({title:"_(Upload error)_",text:response,type:"error"});
       }
     }
   });
@@ -166,33 +162,41 @@ $(function(){
 </script>
 
 <form markdown="1" name="user_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkUsername(this)">
-User name:
+_(User name)_:
 : <input type="text" name="userName" maxlength="32" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')" pattern="^[a-z_][a-z0-9_-]*[$]?$">
 
+:help1
 > Usernames may be up to 32 characters long and must start with a **lower case letter** or an underscore,
 > followed by **lower case letters**, digits, underscores, or dashes. They can end with a dollar sign.
+:end
 
-Description:
+_(Description)_:
 : <input type="text" name="userDesc" maxlength="64" pattern='[^&:"]*'>
 
+:help2
 > Up to 64 characters. The characters ampersand (&amp;) quote (&quot;) and colon (:) are not allowed.
+:end
 
-Custom image:
-: <span id="dropbox"><?=$void?></span><em>Drag-n-drop a PNG file or click the image at the left.</em><input type="file" id="drop" accept=".png" style="display:none">
+_(Custom image)_:
+: <span id="dropbox"><?=$void?></span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept=".png" style="display:none">
 
+:help3
 > The image will be scaled to 48x48 pixels in size. The maximum image file upload size is 95 kB (97,280 bytes).
+:end
 
-Password:
+_(Password)_:
 <input type="hidden" name="userPassword" value="">
 : <input type="password" name="userPasswordGUI" maxlength="129" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
-  <i id="showPass" class="fa fa-eye" style="cursor:pointer" title="Show / Hide password" onclick="showPassword()"></i><span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
+  <i id="showPass" class="fa fa-eye" style="cursor:pointer" title="_(Show / Hide password)_" onclick="showPassword()"></i><span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
 
+:help4
 > Up to 128 characters.
+:end
 
-Retype password:
+_(Retype password)_:
 <input type="hidden" name="userPasswordConf" value="">
 : <input type="password" name="userPasswordConfGUI" maxlength="129" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
 
 &nbsp;
-: <input type="submit" name="cmdUserEdit" value="Add" disabled><input type="button" value="Done" onclick="done('UserAdd')">
+: <input type="submit" name="cmdUserEdit" value="_(Add)_" onclick="this.value='Add'" disabled><input type="button" value="_(Done)_" onclick="done('UserAdd')">
 </form>

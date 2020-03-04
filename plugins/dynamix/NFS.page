@@ -4,8 +4,8 @@ Icon="icon-linux"
 Tag="linux"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,23 +18,26 @@ Tag="linux"
 <script>
 function checkNFSenable() {	
   var form = document.nfs_enable;
-  form.fuse_remember.disabled = form.shareNFSEnabled.value=="no";	
+  form.fuse_remember.disabled = form.shareNFSEnabled.value=="_(no)_";	
 }
 $(checkNFSenable);
 </script>
 
 <form markdown="1" name="nfs_enable" method="POST" action="/update.htm" target="progressFrame">
-Enable NFS:
-: <select name="shareNFSEnabled" size="1" onchange="checkNFSenable()">
-  <?=mk_option($var['shareNFSEnabled'], "no", "No");?>
-  <?=mk_option($var['shareNFSEnabled'], "yes", "Yes");?>
+_(Enable NFS)_:
+: <select name="shareNFSEnabled" onchange="checkNFSenable()">
+  <?=mk_option($var['shareNFSEnabled'], "no", _('No'));?>
+  <?=mk_option($var['shareNFSEnabled'], "yes", _('Yes'));?>
   </select>
 
+:help83
 > Select 'Yes' to enable the NFS protocol.
+:end
 
-Tunable (fuse_remember):
-: <input type="text" name="fuse_remember" maxlength="10" value="<?=$var['fuse_remember']?>" class="narrow"><?=$var['fuse_remember_status']?>
+_(Tunable (fuse_remember))_:
+: <input type="text" name="fuse_remember" maxlength="10" value="<?=$var['fuse_remember']?>" class="narrow"><?=_($var['fuse_remember_status'])?>
 
+:help84
 > When NFS is enabled, this Tunable may be used to alleviate or solve instances of "NFS Stale File Handles"
 > you might encounter with your NFS client.
 > 
@@ -57,7 +60,8 @@ Tunable (fuse_remember):
 > your client.  Be aware that setting a value of -1 will cause the memory footprint to grow by approximatel
 > 108 bytes per file/directory name cached.  Depending how much RAM is installed in your server and how many
 > files/directories you access via NFS this may or may not lead to out-of-memory conditions.
+:end
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

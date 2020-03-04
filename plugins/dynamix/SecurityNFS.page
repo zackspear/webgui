@@ -18,6 +18,7 @@ Cond="(($var['shareNFSEnabled']!='no') && (isset($name)?array_key_exists($name,$
 <?
 $width = [123,300];
 ?>
+:help29
 > *Read settings from* is used to preset the NFS security settings of the current selected share with the settings of an existing share.
 >
 > Select the desired share name and press **Read** to copy the NFS security settings from the selected source.
@@ -25,67 +26,68 @@ $width = [123,300];
 > *Write settings to* is used to copy the NFS security settings of the current selected share to one or more other existing shares.
 >
 > Select the desired destinations and press **Write** to copy the NFS security settings to the selected shares.
+:end
 
 <div class="clone1">
-<span class="clone">Read settings from</span><i class="fa fa-arrow-left fa-fw"></i>
-<span class="wrap"><select name="readnfs" size="1" class="clone" onchange="toggleButton('readnfs',false)">
-<option disabled selected>select...</option>
+<span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
+<span class="wrap"><select name="readnfs" class="clone" onchange="toggleButton('readnfs',false)">
+<option disabled selected>_(select)_...</option>
 <?
 if (isset($disks[$name])) {
-  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], my_lang(my_disk($list['name']),3));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
 }
 ?>
-</select></span><input type="button" id="readnfs" value="Read" class="clone" onclick="readNFS()" disabled>
+</select></span><input type="button" id="readnfs" value="_(Read)_" class="clone" onclick="readNFS()" disabled>
 </div>
 <div class="clone2">
-<span class="clone">Write settings to</span><i class="fa fa-arrow-right fa-fw"></i>
-<span class="wrap"><select id="nfs1" name="writenfs" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writenfs',this.id)">
+<span class="clone">_(Write settings to)_</span><i class="fa fa-arrow-right fa-fw"></i>
+<span class="wrap"><select id="nfs1" name="writenfs" multiple="multiple" style="display:none" onchange="toggleButton('writenfs',this.id)">
 <?
 $rows = [];
 if (isset($disks[$name])) {
-  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], my_disk($list['name']));
+  foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], my_lang(my_disk($list['name']),3));
 } else {
   foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
 }
-if ($rows) echo "<option>(All)</option>";
+if ($rows) echo "<option>("._('All').")</option>";
 foreach ($rows as $row) echo $row;
 ?>
-</select></span><input type="button" id="writenfs" value="Write" class="clone" onclick="writeNFS()" disabled>
+</select></span><input type="button" id="writenfs" value="_(Write)_" class="clone" onclick="writeNFS()" disabled>
 </div>
 
 <form markdown="1" name="nfs_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writenfs',true);$('#nfs1').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 
-Share name:
-: <span class="big"><?=htmlspecialchars($name)?></span>
+_(Share name)_:
+: <?=htmlspecialchars($name)?>
 
-Export:
-: <select name="shareExportNFS" size="1">
-  <?=mk_option($sec_nfs[$name]['export'], "-", "No");?>
-  <?=mk_option($sec_nfs[$name]['export'], "e", "Yes");?>
+_(Export)_:
+: <select name="shareExportNFS">
+  <?=mk_option($sec_nfs[$name]['export'], "-", _('No'));?>
+  <?=mk_option($sec_nfs[$name]['export'], "e", _('Yes'));?>
   </select>
 
-Security:
-: <select name="shareSecurityNFS" size="1">
-  <?=mk_option($sec_nfs[$name]['security'], "public", "Public");?>
-  <?=mk_option($sec_nfs[$name]['security'], "secure", "Secure");?>
-  <?=mk_option($sec_nfs[$name]['security'], "private", "Private");?>
+_(Security)_:
+: <select name="shareSecurityNFS">
+  <?=mk_option($sec_nfs[$name]['security'], "public", _('Public'));?>
+  <?=mk_option($sec_nfs[$name]['security'], "secure", _('Secure'));?>
+  <?=mk_option($sec_nfs[$name]['security'], "private", _('Private'));?>
   </select>
 
 &nbsp;
-: <input type="submit" name="changeShareSecurityNFS" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changeShareSecurityNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
 <?if ($sec_nfs[$name]['security']=="private"):?>
 <form markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
-Rule:
+_(Rule)_:
 : <input type="text" name="shareHostListNFS" maxlength="256" value="<?=htmlspecialchars($sec_nfs[$name]['hostList'])?>">
 
 &nbsp;
-: <input type="submit" name="changeShareAccessNFS" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 <?endif;?>
 
@@ -104,7 +106,7 @@ function initDropdownNFS(reset) {
   if (reset) {
     $('#nfs1').dropdownchecklist('destroy');
   }
-  $("#nfs1").dropdownchecklist({firstItemChecksAll:true, emptyText:'select...', width:<?=$width[0]?>, explicitClose:'...close'});
+  $("#nfs1").dropdownchecklist({firstItemChecksAll:true, emptyText:'_(select)_...', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
 }
 function readNFS() {
   var form = document.nfs_edit;
@@ -127,7 +129,7 @@ function writeNFS(data,n,i) {
   } else {
     var data = [], i = 0;
     $('select#nfs1 option').map(function(i) {
-      if ($(this).prop('selected')==true && $(this).val()!='(All)') {
+      if ($(this).prop('selected')==true && $(this).val()!='(_(All)_)') {
         data[i] = {};
         data[i]['shareName'] = $(this).val();
         data[i]['shareExportNFS'] = '<?=addslashes(htmlspecialchars($sec_nfs[$name]['export']))?>';

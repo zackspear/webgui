@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,9 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
 
 function PsExecute($command, $timeout = 20, $sleep = 2) {
   exec($command.'>/dev/null & echo $!',$op);
@@ -36,8 +39,8 @@ function PsKill($pid) {
 if (PsExecute("$docroot/webGui/scripts/notify -s 'Unraid SMTP Test' -d 'Test message received!' -i 'alert' -t")) {
   $result = exec("tail -3 /var/log/syslog|awk '/sSMTP/ {getline;print}'|cut -d']' -f2|cut -d'(' -f1");
   $color = strpos($result, 'Sent mail') ? 'green' : 'red';
-  echo "Test result<span class='$color'>$result</span>";
+  echo _("Test result")."<span class='$color'>$result</span>";
 } else {
-  echo "Test result<span class='red'>: No reply from mail server</span>";
+  echo _("Test result")."<span class='red'>: "._('No reply from mail server')."</span>";
 }
 ?>

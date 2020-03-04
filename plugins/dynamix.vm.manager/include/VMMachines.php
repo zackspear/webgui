@@ -13,13 +13,18 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'vms';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 
 $user_prefs = '/boot/config/plugins/dynamix.vm.manager/userprefs.cfg';
 $vms = $lv->get_domains();
 if (empty($vms)) {
-  echo '<tr><td colspan="8" style="text-align:center;padding-top:12px">No Virtual Machines installed</td></tr>';
+  echo '<tr><td colspan="8" style="text-align:center;padding-top:12px">'._('No Virtual Machines installed').'</td></tr>';
   return;
 }
 if (file_exists($user_prefs)) {
@@ -103,7 +108,7 @@ foreach ($vms as $vm) {
 
   /* VM information */
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'>";
-  echo "<span class='outer'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>$status</span></span></span></td>";
+  echo "<span class='outer'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
@@ -115,7 +120,7 @@ foreach ($vms as $vm) {
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
   echo "<td colspan='8' style='margin:0;padding:0'>";
   echo "<table class='tablesorter domdisk' id='domdisk_table'>";
-  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>Disk devices</b></th><th>Bus</th><th>Capacity</th><th>Allocation</th></tr></thead>";
+  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th></tr></thead>";
   echo "<tbody id='domdisk_list'>";
 
   /* Display VM disks */

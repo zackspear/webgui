@@ -18,10 +18,10 @@ Tag="clock-o"
 <?$keys = explode("\n", file_get_contents('webGui/include/timezones.key'));?>
 
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
-Current date and time:
-: <?=my_time(time())?>
+_(Current date and time)_:
+: <?=my_lang(my_time(time()))?>
 
-Time zone:
+_(Time zone)_:
 : <select name="timeZone" size="1"><?
   foreach ($keys as $key) {
     list($timezone, $city) = explode('|', $key);
@@ -29,46 +29,60 @@ Time zone:
   }
 ?></select>
 
+:help4
 > Select your applicable time zone from the drop-down list.
+:end
 
-Use NTP:
+_(Use NTP)_:
 : <select name="USE_NTP" size="1" onchange="checkDateTimeSettings(this.form)">
-  <?=mk_option($var['USE_NTP'], "yes", "Yes")?>
-  <?=mk_option($var['USE_NTP'], "no", "No")?>
+  <?=mk_option($var['USE_NTP'], "yes", _('Yes'))?>
+  <?=mk_option($var['USE_NTP'], "no", _('No'))?>
   </select>
 
+:help5
 > Select 'Yes' to use Network Time Protocol to keep your server time accurate.
 > We **highly** recommend the use of a network time server, especially if you plan on using Active Directory.
 >
 > Note: if using `pool.ntp.org` time servers, please also refer to [their documentation](http://www.pool.ntp.org/en/use.html).
+:end
 
-NTP server 1:
+_(NTP server)_ 1:
 : <input type="text" name="NTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
 
+:help6
 > This is the primary NTP server to use.  Enter a FQDN or an IP address.
+:end
 
-NTP server 2:
+_(NTP server)_ 2:
 : <input type="text" name="NTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
 
+:help7
 > This is the alternate NTP server to use if NTP Server 1 is down.
+:end
 
-NTP server 3:
+_(NTP server)_ 3:
 : <input type="text" name="NTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
 
+:help8
 > This is the alternate NTP Server to use if NTP Servers 1 and 2 are both down.
+:end
 
-NTP server 4:
+_(NTP server)_ 4:
 : <input type="text" name="NTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
 
+:help9
 > This is the alternate NTP Server to use if NTP Servers 1, 2, and 3 are all down.
+:end
 
-New date and time:
+_(New date and time)_:
 : <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(), "%F %T")?>">
 
+:help10
 > Enter the current time-of-day.  Use format YYYY-MM-DD HH:MM:SS. Greyed out when using NTP.
+:end
 
 &nbsp;
-: <input type="submit" name="setDateTime" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="setDateTime" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
 <script>

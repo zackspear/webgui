@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,9 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
 
 function scan($line, $text) {
   return stripos($line,$text)!==false;
@@ -70,7 +73,7 @@ case 'vm':
     }
   } else $stopped = true;
   if (!$stopped) {
-    $reply = ['error' => "Failed to stop '$name'"];
+    $reply = ['error' => _('Failed to stop')." '$name'"];
     break;
   }
   $lv->nvram_backup($uuid);
