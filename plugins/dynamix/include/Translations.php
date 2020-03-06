@@ -12,6 +12,7 @@
 ?>
 <?
 session_start();
+session_write_close();
 
 function _($text) {
   global $language;
