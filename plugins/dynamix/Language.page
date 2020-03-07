@@ -17,16 +17,16 @@ Tag="language"
 ?>
 <?
 $installed = ['English'];
-$keys = parse_ini_file('webGui/include/languages.key');
+$keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
 
-foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = $keys[basename($dir)];
+foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = rtrim(strtok($keys[basename($dir)],'('));
 ?>
 <style>
 select.wide{min-width:<?=$themes2?'314':'300'?>px}
 </style>
 <script>
 var keys = {};
-<?foreach ($keys as $key => $name) echo "keys['$key'] = '$keys[$key]'\n";?>
+<?foreach ($keys as $key => $name) echo "keys['$key'] = '".rtrim(strtok($keys[$key],'('))."'\n";?>
 
 function upload(form) {
   var language = form.language.value;

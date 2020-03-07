@@ -18,7 +18,7 @@ Tag="desktop"
 <?
 $void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='Click to select PNG file'>";
 $icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
-$keys = parse_ini_file('webGui/include/languages.key');
+$keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
 ?>
 <style>
 span#dropbox{margin-right:20px;}
