@@ -103,7 +103,7 @@ _(Time Machine volume size limit)_:
 :end
 
 <?endif;?>
-<?if ($name != 'flash'):?>
+<?if ($name!='flash'):?>
 _(Case-sensitive names)_:
 : <select name="shareCaseSensitive">
   <?=mk_option($sec[$name]['caseSensitive'], "auto", _("Auto"))?>
