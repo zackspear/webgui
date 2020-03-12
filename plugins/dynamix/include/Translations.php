@@ -40,14 +40,8 @@ function my_lang($text,$do=0) {
       [$word,$that] = explode(':',$day);
       if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     }
-    if (isset($language['today'])) $text = str_replace('today',$language['today'],$text);
-    if (isset($language['yesterday'])) $text = str_replace('yesterday',$language['yesterday'],$text);
-    if (isset($language['day ago'])) $text = str_replace('day ago',$language['day ago'],$text);
-    if (isset($language['days ago'])) $text = str_replace('days ago',$language['days ago'],$text);
-    if (isset($language['week ago'])) $text = str_replace('week ago',$language['week ago'],$text);
-    if (isset($language['weeks ago'])) $text = str_replace('weeks ago',$language['weeks ago'],$text);
-    if (isset($language['month ago'])) $text = str_replace('month ago',$language['month ago'],$text);
-    if (isset($language['months ago'])) $text = str_replace('months ago',$language['months ago'],$text);
+    $keys = ['today','yesterday','day ago','days ago','week ago','weeks ago','month ago','months ago'];
+    foreach ($keys as $key) if (isset($language[$key])) $text = str_replace($key,$language[$key],$text);
     break;
   case 1: // number translation
     $numbers = isset($language['Numbers_array']) ? explode(' ',$language['Numbers_array']) : [];
@@ -97,7 +91,8 @@ if ($locale) {
   if (!file_exists($jscript)) {
     // create javascript file with translations
     $source = [];
-    foreach (glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT) as $js) $source = array_merge($source,parse_lang_file($js));
+    $files = glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT);
+    foreach ($files as $js) $source = array_merge($source,parse_lang_file($js));
     if (count($source)) {
       $script = ['function _(t){var l={};'];
       foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
