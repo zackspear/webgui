@@ -76,8 +76,9 @@ function translate($key) {
   return !$plug;
 }
 $language = [];
-$locale = $_SESSION['locale'];
-$return = 'function _(t){return t;}';
+$locale   = $_SESSION['locale'];
+$return   = 'function _(t){return t;}';
+$jscript  = "$docroot/webGui/javascript/translate.en.js";
 
 if ($locale) {
   // split URI into translation levels
@@ -89,8 +90,8 @@ if ($locale) {
     if (!file_exists($basis)) file_put_contents($basis,serialize(parse_lang_file($text)));
     $language = unserialize(file_get_contents($basis));
   }
-  $jsOut = "$docroot/webGui/javascript/translate.$locale.js";
-  if (!file_exists($jsOut)) {
+  $jscript = "$docroot/webGui/javascript/translate.$locale.js";
+  if (!file_exists($jscript)) {
     // create javascript file with translations
     $source = [];
     foreach (glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT) as $js) $source = array_merge($source,parse_lang_file($js));
@@ -98,9 +99,9 @@ if ($locale) {
       $script = ['function _(t){var l={};'];
       foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
       $script[] ="return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
-      file_put_contents($jsOut,implode('',$script));
+      file_put_contents($jscript,implode('',$script));
     } else {
-      file_put_contents($jsOut,$return);
+      file_put_contents($jscript,$return);
     }
   }
   foreach($uri as $more) {
@@ -113,8 +114,7 @@ if ($locale) {
       $language = array_merge($language,unserialize(file_get_contents($other)));
     }
   }
-} else {
-  $jsOut = "$docroot/webGui/javascript/translate.en.js";
-  if (!file_exists($jsOut)) file_put_contents($jsOut,$return);
+} elseif (!file_exists($jscript)) {
+  file_put_contents($jscript,$return);
 }
 ?>
