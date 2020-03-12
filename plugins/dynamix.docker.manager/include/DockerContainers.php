@@ -101,7 +101,7 @@ foreach ($containers as $ct) {
   if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars(${ct['BaseImage']})."<br>";
   echo _('By').": ";
   $registry = $info['registry'];
-  list($author,$version) = explode(':',$ct['Image']);
+  [$author,$version] = explode(':',$ct['Image']);
   if ($registry) {
     echo "<a href='".htmlspecialchars($registry)."' target='_blank'>".htmlspecialchars($author)."</a>";
   } else {
@@ -126,7 +126,7 @@ foreach ($containers as $ct) {
     echo "<div class='advanced'><a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('force update')."</span></a></div>";
     break;
   }
-  echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> $version</div></td>";
+  echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> "._($version)."</div></td>";
   echo "<td>{$ct['NetworkMode']}</td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports)."</span></td>";
   echo "<td style='word-break:break-all'><span class='docker_readmore'>".implode('<br>',$paths)."</span></td>";
