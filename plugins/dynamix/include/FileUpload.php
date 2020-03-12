@@ -52,6 +52,7 @@ case 'add':
   $result = file_put_contents("/$boot/$file.lang.zip",base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])));
   if ($result) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
+    @unlink("$docroot/webGui/javascript/translate.$file.js");
     exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg("$boot/$file.lang.zip"));
   }
   $installed = [];
