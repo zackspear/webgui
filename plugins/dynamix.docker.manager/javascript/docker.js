@@ -3,49 +3,49 @@ var eventURL = '/plugins/dynamix.docker.manager/include/Events.php';
 function addDockerContainerContext(container, image, template, started, paused, update, autostart, webui, shell, id, Support, Project, Registry) {
   var opts = [];
   if (started && !paused) {
-    if (webui !== '' && webui != '#') opts.push({text:'WebUI', icon:'fa-globe', href:webui, target:'_blank'});
-    opts.push({text:'Console', icon:'fa-terminal', action:function(e){e.preventDefault(); dockerTerminal(container,shell);}});
+    if (webui !== '' && webui != '#') opts.push({text:_('WebUI'), icon:'fa-globe', href:webui, target:'_blank'});
+    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); dockerTerminal(container,shell);}});
     opts.push({divider:true});
   }
   if (update==1) {
-    opts.push({text:'Update', icon:'fa-cloud-download', action:function(e){e.preventDefault(); execUpContainer(container);}});
+    opts.push({text:_('Update'), icon:'fa-cloud-download', action:function(e){e.preventDefault(); execUpContainer(container);}});
     opts.push({divider:true});
   }
   if (started) {
     if (paused) {
-      opts.push({text:'Resume', icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'resume', container:id}, 'loadlist');}});
+      opts.push({text:_('Resume'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'resume', container:id}, 'loadlist');}});
     } else {
-      opts.push({text:'Stop', icon:'fa-stop', action:function(e){e.preventDefault(); eventControl({action:'stop', container:id}, 'loadlist');}});
-      opts.push({text:'Pause', icon:'fa-pause', action:function(e){e.preventDefault(); eventControl({action:'pause', container:id}, 'loadlist');}});
+      opts.push({text:_('Stop'), icon:'fa-stop', action:function(e){e.preventDefault(); eventControl({action:'stop', container:id}, 'loadlist');}});
+      opts.push({text:_('Pause'), icon:'fa-pause', action:function(e){e.preventDefault(); eventControl({action:'pause', container:id}, 'loadlist');}});
     }
-    opts.push({text:'Restart', icon:'fa-refresh', action:function(e){e.preventDefault(); eventControl({action:'restart', container:id}, 'loadlist');}});
+    opts.push({text:_('Restart'), icon:'fa-refresh', action:function(e){e.preventDefault(); eventControl({action:'restart', container:id}, 'loadlist');}});
   } else {
-    opts.push({text:'Start', icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
+    opts.push({text:_('Start'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
   }
   opts.push({divider:true});
   if (location.pathname.indexOf('/Dashboard') === 0) {
-    opts.push({text:'Logs', icon:'fa-navicon', action:function(e){e.preventDefault(); containerLogs(container, id);}});
+    opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); containerLogs(container, id);}});
   }
   if (template) {
-    opts.push({text:'Edit', icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
+    opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
   opts.push({divider:true});
-  opts.push({text:'Remove', icon:'fa-trash', action:function(e){e.preventDefault(); rmContainer(container, image, id);}});
+  opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmContainer(container, image, id);}});
   if (Support) {
     opts.push({divider:true});
-    opts.push({text:'Support', icon:'fa-question', href:Support, target:'_blank'});
+    opts.push({text:_('Support'), icon:'fa-question', href:Support, target:'_blank'});
   }
   if (Project) {
-    opts.push({text:'Project Page', icon:'fa-life-ring', href:Project, target:'_blank'});
+    opts.push({text:_('Project Page'), icon:'fa-life-ring', href:Project, target:'_blank'});
   }
   if (Registry) {
-    opts.push({text:'More Info',icon:'fa-info-circle', href:Registry, target:'_blank'});
+    opts.push({text:_('More Info'),icon:'fa-info-circle', href:Registry, target:'_blank'});
   }
   context.attach('#'+id, opts);
 }
 function addDockerImageContext(image, imageTag) {
   var opts = [];
-  opts.push({text:'Remove', icon:'fa-trash', action:function(e){e.preventDefault(); rmImage(image, imageTag);}});
+  opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmImage(image, imageTag);}});
   context.attach('#'+image, opts);
 }
 function dockerTerminal(container,shell) {
@@ -102,9 +102,9 @@ function editContainer(container, template) {
   location = path+'/UpdateContainer?xmlTemplate=edit:'+template;
 }
 function updateContainer(container) {
-  var body = 'Update container: '+container;
+  var body = _('Update container')+': '+container;
   swal({
-    title:'Are you sure?',
+    title:_('Are you sure?'),
     text:body,
     type:'warning',
     showCancelButton:true,
@@ -114,10 +114,10 @@ function updateContainer(container) {
   });
 }
 function rmContainer(container, image, id) {
-  var body = 'Remove container: '+container+'<br><br><label><input id="removeimagechk" type="checkbox" checked style="display:inline;width:unset;height:unset;margin-top:unset;margin-bottom:unset">also remove image</label>';
+  var body = _('Remove container')+': '+container+'<br><br><label><input id="removeimagechk" type="checkbox" checked style="display:inline;width:unset;height:unset;margin-top:unset;margin-bottom:unset">also remove image</label>';
   $('input[type=button]').prop('disabled',true);
   swal({
-    title:'Are you sure?',
+    title:_('Are you sure?'),
     text:body,
     type:'warning',
     html:true,
@@ -135,10 +135,10 @@ function rmContainer(container, image, id) {
   });
 }
 function rmImage(image, imageName) {
-  var body = 'Remove image: '+$('<textarea />').html(imageName).text();
+  var body = _('Remove image')+': '+$('<textarea />').html(imageName).text();
   $('input[type=button]').prop('disabled',true);
   swal({
-    title:'Are you sure?',
+    title:_('Are you sure?'),
     text:body,
     type:'warning',
     showCancelButton:true,
@@ -157,7 +157,7 @@ function eventControl(params, spin) {
       if (spin) setTimeout(spin+'()',500); else location=window.location.href;
     } else {
       swal({
-        title:'Execution error', html:true,
+        title:_('Execution error'), html:true,
         text:data.success, type:'error'
       },function(){
         if (spin) setTimeout(spin+'()',500); else location=window.location.href;
@@ -195,7 +195,7 @@ function updateAll() {
   var ct = '';
   for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURI(d.name);
   var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;
-  popupWithIframe('Updating all Containers', cmd, true, 'loadlist');
+  popupWithIframe(_('Updating all Containers'), cmd, true, 'loadlist');
 }
 function rebuildAll() {
   $('input[type=button]').prop('disabled',true);

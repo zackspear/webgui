@@ -59,7 +59,11 @@ case 'add':
   if ($result) exit(implode(',',$installed));
 case 'rm':
   $path = "$docroot/languages/$file";
-  if ($result = is_dir($path)) {exec("rm -rf ".escapeshellarg($path)); @unlink("$boot/$file.lang.zip");}
+  if ($result = is_dir($path)) {
+    exec("rm -rf ".escapeshellarg($path));
+    @unlink("$docroot/webGui/javascript/translations.js");
+    @unlink("$boot/$file.lang.zip");
+  }
   $installed = [];
   foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
   if ($result) exit(implode(',',$installed));

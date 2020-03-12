@@ -78,6 +78,7 @@ $notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBo
 </style>
 
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
+<script src="<?autov('/webGui/javascript/translations.js')?>"></script>
 <script>
 Shadowbox.init({skipSetup:true});
 

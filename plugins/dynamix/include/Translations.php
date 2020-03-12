@@ -79,21 +79,33 @@ $language = [];
 $locale = $_SESSION['locale'];
 
 if ($locale) {
-  $uri = explode('/',explode('?',$_SERVER['REQUEST_URI'])[0]);
+  // split URI into translation levels
+  $uri = array_filter(explode('/',strtok($_SERVER['REQUEST_URI'],'?')));
   $text = "$docroot/languages/$locale/translations.txt";
   if (file_exists($text)) {
-    $data = "$docroot/languages/$locale/translations.dot";
-    if (!file_exists($data)) file_put_contents($data,serialize(parse_lang_file($text)));
-    $language = unserialize(file_get_contents($data));
+    $basis = "$docroot/languages/$locale/translations.dot";
+    $jsTxt = "$docroot/languages/$locale/javascript.txt";
+    $jsOut = "$docroot/webGui/javascript/translations.js";
+    // global translations
+    if (!file_exists($basis)) file_put_contents($basis,serialize(parse_lang_file($text)));
+    $language = unserialize(file_get_contents($basis));
+    if (!file_exists($jsOut)) {
+      // create javascript file with translations
+      $source = file_exists($jsTxt) ? parse_lang_file($jsTxt) : [];
+      $script = ['function _(t){var l={};'];
+      foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
+      $script[] ="return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
+      file_put_contents($jsOut,implode('',$script));
+    }
   }
-  foreach($uri as $add) {
-    if (!$add) continue;
-    $add = strtolower($add);
-    $text = "$docroot/languages/$locale/$add.txt";
+  foreach($uri as $more) {
+    $more = strtolower($more);
+    $text = "$docroot/languages/$locale/$more.txt";
     if (file_exists($text)) {
-      $data = "$docroot/languages/$locale/$add.dot";
-      if (!file_exists($data)) file_put_contents($data,serialize(parse_lang_file($text)));
-      $language = array_merge($language,unserialize(file_get_contents($data)));
+      // additional translations
+      $other = "$docroot/languages/$locale/$more.dot";
+      if (!file_exists($other)) file_put_contents($other,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($other)));
     }
   }
 }
