@@ -531,7 +531,7 @@ case 'virtio-win-iso-cancel':
 	} elseif (empty($_REQUEST['download_path'])) {
 		$arrResponse = ['error' => _('ISO storage path was empty')];
 	} elseif (!is_dir($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => _("ISO storage path doesn't exist")_];
+		$arrResponse = ['error' => _("ISO storage path doesn't exist")];
 	} else {
 		$strInstallScriptPgrep = '-f "VirtIOWin_'.$strKeyName.'_install.sh"';
 		$pid = pgrep($strInstallScriptPgrep, false);
