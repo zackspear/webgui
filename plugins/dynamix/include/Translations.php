@@ -77,6 +77,7 @@ function translate($key) {
 }
 $language = [];
 $locale = $_SESSION['locale'];
+$return = 'function _(t){return t;}';
 
 if ($locale) {
   // split URI into translation levels
@@ -84,18 +85,22 @@ if ($locale) {
   $text = "$docroot/languages/$locale/translations.txt";
   if (file_exists($text)) {
     $basis = "$docroot/languages/$locale/translations.dot";
-    $jsTxt = "$docroot/languages/$locale/javascript.txt";
-    $jsOut = "$docroot/webGui/javascript/translations.js";
     // global translations
     if (!file_exists($basis)) file_put_contents($basis,serialize(parse_lang_file($text)));
     $language = unserialize(file_get_contents($basis));
-    if (!file_exists($jsOut)) {
-      // create javascript file with translations
-      $source = file_exists($jsTxt) ? parse_lang_file($jsTxt) : [];
+  }
+  $jsOut = "$docroot/webGui/javascript/translate.$locale.js";
+  if (!file_exists($jsOut)) {
+    // create javascript file with translations
+    $source = [];
+    foreach (glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT) as $js) $source = array_merge($source,parse_lang_file($js));
+    if (count($source)) {
       $script = ['function _(t){var l={};'];
       foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
       $script[] ="return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
       file_put_contents($jsOut,implode('',$script));
+    } else {
+      file_put_contents($jsOut,$return);
     }
   }
   foreach($uri as $more) {
@@ -108,5 +113,8 @@ if ($locale) {
       $language = array_merge($language,unserialize(file_get_contents($other)));
     }
   }
+} else {
+  $jsOut = "$docroot/webGui/javascript/translate.en.js";
+  if (!file_exists($jsOut)) file_put_contents($jsOut,$return);
 }
 ?>

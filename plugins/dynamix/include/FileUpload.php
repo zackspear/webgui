@@ -61,7 +61,7 @@ case 'rm':
   $path = "$docroot/languages/$file";
   if ($result = is_dir($path)) {
     exec("rm -rf ".escapeshellarg($path));
-    @unlink("$docroot/webGui/javascript/translations.js");
+    @unlink("$docroot/webGui/javascript/translate.".($file?:'en').".js");
     @unlink("$boot/$file.lang.zip");
   }
   $installed = [];
