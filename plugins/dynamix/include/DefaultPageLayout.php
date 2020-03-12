@@ -417,11 +417,11 @@ $(function() {
    <div class="block">
     <span class="text-left"><?=_('Server')?><br><?=_('Description')?><br><?=_('Registration')?><br><?=_('Uptime')?></span>
     <span class="text-right"><?=$var['NAME']." &bullet; ".$eth0['IPADDR:0']?><br/><?=$var['COMMENT']?><br/>
-    <a href="/Tools/Registration" title="<?=_('Go to Registration page')?>">Unraid OS <span id="licensetype"><?=$var['regTy']?></span><span id="licenseexpire"></span></a><br/>
+    <a href="/Tools/Registration" title="<?=_('Go to Registration page')?>"><?=_('Unraid OS')?> <span id="licensetype"><?=_($var['regTy'])?></span><span id="licenseexpire"></span></a><br/>
     <span class="uptime"></span></span>
    </div>
   </div>
-  <a href="#" class="back_to_top" title="Back To Top"><i class="fa fa-arrow-circle-up"></i></a>
+  <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
 // Build page menus
 echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
