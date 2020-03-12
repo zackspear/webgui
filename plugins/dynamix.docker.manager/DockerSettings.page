@@ -823,15 +823,15 @@ function checkDHCP() {
       var id = $(this).attr('name');
       var pool = $(this).val().split('/');
       var base = $('#'+id).text().split('/');
-      if (good && typeof(pool[1])=='undefined') {good = false; swal('_(Missing subnet size)_','_(Pool subnet size is not defined)_','error');}
-      if (good && pool[1]<=base[1]) {good = false; swal('_(Invalid subnet size)_','_(Pool subnet size is too large)_','error');}
+      if (good && typeof(pool[1])=='undefined') {good = false; swal({title:'_(Missing subnet size)_',text:'_(Pool subnet size is not defined)_',type:'error',confirmButtonText:'_(Ok)_'});}
+      if (good && pool[1]<=base[1]) {good = false; swal({title:'_(Invalid subnet size)_',text:'_(Pool subnet size is too large)_',type:'error',confirmButtonText:'_(Ok)_'});}
       if (typeof(pool[1])=='undefined') pool[1] = 0;
       if (typeof(base[1])=='undefined') base[1] = 32;
       var toppool = ip2int(pool[0]);
       var topbase = ip2int(base[0]);
       var endpool = toppool+Math.pow(2,32-pool[1]);
       var endbase = topbase+Math.pow(2,32-base[1]);
-      if (good && (toppool < topbase || endpool > endbase)) {good = false; swal('_(Invalid pool address)_','_(Pool address is out of range)_','error');}
+      if (good && (toppool < topbase || endpool > endbase)) {good = false; swal({title:'_(Invalid pool address)_',text:'_(Pool address is out of range)_',type:'error',confirmButtonText:'_(Ok)_'});}
     }
   });
   if (good) $('#settingsForm').find('input[name^="DOCKER_DHCP6_"]').each(function(){
@@ -839,8 +839,8 @@ function checkDHCP() {
       var id = $(this).attr('name');
       var pool = $(this).val().split('/');
       var base = $('#'+id).text().split('/');
-      if (good && typeof(pool[1])=='undefined') {good = false; swal('_(Missing subnet size)_','_(Pool subnet size is not defined)_','error');}
-      if (good && pool[1]<=base[1]) {good = false; swal('_(Invalid subnet size)_','_(Pool subnet size is too large)_','error');}
+      if (good && typeof(pool[1])=='undefined') {good = false; swal({title:'_(Missing subnet size)_',text:'_(Pool subnet size is not defined)_',type:'error',confirmButtonText:'_(Ok)_'});}
+      if (good && pool[1]<=base[1]) {good = false; swal({title:'_(Invalid subnet size)_',text:'_(Pool subnet size is too large)_',type:'error',confirmButtonText:'_(Ok)_'});}
     }
   });
   return good;
@@ -852,27 +852,27 @@ function checkIP() {
   $('#settingsForm').find('input[name^="DOCKER_SUBNET_"]').each(function(){
     if ($(this).val() && !validIP4.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv4 subnet)_','_(Please enter a valid subnet)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv4 subnet)_',text:'_(Please enter a valid subnet)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   $('#settingsForm').find('input[name^="DOCKER_GATEWAY_"]').each(function(){
     if ($(this).val() && !validIP4.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv4 gateway)_','_(Please enter a valid gateway)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv4 gateway)_',text:'_(Please enter a valid gateway)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   $('#settingsForm').find('input[name^="DOCKER_RANGE_"]').each(function(){
     if ($(this).val() && !validIP4.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv4 range)_','_(Please enter a valid range)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv4 range)_',text:'_(Please enter a valid range)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   $('#settingsForm').find('input[name^="DOCKER_SUBNET6_"]').each(function(){
     if ($(this).val() && !validIP6.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv6 subnet)_','_(Please enter a valid subnet)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv6 subnet)_',text:'_(Please enter a valid subnet)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   $('#settingsForm').find('input[name^="DOCKER_GATEWAY6_"]').each(function(){
     if ($(this).val() && !validIP6.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv6 gateway)_','_(Please enter a valid gateway)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv6 gateway)_',text:'_(Please enter a valid gateway)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   $('#settingsForm').find('input[name^="DOCKER_RANGE6_"]').each(function(){
     if ($(this).val() && !validIP6.test($(this).val())) error = true;
   });
-  if (error) {swal('_(Invalid IPv6 range)_','_(Please enter a valid range)_','error'); return false;}
+  if (error) {swal({title:'_(Invalid IPv6 range)_',text:'_(Please enter a valid range)_',type:'error',confirmButtonText:'_(Ok)_'}); return false;}
   return true;
 }
 function showLogOptions(log) {

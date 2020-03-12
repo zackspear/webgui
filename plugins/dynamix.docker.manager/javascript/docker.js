@@ -85,7 +85,7 @@ function popupWithIframe(title, cmd, reload, func) {
   $('.ui-dialog .ui-dialog-content').css('padding', '12');
 }
 function execUpContainer(container) {
-  var title = 'Updating the container: '+container;
+  var title = _('Updating the container')+': '+container;
   var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
   popupWithIframe(title, cmd, true, 'loadlist');
 }
@@ -108,13 +108,14 @@ function updateContainer(container) {
     text:body,
     type:'warning',
     showCancelButton:true,
-    confirmButtonText:'Yes, update it!'
+    confirmButtonText:_('Yes, update it!'),
+    cancelButtonText:_('Cancel')
   },function(){
     execUpContainer(container);
   });
 }
 function rmContainer(container, image, id) {
-  var body = _('Remove container')+': '+container+'<br><br><label><input id="removeimagechk" type="checkbox" checked style="display:inline;width:unset;height:unset;margin-top:unset;margin-bottom:unset">also remove image</label>';
+  var body = _('Remove container')+': '+container+'<br><br><label><input id="removeimagechk" type="checkbox" checked style="display:inline;width:unset;height:unset;margin-top:unset;margin-bottom:unset">'+_('also remove image')+'</label>';
   $('input[type=button]').prop('disabled',true);
   swal({
     title:_('Are you sure?'),
@@ -122,7 +123,8 @@ function rmContainer(container, image, id) {
     type:'warning',
     html:true,
     showCancelButton:true,
-    confirmButtonText:'Yes, delete it!',
+    confirmButtonText:_('Yes, delete it!'),
+    cancelButtonText:_('Cancel'),
     showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
@@ -142,7 +144,8 @@ function rmImage(image, imageName) {
     text:body,
     type:'warning',
     showCancelButton:true,
-    confirmButtonText:'Yes, delete it!',
+    confirmButtonText:_('Yes, delete it!'),
+    cancelButtonText:_('Cancel'),
     showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
@@ -158,7 +161,8 @@ function eventControl(params, spin) {
     } else {
       swal({
         title:_('Execution error'), html:true,
-        text:data.success, type:'error'
+        text:data.success, type:'error',
+        confirmButtonText:_('Ok'),
       },function(){
         if (spin) setTimeout(spin+'()',500); else location=window.location.href;
       });
@@ -187,7 +191,7 @@ function resumeAll() {
 }
 function checkAll() {
   $('input[type=button]').prop('disabled',true);
-  $('.updatecolumn').html('<span style="color:#267CA8"><i class="fa fa-refresh fa-spin"></i> checking...</span>');
+  $('.updatecolumn').html('<span style="color:#267CA8"><i class="fa fa-refresh fa-spin"></i> '+_('checking')+'...</span>');
   $.post('/plugins/dynamix.docker.manager/include/DockerUpdate.php',{},function(){loadlist();});
 }
 function updateAll() {
@@ -207,9 +211,9 @@ function rebuildAll() {
 function containerLogs(container, id) {
   var height = 600;
   var width = 900;
-  var run = eventURL+'?action=log&container='+id+'&title=Log for: '+container;
+  var run = eventURL+'?action=log&container='+id+'&title='+_('Log for:')+' '+container;
   var top = (screen.height-height) / 2;
   var left = (screen.width-width) / 2;
   var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;
-  window.open(run, 'log', options);
+  window.open(run, _('log'), options);
 }

@@ -65,7 +65,7 @@ function showPassword() {
 }
 function checkPassword(form) {
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
-    swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error"});
+    swal({title:"Password too long",text:"Use a password up to 128 characters",type:"error",confirmButtonText:'_(Ok)_'});
     return false;
   }
   form.userPassword.value = base64(form.userPasswordGUI.value);
@@ -122,20 +122,20 @@ $(function(){
     data:{"csrf_token":"<?=$var['csrf_token']?>"},
     beforeEach:function(file) {
       if (!file.type.match(/^image\/png/)) {
-        swal({title:"Warning",text:"Only PNG images are allowed!",type:"warning"});
+        swal({title:"Warning",text:"Only PNG images are allowed!",type:"warning",confirmButtonText:'_(Ok)_'});
         return false;
       }
     },
     error: function(error, file, i) {
       switch (error) {
       case 'BrowserNotSupported':
-        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",confirmButtonText:'_(Ok)_'});
         break;
       case 'TooManyFiles':
         swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512 kB (524,288 bytes))_",type:"error"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512 kB (524,288 bytes))_",type:"error",confirmButtonText:'_(Ok)_'});
         break;
       }
     },
@@ -153,7 +153,7 @@ $(function(){
         $('input[name="userDesc"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"_(Upload error)_",text:response,type:"error"});
+        swal({title:"_(Upload error)_",text:response,type:"error",confirmButtonText:'_(Ok)_'});
       }
     }
   });

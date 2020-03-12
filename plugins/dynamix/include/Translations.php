@@ -42,7 +42,12 @@ function my_lang($text,$do=0) {
     }
     if (isset($language['today'])) $text = str_replace('today',$language['today'],$text);
     if (isset($language['yesterday'])) $text = str_replace('yesterday',$language['yesterday'],$text);
+    if (isset($language['day ago'])) $text = str_replace('day ago',$language['day ago'],$text);
     if (isset($language['days ago'])) $text = str_replace('days ago',$language['days ago'],$text);
+    if (isset($language['week ago'])) $text = str_replace('week ago',$language['week ago'],$text);
+    if (isset($language['weeks ago'])) $text = str_replace('weeks ago',$language['weeks ago'],$text);
+    if (isset($language['month ago'])) $text = str_replace('month ago',$language['month ago'],$text);
+    if (isset($language['months ago'])) $text = str_replace('months ago',$language['months ago'],$text);
     break;
   case 1: // number translation
     $numbers = isset($language['Numbers_array']) ? explode(' ',$language['Numbers_array']) : [];
@@ -81,8 +86,6 @@ $return   = 'function _(t){return t;}';
 $jscript  = "$docroot/webGui/javascript/translate.en.js";
 
 if ($locale) {
-  // split URI into translation levels
-  $uri = array_filter(explode('/',strtok($_SERVER['REQUEST_URI'],'?')));
   $text = "$docroot/languages/$locale/translations.txt";
   if (file_exists($text)) {
     $basis = "$docroot/languages/$locale/translations.dot";
@@ -104,6 +107,8 @@ if ($locale) {
       file_put_contents($jscript,$return);
     }
   }
+  // split URI into translation levels
+  $uri = array_filter(explode('/',strtok($_SERVER['REQUEST_URI'],'?')));
   foreach($uri as $more) {
     $more = strtolower($more);
     $text = "$docroot/languages/$locale/$more.txt";

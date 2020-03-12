@@ -147,7 +147,7 @@ function prepareInput(form) {
       form.file.disabled = false;
       form.text.disabled = false;
       form.copy.disabled = false;
-      swal({title:'_(Printable Characters Only)_',text:'_(Use <b>ASCII</b> characters from space " " to tilde "~")_<br>_(Otherwise use the <b>keyfile</b> method for UTF8 input)_',html:true,type:'error'});
+      swal({title:'_(Printable Characters Only)_',text:'_(Use <b>ASCII</b> characters from space " " to tilde "~")_<br>_(Otherwise use the **keyfile** method for UTF8 input)_',html:true,type:'error',confirmButtonText:'_(Ok)_'});
     }
     return;
   }
@@ -167,7 +167,7 @@ function parityWarning(form) {
   } else {
     var text = '_(<i>Parity</i> disk(s) content will be overwritten)_';
   }
-  swal({title:'_(Proceed to start)_',text:text,html:true,type:'warning',confirmButtonText:'_(Proceed)_',showCancelButton:true},function(){prepareInput(form);});
+  swal({title:'_(Proceed to start)_',text:text,html:true,type:'warning',showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(){prepareInput(form);});
 }
 function tab0() {
   $.removeCookie('one',{path:'/'});
@@ -187,7 +187,7 @@ function parityStatus() {
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
 <?if ($confirm['stop']):?>
-  swal({title:'_(Proceed)_?',text:'_(This will stop the array)_',type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  swal({title:'_(Proceed)_?',text:'_(This will stop the array)_',type:'warning',showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -195,7 +195,7 @@ function stopArray(form) {
 function stopParity(form,text) {
   $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
 <?if ($confirm['stop']):?>
-  swal({title:'_(Proceed)_?',text:'_(This will stop the running operation)_: '+text,type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+  swal({title:'_(Proceed)_?',text:'_(This will stop the running operation)_: '+text,type:'warning',showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -217,7 +217,7 @@ function shutdown_now(form,cmd) {
     case 'reboot': var text = '_(This will reboot the system)_'; break;
     case 'shutdown': var text = '_(This will shutdown the system)_'; break;
   }
-  swal({title:'_(Proceed)_?',text:text,type:'warning',showCancelButton:true},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
+  swal({title:'_(Proceed)_?',text:text,type:'warning',showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -272,6 +272,7 @@ function formatWarning(val) {
            + '<p><br><b>_(WARNING)_</b>'
            + '<p>_(A format is <b>NEVER</b> part of a data recovery or disk rebuild process and if done in such circumstances will normally lead to loss of all data on the disks being formatted)_.',
       type: "warning",
+      confirmButtonText:'_(Ok)_',
       html: true
     });
 }

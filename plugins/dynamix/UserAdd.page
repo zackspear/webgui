@@ -59,15 +59,15 @@ function showPassword() {
 function checkUsername(form) {
   var username = form.userName.value.trim();
   if (!username.match('^[a-z_][a-z0-9_-]*[$]?$')) {
-    swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error"});
+    swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error",confirmButtonText:'_(Ok)_'});
     return false;
   }
   if (username.match('^(disk[0-9]+|cache[0-9]*|parity[0-9]*|flash)$')) {
-    swal({title:"_(Invalid user name)_",text:"_(Do not use reserved names)_",type:"error"});
+    swal({title:"_(Invalid user name)_",text:"_(Do not use reserved names)_",type:"error",confirmButtonText:'_(Ok)_'});
     return false;
   }
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
-    swal({title:"_(Password too long)_",text:"_(Use a password up to 128 characters)_",type:"error"});
+    swal({title:"_(Password too long)_",text:"_(Use a password up to 128 characters)_",type:"error",confirmButtonText:'_(Ok)_'});
     return false;
   }
   if (filename) {
@@ -118,20 +118,20 @@ $(function(){
     data:{path:path,"csrf_token":"<?=$var['csrf_token']?>"},
     beforeEach:function(file) {
       if (!file.type.match(/^image\/png/)) {
-        swal({title:"Warning",text:"Only PNG images are allowed!",type:"warning"});
+        swal({title:"Warning",text:"Only PNG images are allowed!",type:"warning",confirmButtonText:'_(Ok)_'});
         return false;
       }
     },
     error: function(error, file, i) {
       switch (error) {
       case 'BrowserNotSupported':
-        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",confirmButtonText:'_(Ok)_'});
         break;
       case 'TooManyFiles':
         swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 95 kB)_ (97,280 _(bytes)_)",type:"error"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 95 kB)_ (97,280 _(bytes)_)",type:"error",confirmButtonText:'_(Ok)_'});
         break;
       }
     },
@@ -149,7 +149,7 @@ $(function(){
         $('input[name="userDesc"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"_(Upload error)_",text:response,type:"error"});
+        swal({title:"_(Upload error)_",text:response,type:"error",confirmButtonText:'_(Ok)_'});
       }
     }
   });

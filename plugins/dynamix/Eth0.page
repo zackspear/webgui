@@ -97,7 +97,7 @@ function prepareSettings(form) {
   $(form).find('input[name^="METRIC:"]').each(function(){metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
-    swal('Duplicate metrics','List of default gateways contains duplicate metric values','error');
+    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
   if (form.TYPE.value == 'access') {
@@ -118,7 +118,7 @@ function prepareSettings(form) {
     var vlans = [];
     $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
     if (vlans.same()) {
-      swal('_(VLAN assignment mismatch)_','_(List of VLANs contains duplicate VLAN numbers)_','error');
+      swal({title:'_(VLAN assignment mismatch)_',text:'_(List of VLANs contains duplicate VLAN numbers)_',type:'error',confirmButtonText:'_(Ok)_'});
       return false;
     }
   }

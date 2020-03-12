@@ -4,7 +4,8 @@ function ajaxVMDispatch(params, spin){
     if (data.error) {
       swal({
         title:_("Execution error"), html:true,
-        text:data.error, type:"error"
+        text:data.error, type:"error",
+        confirmButtonText:_('Ok')
       },function(){
         if (spin) setTimeout(spin+'()',500); else location=window.location.href;
       });
@@ -72,7 +73,7 @@ function addVMContext(name, uuid, template, state, vncurl, log){
   }
   opts.push({divider:true});
   if (log !== "") {
-    opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openWindow('/webGui/scripts/tail_log&arg1='+log, 'Log for:'+name, 600, 900);}});
+    opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openWindow('/webGui/scripts/tail_log&arg1='+log, _('Log for:')+name, 600, 900);}});
   }
   opts.push({text:_("Edit"), icon:"fa-pencil", href:path+'/UpdateVM?uuid='+uuid});
   if (state == "shutoff") {
@@ -83,7 +84,9 @@ function addVMContext(name, uuid, template, state, vncurl, log){
         title:_("Are you sure?"),
         text:_("Remove definition:")+name,
         type:"warning",
-        showCancelButton:true
+        showCancelButton:true,
+        confirmButtonText:_('Proceed'),
+        cancelButtonText:_('Cancel')
       },function(){
         $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
         ajaxVMDispatch({action:"domain-undefine",uuid:uuid}, "loadlist");
@@ -96,7 +99,9 @@ function addVMContext(name, uuid, template, state, vncurl, log){
           title:_("Are you sure?"),
           text:_("Completely REMOVE")+" "+name+" "+_("disk image and definition"),
           type:"warning",
-          showCancelButton:true
+          showCancelButton:true,
+          confirmButtonText:_('Proceed'),
+          cancelButtonText:_('Cancel')
         },function(){
           $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
           ajaxVMDispatch({action:"domain-delete",uuid:uuid}, "loadlist");

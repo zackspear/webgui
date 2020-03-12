@@ -48,6 +48,13 @@ $menu = [];
 $autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
 $names = array_map('var_split', $autostart);
 
+function my_lang_log($text) {
+  global $language;
+  if (isset($language['healthy'])) $text = str_replace('healthy',$language['healthy'],$text);
+  if (isset($language['Exited'])) $text = str_replace('Exited',$language['Exited'],$text);
+  return my_lang(my_lang(_($text),2));
+}
+
 foreach ($containers as $ct) {
   $name = $ct['Name'];
   $id = $ct['Id'];
@@ -126,19 +133,19 @@ foreach ($containers as $ct) {
   echo "<td class='advanced'><span class='cpu-$id'>0%</span><div class='usage-disk mm'><span id='cpu-$id' style='width:0'></span><span></span></div>";
   echo "<br><span class='mem-$id'>0 / 0</span></td>";
   echo "<td><input type='checkbox' id='$id-auto' class='autostart' container='".htmlspecialchars($name)."'".($info['autostart'] ? ' checked':'').">";
-  echo "<span id='$id-wait' style='float:right;display:none'>wait<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title='"._('seconds')."'></span></td>";
+  echo "<span id='$id-wait' style='float:right;display:none'>"._('wait')."<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title='"._('seconds')."'></span></td>";
   echo "<td><a class='log' onclick=\"containerLogs('".addslashes(htmlspecialchars($name))."','$id',false,false)\"><img class='basic' src='/plugins/dynamix/icons/log.png'><div class='advanced'>";
-  echo htmlspecialchars(str_replace('Up','Uptime',$ct['Status']))."</div><div class='advanced' style='margin-top:4px'>Created ".htmlspecialchars($ct['Created'])."</div></a></td></tr>";
+  echo htmlspecialchars(str_replace('Up',_('Uptime'),my_lang_log($ct['Status'])))."</div><div class='advanced' style='margin-top:4px'>"._('Created')." ".htmlspecialchars(my_lang($ct['Created']))."</div></a></td></tr>";
 }
 foreach ($images as $image) {
   if (count($image['usedBy'])) continue;
   $id = $image['Id'];
   $menu[] = sprintf("addDockerImageContext('%s','%s');", $id, implode(',',$image['Tags']));
   echo "<tr class='advanced'><td style='width:220px;padding:8px'>";
-  echo "<span class='outer apps'><span id='$id' class='hand'><img src='/webGui/images/disk.png' class='img'></span><span class='inner'>(orphan image)<br><i class='fa fa-square stopped grey-text'></i><span class='state'>stopped</span></span></span>";
-  echo "</td><td colspan='5'>Image ID: $id<br>";
+  echo "<span class='outer apps'><span id='$id' class='hand'><img src='/webGui/images/disk.png' class='img'></span><span class='inner'>("._('orphan image').")<br><i class='fa fa-square stopped grey-text'></i><span class='state'>"._('stopped')."</span></span></span>";
+  echo "</td><td colspan='6'>"._('Image ID').": $id<br>";
   echo implode(', ',array_map('htmlspecialchars',$image['Tags']));
-  echo "</td><td>Created ".htmlspecialchars($image['Created'])."</td></tr>";
+  echo "</td><td>"._('Created')." ".htmlspecialchars(my_lang($image['Created']))."</td></tr>";
 }
 echo "\0".implode($menu).implode($docker)."\0".(pgrep('rc.docker')!==false ? 1:0);
 ?>

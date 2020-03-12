@@ -31,7 +31,7 @@ var keys = {};
 function upload(form) {
   var language = form.language.value;
   if (!language) {
-    swal('_(Missing Language)_','_(Please select a language before proceeding)_!','error');
+    swal({title:'_(Missing Language)_',text:'_(Please select a language before proceeding)_!',type:'error',confirmButtonText:'_(Ok)_'});
     return;
   }
   var cmd = form.check.checked ? 'rm' :'add';
@@ -42,7 +42,7 @@ function upload(form) {
       var name = list.split(',');
       for (var i=0; i < name.length; i++) installed.push(keys[name[i]]);
       $('#installed').text(installed.join(', '));
-      swal({title:title,text:'_(See)_ <a href="/Settings/DisplaySettings">_(Display Settings)_</a> _(to select your language)_',type:'success',html:true});
+      swal({title:title,text:'_(See)_ <a href="/Settings/DisplaySettings">_(Display Settings)_</a> _(to select your language)_',type:'success',html:true,confirmButtonText:'_(Ok)_'});
       $('#uploadbutton').prop('disabled',true);
     }
   });
@@ -56,7 +56,7 @@ function getZIPfile(event,form) {
       form.file.value = reader.result;
       $('#uploadbutton').prop('disabled',false);
     } else {
-     swal('_(Wrong File Extension)_','_(Only ZIP files are allowed)_','warning');
+     swal({title:'_(Wrong File Extension)_',text:'_(Only ZIP files are allowed)_',type:'warning',confirmButtonText:'_(Ok)_'});
     }
   };
   reader.readAsDataURL(input.files[0]);
