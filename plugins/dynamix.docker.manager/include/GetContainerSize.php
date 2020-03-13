@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
+
 $unit = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
 $list = [];
 
@@ -34,12 +39,12 @@ function align($text, $w=13) {
 }
 
 exec("docker ps -sa --format='{{.Names}}|{{.Size}}'",$container);
-echo align('Name',-30).align('Container').align('Writable').align('Log')."\n";
+echo align(_('Name'),-30).align(_('Container')).align(_('Writable')).align(_('Log'))."\n";
 echo str_repeat('-',69)."\n";
 foreach ($container as $ct) {
-  list($name,$size) = explode('|',$ct);
-  list($writable,$dummy,$total) = explode(' ',str_replace(['(',')'],'',$size));
-  list($value,$base) = explode(' ',gap($total));
+  [$name,$size] = explode('|',$ct);
+  [$writable,$dummy,$total] = explode(' ',str_replace(['(',')'],'',$size));
+  [$value,$base] = explode(' ',gap($total));
   $list[] = ['name' => $name, 'total' => $value*pow(1000,array_search($base,$unit)), 'writable' => $writable, 'log' => (exec("docker inspect --format='{{.LogPath}}' $name|xargs du -b 2>/dev/null |cut -f1")) ?: "0"];
 }
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
