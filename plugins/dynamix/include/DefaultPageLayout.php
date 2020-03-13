@@ -436,7 +436,7 @@ if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  eval('?>'.rewrite($button['text']));
+  eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
     if (substr($icon,-4)=='.png') {
@@ -511,7 +511,7 @@ foreach ($pages as $page) {
       echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
     }
   }
-  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(rewrite($page['text']))) : eval('?>'.rewrite($page['text']));
+  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
 unset($pages,$page,$pgs,$pg,$icon);

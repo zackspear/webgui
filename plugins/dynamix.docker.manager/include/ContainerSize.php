@@ -45,7 +45,7 @@ div.spinner .unraid_mark_7{animation:mark_7 1.5s ease infinite}
 @keyframes mark_7{50% {transform:translateY(62px)} 100% {transform: translateY(0px)}}
 pre{font-family:bitstream;font-size:1.3rem}
 </style>
-<script type="text/javascript" src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
+<script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script>
 $(function(){
   $('div.spinner').html('<?readfile("$docroot/webGui/images/animated-logo.svg")?>');

@@ -1,10 +1,10 @@
 Title="Add Container"
 Cond="(pgrep('dockerd')!==false)"
-Markdown="false"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
  * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -14,9 +14,6 @@ Markdown="false"
  * all copies or substantial portions of the Software.
  */
 ?>
-<div style="text-align:right;vertical-align:top;position:relative;top:-44px;height:0;display:none;">
-  <span class="toggleMode" onclick="toggleMode();"><i id="toggleMode" class="fa fa-lg"></i> _(Advanced View)_</span>
-</div>
-<?PHP
-require_once "$docroot/plugins/dynamix.docker.manager/include/CreateDocker.php";
+<?
+eval('?>'.Markdown(parse_text(file_get_contents("$docroot/plugins/dynamix.docker.manager/include/CreateDocker.php"))));
 ?>

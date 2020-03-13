@@ -23,45 +23,30 @@ function _($text) {
 function parse_lang_file($file) {
   return array_filter(parse_ini_string(preg_replace(['/"/m','/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['\'','$1.=','$1="$2"',"_$1_=\"",'"'],str_replace("=\n","=''\n",file_get_contents($file)))),'strlen');
 }
-function rewrite($text) {
+function parse_text($text) {
   return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:((help|plug)\d*)$/m","/^:end$/m"],["<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
+}
+function parse_array($text,&$array) {
+  parse_str(str_replace([' ',':'],['&','='],$text),$array);
 }
 function my_lang($text,$do=0) {
   global $language;
   switch ($do) {
   case 0: // date translation
-    $months = isset($language['Months_array']) ? explode(' ',$language['Months_array']) : [];
-    $days = isset($language['Days_array']) ? explode(' ',$language['Days_array']) : [];
-    foreach ($months as $month) {
-      [$word,$that] = explode(':',$month);
-      if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    }
-    foreach ($days as $day) {
-      [$word,$that] = explode(':',$day);
-      if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    }
     $keys = ['today','yesterday','day ago','days ago','week ago','weeks ago','month ago','months ago'];
+    parse_array($language['Months_array'],$months);
+    parse_array($language['Days_array'],$days);
+    foreach ($months as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
+    foreach ($days as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     foreach ($keys as $key) if (isset($language[$key])) $text = str_replace($key,$language[$key],$text);
     break;
   case 1: // number translation
-    $numbers = isset($language['Numbers_array']) ? explode(' ',$language['Numbers_array']) : [];
-    foreach ($numbers as $number) {
-      [$word,$that] = explode(':',$number);
-      if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    }
+    parse_array($language['Numbers_array'],$numbers);
+    foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     break;
   case 2: // time translation
-    $time1 = ['days'=>$language['days']??'','hours'=>$language['hours']??'','minutes'=>$language['minutes']??'','seconds'=>$language['seconds']??''];
-    $time2 = ['day'=>$language['day']??'','hour'=>$language['hour']??'','minute'=>$language['minute']??'','second'=>$language['second']??''];
-    foreach ($time1 as $word => $that) {
-      if ($that && strpos($text,$word)!==false) {
-        $text = str_replace($word,$that,$text);
-      } else {
-        $one = substr($word,0,-1);
-        if ($time2[$one]) $text = str_replace($one,$time2[$one],$text);
-      }
-    }
-    if (isset($language['Average speed'])) $text = str_replace('Average speed',$language['Average speed'],$text);
+    $keys = ['day','hour','minute','second','days','hours','minutes','seconds','Average speed'];
+    foreach ($keys as $key) if (isset($language[$key])) $text = str_replace($key,$language[$key],$text);
     break;
   case 3: // device translation
     [$p1,$p2] = explode(' ',$text);
