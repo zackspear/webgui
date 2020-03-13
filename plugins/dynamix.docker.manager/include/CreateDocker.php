@@ -13,9 +13,11 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
 
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 libxml_use_internal_errors(false); # Enable xml errors
 
 $var = parse_ini_file('state/var.ini');
@@ -46,15 +48,15 @@ function cpu_pinning() {
     $max = ($c == $loop-1 ? ($total%16?:16) : 16);
     for ($n = 0; $n < $max; $n++) {
       unset($cpu1,$cpu2);
-      list($cpu1, $cpu2) = preg_split('/[,-]/',$cpus[$c*16+$n]);
+      [$cpu1, $cpu2] = preg_split('/[,-]/',$cpus[$c*16+$n]);
       $check1 = in_array($cpu1, $vcpu) ? ' checked':'';
       $check2 = $cpu2 ? (in_array($cpu2, $vcpu) ? ' checked':''):'';
       $row1[] = "<label id='cpu$cpu1' class='checkbox'>$cpu1<input type='checkbox' id='box$cpu1'$check1><span class='checkmark'></span></label>";
       if ($cpu2) $row2[] = "<label id='cpu$cpu2' class='checkbox'>$cpu2<input type='checkbox' id='box$cpu2'$check2><span class='checkmark'></span></label>";
     }
     if ($c) echo '<hr>';
-    echo "<span class='cpu'>CPU:</span>".implode($row1);
-    if ($row2) echo "<br><span class='cpu'>HT:</span>".implode($row2);
+    echo "<span class='cpu'>"._('CPU').":</span>".implode($row1);
+    if ($row2) echo "<br><span class='cpu'>"._('HT').":</span>".implode($row2);
   }
 }
 
@@ -75,7 +77,7 @@ if (isset($_POST['contName'])) {
   $existing = $_POST['existingContainer'] ?? false;
   $create_paths = $dry_run ? false : true;
   // Get the command line
-  list($cmd, $Name, $Repository) = xmlToCommand($postXML, $create_paths);
+  [$cmd, $Name, $Repository] = xmlToCommand($postXML, $create_paths);
   readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
   @flush();
   // Saving the generated configuration file.
@@ -86,9 +88,7 @@ if (isset($_POST['contName'])) {
     if (is_file($filename)) {
       $oldXML = simplexml_load_file($filename);
       if ($oldXML->Icon != $_POST['contIcon']) {
-        if (!strpos($Repository,":")) {
-          $Repository .= ":latest";
-        }
+        if (!strpos($Repository,":")) $Repository .= ":latest";
         $iconPath = $DockerTemplates->getIcon($Repository);
         @unlink("$docroot/$iconPath");
         @unlink("{$dockerManPaths['images']}/".basename($iconPath));
@@ -102,15 +102,15 @@ if (isset($_POST['contName'])) {
     echo "<pre>".htmlspecialchars($postXML)."</pre>";
     echo "<h2>COMMAND:</h2>";
     echo "<pre>".htmlspecialchars($cmd)."</pre>";
-    echo "<div style='text-align:center'><button type='button' onclick='window.location=window.location.pathname+window.location.hash+\"?xmlTemplate=edit:${filename}\"'>Back</button>";
-    echo "<button type='button' onclick='done()'>Done</button></div><br>";
+    echo "<div style='text-align:center'><button type='button' onclick='window.location=window.location.pathname+window.location.hash+\"?xmlTemplate=edit:$filename\"'>"._('Back')."</button>";
+    echo "<button type='button' onclick='done()'>"._('Done')."</button></div><br>";
     goto END;
   }
   // Will only pull image if it's absent
   if (!$DockerClient->doesImageExist($Repository)) {
     // Pull image
     if (!pullImage($Name, $Repository)) {
-      echo '<div style="text-align:center"><button type="button" onclick="done()">Done</button></div><br>';
+      echo '<div style="text-align:center"><button type="button" onclick="done()">'._('Done').'</button></div><br>';
       goto END;
     }
   }
@@ -147,7 +147,7 @@ if (isset($_POST['contName'])) {
   if ($startContainer) $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
   execCommand($cmd);
 
-  echo '<div style="text-align:center"><button type="button" onclick="done()">Done</button></div><br>';
+  echo '<div style="text-align:center"><button type="button" onclick="done()">'._('Done').'</button></div><br>';
   goto END;
 }
 
@@ -164,16 +164,16 @@ if ($_GET['updateContainer']){
   foreach ($_GET['ct'] as $value) {
     $tmpl = $DockerTemplates->getUserTemplate(urldecode($value));
     if ($echo && !$tmpl) {
-      echo "<script>addLog('<p>Configuration not found. Was this container created using this plugin?</p>');</script>";
+      echo "<script>addLog('<p>"._('Configuration not found').". "._('Was this container created using this plugin')."?</p>');</script>";
       @flush();
       continue;
     }
     $xml = file_get_contents($tmpl);
-    list($cmd, $Name, $Repository) = xmlToCommand($tmpl);
+    [$cmd, $Name, $Repository] = xmlToCommand($tmpl);
     $Registry = getXmlVal($xml, "Registry");
     $oldImageID = $DockerClient->getImageID($Repository);
     // pull image
-    if ($echo) if (!pullImage($Name, $Repository)) continue;
+    if ($echo && !pullImage($Name, $Repository)) continue;
     $oldContainerInfo = $DockerClient->getContainerDetails($Name);
     // determine if the container is still running
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
@@ -190,7 +190,7 @@ if ($_GET['updateContainer']){
     // remove old orphan image since it's no longer used by this container
     if ($oldImageID && $oldImageID != $newImageID) removeImage($oldImageID, $echo);
   }
-  echo '<div style="text-align:center"><button type="button" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\')">Done</button></div><br>';
+  echo '<div style="text-align:center"><button type="button" onclick="window.parent.jQuery(\'#iframe-popup\').dialog(\'close\')">'._('Done').'</button></div><br>';
   goto END;
 }
 
@@ -207,7 +207,7 @@ if ($_GET['rmTemplate']) {
 #########################
 
 if ($_GET['xmlTemplate']) {
-  list($xmlType, $xmlTemplate) = explode(':', urldecode($_GET['xmlTemplate']));
+  [$xmlType, $xmlTemplate] = explode(':', urldecode($_GET['xmlTemplate']));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
     $templateName = $xml['Name'];
@@ -262,806 +262,693 @@ $authoringMode = $dockercfg['DOCKER_AUTHORING_MODE'] == "yes" ? true : false;
 $authoring     = $authoringMode ? 'advanced' : 'noshow';
 $disableEdit   = $authoringMode ? 'false' : 'true';
 $showAdditionalInfo = '';
-$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.switchbutton.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
-<link rel="stylesheet" type="text/css" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
+
 <style>
-option.list{padding:0 0 0 7px}
-optgroup.bold{font-weight:bold;margin-top:5px}
-optgroup.title{background-color:#625D5D;color:#f2f2f2;text-align:center;margin-top:10px}
-.textTemplate{width:60%}
-.fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none;background:<?=$bgcolor?>}
-.show{display:block}
-.basic{display:table-row}
-.advanced{display:none}
-.noshow{display:none}
-.required:after{content:" *";color:#E80000}
-.inline_help{font-weight:normal}
-.switch-wrapper{display:inline-block;position:relative;top:3px;vertical-align:middle;margin-top:-30px}
-.switch-button-label.off{color:inherit;}
-.selectVariable{width:320px}
-.fa.button{color:maroon;font-size:2.4rem;position:relative;top:4px;cursor:pointer}
-.spacer{padding:16px 0}
+.noshow,.advanced{display:none}
+.fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;display:none}
+span.boxed{display:inline-block;line-height:normal;white-space:normal;width:56%}
 span.cpu,label.checkbox{display:inline-block;width:32px}
-button[type=button]{margin:0 20px 0 0}
+span.ct{display:inline-block;width:230px}
+span.net{display:inline-block;width:120px}
+span.ip{display:inline-block;width:160px}
+dl,dt,dd{line-height:normal!important}
 </style>
+
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
-<script type="text/javascript">
-  var this_tab = $('input[name$="tabs"]').length;
-  $(function() {
-    var content= "<div class='switch-wrapper'><input type='checkbox' class='advanced-switch'></div>";
-    <?if (!$tabbed):?>
-    $("#docker_tabbed").html(content);
-    <?else:?>
-    var last = $('input[name$="tabs"]').length;
-    var elementId = "normalAdvanced";
-    $('.tabs').append("<span id='"+elementId+"' class='status vhshift' style='display:none;'>"+content+"&nbsp;</span>");
-    if ($('#tab'+this_tab).is(':checked')) {
-      $('#'+elementId).show();
-    }
-    $('#tab'+this_tab).bind({click:function(){$('#'+elementId).show();}});
-    for (var x=1; x<=last; x++) if(x != this_tab) $('#tab'+x).bind({click:function(){$('#'+elementId).hide();}});
-    <?endif;?>
-    $('.advanced-switch').switchButton({labels_placement: "left", on_label: 'Advanced View', off_label: 'Basic View'});
-    $('.advanced-switch').change(function() {
-      var status = $(this).is(':checked');
-      toggleRows('advanced', status, 'basic');
-      load_contOverview();
-      $("#catSelect").dropdownchecklist("destroy");
-      $("#catSelect").dropdownchecklist({emptyText:'Select categories...', maxDropHeight:200, width:300, explicitClose:'...close'});
+<script>
+var confNum = 0;
+var drivers = {};
+<?foreach ($driver as $d => $v) echo "drivers['$d']='$v';\n";?>
+
+if (!Array.prototype.forEach) {
+  Array.prototype.forEach = function(fn, scope) {
+    for (var i = 0, len = this.length; i < len; ++i) fn.call(scope, this[i], i, this);
+  };
+}
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined' ? args[number] : match;
     });
+  };
+}
+if (!String.prototype.replaceAll) {
+  String.prototype.replaceAll = function(str1, str2, ignore) {
+    return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+  };
+}
+// Create config nodes using templateDisplayConfig
+function makeConfig(opts) {
+  confNum += 1;
+  var newConfig = $("#templateDisplayConfig").html();
+  newConfig =  newConfig.format(
+    stripTags(opts.Name),
+    opts.Target,
+    opts.Default,
+    opts.Mode,
+    opts.Description,
+    opts.Type,
+    opts.Display,
+    opts.Required,
+    opts.Mask,
+    escapeQuote(opts.Value),
+    opts.Buttons,
+    opts.Required=='true' ? 'required' : ''
+  );
+  newConfig = "<div id='ConfigNum"+opts.Number+"' class='config_"+opts.Display+"'' >"+newConfig+"</div>";
+  newConfig = $($.parseHTML(newConfig));
+  value     = newConfig.find("input[name='confValue[]']");
+  if (opts.Type == "Path") {
+    value.attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+  } else if (opts.Type == "Device") {
+    value.attr("onclick", "openFileBrowser(this,$(this).val()||'/dev','',false,true);")
+  } else if (opts.Type == "Variable" && opts.Default.split("|").length > 1) {
+    var valueOpts = opts.Default.split("|");
+    var newValue = "<select name='confValue[]' class='selectVariable' default='"+valueOpts[0]+"'>";
+    for (var i = 0; i < valueOpts.length; i++) {
+      newValue += "<option value='"+valueOpts[i]+"' "+(opts.Value == valueOpts[i] ? "selected" : "")+">"+valueOpts[i]+"</option>";
+    }
+    newValue += "</select>";
+    value.replaceWith(newValue);
+  } else if (opts.Type == "Port") {
+    value.addClass("numbersOnly");
+  }
+  if (opts.Mask == "true") {
+    value.prop("type", "password");
+  }
+  return newConfig.prop('outerHTML');
+}
+
+function stripTags(string) {
+  return string.replace(/(<([^>]+)>)/ig,"");
+}
+
+function escapeQuote(string) {
+  return string.replace(new RegExp('"','g'),"&quot;");
+}
+
+function makeAllocations(container,current) {
+  var html = [];
+  for (var i=0,ct; ct=container[i]; i++) {
+    var highlight = ct.Name.toLowerCase()==current.toLowerCase() ? "font-weight:bold" : "";
+    html.push($("#templateAllocations").html().format(highlight,ct.Name,ct.Port));
+  }
+  return html.join('');
+}
+
+function getVal(el, name) {
+  var el = $(el).find("*[name="+name+"]");
+  if (el.length) {
+    return ($(el).attr('type') == 'checkbox') ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
+  } else {
+    return "";
+  }
+}
+
+function addConfigPopup() {
+  var title = '_(Add Configuration)_';
+  var popup = $("#dialogAddConfig");
+
+  // Load popup the popup with the template info
+  popup.html($("#templatePopupConfig").html());
+
+  // Add switchButton to checkboxes
+  popup.find(".switch").switchButton({labels_placement:"right",on_label:'_(Yes)_',off_label:'_(No)_'});
+  popup.find(".switch-button-background").css("margin-top", "6px");
+
+  // Load Mode field if needed and enable field
+  toggleMode(popup.find("*[name=Type]:first"),false);
+
+  // Start Dialog section
+  popup.dialog({
+    title: title,
+    resizable: false,
+    width: 900,
+    modal: true,
+    show : {effect: 'fade' , duration: 250},
+    hide : {effect: 'fade' , duration: 250},
+    buttons: {
+      _(Add)_: function() {
+        $(this).dialog("close");
+        confNum += 1;
+        var Opts = Object;
+        var Element = this;
+        ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
+          Opts[e] = getVal(Element, e);
+        });
+        if (!Opts.Name){
+          Opts.Name = makeName(Opts.Type);
+        }
+        if (!Opts.Description) {
+          Opts.Description = "_(Container)_ "+Opts.Type+": "+Opts.Target;
+        }
+        if (Opts.Required == "true") {
+          Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",false)'>_(Edit)_</button>";
+          Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button></span>";
+        } else {
+          Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+confNum+",false)'>_(Edit)_</button>";
+          Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button>";
+        }
+        Opts.Number = confNum;
+        newConf = makeConfig(Opts);
+        $("#configLocation").append(newConf);
+        reloadTriggers();
+        $('input[name="contName"]').trigger('change'); // signal change
+      },
+      _(Cancel)_: function() {
+        $(this).dialog("close");
+      }
+    }
+  });
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
+  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
+  $(".ui-button-text").css('padding','0px 5px');
+}
+
+function editConfigPopup(num,disabled) {
+  var title = '_(Edit Configuration)_';
+  var popup = $("#dialogAddConfig");
+
+  // Load popup the popup with the template info
+  popup.html($("#templatePopupConfig").html());
+
+  // Load existing config info
+  var config = $("#ConfigNum"+num);
+  config.find("input").each(function(){
+    var name = $(this).attr("name").replace("conf", "").replace("[]", "");
+    popup.find("*[name='"+name+"']").val($(this).val());
   });
 
-  var confNum = 0;
+  // Hide passwords if needed
+  if (popup.find("*[name='Mask']").val() == "true") {
+    popup.find("*[name='Value']").prop("type", "password");
+  }
 
-  if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(fn, scope) {
-      for (var i = 0, len = this.length; i < len; ++i) {
-        fn.call(scope, this[i], i, this);
+  // Load Mode field if needed
+  var mode = config.find("input[name='confMode[]']").val();
+  toggleMode(popup.find("*[name=Type]:first"),disabled);
+  popup.find("*[name=Mode]:first").val(mode);
+
+  // Add switchButton to checkboxes
+  popup.find(".switch").switchButton({labels_placement:"right",on_label:'_(Yes)_',off_label:'_(No)_'});
+
+  // Start Dialog section
+  popup.find(".switch-button-background").css("margin-top", "6px");
+  popup.dialog({
+    title: title,
+    resizable: false,
+    width: 900,
+    modal: true,
+    show: {effect:'fade', duration: 250},
+    hide: {effect:'fade', duration: 250},
+    buttons: {
+      _(Save)_: function() {
+        $(this).dialog("close");
+        var Opts = Object;
+        var Element = this;
+        ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
+          Opts[e] = getVal(Element, e);
+        });
+        if (Opts.Display == "always-hide" || Opts.Display == "advanced-hide") {
+          Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>_(Edit)_</button>";
+          Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>_(Remove)_</button></span>";
+        } else {
+          Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>_(Edit)_</button>";
+          Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>_(Remove)_</button>";
+        }
+        if (!Opts.Name){
+          Opts.Name = makeName(Opts.Type);
+        }
+        if (!Opts.Description) {
+          Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
+        }
+        Opts.Number = num;
+        newConf = makeConfig(Opts);
+        if (config.hasClass("config_"+Opts.Display)) {
+          config.html(newConf);
+          config.removeClass("config_always config_always-hide config_advanced config_advanced-hide").addClass("config_"+Opts.Display);
+        } else {
+          config.remove();
+          if (Opts.Display == 'advanced' || Opts.Display == 'advanced-hide') {
+            $("#configLocationAdvanced").append(newConf);
+          } else {
+            $("#configLocation").append(newConf);
+          }
+        }
+       reloadTriggers();
+        $('input[name="contName"]').trigger('change'); // signal change
+      },
+      _(Cancel)_: function() {
+        $(this).dialog("close");
       }
-    };
-  }
-
-  if (!String.prototype.format) {
-    String.prototype.format = function() {
-      var args = arguments;
-      return this.replace(/{(\d+)}/g, function(match, number) {
-        return typeof args[number] != 'undefined' ? args[number] : match;
-      });
-    };
-  }
-  if (!String.prototype.replaceAll) {
-    String.prototype.replaceAll = function(str1, str2, ignore) {
-      return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
-    };
-  }
-  // Create config nodes using templateDisplayConfig
-  function makeConfig(opts) {
-    confNum += 1;
-    var newConfig = $("#templateDisplayConfig").html();
-    newConfig = newConfig.format(stripTags(opts.Name),
-                                 opts.Target,
-                                 opts.Default,
-                                 opts.Mode,
-                                 opts.Description,
-                                 opts.Type,
-                                 opts.Display,
-                                 opts.Required,
-                                 opts.Mask,
-                                 escapeQuote(opts.Value),
-                                 opts.Buttons,
-                                 (opts.Required == "true") ? "required" : ""
-                                );
-    newConfig = "<div id='ConfigNum"+opts.Number+"' class='config_"+opts.Display+"'' >"+newConfig+"</div>";
-    newConfig = $($.parseHTML(newConfig));
-    value     = newConfig.find("input[name='confValue[]']");
-    if (opts.Type == "Path") {
-      value.attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
-    } else if (opts.Type == "Device") {
-      value.attr("onclick", "openFileBrowser(this,$(this).val()||'/dev','',false,true);")
-    } else if (opts.Type == "Variable" && opts.Default.split("|").length > 1) {
-      var valueOpts = opts.Default.split("|");
-      var newValue = "<select name='confValue[]' class='selectVariable' default='"+valueOpts[0]+"'>";
-      for (var i = 0; i < valueOpts.length; i++) {
-        newValue += "<option value='"+valueOpts[i]+"' "+(opts.Value == valueOpts[i] ? "selected" : "")+">"+valueOpts[i]+"</option>";
-      }
-      newValue += "</select>";
-      value.replaceWith(newValue);
-    } else if (opts.Type == "Port") {
-      value.addClass("numbersOnly");
     }
-    if (opts.Mask == "true") {
-      value.prop("type", "password");
-    }
-    return newConfig.prop('outerHTML');
-  }
-  function stripTags(string) {
-    return string.replace(/(<([^>]+)>)/ig,"");
-  }
-	
-  function escapeQuote(string) {
-    return string.replace(new RegExp('"','g'),"&quot;");
-  }
+  });
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
+  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
+  $(".ui-button-text").css('padding','0px 5px');
+  $('.desc_readmore').readmore({maxHeight:10});
+}
 
-  function makeAllocations(container,current) {
-    var html = [];
-    for (var i=0,ct; ct=container[i]; i++) {
-      var highlight = ct.Name.toLowerCase()==current.toLowerCase() ? "font-weight:bold" : "";
-      html.push($("#templateAllocations").html().format(highlight,ct.Name,ct.Port));
-    }
-    return html.join('');
-  }
+function removeConfig(num) {
+  $('#ConfigNum'+num).fadeOut("fast", function() {$(this).remove();});
+  $('input[name="contName"]').trigger('change'); // signal change
+}
 
-  function getVal(el, name) {
-    var el = $(el).find("*[name="+name+"]");
-    if (el.length) {
-      return ($(el).attr('type') == 'checkbox') ? ($(el).is(':checked') ? "on" : "off") : $(el).val();
+function prepareConfig(form) {
+  var types = [], values = [], targets = [], vcpu = [];
+  if ($('select[name="contNetwork"]').val()=='host') {
+    $(form).find('input[name="confType[]"]').each(function(){types.push($(this).val());});
+    $(form).find('input[name="confValue[]"]').each(function(){values.push($(this));});
+    $(form).find('input[name="confTarget[]"]').each(function(){targets.push($(this));});
+    for (var i=0; i < types.length; i++) if (types[i]=='Port') $(targets[i]).val($(values[i]).val());
+  }
+  $(form).find('input[id^="box"]').each(function(){if ($(this).prop('checked')) vcpu.push($('#'+$(this).prop('id').replace('box','cpu')).text());});
+  form.contCPUset.value = vcpu.join(',');
+}
+
+function makeName(type) {
+  var i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
+  return "Host "+type.replace('Variable','Key')+" "+i;
+}
+
+function toggleMode(el,disabled) {
+  var div        = $(el).closest('div');
+  var targetDiv  = div.find('#Target');
+  var valueDiv   = div.find('#Value');
+  var defaultDiv = div.find('#Default');
+  var mode       = div.find('#Mode');
+  var value      = valueDiv.find('input[name=Value]');
+  var target     = targetDiv.find('input[name=Target]');
+  var driver     = drivers[$('select[name="contNetwork"]')[0].value];
+  value.unbind();
+  target.unbind();
+  valueDiv.css('display', '');
+  defaultDiv.css('display', '');
+  targetDiv.css('display', '');
+  mode.html('');
+  $(el).prop('disabled',disabled);
+  switch ($(el)[0].selectedIndex) {
+  case 0: // Path
+    mode.html("<dl><dt>_(Access Mode)_:</dt><dd><select name='Mode'><option value='rw'>_(Read/Write)_</option><option value='rw,slave'>_(Read/Write - Slave)_</option><option value='rw,shared'>_(Read/Write - Shared)_</option><option value='ro'>_(Read Only)_</option><option value='ro,slave'>_(Read Only - Slave)_</option><option value='ro,shared'>_(Read Only - Shared)_</option></select></dd></dl>");
+    value.bind("click", function(){openFileBrowser(this,$(this).val(), 'sh', true, false);});
+    targetDiv.find('#dt1').text('_(Container Path)_');
+    valueDiv.find('#dt2').text('_(Host Path)_');
+    break;
+  case 1: // Port
+    mode.html("<dl><dt>_(Connection Type)_:</dt><dd><select name='Mode'><option value='tcp'>_(TCP)_</option><option value='udp'>_(UDP)_</option></select></dd></dl>");
+    value.addClass("numbersOnly");
+    if (driver=='bridge') {
+      if (target.val()) target.prop('disabled',<?=$disableEdit?>); else target.addClass("numbersOnly");
+      targetDiv.find('#dt1').text('_(Container Port)_');
+      targetDiv.show();
     } else {
-      return "";
-    }
-  }
-
-  function addConfigPopup() {
-    var title = 'Add Configuration';
-    var popup = $("#dialogAddConfig");
-
-    // Load popup the popup with the template info
-    popup.html($("#templatePopupConfig").html());
-
-    // Add switchButton to checkboxes
-    popup.find(".switch").switchButton({labels_placement:"right",on_label:'YES',off_label:'NO'});
-    popup.find(".switch-button-background").css("margin-top", "6px");
-
-    // Load Mode field if needed and enable field
-    toggleMode(popup.find("*[name=Type]:first"),false);
-
-    // Start Dialog section
-    popup.dialog({
-      title: title,
-      resizable: false,
-      width: 900,
-      modal: true,
-      show : {effect: 'fade' , duration: 250},
-      hide : {effect: 'fade' , duration: 250},
-      buttons: {
-        "Add": function() {
-          $(this).dialog("close");
-          confNum += 1;
-          var Opts = Object;
-          var Element = this;
-          ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
-            Opts[e] = getVal(Element, e);
-          });
-          if (!Opts.Name){
-            Opts.Name = makeName(Opts.Type);
-          }
-          if (!Opts.Description) {
-            Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
-          }
-          if (Opts.Required == "true") {
-            Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",false)'>Edit</button>";
-            Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>Remove</button></span>";
-          } else {
-            Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+confNum+",false)'>Edit</button>";
-            Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>Remove</button>";
-          }
-          Opts.Number = confNum;
-          newConf = makeConfig(Opts);
-          $("#configLocation").append(newConf);
-          reloadTriggers();
-          $('input[name="contName"]').trigger('change'); // signal change
-        },
-        Cancel: function() {
-          $(this).dialog("close");
-        }
-      }
-    });
-    $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-    $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-    $(".ui-button-text").css('padding','0px 5px');
-  }
-
-  function editConfigPopup(num,disabled) {
-    var title = 'Edit Configuration';
-    var popup = $("#dialogAddConfig");
-
-    // Load popup the popup with the template info
-    popup.html($("#templatePopupConfig").html());
-
-    // Load existing config info
-    var config = $("#ConfigNum"+num);
-    config.find("input").each(function(){
-      var name = $(this).attr("name").replace("conf", "").replace("[]", "");
-      popup.find("*[name='"+name+"']").val($(this).val());
-    });
-
-    // Hide passwords if needed
-    if (popup.find("*[name='Mask']").val() == "true") {
-      popup.find("*[name='Value']").prop("type", "password");
-    }
-
-    // Load Mode field if needed
-    var mode = config.find("input[name='confMode[]']").val();
-    toggleMode(popup.find("*[name=Type]:first"),disabled);
-    popup.find("*[name=Mode]:first").val(mode);
-
-    // Add switchButton to checkboxes
-    popup.find(".switch").switchButton({labels_placement:"right",on_label:'YES',off_label:'NO'});
-
-    // Start Dialog section
-    popup.find(".switch-button-background").css("margin-top", "6px");
-    popup.dialog({
-      title: title,
-      resizable: false,
-      width: 900,
-      modal: true,
-      show : {effect: 'fade' , duration: 250},
-      hide : {effect: 'fade' , duration: 250},
-      buttons: {
-        "Save": function() {
-          $(this).dialog("close");
-          var Opts = Object;
-          var Element = this;
-          ["Name","Target","Default","Mode","Description","Type","Display","Required","Mask","Value"].forEach(function(e){
-            Opts[e] = getVal(Element, e);
-          });
-          if (Opts.Display == "always-hide" || Opts.Display == "advanced-hide") {
-            Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>Edit</button>";
-            Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>Remove</button></span>";
-          } else {
-            Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+num+",<?=$disableEdit?>)'>Edit</button>";
-            Opts.Buttons += "<button type='button' onclick='removeConfig("+num+")'>Remove</button>";
-          }
-          if (!Opts.Name){
-            Opts.Name = makeName(Opts.Type);
-          }
-          if (!Opts.Description) {
-            Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
-          }
-          Opts.Number = num;
-          newConf = makeConfig(Opts);
-          if (config.hasClass("config_"+Opts.Display)) {
-            config.html(newConf);
-            config.removeClass("config_always config_always-hide config_advanced config_advanced-hide").addClass("config_"+Opts.Display);
-          } else {
-            config.remove();
-            if (Opts.Display == 'advanced' || Opts.Display == 'advanced-hide') {
-              $("#configLocationAdvanced").append(newConf);
-            } else {
-              $("#configLocation").append(newConf);
-            }
-          }
-         reloadTriggers();
-          $('input[name="contName"]').trigger('change'); // signal change
-        },
-        Cancel: function() {
-          $(this).dialog("close");
-        }
-      }
-    });
-    $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-    $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-    $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-    $(".ui-button-text").css('padding','0px 5px');
-    $('.desc_readmore').readmore({maxHeight:10});
-  }
-
-  function removeConfig(num) {
-    $('#ConfigNum'+num).fadeOut("fast", function() {$(this).remove();});
-    $('input[name="contName"]').trigger('change'); // signal change
-  }
-
-  function prepareConfig(form) {
-    var types = [], values = [], targets = [], vcpu = [];
-    if ($('select[name="contNetwork"]').val()=='host') {
-      $(form).find('input[name="confType[]"]').each(function(){types.push($(this).val());});
-      $(form).find('input[name="confValue[]"]').each(function(){values.push($(this));});
-      $(form).find('input[name="confTarget[]"]').each(function(){targets.push($(this));});
-      for (var i=0; i < types.length; i++) if (types[i]=='Port') $(targets[i]).val($(values[i]).val());
-    }
-    $(form).find('input[id^="box"]').each(function(){if ($(this).prop('checked')) vcpu.push($('#'+$(this).prop('id').replace('box','cpu')).text());});
-    form.contCPUset.value = vcpu.join(',');
-  }
-
-  function makeName(type) {
-    var i = $("#configLocation input[name^='confType'][value='"+type+"']").length+1;
-    return "Host "+type.replace('Variable','Key')+" "+i;
-  }
-
-  function toggleMode(el,disabled) {
-    var mode       = $(el).parent().siblings('#Mode');
-    var valueDiv   = $(el).parent().siblings('#Value');
-    var defaultDiv = $(el).parent().siblings('#Default');
-    var targetDiv  = $(el).parent().siblings('#Target');
-
-    var value      = valueDiv.find('input[name=Value]');
-    var target     = targetDiv.find('input[name=Target]');
-    var driver     = drivers[$('select[name="contNetwork"]')[0].value];
-
-    value.unbind();
-    target.unbind();
-
-    valueDiv.css('display', '');
-    defaultDiv.css('display', '');
-    targetDiv.css('display', '');
-    mode.html('');
-
-    $(el).prop('disabled',disabled);
-    switch ($(el)[0].selectedIndex) {
-    case 0: // Path
-      mode.html("<dt>Access Mode:</dt><dd><select name='Mode'><option value='rw'>Read/Write</option><option value='rw,slave'>RW/Slave</option><option value='rw,shared'>RW/Shared</option><option value='ro'>Read Only</option><option value='ro,slave'>RO/Slave</option><option value='ro,shared'>RO/Shared</option></select></dd>");
-      value.bind("click", function(){openFileBrowser(this,$(this).val(), 'sh', true, false);});
-      targetDiv.find('#dt1').text('Container Path:');
-      valueDiv.find('#dt2').text('Host Path:');
-      break;
-    case 1: // Port
-      mode.html("<dt>Connection Type:</dt><dd><select name='Mode'><option value='tcp'>TCP</option><option value='udp'>UDP</option></select></dd>");
-      value.addClass("numbersOnly");
-      if (driver=='bridge') {
-        if (target.val()) target.prop('disabled',<?=$disableEdit?>); else target.addClass("numbersOnly");
-        targetDiv.find('#dt1').text('Container Port:');
-        targetDiv.show();
-      } else {
-        targetDiv.hide();
-      }
-      if (driver!='null') {
-        valueDiv.find('#dt2').text('Host Port:');
-        valueDiv.show();
-      } else {
-        valueDiv.hide();
-        mode.html('');
-      }
-      break;
-    case 2: // Variable
-      targetDiv.find('#dt1').text('Key:');
-      valueDiv.find('#dt2').text('Value:');
-      break;
-    case 3: // Label
-      targetDiv.find('#dt1').text('Key:');
-      valueDiv.find('#dt2').text('Value:');
-      break;
-    case 4: // Device
       targetDiv.hide();
-      defaultDiv.hide();
-      valueDiv.find('#dt2').text('Value:');
-      value.bind("click", function(){openFileBrowser(this,$(this).val()||'/dev', '', true, true);});
-      break;
     }
-    reloadTriggers();
-  }
-
-  function loadTemplate(el) {
-    var template = $(el).val();
-    if (template.length) {
-      $('#formTemplate').find("input[name='xmlTemplate']").val(template);
-      $('#formTemplate').submit();
+    if (driver!='null') {
+      valueDiv.find('#dt2').text('_(Host Port)_');
+      valueDiv.show();
+    } else {
+      valueDiv.hide();
+      mode.html('');
     }
+    break;
+  case 2: // Variable
+    targetDiv.find('#dt1').text('_(Key)_');
+    valueDiv.find('#dt2').text('_(Value)_');
+    break;
+  case 3: // Label
+    targetDiv.find('#dt1').text('_(Key)_');
+    valueDiv.find('#dt2').text('_(Value)_');
+    break;
+  case 4: // Device
+    targetDiv.hide();
+    defaultDiv.hide();
+    valueDiv.find('#dt2').text('_(Value)_');
+    value.bind("click", function(){openFileBrowser(this,$(this).val()||'/dev', '', true, true);});
+    break;
   }
+  reloadTriggers();
+}
 
-  function rmTemplate(tmpl) {
-    var name = tmpl.split(/[\/]+/).pop();
-    swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+function loadTemplate(el) {
+  var template = $(el).val();
+  if (template.length) {
+    $('#formTemplate').find("input[name='xmlTemplate']").val(template);
+    $('#formTemplate').submit();
   }
+}
 
-  function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
-    if (on_folders === undefined) on_folders = true;
-    if (on_files   === undefined) on_files = true;
-    if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
-    if (!root.trim()) root = "/mnt/user/";
-    p = $(el);
-    // Skip is fileTree is already open
-    if (p.next().hasClass('fileTree')) return null;
-    // create a random id
-    var r = Math.floor((Math.random()*1000)+1);
-    // Add a new span and load fileTree
-    p.after("<span id='fileTree"+r+"' class='textarea fileTree'></span>");
-    var ft = $('#fileTree'+r);
-    ft.fileTree({
-      root: root,
-      filter: filter,
-      allowBrowsing: true
-    },
-    function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-    function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
-    // Format fileTree according to parent position, height and width
-    ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
-    // close if click elsewhere
-    $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
-    // close if parent changed
-    p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
-    // Open fileTree
-    ft.slideDown('fast');
-  }
+function rmTemplate(tmpl) {
+  var name = tmpl.split(/[\/]+/).pop();
+  swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+}
 
-  function resetField(el) {
-    var target = $(el).prev();
-    reset = target.attr("default");
-    if (reset.length) {
-      target.val(reset);
-    }
-  }
+function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
+  if (on_folders === undefined) on_folders = true;
+  if (on_files   === undefined) on_files = true;
+  if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
+  if (!root.trim()) root = "/mnt/user/";
+  p = $(el);
+  // Skip is fileTree is already open
+  if (p.next().hasClass('fileTree')) return null;
+  // create a random id
+  var r = Math.floor((Math.random()*1000)+1);
+  // Add a new span and load fileTree
+  p.after("<span id='fileTree"+r+"' class='textarea fileTree'></span>");
+  var ft = $('#fileTree'+r);
+  ft.fileTree({
+    root: root,
+    filter: filter,
+    allowBrowsing: true
+  },
+  function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
+  function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
+  // Format fileTree according to parent position, height and width
+  ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
+  // close if click elsewhere
+  $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
+  // close if parent changed
+  p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
+  // Open fileTree
+  ft.slideDown('fast');
+}
 
-  function prepareCategory() {
-    var values = $.map($('#catSelect option') ,function(option) {
-      if ($(option).is(":selected")) {
-        return option.value;
-      }
-    });
-    $("input[name='contCategory']").val(values.join(" "));
-  }
-  var drivers = {};
-  <?foreach ($driver as $d => $v) echo "drivers['$d']='$v';\n";?>
+function resetField(el) {
+  var target = $(el).prev();
+  reset = target.attr("default");
+  if (reset.length) target.val(reset);
+}
+
+function prepareCategory() {
+  var values = $.map($('#catSelect option'),function(option) {
+    if ($(option).is(":selected")) return option.value;
+  });
+  $("input[name='contCategory']").val(values.join(" "));
+}
+
+$(function() {
+  var ctrl = "<span class='status <?=$tabbed?'':'vhshift'?>'><input type='checkbox' class='advancedview'></span>";
+<?if ($tabbed):?>
+  $('.tabs').append(ctrl);
+<?else:?>
+  $('div[id=title]').append(ctrl);
+<?endif;?>
+  $('.advancedview').switchButton({labels_placement:'left', on_label: '_(Advanced View)_', off_label: '_(Basic View)_'});
+  $('.advancedview').change(function() {
+    var status = $(this).is(':checked');
+    toggleRows('advanced', status, 'basic');
+    load_contOverview();
+    $("#catSelect").dropdownchecklist("destroy");
+    $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
+  });
+});
 </script>
-<div id="docker_tabbed" style="float:right;margin-top:-47px"></div>
-<div id="dialogAddConfig" style="display:none"></div>
+<div id="canvas">
+<form markdown="1" method="POST" autocomplete="off" onsubmit="prepareConfig(this)">
+<input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>">
+<input type="hidden" name="contCPUset" value="">
+<?if ($xmlType=='edit'):?>
+<?if ($DockerClient->doesContainerExist($templateName)):?>
+<input type="hidden" name="existingContainer" value="<?=$templateName?>">
+<?endif;?>
+<?else:?>
+<div markdown="1" class="TemplateDropDown">
+_(Template)_:
+: <select id="TemplateSelect" onchange="loadTemplate(this);">
+  <?echo mk_option(0,"",_('Select a template'));
+  $rmadd = '';
+  $templates = [];
+  $templates['default'] = $DockerTemplates->getTemplates('default');
+  $templates['user'] = $DockerTemplates->getTemplates('user');
+  foreach ($templates as $section => $template) {
+    $title = ucfirst($section)." templates";
+    printf("<optgroup class='title bold' label='[ %s ]'>", htmlspecialchars($title));
+    foreach ($template as $value){
+      $name = str_replace('my-', '', $value['name']);
+      $selected = (isset($xmlTemplate) && $value['path']==$xmlTemplate) ? ' selected ' : '';
+      if ($selected && $section=='default') $showAdditionalInfo = 'advanced';
+      if ($selected && $section=='user') $rmadd = $value['path'];
+      printf("<option class='list' value='%s:%s' $selected>%s</option>", htmlspecialchars($section), htmlspecialchars($value['path']), htmlspecialchars($name));
+    }
+    if (!$template) echo("<option class='list' disabled>&lt;none&gt;</option>");
+    printf("</optgroup>");
+  }
+  ?></select><?if ($rmadd):?><i class="fa fa-window-close button" title="<?=htmlspecialchars($rmadd)?>" onclick="rmTemplate('<?=addslashes(htmlspecialchars($rmadd))?>')"></i><?endif;?>
+
+:help
+> Templates are a quicker way to setting up Docker Containers on your Unraid server.  There are two types of templates:
+>
+> **Default templates**<br>
+> When valid repositories are added to your Docker Repositories page, they will appear in a section on this drop down for you to choose (master categorized by author, then by application template).
+> After selecting a default template, the page will populate with new information about the application in the Description field, and will typically provide instructions for how to setup the container.
+> Select a default template when it is the first time you are configuring this application.
+>
+> **User-defined templates**<br>
+> Once you've added an application to your system through a Default template,
+> the settings you specified are saved to your USB flash device to make it easy to rebuild your applications in the event an upgrade were to fail or if another issue occurred.
+> To rebuild, simply select the previously loaded application from the User-defined list and all the settings for the container will appear populated from your previous setup.
+> Clicking create will redownload the necessary files for the application and should restore you to a working state.
+> To delete a User-defined template, select it from the list above and click the red X to the right of it.
+:end
+
+</div>
+<?endif;?>
+
+<div markdown="1" class="<?=$showAdditionalInfo?>">
+_(Name)_:
+: <input type="text" name="contName" required>
+
+:help
+> Give the container a name or leave it as default.
+:end
+
+</div>
+<div markdown="1" class="basic">
+_(Overview)_:
+: <span id="contDescription" class="boxed blue-text"></span>
+
+</div>
+<div markdown="1" class="advanced">
+_(Overview)_:
+: <textarea name="contOverview" spellcheck="false" cols="80" rows="15" style="width:56%"></textarea>
+
+:help
+> A description for the application container.  Supports basic HTML mark-up.
+:end
+
+</div>
+
+<div markdown="1" class="<?=$showAdditionalInfo?>">
+_(Repository)_:
+: <input type="text" name="contRepository" required>
+
+:help
+> The repository for the application on the Docker Registry.  Format of authorname/appname.
+> Optionally you can add a : after appname and request a specific version for the container image.
+:end
+
+</div>
+<div markdown="1" class="<?=$authoring?>">
+_(Categories)_:
+: <input type="hidden" name="contCategory">
+  <select id="catSelect" size="1" multiple="multiple" style="display:none" onchange="prepareCategory();">
+  <optgroup label="_(Categories)_">
+  <option value="Backup:">_(Backup)_</option>
+  <option value="Cloud:">_(Cloud)_</option>
+  <option value="Downloaders:">_(Downloaders)_</option>
+  <option value="GameServers:">_(Game Servers)_</option>
+  <option value="HomeAutomation:">_(Home Automation)_</option>
+  <option value="Productivity:">_(Productivity)_</option>
+  <option value="Security:">_(Security)_</option>
+  <option value="Tools:">_(Tools)_</option>
+  <option value="Other:">_(Other)_</option>
+  </optgroup>
+  <optgroup label="_(MediaApp)_">
+  <option value="MediaApp:Video">_(MediaApp)_:_(Video)_</option>
+  <option value="MediaApp:Music">_(MediaApp)_:_(Music)_</option>
+  <option value="MediaApp:Books">_(MediaApp)_:_(Books)_</option>
+  <option value="MediaApp:Photos">_(MediaApp)_:_(Photos)_</option>
+  <option value="MediaApp:Other">_(MediaApp)_:_(Other)_</option>
+  </optgroup>
+  <optgroup label="_(MediaServer)_">
+  <option value="MediaServer:Video">_(MediaServer)_:_(Video)_</option>
+  <option value="MediaServer:Music">_(MediaServer)_:_(Music)_</option>
+  <option value="MediaServer:Books">_(MediaServer)_:_(Books)_</option>
+  <option value="MediaServer:Photos">_(MediaServer)_:_(Photos)_</option>
+  <option value="MediaServer:Other">_(MediaServer)_:_(Other)_</option>
+  </optgroup>
+  <optgroup label="_(Network)_">
+  <option value="Network:Web">_(Network)_:_(Web)_</option>
+  <option value="Network:DNS">_(Network)_:_(DNS)_</option>
+  <option value="Network:FTP">_(Network)_:_(FTP)_</option>
+  <option value="Network:Proxy">_(Network)_:_(Proxy)_</option>
+  <option value="Network:Voip">_(Network)_:_(Voip)_</option>
+  <option value="Network:Management">_(Network)_:_(Management)_</option>
+  <option value="Network:Messenger">_(Network)_:_(Messenger)_</option>
+  <option value="Network:VPN">_(Network)_:_(VPN)_</option>
+  <option value="Network:Other">_(Network)_:_(Other)_</option>
+  </optgroup>
+  <optgroup label="_(Development Status)_">
+  <option value="Status:Stable">_(Status)_:_(Stable)_</option>
+  <option value="Status:Beta">_(Status)_:_(Beta)_</option>
+  </optgroup>
+  </select>
+
+_(Support Thread)_:
+: <input type="text" name="contSupport">
+
+:help
+> Link to a support thread on Lime-Technology's forum.
+:end
+
+_(Project Page)_:
+: <input type="text" name="contProject">
+
+:help
+> Link to the project page (eg: www.plex.tv)
+:end
+
+_(Donation Text)_:
+: <input type="text" name="contDonateText">
+
+:help
+> Text to appear on Donation Links Within The Apps Tab
+:end
+
+_(Donation Link)_:
+: <input type="text" name="contDonateLink">
+
+:help
+> Link to the donation page.  If using donation's, both the image and link must be set
+:end
+
+</div>
+<div markdown="1" class="advanced">
+_(Docker Hub URL)_:
+: <input type="text" name="contRegistry"></td>
+
+:help
+> The path to the container's repository location on the Docker Hub.
+:end
+
+</div>
+<div markdown="1" class="noshow"> <!-- Deprecated for author to enter or change, but needs to be present -->
+_(Template URL)_:
+: <input type="text" name="contTemplateURL">
+
+:help
+> This URL is used to keep the template updated.
+:end
+
+</div>
+<div markdown="1" class="advanced">
+_(Icon URL)_:
+: <input type="text" name="contIcon">
+
+:help
+> Link to the icon image for your application (only displayed on dashboard if Show Dashboard apps under Display Settings is set to Icons).
+:end
+
+_(WebUI)_:
+: <input type="text" name="contWebUI">
+
+:help
+> When you click on an application icon from the Docker Containers page, the WebUI option will link to the path in this field.
+> Use [IP] to identify the IP of your host and [PORT:####] replacing the #'s for your port.
+:end
+
+_(Extra Parameters)_:
+: <input type="text" name="contExtraParams">
+
+:help
+> If you wish to append additional commands to your Docker container at run-time, you can specify them here.<br>
+> For all possible Docker run-time commands, see here: <a href="https://docs.docker.com/reference/run/" target="_blank">https://docs.docker.com/reference/run/</a>
+:end
+
+_(Post Arguments)_:
+: <input type="text" name="contPostArgs">
+
+:help
+> If you wish to append additional arguments AFTER the container definition, you can specify them here.
+> The content of this field is container specific.
+:end
+
+_(CPU Pinning)_:
+: <span style="display:inline-block"><?cpu_pinning()?></span>
+
+:help
+> Checking a CPU core(s) will limit the container to run on the selected cores only. Selecting no cores lets the container run on all available cores (default)
+:end
+
+</div>
+_(Network Type)_:
+: <select name="contNetwork" onchange="showSubnet(this.value)">
+  <?=mk_option(1,'bridge',_('Bridge'))?>
+  <?=mk_option(1,'host',_('Host'))?>
+  <?=mk_option(1,'none',_('None'))?>
+  <?foreach ($custom as $network):?>
+  <?=mk_option(1,$network,_('Custom')." : $network")?>
+  <?endforeach;?></select>
+
+<div markdown="1" class="myIP noshow">
+_(Fixed IP address)_ (_(optional)_):
+: <input type="text" name="contMyIP"><span id="myIP"></span>
+
+:help
+> If the Bridge type is selected, the application’s network access will be restricted to only communicating on the ports specified in the port mappings section.
+> If the Host type is selected, the application will be given access to communicate using any port on the host that isn’t already mapped to another in-use application/service.
+> Generally speaking, it is recommended to leave this setting to its default value as specified per application template.
+>
+> IMPORTANT NOTE:  If adjusting port mappings, do not modify the settings for the Container port as only the Host port can be adjusted.
+:end
+
+</div>
+_(Console shell command)_:
+: <select name="contShell">
+  <?=mk_option(1,'sh',_('Shell'))?>
+  <?=mk_option(1,'bash',_('Bash'))?>
+  </select>
+
+_(Privileged)_:
+: <input type="checkbox" class="switch-on-off" name="contPrivileged">
+
+:help
+> For containers that require the use of host-device access directly or need full exposure to host capabilities, this option will need to be selected.
+> For more information, see this link: <a href="https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities" target="_blank">https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities</a>
+:end
+
+&nbsp;
+: <span id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="cursor:pointer"><i class="fa fa-fw fa-chevron-down"></i> _(Show more settings)_ ...</a></span><div id="configLocationAdvanced" style="display:none"></div>
+
+&nbsp;
+: <span id="allocations_toggle" class="readmore_collapsed"><a onclick="toggleAllocations()" style="cursor:pointer"><i class="fa fa-fw fa-chevron-down"></i> _(Show docker allocations)_ ...</a></span><div id="dockerAllocations" style="display:none"></div>
+
+&nbsp;
+: <a href="javascript:addConfigPopup()"><i class="fa fa-fw fa-plus"></i> _(Add another Path, Port, Variable, Label or Device)_</a>
+
+&nbsp;
+: <input type="submit" value="<?=$xmlType=='edit' ? '_(Apply)_' : ' _(Apply)_ '?>"><input type="button" value="_(Done)_" onclick="done()">
+  <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">_(Save)_</button><?endif;?>
+
+</form>
+</div>
+
 <form method="GET" id="formTemplate">
-  <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="" />
-  <input type="hidden" id="rmTemplate" name="rmTemplate" value="" />
+  <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
+  <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
 </form>
 
-<div id="canvas">
-  <form method="POST" autocomplete="off" onsubmit="prepareConfig(this)">
-    <input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>">
-    <input type="hidden" name="contCPUset" value="">
-    <table class="settings">
-      <? if ($xmlType == 'edit'):
-      if ($DockerClient->doesContainerExist($templateName)): echo "<input type='hidden' name='existingContainer' value='${templateName}'>\n"; endif;
-      else:?>
-      <tr class='TemplateDropDown'>
-        <td>Template:</td>
-        <td>
-          <select id="TemplateSelect" size="1" onchange="loadTemplate(this);">
-            <option value="">Select a template</option>
-            <?
-            $rmadd = '';
-            $templates = [];
-            $templates['default'] = $DockerTemplates->getTemplates('default');
-            $templates['user'] = $DockerTemplates->getTemplates('user');
-            foreach ($templates as $section => $template) {
-              $title = ucfirst($section)." templates";
-              printf("<optgroup class='title bold' label='[ %s ]'>", htmlspecialchars($title));
-              foreach ($template as $value){
-                $name = str_replace('my-', '', $value['name']);
-                $selected = (isset($xmlTemplate) && $value['path']==$xmlTemplate) ? ' selected ' : '';
-                if ($selected && $section=='default') $showAdditionalInfo = 'class="advanced"';
-                if ($selected && $section=='user') $rmadd = $value['path'];
-                printf("<option class='list' value='%s:%s' $selected>%s</option>", htmlspecialchars($section), htmlspecialchars($value['path']), htmlspecialchars($name));
-              }
-              if (!$template) echo("<option class='list' disabled>&lt;none&gt;</option>");
-              printf("</optgroup>");
-            }
-            ?>
-          </select>
-          <?if ($rmadd) {
-            echo "<i class='fa fa-window-close button' title=\"".htmlspecialchars($rmadd)."\" onclick='rmTemplate(\"".addslashes(htmlspecialchars($rmadd))."\")'></i>";
-          }?>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Templates are a quicker way to setting up Docker Containers on your Unraid server.  There are two types of templates:</p>
-
-            <p>
-              <b>Default templates</b><br>
-              When valid repositories are added to your Docker Repositories page, they will appear in a section on this drop down for you to choose (master categorized by author, then by application template).
-              After selecting a default template, the page will populate with new information about the application in the Description field, and will typically provide instructions for how to setup the container.
-              Select a default template when it is the first time you are configuring this application.
-            </p>
-
-            <p>
-              <b>User-defined templates</b><br>
-              Once you've added an application to your system through a Default template,
-              the settings you specified are saved to your USB flash device to make it easy to rebuild your applications in the event an upgrade were to fail or if another issue occurred.
-              To rebuild, simply select the previously loaded application from the User-defined list and all the settings for the container will appear populated from your previous setup.
-              Clicking create will redownload the necessary files for the application and should restore you to a working state.
-              To delete a User-defined template, select it from the list above and click the red X to the right of it.
-            </p>
-          </blockquote>
-        </td>
-      </tr>
-      <?endif;?>
-      <tr <?=$showAdditionalInfo?>>
-        <td>Name:</td>
-        <td><input type="text" name="contName" required></td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Give the container a name or leave it as default.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr id="Overview" class="basic">
-        <td>Overview:</td>
-        <td><div id="contDescription" class="blue-text textTemplate"></div></td>
-      </tr>
-      <tr id="Overview" class="advanced">
-        <td>Overview:</td>
-        <td><textarea name="contOverview" rows="10" class="textTemplate"></textarea></td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>A description for the application container.  Supports basic HTML mark-up.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td>Repository:</td>
-        <td><input type="text" name="contRepository" required></td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>The repository for the application on the Docker Registry.  Format of authorname/appname.
-            Optionally you can add a : after appname and request a specific version for the container image.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td>Categories:</td>
-        <td>
-          <input type="hidden" name="contCategory">
-          <select id="catSelect" size="1" multiple="multiple" style="display:none" onchange="prepareCategory();">
-            <optgroup label="Categories">
-              <option value="Backup:">Backup</option>
-              <option value="Cloud:">Cloud</option>
-              <option value="Downloaders:">Downloaders</option>
-              <option value="GameServers:">Game Servers</option>
-              <option value="HomeAutomation:">HomeAutomation</option>
-              <option value="Productivity:">Productivity</option>
-              <option value="Security:">Security</option>
-              <option value="Tools:">Tools</option>
-              <option value="Other:">Other</option>
-            </optgroup>
-            <optgroup label="MediaApp">
-              <option value="MediaApp:Video">MediaApp:Video</option>
-              <option value="MediaApp:Music">MediaApp:Music</option>
-              <option value="MediaApp:Books">MediaApp:Books</option>
-              <option value="MediaApp:Photos">MediaApp:Photos</option>
-              <option value="MediaApp:Other">MediaApp:Other</option>
-            </optgroup>
-            <optgroup label="MediaServer">
-              <option value="MediaServer:Video">MediaServer:Video</option>
-              <option value="MediaServer:Music">MediaServer:Music</option>
-              <option value="MediaServer:Books">MediaServer:Books</option>
-              <option value="MediaServer:Photos">MediaServer:Photos</option>
-              <option value="MediaServer:Other">MediaServer:Other</option>
-            </optgroup>
-            <optgroup label="Network">
-              <option value="Network:Web">Network:Web</option>
-              <option value="Network:DNS">Network:DNS</option>
-              <option value="Network:FTP">Network:FTP</option>
-              <option value="Network:Proxy">Network:Proxy</option>
-              <option value="Network:Voip">Network:Voip</option>
-              <option value="Network:Management">Network:Management</option>
-              <option value="Network:Messenger">Network:Messenger</option>
-              <option value="Network:VPN">Network:VPN</option>
-              <option value="Network:Other">Network:Other</option>
-            </optgroup>
-            <optgroup label="Development Status">
-              <option value="Status:Stable">Status:Stable</option>
-              <option value="Status:Beta">Status:Beta</option>
-            </optgroup>
-          </select>
-        </td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td>Support Thread:</td>
-        <td><input type="text" name="contSupport"></td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Link to a support thread on Lime-Technology's forum.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td>Project Page:</td>
-        <td><input type="text" name="contProject"></td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Link to the project page (eg: www.plex.tv)</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td>Donation Text:</td>
-        <td><input type="text" name="contDonateText"></td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Text to appear on Donation Links Within The Apps Tab</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td>Donation Link:</td>
-        <td><input type="text" name="contDonateLink"></td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Link to the donation page.  If using donation's, both the image and link must be set</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="advanced">
-        <td>Docker Hub URL:</td>
-        <td><input type="text" name="contRegistry"></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>The path to the container's repository location on the Docker Hub.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class='noshow'> <!-- Deprecated for author to enter or change, but needs to be present -->
-        <td>Template URL:</td>
-        <td><input type="text" name="contTemplateURL"></td>
-      </tr>
-      <tr class="<?=$authoring;?>">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>This URL is used to keep the template updated.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="advanced">
-        <td>Icon URL:</td>
-        <td><input type="text" name="contIcon"></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Link to the icon image for your application (only displayed on dashboard if Show Dashboard apps under Display Settings is set to Icons).</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="advanced">
-        <td>WebUI:</td>
-        <td><input type="text" name="contWebUI"></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>When you click on an application icon from the Docker Containers page, the WebUI option will link to the path in this field.
-            Use [IP] to identify the IP of your host and [PORT:####] replacing the #'s for your port.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="advanced">
-        <td>Extra Parameters:</td>
-        <td><input type="text" name="contExtraParams"></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>If you wish to append additional commands to your Docker container at run-time, you can specify them here.<br>
-            For all possible Docker run-time commands, see here: <a href="https://docs.docker.com/reference/run/" target="_blank">https://docs.docker.com/reference/run/</a></p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr class="advanced">
-        <td>Post Arguments:</td>
-        <td><input type="text" name="contPostArgs"></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>If you wish to append additional arguments AFTER the container definition, you can specify them here.
-            The content of this field is container specific.</p>
-          </blockquote>
-        </td>
-      </tr>
-
-      <tr class="advanced">
-        <td>CPU Pinning:</td>
-        <td><?cpu_pinning()?></td>
-      </tr>
-      <tr class="advanced">
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>Checking a CPU core(s) will limit the container to run on the selected cores only. Selecting no cores lets the container run on all available cores (default)</p>
-          </blockquote>
-        </td>
-      </tr>
-
-
-      <tr <?=$showAdditionalInfo?>>
-        <td>Network Type:</td>
-        <td>
-          <select name="contNetwork" onchange="showSubnet(this.value)">
-          <?=mk_option(1,'bridge','Bridge')?>
-          <?=mk_option(1,'host','Host')?>
-          <?=mk_option(1,'none','None')?>
-          <?foreach ($custom as $network):?>
-          <?=mk_option(1,$network,"Custom : $network")?>
-          <?endforeach;?>
-          </select>
-        </td>
-      </tr>
-      <tr class="myIP" style="display:none">
-        <td>Fixed IP address (optional):</td>
-        <td><input type="text" name="contMyIP"><span id="myIP"></span></td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>If the Bridge type is selected, the application’s network access will be restricted to only communicating on the ports specified in the port mappings section.
-            If the Host type is selected, the application will be given access to communicate using any port on the host that isn’t already mapped to another in-use application/service.
-            Generally speaking, it is recommended to leave this setting to its default value as specified per application template.</p>
-            <p>IMPORTANT NOTE:  If adjusting port mappings, do not modify the settings for the Container port as only the Host port can be adjusted.</p>
-          </blockquote>
-        </td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td>Console shell command:</td>
-        <td><select name="contShell">
-            <?=mk_option(1,'sh','Shell')?>
-            <?=mk_option(1,'bash','Bash')?>
-            </select>
-        </td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td class="spacer">Privileged:</td>
-        <td class="spacer"><input type="checkbox" name="contPrivileged" class="switch-on-off"></td>
-      </tr>
-      <tr <?=$showAdditionalInfo?>>
-        <td colspan="2">
-          <blockquote class="inline_help">
-            <p>For containers that require the use of host-device access directly or need full exposure to host capabilities, this option will need to be selected.
-            <br>For more information, see this link: <a href="https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities" target="_blank">https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities</a></p>
-          </blockquote>
-        </td>
-      </tr>
-    </table>
-    <div id="configLocation"></div>
-    <table class="settings">
-      <tr>
-        <td></td>
-        <td id="readmore_toggle" class="readmore_collapsed"><a onclick="toggleReadmore()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show more settings ...</a></td>
-      </tr>
-    </table>
-    <div id="configLocationAdvanced" style="display:none"></div><br>
-    <table class="settings">
-      <tr>
-        <td></td>
-        <td id="allocations_toggle" class="readmore_collapsed"><a onclick="toggleAllocations()" style="cursor:pointer"><i class="fa fa-chevron-down"></i> Show docker allocations ...</a></td>
-      </tr>
-    </table>
-    <div id="dockerAllocations" style="display:none"></div><br>
-    <table class="settings">
-      <tr>
-        <td></td>
-        <td><a href="javascript:addConfigPopup()"><i class="fa fa-plus"></i> Add another Path, Port, Variable, Label or Device</a></td>
-      </tr>
-    </table>
-    <br>
-    <table class="settings">
-      <tr>
-        <td></td>
-        <td>
-          <input type="submit" value="<?=$xmlType=='edit' ? 'Apply':' Apply '?>"><input type="button" value="Done" onclick="done()">
-          <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">Save</button><?endif;?>
-        </td>
-      </tr>
-    </table>
-    <br><br><br>
-  </form>
-</div>
+<div id="dialogAddConfig" style="display:none"></div>
 
 <?
 #        ██╗███████╗    ████████╗███████╗███╗   ███╗██████╗ ██╗      █████╗ ████████╗███████╗███████╗
@@ -1071,209 +958,202 @@ button[type=button]{margin:0 20px 0 0}
 #   ╚█████╔╝███████║       ██║   ███████╗██║ ╚═╝ ██║██║     ███████╗██║  ██║   ██║   ███████╗███████║
 #    ╚════╝ ╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
 ?>
-<div id="templatePopupConfig" style="display:none">
-  <dl>
-    <dt>Config Type:</dt>
-    <dd>
-      <select name="Type" onchange="toggleMode(this,false);">
-        <option value="Path">Path</option>
-        <option value="Port">Port</option>
-        <option value="Variable">Variable</option>
-        <option value="Label">Label</option>
-        <option value="Device">Device</option>
-      </select>
-    </dd>
-    <dt>Name:</dt>
-    <dd><input type="text" name="Name"></dd>
-    <div id="Target">
-      <dt id="dt1">Target:</dt>
-      <dd><input type="text" name="Target"></dd>
-    </div>
-    <div id="Value">
-      <dt id="dt2">Value:</dt>
-      <dd><input type="text" name="Value"></dd>
-    </div>
-    <div id="Default" class="advanced">
-      <dt>Default Value:</dt>
-      <dd><input type="text" name="Default"></dd>
-    </div>
-    <div id="Mode"></div>
-    <dt>Description:</dt>
-    <dd>
-      <textarea name="Description" rows="6" style="width:304px;"></textarea>
-    </dd>
-    <div class="advanced">
-      <dt>Display:</dt>
-      <dd>
-        <select name="Display">
-          <option value="always" selected>Always</option>
-          <option value="always-hide">Always - Hide Buttons</option>
-          <option value="advanced">Advanced</option>
-          <option value="advanced-hide">Advanced - Hide Buttons</option>
-        </select>
-      </dd>
-      <dt>Required:</dt>
-      <dd>
-        <select name="Required">
-          <option value="false" selected>No</option>
-          <option value="true">Yes</option>
-        </select>
-      </dd>
-      <div id="Mask">
-        <dt>Password Mask:</dt>
-        <dd>
-          <select name="Mask">
-            <option value="false" selected>No</option>
-            <option value="true">Yes</option>
-          </select>
-        </dd>
-      </div>
-    </div>
-  </dl>
+<div markdown="1" id="templatePopupConfig" style="display:none">
+_(Config Type)_:
+: <select name="Type" onchange="toggleMode(this,false)">
+  <option value="Path">_(Path)_</option>
+  <option value="Port">_(Port)_</option>
+  <option value="Variable">_(Variable)_</option>
+  <option value="Label">_(Label)_</option>
+  <option value="Device">_(Device)_</option>
+  </select>
+
+_(Name)_:
+: <input type="text" name="Name">
+
+<div markdown="1" id="Target">
+<span id="dt1">_(Target)_</span>:
+: <input type="text" name="Target">
 </div>
 
-<div id="templateDisplayConfig" style="display:none">
-  <input type="hidden" name="confName[]" value="{0}">
-  <input type="hidden" name="confTarget[]" value="{1}">
-  <input type="hidden" name="confDefault[]" value="{2}">
-  <input type="hidden" name="confMode[]" value="{3}">
-  <input type="hidden" name="confDescription[]" value="{4}">
-  <input type="hidden" name="confType[]" value="{5}">
-  <input type="hidden" name="confDisplay[]" value="{6}">
-  <input type="hidden" name="confRequired[]" value="{7}">
-  <input type="hidden" name="confMask[]" value="{8}">
-  <table class="settings">
-    <tr>
-      <td class="{11}" style="vertical-align:top;">{0}:</td>
-      <td>
-        <input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>&nbsp;{10}
-        <div class="orange-text">{4}</div>
-      </td>
-    </tr>
-  </table>
+<div markdown="1" id="Value">
+<span id="dt2">_(Value)_</span>:
+: <input type="text" name="Value">
 </div>
 
-<div id="templateAllocations" style="display:none">
-<table class='settings'>
-  <tr><td></td><td style="{0}"><span style="width:160px;display:inline-block;padding-left:20px">{1}</span>{2}</td></tr>
-</table>
+<div markdown="1" id="Default">
+_(Default Value)_:
+: <input type="text" name="Default">
+</div>
+
+<div id="Mode"></div>
+
+_(Description)_:
+: <textarea name="Description" spellcheck="false" cols="80" rows="3" style="width:304px;"></textarea>
+
+<div markdown="1" class="advanced">
+_(Display)_:
+: <select name="Display">
+  <option value="always" selected>_(Always)_</option>
+  <option value="always-hide">_(Always)_ - _(Hide Buttons)_</option>
+  <option value="advanced">_(Advanced)_</option>
+  <option value="advanced-hide">_(Advanced)_ - _(Hide Buttons)_</option>
+  </select>
+
+_(Required)_:
+: <select name="Required">
+  <option value="false" selected>_(No)_</option>
+  <option value="true">_(Yes)_</option>
+  </select>
+
+_(Password Mask)_:
+: <select name="Mask">
+  <option value="false" selected>_(No)_</option>
+  <option value="true">_(Yes)_</option>
+  </select>
+</div>
+</div>
+
+<div markdown="1" id="templateDisplayConfig" style="display:none">
+<input type="hidden" name="confName[]" value="{0}">
+<input type="hidden" name="confTarget[]" value="{1}">
+<input type="hidden" name="confDefault[]" value="{2}">
+<input type="hidden" name="confMode[]" value="{3}">
+<input type="hidden" name="confDescription[]" value="{4}">
+<input type="hidden" name="confType[]" value="{5}">
+<input type="hidden" name="confDisplay[]" value="{6}">
+<input type="hidden" name="confRequired[]" value="{7}">
+<input type="hidden" name="confMask[]" value="{8}">
+{0}:
+: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class="orange-text">{4}</span></span>
+</div>
+
+<div markdown="1" id="templateAllocations" style="display:none">
+&nbsp;
+: <span class="boxed"><span class="ct">{1}</span>{2}</span>
 </div>
 
 <script>
-  var subnet = {};
+var subnet = {};
 <?foreach ($subnet as $network => $value):?>
-  subnet['<?=$network?>'] = '<?=$value?>';
+subnet['<?=$network?>'] = '<?=$value?>';
 <?endforeach;?>
 
-  function showSubnet(bridge) {
-    if (bridge.match(/^(bridge|host|none)$/i) !== null) {
-      $('.myIP').hide();
-      $('input[name="contMyIP"]').val('');
-    } else {
-      $('.myIP').show();
-      $('#myIP').html('Subnet: '+subnet[bridge]);
-    }
+function showSubnet(bridge) {
+  if (bridge.match(/^(bridge|host|none)$/i) !== null) {
+    $('.myIP').hide();
+    $('input[name="contMyIP"]').val('');
+  } else {
+    $('.myIP').show();
+    $('#myIP').html('Subnet: '+subnet[bridge]);
   }
-  function reloadTriggers() {
-    $(".basic").toggle(!$(".advanced-switch:first").is(":checked"));
-    $(".advanced").toggle($(".advanced-switch:first").is(":checked"));
-    $(".numbersOnly").keypress(function(e){if(e.which != 45 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)){return false;}});
+}
+
+function reloadTriggers() {
+  $(".basic").toggle(!$(".advancedview").is(":checked"));
+  $(".advanced").toggle($(".advancedview").is(":checked"));
+  $(".numbersOnly").keypress(function(e){if(e.which != 45 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)){return false;}});
+}
+
+function toggleReadmore() {
+  var readm = $('#readmore_toggle');
+  if (readm.hasClass('readmore_collapsed')) {
+    readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
+    $('#configLocationAdvanced').slideDown('fast');
+    readm.find('a').html('<i class="fa fa-fw fa-chevron-up"></i> _(Hide more settings)_ ...');
+  } else {
+    $('#configLocationAdvanced').slideUp('fast');
+    readm.removeClass('readmore_expanded').addClass('readmore_collapsed');
+    readm.find('a').html('<i class="fa fa-fw fa-chevron-down"></i> _(Show more settings)_ ...');
   }
-  function toggleReadmore() {
-    var readm = $('#readmore_toggle');
-    if (readm.hasClass('readmore_collapsed')) {
-      readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
-      $('#configLocationAdvanced').slideDown('fast');
-      readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide more settings ...');
-    } else {
-      $('#configLocationAdvanced').slideUp('fast');
-      readm.removeClass('readmore_expanded').addClass('readmore_collapsed');
-      readm.find('a').html('<i class="fa fa-chevron-down"></i> Show more settings ...');
-    }
+}
+
+function toggleAllocations() {
+  var readm = $('#allocations_toggle');
+  if (readm.hasClass('readmore_collapsed')) {
+    readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
+    $('#dockerAllocations').slideDown('fast');
+    readm.find('a').html('<i class="fa fa-fw fa-chevron-up"></i> _(Hide docker allocations)_ ...');
+  } else {
+    $('#dockerAllocations').slideUp('fast');
+    readm.removeClass('readmore_expanded').addClass('readmore_collapsed');
+    readm.find('a').html('<i class="fa fa-fw fa-chevron-down"></i> _(Show docker allocations)_ ...');
   }
-  function toggleAllocations() {
-    var readm = $('#allocations_toggle');
-    if (readm.hasClass('readmore_collapsed')) {
-      readm.removeClass('readmore_collapsed').addClass('readmore_expanded');
-      $('#dockerAllocations').slideDown('fast');
-      readm.find('a').html('<i class="fa fa-chevron-up"></i> Hide docker allocations ...');
-    } else {
-      $('#dockerAllocations').slideUp('fast');
-      readm.removeClass('readmore_expanded').addClass('readmore_collapsed');
-      readm.find('a').html('<i class="fa fa-chevron-down"></i> Show docker allocations ...');
-    }
-  }
-  function load_contOverview() {
-    var new_overview = $("textarea[name='contOverview']").val();
-    new_overview = new_overview.replaceAll("\n","<br>").replaceAll("[","<").replaceAll("]",">");
-    $("#contDescription").html(new_overview);
-  }
-  $(function() {
-    // Load container info on page load
-    if (typeof Settings != 'undefined') {
-      for (var key in Settings) {
-        if (Settings.hasOwnProperty(key)) {
-          var target = $('#canvas').find('*[name=cont'+key+']:first');
-          if (target.length) {
-            var value = Settings[key];
-            if (target.attr("type") == 'checkbox') {
-              target.prop('checked', (value == 'true'));
-            } else if ($(target).prop('nodeName') == 'DIV') {
-              target.html(value);
-            } else {
-              target.val(value);
-            }
+}
+
+function load_contOverview() {
+  var new_overview = $("textarea[name='contOverview']").val();
+  new_overview = new_overview.replaceAll("\n","").replaceAll("[","<").replaceAll("]",">");
+  $("#contDescription").html(new_overview);
+}
+
+$(function() {
+  // Load container info on page load
+  if (typeof Settings != 'undefined') {
+    for (var key in Settings) {
+      if (Settings.hasOwnProperty(key)) {
+        var target = $('#canvas').find('*[name=cont'+key+']:first');
+        if (target.length) {
+          var value = Settings[key];
+          if (target.attr("type") == 'checkbox') {
+            target.prop('checked', (value == 'true'));
+          } else if ($(target).prop('nodeName') == 'DIV') {
+            target.html(value);
+          } else {
+            target.val(value);
           }
         }
       }
-      load_contOverview();
-      // Load the confCategory input into the s1 select
-      categories=$("input[name='contCategory']").val().split(" ");
-      for (var i = 0; i < categories.length; i++) {
-        $("#catSelect option[value='"+categories[i]+"']").prop("selected", true);
-      }
-      // Remove empty description
-      if (!Settings.Description.length) {
-        $('#canvas').find('#Overview:first').hide();
-      }
-      // Load config info
-      var network = $('select[name="contNetwork"]')[0].selectedIndex;
-      for (var i = 0; i < Settings.Config.length; i++) {
-        confNum += 1;
-        Opts = Settings.Config[i];
-        if (Opts.Display == "always-hide" || Opts.Display == "advanced-hide") {
-          Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",<?=$disableEdit?>)'>Edit</button>";
-          Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>Remove</button></span>";
-        } else {
-          Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+confNum+",<?=$disableEdit?>)'>Edit</button>";
-          Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>Remove</button>";
-        }
-        Opts.Number = confNum;
-        newConf = makeConfig(Opts);
-        if (Opts.Display == 'advanced' || Opts.Display == 'advanced-hide') {
-          $("#configLocationAdvanced").append(newConf);
-        } else {
-          $("#configLocation").append(newConf);
-        }
-      }
-    } else {
+    }
+    load_contOverview();
+    // Load the confCategory input into the s1 select
+    categories=$("input[name='contCategory']").val().split(" ");
+    for (var i = 0; i < categories.length; i++) {
+      $("#catSelect option[value='"+categories[i]+"']").prop("selected", true);
+    }
+    // Remove empty description
+    if (!Settings.Description.length) {
       $('#canvas').find('#Overview:first').hide();
     }
-    // Show associated subnet with fixed IP (if existing)
-    showSubnet($('select[name="contNetwork"]').val());
-    // Add list of docker allocations
-    $("#dockerAllocations").html(makeAllocations(Allocations,$('input[name="contName"]').val()));
-    // Add switchButton
-    $('.switch-on-off').each(function(){var checked = $(this).is(":checked");$(this).switchButton({labels_placement: "right", checked:checked});});
-    // Add dropdownchecklist to Select Categories
-    $("#catSelect").dropdownchecklist({emptyText:'Select categories...', maxDropHeight:200, width:300, explicitClose:'...close'});
-    <?if ($authoringMode){
-      echo "$('.advanced-switch').prop('checked','true'); $('.advanced-switch').change();";
-      echo "$('.advanced-switch').siblings('.switch-button-background').click();";
-    }?>
-  });
-  if (window.location.href.indexOf("/Apps/") > 0) {
-    $(".TemplateDropDown").hide();
+    // Load config info
+    var network = $('select[name="contNetwork"]')[0].selectedIndex;
+    for (var i = 0; i < Settings.Config.length; i++) {
+      confNum += 1;
+      Opts = Settings.Config[i];
+      if (Opts.Display == "always-hide" || Opts.Display == "advanced-hide") {
+        Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",<?=$disableEdit?>)'>_(Edit)_</button>";
+        Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button></span>";
+      } else {
+        Opts.Buttons  = "<button type='button' onclick='editConfigPopup("+confNum+",<?=$disableEdit?>)'>_(Edit)_</button>";
+        Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button>";
+      }
+      Opts.Number = confNum;
+      newConf = makeConfig(Opts);
+      if (Opts.Display == 'advanced' || Opts.Display == 'advanced-hide') {
+        $("#configLocationAdvanced").append(newConf);
+      } else {
+        $("#configLocation").append(newConf);
+      }
+    }
+  } else {
+    $('#canvas').find('#Overview:first').hide();
   }
+  // Show associated subnet with fixed IP (if existing)
+  showSubnet($('select[name="contNetwork"]').val());
+  // Add list of docker allocations
+  $("#dockerAllocations").html(makeAllocations(Allocations,$('input[name="contName"]').val()));
+  // Add switchButton
+  $('.switch-on-off').switchButton({labels_placement:'right',on_label:'_(On)_',off_label:'_(Off)_'});
+  // Add dropdownchecklist to Select Categories
+  $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
+  <?if ($authoringMode){
+    echo "$('.advancedview').prop('checked','true'); $('.advancedview').change();";
+    echo "$('.advancedview').siblings('.switch-button-background').click();";
+  }?>
+});
+
+if (window.location.href.indexOf("/Apps/") > 0) {
+  $(".TemplateDropDown").hide();
+}
 </script>
 <?END:?>
