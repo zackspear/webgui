@@ -45,7 +45,7 @@ function my_lang($text,$do=0) {
     foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     break;
   case 2: // time translation
-    $keys = ['day','hour','minute','second','days','hours','minutes','seconds','Average speed'];
+    $keys = ['days','hours','minutes','seconds','day','hour','minute','second','Average speed'];
     foreach ($keys as $key) if (isset($language[$key])) $text = str_replace($key,$language[$key],$text);
     break;
   case 3: // device translation
