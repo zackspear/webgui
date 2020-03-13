@@ -705,7 +705,7 @@ _(Template)_:
   }
   ?></select><?if ($rmadd):?><i class="fa fa-window-close button" title="<?=htmlspecialchars($rmadd)?>" onclick="rmTemplate('<?=addslashes(htmlspecialchars($rmadd))?>')"></i><?endif;?>
 
-:help
+:help1
 > Templates are a quicker way to setting up Docker Containers on your Unraid server.  There are two types of templates:
 >
 > **Default templates**<br>
@@ -728,7 +728,7 @@ _(Template)_:
 _(Name)_:
 : <input type="text" name="contName" required>
 
-:help
+:help2
 > Give the container a name or leave it as default.
 :end
 
@@ -742,7 +742,7 @@ _(Overview)_:
 _(Overview)_:
 : <textarea name="contOverview" spellcheck="false" cols="80" rows="15" style="width:56%"></textarea>
 
-:help
+:help3
 > A description for the application container.  Supports basic HTML mark-up.
 :end
 
@@ -752,7 +752,7 @@ _(Overview)_:
 _(Repository)_:
 : <input type="text" name="contRepository" required>
 
-:help
+:help4
 > The repository for the application on the Docker Registry.  Format of authorname/appname.
 > Optionally you can add a : after appname and request a specific version for the container image.
 :end
@@ -807,28 +807,28 @@ _(Categories)_:
 _(Support Thread)_:
 : <input type="text" name="contSupport">
 
-:help
+:help5
 > Link to a support thread on Lime-Technology's forum.
 :end
 
 _(Project Page)_:
 : <input type="text" name="contProject">
 
-:help
+:help6
 > Link to the project page (eg: www.plex.tv)
 :end
 
 _(Donation Text)_:
 : <input type="text" name="contDonateText">
 
-:help
+:help7
 > Text to appear on Donation Links Within The Apps Tab
 :end
 
 _(Donation Link)_:
 : <input type="text" name="contDonateLink">
 
-:help
+:help8
 > Link to the donation page.  If using donation's, both the image and link must be set
 :end
 
@@ -837,7 +837,7 @@ _(Donation Link)_:
 _(Docker Hub URL)_:
 : <input type="text" name="contRegistry"></td>
 
-:help
+:help9
 > The path to the container's repository location on the Docker Hub.
 :end
 
@@ -846,7 +846,7 @@ _(Docker Hub URL)_:
 _(Template URL)_:
 : <input type="text" name="contTemplateURL">
 
-:help
+:help10
 > This URL is used to keep the template updated.
 :end
 
@@ -855,14 +855,14 @@ _(Template URL)_:
 _(Icon URL)_:
 : <input type="text" name="contIcon">
 
-:help
+:help11
 > Link to the icon image for your application (only displayed on dashboard if Show Dashboard apps under Display Settings is set to Icons).
 :end
 
 _(WebUI)_:
 : <input type="text" name="contWebUI">
 
-:help
+:help12
 > When you click on an application icon from the Docker Containers page, the WebUI option will link to the path in this field.
 > Use [IP] to identify the IP of your host and [PORT:####] replacing the #'s for your port.
 :end
@@ -870,7 +870,7 @@ _(WebUI)_:
 _(Extra Parameters)_:
 : <input type="text" name="contExtraParams">
 
-:help
+:help13
 > If you wish to append additional commands to your Docker container at run-time, you can specify them here.<br>
 > For all possible Docker run-time commands, see here: <a href="https://docs.docker.com/reference/run/" target="_blank">https://docs.docker.com/reference/run/</a>
 :end
@@ -878,7 +878,7 @@ _(Extra Parameters)_:
 _(Post Arguments)_:
 : <input type="text" name="contPostArgs">
 
-:help
+:help14
 > If you wish to append additional arguments AFTER the container definition, you can specify them here.
 > The content of this field is container specific.
 :end
@@ -886,7 +886,7 @@ _(Post Arguments)_:
 _(CPU Pinning)_:
 : <span style="display:inline-block"><?cpu_pinning()?></span>
 
-:help
+:help15
 > Checking a CPU core(s) will limit the container to run on the selected cores only. Selecting no cores lets the container run on all available cores (default)
 :end
 
@@ -904,7 +904,7 @@ _(Network Type)_:
 _(Fixed IP address)_ (_(optional)_):
 : <input type="text" name="contMyIP"><span id="myIP"></span>
 
-:help
+:help16
 > If the Bridge type is selected, the application’s network access will be restricted to only communicating on the ports specified in the port mappings section.
 > If the Host type is selected, the application will be given access to communicate using any port on the host that isn’t already mapped to another in-use application/service.
 > Generally speaking, it is recommended to leave this setting to its default value as specified per application template.
@@ -922,7 +922,7 @@ _(Console shell command)_:
 _(Privileged)_:
 : <input type="checkbox" class="switch-on-off" name="contPrivileged">
 
-:help
+:help17
 > For containers that require the use of host-device access directly or need full exposure to host capabilities, this option will need to be selected.
 > For more information, see this link: <a href="https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities" target="_blank">https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities</a>
 :end
