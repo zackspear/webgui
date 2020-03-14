@@ -84,7 +84,7 @@ function showLog(log,init) {
     var type = $(this).attr('class').replace('label','').replace(/-/g,'');
     $(this).removeClass().addClass(type+' label');
   });
-  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
+  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.post('/webGui/include/Syslog.php',{log:log},function(data){
     clearTimeout(timers.syslog);
     $('pre.up').html(data);

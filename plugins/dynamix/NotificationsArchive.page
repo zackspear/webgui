@@ -43,7 +43,7 @@ function resize(bind) {
 }
 <?endif;?>
 function archiveList(init) {
-  timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
+  timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/webGui/include/NotificationsArchive.php',{filter:'<?=addslashes(htmlspecialchars($_GET['filter']))?>'},function(data) {
     clearTimeout(timers.archive);
     if (data) $('#archive_list').html(data);

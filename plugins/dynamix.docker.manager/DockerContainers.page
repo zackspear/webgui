@@ -99,7 +99,7 @@ var sortableHelper = function(e,i){
   return i;
 };
 function loadlist() {
-  timers.docker = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
+  timers.docker = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/plugins/dynamix.docker.manager/include/DockerContainers.php',function(d) {
     clearTimeout(timers.docker);
     var data = d.split(/\0/);
