@@ -1,4 +1,4 @@
-Title="Add {$_GET['template']} VM"
+Title="Add VM"
 Tag="clipboard"
 Cond="(pgrep('libvirtd')!==false)"
 Markdown="false"

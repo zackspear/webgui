@@ -72,8 +72,7 @@ function tab_title($name,$path,$tag) {
     foreach (explode(' ',$name) as $word) $text[] = my_lang(my_disk($word),3);
     $name = implode(' ',$text);
   } elseif (substr($name,0,9)=='Interface') {
-      [$p1,$p2] = explode(' ',$name);
-      $name = rtrim(_($p1).' '._($p2));
+      $name = my_lang($name,3);
   } else {
     $name = _($name);
   }
