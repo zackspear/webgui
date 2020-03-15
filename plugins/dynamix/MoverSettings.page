@@ -101,7 +101,7 @@ _(Time of the day)_:
   <?for ($d=0; $d<=55; $d+=5):?>
   <?=mk_option($cron[0], strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
-  </select>&nbsp;&nbsp;HH:MM</span>
+  </select>&nbsp;&nbsp;_(HH:MM)_</span>
 : <span id="H2"<?if ($move!=0):?> style="display:none"<?endif;?>><select name="hour2">
   <?=mk_option($cron[1], "*/1", _("Every hour"))?>
   <?=mk_option($cron[1], "*/2", _("Every 2 hours"))?>
