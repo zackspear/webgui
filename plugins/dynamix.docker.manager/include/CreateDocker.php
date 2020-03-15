@@ -701,7 +701,7 @@ _(Template)_:
       if ($selected && $section=='user') $rmadd = $value['path'];
       printf("<option class='list' value='%s:%s' $selected>%s</option>", htmlspecialchars($section), htmlspecialchars($value['path']), htmlspecialchars($name));
     }
-    if (!$template) echo("<option class='list' disabled>&lt;none&gt;</option>");
+    if (!$template) echo("<option class='list' disabled>&lt;"._('None')."&gt;</option>");
     printf("</optgroup>");
   }
   ?></select><?if ($rmadd):?><i class="fa fa-window-close button" title="<?=htmlspecialchars($rmadd)?>" onclick="rmTemplate('<?=addslashes(htmlspecialchars($rmadd))?>')"></i><?endif;?>
