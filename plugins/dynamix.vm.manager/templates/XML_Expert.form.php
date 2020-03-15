@@ -168,7 +168,7 @@ $(function() {
 		$form.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/XML_Expert.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}

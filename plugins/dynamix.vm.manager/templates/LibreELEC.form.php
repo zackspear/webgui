@@ -1162,7 +1162,7 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
@@ -1188,7 +1188,7 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
@@ -1217,7 +1217,7 @@ $(function() {
 		$form.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.error) {
 				$("#vmform #download_status").html($("#vmform #download_status").html() + '<br><span style="color: red">' + data.error + '</span>');
 			} else if (data.status) {
@@ -1277,7 +1277,7 @@ $(function() {
 				// attach delete libreelec image onclick event
 				$("#vmform .delete_libreelec_image").off().click(function deleteOEVersion() {
 					swal({title:"_(Are you sure)_?",text:"_(Remove this LibreELEC file)_:\n"+$selected.attr('localpath'),type:"warning",showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function() {
-						$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", {delete_version: $selected.val()}, function(data) {
+						$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", {delete_version: $selected.val()}, function(data) {
 							if (data.error) {
 								swal({title:"_(VM image deletion error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 							} else if (data.status == 'ok') {

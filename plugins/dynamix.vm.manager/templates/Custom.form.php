@@ -108,6 +108,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		$arrConfigDefaults = array_replace_recursive($arrConfigDefaults, $arrAllTemplates[$strSelectedTemplate]['overrides']);
 	}
 
+file_put_contents('/tmp/post',print_r($_POST,true),FILE_APPEND);
 	// create new VM
 	if ($_POST['createvm']) {
 		if ($_POST['xmldesc']) {
@@ -1474,7 +1475,7 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vncurl) {
 					window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
@@ -1503,7 +1504,7 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
