@@ -17,5 +17,5 @@ Markdown="false"
  */
 ?>
 <?
-eval('?>'.parse_text(file_get_contents("$docroot/plugins/dynamix.vm.manager/include/VMedit.php")));
+eval('?>'.parse_file("$docroot/plugins/dynamix.vm.manager/include/VMedit.php",false));
 ?>

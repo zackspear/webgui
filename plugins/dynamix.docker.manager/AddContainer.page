@@ -16,5 +16,5 @@ Markdown="false"
  */
 ?>
 <?
-eval('?>'.Markdown(parse_text(file_get_contents("$docroot/plugins/dynamix.docker.manager/include/CreateDocker.php"))));
+eval('?>'.parse_file("$docroot/plugins/dynamix.docker.manager/include/CreateDocker.php"));
 ?>

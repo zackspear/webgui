@@ -26,6 +26,9 @@ function parse_lang_file($file) {
 function parse_text($text) {
   return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:((help|plug)\d*)$/m","/^:end$/m"],["<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
 }
+function parse_file($file,$markdown=true) {
+  return $markdown ? Markdown(parse_text(file_get_contents($file))) : parse_text(file_get_contents($file));
+}
 function parse_array($text,&$array) {
   parse_str(str_replace([' ',':'],['&','='],$text),$array);
 }

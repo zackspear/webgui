@@ -175,7 +175,7 @@ span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px
 		<p>If you want this VM to start with the array, set this to yes.</p>
 	</blockquote>
 
-	<div id="form_content"><?eval('?>'.parse_text(file_get_contents("$docroot/plugins/dynamix.vm.manager/templates/{$arrLoad['form']}")))?></div>
+	<div id="form_content"><?eval('?>'.parse_file("$docroot/plugins/dynamix.vm.manager/templates/{$arrLoad['form']}",false))?></div>
 
 	</form>
 </div>
