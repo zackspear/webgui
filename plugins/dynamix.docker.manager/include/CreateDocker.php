@@ -344,7 +344,7 @@ button[type=button]{margin:0 20px 0 0}
   function makeConfig(opts) {
     confNum += 1;
     var newConfig = $("#templateDisplayConfig").html();
-    newConfig = newConfig.format(opts.Name,
+    newConfig = newConfig.format(stripTags(opts.Name),
                                  opts.Target,
                                  opts.Default,
                                  opts.Mode,
@@ -380,7 +380,10 @@ button[type=button]{margin:0 20px 0 0}
     }
     return newConfig.prop('outerHTML');
   }
-
+  function stripTags(string) {
+    return string.replace(/(<([^>]+)>)/ig,"");
+  }
+	
   function escapeQuote(string) {
     return string.replace(new RegExp('"','g'),"&quot;");
   }
