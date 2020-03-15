@@ -14,9 +14,10 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
-$_SERVER['REQUEST_URI'] = 'docker';
-require_once "$docroot/webGui/include/Translations.php";
-
+if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+  $_SERVER['REQUEST_URI'] = 'docker';
+  require_once "$docroot/webGui/include/Translations.php";
+}
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 libxml_use_internal_errors(false); # Enable xml errors
 

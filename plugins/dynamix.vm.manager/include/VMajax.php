@@ -14,7 +14,7 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
-$_SERVER['REQUEST_URI'] = 'settings';
+$_SERVER['REQUEST_URI'] = 'vms';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";

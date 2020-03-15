@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,11 @@
 ?>
 <?
 	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	// add translations
+	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+		$_SERVER['REQUEST_URI'] = 'vms';
+		require_once "$docroot/webGui/include/Translations.php";
+	}
 	require_once "$docroot/webGui/include/Helpers.php";
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
@@ -80,21 +85,21 @@
 
 <input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($uuid)?>">
 
-<textarea id="addcode" name="xmldesc" placeholder="Copy &amp; Paste Domain XML Configuration Here." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
+<textarea id="addcode" name="xmldesc" placeholder="_(Copy &amp; Paste Domain XML Configuration Here)_." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
 
 <? if (!$boolRunning) { ?>
 	<? if ($strXML) { ?>
 		<input type="hidden" name="updatevm" value="1" />
-		<input type="button" value="Update" busyvalue="Updating..." readyvalue="Update" id="btnSubmit" />
+		<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 	<? } else { ?>
-		<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> Start VM after creation</label>
+		<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 		<br>
 		<input type="hidden" name="createvm" value="1" />
-		<input type="button" value="Create" busyvalue="Creating..." readyvalue="Create" id="btnSubmit" />
+		<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 	<? } ?>
-	<input type="button" value="Cancel" id="btnCancel" />
+	<input type="button" value="_(Cancel)_" id="btnCancel" />
 <? } else { ?>
-	<input type="button" value="Done" id="btnCancel" />
+	<input type="button" value="_(Done)_" id="btnCancel" />
 <? } ?>
 
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.js')?>"></script>
@@ -168,7 +173,7 @@ $(function() {
 				done();
 			}
 			if (data.error) {
-				swal({title:"VM creation error",text:data.error,type:"error"});
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 				$form.find('input').prop('disabled', false);
 				$button.val($button.attr('readyvalue'));
 			}
