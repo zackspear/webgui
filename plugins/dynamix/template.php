@@ -53,10 +53,10 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 // Get general variables
 $name = $_GET['name'];
 $dir = $_GET['dir'];
-$path = substr(explode('?',$_SERVER['REQUEST_URI'])[0],1);
+$path = substr(strtok($_SERVER['REQUEST_URI'],'?'),1);
 
 // The current "task" is the first element of the path
-$task = strtok($path, '/');
+$task = strtok($path,'/');
 
 // Here's the page we're rendering
 $myPage = $site[basename($path)];
