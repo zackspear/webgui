@@ -237,7 +237,7 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true");
+  $.cookie(cookieText,"true",{expires:365,path:'/'});
   removeBannerWarning(entry);
 }
 
