@@ -23,7 +23,6 @@ $disks   = parse_ini_file('state/disks.ini',true);
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
-$sec_afp = parse_ini_file('state/sec_afp.ini',true);
 $compute = $_GET['compute'];
 $path    = $_GET['path'];
 $fill    = $_GET['fill'];
@@ -93,7 +92,6 @@ foreach ($shares as $name => $share) {
   echo "<td>{$share['comment']}</td>";
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
-  echo "<td>".user_share_settings($var['shareAFPEnabled'], $sec_afp[$name])."</td>";
   $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1";
   $cache = _(ucfirst($share['useCache']));
   if (array_key_exists($name, $ssz1)) {

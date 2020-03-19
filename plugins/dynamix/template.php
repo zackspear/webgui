@@ -30,7 +30,6 @@ $disks   = (array)parse_ini_file('state/disks.ini',true);
 $users   = (array)parse_ini_file('state/users.ini',true);
 $shares  = (array)parse_ini_file('state/shares.ini',true);
 $sec_nfs = (array)parse_ini_file('state/sec_nfs.ini',true);
-$sec_afp = (array)parse_ini_file('state/sec_afp.ini',true);
 
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));

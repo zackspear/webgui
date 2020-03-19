@@ -97,7 +97,6 @@ $(function() {
 <?if ($tabbed):?>
 <?
 $path=='Shares/Share' ? $t=2 : $t=1;
-if ($var['shareAFPEnabled']!='no') $t++;
 ?>
   $('#tab<?=$t?>').bind({click:function(){initDropdownNFS(true);}});
 <?endif;?>

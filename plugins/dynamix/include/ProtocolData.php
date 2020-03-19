@@ -13,7 +13,6 @@
 <?
 switch ($_GET['protocol']) {
   case 'smb': $data = parse_ini_file('state/sec.ini',true); break;
-  case 'afp': $data = parse_ini_file('state/sec_afp.ini',true); break;
   case 'nfs': $data = parse_ini_file('state/sec_nfs.ini',true); break;
 }
 echo json_encode($data[$_GET['name']]);

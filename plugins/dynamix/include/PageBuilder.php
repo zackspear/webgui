@@ -41,7 +41,7 @@ function build_pages($pattern) {
 }
 
 function find_pages($item) {
-  global $docroot,$site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$sec_afp,$name,$display;
+  global $docroot,$site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$name,$display;
   $pages = [];
   foreach ($site as $page) {
     if (empty($page['Menu'])) continue;

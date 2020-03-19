@@ -164,7 +164,6 @@ table.share_status.dashboard tbody.array_view tr:last-child>td{padding-bottom:20
 table.share_status.dashboard tbody.cache_view tr:last-child>td{padding-bottom:20px}
 table.share_status.dashboard tbody.extra_view tr:last-child>td{padding-bottom:20px}
 table.share_status.dashboard tbody.smb tr:last-child>td{padding-bottom:20px}
-table.share_status.dashboard tbody.afp tr:last-child>td{padding-bottom:20px}
 table.share_status.dashboard tbody.nfs tr:last-child>td{padding-bottom:20px}
 table.share_status.dashboard tr>td:first-child{width:3.5%}
 table.share_status.dashboard tr>td:last-child{width:3.5%}

@@ -100,7 +100,7 @@ $wg_up = $wg_up ? explode(' ',$wg_up) : [];
 $up    = count($wg_up);
 $down  = max(count($conf)-$up,0);
 $fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
-$group = $var['shareSMBEnabled']=='yes' | $var['shareAFPEnabled']=='yes' | $var['shareNFSEnabled']=='yes';
+$group = $var['shareSMBEnabled']=='yes' | $var['shareNFSEnabled']=='yes';
 $url   = "/webGui/include/DashUpdate.php";
 
 $names = [];
@@ -393,9 +393,6 @@ foreach ($ports as $port) {
 <?if ($var['shareSMBEnabled']=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
-<?if ($var['shareAFPEnabled']=='yes'):?>
-<?=mk_option("", "1", "AFP")?>
-<?endif;?>
 <?if ($var['shareNFSEnabled']=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
@@ -415,19 +412,6 @@ foreach ($shares as $name => $share) {
   $comment = truncate($share['comment'],40);
   $security = export_settings($var['shareSMBEnabled'], $sec[$name]);
   echo "<tr><td></td><td><i class='icon-folder'></i>$list</td><td>$comment</td><td>$security</td><td id='share{$i}'>0</td><td></td></tr>";
-}
-if (!count($shares)) echo "<tr><td></td><td colspan='4' class='none'>"._('No shares present')."</td><td></td></tr>";
-?></tbody>
-<?endif;?>
-<?if ($var['shareAFPEnabled']=='yes'):?>
-<tbody sort='<?=$N?>' class='afp share share2 sortable'><?
-foreach ($shares as $name => $share) {
-  $list = "<a href=\"$path/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".truncate($name,20)."</a>";
-  if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
-  elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
-  $comment = truncate($share['comment'],40);
-  $security = export_settings($var['shareAFPEnabled'], $sec_afp[$name]);
-  echo "<tr><td></td><td><i class='icon-folder'></i>$list</td><td>$comment</td><td>$security</td><td>-</td><td></td></tr>";
 }
 if (!count($shares)) echo "<tr><td></td><td colspan='4' class='none'>"._('No shares present')."</td><td></td></tr>";
 ?></tbody>
@@ -472,38 +456,6 @@ foreach ($users as $user) {
     $write = 0; $read = 0;
     foreach ($shares as $share) {
       $access = $sec[$share['name']];
-      if ($access['export']=='-') continue;
-      switch ($access['security']) {
-      case 'public':
-        $write++;
-        break;
-      case 'secure':
-        if (in_array($name,explode(',',$access['writeList']))) $write++; else $read++;
-        break;
-      case 'private':
-        if (in_array($name,explode(',',$access['writeList']))) $write++;
-        if (in_array($name,explode(',',$access['readList']))) $read++;
-        break;
-      }
-    }
-  }
-  if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
-  echo "<tr><td></td><td><i class='icon-user'></i>$list</td><td>$desc</td><td>$write</td><td>$read</td><td></td></tr>";
-}
-?></tbody>
-<?endif;?>
-<?if ($var['shareAFPEnabled']=='yes'):?>
-<tbody sort='<?=$N?>' class='afp user user2 sortable'><?
-foreach ($users as $user) {
-  $name = $user['name'];
-  $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".truncate($name,20)."</a>";
-  $desc = truncate($user['desc'],40);
-  if ($name=='root') {
-    $write = '-'; $read = '-';
-  } else {
-    $write = 0; $read = 0;
-    foreach ($shares as $share) {
-      $access = $sec_afp[$share['name']];
       if ($access['export']=='-') continue;
       switch ($access['security']) {
       case 'public':
@@ -673,10 +625,6 @@ function changeMode(item) {
   if (item==0 && user==null) $('.smb.user1').show(); else $('.smb.user1').hide();
   if (item==0 && share==null) $('.smb.share1').show(); else $('.smb.share1').hide();
 <?endif;?>
-<?if ($var['shareAFPEnabled']=='yes'):?>
-  if (item==1 && user==null) $('.afp.user2').show(); else $('.afp.user2').hide();
-  if (item==1 && share==null) $('.afp.share2').show(); else $('.afp.share2').hide();
-<?endif;?>
 <?if ($var['shareNFSEnabled']=='yes'):?>
   if (item==2 && user==null) $('.nfs.user3').show(); else $('.nfs.user3').hide();
   if (item==2 && share==null) $('.nfs.share3').show(); else $('.nfs.share3').hide();
@@ -774,7 +722,7 @@ function update5() {
 }
 function update15() {
 <?if ($var['fsState']=='Started' && $group):?>
-  var tag = $('.smb').is(':visible') ? 'smb' : $('.afp').is(':visible') ? 'afp' : $('.nfs').is(':visible') ? 'nfs' : '';
+  var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
   $.post('<?=$url?>',{cmd:'shares',com:tag,names:'<?=addslashes(htmlspecialchars($names))?>'},function(data) {
     $.each(data.split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
   });

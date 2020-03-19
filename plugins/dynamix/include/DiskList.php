@@ -23,7 +23,6 @@ $disks   = parse_ini_file('state/disks.ini',true);
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
-$sec_afp = parse_ini_file('state/sec_afp.ini',true);
 $compute = $_GET['compute'];
 $path    = $_GET['path'];
 $fill    = $_GET['fill'];
@@ -92,7 +91,6 @@ foreach ($disks as $name => $disk) {
   echo "<td>{$disk['comment']}</td>";
   echo "<td>".disk_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".disk_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
-  echo "<td>".disk_share_settings($var['shareAFPEnabled'], $sec_afp[$name])."</td>";
   $cmd="/webGui/scripts/disk_size"."&arg1=".urlencode($name)."&arg2=ssz2";
   $type = $disk['rotational'] ? _('HDD') : _('SSD');
   if (array_key_exists($name, $ssz2)) {
