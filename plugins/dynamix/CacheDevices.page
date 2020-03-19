@@ -4,8 +4,8 @@ Tag="bullseye"
 Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -32,7 +32,7 @@ cache_status();
 </script>
 
 <table class="disk_status wide">
-<thead><tr><td>Device</td><td>Identification</td><td>Temp.</td><td>Reads</td><td>Writes</td><td>Errors</td><td>FS</td><td>Size</td><td>Used</td><td>Free</td><td>View</td></tr></thead>
+<thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td><td>_(View)_</td></tr></thead>
 <tbody id="cache_device">
 <?
 foreach ($disks as $disk):
@@ -42,6 +42,7 @@ endforeach;
 </tbody>
 </table>
 
+:help3
 > **Colored Status Indicator** the significance of the color indicator at the beginning of each line in *Cache Devices* is as follows:
 >
 > <i class='fa fa-circle orb green-orb'></i>Normal operation, device is active.
@@ -72,8 +73,11 @@ endforeach;
 > automatically make use of the Cache in order to
 > speed up writes.  A special background process called the *mover* can be scheduled to run
 > periodically to move user share files off the Cache and onto the Array.
+:end
 
 <?if ($var['fsState'] == "Stopped"):?>
 <div></div>
+:help4
 > **Slots** select the number of device slots in your server designated for Cache devices.
+:end
 <?endif;?>

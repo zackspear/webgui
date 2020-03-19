@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'tools';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $var = parse_ini_file('state/var.ini');
@@ -36,11 +40,11 @@ function replaceKey(email, guid, keyfile) {
 
     $.post('https://keys.lime-technology.com/account/license/transfer',{timestamp:timestamp,guid:guid,email:email,keyfile:keyfile},function(data) {
         $('#spinner_image').fadeOut('fast');
-        var msg = "<p>A registration replacement key has been created for USB Flash GUID <strong>"+guid+"</strong></p>" +
-                  "<p>An email has been sent to <strong>"+email+"</strong> containing your key file URL." +
-                  " When received, please paste the URL into the <i>Key file URL</i> box and" +
-                  " click <i>Install Key</i>.</p>" +
-                  "<p>If you do not receive an email, please check your spam or junk-email folder.</p>";
+        var msg = "<p><?=_('A registration replacement key has been created for USB Flash GUID')?> <strong>"+guid+"</strong></p>" +
+                  "<p><?=_('An email has been sent to')?> <strong>"+email+"</strong> <?=_('containing your key file URL')?>." +
+                  " <?=_('When received, please paste the URL into the <i>Key file URL</i> box and')?>" +
+                  " <?=_('click <i>Install Key</i>')?>.</p>" +
+                  "<p><?=_('If you do not receive an email, please check your spam or junk-email folder')?>.</p>";
 
         $('#status_panel').hide().html(msg).slideDown('fast');
         $('#input_form').fadeOut('fast');
@@ -49,8 +53,7 @@ function replaceKey(email, guid, keyfile) {
         $('#spinner_image').fadeOut('fast');
         var status = data.status;
         var obj = data.responseJSON;
-        var msg = "<p>Sorry, an error ("+status+") occurred registering USB Flash GUID <strong>"+guid+"</strong><p>" +
-                  "<p>The error is: "+obj.error+"</p>";
+        var msg = "<p><?=_('Sorry, an error occurred')?> <?=_('registering USB Flash GUID')?> <strong>"+guid+"</strong><p>"+"<p><?=_('The error is')?>: "+obj.error+"</p>";
 
         $('#status_panel').hide().html(msg).slideDown('fast');
     });

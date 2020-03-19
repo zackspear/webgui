@@ -5,8 +5,8 @@ Icon="icon-share"
 Tag="share-alt"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,8 +23,8 @@ $width    = [166,300];
 ?>
 <script>
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'All', width:<?=$width[0]?>, explicitClose:'...close'});
-  $('#s2').dropdownchecklist({emptyText:'None', width:<?=$width[0]?>, explicitClose:'...close'});
+  $('#s1').dropdownchecklist({emptyText:'_(All)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+  $('#s2').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
   presetShare(document.share_settings);
 });
 // Simulate the original input field
@@ -63,80 +63,90 @@ function presetShare(form,shares) {
 </script>
 <form markdown="1" name="share_settings" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareShare(this)">
 
-Enable disk shares:
-: <select name="shareDisk" size="1" <?=$disabled?>>
-  <?=mk_option($var['shareDisk'], "no", "No")?>
-  <?=mk_option($var['shareDisk'], "yes", "Yes")?>
-  <?=mk_option($var['shareDisk'], "auto", "Auto")?>
+_(Enable disk shares)_:
+: <select name="shareDisk" <?=$disabled?>>
+  <?=mk_option($var['shareDisk'], "no", _('No'))?>
+  <?=mk_option($var['shareDisk'], "yes", _('Yes'))?>
+  <?=mk_option($var['shareDisk'], "auto", _('Auto'))?>
   </select>
 
+:help85
 > If set to No, disk shares are unconditionally not exported.
 >
 > If set to Yes, disk shares may be exported.  **WARNING:** Do not copy data from a disk share to a user share
 > unless you *know* what you are doing.  This may result in the loss of data and is not supported.
 >
 > If set to Auto, only disk shares not participating in User Shares may be exported.
+:end
 
-Enable user shares:
-: <select name="shareUser" size="1" onchange="presetShare(this.form,this.value)" <?=$disabled?>>
-  <?=mk_option($var['shareUser'], "e", "Yes")?>
-  <?=mk_option($var['shareUser'], "-", "No")?>
+_(Enable user shares)_:
+: <select name="shareUser" onchange="presetShare(this.form,this.value)" <?=$disabled?>>
+  <?=mk_option($var['shareUser'], "e", _('Yes'))?>
+  <?=mk_option($var['shareUser'], "-", _('No'))?>
   </select>
 
+:help86
 > If set to 'Yes' the User Shares feature is activated.
+:end
 
-Included disk(s):
-: <select id="s1" name="shareUserInclude" size="1" multiple="multiple" style="display:none">
+_(Included disk(s))_:
+: <select id="s1" name="shareUserInclude" multiple="multiple" style="display:none">
   <?foreach ($disks as $disk):?>
   <?=mk_option_luks($disk['name'], $var['shareUserInclude'], strstr($disk['fsType'],':',true))?>
   <?endforeach;?>
   </select>
 
+:help87
 > This setting defines the set of array disks which are *included* in User Shares.
 > Unchecking all disks will allow **all** array disks to be included.
+:end
 
-Excluded disk(s):
-: <select id="s2" name="shareUserExclude" size="1" multiple="multiple" style="display:none">
+_(Excluded disk(s))_:
+: <select id="s2" name="shareUserExclude" multiple="multiple" style="display:none">
   <?foreach ($disks as $disk):?>
   <?=mk_option_luks($disk['name'], $var['shareUserExclude'], strstr($disk['fsType'],':',true))?>
   <?endforeach;?>
   </select>
 
+:help88
 > This setting defines the set of array disk which are *excluded* from User Shares.
 > Uncheck all disks in order to not exclude any disks
 >
 > **Note:** Each separate User Share also includes its own set of Included and Excluded
 > disks which represent a subset of the Included/Excluded disks defined here.
+:end
 
-Tunable (support Hard Links):
-: <select name="fuse_useino" size="1" <?=$disabled?>>
-  <?=mk_option($var['fuse_useino'], "no", "No")?>
-  <?=mk_option($var['fuse_useino'], "yes", "Yes")?>
+_(Tunable (support Hard Links))_:
+: <select name="fuse_useino" <?=$disabled?>>
+  <?=mk_option($var['fuse_useino'], "no", _('No'))?>
+  <?=mk_option($var['fuse_useino'], "yes", _('Yes'))?>
   </select>
 
+:help89
 > If set to Yes then support the link() operation.
 >
 > If set to No then hard links are not supported.
 >
 > Notes:
 >
-> * Setting to Yes may cause problems for older media and dvd/bluray players accessing shares
-> using NFS.
-> * No matter how this is set, the **mover** will still properly handle any detected
-> hard links.
+> * Setting to Yes may cause problems for older media and dvd/bluray players accessing shares using NFS.
+> * No matter how this is set, the **mover** will still properly handle any detected hard links.
+:end
 
-Tunable (enable Direct IO):
-: <select name="fuse_directio" size="1" <?=$disabled?>>
-  <?=mk_option($var['fuse_directio'], "auto", "Auto")?>
-  <?=mk_option($var['fuse_directio'], "0", "No")?>
-  <?=mk_option($var['fuse_directio'], "1", "Yes")?>
+_(Tunable (enable Direct IO))_:
+: <select name="fuse_directio" <?=$disabled?>>
+  <?=mk_option($var['fuse_directio'], "auto", _('Auto'))?>
+  <?=mk_option($var['fuse_directio'], "0", _('No'))?>
+  <?=mk_option($var['fuse_directio'], "1", _('Yes'))?>
   </select>
 
+:help90
 > **Experimental**: If set to Yes then mount User Share file system with FUSE *direct_io* mount option.
 > This will increase write performance but might possibly decrease read performance.
 >
 > *Auto* selects No.
+:end
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>

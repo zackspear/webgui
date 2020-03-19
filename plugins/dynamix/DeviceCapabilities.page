@@ -4,8 +4,8 @@ Tag="building"
 Cond="strpos($disks[$name]['status'],'_NP')===false"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,11 +23,13 @@ $(function() {
 });
 </script>
 <table class='share_status small'>
-<thead><td style="width:33%">Feature</td><td>Value</td><td>Information</td></thead>
+<thead><td style="width:33%">_(Feature)_</td><td>_(Value)_</td><td>_(Information)_</td></thead>
 <tbody id="disk_capabilities"><tr><td colspan='3'><div class="spinner"></div></td></tr></tbody>
 </table>
-<input type="button" value="Done" onclick="done()">
+<input type="button" value="_(Done)_" onclick="done()">
 
+:help35
 > This list shows the SMART capabilities supported by this disk.
 >
 > Observe here the estimated duration of the SMART short and extended self-tests.
+:end

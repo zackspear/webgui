@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,10 @@
  */
 ?>
 <?
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 $index = $_GET['index'];
 $tests = explode(',',$_GET['test']);
 if ($index < count($tests)) {
@@ -38,6 +42,6 @@ if ($index < count($tests)) {
     elseif (strpos($text,'LUKS1:')!==false) echo str_replace("\t"," ",$text);
   }
   pclose($bm);
-  echo "<div style='text-align:center;margin-top:12px'><input type='button' value='Done' onclick='top.Shadowbox.close()'></div>";
+  echo "<div style='text-align:center;margin-top:12px'><input type='button' value='"._('Done')."' onclick='top.Shadowbox.close()'></div>";
 }
 ?>

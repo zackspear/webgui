@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,12 +11,16 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
+
+$map = $changes = [];
+
 function decode($data) {
   return str_replace('%2e','.',urldecode($data));
 }
-
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$map = $changes = [];
 foreach (array_map('decode',explode(';',$_POST['names'])) as $name) $map[$name] = '';
 
 foreach($_POST as $key => $val) {
@@ -33,7 +37,7 @@ case 'vm':
   require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
   foreach ($map as $name => $cpuset) {
     if (!strlen($cpuset)) {
-      $reply = ['error' => "Not allowed to assign ZERO cores"];
+      $reply = ['error' => _("Not allowed to assign ZERO cores")];
       break 2;
     }
     $uuid = $lv->domain_get_uuid($lv->get_domain_by_name($name));

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'vms';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
@@ -523,19 +527,19 @@ case 'virtio-win-iso-cancel':
 		$arrDownloadVirtIO = $virtio_isos[$strKeyName];
 	}
 	if (empty($arrDownloadVirtIO)) {
-		$arrResponse = ['error' => 'Unknown version: '.$_REQUEST['download_version']];
+		$arrResponse = ['error' => _('Unknown version').': '.$_REQUEST['download_version']];
 	} elseif (empty($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'ISO storage path was empty'];
+		$arrResponse = ['error' => _('ISO storage path was empty')];
 	} elseif (!is_dir($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'ISO storage path doesn\'t exist'];
+		$arrResponse = ['error' => _("ISO storage path doesn't exist")];
 	} else {
 		$strInstallScriptPgrep = '-f "VirtIOWin_'.$strKeyName.'_install.sh"';
 		$pid = pgrep($strInstallScriptPgrep, false);
 		if (!$pid) {
-			$arrResponse = ['error' => 'Not running'];
+			$arrResponse = ['error' => _('Not running')];
 		} else {
 			if (!posix_kill($pid, SIGTERM)) {
-				$arrResponse = ['error' => 'Wasn\'t able to stop the process'];
+				$arrResponse = ['error' => _("Wasn't able to stop the process")];
 			} else {
 				$strTargetFile = $_REQUEST['download_path'].$arrDownloadVirtIO['name'];
 				$strLogFile = $strTargetFile.'.log';
@@ -581,7 +585,7 @@ case 'virtio-win-iso-remove':
 	break;
 
 default:
-	$arrResponse = ['error' => 'Unknown action \''.$action.'\''];
+	$arrResponse = ['error' => _('Unknown action')." '$action'"];
 	break;
 }
 

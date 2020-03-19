@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $boot  = "/boot/config/plugins/dynamix";
@@ -90,8 +94,8 @@ foreach ($models as $model) {
 }
 $select = substr($casemodel,-4)=='.png' ? 'color:#e68a00' : '';
 ?>
-<a style='text-decoration:none;cursor:pointer;<?=$select?>' onclick='$("input#file").trigger("click")'><div class='case-list' id='Custom'><i class='fa fa-file-image-o'></i><div class='case-name'>custom image</div></div></a>
-<a style='text-decoration:none;cursor:pointer' onclick='deleteCase()'><div class='case-list'><i class='fa fa-hdd-o'></i><div class='case-name'>default image</div></div></a>
+<a style='text-decoration:none;cursor:pointer;<?=$select?>' onclick='$("input#file").trigger("click")'><div class='case-list' id='Custom'><i class='fa fa-file-image-o'></i><div class='case-name'><?=_('custom image')?></div></div></a>
+<a style='text-decoration:none;cursor:pointer' onclick='deleteCase()'><div class='case-list'><i class='fa fa-hdd-o'></i><div class='case-name'><?=_('default image')?></div></div></a>
 <input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>
 </div>
 </body>

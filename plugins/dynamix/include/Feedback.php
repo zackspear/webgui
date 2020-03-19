@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $var = parse_ini_file('state/var.ini');
@@ -51,9 +55,9 @@ input[type=email]{margin-top:8px;float:left}
 <div style="margin-top:0;line-height:30px;margin-left:5px;margin-right:5px">
 <div id="control_panel" class="four">
 <!-- <label for="optOnlinePoll"><input type="radio" name="mode" id="optOnlinePoll" value="onlinepoll" checked="checked"/> Online Poll</label> -->
-<label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featurerequest" checked="checked"/> Product Suggestion</label>
-<label for="optBugReport"><input type="radio" name="mode" id="optBugReport" value="bugreport"/> Bug Report</label>
-<label for="optComment"><input type="radio" name="mode" id="optComment" value="comment"/> Other Comment</label>
+<label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featurerequest" checked="checked"/> <?=_('Product Suggestion')?></label>
+<label for="optBugReport"><input type="radio" name="mode" id="optBugReport" value="bugreport"/> <?=_('Bug Report')?></label>
+<label for="optComment"><input type="radio" name="mode" id="optComment" value="comment"/> <?=_('Other Comment')?></label>
 <hr>
 </div>
 <div id="thanks_panel" class="allpanels"></div>
@@ -65,8 +69,8 @@ input[type=email]{margin-top:8px;float:left}
 </div>
 <div id="bugreport_panel" class="allpanels">
 <textarea id="bugDescription"></textarea>
-<p style="line-height:14px;margin-top:0;font-size:1.1rem"><b>NOTE:</b> <i>Submission of this bug report will automatically send your system diagnostics to Lime Technology.</i></p>
-<label for="anonymize" style="line-height:12px"><input type="checkbox" id="anonymize" value="1" /> Anonymize diagnostics (may make troubleshooting more difficult)</label>
+<p style="line-height:14px;margin-top:0;font-size:1.1rem"><b><?=_('NOTE')?>:</b> <i><?=_('Submission of this bug report will automatically send your system diagnostics to Lime Technology')?>.</i></p>
+<label for="anonymize" style="line-height:12px"><input type="checkbox" id="anonymize" value="1" /> <?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
 <input type="email" id="bugEmail" placeholder="Contact Email Address (optional)" /><input type="button" id="bugSubmit" value="Submit"/>
 </div>
 <div id="comment_panel" class="allpanels">
@@ -77,9 +81,9 @@ input[type=email]{margin-top:8px;float:left}
 <div id="spinner_image"><img src="/webGui/images/loading.gif"/></div>
 <div id="footer_panel">
 <hr>
-<a href="https://lime-technology.com" target="_blank">Website</a>&nbsp;|&nbsp;
-<a href="https://lime-technology.com/forum" target="_blank">Forum</a>&nbsp;|&nbsp;
-<a href="https://lime-technology.com/wiki" target="_blank">Wiki</a>
+<a href="https://lime-technology.com" target="_blank"><?=_('Website')?></a>&nbsp;|&nbsp;
+<a href="https://lime-technology.com/forum" target="_blank"><?=_('Forum')?></a>&nbsp;|&nbsp;
+<a href="https://lime-technology.com/wiki" target="_blank"><?=_('Wiki')?></a>
 </div>
 </div>
 <script type="text/javascript" src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
@@ -96,7 +100,7 @@ function onlinepoll_load() {
     $.post('https://keys.lime-technology.com/polls',{timestamp:unraid_timestamp,osversion:unraid_osversion,keyfile:keyfile},function(data) {
         $('#onlinepoll_panel').hide().html(data).fadeIn('fast');
     }).fail(function(data) {
-        var msg = "<p>Sorry, an error ("+data.status+") occurred.  Please try again later.</p>";
+        var msg = "<p><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
         $('#onlinepoll_panel').hide().html(msg).fadeIn('fast');
     }).always(function() {
         $('#spinner_image').fadeOut('fast');
@@ -108,7 +112,7 @@ function featurerequest_reset() {
     $('#featureEmail').val("");
 }
 function bugreport_reset() {
-    $('#bugDescription').val("Bug Description:\n\nHow to reproduce:\n\nExpected results:\n\nActual results:\n\nOther information:\n\n");
+    $('#bugDescription').val("<?=_('Bug Description')?>:\n\n<?=_('How to reproduce')?>:\n\n<?=_('Expected results')?>:\n\n<?=_('Actual results')?>:\n\n<?=_('Other information')?>:\n\n");
     $('#bugEmail').val("");
 }
 function comment_reset() {
@@ -128,7 +132,7 @@ function form_submit(url, params, $panel, diagnostics) {
         }).fail(function() {
             $('#spinner_image').fadeOut('fast');
             $panel.fadeOut('fast').find('textarea,input').prop('disabled', false);
-            var failure_message = '<p class="red-text" style="text-align:center;">Sorry, an error (Unable to generate system diagnostics) occurred.  Please try again later.</p>';
+            var failure_message = '<p class="red-text" style="text-align:center;"><?=_("Sorry, an error occurred")?> (<?=_("Unable to generate system diagnostics")?>). <?=_("Please try again later")?>.</p>';
             $('#thanks_panel').html(failure_message).fadeIn('fast');
         });
 
@@ -142,13 +146,12 @@ function form_submit(url, params, $panel, diagnostics) {
 
     $.post(url,params,function(data) {
         if (data.error) {
-            var failure_message = '<p class="red-text" style="text-align:center;">Sorry, an error ('+data.error+') occurred.  Please try again later.</p>';
+            var failure_message = '<p class="red-text" style="text-align:center;"><?=_("Sorry, an error occurred")?>. <?=_("Please try again later")?>.</p>';
             $('#thanks_panel').html(failure_message).fadeIn('fast');
         } else {
             data.message = data.message || '';
-
             var url_parts = url.split('/');
-            var success_message = '<div style="text-align:center"><h2>Thank You!</h2><img src="/webGui/images/feedback_'+url_parts[4]+'.jpg"/><p style="text-align:center">'+data.message+'</p></div>';
+            var success_message = '<div style="text-align:center"><h2><?=_("Thank You")?>!</h2><img src="/webGui/images/feedback_'+url_parts[4]+'.jpg"/><p style="text-align:center">'+data.message+'</p></div>';
 
             $('#thanks_panel').html(success_message).fadeIn('fast', function() {
                 var resetfunction = window[url_parts[4]+'_reset'];
@@ -161,7 +164,7 @@ function form_submit(url, params, $panel, diagnostics) {
         if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
             errorThrown = jqXHR.responseJSON.error;
         }
-        var failure_message = '<p class="red-text" style="text-align:center;">Sorry, an error ('+errorThrown+') occurred.  Please try again later.</p>';
+        var failure_message = '<p class="red-text" style="text-align:center;"><?=_("Sorry, an error occurred")?>. <?=_("Please try again later")?>.</p>';
         $('#thanks_panel').html(failure_message).fadeIn('fast');
     }).always(function() {
         $('#spinner_image').fadeOut('fast');
@@ -173,7 +176,6 @@ $(function() {
     $('#control_panel input[type=radio]').click(function() {
         var showPanel = '#'+$( "#control_panel input[type=radio]:checked" ).val()+'_panel';
         $('.allpanels').not(showPanel).fadeOut('fast');
-
         var loadfunction = window[$( "#control_panel input[type=radio]:checked" ).val()+'_load'];
         if (typeof loadfunction !== 'undefined' && $.isFunction(loadfunction)) {
             loadfunction();

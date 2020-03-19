@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Bergware International
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Bergware International
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,14 +11,19 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 if (empty($_GET['btrfs'])) {
   $var = parse_ini_file("state/var.ini");
   switch ($var['fsState']) {
   case 'Copying':
-    echo "<strong>Copying, {$var['fsCopyPrcnt']}% complete...</strong>";
+    echo "<strong>"._('Copying').", {$var['fsCopyPrcnt']}% "._('complete')."...</strong>";
     break;
   case 'Clearing':
-    echo "<strong>Clearing, {$var['fsClearPrcnt']}% complete...</strong>";
+    echo "<strong>"._('Clearing').", {$var['fsClearPrcnt']}% "._('complete')."...</strong>";
     break;
   default:
     echo substr($var['fsState'],-3)=='ing' ? 'wait' : 'stop';

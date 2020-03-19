@@ -12,12 +12,16 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Container Size</title>
+<title><?=_('Container Size')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="robots" content="noindex, nofollow">
@@ -41,7 +45,7 @@ div.spinner .unraid_mark_7{animation:mark_7 1.5s ease infinite}
 @keyframes mark_7{50% {transform:translateY(62px)} 100% {transform: translateY(0px)}}
 pre{font-family:bitstream;font-size:1.3rem}
 </style>
-<script type="text/javascript" src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
+<script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script>
 $(function(){
   $('div.spinner').html('<?readfile("$docroot/webGui/images/animated-logo.svg")?>');
@@ -55,6 +59,6 @@ $(function(){
 <body style='margin:20px'>
 <div class="spinner"></div>
 <pre id="data"></pre>
-<div class="button"><input type="button" value="Done" onclick="top.Shadowbox.close()"></div>
+<div class="button"><input type="button" value="<?=_('Done')?>" onclick="top.Shadowbox.close()"></div>
 </body>
 </html>

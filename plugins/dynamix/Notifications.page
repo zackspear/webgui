@@ -5,8 +5,8 @@ Icon="icon-notifications"
 Tag="phone-square"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@ function prepareSystem(index) {
   if (index==0) $('.checkbox').attr('disabled','disabled'); else $('.checkbox').removeAttr('disabled');
 }
 function prepareTitle() {
-  var title = 'Available notifications:';
+  var title = '_(Available notifications)_:';
   $('#unraidTitle,#pluginTitle,#dockerTitle,#reportTitle').html('&nbsp;');
   if ($('.unraid').is(':visible')) { $('#unraidTitle').html(title); return; }
   if ($('.plugin').is(':visible')) { $('#pluginTitle').html(title); return; }
@@ -100,163 +100,186 @@ $(function(){
 <input type="hidden" name="plugin">
 <input type="hidden" name="docker_notify">
 <input type="hidden" name="report">
-Notifications display:
-: <select name="display" size="1">
-  <?=mk_option($notify['display'], "0", "Detailed")?>
-  <?=mk_option($notify['display'], "1", "Summarized")?>
+_(Notifications display)_:
+: <select name="display">
+  <?=mk_option($notify['display'], "0", _("Detailed"))?>
+  <?=mk_option($notify['display'], "1", _("Summarized"))?>
   </select>
 
+:help176
 > In *Detailed* view all notifications will be displayed on screen as soon as they arrive.<br>
 > Notifications can be acknowledged individually or all in once.
 >
 > In *Summarized* view notifications will be counted only and the number of unread notifications is shown in the menu header per category.<br>
 > Click on the counters to either acknowledge or view the unread notifications.
+:end
 
-Date format:
-: <select name="date" size="1">
-  <?=mk_option($notify['date'], "d-m-Y", "DD-MM-YYYY")?>
-  <?=mk_option($notify['date'], "m-d-Y", "MM-DD-YYYY")?>
-  <?=mk_option($notify['date'], "Y-m-d", "YYYY-MM-DD")?>
+_(Date format)_:
+: <select name="date">
+  <?=mk_option($notify['date'], "d-m-Y", _("DD-MM-YYYY"))?>
+  <?=mk_option($notify['date'], "m-d-Y", _("MM-DD-YYYY"))?>
+  <?=mk_option($notify['date'], "Y-m-d", _("YYYY-MM-DD"))?>
   </select>
 
+:help177
 > Select the desired date format which is used in the notifications archive. Recommended is YYYY-MM-DD, which makes the date/time column sortable in a sensible way.
+:end
 
-Time format:
-: <select name="time" size="1">
-  <?=mk_option($notify['time'], "h:i A", "12 hours")?>
-  <?=mk_option($notify['time'], "H:i", "24 hours")?>
+_(Time format)_:
+: <select name="time">
+  <?=mk_option($notify['time'], "h:i A", _("12 hours"))?>
+  <?=mk_option($notify['time'], "H:i", _("24 hours"))?>
   </select>
 
+:help178
 > Select the desired time format which is used in the notifications archive. Recommended is 24 hours, which makes the date/time column sortable in a sensible way.
+:end
 
-Display position:
-: <select name="position" size="1">
-  <?=mk_option($notify['position'], "top-left", "top-left")?>
-  <?=mk_option($notify['position'], "top-right", "top-right")?>
-  <?=mk_option($notify['position'], "bottom-left", "bottom-left")?>
-  <?=mk_option($notify['position'], "bottom-right", "bottom-right")?>
-  <?=mk_option($notify['position'], "center", "center")?>
+_(Display position)_:
+: <select name="position">
+  <?=mk_option($notify['position'], "top-left", _("top-left"))?>
+  <?=mk_option($notify['position'], "top-right", _("top-right"))?>
+  <?=mk_option($notify['position'], "bottom-left", _("bottom-left"))?>
+  <?=mk_option($notify['position'], "bottom-right", _("bottom-right"))?>
+  <?=mk_option($notify['position'], "center", _("center"))?>
   </select>
 
+:help179
 > Choose the position of where notifications appear on screen. Multiple notifications are stacked, bottom-to-top or top-to-bottom depending on the selected placement.
+:end
 
-Store notifications to flash:
-: <select name="path" size="1">
-  <?=mk_option($notify['path'], "/tmp/notifications", "No")?>
-  <?=mk_option($notify['path'], "/boot/config/plugins/dynamix/notifications", "Yes")?>
+_(Store notifications to flash)_:
+: <select name="path">
+  <?=mk_option($notify['path'], "/tmp/notifications", _("No"))?>
+  <?=mk_option($notify['path'], "/boot/config/plugins/dynamix/notifications", _("Yes"))?>
   </select>
 
+:help180
 > By default notifications are stored on RAM disk, which will get lost upon system reboot.
 > Notifications may be stored permanently on the flash drive under folder '/boot/config/plugins/dynamix' instead.
+:end
 
-System notifications:
-: <select name="system" size="1" onchange="prepareSystem(this.selectedIndex)">
-  <?=mk_option($notify['system'], "", "Disabled")?>
-  <?=mk_option($notify['system'], "*/1 * * * *", "Enabled")?>
+_(System notifications)_:
+: <select name="system" onchange="prepareSystem(this.selectedIndex)">
+  <?=mk_option($notify['system'], "", _("Disabled"))?>
+  <?=mk_option($notify['system'], "*/1 * * * *", _("Enabled"))?>
   </select>
 
+:help181
 > By default the notifications system is disabled. Enable it here to start receiving notifications.
 > The following sections give more options about which and what type of notifications will be sent.
+:end
 
-Unraid OS update notification:
-: <select name="unraidos" size="1" onchange="prepareUnraid(this.value)">
-  <?=mk_option($notify['unraidos'], "", "Never check")?>
-  <?=mk_option($notify['unraidos'], "11 */6 * * *", "Check four times a day")?>
-  <?=mk_option($notify['unraidos'], "11 0,12 * * *", "Check twice a day")?>
-  <?=mk_option($notify['unraidos'], "11 0 * * *", "Check once a day")?>
-  <?=mk_option($notify['unraidos'], "11 0 * * 1", "Check once a week")?>
-  <?=mk_option($notify['unraidos'], "11 0 1 * *", "Check once a month")?>
+_(Unraid OS update notification)_:
+: <select name="unraidos" onchange="prepareUnraid(this.value)">
+  <?=mk_option($notify['unraidos'], "", _("Never check"))?>
+  <?=mk_option($notify['unraidos'], "11 */6 * * *", _("Check four times a day"))?>
+  <?=mk_option($notify['unraidos'], "11 0,12 * * *", _("Check twice a day"))?>
+  <?=mk_option($notify['unraidos'], "11 0 * * *", _("Check once a day"))?>
+  <?=mk_option($notify['unraidos'], "11 0 * * 1", _("Check once a week"))?>
+  <?=mk_option($notify['unraidos'], "11 0 1 * *", _("Check once a month"))?>
   </select>
 
+:help182
 > Start a periodic verification and notify the user when a new version of the Unraid OS system is detected.
 > Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
+:end
 
-Plugins update notification:
-: <select name="version" size="1" onchange="preparePlugin(this.value)">
-  <?=mk_option($notify['version'], "", "Never check")?>
-  <?=mk_option($notify['version'], "10 */6 * * *", "Check four times a day")?>
-  <?=mk_option($notify['version'], "10 0,12 * * *", "Check twice a day")?>
-  <?=mk_option($notify['version'], "10 0 * * *", "Check once a day")?>
-  <?=mk_option($notify['version'], "10 0 * * 1", "Check once a week")?>
-  <?=mk_option($notify['version'], "10 0 1 * *", "Check once a month")?>
+_(Plugins update notification)_:
+: <select name="version" onchange="preparePlugin(this.value)">
+  <?=mk_option($notify['version'], "", _("Never check"))?>
+  <?=mk_option($notify['version'], "10 */6 * * *", _("Check four times a day"))?>
+  <?=mk_option($notify['version'], "10 0,12 * * *", _("Check twice a day"))?>
+  <?=mk_option($notify['version'], "10 0 * * *", _("Check once a day"))?>
+  <?=mk_option($notify['version'], "10 0 * * 1", _("Check once a week"))?>
+  <?=mk_option($notify['version'], "10 0 1 * *", _("Check once a month"))?>
   </select>
 
+:help183
 > Start a periodic verification and notify the user when a new version of one or more of the installed plugins is detected.
 > Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
+:end
 
-Docker update notification:
-: <select name="docker_update" size="1" onchange="prepareDocker(this.value)">
-  <?=mk_option($notify['docker_update'], "", "Never check")?>
-  <?=mk_option($notify['docker_update'], "10 */6 * * *", "Check four times a day")?>
-  <?=mk_option($notify['docker_update'], "10 0,12 * * *", "Check twice a day")?>
-  <?=mk_option($notify['docker_update'], "10 0 * * *", "Check once a day")?>
-  <?=mk_option($notify['docker_update'], "10 0 * * 1", "Check once a week")?>
-  <?=mk_option($notify['docker_update'], "10 0 1 * *", "Check once a month")?>
+_(Docker update notification)_:
+: <select name="docker_update" onchange="prepareDocker(this.value)">
+  <?=mk_option($notify['docker_update'], "", _("Never check"))?>
+  <?=mk_option($notify['docker_update'], "10 */6 * * *", _("Check four times a day"))?>
+  <?=mk_option($notify['docker_update'], "10 0,12 * * *", _("Check twice a day"))?>
+  <?=mk_option($notify['docker_update'], "10 0 * * *", _("Check once a day"))?>
+  <?=mk_option($notify['docker_update'], "10 0 * * 1", _("Check once a week"))?>
+  <?=mk_option($notify['docker_update'], "10 0 1 * *", _("Check once a month"))?>
   </select>
 
+:help184
 > Start a periodic verification and notify the user when a new version of one or more of the installed dockers is detected.
 > Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
+:end
 
-Array status notification:
-: <select name="status" size="1" onchange="prepareReport(this.value)">
-  <?=mk_option($notify['status'], "", "Never send")?>
-  <?=mk_option($notify['status'], "20 * * * *", "Send every hour")?>
-  <?=mk_option($notify['status'], "20 */2 * * *", "Send every two hours")?>
-  <?=mk_option($notify['status'], "20 */6 * * *", "Send four times a day")?>
-  <?=mk_option($notify['status'], "20 */8 * * *", "Send three times a day")?>
-  <?=mk_option($notify['status'], "20 0,12 * * *", "Send twice a day")?>
-  <?=mk_option($notify['status'], "20 0 * * *", "Send once a day")?>
-  <?=mk_option($notify['status'], "20 0 * * 1", "Send once a week")?>
-  <?=mk_option($notify['status'], "20 0 1 * *", "Send once a month")?>
+_(Array status notification)_:
+: <select name="status" onchange="prepareReport(this.value)">
+  <?=mk_option($notify['status'], "", _("Never send"))?>
+  <?=mk_option($notify['status'], "20 * * * *", _("Send every hour"))?>
+  <?=mk_option($notify['status'], "20 */2 * * *", _("Send every two hours"))?>
+  <?=mk_option($notify['status'], "20 */6 * * *", _("Send four times a day"))?>
+  <?=mk_option($notify['status'], "20 */8 * * *", _("Send three times a day"))?>
+  <?=mk_option($notify['status'], "20 0,12 * * *", _("Send twice a day"))?>
+  <?=mk_option($notify['status'], "20 0 * * *", _("Send once a day"))?>
+  <?=mk_option($notify['status'], "20 0 * * 1", _("Send once a week"))?>
+  <?=mk_option($notify['status'], "20 0 1 * *", _("Send once a month"))?>
   </select>
 
+:help185
 > Start a periodic array health check (preventive maintenance) and notify the user the result of this check.
+:end
 
 <span id="unraidTitle" class="unraid" style="display:none">&nbsp;</span>
-: <span class="unraid" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">Unraid OS update</span>
-  <input type="checkbox" name="unraid1"<?=($notify['unraid'] & 1)==1 ? ' checked' : ''?>>Browser &nbsp;
-  <input type="checkbox" name="unraid2"<?=($notify['unraid'] & 2)==2 ? ' checked' : ''?>>Email &nbsp;
-  <input type="checkbox" name="unraid3"<?=($notify['unraid'] & 4)==4 ? ' checked' : ''?>>Agents &nbsp;</span>
+: <span class="unraid" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">_(Unraid OS update)_</span>
+  <input type="checkbox" name="unraid1"<?=($notify['unraid'] & 1)==1 ? ' checked' : ''?>>_(Browser)_ &nbsp;
+  <input type="checkbox" name="unraid2"<?=($notify['unraid'] & 2)==2 ? ' checked' : ''?>>_(Email)_ &nbsp;
+  <input type="checkbox" name="unraid3"<?=($notify['unraid'] & 4)==4 ? ' checked' : ''?>>_(Agents)_ &nbsp;</span>
 
 <span id="pluginTitle" class="plugin" style="display:none">&nbsp;</span>
-: <span class="plugin" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">Plugins update</span>
-  <input type="checkbox" name="plugin1"<?=($notify['plugin'] & 1)==1 ? ' checked' : ''?>>Browser &nbsp;
-  <input type="checkbox" name="plugin2"<?=($notify['plugin'] & 2)==2 ? ' checked' : ''?>>Email &nbsp;
-  <input type="checkbox" name="plugin3"<?=($notify['plugin'] & 4)==4 ? ' checked' : ''?>>Agents &nbsp;</span>
+: <span class="plugin" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">_(Plugins update)_</span>
+  <input type="checkbox" name="plugin1"<?=($notify['plugin'] & 1)==1 ? ' checked' : ''?>>_(Browser)_ &nbsp;
+  <input type="checkbox" name="plugin2"<?=($notify['plugin'] & 2)==2 ? ' checked' : ''?>>_(Email)_ &nbsp;
+  <input type="checkbox" name="plugin3"<?=($notify['plugin'] & 4)==4 ? ' checked' : ''?>>_(Agents)_ &nbsp;</span>
 
 <span id="dockerTitle" class="docker" style="display:none">&nbsp;</span>
-: <span class="docker" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">Docker update</span>
-  <input type="checkbox" name="docker_notify1"<?=($notify['docker_notify'] & 1)==1 ? ' checked' : ''?>>Browser &nbsp;
-  <input type="checkbox" name="docker_notify2"<?=($notify['docker_notify'] & 2)==2 ? ' checked' : ''?>>Email &nbsp;
-  <input type="checkbox" name="docker_notify3"<?=($notify['docker_notify'] & 4)==4 ? ' checked' : ''?>>Agents &nbsp;</span>
+: <span class="docker" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">_(Docker update)_</span>
+  <input type="checkbox" name="docker_notify1"<?=($notify['docker_notify'] & 1)==1 ? ' checked' : ''?>>_(Browser)_ &nbsp;
+  <input type="checkbox" name="docker_notify2"<?=($notify['docker_notify'] & 2)==2 ? ' checked' : ''?>>_(Email)_ &nbsp;
+  <input type="checkbox" name="docker_notify3"<?=($notify['docker_notify'] & 4)==4 ? ' checked' : ''?>>_(Agents)_ &nbsp;</span>
 
 <span id="reportTitle" class="report" style="display:none">&nbsp;</span>
-: <span class="report" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">Array status</span>
-  <input type="checkbox" name="report1"<?=($notify['report'] & 1)==1 ? ' checked' : ''?>>Browser &nbsp;
-  <input type="checkbox" name="report2"<?=($notify['report'] & 2)==2 ? ' checked' : ''?>>Email &nbsp;
-  <input type="checkbox" name="report3"<?=($notify['report'] & 4)==4 ? ' checked' : ''?>>Agents &nbsp;</span>
+: <span class="report" style="display:none"><span style="display:inline-block;width:130px;font-style:italic">_(Array status)_</span>
+  <input type="checkbox" name="report1"<?=($notify['report'] & 1)==1 ? ' checked' : ''?>>_(Browser)_ &nbsp;
+  <input type="checkbox" name="report2"<?=($notify['report'] & 2)==2 ? ' checked' : ''?>>_(Email)_ &nbsp;
+  <input type="checkbox" name="report3"<?=($notify['report'] & 4)==4 ? ' checked' : ''?>>_(Agents)_ &nbsp;</span>
 
+:help186
 > Use the checkboxes above to select what and how notifications need to be given; by browser, by email and/or by a service.<br>
 > <b>Tip:</b> you can use custom notification agents; just add them to "/boot/config/plugins/dynamix/notification/agents" directory and check 'Agents'.
+:end
 
-Notification entity:
-: <span style="display:inline-block;width:130px;font-style:italic">Notices</span>
-  <input type="checkbox" class="checkbox" name="normal1"<?=($notify['normal'] & 1)==1 ? " checked $disabled" : $disabled?>>Browser &nbsp;
-  <input type="checkbox" class="checkbox" name="normal2"<?=($notify['normal'] & 2)==2 ? " checked $disabled" : $disabled?>>Email &nbsp;
-  <input type="checkbox" class="checkbox" name="normal3"<?=($notify['normal'] & 4)==4 ? " checked $disabled" : $disabled?>>Agents &nbsp;
-
-&nbsp;
-: <span style="display:inline-block;width:130px;font-style:italic">Warnings</span>
-  <input type="checkbox" class="checkbox" name="warning1"<?=($notify['warning'] & 1)==1 ? " checked $disabled" : $disabled?>>Browser &nbsp;
-  <input type="checkbox" class="checkbox" name="warning2"<?=($notify['warning'] & 2)==2 ? " checked $disabled" : $disabled?>>Email &nbsp;
-  <input type="checkbox" class="checkbox" name="warning3"<?=($notify['warning'] & 4)==4 ? " checked $disabled" : $disabled?>>Agents &nbsp;
+_(Notification entity)_:
+: <span style="display:inline-block;width:130px;font-style:italic">_(Notices)_</span>
+  <input type="checkbox" class="checkbox" name="normal1"<?=($notify['normal'] & 1)==1 ? " checked $disabled" : $disabled?>>_(Browser)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="normal2"<?=($notify['normal'] & 2)==2 ? " checked $disabled" : $disabled?>>_(Email)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="normal3"<?=($notify['normal'] & 4)==4 ? " checked $disabled" : $disabled?>>_(Agents)_ &nbsp;
 
 &nbsp;
-: <span style="display:inline-block;width:130px;font-style:italic">Alerts</span>
-  <input type="checkbox" class="checkbox" name="alert1"<?=($notify['alert'] & 1)==1 ? " checked $disabled" : $disabled?>>Browser &nbsp;
-  <input type="checkbox" class="checkbox" name="alert2"<?=($notify['alert'] & 2)==2 ? " checked $disabled" : $disabled?>>Email &nbsp;
-  <input type="checkbox" class="checkbox" name="alert3"<?=($notify['alert'] & 4)==4 ? " checked $disabled" : $disabled?>>Agents &nbsp;
+: <span style="display:inline-block;width:130px;font-style:italic">_(Warnings)_</span>
+  <input type="checkbox" class="checkbox" name="warning1"<?=($notify['warning'] & 1)==1 ? " checked $disabled" : $disabled?>>_(Browser)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="warning2"<?=($notify['warning'] & 2)==2 ? " checked $disabled" : $disabled?>>_(Email)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="warning3"<?=($notify['warning'] & 4)==4 ? " checked $disabled" : $disabled?>>_(Agents)_ &nbsp;
 
+&nbsp;
+: <span style="display:inline-block;width:130px;font-style:italic">_(Alerts)_</span>
+  <input type="checkbox" class="checkbox" name="alert1"<?=($notify['alert'] & 1)==1 ? " checked $disabled" : $disabled?>>_(Browser)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="alert2"<?=($notify['alert'] & 2)==2 ? " checked $disabled" : $disabled?>>_(Email)_ &nbsp;
+  <input type="checkbox" class="checkbox" name="alert3"<?=($notify['alert'] & 4)==4 ? " checked $disabled" : $disabled?>>_(Agents)_ &nbsp;
+
+:help187
 > Notifications are classified as:
 >
 > *notice* - these are informative notifications and do not indicate a problem situation, e.g. a new version is available<br>
@@ -264,7 +287,8 @@ Notification entity:
 > *alert* - these are serious notifications and require immediate attention, e.g. a failing hard disk<br>
 >
 > Choose for each classification how you want to be notified.
+:end
 
-<input type="submit" name="#default" value="Default">
-: <input type="submit" name="#apply" value="Apply" disabled><input type="button" value="Done" onclick="done()"></td>
+<input type="submit" name="#default" value="_(Default)_">
+: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></td>
 </form>

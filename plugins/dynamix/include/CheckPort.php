@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,8 +11,13 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
+
 $port = $_POST['port'] ?: 'eth0';
 if (exec("ip link show ".escapeshellarg($port)."|grep -om1 'NO-CARRIER'")) {
-  echo "<b>Interface ".str_replace('eth', 'Ethernet Port ', $port)." is down. Check cable!</b>";
+  echo "<b>"._('Interface')." ".str_replace('eth', _('Ethernet Port')." ", $port)." "._('is down').". "._('Check cable')."!</b>";
 }
 ?>

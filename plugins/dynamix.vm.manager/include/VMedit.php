@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,11 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+	$_SERVER['REQUEST_URI'] = 'vms';
+	require_once "$docroot/webGui/include/Translations.php";
+}
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
@@ -41,7 +46,7 @@ if (!empty($_GET['uuid'])) {
 	$res = $lv->domain_get_domain_by_uuid($_GET['uuid']);
 
 	if ($res === false) {
-		echo "<p class='notice'>Invalid VM to edit.</p><input type='button' value='Done' onclick='done()'>";
+		echo "<p class='notice'>"._('Invalid VM to edit').".</p><input type='button' value='"._('Done')."' onclick='done()'>";
 		return;
 	}
 
@@ -137,10 +142,10 @@ span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px
 
 	<table>
 		<tr>
-			<td>Icon:</td>
+			<td>_(Icon)_:</td>
 			<td>
 				<input type="hidden" name="template[icon]" id="template_icon" value="<?=htmlspecialchars($arrLoad['icon'])?>" />
-				<img id="template_img" src="<?=htmlspecialchars($strIconURL)?>" width="48" height="48" title="Change Icon..."/>
+				<img id="template_img" src="<?=htmlspecialchars($strIconURL)?>" width="48" height="48" title="_(Change Icon)_..."/>
 				<div id="template_img_chooser_outer">
 					<div id="template_img_chooser">
 					<?
@@ -162,15 +167,15 @@ span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px
 
 	<table>
 		<tr style="line-height: 16px; vertical-align: middle;">
-			<td>Autostart:</td>
-			<td><div style="margin-left:-10px;padding-top:6px"><input type="checkbox" id="domain_autostart" name="domain[autostart]" style="display:none" class="autostart" value="1" <? if ($arrLoad['autostart']) echo 'checked'; ?>></div></td>
+			<td>_(Autostart)_:</td>
+			<td><div style="margin-left:-10px;padding-top:6px"><input type="checkbox" id="domain_autostart" name="domain[autostart]" style="display:none" class="autostart" value="1" <?if ($arrLoad['autostart']) echo 'checked'?>></div></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
 		<p>If you want this VM to start with the array, set this to yes.</p>
 	</blockquote>
 
-	<div id="form_content"><? include "$docroot/plugins/dynamix.vm.manager/templates/{$arrLoad['form']}"; ?></div>
+	<div id="form_content"><?eval('?>'.parse_file("$docroot/plugins/dynamix.vm.manager/templates/{$arrLoad['form']}",false))?></div>
 
 	</form>
 </div>
@@ -190,8 +195,8 @@ function isVMXMLMode() {
 
 $(function() {
 	$('.autostart').switchButton({
-		on_label: 'Yes',
-		off_label: 'No',
+		on_label: '_(Yes)_',
+		off_label: '_(No)_',
 		labels_placement: "right"
 	});
 	$('.autostart').change(function () {
@@ -200,8 +205,8 @@ $(function() {
 
 	$('.advancedview').switchButton({
 		labels_placement: "left",
-		on_label: 'XML View',
-		off_label: 'Form View',
+		on_label: '_(XML View)_',
+		off_label: '_(Form View)_',
 		checked: isVMXMLMode()
 	});
 	$('.advancedview').change(function () {

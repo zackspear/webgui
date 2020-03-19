@@ -4,8 +4,8 @@ Tag="upload"
 Cond="((isset($disks['cache']))&&($disks['cache']['status']!='DISK_NP'))"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -29,18 +29,21 @@ $(check_cache_settings);
 </script>
 
 <form markdown="1" name="cache_settings" method="POST" action="/update.htm" target="progressFrame">
-Use cache disk:
-: <select name="shareCacheEnabled" size="1" onchange="check_cache_settings()" <?=$disabled?>>
-  <?=mk_option($var['shareCacheEnabled'], "yes", "Yes")?>
-  <?=mk_option($var['shareCacheEnabled'], "no", "No")?>
+_(Use cache disk)_:
+: <select name="shareCacheEnabled" onchange="check_cache_settings()" <?=$disabled?>>
+  <?=mk_option($var['shareCacheEnabled'], "yes", _('Yes'))?>
+  <?=mk_option($var['shareCacheEnabled'], "no", _('No'))?>
   </select>
 
+:help
 > If set to 'Yes' then User Shares can possibly make use of the Cache Disk. You still need to enable
 > use of the Cache Disk on individual user shares.
+:end
 
-Min. free space:
+_(Min. free space)_:
 : <input type="text" name="shareCacheFloor" maxlength="16" value="<?=$var['shareCacheFloor']?>" class="narrow" disabled>
 
+:help
 > This represents a "floor" of the amount of free space remaining on the cache disk.  If the free
 > space becomes less than this value, then new files written to user shares with cache enabled will go to
 > the array and not the cache disk.
@@ -58,7 +61,8 @@ Min. free space:
 >
 > **2GB** => 2,000,000,000 bytes<br>
 > **2000000** => 2,048,000,000 bytes
+:end
 
 &nbsp;
-: <input type="submit" name="changeShare" value="Apply" disabled><input type="button" value="Done" onclick="done()"><?if ($disabled):?>Array must be <span class="strong big">Stopped</span> to change<?endif;?>
+: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>

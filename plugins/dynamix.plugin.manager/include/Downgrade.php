@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'plugins';
+require_once "$docroot/webGui/include/Translations.php";
+
 exec("mv -f /boot/previous/* /boot");
-file_put_contents("$docroot/plugins/unRAIDServer/README.md","**DOWNGRADE TO VERSION {$_GET['version']}**");
+file_put_contents("$docroot/plugins/unRAIDServer/README.md","**"._('DOWNGRADE TO VERSION')." {$_GET['version']}**");
 ?>
