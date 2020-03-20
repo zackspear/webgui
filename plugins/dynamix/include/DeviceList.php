@@ -408,7 +408,7 @@ case 'cache':
     } else {
       if ($cache[$pool]['devicesSb']) {
         foreach ($cache as $disk) if (prefix($disk['name'])==$pool) array_online($disk);
-        if ($display['total'] && $var['cacheSbNumDisks']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devicesSb'])),false);
+        if ($display['total'] && $cache[$pool]['devicesSb']) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devicesSb'])),false);
         echo "\0";
       }
       @unlink($tmp);

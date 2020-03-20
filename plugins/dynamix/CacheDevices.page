@@ -26,7 +26,9 @@ $pools = array_unique(array_map('prefix',array_keys($cache)));
 $i = 0;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-
+<style>
+table.divider{margin-top:2px}
+</style>
 <script>
 function addPoolPopup() {
   var popup = $('#dialogAddPool');
@@ -86,7 +88,7 @@ pool_status();
 
 <?foreach ($pools as $pool):?>
 <?if ($cache[$pool]['devicesSb'] || $var['fsState']=='Stopped'):?>
-<table class="disk_status wide"<?=$i?' style="margin-top:0"':''?>>
+<table class="disk_status wide<?=$i?' divider':''?>">
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td><td>_(View)_</td></tr></thead>
 <tbody id="pool_device<?=$i++?>">
 <?foreach ($cache as $disk) if (prefix($disk['name']==$pool)) echo "<tr><td colspan='11'>&nbsp;</td></tr>";?>
@@ -96,14 +98,13 @@ pool_status();
 <?endforeach;?>
 <?if ($var['fsState']=='Stopped'):?>
 <input type="button" value="Add Pool" style="margin:0" onclick="addPoolPopup()">
-<?endif;?>
 
 <div id="dialogAddPool" style="display:none"></div>
 <div id="templatePopupPool" style="display:none">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
-: <input type="text" name="poolName" maxlength="40">
+: <input type="text" name="poolName" maxlength="40" value="">
 
 _(Slots)_:
 : <select name="poolSlots">
@@ -113,6 +114,7 @@ _(Slots)_:
   </select>
 </form>
 </div>
+<?endif;?>
 
 :help3
 > **Colored Status Indicator** the significance of the color indicator at the beginning of each line in *Pool Devices* is as follows:
