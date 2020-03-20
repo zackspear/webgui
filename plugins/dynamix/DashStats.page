@@ -40,6 +40,9 @@ function data_devices($disk) {
 function cache_devices($disk) {
   return $disk['type']=='Cache';
 }
+function prefix($key) {
+  return preg_replace('/[0-9]+$/','',$key);
+}
 function vpn_peers($file) {
   $peers = [];
   $entries = array_filter(array_map('trim',preg_split('/\[(Interface|Peer)\]/',file_get_contents($file))));
@@ -59,15 +62,19 @@ $apcupsd = file_exists('/var/run/apcupsd.pid');
 $wireguard = is_executable('/usr/bin/wg') && file_exists('/var/log/plugins/dynamix.wireguard.plg');
 $started = $var['fsState']=='Started';
 $sleep = isset($display['sleep']);
-$cache_pool = $var['cacheSbNumDisks'];
 $array_size = $array_used = 0;
-$cache_size = $cache_used = 0;
 $extra_size = $extra_used = 0;
-$cache_type = 'disk';
+$cache_size = $cache_used = [];
+$cache_type = $cache_pool = [];
+$cache_percent = [];
 
 $parity = $var['mdResync'];
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
+$dot = $display['number'][0];
+
+$cache = array_filter($disks,'cache_devices');
+$pools = array_unique(array_map('prefix',array_keys($cache)));
 
 foreach ($disks as $disk) {
   switch ($disk['type']) {
@@ -78,10 +85,13 @@ foreach ($disks as $disk) {
     }
     break;
   case 'Cache':
-    if ($disk['name']=='cache') {
-      $cache_size = $disk['fsSize'];
-      $cache_used = $disk['fsSize']-$disk['fsFree'];
-      $cache_type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
+    $name = $disk['name'];
+    if (in_array($name,$pools)) {
+      $cache_size[$name] = $disk['fsSize'];
+      $cache_used[$name] = $disk['fsSize']-$disk['fsFree'];
+      $cache_type[$name] = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
+      $cache_pool[$name] = $disk['devicesSb'];
+      $cache_percent[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
     }
     break;
   }
@@ -89,9 +99,7 @@ foreach ($disks as $disk) {
 foreach ($devs as $disk) {
   $extra_size += $disk['sectors']*$disk['sector_size'];
 }
-$dot = $display['number'][0];
 $array_percent = number_format(100*$array_used/($array_size ?: 1),1,$dot,'');
-$cache_percent = number_format(100*$cache_used/($cache_size ?: 1),1,$dot,'');
 
 exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
 $conf  = $wireguard ? glob('/etc/wireguard/wg*.conf') : [];
@@ -184,9 +192,13 @@ a.cpu_close,span.hand{cursor:pointer}
 tr.hidden{display:none;height:0;lineheight:0}
 td.none{text-align:center;padding-top:12px}
 input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
-.sys_view,.mb_view,.cpu_view,.cpu_open,.mem_view,.port_view,.ups_view,.fan_view,.docker_view,.vm_view,.parity_view,.array_view,.cache_view,.my_view,.extra_view{display:none}
+.sys_view,.mb_view,.cpu_view,.cpu_open,.mem_view,.port_view,.ups_view,.fan_view,.docker_view,.vm_view,.parity_view,.array_view,.my_view,.extra_view{display:none}
 .share1,.share2,.share3,.view1,.view2,.view3,.user1,.user2,.user3{display:none}
-#shares_view_on,#users_view_on,#array_view_on,#cache_view_on,#extra_view_on{display:none}
+#shares_view_on,#users_view_on,#array_view_on,#extra_view_on{display:none}
+<?foreach ($pools as $pool):?>
+.<?=$pool?>_view{display:none}
+#<?=$pool?>_view_on{display:none}
+<?endforeach;?>
 form[name=boot]{display:none}
 .flat{height:0;lineheight:0}
 .wrap{white-space:normal}
@@ -518,16 +530,19 @@ foreach ($users as $user) {
 <tr id='array_view_on'><td></td><td>_(Device)_</td><td>_(Status)_</td><td>_(Temp)_</td><td>_(SMART)_</td><td>_(Utilization)_</td><td></td></tr>
 </thead>
 <tbody sort='<?=$N?>' class='array_view sortable' id='array_list'></tbody>
-<?if ($cache_pool):?>
-<thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'>_(Cache)_<?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='cache_view' onclick='toggleChevron("cache_view",0)'></i>
+<?$i=0?>
+<?foreach ($pools as $pool):?>
+<?if ($cache_pool[$pool]):?>
+<thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='<?=$pool?>_view' onclick='toggleChevron("<?=$pool?>_view",0)'></i>
 <a href='/Dashboard/Device?name=cache' title='_(Go to cache settings)_'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
-<?if ($started):?><span class='info'><?=sprintf(_('%s used of %s (%s %%)'),my_scale($cache_used*1024,$unit)." $unit",my_scale($cache_size*1024,$unit,-1,-1)." $unit",$cache_percent)?></span><?endif;?>
+<?if ($started):?><span class='info'><?=sprintf(_('%s used of %s (%s %%)'),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_percent[$pool])?></span><?endif;?>
 </td><td></td></tr>
-<tr class='my_view'><td></td><td id='cache_info' colspan='5'></td><td></td></tr>
-<tr id='cache_view_on'><td></td><td>_(Device)_</td><td>_(Status)_</td><td>_(Temp)_</td><td>_(SMART)_</td><td>_(Utilization)_</td><td></td></tr>
+<tr class='my_view'><td></td><td id='cache_info<?=$i?>' colspan='5'></td><td></td></tr>
+<tr id='<?=$pool?>_view_on'><td></td><td>_(Device)_</td><td>_(Status)_</td><td>_(Temp)_</td><td>_(SMART)_</td><td>_(Utilization)_</td><td></td></tr>
 </thead>
-<tbody sort='<?=$N?>' class='cache_view sortable' id='cache_list'></tbody>
+<tbody sort='<?=$N?>' class='<?=$pool?>_view sortable' id='cache_list<?=$i++?>'></tbody>
 <?endif;?>
+<?endforeach;?>
 <?if ($devs):?>
 <thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'>_(Unassigned)_<i class='fa fa-fw chevron mt0' id='extra_view' onclick='toggleChevron("extra_view",0)'></i><span class='info'></span></td><td></td></tr>
 <tr class='my_view'><td></td><td id='extra_info' colspan='5'></td><td></td></tr>
@@ -758,12 +773,15 @@ function update30() {
     $('#array_info').html(info);
     smartMenu('#array_list');
     $.post('<?=$url?>',{cmd:'cache',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
-      var data = d.split('\0');
-      var info = moreInfo(data,'_(Cache)_');
-      $('#cache_list').html(data[0]);
-      $('#cache_info').parent().css('display',info?'':'none');
-      $('#cache_info').html(info);
-      smartMenu('#cache_list');
+      var text = d.split('\r');
+      for (var i=0,t; t=text[i]; i++) {
+        var data = t.split('\0');
+        var info = moreInfo(data,'_(Cache)_');
+        $('#cache_list'+i).html(t);
+        $('#cache_info'+i).parent().css('display',info?'':'none');
+        $('#cache_info'+i).html(info);
+        smartMenu('#cache_list'+i);
+      }
 <?if ($devs):?>
       $.post('<?=$url?>',{cmd:'extra',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
         var data = d.split('\0');
@@ -865,7 +883,9 @@ function toggleView(field,init,view) {
   case 'shares_view':
     if (unset) visible = $('.share').is(':visible');
   case 'array_view':
-  case 'cache_view':
+<?foreach ($pools as $pool):?>
+  case '<?=$pool?>_view':
+<?endforeach;?>
   case 'extra_view':
     var on = $('#'+field+'_on');
     var off = $('#'+field+'_off');
@@ -1051,9 +1071,9 @@ $(function() {
 <?endif;?>
   toggleView('parity_view',true);
   toggleView('array_view',true);
-<?if ($cache_pool):?>
-  toggleView('cache_view',true);
-<?endif;?>
+<?foreach ($pools as $pool):?>
+  toggleView('<?=$pool?>_view',true);
+<?endforeach;?>
 <?if ($devs):?>
   toggleView('extra_view',true);
 <?endif;?>

@@ -1,7 +1,6 @@
 Menu="Main:2"
-Title="Cache Devices"
+Title="Pool Devices"
 Tag="bullseye"
-Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
@@ -15,12 +14,68 @@ Cond="($var['fsState']=='Stopped' || $var['cacheSbNumDisks'])"
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+function cache_only($disk) {
+  return $disk['type']=='Cache';
+}
+function prefix($key) {
+  return preg_replace('/[0-9]+$/','',$key);
+}
+$cache = array_filter($disks,'cache_only');
+$pools = array_unique(array_map('prefix',array_keys($cache)));
+$i = 0;
+?>
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
+<style>
+table.divider{margin-top:2px}
+</style>
 <script>
-function cache_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'},function(data) {
-    if (data) {$('#cache_device').html(data); display_diskio();}
+function addPoolPopup() {
+  var popup = $('#dialogAddPool');
+  // Load popup with the template info
+  popup.html($("#templatePopupPool").html());
+  // Start Dialog section
+  popup.dialog({
+    title: '_(Add Pool)_',
+    resizable: false,
+    width: 600,
+    modal: true,
+    show : {effect:'fade', duration:250},
+    hide : {effect:'fade', duration:250},
+    buttons: {
+      _(Add)_: function() {
+        var poolname = $(this).find('input[name="poolName"]').val();
+        var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
+        var reserved = ['disk','disks','diskP','diskQ','diskR','flash','parity','parity2'];
+        if (reserved.includes(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (!valid.test(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (poolname) {
+          $(this).find('form').submit();
+          $(this).dialog('close');
+        }
+      },
+      _(Cancel)_: function() {
+        $(this).dialog('close');
+      }
+    }
+  });
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
+  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
+  $(".ui-button-text").css('padding','0px 5px');
+}
+
+function pool_status() {
+  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'cache'},function(d) {
+    if (!d) return;
+    d = d.split('\0');
+    for (var i=0,data; data=d[i]; i++) {
+      if (data) $('#pool_device'+i).html(data); display_diskio();
+    }
 <?if ($var['fsState']=='Started'):?>
-    timers.cache_status = setTimeout(cache_status,3000);
+    timers.pool_status = setTimeout(pool_status,3000);
 <?endif;?>
   });
 }
@@ -28,22 +83,41 @@ function cache_status() {
 $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 
-cache_status();
+pool_status();
 </script>
 
-<table class="disk_status wide">
+<?foreach ($pools as $pool):?>
+<?if ($cache[$pool]['devicesSb'] || $var['fsState']=='Stopped'):?>
+<table class="disk_status wide<?=$i?' divider':''?>">
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td><td>_(View)_</td></tr></thead>
-<tbody id="cache_device">
-<?
-foreach ($disks as $disk):
-  if ($disk['type']=='Cache') echo "<tr><td colspan='11'>&nbsp;</td></tr>";
-endforeach;
-?>
+<tbody id="pool_device<?=$i++?>">
+<?foreach ($cache as $disk) if (prefix($disk['name']==$pool)) echo "<tr><td colspan='11'>&nbsp;</td></tr>";?>
 </tbody>
 </table>
+<?endif;?>
+<?endforeach;?>
+<?if ($var['fsState']=='Stopped'):?>
+<input type="button" value="Add Pool" style="margin:0" onclick="addPoolPopup()">
+
+<div id="dialogAddPool" style="display:none"></div>
+<div id="templatePopupPool" style="display:none">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="changeSlots" value="apply">
+_(Name)_:
+: <input type="text" name="poolName" maxlength="40" value="">
+
+_(Slots)_:
+: <select name="poolSlots">
+  <?for ($n=1; $n<=$var['MAX_CACHESZ']; $n++):?>
+  <?=mk_option(1,$n,$n)?>
+  <?endfor;?>
+  </select>
+</form>
+</div>
+<?endif;?>
 
 :help3
-> **Colored Status Indicator** the significance of the color indicator at the beginning of each line in *Cache Devices* is as follows:
+> **Colored Status Indicator** the significance of the color indicator at the beginning of each line in *Pool Devices* is as follows:
 >
 > <i class='fa fa-circle orb green-orb'></i>Normal operation, device is active.
 >
@@ -53,24 +127,24 @@ endforeach;
 >
 > <i class='fa fa-square orb grey-orb'></i>No device present, position is empty.
 >
-> **Cache** is a device, or device pool, *outside* the Unraid array.  It may be exported for network access just
+> **Pool Devices** is a single device, or pool of multiple devices, *outside* the Unraid array.  It may be exported for network access just
 > like an Array device.  Being outside the Unraid array results in significantly faster write access.
 >
-> There are two ways to configure the Cache:
+> There are two ways to configure the Pool devices:
 >
 > 1. As a single device, or
 > 2. As a multi-device pool.
 >
 > When configured as a single device you may format the device using any supported file system (btrfs, reiserfs,
 > or xfs).  This configuration offers the highest performance, but at the cost of no data protection - if the
-> single Cache device fails all data contained on it may be lost.
+> single pool device fails all data contained on it may be lost.
 >
 > When configured as a multi-device pool, Unraid OS will automatically select *btrfs-raid1* format (for both data
 > and meta-data).  btrfs permits any number of devices to be added to the pool and each copy of data is guaranteed
 > to be written to two different devices.  Hence the pool can withstand a single-disk failure without losing data.
 >
 > When [User Shares](/Settings/ShareSettings) are enabled, user shares may be configured to
-> automatically make use of the Cache in order to
+> automatically make use of the Pool device in order to
 > speed up writes.  A special background process called the *mover* can be scheduled to run
 > periodically to move user share files off the Cache and onto the Array.
 :end

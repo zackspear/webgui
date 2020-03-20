@@ -36,8 +36,14 @@ function my_clock($time) {
 function parity_disks($disk) {
   return $disk['type']=='Parity';
 }
+function cache_disks($disk) {
+  return $disk['type']=='Cache';
+}
 function active_disks($disk) {
   return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data','Cache']);
+}
+function prefix($key) {
+  return preg_replace('/[0-9]+$/','',$key);
 }
 function find_day($D) {
   global $days;
@@ -217,9 +223,9 @@ function device_usage(&$disk, $array, &$full, &$high) {
     return $text%10==0 ? "-" : "<span class='load'>-</span><div class='usage-disk sys none'><span></span></div>";
   }
 }
-function array_group($type) {
+function array_group($type,$pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
-  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false) {
+  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && ($pool==false||$pool==prefix($disk['name']))) {
     echo "<tr><td></td>";
     echo "<td>".device_name($disk,true)."</td>";
     echo "<td>".device_status($disk,true,$error,$warning)."</td>";
@@ -266,8 +272,14 @@ case 'cache':
   require_once "$docroot/webGui/include/CustomMerge.php";
   require_once "$docroot/webGui/include/Preselect.php";
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-  array_group('Cache');
-  echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high);
+  $cache = array_filter($disks,'cache_disks');
+  $pools = array_unique(array_map('prefix',array_keys($cache)));
+  foreach ($pools as $pool) {
+    if ($cache[$pool]['devicesSb']) {
+      array_group('Cache',$pool);
+      echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
+    }
+  }
   break;
 case 'extra':
   $path = $_POST['path'];
