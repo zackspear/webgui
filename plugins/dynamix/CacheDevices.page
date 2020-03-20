@@ -91,7 +91,7 @@ pool_status();
 <?endif;?>
 <?endforeach;?>
 <?if ($var['fsState']=='Stopped'):?>
-<input type="button" value="Add Pool" style="margin:0" onclick="addPoolPopup()">
+<input type="button" value="_(Add Pool)_" style="margin:0" onclick="addPoolPopup()">
 
 <div id="dialogAddPool" style="display:none"></div>
 <div id="templatePopupPool" style="display:none">

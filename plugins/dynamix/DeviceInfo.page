@@ -19,6 +19,7 @@ require_once "$docroot/webGui/include/Preselect.php";
 $disk = &$disks[$name];
 $date = date('Ymd-Hi');
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
+$pools = pools_filter(cache_filter($disks));
 
 function displayTemp($temp) {
   global $display;
@@ -38,7 +39,7 @@ if ($type=='New') {
     $n++;
   }
 } else {
-  $disk = $disks[$name];
+  $disk = &$disks[$name];
   $dev  = $disk['device'];
   $file = $disk['id']."-$date.txt";
   foreach ($disks as $sheet) {
@@ -284,13 +285,13 @@ _(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 > A value of zero will disable the critical threshold (including notifications).
 :end
 
-<?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
+<?if ($disk['type']=="Data" || in_array($disk['name'],$pools)):?>
 _(File system status)_:
 : <?=_($disk['fsStatus'])?>&nbsp;
 
 <?if ($var['fsState']=="Stopped"):?>
 <?$disabled = $var['mdState']=="SWAP_DSBL" ? "disabled" : ""?>
-<?if ($disk['type']=="Data" || $var['SYS_CACHE_SLOTS']==1):?>
+<?if ($disk['type']=="Data" || (isset($disk['slots']) && $disk['slots']==1)):?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", _('auto'))?>
@@ -307,7 +308,7 @@ _(File system type)_:
 > that device using the new file system.  Be aware that **all existing data on the device will be lost**.
 :end
 
-<?elseif ($var['SYS_CACHE_SLOTS']>1):?>
+<?elseif (isset($disk['slots']) && $disk['slots']>1):?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", _('auto'))?>
@@ -374,15 +375,15 @@ _(btrfs balance status)_:
 
 &nbsp;
 : <input type="submit" value="_(Balance)_">
-<?if ($var['SYS_CACHE_SLOTS']>1):?>
+<?if (isset($disk['slots']) && $disk['slots']>1):?>
   <select onchange="updateMode(this.form,this.value)">
   <?=mk_option(1,'',_('Perform full balance'))?>
   <?=mk_option(1,'-dconvert=single -mconvert=raid1',_('Convert to single mode'))?>
   <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1',_('Convert to raid0 mode'))?>
   <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1',_('Convert to raid1 mode'))?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10',_('Convert to raid10 mode'))?>
-  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1',_('Convert to raid5 mode *see help'))?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1',_('Convert to raid6 mode *see help'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10',_('Convert to raid10 mode'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1',_('Convert to raid5 mode *see help'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1',_('Convert to raid6 mode *see help'))?>
   </select>
 <?else:?>
   *_(Perform full balance)_*
@@ -423,7 +424,7 @@ _(btrfs balance status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Balance)_" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : _('See Cache Settings')?>
+: <input type="submit" value="_(Balance)_" disabled><?=$disk['name']==prefix($disk['name']) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>
 
 <?endif;?>
 </form>
@@ -469,7 +470,7 @@ _(btrfs scrub status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : _('See Cache Settings')?>
+: <input type="submit" value="_(Scrub)_" disabled><?=$disk['name']==prefix($disk['name']) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>
 
 <?endif;?>
 </form>
@@ -520,13 +521,13 @@ _(btrfs check status)_:
 <?endif;?>
 <?else:?>
 
-<?if (!preg_match('/^cache\d+$/',$disk['name'])):?>
+<?if ($disk['name']==prefix($disk['name'])):?>
 &nbsp;
 : <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
 
 <?else:?>
 &nbsp;
-: <input type="submit" value="_(Check)_" disabled> _(See Cache Settings)_.
+: <input type="submit" value="_(Check)_" disabled> <?=sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>.
 <?endif;?>
 
 <?endif;?>
