@@ -33,17 +33,8 @@ function my_clock($time) {
   $mins = $time%60;
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
-function parity_disks($disk) {
-  return $disk['type']=='Parity';
-}
-function cache_disks($disk) {
-  return $disk['type']=='Cache';
-}
 function active_disks($disk) {
   return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data','Cache']);
-}
-function prefix($key) {
-  return preg_replace('/[0-9]+$/','',$key);
 }
 function find_day($D) {
   global $days;
@@ -272,8 +263,8 @@ case 'cache':
   require_once "$docroot/webGui/include/CustomMerge.php";
   require_once "$docroot/webGui/include/Preselect.php";
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-  $cache = array_filter($disks,'cache_disks');
-  $pools = array_unique(array_map('prefix',array_keys($cache)));
+  $cache = cache_filter($disks);
+  $pools = pools_filter($cache);
   foreach ($pools as $pool) {
     if ($cache[$pool]['devicesSb']) {
       array_group('Cache',$pool);
@@ -367,7 +358,7 @@ case 'speed':
   break;
 case 'status':
   $var = parse_ini_file("state/var.ini");
-  $disks = array_filter(parse_ini_file('state/disks.ini',true),'parity_disks');
+  $disks = parity_filter(parse_ini_file('state/disks.ini',true));
   $parity_slots = count($disks);
   $parity_disabled = $parity_invalid  = 0;
   foreach ($disks as $disk) {

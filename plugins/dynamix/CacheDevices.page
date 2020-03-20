@@ -15,14 +15,8 @@ Tag="bullseye"
  */
 ?>
 <?
-function cache_only($disk) {
-  return $disk['type']=='Cache';
-}
-function prefix($key) {
-  return preg_replace('/[0-9]+$/','',$key);
-}
-$cache = array_filter($disks,'cache_only');
-$pools = array_unique(array_map('prefix',array_keys($cache)));
+$cache = cache_filter($disks);
+$pools = pools_filter($cache);
 $i = 0;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">

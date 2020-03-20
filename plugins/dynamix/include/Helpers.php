@@ -58,6 +58,30 @@ function my_disk($name) {
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
 }
+function prefix($key) {
+  return preg_replace('/[0-9]+$/','',$key);
+}
+function parity_only($disk) {
+  return $disk['type']=='Parity';
+}
+function data_only($disk) {
+  return $disk['type']=='Data';
+}
+function cache_only($disk) {
+  return $disk['type']=='Cache';
+}
+function parity_filter($disks) {
+  return array_filter($disks,'parity_only');
+}
+function data_filter($disks) {
+  return array_filter($disks,'data_only');
+}
+function cache_filter($disks) {
+  return array_filter($disks,'cache_only');
+}
+function pools_filter($cache) {
+  return array_unique(array_map('prefix',array_keys($cache)));
+}
 function my_id($id) {
   global $display;
   $len = strlen($id);

@@ -163,18 +163,6 @@ function fs_info(&$disk) {
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
 }
-function parity_only($disk) {
-  return $disk['type']=='Parity';
-}
-function data_only($disk) {
-  return $disk['type']=='Data';
-}
-function cache_only($disk) {
-  return $disk['type']=='Cache';
-}
-function prefix($key) {
-  return preg_replace('/[0-9]+$/','',$key);
-}
 function array_offline(&$disk) {
   global $var, $disks;
   if (strpos($var['mdState'],'ERROR:')===false) {
@@ -357,8 +345,8 @@ function cache_slots($off,$pool,$min,$slots) {
 $crypto = false;
 switch ($_POST['device']) {
 case 'array':
-  $parity = array_filter($disks,'parity_only');
-  $data = array_filter($disks,'data_only');
+  $parity = parity_filter($disks);
+  $data = data_filter($disks);
   foreach ($data as $disk) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
   if ($var['fsState']=='Stopped') {
     foreach ($parity as $disk) array_offline($disk);
@@ -389,8 +377,8 @@ case 'flash':
   echo "</tr>";
   break;
 case 'cache':
-  $cache = array_filter($disks,'cache_only');
-  $pools = array_unique(array_map('prefix',array_keys($cache)));
+  $cache = cache_filter($disks);
+  $pools = pools_filter($cache);
   foreach ($pools as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
