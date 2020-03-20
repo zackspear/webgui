@@ -172,6 +172,9 @@ function data_only($disk) {
 function cache_only($disk) {
   return $disk['type']=='Cache';
 }
+function prefix($key) {
+  return preg_replace('/[0-9]+$/','',$key);
+}
 function array_offline(&$disk) {
   global $var, $disks;
   if (strpos($var['mdState'],'ERROR:')===false) {
@@ -317,7 +320,7 @@ function show_totals($text,$array) {
     echo "<td></td>";
   } else
     echo "<td colspan=4></td>";
-  echo "</tr>";
+  echo "</tr>\0";
 }
 function array_slots() {
   global $var;
@@ -334,18 +337,18 @@ function array_slots() {
   $out .= "</select></form>";
   return $out;
 }
-function cache_slots($disabled) {
+function cache_slots($off,$pool,$min,$slots) {
   global $var;
-  $off = $disabled ? ' disabled' : '';
-  $min = $var['cacheSbNumDisks'];
+  $off = $off && $min ? ' disabled' : '';
   $max = $var['MAX_CACHESZ'];
   $out = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $out .= "<input type='hidden' name='csrf_token' value='{$var['csrf_token']}'>";
   $out .= "<input type='hidden' name='changeSlots' value='apply'>";
-  $out .= "<select class='narrow' name='SYS_CACHE_SLOTS' onChange='this.form.submit()'{$off}>";
+  $out .= "<input type='hidden' name='poolName' value='$pool'>";
+  $out .= "<select class='narrow' name='poolSlots' onChange='this.form.submit()'{$off}>";
   for ($n=$min; $n<=$max; $n++) {
     $option = $n ?: 'none';
-    $selected = ($n == $var['SYS_CACHE_SLOTS'])? ' selected' : '';
+    $selected = ($n==$slots)? ' selected' : '';
     $out .= "<option value='$n'{$selected}>$option</option>";
   }
   $out .= "</select></form>";
@@ -387,22 +390,29 @@ case 'flash':
   break;
 case 'cache':
   $cache = array_filter($disks,'cache_only');
-  $tmp = '/var/tmp/cache_log.tmp';
-  foreach ($cache as $disk) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
-  if ($var['fsState']=='Stopped') {
-    $log = file_exists($tmp) ? parse_ini_file($tmp) : [];
-    $off = false;
-    foreach ($cache as $disk) {
-      array_offline($disk);
-      if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
+  $pools = array_unique(array_map('prefix',array_keys($cache)));
+  foreach ($pools as $pool) {
+    $tmp = "/var/tmp/$pool.log.tmp";
+    foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
+    if ($var['fsState']=='Stopped') {
+      $log = @(array)parse_ini_file($tmp);
+      $off = false;
+      foreach ($cache as $disk) {
+        if (prefix($disk['name'])!=$pool) continue;
+        array_offline($disk);
+        if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
+      }
+      $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
+      file_put_contents($tmp,implode("\n",$data));
+      echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
+    } else {
+      if ($cache[$pool]['devicesSb']) {
+        foreach ($cache as $disk) if (prefix($disk['name'])==$pool) array_online($disk);
+        if ($display['total'] && $var['cacheSbNumDisks']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devicesSb'])),false);
+        echo "\0";
+      }
+      @unlink($tmp);
     }
-    $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
-    file_put_contents($tmp,implode("\n",$data));
-    echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off)."</td><td></td></tr>";
-  } else {
-    foreach ($cache as $disk) array_online($disk);
-    @unlink($tmp);
-    if ($display['total'] && $var['cacheSbNumDisks']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($var['cacheNumDevices'])),false);
   }
   break;
 case 'open':
