@@ -26,7 +26,7 @@ function input_secure_users($sec) {
     else
       $userAccess = "read-only";
     echo "<tr><td>{$user['name']}</td>";
-    echo "<td><select name='userAccess.$idx'";
+    echo "<td><select name='userAccess.$idx'>";
     echo mk_option($userAccess, "read-write", _("Read/Write"));
     echo mk_option($userAccess, "read-only", _("Read-only"));
     echo "</select></td></tr>";
