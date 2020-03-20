@@ -111,6 +111,7 @@ function device_desc(&$disk) {
     case 'Parity': $type = $disk['rotational'] ? 'disk' : 'nvme'; break;
     case 'Data'  :
     case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
+    default      : $type = 'disk'; break;
   }
   $log = $var['fsState']=='Started' ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class=\"icon-$type icon\"></i><span>"._('Disk Log Information')."</span></a>" : "";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
