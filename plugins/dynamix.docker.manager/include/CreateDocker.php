@@ -606,7 +606,7 @@ function loadTemplate(el) {
 
 function rmTemplate(tmpl) {
   var name = tmpl.split(/[\/]+/).pop();
-  swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
 }
 
 function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
