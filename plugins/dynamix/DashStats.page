@@ -64,9 +64,6 @@ $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = $display['number'][0];
 
-$cache = cache_filter($disks);
-$pools = pools_filter($cache);
-
 foreach ($disks as $disk) {
   switch ($disk['type']) {
   case 'Data':
@@ -81,7 +78,7 @@ foreach ($disks as $disk) {
       $cache_size[$name] = $disk['fsSize'];
       $cache_used[$name] = $disk['fsSize']-$disk['fsFree'];
       $cache_type[$name] = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
-      $cache_pool[$name] = $disk['devicesSb'];
+      $cache_pool[$name] = $disk['devices'];
       $cache_percent[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
     }
     break;
@@ -91,7 +88,6 @@ foreach ($devs as $disk) {
   $extra_size += $disk['sectors']*$disk['sector_size'];
 }
 $array_percent = number_format(100*$array_used/($array_size ?: 1),1,$dot,'');
-
 exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
 $conf  = $wireguard ? glob('/etc/wireguard/wg*.conf') : [];
 $wg_up = $wireguard ? exec("wg show interfaces") : '';
@@ -101,7 +97,6 @@ $down  = max(count($conf)-$up,0);
 $fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
 $group = $var['shareSMBEnabled']=='yes' | $var['shareNFSEnabled']=='yes';
 $url   = "/webGui/include/DashUpdate.php";
-
 $names = [];
 $cache_only = $encrypted = 0;
 foreach ($shares as $share) {
@@ -110,7 +105,6 @@ foreach ($shares as $share) {
   if ($share['luksStatus']) $encrypted++;
 }
 $names = implode(',',$names);
-
 $passwd = $nopass = 0;
 foreach ($users as $user) if ($user['passwd']=='yes') $passwd++; else $nopass++;
 

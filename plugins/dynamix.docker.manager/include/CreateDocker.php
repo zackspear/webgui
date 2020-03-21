@@ -258,6 +258,7 @@ $authoringMode = $dockercfg['DOCKER_AUTHORING_MODE'] == "yes" ? true : false;
 $authoring     = $authoringMode ? 'advanced' : 'noshow';
 $disableEdit   = $authoringMode ? 'false' : 'true';
 $showAdditionalInfo = '';
+$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.switchbutton.css")?>">
@@ -266,7 +267,7 @@ $showAdditionalInfo = '';
 
 <style>
 .noshow,.advanced{display:none}
-.fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;display:none}
+.fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;display:none;background:<?=$bgcolor?>}
 span.boxed{display:inline-block;line-height:normal;white-space:normal;width:56%}
 span.cpu,label.checkbox{display:inline-block;width:32px}
 span.ct{display:inline-block;width:230px}
@@ -425,9 +426,10 @@ function addConfigPopup() {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-  $(".ui-button-text").css('padding','0px 5px');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
 }
 
 function editConfigPopup(num,disabled) {
@@ -509,9 +511,10 @@ function editConfigPopup(num,disabled) {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-  $(".ui-button-text").css('padding','0px 5px');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
   $('.desc_readmore').readmore({maxHeight:10});
 }
 
@@ -606,7 +609,7 @@ function loadTemplate(el) {
 
 function rmTemplate(tmpl) {
   var name = tmpl.split(/[\/]+/).pop();
-  swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
 }
 
 function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {

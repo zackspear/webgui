@@ -1,7 +1,7 @@
 Menu="ShareSettings:2"
 Title="Cache Settings"
 Tag="upload"
-Cond="((isset($disks['cache']))&&($disks['cache']['status']!='DISK_NP'))"
+Cond="$pool_devices"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
@@ -29,7 +29,7 @@ $(check_cache_settings);
 </script>
 
 <form markdown="1" name="cache_settings" method="POST" action="/update.htm" target="progressFrame">
-_(Use cache disk)_:
+_(Use cache device)_:
 : <select name="shareCacheEnabled" onchange="check_cache_settings()" <?=$disabled?>>
   <?=mk_option($var['shareCacheEnabled'], "yes", _('Yes'))?>
   <?=mk_option($var['shareCacheEnabled'], "no", _('No'))?>

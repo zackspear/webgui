@@ -65,9 +65,9 @@ function status_indicator() {
   echo "<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
 }
 function missing_cache() {
-  global $disks;
+  global $cache;
   $missing = false;
-  foreach ($disks as $disk) if ($disk['type']=='Cache') $missing |= (strpos($disk['status'],'_MISSING')!==false);
+  foreach ($cache as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
   return $missing;
 }
 ?>
@@ -512,7 +512,7 @@ function formatWarning(val) {
  <tr><td></td><td><input type="button" value="_(Clear Stats)_" onclick="toggle_state('Clear')"></td><td>**_(Clear Stats)_** _(will immediately clear all disk statistics)_.</td></tr>
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
-<?if ($var['shareCacheEnabled']=="yes" && is_dir("/mnt/cache")):?>
+<?if ($var['shareCacheEnabled']=="yes" && $pool_devices):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table markdown="1" class="array_status noshift">
  <tr><td></td>

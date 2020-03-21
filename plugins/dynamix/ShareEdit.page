@@ -40,7 +40,7 @@ if ($name == "") {
 
 /* check for empty share */
 function shareEmpty($name) {
-  return (($files = @scandir('/mnt/user/'.$name)) && (count($files) <= 2));
+  return (($files = @scandir("/mnt/user/$name")) && (count($files) <= 2));
 }
 
 function globalInclude($name) {
@@ -70,7 +70,7 @@ $myDisks = array_filter(array_diff(array_keys($disks), explode(',',$var['shareUs
 
 <div id="" class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
-<span class="wrap"><select name="readshare" size="1" class="clone" onchange="toggleButton('readshare',false)">
+<span class="wrap"><select name="readshare" class="clone" onchange="toggleButton('readshare',false)">
 <option disabled selected>_(select)_...</option>
 <?
 foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option("", $list['name'], $list['name']);
@@ -80,7 +80,7 @@ foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option(""
 <?if ($name):?>
 <div id="" class="clone2">
 <span class="clone">_(Write settings to)_</span><i class="fa fa-arrow-right fa-fw"></i>
-<span class="wrap"><select id="s3" name="writeshare" size="1" multiple="multiple" style="display:none" onchange="toggleButton('writeshare',this.id)">
+<span class="wrap"><select id="s3" name="writeshare" multiple="multiple" style="display:none" onchange="toggleButton('writeshare',this.id)">
 <?
 $rows = [];
 foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
@@ -113,8 +113,65 @@ _(Comments)_:
 > Anything you like, up to 256 characters.
 :end
 
+_(Use cache pool (for new files/directories))_:
+: <span class="input"><select name="shareUseCache" onchange="updateScreen(this.value)"<?=count($pools)?'':' disabled'?>>
+  <?=mk_option($share['useCache'], "no", _('No'))?>
+  <?=mk_option($share['useCache'], "yes", _('Yes'))?>
+  <?=mk_option($share['useCache'], "prefer", _('Prefer'))?>
+  <?=mk_option($share['useCache'], "only", _('Only'))?>
+  </select></span><span id="moverAction"></span>
+
+:help11
+> Specify whether new files and directories written on the share can be written onto the Cache disk/pool if present.  
+> This setting also affects *mover* behavior.
+>
+> **No** prohibits new files and subdirectories from being written onto the Cache disk/pool.  
+> *Mover* will take no action so any existing files for this share that are on the cache are left there.
+>
+> **Yes** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
+> enough free space exists on the Cache disk/pool.  
+> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
+> When the *mover* is invoked, files and subdirectories are transferred off the Cache disk/pool and onto the array.
+>
+> **Only** indicates that all new files and subdirectories must be writen to the Cache disk/pool.  
+> If there is insufficient free space on the Cache disk/pool, *create* operations will fail with *out of space* status.  
+> *Mover* will take no action so any existing files for this share that are on the array are left there.
+>
+> **Prefer** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
+> enough free space exists on the Cache disk/pool.  
+> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
+> When the *mover* is invoked, files and subdirectories are transferred off the array and onto the Cache disk/pool.
+>
+> **NOTE:** Mover will never move any files that are currently in use.  
+> This means if you want to move files associated with system services such as Docker or VMs then you need to
+> disable these services while mover is running.  
+:end
+
+_(Select cache pool)_:
+: <select name="poolName">
+  <?foreach ($pools as $pool):?>
+  <?if ($cache[$pool]['devices']) echo mk_option($poolName,$pool,ucfirst($pool))?>
+  <?endforeach;?>
+  </select>
+
+_(Enable Copy-on-write)_:
+: <span class="input"><select name="shareCOW"<?if ($name):?> disabled<?endif;?>>
+  <?=mk_option($share['cow'], "no", _('No'))?>
+  <?=mk_option($share['cow'], "auto", _('Auto'))?>
+  </select></span><?if ($name):?>_(Set when adding new share only)_<?endif;?>
+
+:help12
+> Set to **No** to cause the *btrfs* NOCOW (No Copy-on-Write) attribute to be set on the share directory
+> when created on a device formatted with *btrfs* file system.  Once set, newly created files and
+> subdirectories on the device will inherit the NOCOW attribute.  We recommend this setting for shares
+> used to store vdisk images, including the Docker loopback image file.  This setting has no effect
+> on non-btrfs file systems.
+>
+> Set to **Auto** for normal operation, meaning COW **will** be in effect on devices formatted with *btrfs*.
+:end
+
 _(Allocation method)_:
-: <select name="shareAllocator" size="1">
+: <select name="shareAllocator">
   <?=mk_option($share['allocator'], "highwater", _('High-water'))?>
   <?=mk_option($share['allocator'], "fillup", _('Fill-up'))?>
   <?=mk_option($share['allocator'], "mostfree", _('Most-free'))?>
@@ -141,7 +198,7 @@ _(Allocation method)_:
 :end
 
 _(Minimum free space)_:
-: <input type="text" name="shareFloor" maxlength="16" value="<?=htmlspecialchars($share['floor'])?>">
+: <input type="text" name="shareFloor" maxlength="16" class="narrow" value="<?=htmlspecialchars($share['floor'])?>">
 
 :help7
 > The *minimum free space* available to allow writing to any disk belonging to the share.<br>
@@ -151,7 +208,7 @@ _(Minimum free space)_:
 :end
 
 _(Split level)_:
-: <select name="shareSplitLevel" size="1">
+: <select name="shareSplitLevel">
   <?=mk_option($share['splitLevel'], "", _('Automatically split any directory as required'))?>
   <?=mk_option($share['splitLevel'], "1", _('Automatically split only the top level directory as required'))?>
   <?=mk_option($share['splitLevel'], "2", _('Automatically split only the top two directory levels as required'))?>
@@ -188,7 +245,7 @@ _(Split level)_:
 :end
 
 _(Included disk(s))_:
-: <select id="s1" name="shareInclude" size="1" multiple="multiple" style="display:none">
+: <select id="s1" name="shareInclude" multiple="multiple" style="display:none">
   <?foreach ($myDisks as $disk):?>
   <?=mk_option_luks($disk, $share['include'], strstr($disks[$disk]['fsType'],':',true))?>
   <?endforeach;?>
@@ -200,7 +257,7 @@ _(Included disk(s))_:
 :end
 
 _(Excluded disk(s))_:
-: <select id="s2" name="shareExclude" size="1" multiple="multiple" style="display:none">
+: <select id="s2" name="shareExclude" multiple="multiple" style="display:none">
   <?foreach ($myDisks as $disk):?>
   <?=mk_option_luks($disk, $share['exclude'], strstr($disks[$disk]['fsType'],':',true))?>
   <?endforeach;?>
@@ -208,56 +265,6 @@ _(Excluded disk(s))_:
 
 :help10
 > Specify the disks which can *not* be used by the share. By default no disks are excluded.
-:end
-
-_(Use cache (for new files/directories))_:
-: <span class="input"><select name="shareUseCache" size="1" onchange="setDiskList(this.value) ; setMoverAction(this.value)">
-  <?=mk_option($share['useCache'], "no", _('No'))?>
-  <?=mk_option($share['useCache'], "yes", _('Yes'))?>
-  <?=mk_option($share['useCache'], "only", _('Only'))?>
-  <?=mk_option($share['useCache'], "prefer", _('Prefer'))?>
-  </select></span><span id="moverAction"></span>
-
-:help11
-> Specify whether new files and directories written on the share can be written onto the Cache disk/pool if present.  
-> This setting also affects *mover* behavior.
->
-> **No** prohibits new files and subdirectories from being written onto the Cache disk/pool.  
-> *Mover* will take no action so any existing files for this share that are on the cache are left there.
->
-> **Yes** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  
-> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
-> When the *mover* is invoked, files and subdirectories are transferred off the Cache disk/pool and onto the array.
->
-> **Only** indicates that all new files and subdirectories must be writen to the Cache disk/pool.  
-> If there is insufficient free space on the Cache disk/pool, *create* operations will fail with *out of space* status.  
-> *Mover* will take no action so any existing files for this share that are on the array are left there.
->
-> **Prefer** indicates that all new files and subdirectories should be written to the Cache disk/pool, provided
-> enough free space exists on the Cache disk/pool.  
-> If there is insufficient space on the Cache disk/pool, then new files and directories are created on the array.  
-> When the *mover* is invoked, files and subdirectories are transferred off the array and onto the Cache disk/pool.
->
-> **NOTE:** Mover will never move any files that are currently in use.  
-> This means if you want to move files associated with system services such as Docker or VMs then you need to
-> disable these services while mover is running.  
-:end
-
-_(Enable Copy-on-write)_:
-: <span class="input"><select name="shareCOW" size="1"<?if ($name):?> disabled<?endif;?>>
-  <?=mk_option($share['cow'], "no", _('No'))?>
-  <?=mk_option($share['cow'], "auto", _('Auto'))?>
-  </select></span><?if ($name):?>_(Set when adding new share only)_<?endif;?>
-
-:help12
-> Set to **No** to cause the *btrfs* NOCOW (No Copy-on-Write) attribute to be set on the share directory
-> when created on a device formatted with *btrfs* file system.  Once set, newly created files and
-> subdirectories on the device will inherit the NOCOW attribute.  We recommend this setting for shares
-> used to store vdisk images, including the Docker loopback image file.  This setting has no effect
-> on non-btrfs file systems.
->
-> Set to **Auto** for normal operation, meaning COW **will** be in effect on devices formatted with *btrfs*.
 :end
 
 <?if (!$name):?>
@@ -291,8 +298,7 @@ $(function() {
 <?if ($tabbed):?>
   $('#tab1').bind({click:function(){initDropdown(true,true);}});
 <?endif;?>
-  setDiskList(document.share_edit.shareUseCache.value);
-  setMoverAction(document.share_edit.shareUseCache.value);
+  updateScreen(document.share_edit.shareUseCache.value);
   presetSpace(document.share_edit.shareFloor);
 });
 function initDropdown(remove,create) {
@@ -311,19 +317,48 @@ function initDropdown(remove,create) {
 <?endif;?>
   }
 }
-function setDiskList(cache) {
-  var onOff = cache=='only' ? 'disable':'enable';
-  $('#s1').dropdownchecklist(onOff);
-  $('#s2').dropdownchecklist(onOff);
-}
-function setMoverAction(cache) {
-  var textAction;
+function updateScreen(cache) {
   switch (cache) {
-  case 'yes':  textAction = '_(Mover transfers files from cache to array)_'; break;
-  case 'prefer': textAction = '_(Mover transfers files from array to cache)_'; break;
-  default:  textAction = '_(Mover takes no action)_'; break;
+  case 'yes':
+    var textAction = '_(Mover transfers files from cache to array)_';
+    break;
+  case 'prefer':
+    var textAction = '_(Mover transfers files from array to cache)_';
+    break;
+  default:
+    var textAction = '_(Mover takes no action)_';
+    break;
   }
-  document.getElementById('moverAction').innerHTML=textAction;
+  document.getElementById('moverAction').innerHTML = textAction;
+  switch (cache) {
+  case 'no':
+    document.share_edit.shareCOW.disabled = true;
+    document.share_edit.poolName.disabled = true;
+    document.share_edit.shareAllocator.disabled = false;
+    document.share_edit.shareFloor.disabled = false;
+    document.share_edit.shareSplitLevel.disabled = false;
+    $('#s1').dropdownchecklist('enable');
+    $('#s2').dropdownchecklist('enable');
+    break;
+  case 'only':
+    document.share_edit.shareCOW.disabled = false;
+    document.share_edit.poolName.disabled = false;
+    document.share_edit.shareAllocator.disabled = true;
+    document.share_edit.shareFloor.disabled = true;
+    document.share_edit.shareSplitLevel.disabled = true;
+    $('#s1').dropdownchecklist('disable');
+    $('#s2').dropdownchecklist('disable');
+    break;
+  default:
+    document.share_edit.shareCOW.disabled = false;
+    document.share_edit.poolName.disabled = false;
+    document.share_edit.shareAllocator.disabled = false;
+    document.share_edit.shareFloor.disabled = false;
+    document.share_edit.shareSplitLevel.disabled = false;
+    $('#s1').dropdownchecklist('enable');
+    $('#s2').dropdownchecklist('enable');
+    break;
+  }
 }
 function presetSpace(shareFloor) {
   var unit = ['KB','MB','GB','TB','PB'];

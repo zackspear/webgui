@@ -1,6 +1,7 @@
 Menu="Main:2"
 Title="Pool Devices"
 Tag="bullseye"
+Cond="($pool_devices || $var['fsState']=='Stopped')"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
@@ -15,11 +16,10 @@ Tag="bullseye"
  */
 ?>
 <?
-$cache = cache_filter($disks);
-$pools = pools_filter($cache);
-$i = 0;
+$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 <style>
 table.divider{margin-top:2px}
 </style>
@@ -40,7 +40,7 @@ function addPoolPopup() {
       _(Add)_: function() {
         var poolname = $(this).find('input[name="poolName"]').val();
         var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
-        var reserved = ['disk','disks','diskP','diskQ','diskR','flash','parity','parity2'];
+        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
         if (reserved.includes(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (!valid.test(poolname)) {
@@ -56,9 +56,10 @@ function addPoolPopup() {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-  $(".ui-button-text").css('padding','0px 5px');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
 }
 
 function pool_status() {
@@ -80,12 +81,13 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 pool_status();
 </script>
 
+<?$i = 0?>
 <?foreach ($pools as $pool):?>
-<?if ($cache[$pool]['devicesSb'] || $var['fsState']=='Stopped'):?>
+<?if ($cache[$pool]['devices'] || $var['fsState']=='Stopped'):?>
 <table class="disk_status wide<?=$i?' divider':''?>">
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td><td>_(View)_</td></tr></thead>
 <tbody id="pool_device<?=$i++?>">
-<?foreach ($cache as $disk) if (prefix($disk['name']==$pool)) echo "<tr><td colspan='11'>&nbsp;</td></tr>";?>
+<?foreach ($cache as $disk) if (prefix($disk['name']==$pool)) echo "<tr><td colspan='11'>&nbsp;</td></tr>"?>
 </tbody>
 </table>
 <?endif;?>
@@ -98,7 +100,7 @@ pool_status();
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
-: <input type="text" name="poolName" maxlength="40" value="">
+: <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
 
 _(Slots)_:
 : <select name="poolSlots">

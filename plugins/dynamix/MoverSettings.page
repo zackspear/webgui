@@ -15,12 +15,16 @@ Tag="calendar-check-o"
  */
 ?>
 <?
-if (empty($disks['cache']) || $disks['cache']['status']=='DISK_NP') {
-  echo "<p class='notice'>"._('No Cache disk present')."!</p>";
-} elseif ($var['shareCacheEnabled']!='yes') {
-  echo "<p class='notice'>"._('Cache disk not enabled')."!</p>";
+$setup = true;
+if ($var['shareCacheEnabled']!='yes') {
+  echo "<p class='notice'>"._('Cache device not enabled')."!</p>";
+  $setup = false;
+} elseif (!$pool_devices) {
+  echo "<p class='notice'>"._('No Cache device present')."!</p>";
+  $setup = false;
 } elseif ($var['shareUser']=='-') {
   echo "<p class='notice'>"._('User shares not enabled')."!</p>";
+  $setup = false;
 }
 $cron = explode(' ',$var['shareMoverSchedule']);
 $move = $cron[2]!='*' ? 3 : ($cron[4]!='*' ? 2 : (substr($cron[1],0,1)!='*' ? 1 : 0));
@@ -54,6 +58,7 @@ function presetMover(form) {
 }
 </script>
 <form markdown="1" name="mover_schedule" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareMover(this)">
+<?if ($setup):?>
 _(Mover schedule)_:
 : <select name="shareMoverSchedule" onchange="presetMover(this.form)">
   <?for ($m=0; $m<count($mode); $m++):?>
@@ -127,6 +132,7 @@ _(Mover logging)_:
 > Write mover messages to the syslog file.
 :end
 
+<?endif;?>
 &nbsp;
 : <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 
