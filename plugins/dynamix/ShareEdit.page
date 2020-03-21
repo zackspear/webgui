@@ -334,7 +334,7 @@ function updateScreen(cache) {
   switch (cache) {
   case 'no':
     document.share_edit.shareCOW.disabled = true;
-    document.share_edit.poolName.disabled = true;
+    document.share_edit.shareCachePool.disabled = true;
     document.share_edit.shareAllocator.disabled = false;
     document.share_edit.shareFloor.disabled = false;
     document.share_edit.shareSplitLevel.disabled = false;
@@ -343,7 +343,7 @@ function updateScreen(cache) {
     break;
   case 'only':
     document.share_edit.shareCOW.disabled = false;
-    document.share_edit.poolName.disabled = false;
+    document.share_edit.shareCachePool.disabled = false;
     document.share_edit.shareAllocator.disabled = true;
     document.share_edit.shareFloor.disabled = true;
     document.share_edit.shareSplitLevel.disabled = true;
@@ -352,7 +352,7 @@ function updateScreen(cache) {
     break;
   default:
     document.share_edit.shareCOW.disabled = false;
-    document.share_edit.poolName.disabled = false;
+    document.share_edit.shareCachePool.disabled = false;
     document.share_edit.shareAllocator.disabled = false;
     document.share_edit.shareFloor.disabled = false;
     document.share_edit.shareSplitLevel.disabled = false;
