@@ -266,7 +266,7 @@ case 'cache':
   $cache = cache_filter($disks);
   $pools = pools_filter($cache);
   foreach ($pools as $pool) {
-    if ($cache[$pool]['devicesSb']) {
+    if ($cache[$pool]['devices']) {
       array_group('Cache',$pool);
       echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
     }

@@ -36,7 +36,7 @@ $cache = cache_filter($disks);
 $pools = pools_filter($cache);
 
 $pool_devices = false;
-foreach ($pools as $pool) $pool_devices |= $cache[$pool]['devicesSb'];
+foreach ($pools as $pool) $pool_devices |= $cache[$pool]['devices'];
 
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));

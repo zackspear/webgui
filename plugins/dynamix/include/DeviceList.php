@@ -393,11 +393,11 @@ case 'cache':
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
       file_put_contents($tmp,implode("\n",$data));
-      echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
+      echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devices'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
     } else {
-      if ($cache[$pool]['devicesSb']) {
+      if ($cache[$pool]['devices']) {
         foreach ($cache as $disk) if (prefix($disk['name'])==$pool) array_online($disk);
-        if ($display['total'] && $cache[$pool]['devicesSb']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devicesSb'])),false);
+        if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false);
         echo "\0";
       }
       @unlink($tmp);
