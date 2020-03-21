@@ -31,6 +31,13 @@ $users   = (array)parse_ini_file('state/users.ini',true);
 $shares  = (array)parse_ini_file('state/shares.ini',true);
 $sec_nfs = (array)parse_ini_file('state/sec_nfs.ini',true);
 
+// Pool devices
+$cache = cache_filter($disks);
+$pools = pools_filter($cache);
+
+$pool_devices = false;
+foreach ($pools as $pool) $pool_devices |= $cache[$pool]['devicesSb'];
+
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));
 

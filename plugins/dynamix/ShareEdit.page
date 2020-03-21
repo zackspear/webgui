@@ -16,8 +16,6 @@ Tag="share-alt-square"
 ?>
 <?
 $width = [123,300];
-$cache = cache_filter($disks);
-$pools = pools_filter($cache);
 
 if ($name == "") {
   /* default values when adding new share */

@@ -1,6 +1,7 @@
 Menu="Main:2"
 Title="Pool Devices"
 Tag="bullseye"
+Cond="($pool_devices || $var['fsState']=='Stopped')"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
@@ -13,11 +14,6 @@ Tag="bullseye"
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  */
-?>
-<?
-$cache = cache_filter($disks);
-$pools = pools_filter($cache);
-$i = 0;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <style>
@@ -80,6 +76,7 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 pool_status();
 </script>
 
+<?$i = 0?>
 <?foreach ($pools as $pool):?>
 <?if ($cache[$pool]['devicesSb'] || $var['fsState']=='Stopped'):?>
 <table class="disk_status wide<?=$i?' divider':''?>">

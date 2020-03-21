@@ -63,7 +63,6 @@ $parity = $var['mdResync'];
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = $display['number'][0];
-$pools = pools_filter(cache_filter($disks));
 
 foreach ($disks as $disk) {
   switch ($disk['type']) {
