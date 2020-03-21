@@ -39,11 +39,12 @@ $user = $_GET['user'];
 $list = [];
 $all = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
 $fix = substr($dir,0,4)=='/mnt' ? explode('/',trim_slash($dir))[2] : 'flash';
+$cache = implode('|',pools_filter(cache_filter($disks))) ?: 'cache';
 
 exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
   exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null",$set);
-  $set = explode("\n",str_replace(",\n",",",preg_replace("/(cache|disk)/","\n$1",$set[0]))); $i = 0;
+  $set = explode("\n",str_replace(",\n",",",preg_replace("/($cache|disk)/","\n$1",$set[0]))); $i = 0;
 }
 
 echo "<thead><tr><th>"._('Type')."</th><th class='sorter-text'>"._('Name')."</th><th>"._('Size')."</th><th>"._('Last Modified')."</th><th>"._('Location')."</th></tr></thead>";
