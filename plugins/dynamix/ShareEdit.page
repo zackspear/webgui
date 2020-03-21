@@ -16,7 +16,8 @@ Tag="share-alt-square"
 ?>
 <?
 $width = [123,300];
-$pools = pools_filter(cache_filter($disks));
+$cache = cache_filter($disks);
+$pools = pools_filter($cache);
 
 if ($name == "") {
   /* default values when adding new share */
@@ -151,7 +152,7 @@ _(Use cache pool (for new files/directories))_:
 _(Select cache pool)_:
 : <select name="poolName">
   <?foreach ($pools as $pool):?>
-  <?=mk_option($poolName,$pool,ucfirst($pool))?>
+  <?if ($cache[$pool]['devicesSb']) echo mk_option($poolName,$pool,ucfirst($pool))?>
   <?endforeach;?>
   </select>
 
