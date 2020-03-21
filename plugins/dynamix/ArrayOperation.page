@@ -147,7 +147,7 @@ function prepareInput(form) {
       form.file.disabled = false;
       form.text.disabled = false;
       form.copy.disabled = false;
-      swal({title:'_(Printable Characters Only)_',text:'_(Use <b>ASCII</b> characters from space " " to tilde "~")_<br>_(Otherwise use the **keyfile** method for UTF8 input)_',html:true,type:'error',confirmButtonText:'_(Ok)_'});
+      swal({title:'_(Printable Characters Only)_',text:'_(Use <b>ASCII</b> characters from space " " to tilde "~")_<br>_(Otherwise use the <b>keyfile</b> method for UTF8 input)_',html:true,type:'error',confirmButtonText:'_(Ok)_'});
     }
     return;
   }
