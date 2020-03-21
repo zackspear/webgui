@@ -69,7 +69,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <input type="hidden" name="preserveParity" value="yes" disabled>
 <input type="hidden" name="preserveData" value="yes" disabled>
 <?foreach ($pools as $pool):?>
-<input type="hidden" name="preserve<?=$pool?>" value="yes" disabled>
+<input type="hidden" name="preserve<?=ucfirst($pool)?>" value="yes" disabled>
 <?endforeach;?>
 
 <span class="indent">_(Preserve current assignments)_:</span>
