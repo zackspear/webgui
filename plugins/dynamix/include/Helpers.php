@@ -59,7 +59,7 @@ function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
 }
 function prefix($key) {
-  return preg_replace('/[0-9]+$/','',$key);
+  return preg_replace('/\d+$/','',$key);
 }
 function parity_only($disk) {
   return $disk['type']=='Parity';
