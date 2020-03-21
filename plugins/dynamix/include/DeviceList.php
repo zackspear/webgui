@@ -336,7 +336,7 @@ function cache_slots($off,$pool,$min,$slots) {
   $out .= "<input type='hidden' name='poolName' value='$pool'>";
   $out .= "<select class='narrow' name='poolSlots' onChange='this.form.submit()'{$off}>";
   for ($n=$min; $n<=$max; $n++) {
-    $option = $n ?: 'none';
+    $option = $n ?: _('none');
     $selected = ($n==$slots)? ' selected' : '';
     $out .= "<option value='$n'{$selected}>$option</option>";
   }
