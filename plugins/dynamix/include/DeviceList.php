@@ -140,7 +140,7 @@ function vfs_luks($fs) {
 function fs_info(&$disk) {
   global $display;
   if ($disk['fsStatus']=='-') {
-    echo ($disk['type']=='Cache' && $disk['name']!='cache') ? "<td colspan='4'>"._('Device is part of cache pool')."</td><td></td>" : "<td colspan='5'></td>";
+    echo ($disk['type']=='Cache' && $disk['name']!='cache') ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
     return;
   } elseif ($disk['fsStatus']=='Mounted') {
     echo "<td>".vfs_type($disk['fsType'])."</td>";
@@ -336,7 +336,7 @@ function cache_slots($off,$pool,$min,$slots) {
   $out .= "<input type='hidden' name='poolName' value='$pool'>";
   $out .= "<select class='narrow' name='poolSlots' onChange='this.form.submit()'{$off}>";
   for ($n=$min; $n<=$max; $n++) {
-    $option = $n ?: 'none';
+    $option = $n ?: _('none');
     $selected = ($n==$slots)? ' selected' : '';
     $out .= "<option value='$n'{$selected}>$option</option>";
   }
@@ -393,7 +393,7 @@ case 'cache':
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
       file_put_contents($tmp,implode("\n",$data));
-      echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devices'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
+      echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
     } else {
       if ($cache[$pool]['devices']) {
         foreach ($cache as $disk) if (prefix($disk['name'])==$pool) array_online($disk);

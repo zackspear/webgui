@@ -53,13 +53,13 @@ function my_temp($value) {
   return is_numeric($value) ? (($unit=='F' ? round(9/5*$value+32) : str_replace('.', $number[0], $value))." $unit") : $value;
 }
 function my_disk($name) {
-  return ucfirst(preg_replace('/^(.+)(\d+)$/','$1 $2',$name));
+  return ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
 }
 function prefix($key) {
-  return preg_replace('/[0-9]+$/','',$key);
+  return preg_replace('/\d+$/','',$key);
 }
 function parity_only($disk) {
   return $disk['type']=='Parity';
@@ -173,11 +173,11 @@ function day_count($time) {
   case ($days<0):
     return;
   case ($days==0):
-    return " (today)";
+    return " <span class='green-text'>(today)</span>";
   case ($days==1):
-    return " (yesterday)";
+    return " <span class='green-text'>(yesterday)</span>";
   case ($days<=31):
-    return " (".my_word($days)." days ago)";
+    return " <span class='green-text'>(".my_word($days)." days ago)</span>";
   case ($days<=61):
     return " <span class='orange-text'>($days days ago)</span>";
   case ($days>61):
