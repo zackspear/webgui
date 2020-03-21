@@ -173,11 +173,11 @@ function day_count($time) {
   case ($days<0):
     return;
   case ($days==0):
-    return " (today)";
+    return " <span class='green-text'>(today)</span>";
   case ($days==1):
-    return " (yesterday)";
+    return " <span class='green-text'>(yesterday)</span>";
   case ($days<=31):
-    return " (".my_word($days)." days ago)";
+    return " <span class='green-text'>(".my_word($days)." days ago)</span>";
   case ($days<=61):
     return " <span class='orange-text'>($days days ago)</span>";
   case ($days>61):
