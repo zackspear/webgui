@@ -15,7 +15,11 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  * all copies or substantial portions of the Software.
  */
 ?>
+<?
+$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
+?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 <style>
 table.divider{margin-top:2px}
 </style>
@@ -52,9 +56,10 @@ function addPoolPopup() {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $(".ui-dialog .ui-dialog-title").css('text-align','center').css('width', "100%");
-  $(".ui-dialog .ui-dialog-content").css('padding-top','15px').css('vertical-align','bottom');
-  $(".ui-button-text").css('padding','0px 5px');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
 }
 
 function pool_status() {
@@ -95,7 +100,7 @@ pool_status();
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
-: <input type="text" name="poolName" maxlength="40" value="">
+: <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
 
 _(Slots)_:
 : <select name="poolSlots">
