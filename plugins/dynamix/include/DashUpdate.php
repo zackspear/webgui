@@ -216,7 +216,7 @@ function device_usage(&$disk, $array, &$full, &$high) {
 }
 function array_group($type,$pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
-  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && ($pool==false||$pool==prefix($disk['name']))) {
+  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && (!$pool||$pool==prefix($disk['name']))) {
     echo "<tr><td></td>";
     echo "<td>".device_name($disk,true)."</td>";
     echo "<td>".device_status($disk,true,$error,$warning)."</td>";
