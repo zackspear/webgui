@@ -27,7 +27,6 @@ $(function() {
 </script>
 <?endif;?>
 <?
-foreach ($site as &$page) $page['text'] = '...';
 $myPage['text'] = '...';
 $pages['Vars']['text'] = '...';
 $language = $text = $notes = $site = '...';
