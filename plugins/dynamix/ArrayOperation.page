@@ -65,9 +65,9 @@ function status_indicator() {
   echo "<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
 }
 function missing_cache() {
-  global $cache;
+  global $disks;
   $missing = false;
-  foreach ($cache as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
+  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
   return $missing;
 }
 ?>
@@ -288,9 +288,12 @@ function formatWarning(val) {
     <td id="stop">**_(Stop)_** _(will take the array off-line)_.<?=$parity?:$mover?:$btrfs?:''?></td></tr>
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
-<?    foreach ($disks as $disk) if (strpos($disk['fsStatus'],'Unmountable')!==false)
-      echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";?>
-      </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+<?    $cache = [];
+      foreach ($disks as $disk) if (substr($disk['fsStatus'],0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
+        if ($disk['id']) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
+        if (in_array($disk['name'],$pools)) $cache[] = $disk['name'];
+      }
+?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
       <td>**_(Format)_** _(will create a file system in all **Unmountable** disks)_.<br>
       <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="formatWarning(this.checked),$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
      <small>_(Yes, I want to do this)_</small></a>
@@ -554,7 +557,7 @@ function enable_stop() {
     case 'enable':
       var stop = $('td#stop');
       stop.html(stop.html().replace("<?=$btrfs?>",""));
-      $('input[value="Stop"]').prop('disabled',false);
+      $('input[value="_(Stop)_"]').prop('disabled',false);
     break;}
   });
 }

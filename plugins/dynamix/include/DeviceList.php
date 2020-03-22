@@ -139,8 +139,8 @@ function vfs_luks($fs) {
 }
 function fs_info(&$disk) {
   global $display;
-  if ($disk['fsStatus']=='-') {
-    echo ($disk['type']=='Cache' && $disk['name']!='cache') ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
+  if (empty($disk['fsStatus'])) {
+    echo ($disk['type']=='Cache') ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
     return;
   } elseif ($disk['fsStatus']=='Mounted') {
     echo "<td>".vfs_type($disk['fsType'])."</td>";
@@ -159,7 +159,7 @@ function fs_info(&$disk) {
     }
     echo "<td>".device_browse($disk)."</td>";
   } else
-    echo "<td>".vfs_type($disk['fsType'])."</td><td colspan='4' style='text-align:center'>{$disk['fsStatus']}";
+    echo "<td>".vfs_type($disk['fsType'])."</td><td colspan='4' style='text-align:center'>"._($disk['fsStatus']);
 }
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
@@ -379,8 +379,7 @@ case 'flash':
   break;
 case 'cache':
   $cache = cache_filter($disks);
-  $pools = pools_filter($cache);
-  foreach ($pools as $pool) {
+  foreach (pools_filter($cache) as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
     if ($var['fsState']=='Stopped') {
@@ -396,7 +395,10 @@ case 'cache':
       echo "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>\0";
     } else {
       if ($cache[$pool]['devices']) {
-        foreach ($cache as $disk) if (prefix($disk['name'])==$pool) array_online($disk);
+        foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
+          if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable') $disk['fsStatus'] = $cache[$pool]['fsStatus'];
+          array_online($disk);
+        }
         if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false);
         echo "\0";
       }

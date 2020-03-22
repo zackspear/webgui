@@ -79,8 +79,8 @@ function data_filter($disks) {
 function cache_filter($disks) {
   return array_filter($disks,'cache_only');
 }
-function pools_filter($cache) {
-  return array_unique(array_map('prefix',array_keys($cache)));
+function pools_filter($disks) {
+  return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
 }
 function my_id($id) {
   global $display;

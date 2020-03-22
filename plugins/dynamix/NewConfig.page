@@ -78,7 +78,7 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <?=mk_option_check(0,'parity',_('Parity slots'))?>
 <?=mk_option_check(0,'data',_('Data slots'))?>
 <?foreach ($pools as $pool):?>
-<?if ($cache[$pool]['devices']) echo mk_option_check(0,$pool,ucfirst($pool).' '._('slots'))?>
+<?if ($disks[$pool]['devices']) echo mk_option_check(0,$pool,ucfirst($pool).' '._('slots'))?>
 <?endforeach;?>
 </select>
 <br>

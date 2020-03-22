@@ -48,6 +48,7 @@ if ($type=='New') {
     $n++;
   }
 }
+$tag  = $disk['name'];
 $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
@@ -157,10 +158,11 @@ function btrfsBalance(path) {
       $('#btrfs-balance').text(data);
       setTimeout(function(){btrfsBalance(path);},1000);
     } else {
-      $.removeCookie('btrfs-balance-<?=$disk['name']?>');
+      $.removeCookie('btrfs-balance-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -168,10 +170,11 @@ function btrfsScrub(path) {
       $('#btrfs-scrub').text(data);
       setTimeout(function(){btrfsScrub(path);},1000);
     } else {
-      $.removeCookie('btrfs-scrub-<?=$disk['name']?>');
+      $.removeCookie('btrfs-scrub-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
@@ -179,10 +182,11 @@ function btrfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){btrfsCheck(path);},1000);
     } else {
-      $.removeCookie('btrfs-check-<?=$disk['name']?>');
+      $.removeCookie('btrfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function rfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
@@ -190,10 +194,11 @@ function rfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){rfsCheck(path);},1000);
     } else {
-      $.removeCookie('rfs-check-<?=$disk['name']?>');
+      $.removeCookie('rfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
@@ -201,10 +206,11 @@ function xfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){xfsCheck(path);},1000);
     } else {
-      $.removeCookie('xfs-check-<?=$disk['name']?>');
+      $.removeCookie('xfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
@@ -225,11 +231,13 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
-  if ($.cookie('btrfs-balance-<?=$disk['name']?>')) btrfsBalance($.cookie('btrfs-balance-<?=$disk['name']?>'));
-  if ($.cookie('btrfs-scrub-<?=$disk['name']?>')) btrfsScrub($.cookie('btrfs-scrub-<?=$disk['name']?>'));
-  if ($.cookie('btrfs-check-<?=$disk['name']?>')) btrfsCheck($.cookie('btrfs-check-<?=$disk['name']?>'));
-  if ($.cookie('rfs-check-<?=$disk['name']?>')) rfsCheck($.cookie('rfs-check-<?=$disk['name']?>'));
-  if ($.cookie('xfs-check-<?=$disk['name']?>')) xfsCheck($.cookie('xfs-check-<?=$disk['name']?>'));
+  var btrfs = false;
+  if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (!btrfs) $.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(btrfs){if(btrfs=='disable'){$.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));}});
 });
 </script>
 
@@ -284,7 +292,7 @@ _(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 > A value of zero will disable the critical threshold (including notifications).
 :end
 
-<?if ($disk['type']=="Data" || in_array($disk['name'],$pools)):?>
+<?if ($disk['type']=="Data" || in_array($tag,$pools)):?>
 _(File system status)_:
 : <?=_($disk['fsStatus'])?>&nbsp;
 
@@ -356,12 +364,12 @@ _(Critical disk utilization threshold)_ (%):
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval)?>
+<?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
 
 _(btrfs filesystem df)_:
-: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>"?>
+: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/$tag")."</pre>"?>
 
 _(btrfs balance status)_:
 : <?echo "<pre id='btrfs-balance'>".implode("\n", $balance_status)."</pre>"?>
@@ -369,7 +377,7 @@ _(btrfs balance status)_:
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 <input type="hidden" name="#arg[3]" value="">
 
 &nbsp;
@@ -410,7 +418,7 @@ _(btrfs balance status)_:
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_">
@@ -423,16 +431,16 @@ _(btrfs balance status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Balance)_" disabled><?=$disk['name']==prefix($disk['name']) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>
+: <input type="submit" value="_(Balance)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval)?>
+<?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/$tag", $scrub_status, $retval)?>
 
 _(btrfs scrub status)_:
 : <?echo "<pre id='btrfs-scrub'>".implode("\n", $scrub_status)."</pre>"?>
@@ -440,7 +448,7 @@ _(btrfs scrub status)_:
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 <input type="hidden" name="#arg[3]" value="-r">
 
 &nbsp;
@@ -456,7 +464,7 @@ _(btrfs scrub status)_:
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_">
@@ -469,14 +477,14 @@ _(btrfs scrub status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_" disabled><?=$disk['name']==prefix($disk['name']) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>
+: <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
 </form>
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
@@ -520,13 +528,13 @@ _(btrfs check status)_:
 <?endif;?>
 <?else:?>
 
-<?if ($disk['name']==prefix($disk['name'])):?>
+<?if ($tag==prefix($tag)):?>
 &nbsp;
 : <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
 
 <?else:?>
 &nbsp;
-: <input type="submit" value="_(Check)_" disabled> <?=sprintf(_('See %s Settings'),ucfirst(prefix($disk['name'])))?>.
+: <input type="submit" value="_(Check)_" disabled> <?=sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>.
 <?endif;?>
 
 <?endif;?>
@@ -534,7 +542,7 @@ _(btrfs check status)_:
 <?endif;?>
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
@@ -587,7 +595,7 @@ _(reiserfsck status)_:
 <?endif;?>
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 

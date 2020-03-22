@@ -34,7 +34,7 @@ function my_clock($time) {
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
 function active_disks($disk) {
-  return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data','Cache']);
+  return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data']);
 }
 function find_day($D) {
   global $days;
@@ -216,7 +216,7 @@ function device_usage(&$disk, $array, &$full, &$high) {
 }
 function array_group($type,$pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
-  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && ($pool==false||$pool==prefix($disk['name']))) {
+  foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && (!$pool||$pool==prefix($disk['name']))) {
     echo "<tr><td></td>";
     echo "<td>".device_name($disk,true)."</td>";
     echo "<td>".device_status($disk,true,$error,$warning)."</td>";
@@ -258,18 +258,14 @@ case 'array':
 case 'cache':
   $path = $_POST['path'];
   $var = (array)parse_ini_file('state/var.ini');
-  $disks = (array)array_filter(parse_ini_file('state/disks.ini',true),'active_disks');
+  $disks = (array)parse_ini_file('state/disks.ini',true);
   $saved = @(array)parse_ini_file('state/monitor.ini',true);
   require_once "$docroot/webGui/include/CustomMerge.php";
   require_once "$docroot/webGui/include/Preselect.php";
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-  $cache = cache_filter($disks);
-  $pools = pools_filter($cache);
-  foreach ($pools as $pool) {
-    if ($cache[$pool]['devices']) {
-      array_group('Cache',$pool);
-      echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
-    }
+  foreach (pools_filter($disks) as $pool) if ($disks[$pool]['devices']) {
+    array_group('Cache',$pool);
+    echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
   }
   break;
 case 'extra':
