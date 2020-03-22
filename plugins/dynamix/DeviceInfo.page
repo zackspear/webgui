@@ -250,6 +250,10 @@ $(function() {
           $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
           btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
           break;
+        case 'check':
+          $.cookie('btrfs-check-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+          break;
         }
       }
     });
