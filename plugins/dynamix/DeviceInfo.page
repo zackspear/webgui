@@ -162,6 +162,7 @@ function btrfsBalance(path) {
       refresh();
     }
   });
+  return true;
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -173,6 +174,7 @@ function btrfsScrub(path) {
       refresh();
     }
   });
+  return true;
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
@@ -184,6 +186,7 @@ function btrfsCheck(path) {
       refresh();
     }
   });
+  return true;
 }
 function rfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
@@ -195,6 +198,7 @@ function rfsCheck(path) {
       refresh();
     }
   });
+  return true;
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
@@ -206,6 +210,7 @@ function xfsCheck(path) {
       refresh();
     }
   });
+  return true;
 }
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
@@ -226,13 +231,13 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
-  var btrfs = true;
-  if ($.cookie('btrfs-balance-<?=$tag?>')) {btrfsBalance($.cookie('btrfs-balance-<?=$tag?>')); btrfs = false;}
-  if ($.cookie('btrfs-scrub-<?=$tag?>')) {btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>')); btrfs = false;}
-  if ($.cookie('btrfs-check-<?=$tag?>')) {btrfsCheck($.cookie('btrfs-check-<?=$tag?>')); btrfs = false;}
-  if ($.cookie('rfs-check-<?=$tag?>')) {rfsCheck($.cookie('rfs-check-<?=$tag?>')); btrfs = false;}
-  if ($.cookie('xfs-check-<?=$tag?>')) {xfsCheck($.cookie('xfs-check-<?=$tag?>')); btrfs = false;}
-  if (btrfs) $.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(btrfs){if(btrfs=='disable'){$.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));}});
+  var btrfs = false;
+  if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (!btrfs) $.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(btrfs){if(btrfs=='disable'){$.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));}});
 });
 </script>
 
