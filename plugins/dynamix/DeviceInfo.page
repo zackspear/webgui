@@ -237,7 +237,23 @@ $(function() {
   if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
   if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
-  if (!btrfs) $.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(btrfs){if(btrfs=='disable'){$.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));}});
+  if (!btrfs) {
+    $.get('/webGui/include/ReloadPage.php',{mount:'<?=$tag?>'},function(a){
+      var action = a.split(',');
+      for (var i=0,busy; busy=action[i]; i++) {
+        switch (busy) {
+        case 'balance':
+          $.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+          break;
+        case 'scrub':
+          $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+          break;
+        }
+      }
+    });
+  }
 });
 </script>
 
