@@ -554,7 +554,7 @@ function enable_stop() {
     case 'enable':
       var stop = $('td#stop');
       stop.html(stop.html().replace("<?=$btrfs?>",""));
-      $('input[value="Stop"]').prop('disabled',false);
+      $('input[value="_(Stop)_"]').prop('disabled',false);
     break;}
   });
 }

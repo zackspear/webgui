@@ -209,6 +209,9 @@ function xfsCheck(path) {
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
 }
+$.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(btrfs) {
+  if (btrfs=='disable' && !$.cookie('btrfs-balance-<?=$disk['name']?>')) btrfsBalance($.cookie('btrfs-balance-<?=$disk['name']?>'));
+});
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
