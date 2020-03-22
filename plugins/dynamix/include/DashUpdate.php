@@ -34,7 +34,7 @@ function my_clock($time) {
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
 function active_disks($disk) {
-  return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data','Cache']);
+  return substr($disk['status'],0,7)!='DISK_NP' && in_array($disk['type'],['Parity','Data']);
 }
 function find_day($D) {
   global $days;
