@@ -159,7 +159,7 @@ function fs_info(&$disk) {
     }
     echo "<td>".device_browse($disk)."</td>";
   } else
-    echo "<td>".vfs_type($disk['fsType'])."</td><td colspan='4' style='text-align:center'>{$disk['fsStatus']}";
+    echo "<td>".vfs_type($disk['fsType'])."</td><td colspan='4' style='text-align:center'>"._($disk['fsStatus']);
 }
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
