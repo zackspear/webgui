@@ -258,7 +258,7 @@ case 'array':
 case 'cache':
   $path = $_POST['path'];
   $var = (array)parse_ini_file('state/var.ini');
-  $disks = (array)array_filter(parse_ini_file('state/disks.ini',true),'active_disks');
+  $disks = (array)parse_ini_file('state/disks.ini',true);
   $saved = @(array)parse_ini_file('state/monitor.ini',true);
   require_once "$docroot/webGui/include/CustomMerge.php";
   require_once "$docroot/webGui/include/Preselect.php";
