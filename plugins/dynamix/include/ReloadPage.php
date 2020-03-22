@@ -17,7 +17,7 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 
 if (isset($_GET['mount'])) {
-  exec("ps -eo cmd|awk '/^(\/sbin\/)?btrfs.*\/mnt\/{$_GET['mount']}/{print $2}'",$action);
+  exec("ps -C btrfs -o cmd=|awk '/\/mnt\/{$_GET['mount']}$/{print $2}'",$action);
   echo implode(',',$action);
 } elseif (empty($_GET['btrfs'])) {
   $var = parse_ini_file("state/var.ini");
