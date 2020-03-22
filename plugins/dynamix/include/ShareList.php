@@ -31,6 +31,8 @@ $display = [];
 $display['scale'] = $_GET['scale'];
 $display['number'] = $_GET['number'];
 
+$pools = implode(',',pools_filter(cache_filter($disks)));
+
 if (!$shares) {
   echo "<tr><td colspan='8' style='text-align:center;padding-top:12px'><i class='fa fa-folder-open-o icon'></i>"._('There are no exportable user shares')."</td></tr>";
   exit;
@@ -58,7 +60,7 @@ function shareInclude($name) {
 // Compute all user shares & check encryption
 $crypto = false;
 foreach ($shares as $name => $share) {
-  if ($compute=='yes') exec("webGui/scripts/share_size ".escapeshellarg($name)." ssz1");
+  if ($compute=='yes') exec("webGui/scripts/share_size ".escapeshellarg($name)." ssz1 ".escapeshellarg($pools));
   $crypto |= $share['luksStatus']>0;
 }
 
@@ -92,7 +94,7 @@ foreach ($shares as $name => $share) {
   echo "<td>{$share['comment']}</td>";
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
-  $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1";
+  $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1&arg3=".urlencode($pools);
   $cache = _(ucfirst($share['useCache']));
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
