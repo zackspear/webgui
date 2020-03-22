@@ -56,8 +56,7 @@ $sleep = isset($display['sleep']);
 $array_size = $array_used = 0;
 $extra_size = $extra_used = 0;
 $cache_size = $cache_used = [];
-$cache_type = $cache_pool = [];
-$cache_percent = [];
+$cache_type = $cache_rate = [];
 
 $parity = $var['mdResync'];
 $mover = file_exists('/var/run/mover.pid');
@@ -78,8 +77,8 @@ foreach ($disks as $disk) {
       $cache_size[$name] = $disk['fsSize'];
       $cache_used[$name] = $disk['fsSize']-$disk['fsFree'];
       $cache_type[$name] = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
-      $cache_pool[$name] = $disk['devices'];
-      $cache_percent[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
+      $cache_rate[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
+      if (!$cache[$name]['devices']) unset($pools[$name]);
     }
     break;
   }
@@ -181,8 +180,8 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .share1,.share2,.share3,.view1,.view2,.view3,.user1,.user2,.user3{display:none}
 #shares_view_on,#users_view_on,#array_view_on,#extra_view_on{display:none}
 <?foreach ($pools as $pool):?>
-.<?=$pool?>_view{display:none}
-#<?=$pool?>_view_on{display:none}
+._<?=$pool?>_view{display:none}
+#_<?=$pool?>_view_on{display:none}
 <?endforeach;?>
 form[name=boot]{display:none}
 .flat{height:0;lineheight:0}
@@ -517,16 +516,14 @@ foreach ($users as $user) {
 <tbody sort='<?=$N?>' class='array_view sortable' id='array_list'></tbody>
 <?$i=0?>
 <?foreach ($pools as $pool):?>
-<?if ($cache_pool[$pool]):?>
-<thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='<?=$pool?>_view' onclick='toggleChevron("<?=$pool?>_view",0)'></i>
+<thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='_<?=$pool?>_view' onclick='toggleChevron("_<?=$pool?>_view",0)'></i>
 <a href='/Dashboard/Device?name=cache' title='_(Go to cache settings)_'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
-<?if ($started):?><span class='info'><?=sprintf(_('%s used of %s (%s %%)'),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_percent[$pool])?></span><?endif;?>
+<?if ($started):?><span class='info'><?=sprintf(_('%s used of %s (%s %%)'),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?></span><?endif;?>
 </td><td></td></tr>
 <tr class='my_view'><td></td><td id='cache_info<?=$i?>' colspan='5'></td><td></td></tr>
-<tr id='<?=$pool?>_view_on'><td></td><td>_(Device)_</td><td>_(Status)_</td><td>_(Temp)_</td><td>_(SMART)_</td><td>_(Utilization)_</td><td></td></tr>
+<tr id='_<?=$pool?>_view_on'><td></td><td>_(Device)_</td><td>_(Status)_</td><td>_(Temp)_</td><td>_(SMART)_</td><td>_(Utilization)_</td><td></td></tr>
 </thead>
-<tbody sort='<?=$N?>' class='<?=$pool?>_view sortable' id='cache_list<?=$i++?>'></tbody>
-<?endif;?>
+<tbody sort='<?=$N?>' class='_<?=$pool?>_view sortable' id='cache_list<?=$i++?>'></tbody>
 <?endforeach;?>
 <?if ($devs):?>
 <thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'>_(Unassigned)_<i class='fa fa-fw chevron mt0' id='extra_view' onclick='toggleChevron("extra_view",0)'></i><span class='info'></span></td><td></td></tr>
@@ -869,7 +866,7 @@ function toggleView(field,init,view) {
     if (unset) visible = $('.share').is(':visible');
   case 'array_view':
 <?foreach ($pools as $pool):?>
-  case '<?=$pool?>_view':
+  case '_<?=$pool?>_view':
 <?endforeach;?>
   case 'extra_view':
     var on = $('#'+field+'_on');
@@ -1057,7 +1054,7 @@ $(function() {
   toggleView('parity_view',true);
   toggleView('array_view',true);
 <?foreach ($pools as $pool):?>
-  toggleView('<?=$pool?>_view',true);
+  toggleView('_<?=$pool?>_view',true);
 <?endforeach;?>
 <?if ($devs):?>
   toggleView('extra_view',true);

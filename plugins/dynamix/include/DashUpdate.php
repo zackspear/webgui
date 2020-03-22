@@ -265,11 +265,9 @@ case 'cache':
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
   $cache = cache_filter($disks);
   $pools = pools_filter($cache);
-  foreach ($pools as $pool) {
-    if ($cache[$pool]['devices']) {
-      array_group('Cache',$pool);
-      echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
-    }
+  foreach ($pools as $pool) if ($cache[$pool]['devices']) {
+    array_group('Cache',$pool);
+    echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high)."\r";
   }
   break;
 case 'extra':
