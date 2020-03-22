@@ -65,9 +65,9 @@ function status_indicator() {
   echo "<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>";
 }
 function missing_cache() {
-  global $cache;
+  global $disks;
   $missing = false;
-  foreach ($cache as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
+  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
   return $missing;
 }
 ?>

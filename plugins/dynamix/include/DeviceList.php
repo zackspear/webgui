@@ -379,8 +379,7 @@ case 'flash':
   break;
 case 'cache':
   $cache = cache_filter($disks);
-  $pools = pools_filter($cache);
-  foreach ($pools as $pool) {
+  foreach (pools_filter($cache) as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
     if ($var['fsState']=='Stopped') {
