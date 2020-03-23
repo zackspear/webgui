@@ -3,8 +3,8 @@ Title="Syslinux Configuration"
 Tag="edit"
 ---
 <?PHP
-/* Copyright 2005-2019, Lime Technology
- * Copyright 2012-2019, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,7 +26,7 @@ $default = @file_get_contents("$file-") ?: $current;
 $current = preg_replace(["/\r\n/","/\r/","/\n$/"],["\n","\n",""],$current);
 $default = preg_replace(["/\r\n/","/\r/","/\n$/"],["\n","\n",""],$default);
 
-$title   = 'Global Configuration';
+$title   = _('Global Configuration');
 $menu    = 'menu default';
 $mark    = 'label ';
 ?>
@@ -55,8 +55,8 @@ case 'black':
 </style>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
-const menu = '<?=$menu?>';
 const title = '<?=$title?>';
+const menu = '<?=$menu?>';
 const mark = '<?=$mark?>';
 
 Array.prototype.indent = function(o) {
@@ -102,7 +102,7 @@ function setDefault(form) {
       var label = (i) ? area.shift():title;
       var start = (area[0]==menu);
       var checked = start ? ' checked':'';
-      if (i) label += "<span style='float:right'><input type='radio' id='input-"+i+"' title='Set default boot menu' onchange='changeMenu(this.form,this.id,true)'"+checked+"></span>";
+      if (i) label += "<span style='float:right'><input type='radio' id='input-"+i+"' title='_(Set default boot menu)_' onchange='changeMenu(this.form,this.id,true)'"+checked+"></span>";
       $('#label-'+i).html(label).prop('class',start ? 'array':'system');
       if (start) area.shift();
       $(this).val(area.join('\n')).prop('rows',area.length).trigger('change');
@@ -185,8 +185,8 @@ $(function(){
   }
   $('.advancedview').switchButton({
     labels_placement: 'left',
-    off_label: 'Menu View',
-    on_label: 'Raw View',
+    off_label: '_(Menu View)_',
+    on_label: '_(Raw View)_',
     checked: $.cookie('syslinux_viewmode')=='advanced'
   });
   $('.advancedview').change(function() {
@@ -198,8 +198,10 @@ $(function(){
 </script>
 <span class="status" style="margin-top:<?=$top?>px"><input type="checkbox" class="advancedview"></span>
 
+:help39
 > Use this page to make changes to your `syslinux.cfg` file.
 > You will need to reboot your server for these changes to take effect.
+:end
 
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareMenu(this)">
 <input type="hidden" name="#include" value="/webGui/include/update.file.php">
@@ -208,7 +210,7 @@ $(function(){
 <input type="hidden" name="#arg[1]" value="">
 <input type="hidden" name="text" value="">
 <div markdown="1" class="basic">
-Syslinux configuration:
+_(Syslinux configuration)_:
 : <?$i=0;
   foreach (array_map('strip',explode($mark,$current)) as $area):
   $area = explode("\n", $area);
@@ -216,30 +218,32 @@ Syslinux configuration:
   $start = in_array($menu,$area);
   if ($start) unset($area[array_search($menu,$area)]);
 ?><span id="label-<?=$i?>" class="<?=$start?'array':'system'?>"><?=$label?>
-  <?if ($i):?><span style="float:right"><input type="radio" id="input-<?=$i?>" class="menu" <?=$start?'checked':''?> title="Set default boot menu" onchange="changeMenu(this.form,this.id,true)"></span><?endif;?></span>
+  <?if ($i):?><span style="float:right"><input type="radio" id="input-<?=$i?>" class="menu" <?=$start?'checked':''?> title="_(Set default boot menu)_" onchange="changeMenu(this.form,this.id,true)"></span><?endif;?></span>
   <textarea class="menu" id="menu-<?=$i++?>" spellcheck="false" cols="80" rows="<?=count($area)?>" maxlength="2048"><?=implode("\n",$area)?></textarea>
   <?endforeach;?>
 
 </div>
 <div markdown="1" class="advanced">
-Syslinux configuration:
+_(Syslinux configuration)_:
 : <textarea class="raw" name="raw" spellcheck="false" cols="80" rows="<?=substr_count($current,"\n")+1?>" maxlength="2048"><?=$current?></textarea>
 
 </div>
-Server boot mode:
+_(Server boot mode)_:
 : <?=is_dir('/sys/firmware/efi') ? 'UEFI' : 'Legacy'?>
 
-Permit UEFI boot mode <input type="checkbox" name="boot" <?=is_dir('/boot/EFI')?'checked':''?>>
-: *Boot system in UEFI mode. Please check your system settings to support UEFI boot mode.*
+_(Permit UEFI boot mode)_ <input type="checkbox" name="boot" <?=is_dir('/boot/EFI')?'checked':''?>>
+: *_(Boot system in UEFI mode)_. _(Please check your system settings to support UEFI boot mode)_.*
 
-<input type="button" value="Default" onclick="setDefault(this.form)">
-: <input type="submit" value="Apply"><input type="button" value="Done" onclick="done()">
+<input type="button" value="_(Default)_" onclick="setDefault(this.form)">
+: <input type="submit" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
 
+:help40
 > Click the **Default** button to initialize the edit box with the
 > factory-default contents.  You still need to click **Apply** in order to
 >commit the change.
 >
 > Click the **Apply** button to commit the current edits.  Click **Reset** to
 > undo any changes you make (before Saving). Click **Done** to exit this page.
+:end
 
 </form>

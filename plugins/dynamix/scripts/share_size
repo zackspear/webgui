@@ -8,6 +8,7 @@
 
 share="$1"
 output="/var/local/emhttp/$share.$2"
+pools=${3//,/ }
 total=0;
 
 echo "Computing disk usage for $share..."
@@ -22,7 +23,9 @@ function check {
   fi
 }
 
-check "/mnt/cache" "$share"
+for pool in $pools; do
+  check "/mnt/$pool" "$share"
+done;
 while IFS=$'\n' read -r disk; do
   check "$disk" "$share"
 done <<< $(ls -vd /mnt/disk[0-9]*)

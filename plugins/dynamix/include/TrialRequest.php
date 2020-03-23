@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'tools';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $var = parse_ini_file('state/var.ini');
@@ -35,11 +39,11 @@ if (!empty($_POST['trial'])) {
 <div id="status_panel"></div>
 <form markdown="1" id="trial_form">
 
-<p><input type="checkbox" id="eula" name="eula"><label for="eula">By using this software, you agree with our <a target="_blank" href="/Tools/EULA">End-User License Agreement</a> and <a target="_blank" href="https://unraid.net/policies">Privacy Policy</a>.</label></p>
+<p><input type="checkbox" id="eula" name="eula"><label for="eula"><?=_('By using this software, you agree with our')?> <a target="_blank" href="/Tools/EULA"><?=_('End-User License Agreement')?></a> <?=_('and')?> <a target="_blank" href="https://unraid.net/policies"><?=_('Privacy Policy')?></a>.</label></p>
 
 <br><br>
 
-<center><input type="button" id="trial_button" value="<?=(strstr($var['regTy'], "expired")?"Extend":"Start")?> Trial" onclick="startTrial()" disabled></center>
+<center><input type="button" id="trial_button" value="<?=(strstr($var['regTy'], "expired")?_("Extend"):_("Start"))?> <?=_('Trial')?>" onclick="startTrial()" disabled></center>
 
 </form>
 </div>
@@ -54,16 +58,14 @@ function startTrial() {
   $.post('https://keys.lime-technology.com/account/trial',{timestamp:timestamp,guid:guid},function(data) {
     $.post('/webGui/include/TrialRequest.php',{trial:data.trial,csrf_token:'<?=$var['csrf_token']?>'},function(data2) {
       $('#spinner_image,#status_panel').fadeOut('fast');
-      parent.swal({title:'Trial <?=(strstr($var['regTy'], "expired")?"extended":"started")?>',text:'Thank you for registering USB Flash GUID '+guid+'.',type:'success'},function(){parent.window.location='/Main';});
+      parent.swal({title:"<?=_('Trial')?> <?=(strstr($var['regTy'], 'expired')?_('extended'):_('started'))?>",text:"<?=_('Thank you for registering USB Flash GUID')?> "+guid+".",type:'success',confirmButtonText:'<?=_("Ok")?>'},function(){parent.window.location='/Main';});
     });
   }).fail(function(data) {
       $('#trial_form').find('input').prop('disabled', false);
       $('#spinner_image').fadeOut('fast');
       var status = data.status;
       var obj = data.responseJSON;
-      var msg = "<p>Sorry, an error ("+status+") occurred registering USB Flash GUID <strong>"+guid+"</strong><p>" +
-                "<p>The error is: "+obj.error+"</p>";
-
+      var msg = "<p><?=_('Sorry, an error occurred')?> <?=('registering USB Flash GUID')?> <strong>"+guid+"</strong><p>"+"<p><?=_('The error is')?>: "+obj.error+"</p>";
       $('#status_panel').hide().html(msg).slideDown('fast');
   });
 }

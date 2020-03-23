@@ -5,8 +5,8 @@ Href="/webterminal/"
 Code="e93f"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,7 +19,7 @@ Code="e93f"
 <script>
 function TerminalButton() {
   if (/MSIE|Edge/.test(navigator.userAgent)) {
-    swal({title:'Unsupported Feature',text:'Sorry, this feature is not supported by MSIE/Edge.<br>Please try a different browser',html:true,type:'error'});
+    swal({title:'_(Unsupported Feature)_',text:'_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_',html:true,type:'error',confirmButtonText:'_(Ok)_'});
     return;
   }
   var d = new Date();

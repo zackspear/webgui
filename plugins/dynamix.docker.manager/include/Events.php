@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $DockerClient = new DockerClient();
@@ -21,7 +25,7 @@ $action       = $_REQUEST['action'] ?? '';
 $container    = $_REQUEST['container'] ?? '';
 $name         = $_REQUEST['name'] ?? '';
 $image        = $_REQUEST['image'] ?? '';
-$arrResponse  = ['error' => 'Missing parameters'];
+$arrResponse  = ['error' => _('Missing parameters')];
 
 switch ($action) {
 	case 'start':
@@ -66,7 +70,7 @@ switch ($action) {
 			if (!$since) {
 				readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
 				echo "<script>document.title = '$title';</script>";
-				echo "<script>addLog('".addslashes("<p style='text-align:center'><span class='error label'>Error</span><span class='warn label'>Warning</span><span class='system label'>System</span><span class='array label'>Array</span><span class='login label'>Login</span></p>")."');</script>";
+				echo "<script>addLog('".addslashes("<p style='text-align:center'><span class='error label'>"._('Error')."</span><span class='warn label'>"._('Warning')."</span><span class='system label'>"._('System')."</span><span class='array label'>"._('Array')."</span><span class='login label'>"._('Login')."</span></p>")."');</script>";
 				$tail = 350;
 			} else {
 				$tail = null;
@@ -99,7 +103,7 @@ switch ($action) {
 		exec("exec ttyd -o -d0 -i '/var/tmp/$name.sock' docker exec -it '$name' $shell &>/dev/null &");
 		break;
 	default:
-		$arrResponse = ['error' => "Unknown action '$action'"];
+		$arrResponse = ['error' => _('Unknown action')." '$action'"];
 		break;
 }
 

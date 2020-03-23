@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
+
 $cli = php_sapi_name()=='cli';
 
 function response_complete($httpcode, $result, $cli_success_msg='') {
@@ -35,19 +40,19 @@ if (file_exists("/boot/config/ssl/certs/certificate_bundle.pem")) {
   $subject = exec("/usr/bin/openssl x509 -subject -noout -in /etc/ssl/certs/unraid_bundle.pem");
   if (!preg_match('/.*\.unraid\.net$/', $subject)) {
     if ($cli) exit(0);  // cert common name isn't <hash>.unraid.net
-    response_complete(406, '{"error":"Cannot provision cert that would overwrite your existing custom cert at /boot/config/ssl/certs/certificate_bundle.pem"}');
+    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' /boot/config/ssl/certs/certificate_bundle.pem"}');
   }
   exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in /etc/ssl/certs/unraid_bundle.pem",$arrout,$retval_expired);
   if ($retval_expired === 0) {
     if ($cli) exit(0);  // not within 30 days of cert expire date
-    response_complete(406, '{"error":"Cannot renew cert until within 30 days of expiry"}');
+    response_complete(406, '{"error":"'._('Cannot renew cert until within 30 days of expiry').'"}');
   }
 }
 
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
   if ($cli) exit(0);
-  response_complete(406, '{"error":"License key required"}');
+  response_complete(406, '{"error":"'.('License key required').'"}');
 }
 $keyfile = @base64_encode($keyfile);
 $internalip = $eth0['IPADDR:0'];
@@ -69,7 +74,7 @@ curl_close($ch);
 if ($cli) {
   $json = @json_decode($result,true);
   if (empty($json['bundle'])) {
-    $strError = 'Server was unable to provision SSL certificate';
+    $strError = _('Server was unable to provision SSL certificate');
     if (!empty($json['error'])) {
       $strError .= ' - '.$json['error'];
     }
@@ -80,5 +85,5 @@ if ($cli) {
   exec("/etc/rc.d/rc.nginx reload");
 }
 
-response_complete($httpcode, $result, 'LE Cert Provisioned successfully');
+response_complete($httpcode, $result, _('LE Cert Provisioned successfully'));
 ?>

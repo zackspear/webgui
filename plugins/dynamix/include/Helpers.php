@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -53,10 +53,34 @@ function my_temp($value) {
   return is_numeric($value) ? (($unit=='F' ? round(9/5*$value+32) : str_replace('.', $number[0], $value))." $unit") : $value;
 }
 function my_disk($name) {
-  return ucfirst(preg_replace('/^(disk|cache|parity)(\d+)/','$1 $2',$name));
+  return ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
+}
+function prefix($key) {
+  return preg_replace('/\d+$/','',$key);
+}
+function parity_only($disk) {
+  return $disk['type']=='Parity';
+}
+function data_only($disk) {
+  return $disk['type']=='Data';
+}
+function cache_only($disk) {
+  return $disk['type']=='Cache';
+}
+function parity_filter($disks) {
+  return array_filter($disks,'parity_only');
+}
+function data_filter($disks) {
+  return array_filter($disks,'data_only');
+}
+function cache_filter($disks) {
+  return array_filter($disks,'cache_only');
+}
+function pools_filter($disks) {
+  return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
 }
 function my_id($id) {
   global $display;
@@ -149,11 +173,11 @@ function day_count($time) {
   case ($days<0):
     return;
   case ($days==0):
-    return " (today)";
+    return " <span class='green-text'>(today)</span>";
   case ($days==1):
-    return " (yesterday)";
+    return " <span class='green-text'>(yesterday)</span>";
   case ($days<=31):
-    return " (".my_word($days)." days ago)";
+    return " <span class='green-text'>(".my_word($days)." days ago)</span>";
   case ($days<=61):
     return " <span class='orange-text'>($days days ago)</span>";
   case ($days>61):
@@ -189,54 +213,6 @@ function urlencode_path($path) {
 function pgrep($process_name, $escape_arg=true) {
   $pid = exec("pgrep ".($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
-}
-function input_secure_users($sec) {
-  global $name, $users;
-  echo "<table class='settings'>";
-  $write_list = explode(",", $sec[$name]['writeList']);
-  foreach ($users as $user) {
-    $idx = $user['idx'];
-    if ($user['name'] == "root") {
-      echo "<input type='hidden' name='userAccess.$idx' value='no-access'>";
-      continue;
-    }
-    if (in_array( $user['name'], $write_list))
-      $userAccess = "read-write";
-    else
-      $userAccess = "read-only";
-    echo "<tr><td>{$user['name']}</td>";
-    echo "<td><select name='userAccess.$idx' size='1'>";
-    echo mk_option($userAccess, "read-write", "Read/Write");
-    echo mk_option($userAccess, "read-only", "Read-only");
-    echo "</select></td></tr>";
-  }
-  echo "</table>";
-}
-function input_private_users($sec) {
-  global $name, $users;
-  echo "<table class='settings'>";
-  $read_list = explode(",", $sec[$name]['readList']);
-  $write_list = explode(",", $sec[$name]['writeList']);
-  foreach ($users as $user) {
-    $idx = $user['idx'];
-    if ($user['name'] == "root") {
-      echo "<input type='hidden' name='userAccess.$idx' value='no-access'>";
-      continue;
-    }
-    if (in_array( $user['name'], $read_list))
-      $userAccess = "read-only";
-    elseif (in_array( $user['name'], $write_list))
-      $userAccess = "read-write";
-    else
-      $userAccess = "no-access";
-    echo "<tr><td>{$user['name']}</td>";
-    echo "<td><select name='userAccess.$idx' size='1'>";
-    echo mk_option($userAccess, "read-write", "Read/Write");
-    echo mk_option($userAccess, "read-only", "Read-only");
-    echo mk_option($userAccess, "no-access", "No Access");
-    echo "</select></td></tr>";
-  }
-  echo "</table>";
 }
 function is_block($path) {
   return (@filetype(realpath($path))=='block');

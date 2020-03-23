@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2018, Lime Technology
- * Copyright 2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,11 @@
 ?>
 <?
 	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	// add translations
+	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+		$_SERVER['REQUEST_URI'] = 'vms';
+		require_once "$docroot/webGui/include/Translations.php";
+	}
 	require_once "$docroot/webGui/include/Helpers.php";
 	require_once "$docroot/webGui/include/Custom.php";
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
@@ -53,7 +58,7 @@
 		}
 		$reply = [];
 		if (empty($arrDeleteLibreELEC)) {
-			$reply = ['error' => 'Unknown version: ' . $_POST['delete_version']];
+			$reply = ['error' => _('Unknown version').': ' . $_POST['delete_version']];
 		} else {
 			// delete img file
 			@unlink($arrDeleteLibreELEC['localpath']);
@@ -63,7 +68,7 @@
 			$text = '';
 			foreach ($arrLibreELECConfig as $key => $value) $text .= "$key=\"$value\"\n";
 			file_put_contents($strLibreELECConfig, $text);
-			$reply = ['status' => 'ok'];
+			$reply = ['status' => _('ok')];
 		}
 
 		echo json_encode($reply);
@@ -76,9 +81,9 @@
 			$arrDownloadLibreELEC = $arrLibreELECVersions[$_POST['download_version']];
 		}
 		if (empty($arrDownloadLibreELEC)) {
-			$reply = ['error' => 'Unknown version: ' . $_POST['download_version']];
+			$reply = ['error' => _('Unknown version').': ' . $_POST['download_version']];
 		} elseif (empty($_POST['download_path'])) {
-			$reply = ['error' => 'Please choose a folder the LibreELEC image will download to'];
+			$reply = ['error' => _('Please choose a folder the LibreELEC image will download to')];
 		} else {
 			@mkdir($_POST['download_path'], 0777, true);
 			$_POST['download_path'] = realpath($_POST['download_path']) . '/';
@@ -86,7 +91,7 @@
 			// Check free space
 			if (disk_free_space($_POST['download_path']) < $arrDownloadLibreELEC['size']+10000) {
 				$reply = [
-					'error' => 'Not enough free space, need at least ' . ceil($arrDownloadLibreELEC['size']/1000000).'MB'
+					'error' => _('Not enough free space, need at least').' ' . ceil($arrDownloadLibreELEC['size']/1000000).'MB'
 				];
 				echo json_encode($reply);
 				exit;
@@ -128,16 +133,16 @@
 			if (file_exists($strExtractedFile)) {
 				if (!file_exists($strTempFile)) {
 					// Status = done
-					$reply['status'] = 'Done';
+					$reply['status'] = _('Done');
 					$reply['localpath'] = $strExtractedFile;
 					$reply['localfolder'] = dirname($strExtractedFile);
 				} else {
 					if (pgrep($strExtractPgrep, false)) {
 						// Status = running extract
-						$reply['status'] = 'Extracting ... ';
+						$reply['status'] = _('Extracting').' ... ';
 					} else {
 						// Status = cleanup
-						$reply['status'] = 'Cleanup ... ';
+						$reply['status'] = _('Cleanup').' ... ';
 					}
 				}
 			} elseif (file_exists($strTempFile)) {
@@ -148,25 +153,25 @@
 					if ($intSize > 0) {
 						$strPercent = round(($intSize / $arrDownloadLibreELEC['size']) * 100);
 					}
-					$reply['status'] = 'Downloading ... ' . $strPercent . '%';
+					$reply['status'] = _('Downloading').' ... ' . $strPercent . '%';
 				} elseif (pgrep($strVerifyPgrep, false)) {
 					// Status = running md5 check
-					$reply['status'] = 'Verifying ... ';
+					$reply['status'] = _('Verifying').' ... ';
 				} elseif (file_exists($strMD5StatusFile)) {
 					// Status = running extract
-					$reply['status'] = 'Extracting ... ';
+					$reply['status'] = _('Extracting').' ... ';
 					if (!pgrep($strExtractPgrep, false)) {
 						// Examine md5 status
 						$strMD5StatusContents = file_get_contents($strMD5StatusFile);
 						if (strpos($strMD5StatusContents, ': FAILED') !== false) {
 							// ERROR: MD5 check failed
 							unset($reply['status']);
-							$reply['error'] = 'MD5 verification failed, your download is incomplete or corrupted.';
+							$reply['error'] = _('MD5 verification failed, your download is incomplete or corrupted').'.';
 						}
 					}
 				} elseif (!file_exists($strMD5File)) {
 					// Status = running md5 check
-					$reply['status'] = 'Downloading ... 100%';
+					$reply['status'] = _('Downloading').' ... 100%';
 					if (!pgrep($strInstallScriptPgrep, false) && !$boolCheckOnly) {
 						// Run all commands
 						file_put_contents($strInstallScript, $strAllCmd);
@@ -181,7 +186,7 @@
 					chmod($strInstallScript, 0777);
 					exec($strInstallScript . ' >/dev/null 2>&1 &');
 				}
-				$reply['status'] = 'Downloading ... ';
+				$reply['status'] = _('Downloading').' ... ';
 			}
 			$reply['pid'] = pgrep($strInstallScriptPgrep, false);
 		}
@@ -440,8 +445,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<div class="installed">
 		<table>
 			<tr>
-				<td>Name:</td>
-				<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. LibreELEC" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
+				<td>_(Name)_:</td>
+				<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(LibreELEC)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 			</tr>
 		</table>
 		<blockquote class="inline_help">
@@ -450,8 +455,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr class="advanced">
-				<td>Description:</td>
-				<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
+				<td>_(Description)_:</td>
+				<td><input type="text" name="domain[desc]" title="_(description of virtual machine)_" placeholder="_(description of virtual machine)_ (_(optional)_)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
 			</tr>
 		</table>
 		<div class="advanced">
@@ -463,9 +468,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>LibreELEC Version:</td>
+			<td>_(LibreELEC Version)_:</td>
 			<td>
-				<select name="template[libreelec]" id="template_libreelec" class="narrow" title="Select the LibreELEC version to use">
+				<select name="template[libreelec]" id="template_libreelec" class="narrow" title="_(Select the LibreELEC version to use)_">
 				<?php
 					foreach ($arrLibreELECVersions as $strOEVersion => $arrOEVersion) {
 						$strDefaultFolder = '';
@@ -476,7 +481,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						echo mk_option($arrConfig['template']['libreelec'], $strOEVersion, $arrOEVersion['name'], 'localpath="' . $arrOEVersion['localpath'] . '" localfolder="' . $strLocalFolder . '" valid="' . $arrOEVersion['valid'] . '"');
 					}
 				?>
-				</select> <i class="fa fa-trash delete_libreelec_image installed" title="Remove LibreELEC image"></i> <span id="libreelec_image" class="installed"></span>
+				</select> <i class="fa fa-trash delete_libreelec_image installed" title="_(Remove LibreELEC image)_"></i> <span id="libreelec_image" class="installed"></span>
 			</td>
 		</tr>
 	</table>
@@ -487,9 +492,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<div class="available">
 		<table>
 			<tr>
-				<td>Download Folder:</td>
+				<td>_(Download Folder)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" id="download_path" placeholder="e.g. /mnt/user/domains/" title="Folder to save the LibreELEC image to" />
+					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" id="download_path" placeholder="_(e.g.)_ /mnt/user/domains/" title="_(Folder to save the LibreELEC image to)_" />
 				</td>
 			</tr>
 		</table>
@@ -501,7 +506,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td></td>
 				<td>
-					<input type="button" value="Download" busyvalue="Downloading..." readyvalue="Download" id="btnDownload" />
+					<input type="button" value="_(Download)_" busyvalue="_(Downloading)_..." readyvalue="_(Download)_" id="btnDownload" />
 					<br>
 					<div id="download_status"></div>
 				</td>
@@ -512,9 +517,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<div class="installed">
 		<table>
 			<tr>
-				<td>Config Folder:</td>
+				<td>_(Config Folder)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrConfig['shares'][0]['source'])?>" name="shares[0][source]" placeholder="e.g. /mnt/user/appdata/libreelec" title="path on Unraid share to save LibreELEC settings" required/>
+					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrConfig['shares'][0]['source'])?>" name="shares[0][source]" placeholder="_(e.g.)_ /mnt/user/appdata/libreelec" title="_(path on Unraid share to save LibreELEC settings)_" required/>
 					<input type="hidden" value="<?=htmlspecialchars($arrConfig['shares'][0]['target'])?>" name="shares[0][target]" />
 				</td>
 			</tr>
@@ -525,10 +530,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr class="advanced">
-				<td>CPU Mode:</td>
+				<td>_(CPU Mode)_:</td>
 				<td>
-					<select name="domain[cpumode]" title="define type of cpu presented to this vm">
-					<?php mk_dropdown_options(['host-passthrough' => 'Host Passthrough (' . $strCPUModel . ')', 'emulated' => 'Emulated (QEMU64)'], $arrConfig['domain']['cpumode']); ?>
+					<select name="domain[cpumode]" title="_(define type of cpu presented to this vm)_">
+					<?php mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'emulated' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']); ?>
 					</select>
 				</td>
 			</tr>
@@ -549,7 +554,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr>
-				<td>Logical CPUs:</td>
+				<td>_(Logical CPUs)_:</td>
 				<td>
 					<div class="textarea four">
 					<?
@@ -578,9 +583,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr>
-				<td><span class="advanced">Initial </span>Memory:</td>
+				<td><span class="advanced">_(Initial)_ </span>_(Memory)_:</td>
 				<td>
-					<select name="domain[mem]" id="domain_mem" class="narrow" title="define the amount memory">
+					<select name="domain[mem]" id="domain_mem" class="narrow" title="_(define the amount memory)_">
 					<?php
 						for ($i = 1; $i <= ($maxmem*2); $i++) {
 							$label = ($i * 512) . ' MB';
@@ -591,9 +596,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</select>
 				</td>
 
-				<td class="advanced">Max Memory:</td>
+				<td class="advanced">_(Max)_ _(Memory)_:</td>
 				<td class="advanced">
-					<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="define the maximum amount of memory">
+					<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="_(define the maximum amount of memory)_">
 					<?php
 						for ($i = 1; $i <= ($maxmem*2); $i++) {
 							$label = ($i * 512) . ' MB';
@@ -619,9 +624,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr class="advanced">
-				<td>Machine:</td>
+				<td>_(Machine)_:</td>
 				<td>
-					<select name="domain[machine]" class="narrow" id="domain_machine" title="Select the machine model.  i440fx will work for most.  Q35 for a newer machine model with PCIE">
+					<select name="domain[machine]" class="narrow" id="domain_machine" title="_(Select the machine model)_.  _(i440fx will work for most)_.  _(Q35 for a newer machine model with PCIE)_">
 					<?php mk_dropdown_options($arrValidMachineTypes, $arrConfig['domain']['machine']); ?>
 					</select>
 				</td>
@@ -638,16 +643,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr class="advanced">
-				<td>BIOS:</td>
+				<td>_(BIOS)_:</td>
 				<td>
-					<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="Select the BIOS.  SeaBIOS will work for most.  OVMF requires a UEFI-compatable OS (e.g. Windows 8/2012, newer Linux distros) and if using graphics device passthrough it too needs UEFI">
+					<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_">
 					<?php
-						echo mk_option($arrConfig['domain']['ovmf'], '0', 'SeaBIOS');
+						echo mk_option($arrConfig['domain']['ovmf'], '0', _('SeaBIOS'));
 
 						if (file_exists('/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd')) {
-							echo mk_option($arrConfig['domain']['ovmf'], '1', 'OVMF');
+							echo mk_option($arrConfig['domain']['ovmf'], '1', _('OVMF'));
 						} else {
-							echo mk_option('', '0', 'OVMF (Not Available)', 'disabled="disabled"');
+							echo mk_option('', '0', _('OVMF').' ('_('Not Available').')', 'disabled');
 						}
 					?>
 					</select>
@@ -672,13 +677,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr class="advanced">
-				<td>USB Controller:</td>
+				<td>_(USB Controller)_:</td>
 				<td>
-					<select name="domain[usbmode]" id="usbmode" class="narrow" title="Select the USB Controller to emulate.">
+					<select name="domain[usbmode]" id="usbmode" class="narrow" title="_(Select the USB Controller to emulate)_.">
 					<?php
-						echo mk_option($arrConfig['domain']['usbmode'], 'usb2', '2.0 (EHCI)');
-						echo mk_option($arrConfig['domain']['usbmode'], 'usb3', '3.0 (nec XHCI)');
-						echo mk_option($arrConfig['domain']['usbmode'], 'usb3-qemu', '3.0 (qemu XHCI)');
+						echo mk_option($arrConfig['domain']['usbmode'], 'usb2', _('2.0 (EHCI)'));
+						echo mk_option($arrConfig['domain']['usbmode'], 'usb3', _('3.0 (nec XHCI)'));
+						echo mk_option($arrConfig['domain']['usbmode'], 'usb3-qemu', _('3.0 (qemu XHCI)'));
 					?>
 					</select>
 				</td>
@@ -699,15 +704,15 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			?>
 			<table data-category="Graphics_Card" data-multiple="true" data-minimum="1" data-maximum="<?=count($arrValidGPUDevices)?>" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 				<tr>
-					<td>Graphics Card:</td>
+					<td>_(Graphics Card)_:</td>
 					<td>
 						<select name="gpu[<?=$i?>][id]" class="gpu narrow">
 						<?
 							if ($i == 0) {
 								// Only the first video card can be VNC
-								echo mk_option($arrGPU['id'], 'vnc', 'VNC');
+								echo mk_option($arrGPU['id'], 'vnc', _('VNC'));
 							} else {
-								echo mk_option($arrGPU['id'], '', 'None');
+								echo mk_option($arrGPU['id'], '', _('None'));
 							}
 
 							foreach($arrValidGPUDevices as $arrDev) {
@@ -718,9 +723,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</td>
 				</tr>
 				<tr class="<? if ($arrGPU['id'] == 'vnc') echo 'was'; ?>advanced romfile">
-					<td>Graphics ROM BIOS:</td>
+					<td>_(Graphics ROM BIOS)_:</td>
 					<td>
-						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="<?=htmlspecialchars($arrGPU['rom'])?>" name="gpu[<?=$i?>][rom]" placeholder="Path to ROM BIOS file (optional)" title="Path to ROM BIOS file (optional)" />
+						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="<?=htmlspecialchars($arrGPU['rom'])?>" name="gpu[<?=$i?>][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 					</td>
 				</tr>
 			</table>
@@ -745,11 +750,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		<script type="text/html" id="tmplGraphics_Card">
 			<table>
 				<tr>
-					<td>Graphics Card:</td>
+					<td>_(Graphics Card)_:</td>
 					<td>
 						<select name="gpu[{{INDEX}}][id]" class="gpu narrow">
 						<?php
-							echo mk_option('', '', 'None');
+							echo mk_option('', '', _('None'));
 
 							foreach($arrValidGPUDevices as $arrDev) {
 								echo mk_option('', $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
@@ -759,9 +764,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</td>
 				</tr>
 				<tr class="advanced romfile">
-					<td>Graphics ROM BIOS:</td>
+					<td>_(Graphics ROM BIOS)_:</td>
 					<td>
-						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="" name="gpu[{{INDEX}}][rom]" placeholder="Path to ROM BIOS file (optional)" title="Path to ROM BIOS file (optional)" />
+						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="" name="gpu[{{INDEX}}][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 					</td>
 				</tr>
 			</table>
@@ -773,11 +778,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			?>
 			<table data-category="Sound_Card" data-multiple="true" data-minimum="1" data-maximum="<?=count($arrValidAudioDevices)?>" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 				<tr>
-					<td>Sound Card:</td>
+					<td>_(Sound Card)_:</td>
 					<td>
 						<select name="audio[<?=$i?>][id]" class="audio narrow">
 						<?php
-							echo mk_option($arrAudio['id'], '', 'None');
+							echo mk_option($arrAudio['id'], '', _('None'));
 
 							foreach($arrValidAudioDevices as $arrDev) {
 								echo mk_option($arrAudio['id'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
@@ -799,7 +804,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		<script type="text/html" id="tmplSound_Card">
 			<table>
 				<tr>
-					<td>Sound Card:</td>
+					<td>_(Sound Card)_:</td>
 					<td>
 						<select name="audio[{{INDEX}}][id]" class="audio narrow">
 						<?php
@@ -819,14 +824,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			?>
 			<table data-category="Network" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 				<tr class="advanced">
-					<td>Network MAC:</td>
+					<td>_(Network MAC)_:</td>
 					<td>
-						<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+						<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 					</td>
 				</tr>
 
 				<tr class="advanced">
-					<td>Network Bridge:</td>
+					<td>_(Network Bridge)_:</td>
 					<td>
 						<select name="nic[<?=$i?>][network]">
 						<?php
@@ -859,14 +864,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		<script type="text/html" id="tmplNetwork">
 			<table>
 				<tr class="advanced">
-					<td>Network MAC:</td>
+					<td>_(Network MAC)_:</td>
 					<td>
-						<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+						<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 					</td>
 				</tr>
 
 				<tr class="advanced">
-					<td>Network Bridge:</td>
+					<td>_(Network Bridge)_:</td>
 					<td>
 						<select name="nic[{{INDEX}}][network]">
 						<?php
@@ -882,9 +887,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr>
-				<td>USB Devices:</td>
+				<td>_(USB Devices)_:</td>
 				<td>
-					<div class="textarea" style="width: 540px">
+					<div class="textarea" style="width:540px">
 					<?php
 						if (!empty($arrValidUSBDevices)) {
 							foreach($arrValidUSBDevices as $i => $arrDev) {
@@ -893,7 +898,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							<?php
 							}
 						} else {
-							echo "<i>None available</i>";
+							echo "<i>"._('None available')."</i>";
 						}
 					?>
 					</div>
@@ -906,9 +911,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr>
-				<td>Other PCI Devices:</td>
+				<td>_(Other PCI Devices)_:</td>
 				<td>
-					<div class="textarea" style="width: 540px">
+					<div class="textarea" style="width:540px">
 					<?
 						$intAvailableOtherPCIDevices = 0;
 
@@ -929,7 +934,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						}
 
 						if (empty($intAvailableOtherPCIDevices)) {
-							echo "<i>None available</i>";
+							echo "<i>"._('None available')."</i>";
 						}
 					?>
 					</div>
@@ -946,14 +951,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<td>
 				<? if (!$boolNew) { ?>
 					<input type="hidden" name="updatevm" value="1" />
-					<input type="button" value="Update" busyvalue="Updating..." readyvalue="Update" id="btnSubmit" />
+					<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 				<? } else { ?>
-					<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> Start VM after creation</label>
+					<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 					<br>
 					<input type="hidden" name="createvm" value="1" />
-					<input type="button" value="Create" busyvalue="Creating..." readyvalue="Create" id="btnSubmit" />
+					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 				<? } ?>
-					<input type="button" value="Cancel" id="btnCancel" />
+					<input type="button" value="_(Cancel)_" id="btnCancel" />
 				</td>
 			</tr>
 		</table>
@@ -966,7 +971,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 </div>
 
 <div class="xmlview">
-	<textarea id="addcode" name="xmldesc" placeholder="Copy &amp; Paste Domain XML Configuration Here." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
+	<textarea id="addcode" name="xmldesc" placeholder="_(Copy &amp; Paste Domain XML Configuration Here)_." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
 
 	<table>
 		<tr>
@@ -975,16 +980,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<? if (!$boolRunning) { ?>
 				<? if ($strXML) { ?>
 					<input type="hidden" name="updatevm" value="1" />
-					<input type="button" value="Update" busyvalue="Updating..." readyvalue="Update" id="btnSubmit" />
+					<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 				<? } else { ?>
-					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> Start VM after creation</label>
+					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 					<br>
 					<input type="hidden" name="createvm" value="1" />
-					<input type="button" value="Create" busyvalue="Creating..." readyvalue="Create" id="btnSubmit" />
+					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 				<? } ?>
-				<input type="button" value="Cancel" id="btnCancel" />
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
 			<? } else { ?>
-				<input type="button" value="Back" id="btnCancel" />
+				<input type="button" value="_(Back)_" id="btnCancel" />
 			<? } ?>
 			</td>
 		</tr>
@@ -1157,12 +1162,12 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
 			if (data.error) {
-				swal({title:"VM creation error",text:data.error,type:"error"});
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 				$panel.find('input').prop('disabled', false);
 				$button.val($button.attr('readyvalue'));
 				resetForm();
@@ -1183,12 +1188,12 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
 			if (data.error) {
-				swal({title:"VM creation error",text:data.error,type:"error"});
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 				$panel.find('input').prop('disabled', false);
 				$button.val($button.attr('readyvalue'));
 				resetForm();
@@ -1212,7 +1217,7 @@ $(function() {
 		$form.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", postdata, function( data ) {
 			if (data.error) {
 				$("#vmform #download_status").html($("#vmform #download_status").html() + '<br><span style="color: red">' + data.error + '</span>');
 			} else if (data.status) {
@@ -1230,7 +1235,7 @@ $(function() {
 					return;
 				}
 
-				if (data.status == 'Done') {
+				if (data.status == '_(Done)_') {
 					$("#vmform #template_libreelec").find('option:selected').attr({
 						localpath: data.localpath,
 						localfolder:  data.localfolder,
@@ -1271,10 +1276,10 @@ $(function() {
 
 				// attach delete libreelec image onclick event
 				$("#vmform .delete_libreelec_image").off().click(function deleteOEVersion() {
-					swal({title:"Are you sure?",text:"Remove this LibreELEC file:\n"+$selected.attr('localpath'),type:"warning",showCancelButton:true},function() {
-						$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", {delete_version: $selected.val()}, function(data) {
+					swal({title:"_(Are you sure)_?",text:"_(Remove this LibreELEC file)_:\n"+$selected.attr('localpath'),type:"warning",showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function() {
+						$.post("/plugins/dynamix.vm.manager/templates/LibreELEC.form.php", {delete_version: $selected.val()}, function(data) {
 							if (data.error) {
-								swal({title:"VM image deletion error",text:data.error,type:"error"});
+								swal({title:"_(VM image deletion error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 							} else if (data.status == 'ok') {
 								$selected.attr({
 									localpath: '',

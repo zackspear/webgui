@@ -3,8 +3,8 @@ Title="Install Plugin"
 Tag="download"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,19 +18,21 @@ Tag="download"
 function installPlugin(name) {
   var file = name.trim();
   var plugin = file.replace(/^.*(\\|\/|\:)/,'').replace('.plg','')+':install';
-  if (file) openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=install&arg2='+file,'Install Plugin',600,900,true,'loadlist',plugin);
+  if (file) openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=install&arg2='+file,'_(Install Plugin)_',600,900,true,'loadlist',plugin);
 }
 </script>
-**Enter URL of remote plugin file or local plugin file**
+**_(Enter URL of remote plugin file or local plugin file)_**
 
 <form name="plugin_install" method="POST" target="progressFrame">
 <input type="text" name="file" id="plugin_file" maxlength="1024" value="" style="width:33%">
-<input type="button" value="Install" onclick="installPlugin(this.form.file.value)">
+<input type="button" value="_(Install)_" onclick="installPlugin(this.form.file.value)">
 </form>
 
+:help1
 > To download and install a plugin, enter the plg file URL and click **Install**. A window will open
 > that displays install progress. Do not close this window until install has completed. You may also specify
 > the local file name of an extension.
+:end
 
-**Select local plugin file**
+**_(Select local plugin file)_**
 <div id="plugin_tree" class="textarea"></div>

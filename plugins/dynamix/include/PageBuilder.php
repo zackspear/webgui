@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -22,15 +22,15 @@ function get_ini_key($key,$default) {
 }
 
 function get_file_key($file,$default) {
-  list($key, $default) = explode('=',$default,2);
+  [$key, $default] = explode('=',$default,2);
   $var = @parse_ini_file($file);
   return isset($var[$key]) ? $var[$key] : $default;
 }
 
 function build_pages($pattern) {
   global $site;
-  foreach (glob($pattern, GLOB_NOSORT) as $entry) {
-    list($header, $content) = explode("---\n", file_get_contents($entry), 2);
+  foreach (glob($pattern,GLOB_NOSORT) as $entry) {
+    [$header, $content] = explode("---\n", file_get_contents($entry),2);
     $page = parse_ini_string($header);
     $page['file'] = $entry;
     $page['root'] = dirname($entry);
@@ -41,7 +41,7 @@ function build_pages($pattern) {
 }
 
 function find_pages($item) {
-  global $site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$sec_afp,$name,$display;
+  global $docroot,$site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$name,$display,$pool_devices;
   $pages = [];
   foreach ($site as $page) {
     if (empty($page['Menu'])) continue;
@@ -51,7 +51,7 @@ function find_pages($item) {
       case '/': $menu = get_file_key($menu,strtok(' ')); break;
     }
     while ($menu !== false) {
-      list($menu,$rank) = explode(':',$menu);
+      [$menu,$rank] = explode(':',$menu);
       if ($menu == $item) {
         $enabled = true;
         if (isset($page['Cond'])) eval("\$enabled={$page['Cond']};");
@@ -67,23 +67,32 @@ function find_pages($item) {
 
 function tab_title($name,$path,$tag) {
   global $docroot;
+  if (preg_match('/^(disk|cache|parity)/',$name)) {
+    $text = [];
+    foreach (explode(' ',$name) as $word) $text[] = my_lang(my_disk($word),3);
+    $name = implode(' ',$text);
+  } elseif (substr($name,0,9)=='Interface') {
+      $name = my_lang($name,3);
+  } else {
+    $name = _($name);
+  }
   if (!$tag || substr($tag,-4)=='.png') {
     $file = "$path/icons/".($tag ?: strtolower(str_replace(' ','',$name)).".png");
     if (file_exists("$docroot/$file")) {
-      return "<img src='/$file' class='icon'>".htmlspecialchars(my_disk($name));
+      return "<img src='/$file' class='icon'>$name";
     } else {
-      return "<i class='fa fa-th title'></i>".htmlspecialchars(my_disk($name));
+      return "<i class='fa fa-th title'></i>$name";
     }
   } elseif (substr($tag,0,5)=='icon-') {
-    return "<i class='$tag title'></i>".htmlspecialchars(my_disk($name));
+    return "<i class='$tag title'></i>$name";
   } else {
     if (substr($tag,0,3)!='fa-') $tag = "fa-$tag";
-    return "<i class='fa $tag title'></i>".htmlspecialchars(my_disk($name));
+    return "<i class='fa $tag title'></i>$name";
   }
 }
 
 // hack to embed function output in a quoted string (e.g., in a page Title)
 // see: http://stackoverflow.com/questions/6219972/why-embedding-functions-inside-of-strings-is-different-than-variables
-function _func($x) { return $x; }
+function _func($x) {return $x;}
 $func = '_func';
 ?>

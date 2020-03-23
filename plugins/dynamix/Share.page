@@ -36,6 +36,7 @@ if ($name) {
 <style>
 div.clone1{position:absolute;right:0;margin-top:0}
 div.clone2{position:absolute;right:0;margin-top:48px}
+span.input{display:inline-block;width:420px}
 <?if ($themes1):?>
 span.wrap{display:inline-block;width:128px}
 select.clone{min-width:123px;margin-right:0}
@@ -61,7 +62,7 @@ function toggleButton(button,id) {
 }
 
 <?if ($name):?>
-var ctrl = "<span class='ctrl1 status <?=$tabbed?'vhshift':'vshift'?>'><a href='/Shares/Share?name=<?=$prev?>' title='previous user share'><button type='button' style='margin-right:4px'><i class='fa fa-chevron-left fa-fw'></i></button></a><a href='/Shares/Share?name=<?=$next?>' title='next user share'><button type='button'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
+var ctrl = "<span class='ctrl1 status <?=$tabbed?'vhshift':'vshift'?>'><a href='/Shares/Share?name=<?=$prev?>' title='_(previous user share)_'><button type='button' style='margin-right:4px'><i class='fa fa-chevron-left fa-fw'></i></button></a><a href='/Shares/Share?name=<?=$next?>' title='_(next user share)_'><button type='button'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
 
 $(function() {
 <?if ($tabbed):?>

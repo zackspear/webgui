@@ -4,8 +4,8 @@ Icon="icon-confirmations"
 Tag="check-square"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,30 +19,34 @@ Tag="check-square"
 <form markdown="1" name="confirm_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg"/>
 <input type="hidden" name="#section" value="confirm"/>
-Confirm reboot & powerdown commands:
-: <select name="down" size="1">
-  <?=mk_option($confirm['down'], "0", "No")?>
-  <?=mk_option($confirm['down'], "1", "Yes")?>
+_(Confirm reboot & powerdown commands)_:
+: <select name="down">
+  <?=mk_option($confirm['down'], "0", _('No'))?>
+  <?=mk_option($confirm['down'], "1", _('Yes'))?>
   </select>
 
+:help98
 > Choose if rebooting or powering down the server needs a confirmation checkbox.
+:end
 
-Confirm array stop command:
-: <select name="stop" size="1">
-  <?=mk_option($confirm['stop'], "0", "No")?>
-  <?=mk_option($confirm['stop'], "1", "Yes")?>
+_(Confirm array stop command)_:
+: <select name="stop">
+  <?=mk_option($confirm['stop'], "0", _('No'))?>
+  <?=mk_option($confirm['stop'], "1", _('Yes'))?>
   </select>
 
+:help99
 > Choose if stopping the array needs a confirmation checkbox.
+:end
 
 <?if (isset($confirm['sleep'])):?>
-Confirm sleep command:
-: <select name="sleep" size="1">
-  <?=mk_option($confirm['sleep'], "0", "No")?>
-  <?=mk_option($confirm['sleep'], "1", "Yes")?>
+_(Confirm sleep command)_:
+: <select name="sleep">
+  <?=mk_option($confirm['sleep'], "0", _('No'))?>
+  <?=mk_option($confirm['sleep'], "1", _('Yes'))?>
   </select>
 <?endif;?>
 
 &nbsp;
-: <input type="submit" name="#apply" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

@@ -4,8 +4,8 @@ Tag="wrench"
 Cond="strpos($disks[$name]['status'],'_NP')===false"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -34,53 +34,63 @@ function spindownDelay() {
   return file_exists($tmp) ? file_get_contents($tmp) : $delay;
 }
 ?>
-Download SMART report:
-: <input type='button' value='Download' onclick='saveSMART()'>
+_(Download SMART report)_:
+: <input type='button' value='_(Download)_' onclick='saveSMART()'>
 
-SMART self-test history:
-: <input type="button" value="Show" id="toggle_log" onclick="selftestLog()" disabled>
+_(SMART self-test history)_:
+: <input type="button" value="_(Show)_" id="toggle_log" onclick="selftestLog()" disabled>
 
+:help29
 > Press **Show** to view the self-test history as is kept on the disk itself.
 > This feature is only available when the disk is in active mode.
+:end
 
 <pre id="selftest" style="display:none"></pre>
 
-SMART error log:
-: <input type="button" value="Show" id="toggle_error" onclick="errorLog()" disabled>
+_(SMART error log)_:
+: <input type="button" value="_(Show)_" id="toggle_error" onclick="errorLog()" disabled>
 
+:help30
 > Press **Show** to view the error report as is kept on the disk itself.
 > This feature is only available when the disk is in active mode.
+:end
 
 <pre id="errorlog" style="display:none"></pre>
 
-SMART short self-test:
-: <input type='button' value='Start' id='short_test' onclick="startShortTest()" disabled>
+_(SMART short self-test)_:
+: <input type='button' value='_(Start)_' id='short_test' onclick="startShortTest()" disabled>
 
+:help31
 > Starts a *short* SMART self-test, the estimated duration can be viewed under the *Capabilities* section. This is usually a few minutes.
 >
 > When the disk is spun down, it will abort any running self-test.
 > This feature is only available when the disk is in active mode.
+:end
 
-SMART extended self-test:
-: <input type='button' value='Start' id='long_test' onclick="startLongTest()" disabled>
+_(SMART extended self-test)_:
+: <input type='button' value='_(Start)_' id='long_test' onclick="startLongTest()" disabled>
 
+:help32
 > Starts an *extended* SMART self-test, the estimated duration can be viewed under the *Capabilities* section. This is usually several hours.
 >
 > When the disk is spun down, it will abort any running self-test. It is advised to disable the spin down timer of the disk
 > to avoid interruption of this self-test.
 >
 > This feature is only available when the disk is in active mode.
+:end
 
-Last SMART test result:
+_(Last SMART test result)_:
 : <span id="test_result"><i class='fa fa-circle-o-notch fa-spin fa-fw'></i></span>
 
+:help33
 > When no test is running it will show here the latest obtained self-test result (if available).
 > Otherwise a progress indicator (percentage value) is shown for a running test.
+:end
 
 <script>
 function cleanUp() {
   if (document.hasFocus()) {
-    $('input[value="Downloading..."]').val('Download').prop('disabled',false);
+    $('input[value="_(Downloading)_..."]').val('_(Download)_').prop('disabled',false);
     $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($file))?>'});
     $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($zip))?>'});
   } else {
@@ -88,7 +98,7 @@ function cleanUp() {
   }
 }
 function saveSMART() {
-  $('input[value="Download"]').val('Downloading...').prop('disabled',true);
+  $('input[value="_(Download)_"]').val('_(Downloading)_...').prop('disabled',true);
   $.post('/webGui/include/SmartInfo.php',{cmd:'save',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>',file:'<?=addslashes(htmlspecialchars($file))?>'}, function() {
     $.post('/webGui/include/Download.php',{cmd:'save',source:'<?=addslashes(htmlspecialchars($file))?>',file:'<?=addslashes(htmlspecialchars($zip))?>'},function(zip) {
       location = zip;
@@ -104,13 +114,13 @@ function testUpdate(init) {
 <?if ($spindown):?>
         $('select[name="<?=addslashes(htmlspecialchars($spindown))?>"]').prop('disabled',true);
 <?endif;?>
-        $('#smart_selftest').html('<i class="fa fa-camera"></i> S.M.A.R.T self-test in progress...');
+        $('#smart_selftest').html('<i class="fa fa-camera"></i> _(SMART self-test in progress)_...');
       }
       if (!init) timers.testUpdate = setTimeout(testUpdate, 3000);
     } else {
       if ($('#smart_selftest').length) $('#smart_selftest').html('');
-      $('#short_test').val('Start');
-      $('#long_test').val('Start');
+      $('#short_test').val('_(Start)_');
+      $('#long_test').val('_(Start)_');
 <?if ($live):?>
       $('#short_test').removeAttr('disabled');
       $('#long_test').removeAttr('disabled');
@@ -128,17 +138,17 @@ function testUpdate(init) {
 }
 function selftestLog() {
   $('#selftest').toggle('slow');
-  var text = $('#toggle_log').val()=='Show' ? 'Hide' : 'Show';
+  var text = $('#toggle_log').val()=='_(Show)_' ? '_(Hide)_' : '_(Show)_';
   $('#toggle_log').val(text);
 }
 function errorLog() {
   $('#errorlog').toggle('slow');
-  var text = $('#toggle_error').val()=='Show' ? 'Hide' : 'Show';
+  var text = $('#toggle_error').val()=='_(Show)_' ? '_(Hide)_' : '_(Show)_';
   $('#toggle_error').val(text);
 }
 function startShortTest() {
-  if ($('#short_test').val()=='Start') {
-    $('#short_test').val('Stop');
+  if ($('#short_test').val()=='_(Start)_') {
+    $('#short_test').val('_(Stop)_');
     $('#long_test').attr('disabled','disabled');
     $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>','short',{path:'/',expires:365});
     $.post('/webGui/include/SmartInfo.php',{cmd:'short',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){timers.testUpdate = setTimeout(testUpdate,0);});
@@ -158,8 +168,8 @@ function startShortTest() {
   }
 }
 function startLongTest() {
-  if ($('#long_test').val()=='Start') {
-    $('#long_test').val('Stop');
+  if ($('#long_test').val()=='_(Start)_') {
+    $('#long_test').val('_(Stop)_');
     $('#short_test').attr('disabled','disabled');
     $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>','long',{path:'/',expires:365});
     $.post('/webGui/include/SmartInfo.php',{cmd:'long',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){timers.testUpdate = setTimeout(testUpdate,0);});
@@ -181,7 +191,7 @@ function startLongTest() {
 $(function() {
   var smarttest = $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>');
   testUpdate(smarttest===undefined);
-  if (smarttest !== undefined) $('#'+smarttest+'_test').val('Stop').removeAttr('disabled');
+  if (smarttest !== undefined) $('#'+smarttest+'_test').val('_(Stop)_').removeAttr('disabled');
 <?if ($live):?>
   $('#toggle_log').removeAttr('disabled');
   $('#toggle_error').removeAttr('disabled');

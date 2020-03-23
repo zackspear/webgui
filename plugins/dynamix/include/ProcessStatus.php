@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Bergware International
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Bergware International
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 $name = $_POST['name'];
 switch ($name) {
 case 'crontab':
@@ -32,5 +37,5 @@ default:
 if (isset($_POST['update'])) {$span = ""; $_span = "";}
 else {$span = "<span id='progress' class='status'>"; $_span = "</span>";}
 
-echo $pid ? "{$span}Status:<span class='green'>Running</span>{$_span}" : "{$span}Status:<span class='orange'>Stopped</span>{$_span}";
+echo $pid ? "{$span}"._('Status').":<span class='green'>"._('Running')."</span>{$_span}" : "{$span}Status:<span class='orange'>"._('Stopped')."</span>{$_span}";
 ?>

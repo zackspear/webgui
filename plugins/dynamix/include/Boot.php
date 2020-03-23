@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $var = parse_ini_file("/var/local/emhttp/var.ini");
@@ -39,27 +43,27 @@ function timer() {
 }
 function reboot_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){$('div.notice').html('<span class="title">Reboot</span>System is going down... '+timer()); setTimeout(reboot_online,5000);})
+   .done(function(){$('div.notice').html('<span class="title"><?=_("Reboot")?></span><?=_("System is going down")?>... '+timer()); setTimeout(reboot_online,5000);})
    .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
 }
 function reboot_offline() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
    .done(function(){location = '/Main';})
-   .fail(function(){$('div.notice').html('<span class="title">Reboot</span>System is rebooting... '+timer()); setTimeout(reboot_offline,1000);});
+   .fail(function(){$('div.notice').html('<span class="title"><?=_("Reboot")?></span><?=_("System is rebooting")?>... '+timer()); setTimeout(reboot_offline,1000);});
 }
 
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){$('div.notice').html('<span class="title">Shutdown</span>System is going down... '+timer()); setTimeout(shutdown_online,5000);})
+   .done(function(){$('div.notice').html('<span class="title"><?=_("Shutdown")?></span><?=_("System is going down")?>... '+timer()); setTimeout(shutdown_online,5000);})
    .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
 }
 function shutdown_offline() {
   var time = timer();
   if (time < 30) {
-    $('div.notice').html('<span class="title">Shutdown</span>System is offline... '+time);
+    $('div.notice').html('<span class="title"><?=_("Shutdown")?></span><?=_("System is offline")?>... '+time);
     setTimeout(shutdown_offline,5000);
   } else {
-    $('div.notice').html('<span class="title">Shutdown</span>System is powered off...');
+    $('div.notice').html('<span class="title"><?=_("Shutdown")?></span><?=_("System is powered off")?>...');
   }
 }
 $(document).ajaxSend(function(elm, xhr, s){

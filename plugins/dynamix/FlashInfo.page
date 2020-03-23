@@ -17,7 +17,7 @@ Tag="usb"
 <script>
 function cleanUp(zip) {
   if (document.hasFocus()) {
-    $('input[value="Creating Flash backup..."]').val('Flash backup').prop('disabled',false);
+    $('input[value="_(Creating Flash backup)_..."]').val('_(Flash backup)_').prop('disabled',false);
     $('div.spinner').hide('slow');
     $('#pleaseWait').hide('slow');
     $.post('/webGui/include/Download.php',{cmd:'unlink',file:zip});
@@ -26,7 +26,7 @@ function cleanUp(zip) {
   }
 }
 function backup() {
-  $('input[value="Flash backup"]').val('Creating Flash backup...').prop('disabled',true);
+  $('input[value="_(Flash backup)_"]').val('_(Creating Flash backup)_...').prop('disabled',true);
   $('div.spinner').show('slow');
   $('#pleaseWait').show('slow');
   $.post('/webGui/include/Download.php',{cmd:'backup'},function(zip) {
@@ -34,38 +34,40 @@ function backup() {
       location = '/'+zip;
       setTimeout(function(){cleanUp(zip);},6000);
     } else {
-      $('input[value="Creating Flash backup..."]').val('Flash backup');
+      $('input[value="_(Creating Flash backup)_..."]').val('_(Flash backup)_');
       $('div.spinner').hide('slow');
       $('#pleaseWait').hide('slow');
-      swal('Creation error','Insufficient free disk space available','error');
+      swal({title:'_(Creation error)_',text:'_(Insufficient free disk space available)_',type:'error',confirmButtonText:'_(Ok)_'});
     }
   });
 }
 </script>
-<div id="pleaseWait" style="display:none;text-align:center;margin-bottom:24px"><span class="red-text strong">Please wait... creating Flash backup zip file (this may take several minutes)</span></div>
+<div id="pleaseWait" style="display:none;text-align:center;margin-bottom:24px"><span class="red-text strong">_(Please wait)_... _(creating Flash backup zip file (this may take several minutes))_</span></div>
 
-Flash Vendor:
+_(Flash Vendor)_:
 : <?=$var['flashVendor'];?>
 
-Flash Product:
+_(Flash Product)_:
 : <?=$var['flashProduct'];?>&nbsp;
 
-Flash GUID:
+_(Flash GUID)_:
 : <?=$var['flashGUID'];?>&nbsp;
 
 <?if (strstr($var['regTy'], "blacklisted")):?>
 
 &nbsp;
-: **Blacklisted** - <a href="http://lime-technology.com/contact" target="_blank">Contact Support</a>
+: **_(Blacklisted)_** - <a href="http://lime-technology.com/contact" target="_blank">_(Contact Support)_</a>
 
 <?else:?>
 
 &nbsp;
-: [Registration Key Manager](/Tools/Registration)
+: [_(Registration Key Manager)_](/Tools/Registration)
 
 <?endif;?>
 
+:help38
 > Use *Flash backup* to create a single zip file of the current contents of the flash device and store it locally on your computer.
+:end
 
 &nbsp;
-: <input type="button" value="Flash backup" onclick="backup()"><input type="button" value="Done" onclick="done()">
+: <input type="button" value="_(Flash backup)_" onclick="backup()"><input type="button" value="_(Done)_" onclick="done()">

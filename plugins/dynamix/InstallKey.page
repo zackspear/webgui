@@ -4,7 +4,7 @@ Tag="flag"
 Cond="($var['regTy']!='Pro')"
 ---
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,15 +17,15 @@ Cond="($var['regTy']!='Pro')"
 <script>
 function installKey(file) {
   if (file)
-    openBox('/webGui/include/InstallKey.php?url='+file,'Install Key',600,900,true);
+    openBox('/webGui/include/InstallKey.php?url='+file,'_(Install Key)_',600,900,true);
 }
 </script>
 <form markdown="1">
       
-To install a registration key, paste the key file URL in the box below and click **Install Key**.
+_(To install a registration key, paste the key file URL in the box below and click **Install Key**)_.
 
-Key file URL:
+_(Key file URL)_:
 : <input type="text" name="file" id="key_file" maxlength="1024" value="" style="width:33%">
-  <input type="button" value="Install Key" onclick="installKey(this.form.file.value.trim())">
+  <input type="button" value="_(Install Key)_" onclick="installKey(this.form.file.value.trim())">
       
 </form>

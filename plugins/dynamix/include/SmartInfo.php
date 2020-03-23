@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,8 +11,12 @@
  */
 ?>
 <?
-$disks = []; $var = [];
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'main';
+require_once "$docroot/webGui/include/Translations.php";
+
+$disks = []; $var = [];
 require_once "$docroot/webGui/include/CustomMerge.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/webGui/include/Preselect.php";
@@ -77,7 +81,7 @@ case "attributes":
       echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
       $empty = false;
     }
-    if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>Can not read attributes</td></tr>";
+    if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>"._('Can not read attributes')."</td></tr>";
   } else {
     // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
     foreach ($output as $line) {
@@ -116,7 +120,7 @@ case "capabilities":
       $empty = false;
     }
   }
-  if ($empty) echo "<tr><td colspan='3' style='text-align:center;padding-top:12px'>Can not read capabilities</td></tr>";
+  if ($empty) echo "<tr><td colspan='3' style='text-align:center;padding-top:12px'>"._('Can not read capabilities')."</td></tr>";
   break;
 case "identify":
   $passed = ['PASSED','OK'];
@@ -128,13 +132,13 @@ case "identify":
     if (!$line) continue;
     if (strpos($line,'VALID ARGUMENTS')!==false) break;
     list($title,$info) = array_map('trim', explode(':', $line, 2));
-    if (in_array($info,$passed)) $info = "<span class='green-text'>Passed</span>";
-    if (in_array($info,$failed)) $info = "<span class='red-text'>Failed</span>";
+    if (in_array($info,$passed)) $info = "<span class='green-text'>"._('Passed')."</span>";
+    if (in_array($info,$failed)) $info = "<span class='red-text'>"._('Failed')."</span>";
     echo "<tr>".normalize(preg_replace('/ is:$/',':',"$title:"),' ')."<td>$info</td></tr>";
     $empty = false;
   }
   if ($empty) {
-    echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>Can not read identification</td></tr>";
+    echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>"._('Can not read identification')."</td></tr>";
   } else {
     $file = '/boot/config/disk.log';
     $disks = parse_ini_file('state/disks.ini',true);
@@ -142,10 +146,10 @@ case "identify":
     $disk = $disks[$name]['id'];
     $info = &$extra[$disk];
     $periods = ['6','12','18','24','36','48','60'];
-    echo "<tr><td>Manufacturing date:</td><td><input type='date' class='narrow' value='{$info['date']}' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
-    echo "<tr><td>Date of purchase:</td><td><input type='date' class='narrow' value='{$info['purchase']}' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
-    echo "<tr><td>Warranty period:</td><td><select size='1' class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>unknown</option>";
-    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']==$period?" selected":"").">$period months</option>";
+    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='{$info['date']}' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='{$info['purchase']}' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Warranty period').":</td><td><select class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>"._('unknown')."</option>";
+    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']==$period?" selected":"").">$period "._('months')."</option>";
     echo "</select></td></tr>";
   }
   break;
@@ -171,28 +175,28 @@ case "stop":
 case "update":
   if (!exec("hdparm -C ".escapeshellarg("/dev/$port")."|grep -Pom1 'active|unknown'")) {
     $cmd = $_POST['type']=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=up&arg2=$name" : "cmdSpinup=$name";
-    echo "<a href='/update.htm?$cmd&csrf_token={$_POST['csrf']}' class='info' target='progressFrame'><input type='button' value='Spin Up'></a><span class='big orange-text'>Unavailable - disk must be spun up</span>";
+    echo "<a href='/update.htm?$cmd&csrf_token={$_POST['csrf']}' class='info' target='progressFrame'><input type='button' value='"._('Spin Up')."'></a><span class='big orange-text'>"._('Unavailable - disk must be spun up')."</span>";
     break;
   }
   $progress = exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
   if ($progress) {
-    echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> self-test in progress, ".(100-substr($progress,0,-1))."% complete</span>";
+    echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
     break;
   }
   $result = trim(exec("smartctl -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
-    echo "<span class='big'>No self-tests logged on this disk</span>";
+    echo "<span class='big'>"._('No self-tests logged on this disk')."</span>";
     break;
   }
   if (strpos($result, "Completed without error")!==false) {
-    echo "<span class='big green-text'>$result</span>";
+    echo "<span class='big green-text'>"._($result)."</span>";
     break;
   }
   if (strpos($result, "Aborted")!==false or strpos($result, "Interrupted")!==false) {
-    echo "<span class='big orange-text'>$result</span>";
+    echo "<span class='big orange-text'>"._($result)."</span>";
     break;
   }
-  echo "<span class='big red-text'>Errors occurred - Check SMART report</span>";
+  echo "<span class='big red-text'>"._('Errors occurred - Check SMART report')."</span>";
   break;
 case "selftest":
   echo shell_exec("smartctl -l selftest $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'");

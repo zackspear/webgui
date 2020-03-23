@@ -12,6 +12,12 @@
  */
 ?>
 <?
+// add translations
+if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+  $_SERVER['REQUEST_URI'] = 'docker';
+  require_once "$docroot/webGui/include/Translations.php";
+}
+
 function xml_encode($string) {
   return htmlspecialchars($string, ENT_XML1, 'UTF-8');
 }
@@ -323,11 +329,11 @@ function stopContainer($name, $t=10, $echo=true) {
   $waitID = mt_rand();
   if ($echo) {
     echo "<p class=\"logLine\" id=\"logBody\"></p>";
-    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Stopping container: ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>"._('Stopping container').": ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">"._('Please wait')." </span></fieldset>');show_Wait($waitID);</script>\n";
     @flush();
   }
   $retval = $DockerClient->stopContainer($name, $t);
-  $out = ($retval === true) ? "Successfully stopped container '$name'" : "Error: ".$retval;
+  $out = ($retval === true) ? _('Successfully stopped container')." '$name'" : _('Error').": ".$retval;
   if ($echo) {
     echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
     @flush();
@@ -339,11 +345,11 @@ function removeContainer($name, $cache=false, $echo=true) {
   $waitID = mt_rand();
   if ($echo) {
     echo "<p class=\"logLine\" id=\"logBody\"></p>";
-    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing container: ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>"._('Removing container').": ".addslashes(htmlspecialchars($name))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">"._('Please wait')." </span></fieldset>');show_Wait($waitID);</script>\n";
     @flush();
   }
   $retval = $DockerClient->removeContainer($name, false, $cache);
-  $out = ($retval === true) ? "Successfully removed container '$name'" : "Error: ".$retval;
+  $out = ($retval === true) ? _('Successfully removed container')." '$name'" : _('Error').": ".$retval;
   if ($echo) {
     echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
     @flush();
@@ -355,11 +361,11 @@ function removeImage($image, $echo=true) {
   $waitID = mt_rand();
   if ($echo) {
     echo "<p class=\"logLine\" id=\"logBody\"></p>";
-    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Removing orphan image: ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>"._('Removing orphan image').": ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">"._('Please wait')." </span></fieldset>');show_Wait($waitID);</script>\n";
     @flush();
   }
   $retval = $DockerClient->removeImage($image);
-  $out = ($retval === true) ? "Successfully removed image '$image'" : "Error: ".$retval;
+  $out = ($retval === true) ? _('Successfully removed orphan image')." '$image'" : _('Error').": ".$retval;
   if ($echo) {
     echo "<script>stop_Wait($waitID);addLog('<b>".addslashes(htmlspecialchars($out))."</b>');</script>\n";
     @flush();
@@ -372,7 +378,7 @@ function pullImage($name, $image, $echo=true) {
   if (!preg_match("/:\S+$/", $image)) $image .= ":latest";
   if ($echo) {
     echo "<p class=\"logLine\" id=\"logBody\"></p>";
-    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>Pulling image: ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">Please wait </span></fieldset>');show_Wait($waitID);</script>\n";
+    echo "<script>addLog('<fieldset style=\"margin-top:1px;\" class=\"CMD\"><legend>"._('Pulling image').": ".addslashes(htmlspecialchars($image))."</legend><p class=\"logLine\" id=\"logBody\"></p><span id=\"wait{$waitID}\">"._('Please wait')." </span></fieldset>');show_Wait($waitID);</script>\n";
     @flush();
   }
   $alltotals = [];
@@ -410,7 +416,7 @@ function pullImage($name, $image, $echo=true) {
           $current = $cnt['progressDetail']['current'];
           if ($total > 0) {
             $percentage = round(($current / $total) * 100);
-            if ($echo) echo "<script>progress('$id',' ".$percentage."% of ".$DockerClient->formatBytes($total)."');</script>\n";
+            if ($echo) echo "<script>progress('$id',' ".$percentage."% "._('of')." ".$DockerClient->formatBytes($total)."');</script>\n";
           } else {
             // Docker must not know the total download size (http-chunked or something?)
             // just show the current download progress without the percentage
@@ -420,7 +426,7 @@ function pullImage($name, $image, $echo=true) {
           break;
         default:
           if ($laststatus[$id] == "Downloading") {
-            if ($echo) echo "<script>progress('$id',' 100% of ".$DockerClient->formatBytes($alltotals[$id])."');</script>\n";
+            if ($echo) echo "<script>progress('$id',' 100% "._('of')." ".$DockerClient->formatBytes($alltotals[$id])."');</script>\n";
           }
           if ($laststatus[$id] != $status) {
             if ($echo) echo "<script>addToID('".($id=='latest'?rand():$id)."','".addslashes(htmlspecialchars($status))."');</script>\n";
@@ -439,12 +445,12 @@ function pullImage($name, $image, $echo=true) {
     if ($echo) @flush();
   });
   if ($echo) {
-    echo "<script>addLog('<br><b>TOTAL DATA PULLED:</b> ".$DockerClient->formatBytes(array_sum($alltotals))."');</script>\n";
+    echo "<script>addLog('<br><b>"._('TOTAL DATA PULLED').":</b> ".$DockerClient->formatBytes(array_sum($alltotals))."');</script>\n";
     @flush();
   }
   if (!empty($strError)) {
     if ($echo) {
-      echo "<script>addLog('<br><span class=\"error\"><b>Error:</b> ".addslashes(htmlspecialchars($strError))."</span>');</script>\n";
+      echo "<script>addLog('<br><span class=\"error\"><b>"._('Error').":</b> ".addslashes(htmlspecialchars($strError))."</span>');</script>\n";
       @flush();
     }
     return false;
@@ -464,7 +470,7 @@ function execCommand($command, $echo=true) {
     echo '<p class="logLine" id="logBody"></p>';
     echo '<script>addLog(\'<fieldset style="margin-top:1px;" class="CMD"><legend>Command:</legend>';
     echo 'root@localhost:# '.addslashes(htmlspecialchars($command)).'<br>';
-    echo '<span id="wait'.$id.'">Please wait </span>';
+    echo '<span id="wait'.$id.'">'._('Please wait').' </span>';
     echo '<p class="logLine" id="logBody"></p></fieldset>\');show_Wait('.$id.');</script>';
     @flush();
   }
@@ -478,7 +484,7 @@ function execCommand($command, $echo=true) {
   }
   $retval = proc_close($proc);
   if ($echo) echo '<script>stop_Wait('.$id.');</script>';
-  $out = $retval ?  'The command failed.' : 'The command finished successfully!';
+  $out = $retval ?  _('The command failed').'.' : _('The command finished successfully').'!';
   if ($echo) echo '<script>addLog(\'<br><b>'.$out.'</b>\');</script>';
   return $retval===0;
 }
@@ -518,12 +524,11 @@ function getAllocations() {
     }
     sort($port);
     $ip = $ct['NetworkMode']=='host'||$nat ? $host : ($ip ?: DockerUtil::myIP($ct['Name']) ?: '0.0.0.0');
-    $list['Port'] = "<span style='display:inline-block;width:90px'>{$ct['NetworkMode']}</span><span style='display:inline-block;width:140px'>$ip</span>".(implode(', ',array_unique($port)) ?: '???');
+    $list['Port'] = "<span class='net'>{$ct['NetworkMode']}</span><span class='ip'>$ip</span>".(implode(', ',array_unique($port)) ?: '???');
     $ports[] = $list;
   }
   return $ports;
 }
-
 
 function getCurlHandle($url, $method='GET') {
   $ch = curl_init();

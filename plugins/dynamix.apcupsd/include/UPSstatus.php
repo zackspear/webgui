@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  * Copyright 2015, Dan Landon.
- * Copyright 2015, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'settings';
+require_once "$docroot/webGui/include/Translations.php";
+
 $state = [
   'TRIM ONLINE'  => 'Online (trim)',
   'BOOST ONLINE' => 'Online (boost)',
@@ -36,7 +41,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
     $val = strtr($row[1], $state);
     switch ($key) {
     case 'STATUS':
-      $status[0] = $val ? (stripos($val,'online')===false ? "<td $red>$val</td>" : "<td $green>$val</td>") : "<td $orange>Refreshing...</td>";
+      $status[0] = $val ? (stripos($val,'online')===false ? "<td $red>$val</td>" : "<td $green>$val</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
       $status[1] = strtok($val,' ')<=10 ? "<td $red>$val</td>" : "<td $green>$val</td>";
@@ -60,9 +65,9 @@ if (file_exists("/var/run/apcupsd.pid")) {
     }
   }
   if ($all && count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
-  if ($power && $load) $status[4] = ($load>=90 ? "<td $red>" : "<td $green>").intval($power*$load/100)." Watts</td>";
+  if ($power && $load) $status[4] = ($load>=90 ? "<td $red>" : "<td $green>").intval($power*$load/100)." "._('Watts')."</td>";
 }
-if ($all && !$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>No information available</td></tr>";
+if ($all && !$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
 echo "<tr>".implode('', $status)."</tr>";
 if ($all) echo "\n".implode('', $result);

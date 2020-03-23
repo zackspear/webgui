@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -13,6 +13,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/Helpers.php";
 
 $var = parse_ini_file('state/var.ini');
@@ -65,31 +69,31 @@ function updateTime() {
 </head>
 <body onLoad="updateTime()">
 <div class="box">
-<div><span class="key">Model:</span>
+<div><span class="key"><?=_('Model')?>:</span>
 <?
-echo empty($var['SYS_MODEL']) ? 'N/A' : "{$var['SYS_MODEL']}";
+echo empty($var['SYS_MODEL']) ? _('N/A') : $var['SYS_MODEL'];
 ?>
 </div>
 <div><span class="key">M/B:</span>
 <?
 $board = dmidecode('Base Board Information','2',0);
-echo "{$board['Manufacturer']} {$board['Product Name']} Version {$board['Version']} - s/n: {$board['Serial Number']}";
+echo "{$board['Manufacturer']} {$board['Product Name']} "._('Version')." {$board['Version']} - "._('s/n').": {$board['Serial Number']}";
 ?>
 </div>
-<div><span class="key">BIOS:</span>
+<div><span class="key"><?=_('BIOS')?>:</span>
 <?
 $bios = dmidecode('BIOS Information','0',0);
 echo "{$bios['Vendor']} Version {$bios['Version']}. Dated: {$bios['Release Date']}";
 ?>
 </div>
-<div><span class="key">CPU:</span>
+<div><span class="key"><?=_('CPU')?>:</span>
 <?
 $cpu = dmidecode('Processor Information','4',0);
 $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version']);
 echo $cpumodel.(strpos($cpumodel,'@')!==false ? "" : " @ {$cpu['Current Speed']}");
 ?>
 </div>
-<div><span class="key">HVM:</span>
+<div><span class="key"><?=_('HVM')?>:</span>
 <?
 // Check for Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support
 // If either kvm_intel or kvm_amd are loaded then Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support was found
@@ -100,42 +104,42 @@ $strCPUInfo = file_get_contents('/proc/cpuinfo');
 
 if (!empty($strLoadedModules)) {
   // Yah! CPU and motherboard supported and enabled in BIOS
-  echo "Enabled";
+  echo _("Enabled");
 } else {
   echo '<a href="http://lime-technology.com/wiki/index.php/UnRAID_Manual_6#Determining_HVM.2FIOMMU_Hardware_Support" target="_blank">';
   if (strpos($strCPUInfo,'vmx')===false && strpos($strCPUInfo, 'svm')===false) {
     // CPU doesn't support virtualization
-    echo "Not Available";
+    echo _("Not Available");
   } else {
     // Motherboard either doesn't support virtualization or BIOS has it disabled
-    echo "Disabled";
+    echo _("Disabled");
   }
   echo '</a>';
 }
 ?>
 </div>
-<div><span class="key">IOMMU:</span>
+<div><span class="key"><?=_('IOMMU')?>:</span>
 <?
 // Check for any IOMMU Groups
 $iommu_groups = shell_exec("find /sys/kernel/iommu_groups/ -type l");
 
 if (!empty($iommu_groups)) {
   // Yah! CPU and motherboard supported and enabled in BIOS
-  echo "Enabled";
+  echo _("Enabled");
 } else {
   echo '<a href="http://lime-technology.com/wiki/index.php/UnRAID_Manual_6#Determining_HVM.2FIOMMU_Hardware_Support" target="_blank">';
   if (strpos($strCPUInfo,'vmx')===false && strpos($strCPUInfo, 'svm')===false) {
     // CPU doesn't support virtualization so iommu would be impossible
-    echo "Not Available";
+    echo _("Not Available");
   } else {
     // Motherboard either doesn't support iommu or BIOS has it disabled
-    echo "Disabled";
+    echo _("Disabled");
   }
   echo '</a>';
 }
 ?>
 </div>
-<div><span class="key">Cache:</span>
+<div><span class="key"><?=_('Cache')?>:</span>
 <?
 $cache_installed = [];
 $cache_devices = dmidecode('Cache Information','7');
@@ -143,7 +147,7 @@ foreach ($cache_devices as $device) $cache_installed[] = str_replace('kB','KiB',
 echo implode(', ',$cache_installed);
 ?>
 </div>
-<div><span class="key link" onclick="document.getElementsByClassName('dimm_info')[0].classList.toggle('closed')">Memory:</span>
+<div><span class="key link" onclick="document.getElementsByClassName('dimm_info')[0].classList.toggle('closed')"><?=_('Memory')?>:</span>
 <?
 /*
  Memory Device (16) will get us each ram chip. By matching on MB it'll filter out Flash/Bios chips
@@ -167,7 +171,7 @@ foreach ($memory_devices as $device) {
 }
 $memory_array = dmidecode('Physical Memory Array','16');
 foreach ($memory_array as $device) {
-  list($size, $unit) = explode(' ',$device['Maximum Capacity']);
+  [$size, $unit] = explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
@@ -181,7 +185,7 @@ if ($memory_installed >= 1024) {
 // If maximum < installed then roundup maximum to the next power of 2 size of installed. E.g. 6 -> 8 or 12 -> 16
 $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
-echo "$memory_installed $unit $memory_type $ecc(max. installable capacity $memory_maximum $unit".($low?'*':'').")";
+echo "$memory_installed $unit $memory_type $ecc("._('max. installable capacity')." $memory_maximum $unit".($low?'*':'').")";
 ?>
 <div class="dimm_info closed">
 <?
@@ -193,7 +197,7 @@ foreach ($memory_devices as $device) {
 ?>
 </div>
 </div>
-<div><span class="key">Network:</span>
+<div><span class="key"><?=_('Network')?>:</span>
 <?
 exec("ls /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
 $i = 0;
@@ -212,24 +216,24 @@ foreach ($sPorts as $port) {
       $speed = file_get_contents("$int/speed");
       $duplex = file_get_contents("$int/duplex");
       echo "$port: $speed Mbps, $duplex duplex, mtu $mtu";
-    } else echo "$port: interface down";
+    } else echo "$port: "._("interface down");
   }
 }
 ?>
 </div>
-<div><span class="key">Kernel:</span>
+<div><span class="key"><?=_('Kernel')?>:</span>
 <?$kernel = exec("uname -srm");
   echo $kernel;
 ?></div>
-<div><span class="key">OpenSSL:</span>
+<div><span class="key"><?=_('OpenSSL')?>:</span>
 <?$openssl_ver = exec("openssl version|cut -d' ' -f2");
   echo $openssl_ver;
 ?></div>
-<div><span class="key">Uptime:</span>&nbsp;<span id="uptime"></span></div>
+<div><span class="key"><?=_('Uptime')?>:</span>&nbsp;<span id="uptime"></span></div>
 <div style="margin-top:24px;margin-bottom:12px"><span class="key"></span>
-<input type="button" value="Close" onclick="top.Shadowbox.close()">
+<input type="button" value="<?=_('Close')?>" onclick="top.Shadowbox.close()">
 <?if ($_GET['more']):?>
-<a href="<?=htmlspecialchars($_GET['more'])?>" class="button" style="display:inline-block;padding:1px" target="_parent">More</a>
+<a href="<?=htmlspecialchars($_GET['more'])?>" class="button" style="display:inline-block;padding:1px" target="_parent"><?=_('More')?></a>
 <?endif;?>
 </div></div>
 </body>

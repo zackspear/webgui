@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,10 +12,16 @@
  */
 ?>
 <?
-echo "<p style='text-align:center'><span class='error label'>Error</span><span class='warn label'>Warning</span><span class='system label'>System</span><span class='array label'>Array</span><span class='login label'>Login</span></p>\n";
-
+session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SESSION['locale'] = $argv[2];
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
+
 require_once "$docroot/webGui/include/ColorCoding.php";
+
+echo "<p style='text-align:center'><span class='error label'>"._('Error')."</span><span class='warn label'>"._('Warning')."</span><span class='system label'>"._('System')."</span><span class='array label'>"._('Array')."</span><span class='login label'>"._('Login')."</span></p>\n";
 
 $handle = popen('/usr/bin/tail -n 40 -f '.escapeshellarg("/var/log/{$argv[1]}").' 2>&1', 'r');
 while (!feof($handle)) {

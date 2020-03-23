@@ -18,7 +18,11 @@ Tag="tv"
 <?
 $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 ?>
-<style>ul,li{margin:0;padding-top:0;padding-bottom:0;}</style>
+<style>
+ul,li{margin:0;padding-top:0;padding-bottom:0}
+pre.pre{margin:30px 0}
+pre>p{margin:0;padding:0}
+</style>
 
 <script>
 function zipfile(){
@@ -47,14 +51,17 @@ function diagnostics(file) {
   });
 }
 </script>
-<div id="pleaseWait" style="display:none;font-weight:bold;color:red;text-align:center;margin:0">Please wait... collecting diagnostic information (this may take several minutes)</div>
+<div id="pleaseWait" style="display:none;font-weight:bold;color:red;text-align:center;margin:0">_(Please wait)_... _(collecting diagnostic information (this may take several minutes))_</div>
+:plug1
 This utility is used for troubleshooting purposes. It will collect all of the system information and configuration files, and package these files in a single ZIP file which can be saved locally.
 Subsequently, this file can be included in your correspondence with Limetech or the Unraid forum.
 
 This will help others to quickly get the inside information of your system and provide better support to your problem. The following information
 and configuration files are collected:
+:end
 
-<pre markdown="1">
+<pre class="pre" markdown="1">
+:plug2
 + */config*
   <br>copy all *\*.cfg files*, *go* file and the *super.dat* file. These are configuration files.
 + */config/shares*
@@ -71,8 +78,10 @@ and configuration files are collected:
   <br>save a SMART report of each individual disk present in your system.
 + *Docker*
   <br>save files *docker.log*, *libvirtd.log* and *libvirt/qemu/\*.log*.
+:end
 </pre>
 
+:plug3
 Clicking **Download** will start the collection process and then instruct your browser to save the zip file locally.
 
 *No personal information such as user names, passwords, or any other file contents not specified above is included
@@ -82,5 +91,6 @@ by Unraid OS; however, your server name, IP address, and user share names* **wil
 to the system log.*
 
 *Use* **Anonymize diagnostics** *when publishing the diagnostics file in the public forum. In private communication with Limetech it is recommended to uncheck this setting and capture all information unaltered.*
+:end
 
-<input type="button" value="Download" onclick="diagnostics(zipfile())"><input type="button" value="Done" onclick="done()"><input type="checkbox" id="anonymize" checked>Anonymize diagnostics
+<input type="button" value="_(Download)_" onclick="diagnostics(zipfile())"><input type="button" value="_(Done)_" onclick="done()"><input type="checkbox" id="anonymize" checked>_(Anonymize diagnostics)_

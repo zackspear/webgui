@@ -38,7 +38,7 @@ if ($type=='New') {
     $n++;
   }
 } else {
-  $disk = $disks[$name];
+  $disk = &$disks[$name];
   $dev  = $disk['device'];
   $file = $disk['id']."-$date.txt";
   foreach ($disks as $sheet) {
@@ -48,6 +48,7 @@ if ($type=='New') {
     $n++;
   }
 }
+$tag  = $disk['name'];
 $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
@@ -157,10 +158,11 @@ function btrfsBalance(path) {
       $('#btrfs-balance').text(data);
       setTimeout(function(){btrfsBalance(path);},1000);
     } else {
-      $.removeCookie('btrfs-balance-<?=$disk['name']?>');
+      $.removeCookie('btrfs-balance-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -168,10 +170,11 @@ function btrfsScrub(path) {
       $('#btrfs-scrub').text(data);
       setTimeout(function(){btrfsScrub(path);},1000);
     } else {
-      $.removeCookie('btrfs-scrub-<?=$disk['name']?>');
+      $.removeCookie('btrfs-scrub-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
@@ -179,10 +182,11 @@ function btrfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){btrfsCheck(path);},1000);
     } else {
-      $.removeCookie('btrfs-check-<?=$disk['name']?>');
+      $.removeCookie('btrfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function rfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
@@ -190,10 +194,11 @@ function rfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){rfsCheck(path);},1000);
     } else {
-      $.removeCookie('rfs-check-<?=$disk['name']?>');
+      $.removeCookie('rfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
@@ -201,10 +206,11 @@ function xfsCheck(path) {
     if (data.slice(-1)!='\0') {
       setTimeout(function(){xfsCheck(path);},1000);
     } else {
-      $.removeCookie('xfs-check-<?=$disk['name']?>');
+      $.removeCookie('xfs-check-<?=$tag?>');
       refresh();
     }
   });
+  return true;
 }
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
@@ -225,157 +231,192 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
-  if ($.cookie('btrfs-balance-<?=$disk['name']?>')) btrfsBalance($.cookie('btrfs-balance-<?=$disk['name']?>'));
-  if ($.cookie('btrfs-scrub-<?=$disk['name']?>')) btrfsScrub($.cookie('btrfs-scrub-<?=$disk['name']?>'));
-  if ($.cookie('btrfs-check-<?=$disk['name']?>')) btrfsCheck($.cookie('btrfs-check-<?=$disk['name']?>'));
-  if ($.cookie('rfs-check-<?=$disk['name']?>')) rfsCheck($.cookie('rfs-check-<?=$disk['name']?>'));
-  if ($.cookie('xfs-check-<?=$disk['name']?>')) xfsCheck($.cookie('xfs-check-<?=$disk['name']?>'));
+  var btrfs = false;
+  if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (!btrfs) {
+    $.get('/webGui/include/ReloadPage.php',{mount:'<?=$tag?>'},function(a){
+      var action = a.split(',');
+      for (var i=0,busy; busy=action[i]; i++) {
+        switch (busy) {
+        case 'balance':
+          $.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+          break;
+        case 'scrub':
+          $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+          break;
+        case 'check':
+          $.cookie('btrfs-check-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+          break;
+        }
+      }
+    });
+  }
 });
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
-Name:
-: <span class='big'><?=htmlspecialchars(my_disk($name))?></span>
+_(Name)_:
+: <?=my_lang(my_disk($name),3)?>
 
-Partition size:
+_(Partition size)_:
 : <?=my_number($disk['sizeSb'])?> KB (K=1024)
 
-Partition format:
-: <?=$disk['format']?>
+_(Partition format)_:
+: <?=_($disk['format'])?>
 
 <?if ($var['spinupGroups']=="yes" && ($disk['type']=="Data" || $disk['type']=="Parity")):?>
-Spinup group(s):
-: <input type="text" name="diskSpinupGroup.<?=$disk['idx'];?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
+_(Spinup group(s))_:
+: <input type="text" name="diskSpinupGroup.<?=$disk['idx']?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
 
 <?endif;?>
-Spin down delay:
+_(Spin down delay)_:
 : <select name="diskSpindownDelay.<?=$disk['idx']?>">
-  <?=mk_option($disk['spindownDelay'], "-1", "Use default")?>
-  <?=mk_option($disk['spindownDelay'], "0",  "Never")?>
-  <?=mk_option($disk['spindownDelay'], "15", "15 minutes")?>
-  <?=mk_option($disk['spindownDelay'], "30", "30 minutes")?>
-  <?=mk_option($disk['spindownDelay'], "45", "45 minutes")?>
-  <?=mk_option($disk['spindownDelay'], "1",  "1 hour")?>
-  <?=mk_option($disk['spindownDelay'], "2",  "2 hours")?>
-  <?=mk_option($disk['spindownDelay'], "3",  "3 hours")?>
-  <?=mk_option($disk['spindownDelay'], "4",  "4 hours")?>
-  <?=mk_option($disk['spindownDelay'], "5",  "5 hours")?>
-  <?=mk_option($disk['spindownDelay'], "6",  "6 hours")?>
-  <?=mk_option($disk['spindownDelay'], "7",  "7 hours")?>
-  <?=mk_option($disk['spindownDelay'], "8",  "8 hours")?>
-  <?=mk_option($disk['spindownDelay'], "9",  "9 hours")?>
+  <?=mk_option($disk['spindownDelay'], "-1", _('Use default'))?>
+  <?=mk_option($disk['spindownDelay'], "0",  _('Never'))?>
+  <?=mk_option($disk['spindownDelay'], "15", "15 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay'], "30", "30 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay'], "45", "45 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay'], "1",  "1 "._('hour'))?>
+  <?=mk_option($disk['spindownDelay'], "2",  "2 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "3",  "3 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "4",  "4 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "5",  "5 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "6",  "6 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "7",  "7 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "8",  "8 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay'], "9",  "9 "._('hours'))?>
   </select><span id="smart_selftest" class='orange-text'></span>
 
-Warning disk temperature threshold (&deg;<?=$display['unit']?>):
+_(Warning disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 : <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
 
+:help9
 > *Warning disk temperature* sets the warning threshold for this hard disk temperature. Exceeding this threshold will result in a warning notification.
 >
 > A value of zero will disable the warning threshold (including notifications).
+:end
 
-Critical disk temperature threshold (&deg;<?=$display['unit']?>):
+_(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 : <input type="number" min="0" max="300" name="<?=htmlspecialchars($name)?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
 
+:help10
 > *Critical disk temperature* sets the critical threshold for this hard disk temperature. Exceeding this threshold will result in an alert notification.
 >
 > A value of zero will disable the critical threshold (including notifications).
+:end
 
-<?if ($disk['type']=="Data" || $disk['name']=="cache"):?>
-File system status:
-: <?=$disk['fsStatus']?>&nbsp;
+<?if ($disk['type']=="Data" || in_array($tag,$pools)):?>
+_(File system status)_:
+: <?=_($disk['fsStatus'])?>&nbsp;
 
 <?if ($var['fsState']=="Stopped"):?>
-<?$disabled = $var['mdState']=="SWAP_DSBL" ? "disabled" : "";?>
-<?if ($disk['type']=="Data" || $var['SYS_CACHE_SLOTS']==1):?>
-File system type:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx'];?>" <?=$disabled?>>
-  <?=mk_option($disk['fsType'], "auto", "auto")?>
-  <?=mk_option($disk['fsType'], "xfs", "xfs")?>
-  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
-  <?=mk_option($disk['fsType'], "reiserfs", "reiserfs")?>
-  <?=mk_option($disk['fsType'], "luks:xfs", "xfs - encrypted")?>
-  <?=mk_option($disk['fsType'], "luks:btrfs", "btrfs - encrypted")?>
-  <?=mk_option($disk['fsType'], "luks:reiserfs", "reiserfs - encrypted")?>
+<?$disabled = $var['mdState']=="SWAP_DSBL" ? "disabled" : ""?>
+<?if ($disk['type']=="Data" || (isset($disk['slots']) && $disk['slots']==1)):?>
+_(File system type)_:
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
+  <?=mk_option($disk['fsType'], "auto", _('auto'))?>
+  <?=mk_option($disk['fsType'], "xfs", _('xfs'))?>
+  <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
+  <?=mk_option($disk['fsType'], "reiserfs", _('reiserfs'))?>
+  <?=mk_option($disk['fsType'], "luks:xfs", _('xfs')." - "._('encrypted'))?>
+  <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
+  <?=mk_option($disk['fsType'], "luks:reiserfs", _('reiserfs')." - "._('encrypted'))?>
   </select>
 
+:help11
 > Enter the desired file system type.  Changing the file system type of a device will permit you to reformat
 > that device using the new file system.  Be aware that **all existing data on the device will be lost**.
+:end
 
-<?elseif ($var['SYS_CACHE_SLOTS']>1):?>
-File system type:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx'];?>" <?=$disabled?>>
-  <?=mk_option($disk['fsType'], "auto", "auto")?>
-  <?=mk_option($disk['fsType'], "btrfs", "btrfs")?>
-  <?=mk_option($disk['fsType'], "luks:btrfs", "btrfs - encrypted")?>
+<?elseif (isset($disk['slots']) && $disk['slots']>1):?>
+_(File system type)_:
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
+  <?=mk_option($disk['fsType'], "auto", _('auto'))?>
+  <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
+  <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   </select>
 
 <?endif;?>
 <?else:?>
-File system type:
-: <?=str_replace('luks:','',$disk['fsType']).(strpos($disk['fsType'],'luks:')!==false ? ' - encrypted' : '')?>&nbsp;
+_(File system type)_:
+: <?=_(str_replace('luks:','',$disk['fsType'])).(strpos($disk['fsType'],'luks:')!==false ? ' - '._('encrypted') : '')?>&nbsp;
 
 <?endif;?>
-Comments:
-: <input type="text" name="diskComment.<?=$disk['idx'];?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
+_(Comments)_:
+: <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
+:help12
 > This text will appear under the *Comments* column for the share in Windows Explorer.
 > Enter anything you like, up to 256 characters.
+:end
 
-Warning disk utilization threshold (%):
+_(Warning disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_warning" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
 
+:help13
 > *Warning disk utilization* sets the warning threshold for this hard disk utilization. Exceeding this threshold will result in a warning notification.
 >
 > When the warning threshold is set equal or greater than the critical threshold, there will be only critical notifications (warnings are not existing).
 >
 > A value of zero will disable the warning threshold (including notifications).
+:end
 
-Critical disk utilization threshold (%):
+_(Critical disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_critical" class="narrow" value="<?=strlen($disk['critical'])?$disk['critical']:''?>" placeholder="<?=$display['critical']?>")>
 
+:help14
 > *Critical disk utilization* sets the critical threshold for this hard disk utilization. Exceeding this threshold will result in an alert notification.
 >
 > A value of zero will disable the critical threshold (including notifications).
+:end
 
 <?endif;?>
 &nbsp;
-: <input type="submit" name="changeDisk" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>Balance Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
+<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/{$disk['name']}", $balance_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
 
-btrfs filesystem df:
-: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/{$disk['name']}")."</pre>";?>
+_(btrfs filesystem df)_:
+: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/$tag")."</pre>"?>
 
-btrfs balance status:
-: <?echo "<pre id='btrfs-balance'>".implode("\n", $balance_status)."</pre>";?>
+_(btrfs balance status)_:
+: <?echo "<pre id='btrfs-balance'>".implode("\n", $balance_status)."</pre>"?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 <input type="hidden" name="#arg[3]" value="">
 
 &nbsp;
-: <input type="submit" value="Balance">
-<?if ($var['SYS_CACHE_SLOTS']>1):?>
+: <input type="submit" value="_(Balance)_">
+<?if (isset($disk['slots']) && $disk['slots']>1):?>
   <select onchange="updateMode(this.form,this.value)">
-  <?=mk_option(1,'','Perform full balance');?>
-  <?=mk_option(1,'-dconvert=single -mconvert=raid1','Convert to single mode');?>
-  <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1','Convert to raid0 mode');?>
-  <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1','Convert to raid1 mode');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10','Convert to raid10 mode');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1','Convert to raid5 mode *see help');?>
-  <?if ($var['SYS_CACHE_SLOTS']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1','Convert to raid6 mode *see help');?>
+  <?=mk_option(1,'',_('Perform full balance'))?>
+  <?=mk_option(1,'-dconvert=single -mconvert=raid1',_('Convert to single mode'))?>
+  <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1',_('Convert to raid0 mode'))?>
+  <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1',_('Convert to raid1 mode'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10',_('Convert to raid10 mode'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1',_('Convert to raid5 mode *see help'))?>
+  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1',_('Convert to raid6 mode *see help'))?>
   </select>
 <?else:?>
-  *Perform full balance*
+  *_(Perform full balance)_*
 <?endif;?>
 
+:help15
 > **Balance** will run the *btrfs balance* program to restripe the extents across all pool devices, for example,
 > to convert the pool from raid1 to raid0 or vice-versa.
 >
@@ -392,76 +433,83 @@ btrfs balance status:
 > For more complete documentation, please refer to the btrfs-balance [Manpage](https://btrfs.wiki.kernel.org/index.php/Manpage/btrfs-balance)
 >
 > *Note: raid5 and raid6 are generally still considered **experimental** by the Linux community*
+:end
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_balance">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="Cancel">
+: <input type="submit" value="_(Cancel)_">
 
+:help16
 > **Cancel** will cancel the balance operation in progress.
+:end
 
 <?endif;?>
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Balance" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Balance</b> is only available when array is Started." : "See Cache Settings."?>
+: <input type="submit" value="_(Balance)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>Scrub Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$disk['name']?>','/mnt/<?=$disk['name']?>')">
+<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/{$disk['name']}", $scrub_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/$tag", $scrub_status, $retval)?>
 
-btrfs scrub status:
-: <?echo "<pre id='btrfs-scrub'>".implode("\n", $scrub_status)."</pre>";?>
+_(btrfs scrub status)_:
+: <?echo "<pre id='btrfs-scrub'>".implode("\n", $scrub_status)."</pre>"?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 <input type="hidden" name="#arg[3]" value="-r">
 
 &nbsp;
-: <input type="submit" value="Scrub"><label><input type="checkbox" name="#arg[3]" value=""> Repair corrupted blocks</label>
+: <input type="submit" value="_(Scrub)_"><label><input type="checkbox" name="#arg[3]" value=""> _(Repair corrupted blocks)_</label>
 
+:help17
 > **Scrub** runs the *btrfs scrub* program which will read all data and metadata blocks from all
 > devices and verify checksums.
 >
 > If *Repair corrupted blocks* is checked, *btrfs scrub* will repair corrupted blocks if there’s a correct copy available.
+:end
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/mnt/<?=$disk['name']?>">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="Cancel">
+: <input type="submit" value="_(Cancel)_">
 
+:help18
 > **Cancel** will cancel the Scrub operation in progress.
+:end
 
 <?endif;?>
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Scrub" disabled><?=!preg_match('/^cache\d+$/',$disk['name']) ? "<b>Scrub</b> is only available when array is Started." : "See Cache Settings."?>
+: <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
 </form>
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
+<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
-btrfs check status:
-: <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>";?>
+_(btrfs check status)_:
+: <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>"?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
@@ -470,8 +518,9 @@ btrfs check status:
 <input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> Options (see Help)
+: <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> _(Options (see Help))_
 
+:help19
 > **Check** will run the *btrfs check* program to check file system integrity on the device.
 >
 > The *Options* field is initialized with *--readonly* which specifies check-only.  If repair is needed, you should run
@@ -481,6 +530,7 @@ btrfs check status:
 > how large the file system is, and what errors might be present, the operation can take **a long time** to finish (hours).
 > Not much info is printed in the window, but you can verify the operation is running by observing the read/write counters
 > increasing for the device on the Main page.
+:end
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
@@ -489,33 +539,35 @@ btrfs check status:
 <input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
+:help20
 > **Cancel** will cancel the Check operation in progress.
+:end
 
 <?endif;?>
 <?else:?>
 
-<?if (!preg_match('/^cache\d+$/',$disk['name'])):?>
+<?if ($tag==prefix($tag)):?>
 &nbsp;
-: <input type="submit" value="Check" disabled> **Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
 
 <?else:?>
 &nbsp;
-: <input type="submit" value="Check" disabled> See Cache Settings.
+: <input type="submit" value="_(Check)_" disabled> <?=sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>.
 <?endif;?>
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
+<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
-reiserfsck status:
-: <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>";?>
+_(reiserfsck status)_:
+: <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>"?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
@@ -524,8 +576,9 @@ reiserfsck status:
 <input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> Options (see Help)
+: <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> _(Options (see Help))_
 
+:help21
 > **Check** will run the *reiserfsck* program to check file system integrity on the device.
 >
 > The *Options* field may be filled in with specific options used to fix problems in the file system. Typically, you
@@ -536,6 +589,7 @@ reiserfsck status:
 > how large the file system is, and what errors might be present, the operation can take **a long time** to finish (hours).
 > Not much info is printed in the window, but you can verify the operation is running by observing the read/write counters
 > increasing for the device on the Main page.
+:end
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
@@ -544,27 +598,29 @@ reiserfsck status:
 <input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
+:help22
 > **Cancel** will cancel the Check operation in progress.
+:end
 
 <?endif;?>
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled> **Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
 
 <?endif;?>
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>Check Filesystem Status</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$disk['name']?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval);?>
+<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
-xfs_repair status:
-: <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>";?>
+_(xfs_repair status)_:
+: <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>"?>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
@@ -573,8 +629,9 @@ xfs_repair status:
 <input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
-: <input type="submit" value="Check"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> Options (see Help)
+: <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> _(Options (see Help))_
 
+:help23
 > **Check** will run the *xfs_repair* program to check file system integrity on the device.
 >
 > The *Options* field is initialized with *-n* which specifies check-only.  If repair is needed, you should run
@@ -584,6 +641,7 @@ xfs_repair status:
 > how large the file system is, and what errors might be present, the operation can take **a long time** to finish (hours).
 > Not much info is printed in the window, but you can verify the operation is running by observing the read/write counters
 > increasing for the device on the Main page.
+:end
 
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
@@ -591,21 +649,23 @@ xfs_repair status:
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
 
 &nbsp;
-: <input type="submit" value="Cancel"> *Running*
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
+:help24
 > **Cancel** will cancel the Check operation in progress.
+:end
 
 <?endif;?>
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="Check" disabled> **Check** is only available when array is Started in **Maintenance** mode.
+: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
 
 <?endif;?>
 </form>
 <?endif;?>
 
-<div id="title"><span class="left"><i class="title fa fa-plus-square"></i>SMART Settings</span></div>
+<div id="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-one.cfg">
@@ -614,21 +674,23 @@ xfs_repair status:
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smGlue" value="<?=htmlspecialchars($var['smGlue'])?>">
-SMART notification value:
+_(SMART notification value)_:
 : <select name="smSelect">
-  <?=mk_option($disk['smSelect'], "-1", "Use default")?>
-  <?=mk_option($disk['smSelect'], "0", "Raw")?>
-  <?=mk_option($disk['smSelect'], "1", "Normalized")?>
+  <?=mk_option($disk['smSelect'], "-1", _('Use default'))?>
+  <?=mk_option($disk['smSelect'], "0", _('Raw'))?>
+  <?=mk_option($disk['smSelect'], "1", _('Normalized'))?>
   </select>
 
+:help25
 > SMART notifications are generated on either an increasing RAW value of the attribute, or a decreasing NORMALIZED value which reaches a predefined threshold set by the manufacturer.
 >
 > Each disk may have its own specific setting overruling the 'default' setting (see global SMART settings under Disk Settings).
+:end
 
-SMART notification tolerance level:
+_(SMART notification tolerance level)_:
 : <select name="smLevel">
-  <?=mk_option($disk['smLevel'], "-1", "Use default")?>
-  <?=mk_option($disk['smLevel'], "1.00", "Absolute")?>
+  <?=mk_option($disk['smLevel'], "-1", _('Use default'))?>
+  <?=mk_option($disk['smLevel'], "1.00", _('Absolute'))?>
   <?=mk_option($disk['smLevel'], "1.05", "5%")?>
   <?=mk_option($disk['smLevel'], "1.10", "10%")?>
   <?=mk_option($disk['smLevel'], "1.15", "15%")?>
@@ -637,14 +699,16 @@ SMART notification tolerance level:
   <?=mk_option($disk['smLevel'], "1.50", "50%")?>
   </select>
 
+:help26
 > A tolerance level may be given to prevent that small changes result in a notification. Setting a too high tolerance level may result in critical changes without a notification.
 >
 > Each disk may have its own specific setting overruling the 'default' setting (see global SMART settings under Disk Settings).
+:end
 
-SMART controller type:
+_(SMART controller type)_:
 : <select name="smType" onchange="setGlue(this.form,true)">
-  <?=mk_option($disk['smType'], "-1", "Use default")?>
-  <?=mk_option($disk['smType'], " ", "Automatic")?>
+  <?=mk_option($disk['smType'], "-1", _('Use default'))?>
+  <?=mk_option($disk['smType'], " ", _('Automatic'))?>
   <?=mk_option($disk['smType'], "-d ata", "ATA")?>
   <?=mk_option($disk['smType'], "-d nvme", "NVMe")?>
   <?=mk_option($disk['smType'], "-d sat", "SAT")?>
@@ -662,26 +726,30 @@ SMART controller type:
   <input type="text" name="smPort3" value="<?=$disk['smPort3']?>" class="option"><select name="smPort3" class="narrow" style="display:none" disabled></select><span id="devtext" class="devtext">/dev/</span>
   <input type="text" name="smDevice" value="<?=$disk['smDevice']??''?>" class="option" placeholder="<?=htmlspecialchars($disk['device'])?>"><span id="helptext" class="helptext">enter disk index and device name as applicable to your controller</span>
 
+:help27
 > By default automatic controller selection is done by smartctl to read the SMART information. Certain controllers however need specific settings for smartctl to work.
 > Use this setting to select your controller type and fill-in the specific disk index and device name for your situation. Use the manufacturer's documentation to find the relevant information.
 >
 > Each disk may have its own specific setting overruling the 'default' setting (see global SMART settings under Disk Settings).
+:end
 
-SMART attribute notifications:
-: <input type="text" name="smCustom" value="<?=$disk['smCustom']??$var['smCustom']?>" class="narrow">Custom attributes (use comma to separate numbers)
+_(SMART attribute notifications)_:
+: <input type="text" name="smCustom" value="<?=$disk['smCustom']??$var['smCustom']?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
 
 <?for ($x=0; $x < count($preselect); $x++):?>
 &nbsp;
-: <input type="checkbox" name="at<?=$x?>" value="<?=$preselect[$x]['code']?>"<?=in_array($preselect[$x]['code'],$events)?' checked':''?>><span class="code">Attribute = <?=$preselect[$x]['code']?></span><?=$preselect[$x]['text']?>
+: <input type="checkbox" name="at<?=$x?>" value="<?=$preselect[$x]['code']?>"<?=in_array($preselect[$x]['code'],$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=$preselect[$x]['code']?></span><?=$preselect[$x]['text']?>
 <?endfor;?>
 
+:help28
 > The user can enable or disable notifications for the given SMART attributes. It is recommended to keep the default, which is ALL selected attributes,
 > when certain attributes are not present on your hard disk or do not provide the correct information, these may be excluded.
 > In addition custom SMART attributes can be entered to generate notifications. Be careful in this selection,
 > it may cause an avalance of notifcations if inappropriate SMART attributes are chosen.
 >
 > Each disk may have its own specific setting overruling the 'default' setting (see global SMART settings under Disk Settings).
+:end
 
-<input type="submit" name="#default" value="Default">
-: <input type="submit" name="#apply" value="Apply" disabled><input type="button" value="Done" onclick="done()">
+<input type="submit" name="#default" value="_(Default)_">
+: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

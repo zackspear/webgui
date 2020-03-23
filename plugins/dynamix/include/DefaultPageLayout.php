@@ -73,11 +73,12 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<a href='#' title='View Release Notes' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','Release Notes',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
+$notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','"._('Release Notes')."',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
 ?>
 </style>
 
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
+<script src="<?autov('/webGui/javascript/translate.'.($locale?:'en').'.js')?>"></script>
 <script>
 Shadowbox.init({skipSetup:true});
 
@@ -101,15 +102,15 @@ function resumeEvents(id,delay) {
     startDelay += 50;
   });
 }
-function plus(value,label,last) {
-  return value>0 ? (value+' '+label+(value!=1?'s':'')+(last?'':', ')) : '';
+function plus(value,single,plural,last) {
+  return value>0 ? (value+' '+(value==1?single:plural)+(last?'':', ')) : '';
 }
 function updateTime() {
   var now = new Date();
   var days = parseInt(uptime/86400);
   var hour = parseInt(uptime/3600%24);
   var mins = parseInt(uptime/60%60);
-  $('span.uptime').html(((days|hour|mins)?plus(days,'day',(hour|mins)==0)+plus(hour,'hour',mins==0)+plus(mins,'minute',true):'less than a minute'));
+  $('span.uptime').html(((days|hour|mins)?plus(days,"<?=_('day')?>","<?=_('days')?>",(hour|mins)==0)+plus(hour,"<?=_('hour')?>","<?=_('hours')?>",mins==0)+plus(mins,"<?=_('minute')?>","<?=_('minutes')?>",true):"<?=_('less than a minute')?>"));
   uptime += Math.round((now.getTime() - before.getTime())/1000);
   before = now;
   if (expiretime > 0) {
@@ -119,13 +120,13 @@ function updateTime() {
       hour = parseInt(remainingtime/3600%24);
       mins = parseInt(remainingtime/60%60);
       if (days) {
-        $('#licenseexpire').html(plus(days,'day',true)+' remaining');
+        $('#licenseexpire').html(plus(days,"<?=_('day')?>","<?=_('days')?>",true)+" <?=_('remaining')?>");
       } else if (hour) {
-        $('#licenseexpire').html(plus(hour,'hour',true)+' remaining').addClass('orange-text');
+        $('#licenseexpire').html(plus(hour,"<?=_('hour')?>","<?=_('hours')?>",true)+" <?=_('remaining')?>").addClass('orange-text');
       } else if (mins) {
-        $('#licenseexpire').html(plus(mins,'minute',true)+' remaining').addClass('red-text');
+        $('#licenseexpire').html(plus(mins,"<?=_('minute')?>","<?=_('minutes')?>",true)+" <?=_('remaining')?>").addClass('red-text');
       } else {
-        $('#licenseexpire').html('less than a minute remaining').addClass('red-text');
+        $('#licenseexpire').html("<?=_('less than a minute remaining')?>").addClass('red-text');
       }
     } else {
       $('#licenseexpire').addClass('red-text');
@@ -170,7 +171,7 @@ function done(key) {
   location.replace(path);
 }
 function chkDelete(form, button) {
-  button.value = form.confirmDelete.checked ? 'Delete' : 'Apply';
+  button.value = form.confirmDelete.checked ? '<?=_('Delete')?>' : '<?=_('Apply')?>';
   button.disabled = false;
 }
 function openBox(cmd,title,height,width,load,func,id) {
@@ -182,15 +183,12 @@ function openBox(cmd,title,height,width,load,func,id) {
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
   var window_name = title.replace(/ /g,"_");
-  var form_html =
-  '<form action="/logging.htm" method="post" target="' + window_name + '">' +
-  '<input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>" />' +
-  '<input type="hidden" name="title" value="' + title + '" />';
+  var form_html = '<form action="/logging.htm" method="post" target="'+window_name+'">'+'<input type="hidden" name="csrf_token" value="<?=$var["csrf_token"]?>" />'+'<input type="hidden" name="title" value="'+title+'" />';
   var vars = cmd.split('&');
-  form_html += '<input type="hidden" name="cmd" value="' + vars[0] + '" />';
+  form_html += '<input type="hidden" name="cmd" value="'+vars[0]+'">';
   for (var i = 1; i < vars.length; i++) {
     var pair = vars[i].split('=');
-    form_html += '<input type="hidden" name="' + pair[0] + '" value="' + pair[1] + '" />';
+    form_html += '<input type="hidden" name="'+pair[0]+'" value="'+pair[1]+'">';
   }
   form_html += '</form>';
   var form = $(form_html);
@@ -269,12 +267,12 @@ function showBannerWarnings() {
   currentBannerWarning++;
 }
 
-function addRebootNotice(message="You must reboot for changes to take effect") {
+function addRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
   addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+message,false,true);
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'addRebootNotice',message:message});
 }
 
-function removeRebootNotice(message="You must reboot for changes to take effect") {
+function removeRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
   var bannerIndex = bannerWarnings.indexOf("<i class='fa fa-warning' style='float:initial;'></i> "+message);
   if ( bannerIndex < 0 ) {
     return;
@@ -298,8 +296,8 @@ function hideUpgrade(set) {
 }
 function openUpgrade() {
   hideUpgrade();
-  swal({title:'Update Unraid OS',text:'Do you want to update to the new version?',type:'warning',showCancelButton:true},function(){
-    openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg','Update Unraid OS',600,900,true);
+  swal({title:'<?=_("Update")?> Unraid OS',text:'<?=_("Do you want to update to the new version")?>?',type:'warning',showCancelButton:true,confirmButtonText:'<?=_("Proceed")?>',cancelButtonText:'<?=_("Cancel")?>'},function(){
+    openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg','<?=_("Update")?> Unraid OS',600,900,true);
   });
 }
 function notifier() {
@@ -376,7 +374,7 @@ $(function() {
   $('#'+tab).attr('checked', true);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
-  $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div>':'<div class="top">'?>[ close all notifications ]</div>';
+  $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div>':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';
   $.jGrowl.defaults.sticky = true;
   $.jGrowl.defaults.check = 100;
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
@@ -398,17 +396,13 @@ $.ajaxPrefilter(function(s, orig, xhr){
 
 // add any pre-existing reboot notices  
 $(function() {
-<?
-  $rebootNotice = @file("/tmp/reboot_notifications") ?: array();
-  foreach ($rebootNotice as $notice):
-?>
-    var rebootMessage = "<?=trim($notice)?>";
-    if ( rebootMessage ) {
-      addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
-    }
-<?
-  endforeach;
-?>
+<?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
+<?foreach ($rebootNotice as $notice):?>
+  var rebootMessage = "<?=trim($notice)?>";
+  if ( rebootMessage ) {
+    addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
+  }
+<?endforeach;?>
 });
 </script>
 </head>
@@ -418,16 +412,16 @@ $(function() {
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   Version: <?=$var['version']?><?=$notes?>
+   <?=_('Version')?>: <?=$var['version']?><?=$notes?>
    </div>
    <div class="block">
-    <span class="text-left">Server<br/>Description<br/>Registration<br/>Uptime</span>
+    <span class="text-left"><?=_('Server')?><br><?=_('Description')?><br><?=_('Registration')?><br><?=_('Uptime')?></span>
     <span class="text-right"><?=$var['NAME']." &bullet; ".$eth0['IPADDR:0']?><br/><?=$var['COMMENT']?><br/>
-    <a href="/Tools/Registration" title="Go to Registration page">Unraid OS <span id="licensetype"><?=$var['regTy']?></span><span id="licenseexpire"></span></a><br/>
+    <a href="/Tools/Registration" title="<?=_('Go to Registration page')?>"><?=_('Unraid OS')?> <span id="licensetype"><?=_($var['regTy'])?></span><span id="licenseexpire"></span></a><br/>
     <span class="uptime"></span></span>
    </div>
   </div>
-  <a href="#" class="back_to_top" title="Back To Top"><i class="fa fa-arrow-circle-up"></i></a>
+  <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
 // Build page menus
 echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
@@ -435,14 +429,14 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  echo "<a href='/$page' onclick='initab()'>$page</a></div>";
+  echo "<a href='/$page' onclick='initab()'>"._($page)."</a></div>";
 }
 unset($tasks);
 if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  eval("?>{$button['text']}");
+  eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
     if (substr($icon,-4)=='.png') {
@@ -453,8 +447,8 @@ foreach ($buttons as $button) {
       if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
       $icon = "<i class='fa $icon system'></i>";
     }
-    $title = $themes2 ? "" : " title='{$button['Title']}'";
-    echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>{$button['Title']}</span></a></div>";
+    $title = $themes2 ? "" : " title='"._($button['Title'])."'";
+    echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else
     echo "<div id='{$button['Link']}'></div>";
 }
@@ -514,10 +508,10 @@ foreach ($pages as $page) {
         if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
         $icon = "<i class='fa $icon PanelIcon'></i>";
       }
-      echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">$title</div></a></div>";
+      echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
     }
   }
-  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown($page['text'])) : eval('?>'.$page['text']);
+  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
 unset($pages,$page,$pgs,$pg,$icon);
@@ -532,17 +526,17 @@ echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
 $progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
 switch ($var['fsState']) {
 case 'Stopped':
-  echo "<span class='red strong'><i class='fa fa-stop-circle'></i> Array Stopped</span>$progress"; break;
+  echo "<span class='red strong'><i class='fa fa-stop-circle'></i> "._('Array Stopped')."</span>$progress"; break;
 case 'Starting':
-  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> Array Starting</span>$progress"; break;
+  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> "._('Array Starting')."</span>$progress"; break;
 case 'Stopping':
-  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> Array Stopping</span>$progress"; break;
+  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> "._('Array Stopping')."</span>$progress"; break;
 default:
-  echo "<span class='green strong'><i class='fa fa-play-circle'></i> Array Started</span>$progress"; break;
+  echo "<span class='green strong'><i class='fa fa-play-circle'></i> "._('Array Started')."</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2020, Lime Technology, Inc.";
-echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title='Online manual'><i class='fa fa-book'></i> manual</a>";
+echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title='"._('Online manual')."'><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
 ?>
 <script>
@@ -588,23 +582,23 @@ watchdog.on('message', function(data) {
   var progress = ini['fsProgress'];
   var status;
   if (state=='Stopped') {
-    status = "<span class='red strong'><i class='fa fa-stop-circle'></i> Array Stopped</span>";
+    status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>";
   } else if (state=='Started') {
-    status = "<span class='green strong'><i class='fa fa-play-circle'></i> Array Started</span>";
+    status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>";
   } else if (state=='Formatting') {
-    status = "<span class='green strong'><i class='fa fa-play-circle'></i> Array Started</span>&bullet;<span class='orange strong'>Formatting device(s)</span>";
+    status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>";
   } else {
     status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> Array "+state+"</span>";
   }
   if (ini['mdResyncPos']>0) {
     var action;
-    if (ini['mdResyncAction'].indexOf("recon")>=0) action = "Parity-Sync / Data-Rebuild";
-    else if (ini['mdResyncAction'].indexOf("clear")>=0) action = "Clearing";
-    else if (ini['mdResyncAction']=="check") action = "Read-Check";
-    else if (ini['mdResyncAction'].indexOf("check")>=0) action = "Parity-Check";
+    if (ini['mdResyncAction'].indexOf("recon")>=0) action = "<?=_('Parity-Sync / Data-Rebuild')?>";
+    else if (ini['mdResyncAction'].indexOf("clear")>=0) action = "<?=_('Clearing')?>";
+    else if (ini['mdResyncAction']=="check") action = "<?=_('Read-Check')?>";
+    else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
     action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
     status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>')+"</span>";
-    if (ini['mdResync']==0) status += "(Paused)";
+    if (ini['mdResync']==0) status += "(<?=_('Paused')?>)";
   }
   if (progress) status += "&bullet;<span class='blue strong'>"+progress+"</span>";
   $('#statusbar').html(status);
@@ -618,7 +612,7 @@ $(window).scroll(function() {
     $('.back_to_top').fadeOut(backtotopduration);
   }
 <?if ($themes1):?>
-  var top = $('div#header').height() - 1; // header height has 1 extra pixel to cover overlap
+  var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
   $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
 <?endif;?>
 });
@@ -629,7 +623,7 @@ $('.back_to_top').click(function(event) {
 });
 $(function() {
   $('div.spinner.fixed').html(unraid_logo);
-  setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},150); // display animation if page loading takes longer than 150ms
+  setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
 <?if ($var['regTy']=='unregistered'):?>
   $('#licensetype').addClass('orange-text');
@@ -639,10 +633,11 @@ $(function() {
 <?if ($notify['entity'] & 1 == 1):?>
   $.post('/webGui/include/Notify.php',{cmd:'init'},function(){timers.notifier = setTimeout(notifier,0);});
 <?endif;?>
-  $('input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
+  $('input[value="<?=_('Apply')?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').each(function(){$(this).on('input change',function() {
     var form = $(this).parentsUntil('form').parent();
-    form.find('input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').not('input.lock').prop('disabled',false);
+    form.find('input[value="<?=_('Apply')?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').not('input.lock').prop('disabled',false);
+    form.find('input[value="<?=_('Done')?>"]').not('input.lock').val('<?=_('Reset')?>').prop('onclick',null).off('click').click(function(){refresh(form.offset().top)});
     form.find('input[value="Done"]').not('input.lock').val('Reset').prop('onclick',null).off('click').click(function(){refresh(form.offset().top)});
   });});
 
@@ -650,46 +645,46 @@ $(function() {
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top',{path:'/'});
 <?if ($safemode):?>
-  showNotice('System running in <b>safe</b> mode');
+  showNotice('<?=_("System running in")?> <b><?=("safe mode")?></b>');
 <?else:?>
 <?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20);?>
 <?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
-  showUpgrade('<b>Reboot Now</b> to upgrade Unraid OS',true);
+  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to upgrade Unraid OS')?>",true);
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
-  showUpgrade('<b>Reboot Now</b> to downgrade Unraid OS',true);
+  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade('Unraid OS v<?=$version?> is available. <a>Update Now</a>');
+  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <a><?=_('Update Now')?></a>");
 <?endif;?>
 <?if (!$notify['system']):?>
-  addBannerWarning('System notifications are <b>disabled</b>. Click <a href="/Settings/Notifications" style="cursor:pointer">here</a> to change notification settings.',true,true);
+  addBannerWarning('<?=_("System notifications are")?> <b><?=_("disabled")?></b>. <?=_("Click")?> <a href="/Settings/Notifications" style="cursor:pointer"><?=_("here")?></a> <?=_("to change notification settings")?>.',true,true);
 <?endif;?>
 <?endif;?>
 <?if ($notify['display']):?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
+  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
   opts.push({divider:true});
-  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
+  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
+  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
   context.attach('#nav-tub1',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
+  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
   opts.push({divider:true});
-  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
+  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
+  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
   context.attach('#nav-tub2',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'View',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
+  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
   opts.push({divider:true});
-  opts.push({text:'History',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
+  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
   opts.push({divider:true});
-  opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
+  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
   context.attach('#nav-tub3',opts);
 <?endif;?>
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {

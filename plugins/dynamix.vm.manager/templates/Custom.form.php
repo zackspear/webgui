@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,6 +13,11 @@
 ?>
 <?
 	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	// add translations
+	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+		$_SERVER['REQUEST_URI'] = 'vms';
+		require_once "$docroot/webGui/include/Translations.php";
+	}
 	require_once "$docroot/webGui/include/Helpers.php";
 	require_once "$docroot/webGui/include/Custom.php";
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
@@ -103,6 +108,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		$arrConfigDefaults = array_replace_recursive($arrConfigDefaults, $arrAllTemplates[$strSelectedTemplate]['overrides']);
 	}
 
+file_put_contents('/tmp/post',print_r($_POST,true),FILE_APPEND);
 	// create new VM
 	if ($_POST['createvm']) {
 		if ($_POST['xmldesc']) {
@@ -268,8 +274,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>Name:</td>
-			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="Name of virtual machine" placeholder="e.g. My Workstation" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
+			<td>_(Name)_:</td>
+			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -278,8 +284,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr class="advanced">
-			<td>Description:</td>
-			<td><input type="text" name="domain[desc]" title="description of virtual machine" placeholder="description of virtual machine (optional)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
+			<td>_(Description)_:</td>
+			<td><input type="text" name="domain[desc]" title="_(description of virtual machine)_" placeholder="_(description of virtual machine)_ (_(optional)_)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -290,10 +296,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr class="advanced">
-			<td>CPU Mode:</td>
+			<td>_(CPU Mode)_:</td>
 			<td>
-				<select name="domain[cpumode]" title="define type of cpu presented to this vm">
-				<?php mk_dropdown_options(['host-passthrough' => 'Host Passthrough (' . $strCPUModel . ')', 'emulated' => 'Emulated (QEMU64)'], $arrConfig['domain']['cpumode']); ?>
+				<select name="domain[cpumode]" title="_(define type of cpu presented to this vm)_">
+				<?php mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'emulated' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']); ?>
 				</select>
 			</td>
 		</tr>
@@ -314,7 +320,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>Logical CPUs:</td>
+			<td>_(Logical CPUs)_:</td>
 			<td>
 				<div class="textarea four">
 				<?
@@ -343,9 +349,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td><span class="advanced">Initial </span>Memory:</td>
+			<td><span class="advanced">_(Initial)_ </span>_(Memory)_:</td>
 			<td>
-				<select name="domain[mem]" id="domain_mem" class="narrow" title="define the amount memory">
+				<select name="domain[mem]" id="domain_mem" class="narrow" title="_(define the amount memory)_">
 				<?php
 					echo mk_option($arrConfig['domain']['mem'], 128 * 1024, '128 MB');
 					echo mk_option($arrConfig['domain']['mem'], 256 * 1024, '256 MB');
@@ -358,9 +364,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				</select>
 			</td>
 
-			<td class="advanced">Max Memory:</td>
+			<td class="advanced">_(Max)_ _(Memory)_:</td>
 			<td class="advanced">
-				<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="define the maximum amount of memory">
+				<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="_(define the maximum amount of memory)_">
 				<?php
 					echo mk_option($arrConfig['domain']['maxmem'], 128 * 1024, '128 MB');
 					echo mk_option($arrConfig['domain']['maxmem'], 256 * 1024, '256 MB');
@@ -388,9 +394,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr class="advanced">
-			<td>Machine:</td>
+			<td>_(Machine)_:</td>
 			<td>
-				<select name="domain[machine]" class="narrow" id="domain_machine" title="Select the machine model.  i440fx will work for most.  Q35 for a newer machine model with PCIE">
+				<select name="domain[machine]" class="narrow" id="domain_machine" title="_(Select the machine model)_.  _(i440fx will work for most)_.  _(Q35 for a newer machine model with PCIE)_">
 				<?php mk_dropdown_options($arrValidMachineTypes, $arrConfig['domain']['machine']); ?>
 				</select>
 			</td>
@@ -407,16 +413,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr class="advanced">
-			<td>BIOS:</td>
+			<td>_(BIOS)_:</td>
 			<td>
-				<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="Select the BIOS.  SeaBIOS will work for most.  OVMF requires a UEFI-compatable OS (e.g. Windows 8/2012, newer Linux distros) and if using graphics device passthrough it too needs UEFI" <? if (!empty($arrConfig['domain']['state'])) echo 'disabled="disabled"'; ?>>
+				<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_" <? if (!empty($arrConfig['domain']['state'])) echo 'disabled="disabled"'; ?>>
 				<?php
-					echo mk_option($arrConfig['domain']['ovmf'], '0', 'SeaBIOS');
+					echo mk_option($arrConfig['domain']['ovmf'], '0', _('SeaBIOS'));
 
 					if (file_exists('/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd')) {
-						echo mk_option($arrConfig['domain']['ovmf'], '1', 'OVMF');
+						echo mk_option($arrConfig['domain']['ovmf'], '1', _('OVMF'));
 					} else {
-						echo mk_option('', '0', 'OVMF (Not Available)', 'disabled="disabled"');
+						echo mk_option('', '0', _('OVMF').' ('._('Not Available').')', 'disabled');
 					}
 				?>
 				</select>
@@ -444,10 +450,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table class="domain_os windows">
 		<tr class="advanced">
-			<td>Hyper-V:</td>
+			<td>_(Hyper-V)_:</td>
 			<td>
-				<select name="domain[hyperv]" id="hyperv" class="narrow" title="Hyperv tweaks for Windows">
-				<?php mk_dropdown_options(['No', 'Yes'], $arrConfig['domain']['hyperv']); ?>
+				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_">
+				<?php mk_dropdown_options([_('No'), _('Yes')], $arrConfig['domain']['hyperv']); ?>
 				</select>
 			</td>
 		</tr>
@@ -462,13 +468,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr class="advanced">
-			<td>USB Controller:</td>
+			<td>_(USB Controller)_:</td>
 			<td>
-				<select name="domain[usbmode]" id="usbmode" class="narrow" title="Select the USB Controller to emulate.  Some OSes won't support USB3 (e.g. Windows 7/XP)">
+				<select name="domain[usbmode]" id="usbmode" class="narrow" title="_(Select the USB Controller to emulate)_.  _(Some OSes won't support USB3)_ (_(e.g.)_ _(Windows 7/XP)_)">
 				<?php
-					echo mk_option($arrConfig['domain']['usbmode'], 'usb2', '2.0 (EHCI)');
-					echo mk_option($arrConfig['domain']['usbmode'], 'usb3', '3.0 (nec XHCI)');
-					echo mk_option($arrConfig['domain']['usbmode'], 'usb3-qemu', '3.0 (qemu XHCI)');
+					echo mk_option($arrConfig['domain']['usbmode'], 'usb2', _('2.0 (EHCI)'));
+					echo mk_option($arrConfig['domain']['usbmode'], 'usb3', _('3.0 (nec XHCI)'));
+					echo mk_option($arrConfig['domain']['usbmode'], 'usb3-qemu', _('3.0 (qemu XHCI)'));
 				?>
 				</select>
 			</td>
@@ -485,13 +491,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>OS Install ISO:</td>
+			<td>_(OS Install ISO)_:</td>
 			<td>
-				<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[cdrom]" class="cdrom" value="<?=htmlspecialchars($arrConfig['media']['cdrom'])?>" placeholder="Click and Select cdrom image to install operating system">
+				<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[cdrom]" class="cdrom" value="<?=htmlspecialchars($arrConfig['media']['cdrom'])?>" placeholder="_(Click and Select cdrom image to install operating system)_">
 			</td>
 		</tr>
 		<tr class="advanced">
-			<td>OS Install CDRom Bus:</td>
+			<td>_(OS Install CDRom Bus)_:</td>
 			<td>
 				<select name="media[cdrombus]" class="cdrom_bus narrow">
 				<?php mk_dropdown_options($arrValidCdromBuses, $arrConfig['media']['cdrombus']); ?>
@@ -509,13 +515,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table class="domain_os windows">
 		<tr class="advanced">
-			<td>VirtIO Drivers ISO:</td>
+			<td>_(VirtIO Drivers ISO)_:</td>
 			<td>
-				<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[drivers]" class="cdrom" value="<?=htmlspecialchars($arrConfig['media']['drivers'])?>" placeholder="Download, Click and Select virtio drivers image">
+				<input type="text" data-pickcloseonfile="true" data-pickfilter="iso" data-pickmatch="^[^.].*" data-pickroot="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" name="media[drivers]" class="cdrom" value="<?=htmlspecialchars($arrConfig['media']['drivers'])?>" placeholder="_(Download, Click and Select virtio drivers image)_">
 			</td>
 		</tr>
 		<tr class="advanced">
-			<td>VirtIO Drivers CDRom Bus:</td>
+			<td>_(VirtIO Drivers CDRom Bus)_:</td>
 			<td>
 				<select name="media[driversbus]" class="cdrom_bus narrow">
 				<?php mk_dropdown_options($arrValidCdromBuses, $arrConfig['media']['driversbus']); ?>
@@ -537,17 +543,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	</div>
 
 	<? foreach ($arrConfig['disk'] as $i => $arrDisk) {
-		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : 'Primary';
+		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : _('Primary');
 
 		?>
 		<table data-category="vDisk" data-multiple="true" data-minimum="1" data-maximum="24" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
-				<td>vDisk Location:</td>
+				<td>_(vDisk Location)_:</td>
 				<td>
 					<select name="disk[<?=$i?>][select]" class="disk_select narrow">
 					<?
 						if ($i == 0) {
-							echo '<option value="">None</option>';
+							echo '<option value="">'._('None').'</option>';
 						}
 
 						$default_option = $arrDisk['select'];
@@ -566,7 +572,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								}
 							}
 
-							echo mk_option($default_option, 'auto', 'Auto');
+							echo mk_option($default_option, 'auto', _('Auto'));
 
 							if ($boolShowAllDisks) {
 								$strShareUserLocalInclude = '';
@@ -592,7 +598,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								// Determine if cache drive is available:
 								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
 									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = my_disk('cache').' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' free';
+										$strLabel = my_lang(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, 'cache', $strLabel);
 									}
 								}
@@ -607,7 +613,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 											// skip this disk based on local and global share settings
 											continue;
 										}
-										$strLabel = my_disk($name).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' free';
+										$strLabel = my_lang(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, $name, $strLabel);
 									}
 								}
@@ -615,30 +621,30 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 						}
 
-						echo mk_option($default_option, 'manual', 'Manual');
+						echo mk_option($default_option, 'manual', _('Manual'));
 					?>
-					</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[<?=$i?>][new]" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="Separate sub-folder and image will be created based on Name"><div class="disk_preview"></div>
+					</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[<?=$i?>][new]" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
 				</td>
 			</tr>
 
 			<tr class="disk_file_options">
-				<td>vDisk Size:</td>
+				<td>_(vDisk Size)_:</td>
 				<td>
-					<input type="text" name="disk[<?=$i?>][size]" value="<?=htmlspecialchars($arrDisk['size'])?>" class="narrow" placeholder="e.g. 10M, 1G, 10G...">
+					<input type="text" name="disk[<?=$i?>][size]" value="<?=htmlspecialchars($arrDisk['size'])?>" class="narrow" placeholder="_(e.g.)_ 10M, 1G, 10G...">
 				</td>
 			</tr>
 
 			<tr class="advanced disk_file_options">
-				<td>vDisk Type:</td>
+				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[<?=$i?>][driver]" class="narrow" title="type of storage image">
+					<select name="disk[<?=$i?>][driver]" class="narrow" title="_(type of storage image)_">
 					<?php mk_dropdown_options($arrValidDiskDrivers, $arrDisk['driver']); ?>
 					</select>
 				</td>
 			</tr>
 
 			<tr class="advanced disk_bus_options">
-				<td>vDisk Bus:</td>
+				<td>_(vDisk Bus)_:</td>
 				<td>
 					<select name="disk[<?=$i?>][bus]" class="disk_bus narrow">
 					<?php mk_dropdown_options($arrValidDiskBuses, $arrDisk['bus']); ?>
@@ -675,7 +681,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<script type="text/html" id="tmplvDisk">
 		<table>
 			<tr>
-				<td>vDisk Location:</td>
+				<td>_(vDisk Location)_:</td>
 				<td>
 					<select name="disk[{{INDEX}}][select]" class="disk_select narrow">
 					<?
@@ -683,7 +689,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 							$default_option = $domain_cfg['VMSTORAGEMODE'];
 
-							echo mk_option($default_option, 'auto', 'Auto');
+							echo mk_option($default_option, 'auto', _('Auto'));
 
 							if (strpos($domain_cfg['DOMAINDIR'], '/mnt/user/') === 0) {
 								$strShareUserLocalInclude = '';
@@ -709,7 +715,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								// Determine if cache drive is available:
 								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
 									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = my_disk('cache').' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' free';
+										$strLabel = my_lang(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, 'cache', $strLabel);
 									}
 								}
@@ -724,7 +730,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 											// skip this disk based on local and global share settings
 											continue;
 										}
-										$strLabel = my_disk($name).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' free';
+										$strLabel = my_lang(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, $name, $strLabel);
 									}
 								}
@@ -732,30 +738,30 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 						}
 
-						echo mk_option('', 'manual', 'Manual');
+						echo mk_option('', 'manual', _('Manual'));
 					?>
-					</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[{{INDEX}}][new]" class="disk" id="disk_{{INDEX}}" value="" placeholder="Separate sub-folder and image will be created based on Name"><div class="disk_preview"></div>
+					</select><input type="text" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" name="disk[{{INDEX}}][new]" class="disk" id="disk_{{INDEX}}" value="" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
 				</td>
 			</tr>
 
 			<tr class="disk_file_options">
-				<td>vDisk Size:</td>
+				<td>_(vDisk Size)_:</td>
 				<td>
-					<input type="text" name="disk[{{INDEX}}][size]" value="" class="narrow" placeholder="e.g. 10M, 1G, 10G...">
+					<input type="text" name="disk[{{INDEX}}][size]" value="" class="narrow" placeholder="_(e.g.)_ 10M, 1G, 10G...">
 				</td>
 			</tr>
 
 			<tr class="advanced disk_file_options">
-				<td>vDisk Type:</td>
+				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[{{INDEX}}][driver]" class="narrow" title="type of storage image">
+					<select name="disk[{{INDEX}}][driver]" class="narrow" title="_(type of storage image)_">
 					<?php mk_dropdown_options($arrValidDiskDrivers, ''); ?>
 					</select>
 				</td>
 			</tr>
 
 			<tr class="advanced disk_bus_options">
-				<td>vDisk Bus:</td>
+				<td>_(vDisk Bus)_:</td>
 				<td>
 					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow">
 					<?php mk_dropdown_options($arrValidDiskBuses, ''); ?>
@@ -771,16 +777,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		?>
 		<table class="domain_os other" data-category="Share" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr class="advanced">
-				<td>Unraid Share:</td>
+				<td>_(Unraid Share)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" name="shares[<?=$i?>][source]" placeholder="e.g. /mnt/user/..." title="path of Unraid share" />
+					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" name="shares[<?=$i?>][source]" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
 				</td>
 			</tr>
 
 			<tr class="advanced">
-				<td>Unraid Mount tag:</td>
+				<td>_(Unraid Mount tag)_:</td>
 				<td>
-					<input type="text" value="<?=htmlspecialchars($arrShare['target'])?>" name="shares[<?=$i?>][target]" placeholder="e.g. shares (name of mount tag inside vm)" title="mount tag inside vm" />
+					<input type="text" value="<?=htmlspecialchars($arrShare['target'])?>" name="shares[<?=$i?>][target]" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
 				</td>
 			</tr>
 		</table>
@@ -807,16 +813,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<script type="text/html" id="tmplShare">
 		<table class="domain_os other">
 			<tr class="advanced">
-				<td>Unraid Share:</td>
+				<td>_(Unraid Share)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" name="shares[{{INDEX}}][source]" placeholder="e.g. /mnt/user/..." title="path of Unraid share" />
+					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" name="shares[{{INDEX}}][source]" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
 				</td>
 			</tr>
 
 			<tr class="advanced">
-				<td>Unraid Mount tag:</td>
+				<td>_(Unraid Mount tag)_:</td>
 				<td>
-					<input type="text" value="" name="shares[{{INDEX}}][target]" placeholder="e.g. shares (name of mount tag inside vm)" title="mount tag inside vm" />
+					<input type="text" value="" name="shares[{{INDEX}}][target]" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
 				</td>
 			</tr>
 		</table>
@@ -828,15 +834,15 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		?>
 		<table data-category="Graphics_Card" data-multiple="true" data-minimum="1" data-maximum="<?=count($arrValidGPUDevices)+1?>" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
-				<td>Graphics Card:</td>
+				<td>_(Graphics Card)_:</td>
 				<td>
 					<select name="gpu[<?=$i?>][id]" class="gpu narrow">
 					<?php
 						if ($i == 0) {
 							// Only the first video card can be VNC
-							echo mk_option($arrGPU['id'], 'vnc', 'VNC');
+							echo mk_option($arrGPU['id'], 'vnc', _('VNC'));
 						} else {
-							echo mk_option($arrGPU['id'], '', 'None');
+							echo mk_option($arrGPU['id'], '', _('None'));
 						}
 
 						foreach($arrValidGPUDevices as $arrDev) {
@@ -849,30 +855,30 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 			<? if ($i == 0) { ?>
 			<tr class="<? if ($arrGPU['id'] != 'vnc') echo 'was'; ?>advanced vncmodel">
-				<td>VNC Video Driver:</td>
+				<td>_(VNC Video Driver)_:</td>
 				<td>
-					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="video for VNC">
+					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
 					<?php mk_dropdown_options($arrValidVNCModels, $arrGPU['model']); ?>
 					</select>
 				</td>
 			</tr>
 			<tr class="vncpassword">
-				<td>VNC Password:</td>
-				<td><input type="password" name="domain[password]" title="password for VNC" class="narrow" placeholder="Password for VNC (optional)" /></td>
+				<td>_(VNC Password)_:</td>
+				<td><input type="password" name="domain[password]" title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<? if ($arrGPU['id'] != 'vnc') echo 'was'; ?>advanced vnckeymap">
-				<td>VNC Keyboard:</td>
+				<td>_(VNC Keyboard)_:</td>
 				<td>
-					<select name="gpu[<?=$i?>][keymap]" title="keyboard for VNC">
+					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
 					<?php mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']); ?>
 					</select>
 				</td>
 			</tr>
 			<? } ?>
 			<tr class="<? if ($arrGPU['id'] == 'vnc') echo 'was'; ?>advanced romfile">
-				<td>Graphics ROM BIOS:</td>
+				<td>_(Graphics ROM BIOS)_:</td>
 				<td>
-					<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="<?=htmlspecialchars($arrGPU['rom'])?>" name="gpu[<?=$i?>][rom]" placeholder="Path to ROM BIOS file (optional)" title="Path to ROM BIOS file (optional)" />
+					<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="<?=htmlspecialchars($arrGPU['rom'])?>" name="gpu[<?=$i?>][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 				</td>
 			</tr>
 		</table>
@@ -910,11 +916,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<script type="text/html" id="tmplGraphics_Card">
 		<table>
 			<tr>
-				<td>Graphics Card:</td>
+				<td>_(Graphics Card)_:</td>
 				<td>
 					<select name="gpu[{{INDEX}}][id]" class="gpu narrow">
 					<?php
-						echo mk_option('', '', 'None');
+						echo mk_option('', '', _('None'));
 
 						foreach($arrValidGPUDevices as $arrDev) {
 							echo mk_option('', $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
@@ -924,9 +930,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				</td>
 			</tr>
 			<tr class="advanced romfile">
-				<td>Graphics ROM BIOS:</td>
+				<td>_(Graphics ROM BIOS)_:</td>
 				<td>
-					<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="" name="gpu[{{INDEX}}][rom]" placeholder="Path to ROM BIOS file (optional)" title="Path to ROM BIOS file (optional)" />
+					<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="" name="gpu[{{INDEX}}][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 				</td>
 			</tr>
 		</table>
@@ -938,11 +944,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		?>
 		<table data-category="Sound_Card" data-multiple="true" data-minimum="1" data-maximum="<?=count($arrValidAudioDevices)?>" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
-				<td>Sound Card:</td>
+				<td>_(Sound Card)_:</td>
 				<td>
 					<select name="audio[<?=$i?>][id]" class="audio narrow">
 					<?php
-						echo mk_option($arrAudio['id'], '', 'None');
+						echo mk_option($arrAudio['id'], '', _('None'));
 
 						foreach($arrValidAudioDevices as $arrDev) {
 							echo mk_option($arrAudio['id'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
@@ -962,7 +968,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<script type="text/html" id="tmplSound_Card">
 		<table>
 			<tr>
-				<td>Sound Card:</td>
+				<td>_(Sound Card)_:</td>
 				<td>
 					<select name="audio[{{INDEX}}][id]" class="audio narrow">
 					<?php
@@ -982,14 +988,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		?>
 		<table data-category="Network" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr class="advanced">
-				<td>Network MAC:</td>
+				<td>_(Network MAC)_:</td>
 				<td>
-					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
 			</tr>
 
 			<tr class="advanced">
-				<td>Network Bridge:</td>
+				<td>_(Network Bridge)_:</td>
 				<td>
 					<select name="nic[<?=$i?>][network]">
 					<?php
@@ -1022,14 +1028,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	<script type="text/html" id="tmplNetwork">
 		<table>
 			<tr class="advanced">
-				<td>Network MAC:</td>
+				<td>_(Network MAC)_:</td>
 				<td>
-					<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="random mac, you can supply your own" /> <i class="fa fa-refresh mac_generate" title="re-generate random mac address"></i>
+					<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
 			</tr>
 
 			<tr class="advanced">
-				<td>Network Bridge:</td>
+				<td>_(Network Bridge)_:</td>
 				<td>
 					<select name="nic[{{INDEX}}][network]">
 					<?php
@@ -1045,7 +1051,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>USB Devices:</td>
+			<td>_(USB Devices)_:</td>
 			<td>
 				<div class="textarea" style="width: 540px">
 				<?php
@@ -1056,7 +1062,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						<?php
 						}
 					} else {
-						echo "<i>None available</i>";
+						echo "<i>"._('None available')."</i>";
 					}
 				?>
 				</div>
@@ -1069,7 +1075,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 		<tr>
-			<td>Other PCI Devices:</td>
+			<td>_(Other PCI Devices)_:</td>
 			<td>
 				<div class="textarea" style="width: 540px">
 				<?
@@ -1092,7 +1098,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					}
 
 					if (empty($intAvailableOtherPCIDevices)) {
-						echo "<i>None available</i>";
+						echo "<i>"._('None available')."</i>";
 					}
 				?>
 				</div>
@@ -1109,14 +1115,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<td>
 			<? if (!$boolNew) { ?>
 				<input type="hidden" name="updatevm" value="1" />
-				<input type="button" value="Update" busyvalue="Updating..." readyvalue="Update" id="btnSubmit" />
+				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 			<? } else { ?>
-				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> Start VM after creation</label>
+				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 				<br>
 				<input type="hidden" name="createvm" value="1" />
-				<input type="button" value="Create" busyvalue="Creating..." readyvalue="Create" id="btnSubmit" />
+				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<? } ?>
-				<input type="button" value="Cancel" id="btnCancel" />
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
 			</td>
 		</tr>
 	</table>
@@ -1128,7 +1134,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 </div>
 
 <div class="xmlview">
-	<textarea id="addcode" name="xmldesc" placeholder="Copy &amp; Paste Domain XML Configuration Here." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
+	<textarea id="addcode" name="xmldesc" placeholder="_(Copy &amp; Paste Domain XML Configuration Here)_." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
 
 	<table>
 		<tr>
@@ -1137,16 +1143,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<? if (!$boolRunning) { ?>
 				<? if ($strXML) { ?>
 					<input type="hidden" name="updatevm" value="1" />
-					<input type="button" value="Update" busyvalue="Updating..." readyvalue="Update" id="btnSubmit" />
+					<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 				<? } else { ?>
-					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> Start VM after creation</label>
+					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> _ (Start VM after creation)_</label>
 					<br>
 					<input type="hidden" name="createvm" value="1" />
-					<input type="button" value="Create" busyvalue="Creating..." readyvalue="Create" id="btnSubmit" />
+					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 				<? } ?>
-				<input type="button" value="Cancel" id="btnCancel" />
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
 			<? } else { ?>
-				<input type="button" value="Back" id="btnCancel" />
+				<input type="button" value="_(Back)_" id="btnCancel" />
 			<? } ?>
 			</td>
 		</tr>
@@ -1469,7 +1475,7 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vncurl) {
 					window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
@@ -1477,7 +1483,7 @@ $(function() {
 				done();
 			}
 			if (data.error) {
-				swal({title:"VM creation error",text:data.error,type:"error"});
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 				$panel.find('input').prop('disabled', false);
 				$button.val($button.attr('readyvalue'));
 				resetForm();
@@ -1498,12 +1504,12 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		$.post("/plugins/dynamix.vm.manager/templates/<?=basename(__FILE__)?>", postdata, function( data ) {
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				done();
 			}
 			if (data.error) {
-				swal({title:"VM creation error",text:data.error,type:"error"});
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
 				$panel.find('input').prop('disabled', false);
 				$button.val($button.attr('readyvalue'));
 				resetForm();

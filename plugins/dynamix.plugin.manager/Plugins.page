@@ -44,7 +44,7 @@ function resize(bind) {
 }
 <?endif;?>
 function loadlist(id) {
-  timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},150);
+  timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:<?=$check?>},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
@@ -77,13 +77,13 @@ function loadlist(id) {
 $(function() {
   loadlist();
   $('#plugin_tree').fileTree({root:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
-  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value='Update All Plugins' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=updateall\",\"Update All Plugins\",600,600,true,\"loadlist\",\":return\")'></span>");
+  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value='_(Update All Plugins)_' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=updateall\",\"Update All Plugins\",600,600,true,\"loadlist\",\":return\")'></span>");
 <?if ($check):?>
-  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='Check For Updates' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"Plugin Update Check\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='_(Check For Updates)_' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"Plugin Update Check\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 <?endif;?>
 });
 </script>
 <table class='tablesorter plugins shift' id='plugin_table'>
-<thead><tr><th></th><th>Plugin</th><th>Author</th><th>Version</th><th>Status</th><th>Uninstall</th></tr></thead>
+<thead><tr><th></th><th>_(Plugin)_</th><th>_(Author)_</th><th>_(Version)_</th><th>_(Status)_</th><th>_(Uninstall)_</th></tr></thead>
 <tbody id="plugin_list"><tr><td colspan="6"></td><tr></tbody>
 </table>
