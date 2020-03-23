@@ -32,16 +32,16 @@ span.indent{display:inline-block;width:240px;margin-top:30px;}
 
 <script>
 function prepareNewConfig(form) {
-  var preserve = [];
-  for (var i=1,item; item=form.preserveSlots.options[i]; i++) {
-    if (item.selected) {
-      preserve.push(item.value);
-      item.selected = false;
+  for (var i=1,item; item=form.preset.options[i]; i++) {
+    switch (item.value) {
+      case 'parity': if (item.selected) form.preserveParity.disabled = false; break;
+      case 'data'  : if (item.selected) form.preserveData.disabled = false; break;
+      <?foreach ($pools as $pool):?>
+      case '<?=$pool?>': if (item.selected) form.preserve<?=ucfirst($pool)?>.disabled = false; break;
+      <?endforeach;?>
     }
   }
-  item = form.preserveSlots.options[0];
-  item.value = preserve.join(',');
-  item.selected = true;
+  form.preset.disabled = true;
 }
 $(function() {
   $('#s1').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'..._(close)_'});
@@ -66,9 +66,14 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 
 <hr>
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
+<input type="hidden" name="preserveParity" value="yes" disabled>
+<input type="hidden" name="preserveData" value="yes" disabled>
+<?foreach ($pools as $pool):?>
+<input type="hidden" name="preserve<?=ucfirst($pool)?>" value="yes" disabled>
+<?endforeach;?>
 
 <span class="indent">_(Preserve current assignments)_:</span>
-<select id="s1" name="preserveSlots" multiple="multiple" style="display:none">
+<select id="s1" name="preset" multiple="multiple" style="display:none">
 <option value=''>_(All)_</option>
 <?=mk_option_check(0,'parity',_('Parity slots'))?>
 <?=mk_option_check(0,'data',_('Data slots'))?>

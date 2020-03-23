@@ -40,7 +40,7 @@ function addPoolPopup() {
       _(Add)_: function() {
         var poolname = $(this).find('input[name="poolName"]').val();
         var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
-        var reserved = ['disk','data','disks','diskp','diskq','diskr','flash','parity','parity2'];
+        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
         if (reserved.includes(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (!valid.test(poolname)) {
