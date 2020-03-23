@@ -27,7 +27,7 @@ if ($newarray) {
 }
 ?>
 <style>
-span.indent{display:inline-block;width:240px;margin-top:30px;}
+span.indent{display:inline-block;width:240px;margin-top:30px}
 </style>
 
 <script>
@@ -36,9 +36,7 @@ function prepareNewConfig(form) {
     switch (item.value) {
       case 'parity': if (item.selected) form.preserveParity.disabled = false; break;
       case 'data'  : if (item.selected) form.preserveData.disabled = false; break;
-      <?foreach ($pools as $pool):?>
-      case '<?=$pool?>': if (item.selected) form.preserve<?=ucfirst($pool)?>.disabled = false; break;
-      <?endforeach;?>
+      case 'cache' : if (item.selected) form.preserveCache.disabled = false; break;
     }
   }
   form.preset.disabled = true;
@@ -68,18 +66,14 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
 <input type="hidden" name="preserveParity" value="yes" disabled>
 <input type="hidden" name="preserveData" value="yes" disabled>
-<?foreach ($pools as $pool):?>
-<input type="hidden" name="preserve<?=ucfirst($pool)?>" value="yes" disabled>
-<?endforeach;?>
+<input type="hidden" name="preserveCache" value="yes" disabled>
 
 <span class="indent">_(Preserve current assignments)_:</span>
 <select id="s1" name="preset" multiple="multiple" style="display:none">
 <option value=''>_(All)_</option>
 <?=mk_option_check(0,'parity',_('Parity slots'))?>
 <?=mk_option_check(0,'data',_('Data slots'))?>
-<?foreach ($pools as $pool):?>
-<?if ($disks[$pool]['devices']) echo mk_option_check(0,$pool,ucfirst($pool).' '._('slots'))?>
-<?endforeach;?>
+<?=mk_option_check(0,'cache',_('Pool slots'))?>
 </select>
 <br>
 <span class="indent"><input type="submit" class="lock" name="cmdInit" value="_(Apply)_" disabled><input type="button" class="lock" value="_(Done)_" onclick="done()"></span>
