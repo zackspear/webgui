@@ -357,7 +357,7 @@ case 'array':
   } else {
     foreach ($parity as $disk) if ($disk['status']!='DISK_NP_DSBL') array_online($disk);
     foreach ($data as $disk) array_online($disk);
-    if ($display['total']) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true);
+    if ($display['total'] && $var['mdNumDisks']>1) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true);
   }
   break;
 case 'flash':
