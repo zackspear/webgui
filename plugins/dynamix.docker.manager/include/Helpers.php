@@ -13,7 +13,7 @@
 ?>
 <?
 // add translations
-if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker' || substr($_SERVER['REQUEST_URI'],0,5) == '/Apps') {
   $_SERVER['REQUEST_URI'] = 'docker';
   require_once "$docroot/webGui/include/Translations.php";
 }
