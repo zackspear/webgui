@@ -17,5 +17,10 @@ Markdown="false"
  */
 ?>
 <?
+// add vm translations (if needed)
+if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+  $vms = "$docroot/languages/$locale/vms.dot";
+  if (file_exists($vms)) $language = array_merge($language,unserialize(file_get_contents($vms)));
+}
 eval('?>'.parse_file("$docroot/plugins/dynamix.vm.manager/include/VMedit.php",false));
 ?>
