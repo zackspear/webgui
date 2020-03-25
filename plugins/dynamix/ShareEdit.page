@@ -280,7 +280,7 @@ _(Share status)_:
 :end
 
 _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_')this.value='Delete'" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_')this.value='Delete';else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?else:?>
 _(Share status)_:
 : _(Share contains data)_
@@ -290,7 +290,7 @@ _(Share status)_:
 :end
 
 &nbsp;
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?endif;?>
 </form>
 <script>
@@ -379,6 +379,11 @@ function prepareEdit(form) {
   }
   if (share.match('^(disk[0-9]+|cache[0-9]*|flash)$')) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  }
+  var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
+  if (pools.includes(share)) {
+    swal({title:'_(Invalid share name)_',text:'_(Do not use pool names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
   if (share.match('[:\\\/*<>|"]')) {

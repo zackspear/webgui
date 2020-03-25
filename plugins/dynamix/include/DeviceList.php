@@ -309,7 +309,7 @@ function show_totals($text,$array) {
     echo "<td></td>";
   } else
     echo "<td colspan=4></td>";
-  echo "</tr>\0";
+  echo "</tr>";
 }
 function array_slots() {
   global $var;
@@ -357,7 +357,7 @@ case 'array':
   } else {
     foreach ($parity as $disk) if ($disk['status']!='DISK_NP_DSBL') array_online($disk);
     foreach ($data as $disk) array_online($disk);
-    if ($display['total']) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true);
+    if ($display['total'] && $var['mdNumDisks']>1) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true);
   }
   break;
 case 'flash':
@@ -385,8 +385,7 @@ case 'cache':
     if ($var['fsState']=='Stopped') {
       $log = @(array)parse_ini_file($tmp);
       $off = false;
-      foreach ($cache as $disk) {
-        if (prefix($disk['name'])!=$pool) continue;
+      foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
         array_offline($disk);
         if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
       }
@@ -396,7 +395,7 @@ case 'cache':
     } else {
       if ($cache[$pool]['devices']) {
         foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
-          if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable') $disk['fsStatus'] = $cache[$pool]['fsStatus'];
+          if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
           array_online($disk);
         }
         if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false);
