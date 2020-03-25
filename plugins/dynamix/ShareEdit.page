@@ -381,6 +381,11 @@ function prepareEdit(form) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
+  var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
+  if (pools.includes(share)) {
+    swal({title:'_(Invalid share name)_',text:'_(Do not use pool names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  }
   if (share.match('[:\\\/*<>|"]')) {
     swal({title:'_(Invalid Characters)_',text:'_(You cannot use the following within share names)_ : \\ / * < > | "',type:'error',confirmButtonText:'_(Ok)_'});
     return false;

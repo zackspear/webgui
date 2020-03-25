@@ -20,7 +20,7 @@ function sharename($share) {
   return substr($share,0,-4);
 }
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
-$shares2 = implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))));
+if ($var['fsState']=='Stopped') $shares2 = implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))));
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
