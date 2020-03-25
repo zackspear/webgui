@@ -16,6 +16,9 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  */
 ?>
 <?
+function sharename($share) {
+  return substr($share,0,-4);
+}
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
@@ -40,9 +43,12 @@ function addPoolPopup() {
       _(Add)_: function() {
         var poolname = $(this).find('input[name="poolName"]').val();
         var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
-        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2','appdata','isos','vdisks'];
+        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
+        var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
         if (reserved.includes(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (shares.includes(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (!valid.test(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (poolname) {
@@ -109,7 +115,6 @@ _(Slots)_:
   <?endfor;?>
   </select>
 
-<br><center>*_(Note: do not use pool names which are also used as user share names)_*</center>
 </form>
 </div>
 <?endif;?>
