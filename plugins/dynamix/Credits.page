@@ -27,4 +27,12 @@ and may not be used in any other project without written permission from Lime Te
 
 This file shall be included in all copies or substantial portions of the Software.
 
-<input type="button" value="_(Done)_" onclick="done()">
+<?
+$translations = [];
+foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $lang) {
+  if (file_exists("$lang/credits")) $credits = parse_ini_file("$lang/credits",false,INI_SCANNER_RAW);
+  if (isset($credits['name']) && isset($credits['language']) && $credits['name']!='NAME' && $credits['language']!='LANGUAGE') $translations[] = "Language translations to <i>{$credits['language']}</i>, provided by <b>{$credits['name']}</b>.<br><br>";
+}
+if (count($translations)) echo '<br><b>Language Translations</b><br>--------------------------<br>'.implode('',$translations);
+?>
+<br><input type="button" value="_(Done)_" onclick="done()">
