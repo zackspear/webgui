@@ -34,8 +34,7 @@ span.indent{display:inline-block;width:240px;margin-top:30px}
 function prepareNewConfig(form) {
   for (var i=1,item; item=form.preset.options[i]; i++) {
     switch (item.value) {
-      case 'parity': if (item.selected) form.preserveParity.disabled = false; break;
-      case 'data'  : if (item.selected) form.preserveData.disabled = false; break;
+      case 'array': if (item.selected) form.preserveArray.disabled = false; break;
       case 'cache' : if (item.selected) form.preserveCache.disabled = false; break;
     }
   }
@@ -64,15 +63,13 @@ effect of making it ***impossible*** to rebuild an existing failed drive - you h
 
 <hr>
 <form name="newConfig" method="POST" action="/update.htm" target="progressFrame" onsubmit="prepareNewConfig(this)">
-<input type="hidden" name="preserveParity" value="yes" disabled>
-<input type="hidden" name="preserveData" value="yes" disabled>
+<input type="hidden" name="preserveArray" value="yes" disabled>
 <input type="hidden" name="preserveCache" value="yes" disabled>
 
 <span class="indent">_(Preserve current assignments)_:</span>
 <select id="s1" name="preset" multiple="multiple" style="display:none">
 <option value=''>_(All)_</option>
-<?=mk_option_check(0,'parity',_('Parity slots'))?>
-<?=mk_option_check(0,'data',_('Data slots'))?>
+<?=mk_option_check(0,'array',_('Array slots'))?>
 <?=mk_option_check(0,'cache',_('Pool slots'))?>
 </select>
 <br>
