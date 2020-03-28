@@ -308,7 +308,7 @@ $(function() {
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
-<?if ($var['fsState']=="Stopped"):?>
+<?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
 _(Name)_:
 : <a onclick="renamePoolPopup()" style="cursor:pointer" title="_(Rename Pool)_"><?=$name?></a>
 
