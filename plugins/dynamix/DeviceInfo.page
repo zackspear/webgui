@@ -19,7 +19,11 @@ require_once "$docroot/webGui/include/Preselect.php";
 $disk = &$disks[$name];
 $date = date('Ymd-Hi');
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
+$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 
+function sharename($share) {
+  return substr($share,0,-4);
+}
 function displayTemp($temp) {
   global $display;
   return $display['unit']=='F' ? round($temp*9/5)+32 : $temp;
@@ -53,6 +57,8 @@ $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
 ?>
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 <style>
 input.option{display:none;width:40px}
 span.devtext{display:none;font-weight:bold}
@@ -215,6 +221,46 @@ function xfsCheck(path) {
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
 }
+function renamePoolPopup() {
+  var popup = $('#dialogRenamePool');
+  // Load popup with the template info
+  popup.html($("#templatePopupPool").html());
+  // Start Dialog section
+  popup.dialog({
+    title: '_(Rename Pool)_',
+    resizable: false,
+    width: 600,
+    modal: true,
+    show : {effect:'fade', duration:250},
+    hide : {effect:'fade', duration:250},
+    buttons: {
+      _(Rename)_: function() {
+        var poolname = $(this).find('input[name="poolName"]').val();
+        var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
+        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
+        var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
+        if (reserved.includes(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (shares.includes(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (!valid.test(poolname)) {
+          swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+        } else if (poolname) {
+          $(this).find('form').submit();
+          $(this).dialog('close');
+        }
+      },
+      _(Cancel)_: function() {
+        $(this).dialog('close');
+      }
+    }
+  });
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
+}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
@@ -262,9 +308,15 @@ $(function() {
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
+<?if ($var['fsState']=="Stopped"):?>
+_(Name)_:
+: <a onclick="renamePoolPopup()" style="cursor:pointer" title="_(Rename Pool)_"><?=$name?></a>
+
+<?else:?>
 _(Name)_:
 : <?=my_lang(my_disk($name),3)?>
 
+<?endif;?>
 _(Partition size)_:
 : <?=my_number($disk['sizeSb'])?> KB (K=1024)
 
@@ -753,3 +805,14 @@ _(SMART attribute notifications)_:
 <input type="submit" name="#default" value="_(Default)_">
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
+
+<div id="dialogRenamePool" style="display:none"></div>
+<div id="templatePopupPool" style="display:none">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="poolNameOrig" value="<?=$name?>">
+<input type="hidden" name="changeSlots" value="apply">
+_(Name)_:
+: <input type="text" name="poolName" maxlength="40" value="<?=$name?>">
+
+</form>
+</div>
