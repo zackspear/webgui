@@ -48,6 +48,8 @@ div.jGrowl div.jGrowl-closer.top{position:fixed;top:91px}
 #sb-counter{float:left;width:45%}
 #sb-counter a{padding:0 4px 0 0;text-decoration:none;cursor:pointer}
 #sb-counter a.sb-counter-current{text-decoration:underline}
+.sweet-alert{background-color:#e4e2e4}
+.sweet-alert h2,.sweet-alert p{color:#606e7f}
 table.tablesorter{margin:0 0 15px 0}
 table.tablesorter thead tr{border-bottom:#606e7f 1px solid}
 table.tablesorter thead tr th{text-transform:uppercase;font-weight:normal;letter-spacing:1px;color:#9794a0;padding:5px 20px 5px 6px;white-space:nowrap;text-align:left}
