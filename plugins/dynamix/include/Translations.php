@@ -58,7 +58,7 @@ function my_lang($text,$do=0) {
   return $text;
 }
 function secured($v,$k) {
-  return strlen($v) && !preg_match('#(<script|iframe)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));
+  return strlen($v) && !preg_match('#<(script|iframe)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));
 }
 function translate($key) {
   global $language;
