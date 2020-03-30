@@ -11,6 +11,8 @@
  */
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$_SERVER['REQUEST_URI'] = "plugins";
+require_once "$docroot/plugins/dynamix/include/Translations.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 function download_url($url, $path = "") {
@@ -33,8 +35,11 @@ function download_url($url, $path = "") {
 
 switch ($_POST['action']) {
 	case 'checkPlugin':
+
 		$options = $_POST['options'];
 		$plugin = $options['plugin'];
+
+		$name = $options['name'] ?? $plugin;
 
 		if ( ! $plugin || ! file_exists("/var/log/plugins/$plugin") ) {
 			echo json_encode(array("updateAvailable"=>false));
@@ -61,8 +66,10 @@ switch ($_POST['action']) {
 			$unraid = parse_ini_file("/etc/unraid-version");
 			$update = (version_compare($min,$unraid['version'],">")) ? false : true;
 		}
+		$updateMessage = sprintf(_("%s: An update is available."),$name);
+		$linkMessage = sprintf(_("Click here to install version %s"),$version);
 
-		echo json_encode(array("updateAvailable" => $update,"version" => $version,"min"=>$min,"changes"=>$changes,"installedVersion"=>$installedVersion));
+		echo json_encode(array("updateAvailable" => $update,"version" => $version,"min"=>$min,"changes"=>$changes,"installedVersion"=>$installedVersion,"updateMessage"=>$updateMessage,"linkMessage"=>$linkMessage));
 		break;
 	
 	case 'addRebootNotice':
