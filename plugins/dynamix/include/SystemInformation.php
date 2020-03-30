@@ -50,12 +50,14 @@ div.box{margin-top:8px;line-height:30px;margin-left:40px}
 div.dimm_info{margin-left:96px}
 div.closed{display:none}
 </style>
+<script src="<?autov('/webGui/javascript/translate.'.($locale?:'en').'.js')?>"></script>
 <script>
 // server uptime & update period
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
 
 function add(value, label, last) {
-  return parseInt(value)+' '+label+(parseInt(value)!=1?'s':'')+(!last?', ':'');
+  label += (parseInt(value)!=1?'s':'');
+  return parseInt(value)+' '+_(label)+(!last?', ':'');
 }
 function two(value, last) {
   return (parseInt(value)>9?'':'0')+parseInt(value)+(!last?':':'');
