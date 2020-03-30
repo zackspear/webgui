@@ -38,7 +38,7 @@ search = parent.location.search;
 
 function replaceName(name) {
   var x = search.indexOf("name=");
-  if (x) search = search.substring(0,x+5) + name;
+  if (x>0) search = search.substring(0,x+5) + name;
 }
 
 function replaceOrigin(new_origin,new_port) {
