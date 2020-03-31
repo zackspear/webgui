@@ -21,7 +21,7 @@ function _($text) {
   return strpos($data,'*')===false ? $data : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/'],['<b>$1</b>','<i>$1</i>'],$data);
 }
 function parse_lang_file($file) {
-  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['$1.=','$1="$2"',"_$1_=\"",'"'],str_replace(['"',"'","=\n"],["&#34;","&#39;","=''\n"],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
+  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['$1.=','$1="$2"',"_$1_=\"",'"'],preg_replace('/^(.+?)=(.+?)$/m','$1="$2"',str_replace(['"',"'","=\n"],["&#34;","&#39;","=\"\"\n"],file_get_contents($file))))),'secured',ARRAY_FILTER_USE_BOTH);
 }
 function parse_text($text) {
   return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:((help|plug)\d*)$/m","/^:end$/m"],["<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
