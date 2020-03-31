@@ -545,7 +545,7 @@ function formatWarning(val) {
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
-<!-- markdown fix --></p><?if (isset($display['sleep'])) @include $display['sleep'];?>
+<!-- markdown fix --></p><?if (isset($display['sleep'])) eval('?>'.parse_file($display['sleep']))?>
 <?if ($btrfs):?>
 <script>
 function enable_stop() {
