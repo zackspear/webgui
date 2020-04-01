@@ -306,7 +306,7 @@ function formatWarning(val) {
         <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Clear)_"></td><td>**_(Clear)_** _(will start **Clearing** new data disk(s))_.</td></tr>
 <?    else:
         if ($var['mdResyncAction']=="check"):?>
-          <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _ (will start **Read-Check** of all array disks)_.</td></tr>
+          <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Read-Check** of all array disks)_.</td></tr>
 <?      elseif (strstr($var['mdResyncAction'],"check")):?>
           <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;&nbsp;<a href="/Main/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>_(Write corrections to parity)_</small></td></tr>
@@ -488,7 +488,7 @@ function formatWarning(val) {
         <td>_(Too many wrong and/or missing disks)_!</td></tr>
 <?      break;
       case "ERROR:NO_DATA_DISKS":?>
-        <tr><td><?status_indicator()?>**_(Stopped)_**. _ (No data disks)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
+        <tr><td><?status_indicator()?>**_(Stopped)_**. _(No data disks)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
         <td>_(No array data disks have been assigned)_!</td></tr>
 <?      break;
       endswitch;
@@ -545,7 +545,7 @@ function formatWarning(val) {
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
-<!-- markdown fix --></p><?if (isset($display['sleep'])) @include $display['sleep'];?>
+<!-- markdown fix --></p><?if (isset($display['sleep'])) eval('?>'.parse_file($display['sleep']))?>
 <?if ($btrfs):?>
 <script>
 function enable_stop() {
