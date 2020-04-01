@@ -249,7 +249,7 @@ if ($_GET['xmlTemplate']) {
         }
       }
     }
-    $xml['Description'] = str_replace(['[', ']'], ['<', '>'], $xml['Overview']);
+    $xml['Description'] = markdown(str_replace(['[', ']'], ['<', '>'], $xml['Overview']));
     echo "<script>var Settings=".json_encode($xml).";</script>";
   }
 }
@@ -279,6 +279,7 @@ dl,dt,dd{line-height:normal!important}
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
+<script src="<?autov('/plugins/dynamix.docker.manager/javascript/markdown.js')?>"></script>
 <script>
 var confNum = 0;
 var drivers = {};
@@ -1082,7 +1083,14 @@ function toggleAllocations() {
 
 function load_contOverview() {
   var new_overview = $("textarea[name='contOverview']").val();
-  new_overview = new_overview.replaceAll("\n","").replaceAll("[","<").replaceAll("]",">");
+  new_overview = new_overview.replaceAll("[","<").replaceAll("]",">");
+  // if no html tags are present, treat the overview as Markdown
+  if ( stripTags(new_overview) == new_overview ) {
+    // Handle code block being created by authors indenting (manually editing the xml and spacing)
+    new_overview = new_overview.replaceAll("    ","&nbsp;&nbsp;&nbsp;&nbsp;");
+    new_overview = marked(new_overview);
+  } else 
+    new_overview = new_overview.replaceAll("\n","");
   $("#contDescription").html(new_overview);
 }
 
