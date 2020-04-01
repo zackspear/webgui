@@ -249,7 +249,7 @@ if ($_GET['xmlTemplate']) {
         }
       }
     }
-    $xml['Description'] = markdown(str_replace(['[', ']'], ['<', '>'], $xml['Overview']));
+    $xml['Description'] = str_replace(['[', ']'], ['<', '>'], $xml['Overview']);
     echo "<script>var Settings=".json_encode($xml).";</script>";
   }
 }
