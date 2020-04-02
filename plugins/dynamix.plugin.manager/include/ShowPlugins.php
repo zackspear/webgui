@@ -138,7 +138,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   if ($changes !== false) {
     $txtfile = "/tmp/plugins/".basename($plugin_file,'.plg').".txt";
     file_put_contents($txtfile,$changes);
-    $version .= "&nbsp;<a href='#' title='View Release Notes' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=".urlencode($txtfile)."','Release Notes',600,900); return false\"><span class='fa fa-info-circle fa-fw big blue-text'></span></a>";
+    $version .= "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=".urlencode($txtfile)."','"._('Release Notes')."',600,900); return false\"><span class='fa fa-info-circle fa-fw big blue-text'></span></a>";
   }
 //write plugin information
   $empty = false;
@@ -164,6 +164,6 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
 //remove temporary symlink
   @unlink("/var/log/plugins/$tmp_plg");
 }
-if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> No plugins installed</td><tr>";
+if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
 echo "\0".$updates;
 ?>
