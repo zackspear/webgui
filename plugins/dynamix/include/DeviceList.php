@@ -212,7 +212,7 @@ function array_offline(&$disk) {
   echo "</tr>";
 }
 function array_online(&$disk) {
-  global $sum, $diskio;
+  global $pools, $sum, $diskio;
   if ($disk['device']!='') {
     $dev = $disk['device'];
     $data = explode(' ',$diskio[$dev] ?? '0 0');
@@ -235,7 +235,7 @@ function array_online(&$disk) {
   echo "<tr>";
   switch ($disk['status']) {
   case 'DISK_NP':
-    if ($disk['name']=="cache") {
+    if (in_array($disk['name'],$pools)) {
       echo "<td>".device_info($disk,true)."</td>";
       echo "<td><em>"._('Not installed')."</em></td>";
       echo "<td colspan='4'></td>";
@@ -344,7 +344,8 @@ function cache_slots($off,$pool,$min,$slots) {
   return $out;
 }
 $crypto = false;
-$pools  = [];
+$cache  = cache_filter($disks);
+$pools  = pools_filter($cache);
 switch ($_POST['device']) {
 case 'array':
   $parity = parity_filter($disks);
@@ -379,8 +380,6 @@ case 'flash':
   echo "</tr>";
   break;
 case 'cache':
-  $cache = cache_filter($disks);
-  $pools = pools_filter($cache);
   foreach ($pools as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
