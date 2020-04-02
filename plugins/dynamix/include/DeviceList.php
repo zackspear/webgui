@@ -344,8 +344,7 @@ function cache_slots($off,$pool,$min,$slots) {
   return $out;
 }
 $crypto = false;
-$cache  = cache_filter($disks);
-$pools  = pools_filter($cache);
+$pools  = [];
 switch ($_POST['device']) {
 case 'array':
   $parity = parity_filter($disks);
@@ -380,6 +379,8 @@ case 'flash':
   echo "</tr>";
   break;
 case 'cache':
+  $cache = cache_filter($disks);
+  $pools = pools_filter($cache);
   foreach ($pools as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
