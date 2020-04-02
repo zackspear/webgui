@@ -60,4 +60,4 @@ To see natural IOMMU groups for your hardware, go to the <b><a href="/Settings/V
 > Note that linux groups ATA, SATA and SAS devices with true SCSI devices.
 
 <pre><table id='t4' class='pre'><tr><td><div class="spinner"></div></td></tr></table></pre>
-<input type="button" value="Done" onclick="done()">
+<input type="button" value="_(Done)_" onclick="done()">
