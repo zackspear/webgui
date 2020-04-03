@@ -11,8 +11,10 @@
  */
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+//add translations
 $_SERVER['REQUEST_URI'] = "plugins";
 require_once "$docroot/plugins/dynamix/include/Translations.php";
+
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 function download_url($url, $path = "") {

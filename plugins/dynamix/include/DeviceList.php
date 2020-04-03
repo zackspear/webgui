@@ -46,7 +46,7 @@ function in_parity_log($log,$timestamp) {
   return !empty($line);
 }
 function device_info(&$disk,$online) {
-  global $path, $var, $crypto;
+  global $pools, $path, $var, $crypto;
   $name = $disk['name'];
   $fancyname = $disk['type']=='New' ? $name : my_lang(my_disk($name),3);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
@@ -71,7 +71,7 @@ function device_info(&$disk,$online) {
   $link = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
-          ($disk['name']=='cache') || ($disk['name']=='flash') ||
+          ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
            $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".$fancyname."</a>" : $fancyname;
   if ($crypto) switch ($disk['luksState']) {
     case 0:
@@ -212,7 +212,7 @@ function array_offline(&$disk) {
   echo "</tr>";
 }
 function array_online(&$disk) {
-  global $sum, $diskio;
+  global $pools, $sum, $diskio;
   if ($disk['device']!='') {
     $dev = $disk['device'];
     $data = explode(' ',$diskio[$dev] ?? '0 0');
@@ -235,9 +235,9 @@ function array_online(&$disk) {
   echo "<tr>";
   switch ($disk['status']) {
   case 'DISK_NP':
-    if ($disk['name']=="cache") {
+    if (in_array($disk['name'],$pools)) {
       echo "<td>".device_info($disk,true)."</td>";
-      echo "<td><em>"._('Not installed')."</em></td>";
+      echo "<td><a class='none nohand'><i class=\"icon-disk icon\"></i><span></span></a><em>"._('Not installed')."</em></td>";
       echo "<td colspan='4'></td>";
       fs_info($disk);
     }
@@ -344,6 +344,8 @@ function cache_slots($off,$pool,$min,$slots) {
   return $out;
 }
 $crypto = false;
+$cache  = cache_filter($disks);
+$pools  = pools_filter($cache);
 switch ($_POST['device']) {
 case 'array':
   $parity = parity_filter($disks);
@@ -378,8 +380,7 @@ case 'flash':
   echo "</tr>";
   break;
 case 'cache':
-  $cache = cache_filter($disks);
-  foreach (pools_filter($cache) as $pool) {
+  foreach ($pools as $pool) {
     $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
     if ($var['fsState']=='Stopped') {

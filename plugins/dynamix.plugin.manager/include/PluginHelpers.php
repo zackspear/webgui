@@ -38,7 +38,7 @@ function make_link($method, $arg, $extra='') {
     $cmd = "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
     $exec = "loadlist";
   }
-  return "$check<input type='button' id='$id' value='".ucfirst(_($method))."' onclick='openBox(\"$cmd\",\"".ucwords(_($method))." Plugin\",600,900,true,\"$exec\",\"$plg\");'$disabled>";
+  return "$check<input type='button' id='$id' value='".ucfirst($method)."' onclick='openBox(\"$cmd\",\"".ucwords($method)." Plugin\",600,900,true,\"$exec\",\"$plg\");'$disabled>";
 }
 
 // trying our best to find an icon
