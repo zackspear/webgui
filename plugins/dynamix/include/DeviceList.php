@@ -113,7 +113,9 @@ function device_desc(&$disk) {
     case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
     default      : $type = 'disk'; break;
   }
-  $log = $var['fsState']=='Started' ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class=\"icon-$type icon\"></i><span>"._('Disk Log Information')."</span></a>" : "";
+  $log = $var['fsState']=='Started'
+       ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
+       : "<a class='nohand' style='color:grey'><i class='icon-$type icon'></i></a>";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }
 function assignment(&$disk) {
@@ -237,7 +239,7 @@ function array_online(&$disk) {
   case 'DISK_NP':
     if (in_array($disk['name'],$pools)) {
       echo "<td>".device_info($disk,true)."</td>";
-      echo "<td><a class='none nohand'><i class=\"icon-disk icon\"></i><span></span></a><em>"._('Not installed')."</em></td>";
+      echo "<td><a class='nohand' style='color:grey'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
       echo "<td colspan='4'></td>";
       fs_info($disk);
     }
