@@ -27,6 +27,9 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 table.divider{margin-top:30px}
 </style>
 <script>
+var button = false;
+function buttonOnly(){return button;}
+
 function addPoolPopup() {
   var popup = $('#dialogAddPool');
   // Load popup with the template info
@@ -56,6 +59,7 @@ function addPoolPopup() {
         } else if (!valid.test(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else {
+          button = true;
           $(this).find('form').submit();
           $(this).dialog('close');
         }
@@ -107,7 +111,7 @@ pool_status();
 
 <div id="dialogAddPool" style="display:none"></div>
 <div id="templatePopupPool" style="display:none">
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return buttonOnly()">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
 : <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
