@@ -21,7 +21,7 @@ function _($text) {
   return strpos($data,'*')===false ? $data : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/'],['<b>$1</b>','<i>$1</i>'],$data);
 }
 function parse_lang_file($file) {
-  return languageSecurity(array_filter(parse_ini_string(preg_replace(['/"/m','/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['\'','$1.=','$1="$2"',"_$1_=\"",'"'],str_replace("=\n","=''\n",file_get_contents($file)))),'strlen'));
+  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['$1.=','$1="$2"',"_$1_=\"",'"'],str_replace(['"',"=\n"],["&#34;","=\"\"\n"],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
 }
 function parse_text($text) {
   return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:((help|plug)\d*)$/m","/^:end$/m"],["<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
@@ -57,16 +57,9 @@ function my_lang($text,$do=0) {
   }
   return $text;
 }
-
-function languageSecurity($languageArray) {
-  foreach ($languageArray as &$translation) {
-    $tempElement = html_entity_decode($translation);
-    if ( preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement) || (stripos($tempElement,"<link") !== false) )
-      $translation = "REMOVED";
-  }
-  return $languageArray;
+function secured($v,$k) {
+  return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));
 }
-
 function translate($key) {
   global $language;
   if ($plug = isset($language[$key])) eval('?>'.Markdown($language[$key]));
