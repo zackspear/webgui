@@ -55,7 +55,7 @@ function addPoolPopup() {
         } else if (shares.includes(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (pools.includes(poolname)) {
-          swal({title:'_(Invalid pool name)_',text:'_(Share name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
+          swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else if (!valid.test(poolname)) {
           swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
         } else {
