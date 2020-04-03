@@ -246,7 +246,7 @@ function array_online(&$disk) {
     break;
   case 'DISK_NP_DSBL':
     echo "<td>".device_info($disk,true)."</td>";
-    echo "<td><em><a class='nohand' style='color:grey'><i class='icon-disk icon'></i><span></span></a>"._('Not installed')."</em></td>";
+    echo "<td><a class='nohand' style='color:grey'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
     echo "<td colspan='4'></td>";
     fs_info($disk);
     break;
