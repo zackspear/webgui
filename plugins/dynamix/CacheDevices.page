@@ -27,9 +27,28 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 table.divider{margin-top:30px}
 </style>
 <script>
-var button = false;
-function buttonOnly(){return button;}
-
+function validate(poolname) {
+  var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
+  var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
+  var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
+  var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
+  if (!poolname.trim()) return false;
+  if (reserved.includes(poolname)) {
+    swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  } else if (shares.includes(poolname)) {
+    swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  } else if (pools.includes(poolname)) {
+    swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  } else if (!valid.test(poolname)) {
+    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+    return false;
+  } else {
+    return true;
+  }
+}
 function addPoolPopup() {
   var popup = $('#dialogAddPool');
   // Load popup with the template info
@@ -44,22 +63,7 @@ function addPoolPopup() {
     hide : {effect:'fade', duration:250},
     buttons: {
       _(Add)_: function() {
-        var poolname = $(this).find('input[name="poolName"]').val();
-        var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
-        var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
-        var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
-        var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
-        if (!poolname.trim()) return;
-        if (reserved.includes(poolname)) {
-          swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
-        } else if (shares.includes(poolname)) {
-          swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
-        } else if (pools.includes(poolname)) {
-          swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
-        } else if (!valid.test(poolname)) {
-          swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
-        } else {
-          button = true;
+        if (validate($(this).find('input[name="poolName"]').val())) {
           $(this).find('form').submit();
           $(this).dialog('close');
         }
@@ -111,7 +115,7 @@ pool_status();
 
 <div id="dialogAddPool" style="display:none"></div>
 <div id="templatePopupPool" style="display:none">
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return buttonOnly()">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
 : <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
