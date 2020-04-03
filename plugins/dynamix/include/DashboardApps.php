@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2018, Lime Technology
+ * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2018, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,10 +13,6 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-// add translations
-$_SERVER['REQUEST_URI'] = 'dashboard';
-require_once "$docroot/webGui/include/Translations.php";
-
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
@@ -42,7 +38,7 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     $running = $info['running'] ? 1:0;
     $paused = $info['paused'] ? 1:0;
     $is_autostart = $info['autostart'] ? 'true':'false';
-    $updateStatus = substr($ct['NetworkMode'],-4)==':???' ? 2 : ($info['updated']=='true' ? 0 : ($info['updated']=='false' ? 1 : 3));
+    $updateStatus = $info['updated']=='true'||$info['updated']=='undef' ? 'true':'false';
     $template = $info['template'];
     $shell = $info['shell'];
     $webGui = html_entity_decode($info['url']);
@@ -53,12 +49,12 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
     $status = $running ? ($paused ? 'paused' : 'started') : 'stopped';
     $color = $status=='started' ? 'green-text' : ($status=='paused' ? 'orange-text' : 'red-text');
-    $update = $updateStatus==1 ? 'blue-text' : '';
+    $update = $updateStatus=='false' ? 'blue-text' : '';
     $icon = $info['icon'] ?: '/plugins/dynamix.docker.manager/images/question.png';
-    $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-    echo "<span class='outer solid apps $status'><span id='$id' class='hand'>$image</span><span class='inner'><span class='$update'>$name</span><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
+    $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img' onerror=this.src='/plugins/dynamix.docker.manager/images/question.png';>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
+    echo "<span class='outer solid apps $status'><span id='$id' class='hand'>$image</span><span class='inner'><span class='$update'>$name</span><br><i class='fa fa-$shape $status $color'></i><span class='state'>$status</span></span></span>";
   }
-  $none = count($containers) ? _('No running docker containers') : _('No docker containers defined');
+  $none = count($containers) ? "No running docker containers" : "No docker containers defined";
   echo "<span id='no_apps' style='display:none'>$none<br><br></span>";
   echo "</td><td></td></tr>";
 }
@@ -112,9 +108,9 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
       break;
     }
     $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-    echo "<span class='outer solid vms $status'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
+    echo "<span class='outer solid vms $status'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>$status</span></span></span>";
   }
-  $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
+  $none = count($vms) ? "No running virtual machines" : "No virtual machines defined";
   echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
   echo "</td><td></td></tr>";
 }
