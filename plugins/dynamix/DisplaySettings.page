@@ -204,7 +204,7 @@ _(Listing height)_:
   <?=mk_option($display['resize'], "1",_('Fixed'))?>
   </select>
 
-_(Display device identifier)_:
+_(Display device name)_:
 : <select name="raw">
   <?=mk_option($display['raw'], "",_('Normalized'))?>
   <?=mk_option($display['raw'], "1",_('Raw'))?>
