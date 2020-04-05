@@ -165,12 +165,6 @@ _(Time format)_:
   <?=mk_option($display['time'], "%R",_('24 hours'))?>
   </select>
 
-_(Display device identifier)_:
-: <select name="raw">
-  <?=mk_option($display['raw'], "",_('Normalized'))?>
-  <?=mk_option($display['raw'], "1",_('Raw'))?>
-  </select>
-
 _(Number format)_:
 : <select name="number">
   <?=mk_option($display['number'], ".,",_('[D] dot : [G] comma'))?>
@@ -208,6 +202,12 @@ _(Listing height)_:
 : <select name="resize">
   <?=mk_option($display['resize'], "0",_('Automatic'))?>
   <?=mk_option($display['resize'], "1",_('Fixed'))?>
+  </select>
+
+_(Display device identifier)_:
+: <select name="raw">
+  <?=mk_option($display['raw'], "",_('Normalized'))?>
+  <?=mk_option($display['raw'], "1",_('Raw'))?>
   </select>
 
 _(Display world-wide-name in device ID)_:
