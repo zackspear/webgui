@@ -43,7 +43,7 @@ function validate(poolname) {
     swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else if (!valid.test(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:'_(Invalid pool name)_',text:'_(Use two or more lowercase characters with no trailing digits)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else {
     return true;

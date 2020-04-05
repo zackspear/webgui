@@ -66,6 +66,10 @@ span.helptext{display:none;font-style:italic}
 span.code{display:inline-block;width:186px}
 </style>
 <script>
+if ($.cookie('deletepool')!=null) {
+  $.removeCookie('deletepool');
+  done();
+}
 function doDispatch(form) {
   var fields = {};
 <?if ($display['unit']=='F'):?>
@@ -273,6 +277,10 @@ function renamePoolPopup() {
   $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
 }
+function deletePool() {
+  $.cookie('deletepool','deletepool');
+  document.deletepool.submit();
+}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
@@ -444,6 +452,10 @@ _(Critical disk utilization threshold)_ (%):
 <?endif;?>
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+  <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
+  <?$empty = $disks[$name]['devices']==0?>
+  <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
+  <?endif;?>
 </form>
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
@@ -819,6 +831,7 @@ _(SMART attribute notifications)_:
 </form>
 
 <div id="dialogRenamePool" style="display:none"></div>
+
 <div id="templatePopupPool" style="display:none">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="poolNameOrig" value="<?=$name?>">
@@ -828,3 +841,10 @@ _(Name)_:
 
 </form>
 </div>
+
+<form name="deletepool" method="POST" action="/update.htm" target="progressFrame" style="display:none">
+<input type="hidden" name="changeSlots" value="apply">
+<input type="hidden" name="poolName" value="<?=$name?>">
+<input type="hidden" name="poolSlots" value="0">
+</form>
+
