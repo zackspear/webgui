@@ -226,7 +226,7 @@ function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
 }
 function validate(poolname) {
-  var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
+  var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
   var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
   var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
   var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
@@ -241,7 +241,7 @@ function validate(poolname) {
     swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else if (!valid.test(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters with no trailing digits)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else {
     return true;
