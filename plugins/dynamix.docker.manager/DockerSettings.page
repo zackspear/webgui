@@ -506,7 +506,7 @@ $docker_dhcp = "DOCKER_DHCP_$net";
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
-  **_(DHCP pool)_:** <?=$dockercfg[$docker_dhcp] ?? '_ (not set)_'?><?if ($dockercfg[$docker_dhcp]):?>&nbsp;&nbsp;(<?=pow(2,32-explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
+  **_(DHCP pool)_:** <?=$dockercfg[$docker_dhcp] ?? '_(not set)_'?><?if ($dockercfg[$docker_dhcp]):?>&nbsp;&nbsp;(<?=pow(2,32-explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
 
 <?endif;?>
 <?endforeach;?>

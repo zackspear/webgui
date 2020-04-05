@@ -1145,7 +1145,7 @@ file_put_contents('/tmp/post',print_r($_POST,true),FILE_APPEND);
 					<input type="hidden" name="updatevm" value="1" />
 					<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 				<? } else { ?>
-					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> _ (Start VM after creation)_</label>
+					<label for="xmldomain_start"><input type="checkbox" name="domain[xmlstartnow]" id="xmldomain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 					<br>
 					<input type="hidden" name="createvm" value="1" />
 					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
