@@ -63,20 +63,20 @@ input[type=email]{margin-top:8px;float:left}
 <div id="thanks_panel" class="allpanels"></div>
 <div id="onlinepoll_panel" class="allpanels"></div>
 <div id="featurerequest_panel" class="allpanels">
-<textarea id="featureDescription" placeholder="Please summarize your suggestion here."></textarea>
+<textarea id="featureDescription" placeholder="<?=_('Please summarize your suggestion here')?>."></textarea>
 <br>
-<input type="email" id="featureEmail" placeholder="Contact Email Address (optional)" /><input type="button" id="featureSubmit" value="Submit"/>
+<input type="email" id="featureEmail" placeholder="<?=_('Contact Email Address')?> (<?=_('optional')?>)" /><input type="button" id="featureSubmit" value="<?=_('Submit')?>"/>
 </div>
 <div id="bugreport_panel" class="allpanels">
 <textarea id="bugDescription"></textarea>
 <p style="line-height:14px;margin-top:0;font-size:1.1rem"><b><?=_('NOTE')?>:</b> <i><?=_('Submission of this bug report will automatically send your system diagnostics to Lime Technology')?>.</i></p>
-<label for="anonymize" style="line-height:12px"><input type="checkbox" id="anonymize" value="1" /> <?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
-<input type="email" id="bugEmail" placeholder="Contact Email Address (optional)" /><input type="button" id="bugSubmit" value="Submit"/>
+<label for="anonymize" style="line-height:12px"><input type="checkbox" id="anonymize" value="1" /><?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
+<input type="email" id="bugEmail" placeholder="<?=_('Contact Email Address')?> (<?=_('optional')?>)" /><input type="button" id="bugSubmit" value="<?=_('Submit')?>"/>
 </div>
 <div id="comment_panel" class="allpanels">
-<textarea id="commentDescription" placeholder="Type your question or comment to Lime Technology here."></textarea>
+<textarea id="commentDescription" placeholder="<?=_('Type your question or comment to Lime Technology here')?>."></textarea>
 <br>
-<input type="email" id="commentEmail" placeholder="Contact Email Address (optional)" /><input type="button" id="commentSubmit" value="Submit"/>
+<input type="email" id="commentEmail" placeholder="<?=_('Contact Email Address')?> (<?=_('optional')?>)" /><input type="button" id="commentSubmit" value="<?=_('Submit')?>"/>
 </div>
 <div id="spinner_image"><img src="/webGui/images/loading.gif"/></div>
 <div id="footer_panel">
