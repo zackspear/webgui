@@ -165,6 +165,12 @@ _(Time format)_:
   <?=mk_option($display['time'], "%R",_('24 hours'))?>
   </select>
 
+_(Display device identifier)_:
+: <select name="raw">
+  <?=mk_option($display['raw'], "",_('Normalized'))?>
+  <?=mk_option($display['raw'], "1",_('Raw'))?>
+  </select>
+
 _(Number format)_:
 : <select name="number">
   <?=mk_option($display['number'], ".,",_('[D] dot : [G] comma'))?>

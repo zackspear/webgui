@@ -53,7 +53,8 @@ function my_temp($value) {
   return is_numeric($value) ? (($unit=='F' ? round(9/5*$value+32) : str_replace('.', $number[0], $value))." $unit") : $value;
 }
 function my_disk($name) {
-  return ucfirst(preg_replace('/(\d+)$/',' $1',$name));
+  global $display;
+  return $display['raw'] ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
