@@ -204,6 +204,12 @@ _(Listing height)_:
   <?=mk_option($display['resize'], "1",_('Fixed'))?>
   </select>
 
+_(Display device name)_:
+: <select name="raw">
+  <?=mk_option($display['raw'], "",_('Normalized'))?>
+  <?=mk_option($display['raw'], "1",_('Raw'))?>
+  </select>
+
 _(Display world-wide-name in device ID)_:
 : <select name="wwn">
   <?=mk_option($display['wwn'], "0",_('Disabled'))?>
