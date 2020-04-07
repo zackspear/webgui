@@ -66,6 +66,10 @@ span.helptext{display:none;font-style:italic}
 span.code{display:inline-block;width:186px}
 </style>
 <script>
+if ($.cookie('deletepool')!=null) {
+  $.removeCookie('deletepool');
+  done();
+}
 function doDispatch(form) {
   var fields = {};
 <?if ($display['unit']=='F'):?>
@@ -222,7 +226,7 @@ function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
 }
 function validate(poolname) {
-  var valid = /^[a-z_][a-z0-9_-]*[a-z_]$/;
+  var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
   var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
   var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
   var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
@@ -237,7 +241,7 @@ function validate(poolname) {
     swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else if (!valid.test(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters only and no ending digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:'_(Invalid pool name)_',text:'_(Use lowercase characters with no trailing digits)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   } else {
     return true;
@@ -272,6 +276,10 @@ function renamePoolPopup() {
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
   $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
+}
+function deletePool() {
+  $.cookie('deletepool','deletepool');
+  document.deletepool.submit();
 }
 $(function() {
 <?if (count($sheets)>1):?>
@@ -444,6 +452,10 @@ _(Critical disk utilization threshold)_ (%):
 <?endif;?>
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+  <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
+  <?$empty = $disks[$name]['devices']==0?>
+  <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
+  <?endif;?>
 </form>
 
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
@@ -819,6 +831,7 @@ _(SMART attribute notifications)_:
 </form>
 
 <div id="dialogRenamePool" style="display:none"></div>
+
 <div id="templatePopupPool" style="display:none">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="poolNameOrig" value="<?=$name?>">
@@ -828,3 +841,10 @@ _(Name)_:
 
 </form>
 </div>
+
+<form name="deletepool" method="POST" action="/update.htm" target="progressFrame" style="display:none">
+<input type="hidden" name="changeSlots" value="apply">
+<input type="hidden" name="poolName" value="<?=$name?>">
+<input type="hidden" name="poolSlots" value="0">
+</form>
+
