@@ -85,7 +85,7 @@ if (isset($_POST['contName'])) {
       $oldXML = simplexml_load_file($filename);
       if ($oldXML->Icon != $_POST['contIcon']) {
         if (!strpos($Repository,":")) $Repository .= ":latest";
-        $iconPath = $DockerTemplates->getIcon($Repository);
+        $iconPath = $DockerTemplates->getIcon($Repository,$Name);
         @unlink("$docroot/$iconPath");
         @unlink("{$dockerManPaths['images']}/".basename($iconPath));
       }
