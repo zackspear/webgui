@@ -114,7 +114,7 @@ _(Comments)_:
 :end
 
 _(Use cache pool (for new files/directories))_:
-: <span class="input"><select name="shareUseCache" onchange="updateScreen(this.value)"<?=count($pools)?'':' disabled'?>>
+: <span class="input"><select name="shareUseCache" onchange="updateScreen(this.value)"<?=$pool_devices?'':' disabled'?>>
   <?=mk_option($share['useCache'], "no", _('No'))?>
   <?=mk_option($share['useCache'], "yes", _('Yes'))?>
   <?=mk_option($share['useCache'], "prefer", _('Prefer'))?>
