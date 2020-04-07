@@ -130,7 +130,7 @@ function assignment(&$disk) {
     $out .= "<option value=''>$empty</option>";
   } else
     $out .= "<option value='' selected>$empty</option>";
-  foreach ($devs as $dev) if ($disk['type']=='Cache' || $dev['tag']==0) {$out .= "<option value=\"{$dev['id']}\">".device_desc($dev)."</option>";}
+  foreach ($devs as $dev) $out .= "<option value=\"{$dev['id']}\">".device_desc($dev)."</option>";
   return "$out</select></form>";
 }
 function vfs_type($fs) {
