@@ -93,18 +93,22 @@ function selectInput(form) {
     $('#text').show();
     $('#copy').show();
     $('#pass').hide();
+    $('input[name="confirmStart"]').prop('disabled',true);
 <?elseif ($missing):?>
     $('#text').show();
     $('#copy').hide();
     $('#pass').hide();
+    $('input[name="confirmStart"]').prop('disabled',true);
 <?elseif ($wrong):?>
     $('#text').show();
     if ($('input[name="luksReformat"]').prop('checked')) $('#copy').show(); else $('#copy').hide();
     $('#pass').show();
+    $('input[name="confirmStart"]').prop('disabled',true);
 <?endif;?>
     $('#file').hide();
     $('input[name="text"],input[name="copy"]').attr('type',$('input[name="showPass"]').prop('checked')?'text':'password');
-    $('#cmdStart').prop('disabled',$('#copy').is(':visible') ? (form.text.value!=form.copy.value || form.text.value=='') : form.text.value=='');
+    var item = $('input[name="confirmStart"]').length ? $('input[name="confirmStart"]') : $('#cmdStart');
+    item.prop('disabled',$('#copy').is(':visible') ? (form.text.value!=form.copy.value || form.text.value=='') : form.text.value=='');
   } else {
     form.text.value = '';
     form.copy.value = '';
@@ -116,7 +120,8 @@ function selectInput(form) {
 <?else:?>
     $('#pass').hide();
 <?endif;?>
-    $('#cmdStart').prop('disabled',!form.file.value);
+    var item = $('input[name="confirmStart"]').length ? $('input[name="confirmStart"]') : $('#cmdStart');
+    item.prop('disabled',!form.file.value);
   }
 }
 function getFileContent(event,form) {
