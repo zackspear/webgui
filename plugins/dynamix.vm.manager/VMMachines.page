@@ -70,7 +70,7 @@ if ($subaction) {
     $capacity = vsize($_GET['cap']);
     if ($capacity > vsize($_GET['oldcap'])) {
       shell_exec("qemu-img resize -q ".escapeshellarg($_GET['disk'])." ".vsize($capacity,0));
-      $msg = $vm." disk capacity has been changed to $capacity";
+    $msg = $vm." disk capacity has been changed to {$_GET['cap']}";
     } else {
       $msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";
     }
