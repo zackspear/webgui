@@ -40,6 +40,18 @@ function showCPUs($uuid) {
   }
   echo "</div>";
 }
+function vsize($size,$expand=true) {
+  $units = ['','K','M','G','T','P','E','Z','Y'];
+  if ($expand) {
+    $size = str_replace(['B',' ',',', '.'],'',strtoupper($size));
+    [$c1,$c2] = preg_split('/(?<=[0-9])(?=[A-Z])/',$size);
+    return $c1 * pow(1024,array_search($c2,$units)?:0);
+  } else {
+    $base = $size ? floor(log($size,1024)) : 0;
+    return $size/pow(1024,$base).$units[$base];
+  }
+}
+
 $uuid = $_GET['uuid'];
 $subaction = $_GET['subaction'] ?? false;
 if ($_GET['refresh']) {
@@ -55,10 +67,9 @@ if ($_GET['refresh']) {
 if ($subaction) {
   $vm = $lv->domain_get_name_by_uuid($uuid);
   if ($subaction == 'disk-resize') {
-    $capacity = str_replace(["KB","MB","GB","TB","PB"," ",","], ["K","M","G","T","P","",""], strtoupper($_GET['cap']));
-    $oldcap = str_replace(["KB","MB","GB","TB","PB"," ",","], ["K","M","G","T","P","",""], strtoupper($_GET['oldcap']));
-    if (substr($oldcap,0,-1) < substr($capacity,0,-1)){
-      shell_exec("qemu-img resize -q ".escapeshellarg($_GET['disk'])." ".escapeshellarg($capacity));
+    $capacity = vsize($_GET['cap']);
+    if ($capacity > vsize($_GET['oldcap'])) {
+      shell_exec("qemu-img resize -q ".escapeshellarg($_GET['disk'])." ".vsize($capacity,0));
       $msg = $vm." disk capacity has been changed to $capacity";
     } else {
       $msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";
