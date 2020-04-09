@@ -546,7 +546,7 @@ function formatWarning(val) {
 <form name="shutdownOps" method="POST" action="/webGui/include/Boot.php">
 <table markdown="1" class="array_status noshift">
  <tr><td></td><td><input type="button" name="reboot" value="_(Reboot)_" onclick="shutdown_now(this.form,'reboot')"><input type="button" name="shutdown" value="_(Shutdown)_" onclick="shutdown_now(this.form,'shutdown')"></td>
- <td>**_(Reboot)_** _(will activate a *clean* system reset)_.<br>**_(Shutdown)_** _(will activate a *clean* system power down)_.</td></tr>
+ <td>**_(Reboot)_** _(will activate a *clean* system reset)_.<br>**_(Shutdown)_** _(will activate a *clean* system power down)_.<br><input type="checkbox" name="safemode"><small>_(Reboot in safe mode)_</small></td></tr>
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
