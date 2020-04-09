@@ -659,6 +659,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			</p>
 
 			<p>
+				<b>NOTE</b>: Unraid will automatically "dereference" vdisk paths when starting a VM.
+				That is, if a vdisk path is specified as being on a user share, we use the SYSTEM.LOCATION extended attribute to find out what physical disk the image exists on.
+				We then pass this path when starting a VM via qemu.  This ensures that VM I/O bypasses shfs (FUSE user share file system) for better performance.
+				It also means that a vdisk image file can be moved from one physical device to another without changing the VM XML file.
+			</p>
+
+			<p>
+				Example: /mnt/user/domains/Windows/vdisk1.img will be dereferenced to /mnt/cache/domains/Windows/vdisk1.img (for vdisk1.img physically located in the "cache" volume).
+			</p>
+
+			<p>
 				<b>vDisk Size</b><br>
 				Specify a number followed by a letter.  M for megabytes, G for gigabytes.
 			</p>
