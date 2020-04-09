@@ -157,7 +157,7 @@ if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
 <style>
-div.frame{float:left;margin:14px 0 36px 0}
+div.frame{float:left;margin:14px 0 0 0}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
@@ -636,6 +636,7 @@ function changeView(item) {
   update30();
 }
 function smartMenu(table) {
+  var rows = 0;
   $(table).find('[id^="smart-"]').each(function() {
     var opts = [];
     var id = '#'+$(this).attr('id');
@@ -651,8 +652,10 @@ function smartMenu(table) {
       opts.push({divider:true});
       opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
     }
+    rows = opts.length*20;
     context.attach(id,opts);
   });
+  $('div.frame').css({'margin-bottom':rows+'px'});
 }
 function portMenu() {
   var select = 'select[name="port_select"]';
