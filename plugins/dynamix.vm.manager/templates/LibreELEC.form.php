@@ -504,9 +504,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td></td>
 				<td>
-					<input type="button" value="_(Download)_" busyvalue="_(Downloading)_..." readyvalue="_(Download)_" id="btnDownload" />
-					<br>
-					<div id="download_status"></div>
+					<input type="button" value="_(Download)_" busyvalue="_(Downloading)_..." readyvalue="_(Download)_" id="btnDownload" /><span id="download_status"></span>
 				</td>
 			</tr>
 		</table>
