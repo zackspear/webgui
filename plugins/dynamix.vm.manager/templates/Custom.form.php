@@ -108,7 +108,6 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		$arrConfigDefaults = array_replace_recursive($arrConfigDefaults, $arrAllTemplates[$strSelectedTemplate]['overrides']);
 	}
 
-file_put_contents('/tmp/post',print_r($_POST,true),FILE_APPEND);
 	// create new VM
 	if ($_POST['createvm']) {
 		if ($_POST['xmldesc']) {
