@@ -849,6 +849,7 @@
 			'mk' => 'Macedonian (mk)',
 			'no' => 'Norwegian (no)',
 			'pl' => 'Polish (pl)',
+			'pt' => 'Portuguese (pt)',
 			'pt-br' => 'Portuguese-Brazil (pt-br)',
 			'ru' => 'Russian (ru)',
 			'sl' => 'Slovene (sl)',
