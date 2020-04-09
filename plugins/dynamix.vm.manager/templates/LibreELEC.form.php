@@ -68,7 +68,7 @@
 			$text = '';
 			foreach ($arrLibreELECConfig as $key => $value) $text .= "$key=\"$value\"\n";
 			file_put_contents($strLibreELECConfig, $text);
-			$reply = ['status' => _('ok')];
+			$reply = ['status' => 'ok'];
 		}
 
 		echo json_encode($reply);
@@ -90,9 +90,7 @@
 
 			// Check free space
 			if (disk_free_space($_POST['download_path']) < $arrDownloadLibreELEC['size']+10000) {
-				$reply = [
-					'error' => _('Not enough free space, need at least').' ' . ceil($arrDownloadLibreELEC['size']/1000000).'MB'
-				];
+				$reply = ['error' => _('Not enough free space, need at least').' ' . ceil($arrDownloadLibreELEC['size']/1000000).'MB'];
 				echo json_encode($reply);
 				exit;
 			}
@@ -133,7 +131,7 @@
 			if (file_exists($strExtractedFile)) {
 				if (!file_exists($strTempFile)) {
 					// Status = done
-					$reply['status'] = _('Done');
+					$reply['status'] = 'Done';
 					$reply['localpath'] = $strExtractedFile;
 					$reply['localfolder'] = dirname($strExtractedFile);
 				} else {
@@ -506,9 +504,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td></td>
 				<td>
-					<input type="button" value="_(Download)_" busyvalue="_(Downloading)_..." readyvalue="_(Download)_" id="btnDownload" />
-					<br>
-					<div id="download_status"></div>
+					<input type="button" value="_(Download)_" busyvalue="_(Downloading)_..." readyvalue="_(Download)_" id="btnDownload" /><span id="download_status"></span>
 				</td>
 			</tr>
 		</table>
@@ -652,7 +648,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						if (file_exists('/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd')) {
 							echo mk_option($arrConfig['domain']['ovmf'], '1', _('OVMF'));
 						} else {
-							echo mk_option('', '0', _('OVMF').' ('_('Not Available').')', 'disabled');
+							echo mk_option('', '0', _('OVMF').' ('._('Not Available').')', 'disabled');
 						}
 					?>
 					</select>
@@ -1235,7 +1231,7 @@ $(function() {
 					return;
 				}
 
-				if (data.status == '_(Done)_') {
+				if (data.status == 'Done') {
 					$("#vmform #template_libreelec").find('option:selected').attr({
 						localpath: data.localpath,
 						localfolder:  data.localfolder,

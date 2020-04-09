@@ -75,12 +75,15 @@ $(document).ajaxSend(function(elm, xhr, s){
 </script>
 </head>
 <?
+$safemode = '/boot/unraidsafemode';
 switch ($_POST['cmd']) {
   case 'reboot':
+    if (isset($_POST['safemode'])) touch($safemode); else @unlink($safemode);
     exec('/sbin/reboot');?>
     <body onload="reboot_online()"><div class='notice'></div></body>
 <?  break;
   case 'shutdown':
+    if (isset($_POST['safemode'])) touch($safemode); else @unlink($safemode);
     exec('/sbin/poweroff');?>
     <body onload="shutdown_online()"><div class='notice'></div></body>
 <?  break;
