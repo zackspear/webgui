@@ -58,7 +58,7 @@ function shareInclude($name) {
 }
 
 function cachePool($name) {
-  return strlen($name)<=8 ? $name : substr($name,0,6).'...';
+  return strlen($name)<=16 ? $name : substr($name,0,14).'...';
 }
 
 // Compute all user shares & check encryption
