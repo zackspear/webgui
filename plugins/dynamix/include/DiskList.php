@@ -51,6 +51,10 @@ function shareInclude($name) {
 function sharesOnly($disk) {
   return strpos('Data,Cache',$disk['type'])!==false && $disk['exportable']=='yes';
 }
+
+function truncate($name) {
+  return strlen($name)<=16 ? $name : substr($name,0,14).'...';
+}
 // filter disk shares
 $disks = array_filter($disks,'sharesOnly');
 
@@ -87,7 +91,7 @@ foreach ($disks as $name => $disk) {
    default: $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>"._('Unknown encryption state')."</span></a>"; break;
   } else $luks = "";
   echo "<tr>";
-  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href='$path/Disk?name=$name' onclick=\"$.cookie('one','tab1',{path:'/'})\">$name</a></td>";
+  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href='$path/Disk?name=$name' onclick=\"$.cookie('one','tab1',{path:'/'})\">".truncate($name)."</a></td>";
   echo "<td>{$disk['comment']}</td>";
   echo "<td>".disk_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".disk_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
