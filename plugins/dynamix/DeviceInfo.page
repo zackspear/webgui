@@ -1,5 +1,5 @@
 Menu="Device:1"
-Title="$name Settings"
+Title="$name _(Settings)_"
 Tag="hdd-o"
 ---
 <?PHP
