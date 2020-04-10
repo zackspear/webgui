@@ -32,7 +32,7 @@ function model($id) {
 }
 function truncate($name) {
   if (strlen($name)<=14) return $name;
-  [$n1,$n2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$name);
+  [$n1,$n2] = preg_split('/(?<=[a-z_-])(?= ?[0-9]+)/i',$name);
   return substr($n1,0,12).'... '.$n2;
 }
 // sort unassigned devices on disk identification
