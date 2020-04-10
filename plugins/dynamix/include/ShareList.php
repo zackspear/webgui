@@ -57,6 +57,10 @@ function shareInclude($name) {
   return !$include || substr($name,0,4)!='disk' || strpos("$include,", "$name,")!==false;
 }
 
+function cachePool($name) {
+  return strlen($name)<=8 ? $name : substr($name,0,6).'...';
+}
+
 // Compute all user shares & check encryption
 $crypto = false;
 foreach ($shares as $name => $share) {
@@ -95,7 +99,7 @@ foreach ($shares as $name => $share) {
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
   $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1&arg3=".urlencode($pools);
-  $cache = _(ucfirst($share['useCache']));
+  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.cachePool($share['cachePool']):'');
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
     echo "<td>".my_scale($ssz1[$name]['disk.total']*1024, $unit)." $unit</td>";
