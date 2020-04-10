@@ -65,29 +65,25 @@ function find_pages($item) {
   return $pages;
 }
 
-function tab_title($name,$path,$tag) {
+function tab_title($title,$path,$tag) {
   global $docroot;
-  if (preg_match('/^(disk|cache|parity)/',$name)) {
-    $text = [];
-    foreach (explode(' ',$name) as $word) $text[] = my_lang(my_disk($word),3);
-    $name = implode(' ',$text);
-  } elseif (substr($name,0,9)=='Interface') {
-      $name = my_lang($name,3);
-  } else {
-    $name = _($name);
+  if (preg_match('/^(disk|parity)/',$title)) {
+    $device = strtok($title,' ');
+    $title = str_replace($device,my_lang(my_disk($device),3),$title);
   }
+  $title = _(parse_text($title));
   if (!$tag || substr($tag,-4)=='.png') {
-    $file = "$path/icons/".($tag ?: strtolower(str_replace(' ','',$name)).".png");
+    $file = "$path/icons/".($tag ?: strtolower(str_replace(' ','',$title)).".png");
     if (file_exists("$docroot/$file")) {
-      return "<img src='/$file' class='icon'>$name";
+      return "<img src='/$file' class='icon'>$title";
     } else {
-      return "<i class='fa fa-th title'></i>$name";
+      return "<i class='fa fa-th title'></i>$title";
     }
   } elseif (substr($tag,0,5)=='icon-') {
-    return "<i class='$tag title'></i>$name";
+    return "<i class='$tag title'></i>$title";
   } else {
     if (substr($tag,0,3)!='fa-') $tag = "fa-$tag";
-    return "<i class='fa $tag title'></i>$name";
+    return "<i class='fa $tag title'></i>$title";
   }
 }
 
