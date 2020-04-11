@@ -58,7 +58,7 @@ function shareInclude($name) {
 }
 
 function truncate($name) {
-  return strlen($name)<=20 ? $name : substr($name,0,17).'...';
+  return strlen($name)<=20 ? $name : substr($name,0,11).'...'.substr($name,-6);
 }
 // Compute all user shares & check encryption
 $crypto = false;
