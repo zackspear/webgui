@@ -188,6 +188,10 @@ function day_count($time) {
 function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '.$word.($val!=1?'s':'').($last ?'':', ')) : '') : '';
 }
+function compress($name,$size=20,$end=6) {
+  return strlen($name)<=$size ? $name : substr($name,0,$size-$end-3).'...'.substr($name,-$end);
+}
+
 function read_parity_log($epoch, $busy=false) {
   $log = '/boot/config/parity-checks.log';
   if (file_exists($log)) {

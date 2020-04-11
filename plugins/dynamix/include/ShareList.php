@@ -57,9 +57,6 @@ function shareInclude($name) {
   return !$include || substr($name,0,4)!='disk' || strpos("$include,", "$name,")!==false;
 }
 
-function truncate($name) {
-  return strlen($name)<=16 ? $name : substr($name,0,14).'...';
-}
 // Compute all user shares & check encryption
 $crypto = false;
 foreach ($shares as $name => $share) {
@@ -93,12 +90,12 @@ foreach ($shares as $name => $share) {
    default: $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>"._('Unknown encryption state')."</span></a>"; break;
   } else $luks = "";
   echo "<tr>";
-  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href='$path/Share?name=".urlencode($name)."' onclick=\"$.cookie('one','tab1',{path:'/'})\">$name</a></td>";
+  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href='$path/Share?name=".urlencode($name)."' onclick=\"$.cookie('one','tab1',{path:'/'})\">".compress($name)."</a></td>";
   echo "<td>{$share['comment']}</td>";
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
   $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1&arg3=".urlencode($pools);
-  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.truncate($share['cachePool']):'');
+  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.compress($share['cachePool']):'');
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
     echo "<td>".my_scale($ssz1[$name]['disk.total']*1024, $unit)." $unit</td>";
