@@ -101,7 +101,7 @@ $cache_only = $encrypted = 0;
 foreach ($shares as $share) {
   $names[] = $share['name'];
   if ($share['useCache']=='only') $cache_only++;
-  if ($share['luksStatus']) $encrypted++;
+  if ($share['luksStatus']>0) $encrypted++;
 }
 $names = implode(',',$names);
 $passwd = $nopass = 0;
