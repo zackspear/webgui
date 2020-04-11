@@ -109,5 +109,5 @@ foreach ($list as $row) {
 echo "</tbody>";
 $objs = $dirs+$files;
 $totaltext = $files==0 ? '' : '('.my_scale($total,$unit).' '.$unit.' '._('total').')';
-if (!$total && $objs) echo "<tbody><tr><td colspan='5' style='text-align:center'>"._('No listing: Too many files')."</td></tr></tbody>";
+if ($first && $files) echo "<tbody><tr><td colspan='5' style='text-align:center'>"._('No listing: Too many files')."</td></tr></tbody>";
 echo "<tfoot><tr><td></td><td colspan='4'>$objs "._('object'.($objs==1?'':'s')).": $dirs "._('director'.($dirs==1?'y':'ies')).", $files "._('file'.($files==1?'':'s'))." $totaltext</td></tr></tfoot>";
