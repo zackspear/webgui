@@ -31,7 +31,7 @@ function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
 function truncate($name) {
-  if (strlen($name)<=14) return $name;
+  if (strlen($name)<=15) return $name;
   [$n1,$n2] = preg_split('/(?<=[a-z_-])(?= ?[0-9]+)/i',$name);
   return substr($n1,0,12).'...'.$n2;
 }

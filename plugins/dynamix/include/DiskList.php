@@ -53,7 +53,7 @@ function sharesOnly($disk) {
 }
 
 function truncate($name) {
-  return strlen($name)<=16 ? $name : substr($name,0,14).'...';
+  return strlen($name)<=20 ? $name : substr($name,0,17).'...';
 }
 // filter disk shares
 $disks = array_filter($disks,'sharesOnly');
