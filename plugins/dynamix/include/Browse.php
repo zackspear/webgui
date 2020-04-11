@@ -82,7 +82,7 @@ foreach ($file as $row) {
 array_multisort(array_column($list,'type'),$list);
 
 echo "<tbody>";
-$total=0;
+$total=0; $first = true;
 foreach ($list as $row) {
   if ($row['type']=='directory') {
     echo "<tr>";
@@ -93,7 +93,7 @@ foreach ($list as $row) {
     echo "<td class='loc'>{$row['disk']}</td>";
     echo "</tr>";
   } else {
-    if ($files==0 && $dirs>0) echo "</tbody><tbody>";
+    if ($first && $dirs>0) echo "</tbody><tbody>";
     $tag = strpos($row['disk'],',')===false ? '' : 'warning';
     echo "<tr>";
     echo "<td data='{$row['fext']}'><div class='icon-file icon-{$row['fext']}'></div></td>";
@@ -103,6 +103,7 @@ foreach ($list as $row) {
     echo "<td class='loc $tag'>{$row['disk']}</td>";
     echo "</tr>";
     $total+=$row['size'];
+    $first = false;
   }
 }
 echo "</tbody>";
