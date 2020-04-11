@@ -52,9 +52,6 @@ function sharesOnly($disk) {
   return strpos('Data,Cache',$disk['type'])!==false && $disk['exportable']=='yes';
 }
 
-function truncate($name) {
-  return strlen($name)<=20 ? $name : substr($name,0,11).'...'.substr($name,-6);
-}
 // filter disk shares
 $disks = array_filter($disks,'sharesOnly');
 

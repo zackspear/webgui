@@ -57,9 +57,6 @@ function shareInclude($name) {
   return !$include || substr($name,0,4)!='disk' || strpos("$include,", "$name,")!==false;
 }
 
-function truncate($name) {
-  return strlen($name)<=20 ? $name : substr($name,0,11).'...'.substr($name,-6);
-}
 // Compute all user shares & check encryption
 $crypto = false;
 foreach ($shares as $name => $share) {

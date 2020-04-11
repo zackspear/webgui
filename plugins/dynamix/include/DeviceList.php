@@ -30,9 +30,6 @@ extract(parse_plugin_cfg('dynamix',true));
 function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
-function truncate($name) {
-  return strlen($name)<=15 ? $name : substr($name,0,6).'...'.substr($name,-6);
-}
 // sort unassigned devices on disk identification
 if (count($devs)>1) array_multisort(array_column($devs,'sectors'),SORT_DESC,array_map('model',array_column($devs,'id')),SORT_NATURAL|SORT_FLAG_CASE,array_column($devs,'device'),$devs);
 
@@ -75,7 +72,7 @@ function device_info(&$disk,$online) {
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
           ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
-           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".truncate($fancyname)."</a>" : truncate($fancyname);
+           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".truncate($fancyname,15)."</a>" : truncate($fancyname,15);
   if ($crypto) switch ($disk['luksState']) {
     case 0:
       if (!vfs_luks($disk['fsType']))
