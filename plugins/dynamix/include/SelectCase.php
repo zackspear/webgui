@@ -44,7 +44,7 @@ $casemodel = $exist ? file_get_contents("$boot/$file") : '';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Select Case Model</title>
+<title><?=_('Select Case Model')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
