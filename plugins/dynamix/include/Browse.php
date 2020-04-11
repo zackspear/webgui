@@ -41,6 +41,9 @@ $all = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
 $fix = substr($dir,0,4)=='/mnt' ? explode('/',trim_slash($dir))[2] : 'flash';
 $cache = implode('|',pools_filter($disks)) ?: 'cache';
 
+$dirs = exec("find \"$dir\" -mindepth 1 -maxdepth 1 -type d|wc -l");
+$files = exec("find \"$dir\" -mindepth 1 -maxdepth 1 -type f|wc -l");
+ 
 exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$file);
 if ($user) {
   exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null",$set);
@@ -79,7 +82,7 @@ foreach ($file as $row) {
 array_multisort(array_column($list,'type'),$list);
 
 echo "<tbody>";
-$dirs=0; $files=0; $total=0;
+$total=0;
 foreach ($list as $row) {
   if ($row['type']=='directory') {
     echo "<tr>";
@@ -89,7 +92,6 @@ foreach ($list as $row) {
     echo "<td data='{$row['time']}'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td class='loc'>{$row['disk']}</td>";
     echo "</tr>";
-    $dirs++;
   } else {
     if ($files==0 && $dirs>0) echo "</tbody><tbody>";
     $tag = strpos($row['disk'],',')===false ? '' : 'warning';
@@ -100,11 +102,11 @@ foreach ($list as $row) {
     echo "<td data='{$row['time']}' class='$tag'>".my_time($row['time'],"%F {$display['time']}")."</td>";
     echo "<td class='loc $tag'>{$row['disk']}</td>";
     echo "</tr>";
-    $files++;
     $total+=$row['size'];
   }
 }
 echo "</tbody>";
 $objs = $dirs+$files;
 $totaltext = $files==0 ? '' : '('.my_scale($total,$unit).' '.$unit.' '._('total').')';
+if (!$total && $objs) echo "<tbody><tr><td colspan='5' style='text-align:center'>"._('No listing: Too many files')."</td></tr></tbody>";
 echo "<tfoot><tr><td></td><td colspan='4'>$objs "._('object'.($objs==1?'':'s')).": $dirs "._('director'.($dirs==1?'y':'ies')).", $files "._('file'.($files==1?'':'s'))." $totaltext</td></tr></tfoot>";
