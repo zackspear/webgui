@@ -99,7 +99,7 @@ $(function() {
 $models = [];
 $cases = explode("\n",file_get_contents("$docroot/webGui/styles/default-cases.css"));
 foreach ($cases as $case) if (substr($case,0,6)=='.case-') $models[] = substr($case,1,strpos($case,':')-1);
-sort($models);
+natsort($models);
 $tabs = floor((count($models)+2)/18)+1;
 for ($tab=1; $tab<=$tabs; $tab++) {
   echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><label for='tab{$tab}'>$tab</label><div class='content'>";
