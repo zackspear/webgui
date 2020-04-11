@@ -70,14 +70,7 @@ foreach ($file as $row) {
     case 3: $luks .= "<a class='info' onclick='return false'><i class='lock fa fa-lock red-text'></i><span>"._('Locked: wrong encryption key')."</span></a>"; break;
     default: $luks .= "<a class='info' onclick='return false'><i class='lock fa fa-lock red-text'></i><span>"._('Locked: unknown error')."</span></a>"; break;}
   }
-  $list[] = [
-    'type' => $attr[0],
-    'name' => $info['basename'],
-    'fext' => strtolower($info['extension']),
-    'size' => $attr[2],
-    'time' => $attr[3],
-    'disk' => my_name($disk).$luks
-  ];
+  $list[] = ['type' => $attr[0], 'name' => $info['basename'], 'fext' => strtolower($info['extension']), 'size' => $attr[2], 'time' => $attr[3], 'disk' => my_name($disk).$luks];
 }
 array_multisort(array_column($list,'type'),$list);
 
