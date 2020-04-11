@@ -57,11 +57,22 @@ $casemodel = $exist ? file_get_contents("$boot/$file") : '';
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 <style>
-div.case-list{float:left;padding:10px;margin-right:10px;margin-bottom:44px;height:72px;width:72px;text-align:center}
-div.case-list i{width:auto;max-width:72px;height:72px;font-size:72px;}
-div.case-list i.fa{padding-top:16px;margin-bottom:-16px;max-width:48px;font-size:48px;}
-div.case-list:hover{color:#f0000c;transform:scale(1.4,1.4);-webkit-transform:scale(1.4,1.4)}
-div.case-list:hover .case-name{margin-top:-5px;font-size:1rem}
+div.tab{float:left;margin-top:0}
+div.tab input[id^="tab"]{display:none}
+div.tab [type=radio]+label:hover{background-color:transparent;border:1px solid #ff8c2f;border-bottom:none;cursor:pointer;opacity:1}
+div.tab [type=radio]:checked+label{cursor:default;background-color:transparent;border:1px solid #ff8c2f;border-bottom:none;opacity:1}
+div.tab [type=radio]+label~.content{display:none}
+div.tab [type=radio]:checked+label~.content{display:inline}
+div.tab [type=radio]+label{position:relative;font-size:1.4rem;letter-spacing:1.8px;padding:4px 10px;margin-right:2px;border-top-left-radius:6px;border-top-right-radius:6px;border:1px solid #b2b2b2;border-bottom:none;background-color:#e2e2e2;opacity:0.5}
+div.tab [type=radio]+label img{padding-right:4px}
+div.content{position:absolute;top:0;left:0;width:100%}
+label+.content{margin-top:64px}
+div.case-list{float:left;padding:10px;margin-right:10px;margin-bottom:64px;height:128px;width:128px;text-align:center}
+div.case-list.left{margin-left:20px}
+div.case-list.right{margin-right:0;padding-right:0}
+div.case-list i{width:auto;max-width:128px;height:128px;font-size:128px}
+div.case-list i.fa{padding-top:16px;margin-bottom:-16px;max-width:80px;font-size:80px}
+div.case-list:hover{color:#f0000c}
 div.case-name{margin-top:8px;font-family:clear-sans!important}
 </style>
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
@@ -77,25 +88,37 @@ function setCase(model) {
 function deleteCase() {
   $.post('/webGui/include/SelectCase.php',{mode:'del',file:'<?=$file?>',csrf_token:'<?=$_GET['csrf']?>'},function(){top.Shadowbox.close();});
 }
+$(function() {
+  $('#tab1').prop('checked',true);
+});
 </script>
 </head>
 <body>
-<div style='margin:20px 0 0 50px'>
+<div style='margin:20px 0 0 30px'>
 <?
 $models = [];
 $cases = explode("\n",file_get_contents("$docroot/webGui/styles/default-cases.css"));
 foreach ($cases as $case) if (substr($case,0,6)=='.case-') $models[] = substr($case,1,strpos($case,':')-1);
 sort($models);
-foreach ($models as $model) {
-  $name = substr($model,5);
-  $title = str_replace('3u-avs-10-4','3u-avs-10/4',$name);
-  $select = $name==$casemodel ? 'color:#e68a00' : '';
-  echo "<a style='text-decoration:none;cursor:pointer;$select' onclick='setCase(\"$name\")'><div class='case-list' id='$name'><i class='$model'></i><div class='case-name'>$title</div></div></a>";
+$tabs = floor((count($models)+2)/18)+1;
+for ($tab=1; $tab<=$tabs; $tab++) {
+  echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><label for='tab{$tab}'>$tab</label><div class='content'>";
+  for ($i=($tab-1)*18; $i < $tab*18; $i++) {
+    if ($i>=count($models)) break;
+    $model = $models[$i];
+    $name = substr($model,5);
+    $title = str_replace('3u-avs-10-4','3u-avs-10/4',$name);
+    $select = $name==$casemodel ? 'color:#e68a00' : '';
+    echo "<a style='text-decoration:none;cursor:pointer;$select' onclick='setCase(\"$name\")'><div class='case-list".($i%6==0?' left':($i%6==5?' right':''))."' id='$name'><i class='$model'></i><div class='case-name'>$title</div></div></a>";
+  }
+  if ($tab==$tabs) {
+    echo "<a style='text-decoration:none;cursor:pointer;$select' onclick='$(\"input#file\").trigger(\"click\")'><div class='case-list".($i%6==0?' left':($i%6==5?' right':''))."' id='Custom'><i class='fa fa-file-image-o'></i><div class='case-name'>"._('custom image')."</div></div></a>"; $i++;
+    echo "<a style='text-decoration:none;cursor:pointer' onclick='deleteCase()'><div class='case-list".($i%6==0?' left':($i%6==5?' right':''))."'><i class='fa fa-hdd-o'></i><div class='case-name'>"._('default image')."</div></div></a>";
+  }
+  echo "</div></div>";
 }
 $select = substr($casemodel,-4)=='.png' ? 'color:#e68a00' : '';
 ?>
-<a style='text-decoration:none;cursor:pointer;<?=$select?>' onclick='$("input#file").trigger("click")'><div class='case-list' id='Custom'><i class='fa fa-file-image-o'></i><div class='case-name'><?=_('custom image')?></div></div></a>
-<a style='text-decoration:none;cursor:pointer' onclick='deleteCase()'><div class='case-list'><i class='fa fa-hdd-o'></i><div class='case-name'><?=_('default image')?></div></div></a>
 <input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>
 </div>
 </body>
