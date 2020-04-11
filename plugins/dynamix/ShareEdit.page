@@ -372,11 +372,12 @@ function presetSpace(shareFloor) {
 function prepareEdit(form) {
 // Test share name validity
   var share = form.shareName.value.trim();
+  var reserved = [<?=implode(',',array_map('escapeshellarg',explode(',',$var['reservedNames'])))?>];
   if (share.length==0) {
     swal({title:'_(Missing share name)_',text:'_(Enter a name for the share)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
-  if (share.match('^(disk[0-9]+|cache[0-9]*|flash)$')) {
+  if (reserved.includes(share)) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }

@@ -29,7 +29,7 @@ table.divider{margin-top:20px}
 <script>
 function validate(poolname) {
   var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
-  var reserved = ['disk','disks','diskp','diskq','diskr','flash','parity','parity2'];
+  var reserved = [<?=implode(',',array_map('escapeshellarg',explode(',',$var['reservedNames'])))?>];
   var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
   var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
   if (!poolname.trim()) return false;
