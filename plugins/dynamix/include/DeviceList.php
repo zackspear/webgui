@@ -31,8 +31,7 @@ function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
 function truncate($name) {
-  if (strlen($name)<=15) return $name;
-  return substr($name,0,6).'...'.substr($name,-6);
+  return strlen($name)<=15 ? $name : substr($name,0,6).'...'.substr($name,-6);
 }
 // sort unassigned devices on disk identification
 if (count($devs)>1) array_multisort(array_column($devs,'sectors'),SORT_DESC,array_map('model',array_column($devs,'id')),SORT_NATURAL|SORT_FLAG_CASE,array_column($devs,'device'),$devs);
