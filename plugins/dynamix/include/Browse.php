@@ -86,9 +86,10 @@ foreach ($files as $row) {
   $file = pathinfo($name);
   $devs = explode(',',$set?:$fix);
   $text = my_devs($devs);
+  $fext = strtolower($file['fext']);
   $tag  = strpos($text,',')===false ? '' : 'warning';
   echo "<tr>";
-  echo "<td data='{$row['fext']}'><div class='icon-file icon-{$row['fext']}'></div></td>";
+  echo "<td data='$fext'><div class='icon-file icon-$fext'></div></td>";
   echo "<td><a href=\"".htmlspecialchars(trim_slash($dir.'/'.$file['basename']))."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($file['basename'])."</a></td>";
   echo "<td data='$size' class='$tag'>".my_scale($size,$unit)." $unit</td>";
   echo "<td data='$time' class='$tag'>".my_time($time,$fmt)."</td>";
