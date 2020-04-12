@@ -642,14 +642,14 @@ function smartMenu(table) {
     var page = $(this).attr('name');
     var view = $(this).attr('class');
     var disk = id.substr(id.indexOf('-')+1);
-    opts.push({text:'Attributes',icon:'fa-sitemap',action:function(e){e.preventDefault();attributes(page,disk);}});
+    opts.push({text:'_(Attributes)_',icon:'fa-sitemap',action:function(e){e.preventDefault();attributes(page,disk);}});
     opts.push({divider:true});
-    opts.push({text:'Capabilities',icon:'fa-user',action:function(e){e.preventDefault();capabilities(page,disk);}});
+    opts.push({text:'_(Capabilities)_',icon:'fa-user',action:function(e){e.preventDefault();capabilities(page,disk);}});
     opts.push({divider:true});
-    opts.push({text:'Identity',icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
+    opts.push({text:'_(Identity)_',icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
     if (view.search('green-text') == -1) {
       opts.push({divider:true});
-      opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      opts.push({text:'_(Acknowledge)_',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
     }
     context.attach(id,opts);
   });
