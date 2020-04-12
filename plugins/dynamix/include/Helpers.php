@@ -52,9 +52,9 @@ function my_temp($value) {
   $number = $display['number'];
   return is_numeric($value) ? (($unit=='F' ? round(9/5*$value+32) : str_replace('.', $number[0], $value))." $unit") : $value;
 }
-function my_disk($name) {
+function my_disk($name,$raw=false) {
   global $display;
-  return $display['raw'] ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
+  return $display['raw']||$raw ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
@@ -188,8 +188,8 @@ function day_count($time) {
 function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '.$word.($val!=1?'s':'').($last ?'':', ')) : '') : '';
 }
-function compress($name,$size=20,$end=6) {
-  return strlen($name)<=$size ? $name : substr($name,0,$size-$end-3).'...'.substr($name,-$end);
+function compress($name,$size=18,$end=6) {
+  return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end-3:0)).'...'.($end?substr($name,-$end):'');
 }
 
 function read_parity_log($epoch, $busy=false) {

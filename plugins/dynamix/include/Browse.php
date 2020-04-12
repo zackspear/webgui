@@ -23,22 +23,20 @@ function parent_link() {
   return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user') ? "<a href=\"/$path?dir=".htmlspecialchars(urlencode_path(dirname($dir)))."\">Parent Directory</a>" : "";
 }
 function trim_slash($url){
-  return preg_replace('/\/\/+/','/',$url);
+  return preg_replace('://+:','/',$url);
 }
 function my_devs(&$devs) {
   global $disks;
   $text = []; $i = 0;
   foreach ($devs as $dev) {
-    $text[$i] = my_lang(my_disk($dev),3);
-    if (substr($disks[$dev]['fsType'],0,5)=='luks:') {
-      switch ($disks[$dev]['luksState']) {
-      case 0: $text[$i] .= "<a class='info' onclick='return false'><i class='lock fa fa-unlock grey-text'></i><span>"._('Not encrypted')."</span></a>"; break;
-      case 1: $text[$i] .= "<a class='info' onclick='return false'><i class='lock fa fa-unlock-alt green-text'></i><span>"._('Encrypted and unlocked')."</span></a>"; break;
-      case 2: $text[$i] .= "<a class='info' onclick='return false'><i class='lock fa fa-lock red-text'></i><span>"._('Locked: missing encryption key')."</span></a>"; break;
-      case 3: $text[$i] .= "<a class='info' onclick='return false'><i class='lock fa fa-lock red-text'></i><span>"._('Locked: wrong encryption key')."</span></a>"; break;
-     default: $text[$i] .= "<a class='info' onclick='return false'><i class='lock fa fa-lock red-text'></i><span>"._('Locked: unknown error')."</span></a>"; break;}
+    switch ($disks[$dev]['luksState']) {
+      case 0: $text[$i] = "<a class='info' onclick='return false'><i class='lock fa fa-fw fa-unlock grey-text'></i><span>"._('Not encrypted')."</span></a>"; break;
+      case 1: $text[$i] = "<a class='info' onclick='return false'><i class='lock fa fa-fw fa-unlock-alt green-text'></i><span>"._('Encrypted and unlocked')."</span></a>"; break;
+      case 2: $text[$i] = "<a class='info' onclick='return false'><i class='lock fa fa-fw fa-lock red-text'></i><span>"._('Locked: missing encryption key')."</span></a>"; break;
+      case 3: $text[$i] = "<a class='info' onclick='return false'><i class='lock fa fa-fw fa-lock red-text'></i><span>"._('Locked: wrong encryption key')."</span></a>"; break;
+     default: $text[$i] = "<a class='info' onclick='return false'><i class='lock fa fa-fw fa-lock red-text'></i><span>"._('Locked: unknown error')."</span></a>"; break;
     }
-    $i++;
+    $text[$i++] .= compress($dev,8,0);
   }
   return implode(', ',$text);
 }
@@ -48,7 +46,7 @@ $dir   = urldecode($_GET['dir']);
 $path  = $_GET['path'];
 $user  = $_GET['user'];
 $all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$fix   = substr($dir,0,4)=='/mnt' ? explode('/',trim_slash($dir))[2] : 'flash';
+$fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: _('---')) : _('flash');
 $fmt   = "%F {$display['time']}";
 $dirs  = $files = [];
 $total = $i = 0;
@@ -64,7 +62,7 @@ while (($row = fgets($stat))!==false) {
 }
 pclose($stat);
 
-echo "<thead><tr><th>"._('Type')."</th><th class='sorter-text'>"._('Name')."</th><th>"._('Size')."</th><th>"._('Last Modified')."</th><th>"._('Location')."</th></tr></thead>";
+echo "<thead><tr><th>"._('Type')."</th><th class='sorter-text'>"._('Name')."</th><th>"._('Size')."</th><th>"._('Last Modified')."</th><th style='width:200px'>"._('Location')."</th></tr></thead>";
 if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><div><img src='/webGui/icons/folderup.png'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
 
 echo "<tbody>";
