@@ -398,11 +398,7 @@ class DockerUpdate{
 		 */
 		$DockerClient = new DockerClient();
 		$registryAuth = $DockerClient->getRegistryAuth($image);
-		if ($registryAuth) {
-			$manifestURL = sprintf('%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['imageName'], $registryAuth['imageTag']);
-		} else {
-			$manifestURL = sprintf('https://registry-1.docker.io/v2/%s/manifests/%s', $strRepo, $strTag);
-		}
+		$manifestURL = sprintf('%s%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['repository'], $registryAuth['imageName'], $registryAuth['imageTag']);
 		//$this->debug('Manifest URL: '.$manifestURL);
 		$ch = getCurlHandle($manifestURL, 'HEAD');
 		$reply = curl_exec($ch);
@@ -425,27 +421,29 @@ class DockerUpdate{
 			}
 			if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) return null;
 			$url = $args['realm'].'?service='.urlencode($args['service']).'&scope='.urlencode($args['scope']);
-			$this->debug('Token URL: '.$url);
+			//$this->debug('Token URL: '.$url);
 			/**
 			 * Step 2a: Get token from API and authenticate via username / password if in private registry and auth data was found
 			 */
 			$ch = getCurlHandle($url);
-			if ($registryAuth) curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+			if (!empty($registryAuth['password'])) {
+        curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+			}
 			$reply = curl_exec($ch);
 			if (curl_errno($ch) !== 0) {
-				$this->debug('Error: curl error getting token: '.curl_error($ch));
+				//$this->debug('Error: curl error getting token: '.curl_error($ch));
 				return null;
 			}
 			$reply = json_decode($reply, true);
 			if (!$reply || empty($reply['token'])) {
-				$this->debug('Error: Token response was empty or missing token');
+				//$this->debug('Error: Token response was empty or missing token');
 				return null;
 			}
 			$token = $reply['token'];
 			array_push($header, 'Authorization: Bearer '.$token);
 		}
 		if (preg_match('@www-authenticate:\s*Basic\s*@i', $reply)) {
-			if ($registryAuth) curl_setopt($digest_ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+			if (!empty($registryAuth['password'])) curl_setopt($digest_ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
 			else return null;
 		}
 		/**
@@ -794,29 +792,37 @@ class DockerClient {
 
 	public function getRegistryAuth($image) {
 		$image = DockerUtil::ensureImageTag($image);
-		$usesRegistry = preg_match('@^([^/]+)/(.+):(.+)$@', $image, $matches);
-		if (!$usesRegistry) {
-			return false;
+		//$this->debug('Image: '.$image);
+		preg_match('@^([^/]+\.[^/]+/)?([^/]+/)?(.+:)(.+)$@', $image, $matches);
+		list(,$registry, $repository, $image, $tag) = $matches;
+		$ret = [
+			'username'     => '',
+			'password'     => '',
+			'registryName' => substr($registry, 0, -1),
+			'repository' => $repository,
+			'imageName'    => substr($image, 0, -1),
+			'imageTag'     => $tag,
+			'apiUrl'       => 'https://'.$registry.'v2/',
+		];
+		$configKey = $ret['registryName'];
+		if (empty($registry) || $configKey == 'docker.io') {
+			$ret['apiUrl'] = 'https://registry-1.docker.io/v2/';
 		}
-
+		// Use credentials if docker.io registry is specified
+		if ($configKey == 'docker.io') {
+			$configKey = 'https://index.docker.io/v1/';
+		}
 		$dockerConfig = '/root/.docker/config.json';
 		if (!file_exists($dockerConfig)) {
-			return false;
+			return $ret;
 		}
 		$dockerConfig = json_decode(file_get_contents($dockerConfig), true);
-		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $matches[1] ])) {
-			return false;
+		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $configKey ])) {
+			return $ret;
 		}
-		list($user, $password) = explode(':', base64_decode($dockerConfig['auths'][ $matches[1] ]['auth']));
+		list($ret['username'], $ret['password']) = explode(':', base64_decode($dockerConfig['auths'][ $configKey ]['auth']));
 
-		return [
-			'username'     => $user,
-			'password'     => $password,
-			'registryName' => $matches[1],
-			'imageName'    => $matches[2],
-			'imageTag'     => $matches[3],
-			'apiUrl'       => 'https://'.$matches[1].'/v2/',
-		];
+		return $ret; 
 	}
 
 	public function removeImage($id) {
