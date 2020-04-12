@@ -20,8 +20,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function parent_link() {
   global $dir,$path;
-  return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user')
-  ? "<a href=\"/$path?dir=".htmlspecialchars(urlencode_path(dirname($dir)))."\">Parent Directory</a>" : "";
+  return ($dir && dirname($dir)!='/' && dirname($dir)!='/mnt' && dirname($dir)!='/mnt/user') ? "<a href=\"/$path?dir=".htmlspecialchars(urlencode_path(dirname($dir)))."\">Parent Directory</a>" : "";
 }
 function trim_slash($url){
   return preg_replace('/\/\/+/','/',$url);
@@ -70,11 +69,12 @@ echo "<tbody>";
 foreach ($dirs as $row) {
   [$type,$name,$size,$time,$set] = explode('|',$row);
   $file = pathinfo($name);
+  $name = $file['basename'];
   $devs = explode(',',$set?:$fix);
   $text = my_devs($devs);
   echo "<tr>";
   echo "<td data=''><div class='icon-dir'></div></td>";
-  echo "<td><a href=\"/$path?dir=".htmlspecialchars(urlencode_path(trim_slash($dir.'/'.$file['basename'])))."\">".htmlspecialchars($file['basename'])."</a></td>";
+  echo "<td><a href=\"/$path?dir=".htmlspecialchars(urlencode_path(trim_slash("$dir/$name")))."\">".htmlspecialchars($name)."</a></td>";
   echo "<td data='0'>&lt;FOLDER&gt;</td>";
   echo "<td data='$time'>".my_time($time,$fmt)."</td>";
   echo "<td class='loc'>$text</td>";
@@ -84,13 +84,14 @@ if (count($dirs)) echo "</tbody><tbody>";
 foreach ($files as $row) {
   [$type,$name,$size,$time,$set] = explode('|',$row);
   $file = pathinfo($name);
+  $name = $file['basename'];
+  $ext  = strtolower($file['extension']);
   $devs = explode(',',$set?:$fix);
   $text = my_devs($devs);
-  $fext = strtolower($file['extension']);
   $tag  = strpos($text,',')===false ? '' : 'warning';
   echo "<tr>";
-  echo "<td data='$fext'><div class='icon-file icon-$fext'></div></td>";
-  echo "<td><a href=\"".htmlspecialchars(trim_slash($dir.'/'.$file['basename']))."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($file['basename'])."</a></td>";
+  echo "<td data='$ext'><div class='icon-file icon-$ext'></div></td>";
+  echo "<td><a href=\"".htmlspecialchars(trim_slash("$dir/$name"))."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($name)."</a></td>";
   echo "<td data='$size' class='$tag'>".my_scale($size,$unit)." $unit</td>";
   echo "<td data='$time' class='$tag'>".my_time($time,$fmt)."</td>";
   echo "<td class='loc $tag'>$text</td>";
