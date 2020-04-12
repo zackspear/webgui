@@ -59,7 +59,7 @@ if ($user) {
 }
 $stat = popen("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all",'r');
 while (($row = fgets($stat))!==false) {
-$row .= $user ? "|{$set[++$i]}" : "|$fix";
+  $row .= $user ? "|{$set[++$i]}" : "|$fix";
   if (substr($row,0,9)=='directory') $dirs[] = $row; else $files[] = $row;
 }
 pclose($stat);
