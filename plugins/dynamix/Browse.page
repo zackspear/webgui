@@ -21,7 +21,7 @@ Markdown="false"
 <script>
 $(function(){
   timers.browse = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(urlencode($dir))?>",path:"<?=$path?>",user:<?=substr($dir,0,10)=='/mnt/user/'?1:0?>},function(data){
+  $.get('/webGui/include/Browse.php',{dir:"<?=addslashes(urlencode($dir))?>",path:"<?=$path?>",user:<?=substr($dir,0,9)=='/mnt/user'?1:0?>},function(data){
     clearTimeout(timers.browse);
     var table = $('table.indexer');
     var col = $.cookie('col')||1;
