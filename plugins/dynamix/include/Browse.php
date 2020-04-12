@@ -59,10 +59,11 @@ if ($user) {
 }
 $stat = popen("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all",'r');
 while (($row = fgets($stat))!==false) {
-  if ($user) $row .= '|'.$set[++$i];
+$row .= $user ? "|{$set[++$i]}" : "|$fix";
   if (substr($row,0,9)=='directory') $dirs[] = $row; else $files[] = $row;
 }
 pclose($stat);
+
 echo "<thead><tr><th>"._('Type')."</th><th class='sorter-text'>"._('Name')."</th><th>"._('Size')."</th><th>"._('Last Modified')."</th><th>"._('Location')."</th></tr></thead>";
 if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><div><img src='/webGui/icons/folderup.png'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
 
@@ -71,7 +72,7 @@ foreach ($dirs as $row) {
   [$type,$name,$size,$time,$set] = explode('|',$row);
   $file = pathinfo($name);
   $name = $file['basename'];
-  $devs = explode(',',$set?:$fix);
+  $devs = explode(',',$set);
   $text = my_devs($devs);
   echo "<tr>";
   echo "<td data=''><div class='icon-dir'></div></td>";
@@ -87,7 +88,7 @@ foreach ($files as $row) {
   $file = pathinfo($name);
   $name = $file['basename'];
   $ext  = strtolower($file['extension']);
-  $devs = explode(',',$set?:$fix);
+  $devs = explode(',',$set);
   $text = my_devs($devs);
   $tag  = strpos($text,',')===false ? '' : 'warning';
   echo "<tr>";
