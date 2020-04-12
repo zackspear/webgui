@@ -15,7 +15,7 @@ Markdown="false"
  */
 ?>
 <style>
-.loc{text-align:left;white-space:nowrap}
+.loc{text-align:left}
 #title span.left{text-transform:none}
 </style>
 <script>
@@ -39,6 +39,6 @@ $(function(){
 </script>
 <table class="indexer tablesorter shift">
  <thead><tr><th>_(Type)_</th><th class='sorter-text'>_(Name)_</th><th>_(Size)_</th><th>_(Last Modified)_</th><th>_(Location)_</th></tr></thead>
- <tbody><tr><td colspan="5"></td></tr></tbody>
+ <tbody><tr><td colspan="5">&nbsp;</td></tr></tbody>
 </table>
 <input type="button" value="_(Done)_" onclick="done('Browse')">
