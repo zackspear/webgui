@@ -86,7 +86,7 @@ foreach ($files as $row) {
   $file = pathinfo($name);
   $devs = explode(',',$set?:$fix);
   $text = my_devs($devs);
-  $fext = strtolower($file['fext']);
+  $fext = strtolower($file['extension']);
   $tag  = strpos($text,',')===false ? '' : 'warning';
   echo "<tr>";
   echo "<td data='$fext'><div class='icon-file icon-$fext'></div></td>";
