@@ -53,15 +53,16 @@ $fmt   = "%F {$display['time']}";
 $dirs  = $files = [];
 $total = $i = 0;
 
-exec("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all 2>/dev/null",$rows);
-if ($user && count($rows)) {
+if ($user) {
   $tag = implode('|',array_merge(['disk'],pools_filter($disks)));
   $set = explode(';',str_replace(',;',',',preg_replace("/($tag)/",';$1',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null"))));
 }
-foreach ($rows as &$row) {
+$stat = popen("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all",'r');
+while (($row = fgets($stat))!==false) {
   if ($user) $row .= '|'.$set[++$i];
   if (substr($row,0,9)=='directory') $dirs[] = $row; else $files[] = $row;
 }
+pclose($stat);
 echo "<thead><tr><th>"._('Type')."</th><th class='sorter-text'>"._('Name')."</th><th>"._('Size')."</th><th>"._('Last Modified')."</th><th>"._('Location')."</th></tr></thead>";
 if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><div><img src='/webGui/icons/folderup.png'></div></td><td>$link</td><td colspan='3'></td></tr></tbody>";
 
