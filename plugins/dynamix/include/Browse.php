@@ -71,13 +71,12 @@ foreach ($dirs as $row) {
   $file = pathinfo($name);
   $name = $file['basename'];
   $devs = explode(',',$set);
-  $text = my_devs($devs);
   echo "<tr>";
   echo "<td data=''><div class='icon-dir'></div></td>";
   echo "<td><a href=\"/$path?dir=".htmlspecialchars(urlencode_path(trim_slash("$dir/$name")))."\">".htmlspecialchars($name)."</a></td>";
   echo "<td data='0'>&lt;FOLDER&gt;</td>";
   echo "<td data='$time'>".my_time($time,$fmt)."</td>";
-  echo "<td class='loc'>$text</td>";
+  echo "<td class='loc'>".my_devs($devs)."</td>";
   echo "</tr>";
 }
 if (count($dirs)) echo "</tbody><tbody>";
@@ -87,14 +86,13 @@ foreach ($files as $row) {
   $name = $file['basename'];
   $ext  = strtolower($file['extension']);
   $devs = explode(',',$set);
-  $text = my_devs($devs);
-  $tag  = strpos($text,',')===false ? '' : 'warning';
+  $tag  = strpos($set,',')===false ? '' : 'warning';
   echo "<tr>";
   echo "<td data='$ext'><div class='icon-file icon-$ext'></div></td>";
   echo "<td><a href=\"".htmlspecialchars(trim_slash("$dir/$name"))."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($name)."</a></td>";
   echo "<td data='$size' class='$tag'>".my_scale($size,$unit)." $unit</td>";
   echo "<td data='$time' class='$tag'>".my_time($time,$fmt)."</td>";
-  echo "<td class='loc $tag'>$text</td>";
+  echo "<td class='loc $tag'>".my_devs($devs)."</td>";
   echo "</tr>";
   $total += $size;
 }
