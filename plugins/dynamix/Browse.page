@@ -19,7 +19,7 @@ Markdown="false"
 $user = ($root=='mnt' && ($main=='user'|| $main=='user0')) ? 1 : 0;
 ?>
 <style>
-.loc{text-align:left!important}
+.loc{text-align:left!important;padding-left:0!important}
 #title span.left{text-transform:none}
 </style>
 <script>
