@@ -376,7 +376,8 @@ function prepareEdit(form) {
     swal({title:'_(Missing share name)_',text:'_(Enter a name for the share)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
-  if (share.match('^(disk[0-9]+|cache[0-9]*|flash)$')) {
+  var reserved = [<?=implode(',',array_map('escapeshellarg',explode(',',$var['reservedNames'])))?>];
+  if (reserved.includes(share)) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }

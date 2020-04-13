@@ -98,7 +98,7 @@ foreach ($disks as $name => $disk) {
     echo "<td>$type</td>";
     echo "<td>".my_scale(($disk['fsSize'])*1024, $unit)." $unit</td>";
     echo "<td>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-    echo "<td><a href='$path/Browse?dir=/mnt/$name'><img src='/webGui/images/explore.png' title='"._('Browse')." /mnt/$name'></a></td>";
+    echo "<td><a href='/$path/Browse?dir=/mnt/$name'><img src='/webGui/images/explore.png' title='"._('Browse')." /mnt/$name'></a></td>";
     echo "</tr>";
     foreach ($ssz2[$name] as $sharename => $sharesize) {
       if ($sharename=='share.total') continue;

@@ -101,7 +101,7 @@ $cache_only = $encrypted = 0;
 foreach ($shares as $share) {
   $names[] = $share['name'];
   if ($share['useCache']=='only') $cache_only++;
-  if ($share['luksStatus']) $encrypted++;
+  if ($share['luksStatus']>0) $encrypted++;
 }
 $names = implode(',',$names);
 $passwd = $nopass = 0;
@@ -157,7 +157,7 @@ if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
 <style>
-div.frame{float:left;margin:14px 0 0 0}
+div.frame{float:left;margin:14px 0}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
@@ -642,14 +642,14 @@ function smartMenu(table) {
     var page = $(this).attr('name');
     var view = $(this).attr('class');
     var disk = id.substr(id.indexOf('-')+1);
-    opts.push({text:'Attributes',icon:'fa-sitemap',action:function(e){e.preventDefault();attributes(page,disk);}});
+    opts.push({text:'_(Attributes)_',icon:'fa-sitemap',action:function(e){e.preventDefault();attributes(page,disk);}});
     opts.push({divider:true});
-    opts.push({text:'Capabilities',icon:'fa-user',action:function(e){e.preventDefault();capabilities(page,disk);}});
+    opts.push({text:'_(Capabilities)_',icon:'fa-user',action:function(e){e.preventDefault();capabilities(page,disk);}});
     opts.push({divider:true});
-    opts.push({text:'Identity',icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
+    opts.push({text:'_(Identity)_',icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
     if (view.search('green-text') == -1) {
       opts.push({divider:true});
-      opts.push({text:'Acknowledge',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      opts.push({text:'_(Acknowledge)_',icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
     }
     context.attach(id,opts);
   });

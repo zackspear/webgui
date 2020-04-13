@@ -72,7 +72,7 @@ function device_info(&$disk,$online) {
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
           ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
-           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".compress($fancyname,15,5)."</a>" : compress($fancyname,15,5);
+           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".compress($fancyname,12,5)."</a>" : compress($fancyname,12,5);
   if ($crypto) switch ($disk['luksState']) {
     case 0:
       if (!vfs_luks($disk['fsType']))
@@ -101,7 +101,7 @@ function device_info(&$disk,$online) {
 function device_browse(&$disk) {
   global $path;
   $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
-  return "<a href=\"".htmlspecialchars("$path/Browse?dir=$dir")."\"><img src='/webGui/images/explore.png' title='"._('Browse')." $dir'></a>";
+  return "<a href=\"/$path/Browse?dir=".htmlspecialchars($dir)."\"><img src='/webGui/images/explore.png' title='"._('Browse')." $dir'></a>";
 }
 function device_desc(&$disk) {
   global $var;
