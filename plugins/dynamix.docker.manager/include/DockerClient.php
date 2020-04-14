@@ -851,7 +851,7 @@ class DockerClient {
 		foreach ($this->getDockerJSON("/containers/json?all=1") as $ct) {
 			$info = $this->getContainerDetails($ct['Id']);
 			$c = [];
-			$c['Image']       = DockerUtil::ensureImageTag($ct['Image']);
+			$c['Image']       = DockerUtil::ensureImageTag($info['Config']['Image']);
 			$c['ImageId']     = $this->extractID($ct['ImageID']);
 			$c['Name']        = substr($info['Name'], 1);
 			$c['Status']      = $ct['Status'] ?: 'None';
