@@ -14,10 +14,11 @@
 $keys = parse_ini_file($_POST['#cfg'], true);
 $cleanup = isset($_POST['#cleanup']);
 $text = "";
-
 foreach ($_POST as $field => $value) {
   if ($field[0] == '#') continue;
-  list($section,$key) = explode('_', $field, 2);
+  $n = strrpos($field,'_');
+  $section = substr($field,0,$n);
+  $key = substr($field,$n+1);
   $keys[$section][$key] = $value;
 }
 foreach ($keys as $section => $block) {
