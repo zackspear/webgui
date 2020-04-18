@@ -337,6 +337,14 @@ _(Name)_:
 : <?=my_lang(my_disk($name),3)?>
 
 <?endif;?>
+_(Comments)_:
+: <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
+
+:help12
+> This text will appear under the *Comments* column for the share in Windows Explorer.
+> Enter anything you like, up to 256 characters.
+:end
+
 _(Partition size)_:
 : <?=my_number($disk['sizeSb'])?> KB (K=1024)
 
@@ -421,14 +429,31 @@ _(File system type)_:
 : <?=_(str_replace('luks:','',$disk['fsType'])).(strpos($disk['fsType'],'luks:')!==false ? ' - '._('encrypted') : '')?>&nbsp;
 
 <?endif;?>
-_(Comments)_:
-: <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
+<?if (in_array($name,$pools)):?>
+_(Minimum free space)_:
+: <input type="text" name="diskFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['diskFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
 
-:help12
-> This text will appear under the *Comments* column for the share in Windows Explorer.
-> Enter anything you like, up to 256 characters.
+:help41
+> This represents a "floor" of the amount of free space remaining on the cache disk.  If the free
+> space becomes less than this value, then new files written to user shares with cache enabled will go to
+> the array and not the cache disk.
+>
+> Enter a numeric value with one of these suffixes:
+>
+> **KB** = 1,000<br>
+> **MB** = 1,000,000<br>
+> **GB** = 1,000,000,000<br>
+> **TB** = 1,000,000,000,000
+>
+> If no suffix, a count of 1024-byte blocks is assumed.<br>
+>
+> Examples:
+>
+> **2GB** => 2,000,000,000 bytes<br>
+> **2000000** => 2,048,000,000 bytes
 :end
 
+<?endif;?>
 _(Warning disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="<?=htmlspecialchars($name)?>_warning" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
 
