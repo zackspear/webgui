@@ -30,6 +30,7 @@ $fill    = $_GET['fill'];
 $display = [];
 $display['scale'] = $_GET['scale'];
 $display['number'] = $_GET['number'];
+$display['raw'] = $_GET['raw'];
 
 $pools = implode(',',pools_filter(cache_filter($disks)));
 
@@ -95,7 +96,7 @@ foreach ($shares as $name => $share) {
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
   $cmd="/webGui/scripts/share_size"."&arg1=".urlencode($name)."&arg2=ssz1&arg3=".urlencode($pools);
-  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.compress($share['cachePool']):'');
+  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.compress(my_disk($share['cachePool'],$display['raw'])):'');
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
     echo "<td>".my_scale($ssz1[$name]['disk.total']*1024, $unit)." $unit</td>";
@@ -107,7 +108,7 @@ foreach ($shares as $name => $share) {
       $include = $share['include'];
       $inside = in_array($diskname, array_filter(array_diff($myDisks, explode(',',$share['exclude'])), 'shareInclude'));
       echo "<tr class='share_status_size".($inside ? "'>" : " warning'>");
-      echo "<td>".my_lang(my_disk($diskname),3).":</td>";
+      echo "<td>".my_lang(my_disk($diskname,$display['raw']),3).":</td>";
       echo "<td>".($inside ? "" : "<em>"._('Share is outside the list of designated disks')."</em>")."</td>";
       echo "<td></td>";
       echo "<td></td>";

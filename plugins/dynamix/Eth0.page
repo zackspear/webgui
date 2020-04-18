@@ -169,10 +169,11 @@ function prepareSettings(form) {
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
     var i = $(this).attr('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
+    var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
     if ($(this).prop('disabled')==false && $(this).val()=='yes') {
       if (protocol != 'ipv6') {
         $(form).find('input[name="IPADDR:'+i+'"]').val('_(Obtaining IPv4 address)_...');
-        $(form).find('input[name="GATEWAY:'+i+'"]').val('_(Obtaining IPv4 gateway)_...');
+        $(form).find('input[name="GATEWAY:'+i+'"]').val(metric!='0'?'_(Obtaining IPv4 gateway)_...':'');
       }
     } else if (protocol != 'ipv6' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
@@ -182,10 +183,11 @@ function prepareSettings(form) {
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
     var i = $(this).attr('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
+    var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
     if ($(this).prop('disabled')==false && $(this).val()=='yes') {
       if (protocol != 'ipv4') {
         $(form).find('input[name="IPADDR6:'+i+'"]').val('_(Obtaining IPv6 address)_...');
-        $(form).find('input[name="GATEWAY6:'+i+'"]').val('_(Obtaining IPv6 gateway)_...');
+        $(form).find('input[name="GATEWAY6:'+i+'"]').val(metric!='0'?'_(Obtaining IPv6 gateway)_...':'');
       }
     } else if (protocol != 'ipv4' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
@@ -618,7 +620,7 @@ _(IPv4 address)_:
 
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:0" maxlength="15" value="<?=$eth0["GATEWAY:0"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="1" max="9999" value="<?=$eth0["METRIC:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC:0" min="1" max="9999" value="<?=$eth0["METRIC:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :help130
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
@@ -691,7 +693,7 @@ _(IPv6 address)_:
 
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:0" maxlength="39" value="<?=$eth0["GATEWAY6:0"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="1" max="9999" value="<?=$eth0["METRIC6:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC6:0" min="1" max="9999" value="<?=$eth0["METRIC6:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :help137
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
@@ -846,7 +848,7 @@ _(IPv4 address)_:
 
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$eth0["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :help150
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv4 address of your router.
@@ -882,7 +884,7 @@ _(IPv6 address)_:
 
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$eth0["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC6:<?=$i?>" min="1" max="9999" value="<?=$eth0["METRIC6:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :help153
 > Greyed out when using automatic IP assignment. Otherwise specify here the IPv6 address of your router.
@@ -960,7 +962,7 @@ _(IPv4 address)_:
 
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$eth0["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$eth0["METRIC:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$eth0["METRIC:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 </div>
 </div>
@@ -978,7 +980,7 @@ _(IPv6 address)_:
 
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$eth0["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$eth0["METRIC6:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred))_*
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$eth0["METRIC6:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:INDEX">
