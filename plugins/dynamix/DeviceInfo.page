@@ -430,6 +430,7 @@ _(File system type)_:
 
 <?endif;?>
 <?if (in_array($name,$pools)):?>
+<?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
 _(Minimum free space)_:
 : <input type="text" name="diskFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['diskFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
 
