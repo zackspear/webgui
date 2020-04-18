@@ -22,7 +22,7 @@ function displayShares(all) {
     $('#shareslist').html("<tr><td colspan='8'><div class='spinner'></div></td></tr>");
     $('div.spinner').html(unraid_logo);
   }
-  $.get('/webGui/include/ShareList.php',{compute:all,path:'<?=addslashes(htmlspecialchars($path))?>',scale:'<?=$display['scale']?>',number:'<?=$display['number']?>',fill:$.cookie('ssz')},function(data){
+  $.get('/webGui/include/ShareList.php',{compute:all,path:'<?=addslashes(htmlspecialchars($path))?>',scale:'<?=$display['scale']?>',number:'<?=$display['number']?>',raw:'<?=$display['raw']?>',fill:$.cookie('ssz')},function(data){
     $.removeCookie('ssz',{path:'/'})
     $('#shareslist').html(data);
     $('#compute-shares').prop('disabled',!data || data.indexOf('colspan=')!=-1);
