@@ -68,7 +68,6 @@ function translate($key) {
 $language = [];
 $locale   = $_SESSION['locale'];
 $return   = 'function _(t){return t;}';
-$jscript  = "$docroot/webGui/javascript/translate.en.js";
 
 if ($locale) {
   $text = "$docroot/languages/$locale/translations.txt";
@@ -105,7 +104,5 @@ if ($locale) {
       $language = array_merge($language,unserialize(file_get_contents($other)));
     }
   }
-} elseif (!file_exists($jscript)) {
-  file_put_contents($jscript,$return);
 }
 ?>
