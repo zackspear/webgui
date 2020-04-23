@@ -189,7 +189,7 @@ function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '.$word.($val!=1?'s':'').($last ?'':', ')) : '') : '';
 }
 function compress($name,$size=18,$end=6) {
-  return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end-3:0)).'...'.($end?substr($name,-$end):'');
+  return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end+3:0)).'...'.($end?substr($name,-$end):'');
 }
 
 function read_parity_log($epoch, $busy=false) {
