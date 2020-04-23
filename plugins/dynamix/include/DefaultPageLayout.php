@@ -39,7 +39,6 @@ $themes2 = in_array($theme,['gray','azure']);
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
 
 <style>
-
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>}
 <?endif;?>
