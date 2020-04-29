@@ -181,7 +181,7 @@ if ($method == 'install') {
   if (substr($argv[2],0,7)=='http://' || substr($argv[2],0,8)=='https://') {
     $langURL = $argv[2];
     echo "language: downloading $langURL\n";
-    $xml_file = "$tmp/dynamix.".str_replace('dynamix.', '', basename($langURL));
+    $xml_file = "$tmp/dynamix.".basename($langURL);
     if (!download($langURL, $xml_file, $error)) {
       echo "language: $error\n";
       @unlink($xml_file);
@@ -194,7 +194,7 @@ if ($method == 'install') {
     echo "language: $error\n";
     exit(1);
   }
-  $lang = language('Language', $xml_file, $error) ?: str_replace('dynamix.', '', basename($xml_file, '.xml'));
+  $lang = language('Language', $xml_file, $error) ?: basename($xml_file, '.xml');
   copy($xml_file, "$plugins/".basename($xml_file));
   unlink($xml_file);
   echo "language: $lang language pack installed\n";
@@ -202,7 +202,7 @@ if ($method == 'install') {
 }
 
 if ($method == 'check') {
-  $name = str_replace('dynamix.', '', $argv[2]);
+  $name = $argv[2];
   echo "language: checking language pack\n";
   $lang_file = "$plugins/dynamix.$name.xml";
   if (!file_exists($lang_file)) {
@@ -230,7 +230,7 @@ if ($method == 'check') {
 }
 
 if ($method == 'update') {
-  $name = str_replace('dynamix.', '', $argv[2]);
+  $name = $argv[2];
   echo "language: updating language pack\n";
   $lang_file = "$plugins/dynamix.$name.xml";
   if (!file_exists($lang_file)) {
@@ -243,7 +243,7 @@ if ($method == 'update') {
     echo "language: update does not exist, perform a check first\n";
     exit (1);
   }
-  $lang = language('Language', $lang_file, $error) ?: $name;
+  $lang = language('Language', $xml_file, $error) ?: $name;
   // check for a reinstall of same version
   $old_version = language('Version', $lang_file, $error);
   $new_version = language('Version', $xml_file, $error);
@@ -263,7 +263,7 @@ if ($method == 'update') {
 }
 
 if ($method == 'remove') {
-  $name = str_replace('dynamix.', '', $argv[2]);
+  $name = $argv[2];
   echo "language: removing language pack\n";
   $lang_file = "$plugins/dynamix.$name.xml";
   if (!file_exists($lang_file)) {
