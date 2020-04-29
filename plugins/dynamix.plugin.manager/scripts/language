@@ -19,14 +19,14 @@ Usage: language update LANGUAGE
 Usage: language remove LANGUAGE
   remove the language
 
+Usage: language [attribute name] LANGUAGE
+  obtain an attribute value
+
 Usage: language checkall
   check the latest version of all installed languages
 
 Usage: language updateall
   update all installed languages
-
-Usage: language [attribute name] LANGUAGE
-  obtain an attribute value
 
 EOF;
 
