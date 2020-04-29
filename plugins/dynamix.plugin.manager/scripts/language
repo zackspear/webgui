@@ -101,7 +101,12 @@ function language($method, $xml_file, &$error) {
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
-    exec("unzip -qqLjo -d $path $local");
+    exec("unzip -qqLjo -d $path $local", $dummy, $err);
+    if ($err > 1) {
+      exec("rm -rf $path");
+      $error = "unzip failed. Error code $err";
+      return false;
+    }
     return true;
   case 'remove':
     $url = $xml->LanguageURL;
