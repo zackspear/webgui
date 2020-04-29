@@ -64,11 +64,11 @@ function download($url, $name, &$error) {
       return true;
     } else {
       echo "language: downloading: $url ... failed (".error_desc($perror).")\n";
-      $error = "language: $url download failure (".error_desc($perror).")";
+      $error = "$url download failure (".error_desc($perror).")";
       return false;
     }
   } else {
-    $error = "language: $url failed to open";
+    $error = "$url failed to open";
     return false;
   }
 }
