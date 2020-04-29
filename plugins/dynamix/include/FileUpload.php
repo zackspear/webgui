@@ -13,13 +13,14 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
-$cmd  = $_POST['cmd'] ?? 'load';
-$path = $_POST['path'] ?? '';
-$file = rawurldecode($_POST['filename']);
-$temp = "/var/tmp";
-$boot = "/boot/config/plugins/dynamix";
+$cmd       = $_POST['cmd'] ?? 'load';
+$path      = $_POST['path'] ?? '';
+$file      = rawurldecode($_POST['filename']);
+$temp      = "/var/tmp";
+$plugins   = "/boot/config/plugins";
+$boot      = "/boot/config/plugins/dynamix";
 $safepaths = [$boot];
-$safeexts = ['.png'];
+$safeexts  = ['.png'];
 
 switch ($cmd) {
 case 'load':
@@ -63,6 +64,7 @@ case 'rm':
   if ($result = is_dir($path)) {
     exec("rm -rf ".escapeshellarg($path));
     @unlink("$docroot/webGui/javascript/translate.$file.js");
+    @unlink("$plugins/dynamix.$file.xml");
     @unlink("$boot/$file.lang.zip");
   }
   $installed = [];

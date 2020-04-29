@@ -1,7 +1,7 @@
 Menu="WebGui"
 Title="Language"
-Icon="language"
-Tag="language"
+Icon="icon-language"
+Tag="icon-language"
 ---
 <?PHP
 /* Copyright 2005-2020, Lime Technology
@@ -21,9 +21,13 @@ $keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
 
 foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = rtrim(strtok($keys[basename($dir)],'('));
 ?>
+<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <style>
 select.wide{min-width:<?=$themes2?'314':'300'?>px}
+div.notice{margin-top:70px;margin-bottom:30px}
 </style>
+
+<script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 var keys = {};
 <?foreach ($keys as $key => $name) echo "keys['$key'] = '".rtrim(strtok($keys[$key],'('))."'\n";?>
@@ -67,8 +71,42 @@ function screenUpdate(check) {
   $('#selectlang').toggle('slow');
   if (check) $('#uploadbutton').val("_(Delete)_"); else $('#uploadbutton').val("_(Upload)_")
 }
+function installXML(name) {
+  var file = name.trim();
+  if (file) openBox('/plugins/dynamix.plugin.manager/scripts/language&arg1=install&arg2='+file,'_(Install Language)_',600,900);
+}
+$(function() {
+  $('.advancedview').switchButton({
+    labels_placement: 'left',
+    on_label: '_(Developer)_',
+    off_label: '_(User)_',
+  });
+  $('.advancedview').change(function(){
+    $('.advanced').toggle('slow');
+    $('.basic').toggle('slow');
+  });
+});
 </script>
+<span class="status vhshift"><input type="checkbox" class="advancedview"></span>
 
+<div markdown="1" class="basic">
+<div class="notice">_(Use this to install official language packs)_</div>
+_(Installed languages)_:
+: <?=implode(', ',$installed)?>
+
+_(Enter URL of language pack XML file)_
+: &nbsp;
+
+<dl>
+<form name="xml_install" method="POST" target="progressFrame">
+<dt><input type="text" name="file" id="xml_file" maxlength="1024" value="" style="width:90%"></dt>
+<dd><input type="button" value="_(Install)_" onclick="installXML(this.form.file.value)" style="margin:0"></dd>
+</form>
+</dl>
+</div>
+
+<div markdown="1" class="advanced" style="display:none">
+<div class="notice">_(Use this to develop language packs)_</div>
 <form markdown="1">
 <input type="hidden" name="file" value="">
 
@@ -89,3 +127,4 @@ _(Select language file)_:
 &nbsp;
 : <input id="uploadbutton" type="button" value="_(Upload)_" onclick="upload(this.form)" disabled><input type="button" value="_(Done)_" class="lock" onclick="done()">
 </form>
+</div>
