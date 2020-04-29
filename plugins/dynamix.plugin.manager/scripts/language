@@ -93,7 +93,7 @@ function language($method, $xml_file, &$error) {
         return false;
       }
     } else {
-      $error = "language: missing URL";
+      $error = "missing URL";
       return false;
     }
     $name = str_replace('.lang.zip','',$zip);
@@ -116,7 +116,7 @@ function language($method, $xml_file, &$error) {
       @unlink("$plugins/dynamix/$zip");
       return true;
     } else {
-      $error = "language: missing zip file";
+      $error = "missing zip file";
       return false;
     }
   case 'dump':
