@@ -10,9 +10,6 @@ Process language files.
 Usage: language install LANGUAGE-FILE
   install a language
 
-Usage: language [attribute name] LANGUAGE-FILE
-  obtain an attribute value
-
 Usage: language check LANGUAGE
   check and output the latest version of the language
 
@@ -27,6 +24,9 @@ Usage: language checkall
 
 Usage: language updateall
   update all installed languages
+
+Usage: language [attribute name] LANGUAGE
+  obtain an attribute value
 
 EOF;
 
@@ -285,7 +285,9 @@ if ($method == 'remove') {
 }
 
 // Return attribute
-$value = language($method, $argv[2], $error);
+$name = $argv[2];
+$lang_file = "$plugins/dynamix.$name.xml";
+$value = language($method, $lang_file, $error);
 if ($value === false) {
   echo "language: $error\n";
   exit(1);
