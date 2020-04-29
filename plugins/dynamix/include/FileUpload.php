@@ -58,6 +58,7 @@ case 'add':
     if ($err > 1) {
       unlink("$boot/$file.lang.zip");
       exec("rm -rf ".escapeshellarg($path));
+      exit('Internal Error 500');
     }
   }
   $installed = [];
