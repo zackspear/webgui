@@ -59,12 +59,13 @@ case 'add':
     if ($err > 1) {
       unlink("$boot/dynamix/$file.lang.zip");
       exec("rm -rf ".escapeshellarg($path));
-      exit('Internal Error 500');
+      $result = false;
     }
   }
   $installed = [];
   foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
   if ($result) exit(implode(',',$installed));
+  break;
 case 'rm':
   $path = "$docroot/languages/$file";
   if ($result = is_dir($path)) {
@@ -78,6 +79,7 @@ case 'rm':
   $installed = [];
   foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
   if ($result) exit(implode(',',$installed));
+  break;
 }
 exit($result ? 'OK 200' : 'Internal Error 500');
 ?>

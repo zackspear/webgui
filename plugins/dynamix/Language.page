@@ -18,8 +18,10 @@ Tag="icon-language"
 <?
 $installed = ['English'];
 $keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
+$head = '<i class="fa fa-fw fa-trash" title="_(Remove the installed language)_" style="cursor:pointer" onclick="remove(&quot;';
+$tail = '&quot;)"></i>';
 
-foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = rtrim(strtok($keys[basename($dir)],'('));
+foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = rtrim(strtok($keys[basename($dir)],'(')).$head.basename($dir).$tail;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <style>
@@ -29,27 +31,32 @@ div.notice{margin-top:70px;margin-bottom:30px}
 
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
-var keys = {};
-<?foreach ($keys as $key => $name) echo "keys['$key'] = '".rtrim(strtok($keys[$key],'('))."'\n";?>
-
+function execute(cmd,title,language,filedata) {
+  var keys = {};
+  <?foreach ($keys as $key => $name) echo "keys['$key'] = '".rtrim(strtok($keys[$key],'('))."'\n";?>
+  $.post("/webGui/include/FileUpload.php",{cmd:cmd,filename:language,filedata:filedata},function(list){
+    if (list.indexOf('Error 500')==-1) {
+      var installed = ['English'];
+      if (list.length) {
+        var name = list.split(',');
+        for (var i=0; i < name.length; i++) installed.push(keys[name[i]]+'<?=$head?>'+name[i]+'<?=$tail?>');
+      }
+      $('.installed').html(installed.join(', '));
+      swal({title:title,text:'_(See)_ <a href="/Settings/DisplaySettings">_(Display Settings)_</a> _(to select your language)_',type:'success',html:true,confirmButtonText:'_(Ok)_'});
+      $('#uploadbutton').prop('disabled',true);
+    }
+  });
+}
+function remove(language) {
+  execute('rm', '_(Language support deleted)_', language, '');
+}
 function upload(form) {
   var language = form.language.value;
   if (!language) {
     swal({title:'_(Missing Language)_',text:'_(Please select a language before proceeding)_!',type:'error',confirmButtonText:'_(Ok)_'});
     return;
   }
-  var cmd = form.check.checked ? 'rm' :'add';
-  var title = form.check.checked ? '_(Language support deleted)_' : '_(Language support added)_';
-  $.post("/webGui/include/FileUpload.php",{cmd:cmd,filename:language,filedata:form.file.value},function(list){
-    if (list.indexOf('Error 500')==-1) {
-      var installed = ['English'];
-      var name = list.split(',');
-      for (var i=0; i < name.length; i++) installed.push(keys[name[i]]);
-      $('#installed').text(installed.join(', '));
-      swal({title:title,text:'_(See)_ <a href="/Settings/DisplaySettings">_(Display Settings)_</a> _(to select your language)_',type:'success',html:true,confirmButtonText:'_(Ok)_'});
-      $('#uploadbutton').prop('disabled',true);
-    }
-  });
+  execute('add', '_(Language support addedd)_', language, form.file.value);
 }
 function getZIPfile(event,form) {
   var input = event.target;
@@ -66,33 +73,21 @@ function getZIPfile(event,form) {
   };
   reader.readAsDataURL(input.files[0]);
 }
-function screenUpdate(check) {
-  $('#uploadbutton').prop('disabled',false);
-  $('#selectlang').toggle('slow');
-  if (check) $('#uploadbutton').val("_(Delete)_"); else $('#uploadbutton').val("_(Upload)_")
-}
 function installXML(name) {
   var file = name.trim();
   if (file) openBox('/plugins/dynamix.plugin.manager/scripts/language&arg1=install&arg2='+file,'_(Install Language)_',600,900);
 }
 $(function() {
-  $('.advancedview').switchButton({
-    labels_placement: 'left',
-    on_label: '_(Developer)_',
-    off_label: '_(User)_',
-  });
-  $('.advancedview').change(function(){
-    $('.advanced').toggle('slow');
-    $('.basic').toggle('slow');
-  });
+  $('input.view').switchButton({labels_placement:'left', off_label:'_(User)_', on_label:'_(Developer)_'});
+  $('input.view').change(function(){$('.user,.developer').toggle('slow');});
 });
 </script>
-<span class="status vhshift"><input type="checkbox" class="advancedview"></span>
+<span class="status vhshift"><input type="checkbox" class="view"></span>
 
-<div markdown="1" class="basic">
+<div markdown="1" class="user">
 <div class="notice">_(Use this to install official language packs)_</div>
 _(Installed languages)_:
-: <?=implode(', ',$installed)?>
+: <span class="installed"><?=implode(', ',$installed)?></span>
 
 _(Enter URL of language pack XML file)_
 : &nbsp;
@@ -105,19 +100,19 @@ _(Enter URL of language pack XML file)_
 </dl>
 </div>
 
-<div markdown="1" class="advanced" style="display:none">
+<div markdown="1" class="developer" style="display:none">
 <div class="notice">_(Use this to develop language packs)_</div>
 <form markdown="1">
 <input type="hidden" name="file" value="">
 
 _(Installed languages)_:
-: <span id="installed"><?=implode(', ',$installed)?></span>
+: <span class="installed"><?=implode(', ',$installed)?></span>
 
 _(Select language)_:
 : <select name="language" class="wide">
   <?=mk_option(1, "", "---")?>
   <?foreach ($keys as $key => $name) echo mk_option(1, $key, $name)?>
-  </select><input name="check" type="checkbox" onchange="screenUpdate(this.checked)">_(Remove the installed language)_
+  </select>
 
 <div id="selectlang" markdown="1">
 _(Select language file)_:
