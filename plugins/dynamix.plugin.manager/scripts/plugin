@@ -617,7 +617,7 @@ if ($method == 'update') {
   // install was successful, save the updated plugin so it installs again next boot
   unlink("$plugins/$plugin");
   // re-inject the old support link if the updated plugin doesn't have one
-  if ((!plugin('support', $plugin_file,$error)) && $previousSupportLink) {
+  if (!plugin('support', $plugin_file,$error) && $previousSupportLink) {
     echo "\n\nUpdating Support Link\n";
     $pluginXML = simplexml_load_file($plugin_file);
     $pluginXML->addAttribute('support', $previousSupportLink);
