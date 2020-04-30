@@ -56,7 +56,7 @@ function upload(form) {
     swal({title:'_(Missing Language)_',text:'_(Please select a language before proceeding)_!',type:'error',confirmButtonText:'_(Ok)_'});
     return;
   }
-  execute('add', '_(Language support addedd)_', language, form.file.value);
+  execute('add', '_(Language support added)_', language, form.file.value);
 }
 function getZIPfile(event,form) {
   var input = event.target;
