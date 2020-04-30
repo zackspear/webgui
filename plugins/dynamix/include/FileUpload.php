@@ -17,9 +17,10 @@ $cmd       = $_POST['cmd'] ?? 'load';
 $path      = $_POST['path'] ?? '';
 $file      = rawurldecode($_POST['filename']);
 $temp      = "/var/tmp";
-$plugins   = "/boot/config/plugins";
-$boot      = "/boot/config/plugins/dynamix";
-$safepaths = [$boot];
+$tmp       = '/tmp/plugins';
+$plugins   = '/var/log/plugins';
+$boot      = "/boot/config/plugins";
+$safepaths = ["$boot/dynamix"];
 $safeexts  = ['.png'];
 
 switch ($cmd) {
@@ -50,13 +51,13 @@ case 'delete':
 case 'add':
   $path = "$docroot/languages/$file";
   exec("mkdir -p ".escapeshellarg($path));
-  $result = file_put_contents("$boot/$file.lang.zip",base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])));
+  $result = file_put_contents("$boot/dynamix/$file.lang.zip",base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])));
   if ($result) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
     @unlink("$docroot/webGui/javascript/translate.$file.js");
-    exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg("$boot/$file.lang.zip"), $dummy, $err);
+    exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg("$boot/dynamix/$file.lang.zip"), $dummy, $err);
     if ($err > 1) {
-      unlink("$boot/$file.lang.zip");
+      unlink("$boot/dynamix/$file.lang.zip");
       exec("rm -rf ".escapeshellarg($path));
       exit('Internal Error 500');
     }
@@ -69,8 +70,10 @@ case 'rm':
   if ($result = is_dir($path)) {
     exec("rm -rf ".escapeshellarg($path));
     @unlink("$docroot/webGui/javascript/translate.$file.js");
+    @unlink("$boot/dynamix.$file.xml");
     @unlink("$plugins/dynamix.$file.xml");
-    @unlink("$boot/$file.lang.zip");
+    @unlink("$tmp/dynamix.$file.xml");
+    @unlink("$boot/dynamix/$file.lang.zip");
   }
   $installed = [];
   foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
