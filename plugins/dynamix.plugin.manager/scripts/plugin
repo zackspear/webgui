@@ -540,8 +540,8 @@ if ($method == 'install') {
 // directory.
 //
 if ($method == 'check') {
-  echo "plugin: checking: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: checking: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file === false) {
     echo "plugin: not installed\n";
@@ -576,8 +576,8 @@ if ($method == 'check') {
 // Finally we mark the new.plg "installed".
 //
 if ($method == 'update') {
-  echo "plugin: updating: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: updating: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file === false) {
     echo "plugin: $plugin not installed\n";
@@ -637,8 +637,8 @@ if ($method == 'update') {
 // only .plg files should have a remove method
 //
 if ($method == 'remove') {
-  echo "plugin: removing: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: removing: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file !== false) {
     // remove the symlink
