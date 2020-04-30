@@ -210,6 +210,7 @@ if ($method == 'install') {
   $link_file = "$plugins/dynamix.$name";
   $lang_file = "$boot/dynamix.$name";
   copy($xml_file, $lang_file);
+  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack installed\n";
   exit(0);
@@ -273,6 +274,7 @@ if ($method == 'update') {
     exit(1);
   }
   copy($xml_file, $lang_file);
+  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack updated\n";
   exit(0);
