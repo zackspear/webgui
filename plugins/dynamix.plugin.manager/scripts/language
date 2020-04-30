@@ -10,6 +10,9 @@ Process language files.
 Usage: language install LANGUAGE-FILE
   install a language
 
+Usage: language [attribute name] LANGUAGE-FILE
+  obtain an attribute value
+
 Usage: language check LANGUAGE
   check and output the latest version of the language
 
@@ -18,9 +21,6 @@ Usage: language update LANGUAGE
 
 Usage: language remove LANGUAGE
   remove the language
-
-Usage: language [attribute name] LANGUAGE
-  obtain an attribute value
 
 Usage: language checkall
   check the latest version of all installed languages
@@ -51,7 +51,7 @@ function download($url, $name, &$error) {
     echo "language: downloading: $url ...\r";
     $level = -1;
     while (!feof($file)) {
-      if (preg_match("/\d+%/", fgets($file), $matches)) {
+      if (preg_match('/\d+%/', fgets($file), $matches)) {
         $percentage = substr($matches[0],0,-1);
         if ($percentage > $level) {
           echo "language: downloading: $url ... $percentage%\r";
@@ -74,7 +74,7 @@ function download($url, $name, &$error) {
 }
 
 function language($method, $xml_file, &$error) {
-  global $docroot,$plugins,$tmp;
+  global $docroot, $boot, $plugins, $tmp;
 
   // parse language XML file
   $xml = file_exists($xml_file) ? simplexml_load_file($xml_file,NULL,LIBXML_NOCDATA) : false;
@@ -86,7 +86,7 @@ function language($method, $xml_file, &$error) {
   case 'install':
     $url = $xml->LanguageURL;
     $zip = basename($url);
-    $local = "$plugins/dynamix/$zip";
+    $local = "$boot/dynamix/$zip";
     if ($url) {
       if (!download($url, $local, $error)) {
         @unlink($local);
@@ -100,7 +100,7 @@ function language($method, $xml_file, &$error) {
     $path = "$docroot/languages/$name";
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
-    foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
+    foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqLjo -d $path $local", $dummy, $err);
     if ($err > 1) {
       exec("rm -rf $path");
@@ -116,12 +116,13 @@ function language($method, $xml_file, &$error) {
       $path = "$docroot/languages/$name";
       exec("rm -rf $path");
       @unlink("$docroot/webGui/javascript/translate.$name.js");
+      @unlink("$boot/dynamix.$name.xml");
       @unlink("$plugins/dynamix.$name.xml");
       @unlink("$tmp/dynamix.$name.xml");
-      @unlink("$plugins/dynamix/$zip");
+      @unlink("$boot/dynamix/$zip");
       return true;
     } else {
-      $error = "missing zip file";
+      $error = "missing language file";
       return false;
     }
   case 'dump':
@@ -130,7 +131,7 @@ function language($method, $xml_file, &$error) {
     return true;
   default:
     // return single attribute
-    $error = "attribute $method not found";
+    $error = "$method attribute not present";
     return $xml->$method ?: false;
   }
 }
@@ -142,13 +143,16 @@ if ($argc < 2) {
 }
 
 $docroot = '/usr/local/emhttp';
-$plugins = '/boot/config/plugins';
+$boot    = '/boot/config/plugins';
+$plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 
-if ($method == "checkall") {
+if ($method == 'checkall') {
   echo "language: checking all language packs\n";
-  foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $lang_file) {
+  foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $link) {
+    $lang_file = @readlink($link);
+    if ($lang_file === false) continue;
     if (language('LanguageURL', $lang_file, $error) === false) continue;
     $name = str_replace('dynamix.', '', basename($lang_file, '.xml'));
     $lang = language('Language', $lang_file, $error) ?: $name;
@@ -158,9 +162,11 @@ if ($method == "checkall") {
   exit(0);
 }
 
-if ($method == "updateall") {
+if ($method == 'updateall') {
   echo "language: updating all language packs\n";
-  foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $lang_file) {
+  foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $link) {
+    $lang_file = @readlink($link);
+    if ($lang_file === false) continue;
     if (language('LanguageURL', $lang_file, $error) === false) continue;
     $version = language('Version', $lang_file, $error);
     $name = str_replace('dynamix.', '', basename($lang_file, '.xml'));
@@ -186,7 +192,8 @@ if ($method == 'install') {
   if (substr($argv[2],0,7)=='http://' || substr($argv[2],0,8)=='https://') {
     $langURL = $argv[2];
     echo "language: downloading $langURL\n";
-    $xml_file = "$tmp/dynamix.".basename($langURL);
+    $name = basename($langURL);
+    $xml_file = "$tmp/dynamix.$name";
     if (!download($langURL, $xml_file, $error)) {
       echo "language: $error\n";
       @unlink($xml_file);
@@ -199,9 +206,11 @@ if ($method == 'install') {
     echo "language: $error\n";
     exit(1);
   }
-  $lang = language('Language', $xml_file, $error) ?: basename($xml_file, '.xml');
-  copy($xml_file, "$plugins/".basename($xml_file));
-  unlink($xml_file);
+  $lang = language('Language', $xml_file, $error) ?: str_replace('.xml', '', $name);
+  $link_file = "$plugins/dynamix.$name";
+  $lang_file = "$boot/dynamix.$name";
+  copy($xml_file, $lang_file);
+  symlink($lang_file, $link_file);
   echo "language: $lang language pack installed\n";
   exit(0);
 }
@@ -209,8 +218,9 @@ if ($method == 'install') {
 if ($method == 'check') {
   $name = $argv[2];
   echo "language: checking language pack\n";
-  $lang_file = "$plugins/dynamix.$name.xml";
-  if (!file_exists($lang_file)) {
+  $link_file = "$plugins/dynamix.$name.xml";
+  $lang_file = @readlink($link_file);
+  if ($lang_file === false) {
     echo "language: $name language pack not installed\n";
     exit(1);
   }
@@ -237,8 +247,9 @@ if ($method == 'check') {
 if ($method == 'update') {
   $name = $argv[2];
   echo "language: updating language pack\n";
-  $lang_file = "$plugins/dynamix.$name.xml";
-  if (!file_exists($lang_file)) {
+  $link_file = "$plugins/dynamix.$name.xml";
+  $lang_file = @readlink($link_file);
+  if ($lang_file === false) {
     echo "language: $name language pack not installed\n";
     exit(1);
   }
@@ -262,7 +273,7 @@ if ($method == 'update') {
     exit(1);
   }
   copy($xml_file, $lang_file);
-  unlink($xml_file);
+  symlink($lang_file, $link_file);
   echo "language: $lang language pack updated\n";
   exit(0);
 }
@@ -270,8 +281,9 @@ if ($method == 'update') {
 if ($method == 'remove') {
   $name = $argv[2];
   echo "language: removing language pack\n";
-  $lang_file = "$plugins/dynamix.$name.xml";
-  if (!file_exists($lang_file)) {
+  $link_file = "$plugins/dynamix.$name.xml";
+  $lang_file = @readlink($link_file);
+  if ($lang_file === false) {
     echo "language: $name language pack not installed\n";
     exit(1);
   }
@@ -284,10 +296,9 @@ if ($method == 'remove') {
   exit(0);
 }
 
-// Return attribute
-$name = $argv[2];
-$lang_file = "$plugins/dynamix.$name.xml";
-$value = language($method, $lang_file, $error);
+// return attribute
+$xml_file =  $argv[2];
+$value = language($method, $xml_file, $error);
 if ($value === false) {
   echo "language: $error\n";
   exit(1);
