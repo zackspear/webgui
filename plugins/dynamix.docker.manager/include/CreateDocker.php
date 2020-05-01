@@ -393,7 +393,7 @@ function addConfigPopup() {
     show : {effect: 'fade' , duration: 250},
     hide : {effect: 'fade' , duration: 250},
     buttons: {
-      _(Add)_: function() {
+      '_(Add)_': function() {
         $(this).dialog("close");
         confNum += 1;
         var Opts = Object;
@@ -420,7 +420,7 @@ function addConfigPopup() {
         reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      _(Cancel)_: function() {
+      '_(Cancel)_': function() {
         $(this).dialog("close");
       }
     }
@@ -469,7 +469,7 @@ function editConfigPopup(num,disabled) {
     show: {effect:'fade', duration: 250},
     hide: {effect:'fade', duration: 250},
     buttons: {
-      _(Save)_: function() {
+      '_(Save)_': function() {
         $(this).dialog("close");
         var Opts = Object;
         var Element = this;
@@ -505,7 +505,7 @@ function editConfigPopup(num,disabled) {
        reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      _(Cancel)_: function() {
+      '_(Cancel)_': function() {
         $(this).dialog("close");
       }
     }
