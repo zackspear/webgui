@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,20 +19,23 @@ require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php"
 $var     = parse_ini_file('/var/local/emhttp/var.ini');
 $current = parse_ini_file('/etc/unraid-version');
 $unraid  = parse_plugin_cfg('dynamix', true);
-$notify  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['plugin'];
 $builtin = ['unRAIDServer','unRAIDServer-'];
+$notify  = "$docroot/webGui/scripts/notify";
+$tmp     = '/tmp/plugins';
+$plugins = '/var/log/plugins';
 
 plugin('checkall');
-foreach (glob("/tmp/plugins/*.plg", GLOB_NOSORT) as $file) {
-  $name = basename($file, '.plg');
+foreach (glob("/$tmp/*.plg", GLOB_NOSORT) as $file) {
+  $name = basename($file,'.plg');
+  // skip OS related updates
   if (in_array($name,$builtin)) continue;
-  $old = plugin('version', "/var/log/plugins/$name.plg");
   $new = plugin('version', $file);
-  $min = plugin('min',$file) ?: $current['version'];
+  $old = plugin('version', "$plugins/$name.plg");
+  $min = plugin('min', $file) ?: $current['version'];
   // silently suppress bad download of PLG file
-  if ( (strcmp($new, $old) > 0) && ! version_compare($min,$current['version'],">") ) {
+  if (strcmp($new, $old)>0 && !version_compare($min,$current['version'],">")) {
     exec("$notify -e ".escapeshellarg("Plugin - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
   }
 }

@@ -17,18 +17,19 @@ require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $var     = parse_ini_file('/var/local/emhttp/var.ini');
-$current = parse_ini_file('/etc/unraid-version');
 $unraid  = parse_plugin_cfg('dynamix', true);
-$notify  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['language_notify'];
+$notify  = "$docroot/webGui/scripts/notify";
+$tmp     = '/tmp/plugins';
+$plugins = '/var/log/plugins';
 
 language('checkall');
-foreach (glob("/tmp/plugins/dynamix.*.xml", GLOB_NOSORT) as $file) {
+foreach (glob("/$tmp/dynamix.*.xml", GLOB_NOSORT) as $file) {
   $name = str_replace('dynamix.', '', basename($file));
   $lang = language('Language', $file);
   $new  = language('Version', $file);
-  $old  = language('Version', "/var/log/plugins/dynamix.$name");
+  $old  = language('Version', "$plugins/dynamix.$name");
   // silently suppress bad download of XML file
   if (strcmp($new, $old) > 0) {
     exec("$notify -e ".escapeshellarg("Language - $lang [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $lang is available")." -i ".escapeshellarg("normal $output")." -x");
