@@ -49,12 +49,12 @@ case 'delete':
   break;
 case 'add':
   $path = "$docroot/languages/$file";
-  $save = "$boot/dynamix/$file.lang.zip";
+  $save = "/tmp/dynamix.$file.lang.zip";
   exec("mkdir -p ".escapeshellarg($path));
   if ($result = file_put_contents($save,base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])))) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
     @unlink("$docroot/webGui/javascript/translate.$file.js");
-    exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg("$boot/dynamix/$file.lang.zip"), $dummy, $err);
+    exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg($save), $dummy, $err);
     if ($err > 1) {
       unlink("$boot/dynamix/$file.lang.zip");
       exec("rm -rf ".escapeshellarg($path));
