@@ -86,10 +86,10 @@ function language($method, $xml_file, &$error) {
   case 'install':
     $url = $xml->LanguageURL;
     $zip = basename($url);
-    $local = "$boot/dynamix/$zip";
+    $save = "$boot/dynamix/$zip";
     if ($url) {
-      if (!download($url, $local, $error)) {
-        @unlink($local);
+      if (!download($url, $save, $error)) {
+        @unlink($save);
         return false;
       }
     } else {
@@ -101,7 +101,7 @@ function language($method, $xml_file, &$error) {
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
-    exec("unzip -qqLjo -d $path $local", $dummy, $err);
+    exec("unzip -qqLjo -d $path $save", $dummy, $err);
     if ($err > 1) {
       exec("rm -rf $path");
       $error = "unzip failed. Error code $err";

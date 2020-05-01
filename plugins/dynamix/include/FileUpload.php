@@ -48,16 +48,17 @@ case 'delete':
   }
   break;
 case 'add':
+  $file = basename($file);
   $path = "$docroot/languages/$file";
   $save = "/tmp/dynamix.$file.lang.zip";
-  exec("mkdir -p ".escapeshellarg($path));
+  exec("mkdir -p $path");
   if ($result = file_put_contents($save,base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])))) {
-    foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
     @unlink("$docroot/webGui/javascript/translate.$file.js");
-    exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg($save), $dummy, $err);
+    foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
+    exec("unzip -qqjLo -d $path $save", $dummy, $err);
     if ($err > 1) {
       unlink("$boot/dynamix/$file.lang.zip");
-      exec("rm -rf ".escapeshellarg($path));
+      exec("rm -rf $path");
       $result = false;
       break;
     }
@@ -78,6 +79,7 @@ case 'add':
   }
   break;
 case 'rm':
+  $file = basename($file);
   $path = "$docroot/languages/$file";
   if ($result = is_dir($path)) {
     exec("rm -rf ".escapeshellarg($path));
