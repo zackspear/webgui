@@ -271,6 +271,7 @@ if ($method == 'update') {
     exit(1);
   }
   // install the updated plugin
+  @unlink("$boot/dynamix/$name.lang.zip");
   if (language('install', $xml_file, $error) === false) {
     echo "language: $error\n";
     exit(1);
