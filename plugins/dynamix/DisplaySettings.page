@@ -132,9 +132,7 @@ $(function() {
 _(Language)_:
 : <select name="locale">
 <?echo mk_option($display['locale'], "","English");
-  foreach (glob("$plugins/dynamix.*.xml",GLOB_NOSORT) as $link) {
-    $xml_file = @readlink($link);
-    if ($xml_file === false) continue;
+  foreach (glob("$plugins/dynamix.*.xml",GLOB_NOSORT) as $xml_file) {
     $lang = language('Language', $xml_file);
     $home = language('LanguageLocal', $xml_file);
     $name = str_replace('dynamix.', '', basename($xml_file,'.xml'));

@@ -11,10 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
-$cmd       = $_POST['cmd'] ?? 'load';
-$path      = $_POST['path'] ?? '';
+$docroot   = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $file      = rawurldecode($_POST['filename']);
 $temp      = "/var/tmp";
 $tmp       = '/tmp/plugins';
@@ -23,7 +20,7 @@ $boot      = "/boot/config/plugins";
 $safepaths = ["$boot/dynamix"];
 $safeexts  = ['.png'];
 
-switch ($cmd) {
+switch ($_POST['cmd'] ?? 'load') {
 case 'load':
   if (isset($_POST['filedata'])) {
     exec("rm -f $temp/*.png");
@@ -31,6 +28,7 @@ case 'load':
   }
   break;
 case 'save':
+  $path = $_POST['path'];
   foreach ($safepaths as $safepath) {
     if (strpos(dirname("$path/{$_POST['output']}"),$safepath)===0 && in_array(substr(basename($_POST['output']),-4),$safeexts)) {
       exec("mkdir -p ".escapeshellarg(realpath($path)));
@@ -40,6 +38,7 @@ case 'save':
   }
   break;
 case 'delete':
+  $path = $_POST['path'];
   foreach ($safepaths as $safepath) {
     if (strpos(realpath("$path/$file"), $safepath) === 0 && in_array(substr(realpath("$path/$file"), -4), $safeexts)) {
       exec("rm -f ".escapeshellarg(realpath("$path/$file")));
@@ -50,9 +49,9 @@ case 'delete':
   break;
 case 'add':
   $path = "$docroot/languages/$file";
+  $save = "$boot/dynamix/$file.lang.zip";
   exec("mkdir -p ".escapeshellarg($path));
-  $result = file_put_contents("$boot/dynamix/$file.lang.zip",base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])));
-  if ($result) {
+  if ($result = file_put_contents($save,base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])))) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot) unlink($dot);
     @unlink("$docroot/webGui/javascript/translate.$file.js");
     exec("unzip -qqjLo -d ".escapeshellarg($path)." ".escapeshellarg("$boot/dynamix/$file.lang.zip"), $dummy, $err);
@@ -60,11 +59,23 @@ case 'add':
       unlink("$boot/dynamix/$file.lang.zip");
       exec("rm -rf ".escapeshellarg($path));
       $result = false;
+      break;
     }
+    [$home,$name] = explode(' (',urldecode($_POST['name']));
+    $name  = rtrim($name,')'); $i = 0;
+    $place = "$plugins/dynamix.$file.xml";
+    $child = ['LanguageURL','Language','LanguageLocal','Author','Name','TemplateURL','Version','Icon','Description','Changes'];
+    $value = [$save,$name,$home,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
+    // create a corresponding XML file
+    $xml = new SimpleXMLElement('<Language/>');
+    foreach ($child as $key) $xml->addChild($key,$value[$i++]);
+    // saved as file (not link)
+    $xml->asXML($place);
+    // return list of installed language packs
+    $installed = [];
+    foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
+    exit(implode(',',$installed));
   }
-  $installed = [];
-  foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
-  if ($result) exit(implode(',',$installed));
   break;
 case 'rm':
   $path = "$docroot/languages/$file";
@@ -75,10 +86,11 @@ case 'rm':
     @unlink("$plugins/dynamix.$file.xml");
     @unlink("$tmp/dynamix.$file.xml");
     @unlink("$boot/dynamix/$file.lang.zip");
+    // return list of installed language packs
+    $installed = [];
+    foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
+    exit(implode(',',$installed));
   }
-  $installed = [];
-  foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
-  if ($result) exit(implode(',',$installed));
   break;
 }
 exit($result ? 'OK 200' : 'Internal Error 500');
