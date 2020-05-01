@@ -210,7 +210,7 @@ if ($method == 'install') {
     echo "language: $error\n";
     exit(1);
   }
-  $lang = language('Language', $xml_file, $error) ?: str_replace('.xml', '', $name);
+  $lang = language('Language', $xml_file, $error) ?: substr($name,0,-4);
   $link_file = "$plugins/dynamix.$name";
   $lang_file = "$boot/dynamix.$name";
   copy($xml_file, $lang_file);
