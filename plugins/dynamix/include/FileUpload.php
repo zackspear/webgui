@@ -56,8 +56,8 @@ case 'add':
     @unlink("$docroot/webGui/javascript/translate.$file.js");
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqjLo -d $path $save", $dummy, $err);
+    @unlink($save);
     if ($err > 1) {
-      @unlink($save);
       exec("rm -rf $path");
       $result = false;
       break;
