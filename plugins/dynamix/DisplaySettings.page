@@ -18,7 +18,9 @@ Tag="desktop"
 <?
 $void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='Click to select PNG file'>";
 $icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
-$keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
+$plugins = '/var/log/plugins';
+
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 ?>
 <style>
 span#dropbox{margin-right:20px;}
@@ -129,9 +131,16 @@ $(function() {
 <input type="hidden" name="#section" value="display">
 _(Language)_:
 : <select name="locale">
-  <?=mk_option($display['locale'], "","English")?>
-  <?foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) echo mk_option($display['locale'],basename($dir),$keys[basename($dir)])?>
-  </select>
+<?echo mk_option($display['locale'], "","English");
+  foreach (glob("$plugins/dynamix.*.xml",GLOB_NOSORT) as $link) {
+    $xml_file = @readlink($link);
+    if ($xml_file === false) continue;
+    $lang = language('Language', $xml_file);
+    $home = language('LanguageLocal', $xml_file);
+    $name = str_replace('dynamix.', '', basename($xml_file,'.xml'));
+    echo mk_option($display['locale'], $name, "$home ($lang)");
+  }
+?></select>
 
 _(Font size)_:
 : <select name="font" id='font'>
