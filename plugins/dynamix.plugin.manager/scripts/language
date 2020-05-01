@@ -203,7 +203,9 @@ if ($method == 'install') {
     }
   } else {
     $xml_file = realpath($argv[2]);
+    $name = basename($xml_file);
   }
+  @unlink($link_file);
   if (language('install', $xml_file, $error) === false) {
     echo "language: $error\n";
     exit(1);
@@ -212,7 +214,6 @@ if ($method == 'install') {
   $link_file = "$plugins/dynamix.$name";
   $lang_file = "$boot/dynamix.$name";
   copy($xml_file, $lang_file);
-  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack installed\n";
   exit(0);
@@ -272,13 +273,12 @@ if ($method == 'update') {
   }
   // install the updated plugin
   @unlink("$boot/dynamix/$name.lang.zip");
+  @unlink($link_file);
   if (language('install', $xml_file, $error) === false) {
-    @unlink($link_file);
     echo "language: $error\n";
     exit(1);
   }
   copy($xml_file, $lang_file);
-  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack updated\n";
   exit(0);
