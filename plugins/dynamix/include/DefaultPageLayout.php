@@ -222,9 +222,9 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
   var cookieText = text.replace(/[^a-z0-9]/gi,'');
   if ($.cookie(cookieText) == "true") return false;
   if (warning) text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
-  if (!noDismiss) text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
   if ( bannerWarnings.indexOf(text) < 0 ) {
     var arrayEntry = bannerWarnings.push("placeholder") - 1;
+    if (!noDismiss) text = text + "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
     bannerWarnings[arrayEntry] = text;
   } else return bannerWarnings.indexOf(text);
 
@@ -236,7 +236,7 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true");
+  $.cookie(cookieText,"true",{expires:365,path:'/'});
   removeBannerWarning(entry);
 }
 
