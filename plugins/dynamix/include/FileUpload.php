@@ -82,7 +82,7 @@ case 'rm':
   $file = basename($file);
   $path = "$docroot/languages/$file";
   if ($result = is_dir($path)) {
-    exec("rm -rf ".escapeshellarg($path));
+    exec("rm -rf $path");
     @unlink("$docroot/webGui/javascript/translate.$file.js");
     @unlink("$boot/dynamix.$file.xml");
     @unlink("$plugins/dynamix.$file.xml");
