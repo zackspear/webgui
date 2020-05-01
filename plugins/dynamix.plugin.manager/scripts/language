@@ -105,6 +105,7 @@ function language($method, $xml_file, &$error) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqLjo -d $path $save", $dummy, $err);
     if ($err > 1) {
+      @unlink($save);
       exec("rm -rf $path");
       $error = "unzip failed. Error code $err";
       return false;

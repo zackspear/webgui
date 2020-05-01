@@ -57,7 +57,7 @@ case 'add':
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqjLo -d $path $save", $dummy, $err);
     if ($err > 1) {
-      unlink("$boot/dynamix/$file.lang.zip");
+      @unlink($save);
       exec("rm -rf $path");
       $result = false;
       break;
