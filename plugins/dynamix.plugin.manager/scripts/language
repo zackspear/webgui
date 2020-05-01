@@ -87,14 +87,16 @@ function language($method, $xml_file, &$error) {
     $url = $xml->LanguageURL;
     $zip = basename($url);
     $save = "$boot/dynamix/$zip";
-    if ($url) {
-      if (!download($url, $save, $error)) {
-        @unlink($save);
+    if (!file_exists($save)) {
+      if ($url) {
+        if (!download($url, $save, $error)) {
+          @unlink($save);
+          return false;
+        }
+      } else {
+        $error = "missing URL";
         return false;
       }
-    } else {
-      $error = "missing URL";
-      return false;
     }
     $name = str_replace('.lang.zip','',$zip);
     $path = "$docroot/languages/$name";
