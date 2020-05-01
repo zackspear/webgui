@@ -88,6 +88,7 @@ case 'rm':
     @unlink("$plugins/dynamix.$file.xml");
     @unlink("$tmp/dynamix.$file.xml");
     @unlink("$boot/dynamix/$file.lang.zip");
+    @unlink("tmp/dynamix.$file.lang.zip");
     // return list of installed language packs
     $installed = [];
     foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);
