@@ -86,22 +86,24 @@ function language($method, $xml_file, &$error) {
   case 'install':
     $url = $xml->LanguageURL;
     $zip = basename($url);
-    $local = "$boot/dynamix/$zip";
-    if ($url) {
-      if (!download($url, $local, $error)) {
-        @unlink($local);
+    $save = "$boot/dynamix/$zip";
+    if (!file_exists($save)) {
+      if ($url) {
+        if (!download($url, $save, $error)) {
+          @unlink($save);
+          return false;
+        }
+      } else {
+        $error = "missing URL";
         return false;
       }
-    } else {
-      $error = "missing URL";
-      return false;
     }
     $name = str_replace('.lang.zip','',$zip);
     $path = "$docroot/languages/$name";
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
-    exec("unzip -qqLjo -d $path $local", $dummy, $err);
+    exec("unzip -qqLjo -d $path $save", $dummy, $err);
     if ($err > 1) {
       exec("rm -rf $path");
       $error = "unzip failed. Error code $err";
@@ -210,6 +212,7 @@ if ($method == 'install') {
   $link_file = "$plugins/dynamix.$name";
   $lang_file = "$boot/dynamix.$name";
   copy($xml_file, $lang_file);
+  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack installed\n";
   exit(0);
@@ -273,6 +276,7 @@ if ($method == 'update') {
     exit(1);
   }
   copy($xml_file, $lang_file);
+  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack updated\n";
   exit(0);

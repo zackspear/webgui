@@ -393,7 +393,7 @@ function addConfigPopup() {
     show : {effect: 'fade' , duration: 250},
     hide : {effect: 'fade' , duration: 250},
     buttons: {
-      _(Add)_: function() {
+      '_(Add)_': function() {
         $(this).dialog("close");
         confNum += 1;
         var Opts = Object;
@@ -420,7 +420,7 @@ function addConfigPopup() {
         reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      _(Cancel)_: function() {
+      '_(Cancel)_': function() {
         $(this).dialog("close");
       }
     }
@@ -469,7 +469,7 @@ function editConfigPopup(num,disabled) {
     show: {effect:'fade', duration: 250},
     hide: {effect:'fade', duration: 250},
     buttons: {
-      _(Save)_: function() {
+      '_(Save)_': function() {
         $(this).dialog("close");
         var Opts = Object;
         var Element = this;
@@ -505,7 +505,7 @@ function editConfigPopup(num,disabled) {
        reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      _(Cancel)_: function() {
+      '_(Cancel)_': function() {
         $(this).dialog("close");
       }
     }
@@ -667,7 +667,6 @@ $(function() {
     var status = $(this).is(':checked');
     toggleRows('advanced', status, 'basic');
     load_contOverview();
-    $("#catSelect").dropdownchecklist("destroy");
     $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
   });
 });
@@ -760,7 +759,7 @@ _(Repository)_:
 <div markdown="1" class="<?=$authoring?>">
 _(Categories)_:
 : <input type="hidden" name="contCategory">
-  <select id="catSelect" size="1" multiple="multiple" style="display:none" onchange="prepareCategory();">
+  <select id="catSelect" multiple="multiple" style="display:none" onchange="prepareCategory();">
   <optgroup label="_(Categories)_">
   <option value="Backup:">_(Backup)_</option>
   <option value="Cloud:">_(Cloud)_</option>

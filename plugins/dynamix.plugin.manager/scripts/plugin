@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-// Copyright 2005-2018, Lime Technology
+// Copyright 2005-2020, Lime Technology
 // License: GPLv2 only
 //
 // Program updates made by Bergware International (April 2020)
@@ -540,8 +540,8 @@ if ($method == 'install') {
 // directory.
 //
 if ($method == 'check') {
-  echo "plugin: checking: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: checking: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file === false) {
     echo "plugin: not installed\n";
@@ -576,8 +576,8 @@ if ($method == 'check') {
 // Finally we mark the new.plg "installed".
 //
 if ($method == 'update') {
-  echo "plugin: updating: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: updating: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file === false) {
     echo "plugin: $plugin not installed\n";
@@ -617,7 +617,7 @@ if ($method == 'update') {
   // install was successful, save the updated plugin so it installs again next boot
   unlink("$plugins/$plugin");
   // re-inject the old support link if the updated plugin doesn't have one
-  if ((!plugin('support', $plugin_file,$error)) && $previousSupportLink) {
+  if (!plugin('support', $plugin_file,$error) && $previousSupportLink) {
     echo "\n\nUpdating Support Link\n";
     $pluginXML = simplexml_load_file($plugin_file);
     $pluginXML->addAttribute('support', $previousSupportLink);
@@ -637,8 +637,8 @@ if ($method == 'update') {
 // only .plg files should have a remove method
 //
 if ($method == 'remove') {
-  echo "plugin: removing: {$argv[2]}\n";
   $plugin = $argv[2];
+  echo "plugin: removing: $plugin\n";
   $installed_plugin_file = @readlink("$plugins/$plugin");
   if ($installed_plugin_file !== false) {
     // remove the symlink

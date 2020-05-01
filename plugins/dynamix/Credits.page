@@ -28,11 +28,19 @@ and may not be used in any other project without written permission from Lime Te
 This file shall be included in all copies or substantial portions of the Software.
 
 <?
-$translations = [];
-foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $lang) {
-  if (file_exists("$lang/credits")) $credits = parse_ini_file("$lang/credits",false,INI_SCANNER_RAW);
-  if (isset($credits['name']) && isset($credits['language']) && $credits['name']!='NAME' && $credits['language']!='LANGUAGE') $translations[] = "Language translations to <i>{$credits['language']}</i>, provided by <b>{$credits['name']}</b>.<br><br>";
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
+
+$plugins = '/var/log/plugins';
+$credits = [];
+
+foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $link) {
+  $xml_file = @readlink($link);
+  if ($xml_file === false) continue;
+  $lang = language('Language', $xml_file);
+  $local = language('LanguageLocal', $xml_file);
+  $author = language('Author', $xml_file);
+  $credits[] = "Language translations to <i>$lang ($local)</i> provided by <b>$author</b>.<br><br>";
 }
-if (count($translations)) echo '<br><b>Language Translations</b><br>--------------------------<br>'.implode('',$translations);
+if (count($credits)) echo '<br><b>Language Translations</b><br>--------------------------<br>'.implode('',$credits);
 ?>
 <br><input type="button" value="_(Done)_" onclick="done()">
