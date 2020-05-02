@@ -432,7 +432,7 @@ foreach ($tasks as $button) {
   }
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  if (!isset($display_name)) {
+  if (is_null($display_name)) {
     echo "<a href='/$page' onclick='initab()'>". _($page) ."</a></div>";
   } else {
     echo "<a href='/$page' onclick='initab()'>". _($display_name) ."</a></div>";
