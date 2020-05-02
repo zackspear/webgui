@@ -66,7 +66,7 @@ case 'add':
     $name  = rtrim($name,')'); $i = 0;
     $place = "$plugins/dynamix.$file.xml";
     $child = ['LanguageURL','Language','LanguageLocal','Author','Name','TemplateURL','Version','Icon','Description','Changes'];
-    $value = [$save,$name,$home,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
+    $value = ['',$name,$home,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
     // create a corresponding XML file
     $xml = new SimpleXMLElement('<Language/>');
     foreach ($child as $key) $xml->addChild($key,$value[$i++]);
