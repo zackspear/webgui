@@ -105,6 +105,7 @@ function language($method, $xml_file, &$error) {
     foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqLjo -d $path $save", $dummy, $err);
     if ($err > 1) {
+      @unlink($save);
       exec("rm -rf $path");
       $error = "unzip failed. Error code $err";
       return false;
@@ -203,16 +204,17 @@ if ($method == 'install') {
     }
   } else {
     $xml_file = realpath($argv[2]);
+    $name = str_replace('dynamix.', '', basename($xml_file));
   }
+  $link_file = "$plugins/dynamix.$name";
+  $lang_file = "$boot/dynamix.$name";
+  @unlink($link_file);
   if (language('install', $xml_file, $error) === false) {
     echo "language: $error\n";
     exit(1);
   }
-  $lang = language('Language', $xml_file, $error) ?: str_replace('.xml', '', $name);
-  $link_file = "$plugins/dynamix.$name";
-  $lang_file = "$boot/dynamix.$name";
+  $lang = language('Language', $xml_file, $error) ?: substr($name,0,-4);
   copy($xml_file, $lang_file);
-  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack installed\n";
   exit(0);
@@ -271,12 +273,13 @@ if ($method == 'update') {
     exit(1);
   }
   // install the updated plugin
+  @unlink("$boot/dynamix/$name.lang.zip");
+  @unlink($link_file);
   if (language('install', $xml_file, $error) === false) {
     echo "language: $error\n";
     exit(1);
   }
   copy($xml_file, $lang_file);
-  @unlink($link_file);
   symlink($lang_file, $link_file);
   echo "language: $lang language pack updated\n";
   exit(0);
