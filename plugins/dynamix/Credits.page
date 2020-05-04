@@ -40,7 +40,6 @@ foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $link) {
   $local = language('LanguageLocal', $xml_file);
   $author = language('Author', $xml_file);
   $credits[] = "<li><p><i>$lang ($local)</i> translation by <b>$author</b></p></li>";
-  $credits[] = "<li><p><i>$lang ($local)</i> translation by <b>$author</b></p></li>";
 }
 if (count($credits)) echo '<br><b>Language Translations</b> Copyright &copy; 2020, <a href="http://lime-technology.com">Lime Technology, Inc.</a><br><ul>'.implode('',$credits).'</ul>';
 ?>
