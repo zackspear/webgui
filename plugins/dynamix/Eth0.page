@@ -293,7 +293,6 @@ function checkDNSSettings6(form) {
     form.DNS6_SERVER1.disabled = disabled;
     form.DNS6_SERVER2.disabled = disabled;
     form.DNS6_SERVER3.disabled = disabled;
-    if (!form.DNS6_SERVER1.value && disabled) $('#dns6server1').hide(); else $('#dns6server1').show();
     if (!form.DNS6_SERVER2.value && disabled) $('#dns6server2').hide(); else $('#dns6server2').show();
     if (!form.DNS6_SERVER3.value && disabled) $('#dns6server3').hide(); else $('#dns6server3').show();
   }
@@ -420,7 +419,6 @@ $(function() {
   $('#bridge-eth0').dropdownchecklist('disable');
   if (form.DNS_SERVER2.value) $('#dnsserver2').show(); else $('#dnsserver2').hide();
   if (form.DNS_SERVER3.value) $('#dnsserver3').show(); else $('#dnsserver3').hide();
-  if (form.DNS6_SERVER1.value) $('#dns6server1').show(); else $('#dns6server1').hide();
   if (form.DNS6_SERVER2.value) $('#dns6server2').show(); else $('#dns6server2').hide();
   if (form.DNS6_SERVER3.value) $('#dns6server3').show(); else $('#dns6server3').hide();
 <?else:?>
@@ -710,7 +708,6 @@ _(IPv6 privacy extensions)_:
 :end
 
 </div>
-<div markdown="1" id="dns6server1" style="display:none">
 _(IPv6 DNS server assignment)_:
 : <select name="DHCP6_KEEPRESOLV" onchange="checkDNSSettings6(this.form)">
   <?=mk_option($eth0['DHCP6_KEEPRESOLV'], "no", _("Automatic"))?>
@@ -729,7 +726,6 @@ _(IPv6 DNS server)_:
 > This is the primary IPv6 DNS server to use. Enter a IPv6 address.
 :end
 
-</div>
 <div markdown="1" id="dns6server2" style="display:none">
 _(IPv6 DNS server)_ 2:
 : <input type="text" name="DNS6_SERVER2" maxlength="39" value="<?=$eth0['DNS6_SERVER2']?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
