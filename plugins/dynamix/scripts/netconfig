@@ -98,8 +98,8 @@ foreach ($ini as $name => $port) {
     if (preg_match('/^DNS_SERVER/',$key) && $DHCP_KEEPRESOLV=='no') continue;
     if (preg_match('/^DNS6_SERVER/',$key) && $DHCP6_KEEPRESOLV=='no') continue;
     if ($item=='PRIVACY6' && $PROTOCOL=='ipv4') continue;
-    if ($item=='METRIC' && $PROTOCOL == 'ipv6') continue;
-    if ($item=='METRIC6' && $PROTOCOL == 'ipv4') continue;
+    if ($item=='METRIC' && $PROTOCOL=='ipv6') continue;
+    if ($item=='METRIC6' && $PROTOCOL=='ipv4') continue;
     $new[] = $item.(preg_match('/^(DNS6?_SERVER|DHCP6?_KEEPRESOLV)/',$key)?'':'['.$i.($vlan?'':']')).$vlan."=\"$val\"";
   }
   if ($trunk) $new[] = "VLANS[$i]=\"".($j+1)."\"";
