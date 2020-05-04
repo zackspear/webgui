@@ -94,7 +94,7 @@ foreach ($ini as $name => $port) {
     if ($item=='USE_DHCP') $USE_DHCP = $val;
     if ($item=='USE_DHCP6') $USE_DHCP6 = $val;
     if (in_array($item,['IPADDR','NETMASK','GATEWAY']) && $USE_DHCP!='no') continue;
-    if (in_array($item,['IPADDR6','NETMASK6','GATEWAY6','PRIVACY6']) && $USE_DHCP6!='no') continue;
+    if (in_array($item,['IPADDR6','NETMASK6','GATEWAY6']) && $USE_DHCP6!='no') continue;
     if (preg_match('/^DNS_SERVER/',$key) && $DHCP_KEEPRESOLV=='no') continue;
     if (preg_match('/^DNS6_SERVER/',$key) && $DHCP6_KEEPRESOLV=='no') continue;
     if ($item=='METRIC' && $PROTOCOL == 'ipv6') continue;
