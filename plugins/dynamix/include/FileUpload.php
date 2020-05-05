@@ -50,7 +50,7 @@ case 'delete':
 case 'add':
   $file = basename($file);
   $path = "$docroot/languages/$file";
-  $save = "/tmp/dynamix.$file.lang.zip";
+  $save = "/tmp/lang-$file.zip";
   exec("mkdir -p $path");
   if ($result = file_put_contents($save,base64_decode(preg_replace('/^data:.*;base64,/','',$_POST['filedata'])))) {
     @unlink("$docroot/webGui/javascript/translate.$file.js");
@@ -87,8 +87,7 @@ case 'rm':
     @unlink("$boot/dynamix.$file.xml");
     @unlink("$plugins/dynamix.$file.xml");
     @unlink("$tmp/dynamix.$file.xml");
-    @unlink("$boot/dynamix/$file.lang.zip");
-    @unlink("/tmp/dynamix.$file.lang.zip");
+    @unlink("$boot/dynamix/lang-$file.zip");
     // return list of installed language packs
     $installed = [];
     foreach (glob("$docroot/languages/*",GLOB_ONLYDIR) as $dir) $installed[] = basename($dir);

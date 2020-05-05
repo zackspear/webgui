@@ -85,8 +85,8 @@ function language($method, $xml_file, &$error) {
   switch ($method) {
   case 'install':
     $url = $xml->LanguageURL;
-    $zip = basename($url);
-    $save = "$boot/dynamix/$zip";
+    $name = $xml->LanguagePack;
+    $save = "$boot/dynamix/lang-$name.zip";
     if (!file_exists($save)) {
       if ($url) {
         if (!download($url, $save, $error)) {
@@ -98,7 +98,6 @@ function language($method, $xml_file, &$error) {
         return false;
       }
     }
-    $name = str_replace('.lang.zip','',$zip);
     $path = "$docroot/languages/$name";
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
@@ -112,20 +111,18 @@ function language($method, $xml_file, &$error) {
     }
     return true;
   case 'remove':
-    $url = $xml->LanguageURL;
-    if ($url) {
-      $zip = basename($url);
-      $name = str_replace('.lang.zip','',$zip);
+    $name = $xml->LanguagePack;
+    if ($name) {
       $path = "$docroot/languages/$name";
       exec("rm -rf $path");
       @unlink("$docroot/webGui/javascript/translate.$name.js");
       @unlink("$boot/dynamix.$name.xml");
       @unlink("$plugins/dynamix.$name.xml");
       @unlink("$tmp/dynamix.$name.xml");
-      @unlink("$boot/dynamix/$zip");
+      @unlink("$boot/dynamix/lang-$name.zip");
       return true;
     } else {
-      $error = "missing language file";
+      $error = "missing language pack";
       return false;
     }
   case 'dump':
@@ -273,7 +270,7 @@ if ($method == 'update') {
     exit(1);
   }
   // install the updated plugin
-  @unlink("$boot/dynamix/$name.lang.zip");
+  @unlink("$boot/dynamix/lang-$name.zip");
   @unlink($link_file);
   if (language('install', $xml_file, $error) === false) {
     echo "language: $error\n";
