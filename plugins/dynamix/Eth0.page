@@ -293,7 +293,7 @@ function checkDNSSettings6(form) {
     form.DNS6_SERVER1.disabled = disabled;
     form.DNS6_SERVER2.disabled = disabled;
     form.DNS6_SERVER3.disabled = disabled;
-    if (!form.DNS6_SERVER1.value && disabled) $('#dns6server1').hide(); else $('#dns6server1').show();
+    $('#dns6server1').show();
     if (!form.DNS6_SERVER2.value && disabled) $('#dns6server2').hide(); else $('#dns6server2').show();
     if (!form.DNS6_SERVER3.value && disabled) $('#dns6server3').hide(); else $('#dns6server3').show();
   }
@@ -421,7 +421,7 @@ $(function() {
   var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
   if (form.DNS_SERVER2.value) $('#dnsserver2').show(); else $('#dnsserver2').hide();
   if (form.DNS_SERVER3.value) $('#dnsserver3').show(); else $('#dnsserver3').hide();
-  if (form.DNS6_SERVER1.value || protocol!='ipv4') $('#dns6server1').show(); else $('#dns6server1').hide();
+  if (form.DNS6_SERVER1.value) $('#dns6server1').show(); else $('#dns6server1').hide();
   if (form.DNS6_SERVER2.value) $('#dns6server2').show(); else $('#dns6server2').hide();
   if (form.DNS6_SERVER3.value) $('#dns6server3').show(); else $('#dns6server3').hide();
 <?else:?>
