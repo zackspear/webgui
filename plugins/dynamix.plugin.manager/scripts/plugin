@@ -111,10 +111,6 @@ pluginURL - OPTIONAL but MANDATORY if you want "check for updates" to work with 
   This is the URL of the plugin file to download and extract the **version** attribute from to determine if
   this is a new version.
 
-system - OPTIONAL
-  If present the plugin is considered a system plugin and is installed in '/boot/plugins'.
-  User plugins get installed in '/boot/config/plugins', which is the default.
-
 More attributes may be defined in the future.
 
 Here is the set of directories and files used by the plugin system:
@@ -521,9 +517,6 @@ if ($method == 'install') {
     }
   }
   // register successful install
-  // Bergware change: add user or system plugin selection - deprecated
-  // $plugintype = plugin("plugintype", $plugin_file, $error);
-  // $target = $plugintype != "system" ? "$boot/$plugin" : "/boot/plugins/$plugin";
   $target = "$boot/$plugin";
   if (!plugin('noInstall', $plugin_file, $error)) {
     if ($target != $plugin_file) copy($plugin_file, $target);
