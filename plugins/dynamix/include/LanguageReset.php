@@ -11,5 +11,6 @@
  */
 ?>
 <?
-exec("sed -ri 's/^(locale=\")[^\"]+/\\1/' /boot/config/plugins/dynamix/dynamix.cfg");
+$lang = $_POST['lang'] ?? '';
+exec("sed -ri 's/^(locale=\")[^\"]+/\\1$lang/' /boot/config/plugins/dynamix/dynamix.cfg");
 ?>
