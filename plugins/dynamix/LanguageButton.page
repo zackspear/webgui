@@ -17,6 +17,6 @@ Code="e982"
 ?>
 <script>
 function LanguageButton() {
-  $.post('/webGui/include/LanguageReset.php',{},function(){refresh();});
+  $.post('/webGui/include/LanguageReset.php',{lang:''},function(){refresh();});
 }
 </script>
