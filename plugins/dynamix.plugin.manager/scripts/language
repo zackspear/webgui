@@ -192,7 +192,7 @@ if ($method == 'install') {
   if (substr($argv[2],0,7)=='http://' || substr($argv[2],0,8)=='https://') {
     $langURL = $argv[2];
     echo "language: downloading $langURL\n";
-    $name = basename($langURL);
+    $name = str_replace('lang-', '', basename($langURL));
     $xml_file = "$tmp/dynamix.$name";
     if (!download($langURL, $xml_file, $error)) {
       echo "language: $error\n";
