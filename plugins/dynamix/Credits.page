@@ -33,7 +33,7 @@ require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php"
 $plugins = '/var/log/plugins';
 $credits = [];
 
-foreach (glob("$plugins/dynamix.*.xml", GLOB_NOSORT) as $link) {
+foreach (glob("$plugins/lang-*.xml", GLOB_NOSORT) as $link) {
   $xml_file = @readlink($link);
   if ($xml_file === false) continue;
   $lang = language('Language', $xml_file);
