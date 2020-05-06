@@ -65,8 +65,8 @@ case 'add':
     [$home,$name] = explode(' (',urldecode($_POST['name']));
     $name  = rtrim($name,')'); $i = 0;
     $place = "$plugins/lang-$file.xml";
-    $child = ['LanguageURL','Language','LanguageLocal','Author','Name','TemplateURL','Version','Icon','Description','Changes'];
-    $value = ['',$name,$home,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
+    $child = ['LanguageURL','Language','LanguageLocal','LanguagePack','Author','Name','TemplateURL','Version','Icon','Description','Changes'];
+    $value = ['',$name,$home,$file,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
     // create a corresponding XML file
     $xml = new SimpleXMLElement('<Language/>');
     foreach ($child as $key) $xml->addChild($key,$value[$i++]);
