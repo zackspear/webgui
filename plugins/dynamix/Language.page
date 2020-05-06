@@ -25,7 +25,7 @@ $keys = parse_ini_file('webGui/include/languages.key',false,INI_SCANNER_RAW);
 $head = '<i class="fa fa-fw fa-trash" title="_(Remove the installed language)_" style="cursor:pointer" onclick="remove(&quot;';
 $tail = '&quot;)"></i>';
 
-foreach (glob("$plugins/dynamix.*.xml",GLOB_NOSORT) as $xml_file) $installed[] = language('LanguageLocal',$xml_file).$head.str_replace('dynamix.','',basename($xml_file,'.xml')).$tail;
+foreach (glob("$plugins/lang-*.xml",GLOB_NOSORT) as $xml_file) $installed[] = language('LanguageLocal',$xml_file).$head.str_replace('lang-','',basename($xml_file,'.xml')).$tail;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <style>
