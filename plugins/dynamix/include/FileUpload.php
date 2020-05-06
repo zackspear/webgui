@@ -64,7 +64,7 @@ case 'add':
     }
     [$home,$name] = explode(' (',urldecode($_POST['name']));
     $name  = rtrim($name,')'); $i = 0;
-    $place = "$plugins/dynamix.$file.xml";
+    $place = "$plugins/lang-$file.xml";
     $child = ['LanguageURL','Language','LanguageLocal','Author','Name','TemplateURL','Version','Icon','Description','Changes'];
     $value = ['',$name,$home,$_SERVER['HTTP_HOST'],"$name translation",$place,date('Y.m.d',time()),'','',''];
     // create a corresponding XML file
@@ -84,9 +84,9 @@ case 'rm':
   if ($result = is_dir($path)) {
     exec("rm -rf $path");
     @unlink("$docroot/webGui/javascript/translate.$file.js");
-    @unlink("$boot/dynamix.$file.xml");
-    @unlink("$plugins/dynamix.$file.xml");
-    @unlink("$tmp/dynamix.$file.xml");
+    @unlink("$boot/lang-$file.xml");
+    @unlink("$plugins/lang-$file.xml");
+    @unlink("$tmp/lang-$file.xml");
     @unlink("$boot/dynamix/lang-$file.zip");
     // return list of installed language packs
     $installed = [];
