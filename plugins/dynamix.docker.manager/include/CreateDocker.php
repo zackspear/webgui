@@ -668,6 +668,7 @@ $(function() {
     var status = $(this).is(':checked');
     toggleRows('advanced', status, 'basic');
     load_contOverview();
+    $("#catSelect").dropdownchecklist("destroy");
     $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
   });
 });
@@ -760,7 +761,7 @@ _(Repository)_:
 <div markdown="1" class="<?=$authoring?>">
 _(Categories)_:
 : <input type="hidden" name="contCategory">
-  <select id="catSelect" multiple="multiple" style="display:none" onchange="prepareCategory();">
+  <select id="catSelect" size="1" multiple="multiple" style="display:none" onchange="prepareCategory();">
   <optgroup label="_(Categories)_">
   <option value="Backup:">_(Backup)_</option>
   <option value="Cloud:">_(Cloud)_</option>
