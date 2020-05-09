@@ -73,7 +73,6 @@ $helptxt  = "$docroot/webGui/help/helptext.dot";
 
 if ($locale) {
   $text = "$docroot/languages/$locale/translations.txt";
-  $helptext = "$docroot/languages/$locale/helptext.txt";
   if (file_exists($text)) {
     $basis = "$docroot/languages/$locale/translations.dot";
     // global translations
