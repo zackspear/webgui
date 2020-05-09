@@ -21,10 +21,10 @@ function _($text) {
   return strpos($data,'*')===false ? $data : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/'],['<b>$1</b>','<i>$1</i>'],$data);
 }
 function parse_lang_file($file) {
-  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:((help|plug)\d*)$/m','/^:end$/m'],['$1.=','$1="$2"',"_$1_=\"",'"'],str_replace(['"',"=\n"],["&#34;","=\"\"\n"],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
+  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=([^"\'`].*)$/m','/^:(.+_help):$|^:(plug\d*)$/m','/^:end$/m'],['$1.=','$1="$2"',"_$1_=\"",'"'],str_replace(['"',"=\n"],["&#34;","=\"\"\n"],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
 }
 function parse_text($text) {
-  return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:((help|plug)\d*)$/m","/^:end$/m"],["<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
+  return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:(.+_help):$/m","/^:(plug\d*)$/m","/^:end$/m"],["<?translate(\"_$1_\");?>","<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
 }
 function parse_file($file,$markdown=true) {
   return $markdown ? Markdown(parse_text(file_get_contents($file))) : parse_text(file_get_contents($file));
@@ -68,14 +68,21 @@ function translate($key) {
 $language = [];
 $locale   = $_SESSION['locale'];
 $return   = 'function _(t){return t;}';
+$helpsrc  = "$docroot/webGui/help/helptext.txt";
+$helptxt  = "$docroot/webGui/help/helptext.dot";
 
 if ($locale) {
   $text = "$docroot/languages/$locale/translations.txt";
+  $helptext = "$docroot/languages/$locale/helptext.txt";
   if (file_exists($text)) {
     $basis = "$docroot/languages/$locale/translations.dot";
     // global translations
     if (!file_exists($basis)) file_put_contents($basis,serialize(parse_lang_file($text)));
     $language = unserialize(file_get_contents($basis));
+  }
+  if (file_exists("$docroot/languages/$locale/helptext.txt")) {
+    $helpsrc = "$docroot/languages/$locale/helptext.txt";
+    $helptxt = "$docroot/languages/$locale/helptext.dot";
   }
   $jscript = "$docroot/webGui/javascript/translate.$locale.js";
   if (!file_exists($jscript)) {
@@ -105,4 +112,7 @@ if ($locale) {
     }
   }
 }
+// add help text
+if (!file_exists($helptxt)) file_put_contents($helptxt,serialize(parse_lang_file($helpsrc)));
+$language = array_merge($language,unserialize(file_get_contents($helptxt)));
 ?>
