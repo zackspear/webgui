@@ -49,6 +49,10 @@ function globalInclude($name) {
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || strpos("{$var['shareUserInclude']},","$name,")!==false);
 }
 
+function escapestring($share) {
+  return "\"$share\"";
+}
+
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), explode(',',$var['shareUserExclude'])), 'globalInclude');
 ?>
@@ -268,12 +272,12 @@ function prepareEdit(form) {
     swal({title:'_(Missing share name)_',text:'_(Enter a name for the share)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
-  var reserved = [<?=implode(',',array_map('escapeshellarg',explode(',',$var['reservedNames'])))?>];
+  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
   if (reserved.includes(share)) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
   }
-  var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
+  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (pools.includes(share)) {
     swal({title:'_(Invalid share name)_',text:'_(Do not use pool names)_',type:'error',confirmButtonText:'_(Ok)_'});
     return false;
