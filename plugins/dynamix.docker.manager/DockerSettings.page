@@ -421,7 +421,7 @@ _(Docker LOG rotation)_:
 _(Host access to custom networks)_:
 : <?=$dockercfg['DOCKER_ALLOW_ACCESS']=='' ? _('Disabled') : _('Enabled')?>
 
-:docker_user_defined_network_active_help:
+:docker_custom_network_active_help:
 
 _(Preserve user defined networks)_:
 : <?=$dockercfg['DOCKER_USER_NETWORKS']=='preserve' ? _('Yes') : _('No')?>
