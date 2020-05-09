@@ -109,8 +109,6 @@ _(Sending email address)_:
 : <input type="text" name="root" value="<?=htmlspecialchars($ssmtp['root'])?>">
 
 :smtp_email_address_help:
-> Email address of your mail account. This address is used as sender of the notifications.
-:end
 
 _(Email recipients)_:
 : <input type="text" name="RcptTo" value="<?=htmlspecialchars($ssmtp['RcptTo'])?>">
@@ -177,8 +175,6 @@ _(Authentication method)_:
   </select>
 
 :smtp_authentication_method_help:
-> Select the correct authentication method for your email server. Use test to verify that access is working properly.
-:end
 
 _(Username)_:
 : <input type="text" name="AuthUser" value="<?=htmlspecialchars($ssmtp['AuthUser'])?>">
@@ -187,8 +183,6 @@ _(Password)_:
 : <input type="password" name="AuthPass" value="<?=htmlspecialchars($ssmtp['AuthPass'])?>">
 
 :smtp_username_password_help:
-> Enter the username and password to login to your email account. Be aware that the password is stored unencrypted in the email configuration file.
-:end
 
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
