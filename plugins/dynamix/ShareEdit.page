@@ -56,7 +56,6 @@ $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), 
 <?if ($name):?>
 :share_edit_global2_help:
 <?endif;?>
-:end
 
 <div id="" class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
