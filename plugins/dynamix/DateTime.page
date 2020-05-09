@@ -63,8 +63,6 @@ _(New date and time)_:
 : <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(), "%F %T")?>">
 
 :current_time_help:
-> Enter the current time-of-day.  Use format YYYY-MM-DD HH:MM:SS. Greyed out when using NTP.
-:end
 
 &nbsp;
 : <input type="submit" name="setDateTime" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
