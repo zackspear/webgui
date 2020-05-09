@@ -111,8 +111,6 @@ _(Libvirt storage location)_:
 : <?=htmlspecialchars($domain_cfg['IMAGE_FILE'])?>
 
 :vms_libvirt_volume_help:
-> This is the libvirt volume.
-:end
 
 <?else: /* Libvirt is stopped */ ?>
 _(Libvirt vdisk size)_:
