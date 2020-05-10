@@ -324,7 +324,7 @@ function formatWarning(val) {
           [$date,$duration,$speed,$status,$error] = last_parity_log();?>
 <?        if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
-            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_lang(my_check($duration,$speed),2)?></td></tr>
+            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
 <?        else:?>
             <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
             <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($status)?></td></tr>
@@ -333,7 +333,7 @@ function formatWarning(val) {
           [$date,$duration,$speed,$status,$error] = explode('|', read_parity_log($var['sbSynced']));
           if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
-            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_lang(my_check($duration,$speed),2)?></td></tr>
+            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
 <?        else:?>
             <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
             <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($status)?></td></tr>
@@ -342,7 +342,7 @@ function formatWarning(val) {
           $duration = $var['sbSynced2']-$var['sbSynced'];
           $speed = $duration?my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/sec":'';?>
           <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),my_lang(my_time($var['sbSynced2']).my_lang(day_count($var['sbSynced2']),1)))?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?>
-          <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_lang(my_check($duration,$speed),2)?></td></tr>
+          <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
 <?      endif;
       endif;
     else:
