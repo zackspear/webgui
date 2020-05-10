@@ -66,36 +66,38 @@ function translate($key) {
   return !$plug;
 }
 $language = [];
-$locale   = $_SESSION['locale'] ?: 'en_US';
+$locale   = $_SESSION['locale'];
 $return   = "function _(t){return t;}";
-$text     = "$docroot/languages/$locale/translations.txt";
-$help     = "$docroot/languages/$locale/helptext.txt";
+$jscript  = "$docroot/webGui/javascript/translate.en_US.js";
+$root     = "$docroot/webGui/help/helptext.txt";
+$help     = "$docroot/webGui/help/helptext.dot";
 
-if (file_exists($text)) {
-  $store = "$docroot/languages/$locale/translations.dot";
-  // global translations
-  if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
-  $language = unserialize(file_get_contents($store));
-}
-if (file_exists($help)) {
-  // global help text
-  $store = "$docroot/languages/$locale/helptext.dot";
-  if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($help)));
-  $language = array_merge($language,unserialize(file_get_contents($store)));
-}
-$jscript = "$docroot/webGui/javascript/translate.$locale.js";
-if (!file_exists($jscript)) {
-  // create javascript file with translations
-  $source = [];
-  $files = glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT);
-  foreach ($files as $js) $source = array_merge($source,parse_lang_file($js));
-  if (count($source)) {
-    $script = ['function _(t){var l={};'];
-    foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
-    $script[] ="return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
-    file_put_contents($jscript,implode('',$script));
-  } else {
-    file_put_contents($jscript,$return);
+if ($locale) {
+  $text = "$docroot/languages/$locale/translations.txt";
+  if (file_exists($text)) {
+    $store = "$docroot/languages/$locale/translations.dot";
+    // global translations
+    if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+    $language = unserialize(file_get_contents($store));
+  }
+  if (file_exists("$docroot/languages/$locale/helptext.txt")) {
+    $root = "$docroot/languages/$locale/helptext.txt";
+    $help = "$docroot/languages/$locale/helptext.dot";
+  }
+  $jscript = "$docroot/webGui/javascript/translate.$locale.js";
+  if (!file_exists($jscript)) {
+    // create javascript file with translations
+    $source = [];
+    $files = glob("$docroot/languages/$locale/javascript*.txt",GLOB_NOSORT);
+    foreach ($files as $js) $source = array_merge($source,parse_lang_file($js));
+    if (count($source)) {
+      $script = ['function _(t){var l={};'];
+      foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
+      $script[] ="return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
+      file_put_contents($jscript,implode('',$script));
+    } else {
+      file_put_contents($jscript,$return);
+    }
   }
 }
 // split URI into translation levels
@@ -110,4 +112,10 @@ foreach($uri as $more) {
     $language = array_merge($language,unserialize(file_get_contents($other)));
   }
 }
+// help text
+if (!file_exists($help)) file_put_contents($help,serialize(parse_lang_file($root)));
+$language = array_merge($language,unserialize(file_get_contents($help)));
+
+// remove unused variables
+unset($return,$jscript,$root,$help,$store,$uri,$more,$text,$other);
 ?>
