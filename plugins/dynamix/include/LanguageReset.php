@@ -14,5 +14,11 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
 
 $lang = $_POST['lang'] ?? '';
-exec("sed -ri 's/^(locale=\")[^\"]*/\\1$lang/' /boot/config/plugins/dynamix/dynamix.cfg 2>/dev/null");
+$file = '/boot/config/plugins/dynamix/dynamix.cfg';
+
+if (file_exists($file)) {
+  exec("sed -ri 's/^(locale=\")[^\"]*/\\1$lang/' $file");
+} else {
+  file_put_contents($file, "[display]\nlocale=\"$lang\"\n");
+}
 ?>

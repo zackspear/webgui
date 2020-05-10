@@ -121,13 +121,7 @@ _(Notifications display)_:
   <?=mk_option($notify['display'], "1", _("Summarized"))?>
   </select>
 
-:help176
-> In *Detailed* view all notifications will be displayed on screen as soon as they arrive.<br>
-> Notifications can be acknowledged individually or all in once.
->
-> In *Summarized* view notifications will be counted only and the number of unread notifications is shown in the menu header per category.<br>
-> Click on the counters to either acknowledge or view the unread notifications.
-:end
+:notifications_display_help:
 
 _(Date format)_:
 : <select name="date" class="a">
@@ -136,9 +130,7 @@ _(Date format)_:
   <?=mk_option($notify['date'], "Y-m-d", _("YYYY-MM-DD"))?>
   </select>
 
-:help177
-> Select the desired date format which is used in the notifications archive. Recommended is YYYY-MM-DD, which makes the date/time column sortable in a sensible way.
-:end
+:notifications_date_format_help:
 
 _(Time format)_:
 : <select name="time" class="a">
@@ -146,9 +138,7 @@ _(Time format)_:
   <?=mk_option($notify['time'], "H:i", _("24 hours"))?>
   </select>
 
-:help178
-> Select the desired time format which is used in the notifications archive. Recommended is 24 hours, which makes the date/time column sortable in a sensible way.
-:end
+:notifications_time_format_help:
 
 _(Display position)_:
 : <select name="position" class="a">
@@ -159,9 +149,7 @@ _(Display position)_:
   <?=mk_option($notify['position'], "center", _("center"))?>
   </select>
 
-:help179
-> Choose the position of where notifications appear on screen. Multiple notifications are stacked, bottom-to-top or top-to-bottom depending on the selected placement.
-:end
+:notifications_display_position_help:
 
 _(Store notifications to flash)_:
 : <select name="path" class="a">
@@ -169,10 +157,7 @@ _(Store notifications to flash)_:
   <?=mk_option($notify['path'], "/boot/config/plugins/dynamix/notifications", _("Yes"))?>
   </select>
 
-:help180
-> By default notifications are stored on RAM disk, which will get lost upon system reboot.
-> Notifications may be stored permanently on the flash drive under folder '/boot/config/plugins/dynamix' instead.
-:end
+:notifications_store_flash_help:
 
 _(System notifications)_:
 : <select name="system" class="a" onchange="prepareSystem(this.selectedIndex)">
@@ -180,10 +165,7 @@ _(System notifications)_:
   <?=mk_option($notify['system'], "*/1 * * * *", _("Enabled"))?>
   </select>
 
-:help181
-> By default the notifications system is disabled. Enable it here to start receiving notifications.
-> The following sections give more options about which and what type of notifications will be sent.
-:end
+:notifications_system_help:
 
 _(Unraid OS update notification)_:
 : <select name="unraidos" class="a" onchange="prepareUnraid(this.value)">
@@ -195,10 +177,7 @@ _(Unraid OS update notification)_:
   <?=mk_option($notify['unraidos'], "11 0 1 * *", _("Check once a month"))?>
   </select>
 
-:help182
-> Start a periodic verification and notify the user when a new version of the Unraid OS system is detected.
-> Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
-:end
+:notifications_os_update_help:
 
 _(Plugins update notification)_:
 : <select name="version" class="a" onchange="preparePlugin(this.value)">
@@ -210,10 +189,7 @@ _(Plugins update notification)_:
   <?=mk_option($notify['version'], "10 0 1 * *", _("Check once a month"))?>
   </select>
 
-:help183
-> Start a periodic verification and notify the user when a new version of one or more of the installed plugins is detected.
-> Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
-:end
+:notifications_plugins_update_help:
 
 _(Docker update notification)_:
 : <select name="docker_update" class="a" onchange="prepareDocker(this.value)">
@@ -225,10 +201,7 @@ _(Docker update notification)_:
   <?=mk_option($notify['docker_update'], "10 0 1 * *", _("Check once a month"))?>
   </select>
 
-:help184
-> Start a periodic verification and notify the user when a new version of one or more of the installed dockers is detected.
-> Use the checkboxes below to select how notifications need to be given; by browser, by email and/or by custom agent.
-:end
+:notifications_docker_update_help:
 
 _(Language update notification)_:
 : <select name="language_update" class="a" onchange="prepareLanguage(this.value)">
@@ -253,9 +226,7 @@ _(Array status notification)_:
   <?=mk_option($notify['status'], "20 0 1 * *", _("Send once a month"))?>
   </select>
 
-:help185
-> Start a periodic array health check (preventive maintenance) and notify the user the result of this check.
-:end
+:notifications_array_status_help:
 
 <span id="unraidTitle" class="unraid" style="display:none">&nbsp;</span>
 : <span class="unraid" style="display:none"><span class="a">_(Unraid OS update)_</span>
@@ -287,10 +258,7 @@ _(Array status notification)_:
   <input type="checkbox" name="report2"<?=($notify['report'] & 2)==2 ? ' checked' : ''?>>_(Email)_ &nbsp;
   <input type="checkbox" name="report3"<?=($notify['report'] & 4)==4 ? ' checked' : ''?>>_(Agents)_ &nbsp;</span>
 
-:help186
-> Use the checkboxes above to select what and how notifications need to be given; by browser, by email and/or by a service.<br>
-> <b>Tip:</b> you can use custom notification agents; just add them to "/boot/config/plugins/dynamix/notification/agents" directory and check 'Agents'.
-:end
+:notifications_agent_selection_help:
 
 _(Notification entity)_:
 : <span class="a">_(Notices)_</span>
@@ -310,15 +278,7 @@ _(Notification entity)_:
   <input type="checkbox" class="checkbox" name="alert2"<?=($notify['alert'] & 2)==2 ? " checked $disabled" : $disabled?>>_(Email)_ &nbsp;
   <input type="checkbox" class="checkbox" name="alert3"<?=($notify['alert'] & 4)==4 ? " checked $disabled" : $disabled?>>_(Agents)_ &nbsp;
 
-:help187
-> Notifications are classified as:
->
-> *notice* - these are informative notifications and do not indicate a problem situation, e.g. a new version is available<br>
-> *warning* - these are attentive notifications and may indicate future problems, e.g. a hard disk is hotter than usual<br>
-> *alert* - these are serious notifications and require immediate attention, e.g. a failing hard disk<br>
->
-> Choose for each classification how you want to be notified.
-:end
+:notifications_classification_help:
 
 <input type="submit" name="#default" value="_(Default)_">
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></td>
