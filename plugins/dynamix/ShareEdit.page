@@ -49,10 +49,6 @@ function globalInclude($name) {
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || strpos("{$var['shareUserInclude']},","$name,")!==false);
 }
 
-function escapestring($share) {
-  return "\"$share\"";
-}
-
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), explode(',',$var['shareUserExclude'])), 'globalInclude');
 ?>

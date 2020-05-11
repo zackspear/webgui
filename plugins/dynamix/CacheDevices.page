@@ -19,9 +19,6 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
 function sharename($share) {
   return substr($share,0,-4);
 }
-function escapestring($share) {
-  return "\"$share\"";
-}
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
