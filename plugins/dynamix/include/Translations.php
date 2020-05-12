@@ -69,8 +69,8 @@ $language = [];
 $locale   = $_SESSION['locale'];
 $return   = "function _(t){return t;}";
 $jscript  = "$docroot/webGui/javascript/translate.en_US.js";
-$root     = "$docroot/webGui/help/helptext.txt";
-$help     = "$docroot/webGui/help/helptext.dot";
+$root     = "$docroot/languages/en_US/helptext.txt";
+$help     = "$docroot/languages/en_US/helptext.dot";
 
 if ($locale) {
   $text = "$docroot/languages/$locale/translations.txt";
