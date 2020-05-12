@@ -227,9 +227,9 @@ function updateMode(form,mode) {
 }
 function validate(poolname) {
   var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
-  var reserved = [<?=implode(',',array_map('escapeshellarg',explode(',',$var['reservedNames'])))?>];
-  var shares = [<?=implode(',',array_map('escapeshellarg',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
-  var pools = [<?=implode(',',array_map('escapeshellarg',$pools))?>];
+  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
+  var shares = [<?=implode(',',array_map('escapestring',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
+  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (!poolname.trim()) return false;
   if (reserved.includes(poolname)) {
     swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});

@@ -191,7 +191,9 @@ function plus($val, $word, $last) {
 function compress($name,$size=18,$end=6) {
   return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end+3:0)).'...'.($end?substr($name,-$end):'');
 }
-
+function escapestring($name) {
+  return "\"$name\"";
+}
 function read_parity_log($epoch, $busy=false) {
   $log = '/boot/config/parity-checks.log';
   if (file_exists($log)) {

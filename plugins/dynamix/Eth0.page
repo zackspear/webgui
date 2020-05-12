@@ -671,7 +671,7 @@ _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0','<?=$i?>')"></i></span>
   <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($eth0["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
 
-:eth_interface_description_help
+:eth_interface_description_help:
 
 <div markdown="1" id="view-eth0-<?=$i?>" style="display:none">
 _(VLAN number)_:
