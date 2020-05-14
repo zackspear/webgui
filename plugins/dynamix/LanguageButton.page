@@ -22,8 +22,7 @@ $(function(){$('#nav-item.LanguageButton').hide();});
 <?endif;?>
 
 function LanguageButton() {
-  var locale = '<?=$locale?>';
-  if (locale) switchLanguage('');
+  switchLanguage('');
 }
 
 function switchLanguage(lang) {
