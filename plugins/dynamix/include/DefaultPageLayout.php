@@ -426,17 +426,9 @@ $(function() {
 echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
-  $display_name = null;
-  if (isset($button['Display_Name'])) {
-    $display_name = $button['Display_Name'];
-  }
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  if (is_null($display_name)) {
-    echo "<a href='/$page' onclick='initab()'>". _($page) ."</a></div>";
-  } else {
-    echo "<a href='/$page' onclick='initab()'>". _($display_name) ."</a></div>";
-  }
+  echo "<a href='/$page' onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
 }
 unset($tasks);
 if ($display['usage']) my_usage();
