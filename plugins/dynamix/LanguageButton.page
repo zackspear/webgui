@@ -16,7 +16,7 @@ Code="e982"
  */
 ?>
 <script>
-<?if (count(glob('/var/log/plugins/lang-*.xml'))==0):?>
+<?if (count(glob('/var/log/plugins/lang-*.xml'))==0 || $locale==''):?>
 // hide switch button when no other language packs
 $(function(){$('#nav-item.LanguageButton').hide();});
 <?endif;?>
