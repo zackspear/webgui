@@ -16,14 +16,13 @@ Code="e982"
  */
 ?>
 <script>
-<?if (count(glob('/var/log/plugins/lang-*.xml'))==0):?>
+<?if (!$locale):?>
 // hide switch button when no other language packs
 $(function(){$('#nav-item.LanguageButton').hide();});
 <?endif;?>
 
 function LanguageButton() {
-  var locale = '<?=$locale?>';
-  if (locale) switchLanguage('');
+  switchLanguage('');
 }
 
 function switchLanguage(lang) {

@@ -587,7 +587,7 @@ watchdog.on('message', function(data) {
   } else if (state=='Formatting') {
     status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>";
   } else {
-    status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> Array "+state+"</span>";
+    status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
   }
   if (ini['mdResyncPos']>0) {
     var action;
@@ -599,7 +599,7 @@ watchdog.on('message', function(data) {
     status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>')+"</span>";
     if (ini['mdResync']==0) status += "(<?=_('Paused')?>)";
   }
-  if (progress) status += "&bullet;<span class='blue strong'>"+progress+"</span>";
+  if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
   $('#statusbar').html(status);
 });
 var backtotopoffset = 250;
