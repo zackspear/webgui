@@ -23,11 +23,11 @@ function _($text) {
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
-  return secured(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
+  return secured((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
 }
 function parse_help_file($file) {
   // parser for help text files (multi-line sections), includes some trickery to handle PHP quirks.
-  return secured(parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
+  return secured((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
 }
 function parse_text($text) {
   // inline text parser
