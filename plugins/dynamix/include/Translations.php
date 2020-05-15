@@ -21,10 +21,12 @@ function _($text) {
   return strpos($data,'*')===false ? $data : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/'],['<b>$1</b>','<i>$1</i>'],$data);
 }
 function parse_lang_file($file) {
-  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace('"','&#34;',file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
+  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
 }
 function parse_help_file($file) {
-  return parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace('"','&#34;',file_get_contents($file))));
+  $test = preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)));
+  file_put_contents('/tmp/test',print_r($test,true));
+  return parse_ini_string($test);
 }
 function parse_text($text) {
   return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:(.+_help):$/m","/^:(.+_plug):$/m","/^:end$/m"],["<?translate(\"_$1_\");?>","<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));

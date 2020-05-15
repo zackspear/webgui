@@ -27,7 +27,7 @@ $template_repos = $dockerManPaths['template-repos'];
 _(Template repositories)_:
 : <textarea name="template_repos" rows="5" cols="100" style="width:550px"><?=@file_get_contents($template_repos);?></textarea>
 
-:docker_repostiroties_help:
+:docker_repositories_help:
 
 &nbsp;
 : <input type="submit" value="_(Save)_">
