@@ -23,11 +23,11 @@ function _($text) {
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
-  return secured((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
+  return secured((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_help_file($file) {
   // parser for help text files (multi-line sections), includes some trickery to handle PHP quirks.
-  return secured((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
+  return secured((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_text($text) {
   // inline text parser
@@ -70,6 +70,9 @@ function parse_array($text,&$array) {
 function secured($array) {
   // remove potential dangerous tags
   return array_filter($array,function($v,$k){return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));},ARRAY_FILTER_USE_BOTH);
+}
+function escapeQuotes($text) {
+  return str_replace(["\"\n",'"'],["\" \n",'\"'],$text);
 }
 function translate($key) {
   // replaces multi-line sections
