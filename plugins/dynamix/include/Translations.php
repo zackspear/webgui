@@ -23,11 +23,11 @@ function _($text) {
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
-  return array_filter(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))),'secured',ARRAY_FILTER_USE_BOTH);
+  return secured(parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
 }
 function parse_help_file($file) {
   // parser for help text files (multi-line sections), includes some trickery to handle PHP quirks.
-  return parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file))));
+  return secured(parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],str_replace(["\"\n",'"'],["\" \n",'\"'],file_get_contents($file)))));
 }
 function parse_text($text) {
   // inline text parser
@@ -36,10 +36,6 @@ function parse_text($text) {
 function parse_file($file,$markdown=true) {
   // replacement of PHP include function
   return $markdown ? Markdown(parse_text(file_get_contents($file))) : parse_text(file_get_contents($file));
-}
-function parse_array($text,&$array) {
-  // multi keyword parser
-  parse_str(str_replace([' ',':'],['&','='],$text),$array);
 }
 function my_lang($text,$do=0) {
   global $language;
@@ -66,9 +62,14 @@ function my_lang($text,$do=0) {
   }
   return $text;
 }
-function secured($v,$k) {
+// internal helper functions
+function parse_array($text,&$array) {
+  // multi keyword parser
+  parse_str(str_replace([' ',':'],['&','='],$text),$array);
+}
+function secured($array) {
   // remove potential dangerous tags
-  return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));
+  return array_filter($array,function($v,$k){return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));},ARRAY_FILTER_USE_BOTH);
 }
 function translate($key) {
   // replaces multi-line sections
@@ -76,6 +77,8 @@ function translate($key) {
   if ($plug = isset($language[$key])) eval('?>'.Markdown($language[$key]));
   return !$plug;
 }
+
+// main
 $language = [];
 $locale   = $_SESSION['locale'];
 $return   = "function _(t){return t;}";
