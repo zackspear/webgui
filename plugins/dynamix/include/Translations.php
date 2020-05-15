@@ -59,6 +59,7 @@ function my_lang($text,$do=0) {
   case 3: // device translation
     [$p1,$p2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text);
     $text = _($p1).$p2;
+    break;
   }
   return $text;
 }
