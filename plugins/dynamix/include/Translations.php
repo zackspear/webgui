@@ -26,7 +26,7 @@ function parse_lang_file($file) {
   return array_safe((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_help_file($file) {
-  // parser for help text files (multi-line sections), includes some trickery to handle PHP quirks.
+  // parser for help text files, includes some trickery to handle PHP quirks.
   return array_safe((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_text($text) {
@@ -72,6 +72,7 @@ function array_safe($array) {
   return array_filter($array,function($v,$k){return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));},ARRAY_FILTER_USE_BOTH);
 }
 function escapeQuotes($text) {
+  // escape double quotes
   return str_replace(["\"\n",'"'],["\" \n",'\"'],$text);
 }
 function translate($key) {
