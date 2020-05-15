@@ -43,7 +43,7 @@ function execute(cmd,title,language,name,filedata) {
   <?foreach ($keys as $key => $name) echo "keys['$key'] = '".strtok($keys[$key],' (')."'\n";?>
   $.post("/webGui/include/FileUpload.php",{cmd:cmd,filename:language,name:encodeURI(name),filedata:filedata},function(list){
     if (list.indexOf('Error 500')==-1) {
-      var installed = ['English'];
+      var installed = [];
       if (list.length) {
         var name = list.split(',');
         for (var i=0; i < name.length; i++) installed.push(keys[name[i]]+'<?=$head?>'+name[i]+'<?=$tail?>');
