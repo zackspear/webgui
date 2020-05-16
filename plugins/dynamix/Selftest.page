@@ -35,7 +35,7 @@ function spindownDelay() {
 }
 ?>
 _(Download SMART report)_:
-: <input type='button' value='_(Download)_' onclick='saveSMART()'>
+: <input type='button' value="_(Download)_" onclick='saveSMART()'>
 
 _(SMART self-test history)_:
 : <input type="button" value="_(Show)_" id="toggle_log" onclick="selftestLog()" disabled>
@@ -52,12 +52,12 @@ _(SMART error log)_:
 <pre id="errorlog" style="display:none"></pre>
 
 _(SMART short self-test)_:
-: <input type='button' value='_(Start)_' id='short_test' onclick="startShortTest()" disabled>
+: <input type='button' value="_(Start)_" id='short_test' onclick="startShortTest()" disabled>
 
 :selftest_short_test_help:
 
 _(SMART extended self-test)_:
-: <input type='button' value='_(Start)_' id='long_test' onclick="startLongTest()" disabled>
+: <input type='button' value="_(Start)_" id='long_test' onclick="startLongTest()" disabled>
 
 :selftest_long_test_help:
 
@@ -69,7 +69,7 @@ _(Last SMART test result)_:
 <script>
 function cleanUp() {
   if (document.hasFocus()) {
-    $('input[value="_(Downloading)_..."]').val('_(Download)_').prop('disabled',false);
+    $('input[value="_(Downloading)_..."]').val("_(Download)_").prop('disabled',false);
     $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($file))?>'});
     $.post('/webGui/include/Download.php',{cmd:'delete',file:'<?=addslashes(htmlspecialchars($zip))?>'});
   } else {
@@ -98,8 +98,8 @@ function testUpdate(init) {
       if (!init) timers.testUpdate = setTimeout(testUpdate, 3000);
     } else {
       if ($('#smart_selftest').length) $('#smart_selftest').html('');
-      $('#short_test').val('_(Start)_');
-      $('#long_test').val('_(Start)_');
+      $('#short_test').val("_(Start)_");
+      $('#long_test').val("_(Start)_");
 <?if ($live):?>
       $('#short_test').removeAttr('disabled');
       $('#long_test').removeAttr('disabled');
@@ -117,17 +117,17 @@ function testUpdate(init) {
 }
 function selftestLog() {
   $('#selftest').toggle('slow');
-  var text = $('#toggle_log').val()=='_(Show)_' ? '_(Hide)_' : '_(Show)_';
+  var text = $('#toggle_log').val()=="_(Show)_" ? "_(Hide)_" : "_(Show)_";
   $('#toggle_log').val(text);
 }
 function errorLog() {
   $('#errorlog').toggle('slow');
-  var text = $('#toggle_error').val()=='_(Show)_' ? '_(Hide)_' : '_(Show)_';
+  var text = $('#toggle_error').val()=="_(Show)_" ? "_(Hide)_" : "_(Show)_";
   $('#toggle_error').val(text);
 }
 function startShortTest() {
-  if ($('#short_test').val()=='_(Start)_') {
-    $('#short_test').val('_(Stop)_');
+  if ($('#short_test').val()=="_(Start)_") {
+    $('#short_test').val("_(Stop)_");
     $('#long_test').attr('disabled','disabled');
     $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>','short',{path:'/',expires:365});
     $.post('/webGui/include/SmartInfo.php',{cmd:'short',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){timers.testUpdate = setTimeout(testUpdate,0);});
@@ -147,8 +147,8 @@ function startShortTest() {
   }
 }
 function startLongTest() {
-  if ($('#long_test').val()=='_(Start)_') {
-    $('#long_test').val('_(Stop)_');
+  if ($('#long_test').val()=="_(Start)_") {
+    $('#long_test').val("_(Stop)_");
     $('#short_test').attr('disabled','disabled');
     $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>','long',{path:'/',expires:365});
     $.post('/webGui/include/SmartInfo.php',{cmd:'long',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){timers.testUpdate = setTimeout(testUpdate,0);});
@@ -170,7 +170,7 @@ function startLongTest() {
 $(function() {
   var smarttest = $.cookie('test.<?=addslashes(htmlspecialchars($dev))?>');
   testUpdate(smarttest===undefined);
-  if (smarttest !== undefined) $('#'+smarttest+'_test').val('_(Stop)_').removeAttr('disabled');
+  if (smarttest !== undefined) $('#'+smarttest+'_test').val("_(Stop)_").removeAttr('disabled');
 <?if ($live):?>
   $('#toggle_log').removeAttr('disabled');
   $('#toggle_error').removeAttr('disabled');

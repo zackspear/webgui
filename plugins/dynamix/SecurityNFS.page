@@ -97,7 +97,7 @@ function initDropdownNFS(reset) {
   if (reset) {
     $('#nfs1').dropdownchecklist('destroy');
   }
-  $("#nfs1").dropdownchecklist({firstItemChecksAll:true, emptyText:'_(select)_...', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+  $("#nfs1").dropdownchecklist({firstItemChecksAll:true, emptyText:"_(select)_...", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
 }
 function readNFS() {
   var form = document.nfs_edit;

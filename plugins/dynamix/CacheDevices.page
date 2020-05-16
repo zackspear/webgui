@@ -34,16 +34,16 @@ function validate(poolname) {
   var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (!poolname.trim()) return false;
   if (reserved.includes(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid pool name)_",text:"_(Do not use reserved names)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (shares.includes(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Do not use user share names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid pool name)_",text:"_(Do not use user share names)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (pools.includes(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Pool name already exists)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid pool name)_",text:"_(Pool name already exists)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (!valid.test(poolname)) {
-    swal({title:'_(Invalid pool name)_',text:'_(Use only lowercase with no special characters or leading/trailing digits)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid pool name)_",text:"_(Use only lowercase with no special characters or leading/trailing digits)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else {
     return true;
@@ -55,20 +55,20 @@ function addPoolPopup() {
   popup.html($("#templatePopupPool").html());
   // Start Dialog section
   popup.dialog({
-    title: '_(Add Pool)_',
+    title: "_(Add Pool)_",
     resizable: false,
     width: 600,
     modal: true,
     show : {effect:'fade', duration:250},
     hide : {effect:'fade', duration:250},
     buttons: {
-      '_(Add)_': function() {
+    "_(Add)_": function() {
         if (validate($(this).find('input[name="poolName"]').val())) {
           $(this).find('form').submit();
           $(this).dialog('close');
         }
       },
-      '_(Cancel)_': function() {
+    "_(Cancel)_": function() {
         $(this).dialog('close');
       }
     }

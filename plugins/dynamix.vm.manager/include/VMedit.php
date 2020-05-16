@@ -195,8 +195,8 @@ function isVMXMLMode() {
 
 $(function() {
 	$('.autostart').switchButton({
-		on_label: '_(Yes)_',
-		off_label: '_(No)_',
+		on_label: "_(Yes)_",
+		off_label: "_(No)_",
 		labels_placement: "right"
 	});
 	$('.autostart').change(function () {
@@ -205,8 +205,8 @@ $(function() {
 
 	$('.advancedview').switchButton({
 		labels_placement: "left",
-		on_label: '_(XML View)_',
-		off_label: '_(Form View)_',
+		on_label: "_(XML View)_",
+		off_label: "_(Form View)_",
 		checked: isVMXMLMode()
 	});
 	$('.advancedview').change(function () {

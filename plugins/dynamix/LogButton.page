@@ -17,6 +17,6 @@ Code="e936"
 ?>
 <script>
 function LogButton() {
-  openWindow('/webGui/scripts/tail_log&arg1=syslog&arg2=<?=$locale?>','_(System Log)_',600,900);
+  openWindow("/webGui/scripts/tail_log&arg1=syslog&arg2=<?=$locale?>","_(System Log)_",600,900);
 }
 </script>

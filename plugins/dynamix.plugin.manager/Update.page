@@ -34,7 +34,7 @@ if (file_exists('/boot/previous/changes.txt')) {
 }
 ?>
 <style>
-input[value='_(Install)_'],input[value='_(Update)_'],input[value='_(Restore)_']{margin:0}
+input[value="_(Install)_"],input[value="_(Update)_"],input[value="_(Restore)_"]{margin:0}
 <?if ($themes1):?>
 span.vhshift{margin-top:13px!important}
 <?endif;?>
@@ -85,7 +85,7 @@ function loadlist(id) {
 $(function() {
   loadlist();
 <?if ($check):?>
-  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value='_(Check for Updates)_' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"_(System Update Check)_\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value=&quot;_(Check for Updates)_&quot; onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"_(System Update Check)_\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 <?endif;?>
 });
 </script>

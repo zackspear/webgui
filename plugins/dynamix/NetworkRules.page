@@ -50,7 +50,7 @@ function check_rules(form) {
   var mac = [];
   $(form).find('select[name^="eth"]').each(function(){mac.push($(this).val());});
   if (mac.same()) {
-    swal({title:'_(MAC address mismatch)_',text:'_(Rules contain duplicate MAC address assignments)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(MAC address mismatch)_",text:"_(Rules contain duplicate MAC address assignments)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else {
     return true;

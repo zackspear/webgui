@@ -118,7 +118,7 @@ function loadlist() {
     $('.iconstatus').each(function(){
       if ($(this).hasClass('stopped')) $('div.'+$(this).prop('id')).hide();
     });
-    $('.autostart').switchButton({labels_placement:'right', on_label:'_(On)_', off_label:'_(Off)_'});
+    $('.autostart').switchButton({labels_placement:'right', on_label:"_(On)_", off_label:"_(Off)_"});
     $('.autostart').change(function(){
       var more = $.cookie('docker_listview_mode')=='advanced';
       var wait = $('#'+$(this).prop('id').replace('auto','wait'));
@@ -145,7 +145,7 @@ function loadlist() {
   });
 }
 function sizes() {
-  openBox('/plugins/dynamix.docker.manager/include/ContainerSize.php','_(Container Size)_',600,600);
+  openBox("/plugins/dynamix.docker.manager/include/ContainerSize.php","_(Container Size)_",600,600);
 }
 var watchDocker = new NchanSubscriber('/sub/dockerload');
 watchDocker.on('message', function(data){
@@ -159,7 +159,7 @@ watchDocker.on('message', function(data){
   }
 });
 $(function() {
-  $('.advancedview').switchButton({labels_placement:'left', on_label:'_(Advanced View)_', off_label:'_(Basic View)_', checked:$.cookie('docker_listview_mode')=='advanced'});
+  $('.advancedview').switchButton({labels_placement:'left', on_label:"_(Advanced View)_", off_label:"_(Basic View)_", checked:$.cookie('docker_listview_mode')=='advanced'});
   $('.advancedview').change(function(){
     $('.advanced').toggle('slow');
     $('.basic').toggle('slow');
