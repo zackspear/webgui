@@ -173,7 +173,7 @@ _(Share status)_:
 :share_edit_status_help:
 
 _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_')this.value='Delete';else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=="_(Delete)_")this.value='Delete';else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?else:?>
 _(Share status)_:
 : _(Share contains data)_
@@ -202,23 +202,23 @@ function initDropdown(remove,create) {
 <?endif;?>
   }
   if (create) {
-    $('#s1').dropdownchecklist({emptyText:'_(All)_', width:<?=$width[1]?>, explicitClose:'..._(close)_'});
-    $('#s2').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[1]?>, explicitClose:'..._(close)_'});
+    $('#s1').dropdownchecklist({emptyText:"_(All)_", width:<?=$width[1]?>, explicitClose:"..._(close)_"});
+    $('#s2').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[1]?>, explicitClose:"..._(close)_"});
 <?if ($name):?>
-    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:'_(select)_...', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+    $("#s3").dropdownchecklist({firstItemChecksAll:true, emptyText:"_(select)_...", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
 <?endif;?>
   }
 }
 function updateScreen(cache) {
   switch (cache) {
   case 'yes':
-    var textAction = '_(Mover transfers files from cache to array)_';
+    var textAction = "_(Mover transfers files from cache to array)_";
     break;
   case 'prefer':
-    var textAction = '_(Mover transfers files from array to cache)_';
+    var textAction = "_(Mover transfers files from array to cache)_";
     break;
   default:
-    var textAction = '_(Mover takes no action)_';
+    var textAction = "_(Mover takes no action)_";
     break;
   }
   document.getElementById('moverAction').innerHTML = textAction;
@@ -265,21 +265,21 @@ function prepareEdit(form) {
 // Test share name validity
   var share = form.shareName.value.trim();
   if (share.length==0) {
-    swal({title:'_(Missing share name)_',text:'_(Enter a name for the share)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Missing share name)_",text:"_(Enter a name for the share)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   }
   var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
   if (reserved.includes(share)) {
-    swal({title:'_(Invalid share name)_',text:'_(Do not use reserved names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid share name)_",text:"_(Do not use reserved names)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   }
   var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (pools.includes(share)) {
-    swal({title:'_(Invalid share name)_',text:'_(Do not use pool names)_',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   }
   if (share.match('[:\\\/*<>|"]')) {
-    swal({title:'_(Invalid Characters)_',text:'_(You cannot use the following within share names)_ : \\ / * < > | "',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | "',type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   }
   form.shareName.value = share;

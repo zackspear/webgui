@@ -41,7 +41,7 @@ function prepareNewConfig(form) {
   form.preset.disabled = true;
 }
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:'..._(close)_'});
+  $('#s1').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:"..._(close)_"});
 <?if ($disabled):?>
   $('#s1').dropdownchecklist('disable');
 <?endif;?>

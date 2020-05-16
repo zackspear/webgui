@@ -372,14 +372,14 @@ function getVal(el, name) {
 }
 
 function addConfigPopup() {
-  var title = '_(Add Configuration)_';
+  var title = "_(Add Configuration)_";
   var popup = $("#dialogAddConfig");
 
   // Load popup the popup with the template info
   popup.html($("#templatePopupConfig").html());
 
   // Add switchButton to checkboxes
-  popup.find(".switch").switchButton({labels_placement:"right",on_label:'_(Yes)_',off_label:'_(No)_'});
+  popup.find(".switch").switchButton({labels_placement:"right",on_label:"_(Yes)_",off_label:"_(No)_"});
   popup.find(".switch-button-background").css("margin-top", "6px");
 
   // Load Mode field if needed and enable field
@@ -394,7 +394,7 @@ function addConfigPopup() {
     show : {effect: 'fade' , duration: 250},
     hide : {effect: 'fade' , duration: 250},
     buttons: {
-      '_(Add)_': function() {
+    "_(Add)_": function() {
         $(this).dialog("close");
         confNum += 1;
         var Opts = Object;
@@ -421,7 +421,7 @@ function addConfigPopup() {
         reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      '_(Cancel)_': function() {
+    "_(Cancel)_": function() {
         $(this).dialog("close");
       }
     }
@@ -434,7 +434,7 @@ function addConfigPopup() {
 }
 
 function editConfigPopup(num,disabled) {
-  var title = '_(Edit Configuration)_';
+  var title = "_(Edit Configuration)_";
   var popup = $("#dialogAddConfig");
 
   // Load popup the popup with the template info
@@ -458,7 +458,7 @@ function editConfigPopup(num,disabled) {
   popup.find("*[name=Mode]:first").val(mode);
 
   // Add switchButton to checkboxes
-  popup.find(".switch").switchButton({labels_placement:"right",on_label:'_(Yes)_',off_label:'_(No)_'});
+  popup.find(".switch").switchButton({labels_placement:"right",on_label:"_(Yes)_",off_label:"_(No)_"});
 
   // Start Dialog section
   popup.find(".switch-button-background").css("margin-top", "6px");
@@ -470,7 +470,7 @@ function editConfigPopup(num,disabled) {
     show: {effect:'fade', duration: 250},
     hide: {effect:'fade', duration: 250},
     buttons: {
-      '_(Save)_': function() {
+    "_(Save)_": function() {
         $(this).dialog("close");
         var Opts = Object;
         var Element = this;
@@ -506,7 +506,7 @@ function editConfigPopup(num,disabled) {
        reloadTriggers();
         $('input[name="contName"]').trigger('change'); // signal change
       },
-      '_(Cancel)_': function() {
+    "_(Cancel)_": function() {
         $(this).dialog("close");
       }
     }
@@ -561,21 +561,21 @@ function toggleMode(el,disabled) {
   case 0: // Path
     mode.html("<dl><dt>_(Access Mode)_:</dt><dd><select name='Mode'><option value='rw'>_(Read/Write)_</option><option value='rw,slave'>_(Read/Write - Slave)_</option><option value='rw,shared'>_(Read/Write - Shared)_</option><option value='ro'>_(Read Only)_</option><option value='ro,slave'>_(Read Only - Slave)_</option><option value='ro,shared'>_(Read Only - Shared)_</option></select></dd></dl>");
     value.bind("click", function(){openFileBrowser(this,$(this).val(), 'sh', true, false);});
-    targetDiv.find('#dt1').text('_(Container Path)_');
-    valueDiv.find('#dt2').text('_(Host Path)_');
+    targetDiv.find('#dt1').text("_(Container Path)_");
+    valueDiv.find('#dt2').text("_(Host Path)_");
     break;
   case 1: // Port
     mode.html("<dl><dt>_(Connection Type)_:</dt><dd><select name='Mode'><option value='tcp'>_(TCP)_</option><option value='udp'>_(UDP)_</option></select></dd></dl>");
     value.addClass("numbersOnly");
     if (driver=='bridge') {
       if (target.val()) target.prop('disabled',<?=$disableEdit?>); else target.addClass("numbersOnly");
-      targetDiv.find('#dt1').text('_(Container Port)_');
+      targetDiv.find('#dt1').text("_(Container Port)_");
       targetDiv.show();
     } else {
       targetDiv.hide();
     }
     if (driver!='null') {
-      valueDiv.find('#dt2').text('_(Host Port)_');
+      valueDiv.find('#dt2').text("_(Host Port)_");
       valueDiv.show();
     } else {
       valueDiv.hide();
@@ -583,17 +583,17 @@ function toggleMode(el,disabled) {
     }
     break;
   case 2: // Variable
-    targetDiv.find('#dt1').text('_(Key)_');
-    valueDiv.find('#dt2').text('_(Value)_');
+    targetDiv.find('#dt1').text("_(Key)_");
+    valueDiv.find('#dt2').text("_(Value)_");
     break;
   case 3: // Label
-    targetDiv.find('#dt1').text('_(Key)_');
-    valueDiv.find('#dt2').text('_(Value)_');
+    targetDiv.find('#dt1').text("_(Key)_");
+    valueDiv.find('#dt2').text("_(Value)_");
     break;
   case 4: // Device
     targetDiv.hide();
     defaultDiv.hide();
-    valueDiv.find('#dt2').text('_(Value)_');
+    valueDiv.find('#dt2').text("_(Value)_");
     value.bind("click", function(){openFileBrowser(this,$(this).val()||'/dev', '', true, true);});
     break;
   }
@@ -610,7 +610,7 @@ function loadTemplate(el) {
 
 function rmTemplate(tmpl) {
   var name = tmpl.split(/[\/]+/).pop();
-  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
 }
 
 function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
@@ -663,13 +663,13 @@ $(function() {
 <?else:?>
   $('div[id=title]').append(ctrl);
 <?endif;?>
-  $('.advancedview').switchButton({labels_placement:'left', on_label: '_(Advanced View)_', off_label: '_(Basic View)_'});
+  $('.advancedview').switchButton({labels_placement:'left', on_label: "_(Advanced View)_", off_label: "_(Basic View)_"});
   $('.advancedview').change(function() {
     var status = $(this).is(':checked');
     toggleRows('advanced', status, 'basic');
     load_contOverview();
     $("#catSelect").dropdownchecklist("destroy");
-    $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
+    $("#catSelect").dropdownchecklist({emptyText:"_(Select categories)_...", maxDropHeight:200, width:300, explicitClose:"..._(close)_"});
   });
 });
 </script>
@@ -884,7 +884,7 @@ _(Privileged)_:
 : <a href="javascript:addConfigPopup()"><i class="fa fa-fw fa-plus"></i> _(Add another Path, Port, Variable, Label or Device)_</a>
 
 &nbsp;
-: <input type="submit" value="<?=$xmlType=='edit' ? '_(Apply)_' : ' _(Apply)_ '?>"><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" value="<?=$xmlType=='edit' ? "_(Apply)_" : " _(Apply)_ "?>"><input type="button" value="_(Done)_" onclick="done()">
   <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">_(Save)_</button><?endif;?>
 
 </form>
@@ -1097,9 +1097,9 @@ $(function() {
   // Add list of docker allocations
   $("#dockerAllocations").html(makeAllocations(Allocations,$('input[name="contName"]').val()));
   // Add switchButton
-  $('.switch-on-off').switchButton({labels_placement:'right',on_label:'_(On)_',off_label:'_(Off)_'});
+  $('.switch-on-off').switchButton({labels_placement:'right',on_label:"_(On)_",off_label:"_(Off)_"});
   // Add dropdownchecklist to Select Categories
-  $("#catSelect").dropdownchecklist({emptyText:'_(Select categories)_...', maxDropHeight:200, width:300, explicitClose:'..._(close)_'});
+  $("#catSelect").dropdownchecklist({emptyText:"_(Select categories)_...", maxDropHeight:200, width:300, explicitClose:"..._(close)_"});
   <?if ($authoringMode){
     echo "$('.advancedview').prop('checked','true'); $('.advancedview').change();";
     echo "$('.advancedview').siblings('.switch-button-background').click();";

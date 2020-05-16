@@ -22,13 +22,13 @@ $keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
 
 <script>
 function toggle_hw() {
-  if ($('#hw_details a').html()=='_(Show Details)_') {
+  if ($('#hw_details a').html()=="_(Show Details)_") {
     $.getJSON('/webGui/include/HardwareCollect.php',function(hwdata) {
-      $('#hw_details a').html('_(Hide Details)_');
+      $('#hw_details a').html("_(Hide Details)_");
       $('#hw_details pre').text(hwdata.hwxml).slideDown('fast');
     });
   } else {
-    $('#hw_details a').html('_(Show Details)_');
+    $('#hw_details a').html("_(Show Details)_");
     $('#hw_details pre').slideUp('fast', function(){$(this).html('');});
   }
 }
@@ -43,7 +43,7 @@ function upload() {
     }).fail(function(data) {
       var msg = "<p>_(Sorry, an error occurred)_. _(Please try again later)_.</p>";
       $('#pleaseWait').hide().html(msg).fadeIn('fast');
-      $('input[value="_(Uploading)_..."]').val('_(Upload)_').prop('disabled',false);
+      $('input[value="_(Uploading)_..."]').val("_(Upload)_").prop('disabled',false);
     });
   });
 }
@@ -51,7 +51,7 @@ $(function() {
   $.getJSON('https://keys.lime-technology.com/account/hwprofile/status',{keyfile:'<?=$keyfile?>'},function(status) {
     if (status.last_submitted) {
       var d = new Date(status.last_submitted * 1000);
-      $('#lastUploaded').html('_(Your hardware profile was last submitted on)_ ' + d.toLocaleDateString()).fadeIn('fast');
+      $('#lastUploaded').html("_(Your hardware profile was last submitted on)_ " + d.toLocaleDateString()).fadeIn('fast');
     } else {
       $('#lastUploaded').html("_(You haven't sent Limetech your hardware profile yet)_").fadeIn('fast');
     }

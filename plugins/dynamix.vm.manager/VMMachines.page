@@ -193,7 +193,7 @@ function loadlist() {
       functionBefore:function(instance,helper){instance.content("<?=showCPUs($uuid)?>");}
     });
 <?}?>
-    $('.autostart').switchButton({labels_placement:'right', on_label:'_(On)_', off_label:'_(Off)_'});
+    $('.autostart').switchButton({labels_placement:'right', on_label:"_(On)_", off_label:"_(Off)_"});
     $('.autostart').change(function() {
       $.post('/plugins/dynamix.vm.manager/include/VMajax.php',{action:'domain-autostart',uuid:$(this).attr('uuid'),autostart:$(this).prop('checked'),response:'json'},function(data){
         $(this).prop('checked', data.autostart);

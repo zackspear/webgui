@@ -102,7 +102,7 @@ function setDefault(form) {
       var label = (i) ? area.shift():title;
       var start = (area[0]==menu);
       var checked = start ? ' checked':'';
-      if (i) label += "<span style='float:right'><input type='radio' id='input-"+i+"' title='_(Set default boot menu)_' onchange='changeMenu(this.form,this.id,true)'"+checked+"></span>";
+      if (i) label += "<span style='float:right'><input type='radio' id='input-"+i+"' title="_(Set default boot menu)_" onchange='changeMenu(this.form,this.id,true)'"+checked+"></span>";
       $('#label-'+i).html(label).prop('class',start ? 'array':'system');
       if (start) area.shift();
       $(this).val(area.join('\n')).prop('rows',area.length).trigger('change');
@@ -185,8 +185,8 @@ $(function(){
   }
   $('.advancedview').switchButton({
     labels_placement: 'left',
-    off_label: '_(Menu View)_',
-    on_label: '_(Raw View)_',
+    off_label: "_(Menu View)_",
+    on_label: "_(Raw View)_",
     checked: $.cookie('syslinux_viewmode')=='advanced'
   });
   $('.advancedview').change(function() {

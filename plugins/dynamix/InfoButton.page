@@ -17,6 +17,6 @@ Code="e930"
 ?>
 <script>
 function InfoButton() {
-  openBox('/webGui/include/SystemInformation.php?more=<?=isset($display['sysinfo'])?$display['sysinfo']:''?>','_(System Information)_',600,600);
+  openBox("/webGui/include/SystemInformation.php?more=<?=isset($display['sysinfo'])?$display['sysinfo']:''?>","_(System Information)_",600,600);
 }
 </script>

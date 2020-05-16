@@ -40,14 +40,14 @@ function zipfile(){
 }
 function cleanUp(file) {
   if (document.hasFocus()) {
-    $('input[value="_(Downloading)_..."]').val('_(Download)_').prop('disabled',false);
+    $('input[value="_(Downloading)_..."]').val("_(Download)_").prop('disabled',false);
     $.post('/webGui/include/Download.php',{cmd:'delete',file:file});
   } else {
     setTimeout(function(){cleanUp(file);},2000);
   }
 }
 function syslog(file) {
-  $('input[value="_(Download)_"]').val('_(Downloading)_...').prop('disabled',true);
+  $('input[value="_(Download)_"]').val("_(Downloading)_...").prop('disabled',true);
   $.post('/webGui/include/Download.php',{cmd:'save',source:logfile,file:file},function(zip) {
     location = zip;
     setTimeout(function(){cleanUp(file);},4000);

@@ -35,8 +35,8 @@ if (file_exists($memory)) {
 <script>
 <?if ($parity['mode']==5):?>
 $(function() {
-  $("#s1").dropdownchecklist({emptyText:'_(Every day)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
-  $("#s2").dropdownchecklist({emptyText:'_(Every month)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+  $("#s1").dropdownchecklist({emptyText:"_(Every day)_", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
+  $("#s2").dropdownchecklist({emptyText:"_(Every month)_", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
 });
 // Simulate a single input field
 function prepareParity(form) {
@@ -71,7 +71,7 @@ function prepareParity(form) {
 $(function() {
 <?if (file_exists($memory)):?>
   setTimeout(function(){$('input[value="_(Apply)_"]').removeAttr('disabled');},0);
-  $('input[value="_(Done)_"]').val('_(Reset)_').prop('onclick',null).click(function(){refresh($(this).parentsUntil('form').parent().offset().top)});
+  $('input[value="_(Done)_"]').val("_(Reset)_").prop('onclick',null).click(function(){refresh($(this).parentsUntil('form').parent().offset().top)});
 <?unlink($memory);?>
 <?endif;?>
   presetParity(document.parity_settings);

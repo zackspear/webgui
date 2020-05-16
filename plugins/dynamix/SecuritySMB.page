@@ -216,8 +216,8 @@ function initDropdownSMB(reset) {
     $('#smb1').dropdownchecklist('destroy');
     $('#smb2').dropdownchecklist('destroy');
   }
-  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:'_(select)_...', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
-  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:'_(select)_...', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+  $("#smb1").dropdownchecklist({firstItemChecksAll:true, emptyText:"_(select)_...", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
+  $("#smb2").dropdownchecklist({firstItemChecksAll:true, emptyText:"_(select)_...", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
 }
 function readSMB() {
   var form = document.smb_edit;

@@ -58,7 +58,7 @@ function provisionSSL(button) {
     var obj = data.responseJSON;
     var msg = "_(Sorry, an error occurred in processing your SSL certificate)_. _(The error is)_: "+obj.error+".";
     $(button).prop("disabled", false).html(oldlabel);
-    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:"_(Ok)_"});
   };
   var success_provision = function(data) {
     if (data.bundle) {
@@ -78,7 +78,7 @@ function provisionSSL(button) {
   };
   var success_rebind_check = function(data) {
     $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data2) {
-      swal({title:"",text:msg,type:"success",allowEscapeKey:false,confirmButtonText:'_(Ok)_'},function(){button.form.submit();});
+      swal({title:"",text:msg,type:"success",allowEscapeKey:false,confirmButtonText:"_(Ok)_"},function(){button.form.submit();});
     }).fail(failure);
   };
   $.post("/webGui/include/ProvisionCert.php",success_provision).fail(failure);
@@ -89,12 +89,12 @@ function updateDNS(button) {
     var status = data.status;
     var obj = data.responseJSON;
     var msg = "_(Sorry, an error occurred updating unraid.net DNS records)_. _(The error is)_: "+obj.error+".";
-    $(button).prop("disabled", false).html('_(Update DNS)_');
-    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:'_(Ok)_'});
+    $(button).prop("disabled", false).html("_(Update DNS)_");
+    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:"_(Ok)_"});
   };
   var success = function(data) {
-    $(button).prop("disabled", false).html('_(Update DNS)_');
-    swal({title:"",text:"_(Your local IP address)_ <?=$internalip?> _(has been updated for unraid.net)_.",type:"success",confirmButtonText:'_(Ok)_'});
+    $(button).prop("disabled", false).html("_(Update DNS)_");
+    swal({title:"",text:"_(Your local IP address)_ <?=$internalip?> _(has been updated for unraid.net)_.",type:"success",confirmButtonText:"_(Ok)_"});
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
@@ -111,19 +111,19 @@ function checkPorts(form) {
     item.prop('disabled',false);
   }
   if (list.length > 0) {
-    swal({title:'_(Non-recommended port)_'+(list.length>1?'s':''),text:list.join(', ')+'<br>_(may conflict with well-known services)_',html:true,type:'warning',showCancelButton:true,confirmButtonText:'_(Proceed)_',cancelButtonText:'_(Cancel)_'},function(){form.submit();});
+    swal({title:"_(Non-recommended port)_"+(list.length>1?'s':''),text:list.join(', ')+'<br>_(may conflict with well-known services)_',html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){form.submit();});
   } else {
     form.submit();
   }
 }
 function updateTELNET(form) {
-  form.PORTTELNET.disabled = form.USE_TELNET.value=='_(no)_';
+  form.PORTTELNET.disabled = form.USE_TELNET.value=="_(no)_";
 }
 function updateSSH(form) {
-  form.PORTSSH.disabled = form.USE_SSH.value=='_(no)_';
+  form.PORTSSH.disabled = form.USE_SSH.value=="_(no)_";
 }
 function updateSSL(form) {
-  form.PORTSSL.disabled = form.USE_SSL.value=='_(no)_';
+  form.PORTSSL.disabled = form.USE_SSL.value=="_(no)_";
 }
 $(function(){
   var form = document.SSLSettings;

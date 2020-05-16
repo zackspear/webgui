@@ -18,6 +18,6 @@ Code="e93e"
 ?>
 <script>
 function FeedbackButton() {
-  openBox('/webGui/include/Feedback.php','_(Feedback)_',600,600,false);
+  openBox("/webGui/include/Feedback.php","_(Feedback)_",600,600,false);
 }
 </script>

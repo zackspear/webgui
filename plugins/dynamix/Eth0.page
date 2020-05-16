@@ -97,7 +97,7 @@ function prepareSettings(form) {
   $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
-    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',type:'error',confirmButtonText:'_(Ok)_'});
+    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   }
   if (form.TYPE.value == 'access') {
@@ -118,7 +118,7 @@ function prepareSettings(form) {
     var vlans = [];
     $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
     if (vlans.same()) {
-      swal({title:'_(VLAN assignment mismatch)_',text:'_(List of VLANs contains duplicate VLAN numbers)_',type:'error',confirmButtonText:'_(Ok)_'});
+      swal({title:"_(VLAN assignment mismatch)_",text:"_(List of VLANs contains duplicate VLAN numbers)_",type:'error',confirmButtonText:"_(Ok)_"});
       return false;
     }
   }
@@ -400,16 +400,16 @@ $(function() {
   var form = document.eth0_settings;
 <?if ($tabbed && !$service):?>
   $('#tab1').bind({click:function(){
-    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>});
-    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>});
+    $('#bond-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
+    $('#bridge-eth0').dropdownchecklist('destroy').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
   }});
 <?endif;?>
   if (!$.cookie('#view-eth0')) {$('#view-eth0').show(); $('#tag-eth0').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
 <?foreach ($vlan_eth0 as $i):?>
   if (!$.cookie('#view-eth0-<?=$i?>')) {$('#view-eth0-<?=$i?>').show(); $('#tag-eth0-<?=$i?>').removeClass('fa-chevron-down').addClass('fa-chevron-up');}
 <?endforeach;?>
-  $('#bond-eth0').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>});
-  $('#bridge-eth0').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>});
+  $('#bond-eth0').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
+  $('#bridge-eth0').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>});
   checkBondingSettings(form,0,'eth0');
   checkBridgingSettings(form,0,'eth0');
   checkNetworkAccess(form,'eth0');

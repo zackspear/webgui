@@ -17,7 +17,7 @@ Cond="($var['regTy']!='Pro')"
 <script>
 function installKey(file) {
   if (file)
-    openBox('/webGui/include/InstallKey.php?url='+file,'_(Install Key)_',600,900,true);
+    openBox("/webGui/include/InstallKey.php?url="+file,"_(Install Key)_",600,900,true);
 }
 </script>
 <form markdown="1">
