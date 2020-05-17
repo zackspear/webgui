@@ -17,6 +17,7 @@ $_SERVER['REQUEST_URI'] = 'main';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
 $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May '=>'-05-',' Jun '=>'-06-',' Jul '=>'-07-',' Aug '=>'-08-',' Sep '=>'-09-',' Oct '=>'-10-',' Nov '=>'-11-',' Dec '=>'-12-'];
 
@@ -34,7 +35,7 @@ function his_duration($time) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">

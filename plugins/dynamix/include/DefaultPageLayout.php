@@ -19,7 +19,7 @@ $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <title><?=$var['NAME']?>/<?=$myPage['name']?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

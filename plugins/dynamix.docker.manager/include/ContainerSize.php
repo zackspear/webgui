@@ -17,9 +17,10 @@ $_SERVER['REQUEST_URI'] = 'docker';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <title><?=_('Container Size')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

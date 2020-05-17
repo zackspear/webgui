@@ -60,9 +60,12 @@ function presetRefresh(form) {
 function presetPassive(index) {
   if (index==0) $('#passive').hide(); else $('#passive').show();
 }
-
 function saveFontSize() {
   $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
+}
+function updateDirection(lang) {
+  var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
+  $('input[name="rtl"]').val(rtl);
 }
 
 $(function() {
@@ -125,8 +128,9 @@ $(function() {
 <form markdown="1" name="display_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="saveFontSize();upload();">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="display">
+<input type="hidden" name="rtl" value="<?=$display['rtl']?>">
 _(Language)_:
-: <select name="locale">
+: <select name="locale" onchange="updateDirection(this.value)">
 <?echo mk_option($display['locale'], "","English");
   foreach (glob("$plugins/lang-*.xml",GLOB_NOSORT) as $xml_file) {
     $lang = language('Language', $xml_file);

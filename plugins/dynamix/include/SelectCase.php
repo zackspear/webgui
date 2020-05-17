@@ -17,6 +17,7 @@ $_SERVER['REQUEST_URI'] = 'dashboard';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
 $boot  = "/boot/config/plugins/dynamix";
 $file  = $_GET['file'] ?? $_POST['file'];
@@ -42,7 +43,7 @@ case 'file':
 $casemodel = $exist ? file_get_contents("$boot/$file") : '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <title><?=_('Select Case Model')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

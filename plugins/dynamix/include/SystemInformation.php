@@ -18,6 +18,7 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
 $var = parse_ini_file('state/var.ini');
 
@@ -36,7 +37,7 @@ function dmidecode($key,$n,$all=true) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
