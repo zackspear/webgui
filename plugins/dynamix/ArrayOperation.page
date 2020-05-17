@@ -43,7 +43,7 @@ function check_encryption() {
   echo mk_option(1,'text',_('Passphrase'));
   echo mk_option(1,'file',_('Keyfile'));
   echo "</select></td></tr>";
-  echo "<tr id='text'><td></td><td class='gap'>"._('Passphrase').":</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)' placeholder='"._('use printable characters only')."'><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>"._('show passphrase')."</td></tr>";
+  echo "<tr id='text'><td></td><td class='gap'>"._('Passphrase').":</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)' placeholder=\""._('use printable characters only')."\"><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>"._('show passphrase')."</td></tr>";
   echo "<tr id='copy'><td></td><td class='gap'>"._('Retype passphrase').":</td><td><input type='password' name='copy' maxlength='512' value='' onkeyup='selectInput(this.form)'></td></tr>";
   echo "<tr id='file'><td></td><td class='gap'>"._('Keyfile').":</td><td><input type='file' name='local' onchange='getFileContent(event,this.form)'></td></tr>";
 }

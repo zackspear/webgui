@@ -42,6 +42,6 @@ if ($index < count($tests)) {
     elseif (strpos($text,'LUKS1:')!==false) echo str_replace("\t"," ",$text);
   }
   pclose($bm);
-  echo "<div style='text-align:center;margin-top:12px'><input type='button' value='"._('Done')."' onclick='top.Shadowbox.close()'></div>";
+  echo "<div style='text-align:center;margin-top:12px'><input type='button' value=\""._('Done')."\" onclick='top.Shadowbox.close()'></div>";
 }
 ?>

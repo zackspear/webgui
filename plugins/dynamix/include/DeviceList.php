@@ -114,7 +114,7 @@ function device_desc(&$disk) {
     default      : $type = 'disk'; break;
   }
   $log = $var['fsState']=='Started'
-       ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
+       ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}',\""._('Disk Log Information')."\",600,900,false);return false\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
        : "<a class='nohand' style='color:grey'><i class='icon-$type icon'></i></a>";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }

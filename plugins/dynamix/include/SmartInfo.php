@@ -175,7 +175,7 @@ case "stop":
 case "update":
   if (!exec("hdparm -C ".escapeshellarg("/dev/$port")."|grep -Pom1 'active|unknown'")) {
     $cmd = $_POST['type']=='New' ? "cmd=/webGui/scripts/hd_parm&arg1=up&arg2=$name" : "cmdSpinup=$name";
-    echo "<a href='/update.htm?$cmd&csrf_token={$_POST['csrf']}' class='info' target='progressFrame'><input type='button' value='"._('Spin Up')."'></a><span class='big orange-text'>"._('Unavailable - disk must be spun up')."</span>";
+    echo "<a href='/update.htm?$cmd&csrf_token={$_POST['csrf']}' class='info' target='progressFrame'><input type='button' value=\""._('Spin Up')."\"></a><span class='big orange-text'>"._('Unavailable - disk must be spun up')."</span>";
     break;
   }
   $progress = exec("smartctl -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
