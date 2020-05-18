@@ -19,7 +19,7 @@ $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <title><?=$var['NAME']?>/<?=$myPage['name']?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -72,7 +72,7 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','"._('Release Notes')."',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
+$notes = "&nbsp;<a href='#' title=\""._('View Release Notes')."\" onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes',\""._('Release Notes')."\",600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
 ?>
 </style>
 
@@ -170,7 +170,7 @@ function done(key) {
   location.replace(path);
 }
 function chkDelete(form, button) {
-  button.value = form.confirmDelete.checked ? '<?=_('Delete')?>' : '<?=_('Apply')?>';
+  button.value = form.confirmDelete.checked ? "<?=_('Delete')?>" : "<?=_('Apply')?>";
   button.disabled = false;
 }
 function openBox(cmd,title,height,width,load,func,id) {
@@ -295,8 +295,8 @@ function hideUpgrade(set) {
 }
 function openUpgrade() {
   hideUpgrade();
-  swal({title:'<?=_("Update")?> Unraid OS',text:'<?=_("Do you want to update to the new version")?>?',type:'warning',showCancelButton:true,confirmButtonText:'<?=_("Proceed")?>',cancelButtonText:'<?=_("Cancel")?>'},function(){
-    openBox('/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg','<?=_("Update")?> Unraid OS',600,900,true);
+  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
   });
 }
 function notifier() {
@@ -446,7 +446,7 @@ foreach ($buttons as $button) {
       if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
       $icon = "<i class='fa $icon system'></i>";
     }
-    $title = $themes2 ? "" : " title='"._($button['Title'])."'";
+    $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
     echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else
     echo "<div id='{$button['Link']}'></div>";
@@ -535,7 +535,7 @@ default:
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2020, Lime Technology, Inc.";
-echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title='"._('Online manual')."'><i class='fa fa-book'></i> "._('manual')."</a>";
+echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
 ?>
 <script>
@@ -636,14 +636,14 @@ $(function() {
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').each(function(){$(this).on('input change',function() {
     var form = $(this).parentsUntil('form').parent();
     form.find('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').not('input.lock').prop('disabled',false);
-    form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val('<?=_("Reset")?>').prop('onclick',null).off('click').click(function(){refresh(form.offset().top)});
+    form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){refresh(form.offset().top)});
   });});
 
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top',{path:'/'});
 <?if ($safemode):?>
-  showNotice('<?=_("System running in")?> <b><?=("safe mode")?></b>');
+  showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
 <?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20);?>
 <?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
@@ -654,35 +654,35 @@ $(function() {
   showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <a><?=_('Update Now')?></a>");
 <?endif;?>
 <?if (!$notify['system']):?>
-  addBannerWarning('<?=_("System notifications are")?> <b><?=_("disabled")?></b>. <?=_("Click")?> <a href="/Settings/Notifications" style="cursor:pointer"><?=_("here")?></a> <?=_("to change notification settings")?>.',true,true);
+  addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications' style='cursor:pointer'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
 <?endif;?>
 <?if ($notify['display']):?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
+  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
+  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
+  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
   context.attach('#nav-tub1',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
+  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
+  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
+  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
   context.attach('#nav-tub2',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:'<?=_("View")?>',icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
+  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("History")?>',icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
+  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
   opts.push({divider:true});
-  opts.push({text:'<?=_("Acknowledge")?>',icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
+  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
   context.attach('#nav-tub3',opts);
 <?endif;?>
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {

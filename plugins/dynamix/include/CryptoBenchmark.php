@@ -13,14 +13,15 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
-list($luks,$size,$hash,$rng) = explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"));
+[$luks,$size,$hash,$rng] = explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"));
 $luks = str_replace('-plain64','',trim(explode(':',$luks)[1]));
 $size = str_replace(' bits','',trim(explode(':',$size)[1]));
 $hash = trim(explode(':',$hash)[1]);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <title>Benchmark</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

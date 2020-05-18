@@ -133,7 +133,7 @@ foreach ($containers as $ct) {
   echo "<td class='advanced'><span class='cpu-$id'>0%</span><div class='usage-disk mm'><span id='cpu-$id' style='width:0'></span><span></span></div>";
   echo "<br><span class='mem-$id'>0 / 0</span></td>";
   echo "<td><input type='checkbox' id='$id-auto' class='autostart' container='".htmlspecialchars($name)."'".($info['autostart'] ? ' checked':'').">";
-  echo "<span id='$id-wait' style='float:right;display:none'>"._('wait')."<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title='"._('seconds')."'></span></td>";
+  echo "<span id='$id-wait' style='float:right;display:none'>"._('wait')."<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title=\""._('seconds')."\"></span></td>";
   echo "<td><a class='log' onclick=\"containerLogs('".addslashes(htmlspecialchars($name))."','$id',false,false)\"><img class='basic' src='/plugins/dynamix/icons/log.png'><div class='advanced'>";
   echo htmlspecialchars(str_replace('Up',_('Uptime'),my_lang_log($ct['Status'])))."</div><div class='advanced' style='margin-top:4px'>"._('Created')." ".htmlspecialchars(my_lang($ct['Created']))."</div></a></td></tr>";
 }

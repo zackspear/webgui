@@ -16,6 +16,9 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 libxml_use_internal_errors(false); # Enable xml errors
 
+require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 $var = parse_ini_file('state/var.ini');
 ignore_user_abort(true);
 
@@ -906,6 +909,13 @@ _(Privileged)_:
 #    ╚════╝ ╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
 ?>
 <div markdown="1" id="templatePopupConfig" style="display:none">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
+<meta name="referrer" content="same-origin">
+</head>
+<body>
 _(Config Type)_:
 : <select name="Type" onchange="toggleMode(this,false)">
   <option value="Path">_(Path)_</option>
@@ -959,9 +969,18 @@ _(Password Mask)_:
   <option value="true">_(Yes)_</option>
   </select>
 </div>
+</body>
+</html>
 </div>
 
 <div markdown="1" id="templateDisplayConfig" style="display:none">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
+<meta name="referrer" content="same-origin">
+</head>
+<body>
 <input type="hidden" name="confName[]" value="{0}">
 <input type="hidden" name="confTarget[]" value="{1}">
 <input type="hidden" name="confDefault[]" value="{2}">
@@ -973,6 +992,8 @@ _(Password Mask)_:
 <input type="hidden" name="confMask[]" value="{8}">
 {0}:
 : <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class="orange-text">{4}</span></span>
+</body>
+</html>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">

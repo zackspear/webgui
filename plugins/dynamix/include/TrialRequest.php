@@ -16,6 +16,7 @@ $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
 $var = parse_ini_file('state/var.ini');
 
@@ -25,7 +26,7 @@ if (!empty($_POST['trial'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
@@ -58,7 +59,7 @@ function startTrial() {
   $.post('https://keys.lime-technology.com/account/trial',{timestamp:timestamp,guid:guid},function(data) {
     $.post('/webGui/include/TrialRequest.php',{trial:data.trial,csrf_token:'<?=$var['csrf_token']?>'},function(data2) {
       $('#spinner_image,#status_panel').fadeOut('fast');
-      parent.swal({title:"<?=_('Trial')?> <?=(strstr($var['regTy'], 'expired')?_('extended'):_('started'))?>",text:"<?=_('Thank you for registering USB Flash GUID')?> "+guid+".",type:'success',confirmButtonText:'<?=_("Ok")?>'},function(){parent.window.location='/Main';});
+      parent.swal({title:"<?=_('Trial')?> <?=(strstr($var['regTy'], 'expired')?_('extended'):_('started'))?>",text:"<?=_('Thank you for registering USB Flash GUID')?> "+guid+".",type:'success',confirmButtonText:"<?=_('Ok')?>"},function(){parent.window.location='/Main';});
     });
   }).fail(function(data) {
       $('#trial_form').find('input').prop('disabled', false);

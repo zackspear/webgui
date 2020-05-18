@@ -43,7 +43,7 @@ function check_encryption() {
   echo mk_option(1,'text',_('Passphrase'));
   echo mk_option(1,'file',_('Keyfile'));
   echo "</select></td></tr>";
-  echo "<tr id='text'><td></td><td class='gap'>"._('Passphrase').":</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)' placeholder='"._('use printable characters only')."'><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>"._('show passphrase')."</td></tr>";
+  echo "<tr id='text'><td></td><td class='gap'>"._('Passphrase').":</td><td><input type='password' name='text' maxlength='512' value='' onkeyup='selectInput(this.form)' placeholder=\""._('use printable characters only')."\"><input name='showPass' type='checkbox' onchange='selectInput(this.form)'>"._('show passphrase')."</td></tr>";
   echo "<tr id='copy'><td></td><td class='gap'>"._('Retype passphrase').":</td><td><input type='password' name='copy' maxlength='512' value='' onkeyup='selectInput(this.form)'></td></tr>";
   echo "<tr id='file'><td></td><td class='gap'>"._('Keyfile').":</td><td><input type='file' name='local' onchange='getFileContent(event,this.form)'></td></tr>";
 }
@@ -79,7 +79,7 @@ span#pass{display:none;margin-left:20px}
 </style>
 <script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
 <script>
-var ctrl = '<span class="status <?=$tabbed?'':'vhshift'?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
+var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
 
 function selectInput(form) {
 <?if ($wrong && $keyfile):?>
@@ -152,7 +152,7 @@ function prepareInput(form) {
       form.file.disabled = false;
       form.text.disabled = false;
       form.copy.disabled = false;
-      swal({title:"_(Printable Characters Only)_",text:"_(Use <b>ASCII</b> characters from space " " to tilde "~")_<br>_(Otherwise use the <b>keyfile</b> method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+      swal({title:"_(Printable Characters Only)_",text:"_(Use <b>ASCII</b> characters from space ' ' to tilde '~')_<br>_(Otherwise use the <b>keyfile</b> method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
     }
     return;
   }
