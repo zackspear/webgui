@@ -166,12 +166,12 @@ function fs_info(&$disk) {
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
 }
-function array_offline(&$disk) {
+function array_offline(&$disk,$pool='') {
   global $var, $disks;
   if (strpos($var['mdState'],'ERROR:')===false) {
     $text = "<span class='red-text'><em>"._('All existing data on this device will be OVERWRITTEN when array is Started')."</em></span>";
     if ($disk['type']=='Cache') {
-      if (!empty($disks['cache']['uuid']) && $disk['status']=='DISK_NEW') $warning = $text;
+      if (!empty($disks[$pool]['uuid']) && $disk['status']=='DISK_NEW') $warning = $text;
     } else {
       if ($var['mdState']=='NEW_ARRAY') {
         if ($disk['type']=='Parity') $warning = $text;
@@ -389,7 +389,7 @@ case 'cache':
       $log = @(array)parse_ini_file($tmp);
       $off = false;
       foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
-        array_offline($disk);
+        array_offline($disk,$pool);
         if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
