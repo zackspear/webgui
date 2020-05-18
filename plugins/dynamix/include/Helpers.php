@@ -59,6 +59,9 @@ function my_disk($name,$raw=false) {
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
 }
+function my_hyperlink($text,$link) {
+  return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
+}
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }

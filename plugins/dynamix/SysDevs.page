@@ -59,7 +59,7 @@ function applyCfg() {
 
 <?if (strpos(file_get_contents('/proc/cmdline'), 'pcie_acs_override=') !== false):?>
 <p class="notice" style="line-height:30px;height:auto">_(Warning)_: _(Your system has booted with the PCIe ACS Override setting enabled)_. _(The below list doesn't not reflect the way IOMMU would naturally group devices)_.<br>
-<?=sprintf(_("To see natural IOMMU groups for your hardware, go to the %sVM Manager%s page and set the **PCIe ACS override** setting to **Disabled**"),"<a href='/Settings/VMSettings'>","</a>")?>.</p>
+<?=my_hyperlink(_("To see natural IOMMU groups for your hardware, go to the [VM Manager] page and set the **PCIe ACS override** setting to **Disabled**"),'/Settings/VMSettings')?>.</p>
 <?endif;?>
 
 <pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
