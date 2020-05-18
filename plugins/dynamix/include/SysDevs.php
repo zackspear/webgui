@@ -11,6 +11,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+// add translations
+$_SERVER['REQUEST_URI'] = 'tools';
+require_once "$docroot/webGui/include/Translations.php";
+
 switch ($_POST['table']) {
 case 't1':
   exec('for group in $(ls /sys/kernel/iommu_groups/ -1|sort -n);do echo "IOMMU group $group";for device in $(ls -1 "/sys/kernel/iommu_groups/$group"/devices/);do echo -n $\'\t\';lspci -ns "$device"|awk \'BEGIN{ORS=" "}{print "["$3"]"}\';lspci -s "$device";done;done',$groups);
@@ -69,14 +74,14 @@ case 't1':
         echo ($append)?"":"<tr><td></td><td>";
         exec("lspci -v -s $pciaddress", $outputvfio);
         if (preg_grep("/vfio-pci/i", $outputvfio)) {
-          echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"Kernel driver in use: vfio-pci\"></i>";
+          echo "<i class=\"fa fa-circle orb green-orb middle\" title=\""._('Kernel driver in use: vfio-pci')."\"></i>";
           $isbound = "true";
         }
         echo "</td><td>";
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
-          if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"Function Level Reset (FLR) supported.\"></i>";
+          if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/0000:'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\""._('Function Level Reset (FLR) supported').".\"></i>";
           echo "</td><td>";
-          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="In use by Unraid" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress.'" ';
+          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="'._('In use by Unraid').'" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress.'" ';
           echo (strpos($file, $pciaddress) !== false) ? " checked>" : ">";
         } else { echo "</td><td>"; }
         echo '</td><td title="';
@@ -86,7 +91,7 @@ case 't1':
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
             if ($isbound) {
-              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected USB devices are not visible.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected USB devices are not visible').'.</td></tr>';
             } else {
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:|sort;fi;done',$getusb);
               foreach($getusb as $usbdevice) {
@@ -103,7 +108,7 @@ case 't1':
           case (strpos($line, 'Mass storage controller') !== false):
           case (strpos($line, 'Non-Volatile memory controller') !== false):
             if ($isbound) {
-              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">This controller is bound to vfio, connected drives are not visible.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected drives are not visible').'.</td></tr>';
             } else {
               exec('ls -al /sys/block/sd* | grep -i "'.$pciaddress.'"',$getsata);
               exec('ls -al /sys/block/hd* | grep -i "'.$pciaddress.'"',$getsata);
@@ -125,7 +130,7 @@ case 't1':
         $append = false;
       }
     }
-    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="Bind selected to VFIO at Boot" onclick="applyCfg();" '.(($noiommu) ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
+    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
   }
   break;
 case 't2':
