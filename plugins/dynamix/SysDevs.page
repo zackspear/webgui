@@ -53,7 +53,7 @@ function applyCfg() {
 }
 </script>
 
-**PCI Devices and IOMMU Groups**
+**_(PCI Devices and IOMMU Groups)_**
 
 :sysdevs_iommu_groups_help:
 
@@ -64,19 +64,19 @@ function applyCfg() {
 
 <pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 
-**CPU Thread Pairings**
+**_(CPU Thread Pairings)_**
 
 :sysdevs_thread_pairings_help:
 
 <pre><table id='t2' class='pre'><tr><td><div class="spinner"></div></td></tr></table></pre><br>
 
-**USB Devices**
+**_(USB Devices)_**
 
 :sysdevs_usb_devices_help:
 
 <pre><table id='t3' class='pre'><tr><td><div class="spinner"></div></td></tr></table></pre><br>
 
-**SCSI Devices**
+**_(SCSI Devices)_**
 
 :sysdevs_scsi_devices_help:
 
