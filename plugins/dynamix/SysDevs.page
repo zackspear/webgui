@@ -44,7 +44,7 @@ function applyCfg() {
   .done(function(d) {
     if (d==1) {
       addRebootNotice(message);
-      document.getElementById("warning").innerHTML = "<b>ALERT: _(Changes saved)_. _(Reboot to take effect)_.</b>";
+      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
     } else {
       removeRebootNotice(message);
       document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
