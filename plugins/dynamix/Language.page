@@ -46,7 +46,7 @@ function execute(cmd,title,language,name,filedata) {
       var installed = [];
       if (list.length) {
         var name = list.split(',');
-        for (var i=0; i < name.length; i++) installed.push(keys[name[i]]+'<?=$head?>'+name[i]+'<?=$tail?>');
+        for (var i=0; i < name.length; i++) installed.push(keys[name[i]]+(name[i]!='en_US'? '<?=$head?>'+name[i]+'<?=$tail?>' : ''));
       }
       $('.installed').html(installed.join(', '));
       swal({title:title,text:"_(See)_ <a href='/Settings/DisplaySettings'>_(Display Settings)_</a> _(to select your language)_",type:'success',html:true,confirmButtonText:"_(Ok)_"});
