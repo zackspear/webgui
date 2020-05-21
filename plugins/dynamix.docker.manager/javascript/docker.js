@@ -8,7 +8,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({divider:true});
   }
   if (update==1) {
-    opts.push({text:_('Update'), icon:'fa-cloud-download', action:function(e){e.preventDefault(); execUpContainer(container);}});
+    opts.push({text:_('Update'), icon:'fa-cloud-download', action:function(e){e.preventDefault(); updateContainer(container);}});
     opts.push({divider:true});
   }
   if (started) {
