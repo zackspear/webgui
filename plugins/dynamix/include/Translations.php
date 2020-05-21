@@ -60,6 +60,9 @@ function my_lang($text,$do=0) {
     [$p1,$p2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text);
     $text = _($p1).$p2;
     break;
+  case 4: // replace apostrophes
+    $text = str_replace("'", '&apos;', _($text));
+    break;
   }
   return $text;
 }
