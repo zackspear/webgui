@@ -19,11 +19,21 @@ function toggle_state(device,name,action) {
   var event = null;
   var button = null;
   if (name) {
-    if (name.match(/^(parity|disk)/)!==null) event = 'array_status';
-    else if (name.match(/^cache/)!==null) event = 'cache_status';
+    if (name.match(/^(parity|disk|array)/)!==null) event = 'array_status';
     else if (name.match(/^flash/)!==null) event = 'boot_status';
-    else event = 'open_status';
-    $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+    else if (name.match(/^sd[a-z]*/)!==null) event = 'open_status';
+    else event = 'pool_status';
+    if (name.slice(-1)!='*') {
+      $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+    } else {
+      var group = name.slice(0,-1);
+      if (group=='array') {
+        $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+        $('[id^="dev-disk"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      } else {
+        $('[id^="dev-'+group+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      }
+    }
   } else if (device!='Clear') {
     $('[id^="dev-"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     button = '[id^=button-]';

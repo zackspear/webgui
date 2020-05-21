@@ -115,7 +115,7 @@ function device_desc(&$disk) {
   }
   $log = $var['fsState']=='Started'
        ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
-       : "<a class='nohand' style='color:grey'><i class='icon-$type icon'></i></a>";
+       : "<a class='nohand' style='color:grey;text-decoration:none'><i class='icon-$type icon'></i></a>";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }
 function assignment(&$disk) {
@@ -284,11 +284,15 @@ function read_disk($name, $part) {
     return exec("awk 'BEGIN{s=t=\"*\"}\$1==190{s=\$10};\$1==194{t=\$10;exit};\$1==\"Temperature:\"{t=\$2;exit};/^Current Drive Temperature:/{t=\$4;exit} END{if(t!=\"*\")print t; else print s}' ".escapeshellarg($smart)." 2>/dev/null");
   }
 }
-function show_totals($text,$array) {
+function show_totals($text,$array,$name) {
   global $var, $display, $sum;
+  $ctrl1 = "style='cursor:pointer;color:grey' onclick=\"toggle_state('Device','$name','down')\"";
+  $ctrl2 = "style='cursor:pointer;color:grey' onclick=\"toggle_state('Device','$name','up')\"";
+  $help1 = _('Spin Down').' '._(ucfirst(substr($name,0,-1)));
+  $help2 = _('Spin Up').' '._(ucfirst(substr($name,0,-1)));
   echo "<tr class='tr_last'>";
-  echo "<td></td>";
-  echo "<td>".my_lang($text,1)."</td>";
+  echo "<td><a class='info'><i class='fa fa-fw fa-toggle-down' $ctrl1></i><span>$help1</span></a>&nbsp;<a class='info'><i class='fa fa-fw fa-toggle-up' $ctrl2></i><span>$help2</span></a></td>";
+  echo "<td><a class='nohand' style='color:grey;text-decoration:none'><i class='icon-disks icon'></i></a><span></span>".my_lang($text,1)."</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
@@ -360,7 +364,7 @@ case 'array':
   } else {
     foreach ($parity as $disk) if ($disk['status']!='DISK_NP_DSBL') array_online($disk);
     foreach ($data as $disk) array_online($disk);
-    if ($display['total'] && $var['mdNumDisks']>1) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true);
+    if ($display['total'] && $var['mdNumDisks']>1) show_totals(sprintf(_('Array of %s devices'),my_word($var['mdNumDisks'])),true,'array*');
   }
   break;
 case 'flash':
@@ -401,7 +405,7 @@ case 'cache':
           if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
           array_online($disk);
         }
-        if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false);
+        if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false,"$pool*");
         $sum = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
         echo "\0";
       }
