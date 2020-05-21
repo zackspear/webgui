@@ -72,7 +72,7 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<a href='#' title=\""._('View Release Notes')."\" onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','"._('Release Notes')."',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
+$notes = "&nbsp;<a href='#' title='".my_lang('View Release Notes',4)."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','".my_lang('Release Notes',4)."',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
 ?>
 </style>
 
