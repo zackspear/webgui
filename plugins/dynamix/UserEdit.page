@@ -21,7 +21,7 @@ Tag="user"
 <?endif;?>
 <?
 $user = "/boot/config/plugins/dynamix/users/$name.png";
-$void = "<img src='/webGui/images/user.png' width='48' height='48' id='image' onclick='$(\"#drop\").click()' style='cursor:pointer' title='".my_lang('Click to select PNG file',4)."'>";
+$void = "<img src='/webGui/images/user.png' width='48' height='48' id='image' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='".my_lang('Click to select PNG file',4)."'>";
 $icon = "<i class='fa fa-trash top' title='".my_lang('Restore default image',4)."' onclick='restore()'></i>";
 
 $zxcvbn = file_exists('/boot/config/plugins/dynamix/zxcvbn.js');
