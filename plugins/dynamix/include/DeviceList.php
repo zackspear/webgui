@@ -239,14 +239,14 @@ function array_online(&$disk) {
   case 'DISK_NP':
     if (in_array($disk['name'],$pools)) {
       echo "<td>".device_info($disk,true)."</td>";
-      echo "<td><a class='nohand' style='color:grey'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
+      echo "<td><a class='static'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
       echo "<td colspan='4'></td>";
       fs_info($disk);
     }
     break;
   case 'DISK_NP_DSBL':
     echo "<td>".device_info($disk,true)."</td>";
-    echo "<td><a class='nohand' style='color:grey'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
+    echo "<td><a class='static'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
     echo "<td colspan='4'></td>";
     fs_info($disk);
     break;
