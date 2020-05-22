@@ -286,12 +286,12 @@ function read_disk($name, $part) {
 }
 function show_totals($text,$array,$name) {
   global $var, $display, $sum;
-  $ctrl1 = "style='cursor:pointer;color:grey;font-size:1.8rem' onclick=\"toggle_state('Device','$name','down')\"";
-  $ctrl2 = "style='cursor:pointer;color:grey;font-size:1.8rem' onclick=\"toggle_state('Device','$name','up')\"";
+  $ctrl1 = "onclick=\"toggle_state('Device','$name','down')\"";
+  $ctrl2 = "onclick=\"toggle_state('Device','$name','up')\"";
   $help1 = _('Spin Down').' '._(ucfirst(substr($name,0,-1)));
   $help2 = _('Spin Up').' '._(ucfirst(substr($name,0,-1)));
   echo "<tr class='tr_last'>";
-  echo "<td><a class='info'><i class='fa fa-fw fa-toggle-down' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up' $ctrl2></i><span>$help2</span></a></td>";
+  echo "<td><a class='info'><i class='fa fa-fw fa-toggle-down control' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up control' $ctrl2></i><span>$help2</span></a></td>";
   echo "<td><a class='nohand' style='color:grey;text-decoration:none'><i class='icon-disks icon'></i></a><span></span>".my_lang($text,1)."</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
