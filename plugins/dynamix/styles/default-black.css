@@ -16,6 +16,7 @@ a.info span{display:none;white-space:nowrap;font-variant:small-caps;position:abs
 a.info:hover span{display:block;z-index:1}
 a.nohand{cursor:default}
 a.hand{cursor:pointer;text-decoration:none}
+a.static{cursor:default;color:grey;text-decoration:none}
 i.spacing{margin-left:-6px}
 i.icon{font-size:1.6rem;margin-right:8px;vertical-align:middle}
 i.title{margin-right:8px}
