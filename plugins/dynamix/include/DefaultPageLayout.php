@@ -428,7 +428,7 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  echo "<a href='/$page' onclick='initab()'>"._($page)."</a></div>";
+  echo "<a href='/$page' onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
 }
 unset($tasks);
 if ($display['usage']) my_usage();
