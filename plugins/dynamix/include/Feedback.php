@@ -34,26 +34,30 @@ if (array_key_exists('getdiagnostics', $_GET)) {
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
-<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1600">
+<meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <style>
 #spinner_image{position:fixed;left:46%;top:46%;width:16px;height:16px;display:none}
-#control_panel{position:fixed;left:5px;right:5px;top:0;padding-top:8px;line-height:24px;white-space:nowrap}
+#control_panel{position:fixed;left:0;right:0;top:0;padding-top:8px;line-height:24px;white-space:nowrap}
 .four{text-align:center;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box}
 .four label:first-child{margin-left:0}
 .four label{margin-left:2%;cursor:pointer}
-.allpanels{display:none;position:absolute;left:15px;right:15px;top:40px;bottom:25px;overflow:auto;margin-top:15px}
-#footer_panel{position:fixed;left:5px;right:5px;bottom:0;height:30px;line-height:10px;text-align:center}
-textarea{width:100%;height:250px;margin:10px 0}
+.allpanels{display:none;position:absolute;left:0;right:0;top:40px;bottom:25px;overflow:auto;margin:15px}
+#footer_panel{position:fixed;left:0;right:0;bottom:0;height:30px;line-height:10px;text-align:center}
+textarea{width:96%;height:250px;margin:10px 0;resize:none}
 input[type=button]{margin-right:0;float:right}
 input[type=email]{margin-top:8px;float:left}
 </style>
 </head>
 <body>
-<div style="margin-top:0;line-height:30px;margin-left:5px;margin-right:5px">
+<div>
 <div id="control_panel" class="four">
 <!-- <label for="optOnlinePoll"><input type="radio" name="mode" id="optOnlinePoll" value="onlinepoll" checked="checked"/> Online Poll</label> -->
 <label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featurerequest" checked="checked"/> <?=_('Product Suggestion')?></label>

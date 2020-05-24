@@ -17,10 +17,13 @@ $action = $_POST['action'];
 $state  = $_POST['state'];
 $csrf   = $_POST['csrf'];
 
+function prefix($key) {
+  return preg_replace('/\d+$/','',$key);
+}
 function emhttpd($cmd) {
   global $state, $csrf;
   $ch = curl_init("http://127.0.0.1/update.htm?$cmd&startState=$state&csrf_token=$csrf");
-  curl_setopt_array($ch, [CURLOPT_UNIX_SOCKET_PATH => '/var/run/emhttpd.socket', CURLOPT_RETURNTRANSFER => true]);
+  curl_setopt_array($ch, [CURLOPT_UNIX_SOCKET_PATH => '/var/run/emhttpd.socket']);
   curl_exec($ch);
   curl_close($ch);
 }
@@ -34,7 +37,24 @@ case 'Clear':
   emhttpd("clearStatistics=true");
   break;
 default:
-  if ($name) emhttpd("cmdSpin$action=$name"); else emhttpd("cmdSpin{$device}All=true");
+  if (!$name) {
+    // spin up/down all devices
+    emhttpd("cmdSpin{$device}All=true");
+    break;
+  }
+  if (substr($name,-1) != '*') {
+    // spin up/down single device
+    emhttpd("cmdSpin$action=$name");
+    break;
+  }
+  // spin up/down group of devices
+  $disks = (array)parse_ini_file('state/disks.ini',true);
+  $name = substr($name,0,-1);
+  foreach ($disks as $disk) {
+    if ($disk['status'] != 'DISK_OK') continue;
+    $array = ($name=='array' && in_array($disk['type'],['Parity','Data']));
+    if ($array || prefix($disk['name'])==$name) emhttpd("cmdSpin$action={$disk['name']}");
+  }
   break;
 }
 ?>

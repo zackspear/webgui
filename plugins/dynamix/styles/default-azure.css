@@ -16,9 +16,11 @@ a.info span{display:none;white-space:nowrap;font-variant:small-caps;position:abs
 a.info:hover span{display:block;z-index:1}
 a.nohand{cursor:default}
 a.hand{cursor:pointer;text-decoration:none}
+a.static{cursor:default;color:#909090;text-decoration:none}
 i.spacing{margin-left:0;margin-right:10px}
-i.icon{font-size:1.6rem;margin-right:8px;vertical-align:middle}
+i.icon{font-size:1.6rem;margin-right:4px;vertical-align:middle}
 i.title{display:none}
+i.control{cursor:pointer;color:#909090;font-size:1.8rem}
 pre ul{margin:0;padding-top:0;padding-bottom:0;padding-left:28px}
 pre li{margin:0;padding-top:0;padding-bottom:0;padding-left:18px}
 big{font-size:1.4rem;font-weight:bold;text-transform:uppercase}
