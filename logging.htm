@@ -83,7 +83,7 @@ function addLog(logLine) {
   }
 }
 function addCloseButton() {
-  var done = location.search.substr(1).split("&").slice(-1)[0].split('=')[1];
+  var done = location.search.split('&').pop().split('=')[1];
   addLog("<p class='centered'><button class='logLine' type='button' onclick='" + (top.Shadowbox ? "top.Shadowbox" : "window") + ".close()'>"+done+"</button></p>");
 }
 </script>
