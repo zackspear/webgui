@@ -175,7 +175,7 @@ function chkDelete(form, button) {
 }
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
-  var run = cmd.split('?')[0].substr(-4)=='.php' ? cmd : '/logging.htm?cmd='+cmd+'&csrf_token=<?=$var['csrf_token']?>';
+  var run = cmd.split('?')[0].substr(-4)=='.php' ? cmd+'&done=<?=_("Done")?>' : '/logging.htm?cmd='+cmd+'&csrf_token=<?=$var["csrf_token"]?>&done=<?=_("Done")?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location=location;}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
