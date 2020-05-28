@@ -18,13 +18,13 @@ function get_ini_key($key,$default) {
   $var = $x>0 ? substr($key,1,$x-1) : substr($key,1);
   global $$var;
   eval("\$var=$key;");
-  return $var ? $var : $default;
+  return $var ?: $default;
 }
 
 function get_file_key($file,$default) {
   [$key, $default] = explode('=',$default,2);
   $var = @parse_ini_file($file);
-  return isset($var[$key]) ? $var[$key] : $default;
+  return $var[$key] ?? $default;
 }
 
 function build_pages($pattern) {
