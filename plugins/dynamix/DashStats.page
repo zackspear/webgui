@@ -358,10 +358,24 @@ foreach ($ports as $port) {
 <i class='fa fa-fw chevron' id='fan_view' onclick='toggleChevron("fan_view",0)'></i>
 <a href='/Dashboard/FanSettings' title="_(Go to fan settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
-<?for ($f=0; $f<$fans; $f+=2) {
-  if ($f+1<$fans) echo "<tr class='fan_view'><td></td><td>"._("FAN")." ".($f)." - "._("FAN")." ".($f+1)."</td><td id='fan{$f}'>"."</td><td id='fan".($f+1)."'></td><td></td></tr>";
-  else echo "<tr class='fan_view'><td></td><td>"._("FAN")." ".($f)."</td><td colspan='2' id='fan{$f}'></td><td></td></tr>";
-}?>
+<?
+$tr_fan = "<tr class='fan_view'><td></td>";
+$tr_end = "<td></td></tr>";
+$hdr = []; $row = []; $i = 0;
+$hdr[0] = $row[0] = $tr_fan;
+for ($fan=0; $fan<$fans; $fan++) {
+  if ($fan && $fan%3==0) {
+    $hdr[$i] .= $tr_end; $row[$i] .= $tr_end; $i++;
+    $hdr[$i] = $row[$i] = $tr_fan;
+  }
+  $hdr[$i] .= "<td>"._('FAN')." $fan</td>";
+  $row[$i] .= "<td id='fan$fan'></td>";
+}
+$rest = ($fans%3) ? 3-($fans%3) : 0;
+for ($fan=0; $fan<$rest; $fan++) $hdr[$i] .= "<td></td>"; $row[$i] .= "<td></td>";
+if ($rest) {$hdr[$i] .= $tr_end; $row[$i] .= $tr_end;}
+for ($n=0; $n<=$i; $n++) echo $hdr[$n].$row[$n];
+?>
 </tbody>
 <?endif;?>
 </table>
