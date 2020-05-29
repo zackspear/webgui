@@ -136,7 +136,7 @@ $(function(){
 <input type="hidden" name="changePorts" value="apply">
 _(Start page)_:
 : <select name="START_PAGE">
-<?foreach ($tasks as $task) echo mk_option($var['START_PAGE']??'Main', $task, $task);?>
+<?foreach ($tasks as $task) echo mk_option($var['START_PAGE']??'Main', $task, _($task));?>
   </select>
 
 :mgmt_start_page_help:
