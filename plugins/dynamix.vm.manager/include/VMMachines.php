@@ -114,7 +114,7 @@ foreach ($vms as $vm) {
   echo "<td>$mem</td>";
   echo "<td title='$diskdesc'>$disks</td>";
   echo "<td>$graphics</td>";
-  echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM auostart')."\" uuid='$uuid' $auto></td></tr>";
+  echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $auto></td></tr>";
 
   /* Disk device information */
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");

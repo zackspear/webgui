@@ -318,31 +318,31 @@ function formatWarning(val) {
 <?      endif;?>
         <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','_(Parity/Read-Check History)_',600,900,false)"></td>
 <?      if ($var['sbSyncExit']!=0):?>
-          <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced2']).my_lang(day_count($var['sbSynced2']),1)))?><?if ($var['sbSynced2']):?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?><?endif;?>
+          <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced2']).day_count($var['sbSynced2'])))?><?if ($var['sbSynced2']):?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?><?endif;?>
           <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($var['sbSyncExit'])?></td></tr>
 <?      elseif ($var['sbSynced']==0):
           [$date,$duration,$speed,$status,$error] = last_parity_log();?>
 <?        if ($status==0):?>
-            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
-            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
+            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($date).day_count($date)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
+            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_check($duration,$speed)?></td></tr>
 <?        else:?>
-            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($date).my_lang(day_count($date),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
+            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($date).day_count($date)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
             <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($status)?></td></tr>
 <?        endif;
         elseif ($var['sbSynced2']==0):
           [$date,$duration,$speed,$status,$error] = explode('|', read_parity_log($var['sbSynced']));
           if ($status==0):?>
-            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
-            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
+            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),my_lang(my_time($var['sbSynced']).day_count($var['sbSynced'])))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
+            <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_check($duration,$speed)?></td></tr>
 <?        else:?>
-            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced']).my_lang(day_count($var['sbSynced']),1)))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
+            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced']).day_count($var['sbSynced'])))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
             <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($status)?></td></tr>
 <?        endif;
         else:
           $duration = $var['sbSynced2']-$var['sbSynced'];
           $speed = $duration?my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/sec":'';?>
-          <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),my_lang(my_time($var['sbSynced2']).my_lang(day_count($var['sbSynced2']),1)))?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?>
-          <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=_(my_lang(my_check($duration,$speed),2))?></td></tr>
+          <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),my_lang(my_time($var['sbSynced2']).day_count($var['sbSynced2'])))?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?>
+          <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_check($duration,$speed)?></td></tr>
 <?      endif;
       endif;
     else:
@@ -369,7 +369,7 @@ function formatWarning(val) {
         <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause the Clearing)_.<?else:?>**_(Resume)_** _(will resume the paused Clearing)_.<?endif;?><br>**_(Cancel)_** _(will stop Clearing)_.</td></tr>
 <?    endif;?>
       <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','_(Parity/Read-Check History)_',600,900,false)"></td>
-      <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),my_lang(my_time($var['sbUpdated']).my_lang(day_count($var['sbSynced']),1)))?></td></tr>
+      <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),my_lang(my_time($var['sbUpdated']).day_count($var['sbSynced'])))?></td></tr>
       <tr><td>_(Total size)_:</td><td id="line0"></td><td></td></tr>
       <tr><td>_(Elapsed time)_:</td><td id="line1"></td><td></td></tr>
       <tr><td>_(Current position)_:</td><td id="line2"></td><td></td></tr>

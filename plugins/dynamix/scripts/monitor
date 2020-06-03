@@ -12,6 +12,10 @@
  */
 ?>
 <?
+// Multi-language support
+function _($text) {return $text;}
+function my_lang($text) {return $text;}
+
 $var   = parse_ini_file("/var/local/emhttp/var.ini");
 $devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
 $disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
