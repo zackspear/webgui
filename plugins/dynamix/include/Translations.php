@@ -41,18 +41,16 @@ function my_lang($text,$do=0) {
   global $language;
   switch ($do) {
   case 0: // date translation
-    $keys = ['today','yesterday','day ago','days ago','week ago','weeks ago','month ago','months ago'];
     parse_array($language['Months_array'],$months);
     parse_array($language['Days_array'],$days);
     foreach ($months as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     foreach ($days as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    foreach ($keys as $key) if (isset($language[$key])) $text = str_replace($key,$language[$key],$text);
     break;
   case 1: // number translation
     parse_array($language['Numbers_array'],$numbers);
     foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     break;
-  case 2: // time translation
+  case 2: // time translation - deprecated
     $keys = ['days','hours','minutes','seconds','day','hour','minute','second','Average speed'];
     foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
     break;

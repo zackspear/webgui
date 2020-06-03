@@ -129,13 +129,13 @@ function usage_color(&$disk, $limit, $free) {
   }
 }
 function my_check($time, $speed) {
-  if (!$time) return 'unavailable (no parity-check entries logged)';
+  if (!$time) return _('unavailable (no parity-check entries logged)');
   $days = floor($time/86400);
   $hmss = $time-$days*86400;
   $hour = floor($hmss/3600);
   $mins = $hmss/60%60;
   $secs = $hmss%60;
-  return plus($days,'day',($hour|$mins|$secs)==0).plus($hour,'hour',($mins|$secs)==0).plus($mins,'minute',$secs==0).plus($secs,'second',true).". Average speed: $speed";
+  return plus($days,'day',($hour|$mins|$secs)==0).plus($hour,'hour',($mins|$secs)==0).plus($mins,'minute',$secs==0).plus($secs,'second',true).". "._('Average speed').": $speed";
 }
 function my_error($code) {
   switch ($code) {
@@ -177,19 +177,19 @@ function day_count($time) {
   case ($days<0):
     return;
   case ($days==0):
-    return " <span class='green-text'>(today)</span>";
+    return " <span class='green-text'>(".('today').")</span>";
   case ($days==1):
-    return " <span class='green-text'>(yesterday)</span>";
+    return " <span class='green-text'>("._('yesterday').")</span>";
   case ($days<=31):
-    return " <span class='green-text'>(".my_word($days)." days ago)</span>";
+    return " <span class='green-text'>(".sprintf(_('%s days ago'),my_lang(my_word($days),1)).")</span>";
   case ($days<=61):
-    return " <span class='orange-text'>($days days ago)</span>";
+    return " <span class='orange-text'>(".sprintf(_('%s days ago'),$days).")</span>";
   case ($days>61):
-    return " <span class='red-text'>($days days ago)</span>";
+    return " <span class='red-text'>(".sprintf(_('%s days ago'),$days).")</span>";
   }
 }
 function plus($val, $word, $last) {
-  return $val>0 ? (($val || $last) ? ($val.' '.$word.($val!=1?'s':'').($last ?'':', ')) : '') : '';
+  return $val>0 ? (($val || $last) ? ($val.' '._($word.($val!=1?'s':'')).($last ?'':', ')) : '') : '';
 }
 function compress($name,$size=18,$end=6) {
   return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end+3:0)).'...'.($end?substr($name,-$end):'');
