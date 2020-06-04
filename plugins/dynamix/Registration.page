@@ -64,7 +64,7 @@ _(Flash GUID)_:
 : <?=$var['flashGUID']?>
 
 <span class="device"><?=$attached_devices?></span>
-: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Get Trial Key)_" onclick="openBox('/webGui/include/TrialRequest.php','_(Get Trial Key)_',300,600);">
+: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Get Trial Key)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=my_lang('Get Trial Key',4)?>',300,600);">
 
 </form>
 <?endif;?>
@@ -184,7 +184,7 @@ _(Flash GUID)_:
 : <?=$var['flashGUID']?>
 
 <span class="device"><?=$attached_devices?></span>
-: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Request Extension)_" onclick="openBox('/webGui/include/TrialRequest.php','_(Request Trial Extension)_',300,600);">
+: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Request Extension)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=my_lang('Request Trial Extension',4)?>',300,600);">
 
 </form>
 <?endif;?>
