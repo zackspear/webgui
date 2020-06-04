@@ -85,7 +85,7 @@ function loadlist(id) {
 $(function() {
   loadlist();
 <?if ($check):?>
-  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value=&quot;_(Check for Updates)_&quot; onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"_(System Update Check)_\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value='<?=my_lang('Check for Updates',4)?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"<?=my_lang('System Update Check',4)?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 <?endif;?>
 });
 </script>
