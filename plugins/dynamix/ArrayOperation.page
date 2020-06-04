@@ -316,7 +316,7 @@ function formatWarning(val) {
           <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;&nbsp;<a href="/Main/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>_(Write corrections to parity)_</small></td></tr>
 <?      endif;?>
-        <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','_(Parity/Read-Check History)_',600,900,false)"></td>
+        <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','<?=my_lang('Parity/Read-Check History',4)?>',600,900,false)"></td>
 <?      if ($var['sbSyncExit']!=0):?>
           <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced2']).day_count($var['sbSynced2'])))?><?if ($var['sbSynced2']):?><br><?=sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0')?><?endif;?>
           <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($var['sbSyncExit'])?></td></tr>
@@ -368,7 +368,7 @@ function formatWarning(val) {
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'Clearing')"></td>
         <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause the Clearing)_.<?else:?>**_(Resume)_** _(will resume the paused Clearing)_.<?endif;?><br>**_(Cancel)_** _(will stop Clearing)_.</td></tr>
 <?    endif;?>
-      <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','_(Parity/Read-Check History)_',600,900,false)"></td>
+      <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','<?=my_lang('Parity/Read-Check History',4)?>',600,900,false)"></td>
       <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),my_lang(my_time($var['sbUpdated']).day_count($var['sbSynced'])))?></td></tr>
       <tr><td>_(Total size)_:</td><td id="line0"></td><td></td></tr>
       <tr><td>_(Elapsed time)_:</td><td id="line1"></td><td></td></tr>

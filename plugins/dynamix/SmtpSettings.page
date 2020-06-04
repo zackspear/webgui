@@ -36,7 +36,7 @@ $(function() {
 function mailcheck(form) {
   var email = /^\S+@\S+\.\S+/;
   if (!email.test(form.root.value)) {
-    swal({title:"_(Invalid email address)_",text:"_(Please enter a valid sending email address)_",type:"error",confirmButtonText:'_(Ok)_'});
+    swal({title:"_(Invalid email address)_",text:"_(Please enter a valid sending email address)_",type:"error",confirmButtonText:"_(Ok)_"});
     return false;
   }
   return true;

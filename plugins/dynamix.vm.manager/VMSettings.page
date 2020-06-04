@@ -203,7 +203,7 @@ _(VFIO allow unsafe interrupts)_:
 
 </div>
 <?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
-<input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','_(Libvirt Log)_',600,900);" value="_(View libvirt log)_"/>
+<input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','<?=my_lang('Libvirt Log',4)?>',600,900);" value="_(View libvirt log)_"/>
 <?else:?>
 &nbsp;
 <?endif;?>
@@ -392,8 +392,8 @@ $(function(){
 <?if ($hardware):?>
   $('.advancedview').switchButton({
     labels_placement: "left",
-    on_label: '_(Advanced View)_',
-    off_label: '_(Basic View)_',
+    on_label: "_(Advanced View)_",
+    off_label: "_(Basic View)_",
     checked: $.cookie('vmsettings_view_mode') == 'advanced'
   });
   $('.advancedview').change(function(){

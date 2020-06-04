@@ -23,8 +23,8 @@ $width    = [166,300];
 ?>
 <script>
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:'_(All)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
-  $('#s2').dropdownchecklist({emptyText:'_(None)_', width:<?=$width[0]?>, explicitClose:'..._(close)_'});
+  $('#s1').dropdownchecklist({emptyText:"_(All)_", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
+  $('#s2').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, explicitClose:"..._(close)_"});
   presetShare(document.share_settings);
 });
 // Simulate the original input field
