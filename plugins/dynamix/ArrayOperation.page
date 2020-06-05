@@ -260,9 +260,9 @@ reload_page();
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
 <?
-$parity = $var['mdResync'] ? '<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>' : '';
-$mover = file_exists('/var/run/mover.pid') ? '<br><small>_(Disabled)_ -- _(Mover is running)_</small>' : '';
-$btrfs = exec('pgrep -cf /sbin/btrfs') ? '<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>' : '';
+$parity = $var['mdResync'] ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>" : "";
+$mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
+$btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
 $(function(){
   var form = document.arrayOps;
