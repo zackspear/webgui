@@ -97,7 +97,7 @@ Note that this tool may negatively affect any docker containers if you allow you
 <option value='/mnt/cache'>_(Cache)_</option>
 <?endif;?>
 <?foreach (array_filter($disks,'data_disks') as $disk):?>
-<?=mk_option(1,"/mnt/{$disk['name']}",my_lang(my_disk($disk['name'])),3)?>
+<?=mk_option(1,"/mnt/{$disk['name']}",_(my_disk($disk['name'])),3)?>
 <?endforeach;?>
 </select>
 </span>

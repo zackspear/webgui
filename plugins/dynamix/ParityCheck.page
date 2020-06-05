@@ -102,12 +102,12 @@ _(Day of the week)_:
 <?if ($parity['mode']==2):?>
 : <select name="day">
   <?for ($d=0; $d<count($days); $d++):?>
-  <?=mk_option($parity['day'], strval($d), ucfirst(my_lang($days[$d])))?>
+  <?=mk_option($parity['day'], strval($d), ucfirst(_($days[$d],0)))?>
   <?endfor;?>
 <?elseif ($parity['mode']==5):?>
 : <select id="s1" name="day" multiple="multiple" style="display:none">
   <?for ($d=0; $d<count($days); $d++):?>
-  <?=mk_option_check($parity['day'], strval($d), ucfirst(my_lang($days[$d])))?>
+  <?=mk_option_check($parity['day'], strval($d), ucfirst(_($days[$d],0)))?>
   <?endfor;?>
 <?else:?>
 : <select name="day">
@@ -164,12 +164,12 @@ _(Month of the year)_:
 <?if ($parity['mode']==5):?>
 : <select id="s2" name="month" multiple="multiple" style="display:none">
   <?for ($m=0; $m<count($months); $m++):?>
-  <?=mk_option_check($parity['month'], strval($m+1), ucfirst(my_lang($months[$m])))?>
+  <?=mk_option_check($parity['month'], strval($m+1), ucfirst(_($months[$m],0)))?>
   <?endfor;?>
 <?else:?>
 : <select name="month">
   <?for ($m=0; $m<count($months); $m++):?>
-  <?=mk_option($parity['month'], strval($m+1), ucfirst(my_lang($months[$m])))?>
+  <?=mk_option($parity['month'], strval($m+1), ucfirst(_($months[$m],0)))?>
   <?endfor;?>
 <?endif;?>
 <?else:?>

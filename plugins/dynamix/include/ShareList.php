@@ -108,7 +108,7 @@ foreach ($shares as $name => $share) {
       $include = $share['include'];
       $inside = in_array($diskname, array_filter(array_diff($myDisks, explode(',',$share['exclude'])), 'shareInclude'));
       echo "<tr class='share_status_size".($inside ? "'>" : " warning'>");
-      echo "<td>".my_lang(my_disk($diskname,$display['raw']),3).":</td>";
+      echo "<td>"._(my_disk($diskname,$display['raw']),3).":</td>";
       echo "<td>".($inside ? "" : "<em>"._('Share is outside the list of designated disks')."</em>")."</td>";
       echo "<td></td>";
       echo "<td></td>";

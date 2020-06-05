@@ -398,39 +398,39 @@ case 'parity':
   $time = $_POST['time'];
   $idle = $var['mdResync']==0;
   if ($var['sbSyncExit']!=0) {
-    echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced2']).day_count($var['sbSynced2']))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+    echo sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0)).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($var['sbSyncExit']);
   } elseif ($var['sbSynced']==0) {
     list($date,$duration,$speed,$status,$error) = last_parity_log();
     if (!$date) {
       echo _('Parity has not been checked yet');
     } elseif ($status==0) {
-      echo sprintf(_('Last checked on **%s**'),my_lang(my_time($date).day_count($date))).'<br> '.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      echo sprintf(_('Last checked on **%s**'),_(my_time($date).day_count($date),0)).'<br> '.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
       echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
     } else {
-      echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($date).day_count($date))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      echo sprintf(_('Last check incomplete on **%s**'),_(my_time($date).day_count($date),0)).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
       echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
     }
   } elseif ($var['sbSynced2']==0) {
     if ($idle) {
       list($entry,$duration,$speed,$status,$error) = explode('|', read_parity_log($var['sbSynced'],!$idle));
       if ($status==0) {
-        echo sprintf(_('Last checked on **%s**'),my_lang(my_time($var['sbSynced']).day_count($var['sbSynced']))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+        echo sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0)).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
         echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
       } else {
-        echo sprintf(_('Last check incomplete on **%s**'),my_lang(my_time($var['sbSynced']).day_count($var['sbSynced']))).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+        echo sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0)).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
         echo " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
       }
     } else {
-      echo sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),my_lang(my_time($var['sbUpdated']).day_count($var['sbSynced']))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
-      echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": ".my_lang(my_clock(floor((time()-$var['sbUpdated'])/60)),2);
-      echo "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '.my_lang(my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2);
+      echo sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0)).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+      echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": "._(my_clock(floor((time()-$var['sbUpdated'])/60)),2);
+      echo "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '._(my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2);
     }
   } else {
     $status = 0;
     $duration = $var['sbSynced2']-$var['sbSynced'];
     $speed = $duration?my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/sec":'';
-    echo sprintf(_('Last check completed on **%s**'),my_lang(my_time($var['sbSynced2']).day_count($var['sbSynced2']))).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+    echo sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0)).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     echo " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_check($duration,$speed);
   }
   if ($idle) {
@@ -497,8 +497,8 @@ case 'parity':
       break;
     }
     echo "\0";
-    echo sprintf(_('Next check scheduled on **%s**'),my_lang(strftime($_POST['time'],$time+$t)));
-    echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": ".my_lang(my_clock(floor($t/60)),2);
+    echo sprintf(_('Next check scheduled on **%s**'),_(strftime($_POST['time'],$time+$t),0));
+    echo "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
   } else {
     echo "\0";
   }

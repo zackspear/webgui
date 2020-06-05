@@ -597,7 +597,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								// Determine if cache drive is available:
 								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
 									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = my_lang(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+										$strLabel = _(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, 'cache', $strLabel);
 									}
 								}
@@ -612,7 +612,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 											// skip this disk based on local and global share settings
 											continue;
 										}
-										$strLabel = my_lang(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+										$strLabel = _(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, $name, $strLabel);
 									}
 								}
@@ -725,7 +725,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								// Determine if cache drive is available:
 								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
 									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = my_lang(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+										$strLabel = _(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, 'cache', $strLabel);
 									}
 								}
@@ -740,7 +740,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 											// skip this disk based on local and global share settings
 											continue;
 										}
-										$strLabel = my_lang(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+										$strLabel = _(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
 										echo mk_option($default_option, $name, $strLabel);
 									}
 								}

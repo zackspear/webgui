@@ -14,12 +14,32 @@
 session_start();
 session_write_close();
 
-function _($text) {
+function _($text, $do=-1) {
   // PHP translation function _
   global $language;
   if (!$text) return '';
-  $data = $language[preg_replace(['/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"\']|<.+?\/?>/','/^(null|yes|no|true|false|on|off|none)$/i','/  +/'],['','$1.',' '],$text)] ?? $text;
-  return strpos($data,'*')===false ? $data : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/'],['<b>$1</b>','<i>$1</i>'],$data);
+  switch ($do) {
+  case 0: // date translation
+    parse_array($language['Months_array'],$months);
+    parse_array($language['Days_array'],$days);
+    foreach ($months as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
+    foreach ($days as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
+    return $text;
+  case 1: // number translation
+    parse_array($language['Numbers_array'],$numbers);
+    foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
+    return $text;
+  case 2: // time translation
+    $keys = ['days','hours','minutes','seconds','day','hour','minute','second','Average speed'];
+    foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
+    return $text;
+  case 3: // device translation
+    [$p1,$p2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text);
+    return _($p1).$p2;
+  default: // regular translation
+    $data = $language[preg_replace(['/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"\']|<.+?\/?>/','/^(null|yes|no|true|false|on|off|none)$/i','/  +/'],['','$1.',' '],$text)] ?? $text;
+    return strpos($data,'*')===false ? str_replace("'",'&apos;',$data) : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/',"/'/"],['<b>$1</b>','<i>$1</i>','&apos;'],$data);
+  }
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
@@ -37,33 +57,7 @@ function parse_file($file,$markdown=true) {
   // replacement of PHP include function
   return $markdown ? Markdown(parse_text(file_get_contents($file))) : parse_text(file_get_contents($file));
 }
-function my_lang($text,$do=0) {
-  global $language;
-  switch ($do) {
-  case 0: // date translation
-    parse_array($language['Months_array'],$months);
-    parse_array($language['Days_array'],$days);
-    foreach ($months as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    foreach ($days as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    break;
-  case 1: // number translation
-    parse_array($language['Numbers_array'],$numbers);
-    foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    break;
-  case 2: // time translation - deprecated
-    $keys = ['days','hours','minutes','seconds','day','hour','minute','second','Average speed'];
-    foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
-    break;
-  case 3: // device translation
-    [$p1,$p2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text);
-    $text = _($p1).$p2;
-    break;
-  case 4: // replace apostrophes
-    $text = str_replace("'", '&apos;', _($text));
-    break;
-  }
-  return $text;
-}
+
 // internal helper functions
 function parse_array($text,&$array) {
   // multi keyword parser

@@ -17,10 +17,10 @@ Tag="pencil"
 ?>
 <?
 function my_time_any($time) {
-  return $time ? my_lang(my_time($time)) : _('Anytime');
+  return $time ? _(my_time($time),0) : _('Anytime');
 }
 function my_time_now($time) {
-  return $time ? my_lang(my_time($time)) : _('Unknown');
+  return $time ? _(my_time($time),0) : _('Unknown');
 }
 $attached_devices=sprintf(_("This server has %s attached storage device".($var['deviceCount']==1?'.':'s.')),$var['deviceCount']);
 ?>
@@ -64,7 +64,7 @@ _(Flash GUID)_:
 : <?=$var['flashGUID']?>
 
 <span class="device"><?=$attached_devices?></span>
-: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Get Trial Key)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=my_lang('Get Trial Key',4)?>',300,600);">
+: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Get Trial Key)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=_('Get Trial Key')?>',300,600);">
 
 </form>
 <?endif;?>
@@ -184,7 +184,7 @@ _(Flash GUID)_:
 : <?=$var['flashGUID']?>
 
 <span class="device"><?=$attached_devices?></span>
-: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Request Extension)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=my_lang('Request Trial Extension',4)?>',300,600);">
+: <input type="submit" value="_(Purchase Key)_"><input type="button" value="_(Request Extension)_" onclick="openBox('/webGui/include/TrialRequest.php','<?=_('Request Trial Extension')?>',300,600);">
 
 </form>
 <?endif;?>

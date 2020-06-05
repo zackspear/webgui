@@ -69,7 +69,7 @@ function tab_title($title,$path,$tag) {
   global $docroot;
   if (preg_match('/^(disk|parity)/',$title)) {
     $device = strtok($title,' ');
-    $title = str_replace($device,my_lang(my_disk($device),3),$title);
+    $title = str_replace($device,_(my_disk($device),3),$title);
   }
   $title = _(parse_text($title));
   if (!$tag || substr($tag,-4)=='.png') {
