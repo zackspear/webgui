@@ -38,7 +38,7 @@ function _($text, $do=-1) {
     return _($p1).$p2;
   default: // regular translation
     $data = $language[preg_replace(['/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"\']|<.+?\/?>/','/^(null|yes|no|true|false|on|off|none)$/i','/  +/'],['','$1.',' '],$text)] ?? $text;
-    return strpos($data,'*')===false ? str_replace("'",'&apos;',$data) : preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/',"/'/"],['<b>$1</b>','<i>$1</i>','&apos;'],$data);
+    return preg_replace(['/\*\*(.+?)\*\*/','/\*(.+?)\*/',"/'/"],['<b>$1</b>','<i>$1</i>','&apos;'],$data);
   }
 }
 function parse_lang_file($file) {
