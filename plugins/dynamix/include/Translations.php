@@ -30,7 +30,7 @@ function _($text, $do=-1) {
     foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     return $text;
   case 2: // time translation
-    $keys = ['days','hours','minutes','seconds','day','hour','minute','second','Average speed'];
+    $keys = ['days','hours','minutes','seconds','day','hour','minute','second'];
     foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
     return $text;
   case 3: // device translation
