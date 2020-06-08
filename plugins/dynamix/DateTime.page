@@ -19,7 +19,7 @@ Tag="clock-o"
 
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
 _(Current date and time)_:
-: <?=my_lang(my_time(time()))?>
+: <?=_(my_time(time()),0)?>
 
 _(Time zone)_:
 : <select name="timeZone" size="1"><?

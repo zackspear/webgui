@@ -116,7 +116,7 @@ $serial = _("s/n").": {$board['Serial Number']}";
 $board  = "{$board['Manufacturer']} {$board['Product Name']}".($board['Version'] ? ", "._("Version")." {$board['Version']}" : "");
 
 $bios = dmidecode('BIOS Information','0',0);
-$biosdate = _("BIOS dated").": ".my_lang(my_time(strtotime($bios['Release Date']),$display['date']));
+$biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date']),$display['date']),0);
 $bios = $bios['Vendor'].($bios['Version'] ? ", "._("Version")." {$bios['Version']}" : "");
 
 $cpu = dmidecode('Processor Information','4',0);

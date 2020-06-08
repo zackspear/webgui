@@ -48,7 +48,7 @@ function in_parity_log($log,$timestamp) {
 function device_info(&$disk,$online) {
   global $pools, $path, $var, $crypto;
   $name = $disk['name'];
-  $fancyname = $disk['type']=='New' ? $name : my_lang(my_disk($name),3);
+  $fancyname = $disk['type']=='New' ? $name : _(my_disk($name),3);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
   switch ($disk['color']) {
@@ -114,7 +114,7 @@ function device_desc(&$disk) {
     default      : $type = 'disk'; break;
   }
   $log = $var['fsState']=='Started'
-       ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','".my_lang('Disk Log Information',4)."',600,900,false);return false\"><i class='icon-$type icon'></i><span>".my_lang('Disk Log Information',4)."</span></a>"
+       ? "<a class='info hand' onclick=\"openBox('/webGui/scripts/disk_log&arg1={$disk['device']}','"._('Disk Log Information')."',600,900,false);return false\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
        : "<a class='static'><i class='icon-$type icon'></i></a>";
   return  $log."<span style='font-family:bitstream'>".my_id($disk['id'])."</span> - $size $unit ({$disk['device']})";
 }
@@ -292,7 +292,7 @@ function show_totals($text,$array,$name) {
   $help2 = _('Spin Up').' '._(ucfirst(substr($name,0,-1)));
   echo "<tr class='tr_last'>";
   echo "<td><a class='info'><i class='fa fa-fw fa-toggle-down control' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up control' $ctrl2></i><span>$help2</span></a></td>";
-  echo "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>".my_lang($text,1)."</td>";
+  echo "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>"._($text,1)."</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
@@ -440,10 +440,10 @@ case 'parity':
   $data = [];
   if ($var['mdResyncPos']) {
     $data[] = my_scale($var['mdResyncSize']*1024,$unit,-1)." $unit";
-    $data[] = my_lang(my_clock(floor((time()-$var['sbSynced'])/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
+    $data[] = _(my_clock(floor((time()-$var['sbSynced'])/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResyncSize']/100+1)),1,$display['number'][0],'')." %)";
     $data[] = $var['mdResyncDt'] ? my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec" : '---';
-    $data[] = $var['mdResyncDb'] ? my_lang(my_clock(round(((($var['mdResyncDt']*(($var['mdResyncSize']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
+    $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($var['mdResyncSize']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
     echo implode(';',$data);
   } else {

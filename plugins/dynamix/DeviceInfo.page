@@ -334,7 +334,7 @@ _(Name)_:
 
 <?else:?>
 _(Name)_:
-: <?=my_lang(my_disk($name),3)?>
+: <?=_(my_disk($name),3)?>
 
 <?endif;?>
 _(Comments)_:
