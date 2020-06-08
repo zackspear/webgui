@@ -13,6 +13,10 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+if (!function_exists('_')) {
+  function _($text) {return $text;}
+}
+
 // Invoke the plugin command with indicated method
 function plugin($method, $arg = '') {
   global $docroot;
@@ -45,7 +49,7 @@ function make_link($method, $arg, $extra='') {
     $cmd = "/plugins/dynamix.plugin.manager/scripts/plugin&arg1=$method&arg2=$arg".($extra?"&arg3=$extra":"");
     $exec = "loadlist";
   }
-  return "$check<input type='button' id='$id' value='".ucfirst($method)."' onclick='openBox(\"$cmd\",\"".ucwords($method)." Plugin\",600,900,true,\"$exec\",\"$plg\");'$disabled>";
+  return "$check<input type='button' id='$id' value='"._(ucfirst($method))."' onclick='openBox(\"$cmd\",\"".ucwords($method)." Plugin\",600,900,true,\"$exec\",\"$plg\");'$disabled>";
 }
 
 // trying our best to find an icon
