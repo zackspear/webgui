@@ -13,6 +13,10 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+if (!function_exists('_')) {
+  function _($text) {return $text;}
+}
+
 // Invoke the plugin command with indicated method
 function plugin($method, $arg = '') {
   global $docroot;
