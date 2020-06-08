@@ -147,7 +147,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
   echo "<td>$author</td>";
   echo "<td data='$date'>$version</td>";
-  echo "<td data='$rank'>"._($status)."</td>";
+  echo "<td data='$rank'>$status</td>";
   echo "<td>";
   if ($system) {
     if ($os) {
