@@ -107,7 +107,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
 //category
   $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
 //status
-  $status = 'unknown';
+  $status = _('unknown');
   $changes_file = $plugin_file;
   $url = plugin('pluginURL',$plugin_file);
   if ($url !== false) {
@@ -124,7 +124,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
           if (!$os) $updates++;
         } else {
           //status is considered outdated when older than 1 day
-          $status = filectime($filename) > (time()-86400) ? 'up-to-date' : 'need check';
+          $status = filectime($filename) > (time()-86400) ? _('up-to-date') : _('need check');
         }
       }
     }
