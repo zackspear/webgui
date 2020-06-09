@@ -13,7 +13,9 @@
 ?>
 <?
 // Multi-language support
-function _($text) {return $text;}
+if (!function_exists('_')) {
+  function _($text) {return $text;}
+}
 
 $var   = parse_ini_file("/var/local/emhttp/var.ini");
 $devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
