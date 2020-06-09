@@ -292,7 +292,7 @@ function show_totals($text,$array,$name) {
   $help2 = _('Spin Up').' '._(ucfirst(substr($name,0,-1)));
   echo "<tr class='tr_last'>";
   echo "<td><a class='info'><i class='fa fa-fw fa-toggle-down control' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up control' $ctrl2></i><span>$help2</span></a></td>";
-  echo "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>"._($text,1)."</td>";
+  echo "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>$text</td>";
   echo "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
   echo "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
