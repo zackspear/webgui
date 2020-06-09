@@ -15,7 +15,6 @@ Cond="glob('/boot/config/plugins-stale/*.plg')"
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
