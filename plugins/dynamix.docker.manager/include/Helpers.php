@@ -12,12 +12,6 @@
  */
 ?>
 <?
-// add translations
-if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
-  $_SERVER['REQUEST_URI'] = 'docker';
-  require_once "$docroot/webGui/include/Translations.php";
-}
-
 function xml_encode($string) {
   return htmlspecialchars($string, ENT_XML1, 'UTF-8');
 }

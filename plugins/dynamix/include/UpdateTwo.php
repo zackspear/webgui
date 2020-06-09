@@ -93,7 +93,6 @@ case 'vm':
 case 'ct':
   // update docker container
   require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-  require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
   $DockerClient = new DockerClient();
   $DockerTemplates = new DockerTemplates();
   // get available networks
