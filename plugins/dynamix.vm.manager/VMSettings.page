@@ -203,8 +203,7 @@ _(VFIO allow unsafe interrupts)_:
 
 </div>
 <?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
-<?$viewlog = _('Libvirt Log')?>
-<input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','<?=$viewlog?>',600,900);" value="_(View libvirt log)_"/>
+<input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','<?=_('Libvirt Log')?>',600,900);" value="<?=_('View libvirt log')?>"/>
 <?else:?>
 &nbsp;
 <?endif;?>
