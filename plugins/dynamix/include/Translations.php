@@ -27,8 +27,7 @@ function _($text, $do=-1) {
     return $text;
   case 1: // number translation
     parse_array($language['Numbers_array'],$numbers);
-    foreach ($numbers as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
-    return $text;
+    return $numbers[$text] ?? $text;
   case 2: // time translation
     $keys = ['days','hours','minutes','seconds','day','hour','minute','second'];
     foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
