@@ -120,10 +120,10 @@ function device_desc(&$disk) {
 }
 function assignment(&$disk) {
   global $var, $devs;
-  $out = "<form method='POST' name=\"{$disk['name']}Form\" action='/update.htm' target='progressFrame'>";
+  $out = "<form method='POST' id=\"{$disk['name']}Form\" action='/update.htm' target='progressFrame'>";
   $out .= "<input type='hidden' name='changeDevice' value='apply'>";
   $out .= "<input type='hidden' name='csrf_token' value='{$var['csrf_token']}'>";
-  $out .= "<select class=\"slot\" name=\"slotId.{$disk['idx']}\" onChange=\"{$disk['name']}Form.submit()\">";
+  $out .= "<select class='slot' name='slotId.{$disk['idx']}' onChange='\$(\"#{$disk['name']}Form\").submit()'>";
   $empty = $disk['idSb']!='' ? _('no device') : _('unassigned');
   if ($disk['id']!='') {
     $out .= "<option value=\"{$disk['id']}\" selected>".device_desc($disk)."</option>";
