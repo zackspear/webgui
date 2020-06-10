@@ -181,7 +181,7 @@ function day_count($time) {
   case ($days==1):
     return " <span class='green-text'>("._('yesterday').")</span>";
   case ($days<=31):
-    return " <span class='green-text'>(".sprintf(_('%s days ago'),_(my_word($days),1)).")</span>";
+    return " <span class='green-text'>(".sprintf(_('%s days ago'),my_word($days)).")</span>";
   case ($days<=61):
     return " <span class='orange-text'>(".sprintf(_('%s days ago'),$days).")</span>";
   case ($days>61):
