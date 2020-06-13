@@ -313,7 +313,7 @@ function formatWarning(val) {
         if ($var['mdResyncAction']=="check"):?>
           <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Read-Check** of all array disks)_.</td></tr>
 <?      elseif (strstr($var['mdResyncAction'],"check")):?>
-          <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;&nbsp;<a href="/Main/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
+          <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>_(Write corrections to parity)_</small></td></tr>
 <?      endif;?>
         <tr><td></td><td><input type="button" value="_(History)_" onclick="openBox('/webGui/include/ParityHistory.php','<?=_('Parity/Read-Check History')?>',600,900,false)"></td>
@@ -527,7 +527,7 @@ function formatWarning(val) {
 <?if ($mover):?>
  <td><input type="submit" name="cmdStartMover" value="_(Move)_" disabled></td><td>_(Disabled)_ - _(Mover is running)_.</td>
 <?else:?>
- <td><input type="submit" name="cmdStartMover" value="_(Move)_"></td><td>**_(Move)_** _(will immediately invoke the Mover)_.&nbsp;&nbsp;<a href="/Main/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab2',{path:'/'})"<?endif;?>>(_(Schedule)_)</a></td>
+ <td><input type="submit" name="cmdStartMover" value="_(Move)_"></td><td>**_(Move)_** _(will immediately invoke the Mover)_.&nbsp;&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab2',{path:'/'})"<?endif;?>>(_(Schedule)_)</a></td>
 <?endif;?>
  </tr>
 </table>
