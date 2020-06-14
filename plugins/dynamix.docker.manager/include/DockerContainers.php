@@ -48,13 +48,20 @@ $menu = [];
 $autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
 $names = array_map('var_split', $autostart);
 
+function my_lang_time($text) {
+  [$number, $text] = explode(' ',$text,2);
+  return sprintf(_("%s $text"),$number);
+}
 function my_lang_log($text) {
   global $language;
   if (isset($language['healthy'])) $text = str_replace('healthy',$language['healthy'],$text);
   if (isset($language['Exited'])) $text = str_replace('Exited',$language['Exited'],$text);
-  return _(_(_($text),2),0);
+  if (strpos($text,'ago')!==false) {
+    [$t1,$t2] = explode(') ',$text);
+    return $t1.'): '.my_lang_time($t2);
+  }
+  return _(_($text),2);
 }
-
 foreach ($containers as $ct) {
   $name = $ct['Name'];
   $id = $ct['Id'];
@@ -135,7 +142,7 @@ foreach ($containers as $ct) {
   echo "<td><input type='checkbox' id='$id-auto' class='autostart' container='".htmlspecialchars($name)."'".($info['autostart'] ? ' checked':'').">";
   echo "<span id='$id-wait' style='float:right;display:none'>"._('wait')."<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title=\""._('seconds')."\"></span></td>";
   echo "<td><a class='log' onclick=\"containerLogs('".addslashes(htmlspecialchars($name))."','$id',false,false)\"><img class='basic' src='/plugins/dynamix/icons/log.png'><div class='advanced'>";
-  echo htmlspecialchars(str_replace('Up',_('Uptime'),my_lang_log($ct['Status'])))."</div><div class='advanced' style='margin-top:4px'>"._('Created')." ".htmlspecialchars(_($ct['Created'],0))."</div></a></td></tr>";
+  echo htmlspecialchars(str_replace('Up',_('Uptime').':',my_lang_log($ct['Status'])))."</div><div class='advanced' style='margin-top:4px'>"._('Created').": ".htmlspecialchars(my_lang_time($ct['Created']))."</div></a></td></tr>";
 }
 foreach ($images as $image) {
   if (count($image['usedBy'])) continue;
