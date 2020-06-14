@@ -270,6 +270,12 @@ if (file_exists($graphql)) {
   $log = "/$diag/logs/graphql-api.txt";
   exert("todos <$graphql >".escapeshellarg($log));
 }
+// copy vfio-pci log
+$vfiopci = "/var/log/vfio-pci";
+if (file_exists($vfiopci)) {
+  $log = "/$diag/logs/vfio-pci.txt";
+  exert("todos <$vfiopci >".escapeshellarg($log));
+}
 // create resulting zip file and remove temp folder
 exert("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
 if ($cli) echo "done.\nZIP file '$zip' created.\n";
