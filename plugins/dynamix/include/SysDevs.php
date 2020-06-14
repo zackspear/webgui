@@ -159,7 +159,7 @@ case 't1':
         $append = false;
       }
     }
-    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
+    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" disabled value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
   }
   break;
 case 't2':
@@ -192,5 +192,6 @@ $("input[type='checkbox']").change(function() {
   for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
     matches[i].checked = this.checked ? true : false;
   }
+  document.getElementById("applycfg").disabled=false;
 });
 </script>
