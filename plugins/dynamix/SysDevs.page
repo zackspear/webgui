@@ -53,7 +53,12 @@ function applyCfg() {
 }
 </script>
 
+<?exec('ls /sys/kernel/iommu_groups/',$groups); ?>
+<?if (count($groups) > 0):?>
 **_(PCI Devices and IOMMU Groups)_**
+<?else:?>
+**_(PCI Devices (No IOMMU Groups Available))_**
+<?endif;?>
 
 :sysdevs_iommu_groups_help:
 
