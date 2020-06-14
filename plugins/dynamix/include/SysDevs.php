@@ -26,20 +26,24 @@ case 't1':
     foreach ($lspci as $line) echo "<tr><td>".$iommu[$i++]."</td><td>$line</td></tr>";
     $noiommu = true;
   } else {
+    $BDF_VD_REGEX = '/^[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]](\|[[:xdigit:]]{4}:[[:xdigit:]]{4})?$/';
+    $DBDF_VD_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]](\|[[:xdigit:]]{4}:[[:xdigit:]]{4})?$/';
     $BDF_REGEX = '/^[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]$/';
-    $DBDF_REGEX = '/^[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]$/';
     $DBDF_PARTIAL_REGEX = '/[[:xdigit:]]{4}:[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]]/';
     $vfio_cfg_devices = array ();
     if (is_file("/boot/config/vfio-pci.cfg")) {
+      // accepts space-separated list of <Bus:Device.Function> or <Domain:Bus:Device.Function> followed by an optional "|" and <Vendor:Device>
+      // example: BIND=03:00.0 0000:03:00.0 03:00.0|8086:1533 0000:03:00.0|8086:1533
+      // this front-end does not accept <Vendor:Device> by itself, altough the underlying vfio-pci script does
       $file = file_get_contents("/boot/config/vfio-pci.cfg");
       $file = trim(str_replace("BIND=", "", $file));
       $file_contents = explode(" ", $file);
       foreach ($file_contents as $vfio_cfg_device) {
-        if (preg_match($BDF_REGEX, $vfio_cfg_device)) {
-          // only <Bus:Device.Function> was provided, assume Domain is 0000
+        if (preg_match($BDF_VD_REGEX, $vfio_cfg_device)) {
+          // only <Bus:Device.Function> was provided, assume Domain is 0000 (may be followed by optional <Vendor:Device> too)
           $vfio_cfg_devices[] = "0000:".$vfio_cfg_device;
-        } else if (preg_match($DBDF_REGEX, $vfio_cfg_device)) {
-          // full <Domain:Bus:Device.Function> was provided
+        } else if (preg_match($DBDF_VD_REGEX, $vfio_cfg_device)) {
+          // full <Domain:Bus:Device.Function> was provided (may be followed by optional <Vendor:Device> too)
           $vfio_cfg_devices[] = $vfio_cfg_device;
         } else {
           // entry in wrong format, discard
@@ -92,9 +96,10 @@ case 't1':
         $append = true;
       } else {
         $line = preg_replace("/^\t/","",$line);
+        $vd = trim(explode(" ", $line)[0], "[]");
         $pciaddress = explode(" ", $line)[1];
         if (preg_match($BDF_REGEX, $pciaddress)) {
-          // only <Bus:Device.Function> was provided, assume Domain is 0000
+          // By default lspci does not output the <Domain> when the only domain in the system is 0000. Add it back.
           $pciaddress = "0000:".$pciaddress;
         }
         echo ($append)?"":"<tr><td></td><td>";
@@ -107,8 +112,9 @@ case 't1':
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
           if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\""._('Function Level Reset (FLR) supported').".\"></i>";
           echo "</td><td>";
-          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="'._('In use by Unraid').'" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress.'" ';
-          echo in_array($pciaddress, $vfio_cfg_devices) ? " checked>" : ">";
+          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="'._('In use by Unraid').'" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress."|".$vd.'" ';
+          // check config file for two formats: <Domain:Bus:Device.Function>|<Vendor:Device> or just <Domain:Bus:Device.Function>
+          echo (in_array($pciaddress."|".$vd, $vfio_cfg_devices) || in_array($pciaddress, $vfio_cfg_devices)) ? " checked>" : ">";
         } else { echo "</td><td>"; }
         echo '</td><td title="';
         foreach ($outputvfio as $line2) echo "$line2&#10;";
