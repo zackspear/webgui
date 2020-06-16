@@ -56,6 +56,16 @@ function parse_file($file,$markdown=true) {
   // replacement of PHP include function
   return $markdown ? Markdown(parse_text(file_get_contents($file))) : parse_text(file_get_contents($file));
 }
+function parse_plugin($plugin) {
+  // parse and add plugin related translations
+  global $docroot,$language,$locale;
+  $text = "$docroot/languages/$locale/$plugin.txt";
+  if (file_exists($text)) {
+    $store = "$docroot/languages/$locale/$plugin.dot";
+    if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+    $language = array_merge($language,unserialize(file_get_contents($store)));
+  }
+}
 
 // internal helper functions
 function parse_array($text,&$array) {
@@ -120,9 +130,9 @@ foreach($uri as $more) {
   $text = "$docroot/languages/$locale/$more.txt";
   if (file_exists($text)) {
     // additional translations
-    $other = "$docroot/languages/$locale/$more.dot";
-    if (!file_exists($other)) file_put_contents($other,serialize(parse_lang_file($text)));
-    $language = array_merge($language,unserialize(file_get_contents($other)));
+    $store = "$docroot/languages/$locale/$more.dot";
+    if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+    $language = array_merge($language,unserialize(file_get_contents($store)));
   }
 }
 // help text
@@ -130,5 +140,5 @@ if (!file_exists($help)) file_put_contents($help,serialize(parse_help_file($root
 $language = array_merge($language,unserialize(file_get_contents($help)));
 
 // remove unused variables
-unset($return,$jscript,$root,$help,$store,$uri,$more,$text,$other);
+unset($return,$jscript,$root,$help,$store,$uri,$more,$text);
 ?>
