@@ -59,6 +59,7 @@ function parse_file($file,$markdown=true) {
 function parse_plugin($plugin) {
   // parse and add plugin related translations
   global $docroot,$language,$locale;
+  $plugin = strtolower($plugin);
   $text = "$docroot/languages/$locale/$plugin.txt";
   if (file_exists($text)) {
     $store = "$docroot/languages/$locale/$plugin.dot";
