@@ -64,7 +64,9 @@ function saveFontSize() {
   $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
 }
 function updateDirection(lang) {
-  var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
+  // var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
+  // RTL display is not giving the desired results, we keep LTR
+  var rtl = "";
   $('input[name="rtl"]').val(rtl);
 }
 
