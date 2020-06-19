@@ -168,7 +168,7 @@ span.inner{width:<?=$theme1?153:140?>px}
 span.ups{width:200px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
-span#load{width:90px;display:inline-block}
+span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
 i.heat{margin-left:8px}
