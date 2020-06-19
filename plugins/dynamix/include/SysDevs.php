@@ -159,7 +159,24 @@ case 't1':
         $append = false;
       }
     }
-    echo '<tr><td></td><td></td><td></td><td></td><td><br><input id="applycfg" type="submit" disabled value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'><span id="warning"></span></td></tr>';
+    echo '<tr><td></td><td></td><td></td><td></td><td><br>';
+    if (file_exists("/var/log/vfio-pci") && filesize("/var/log/vfio-pci")) {
+      echo '<input id="viewlog" type="button" value="'._('View VFIO-PCI Log').'" onclick="openBox(\'/webGui/scripts/vfio_log\',\''._('VFIO-PCI Log').'\',600,600);">';
+    }
+    echo '<input id="applycfg" type="submit" disabled value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'>';
+    echo '<span id="warning"></span>';
+    echo '</td></tr>';
+    echo <<<EOT
+<script>
+$("#t1 input[type='checkbox']").change(function() {
+  var matches = document.querySelectorAll("." + this.className);
+  for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
+    matches[i].checked = this.checked ? true : false;
+  }
+  $("#applycfg").attr("disabled", false);
+});
+</script>
+EOT;
   }
   break;
 case 't2':
@@ -186,12 +203,3 @@ case 't4':
   break;
 }
 ?>
-<script>
-$("input[type='checkbox']").change(function() {
-  var matches = document.querySelectorAll("." + this.className);
-  for (var i=0, len=matches.length|0; i<len; i=i+1|0) {
-    matches[i].checked = this.checked ? true : false;
-  }
-  document.getElementById("applycfg").disabled=false;
-});
-</script>
