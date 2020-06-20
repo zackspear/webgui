@@ -14,6 +14,8 @@
 session_start();
 session_write_close();
 
+require_once "$docroot/webGui/include/Markdown.php";
+
 function _($text, $do=-1) {
   // PHP translation function _
   global $language;
