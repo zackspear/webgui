@@ -48,7 +48,7 @@ function in_parity_log($log,$timestamp) {
 function device_info(&$disk,$online) {
   global $pools, $path, $var, $crypto;
   $name = $disk['name'];
-  $fancyname = $disk['type']=='New' ? $name : _(my_disk($name),3);
+  $fancyname = $disk['type']=='New' ? $name : compress(_(my_disk($name),3),14,5);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
   switch ($disk['color']) {
@@ -72,7 +72,7 @@ function device_info(&$disk,$online) {
           ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
           ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
           ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
-           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">".compress($fancyname,12,5)."</a>" : compress($fancyname,12,5);
+           $disk['type']=='New' ? "<a href=\"".htmlspecialchars("$path/$type?name=$name")."\">$fancyname</a>" : $fancyname;
   if ($crypto) switch ($disk['luksState']) {
     case 0:
       if (!vfs_luks($disk['fsType']))
