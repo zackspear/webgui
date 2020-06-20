@@ -119,7 +119,7 @@ $(function(){
     url:'/webGui/include/FileUpload.php',
     data:{"csrf_token":"<?=$var['csrf_token']?>"},
     beforeEach:function(file) {
-      if (!file.type.match(/^image\/png/)) {
+      if (!file.type.match(/^image\/\*/)) {
         swal({title:"Warning",text:"_(Only PNG images are allowed)_!",type:"warning",confirmButtonText:"_(Ok)_"});
         return false;
       }
@@ -133,7 +133,7 @@ $(function(){
         swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512 kB (524,288 bytes))_",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K (524,288 bytes))_",type:"error",confirmButtonText:"_(Ok)_"});
         break;
       }
     },
@@ -180,7 +180,7 @@ _(Custom image)_:
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept=".png" style="display:none">
+  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept="image/*" style="display:none">
 
 :user_edit_custom_image_help:
 
