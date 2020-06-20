@@ -79,7 +79,7 @@ $(function() {
     data: {"csrf_token": "<?=$var['csrf_token']?>"},
     url:'/webGui/include/FileUpload.php',
     beforeEach:function(file) {
-      if (!file.type.match(/^image\/\*/)) {
+      if (!file.type.match(/^image\/*/)) {
         swal({title:"_(Warning)_",text:"_(Only PNG images are allowed)_!",type:"warning",confirmButtonText:"_(Ok)_"});
         return false;
       }
