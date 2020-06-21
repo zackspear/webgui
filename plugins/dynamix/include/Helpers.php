@@ -16,10 +16,10 @@ require_once "$docroot/webGui/include/Wrappers.php";
 
 // Helper functions
 function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
-  global $display;
+  global $display,$language;
   $scale = $scale ?? $display['scale'];
   $number = $display['number'] ?? '.,';
-  $units = ['B','KB','MB','GB','TB','PB','EB','ZB','YB'];
+  $units = explode(' ', ' '.($kilo==1000 ? ($language['prefix_SI'] ?? 'K M G T P E Z Y') : ($language['prefix_IEC'] ?? 'Ki Mi Gi Ti Pi Ei Zi Yi')));
   $size = count($units);
   if ($scale==0 && ($decimals===NULL || $decimals<0)) {
     $decimals = 0;
@@ -32,7 +32,7 @@ function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
     if ($decimals===NULL) $decimals = $value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100===0 ? 0 : 2));
     elseif ($decimals<0) $decimals = $value>=100||round($value*10)%10===0 ? 0 : abs($decimals);
     if ($scale<0 && round($value,-1)==1000) {$value = 1; $base++;}
-    $unit = $kilo!=1024 ? $units[$base] : preg_replace('/^(.)B$/','$1iB',$units[$base]);
+    $unit = $units[$base]._('B');
   }
   return number_format($value, $decimals, $number[0], $value>9999 ? $number[1] : '');
 }
@@ -177,7 +177,7 @@ function day_count($time) {
   case ($days<0):
     return;
   case ($days==0):
-    return " <span class='green-text'>(".('today').")</span>";
+    return " <span class='green-text'>("._('today').")</span>";
   case ($days==1):
     return " <span class='green-text'>("._('yesterday').")</span>";
   case ($days<=31):

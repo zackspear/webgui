@@ -17,7 +17,7 @@ $match =
   'text'  => ['to the standard error','non[ -]fatal error','correct gpt errors','error handler\b','(kernel|logger): [|+ #-.]','logger: (naming|log)','tainted: (host-cpu|high-privileges)','root: (>f|cd)\+\+\+\+','root: \.d\.\.t\.']
  ],
  ['class' => 'login',
-  'text'  => ['(accepted|failed) password','sshd\[\d+\]:']
+  'text'  => ['(accepted|failed) password','sshd\[\d+\]:',' login user ']
  ],
  ['class' => 'warn',
   'text'  => ['\b(warning|conflicts|kill|failed|checksum|spurious|replayed|preclear_disk)\b','acpi (error|exception)','\b(soft|hard) resetting ','\<errno=[^0]','host protected area','invalid signature','limiting speed to','duplicate (object|error)\b','power is back','gpt:partition_entry','no floppy controller']

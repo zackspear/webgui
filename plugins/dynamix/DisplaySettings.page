@@ -64,7 +64,9 @@ function saveFontSize() {
   $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
 }
 function updateDirection(lang) {
-  var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
+  // var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
+  // RTL display is not giving the desired results, we keep LTR
+  var rtl = "";
   $('input[name="rtl"]').val(rtl);
 }
 
@@ -77,7 +79,7 @@ $(function() {
     data: {"csrf_token": "<?=$var['csrf_token']?>"},
     url:'/webGui/include/FileUpload.php',
     beforeEach:function(file) {
-      if (!file.type.match(/^image\/png/)) {
+      if (!file.type.match(/^image\/.*/)) {
         swal({title:"_(Warning)_",text:"_(Only PNG images are allowed)_!",type:"warning",confirmButtonText:"_(Ok)_"});
         return false;
       }
@@ -91,7 +93,7 @@ $(function() {
         swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512 kB)_ (524,288 _(bytes)_)",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K)_ (524,288 _(bytes)_)",type:"error",confirmButtonText:"_(Ok)_"});
         break;
       }
     },
@@ -260,7 +262,7 @@ _(Custom banner)_:
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_.</em><input type="file" id="drop" accept=".png" style="display:none">
+  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_.</em><input type="file" id="drop" accept="image/*" style="display:none">
 </div>
 
 :display_custom_banner_help:
