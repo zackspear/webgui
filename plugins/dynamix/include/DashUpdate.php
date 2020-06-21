@@ -125,10 +125,10 @@ function device_name(&$disk, $array) {
     $name = my_disk($disk['name']);
     [$p1,$p2] = explode(' ',$name);
     $name = _($p1).($p2?" $p2":"");
-    return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("$path/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
+    return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("$path/Main/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
   } else {
     $name = $disk['device'];
-    return "<i class='icon-disk'></i> <a href=\"".htmlspecialchars("$path/New?name=$name")."\" title=\"$name settings\">$name</a>";
+    return "<i class='icon-disk'></i> <a href=\"".htmlspecialchars("$path/Main/New?name=$name")."\" title=\"$name settings\">$name</a>";
   }
 }
 function device_status(&$disk, $array, &$error, &$warning) {

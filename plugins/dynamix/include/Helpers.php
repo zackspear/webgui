@@ -44,7 +44,7 @@ function my_number($value) {
 function my_time($time, $fmt=NULL) {
   global $display;
   if (!$fmt) $fmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
-  return $time ? strftime($fmt, $time) : "unknown";
+  return $time ? strftime($fmt, $time) : _('unknown');
 }
 function my_temp($value) {
   global $display;
@@ -140,7 +140,7 @@ function my_check($time, $speed) {
 function my_error($code) {
   switch ($code) {
   case -4:
-    return "<em>aborted</em>";
+    return "<em>"._('aborted')."</em>";
   default:
     return "<strong>$code</strong>";
   }
