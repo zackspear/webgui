@@ -16,7 +16,6 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $_SERVER['REQUEST_URI'] = 'plugins';
 require_once "$docroot/webGui/include/Translations.php";
 
-require_once "$docroot/webGui/include/Markdown.php";
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 ?>
