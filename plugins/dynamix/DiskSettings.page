@@ -93,14 +93,6 @@ _(Enable spinup groups)_:
 
 :disk_spinup_groups_help:
 
-_(Default partition format)_:
-: <select name="defaultFormat" size="1">
-  <?=mk_option($var['defaultFormat'], "1", _('MBR: unaligned'))?>
-  <?=mk_option($var['defaultFormat'], "2", _('MBR: 4K-aligned'))?>
-  </select>
-
-:disk_default_partition_format_help:
-
 _(Default file system)_:
 : <select name="defaultFsType" size="1">
   <?=mk_option($var['defaultFsType'], "xfs", _('xfs'));?>
