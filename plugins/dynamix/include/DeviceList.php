@@ -24,9 +24,11 @@ $devs  = (array)parse_ini_file('state/devs.ini',true);
 $disks = (array)parse_ini_file('state/disks.ini',true);
 $sec   = (array)parse_ini_file('state/sec.ini',true);
 $diskio= @(array)parse_ini_file('state/diskload.ini');
-$sum   = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 extract(parse_plugin_cfg('dynamix',true));
 
+function initSum() {
+  return ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
+}
 function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
@@ -351,6 +353,7 @@ function cache_slots($off,$pool,$min,$slots) {
 }
 $crypto = false;
 $pools  = pools_filter($disks);
+$sum    = initSum();
 switch ($_POST['device']) {
 case 'array':
   $parity = parity_filter($disks);
@@ -406,7 +409,7 @@ case 'cache':
           array_online($disk);
         }
         if ($display['total'] && $cache[$pool]['devices']>1) show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false,"$pool*");
-        $sum = ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
+        $sum = initSum();
         echo "\0";
       }
       @unlink($tmp);
