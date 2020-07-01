@@ -1096,11 +1096,13 @@
 		}
 		// settings not in the GUI, but maybe customized
 		unset($new['memoryBacking'], $new['clock'], $new['features']);
+		// preserve vnc port settings
+		unset($new['devices']['graphics']);
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);
 		if (!$new['devices']['hostdev']) unset($new['devices']['hostdev']);
 		// remove existing auto-generated settings
-		unset($old['cputune']['vcpupin'],$old['devices']['graphics'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['cpu']['@attributes'],$old['os']['boot']);
+		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['cpu']['@attributes'],$old['os']['boot']);
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}
