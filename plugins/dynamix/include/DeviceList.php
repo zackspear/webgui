@@ -50,7 +50,7 @@ function in_parity_log($log,$timestamp) {
 function device_info(&$disk,$online) {
   global $pools, $path, $var, $crypto;
   $name = $disk['name'];
-  $fancyname = $disk['type']=='New' ? $name : compress(_(my_disk($name),3),14,5);
+  $fancyname = $disk['type']=='New' ? $name : compress(_(my_disk($name),3),15,5);
   $type = $disk['type']=='Flash' || $disk['type']=='New' ? $disk['type'] : 'Device';
   $action = strpos($disk['color'],'blink')===false ? 'down' : 'up';
   switch ($disk['color']) {
