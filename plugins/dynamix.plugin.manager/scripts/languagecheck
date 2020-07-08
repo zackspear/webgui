@@ -30,11 +30,11 @@ $tmp     = '/tmp/plugins';
 $plugins = '/var/log/plugins';
 
 language('checkall');
-foreach (glob("/$tmp/dynamix.*.xml", GLOB_NOSORT) as $file) {
-  $name = str_replace('dynamix.', '', basename($file));
+foreach (glob("/$tmp/lang-*.xml", GLOB_NOSORT) as $file) {
+  $name = basename($file);
   $lang = language('Language', $file);
   $new  = language('Version', $file);
-  $old  = language('Version', "$plugins/dynamix.$name");
+  $old  = language('Version', "$plugins/$name");
   // silently suppress bad download of XML file
   if (strcmp($new, $old) > 0) {
     exec("$notify -e ".escapeshellarg("Language - $lang [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $lang is available")." -i ".escapeshellarg("normal $output")." -x");
