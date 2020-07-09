@@ -13,22 +13,19 @@
 ?>
 <?
 
+session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
+$var     = parse_ini_file('/var/local/emhttp/var.ini');
 $unraid  = parse_plugin_cfg('dynamix', true);
 
 // Multi-language support
-if (!function_exists('_')) {
-  session_start();
-  $_SESSION['locale'] = $unraid['display']['locale'];
-  $_SERVER['REQUEST_URI'] = "plugins";
-  session_write_close();
-  require_once "$docroot/webGui/include/Translations.php";
-}
-
-$var     = parse_ini_file('/var/local/emhttp/var.ini');
+$_SESSION['locale'] = $unraid['display']['locale'];
+$_SERVER['REQUEST_URI'] = "scripts";
+require_once "$docroot/webGui/include/Translations.php";
 
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['language_notify'];
