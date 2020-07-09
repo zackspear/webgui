@@ -173,7 +173,7 @@ _(Share status)_:
 :share_edit_status_help:
 
 _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=="_(Delete)_")this.value='Delete';else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?else:?>
 _(Share status)_:
 : _(Share contains data)_
