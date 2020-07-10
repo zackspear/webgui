@@ -49,10 +49,9 @@ function dmidecode($key,$n,$all=true) {
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <style>
-span.key{width:92px;display:inline-block;font-weight:bold}
+span.key{width:104px;display:inline-block;font-weight:bold}
 span.key.link{text-decoration:underline;cursor:pointer}
 div.box{margin-top:8px;line-height:30px;margin-left:40px}
-div.dimm_info{margin-left:96px}
 div.closed{display:none}
 </style>
 <script src="<?autov('/webGui/javascript/translate.'.($locale?:'en').'.js')?>"></script>
@@ -199,7 +198,7 @@ echo "$memory_installed $unit $memory_type $ecc("._('max. installable capacity')
 foreach ($memory_devices as $device) {
   if ($device['Type']=='Unknown') continue;
   $size = preg_replace('/( .)B$/','$1iB',$device['Size']);
-  echo "<div>{$device['Manufacturer']} {$device['Part Number']}, {$size} {$device['Type']} @ {$device['Configured Memory Speed']}</div>";
+  echo "<span class=\"key\"></span> {$device['Manufacturer']} {$device['Part Number']}, {$size} {$device['Type']} @ {$device['Configured Memory Speed']}";
 }
 ?>
 </div>
@@ -229,14 +228,18 @@ foreach ($sPorts as $port) {
 ?>
 </div>
 <div><span class="key"><?=_('Kernel')?>:</span>
-<?$kernel = exec("uname -srm");
-  echo $kernel;
-?></div>
+<?
+$kernel = exec("uname -srm");
+echo $kernel;
+?>
+</div>
 <div><span class="key"><?=_('OpenSSL')?>:</span>
-<?$openssl_ver = exec("openssl version|cut -d' ' -f2");
-  echo $openssl_ver;
-?></div>
-<div><span class="key"><?=_('Uptime')?>:</span>&nbsp;<span id="uptime"></span></div>
+<?
+$openssl_ver = exec("openssl version|cut -d' ' -f2");
+echo $openssl_ver;
+?>
+</div>
+<div><span class="key"><?=_('Uptime')?>:</span> <span id="uptime"></span></div>
 <div style="margin-top:24px;margin-bottom:12px"><span class="key"></span>
 <input type="button" value="<?=_('Close')?>" onclick="top.Shadowbox.close()">
 <?if ($_GET['more']):?>

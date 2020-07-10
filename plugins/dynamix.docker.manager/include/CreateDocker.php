@@ -271,6 +271,7 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 <style>
 .noshow,.advanced{display:none}
 .fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;display:none;background:<?=$bgcolor?>}
+.required:after{content:" *";color:#E80000}
 span.boxed{display:inline-block;line-height:normal;white-space:normal;width:56%}
 span.cpu,label.checkbox{display:inline-block;width:32px}
 span.ct{display:inline-block;width:230px}
@@ -978,17 +979,6 @@ _(Password Mask)_:
 </div>
 
 <div markdown="1" id="templateDisplayConfig" style="display:none">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-<body>
 <input type="hidden" name="confName[]" value="{0}">
 <input type="hidden" name="confTarget[]" value="{1}">
 <input type="hidden" name="confDefault[]" value="{2}">
@@ -998,10 +988,8 @@ _(Password Mask)_:
 <input type="hidden" name="confDisplay[]" value="{6}">
 <input type="hidden" name="confRequired[]" value="{7}">
 <input type="hidden" name="confMask[]" value="{8}">
-{0}:
+<span class="{11}">{0}:</span>
 : <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class="orange-text">{4}</span></span>
-</body>
-</html>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">

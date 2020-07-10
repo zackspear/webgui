@@ -61,7 +61,7 @@ foreach ($custom as $network) {
   $gw6 = exec("ip -6 route show dev $network default|awk '{print $3}'");
   $route4 = exec("ip -4 route show dev $network $ip4|awk '{print $1}'");
   $route6 = exec("ip -6 route show dev $network $ip6|awk '{print $1}'");
-  list($eth,$vlan) = explode('.',$network);
+  [$eth,$vlan] = explode('.',$network);
   $eth = str_replace(['bond','br'],'eth',$eth);
   if (!$vlan) {
     $protocol[$network] = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -93,12 +93,12 @@ function normalize($network) {
   return strtoupper(str_replace('.','_',$network));
 }
 function base_min($route) {
-  list($net,$mask) = explode('/',$route);
+  [$net,$mask] = explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip((ip2long($net)>>$mask)<<$mask));
 }
 function base_max($route) {
-  list($net,$mask) = explode('/',$route);
+  [$net,$mask] = explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip(((ip2long($net)>>$mask)<<$mask)+pow(2,$mask)-1));
 }
@@ -127,6 +127,7 @@ span.ip4{display:inline-block;width:260px}
 span.ip6{display:inline-block;width:310px}
 span.gw4{display:inline-block;width:200px}
 span.gw6{display:inline-block;width:270px}
+
 <?if (strstr('white,azure',$display['theme'])):?>
 span.disabled{color:#B0B0B0}
 <?else:?>
@@ -163,9 +164,11 @@ _(Docker vDisk size)_:
 :docker_vdisk_size_help:
 
 _(Docker vDisk location)_:
-: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/disk1/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" pattern="^[^\\]*\.(img|IMG)$">
-  <?if (file_exists($dockercfg['DOCKER_IMAGE_FILE'])):?>
+: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/user/" data-pickfolders="true" required="required" pattern="^[^\\]*(docker-xfs\.img|docker\.img|/)$">
+  <?if (is_file($dockercfg['DOCKER_IMAGE_FILE'])):?>
   <span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox"> _(Delete Image File)_</label></span>
+  <?elseif (is_dir($dockercfg['DOCKER_IMAGE_FILE'])):?>
+  <span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox"> _(Delete Image Folder)_</label></span>
   <?endif;?>
   <?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
@@ -302,8 +305,8 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-list($subnet,$mask) = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
-list($range,$size) = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
+[$subnet,$mask] = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
+[$range,$size] = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
 $disabled = $subnet ? '':'disabled';
 $dhcpDisabled = $range ? '':'disabled';
 ?>
@@ -370,8 +373,8 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-list($subnet6,$mask6) = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
-list($range6,$size6) = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
+[$subnet6,$mask6] = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
+[$range6,$size6] = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
 $disabled = $subnet6 ? '':'disabled';
 $dhcpDisabled = $range6 ? '':'disabled';
 ?>
@@ -444,7 +447,7 @@ _(IPv4 custom network on interface)_ <?=$network?>:
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-list($eth,$vlan) = explode('.',$network);
+[$eth,$vlan] = explode('.',$network);
 $eth = str_replace(['bond','br'],'eth',$eth);
 if (!$vlan) {
   $protocol = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -453,8 +456,8 @@ if (!$vlan) {
     if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = $$eth[str_replace('VLANID','PROTOCOL',$key)] ?? 'ipv4'; break;}
   }
 }
-list($subnet,$mask) = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
-list($range,$size) = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
+[$subnet,$mask] = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
+[$range,$size] = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
 ?>
 <?if ($protocol != 'ipv6' && $subnet):?>
 _(IPv4 custom network on interface)_ <?=$network?>:
@@ -480,7 +483,7 @@ _(IPv6 custom network on interface)_ <?=$network?>:
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-list($eth,$vlan) = explode('.',$network);
+[$eth,$vlan] = explode('.',$network);
 $eth = str_replace(['bond','br'],'eth',$eth);
 if (!$vlan) {
   $protocol = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -489,8 +492,8 @@ if (!$vlan) {
     if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = $$eth[str_replace('VLANID','PROTOCOL',$key)] ?? 'ipv4'; break;}
   }
 }
-list($subnet6,$mask6) = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
-list($range6,$size6) = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
+[$subnet6,$mask6] = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
+[$range6,$size6] = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
 ?>
 <?if ($protocol != 'ipv4' && $subnet6):?>
 _(IPv6 custom network on interface)_ <?=$network?>:
@@ -510,7 +513,7 @@ _(IPv6 custom network on interface)_ <?=$network?>:
   <input type="hidden" name="#command" value="/plugins/dynamix.docker.manager/scripts/docker_rm">
 </form>
 
-<?if (!$DockerStopped):?>
+<?if (!$DockerStopped && exec("findmnt --output FSTYPE --noheadings /var/lib/docker")=='btrfs'):?>
 <div markdown="1" class="advanced">
 <div id="title"><span class="left"><i class="title fa fa-address-card-o"></i>_(Docker volume info)_</span></div>
 _(btrfs filesystem show)_:
@@ -553,7 +556,7 @@ function prepareDocker(form) {
   $(form).find('input[type="text"]').each(function(){
     if ($(this).attr('pattern')) {
       var pattern = new RegExp($(this).attr('pattern'));
-      if (!pattern.test($(this).val())) {$(this).css('color','red'); bye = true;}
+      if (!pattern.test($(this).val())) {$(this).css('color','red').attr('title',"_(Use image name docker.img or docker-xfs.img or select a folder)_"); bye = true;}
     }
   });
   if (bye) return false;
