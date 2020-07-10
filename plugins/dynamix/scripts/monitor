@@ -133,7 +133,10 @@ function check_smart($name,$port,$text,$info) {
     }
   }
   $file .= '.ssa';
-  if (!file_exists($file) || (time()-filemtime($file)>$var['poll_attributes'])) exec("smartctl -n standby -H $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '^SMART.*: \K[A-Z]+'|tr -d '\n' >".escapeshellarg($file));
+  if (!file_exists($file) || (time()-filemtime($file)>$var['poll_attributes'])) {
+    $idle = exec("hdparm -C /dev/$port|grep -o 'active'");
+    if ($idle) exec("smartctl -H $type /dev/$port|grep -Pom1 '^SMART.*: \K[A-Z]+'|tr -d '\n' >".escapeshellarg($file));
+  }
 }
 function check_usage($name,$used,$text,$info) {
   global $notify,$disks,$saved,$display,$server;
