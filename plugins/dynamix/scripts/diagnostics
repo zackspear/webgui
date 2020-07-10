@@ -30,7 +30,6 @@ function exert($cmd, &$save=null) {
 function shareDisks($share) {
   return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/usr/local/emhttp/mnt/user/$share")." 2>/dev/null") ?: "no drives";
 }
-
 function anonymize($text,$select) {
   global $all;
   if ($all) return $text;
@@ -55,6 +54,18 @@ function anonymize($text,$select) {
     }
     return dirname($text)."/$name.cfg";
   }
+}
+function prefix($key) {
+  return preg_replace('/\d+$/','',$key);
+}
+function cache_only($disk) {
+  return $disk['type']=='Cache';
+}
+function cache_filter($disks) {
+  return array_filter($disks,'cache_only');
+}
+function pools_filter($disks) {
+  return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
 }
 
 if ($cli) {
@@ -197,9 +208,12 @@ foreach ($devices as $device) {
   $status = $find['status'] == "DISK_OK" ? "" : " - {$find['status']}";
   exert("smartctl -x $type ".escapeshellarg("/dev/$port")." 2>/dev/null|todos >".escapeshellarg("/$diag/smart/$name-$date $diskName ($port)$status.txt"));
 }
-// create cache pool information
-if (is_dir('/mnt/cache') && strpos($disks['cache']['fsType'],'btrfs')!==false) {
-  exert("/sbin/btrfs filesystem usage -T /mnt/cache 2>/dev/null|todos >".escapeshellarg("/$diag/system/btrfs-usage.txt"));
+// create pool btrfs information
+foreach (pools_filter($disks) as $pool) {
+  if (strpos($disks[$pool]['fsType'],'btrfs')!==false) {
+    exert("echo 'Pool: $pool'|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
+    exert("/sbin/btrfs filesystem usage -T /mnt/$pool 2>/dev/null|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
+  }
 }
 // create installed plugin information
 $plugins = glob("/var/log/plugins/*.plg");
