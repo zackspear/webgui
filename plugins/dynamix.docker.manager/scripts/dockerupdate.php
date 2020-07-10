@@ -12,7 +12,17 @@
  */
 ?>
 <?
+session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Wrappers.php";
+
+$unraid  = parse_plugin_cfg('dynamix', true);
+
+// Multi-language support
+$_SESSION['locale'] = $unraid['display']['locale'];
+$_SERVER['REQUEST_URI'] = "scripts";
+require_once "$docroot/webGui/include/Translations.php";
 
 exec("pgrep docker", $pid);
 if (count($pid) == 1) exit(0);
@@ -52,7 +62,10 @@ if (!isset($check)) {
       $new = str_replace('sha256:', '', $updateStatus[$image]['remote']);
       $new = substr($new, 0, 4).'..'.substr($new, -4, 4);
       if ( ! isset($nonotify) ) {
-        exec("$notify -e ".escapeshellarg("Docker - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Docker update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
+        $event = str_replace("&apos;","'",_("Docker")." - $name [$new]");
+        $subject = str_replace("&apos;","'",sprintf(_("Notice [%s] - Version update %s"),$server,$new));
+        $description = str_replace("&apos;","'",sprintf(_("A new version of %s is available"),$name));
+        exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -x");
       }
     }
   }
