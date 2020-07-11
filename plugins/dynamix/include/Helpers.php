@@ -260,7 +260,6 @@ function disk_active($port) {
   return exec("hdparm -C /dev/$port|grep -Eom1 'active|unknown'")!='';
 }
 function read_temp($smart) {
-  usleep(250000);
   return exec("awk 'BEGIN{s=t=\"*\"}\$1==190{s=\$10};\$1==194{t=\$10;exit};\$1==\"Temperature:\"{t=\$2;exit};/^Current Drive Temperature:/{t=\$4;exit} END{if(t!=\"*\")print t; else print s}' ".escapeshellarg($smart)." 2>/dev/null");
 }
 ?>
