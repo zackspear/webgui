@@ -23,18 +23,6 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 $DockerClient  = new DockerClient();
 $DockerStopped = pgrep('dockerd')===false;
 
-// Check for nodatacow flag on Docker file; display warning
-$realfile = $dockercfg['DOCKER_IMAGE_FILE'];
-if (file_exists($realfile)) {
-  $realfile = transpose_user_path($realfile);
-  if (is_file($realfile) && exec("stat -c %T -f ".escapeshellarg($realfile))=="btrfs") {
-    if (shell_exec("lsattr ".escapeshellarg($realfile)."|grep \"\\-C\"")=="") {
-      echo '<p class="notice">'._('Your existing Docker image file needs to be recreated due to an issue from an earlier beta of Unraid 6').'. ';
-      echo _('Failure to do so may result in your docker image suffering corruption at a later time').'. ';
-      echo _('Please do this NOW').'!</p>';
-    }
-  }
-}
 unset($custom,$other);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^br[0-9]'",$custom);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^(bond|eth)[0-9]'",$other);
