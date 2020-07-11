@@ -278,12 +278,13 @@ function read_disk($name, $part) {
   $port = port_name($name);
   switch ($part) {
   case 'color':
-    return exec("hdparm -C ".escapeshellarg("/dev/$port")."|grep -Po 'active|unknown'") ? 'blue-on' : 'blue-blink';
+    return disk_active($port) ? 'blue-on' : 'blue-blink';
   case 'temp':
     $smart = "/var/local/emhttp/smart/$name";
     $type = $var['smType'] ?? '';
-    if (!file_exists($smart) || (time()-filemtime($smart)>=$var['poll_attributes'])) exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port")." >".escapeshellarg($smart)." &");
-    return exec("awk 'BEGIN{s=t=\"*\"}\$1==190{s=\$10};\$1==194{t=\$10;exit};\$1==\"Temperature:\"{t=\$2;exit};/^Current Drive Temperature:/{t=\$4;exit} END{if(t!=\"*\")print t; else print s}' ".escapeshellarg($smart)." 2>/dev/null");
+    // read and store SMART attributes of unassigned devices, take SMART poll interval and active disk status into consideration
+    if (poll_timer($smart) && disk_active($port)) exec("smartctl -A $type /dev/$port >".escapeshellarg($smart));
+    return read_temp($smart);
   }
 }
 function show_totals($text,$array,$name) {
