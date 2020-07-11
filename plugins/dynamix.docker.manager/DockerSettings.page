@@ -28,7 +28,7 @@ $realfile = $dockercfg['DOCKER_IMAGE_FILE'];
 if (file_exists($realfile)) {
   $realfile = transpose_user_path($realfile);
   if (is_file($realfile) && exec("stat -c %T -f ".escapeshellarg($realfile))=="btrfs") {
-    if (shell_exec("lsattr ".escapeshellarg($realfile)."|grep \"\\-C\"") == "") {
+    if (shell_exec("lsattr ".escapeshellarg($realfile)."|grep \"\\-C\"")=="") {
       echo '<p class="notice">'._('Your existing Docker image file needs to be recreated due to an issue from an earlier beta of Unraid 6').'. ';
       echo _('Failure to do so may result in your docker image suffering corruption at a later time').'. ';
       echo _('Please do this NOW').'!</p>';
