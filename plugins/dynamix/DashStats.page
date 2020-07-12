@@ -124,7 +124,7 @@ $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;",
 $cpumodel .= (strpos($cpumodel,'@')!==false ? "" : " @ {$cpu['Current Speed']}");
 
 $total = exec("awk '/^MemTotal/{print $2*1024}' /proc/meminfo");
-exec("ls /sys/class/net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
+unset($ports); exec("ls /sys/class/net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
 
 $sizes = ['MB','GB','TB'];
 $memory_type = $ecc = '';
@@ -559,7 +559,10 @@ var timer30 = null;
 var orange = 70;
 var red = 90;
 var timestamp = 0, rx_bytes = 0, tx_bytes = 0;
-var port_select = $.cookie('port_select')||'<?=$ports[0]?>';
+var ports = [<?=implode(',',array_map('escapestring',$ports))?>];
+
+if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
+var port_select = $.cookie('port_select')||ports[0];
 
 <?if ($wireguard):?>
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
@@ -758,7 +761,7 @@ function update15() {
 }
 function update30() {
   var tag = $.cookie('enter_view')==0 ? 'main' : $.cookie('enter_view')==1 ? 'port' : $.cookie('enter_view')==2 ? 'link' : 'main';
-  $.post('<?=$url?>',{cmd:'port',view:tag,ports:'<?=implode(',',$ports)?>'},function(data) {
+  $.post('<?=$url?>',{cmd:'port',view:tag,ports:ports.join(',')},function(data) {
     $.each(data.split('\0'),function(k,v) {$('#'+tag+k).html(v);});
   });
   $.post('<?=$url?>',{cmd:'array',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
