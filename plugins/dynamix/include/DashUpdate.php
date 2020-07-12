@@ -177,7 +177,7 @@ function device_smart(&$disk, $name, &$fail, &$smart) {
   $text   = _('healthy');
   $color  = 'green';
   $file   = "state/smart/$name";
-  if (file_exists("$file.ssa") && in_array(file_get_contents("$file.ssa"),$failed)) {
+  if (file_exists("$file") && exec("grep -Pom1 '^SMART.*: \K[A-Z]+' ".escapeshellarg($file)." |tr -d '\n' 2>/dev/null", $ssa) && in_array("$ssa",$failed)) {
     $title = "S.M.A.R.T health-check failed\n"; $thumb = 'thumbs-o-down'; $color = 'red'; $text = 'fail'; $fail++;
   } else {
     if (empty($saved["smart"]["$name.ack"])) {

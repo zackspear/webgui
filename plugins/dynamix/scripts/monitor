@@ -132,9 +132,6 @@ function check_smart($name,$port,$text,$info) {
       break;
     }
   }
-  $file .= '.ssa';
-// read and store SMART status (PASSED/FAILED) of all devices, take SMART poll interval and active disk status into consideration
-  if (poll_timer($file) && disk_active($port)) exec("smartctl -H $type /dev/$port|grep -Pom1 '^SMART.*: \K[A-Z]+'|tr -d '\n' >".escapeshellarg($file)." &");
 }
 function check_usage($name,$used,$text,$info) {
   global $notify,$disks,$saved,$display,$server;
@@ -229,8 +226,6 @@ foreach ($devs as $dev) {
   $smart = "/var/local/emhttp/smart/$name";
   $type = $var['smType'] ?? '';
   $port = port_name($name);
-// read and store SMART attributes of unassigned devices, take SMART poll interval and active disk status into consideration
-  if (poll_timer($smart) && disk_active($port)) exec("smartctl -A $type /dev/$port >".escapeshellarg($smart));
   $temp = read_temp($smart);
   $text = "device $name";
   $info = !empty($dev['id']) ? "{$dev['id']} ($name)": "No device identification ($name)";

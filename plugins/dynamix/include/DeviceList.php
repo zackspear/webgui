@@ -281,9 +281,6 @@ function read_disk($name, $part) {
     return disk_active($port) ? 'blue-on' : 'blue-blink';
   case 'temp':
     $smart = "/var/local/emhttp/smart/$name";
-    $type = $var['smType'] ?? '';
-    // read and store SMART attributes of unassigned devices, take SMART poll interval and active disk status into consideration
-    if (poll_timer($smart) && disk_active($port)) exec("smartctl -A $type /dev/$port >".escapeshellarg($smart));
     return read_temp($smart);
   }
 }

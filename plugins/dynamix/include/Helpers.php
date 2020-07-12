@@ -252,10 +252,6 @@ function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
 }
-function poll_timer($file) {
-  global $var;
-  return !file_exists($file) || time()-filemtime($file)>=$var['poll_attributes'];
-}
 function disk_active($port) {
   return exec("hdparm -C /dev/$port|grep -Eom1 'active|unknown'")!='';
 }
