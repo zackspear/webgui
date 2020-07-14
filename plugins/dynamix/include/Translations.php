@@ -159,9 +159,10 @@ foreach($uri as $more) {
   }
 }
 // help text
-if (!file_exists($help)) file_put_contents($help,serialize(parse_help_file($root)));
-$language = array_merge($language,unserialize(file_get_contents($help)));
-
+if ($_SERVER['REQUEST_URI'][0]=='/') {
+  if (!file_exists($help)) file_put_contents($help,serialize(parse_help_file($root)));
+  $language = array_merge($language,unserialize(file_get_contents($help)));
+}
 // remove unused variables
 unset($return,$jscript,$root,$help,$store,$uri,$more,$text);
 ?>
