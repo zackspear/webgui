@@ -44,15 +44,15 @@ function _($text, $do=-1) {
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
-  return array_safe((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*?)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
+  return array_safe((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*?)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_help_file($file) {
   // parser for help text files, includes some trickery to handle PHP quirks.
-  return array_safe((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help):$/m','/^:end$/m'],['>','>$1','_$1_="','"'],escapeQuotes(file_get_contents($file)))));
+  return array_help(array_tags((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help(_\d{8})?):$/m','/^:end$/m'],['>','>$1','_$1="','"'],escapeQuotes(file_get_contents($file))))));
 }
 function parse_text($text) {
   // inline text parser
-  return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:(.+_help):$/m","/^:(.+_plug):$/m","/^:end$/m"],["<?translate(\"_$1_\");?>","<?if (translate(\"_$1_\")):?>","<?endif;?>"],$text));
+  return preg_replace_callback('/_\((.+?)\)_/m',function($m){return _($m[1]);},preg_replace(["/^:(.+_help)(_\d{8})?:$/m","/^:(.+_plug):$/m","/^:end$/m"],["<?translate(\"_$1\");?>","<?if (translate(\"_$1\")):?>","<?endif;?>"],$text));
 }
 function parse_file($file,$markdown=true) {
   // replacement of PHP include function
@@ -77,7 +77,27 @@ function parse_array($text,&$array) {
 }
 function array_safe($array) {
   // remove potential dangerous tags
-  return array_filter($array,function($v,$k){return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));},ARRAY_FILTER_USE_BOTH);
+  return array_filter($array,function($v,$k){
+    return strlen($v) && !preg_match('#<(script|iframe)(.*?)>(.+?)</(script|iframe)>|<(link|meta)\s(.+?)/?>#is',html_entity_decode($v));
+  },ARRAY_FILTER_USE_BOTH);
+}
+function array_tags($array) {
+  // filter outdated help tags
+  return array_filter($array,function($v,$k){
+    $tag = end(explode('_',$k));
+    return ($tag=='help' ? true : $tag <= $_SESSION['buildDate']) && strlen($v);
+  },ARRAY_FILTER_USE_BOTH);
+}
+function array_help(&$array) {
+  // select latest applicable help
+  foreach ($array as $key => $val) {
+    $tag = explode('_',$key);
+    if (end($tag)=='help') continue;
+    array_pop($tag);
+    $array[implode('_',$tag)] = $array[$key];
+    unset($array[$key]);
+  }
+  return $array;
 }
 function escapeQuotes($text) {
   // escape double quotes
