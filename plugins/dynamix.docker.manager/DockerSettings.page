@@ -862,6 +862,7 @@ $(function() {
       $("#removeForm").submit();
       return;
     }
+<?if ($DockerStopped):?>
     if (($("#DOCKER_IMAGE_SIZE").length || $("#DOCKER_IMAGE_TYPE").val()=='folder') && $("#DOCKER_IMAGE_FILE").length) {
       var size = $("#DOCKER_IMAGE_SIZE").val();
       var target = $("#SIZE_ERROR");
@@ -873,6 +874,9 @@ $(function() {
       }
       $("#settingsForm").submit();
     }
+<?else:?>
+    $("#settingsForm").submit();
+<?endif;?>
   });
   $("#DOCKER_ENABLED").change(function changeService() {
     if ($(this).val()=='yes') {
@@ -917,7 +921,7 @@ $(function() {
   showStatus('pid','dockerd');
 <?if ($DockerStopped):?>
   showLogOptions(document.settingsForm.DOCKER_LOG_ROTATION.value);
-<?endif;?>
+<?else:?>
 <?if ($var['fsState'] == "Started"):?>
   $("#DOCKER_IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
     var val = $("#DOCKER_IMAGE_TYPE").val();
@@ -927,5 +931,6 @@ $(function() {
   $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
 <?endif;?>
   if ($.cookie('btrfs-scrub-docker')) btrfsScrub($.cookie('btrfs-scrub-docker'));
+<?endif;?>
 });
 </script>
