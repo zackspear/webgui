@@ -93,8 +93,7 @@ function array_help(&$array) {
   foreach ($array as $key => $val) {
     $tag = explode('_',$key);
     if (end($tag)=='help') continue;
-    array_pop($tag);
-    $array[implode('_',$tag)] = $array[$key];
+    $array[implode('_',array_slice($tag,0,-1))] = $array[$key];
     unset($array[$key]);
   }
   return $array;
