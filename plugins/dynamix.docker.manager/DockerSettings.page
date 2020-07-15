@@ -145,6 +145,7 @@ _(Enable Docker)_:
 :docker_enable_help:
 
 <?if ($DockerStopped):?>
+
 _(Docker vDisk type)_:
 : <select id="DOCKER_IMAGE_TYPE" name="DOCKER_IMAGE_TYPE" onchange="updateLocation(this.value)">
   <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs'))?>
@@ -928,6 +929,7 @@ $(function() {
   });
   $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
 <?endif;?>
+<?else:?>
   if ($.cookie('btrfs-scrub-docker')) btrfsScrub($.cookie('btrfs-scrub-docker'));
 <?endif;?>
 });
