@@ -145,6 +145,12 @@ _(Enable Docker)_:
 :docker_enable_help:
 
 <?if ($DockerStopped):?>
+_(Docker vDisk type)_:
+: <select id="DOCKER_IMAGE_TYPE" name="DOCKER_IMAGE_TYPE" onchange="updateLocation(this.value)">
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'xfs', _('xfs'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'folder', _('folder'))?>
+  </select>
 
 <div markdown="1" id="vdisk_size" style="display:none">
 _(Docker vDisk size)_:
@@ -153,13 +159,6 @@ _(Docker vDisk size)_:
 :docker_vdisk_size_help:
 
 </div>
-_(Docker vDisk type)_:
-: <select id="DOCKER_IMAGE_TYPE" name="DOCKER_IMAGE_TYPE" onchange="updateLocation(this.value)">
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'xfs', _('xfs'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'folder', _('folder'))?>
-  </select>
-
 _(Docker vDisk location)_:
 : <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" pattern="^[^\\]*(docker-xfs\.img|docker\.img|/)$">
   <span id="deletePanel1" style="display:none"><label><input type="checkbox" class="deleteCheckbox"> _(Delete Image File)_</label></span>
