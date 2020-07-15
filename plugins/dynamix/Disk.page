@@ -20,7 +20,7 @@ if (count($pages)==2) $tabbed = false;
 $refs = []; $n = 0;
 
 foreach ($disks as $ref) {
-  if ($ref['type']!='Data' && $ref['name']!='cache') continue;
+  if ($ref['type']!='Data' && !in_array($ref['name'],$pools)) continue;
   if ($ref['fsColor']=='grey-off') continue;
   $refs[] = $ref['name'];
   if ($ref['name']==$name) $i = $n;
