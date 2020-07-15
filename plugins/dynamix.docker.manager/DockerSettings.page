@@ -921,7 +921,6 @@ $(function() {
   showStatus('pid','dockerd');
 <?if ($DockerStopped):?>
   showLogOptions(document.settingsForm.DOCKER_LOG_ROTATION.value);
-<?else:?>
 <?if ($var['fsState'] == "Started"):?>
   $("#DOCKER_IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
     var val = $("#DOCKER_IMAGE_TYPE").val();
