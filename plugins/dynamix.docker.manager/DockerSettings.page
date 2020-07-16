@@ -100,7 +100,7 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 <style>
 .errortext{color:#EF3D47;display:none;margin-left:20px}
 .fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
-.basic{display:block}
+.basic{display:inline-block}
 .advanced{display:none}
 select.mask{min-width:0;margin:0 10px 0 4px}
 select.net{min-width:0;margin:0 4px 0 2px}
@@ -115,7 +115,7 @@ span.ip4{display:inline-block;width:260px}
 span.ip6{display:inline-block;width:310px}
 span.gw4{display:inline-block;width:200px}
 span.gw6{display:inline-block;width:270px}
-
+span.nonexist{margin-left:20px}
 <?if (strstr('white,azure',$display['theme'])):?>
 span.disabled{color:#B0B0B0}
 <?else:?>
@@ -131,6 +131,7 @@ span.disabled{color:#404040}
 <input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="DOCKER_CUSTOM_NETWORKS" value="<?=implode(' ',$unset)?> ">
+<input type="hidden" name="DOCKER_IMAGE_FILE" value="">
 _(Enable Docker)_:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED">
   <?=mk_option($dockercfg['DOCKER_ENABLED'], 'no', _('No'))?>
@@ -139,41 +140,51 @@ _(Enable Docker)_:
   <?if ($var['fsState'] != "Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($dockercfg['DOCKER_ENABLED']=='yes') ? '_(Docker will be available after Array is Started)_' : '_(Apply to activate Docker after Array is Started)_'?></span>
   <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE'])) || !is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
-  <span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
+  <span class="basic"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
   <?endif;?>
 
 :docker_enable_help:
 
 <?if ($DockerStopped):?>
 
-_(Docker vDisk type)_:
+_(Docker data-root)_:
 : <select id="DOCKER_IMAGE_TYPE" name="DOCKER_IMAGE_TYPE" onchange="updateLocation(this.value)">
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'xfs', _('xfs'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'folder', _('folder'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs vDisk'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'xfs', _('xfs vDisk'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'folder', _('directory'))?>
   </select>
 
-<div markdown="1" id="vdisk_size" style="display:none">
+:docker_vdisk_type_help:
+
+<div markdown="1" id="vdisk_file" style="display:none">
 _(Docker vDisk size)_:
 : <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=$dockercfg['DOCKER_IMAGE_SIZE']?>" class="narrow" required>GB<span id="SIZE_ERROR" class="errortext"></span>
 
 :docker_vdisk_size_help:
 
-</div>
 _(Docker vDisk location)_:
-: <input id="DOCKER_IMAGE_FILE" type="text" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required="required" pattern="^[^\\]*(docker-xfs\.img|docker\.img|/)$">
-  <span id="deletePanel1" style="display:none"><label><input type="checkbox" class="deleteCheckbox"> _(Delete Image File)_</label></span>
-  <span id="deletePanel2" style="display:none"><label><input type="checkbox" class="deleteCheckbox"> _(Delete Image Folder)_</label></span>
-  <?if ($var['fsState'] != "Started"):?>
-  <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
-  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?>
-  <span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
-  <?endif;?><span id="IMAGE_ERROR" class="errortext"></span>
+: <input id="DOCKER_IMAGE_FILE1" type="text" name="DOCKER_IMAGE_FILE1" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" disabled required="required" pattern="^[^\\]*(docker-xfs\.img|docker\.img)$">
+  <span><label><input type="checkbox" class="deleteCheckbox"> _(Delete vDisk file)_</label></span>
+  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
+  <?endif;?><span id="IMAGE_ERROR1" class="errortext"></span>
 
 :docker_vdisk_location_help:
 
+</div>
+<div markdown="1" id="vdisk_dir" style="display:none">
+_(Docker directory)_:
+: <input id="DOCKER_IMAGE_FILE2" type="text" name="DOCKER_IMAGE_FILE2" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" disabled required="required" pattern="^[^\\]*/$">
+  <span><label><input type="checkbox" class="deleteCheckbox"> _(Delete directory)_</label></span>
+  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
+  <?endif;?><span id="IMAGE_ERROR2" class="errortext"></span>
+
+:docker_vdisk_directory_help:
+
+</div>
 _(Default appdata storage location)_:
-: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH']?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt/user/" data-pickfolders="true" pattern="^[^\\]*/$">
+: <input id="DOCKER_APP_CONFIG_PATH" type="text" name="DOCKER_APP_CONFIG_PATH" value="<?=$dockercfg['DOCKER_APP_CONFIG_PATH']?>" placeholder="e.g. /mnt/user/appdata" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" data-pickfolders="true" pattern="^[^\\]*/$">
   <?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
@@ -399,8 +410,13 @@ _(Docker version)_:
 
 :docker_version_help:
 
+<?if ($dockercfg['DOCKER_IMAGE_TYPE']!='folder'):?>
 _(Docker vDisk location)_:
 : <?=$dockercfg['DOCKER_IMAGE_FILE']?>
+<?else:?>
+_(Docker directory)_:
+: <?=$dockercfg['DOCKER_IMAGE_FILE']?>
+<?endif;?>
 
 :docker_vdisk_location_active_help:
 
@@ -546,14 +562,19 @@ _(btrfs scrub status)_:
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 function prepareDocker(form) {
+<?if ($DockerStopped):?>
   var bye = false;
   $(form).find('input[type="text"]').each(function(){
-    if ($(this).attr('pattern')) {
+    if ($(this).attr('pattern') && !$(this).prop('disabled')) {
       var pattern = new RegExp($(this).attr('pattern'));
       if (!pattern.test($(this).val())) {$(this).css('color','red').attr('title',"_(Use image name docker.img or docker-xfs.img or select a folder)_"); bye = true;}
     }
   });
   if (bye) return false;
+  $(form).find('input[name="DOCKER_IMAGE_FILE"]').val($('#DOCKER_IMAGE_TYPE').val()=='folder' ? $(form).find('input[name="DOCKER_IMAGE_FILE2"]').val() : $(form).find('input[name="DOCKER_IMAGE_FILE1"]').val());
+  $(form).find('input[name="DOCKER_IMAGE_FILE1"]').prop('disabled',true);
+  $(form).find('input[name="DOCKER_IMAGE_FILE2"]').prop('disabled',true);
+<?endif;?>
   $(form).find('input:hidden[name^="DOCKER_DHCP_"]').each(function(){
     var id = '#'+$(this).attr('name')+'_';
     if ($(id+'dhcp').prop('checked') && $(id+'edit').prop('checked')) {
@@ -819,43 +840,53 @@ function btrfsScrub(path) {
   });
 }
 function updateLocation(val) {
-  var content = $("#DOCKER_IMAGE_FILE");
-  var name = content.val().split('/').pop();
-  var path = content.val().replace(name,'');
+  var content1 = $("#DOCKER_IMAGE_FILE1");
+  var content2 = $("#DOCKER_IMAGE_FILE2");
   switch (val) {
   case 'xfs':
-    content.val((path + 'docker-xfs.img').replace('/docker/docker/','/docker/'));
-    $("#deletePanel1").show();
-    $("#deletePanel2").hide();
-    $('#vdisk_size').show('slow');
+    var path = content2.val().split('/');
+    path.splice(-1,1);
+    content1.val((path.join('/') + '/docker-xfs.img'));
+    $('#vdisk_file').show('slow');
+    $('#vdisk_dir').hide('slow');
+    content1.prop('disabled',false).trigger('change');
+    content2.prop('disabled',true);
     break;
   case 'folder':
-    content.val(path + 'docker/');
-    $("#deletePanel1").hide();
-    $("#deletePanel2").show();
-    $('#vdisk_size').hide('slow');
+    var path = content2.val().split('/');
+    if (path[path.length-1]=='') path.splice(-2,2); else path.splice(-1,1);
+    content2.val(path.join('/') + '/docker/');
+    $('#vdisk_file').hide('slow');
+    $('#vdisk_dir').show('slow');
+    content1.prop('disabled',true);
+    content2.prop('disabled',false).trigger('change');
     break;
   default:
-    content.val((path + 'docker.img').replace('/docker/docker/','/docker/'));
-    $("#deletePanel1").show();
-    $("#deletePanel2").hide();
-    $('#vdisk_size').show('slow');
+    var path = content2.val().split('/');
+    path.splice(-1,1);
+    content1.val((path.join('/') + '/docker.img'));
+    $('#vdisk_file').show('slow');
+    $('#vdisk_dir').hide('slow');
+    content1.prop('disabled',false).trigger('change');
+    content2.prop('disabled',true);
     break;
   }
-  content.trigger('change');
 }
 function checkbox_state(value) {
   $.post('/plugins/dynamix.docker.manager/include/DoesExist.php',{name:value},function(state){$('.deleteCheckbox').prop('disabled',state==0?false:true);});
 }
 $(function() {
+<?if ($DockerStopped):?>
   if ($('#DOCKER_IMAGE_TYPE').val()=='folder') {
-    $("#deletePanel2").show();
-    $('#vdisk_size').hide();
+    $('#vdisk_dir').show();
+    checkbox_state($("#DOCKER_IMAGE_FILE2").val());
+    $("#DOCKER_IMAGE_FILE2").prop('disabled',false);
   } else {
-    $("#deletePanel1").show();
-    $('#vdisk_size').show();
+    $('#vdisk_file').show();
+    checkbox_state($("#DOCKER_IMAGE_FILE1").val());
+    $("#DOCKER_IMAGE_FILE1").prop('disabled',false);
   }
-  checkbox_state($("#DOCKER_IMAGE_FILE").val());
+<?endif;?>
   $("#applyBtn").click(function() {
     if (!checkDHCP() || !checkIP()) return;
     if ($(".deleteCheckbox").is(":checked")) {
@@ -863,7 +894,7 @@ $(function() {
       return;
     }
 <?if ($DockerStopped):?>
-    if (($("#DOCKER_IMAGE_SIZE").length || $("#DOCKER_IMAGE_TYPE").val()=='folder') && $("#DOCKER_IMAGE_FILE").length) {
+    if (($("#DOCKER_IMAGE_SIZE").length || $("#DOCKER_IMAGE_TYPE").val()=='folder') && ($("#DOCKER_IMAGE_FILE1").length || $("#DOCKER_IMAGE_FILE2").length)) {
       var size = $("#DOCKER_IMAGE_SIZE").val();
       var target = $("#SIZE_ERROR");
       if ($("#DOCKER_IMAGE_TYPE").val()!='folder' && !$.isNumeric(size)) {
@@ -886,23 +917,42 @@ $(function() {
     }
   });
   if ($("#DOCKER_ENABLED").val()!='yes') $('#arraystopped').hide();
-  if ($("#DOCKER_IMAGE_FILE").length) {
-    $("#DOCKER_IMAGE_FILE").on("input change", function(){
-      $("#IMAGE_ERROR").fadeOut();
-      $("#applyBtn").prop("disabled", false);
-      checkbox_state($(this).val());
-    });
-    $(".deleteCheckbox").change(function(){
-      var checked = $(this).is(":checked");
-      $("#DOCKER_ENABLED").prop("disabled", checked).val('no');
-      $("#DOCKER_IMAGE_SIZE").prop("disabled", checked);
-      $("#DOCKER_IMAGE_TYPE").prop("disabled", checked);
-      $("#DOCKER_IMAGE_FILE").prop("disabled", checked);
-      $("#DOCKER_APP_CONFIG_PATH").prop("disabled", checked);
-      $("#DOCKER_APP_UNRAID_PATH").prop("disabled", checked);
-      $("#applyBtn").val(checked ? "Delete" : "Apply").removeAttr('disabled');
-    });
-  }
+<?if ($DockerStopped):?>
+  showLogOptions(document.settingsForm.DOCKER_LOG_ROTATION.value);
+  $("#DOCKER_IMAGE_FILE1").on("input change", function(){
+    $("#IMAGE_ERROR1").fadeOut();
+    $("#applyBtn").prop("disabled", false);
+    checkbox_state($(this).val());
+  });
+  $("#DOCKER_IMAGE_FILE2").on("input change", function(){
+    $("#IMAGE_ERROR2").fadeOut();
+    $("#applyBtn").prop("disabled", false);
+    checkbox_state($(this).val());
+  });
+<?if ($var['fsState'] == "Started"):?>
+  $("#DOCKER_IMAGE_FILE1").fileTreeAttach(null, null, function(folder) {
+    var item = $("#DOCKER_IMAGE_TYPE").val()=='xfs' ? 'docker-xfs.img' : 'docker.img';
+    $("#DOCKER_IMAGE_FILE1").val(folder + item).change();
+  });
+  $("#DOCKER_IMAGE_FILE2").fileTreeAttach(null, null, function(folder) {
+    var item = 'docker/';
+    $("#DOCKER_IMAGE_FILE2").val(folder + item).change();
+  });
+  $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
+<?endif;?>
+  $(".deleteCheckbox").change(function() {
+    var checked = $(this).is(":checked");
+    $("#DOCKER_ENABLED").prop("disabled", checked).val('no');
+    $("#DOCKER_IMAGE_SIZE").prop("disabled", checked);
+    $("#DOCKER_IMAGE_TYPE").prop("disabled", checked);
+    $("#DOCKER_IMAGE_FILE").prop("disabled", checked);
+    $("#DOCKER_APP_CONFIG_PATH").prop("disabled", checked);
+    $("#DOCKER_APP_UNRAID_PATH").prop("disabled", checked);
+    $("#applyBtn").val(checked ? "Delete" : "Apply").removeAttr('disabled');
+  });
+<?else:?>
+  if ($.cookie('btrfs-scrub-docker')) btrfsScrub($.cookie('btrfs-scrub-docker'));
+<?endif;?>
   if ($.cookie('dockersettings_view_mode') == 'advanced') {
     $('.advanced').show();
     $('.basic').hide();
@@ -919,18 +969,5 @@ $(function() {
     $.cookie('dockersettings_view_mode', $('.advancedview').is(':checked') ? 'advanced':'basic', {expires:3650});
   });
   showStatus('pid','dockerd');
-<?if ($DockerStopped):?>
-  showLogOptions(document.settingsForm.DOCKER_LOG_ROTATION.value);
-<?if ($var['fsState'] == "Started"):?>
-  $("#DOCKER_IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
-    var val = $("#DOCKER_IMAGE_TYPE").val();
-    var item = val=='xfs' ? 'docker-xfs.img' : (val=='folder' ? 'docker/' : 'docker.img');
-    $("#DOCKER_IMAGE_FILE").val(folder + item).change();
-  });
-  $("#DOCKER_APP_CONFIG_PATH").fileTreeAttach();
-<?endif;?>
-<?else:?>
-  if ($.cookie('btrfs-scrub-docker')) btrfsScrub($.cookie('btrfs-scrub-docker'));
-<?endif;?>
 });
 </script>
