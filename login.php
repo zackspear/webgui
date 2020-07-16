@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
         session_start();
         unset($_SESSION['unraid_login']);
         unset($_SESSION['unraid_user']);
-        unset($_SESSION['unraid_user_wanip']);
         // delete session file
         session_destroy();
         // delete the session cookie
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
             session_start();
             $_SESSION['unraid_login'] = time();
             $_SESSION['unraid_user'] = $_POST['username'];
-            $_SESSION['unraid_user_wanip'] = $_POST['wanip'];
             session_regenerate_id(true);
             session_write_close();
             exec("logger -t webGUI ".escapeshellarg("Successful login user {$_POST['username']} from {$_SERVER['REMOTE_ADDR']}"));
@@ -344,7 +342,6 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                     <p>
                         <input name="username" type="text" placeholder="Username" autocapitalize="none" autocomplete="off" autofocus required>
                         <input name="password" type="password" placeholder="Password" required>
-                        <input id="wanip" type="hidden" value="">
                     </p>
                     <? if ($error) echo '<p class="error">'.$error.'</p>'; ?>
                     <script type="text/javascript">
@@ -354,13 +351,6 @@ $theme_dark = in_array($display['theme'],['black','gray']);
                         if (!cookieEnabled) {
                             document.write('<p class="error">Browser cookie support required for login</p>');
                         }
-                        var xmlHttp = new XMLHttpRequest();
-                        xmlHttp.onreadystatechange = function() { 
-                            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                                document.getElementById('wanip').value = xmlHttp.responseText;
-                        };
-                        xmlHttp.open("GET", "https://proxy.unraid.net/wanip", true);
-                        xmlHttp.send(null);
                     </script>
                     <p>
                         <button type="submit" class="button button--small">Login</button>
