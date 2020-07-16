@@ -131,7 +131,7 @@ span.disabled{color:#404040}
 <input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="DOCKER_CUSTOM_NETWORKS" value="<?=implode(' ',$unset)?> ">
-<input type="hidden" name="DOCKER_IMAGE_FILE" value="">
+<input type="hidden" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>">
 _(Enable Docker)_:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED">
   <?=mk_option($dockercfg['DOCKER_ENABLED'], 'no', _('No'))?>
