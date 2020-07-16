@@ -14,7 +14,8 @@ Type="xmenu"
 ?>
 <?
 function clone_list($disk) {
-  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || $disk['name']=='cache');
+  global $pools;
+  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || in_array($disk['name'],$pools));
 }
 ?>
 <style>
