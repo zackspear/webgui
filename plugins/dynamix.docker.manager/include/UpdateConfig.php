@@ -70,8 +70,4 @@ case 'templates':
   $DockerTemplates->downloadTemplates();
   break;
 }
-
-if (isset($_GET['is_dir'])) {
-  echo json_encode(['is_dir' => is_dir($_GET['is_dir'])]);
-}
 ?>
