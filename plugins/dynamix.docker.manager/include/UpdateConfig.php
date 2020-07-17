@@ -69,5 +69,9 @@ case 'templates':
   $DockerTemplates = new DockerTemplates();
   $DockerTemplates->downloadTemplates();
   break;
+case 'exist':
+  // docker file or folder exists?
+  echo file_exists($_POST['name']) ? 0 : 1;
+  break;
 }
 ?>

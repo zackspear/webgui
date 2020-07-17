@@ -873,7 +873,7 @@ function updateLocation(val) {
   }
 }
 function checkbox_state(value) {
-  $.post('/plugins/dynamix.docker.manager/include/DoesExist.php',{name:value},function(state){$('.deleteCheckbox').prop('disabled',state==0?false:true);});
+  $.post('/plugins/dynamix.docker.manager/include/UpdateConfig.php',{action:'exist',name:value},function(state){$('.deleteCheckbox').prop('disabled',state==0?false:true);});
 }
 $(function() {
 <?if ($DockerStopped):?>
