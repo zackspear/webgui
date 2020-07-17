@@ -164,7 +164,7 @@ _(Docker vDisk size)_:
 
 _(Docker vDisk location)_:
 : <input id="DOCKER_IMAGE_FILE1" type="text" name="DOCKER_IMAGE_FILE1" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" disabled required="required" pattern="^[^\\]*(docker-xfs\.img|docker\.img)$">
-  <span><label><input type="checkbox" class="deleteCheckbox"> _(Delete vDisk file)_</label></span>
+  <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete vDisk file)_</label></span>
   <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
   <?endif;?><span id="IMAGE_ERROR1" class="errortext"></span>
@@ -175,7 +175,7 @@ _(Docker vDisk location)_:
 <div markdown="1" id="vdisk_dir" style="display:none">
 _(Docker directory)_:
 : <input id="DOCKER_IMAGE_FILE2" type="text" name="DOCKER_IMAGE_FILE2" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>" placeholder="e.g. /mnt/user/system/docker" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" disabled required="required" pattern="^[^\\]*/$">
-  <span><label><input type="checkbox" class="deleteCheckbox"> _(Delete directory)_</label></span>
+  <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete directory)_</label></span>
   <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
   <?endif;?><span id="IMAGE_ERROR2" class="errortext"></span>
@@ -873,7 +873,7 @@ function updateLocation(val) {
   }
 }
 function checkbox_state(value) {
-  $.post('/plugins/dynamix.docker.manager/include/UpdateConfig.php',{action:'exist',name:value},function(state){$('.deleteCheckbox').prop('disabled',state==0?false:true);});
+  $.post('/plugins/dynamix.docker.manager/include/UpdateConfig.php',{action:'exist',name:value},function(state){state==0 ? $('.deleteLabel').fadeIn() : $('.deleteLabel').fadeOut();});
 }
 $(function() {
 <?if ($DockerStopped):?>
