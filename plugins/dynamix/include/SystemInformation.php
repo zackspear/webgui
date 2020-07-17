@@ -54,7 +54,7 @@ span.key.link{text-decoration:underline;cursor:pointer}
 div.box{margin-top:8px;line-height:30px;margin-left:40px}
 div.closed{display:none}
 </style>
-<script src="<?autov('/webGui/javascript/translate.'.($locale?:'en').'.js')?>"></script>
+<script src="<?autov('/webGui/javascript/translate.'.($locale?:'en_US').'.js')?>"></script>
 <script>
 // server uptime & update period
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
