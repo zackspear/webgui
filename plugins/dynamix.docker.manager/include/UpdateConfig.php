@@ -69,9 +69,9 @@ case 'templates':
   $DockerTemplates = new DockerTemplates();
   $DockerTemplates->downloadTemplates();
   break;
-}
-
-if (isset($_GET['is_dir'])) {
-  echo json_encode(['is_dir' => is_dir($_GET['is_dir'])]);
+case 'exist':
+  // docker file or folder exists?
+  echo file_exists($_POST['name']) ? 0 : 1;
+  break;
 }
 ?>

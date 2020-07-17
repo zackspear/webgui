@@ -119,18 +119,26 @@ _(Libvirt vdisk size)_:
 :vms_libvirt_vdisk_size_help:
 
 _(Libvirt storage location)_:
-: <input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt/" data-pickfolders="true" required pattern="^[^\\]*\.(img|IMG)$"> <?php if (file_exists($domain_cfg['IMAGE_FILE'])) { ?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> _(Delete Image File)_</label></span><?php } ?> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span><?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?> <span id="IMAGE_ERROR" class="errortext"></span>
+: <input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
+ <?if (file_exists($domain_cfg['IMAGE_FILE'])):?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> _(Delete Image File)_</label></span><?endif;?>
+ <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+ <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
+ <?endif;?><span id="IMAGE_ERROR" class="errortext"></span>
 
 :vms_libvirt_location_help:
 
 <?endif;?>
 _(Default VM storage path)_:
-: <input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="DOMAINDIR" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span><?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
+: <input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="DOMAINDIR" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
+  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_storage_help:
 
 _(Default ISO storage path)_:
-: <input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" name="MEDIADIR" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$"> <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span><?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
+: <input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="MEDIADIR" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
+  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_iso_storage_help:
 
@@ -155,7 +163,8 @@ _(Default Windows VirtIO driver ISO)_ (_(optional)_):
     }
     echo mk_option($strMatch, 'manual', _('Manual'));
   ?>
-  </select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?= (is_dir('/mnt/user/') ? '/mnt/user/' : '/mnt/') ?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"<?if ($var['fsState'] == "Started"):?> placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"><i class="fa fa-trash" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_"> <span>_(Remove)_</span></i><i class="fa fa-download" id="download_button" title="_(Download Windows VirtIO driver ISO)_"> <span>_(Download)_</span></i><span id="download_status"></span<?endif;?>>
+  </select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"
+  <?if ($var['fsState'] == "Started"):?>placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"><i class="fa fa-trash" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_"><span>_(Remove)_</span></i><i class="fa fa-download" id="download_button" title="_(Download Windows VirtIO driver ISO)_"> <span>_(Download)_</span></i><span id="download_status"></span<?endif;?>>
 
 :vms_virtio_driver_help:
 
@@ -404,7 +413,12 @@ $(function(){
 <?endif;?>
   showStatus('pid','libvirt/libvirtd');
   <?if ($var['fsState'] == "Started"):?>
-    $("input[data-pickroot]").fileTreeAttach();
+  $("#IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
+    $("#IMAGE_FILE").val(folder + 'libvirt.img').change();
+  });
+  $("#domaindir").fileTreeAttach();
+  $("#mediadir").fileTreeAttach();
+  $("#winvirtio").fileTreeAttach();
   <?endif;?>
   if ($("#IMAGE_FILE").length) {
     $("#IMAGE_FILE").on("input change", function(){
