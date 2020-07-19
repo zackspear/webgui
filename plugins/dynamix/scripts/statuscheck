@@ -41,7 +41,7 @@ function my_temp($value) {
   return ' - active '.($unit=='F' ? round(9/5*$value+32) : str_replace('.', $unraid['display']['number'][0], $value)).' '.$unit;
 }
 function my_disk($name) {
-  return ucfirst(preg_replace('/^(disk|cache)([0-9]+)/','$1 $2',$name));
+  return ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_scale($value, &$unit, $precision = NULL) {
   global $unraid;
