@@ -20,7 +20,6 @@ export default class Cursor {
             this._canvas.style.pointerEvents = 'none';
             // Can't use "display" because of Firefox bug #1445997
             this._canvas.style.visibility = 'hidden';
-            document.body.appendChild(this._canvas);
         }
 
         this._position = { x: 0, y: 0 };
@@ -31,9 +30,6 @@ export default class Cursor {
             'mouseleave': this._handleMouseLeave.bind(this),
             'mousemove': this._handleMouseMove.bind(this),
             'mouseup': this._handleMouseUp.bind(this),
-            'touchstart': this._handleTouchStart.bind(this),
-            'touchmove': this._handleTouchMove.bind(this),
-            'touchend': this._handleTouchEnd.bind(this),
         };
     }
 
@@ -45,6 +41,8 @@ export default class Cursor {
         this._target = target;
 
         if (useFallback) {
+            document.body.appendChild(this._canvas);
+
             // FIXME: These don't fire properly except for mouse
             ///       movement in IE. We want to also capture element
             //        movement, size changes, visibility, etc.
@@ -53,11 +51,6 @@ export default class Cursor {
             this._target.addEventListener('mouseleave', this._eventHandlers.mouseleave, options);
             this._target.addEventListener('mousemove', this._eventHandlers.mousemove, options);
             this._target.addEventListener('mouseup', this._eventHandlers.mouseup, options);
-
-            // There is no "touchleave" so we monitor touchstart globally
-            window.addEventListener('touchstart', this._eventHandlers.touchstart, options);
-            this._target.addEventListener('touchmove', this._eventHandlers.touchmove, options);
-            this._target.addEventListener('touchend', this._eventHandlers.touchend, options);
         }
 
         this.clear();
@@ -75,9 +68,7 @@ export default class Cursor {
             this._target.removeEventListener('mousemove', this._eventHandlers.mousemove, options);
             this._target.removeEventListener('mouseup', this._eventHandlers.mouseup, options);
 
-            window.removeEventListener('touchstart', this._eventHandlers.touchstart, options);
-            this._target.removeEventListener('touchmove', this._eventHandlers.touchmove, options);
-            this._target.removeEventListener('touchend', this._eventHandlers.touchend, options);
+            document.body.removeChild(this._canvas);
         }
 
         this._target = null;
@@ -128,6 +119,27 @@ export default class Cursor {
         this._hotSpot.y = 0;
     }
 
+    // Mouse events might be emulated, this allows
+    // moving the cursor in such cases
+    move(clientX, clientY) {
+        if (!useFallback) {
+            return;
+        }
+        // clientX/clientY are relative the _visual viewport_,
+        // but our position is relative the _layout viewport_,
+        // so try to compensate when we can
+        if (window.visualViewport) {
+            this._position.x = clientX + window.visualViewport.offsetLeft;
+            this._position.y = clientY + window.visualViewport.offsetTop;
+        } else {
+            this._position.x = clientX;
+            this._position.y = clientY;
+        }
+        this._updatePosition();
+        let target = document.elementFromPoint(clientX, clientY);
+        this._updateVisibility(target);
+    }
+
     _handleMouseOver(event) {
         // This event could be because we're entering the target, or
         // moving around amongst its sub elements. Let the move handler
@@ -167,6 +179,10 @@ export default class Cursor {
         // should be visible.
         if (this._captureIsActive()) {
             window.setTimeout(() => {
+                // We might have detached at this point
+                if (!this._target) {
+                    return;
+                }
                 // Refresh the target from elementFromPoint since queued events
                 // might have altered the DOM
                 target = document.elementFromPoint(event.clientX,
@@ -174,27 +190,6 @@ export default class Cursor {
                 this._updateVisibility(target);
             }, 0);
         }
-    }
-
-    _handleTouchStart(event) {
-        // Just as for mouseover, we let the move handler deal with it
-        this._handleTouchMove(event);
-    }
-
-    _handleTouchMove(event) {
-        this._updateVisibility(event.target);
-
-        this._position.x = event.changedTouches[0].clientX - this._hotSpot.x;
-        this._position.y = event.changedTouches[0].clientY - this._hotSpot.y;
-
-        this._updatePosition();
-    }
-
-    _handleTouchEnd(event) {
-        // Same principle as for mouseup
-        let target = document.elementFromPoint(event.changedTouches[0].clientX,
-                                               event.changedTouches[0].clientY);
-        this._updateVisibility(target);
     }
 
     _showCursor() {
