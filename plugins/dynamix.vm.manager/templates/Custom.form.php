@@ -562,7 +562,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							$boolShowAllDisks = (strpos($domain_cfg['DOMAINDIR'], '/mnt/user/') === 0);
 
 							if (!empty($arrDisk['new'])) {
-								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false || basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
+								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false || 
+									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] || 
+									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
 									$default_option = 'manual';
 								}
 								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img')) {
