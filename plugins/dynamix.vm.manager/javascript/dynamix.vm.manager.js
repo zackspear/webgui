@@ -144,7 +144,7 @@ function bindSectionEvents(category) {
 		var $first_td = $(this).find('td').first();
 
 		// delete section
-		if (!config.hasOwnProperty('minimum') || parseInt(config.minimum) < (index+1)) {
+		if (!config.hasOwnProperty('minimum') || config.minimum === undefined || parseInt(config.minimum) < (index+1)) {
 			if ($first_td.children('.sectionbutton.remove').length === 0) {
 				var $el_remove = $('<div class="sectionbutton remove" title="Remove ' + config.prefix + ' ' + category.replace('_', ' ') + '"><i class="fa fa-minus-circle red"></i></div>').one('click', clickRemoveSection);
 				$first_td.append($el_remove);
@@ -156,7 +156,7 @@ function bindSectionEvents(category) {
 
 		// add section (can only add from the last section)
 		if ((index+1) == count) {
-			if (!config.hasOwnProperty('maximum') || parseInt(config.maximum) > (index+1)) {
+			if (!config.hasOwnProperty('maximum') || config.maximum === undefined || parseInt(config.maximum) > (index+1)) {
 				if ($first_td.children('.sectionbutton.add').length === 0) {
 					var $el_add = $('<div class="sectionbutton add" title="Add another ' + category.replace('_', ' ') + '"><i class="fa fa-plus-circle green"></i></div>').one('click', clickAddSection);
 					$first_td.append($el_add);
