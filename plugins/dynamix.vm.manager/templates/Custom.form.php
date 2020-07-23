@@ -1042,6 +1042,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					The default libvirt managed network bridge (virbr0) will be used, otherwise you may specify an alternative name for a private network bridge to the host.
 				</p>
 
+				<p>
+					<b>Network Model</b><br>
+					Default and recommended is 'virtio-net', which gives improved stability. To improve performance 'virtio' can be selected, but this may lead to stability issues.
+				</p>
+
 				<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
 			</blockquote>
 		</div>
