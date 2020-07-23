@@ -601,16 +601,11 @@
 					if (empty($nic['mac']) || empty($nic['network'])) {
 						continue;
 					}
-
-					$netmodel = 'virtio-net';
-					if (!empty($nic['model'])) {
-						$netmodel = $nic['model'];
-					}
-
+					$netmodel = $nic['model'] ?: 'virtio-net';
 					$netstr .= "<interface type='bridge'>
 									<mac address='{$nic['mac']}'/>
 									<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
-									<model type='{$netmodel}'/>
+									<model type='$netmodel'/>
 								</interface>";
 				}
 			}
@@ -2078,6 +2073,7 @@
 			$macs = $this->get_xpath($domain, "//domain/devices/interface/mac/@address", false);
 			$net = $this->get_xpath($domain, "//domain/devices/interface/@type", false);
 			$bridge = $this->get_xpath($domain, "//domain/devices/interface/source/@bridge", false);
+			$model = $this->get_xpath($domain, "//domain/devices/interface/model/@type", false);
 			if (!$macs)
 				return $this->_set_last_error();
 			$ret = [];
@@ -2091,7 +2087,7 @@
 					$ret[] = [
 						'mac' => $macs[$i],
 						'network' => $bridge[$i],
-						'nic_type' => 'virtio'
+						'model' => $model[$i]
 					];
 				}
 			}
