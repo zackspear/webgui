@@ -571,7 +571,7 @@ function prepareDocker(form) {
     }
   });
   if (bye) return false;
-  $("#DOCKER_IMAGE_FILE").val($('#DOCKER_IMAGE_TYPE').val()=='folder' ? $("#DOCKER_IMAGE_FILE2").val() : $("#DOCKER_IMAGE_FILE1").val());
+  $(form).find('input[name="DOCKER_IMAGE_FILE"]').val($('#DOCKER_IMAGE_TYPE').val()=='folder' ? $("#DOCKER_IMAGE_FILE2").val() : $("#DOCKER_IMAGE_FILE1").val());
   $("#DOCKER_IMAGE_FILE1").prop('disabled',true);
   $("#DOCKER_IMAGE_FILE2").prop('disabled',true);
 <?endif;?>

@@ -281,6 +281,9 @@ function deletePool() {
   $.cookie('deletepool','deletepool');
   document.deletepool.submit();
 }
+function freeSpace(val) {
+  $('#shareFloor').prop('disabled',val=='no');
+}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/<?=$type?>?name=<?=$prev?>' title='previous device'>";
@@ -297,6 +300,7 @@ $(function() {
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
+  if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
   var btrfs = false;
   if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
   if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
@@ -417,8 +421,16 @@ _(File system type)_:
 <?endif;?>
 <?if (in_array($name,$pools)):?>
 <?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
+_(Enable user share assignment)_:
+: <select id="shareEnabled" name="shareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
+  <?=mk_option($disk['shareEnabled'], "yes", _('Yes'))?>
+  <?=mk_option($disk['shareEnabled'], "no", _('No'))?>
+  </select>
+
+:info_share_assignment_help:
+
 _(Minimum free space)_:
-: <input type="text" name="diskFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['diskFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
+: <input type="text" id="shareFloor" name="shareFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['shareFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
 
 :info_free_space_help:
 
