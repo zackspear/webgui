@@ -520,7 +520,7 @@ function formatWarning(val) {
  <tr><td></td><td><input type="button" value="_(Clear Stats)_" onclick="toggle_state('Clear')"></td><td>**_(Clear Stats)_** _(will immediately clear all disk statistics)_.</td></tr>
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
-<?if ($var['shareUser']=='e' && $var['shareCacheEnabled']=="yes" && $pool_devices):?>
+<?if ($var['shareUser']=='e' && $pool_devices):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table markdown="1" class="array_status noshift">
  <tr><td></td>

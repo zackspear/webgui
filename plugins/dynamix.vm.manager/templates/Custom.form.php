@@ -596,12 +596,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 									}
 								}
 
-								// Determine if cache drive is available:
-								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
-									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = _(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
-										echo mk_option($default_option, 'cache', $strLabel);
-									}
+								// Available cache pools
+								foreach ($pools as $pool) {
+									$strLabel = $pool.' - '.my_scale($disks[$pool]['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+									echo mk_option($default_option, $pool, $strLabel);
 								}
 
 								// Determine which disks from the array are available for this share:
@@ -724,12 +722,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 									}
 								}
 
-								// Determine if cache drive is available:
-								if (!empty($disks['cache']) && (!empty($disks['cache']['device']))) {
-									if ($strShareUserLocalUseCache != 'no' && $var['shareCacheEnabled'] == 'yes') {
-										$strLabel = _(my_disk('cache'),3).' - '.my_scale($disks['cache']['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
-										echo mk_option($default_option, 'cache', $strLabel);
-									}
+								// Available cache pools
+								foreach ($pools as $pool) {
+									$strLabel = $pool.' - '.my_scale($disks[$pool]['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+									echo mk_option($default_option, $pool, $strLabel);
 								}
 
 								// Determine which disks from the array are available for this share:

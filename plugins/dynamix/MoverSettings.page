@@ -16,10 +16,7 @@ Tag="calendar-check-o"
 ?>
 <?
 $setup = true;
-if ($var['shareCacheEnabled']!='yes') {
-  echo "<p class='notice'>"._('Cache device not enabled')."!</p>";
-  $setup = false;
-} elseif (!$pool_devices) {
+if (!$pool_devices) {
   echo "<p class='notice'>"._('No Cache device present')."!</p>";
   $setup = false;
 } elseif ($var['shareUser']=='-') {
@@ -122,7 +119,7 @@ _(Mover logging)_:
 &nbsp;
 : <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 
-<?if ($var['shareCacheEnabled']=="yes" && is_dir("/mnt/cache")):?>
+<?if ($pool_devices):?>
 &nbsp;
 <?if (file_exists("/var/run/mover.pid")):?>
 : <input type="submit" name="cmdStartMover" value="_(Move now)_" disabled> _(Mover is running)_.
