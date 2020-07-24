@@ -281,6 +281,9 @@ function deletePool() {
   $.cookie('deletepool','deletepool');
   document.deletepool.submit();
 }
+function eraseDisk(id) {
+  swal({title:"_(Erase Device Content)_?",text:"_(This will ERASE ALL device content)_<br><b>_(Existing content is permanently lost)_</b>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$.get("/update.htm",{cmdWipefs:id,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});});
+}
 function freeSpace(val) {
   $('#shareFloor').prop('disabled',val=='no');
 }
@@ -450,6 +453,7 @@ _(Critical disk utilization threshold)_ (%):
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
   <?$empty = $disks[$name]['devices']==0?>
+  <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')">
   <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
   <?endif;?>
 </form>

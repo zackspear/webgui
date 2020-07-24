@@ -1006,9 +1006,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<td>
 					<select name="nic[<?=$i?>][network]">
 					<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($arrNic['network'], $strBridge, $strBridge);
-						}
+					foreach ($arrValidBridges as $strBridge) {
+						echo mk_option($arrNic['network'], $strBridge, $strBridge);
+					}
 					?>
 					</select>
 				</td>
@@ -1018,8 +1018,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<td>
 					<select name="nic[<?=$i?>][model]">
 					<?
-						echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
-						echo mk_option($arrNic['model'], 'virtio', 'virtio');
+					echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
+					echo mk_option($arrNic['model'], 'virtio', 'virtio');
 					?>
 					</select>
 				</td>
@@ -1056,15 +1056,25 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
 			</tr>
-
 			<tr class="advanced">
 				<td>_(Network Bridge)_:</td>
 				<td>
 					<select name="nic[{{INDEX}}][network]">
 					<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($domain_bridge, $strBridge, $strBridge);
-						}
+					foreach ($arrValidBridges as $strBridge) {
+						echo mk_option($domain_bridge, $strBridge, $strBridge);
+					}
+					?>
+					</select>
+				</td>
+			</tr>
+			<tr class="advanced">
+				<td>_(Network Model)_:</td>
+				<td>
+					<select name="nic[{{INDEX}}][model]">
+					<?
+					echo mk_option(1, 'virtio-net', 'virtio-net');
+					echo mk_option(1, 'virtio', 'virtio');
 					?>
 					</select>
 				</td>
