@@ -188,7 +188,7 @@ _(Default appdata storage location)_:
   <?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
-  <span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
+  <span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
   <?endif;?>
 
 :docker_appdata_location_help:
