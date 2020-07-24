@@ -101,8 +101,8 @@
 				'target' => ''
 			]
 		]
-];
-$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
+	];
+	$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
 
 	// Merge in any default values from the VM template
 	if ($arrAllTemplates[$strSelectedTemplate] && $arrAllTemplates[$strSelectedTemplate]['overrides']) {
@@ -121,18 +121,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			}
 		} else {
 			// form view
-			if ($lv->domain_new($_POST)){
+			if ($lv->domain_new($_POST)) {
 				// Fire off the vnc popup if available
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
 				$vncport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
-				if ($vncport > 0) {
-					$vnc = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port='.$wsport.'&path=';
-					$reply['vncurl'] = $vnc;
-				}
 				$reply = ['success' => true];
-				} else {
-					$reply = ['error' => $lv->get_last_error()];
+				if ($vncport > 0) {
+					$reply['vncurl'] = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+				}
+			} else {
+				$reply = ['error' => $lv->get_last_error()];
 			}
 		}
 		echo json_encode($reply);
@@ -1511,7 +1510,13 @@ $(function() {
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vncurl) {
-					window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+					var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+					try {
+						vnc_window.focus();
+					} catch (e) {
+						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
+						return;
+					}
 				}
 				done();
 			}
