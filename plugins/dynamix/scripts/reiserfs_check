@@ -3,6 +3,8 @@
 # reiserfs_check status <dev> <id>
 # reiserfs_check cancel <dev> 
 
+# using /var/lib because that's where btrfs puts status
+mkdir -p /var/lib/reiserfs
 case "$1" in
 'start')
   # using /var/lib because that's where btrfs puts status

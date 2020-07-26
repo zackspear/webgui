@@ -3,6 +3,8 @@
 # btrfs_check status <dev> <id>
 # btrfs_check cancel <dev> <id>
 
+# by default btrfs-check outputs to /var/lib/btrfs
+mkdir -p /var/lib/btrfs
 case "$1" in
 'start')
   exec /sbin/btrfs check $4 $2 &> /var/lib/btrfs/check.status.$3 &
