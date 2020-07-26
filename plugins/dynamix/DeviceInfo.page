@@ -422,7 +422,7 @@ _(File system type)_:
 <?if (in_array($name,$pools)):?>
 <?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
 _(Enable user share assignment)_:
-: <select id="shareEnabled" name="shareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
+: <select id="shareEnabled" name="diskShareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
   <?=mk_option($disk['shareEnabled'], "yes", _('Yes'))?>
   <?=mk_option($disk['shareEnabled'], "no", _('No'))?>
   </select>
@@ -430,7 +430,7 @@ _(Enable user share assignment)_:
 :info_share_assignment_help:
 
 _(Minimum free space)_:
-: <input type="text" id="shareFloor" name="shareFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['shareFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
+: <input type="text" id="shareFloor" name="diskShareFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['shareFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
 
 :info_free_space_help:
 
