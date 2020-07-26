@@ -145,6 +145,7 @@ function getLibvirtSchema() {
 	root.domain.cpu.topology = {
 		"!attrs": {
 			sockets: null,
+			dies: null,
 			cores: null,
 			threads: null
 		}
@@ -289,7 +290,7 @@ function getLibvirtSchema() {
 	};
 	root.domain.devices.interface.model = {
 		"!attrs": {
-			type: ["virtio"]
+			type: ["virtio", "virtio-net"]
 		}
 	};
 
@@ -354,7 +355,7 @@ function getLibvirtSchema() {
 
 	root.domain.devices.memballoon = {
 		"!attrs": {
-			model: ["virtio"]
+			model: ["virtio", "none"]
 		}
 	};
 	root.domain.devices.memballoon.alias = {

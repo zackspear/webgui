@@ -101,8 +101,8 @@
 				'target' => ''
 			]
 		]
-];
-$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
+	];
+	$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
 
 	// Merge in any default values from the VM template
 	if ($arrAllTemplates[$strSelectedTemplate] && $arrAllTemplates[$strSelectedTemplate]['overrides']) {
@@ -121,18 +121,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			}
 		} else {
 			// form view
-			if ($lv->domain_new($_POST)){
+			if ($lv->domain_new($_POST)) {
 				// Fire off the vnc popup if available
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
 				$vncport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
-				if ($vncport > 0) {
-					$vnc = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port='.$wsport.'&path=';
-					$reply['vncurl'] = $vnc;
-				}
 				$reply = ['success' => true];
-				} else {
-					$reply = ['error' => $lv->get_last_error()];
+				if ($vncport > 0) {
+					$reply['vncurl'] = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+				}
+			} else {
+				$reply = ['error' => $lv->get_last_error()];
 			}
 		}
 		echo json_encode($reply);
@@ -1006,9 +1005,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<td>
 					<select name="nic[<?=$i?>][network]">
 					<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($arrNic['network'], $strBridge, $strBridge);
-						}
+					foreach ($arrValidBridges as $strBridge) {
+						echo mk_option($arrNic['network'], $strBridge, $strBridge);
+					}
 					?>
 					</select>
 				</td>
@@ -1018,8 +1017,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<td>
 					<select name="nic[<?=$i?>][model]">
 					<?
-						echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
-						echo mk_option($arrNic['model'], 'virtio', 'virtio');
+					echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
+					echo mk_option($arrNic['model'], 'virtio', 'virtio');
 					?>
 					</select>
 				</td>
@@ -1056,15 +1055,25 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					<input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value="" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
 			</tr>
-
 			<tr class="advanced">
 				<td>_(Network Bridge)_:</td>
 				<td>
 					<select name="nic[{{INDEX}}][network]">
 					<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($domain_bridge, $strBridge, $strBridge);
-						}
+					foreach ($arrValidBridges as $strBridge) {
+						echo mk_option($domain_bridge, $strBridge, $strBridge);
+					}
+					?>
+					</select>
+				</td>
+			</tr>
+			<tr class="advanced">
+				<td>_(Network Model)_:</td>
+				<td>
+					<select name="nic[{{INDEX}}][model]">
+					<?
+					echo mk_option(1, 'virtio-net', 'virtio-net');
+					echo mk_option(1, 'virtio', 'virtio');
 					?>
 					</select>
 				</td>
@@ -1501,7 +1510,13 @@ $(function() {
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vncurl) {
-					window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+					var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+					try {
+						vnc_window.focus();
+					} catch (e) {
+						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
+						return;
+					}
 				}
 				done();
 			}

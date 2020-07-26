@@ -192,7 +192,7 @@ function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '._($word.($val!=1?'s':'')).($last ?'':', ')) : '') : '';
 }
 function compress($name,$size=18,$end=6) {
-  return strlen($name)<=$size ? $name : substr($name,0,$size-($end?$end+3:0)).'...'.($end?substr($name,-$end):'');
+  return mb_strlen($name)<=$size ? $name : mb_substr($name,0,$size-($end?$end+3:0)).'...'.($end?mb_substr($name,-$end):'');
 }
 function escapestring($name) {
   return "\"$name\"";
