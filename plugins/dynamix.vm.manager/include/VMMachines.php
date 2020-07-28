@@ -79,8 +79,16 @@ foreach ($vms as $vm) {
     $graphics = 'VNC:auto';
   } elseif (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
-    foreach ($arrConfig['gpu'] as $arrGPU) foreach ($arrValidGPUDevices as $arrDev) {
-      if ($arrGPU['id'] == $arrDev['id']) $graphics .= $arrDev['name']."\n";
+    foreach ($arrConfig['gpu'] as $arrGPU) {
+      foreach ($arrValidGPUDevices as $arrDev) {
+        if ($arrGPU['id'] == $arrDev['id']) {
+          if (count(array_filter($arrValidGPUDevices, function($v) use ($arrDev) { return $v['name'] == $arrDev['name']; })) > 1) {
+            $graphics .= $arrDev['name'].' ('.$arrDev['id'].')'."\n";
+          } else {
+            $graphics .= $arrDev['name']."\n";
+          }
+        }
+      }
     }
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
