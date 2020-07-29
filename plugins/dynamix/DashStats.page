@@ -158,7 +158,7 @@ div.frame{float:left;margin:14px 0}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
-div.right{float:right;margin:-12px 20px 0 0;text-align:center}
+div.right{float:right;margin:-20px 0 0 0;text-align:center}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
 span.inner{width:<?=$theme1?153:140?>px}
@@ -231,7 +231,7 @@ form[name=boot]{display:none}
 <i id='mycase' class='fa fa-hdd-o'></i><br>
 <?endif;?>
 </span>
-<input type='button' value="_(Edit)_" onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","_(Select Case Model)_",700,980,true,"setCase");return false'>
+<input type='button' value="_(Edit)_" style="margin-right:0" onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","_(Select Case Model)_",700,980,true,"setCase");return false'>
 </div>
 </td><td></td></tr>
 </tbody>
