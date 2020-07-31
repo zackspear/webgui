@@ -413,7 +413,7 @@ for ($n=0; $n<=$i; $n++) echo $hdr[$n].$row[$n];
 $i = 0;
 foreach ($shares as $name => $share) {
   $i++;
-  $list = "<a href=\"$path/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
   elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
   $comment = compress($share['comment'],40);
@@ -426,7 +426,7 @@ if (!count($shares)) echo "<tr><td></td><td colspan='4' class='none'>"._("No sha
 <?if ($var['shareNFSEnabled']=='yes'):?>
 <tbody sort='<?=$N?>' class='nfs share share3 sortable'><?
 foreach ($shares as $name => $share) {
-  $list = "<a href=\"$path/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
   elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
   $comment = compress($share['comment'],40);
@@ -439,7 +439,7 @@ if (!count($shares)) echo "<tr><td></td><td colspan='4' class='none'>"._("No sha
 <?if (!$group):?>
 <tbody sort='<?=$N?>' class='share sortable'><?
 foreach ($shares as $name => $share) {
-  $list = "<a href=\"$path/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
   elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
   $comment = compress($share['comment'],40);
@@ -455,7 +455,7 @@ if (!count($shares)) echo "<tr><td></td><td colspan='4' class='none'>"._("No sha
 <tbody sort='<?=$N?>' class='smb user user1 sortable'><?
 foreach ($users as $user) {
   $name = $user['name'];
-  $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   $desc = compress($user['desc'],40);
   if ($name=='root') {
     $write = '-'; $read = '-';
@@ -487,7 +487,7 @@ foreach ($users as $user) {
 <tbody sort='<?=$N?>' class='nfs user user3 sortable'><?
 foreach ($users as $user) {
   $name = $user['name'];
-  $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   $desc = compress($user['desc'],40);
   $write = '-'; $read = '-';
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
@@ -499,7 +499,7 @@ foreach ($users as $user) {
 <tbody sort='<?=$N?>' class='user sortable'><?
 foreach ($users as $user) {
   $name = $user['name'];
-  $list = "<a href=\"$path/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
+  $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
   $desc = compress($user['desc'],40);
   if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
   echo "<tr><td></td><td><i class='icon-user'></i>$list</td><td>$desc</td><td>-</td><td>-</td><td></td></tr>";
