@@ -44,7 +44,7 @@ require_once "$docroot/webGui/include/CustomMerge.php";
 
 // Language translations
 $_SESSION['locale'] = $display['locale'];
-$_SESSION['buildDate'] = date('Ymd',$var['regBuildDate']);
+$_SESSION['buildDate'] = date('Ymd',$var['regBuildTime']);
 require_once "$docroot/webGui/include/Translations.php";
 
 // Build webGui pages first, then plugins pages
