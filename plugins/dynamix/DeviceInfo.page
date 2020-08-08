@@ -20,6 +20,7 @@ $disk = &$disks[$name];
 $date = date('Ymd-Hi');
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
+$yes = _('Yes');
 
 function sharename($share) {
   return substr($share,0,-4);
@@ -282,7 +283,18 @@ function deletePool() {
   document.deletepool.submit();
 }
 function eraseDisk(id) {
-  swal({title:"_(Erase Device Content)_?",text:"_(This will ERASE ALL device content)_<br><b>_(Existing content is permanently lost)_</b>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$.get("/update.htm",{cmdWipefs:id,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});});
+  swal({
+    title:"_(Erase Device Content)_?",
+    text:"_(This will ERASE ALL device content)_<p style='font-weight:bold;color:red'>_(Existing content is permanently lost)_</p>",
+    html:true,
+    type:'input',
+    inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$yes)?>",
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"},
+    function(confirm) {
+      if (confirm === "<?=$yes?>") {$.get("/update.htm",{cmdWipefs:id,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});}
+    });
 }
 function freeSpace(val) {
   $('#shareFloor').prop('disabled',val=='no');
