@@ -57,6 +57,8 @@ $tag  = $disk['name'];
 $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
+
+$text = in_array($name,$pools) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
@@ -285,7 +287,7 @@ function deletePool() {
 function eraseDisk(id) {
   swal({
     title:"_(Erase Device Content)_?",
-    text:"_(This will ERASE ALL device content)_<p style='font-weight:bold;color:red'>_(Existing content is permanently lost)_</p>",
+    text:"<?=$text?><p style='font-weight:bold;color:red;margin:8px 0'>_(Existing content is permanently lost)_</p>",
     html:true,
     type:'input',
     inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$yes)?>",
@@ -463,9 +465,11 @@ _(Critical disk utilization threshold)_ (%):
 <?endif;?>
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+  <?if ($var['fsState']=="Stopped" && ($disk['type']=='Data' || in_array($name,$pools))):?>
+  <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')">
+  <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
   <?$empty = $disks[$name]['devices']==0?>
-  <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')">
   <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
   <?endif;?>
 </form>
