@@ -78,7 +78,7 @@ function provisionSSL(button) {
   };
   var success_rebind_check = function(data) {
     $.post("/webGui/include/CertUpload.php",{text:data.bundle,csrf_token:"<?=$var['csrf_token']?>"},function(data2) {
-      swal({title:"",text:msg,type:"success",allowEscapeKey:false,confirmButtonText:"_(Ok)_"},function(){button.form.submit();});
+      swal({title:"",text:msg,type:"success",allowEscapeKey:false,confirmButtonText:"_(Ok)_",html:true},function(){button.form.submit();});
     }).fail(failure);
   };
   $.post("/webGui/include/ProvisionCert.php",success_provision).fail(failure);
