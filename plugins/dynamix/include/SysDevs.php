@@ -66,7 +66,7 @@ case 't1':
       }
     }
     $networks = (array)parse_ini_file('state/network.ini',true);
-    $networklist = array_column($networks, 'BRNICS');
+    $networklist = explode(",", array_column($networks, 'BRNICS')[0].",".array_column($networks, 'BONDNICS')[0]);
     foreach ($networklist as $line) {
       if (!empty($line)) {
         exec('readlink /sys/class/net/'.$line,$linereturn);
