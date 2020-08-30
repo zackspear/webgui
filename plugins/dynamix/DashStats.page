@@ -91,6 +91,7 @@ $wg_up = $wg_up ? explode(' ',$wg_up) : [];
 $up    = count($wg_up);
 $down  = max(count($conf)-$up,0);
 $fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
+$autofan = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
 $group = $var['shareSMBEnabled']=='yes' | $var['shareNFSEnabled']=='yes';
 $url   = "/webGui/include/DashUpdate.php";
 $names = [];
@@ -353,7 +354,9 @@ foreach ($ports as $port) {
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-fan'></i><div class='section'>_(Airflow)_<br><span>_(Fan count)_: <?=$fans?></span><br><br></div>
 <i class='fa fa-fw chevron' id='fan_view' onclick='toggleChevron("fan_view",0)'></i>
+<?if ($autofan):?>
 <a href='/Dashboard/Settings/FanSettings' title="_(Go to fan settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
+<?endif;?>
 </td><td></td></tr>
 <?
 $tr_fan = "<tr class='fan_view'><td></td>";
