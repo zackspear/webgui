@@ -316,7 +316,7 @@ foreach ($ports as $port) {
 }
 ?>
 </tbody>
-<?if ($wireguard):?>
+<?if ($wireguard && count($conf)):?>
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-vpn'></i><div class='section'>_(VPN)_<br><span class='ups'>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><span class='ups'>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
