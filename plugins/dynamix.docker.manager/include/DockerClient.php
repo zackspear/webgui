@@ -409,63 +409,64 @@ class DockerUpdate{
 		 */
 		$DockerClient = new DockerClient();
 		$registryAuth = $DockerClient->getRegistryAuth($image);
-		if ($registryAuth) {
-			$manifestURL = sprintf('%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['imageName'], $registryAuth['imageTag']);
-		} else {
-			$manifestURL = sprintf('https://registry-1.docker.io/v2/%s/manifests/%s', $strRepo, $strTag);
-		}
+		$manifestURL = sprintf('%s%s%s/manifests/%s', $registryAuth['apiUrl'], $registryAuth['repository'], $registryAuth['imageName'], $registryAuth['imageTag']);
 		//$this->debug('Manifest URL: '.$manifestURL);
-		/*
-		 * Step 2: Get www-authenticate header from manifest url to generate token url
-		 */
 		$ch = getCurlHandle($manifestURL, 'HEAD');
 		$reply = curl_exec($ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
+		/*
+		 * Step 2: Get www-authenticate header from manifest url to generate token or basic auth
+		 */
+		$digest_ch = getCurlHandle($manifestURL, 'HEAD', $header);
+		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json'];
 		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $reply, $matches);
-		if (empty($matches[1])) {
-			//this->debug('Error: Www-Authenticate header is empty or missing');
-			return null;
+		if (!empty($matches[1])) {
+			$strArgs = explode(',', $matches[1]);
+			$args = [];
+			foreach ($strArgs as $arg) {
+				$arg = explode('=', $arg);
+				$args[$arg[0]] = trim($arg[1], "\" \r\n");
+			}
+			if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) return null;
+			$url = $args['realm'].'?service='.urlencode($args['service']).'&scope='.urlencode($args['scope']);
+			//$this->debug('Token URL: '.$url);
+			/**
+			 * Step 2a: Get token from API and authenticate via username / password if in private registry and auth data was found
+			 */
+			$ch = getCurlHandle($url);
+			if (!empty($registryAuth['password'])) {
+        curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+			}
+			$reply = curl_exec($ch);
+			if (curl_errno($ch) !== 0) {
+				//$this->debug('Error: curl error getting token: '.curl_error($ch));
+				return null;
+			}
+			$reply = json_decode($reply, true);
+			if (!$reply || empty($reply['token'])) {
+				//$this->debug('Error: Token response was empty or missing token');
+				return null;
+			}
+			$token = $reply['token'];
+			array_push($header, 'Authorization: Bearer '.$token);
 		}
-		$strArgs = explode(',', $matches[1]);
-		$args = [];
-		foreach ($strArgs as $arg) {
-			$arg = explode('=', $arg);
-			$args[$arg[0]] = trim($arg[1], "\" \r\n");
+		if (preg_match('@www-authenticate:\s*Basic\s*@i', $reply)) {
+			if (!empty($registryAuth['password'])) curl_setopt($digest_ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+			else return null;
 		}
-		if (empty($args['realm']) || empty($args['service']) || empty($args['scope'])) return null;
-		$url = $args['realm'].'?service='.urlencode($args['service']).'&scope='.urlencode($args['scope']);
-		//$this->debug('Token URL: '.$url);
 		/**
-		 * Step 3: Get token from API and authenticate via username / password if in private registry and auth data was found
+		 * Step 3: Get Docker-Content-Digest header from manifest file
 		 */
-		$ch = getCurlHandle($url);
-		if ($registryAuth) curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
-		$reply = curl_exec($ch);
-		if (curl_errno($ch) !== 0) {
-			//$this->debug('Error: curl error getting token: '.curl_error($ch));
-			return null;
-		}
-		$reply = json_decode($reply, true);
-		if (!$reply || empty($reply['token'])) {
-			//$this->debug('Error: Token response was empty or missing token');
-			return null;
-		}
-		$token = $reply['token'];
-		/**
-		 * Step 4: Get Docker-Content-Digest header from manifest file
-		 */
-		$ch = getCurlHandle($manifestURL, 'HEAD', $header);
-		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json', 'Authorization: Bearer '.$token];
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-		$reply = curl_exec($ch);
+		curl_setopt($digest_ch, CURLOPT_HTTPHEADER, $header);
+		$reply = curl_exec($digest_ch);
 		if (curl_errno($ch) !== 0) {
 			//$this->debug('Error: curl error getting manifest: '.curl_error($ch));
 			return null;
 		}
-		preg_match('@Docker-Content-Digest:\s*(.*)@', $reply, $matches);
+		preg_match('@Docker-Content-Digest:\s*(.*)@i', $reply, $matches);
 		if (empty($matches[1])) {
 			//$this->debug('Error: Docker-Content-Digest header is empty or missing');
 			return null;
@@ -802,29 +803,37 @@ class DockerClient {
 
 	public function getRegistryAuth($image) {
 		$image = DockerUtil::ensureImageTag($image);
-		$usesRegistry = preg_match('@^([^/]+)/(.+):(.+)$@', $image, $matches);
-		if (!$usesRegistry) {
-			return false;
+		//$this->debug('Image: '.$image);
+		preg_match('@^([^/]+\.[^/]+/)?([^/]+/)?(.+:)(.+)$@', $image, $matches);
+		list(,$registry, $repository, $image, $tag) = $matches;
+		$ret = [
+			'username'     => '',
+			'password'     => '',
+			'registryName' => substr($registry, 0, -1),
+			'repository' => $repository,
+			'imageName'    => substr($image, 0, -1),
+			'imageTag'     => $tag,
+			'apiUrl'       => 'https://'.$registry.'v2/',
+		];
+		$configKey = $ret['registryName'];
+		if (empty($registry) || $configKey == 'docker.io') {
+			$ret['apiUrl'] = 'https://registry-1.docker.io/v2/';
 		}
-
+		// Use credentials if docker.io registry is specified
+		if ($configKey == 'docker.io') {
+			$configKey = 'https://index.docker.io/v1/';
+		}
 		$dockerConfig = '/root/.docker/config.json';
 		if (!file_exists($dockerConfig)) {
-			return false;
+			return $ret;
 		}
 		$dockerConfig = json_decode(file_get_contents($dockerConfig), true);
-		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $matches[1] ])) {
-			return false;
+		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $configKey ])) {
+			return $ret;
 		}
-		list($user, $password) = explode(':', base64_decode($dockerConfig['auths'][ $matches[1] ]['auth']));
+		list($ret['username'], $ret['password']) = explode(':', base64_decode($dockerConfig['auths'][ $configKey ]['auth']));
 
-		return [
-			'username'     => $user,
-			'password'     => $password,
-			'registryName' => $matches[1],
-			'imageName'    => $matches[2],
-			'imageTag'     => $matches[3],
-			'apiUrl'       => 'https://'.$matches[1].'/v2/',
-		];
+		return $ret; 
 	}
 
 	public function removeImage($id) {
@@ -853,7 +862,7 @@ class DockerClient {
 		foreach ($this->getDockerJSON("/containers/json?all=1") as $ct) {
 			$info = $this->getContainerDetails($ct['Id']);
 			$c = [];
-			$c['Image']       = DockerUtil::ensureImageTag($ct['Image']);
+			$c['Image']       = DockerUtil::ensureImageTag($info['Config']['Image']);
 			$c['ImageId']     = $this->extractID($ct['ImageID']);
 			$c['Name']        = substr($info['Name'], 1);
 			$c['Status']      = $ct['Status'] ?: 'None';
