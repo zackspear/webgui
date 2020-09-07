@@ -66,19 +66,27 @@ case 't1':
       }
     }
     $networks = (array)parse_ini_file('state/network.ini',true);
-    $networklist = array_column($networks, 'BRNICS');
-    foreach ($networklist as $line) {
-      if (!empty($line)) {
-        exec('readlink /sys/class/net/'.$line,$linereturn);
-        preg_match_all($DBDF_PARTIAL_REGEX, $linereturn[0], $inuse);
-        foreach ($inuse[0] as $line) {
-          $lines[] = $line;
+    $networklist = array_merge(array_column($networks, 'BRNICS'), array_column($networks, 'BONDNICS'));
+    foreach ($networklist as $niclist) {
+        if (!empty($niclist)) {
+            $nics = explode(",", $niclist);
+            if (!empty($nics)) {
+                foreach ($nics as $line) {
+                    if (!empty($line)) {
+                        exec('readlink /sys/class/net/'.$line,$linereturn);
+                        preg_match_all($DBDF_PARTIAL_REGEX, $linereturn[0], $inuse);
+                        foreach ($inuse[0] as $line) {
+                          $lines[] = $line;
+                        }
+                        unset($inuse);
+                        unset($linereturn);
+                    }
+                }
+            }
         }
-        unset($inuse);
-        unset($linereturn);
-      }
     }
     $lines = array_values(array_unique($lines, SORT_STRING));
+
 
     $iommuinuse = array ();
     foreach ($lines as $pciinuse){
