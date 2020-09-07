@@ -303,6 +303,10 @@ function openUpgrade() {
 function notifier() {
   var tub1 = 0, tub2 = 0, tub3 = 0;
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+    if (json && /^<!DOCTYPE html>/.test(json)) {
+      // Session is invalid, user has logged out from another tab
+      $(location).attr('href','/');
+    }
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
