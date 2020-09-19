@@ -26,6 +26,7 @@ notify [-e "event"] [-s "subject"] [-d "description"] [-i "normal|warning|alert"
   use -d to specify a short description
   use -i to specify the severity
   use -m to specify a message (long description)
+	use -l to specify a link (clicking the notification will take you to that location)
   use -x to create a single notification ticket
   use -r to specify recipients and not use default
   use -t to force send email only (for testing)
