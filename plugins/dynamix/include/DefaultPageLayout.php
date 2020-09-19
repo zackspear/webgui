@@ -320,7 +320,7 @@ function notifier() {
         group: notify.importance,
         header: notify.event+': '+notify.timestamp,
         theme: notify.file,
-        beforeOpen: function(e,m,o){if ($('div.jGrowl-notify').hasClass(notify.file)) return(false);},
+        beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
         beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
       });
 <?endif;?>
@@ -350,7 +350,7 @@ function openNotifier(filter) {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
-          beforeOpen: function(e,m,o){if ($('div.jGrowl-notify').hasClass(notify.file)) return(false);},
+          beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
           beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
         });
       }
