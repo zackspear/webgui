@@ -320,8 +320,10 @@ function notifier() {
         group: notify.importance,
         header: notify.event+': '+notify.timestamp,
         theme: notify.file,
+				click: function(e,m,o) { if (notify.link) location=notify.link;},
         beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
+        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
+				afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
       });
 <?endif;?>
     });
