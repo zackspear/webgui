@@ -122,7 +122,7 @@ $(function(){
         swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",html:true,confirmButtonText:"_(Ok)_"});
         break;
       case 'TooManyFiles':
-        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"html:true,});
+        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error",html:true});
         break;
       case 'FileTooLarge':
         swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K)_ (524,288 _(bytes)_)",type:"error",html:true,confirmButtonText:"_(Ok)_"});
