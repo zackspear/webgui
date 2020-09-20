@@ -81,20 +81,20 @@ $(function() {
     url:'/webGui/include/FileUpload.php',
     beforeEach:function(file) {
       if (!file.type.match(/^image\/.*/)) {
-        swal({title:"_(Warning)_",text:"_(Only PNG images are allowed)_!",type:"warning",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(Warning)_",text:"_(Only PNG images are allowed)_!",type:"warning",html:true,confirmButtonText:"_(Ok)_"});
         return false;
       }
     },
     error: function(err, file, i) {
       switch (err) {
       case 'BrowserNotSupported':
-        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",html:true,confirmButtonText:"_(Ok)_"});
         break;
       case 'TooManyFiles':
-        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
+        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",html:true,type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K)_ (524,288 _(bytes)_)",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K)_ (524,288 _(bytes)_)",type:"error",html:true,confirmButtonText:"_(Ok)_"});
         break;
       }
     },
@@ -112,7 +112,7 @@ $(function() {
         $('select[name="banner"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"_(Upload error)_",text:response,type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(Upload error)_",text:response,type:"error",html:true,confirmButtonText:"_(Ok)_"});
       }
     }
   });

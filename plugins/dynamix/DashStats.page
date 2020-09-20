@@ -906,7 +906,7 @@ function toggleView(field,init,view) {
 }
 function StopArray() {
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){StopArrayNow();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){StopArrayNow();});
 <?else:?>
    StopArrayNow();
 <?endif;?>
@@ -917,7 +917,7 @@ function StopArrayNow() {
 }
 function StartArray() {
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will start the array)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){StartArrayNow();});
+  swal({title:"_(Proceed)_?",text:"_(This will start the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){StartArrayNow();});
 <?else:?>
   StartArrayNow();
 <?endif;?>
@@ -928,7 +928,7 @@ function StartArrayNow() {
 }
 function Reboot() {
 <?if ($confirm['down']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will reboot the system)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){RebootNow();});
+  swal({title:"_(Proceed)_?",text:"_(This will reboot the system)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){RebootNow();});
 <?else:?>
   RebootNow();
 <?endif;?>
@@ -939,7 +939,7 @@ function RebootNow() {
 }
 function Shutdown() {
 <?if ($confirm['down']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will shutdown the system)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){ShutdownNow();});
+  swal({title:"_(Proceed)_?",text:"_(This will shutdown the system)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){ShutdownNow();});
 <?else:?>
   ShutdownNow();
 <?endif;?>
@@ -952,7 +952,7 @@ function ShutdownNow() {
 <?if ($sleep):?>
 function Sleep() {
 <?if ($confirm['sleep']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will put the system to sleep)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){SleepNow();});
+  swal({title:"_(Proceed)_?",text:"_(This will put the system to sleep)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){SleepNow();});
 <?else:?>
   SleepNow();
 <?endif;?>

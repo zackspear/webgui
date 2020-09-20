@@ -60,7 +60,7 @@ function remove(language) {
 function upload(form) {
   var language = form.language;
   if (!language.value) {
-    swal({title:"_(Missing Language)_",text:"_(Please select a language before proceeding)_!",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Missing Language)_",text:"_(Please select a language before proceeding)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return;
   }
   execute('add', "_(Language support added)_", language.value, language.options[language.selectedIndex].text, form.file.value);
@@ -75,7 +75,7 @@ function getZIPfile(event,form) {
       $('#uploadbutton').prop('disabled',false);
       for (var n = 0; n < form.language.length; n++) if (form.language.options[n].text.indexOf(name.slice(0,-4))>0) {form.language.selectedIndex = n; break;}
     } else {
-     swal({title:"_(Wrong File Extension)_",text:"_(Only ZIP files are allowed)_",type:'error',confirmButtonText:"_(Ok)_"});
+     swal({title:"_(Wrong File Extension)_",text:"_(Only ZIP files are allowed)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
   };
   reader.readAsDataURL(input.files[0]);
