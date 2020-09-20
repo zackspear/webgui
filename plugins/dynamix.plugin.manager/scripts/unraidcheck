@@ -37,7 +37,7 @@ foreach ($builtin as $name) {
   $new = plugin('version', $file);
   // silently suppress bad download of PLG file
   if (version_compare($new,$old,'>')) {
-    exec("$notify -e ".escapeshellarg("System - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -x");
+    exec("$notify -e ".escapeshellarg("System - $name [$new]")." -s ".escapeshellarg("Notice [$server] - Version update $new")." -d ".escapeshellarg("A new version of $name is available")." -i ".escapeshellarg("normal $output")." -l '/Tools/Update' -x");
   }
 }
 exit(0);

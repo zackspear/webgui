@@ -65,7 +65,7 @@ if (!isset($check)) {
         $event = str_replace("&apos;","'",_("Docker")." - $name [$new]");
         $subject = str_replace("&apos;","'",sprintf(_("Notice [%s] - Version update %s"),$server,$new));
         $description = str_replace("&apos;","'",sprintf(_("A new version of %s is available"),$name));
-        exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -x");
+        exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Docker' -x");
       }
     }
   }
