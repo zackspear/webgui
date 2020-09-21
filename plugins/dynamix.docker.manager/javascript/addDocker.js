@@ -14,7 +14,7 @@ if (!String.prototype.format) {
 
 function rmTemplate(tmpl) {
 	var name = tmpl.split(/[\/]+/).pop();
-	swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+	swal({title:"Are you sure?",text:"Remove template: "+name,type:"warning",html:true,showCancelButton:true},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
 }
 
 function toggleBrowser(N) {

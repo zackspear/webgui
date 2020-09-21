@@ -192,7 +192,7 @@ function parityStatus() {
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -200,7 +200,7 @@ function stopArray(form) {
 function stopParity(form,text) {
   $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the running operation)_: "+text,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the running operation)_: "+text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -222,7 +222,7 @@ function shutdown_now(form,cmd) {
     case 'reboot': var text = "_(This will reboot the system)_"; break;
     case 'shutdown': var text = "_(This will shutdown the system)_"; break;
   }
-  swal({title:"_(Proceed)_?",text:text,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
+  swal({title:"_(Proceed)_?",text:text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>

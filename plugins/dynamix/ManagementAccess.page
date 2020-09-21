@@ -58,7 +58,7 @@ function provisionSSL(button) {
     var obj = data.responseJSON;
     var msg = "_(Sorry, an error occurred in processing your SSL certificate)_. _(The error is)_: "+obj.error+".";
     $(button).prop("disabled", false).html(oldlabel);
-    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Oops)_",text:msg,type:"error",html:true,confirmButtonText:"_(Ok)_"});
   };
   var success_provision = function(data) {
     if (data.bundle) {
@@ -90,11 +90,11 @@ function updateDNS(button) {
     var obj = data.responseJSON;
     var msg = "_(Sorry, an error occurred updating unraid.net DNS records)_. _(The error is)_: "+obj.error+".";
     $(button).prop("disabled", false).html("_(Update DNS)_");
-    swal({title:"_(Oops)_",text:msg,type:"error",confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Oops)_",text:msg,type:"error",html:true,confirmButtonText:"_(Ok)_"});
   };
   var success = function(data) {
     $(button).prop("disabled", false).html("_(Update DNS)_");
-    swal({title:"",text:"_(Your local IP address)_ <?=$internalip?> _(has been updated for unraid.net)_.",type:"success",confirmButtonText:"_(Ok)_"});
+    swal({title:"",text:"_(Your local IP address)_ <?=$internalip?> _(has been updated for unraid.net)_.",type:"success",html:true,confirmButtonText:"_(Ok)_"});
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }

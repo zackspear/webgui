@@ -265,21 +265,21 @@ function prepareEdit(form) {
 // Test share name validity
   var share = form.shareName.value.trim();
   if (share.length==0) {
-    swal({title:"_(Missing share name)_",text:"_(Enter a name for the share)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Missing share name)_",text:"_(Enter a name for the share)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
   if (reserved.includes(share)) {
-    swal({title:"_(Invalid share name)_",text:"_(Do not use reserved names)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid share name)_",text:"_(Do not use reserved names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (pools.includes(share)) {
-    swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   if (share.match('[:\\\/*<>|"]')) {
-    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | "',type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | "',type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   form.shareName.value = share;
