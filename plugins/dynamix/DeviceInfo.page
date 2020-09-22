@@ -406,8 +406,7 @@ _(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 _(File system status)_:
 : <?=_($disk['fsStatus'])?>&nbsp;
 
-<?if ($var['fsState']=="Stopped"):?>
-<?$disabled = $var['mdState']=="SWAP_DSBL" ? "disabled" : ""?>
+<?$disabled = (($var['fsState']=="Stopped" && $var['mdState']=="SWAP_DSBL") || $disk['fsStatus']=='Mounted') ? "disabled" : ""?>
 <?if ($disk['type']=="Data" || (isset($disk['slots']) && $disk['slots']==1)):?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
@@ -429,11 +428,6 @@ _(File system type)_:
   <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
   <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   </select>
-
-<?endif;?>
-<?else:?>
-_(File system type)_:
-: <?=_(str_replace('luks:','',$disk['fsType'])).(strpos($disk['fsType'],'luks:')!==false ? ' - '._('encrypted') : '')?>&nbsp;
 
 <?endif;?>
 <?if (in_array($name,$pools)):?>
@@ -465,8 +459,31 @@ _(Critical disk utilization threshold)_ (%):
 <?endif;?>
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
-  <?if ($var['fsState']=="Stopped" && ($disk['type']=='Data' || in_array($name,$pools))):?>
-  <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')">
+  <?$erasable=false?>
+  <?if ($disk['type']=='Data'):?>
+    <?if ($var['fsState']=="Stopped"):?>
+      <?if (($disks['parity']['status'] != 'DISK_OK') && ($disks['parity2']['status'] != 'DISK_OK')):?>
+        <?$erasable=true?>
+      <?endif;?>
+    <?endif;?>
+    <?if ($var['fsState']=="Started" && $var['startMode']!="Normal"):?>
+        <?$erasable=true?>
+    <?endif;?>
+    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+  <?endif;?>
+  <?if ($disk['type']=='Parity'):?>
+    <?if ($var['fsState']=="Stopped"):?>
+      <?if ($disk['status']!="DISK_OK"):?>
+        <?$erasable=true?>
+      <?endif;?>
+    <?endif;?>
+    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+  <?endif;?>
+  <?if (in_array($name,$pools)):?>
+    <?if ($var['fsState']=="Stopped" || ($var['fsState']=="Started" && $var['startMode']!="Normal")):?>
+      <?$erasable=true?>
+    <?endif;?>
+    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
   <?$empty = $disks[$name]['devices']==0?>
@@ -494,15 +511,17 @@ _(btrfs balance status)_:
 
 &nbsp;
 : <input type="submit" value="_(Balance)_">
-<?if (isset($disk['slots']) && $disk['slots']>1):?>
+<?if (isset($disk['devices']) && $disk['devices']>1):?>
   <select onchange="updateMode(this.form,this.value)">
   <?=mk_option(1,'',_('Perform full balance'))?>
-  <?=mk_option(1,'-dconvert=single -mconvert=raid1',_('Convert to single mode'))?>
-  <?=mk_option(1,'-dconvert=raid0 -mconvert=raid1',_('Convert to raid0 mode'))?>
-  <?=mk_option(1,'-dconvert=raid1 -mconvert=raid1',_('Convert to raid1 mode'))?>
-  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid10 -mconvert=raid10',_('Convert to raid10 mode'))?>
-  <?if (isset($disk['slots']) && $disk['slots']>=3) echo mk_option(1,'-dconvert=raid5 -mconvert=raid1',_('Convert to raid5 mode *see help'))?>
-  <?if (isset($disk['slots']) && $disk['slots']>=4) echo mk_option(1,'-dconvert=raid6 -mconvert=raid1',_('Convert to raid6 mode *see help'))?>
+  <?=mk_option(1,'-dconvert=single,soft -mconvert=raid1,soft',_('Convert to single mode'))?>
+  <?=mk_option(1,'-dconvert=raid0,soft -mconvert=raid1,soft',_('Convert to raid0 mode'))?>
+  <?=mk_option(1,'-dconvert=raid1,soft -mconvert=raid1,soft',_('Convert to raid1 mode'))?>
+  <?if ($disk['devices']>=3) echo mk_option(1,'-dconvert=raid1c3,soft -mconvert=raid1c3,soft',_('Convert to raid1c3 mode'))?>
+  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid1c4,soft -mconvert=raid1c4,soft',_('Convert to raid1c4 mode'))?>
+  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid10,soft -mconvert=raid10,soft',_('Convert to raid10 mode'))?>
+  <?if ($disk['devices']>=3) echo mk_option(1,'-dconvert=raid5,soft -mconvert=raid1,soft',_('Convert to raid5 mode *see help'))?>
+  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid6,soft -mconvert=raid1c3,soft',_('Convert to raid6 mode *see help'))?>
   </select>
 <?else:?>
   *_(Perform full balance)_*
