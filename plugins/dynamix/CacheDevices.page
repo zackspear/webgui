@@ -34,16 +34,16 @@ function validate(poolname) {
   var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (!poolname.trim()) return false;
   if (reserved.includes(poolname)) {
-    swal({title:"_(Invalid pool name)_",text:"_(Do not use reserved names)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid pool name)_",text:"_(Do not use reserved names)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (shares.includes(poolname)) {
-    swal({title:"_(Invalid pool name)_",text:"_(Do not use user share names)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid pool name)_",text:"_(Do not use user share names)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (pools.includes(poolname)) {
-    swal({title:"_(Invalid pool name)_",text:"_(Pool name already exists)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid pool name)_",text:"_(Pool name already exists)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
     return false;
   } else if (!valid.test(poolname)) {
-    swal({title:"_(Invalid pool name)_",text:"_(Use only lowercase with no special characters or leading/trailing digits)_",type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid pool name)_",text:"_(Use only lowercase with no special characters or leading/trailing digits)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   } else {
     return true;

@@ -37,7 +37,7 @@ function backup() {
       $('input[value="_(Creating Flash backup)_..."]').val("_(Flash backup)_");
       $('div.spinner').hide('slow');
       $('#pleaseWait').hide('slow');
-      swal({title:"_(Creation error)_",text:"_(Insufficient free disk space available)_",type:'error',confirmButtonText:"_(Ok)_"});
+      swal({title:"_(Creation error)_",text:"_(Insufficient free disk space available)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
   });
 }

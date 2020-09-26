@@ -37,7 +37,7 @@ span.status.vhshift{margin-right:-10px!important}
 </style>
 <script>
 function deleteRoute(gateway,route,metric) {
-  swal({title:"Delete route?",text:route+" by gateway "+gateway,type:"warning",showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){
+  swal({title:"Delete route?",text:route+" by gateway "+gateway,type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){
     $.post('/webGui/include/RoutingTable.php',{gateway:gateway,route:route,metric:metric,task:'delete'},function(){resetTable();});
   });
 }

@@ -62,7 +62,7 @@ function archiveList(init) {
   });
 }
 function askConfirmation() {
-  swal({title:"_(Are you sure)_?",text:"_(This will delete all notification files)_!",type:"warning",showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify'},function(){archiveList();});});
+  swal({title:"_(Are you sure)_?",text:"_(This will delete all notification files)_!",type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify'},function(){archiveList();});});
 }
 function openClose(row) {
   var extra = '#archive_list .tablesorter-childRow.row'+row+' td';

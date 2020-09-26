@@ -63,7 +63,7 @@ function showPassword() {
 }
 function checkPassword(form) {
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
-    swal({title:"_(Password too long)_",text:"_(Use a password up to 128 characters)_",type:"error",confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Password too long)_",text:"_(Use a password up to 128 characters)_",type:"error",html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   form.userPassword.value = base64(form.userPasswordGUI.value);
@@ -120,20 +120,20 @@ $(function(){
     data:{"csrf_token":"<?=$var['csrf_token']?>"},
     beforeEach:function(file) {
       if (!file.type.match(/^image\/.*/)) {
-        swal({title:"Warning",text:"_(Only PNG images are allowed)_!",type:"warning",confirmButtonText:"_(Ok)_"});
+        swal({title:"Warning",text:"_(Only PNG images are allowed)_!",type:"warning",html:true,confirmButtonText:"_(Ok)_"});
         return false;
       }
     },
     error: function(error, file, i) {
       switch (error) {
       case 'BrowserNotSupported':
-        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(Browser error)_",text:"_(Your browser does not support HTML5 file uploads)_!",type:"error",html:true,confirmButtonText:"_(Ok)_"});
         break;
       case 'TooManyFiles':
-        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",type:"error"});
+        swal({title:"_(Too many files)_",text:"_(Please select one file only)_!",html:true,type:"error"});
         break;
       case 'FileTooLarge':
-        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K (524,288 bytes))_",type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(File too large)_",text:"_(Maximum file upload size is 512K (524,288 bytes))_",type:"error",html:true,confirmButtonText:"_(Ok)_"});
         break;
       }
     },
@@ -151,7 +151,7 @@ $(function(){
         $('input[name="userDesc"]').trigger('change');
         filename = file.name;
       } else {
-        swal({title:"_(Upload error)_",text:response,type:"error",confirmButtonText:"_(Ok)_"});
+        swal({title:"_(Upload error)_",text:response,type:"error",html:true,confirmButtonText:"_(Ok)_"});
       }
     }
   });

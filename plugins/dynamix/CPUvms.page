@@ -72,7 +72,7 @@ function apply(form) {
   // step 1: prepare the update and report back the changes
   $.post('/webGui/include/UpdateOne.php',args,function(reply){
     if (reply.error) {
-      swal({type:'error',title:"_(Assignment error)_",text:reply.error,confirmButtonText:"_(Ok)_"},function(){
+      swal({type:'error',title:"_(Assignment error)_",text:reply.error,html:true,confirmButtonText:"_(Ok)_"},function(){
         $('#wait-'+id).hide();
         $(form).find('input[value="_(Done)_"]').val("_(Reset)_").prop('disabled',false).prop('onclick',null).off('click').click(function(){reset($('form[name="'+id+'"]'));});
       });
@@ -86,7 +86,7 @@ function apply(form) {
         $.post('/webGui/include/UpdateTwo.php',{id:id,name:encodeURI(name)},function(reply){
           if (reply.error) {
             // report error and reload table
-            swal({type:'error',title:"_(Execution error)_",text:reply.error,confirmButtonText:"_(Ok)_"},function(){
+            swal({type:'error',title:"_(Execution error)_",text:reply.error,html:true,confirmButtonText:"_(Ok)_"},function(){
               $('#wait-'+id).hide();
               $('input[value="_(Done)_"]').prop('disabled',false);
               reset($('form[name="'+id+'"]'));
