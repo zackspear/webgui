@@ -145,6 +145,11 @@ _(Enable Docker)_:
 
 :docker_enable_help:
 
+_(Docker Stop Timeout)_:
+: <input id="DOCKER_TIMEOUT" type="number" name="DOCKER_TIMEOUT" value="<?=$dockercfg['DOCKER_TIMEOUT']?>">
+
+:docker_timeout_help:
+
 <?if ($DockerStopped):?>
 
 _(Docker data-root)_:
