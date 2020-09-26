@@ -749,9 +749,9 @@ class DockerClient {
 
 	public function stopContainer($id, $t=false) {
 		global $dockercfg;
-		
+
 		if ( ! $t )
-			$t = $dockercfg['DOCKER_TIMEOUT'] ?: 10;
+			$t = intval($dockercfg['DOCKER_TIMEOUT']) ?: 10;
 		$this->getDockerJSON("/containers/$id/stop?t=$t", 'POST', $code);
 		$this->flushCache($this::$containersCache);
 		return $code;
