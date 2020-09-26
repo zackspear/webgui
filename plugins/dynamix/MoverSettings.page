@@ -29,9 +29,11 @@ $mode = ['Hourly','Daily','Weekly','Monthly'];
 $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 ?>
 <script>
+<? if ($setup == true):?>
 $(function() {
   presetMover(document.mover_schedule);
 });
+<? endif; ?>
 // Fool Unraid by simulating the original input field
 function prepareMover(form) {
   var mode = form.shareMoverSchedule.value;
