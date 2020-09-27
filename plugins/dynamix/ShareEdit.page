@@ -278,8 +278,8 @@ function prepareEdit(form) {
     swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
-  if (share.match('[:\\\/*<>|"]')) {
-    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | "',type:'error',html:true,confirmButtonText:"_(Ok)_"});
+  if (share.match('[:\\\/*<>|"?]')) {
+    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | " ?',type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   form.shareName.value = share;
