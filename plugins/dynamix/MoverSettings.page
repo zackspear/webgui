@@ -29,9 +29,11 @@ $mode = ['Hourly','Daily','Weekly','Monthly'];
 $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 ?>
 <script>
+<? if ($setup == true):?>
 $(function() {
   presetMover(document.mover_schedule);
 });
+<? endif; ?>
 // Fool Unraid by simulating the original input field
 function prepareMover(form) {
   var mode = form.shareMoverSchedule.value;
@@ -116,9 +118,10 @@ _(Mover logging)_:
 :mover_logging_help:
 
 <?endif;?>
+<? if ($setup == true):?>
 &nbsp;
 : <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
-
+<? endif; ?>
 <?if ($pool_devices):?>
 &nbsp;
 <?if (file_exists("/var/run/mover.pid")):?>
