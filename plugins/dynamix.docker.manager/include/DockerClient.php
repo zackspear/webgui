@@ -438,19 +438,19 @@ class DockerUpdate{
 			 */
 			$ch = getCurlHandle($url);
 			if (!empty($registryAuth['password'])) {
-        curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
+				curl_setopt($ch, CURLOPT_USERPWD, $registryAuth['username'].':'.$registryAuth['password']);
 			}
 			$reply = curl_exec($ch);
 			if (curl_errno($ch) !== 0) {
 				//$this->debug('Error: curl error getting token: '.curl_error($ch));
 				return null;
 			}
-			$reply = json_decode($reply, true);
-			if (!$reply || empty($reply['token'])) {
+			$reply_json = json_decode($reply, true);
+			if (!$reply_json || empty($reply_json['token'])) {
 				//$this->debug('Error: Token response was empty or missing token');
 				return null;
 			}
-			$token = $reply['token'];
+			$token = $reply_json['token'];
 			array_push($header, 'Authorization: Bearer '.$token);
 		}
 		if (preg_match('@www-authenticate:\s*Basic\s*@i', $reply)) {
