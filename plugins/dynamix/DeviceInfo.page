@@ -460,22 +460,12 @@ _(Critical disk utilization threshold)_ (%):
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
-  <?if ($disk['type']=='Data'):?>
-    <?if ($var['fsState']=="Stopped"):?>
-      <?if (($disks['parity']['status'] != 'DISK_OK') && ($disks['parity2']['status'] != 'DISK_OK')):?>
-        <?$erasable=true?>
-      <?endif;?>
+  <?if ($disk['type']=='Data' || $disk['type']=='Parity'):?>
+    <?if ($var['fsState']=="Stopped" && $disk['status']=='DISK_NEW'):?>
+      <?$erasable=true?>
     <?endif;?>
-    <?if ($var['fsState']=="Started" && $var['startMode']!="Normal"):?>
-        <?$erasable=true?>
-    <?endif;?>
-    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
-  <?endif;?>
-  <?if ($disk['type']=='Parity'):?>
-    <?if ($var['fsState']=="Stopped"):?>
-      <?if ($disk['status']!="DISK_OK"):?>
-        <?$erasable=true?>
-      <?endif;?>
+    <?if ($var['fsState']=="Started" && $var['startMode']!="Normal" && $disk['type']=='Data'):?>
+      <?$erasable=true?>
     <?endif;?>
     <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
@@ -486,8 +476,8 @@ _(Critical disk utilization threshold)_ (%):
     <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
-  <?$empty = $disks[$name]['devices']==0?>
-  <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
+    <?$empty = $disks[$name]['devices']==0?>
+    <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
   <?endif;?>
 </form>
 
