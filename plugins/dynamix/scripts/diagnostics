@@ -176,6 +176,13 @@ foreach ($shares as $share) {
   $name = $share['name'];
   if (!in_array("/boot/config/shares/$name.cfg",$files)) file_put_contents(anonymize("/$diag/shares/$name.cfg",2),"# This share has default settings.\r\n# Share exists on ".shareDisks($name)."\r\n");
 }
+// copy pools information (anonymize)
+$files = glob("/boot/config/pools/*.cfg");
+@mkdir("/$diag/config/pools");
+foreach ($files as $file) {
+  $dest = anonymize("/$diag/config/pools/".basename($file),2);
+  @copy($file,$dest);
+}
 // copy docker information (if existing)
 $max = 1*1024*1024; //=1MB
 $docker = "/var/log/docker.log";
