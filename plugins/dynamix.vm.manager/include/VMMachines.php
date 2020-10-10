@@ -73,7 +73,7 @@ foreach ($vms as $vm) {
   $graphics = '';
   if ($vncport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
-    $vnc = '/plugins/dynamix.vm.manager/vnc.html?v=20201009&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=&path=/wsproxy/' . $wsport . '/';
+    $vnc = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=&path=/wsproxy/' . $wsport . '/';
     $graphics = 'VNC:'.$vncport;
   } elseif ($vncport == -1) {
     $graphics = 'VNC:auto';

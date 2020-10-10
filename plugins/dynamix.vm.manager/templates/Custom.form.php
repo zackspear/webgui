@@ -128,7 +128,7 @@
 				$wsport = $lv->domain_get_ws_port($dom);
 				$reply = ['success' => true];
 				if ($vncport > 0) {
-					$reply['vncurl'] = '/plugins/dynamix.vm.manager/vnc.html?v=20201009&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+					$reply['vncurl'] = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
 				}
 			} else {
 				$reply = ['error' => $lv->get_last_error()];
