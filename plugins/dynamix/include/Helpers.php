@@ -227,11 +227,15 @@ function pgrep($process_name, $escape_arg=true) {
 function is_block($path) {
   return (@filetype(realpath($path))=='block');
 }
-function autov($file) {
+function autov($file,$ret=false) {
   global $docroot;
   $path = $docroot.$file;
   clearstatcache(true, $path);
-  echo "$file?v=".filemtime($path);
+  $newFile = "$file?v=".filemtime($path);
+  if ($ret)
+    return $newFile;
+  else
+    echo $newFile;
 }
 function transpose_user_path($path) {
   if (strpos($path, '/mnt/user/') === 0 && file_exists($path)) {
