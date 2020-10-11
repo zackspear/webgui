@@ -57,7 +57,7 @@ function showPassword() {
 function checkUsername(form) {
   var username = form.userName.value.trim();
   if (!username.match('^[a-z_][a-z0-9_-]*[$]?$')) {
-		$('input[name="cmdUserEdit"]').val("_(Add)_");
+    $('input[name="cmdUserEdit"]').val("_(Add)_");
     swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error",html:true,confirmButtonText:"_(Ok)_"});
 		
     return false;
