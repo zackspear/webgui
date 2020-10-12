@@ -189,7 +189,7 @@ _(Custom image)_:
 <?else:?>
 _(Delete)_<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form, this.form.cmdUserEdit)">
 <?endif;?>
-: <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick='if (this.value=="_(Delete)_")this.value="Delete" else this.value="Apply"' disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
 </form>
 <br><br>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkPassword(this)">

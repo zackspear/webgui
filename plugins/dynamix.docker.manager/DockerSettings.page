@@ -146,7 +146,7 @@ _(Enable Docker)_:
 :docker_enable_help:
 
 _(Docker Stop Timeout)_:
-: <input id="DOCKER_TIMEOUT" type="number" name="DOCKER_TIMEOUT" min='1' value="<?=$dockercfg['DOCKER_TIMEOUT']?>">
+: <input class='narrow' id="DOCKER_TIMEOUT" type="number" name="DOCKER_TIMEOUT" min='1' value="<?=$dockercfg['DOCKER_TIMEOUT']?>">
 
 :docker_timeout_help:
 

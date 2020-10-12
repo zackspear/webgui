@@ -57,7 +57,9 @@ function showPassword() {
 function checkUsername(form) {
   var username = form.userName.value.trim();
   if (!username.match('^[a-z_][a-z0-9_-]*[$]?$')) {
+    $('input[name="cmdUserEdit"]').val("_(Add)_");
     swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error",html:true,confirmButtonText:"_(Ok)_"});
+		
     return false;
   }
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
@@ -157,7 +159,7 @@ $(function(){
 
 <form markdown="1" name="user_edit" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkUsername(this)">
 _(User name)_:
-: <input type="text" name="userName" maxlength="40" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')" pattern="^[a-z_][a-z0-9_-]*[$]?$">
+: <input type="text" name="userName" maxlength="40" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='')">
 
 :user_add_username_help:
 
