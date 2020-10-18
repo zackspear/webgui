@@ -84,7 +84,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
     $vnc = '';
     if ($vncport > 0) {
       $wsport = $lv->domain_get_ws_port($res);
-      $vnc = '/plugins/dynamix.vm.manager/vnc.html?autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+      $vnc = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
     } else {
       $vncport = ($vncport < 0) ? "auto" : "";
     }
