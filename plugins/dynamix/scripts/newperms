@@ -24,8 +24,8 @@ function process($path) {
 
 	$dirs = array_diff(scandir($path),array(".",".."));
 	foreach ($dirs as $dir) {
-		echo "\n";
 		if ( is_dir("$path/$dir") ) {
+			echo "\n";
 			echo "processing ".escapeshellarg("$path/$dir")."\n";
 			echo "... chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg("$path/$dir")."\n";
 			passthru("chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg("$path/$dir"));
