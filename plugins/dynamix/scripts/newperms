@@ -22,19 +22,16 @@ function process($path) {
 	$owner = $argv[2] ?: "nobody";
 	$group = $argv[3] ?: "users";
 
-	$dirs = array_diff(scandir($path),array(".",".."));
-	foreach ($dirs as $dir) {
-		if ( is_dir("$path/$dir") ) {
-			echo "\n";
-			echo "processing ".escapeshellarg("$path/$dir")."\n";
-			echo "... chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg("$path/$dir")."\n";
-			passthru("chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg("$path/$dir"));
-			echo "... chown -R $owner:$group ".escapeshellarg("$path/$dir")."\n";
-			passthru("chown -R $owner:$group ".escapeshellarg("$path/$dir"));
-			echo "... sync\n";
-			passthru("sync");
-		}	
-	}		
+	if ( is_dir($path) ) {
+		echo "processing ".escapeshellarg($path)."\n";
+		echo "... chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg($path)."\n";
+		passthru("chmod -R u-x,go-rwx,go+u,ugo+X ".escapeshellarg($path));
+		echo "... chown -R $owner:$group ".escapeshellarg($path)."\n";
+		passthru("chown -R $owner:$group ".escapeshellarg($path));
+		echo "... sync\n";
+		passthru("sync");
+	}	
+	
 }
 
 $startTime = time();
