@@ -13,6 +13,10 @@
 .jGrowl-notification .jGrowl-header{font-weight:bold}
 .jGrowl-notification .jGrowl-close{float:right;text-align:right;margin:0;padding:0;background:none;color:inherit;border:none;cursor:pointer}
 .jGrowl-notification .jGrowl-close:hover{color:inherit;background:none}
+#jGrowl {pointer-events: none !important;}
+.jGrowl-notification:first-of-type {pointer-events: none !important;}
+.jGrowl-notification {pointer-events:all !important;}
+.jGrowl-closer.top {pointer-events:all !important;}
 .jGrowl-closer{width:400px;color:#808080;background-color:#121510;opacity:0.96;border:2px solid #b0b0b0;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
 .jGrowl-closer.top{position:fixed;top:130px}
 @media print{.jGrowl{display:none}}
