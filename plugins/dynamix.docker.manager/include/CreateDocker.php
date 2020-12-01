@@ -698,6 +698,7 @@ _(Template)_:
     $title = ucfirst($section)." templates";
     printf("<optgroup class='title bold' label='[ %s ]'>", htmlspecialchars($title));
     foreach ($template as $value){
+      if ( $value['name'] == "my-ca_profile" || $value['name'] == "ca_profile" ) continue;
       $name = str_replace('my-', '', $value['name']);
       $selected = (isset($xmlTemplate) && $value['path']==$xmlTemplate) ? ' selected ' : '';
       if ($selected && $section=='default') $showAdditionalInfo = 'advanced';
