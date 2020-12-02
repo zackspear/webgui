@@ -16,7 +16,7 @@ src:url('docker-icon.eot?20200627');src:url('docker-icon.eot?20200627?#iefix') f
 [data-icon]:before,.fa-docker:before{font-family:docker-icon!important;content:'\f100'}
 
 @font-face{font-family:unraid;font-weight:normal;font-style:normal;
-src:url('font-unraid.eot?20200627');src:url('font-unraid.eot?20200627#iefix') format('embedded-opentype'),url('font-unraid.ttf?20200627') format('truetype'),url('font-unraid.woff?20200627') format('woff'),url('font-unraid.svg?20200627#unraid') format('svg')}
+src:url('font-unraid.eot?20201202');src:url('font-unraid.eot?20201202#iefix') format('embedded-opentype'),url('font-unraid.ttf?20201202') format('truetype'),url('font-unraid.woff?20201202') format('woff'),url('font-unraid.svg?20201202#unraid') format('svg')}
 [class^='icon-'],[class*=' icon-']{font-family:unraid!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none}
 .icon-algorithm:before{content:'\e97b'}
 .icon-app:before{content:'\e900'}
