@@ -23,6 +23,7 @@ src:url('font-unraid.eot?20200627');src:url('font-unraid.eot?20200627#iefix') fo
 .icon-apple:before{content:'\e901'}
 .icon-apps:before{content:'\e942'}
 .icon-archive:before{content:'\e91a'}
+.icon-arrange:before{content:'\e989'}
 .icon-audio:before{content:'\e948'}
 .icon-certificate:before{content:'\e984'}
 .icon-chat:before{content:'\e981'}
@@ -37,6 +38,7 @@ src:url('font-unraid.eot?20200627');src:url('font-unraid.eot?20200627#iefix') fo
 .icon-dashboard:before{content:'\e943'}
 .icon-diagnostics:before{content:'\e91d'}
 .icon-disc:before{content:'\e979'}
+.icon-discord:before{content:"\e988";}
 .icon-disk-encrypted:before{content:'\e906'}
 .icon-disk:before{content:'\e907'}
 .icon-disks:before{content:'\e908'}
@@ -50,7 +52,9 @@ src:url('font-unraid.eot?20200627');src:url('font-unraid.eot?20200627#iefix') fo
 .icon-folder:before{content:'\e92a'}
 .icon-fort:before{content:'\e97f'}
 .icon-ftp:before{content:'\e90e'}
+.icon-globe:before{content:'\e98a'}
 .icon-hardware:before{content:'\e91f'}
+.icon-health:before{content:'\e98b'}
 .icon-home:before{content:'\e90f'}
 .icon-key:before{content:'\e920'}
 .icon-language-filled:before{content:'\e987'}
@@ -60,6 +64,7 @@ src:url('font-unraid.eot?20200627');src:url('font-unraid.eot?20200627#iefix') fo
 .icon-log:before{content:'\e921'}
 .icon-motherboard:before{content:'\e92c'}
 .icon-move:before{content:'\e97c'}
+.icon-mover:before{content:'\e98c'}
 .icon-network:before{content:'\e911'}
 .icon-notifications:before{content:'\e912'}
 .icon-nvme:before{content:'\e929'}
