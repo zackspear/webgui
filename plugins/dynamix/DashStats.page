@@ -240,7 +240,7 @@ form[name=boot]{display:none}
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-motherboard'></i><div class='section'>_(Motherboard)_<br><span id='mb-temp'></span><br><br></div>
 <i class='fa fa-fw chevron' id='mb_view' onclick='toggleChevron("mb_view",0)'></i>
-<a href='#' onclick='InfoButton();' title="_(Show Information)_"><i class='fa fa-fw fa-cog chevron'></i></a>
+<a href='#' onclick='InfoButton();' title="_(Show Information)_"><i class='fa fa-fw fa-info-circle chevron'></i></a>
 </td><td></td></tr>
 <tr class='mb_view'><td></td><td colspan='3'><?=$board?><br><?=$bios?><br><?=$biosdate?></td><td></td></tr>
 </tbody>
