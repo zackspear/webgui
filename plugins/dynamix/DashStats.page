@@ -521,7 +521,7 @@ foreach ($users as $user) {
 <tr><td></td><td colspan='5' id='program' class="wrap"></td><td></td></tr>
 </tbody>
 <thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'>_(Array)_<?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='array_view' onclick='toggleChevron("array_view",0)'></i>
-<a href='/Dashboard/Main/Device?name=disk1' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog chevron mt0'></i></a>
+<a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog chevron mt0'></i></a>
 <?if ($started):?><span class='info'><?=sprintf(_("%s used of %s (%s %%)"),my_scale($array_used*1024,$unit)." $unit",my_scale($array_size*1024,$unit,-1,-1)." $unit",$array_percent)?></span><?endif;?>
 </td><td></td></tr>
 <tr class='my_view'><td></td><td id='array_info' colspan='5'></td><td></td></tr>
@@ -531,7 +531,7 @@ foreach ($users as $user) {
 <?$i=0?>
 <?foreach ($pools as $pool):?>
 <thead sort='<?=++$N?>' class='sortable'><tr><td></td><td colspan='5' class='next'><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><i class='fa fa-fw chevron mt0' id='_<?=$pool?>_view' onclick='toggleChevron("_<?=$pool?>_view",0)'></i>
-<a href='/Dashboard/Main/Device?name=cache' title="_(Go to cache settings)_"><i class='fa fa-fw fa-cog chevron mt0'></i></a>
+<a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog chevron mt0'></i></a>
 <?if ($started):?><span class='info'><?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?></span><?endif;?>
 </td><td></td></tr>
 <tr class='my_view'><td></td><td id='cache_info<?=$i?>' colspan='5'></td><td></td></tr>
