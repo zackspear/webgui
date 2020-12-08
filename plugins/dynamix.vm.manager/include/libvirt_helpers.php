@@ -1109,7 +1109,7 @@
 		// settings not in the GUI, but maybe customized
 		unset($new['memoryBacking'], $new['clock'], $new['features']);
 		// preserve vnc port settings
-		unset($new['devices']['graphics']);
+		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);
 		if (!$new['devices']['hostdev']) unset($new['devices']['hostdev']);
