@@ -231,7 +231,8 @@ function autov($file,$ret=false) {
   global $docroot;
   $path = $docroot.$file;
   clearstatcache(true, $path);
-  $newFile = "$file?v=".filemtime($path);
+  $time = strlen(@filemtime($path)) ? @filemtime($path) : 'autov_fileDoesntExist';
+  $newFile = "$file?v=".$time;
   if ($ret)
     return $newFile;
   else
