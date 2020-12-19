@@ -56,10 +56,10 @@ case "attributes":
   $max = $disk['maxTemp'] ?? $unraid['display']['max'];
   $hot = $disk['hotTemp'] ?? $unraid['display']['hot'];
   $top = $_POST['top'] ?? 120;
+  $empty = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
   if (strpos($output[0], 'SMART Attributes Data Structure')===0) {
     $output = array_slice($output, 3);
-    $empty = true;
     foreach ($output as $line) {
       if (!$line) continue;
       $info = explode(' ', trim(preg_replace('/\s+/',' ',$line)), 10);
@@ -74,7 +74,6 @@ case "attributes":
       echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
       $empty = false;
     }
-    if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>"._('Can not read attributes')."</td></tr>";
   } else {
     // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
     foreach ($output as $line) {
@@ -93,8 +92,10 @@ case "attributes":
         break;
       }
       echo "<tr{$color}><td>-</td><td>$name</td><td colspan='8'>$value</td></tr>";
+      $empty = false;
     }
   }
+  if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>"._('Can not read attributes')."</td></tr>";
   break;
 case "capabilities":
   exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
@@ -118,7 +119,7 @@ case "capabilities":
 case "identify":
   $passed = ['PASSED','OK'];
   $failed = ['FAILED','NOK'];
-  exec("smartctl -n standby -i $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
+  exec("smartctl -i $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
   exec("smartctl -n standby -H $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '^SMART.*: [A-Z]+'|sed 's:self-assessment test result::'",$output);
   $empty = true;
   foreach ($output as $line) {
