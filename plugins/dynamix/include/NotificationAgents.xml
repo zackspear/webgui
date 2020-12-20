@@ -29,9 +29,9 @@
   <Agent>
     <Name>Discord</Name>
     <Variables>
-      <Variable Help="Add an '#unraid-notifications' channel to your personal Discord server, then get a WebHook URL as explained [a href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks' target='_blank'][u]here[/u].[/a]" Desc="WebHook URL" Default="USE YOUR OWN WEBHOOK VALUE HERE">WEBH_URL</Variable>
-      <Variable Help="Specify the https URL to an icon representing your server. To disable this feature, specify 'none'." Desc="Server Icon" Default="https://craftassets.unraid.net/uploads/logos/un-mark-gradient@2x.png">SERVER_ICON</Variable>
-      <Variable Help="To receive an @mention on 'alert' priority notifications, provide your personal Discord ID (it is a serious of numbers, not letters). To find your ID, in Discord type \@yourusername. To disable this feature, specify 'none'." Desc="Discord Tag ID" Default="none">DISCORD_TAG_ID</Variable>
+      <Variable Help="Add an '#unraid-notifications' channel to your personal Discord server, then get a WebHook URL as explained [a href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks' target='_blank'][u]here[/u].[/a] Note that multiple Unraid servers can use the same Webhook." Desc="WebHook URL" Default="USE YOUR OWN WEBHOOK VALUE HERE">WEBH_URL</Variable>
+      <Variable Help="Provide the https URL to an icon representing this Unraid server (using different icons for each server can help distinguish between them in the list of notifications.) To disable this feature, specify 'none'." Desc="Server Icon" Default="https://craftassets.unraid.net/uploads/logos/un-mark-gradient@2x.png">SERVER_ICON</Variable>
+      <Variable Help="In Discord, right-click the '#unraid-notifications' channel and choose Notification Settings -> Only @mentions. Then to receive an @mention on 'alert' priority notifications only, provide your personal Discord ID (it is a serious of numbers, not letters). To find your ID, in Discord type \@yourusername. To disable this feature, specify 'none'." Desc="Discord Tag ID" Default="none">DISCORD_TAG_ID</Variable>
     </Variables>
     <Script>
       <![CDATA[
