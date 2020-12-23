@@ -83,11 +83,30 @@ elif [[ -n "${DESCRIPTION}" ]]; then
 elif [[ -n "${CONTENT}" ]]; then
   FULL_DETAILS="${CONTENT}"
 fi
+# split into 1024 character segments
 [[ -n "${FULL_DETAILS}" ]] && DESC_FIELD=$(
   cat <<EOF
         {
           "name": "Description",
-          "value": "${FULL_DETAILS}"
+          "value": "${FULL_DETAILS:0:1024}"
+        },
+EOF
+)
+[[ -n "${FULL_DETAILS}" ]] && [[ ${#FULL_DETAILS} -gt 1024 ]] && DESC_FIELD=$(
+  cat <<EOF
+        ${DESC_FIELD}
+        {
+          "name": "Description (cont)",
+          "value": "${FULL_DETAILS:1024:1024}"
+        },
+EOF
+)
+[[ -n "${FULL_DETAILS}" ]] && [[ ${#FULL_DETAILS} -gt 2048 ]] && DESC_FIELD=$(
+  cat <<EOF
+        ${DESC_FIELD}
+        {
+          "name": "Description (cont)",
+          "value": "${FULL_DETAILS:2048:1024}"
         },
 EOF
 )
@@ -134,8 +153,8 @@ DATA=$(
   ${DISCORD_CONTENT_AREA}
   "embeds": [
     {
-      "title": "${EVENT}",
-      "description": "${SUBJECT}",
+      "title": "${EVENT:0:256}",
+      "description": "${SUBJECT:0:2043}",
       "timestamp": ${FORMATTED_TIMESTAMP},
       "color": "${COLOR}",
       "author": {
