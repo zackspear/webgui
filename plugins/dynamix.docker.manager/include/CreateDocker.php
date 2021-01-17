@@ -113,7 +113,7 @@ if (isset($_POST['contName'])) {
       goto END;
     }
   }
-  $startContainer = filter_var($_POST['contStart'],FILTER_VALIDATE_BOOLEAN) ;
+  $startContainer = filter_var($_POST['contStart'],FILTER_VALIDATE_BOOLEAN);
   // Remove existing container
   if ($DockerClient->doesContainerExist($Name)) {
     // attempt graceful stop of container first
