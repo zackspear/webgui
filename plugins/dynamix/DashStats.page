@@ -160,6 +160,7 @@ div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
 div.right{float:right;margin:-20px 0 0 0;text-align:center}
+.section,.next{cursor:grab}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
 span.inner{width:<?=$theme1?153:140?>px}
@@ -1007,7 +1008,7 @@ var sortableHelper = function(e,ui){
   return ui;
 };
 $(function() {
-  $('table').sortable({helper:sortableHelper,items:'.sortable',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
+  $('table').sortable({helper:sortableHelper,items:'.sortable',handle:'.section,.next',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
   update:function(e,ui){
     var table = ui.item.parent();
     var index = [], prev = -1;
