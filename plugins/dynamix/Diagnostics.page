@@ -26,6 +26,7 @@ pre>p{margin:0;padding:0}
 
 <script>
 var diagnosticsFile = "";
+var file = "";
 var diagnostic = new NchanSubscriber('/sub/diagnostic');
 diagnostic.on('message',function(data) {
   if (data) {
@@ -33,11 +34,20 @@ diagnostic.on('message',function(data) {
       diagnostic.stop();
       swal.close();
       location = diagnosticsFile;
+      setTimeout(function(){cleanUp(file);},4000);
     } else {
       $("#command").html(data);
     }
   }
 });
+
+function cleanUp(file) {	
+  if (document.hasFocus()) {	
+    $.post('/webGui/include/Download.php',{cmd:'delete',file:file});	
+  } else {	
+    setTimeout(function(){cleanUp(file);},2000);	
+  }	
+}
 
 function zipfile(){
   var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
