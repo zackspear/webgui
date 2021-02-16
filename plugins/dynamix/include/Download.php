@@ -34,7 +34,7 @@ case 'delete':
 case 'diag':
   if (is_file("$docroot/$file") && strpos(realpath("$docroot/$file"), $docroot.'/') !== 0) exit;
   $anon = empty($_POST['anonymize']) ? '' : escapeshellarg($_POST['anonymize']);
-  exec("echo $docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file")." | at NOW -m > /dev/null 2>&1");
+  exec("echo $docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file")." | at NOW > /dev/null 2>&1");
   echo "/$file";
   break;
 case 'unlink':
