@@ -304,7 +304,14 @@ function plugin($method, $plugin_file, &$error) {
           @unlink($name);
           return false;
         }
-        if ($file->MD5) {
+        if ($file->SHA256) {
+          logger("plugin: checking: $name - SHA256");
+          if (hash_file('sha256', $name) != $file->SHA256) {
+            $error = "bad file SHA256: $name";
+            unlink($name);
+            return false;
+          }
+        } elseif ($file->MD5) {
           logger("plugin: checking: $name - MD5");
           if (md5_file($name) != $file->MD5) {
             $error = "bad file MD5: $name";
