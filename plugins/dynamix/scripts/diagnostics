@@ -160,7 +160,8 @@ foreach ($folders as $folder) {
   if (is_dir($folder)) exert("echo -ne ".escapeshellarg("\r\n$folder\r\n")." >>".escapeshellarg($dest).";ls -l ".escapeshellarg($folder)."|todos >>".escapeshellarg("$dest")); else exert("echo -ne ".escapeshellarg("\r\n$folder\r\nfolder does not exist\r\n")." >>".escapeshellarg("$dest"));
 }
 // copy configuration files (suppress errors)
-exert("cp /boot/config/*.{cfg,conf,dat} /boot/config/go ".escapeshellarg("/$diag/config")." 2>/dev/null");
+exert("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev/null");
+exert("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
 // anonymize configuration files
 if (!$all) exert("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
 
