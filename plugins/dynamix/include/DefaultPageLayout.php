@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -352,8 +352,10 @@ function openNotifier(filter) {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
+          click: function(e,m,o) { if (notify.link) location=notify.link;},
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
+          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
         });
       }
     });
