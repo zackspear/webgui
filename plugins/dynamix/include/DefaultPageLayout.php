@@ -543,7 +543,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> "._('Array Started')."</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>Unraid&reg; webGui &copy;2020, Lime Technology, Inc.";
+echo "<span id='copyright'>Unraid&reg; webGui &copy;2021, Lime Technology, Inc.";
 echo " <a href='http://lime-technology.com/wiki/index.php/Official_Documentation' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
 ?>

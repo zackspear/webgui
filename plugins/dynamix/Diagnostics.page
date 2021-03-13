@@ -61,7 +61,7 @@ function diagnostics(file) {
     diagnosticsFile = zip;
     diagnostic.start();
     swal({
-      title: "_(Downloading...)_",
+      title: "_(Downloading)_...",
       text: "/boot/logs"+zip+"<br><tt><span id='command'></span></tt>",
       allowOutsideClick: false,
       showConfirmButton: false,
