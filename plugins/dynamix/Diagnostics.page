@@ -41,12 +41,12 @@ diagnostic.on('message',function(data) {
   }
 });
 
-function cleanUp(file) {	
-  if (document.hasFocus()) {	
-    $.post('/webGui/include/Download.php',{cmd:'delete',file:file});	
-  } else {	
-    setTimeout(function(){cleanUp(file);},2000);	
-  }	
+function cleanUp(file) {
+  if (document.hasFocus()) {
+    $.post('/webGui/include/Download.php',{cmd:'delete',file:file});
+  } else {
+    setTimeout(function(){cleanUp(file);},2000);
+  }
 }
 
 function zipfile(){
@@ -62,7 +62,7 @@ function diagnostics(file) {
     diagnostic.start();
     swal({
       title: "_(Downloading)_...",
-      text: "/boot/logs"+zip+"<br><tt><span id='command'></span></tt>",
+      text: "/boot/logs"+zip+"<br><br><tt style='display:inline-block;text-align:left'><span id='command'></span></tt>",
       allowOutsideClick: false,
       showConfirmButton: false,
       showCancelButton: false,
@@ -115,5 +115,3 @@ to the system log.*
 :end
 
 <input type="button" value="_(Download)_" onclick="diagnostics(zipfile())"><input type="button" value="_(Done)_" onclick="done()"><input type="checkbox" id="anonymize" checked>_(Anonymize diagnostics)_
-
-
