@@ -65,8 +65,8 @@ if ($.cookie('deletepool')!=null) {
 }
 function doDispatch(form) {
   var fields = {};
-<?if ($display['unit']=='F'):?>
   var id = "<?=addslashes(htmlspecialchars($id))?>_";
+<?if ($display['unit']=='F'):?>
   var hottemp = $(form).find('input[name="'+id+'hotTemp"]');
   var maxtemp = $(form).find('input[name="'+id+'maxTemp"]');
   if (hottemp.val()>0) hottemp.val(Math.round((hottemp.val()-32)*5/9));
