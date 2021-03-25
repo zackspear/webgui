@@ -707,12 +707,12 @@ function update1() {
       } else if (info[1] > 86400) {
         var d = parseInt(info[1]/86400);
         var s = d==1 ? " _(day)_" : " _(days)_";
-        $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",d+s));
+        $('td#'+vtun+'-hs-'+n[vtun]).text(simplef("_(%s ago)_",d+s));
       } else {
         var h = parseInt(info[1]/3600).pad();
         var m = parseInt(info[1]/60%60).pad();
         var s = parseInt(info[1]%60).pad();
-        $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",h+':'+m+':'+s));
+        $('td#'+vtun+'-hs-'+n[vtun]).text(simplef("_(%s ago)_",h+':'+m+':'+s));
       }
       $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i><span class="tx">'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i></span>');
     }
@@ -974,7 +974,7 @@ function sortTable(table,index) {
   }
 }
 
-function sprintf() {
+function simplef() {
   var text = arguments[0];
   for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
   return text;
