@@ -3,8 +3,8 @@ Title="Add User"
 Tag="user"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -56,10 +56,10 @@ function showPassword() {
 }
 function checkUsername(form) {
   var username = form.userName.value.trim();
-  if (!username.match('^[a-z_][a-z0-9_-\.]*[$]?$')) {
+  if (!username.match('^[a-z_][a-z0-9_-]*[$]?$')) {
     $('input[name="cmdUserEdit"]').val("_(Add)_");
     swal({title:"_(Invalid user name)_",text:"_(Use only lowercase letters, digits, underscores and dashes)_",type:"error",html:true,confirmButtonText:"_(Ok)_"});
-
+		
     return false;
   }
   if (form.userPasswordGUI.value.length > 128 || form.userPasswordConfGUI.value.length > 128) {
