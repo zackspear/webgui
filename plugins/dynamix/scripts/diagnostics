@@ -162,6 +162,8 @@ foreach ($folders as $folder) {
 // copy configuration files (suppress errors)
 exert("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev/null");
 exert("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
+if (!$all)
+  exert("sed -i -e '/password/c ***line removed***' -e '/user/c ***line removed***' -e '/pass/c ***line removed***' ".escapeshellarg("/$diag/config/go.txt"));
 // anonymize configuration files
 if (!$all) exert("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
 
@@ -201,15 +203,6 @@ $files = glob("/boot/config/pools/*.cfg");
 foreach ($files as $file) {
   $dest = anonymize("/$diag/config/pools/".basename($file),2);
   @copy($file,$dest);
-}
-// copy modprobe information
-$files = glob("/boot/config/modprobe.d/*.conf");
-if ($files) {
-  @mkdir("/$diag/config/modprobe.d");
-  foreach ($files as $file) {
-    $dest = "/$diag/config/modprobe.d/".basename($file);
-    @copy($file,$dest);
-  }
 }
 // copy docker information (if existing)
 $max = 1*1024*1024; //=1MB
