@@ -411,9 +411,7 @@ function addConfigPopup() {
         if (!Opts.Name){
           Opts.Name = makeName(Opts.Type);
         }
-        if (!Opts.Description) {
-          Opts.Description = "_(Container)_ "+Opts.Type+": "+Opts.Target;
-        }
+
         if (Opts.Required == "true") {
           Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",false)'>_(Edit)_</button>";
           Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button></span>";
@@ -493,9 +491,7 @@ function editConfigPopup(num,disabled) {
         if (!Opts.Name){
           Opts.Name = makeName(Opts.Type);
         }
-        if (!Opts.Description) {
-          Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
-        }
+
         Opts.Number = num;
         newConf = makeConfig(Opts);
         if (config.hasClass("config_"+Opts.Display)) {
@@ -989,7 +985,7 @@ _(Password Mask)_:
 <input type="hidden" name="confRequired[]" value="{7}">
 <input type="hidden" name="confMask[]" value="{8}">
 <span class="{11}">{0}:</span>
-: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class="orange-text">{4}</span></span>
+: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class='orange-text'>_(Container)_ {5}: {1}</span><br><span class="orange-text">{4}</span><br>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">
