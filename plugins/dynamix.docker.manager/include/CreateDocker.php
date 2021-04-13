@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -308,6 +308,11 @@ if (!String.prototype.replaceAll) {
     return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
   };
 }
+function simplef() {
+  var text = arguments[0];
+  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
+  return _(text);
+}
 // Create config nodes using templateDisplayConfig
 function makeConfig(opts) {
   confNum += 1;
@@ -324,7 +329,8 @@ function makeConfig(opts) {
     opts.Mask,
     escapeQuote(opts.Value),
     opts.Buttons,
-    opts.Required=='true' ? 'required' : ''
+    opts.Required=='true' ? 'required' : '',
+    simplef('Container %s',opts.Type)
   );
   newConfig = "<div id='ConfigNum"+opts.Number+"' class='config_"+opts.Display+"'' >"+newConfig+"</div>";
   newConfig = $($.parseHTML(newConfig));
