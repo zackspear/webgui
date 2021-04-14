@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -57,29 +57,30 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
   }
   return str_replace("\n","",$line);
 }
-function check_temp($name,$temp,$text,$info) {
-  global $notify,$disks,$saved,$display,$server,$top;
-  $disk = &$disks[$name];
-  $hot  = $disk['hotTemp'] ?? $display['hot'];
-  $max  = $disk['maxTemp'] ?? $display['max'];
-  $warn = exceed($temp,$max,$top) ? 'alert' : (exceed($temp,$hot,$top) ? 'warning' : '');
+function check_temp(&$disk,$text,$info) {
+  global $notify,$saved,$server,$display,$top;
+  $name = $disk['name'];
+  $temp = $disk['temp'];
+  $hot  = is_numeric($disk['hotTemp']) ? $disk['hotTemp'] : $display['hot'];
+  $max  = is_numeric($disk['maxTemp']) ? $disk['maxTemp'] : $display['max'];
+  $warn = exceed($temp,$max,$top) ? 'alert' : (exceed($temp,$hot,$top) ? 'warning' : false);
   $item = 'temp';
   $last = $saved[$item][$name] ?? 0;
   if ($warn) {
     if ($temp>$last) {
-      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text temperature")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text ".($warn=='alert'?'overheated (':'is hot (').my_temp($temp).")")." -d ".escapeshellarg("$info")." -i \"$warn\"");
-      $saved[$item][$name] = $max>0 && $temp<=$max ? $max : $temp;
+      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text temperature")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text ".($warn=='alert'?'overheated (':'is hot (').my_temp($temp).")")." -d ".escapeshellarg("$info")." -i \"$warn\" 2>/dev/null");
+      $saved[$item][$name] = max($max,$temp);
     }
   } else {
     if ($last && $temp<=$top) {
-      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal temperature")." -d ".escapeshellarg("$info"));
+      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal temperature")." -d ".escapeshellarg("$info")." 2>/dev/null");
       unset($saved[$item][$name]);
     }
   }
 }
-function check_smart($name,$port,$text,$info) {
-  global $var,$disks,$notify,$saved,$server,$numbers;
-  $disk   = &$disks[$name];
+function check_smart(&$disk,$port,$text,$info) {
+  global $notify,$saved,$server,$numbers;
+  $name   = $disk['name'];
   $select = get_value($disk,'smSelect',0);
   $level  = get_value($disk,'smLevel',1);
   $events = explode('|',get_value($disk,'smEvents',$numbers));
@@ -90,7 +91,7 @@ function check_smart($name,$port,$text,$info) {
   $item = 'smart';
   foreach ($codes as $code) {
     if (!$code || !is_numeric($code[0])) continue;
-    list($id,$class,$value,$thres,$when,$raw) = explode(' ',$code);
+    [$id,$class,$value,$thres,$when,$raw] = explode(' ',$code);
     $fail = strpos($when,'FAILING_NOW')!==false;
     if (!$fail && !in_array($id,$events)) continue;
     $word = str_replace(['_',' (-)'],[' ',''],strtolower("$class ($when)"));
@@ -101,13 +102,13 @@ function check_smart($name,$port,$text,$info) {
       $last = ($saved[$item][$attr] ?? 0)*$level;
       if ($raw>0 || $fail) {
         if ($raw>$last) {
-          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART health [$id]")." -s ".escapeshellarg("Warning [$server] - $word is $raw")." -d ".escapeshellarg("$info")." -i \"warning\"");
+          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART health [$id]")." -s ".escapeshellarg("Warning [$server] - $word is $raw")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
           $saved[$item][$attr] = $raw;
           unset($saved[$item][$ack]);
         }
       } else {
         if ($last>0) {
-          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART message [$id]")." -s ".escapeshellarg("Notice [$server] - $word returned to normal value")." -d ".escapeshellarg("$info"));
+          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART message [$id]")." -s ".escapeshellarg("Notice [$server] - $word returned to normal value")." -d ".escapeshellarg("$info")." 2>/dev/null");
           unset($saved[$item][$attr]);
           unset($saved[$item][$ack]);
         }
@@ -118,13 +119,13 @@ function check_smart($name,$port,$text,$info) {
       $last = $saved[$item][$attr] ?? 255;
       if (($thres>0 && $value<=$thres*$level) || $fail) {
         if ($value*($value>$thres?$level:1)<$last) {
-          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART health [$id]")." -s ".escapeshellarg("Warning [$server] - $word is $value")." -d ".escapeshellarg("$info")." -i \"warning\"");
+          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART health [$id]")." -s ".escapeshellarg("Warning [$server] - $word is $value")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
           $saved[$item][$attr] = $value;
           unset($saved[$item][$ack]);
         }
       } else {
         if ($last<255) {
-          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART message [$id]")." -s ".escapeshellarg("Notice [$server] - $word returned to normal value")." -d ".escapeshellarg("$info"));
+          exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text SMART message [$id]")." -s ".escapeshellarg("Notice [$server] - $word returned to normal value")." -d ".escapeshellarg("$info")." 2>/dev/null");
           unset($saved[$item][$attr]);
           unset($saved[$item][$ack]);
         }
@@ -133,23 +134,23 @@ function check_smart($name,$port,$text,$info) {
     }
   }
 }
-function check_usage($name,$used,$text,$info) {
-  global $notify,$disks,$saved,$display,$server;
+function check_usage(&$disk,$used,$text,$info) {
+  global $notify,$saved,$server,$display;
   if ($used == -1) return;
-  $disk = &$disks[$name];
-  $warning = $disk['warning'] ?: $display['warning'];
-  $critical = $disk['critical'] ?: $display['critical'];
-  $warn = exceed($used,$critical) ? 'alert' : (exceed($used,$warning) ? 'warning' : '');
+  $name = $disk['name'];
+  $warning = is_numeric($disk['warning']) ? $disk['warning'] : $display['warning'];
+  $critical = is_numeric($disk['critical']) ? $disk['critical'] : $display['critical'];
+  $warn = exceed($used,$critical) ? 'alert' : (exceed($used,$warning) ? 'warning' : false);
   $item = 'used';
   $last = $saved[$item][$name] ?? 0;
   if ($warn) {
     if ($used>$last) {
-      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text disk utilization")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text is ".($warn=='alert'?'low on space':'high on usage')." (${used}%)")." -d ".escapeshellarg("$info")." -i \"$warn\"");
-      $saved[$item][$name] = $critical>0 && $used<=$critical ? $critical : $used;
+      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text disk utilization")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text is ".($warn=='alert'?'low on space':'high on usage')." (${used}%)")." -d ".escapeshellarg("$info")." -i \"$warn\" 2>/dev/null");
+      $saved[$item][$name] = max($critical,$used);
     }
   } else {
     if ($last && $used<=100) {
-      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal utilization level")." -d ".escapeshellarg("$info"));
+      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal utilization level")." -d ".escapeshellarg("$info")." 2>/dev/null");
       unset($saved[$item][$name]);
     }
   }
@@ -162,11 +163,11 @@ foreach ($disks as $disk) {
   $text = my_disk($name).(in_array($name,$pools)||$name=='parity'?' disk':'');
   $info = !empty($disk['id']) ? "{$disk['id']} ({$disk['device']})" : "No device identification ({$disk['device']})";
 // process disk temperature notifications
-  check_temp($name,$disk['temp'],$text,$info);
+  check_temp($disk,$text,$info);
 // process disk SMART notifications
-  check_smart($name,port_name($disk['smDevice'] ?? $disk['device']),$text,$info);
+  check_smart($disk,port_name($disk['smDevice'] ?? $disk['device']),$text,$info);
 // process disk usage notifications
-  check_usage($name,isset($disk['fsSize'])&&$disk['fsSize']>0?100-round(100*$disk['fsFree']/$disk['fsSize']):-1,$text,$info);
+  check_usage($disk,isset($disk['fsSize'])&&$disk['fsSize']>0?100-round(100*$disk['fsFree']/$disk['fsSize']):-1,$text,$info);
 // process disk operation notifications
   $warn = strtok($disk['color'],'-');
   $item = 'disk';
@@ -176,7 +177,7 @@ foreach ($disks as $disk) {
     if ($warn!=$last) {
       if ($var['fsState']!='Stopped') {
         $status = strtolower(str_replace(['NP_','_'],['',' '],$disk['status']));
-        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text error")." -s ".escapeshellarg("Alert [$server] - $text in error state ($status)")." -d ".escapeshellarg("$info")." -i \"alert\"");
+        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text error")." -s ".escapeshellarg("Alert [$server] - $text in error state ($status)")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
       }
       $saved[$item][$name] = $warn;
     }
@@ -185,7 +186,7 @@ foreach ($disks as $disk) {
     if ($warn!=$last) {
       if ($var['fsState']!='Stopped') {
         $status = $name=='parity' ? "parity-sync in progress" : "drive not ready, content being reconstructed";
-        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text error")." -s ".escapeshellarg("Warning [$server] - $text, $status")." -d ".escapeshellarg("$info")." -i \"warning\"");
+        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text error")." -s ".escapeshellarg("Warning [$server] - $text, $status")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
       }
       $saved[$item][$name] = $warn;
     }
@@ -193,7 +194,7 @@ foreach ($disks as $disk) {
   default:
     if ($last) {
       if ($var['fsState']!='Stopped') {
-        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal operation")." -d ".escapeshellarg("$info"));
+        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal operation")." -d ".escapeshellarg("$info")." 2>/dev/null");
       }
       unset($saved[$item][$name]);
     }
@@ -206,14 +207,14 @@ foreach ($disks as $disk) {
     $attr = 'missing';
     if (exec("/sbin/btrfs filesystem show {$disk['uuid']} 2>/dev/null|grep -c 'missing'")>0) {
       if (empty($saved[$item][$attr])) {
-        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Warning [$server] - Cache pool BTRFS missing device(s)")." -d ".escapeshellarg("$info")." -i \"warning\"");
+        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Warning [$server] - Cache pool BTRFS missing device(s)")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
         $saved[$item][$attr] = 1;
       }
     } elseif (isset($saved[$item][$attr])) unset($saved[$item][$attr]);
     $attr = "profile-$name";
     if (exec("/sbin/btrfs filesystem df /mnt/$name 2>/dev/null|grep -c '^Data'")>1) {
       if (empty($saved[$item][$attr])) {
-        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Warning [$server] - $pool pool BTRFS too many profiles (You can ignore this warning when a pool balance operation is in progress)")." -d ".escapeshellarg("$info")." -i \"warning\"");
+        exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Warning [$server] - $pool pool BTRFS too many profiles (You can ignore this warning when a pool balance operation is in progress)")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
         $saved[$item][$attr] = 1;
       }
     } elseif (isset($saved[$item][$attr])) unset($saved[$item][$attr]);
@@ -223,14 +224,14 @@ foreach ($disks as $disk) {
 // check unassigned devices
 foreach ($devs as $dev) {
   $name = $dev['name'];
+  $id   = $dev['id'];
   $port = port_name($name);
-  $temp = $dev['temp'];
   $text = "device $name";
-  $info = !empty($dev['id']) ? "{$dev['id']} ($name)": "No device identification ($name)";
+  $info = !empty($id) ? "$id ($name)": "No device identification ($name)";
 // process disk temperature notifications
-  check_temp($name,$temp,$text,$info);
+  check_temp($dev,$text,$info);
 // process disk SMART notifications
-  check_smart($name,$port,$text,$info);
+  check_smart($dev,$port,$text,$info);
 }
 
 // report array read errors
@@ -242,12 +243,12 @@ $info = "Array has $warn disk".($warn==1 ? "" : "s")." with read errors";
 if ($warn>0) {
   if ($warn<>$last) {
     $message = implode('\n', $errors);
-    exec("$notify -l '/Main' -e \"Unraid array errors\" -s ".escapeshellarg("Warning [$server] - array has errors")." -d ".escapeshellarg("$info")." -m ".escapeshellarg("$message")." -i \"warning\"");
+    exec("$notify -l '/Main' -e \"Unraid array errors\" -s ".escapeshellarg("Warning [$server] - array has errors")." -d ".escapeshellarg("$info")." -m ".escapeshellarg("$message")." -i \"warning\" 2>/dev/null");
     $saved[$item][$name] = $warn;
   }
 } else {
   if ($last) {
-    exec("$notify -l '/Main' -e \"Unraid array errors\" -s ".escapeshellarg("Notice [$server] - array turned good")." -d ".escapeshellarg("$info"));
+    exec("$notify -l '/Main' -e \"Unraid array errors\" -s ".escapeshellarg("Notice [$server] - array turned good")." -d ".escapeshellarg("$info")." 2>/dev/null");
     unset($saved[$item][$name]);
   }
 }
@@ -267,7 +268,7 @@ if ($var['mdResyncPos']) {
       $last = 'Parity check';
     }
     $info = "Size: ".my_scale($var['mdResyncSize']*1024,$unit)." $unit";
-    exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\"");
+    exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
     $saved[$item][$name] = $last;
   }
 } else {
@@ -275,10 +276,10 @@ if ($var['mdResyncPos']) {
     $duration = $var['sbSynced2'] - $var['sbSynced'];
     $status = $var['sbSyncExit'];
     $speed = $status==0 ? my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/s" : "Unavailable";
-    list($entry,$duration,$speed,$status,$error) = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
+    [$entry,$duration,$speed,$status,$error] = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
-    exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\"");
+    exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\" 2>/dev/null");
     unset($saved[$item][$name]);
   }
 }
@@ -290,12 +291,12 @@ $warn = exec("grep -Pom1 '/boot \S+ \K\S{2}' /proc/mounts");
 $info = "{$disks['flash']['id']} ({$disks['flash']['device']})";
 if ($warn!="rw") {
   if ($warn!=$last) {
-    exec("$notify -l '/Main' -e \"USB flash drive failure\" -s ".escapeshellarg("Alert [$server] - USB drive is not read-write")." -d ".escapeshellarg("$info")." -i \"alert\"");
+    exec("$notify -l '/Main' -e \"USB flash drive failure\" -s ".escapeshellarg("Alert [$server] - USB drive is not read-write")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
     $saved[$item][$name] = $warn;
   }
 } else {
   if ($last) {
-    exec("$notify -l '/Main' -e \"USB flash drive operation\" -s ".escapeshellarg("Notice [$server] - USB drive returned to normal operation")." -d ".escapeshellarg("$info"));
+    exec("$notify -l '/Main' -e \"USB flash drive operation\" -s ".escapeshellarg("Notice [$server] - USB drive returned to normal operation")." -d ".escapeshellarg("$info")." 2>/dev/null");
     unset($saved[$item][$name]);
   }
 }
@@ -315,17 +316,17 @@ if ($retval===0) {
   $warn = exec("df /var/lib/docker|awk '/^\//{print $5*1}'");
   if ($warn>=$high1 && $high1>0) {
     if ($warn>$last) {
-      exec("$notify -l '/Docker' -e \"Docker critical image disk utilization\" -s ".escapeshellarg("Alert [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"alert\"");
+      exec("$notify -l '/Docker' -e \"Docker critical image disk utilization\" -s ".escapeshellarg("Alert [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
       $saved[$item][$name] = $warn;
     }
   } elseif ($warn>=$high2 && $high2>0) {
     if ($warn>$last) {
-      exec("$notify -l '/Docker' -e \"Docker high image disk utilization\" -s ".escapeshellarg("Warning [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"warning\"");
+      exec("$notify -l '/Docker' -e \"Docker high image disk utilization\" -s ".escapeshellarg("Warning [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
       $saved[$item][$name] = $warn;
     }
   } else {
     if ($last) {
-      exec("$notify -l '/Docker' -e \"Docker image disk utilization\" -s ".escapeshellarg("Notice [$server] - Docker image disk utilization returned to normal level")." -d ".escapeshellarg("$info"));
+      exec("$notify -l '/Docker' -e \"Docker image disk utilization\" -s ".escapeshellarg("Notice [$server] - Docker image disk utilization returned to normal level")." -d ".escapeshellarg("$info")." 2>/dev/null");
       unset($saved[$item][$name]);
     }
   }
