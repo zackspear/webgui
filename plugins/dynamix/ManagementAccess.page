@@ -115,7 +115,6 @@ function jsprintf() {
 function checkPorts(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
   var check = [{'key':'PORTTELNET','port':'<?=$var['PORTTELNET']?>','default':'23'},{'key':'PORTSSH','port':'<?=$var['PORTSSH']?>','default':'22'},{'key':'PORT','port':'<?=$var['PORT']?>','default':'80'},{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>','default':'443'}];
-  console.log(portsInUse);
   var list = [];
   var dupeCheck = [];
   for (var i=0; i < check.length; i++) {
