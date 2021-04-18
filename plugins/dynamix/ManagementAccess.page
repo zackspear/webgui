@@ -121,7 +121,7 @@ function checkPorts(form) {
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
-    var portdefault = check[i]['default']
+		var portdefault = check[i]['default']
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
     if (item.prop("disabled")) continue;
@@ -138,10 +138,10 @@ function checkPorts(form) {
   }, []);
   
   if ( list.length > 0 ) {
-    swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false});
+    swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
   } else {
     if ( duplicates.length > 0 ) {
-      swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false});
+      swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     } else {
       form.submit();
     }
