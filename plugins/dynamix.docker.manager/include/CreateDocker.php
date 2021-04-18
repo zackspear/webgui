@@ -311,7 +311,7 @@ if (!String.prototype.replaceAll) {
 function simplef() {
   var text = arguments[0];
   for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
-  return text;
+  return _(text);
 }
 // Create config nodes using templateDisplayConfig
 function makeConfig(opts) {
@@ -330,7 +330,7 @@ function makeConfig(opts) {
     escapeQuote(opts.Value),
     opts.Buttons,
     opts.Required=='true' ? 'required' : '',
-    simplef("_(Container %s)_",opts.Type)
+    simplef('Container %s',opts.Type)
   );
   newConfig = "<div id='ConfigNum"+opts.Number+"' class='config_"+opts.Display+"'' >"+newConfig+"</div>";
   newConfig = $($.parseHTML(newConfig));
