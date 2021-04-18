@@ -47,8 +47,19 @@ $disabled_provision = $keyfile===false || ($isLEcert && $retval_expired===0) || 
 $disabled_updatedns = $keyfile!==false && $isLEcert ? '' : 'disabled';
 $internalip = $eth0['IPADDR:0'];
 $tasks = find_tasks();
+
+// Get ports in use
+exec("lsof -i -P -n 2>/dev/null | grep LISTEN",$output);
+foreach ($output as $line) {
+  $ln = explode(":",$line);
+  $port[] = trim(str_replace("(LISTEN)","",end($ln)));
+}
+$portsInUse = array_values(array_unique($port));
+
 ?>
 <script>
+
+
 function provisionSSL(button) {
   var oldlabel = $.trim($(button).text());
   $(button).prop("disabled", true).html("<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"+oldlabel);
@@ -98,22 +109,44 @@ function updateDNS(button) {
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
+function jsprintf() {
+  var text = arguments[0];
+  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
+  return text;
+}
 function checkPorts(form) {
-  var check = [{'key':'PORTTELNET','port':'23','text':'TELNET'},{'key':'PORTSSH','port':'22','text':'SSH'},{'key':'PORT','port':'80','text':'HTTP'},{'key':'PORTSSL','port':'443','text':'HTTPS'}];
+  var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
+  var check = [{'key':'PORTTELNET','port':'<?=$var['PORTTELNET']?>'},{'key':'PORTSSH','port':'<?=$var['PORTSSH']?>'},{'key':'PORT','port':'<?=$var['PORT']?>'},{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>'}];
+  console.log(portsInUse);
   var list = [];
+  var dupeCheck = [];
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
     var text = check[i]['text'];
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(port);
-    if (item.val() < 1024 && item.val() != port && item.prop('disabled')==false) list.push(text+' ('+item.val()+')');
-    item.prop('disabled',false);
+    if (item.prop("disabled")) continue;
+    var userPort = item.val();
+    dupeCheck.push(userPort);
+    
+    if ( userPort !== port ) {
+      if ( portsInUse.includes(userPort) )
+        list.push(userPort);
+    }
   }
-  if (list.length > 0) {
-    swal({title:"_(Non-recommended port)_"+(list.length>1?'s':''),text:list.join(', ')+'<br>_(may conflict with well-known services)_',html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){form.submit();});
+  var duplicates = dupeCheck.reduce(function(acc, el, i, arr) {
+    if (arr.indexOf(el) !== i && acc.indexOf(el) < 0) acc.push(el); return acc;
+  }, []);
+  
+  if ( list.length > 0 ) {
+    swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false});
   } else {
-    form.submit();
+    if ( duplicates.length > 0 ) {
+      swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false});
+    } else {
+      form.submit();
+    }
   }
 }
 function updateTELNET(form) {
