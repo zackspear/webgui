@@ -121,7 +121,7 @@ function checkPorts(form) {
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
-		var portdefault = check[i]['default']
+    var portdefault = check[i]['default']
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
     if (item.prop("disabled")) continue;
