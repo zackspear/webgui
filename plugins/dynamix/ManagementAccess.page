@@ -114,15 +114,16 @@ function jsprintf() {
 }
 function checkPorts(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
-  var check = [{'key':'PORTTELNET','port':'<?=$var['PORTTELNET']?>'},{'key':'PORTSSH','port':'<?=$var['PORTSSH']?>'},{'key':'PORT','port':'<?=$var['PORT']?>'},{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>'}];
+  var check = [{'key':'PORTTELNET','port':'<?=$var['PORTTELNET']?>','default':'23'},{'key':'PORTSSH','port':'<?=$var['PORTSSH']?>','default':'22'},{'key':'PORT','port':'<?=$var['PORT']?>','default':'80'},{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>','default':'443'}];
   console.log(portsInUse);
   var list = [];
   var dupeCheck = [];
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
+		var portdefault = check[i]['default']
     var item = $(form).find('input[name="'+key+'"]');
-    if (!item.val()) item.val(port);
+    if (!item.val()) item.val(portdefault);
     if (item.prop("disabled")) continue;
     var userPort = item.val();
     dupeCheck.push(userPort);
