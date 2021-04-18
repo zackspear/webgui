@@ -58,8 +58,6 @@ $portsInUse = array_values(array_unique($port));
 
 ?>
 <script>
-
-
 function provisionSSL(button) {
   var oldlabel = $.trim($(button).text());
   $(button).prop("disabled", true).html("<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"+oldlabel);
@@ -123,7 +121,6 @@ function checkPorts(form) {
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
-    var text = check[i]['text'];
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(port);
     if (item.prop("disabled")) continue;
