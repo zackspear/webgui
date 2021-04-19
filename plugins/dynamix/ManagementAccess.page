@@ -49,12 +49,12 @@ $internalip = $eth0['IPADDR:0'];
 $tasks = find_tasks();
 
 // Get ports in use
-exec("lsof -i -P -n 2>/dev/null | grep LISTEN",$output);
+$portsInUse = [];
+exec("lsof -Pni4|awk '/LISTEN/{print \$9}'", $output);
 foreach ($output as $line) {
-  $ln = explode(":",$line);
-  $port[] = trim(str_replace("(LISTEN)","",end($ln)));
+  [$ip, $port] = explode(':', $line);
+  if (!in_array($port, $portsInUse) && ($ip=='*' || $ip==$eth0['IPADDR:0'])) $portsInUse[] = $port;
 }
-$portsInUse = array_values(array_unique($port));
 
 ?>
 <script>
@@ -126,7 +126,7 @@ function checkPorts(form) {
     if (item.prop("disabled")) continue;
     var userPort = item.val();
     dupeCheck.push(userPort);
-    
+
     if ( userPort !== port ) {
       if ( portsInUse.includes(userPort) )
         list.push(userPort);
@@ -135,7 +135,7 @@ function checkPorts(form) {
   var duplicates = dupeCheck.reduce(function(acc, el, i, arr) {
     if (arr.indexOf(el) !== i && acc.indexOf(el) < 0) acc.push(el); return acc;
   }, []);
-  
+
   if ( list.length > 0 ) {
     swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
   } else {
