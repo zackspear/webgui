@@ -53,7 +53,7 @@ $portsInUse = [];
 exec("lsof -Pni4|awk '/LISTEN/{print \$9}'", $output);
 
 $bind = $var['BIND_MGT']=='yes';
-$list = ['*', $eth0['IPADDR:0']];
+$list = ['*', $internalip];
 
 foreach ($output as $line) {
   [$ip, $port] = explode(':', $line);
