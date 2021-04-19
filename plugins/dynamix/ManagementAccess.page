@@ -5,8 +5,8 @@ Icon="icon-key"
 Tag="expeditedssl"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -51,9 +51,13 @@ $tasks = find_tasks();
 // Get ports in use
 $portsInUse = [];
 exec("lsof -Pni4|awk '/LISTEN/{print \$9}'", $output);
+
+$list = ['*', $eth0['IPADDR:0']];
+if ($var['BIND_MGT']!='yes') $list[] = '127.0.0.1';
+
 foreach ($output as $line) {
   [$ip, $port] = explode(':', $line);
-  if (!in_array($port, $portsInUse) && ($ip=='*' || $ip==$eth0['IPADDR:0'])) $portsInUse[] = $port;
+  if (!in_array($port, $portsInUse) && in_array($ip, $list)) $portsInUse[] = $port;
 }
 
 ?>
