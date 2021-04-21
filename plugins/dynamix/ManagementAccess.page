@@ -62,6 +62,10 @@ foreach ($output as $line) {
 ?>
 <script>
 function provisionSSL(button) {
+  var frm = $('form[name="SSLSettings"]');
+  if ( ! checkPorts(frm,true) ) {
+    return;
+  }
   var oldlabel = $.trim($(button).text());
   $(button).prop("disabled", true).html("<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"+oldlabel);
   var msg = "_(Your Let's Encrypt SSL Certificate has been provisioned and a DNS record for local IP address)_ <?=$internalip?> _(has been created on unraid.net)_.";
@@ -115,37 +119,65 @@ function jsprintf() {
   for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
   return text;
 }
-function checkPorts(form) {
+function validatePorts(form) {
+  if (checkPorts(form,false)) {
+    form.submit();
+  }
+}
+function checkPorts(form,provision) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
-  var check = [{'key':'PORTTELNET','port':'<?=$var['PORTTELNET']?>','default':'23'},{'key':'PORTSSH','port':'<?=$var['PORTSSH']?>','default':'22'},{'key':'PORT','port':'<?=$var['PORT']?>','default':'80'},{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>','default':'443'}];
+  if (provision) // SSL is already set to auto
+    var check = [{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>','default':'443',name:'_(HTTPS port)_'}];
+  else
+    var check = [ 
+      {'key':'PORTTELNET','port':'<?=($var['USE_TELNET'] == 'no') ? "0" : $var['PORTTELNET']?>','default':'23',name:'_(TELNET port)_'},
+      {'key':'PORTSSH','port':'<?=($var['USE_SSH'] == 'no') ? "0" : $var['PORTSSH']?>','default':'22',name:'_(SSH port)_'},
+      {'key':'PORT','port':'<?=$var['PORT']?>','default':'80',name:'_(HTTP Port)_'},
+      {'key':'PORTSSL','port':'<?=($var['USE_SSL'] == 'no') ? "0" : $var['PORTSSL']?>','default':'443',name:'_(HTTPS port)_'}
+    ];
   var list = [];
   var dupeCheck = [];
+  var range = [];
   for (var i=0; i < check.length; i++) {
     var key = check[i]['key'];
     var port = check[i]['port'];
-    var portdefault = check[i]['default']
+    var portdefault = check[i]['default'];
+    var name = check[i]['name'];
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
-    if (item.prop("disabled")) continue;
-    var userPort = item.val();
+    if ($(item).is(':disabled')) continue;
+    if (provision) 
+      var userPort = '<?=$var['PORTSSL']?>';
+    else {
+      var userPort = item.val();
+      if ( userPort < 1 || userPort > 65535 ) 
+        range.push(userPort+" ("+name+")");
+    }
+    
     dupeCheck.push(userPort);
-
-    if ( userPort !== port ) {
+    if ( userPort !== port || provision) {
       if ( portsInUse.includes(userPort) )
-        list.push(userPort);
+        list.push(userPort+" ("+name+")");
     }
   }
   var duplicates = dupeCheck.reduce(function(acc, el, i, arr) {
     if (arr.indexOf(el) !== i && acc.indexOf(el) < 0) acc.push(el); return acc;
   }, []);
 
+  if ( range.length > 0 ) {
+    swal({title:'_(Port out of range)_',text:jsprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    return false;
+  }
+
   if ( list.length > 0 ) {
     swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    return false;
   } else {
     if ( duplicates.length > 0 ) {
       swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+      return false;
     } else {
-      form.submit();
+      return true;
     }
   }
 }
@@ -245,7 +277,7 @@ _(Local TLD)_:
 :mgmt_local_tld_help:
 
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="checkPorts(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="button" value="_(Apply)_" onclick="validatePorts(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
 
 </form>
 <div style="height:24px"></div>
