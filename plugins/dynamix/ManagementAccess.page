@@ -129,7 +129,7 @@ function checkPorts(form,provision) {
   if (provision) // SSL is already set to auto
     var check = [{'key':'PORTSSL','port':'<?=$var['PORTSSL']?>','default':'443',name:'_(HTTPS port)_'}];
   else
-    var check = [ 
+    var check = [
       {'key':'PORTTELNET','port':'<?=($var['USE_TELNET'] == 'no') ? "0" : $var['PORTTELNET']?>','default':'23',name:'_(TELNET port)_'},
       {'key':'PORTSSH','port':'<?=($var['USE_SSH'] == 'no') ? "0" : $var['PORTSSH']?>','default':'22',name:'_(SSH port)_'},
       {'key':'PORT','port':'<?=$var['PORT']?>','default':'80',name:'_(HTTP Port)_'},
@@ -146,14 +146,14 @@ function checkPorts(form,provision) {
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
     if ($(item).is(':disabled')) continue;
-    if (provision) 
+    if (provision)
       var userPort = '<?=$var['PORTSSL']?>';
     else {
       var userPort = item.val();
-      if ( userPort < 1 || userPort > 65535 ) 
+      if ( userPort < 1 || userPort > 65535 )
         range.push(userPort+" ("+name+")");
     }
-    
+
     dupeCheck.push(userPort);
     if ( userPort !== port || provision) {
       if ( portsInUse.includes(userPort) )
@@ -168,18 +168,15 @@ function checkPorts(form,provision) {
     swal({title:'_(Port out of range)_',text:jsprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
   }
-
   if ( list.length > 0 ) {
     swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
-  } else {
-    if ( duplicates.length > 0 ) {
-      swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-      return false;
-    } else {
-      return true;
-    }
   }
+  if ( duplicates.length > 0 ) {
+    swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    return false;
+  }
+  return true;
 }
 function updateTELNET(form) {
   form.PORTTELNET.disabled = form.USE_TELNET.value=="_(no)_";
