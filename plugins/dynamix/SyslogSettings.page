@@ -51,34 +51,34 @@ function jsprintf() {
   return text;
 }
 function validatePort(form) {
-	var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
-	var currentPort = "<?=($syslog['local_server'] && $syslog['server_protocol'] != "udp") ? $syslog['server_port'] : "0"?>";
-	var port = $(form).find('input[name="server_port"]');
-	var remotePort = $(form).find('input[name="remote_port"]').val();
-	var protocol = $(form).find('select[name="server_protocol"]').val();
-	if ( !port.val() ) port.val("514");
-	var newport = port.val();
-	if (newport != currentPort && protocol != "udp"  && $(form).find('select[name="local_server"]').val() ) {
-		if (portsInUse.includes(newport) ) {
-			swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-			return;
-		}
-	}
-	var list = [];
-	if ( newport < 1 || newport > 65535 ) {
-		list.push("_(Local syslog port)_");
-	}
-	if ( ! remotePort ) remotePort = 514;
-	if ( remotePort < 1 || remotePort > 65535 ) {
-		list.push("_(Remote syslog port)_");
-	}
-	if ( list.length > 0 ) {
+  var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
+  var currentPort = "<?=($syslog['local_server'] && $syslog['server_protocol'] != "udp") ? $syslog['server_port'] : "0"?>";
+  var port = $(form).find('input[name="server_port"]');
+  var remotePort = $(form).find('input[name="remote_port"]').val();
+  var protocol = $(form).find('select[name="server_protocol"]').val();
+  if ( !port.val() ) port.val("514");
+  var newport = port.val();
+  if (newport != currentPort && protocol != "udp"  && $(form).find('select[name="local_server"]').val() ) {
+    if (portsInUse.includes(newport) ) {
+      swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+      return;
+    }
+  }
+  var list = [];
+  if ( newport < 1 || newport > 65535 ) {
+    list.push("_(Local syslog port)_");
+  }
+  if ( ! remotePort ) remotePort = 514;
+  if ( remotePort < 1 || remotePort > 65535 ) {
+    list.push("_(Remote syslog port)_");
+  }
+  if ( list.length > 0 ) {
     swal({title:'_(Port out of range)_',text:jsprintf('_(%s is out of range (minimum 1 maximum 65535))_',list.join(", ")),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-		return;
-	}
-	form.submit();
+    return;
+  }
+  form.submit();
 }
-			
+      
 </script>
 
 <form markdown="1" name="syslog" method="POST" action="/update.php" target="progressFrame">
