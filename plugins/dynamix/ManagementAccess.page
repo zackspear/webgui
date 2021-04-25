@@ -145,6 +145,7 @@ function checkPorts(form,provision) {
     var name = check[i]['name'];
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
+		item.val(parseInt(item.val()));
     if ($(item).is(':disabled')) continue;
     if (provision)
       var userPort = '<?=$var['PORTSSL']?>';
