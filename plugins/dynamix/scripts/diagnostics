@@ -204,6 +204,15 @@ foreach ($files as $file) {
   $dest = anonymize("/$diag/config/pools/".basename($file),2);
   @copy($file,$dest);
 }
+// copy modprobe information
+$files = glob("/boot/config/modprobe.d/*.conf");
+if ($files) {
+  @mkdir("/$diag/config/modprobe.d");
+  foreach ($files as $file) {
+    $dest = "/$diag/config/modprobe.d/".basename($file);
+    @copy($file,$dest);
+  }
+}
 // copy docker information (if existing)
 $max = 1*1024*1024; //=1MB
 $docker = "/var/log/docker.log";
