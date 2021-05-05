@@ -119,7 +119,7 @@ $(function(){
     url:'/webGui/include/FileUpload.php',
     data:{"csrf_token":"<?=$var['csrf_token']?>"},
     beforeEach:function(file) {
-      if (!file.type.match(/^image\/.*/)) {
+      if (!file.type.match(/^image\/png/)) {
         swal({title:"Warning",text:"_(Only PNG images are allowed)_!",type:"warning",html:true,confirmButtonText:"_(Ok)_"});
         return false;
       }
@@ -180,7 +180,7 @@ _(Custom image)_:
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept="image/*" style="display:none">
+  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept="image/png" style="display:none">
 
 :user_edit_custom_image_help:
 

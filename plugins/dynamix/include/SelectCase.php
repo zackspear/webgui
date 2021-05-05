@@ -79,6 +79,10 @@ div.case-name{margin-top:8px;font-family:clear-sans!important}
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script>
 function importFile(file) {
+  if (file.name.split(".").pop().toLowerCase() !== "png") {
+    alert("<?=_("Only png images are allowed!")?>");
+    return;
+  }  
   var reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = function(e){$.post('/webGui/include/SelectCase.php',{mode:'file',file:'<?=$file?>',data:e.target.result,csrf_token:'<?=$_GET['csrf']?>'},function(){top.Shadowbox.close();})};
