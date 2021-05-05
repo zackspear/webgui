@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,7 +17,7 @@ $text = "";
 foreach ($_POST as $field => $value) {
   if ($field[0] == '#') continue;
   $n = strrpos($field,'_');
-  $section = substr($field,0,$n);
+  $section = str_replace('%3E','.',substr($field,0,$n));
   $key = substr($field,$n+1);
   $keys[$section][$key] = $value;
 }

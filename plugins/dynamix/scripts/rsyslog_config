@@ -14,7 +14,7 @@ source /var/local/emhttp/var.ini
 
 # create local ruleset
 if ! grep -q '^\$RuleSet local$' $ETC; then
-  sed -ri '/^# limetech - everything goes to syslog.$/a$RuleSet local' $ETC
+  sed -ri '/^# Include all config files in/a$RuleSet local' $ETC
   sed -ri '/^#?\*\.\* @@?.*:[0-9]+$/a$DefaultRuleset local' $ETC
 fi
 

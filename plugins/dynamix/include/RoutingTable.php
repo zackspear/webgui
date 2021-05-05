@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -27,7 +27,7 @@ case 'Add Route':
   break;
 default:
   exec("ip -4 route show|grep -v '^127.0.0.0'",$ipv4);
-  exec("ip -6 route show|grep -Pv '^((any|multi)cast )?(f[ef][0-9][0-9])::'",$ipv6);
+  exec("ip -6 route show|grep -Pv '^([m:]|(f[ef][0-9][0-9])::)|expires'",$ipv6);
   foreach ($ipv4 as $info) {
     $cell = explode(' ',$info);
     $route = $cell[0];
