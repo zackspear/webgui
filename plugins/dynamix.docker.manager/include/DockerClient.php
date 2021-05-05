@@ -592,10 +592,13 @@ class DockerUpdate{
 						$rvalue  = $this->xml_decode($value);
 						$value = $this->xml_decode($local_element[$key]);
 						// Values changed, updating.
+						// Leave pre-existing value if description is simply Container {type}: xxx
 						if ($value != $rvalue && in_array($key, $validAttributes)) {
-							//$this->debug("Updating $type '$target' attribute '$key' from [$value] to [$rvalue]");
-							$local_element[$key] = $this->xml_encode($rvalue);
-							$changed = true;
+							if ( ! ($key == "Description" && preg_match("/^(Container Path:|Container Port:|Container Label:|Container Variable:|Container Device:)/",$rvalue) ) ) {
+								//$this->debug("Updating $type '$target' attribute '$key' from [$value] to [$rvalue]");
+								$local_element[$key] = $this->xml_encode($rvalue);
+								$changed = true;
+							}
 						}
 					}
 				// New Config element, add it to the local template
