@@ -4,8 +4,8 @@ Icon="icon-eula"
 Tag="file-text-o"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,6 +17,18 @@ Tag="file-text-o"
 ?>
 <?
 $syslog = @(array)parse_ini_file('/boot/config/rsyslog.cfg');
+
+// Get ports in use
+$portsInUse = [];
+exec("lsof -Pni4|awk '/LISTEN/{print \$9}'", $output);
+
+$bind = $var['BIND_MGT']=='yes';
+$list = ['*', $eth0['IPADDR:0']];
+
+foreach ($output as $line) {
+  [$ip, $port] = explode(':', $line);
+  if (!in_array($port, $portsInUse) && (!$bind || in_array($ip, $list))) $portsInUse[] = $port;
+}
 ?>
 <style>
 span.span{display:inline-block;width:224px}
@@ -33,6 +45,43 @@ $(function(){
   localFolder(document.syslog.local_server.value);
   logOptions(document.syslog.log_rotation.value);
 });
+function jsprintf() {
+  var text = arguments[0];
+  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
+  return text;
+}
+function validatePort(form) {
+  var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
+  var currentPort = "<?=($syslog['local_server'] && $syslog['server_protocol'] != "udp") ? $syslog['server_port'] : "0"?>";
+  var port = $(form).find('input[name="server_port"]');
+  var remotePort = $(form).find('input[name="remote_port"]');
+  var protocol = $(form).find('select[name="server_protocol"]').val();
+  if ( !port.val() ) port.val("514");
+	port.val(parseInt(port.val()));
+	remotePort.val(parseInt(remotePort.val()));
+  var newport = port.val();
+  if (newport != currentPort && protocol != "udp"  && $(form).find('select[name="local_server"]').val() ) {
+    if (portsInUse.includes(newport) ) {
+      swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+      return;
+    }
+  }
+  var list = [];
+  if ( newport < 1 || newport > 65535 ) {
+    list.push("_(Local syslog port)_");
+  }
+	var remote = remotePort.val();
+  if ( ! remote ) remote = 514;
+  if ( remote < 1 || remote > 65535 ) {
+    list.push("_(Remote syslog port)_");
+  }
+  if ( list.length > 0 ) {
+    swal({title:'_(Port out of range)_',text:jsprintf('_(%s is out of range (minimum 1 maximum 65535))_',list.join(", ")),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    return;
+  }
+  form.submit();
+}
+      
 </script>
 
 <form markdown="1" name="syslog" method="POST" action="/update.php" target="progressFrame">
@@ -105,7 +154,7 @@ _(Remote syslog server)_:
   <?=mk_option($syslog['remote_protocol'], "udp", _("UDP"))?>
   <?=mk_option($syslog['remote_protocol'], "tcp", _("TCP"))?>
   </select>
-  <input type="text" name="remote_port" class="trim" value="<?=$syslog['remote_port']?>" maxlength="4" placeholder="514">
+  <input type="number" name="remote_port" class="trim" value="<?=$syslog['remote_port']?>" maxlength="5" placeholder="514" pattern="([0-9]{1,5})">
 
 :syslog_remote_server_help:
 
@@ -118,5 +167,5 @@ _(Mirror syslog to flash)_:
 :syslog_mirror_flash_help:
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="button" value="_(Apply)_" onclick='validatePort(this.form)' disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
