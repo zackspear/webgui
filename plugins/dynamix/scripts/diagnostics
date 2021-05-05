@@ -46,29 +46,32 @@ function exert($cmd, &$save=null) {
 }
 
 function shareDisks($share) {
-  return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/usr/local/emhttp/mnt/user/$share")." 2>/dev/null") ?: "no drives";
+  return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/usr/local/emhttp/mnt/user/$share")." 2>/dev/null") ?: "";
 }
 function anonymize($text,$select) {
-  global $all;
+  global $all, $customShares;
   if ($all) return $text;
   switch ($select) {
   case 1:
     $rows = explode("\n", $text);
+    $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu$customShares)\b/";
     foreach ($rows as &$row) {
-      if (!preg_match("/\b(disk|cache|parity|flash)\d*\b/", $row)) {
+      if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
-        $row = preg_replace("/^(\s*\[(name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token)\] => \S).*(\S)$/","$1..$3",$row);
+        $row = preg_replace("/^(\s*\[(cachePool|name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token)\] => \S).*(\S)$/","$1..$3",$row);
       }
     }
     return implode("\n", $rows);
   case 2:
     $name = basename($text,'.cfg');
-    $len = strlen($name);
-    if ($len>2) {
-      $dash = str_repeat('-',$len-2);
-      $name = preg_replace("/^(\S).*(\S)/","$1$dash$2",$name);
-      $i = 1;
-      while (file_exists(dirname($text)."/$name.cfg")) {$name = substr($name,0,$len)." ($i)"; $i++;}
+    if ($name !== "cache") {
+      $len = strlen($name);
+      if ($len>2) {
+        $dash = str_repeat('-',$len-2);
+        $name = preg_replace("/^(\S).*(\S)/","$1$dash$2",$name);
+        $i = 1;
+        while (file_exists(dirname($text)."/$name.cfg")) {$name = substr($name,0,$len)." ($i)"; $i++;}
+      }
     }
     return dirname($text)."/$name.cfg";
   }
@@ -99,6 +102,22 @@ if ($cli) {
   $diag = basename($zip, '.zip');
   $split = explode('-', $diag);
   $date = "{$split[2]}-{$split[3]}";
+}
+// don't anonymize system share names
+$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
+$showshares = [];
+$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']), 3, 1)).'.cfg';
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']), 3, 1)).'.cfg';
+foreach ($showshares as $show) {
+  $showme = str_replace(".cfg","",$show);
+  if ($showme)
+    $customShares .= "|$showme";
 }
 // create folder structure
 exert("mkdir -p ".escapeshellarg("/$diag/system")." ".escapeshellarg("/$diag/config")." ".escapeshellarg("/$diag/logs")." ".escapeshellarg("/$diag/shares")." ".escapeshellarg("/$diag/smart")." ".escapeshellarg("/$diag/qemu")." ".escapeshellarg("/$diag/xml"));
@@ -167,18 +186,6 @@ if (!$all)
 // anonymize configuration files
 if (!$all) exert("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
 
-// don't anonymize system share names
-$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
-$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
-$showshares = [];
-$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']), 3, 1)).'.cfg';
-
 // copy share information (anonymize if applicable)
 $files = glob("/boot/config/shares/*.cfg");
 foreach ($files as $file) {
@@ -189,7 +196,23 @@ foreach ($files as $file) {
   @copy($file, $dest);
   if (!$all) exert("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
   $share = pathinfo(basename($file),PATHINFO_FILENAME);
-  file_put_contents($dest,"# Share exists on ".shareDisks($share)."\r\n",FILE_APPEND);
+  $shareExists = explode(",",shareDisks($share));
+  unset($exists);
+  foreach ($shareExists as $anon) {
+    if ( !$all )
+      if (!preg_match("/\b((disk)[0-9]+)|(cache)\b/", $anon)) {
+        $len = strlen($anon);
+        if ($len>2) {
+          $dash = str_repeat('-',$len-2);
+          $exists[] = substr($anon,0,1).$dash.substr($anon,-1);
+        }
+      }
+    else
+      $exists[] = $anon;
+  }
+  $exists = $exists ?: ["no drives"];
+  
+  file_put_contents($dest,"# Share exists on ".implode(", ",$exists)."\r\n",FILE_APPEND);
 }
 // create default user shares information
 $shares = (array)@parse_ini_file("$get/shares.ini", true);
