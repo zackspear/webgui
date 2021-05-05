@@ -3,8 +3,8 @@ Title="Notification Agents"
 Tag="rss-square"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -76,6 +76,8 @@ function testService(name) {
   form.append('<input type="hidden" name="#env[]" value="SUBJECT='+name+' test.">');
   form.append('<input type="hidden" name="#env[]" value="DESCRIPTION='+name+' test.">');
   form.append('<input type="hidden" name="#env[]" value="IMPORTANCE=normal">');
+  // host is normally added to link by the notify script. add it here since calling the agent directly.
+  form.append('<input type="hidden" name="#env[]" value="LINK='+window.location.origin+'/Settings/Notifications">');
   form.submit();
 }
 function initDropdown() {
@@ -88,7 +90,7 @@ function initDropdown() {
 <input type="hidden" name="#arg[2]" value="">
 </form>
 <?
-$fields = ['Event','Subject','Timestamp','Description','Importance','Content'];
+$fields = ['Event','Subject','Timestamp','Description','Importance','Content','Link'];
 $xml_file = "webGui/include/NotificationAgents.xml";
 $xml = @simplexml_load_file($xml_file) or die(_("Failed to open")." $xml_file");
 foreach ($xml->Agent as $agent) {
