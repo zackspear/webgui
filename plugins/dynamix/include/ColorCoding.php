@@ -14,7 +14,7 @@
 // Color coding for syslog and disk log
 $match =
 [['class' => 'text',
-  'text'  => ['to the standard error','non[ -]fatal error','correct gpt errors','error handler\b','(kernel|logger): [|+ #-.]','logger: (naming|log)','tainted: (host-cpu|high-privileges)','root: (>f|cd)\+\+\+\+','root: \.d\.\.t\.','(move: ){2}]
+  'text'  => ['to the standard error','non[ -]fatal error','correct gpt errors','error handler\b','(kernel|logger): [|+ #-.]','logger: (naming|log)','tainted: (host-cpu|high-privileges)','root: (>f|cd)\+\+\+\+','root: \.d\.\.t\.','(move: ){2}']
  ],
  ['class' => 'login',
   'text'  => ['(accepted|failed) password','sshd\[\d+\]:',' login user ']
