@@ -100,7 +100,7 @@ switch ($action) {
 		$pid = exec("pgrep -a ttyd|awk '/\\/$name\\.sock/{print \$1}'");
 		if ($pid) exec("kill $pid");
 		@unlink("/var/tmp/$name.sock");
-		exec("exec ttyd -o -d0 -i '/var/tmp/$name.sock' docker exec -it '$name' $shell &>/dev/null &");
+		exec("ttyd-exec -o -i '/var/tmp/$name.sock' docker exec -it '$name' $shell");
 		break;
 	default:
 		$arrResponse = ['error' => _('Unknown action')." '$action'"];
