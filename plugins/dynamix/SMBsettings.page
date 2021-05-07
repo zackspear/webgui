@@ -58,7 +58,7 @@ _(Enable WSD)_:
 :smb_enable_wsd_help:
 
 _(WSD options [experimental])_:
-: <input type="text" name="WSD_OPT" maxlength="80" class="narrow" value="<?=htmlspecialchars($var['WSD_OPT'])?>" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
+: <input type="text" name="WSD2_OPT" maxlength="80" class="narrow" value="<?=htmlspecialchars($var['WSD2_OPT'])?>" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
 
 :smb_wsd_options_help:
 
@@ -70,9 +70,9 @@ _(WSD options [experimental])_:
 function checkWSDSettings() {
   form=document.SMBEnable;
   if (form.USE_WSD.value=="yes") {
-    form.WSD_OPT.disabled=false;
+    form.WSD2_OPT.disabled=false;
   } else {
-    form.WSD_OPT.disabled=true;
+    form.WSD2_OPT.disabled=true;
   }
 }
 $(checkWSDSettings);

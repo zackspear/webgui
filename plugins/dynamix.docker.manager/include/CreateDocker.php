@@ -113,14 +113,13 @@ if (isset($_POST['contName'])) {
       goto END;
     }
   }
-  $startContainer = filter_var($_POST['contStart'],FILTER_VALIDATE_BOOLEAN);
+  $startContainer = true;
   // Remove existing container
   if ($DockerClient->doesContainerExist($Name)) {
     // attempt graceful stop of container first
     $oldContainerInfo = $DockerClient->getContainerDetails($Name);
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
       // attempt graceful stop of container first
-      $startContainer = true;
       stopContainer($Name);
     }
     // force kill container if still running after 10 seconds
@@ -417,9 +416,7 @@ function addConfigPopup() {
         if (!Opts.Name){
           Opts.Name = makeName(Opts.Type);
         }
-        if (!Opts.Description) {
-          Opts.Description = "_(Container)_ "+Opts.Type+": "+Opts.Target;
-        }
+
         if (Opts.Required == "true") {
           Opts.Buttons  = "<span class='advanced'><button type='button' onclick='editConfigPopup("+confNum+",false)'>_(Edit)_</button>";
           Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button></span>";
@@ -499,9 +496,7 @@ function editConfigPopup(num,disabled) {
         if (!Opts.Name){
           Opts.Name = makeName(Opts.Type);
         }
-        if (!Opts.Description) {
-          Opts.Description = "Container "+Opts.Type+": "+Opts.Target;
-        }
+
         Opts.Number = num;
         newConf = makeConfig(Opts);
         if (config.hasClass("config_"+Opts.Display)) {
@@ -887,15 +882,9 @@ _(Privileged)_:
 &nbsp;
 : <a href="javascript:addConfigPopup()"><i class="fa fa-fw fa-plus"></i> _(Add another Path, Port, Variable, Label or Device)_</a>
 
-<?if ($xmlType != "edit"):?>
-&nbsp;
-: <input type='checkbox' name='contStart' checked> <span class='orange-text'>_(Start Container After Install)_</span>
-<?endif;?>
-
 &nbsp;
 : <input type="submit" value="<?=$xmlType=='edit' ? "_(Apply)_" : " _(Apply)_ "?>"><input type="button" value="_(Done)_" onclick="done()">
   <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">_(Save)_</button><?endif;?>
-
 
 </form>
 </div>
@@ -995,7 +984,7 @@ _(Password Mask)_:
 <input type="hidden" name="confRequired[]" value="{7}">
 <input type="hidden" name="confMask[]" value="{8}">
 <span class="{11}">{0}:</span>
-: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class="orange-text">{4}</span></span>
+: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class='orange-text'>{12}: {1}</span><br><span class="orange-text">{4}</span><br>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">
@@ -1059,7 +1048,7 @@ function load_contOverview() {
     // Handle code block being created by authors indenting (manually editing the xml and spacing)
     new_overview = new_overview.replaceAll("    ","&nbsp;&nbsp;&nbsp;&nbsp;");
     new_overview = marked(new_overview);
-  } else
+  } else 
     new_overview = new_overview.replaceAll("\n","");
   $("#contDescription").html(new_overview);
 }

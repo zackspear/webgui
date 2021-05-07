@@ -43,6 +43,6 @@ foreach (glob("$plugins/lang-*.xml", GLOB_NOSORT) as $link) {
   $author = language('Author', $xml_file);
   $credits[] = "<li><p><i>$lang ($local)</i> translation by $author</p></li>";
 }
-if (count($credits)) echo '<br><b>Language Translations</b> Copyright &copy; 2020, <a href="http://lime-technology.com">Lime Technology, Inc.</a><br><ul>'.implode('',$credits).'</ul>';
+if (count($credits)) echo '<br><b>Language Translations</b> Copyright &copy; 2020-2021, <a href="http://lime-technology.com">Lime Technology, Inc.</a><br><ul>'.implode('',$credits).'</ul>';
 ?>
 <br><input type="button" value="_(Done)_" onclick="done()">

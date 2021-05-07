@@ -248,6 +248,15 @@ _(Header custom background color)_:
 
 :display_custom_background_color_help:
 
+_(Header show description)_:
+: <select name="headerdescription">
+  <?=mk_option($display['headerdescription'], "yes",_('Yes'))?>
+  <?=mk_option($display['headerdescription'], "no",_('No'))?>
+  </select>
+
+_(Header custom meta text color)_:
+: <input type="text" class="narrow" name="headermetacolor" value="<?=$display['headermetacolor']?>" maxlength="6" pattern="([0-9a-fA-F]{3}){1,2}" title="HTML color code of 3 or 6 hexadecimal digits">
+
 _(Show banner)_:
 : <select name="banner" onchange="presetBanner(this.form)">
   <?=mk_option($display['banner'], "",_('No'))?>
@@ -291,8 +300,8 @@ _(Used / Free columns)_:
   <?=mk_option($display['text'], "2",_('Bar (color)'))?>
   <?=mk_option($display['text'], "10",_('Text - Bar (gray)'))?>
   <?=mk_option($display['text'], "20",_('Text - Bar (color)'))?>
-  <?=mk_option($display['text'], "11",_('Bar (gray) - Text'))?>
-  <?=mk_option($display['text'], "21",_('Bar (color) - Text'))?>
+  <?=mk_option($display['text'], "11",_('Bar (gray) - Text)'))?>
+  <?=mk_option($display['text'], "21",_('Bar (color) - Text)'))?>
   </select>
 
 _(Temperature unit)_:

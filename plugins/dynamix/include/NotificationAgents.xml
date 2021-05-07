@@ -44,9 +44,9 @@
 # Quick test with default values:
 #   bash /boot/config/plugins/dynamix/notifications/agents/Discord.sh
 # Quick test with values set through environment (all vars are optional)
-#   EVENT="My Event" SUBJECT="My Subject" DESCRIPTION="My Description" CONTENT="My Message" IMPORTANCE="alert" bash /boot/config/plugins/dynamix/notifications/agents/Discord.sh
+#   EVENT="My Event" SUBJECT="My Subject" DESCRIPTION="My Description" CONTENT="My Message" IMPORTANCE="alert" LINK="/Dashboard" bash /boot/config/plugins/dynamix/notifications/agents/Discord.sh
 # Full test of notification system (at least one param is required)
-#   /usr/local/emhttp/webGui/scripts/notify -e "My Event" -s "My Subject" -d "My Description"  -m "My Message" -i "alert"
+#   /usr/local/emhttp/webGui/scripts/notify -e "My Event" -s "My Subject" -d "My Description"  -m "My Message" -i "alert" -l "/Dashboard"
 #
 # If a notification does not go through, check the /var/log/notify_Discord file for hints
 ############
@@ -61,6 +61,7 @@
 # SUBJECT (notify -s)
 # DESCRIPTION (notify -d)
 # CONTENT (notify -m)
+# LINK (notify -l)
 # TIMESTAMP (seconds from epoch)
 
 SCRIPTNAME=$(basename "$0")
@@ -72,6 +73,7 @@ LOG="/var/log/notify_${SCRIPTNAME%.*}"
 [[ -z "${DESCRIPTION}" ]] && DESCRIPTION='No description'
 [[ -z "${IMPORTANCE}" ]] && IMPORTANCE='normal'
 [[ -z "${TIMESTAMP}" ]] && TIMESTAMP=$(date +%s)
+[[ -n "${LINK}" ]] && [[ ${LINK} != http* ]] && LINK=$(</var/run/nginx.origin)${LINK}
 # note: there is no default for CONTENT
 
 # send DESCRIPTION and/or CONTENT. Ignore the default DESCRIPTION.
@@ -147,6 +149,10 @@ esac
 # if SERVER_ICON is defined, use it
 [[ -n "${SERVER_ICON}" && "${SERVER_ICON:0:8}" == "https://" ]] && ICON_URL="\"icon_url\": \"${SERVER_ICON}\","
 
+# https://birdie0.github.io/discord-webhooks-guide/structure/embed/url.html
+# if LINK is defined, use it
+[[ -n "${LINK}" ]] && LINK_URL="\"url\": \"${LINK}\","
+
 DATA=$(
   cat <<EOF
 {
@@ -155,6 +161,7 @@ DATA=$(
     {
       "title": "${EVENT:0:256}",
       "description": "${SUBJECT:0:2043}",
+      ${LINK_URL}
       "timestamp": ${FORMATTED_TIMESTAMP},
       "color": "${COLOR}",
       "author": {
