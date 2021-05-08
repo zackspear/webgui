@@ -132,7 +132,7 @@ function checkPorts(form,provision) {
     var check = [
       {'key':'PORTTELNET','port':'<?=($var['USE_TELNET'] == 'no') ? "0" : $var['PORTTELNET']?>','default':'23',name:'_(TELNET port)_'},
       {'key':'PORTSSH','port':'<?=($var['USE_SSH'] == 'no') ? "0" : $var['PORTSSH']?>','default':'22',name:'_(SSH port)_'},
-      {'key':'PORT','port':'<?=$var['PORT']?>','default':'80',name:'_(HTTP Port)_'},
+      {'key':'PORT','port':'<?=$var['PORT']?>','default':'80',name:'_(HTTP port)_'},
       {'key':'PORTSSL','port':'<?=($var['USE_SSL'] == 'no') ? "0" : $var['PORTSSL']?>','default':'443',name:'_(HTTPS port)_'}
     ];
   var list = [];
