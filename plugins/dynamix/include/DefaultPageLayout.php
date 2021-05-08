@@ -413,7 +413,7 @@ $(function() {
 // check for flash offline / corrupted.  docker.cfg is guaranteed to always exist
 <? if ( ! @parse_ini_file("/boot/config/docker.cfg") || ! @parse_ini_file("/boot/config/disk.cfg") || ! @parse_ini_file("/boot/config/domain.cfg") || ! @parse_ini_file("/boot/config/ident.cfg") ):?>
 $(function() {
-  addBannerWarning("<?=_('Your flash drive is corrupted or offline.  Post your diagnostics in the forum for help.')?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?>");
+  addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?>");
 });
 <?endif;?>
 </script>
@@ -692,7 +692,7 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
               'heading' => _('Registration key / GUID mismatch'),
               'message' => [
                 'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key').'.',
-                'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months.'),
+                'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months').'.',
                 'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
               ],
             ],
@@ -780,8 +780,8 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
           'closingPopUpMayLeadToErrors' => _('Closing this pop-up window while actions are being preformed may lead to unintended errors'),
           'goBack' => _('Go Back'),
           'shutDown' => _('Shut Down'),
-          'haveAccountSignIn' => _('Already have an account? Sign In'),
-          'noAccountSignUp' => _("Don't have an account? Sign Up"),
+          'haveAccountSignIn' => _('Already have an account').'? '._('Sign In'),
+          'noAccountSignUp' => _('Do not have an account').'? '._('Sign Up'),
           'serverInfo' => [
             'flash' => _('Flash'),
             'product' => _('Product'),
