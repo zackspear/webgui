@@ -616,7 +616,7 @@ function updatePeer(form,i,n,vtun) {
     form.find('input[name="gui:ListenPort:'+i+'"]').attr('placeholder',form.find('input[name="gui:ListenPort:0"]').val()||netport[vtun]);
     form.find('input[name="Address:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required');
     form.find('input[name="Address6:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required');
-    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required');
+    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required').val('');
     if (icon.hasClass('fa-chevron-down')) openClose(form,icon,'div.zone'+i);
     break;
   default:
