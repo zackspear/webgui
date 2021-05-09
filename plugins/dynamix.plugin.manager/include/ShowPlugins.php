@@ -203,14 +203,15 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   }
 //write plugin information
   $empty = false;
+  $id = str_replace('.','-',$name);
   if ($system || $install) {
 // regular table construct for system plugin or manual install
     echo "<tr id=\"".str_replace(['.',' ','_'],'',basename($plugin_file,'.plg'))."\">";
     echo "<td>$link</td>";
     echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
     echo "<td>$author</td>";
-    echo "<td data='$date'>$version</td>";
-    echo "<td data='$rank'>$status</td>";
+    echo "<td id='vid-$id' data='$date'>$version</td>";
+    echo "<td id='sid-$id' data='$rank'>$status</td>";
     echo "<td>";
     if ($os) {
       $regular = ['stable','next'];
@@ -225,7 +226,6 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     echo "</tr>";
   } else {
 // selective updates for user plugins
-    $id = str_replace('.','-',$name);
     echo "vid-$id::$date::$version\rsid-$id::$rank::$status\n";
   }
 //remove temporary symlink
