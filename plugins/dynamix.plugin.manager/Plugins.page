@@ -95,7 +95,7 @@ $(function() {
   init();
   $('#plugin_tree').fileTree({root:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
   $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value='<?=_('Update All Plugins')?>' onclick='disableButton();openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=updateall\",\"<?=_('Update All Plugins')?>\",600,600,true,\"loadlist\",\":return\")'></span>");
-  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='<?=_('Check For Updates')?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkall\",\"<?=_('Plugin Update Check')?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value='<?=_('Check For Updates')?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/checkall\",\"<?=_('Plugin Update Check')?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 });
 </script>
 <table class='tablesorter plugins shift' id='plugin_table'>
