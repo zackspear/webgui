@@ -17,7 +17,6 @@ Code="e944"
  * all copies or substantial portions of the Software.
  */
 ?>
-
 <?
 // Remove stale /tmp/plugin/*.plg entries
 foreach (glob("/tmp/plugins/*.{plg,txt}", GLOB_NOSORT+GLOB_BRACE) as $entry) if (!file_exists("/var/log/plugins/".basename($entry))) @unlink($entry);
