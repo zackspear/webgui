@@ -16,10 +16,10 @@ Tag="upload"
  */
 ?>
 <?
-$empty = "<tr><td colspan='6'><div class='spinner'></div></td></tr>";
+$empty   = "<tr><td colspan='6'><div class='spinner'></div></td></tr>";
 $version = $branch = $date = _('unknown');
-$bzroot = file_exists('/boot/previous/bzroot');
-$check = $notify['unraidos'] ? 0 : 1;
+$bzroot  = file_exists('/boot/previous/bzroot');
+$check   = $notify['unraidos'] ? 0 : 1;
 
 if (file_exists('/boot/previous/changes.txt')) {
   exec("head -n4 /boot/previous/changes.txt",$rows);
@@ -77,16 +77,12 @@ function loadlist(id) {
 <?if ($bzroot):?>
     $('#previous').show();
 <?endif;?>
-<?if ($check):?>
     $('#checkos').prop('disabled',false);
-<?endif;?>
   });
 }
 $(function() {
   loadlist();
-<?if ($check):?>
   $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value='<?=_('Check for Updates')?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"<?=_('System Update Check')?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
-<?endif;?>
 });
 </script>
 <table class='tablesorter plugins shift' id='os_table'>

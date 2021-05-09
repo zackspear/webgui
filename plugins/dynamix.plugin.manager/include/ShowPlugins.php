@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -22,18 +22,81 @@ $system  = $_GET['system'] ?? false;
 $branch  = $_GET['branch'] ?? false;
 $audit   = $_GET['audit'] ?? false;
 $check   = $_GET['check'] ?? false;
+$init    = $_GET['init'] ?? false;
 $empty   = true;
+$install = false;
 $updates = 0;
 $builtin = ['unRAIDServer'];
 $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
+$default = "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
+
+if ($init) {
+  foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
+    //only consider symlinks
+    $plugin_file = @readlink($plugin_link);
+    if ($plugin_file===false) continue;
+    //plugin name
+    $name = plugin('name',$plugin_file) ?: basename($plugin_file,".plg");
+    //skip system plugin
+    if (in_array($name,$builtin)) continue;
+    //icon + link
+    $launch = plugin('launch',$plugin_file);
+    if ($icon = plugin('icon',$plugin_file)) {
+      if (substr($icon,-4)=='.png') {
+        if (file_exists("plugins/$name/images/$icon")) {
+          $icon = "plugins/$name/images/$icon";
+        } elseif (file_exists("plugins/$name/$icon")) {
+          $icon = "plugins/$name/$icon";
+        } else {
+          $icon = "plugins/dynamix.plugin.manager/images/dynamix.plugin.manager.png";
+        }
+        $icon = "<img src='/$icon' class='list'>";
+      } elseif (substr($icon,0,5)=='icon-') {
+        $icon = "<i class='$icon list'></i>";
+      } else {
+        if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
+        $icon = "<i class='fa $icon list'></i>";
+      }
+      $link = $launch ? "<a href='/$launch' class='list'>$icon</a>" : $icon;
+    } else {
+      $icon = icon($name);
+      $link = $launch ? "<a href='/$launch' class='list'><img src='/$icon' class='list'></a>" : "<img src='/$icon' class='list'>";
+    }
+    //description
+    $readme = "plugins/{$name}/README.md";
+    $desc = file_exists($readme) ? Markdown(file_get_contents($readme)) : Markdown("**{$name}**");
+    //support
+    $support = plugin('support',$plugin_file) ?: "";
+    $support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
+    //author
+    $author = plugin('author',$plugin_file) ?: _('anonymous');
+    //version
+    $version = plugin('version',$plugin_file) ?: _('unknown');
+    $date = str_replace('.','',$version);
+    //status
+    $status = _('unknown');
+    $id = str_replace('.','-',$name);
+    $empty = false;
+    echo "<tr id=\"".str_replace(['.',' ','_'],'',basename($plugin_file,'.plg'))."\">";
+    echo "<td>$link</td>";
+    echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
+    echo "<td>$author</td>";
+    echo "<td id='vid-$id' data='$date'>$version&nbsp;<span class='fa fa-info-circle fa-fw big blue-text'></span></td>";
+    echo "<td id='sid-$id' data='0'><span class='fa fa-spin fa-refresh'></span>&nbsp;$status</td>";
+    echo "<td>".make_link('remove',basename($plugin_file))."</td>";
+    echo "</tr>";
+  }
+  if ($empty) echo $default;
+  return;
+}
 
 if ($audit) {
-  list($plg,$action) = explode(':',$audit);
+  [$plg,$action] = explode(':',$audit);
   switch ($action) {
     case 'return' : $check = true; break;
     case 'remove' : return;
-    case 'install':
+    case 'install': $install = true;
     case 'update' : $plugins = "/var/log/plugins/$plg.plg"; break;
   }
 }
@@ -66,45 +129,44 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
       $plugin_file = $tmp_file;
     }
   }
+  if ($system || $install) {
 //link/icon
-  $launch = plugin('launch',$plugin_file);
-  if ($icon = plugin('icon',$plugin_file)) {
-    if (substr($icon,-4)=='.png') {
-      if (file_exists("plugins/$name/images/$icon")) {
-        $icon = "plugins/$name/images/$icon";
-      } elseif (file_exists("plugins/$name/$icon")) {
-        $icon = "plugins/$name/$icon";
+    $launch = plugin('launch',$plugin_file);
+    if ($icon = plugin('icon',$plugin_file)) {
+      if (substr($icon,-4)=='.png') {
+        if (file_exists("plugins/$name/images/$icon")) {
+          $icon = "plugins/$name/images/$icon";
+        } elseif (file_exists("plugins/$name/$icon")) {
+          $icon = "plugins/$name/$icon";
+        } else {
+          $icon = "plugins/dynamix.plugin.manager/images/dynamix.plugin.manager.png";
+        }
+        $icon = "<img src='/$icon' class='list'>";
+      } elseif (substr($icon,0,5)=='icon-') {
+        $icon = "<i class='$icon list'></i>";
       } else {
-        $icon = "plugins/dynamix.plugin.manager/images/dynamix.plugin.manager.png";
+        if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
+        $icon = "<i class='fa $icon list'></i>";
       }
-      $icon = "<img src='/$icon' class='list'>";
-    } elseif (substr($icon,0,5)=='icon-') {
-      $icon = "<i class='$icon list'></i>";
+      $link = $launch ? "<a href='/$launch' class='list'>$icon</a>" : $icon;
     } else {
-      if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
-      $icon = "<i class='fa $icon list'></i>";
+      $icon = icon($name);
+      $link = $launch ? "<a href='/$launch' class='list'><img src='/$icon' class='list'></a>" : "<img src='/$icon' class='list'>";
     }
-    $link = $launch ? "<a href='/$launch' class='list'>$icon</a>" : $icon;
-  } else {
-    $icon = icon($name);
-    $link = $launch ? "<a href='/$launch' class='list'><img src='/$icon' class='list'></a>" : "<img src='/$icon' class='list'>";
-  }
 //description
-  $readme = "plugins/{$name}/README.md";
-  if (file_exists($readme))
-    $desc = Markdown(file_get_contents($readme));
-  else
-    $desc = Markdown("**{$name}**");
+    $readme = "plugins/{$name}/README.md";
+    $desc = file_exists($readme) ? Markdown(file_get_contents($readme)) : Markdown("**{$name}**");
 //author
-  $author = plugin('author',$plugin_file) ?: _('anonymous');
+    $author = plugin('author',$plugin_file) ?: _('anonymous');
+//support
+    $support = plugin('support',$plugin_file) ?: "";
+    $support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
+//category
+    $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
+  }
 //version
   $version = plugin('version',$plugin_file) ?: _('unknown');
   $date = str_replace('.','',$version);
-//support
-  $support = plugin('support',$plugin_file) ?: "";
-  $support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
-//category
-  $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
 //status
   $status = _('unknown');
   $changes_file = $plugin_file;
@@ -141,29 +203,34 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   }
 //write plugin information
   $empty = false;
-  echo "<tr id=\"".str_replace(['.',' ','_'],'',basename($plugin_file,'.plg'))."\">";
-  echo "<td>$link</td>";
-  echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
-  echo "<td>$author</td>";
-  echo "<td data='$date'>$version</td>";
-  echo "<td data='$rank'>$status</td>";
-  echo "<td>";
-  if ($system) {
+  if ($system || $install) {
+// regular table construct for system plugin or manual install
+    echo "<tr id=\"".str_replace(['.',' ','_'],'',basename($plugin_file,'.plg'))."\">";
+    echo "<td>$link</td>";
+    echo "<td><span class='desc_readmore' style='display:block'>$desc</span> $support</td>";
+    echo "<td>$author</td>";
+    echo "<td data='$date'>$version</td>";
+    echo "<td data='$rank'>$status</td>";
+    echo "<td>";
     if ($os) {
       $regular = ['stable','next'];
       echo "<select id='change_branch' class='auto' onchange='update_table(this.value)'>";
       foreach ($regular as $choice) echo mk_options($category,$choice);
       if (!in_array($category,$regular)) echo mk_options($category,$category);
       echo "</select>";
+    } else {
+      echo make_link('remove',basename($plugin_file));
     }
+    echo "</td>";
+    echo "</tr>";
   } else {
-    echo make_link('remove',basename($plugin_file));
+// selective updates for user plugins
+    $id = str_replace('.','-',$name);
+    echo "vid-$id::$date::$version\rsid-$id::$rank::$status\n";
   }
-  echo "</td>";
-  echo "</tr>";
 //remove temporary symlink
   @unlink("/var/log/plugins/$tmp_plg");
 }
-if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
+if ($empty) echo $default;
 echo "\0".$updates;
 ?>
