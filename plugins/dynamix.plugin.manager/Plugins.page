@@ -70,9 +70,9 @@ function initlist() {
     loadlist();
   });
 }
-function loadlist(id) {
+function loadlist(id,check) {
   if (id) timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:0},function(d) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:check||0},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
     if (id) {
@@ -84,7 +84,7 @@ function loadlist(id) {
         case 'update' :
         case 'return' : updateInfo(data[0]); break;
         case 'remove' : list.find(tr).remove(); break;
-        case 'install': if (!list.find(tr).length) list.append(data[0]); loadlist(); break;
+        case 'install': if (!list.find(tr).length) list.append(data[0]); loadlist(null,1); break;
       }
     } else {
       updateInfo(data[0]);

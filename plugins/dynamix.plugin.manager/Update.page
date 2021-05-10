@@ -78,8 +78,8 @@ function initlist() {
     loadlist();
   });
 }
-function loadlist(id) {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:0},function(data) {
+function loadlist(id,check) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||0},function(data) {
     var list = $('#os_list');
     if (id) {
       var cmd = id.split(':');
@@ -87,7 +87,7 @@ function loadlist(id) {
       switch (cmd[1]) {
         case 'update':
         case 'return' : updateInfo(data); break;
-        case 'install': list.find(tr).remove(); list.append(data); loadlist(); break;
+        case 'install': list.find(tr).remove(); list.append(data); loadlist(null,1); break;
       }
     } else {
       updateInfo(data);
