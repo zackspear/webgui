@@ -80,7 +80,7 @@ div.case-name{margin-top:8px;font-family:clear-sans!important}
 <script>
 function importFile(file) {
   if (file.name.split(".").pop().toLowerCase() !== "png") {
-    alert("<?=_("Only png images are allowed!")?>");
+    alert("<?=_("Only PNG images are allowed!")?>");
     return;
   }  
   var reader = new FileReader();
