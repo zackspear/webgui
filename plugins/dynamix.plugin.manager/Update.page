@@ -42,15 +42,14 @@ span.vhshift{margin-top:13px!important}
 var original = null;
 
 function update_table(branch) {
-  $('#os_list').html("<tr><td colspan='6'></td></tr>");
   if (original) {
     if (branch != original) branch = '';
   } else {
     if (branch) original = branch;
   }
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',branch:branch},function(data) {
-    if (data) $('#os_list').html(data);
-    $('#os_table').trigger('update',true);
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,branch:branch},function(data) {
+    updateInfo(data);
+    $('#os_table').trigger('update');
   });
 }
 function downgrade() {
