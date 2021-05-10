@@ -57,7 +57,7 @@ function disableButton() {
 }
 function initlist() {
   timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,check:<?=$check?>},function(data) {
     clearTimeout(timers.plugins);
     $('#plugin_list').html(data);
 <?if ($display['resize']):?>
@@ -72,7 +72,7 @@ function initlist() {
 }
 function loadlist(id,check) {
   if (id) timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:check||0},function(d) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:check||<?=$check?>},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
     if (id) {

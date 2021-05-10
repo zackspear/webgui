@@ -29,7 +29,7 @@ if (file_exists('/boot/previous/changes.txt')) {
       break;
     }
   }
-  $branch = strpos($version,'rc')!==false ? 'Next' : (strpos($version,'beta')!==false ? 'Beta' : 'Stable');
+  $branch = strpos($version,'rc')!==false ? _('Next') : (strpos($version,'beta')!==false ? _('Beta') : _('Stable'));
 }
 ?>
 <style>
@@ -66,7 +66,7 @@ function updateInfo(data) {
   }
 }
 function initlist() {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true,check:<?=$check?>},function(data) {
     $('#os_list').html(data);
 <?if (preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20))):?>
     $('#change_branch').prop('disabled',true);
@@ -78,7 +78,7 @@ function initlist() {
   });
 }
 function loadlist(id,check) {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||0},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||<?=$check?>},function(data) {
     var list = $('#os_list');
     if (id) {
       var cmd = id.split(':');
@@ -104,6 +104,6 @@ $(function() {
 <thead><tr><th></th><th>_(Component)_</th><th>_(Author)_</th><th>_(Version)_</th><th>_(Status)_</th><th>_(Branch)_</th></tr></thead>
 <tbody id="os_list"><tr><td colspan="6"></td></tr></tbody>
 <?if ($bzroot):?>
-<tbody id="previous" style="display:none"><tr><td><img src="/plugins/unRAIDServer/images/unRAIDServer.png" class="list"></td><td><b>_(Unraid OS)_ (_(previous)_)</b></td><td>LimeTech</td><td><?=$version?></td><td><input type="button" value="_(Restore)_" onclick="downgrade()"></td><td><?=_($branch)?></td></tbody>
+<tbody id="previous" style="display:none"><tr><td><img src="/plugins/unRAIDServer/images/unRAIDServer.png" class="list"></td><td><b>_(Unraid OS)_ (_(previous)_)</b></td><td>LimeTech</td><td><?=$version?></td><td><input type="button" value="_(Restore)_" onclick="downgrade()"></td><td><?=$branch?></td></tbody>
 <?endif;?>
 </table>
