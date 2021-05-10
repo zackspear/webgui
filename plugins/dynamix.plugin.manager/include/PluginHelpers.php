@@ -27,7 +27,7 @@ function language($method, $arg = '') {
 
 function check_plugin($arg, &$ncsi) {
 // Get network connection status indicator (NCSI)
-  if ($ncsi==null) $ncsi = exec("wget --spider -nv -T10 -t1 http://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'");
+  if ($ncsi===null) $ncsi = exec("wget --spider -nv -T10 -t1 http://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'");
   return $ncsi ? plugin('check',$arg) : false;
 }
 

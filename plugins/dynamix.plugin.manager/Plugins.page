@@ -71,7 +71,7 @@ function disableButton() {
   $('#plugin_list').find('input[type=button]').prop('disabled',true);
 }
 function loadlist(id) {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:<?=$check?>},function(d) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:0},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
     if (id) {

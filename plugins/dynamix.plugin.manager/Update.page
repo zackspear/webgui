@@ -58,7 +58,7 @@ function downgrade() {
  $.get('/plugins/dynamix.plugin.manager/include/Downgrade.php',{version:'<?=$version?>'},function(){refresh();});
 }
 function loadlist(id) {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',audit:id,check:<?=$check?>},function(data) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',audit:id,check:0},function(data) {
     var list = $('#os_list');
     if (id) {
       var cmd = id.split(':');
