@@ -16,7 +16,6 @@ Tag="upload"
  */
 ?>
 <?
-$empty   = "<tr><td colspan='6'><div class='spinner'></div></td></tr>";
 $version = $branch = $date = _('unknown');
 $bzroot  = file_exists('/boot/previous/bzroot');
 $check   = $notify['unraidos'] ? 0 : 1;
@@ -43,7 +42,7 @@ span.vhshift{margin-top:13px!important}
 var original = null;
 
 function update_table(branch) {
-  $('#os_list').html("<?=$empty?>");
+  $('#os_list').html("<tr><td colspan='6'></td></tr>");
   if (original) {
     if (branch != original) branch = '';
   } else {
@@ -57,37 +56,54 @@ function update_table(branch) {
 function downgrade() {
  $.get('/plugins/dynamix.plugin.manager/include/Downgrade.php',{version:'<?=$version?>'},function(){refresh();});
 }
-function loadlist(id) {
-  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:'true',audit:id,check:0},function(data) {
-    var list = $('#os_list');
-    if (id) {
-      var cmd = id.split(':');
-      var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
-      switch (cmd[1]) {
-        case 'return' : list.html(data); break;
-        case 'update':
-        case 'install': list.find(tr).remove(); list.append(data); break;
-      }
-    } else {
-      list.html(data);
+function updateInfo(data) {
+  var updates = data.split('\n');
+  for (var n=0,update; update=updates[n]; n++) {
+    var fields = update.split('\r');
+    for (var i=0,field; field=fields[i]; i++) {
+      var row = field.split('::');
+      $('#'+row[0]).attr('data',row[1]).html(row[2]);
     }
+  }
+}
+function initlist() {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true},function(data) {
+    $('#os_list').html(data);
 <?if (preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20))):?>
     $('#change_branch').prop('disabled',true);
 <?endif;?>
 <?if ($bzroot):?>
     $('#previous').show();
 <?endif;?>
+    loadlist();
+  });
+}
+function loadlist(id) {
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:0},function(data) {
+    var list = $('#os_list');
+    if (id) {
+      var cmd = id.split(':');
+      var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
+      switch (cmd[1]) {
+        case 'update':
+        case 'return' : updateInfo(data); break;
+        case 'install': list.find(tr).remove(); list.append(data); break;
+      }
+    } else {
+      updateInfo(data);
+    }
+    $('#os_table').trigger('update');
     $('#checkos').prop('disabled',false);
   });
 }
 $(function() {
-  loadlist();
+  initlist();
   $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value='<?=_('Check for Updates')?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"<?=_('System Update Check')?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
 });
 </script>
 <table class='tablesorter plugins shift' id='os_table'>
 <thead><tr><th></th><th>_(Component)_</th><th>_(Author)_</th><th>_(Version)_</th><th>_(Status)_</th><th>_(Branch)_</th></tr></thead>
-<tbody id="os_list"><?=$empty?></tbody>
+<tbody id="os_list"><tr><td colspan="6"></td></tr></tbody>
 <?if ($bzroot):?>
 <tbody id="previous" style="display:none"><tr><td><img src="/plugins/unRAIDServer/images/unRAIDServer.png" class="list"></td><td><b>_(Unraid OS)_ (_(previous)_)</b></td><td>LimeTech</td><td><?=$version?></td><td><input type="button" value="_(Restore)_" onclick="downgrade()"></td><td><?=_($branch)?></td></tbody>
 <?endif;?>
