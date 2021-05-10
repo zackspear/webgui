@@ -63,6 +63,6 @@ function icon($name) {
   return "webGui/images/plg.png";
 }
 function mk_options($select,$value) {
-  return "<option value='$value'".($select==$value?" selected":"").">".ucfirst($value)."</option>";
+  return "<option value='$value'".($select==$value?" selected":"").">"._(ucfirst($value))."</option>";
 }
 ?>
