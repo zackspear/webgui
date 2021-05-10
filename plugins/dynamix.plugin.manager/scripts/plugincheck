@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,7 +26,10 @@ $_SESSION['locale'] = $unraid['display']['locale'];
 $_SERVER['REQUEST_URI'] = "scripts";
 require_once "$docroot/webGui/include/Translations.php";
 
-
+function apos($text) {
+  // So that "&apos;" doesn't show up in email
+  return str_replace("&apos;","'",$text);
+}
 $current = parse_ini_file('/etc/unraid-version');
 $server  = strtoupper($var['NAME']);
 $output  = $unraid['notify']['plugin'];
@@ -45,10 +48,9 @@ foreach (glob("/$tmp/*.plg", GLOB_NOSORT) as $file) {
   $min = plugin('min', $file) ?: $current['version'];
   // silently suppress bad download of PLG file
   if (strcmp($new, $old)>0 && !version_compare($min,$current['version'],">")) {
-		// So that "&apos;" doesn't show up in email
-    $event = str_replace("&apos;","'",_("Plugin")." - $name [$new]");
-    $subject = str_replace("&apos;","'",sprintf(_("Notice [%s] - Version update %s"),$server,$new));
-    $description = str_replace("&apos;","'",sprintf(_("A new version of %s is available"),$name));
+    $event = apos(_("Plugin")." - $name [$new]");
+    $subject = apos(sprintf(_("Notice [%s] - Version update %s"),$server,$new));
+    $description = apos(sprintf(_("A new version of %s is available"),$name));
     exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Plugins' -x");
   }
 }

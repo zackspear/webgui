@@ -117,6 +117,7 @@ $template  = "$docroot/webGui/WGX.page";
 $tower     = $var['NAME'];
 $server    = $eth0['IPADDR:0'];
 $server6   = $eth0['IPADDR6:0'];
+$dnsserver = $eth0['DNS_SERVER1'];
 
 $link      = file_exists('/sys/class/net/br0') ? 'br0' : (file_exists('/sys/class/net/bond0') ? 'bond0' : 'eth0');
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
@@ -166,7 +167,7 @@ $endpoints = [];
 $ethX = 'eth0';
 while (isset($$ethX)) {
   if (!empty($$ethX['IPADDR:0']))  $endpoints[] = $$ethX['IPADDR:0'];
-  if (!empty($$eth0['IPADDR6:0'])) $endpoints[] = $$ethX['IPADDR6:0'];
+  if (!empty($$ethX['IPADDR6:0'])) $endpoints[] = $$ethX['IPADDR6:0'];
   $ethX = 'eth'.(substr($ethX,3)+1);
 }
 
@@ -598,12 +599,14 @@ function updatePeer(form,i,n,vtun) {
   var protocol = form.find('select[name="PROT:0"]').val();
   switch (n) {
   case '6':
+    var dns = form.find('input[name="DNS:'+i+'"]');
     form.find('input[name="Endpoint:0"]').attr('placeholder',unraid);
     form.find('input[name="gui:ListenPort:0"]').attr('placeholder',netport[vtun]);
     form.find('select[name="NAT:0"]').prop('disabled',false);
     form.find('input[name="gui:Endpoint:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required').val('');
     form.find('input[name="gui:ListenPort:'+i+'"]').removeAttr('placeholder').val('');
-    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(optional)_)");
+    dns.attr('placeholder',"(_(mandatory)_)").prop('required',true).val(dns.val()||'<?=$dnsserver?>');
+    if (!dns.val() && icon.hasClass('fa-chevron-down')) openClose(form,icon,'div.zone'+i);
     break;
   case '7':
     form.find('input[name="Endpoint:0"]').attr('placeholder',"(_(not used)_)");
@@ -613,7 +616,7 @@ function updatePeer(form,i,n,vtun) {
     form.find('input[name="gui:ListenPort:'+i+'"]').attr('placeholder',form.find('input[name="gui:ListenPort:0"]').val()||netport[vtun]);
     form.find('input[name="Address:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required');
     form.find('input[name="Address6:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required');
-    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(not used)_)");
+    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required').val('');
     if (icon.hasClass('fa-chevron-down')) openClose(form,icon,'div.zone'+i);
     break;
   default:
@@ -628,7 +631,7 @@ function updatePeer(form,i,n,vtun) {
       form.find('input[name="gui:Endpoint:'+i+'"]').attr('placeholder',"(_(not used)_)").removeAttr('required').val('');
       form.find('input[name="gui:ListenPort:'+i+'"]').removeAttr('placeholder').val('');
     }
-    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(optional)_)");
+    form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(optional)_)").removeAttr('required');
     break;
   }
   var subnet = form.find('input[name="Address:'+i+'"]').val();
@@ -1400,7 +1403,7 @@ _(Peer allowed IPs)_:
 :wg_peer_allowed_ips_help:
 
 _(Peer DNS server)_:
-: <span class="input"><input type="text" name="DNS:<?=$i?>" class="subnet" maxlength="40" value="<?=$wg0["DNS:$i"]?>" onchange="quickValidate(this);" pattern="<?=$validDNSServerList?>" title="_(Comma separated list of IPv4 and IPv6 IP addresses)_"></span>
+: <span class="input"><input type="text" name="DNS:<?=$i?>" class="subnet" maxlength="40" value="<?=$wg0["DNS:$i"]?>" onchange="quickValidate(this);" pattern="<?=$validDNSServerList?>" title="_(Comma separated list of IPv4 and IPv6 IP addresses)_" <?=(int)$wg0["TYPE:$i"]!=6?'placeholder="(_(optional)_)"':'placeholder="(_(mandatory)_)" required'?>></span>
 
 :wg_peer_dns_server_help:
 
@@ -1418,7 +1421,7 @@ _(Persistent keepalive)_:
 : <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
   <input type="button" class="advanced wg0" value="_(Delete Tunnel)_" style="float:right;display:none" onclick="delTunnel('wg0')"<?=file_exists($conf_wg0)?'':' disabled'?>>
 </form>
-<small style="position:absolute;right:0;bottom:0">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfield</small>
+<small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfield</small>
 
 <script markdown="1" type="text/html" id="peer-template-wg0">
 <div markdown="1" id="index-wg0-INDEX" class="shade-<?=$display['theme']?>">

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -280,7 +280,7 @@ class DockerTemplates {
 		return $WebUI;
 	}
 
-	public function getAllInfo($reload=false) {
+	public function getAllInfo($reload=false,$com=true) {
 		global $dockerManPaths, $host;
 		$DockerClient = new DockerClient();
 		$DockerUpdate = new DockerUpdate();
@@ -309,6 +309,7 @@ class DockerTemplates {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
+			if (!$com) $tmp['updated'] = 'undef';
 			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
 			//$this->debug("\n$name");
