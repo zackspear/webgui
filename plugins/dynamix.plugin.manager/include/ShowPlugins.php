@@ -89,7 +89,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     $version = plugin('version',$plugin_file) ?: _('unknown');
     $date = str_replace('.','',$version);
     //status
-    $status = $check ? _('unkown') : _('checking').'...';
+    $status = $check ? _('unknown') : _('checking').'...';
     $id = str_replace('.','-',$name);
     $empty = false;
     echo "<tr id=\"".str_replace(['.',' ','_'],'',basename($plugin_file,'.plg'))."\">";
