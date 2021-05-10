@@ -71,17 +71,20 @@ function initlist() {
   });
 }
 function loadlist(id) {
+  if (id) timers.plugins = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{audit:id,check:0},function(d) {
     var data = d.split(/\0/);
     var list = $('#plugin_list');
     if (id) {
+      clearTimeout(timers.plugins);
+      $('div.spinner.fixed').hide('slow');
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
         case 'update' :
         case 'return' : updateInfo(data[0]); break;
         case 'remove' : list.find(tr).remove(); break;
-        case 'install': if (!list.find(tr).length) list.append(data[0]); break;
+        case 'install': if (!list.find(tr).length) list.append(data[0]); loadlist(); break;
       }
     } else {
       updateInfo(data[0]);

@@ -87,7 +87,7 @@ function loadlist(id) {
       switch (cmd[1]) {
         case 'update':
         case 'return' : updateInfo(data); break;
-        case 'install': list.find(tr).remove(); list.append(data); break;
+        case 'install': list.find(tr).remove(); list.append(data); loadlist(); break;
       }
     } else {
       updateInfo(data);

@@ -49,24 +49,9 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   $user = in_array($name,$builtin);
   //switch between system and user plugins
   if (($system && !$user) || (!$system && $user)) continue;
+  //OS update?
+  $os = $system && $name==$builtin[0];
   if ($init || $install) {
-    //OS update?
-    $os = $system && $name==$builtin[0];
-    $past = false;
-    //toggle stable/next release?
-    if ($os && $branch) {
-      $past = plugin('version',$plugin_file);
-      $tmp_plg = "$name-.plg";
-      $tmp_file = "/var/tmp/$name.plg";
-      copy($plugin_file,$tmp_file);
-      exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
-      symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-      $next = end(explode("\n",check_plugin($tmp_plg,$ncsi)));
-      if (version_compare($next,$past,'>')) {
-        copy("/tmp/plugins/$tmp_plg",$tmp_file);
-        $plugin_file = $tmp_file;
-      }
-    }
     //icon + link
     $launch = plugin('launch',$plugin_file);
     if ($icon = plugin('icon',$plugin_file)) {
@@ -128,11 +113,27 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   } else {
     //forced plugin check?
     $checked = (!$audit && !$check) ? check_plugin(basename($plugin_file),$ncsi) : true;
+    $past = false;
+    //toggle stable/next release?
+    if ($os && $branch) {
+      $past = plugin('version',$plugin_file);
+      $tmp_plg = "$name-.plg";
+      $tmp_file = "/var/tmp/$name.plg";
+      copy($plugin_file,$tmp_file);
+      exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
+      symlink($tmp_file,"/var/log/plugins/$tmp_plg");
+      $next = end(explode("\n",check_plugin($tmp_plg,$ncsi)));
+      if (version_compare($next,$past,'>')) {
+        copy("/tmp/plugins/$tmp_plg",$tmp_file);
+        $plugin_file = $tmp_file;
+      }
+    }
     //version
     $version = plugin('version',$plugin_file) ?: _('unknown');
     $date = str_replace('.','',$version);
     //status
     $status = _('unknown');
+    //compare
     $changes_file = $plugin_file;
     $url = plugin('pluginURL',$plugin_file);
     if ($url !== false) {
