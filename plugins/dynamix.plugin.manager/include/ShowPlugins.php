@@ -132,7 +132,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     $version = plugin('version',$plugin_file) ?: _('unknown');
     $date = str_replace('.','',$version);
     //status
-    $status = "<span class='red-text'><i class='fa fa-times-rectangle fa-fw'></i>&nbsp;"._('unknown')."</span>";
+    $status = "<span class='orange-text'><i class='fa fa-unlink fa-fw'></i>&nbsp;"._('not available')."</span>";
     //compare
     $changes_file = $plugin_file;
     $url = plugin('pluginURL',$plugin_file);
