@@ -90,7 +90,7 @@ function loadlist(id,check) {
       updateInfo(data[0]);
     }
     $('#plugin_table').trigger('update');
-    if (data[1]>0) $('#updateall').show(); else $('#updateall').hide();
+    if (data[1]>1 $('#updateall').show(); else $('#updateall').hide();
     $('#checkall').find('input').prop('disabled',false);
   });
 }
