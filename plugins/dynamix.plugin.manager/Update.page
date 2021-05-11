@@ -84,9 +84,9 @@ function loadlist(id,check) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
-        case 'update':
+        case 'update' : data = data.replace('green','orange').replace("<?=_('up-to-date')?>","<?=_('Reboot')?>").replace('check','warning');
         case 'return' : updateInfo(data); break;
-        case 'install': list.find(tr).remove(); list.append(data); loadlist(null,1); break;
+        case 'install': list.find(tr).remove(); list.append(data.replace('green','orange').replace("<?=_('up-to-date')?>","<?=_('Reboot')?>").replace('check','warning')); break;
       }
     } else {
       updateInfo(data);
