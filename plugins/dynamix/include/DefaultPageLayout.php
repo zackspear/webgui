@@ -410,8 +410,8 @@ $(function() {
 <?endforeach;?>
 });
 
-// check for flash offline / corrupted.  docker.cfg is guaranteed to always exist
-<? if ( ! @parse_ini_file("/boot/config/docker.cfg") || ! @parse_ini_file("/boot/config/domain.cfg") || ! @parse_ini_file("/boot/config/ident.cfg") ):?>
+// check for flash offline / corrupted. docker.cfg is guaranteed to always exist
+<?if ( ! @parse_ini_file("/boot/config/docker.cfg") || ! @parse_ini_file("/boot/config/domain.cfg") || ! @parse_ini_file("/boot/config/ident.cfg") ):?>
 $(function() {
   addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?>");
 });
@@ -937,7 +937,7 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
         ],
       ],
     ],
-   ];
+  ];
   ?>
   <unraid-user-profile
    apikey="<?=($remote['apikey']) ? $remote['apikey'] : ''?>"

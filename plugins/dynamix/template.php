@@ -69,7 +69,7 @@ $pageroot = $docroot.'/'.dirname($myPage['file']);
 
 // Nchan script start/stop tracking
 $nchan_go = "$pageroot/nchan";
-$nchan_no= "/tmp/nchan";
+$nchan_no = "/tmp/nchan";
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
