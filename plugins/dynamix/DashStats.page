@@ -1,4 +1,5 @@
 Menu="Dashboard"
+Nchan="wg_poller"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -57,15 +57,19 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 
 // Get general variables
 $name = $_GET['name'];
-$dir = $_GET['dir'];
+$dir  = $_GET['dir'];
 $path = substr(strtok($_SERVER['REQUEST_URI'],'?'),1);
 
 // The current "task" is the first element of the path
 $task = strtok($path,'/');
 
 // Here's the page we're rendering
-$myPage = $site[basename($path)];
+$myPage   = $site[basename($path)];
 $pageroot = $docroot.'/'.dirname($myPage['file']);
+
+// Nchan script start/stop tracking
+$nchan_go = "$pageroot/nchan";
+$nchan_no= "/tmp/nchan";
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";

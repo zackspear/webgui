@@ -419,29 +419,9 @@ $(function() {
 </script>
 <!-- RegWiz-->
 <style>
-#header {
-  z-index: 102 !important;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: justify;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-vue-userprofile,
-unraid-user-profile {
-  font-size: 16px;
-  margin-left: auto;
-  height: 100%;
-}
-
-unraid-launchpad {
-  position: relative;
-  z-index: 10001;
-}
+#header{z-index:102!important;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;-webkit-box-align:center;-ms-flex-align:center;align-items:center}
+vue-userprofile,unraid-user-profile{font-size:16px;margin-left:auto;height: 100%}
+unraid-launchpad{position:relative;z-index:10001}
 </style>
 <script type="text/javascript">
 function upcEnv(str) { // allows unraid devs to easily swap envs for the UPC
@@ -501,486 +481,485 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
  <div id="template">
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
-   <div class="logo">
-   <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   <?=_('Version')?>: <?=$var['version']?><?=$notes?>
-   </div>
+  <div class="logo">
+  <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
+  <?=_('Version')?>: <?=$var['version']?><?=$notes?>
+  </div>
 <!-- RegWiz -->
-    <?
-    if (file_exists('/boot/config/plugins/Unraid.net/myservers.cfg')) {
-      extract(parse_ini_file('/boot/config/plugins/Unraid.net/myservers.cfg',true));
-    }
-
-    $serverstate = [
-      "avatar" => $remote['avatar'],
-      "deviceCount" => $var['deviceCount'],
-      "email" => ($remote['email']) ? $remote['email'] : '',
-      "flashproduct" => $var['flashProduct'],
-      "flashvendor" => $var['flashVendor'],
-      "guid" => $var['flashGUID'],
-      "internalip" => $_SERVER['SERVER_ADDR'],
-      "internalport" => $_SERVER['SERVER_PORT'],
-      "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
-      "protocol" => $_SERVER['REQUEST_SCHEME'],
-      "reggen" => (int)$var['regGen'],
-      "registered" => empty($remote['apikey']) || empty($var['regFILE']) ? 0 : 1,
-      "sendCrashInfo" => $remote['sendCrashInfo'] || 'no',
-      "serverip" => $_SERVER['SERVER_ADDR'],
-      "servername" => $var['NAME'],
-      "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
-      "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
-      "ts" => time(),
-      "username" => $remote['username'],
-    ];
-    // upc translations
-    $upc_translations = [
-      ($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US' => [
-        'getStarted' => _('Get Started'),
-        'signIn' => _('Sign In'),
-        'signUp' => _('Sign Up'),
-        'signOut' => _('Sign Out'),
-        'error' => _('Error'),
-        'fixError' => _('Fix Error'),
-        'closeLaunchpad' => _('Close Launchpad and continue to webGUI'),
-        'learnMore' => _('Learn more'),
-        'popUp' => _('Pop-up'),
-        'close' => _('Close'),
-        'backToPopUp' => sprintf(_('Back to %s'), _('Pop-up')),
-        'closePopUp' => sprintf(_('Close %s'), _('Pop-up')),
-        'contactSupport' => _('Contact Support'),
-        'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
-        'continueToUnraid' => _('Continue to Unraid'),
-        'year' => _('year'),
-        'years' => _('years'),
-        'month' => _('month'),
-        'months' => _('months'),
-        'day' => _('day'),
-        'days' => _('days'),
-        'hour' => _('hour'),
-        'hours' => _('hours'),
-        'minute' => _('minute'),
-        'minutes' => _('minutes'),
-        'second' => _('second'),
-        'seconds' => _('seconds'),
-        'ago' => _('ago'),
-        'basicPlusPro' => [
-          'heading' => _('Thank you for choosing Unraid OS').'!',
+  <?
+  if (file_exists('/boot/config/plugins/Unraid.net/myservers.cfg')) {
+    extract(parse_ini_file('/boot/config/plugins/Unraid.net/myservers.cfg',true));
+  }
+  $serverstate = [
+    "avatar" => $remote['avatar'],
+    "deviceCount" => $var['deviceCount'],
+    "email" => ($remote['email']) ? $remote['email'] : '',
+    "flashproduct" => $var['flashProduct'],
+    "flashvendor" => $var['flashVendor'],
+    "guid" => $var['flashGUID'],
+    "internalip" => $_SERVER['SERVER_ADDR'],
+    "internalport" => $_SERVER['SERVER_PORT'],
+    "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+    "protocol" => $_SERVER['REQUEST_SCHEME'],
+    "reggen" => (int)$var['regGen'],
+    "registered" => empty($remote['apikey']) || empty($var['regFILE']) ? 0 : 1,
+    "sendCrashInfo" => $remote['sendCrashInfo'] || 'no',
+    "serverip" => $_SERVER['SERVER_ADDR'],
+    "servername" => $var['NAME'],
+    "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
+    "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
+    "ts" => time(),
+    "username" => $remote['username'],
+  ];
+  // upc translations
+  $upc_translations = [
+    ($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US' => [
+      'getStarted' => _('Get Started'),
+      'signIn' => _('Sign In'),
+      'signUp' => _('Sign Up'),
+      'signOut' => _('Sign Out'),
+      'error' => _('Error'),
+      'fixError' => _('Fix Error'),
+      'closeLaunchpad' => _('Close Launchpad and continue to webGUI'),
+      'learnMore' => _('Learn more'),
+      'popUp' => _('Pop-up'),
+      'close' => _('Close'),
+      'backToPopUp' => sprintf(_('Back to %s'), _('Pop-up')),
+      'closePopUp' => sprintf(_('Close %s'), _('Pop-up')),
+      'contactSupport' => _('Contact Support'),
+      'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
+      'continueToUnraid' => _('Continue to Unraid'),
+      'year' => _('year'),
+      'years' => _('years'),
+      'month' => _('month'),
+      'months' => _('months'),
+      'day' => _('day'),
+      'days' => _('days'),
+      'hour' => _('hour'),
+      'hours' => _('hours'),
+      'minute' => _('minute'),
+      'minutes' => _('minutes'),
+      'second' => _('second'),
+      'seconds' => _('seconds'),
+      'ago' => _('ago'),
+      'basicPlusPro' => [
+        'heading' => _('Thank you for choosing Unraid OS').'!',
+        'message' => [
+          'registered' => _('Get started by signing in to Unraid.net'),
+          'upgradeEligible' => _('To support more storage devices as your server grows click Upgrade Key')
+        ]
+      ],
+      'actions' => [
+        'purchase' => _('Purchase Key'),
+        'upgrade' => _('Upgrade Key'),
+        'recover' => _('Recover Key'),
+        'replace' => _('Replace Key'),
+        'extend' => _('Extend Trial'),
+      ],
+      'upc' => [
+        'avatarAlt' => '{0} '._('Avatar'),
+        'confirmClosure' => _('Confirm closure then continue to webGUI'),
+        'closeDropdown' => _('Close dropdown'),
+        'openDropdown' => _('Open dropdown'),
+        'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure').'. '._('You have an open pop-up').'.',
+        'trialHasExpiredSeeOptions' => _('Trial has expired see options below'),
+        'extraLinks' => [
+          'newTab' => sprintf(_('Opens %s in new tab'), '{0}'),
+          'myServers' => _('My Servers Dashboard'),
+          'forums' => _('Unraid Forums'),
+          'settings' => [
+            'text' => _('Settings'),
+            'title' => _('Settings > Management Access • Unraid.net'),
+          ],
+        ],
+        'meta' => [
+          'trial' => [
+            'active' => [
+              'date' => sprintf(_('Trial key expires at %s'), '{date}'),
+              'timeDiff' => sprintf(_('Trial expires in %s'), '{timeDiff}'),
+            ],
+            'expired' => [
+              'date' => sprintf(_('Trial key expired at %s'), '{date}'),
+              'timeDiff' => sprintf(_('Trial expired %s'), '{timeDiff}'),
+            ],
+          ],
+          'uptime' => [
+            'date' => sprintf(_('Server up since %s'), '{date}'),
+            'readable' => sprintf(_('Uptime %s'), '{timeDiff}'),
+          ],
+        ],
+        'myServers' => [
+          'heading' => _('My Servers'),
+          'beta' => _('beta'),
+          'errors' => [
+           'unraidApi' => [
+              'heading' => _('Unraid API Error'),
+              'message' => _('Failed to connect to Unraid API'),
+            ],
+            'myServers' => [
+              'heading' => _('My Servers Error'),
+              'message' => _('Please wait a moment and reload the page'),
+            ],
+          ],
+          'closeDetails' => _('Close Details'),
+          'loading' => _('Loading My Servers data'),
+          'displayingLastKnown' => _('Displaying last known server data'),
+          'mothership' => [
+            'connected' => _('Connected to Mothership'),
+            'notConnected' => _('Not Connected to Mothership'),
+          ],
+          'accessLabels' => [
+            'current' => _('Current server'),
+            'local' => _('Local access'),
+            'offline' => _('Server Offline'),
+            'remote' => _('Remote access'),
+            'unavailable' => _('Access unavailable'),
+          ],
+        ],
+        'opensNewHttpsWindow' => [
+          'base' => sprintf(_('Opens new HTTPS window to %s'), '{0}'),
+          'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign In')),
+          'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign Out')),
+          'purchase' => sprintf(_('Opens new HTTPS window to %s'), _('Purchase Key')),
+          'upgrade' => sprintf(_('Opens new HTTPS window to %s'), _('Upgrade Key')),
+        ],
+        'signInActions' => [
+          'resolve' => _('Sign In to resolve'),
+          'purchaseKey' => _('Sign In to Purchase Key'),
+          'purchaseKeyOrExtendTrial' => '@:upc.signInActions.purchaseKey or @:actions.extend',
+        ],
+      ],
+      'stateData' => [
+        'ENOKEYFILE' => [
+          'humanReadable' => _('No Keyfile'),
+          'heading' => [
+            'registered' => _('Thanks for supporting Unraid').'!',
+            'notRegistered' => _("Let's unleash your hardware"),
+          ],
           'message' => [
-            'registered' => _('Get started by signing in to Unraid.net'),
-            'upgradeEligible' => _('To support more storage devices as your server grows click Upgrade Key')
-          ]
-        ],
-        'actions' => [
-          'purchase' => _('Purchase Key'),
-          'upgrade' => _('Upgrade Key'),
-          'recover' => _('Recover Key'),
-          'replace' => _('Replace Key'),
-          'extend' => _('Extend Trial'),
-        ],
-        'upc' => [
-          'avatarAlt' => '{0} '._('Avatar'),
-          'confirmClosure' => _('Confirm closure then continue to webGUI'),
-          'closeDropdown' => _('Close dropdown'),
-          'openDropdown' => _('Open dropdown'),
-          'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure').'. '._('You have an open pop-up').'.',
-          'trialHasExpiredSeeOptions' => _('Trial has expired see options below'),
-          'extraLinks' => [
-            'newTab' => sprintf(_('Opens %s in new tab'), '{0}'),
-            'myServers' => _('My Servers Dashboard'),
-            'forums' => _('Unraid Forums'),
-            'settings' => [
-              'text' => _('Settings'),
-              'title' => _('Settings > Management Access • Unraid.net'),
-            ],
-          ],
-          'meta' => [
-            'trial' => [
-              'active' => [
-                'date' => sprintf(_('Trial key expires at %s'), '{date}'),
-                'timeDiff' => sprintf(_('Trial expires in %s'), '{timeDiff}'),
-              ],
-              'expired' => [
-                'date' => sprintf(_('Trial key expired at %s'), '{date}'),
-                'timeDiff' => sprintf(_('Trial expired %s'), '{timeDiff}'),
-              ],
-            ],
-            'uptime' => [
-              'date' => sprintf(_('Server up since %s'), '{date}'),
-              'readable' => sprintf(_('Uptime %s'), '{timeDiff}'),
-            ],
-          ],
-          'myServers' => [
-            'heading' => _('My Servers'),
-            'beta' => _('beta'),
-            'errors' => [
-              'unraidApi' => [
-                'heading' => _('Unraid API Error'),
-                'message' => _('Failed to connect to Unraid API'),
-              ],
-              'myServers' => [
-                'heading' => _('My Servers Error'),
-                'message' => _('Please wait a moment and reload the page'),
-              ],
-            ],
-            'closeDetails' => _('Close Details'),
-            'loading' => _('Loading My Servers data'),
-            'displayingLastKnown' => _('Displaying last known server data'),
-            'mothership' => [
-              'connected' => _('Connected to Mothership'),
-              'notConnected' => _('Not Connected to Mothership'),
-            ],
-            'accessLabels' => [
-              'current' => _('Current server'),
-              'local' => _('Local access'),
-              'offline' => _('Server Offline'),
-              'remote' => _('Remote access'),
-              'unavailable' => _('Access unavailable'),
-            ],
-          ],
-          'opensNewHttpsWindow' => [
-            'base' => sprintf(_('Opens new HTTPS window to %s'), '{0}'),
-            'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign In')),
-            'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign Out')),
-            'purchase' => sprintf(_('Opens new HTTPS window to %s'), _('Purchase Key')),
-            'upgrade' => sprintf(_('Opens new HTTPS window to %s'), _('Upgrade Key')),
-          ],
-          'signInActions' => [
-            'resolve' => _('Sign In to resolve'),
-            'purchaseKey' => _('Sign In to Purchase Key'),
-            'purchaseKeyOrExtendTrial' => '@:upc.signInActions.purchaseKey or @:actions.extend',
+            'registered' => _('You are all set 👍'),
+            'notRegistered' => _('Sign in or sign up to get started'),
           ],
         ],
-        'stateData' => [
-          'ENOKEYFILE' => [
-            'humanReadable' => _('No Keyfile'),
-            'heading' => [
-              'registered' => _('Thanks for supporting Unraid').'!',
-              'notRegistered' => _("Let's unleash your hardware"),
-            ],
+        'TRIAL' => [
+          'humanReadable' => _('Trial'),
+          'heading' => _('Thank you for choosing Unraid OS').'!',
+          'message' => _('Your Trial key includes all the functionality and device support of a Pro key').'. '._('After your Trial has reached expiration your server still functions normally until the next time you Stop the array or reboot your server').'. '._('At that point you may either purchase a license key or request a Trial extension').'.',
+          '_extraMsg' => sprintf(_('You have %s remaining on your Trial key'), '{parsedExpireTime}'),
+        ],
+        'EEXPIRED' => [
+          'humanReadable' => _('Trial Expired'),
+          'heading' => _('Your Trial has expired'),
+          'message' => [
+            'base' => _('To continue using Unraid OS you may purchase a license key'),
+            'extensionNotEligible' => _('You have used all your Trial extensions').' @:stateData.EEXPIRED.message.base',
+            'extensionEligible' => '@:stateData.EEXPIRED.message.base '._('Alternately, you may request a Trial extension'),
+          ],
+        ],
+        'BASIC' => [
+          'humanReadable' => _('Basic'),
+        ],
+        'PLUS' => [
+          'humanReadable' => _('Plus'),
+        ],
+        'PRO' => [
+          'humanReadable' => _('Pro'),
+        ],
+        'EGUID' => [
+          'humanReadable' => _('GUID Error'),
+          'error' => [
+            'heading' => _('Registration key / GUID mismatch'),
             'message' => [
-              'registered' => _('You are all set 👍'),
-              'notRegistered' => _('Sign in or sign up to get started'),
-            ],
-          ],
-          'TRIAL' => [
-            'humanReadable' => _('Trial'),
-            'heading' => _('Thank you for choosing Unraid OS').'!',
-            'message' => _('Your Trial key includes all the functionality and device support of a Pro key').'. '._('After your Trial has reached expiration your server still functions normally until the next time you Stop the array or reboot your server').'. '._('At that point you may either purchase a license key or request a Trial extension').'.',
-            '_extraMsg' => sprintf(_('You have %s remaining on your Trial key'), '{parsedExpireTime}'),
-          ],
-          'EEXPIRED' => [
-            'humanReadable' => _('Trial Expired'),
-            'heading' => _('Your Trial has expired'),
-            'message' => [
-              'base' => _('To continue using Unraid OS you may purchase a license key'),
-              'extensionNotEligible' => _('You have used all your Trial extensions').' @:stateData.EEXPIRED.message.base',
-              'extensionEligible' => '@:stateData.EEXPIRED.message.base '._('Alternately, you may request a Trial extension'),
-            ],
-          ],
-          'BASIC' => [
-            'humanReadable' => _('Basic'),
-          ],
-          'PLUS' => [
-            'humanReadable' => _('Plus'),
-          ],
-          'PRO' => [
-            'humanReadable' => _('Pro'),
-          ],
-          'EGUID' => [
-            'humanReadable' => _('GUID Error'),
-            'error' => [
-              'heading' => _('Registration key / GUID mismatch'),
-              'message' => [
-                'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key').'.',
-                'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months').'.',
-                'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
-              ],
-            ],
-          ],
-          'ENOKEYFILE2' => [
-            'humanReadable' => _('Missing key file'),
-            'error' => [
-              'heading' => '@:stateData.ENOKEYFILE2.humanReadable',
-              'message' => _('It appears that your license key file is corrupted or missing').". "._('The key file should be located in the bootconfig directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
-            ],
-          ],
-          'ETRIAL' => [
-            'humanReadable' => _('Invalid installation'),
-            'error' => [
-              'heading' => '@:stateData.ETRIAL.humanReadable',
-              'message' => _('It is not possible to use a Trial key with an existing Unraid OS installation').'. '._('You may purchase a license key corresponding to this USB Flash device to continue using this installation').'.',
-            ],
-          ],
-          'ENOKEYFILE1' => [
-            'humanReadable' => _('No Keyfile'),
-            'error' => [
-              'heading' => _('No USB flash configuration data'),
-              'message' => _('There is a problem with your USB Flash device'),
-            ],
-          ],
-          'ENOFLASH' => [
-            'humanReadable' => _('No Flash'),
-            'error' => [
-              'heading' => _('Cannot access your USB Flash boot device'),
-              'message' => _('There is a physical problem accessing your USB Flash boot device'),
-            ],
-          ],
-          'EGUID1' => [
-            'humanReadable' => _('Multiple License Keys Present'),
-            'error' => [
-              'heading' => '@:stateData.EGUID1.humanReadable',
-              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the bootconfig directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
-            ],
-          ],
-          'EBLACKLISTED' => [
-            'humanReadable' => _('BLACKLISTED'),
-            'error' => [
-              'heading' => _('Blacklisted USB Flash GUID'),
-              'message' => _('This USB Flash boot device has been blacklisted').'. '._('This can occur as a result of transferring your license key to a replacement USB Flash device, and you are currently booted from your old USB Flash device').'. '._('A USB Flash device may also be blacklisted if we discover the serial number is not unique – this is common with USB card readers').'.',
-            ],
-          ],
-          'EBLACKLISTED1' => [
-            'humanReadable' =>'@:stateData.EBLACKLISTED.humanReadable',
-            'error' => [
-              'heading' => _('USB Flash device error'),
-              'message' => _('This USB Flash device has an invalid GUID').'. '._('Please try a different USB Flash device').'.',
-            ],
-          ],
-          'EBLACKLISTED2' => [
-            'humanReadable' => '@:stateData.EBLACKLISTED.humanReadable',
-            'error' => [
-              'heading' => _('USB Flash has no serial number'),
-              'message' => '@:stateData.EBLACKLISTED.error.message',
-            ],
-          ],
-          'ENOCONN' => [
-            'humanReadable' => _('Trial Requires Internet Connection'),
-            'error' => [
-              'heading' => _('Cannot validate Unraid Trial key'),
-              'message' => _('Your Trial key requires an internet connection').'. '.('Please check Settings > Network').'.',
-            ],
-          ],
-          'STALE' => [
-            'humanReadable' => _('Stale'),
-            'error' => [
-              'heading' => _('Stale Server'),
-              'message' => _('Please refresh the page to ensure you load your latest configuration'),
+              'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key').'.',
+              'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months').'.',
+              'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
             ],
           ],
         ],
-        'regWizPopUp' => [
-          'regWiz' => _('Registration Wizard'),
-          'toHome' => _('To Registration Wizard Home'),
-          'continueTrial' => _('Continue Trial'),
-          'serverInfoToggle' => _('Toggle server info visibility'),
-          'youCanSafelyCloseThisWindow' => _('You can safely close this window'),
-          'automaticallyClosingIn' => sprintf(_('Auto closing in %s'), '{0}'),
-          'byeBye' => _('bye bye 👋'),
-          'browserWillSelfDestructIn' => sprintf(_('Browser will self destruct in %s'), '{0}'),
-          'closingPopUpMayLeadToErrors' => _('Closing this pop-up window while actions are being preformed may lead to unintended errors'),
-          'goBack' => _('Go Back'),
-          'shutDown' => _('Shut Down'),
-          'haveAccountSignIn' => _('Already have an account').'? '._('Sign In'),
-          'noAccountSignUp' => _('Do not have an account').'? '._('Sign Up'),
-          'serverInfo' => [
-            'flash' => _('Flash'),
-            'product' => _('Product'),
-            'GUID' => _('GUID'),
-            'name' => _('Name'),
-            'ip' => _('IP'),
+        'ENOKEYFILE2' => [
+          'humanReadable' => _('Missing key file'),
+          'error' => [
+            'heading' => '@:stateData.ENOKEYFILE2.humanReadable',
+            'message' => _('It appears that your license key file is corrupted or missing').". "._('The key file should be located in the bootconfig directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
           ],
-          'forms' => [
-            'displayName' => _('Display Name'),
-            'emailAddress' => _('Email Address'),
-            'displayNameOrEmailAddress' => _('Display Name or Email Address'),
-            'displayNameRootMessage' => _('Use your Unraid.net credentials, not your local server credentials'),
-            'honeyPotCopy' => _('If you fill this field out then your email will not be sent'),
-            'fieldRequired' => _('This field is required'),
-            'submit' => _('Submit'),
-            'submitting' => _('Submitting'),
-            'notValid' => _('Form not valid'),
-            'cancel' => _('Cancel'),
-            'confirm' => _('Confirm'),
-            'createMyAccount' => _('Create My Account'),
-            'subject' => _('Subject'),
-            'password' => _('Password'),
-            'togglePasswordVisibility' => _('Toggle Password Visibility'),
-            'message' => _('Message'),
-            'confirmPassword' => _('Confirm Password'),
-            'passwordMinimum' => _('8 or more characters'),
-            'comments' => _('comments'),
-            'newsletterCopy' => _('Sign me up for the monthly Unraid newsletter').': '._('a digest of recent blog posts, community videos, popular forum threads, product announcements, and more'),
-            'terms' => [
-              'iAgree' => _('I agree to the'),
-              'text' => _('Terms of Use'),
-            ],
+        ],
+        'ETRIAL' => [
+          'humanReadable' => _('Invalid installation'),
+          'error' => [
+            'heading' => '@:stateData.ETRIAL.humanReadable',
+            'message' => _('It is not possible to use a Trial key with an existing Unraid OS installation').'. '._('You may purchase a license key corresponding to this USB Flash device to continue using this installation').'.',
           ],
-          'routes' => [
-            'extendTrial' => [
-              'heading' => [
-                'loading' => _('Extending Trial'),
-                'error' => _('Trial Extension Failed'),
-              ],
-            ],
-            'forgotPassword' => [
-              'heading' => _('Forgot Password'),
-              'subheading' => _("After resetting your password come back to the Registration Wizard pop-up window to Sign In and complete your server's registration"),
-              'resetPasswordNow' => _('Reset Password Now'),
-              'backToSignIn' => _('Back to Sign In'),
-            ],
-            'signIn' => [
-              'heading' => [
-                'signIn' => _('Unraid.net Sign In'),
-                'recover' => _('Unraid.net Sign In to Recover Key'),
-                'replace' => _('Unraid.net Sign In to Replace Key'),
-              ],
-              'subheading' => _('Please sign in with your Unraid.net forum account'),
-              'form' => [
-                'replacementConditions' => [
-                  'name' => _('Acknowledge Replacement Conditions'),
-                  'label' => _('I acknowledge that replacing a license key results in permanently blacklisting the previous USB Flash GUID'),
-                ],
-                'label' => [
-                  'password' => [
-                    'replace' => _('Unraid.net account password'),
-                  ],
-                ],
-              ],
-            ],
-            'signUp' => [
-              'heading' => _('Sign Up for Unraid.net'),
-              'subheading' => _('This setup will help you get your server up and running'),
-            ],
-            'signOut' => [
-              'heading' => _('Unraid.net Sign Out'),
-            ],
-            'success' => [
-              'heading' => [
-                'username' => sprintf(_('Hi %s'), '{0}'),
-                'default' => _('Success'),
-              ],
-              'subheading' => [
-                'extention' => _('Your trial will expire in 15 days'),
-                'newTrial' => _('Your trial will expire in 30 days'),
-              ],
-              'signIn' => [
-                'tileTitle' => [
-                  'actionFail' => sprintf(_('%s was not signed in to your Unraid.net account'), '{0}'),
-                  'actionSuccess' => sprintf(_('%s is signed in to your Unraid.net account'), '{0}'),
-                  'loading' => sprintf(_('Signing in %s to Unraid.net account'), '{0}'),
-                ],
-              ],
-              'signOut' => [
-                'tileTitle' => [
-                  'actionFail' => sprintf(_('%s was not signed out of your Unraid.net account'), '{0}'),
-                  'actionSuccess' => sprintf(_('%s was signed out of your Unraid.net account'), '{0}'),
-                  'loading' => sprintf(_('Signing out %s from Unraid.net account'), '{0}'),
-                ],
-              ],
-              'keys' => [
-                'trial' => _('Trial'),
-                'basic' => _('Basic'),
-                'plus' => _('Plus'),
-                'pro' => _('Pro'),
-              ],
-              'extended' => sprintf(_('%s Key Extended'), '{0}'),
-              'recovered' => sprintf(_('%s Key Recovered'), '{0}'),
-              'replaced' => sprintf(_('%s Key Replaced'), '{0}'),
-              'created' => sprintf(_('%s Key Created'), '{0}'),
-              'install' => [
-                'loading' => sprintf(_('Installing %s Key'), '{0}'),
-                'error' => sprintf(_('%s Key Install Error'), '{0}'),
-                'success' => sprintf(_('Installed %s Key'), '{0}'),
-              ],
-              'timeout' => sprintf(_('Communication with %s has timed out'), '{0}'),
-              'loading1' => _('Please keep this window open'),
-              'loading2' => _('Were working our magic'),
-              'countdown' => [
-                'success' => [
-                  'prefix' => sprintf(_('Auto closing in %s'), '{0}'),
-                  'text' => _('You can safely close this window'),
-                ],
-                'error' => [
-                  'prefix' => sprintf(_('Auto redirecting in %s'), '{0}'),
-                  'text' => _('Back to Registration Home'),
-                  'complete' => _('Back in a flash ⚡️'),
-                ],
-              ],
-            ],
-            'troubleshoot' => [
-              'heading' => [
-                'default' => _('Troubleshoot'),
-                'success' => _('Thank you for contacting Unraid'),
-              ],
-              'subheading' => [
-                'default' => _("Forgot what Unraid.net account you used").'? '._("Have a USB flash device that already has an account associated with it").'? '._("Just give us the details about what happened and we'll do our best to get you up and running again").'.',
-                'success' => _('We have received your e-mail and will respond in the order it was received').'. '._('While we strive to respond to all requests as quickly as possible please allow for up to 3 business days for a response').'.',
-              ],
-              'relevantServerData' => _('Your USB Flash GUID and other relevant server data will also be sent'),
-            ],
-            'verifyEmail' => [
-              'heading' => _('Verify Email'),
-              'form' => [
-                'verificationCode' => _('verification code'),
-                'verifyCode' => _('Paste or Enter code'),
-              ],
-              'noCode' => _("Didn't get code?"),
-            ],
-            'whatIsUnraidNet' => [
-              'heading' => _('What is Unraid.net?'),
-              'subheading' => _('Expand your servers capabilities'),
-              'copy' => _('With an Unraid.net account you can start using My Servers (beta) which gives you access to the following features:'),
-              'features' => [
-                'secureRemoteAccess' => [
-                  'heading' => _('Secure remote access'),
-                  'copy' => _("Whether you need to add a share container or virtual machine do it all from the webGui from anytime and anywhere using HTTPS").'. '._("Best of all all SSL certificates are verified by Let's Encrypt so no browser security warnings").'.',
-                ],
-                'realTimeMonitoring' => [
-                  'heading' => _('Real-time Monitoring'),
-                  'copy' => _('Get quick real-time info on the status of your servers such as storage container and VM usage').'. '._('And not just for one server but all the servers in your Unraid fleet'),
-                ],
-                'usbFlashBackup' => [
-                  'heading' => _('USB Flash Backup'),
-                  'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure').'. '._('Never self-managehost your flash backups again'),
-                ],
-                'regKeyManagement' => [
-                  'heading' => _('Registration key management'),
-                  'copy' => _('Download any registration key linked to your account').'. '._('Upgrade keys to higher editions').'.',
-                ],
-              ],
-            ],
-            'notFound' => [
-              'subheading' => _('Page Not Found'),
-            ],
-            'notAllowed' => [
-              'subheading' => _('Page Not Allowed'),
-            ],
+        ],
+        'ENOKEYFILE1' => [
+          'humanReadable' => _('No Keyfile'),
+          'error' => [
+            'heading' => _('No USB flash configuration data'),
+            'message' => _('There is a problem with your USB Flash device'),
+          ],
+        ],
+        'ENOFLASH' => [
+          'humanReadable' => _('No Flash'),
+          'error' => [
+            'heading' => _('Cannot access your USB Flash boot device'),
+            'message' => _('There is a physical problem accessing your USB Flash boot device'),
+          ],
+        ],
+        'EGUID1' => [
+          'humanReadable' => _('Multiple License Keys Present'),
+          'error' => [
+          'heading' => '@:stateData.EGUID1.humanReadable',
+            'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the bootconfig directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
+          ],
+        ],
+        'EBLACKLISTED' => [
+          'humanReadable' => _('BLACKLISTED'),
+          'error' => [
+            'heading' => _('Blacklisted USB Flash GUID'),
+            'message' => _('This USB Flash boot device has been blacklisted').'. '._('This can occur as a result of transferring your license key to a replacement USB Flash device, and you are currently booted from your old USB Flash device').'. '._('A USB Flash device may also be blacklisted if we discover the serial number is not unique – this is common with USB card readers').'.',
+          ],
+        ],
+        'EBLACKLISTED1' => [
+          'humanReadable' =>'@:stateData.EBLACKLISTED.humanReadable',
+         'error' => [
+            'heading' => _('USB Flash device error'),
+            'message' => _('This USB Flash device has an invalid GUID').'. '._('Please try a different USB Flash device').'.',
+          ],
+        ],
+        'EBLACKLISTED2' => [
+          'humanReadable' => '@:stateData.EBLACKLISTED.humanReadable',
+          'error' => [
+            'heading' => _('USB Flash has no serial number'),
+            'message' => '@:stateData.EBLACKLISTED.error.message',
+          ],
+        ],
+        'ENOCONN' => [
+          'humanReadable' => _('Trial Requires Internet Connection'),
+          'error' => [
+           'heading' => _('Cannot validate Unraid Trial key'),
+            'message' => _('Your Trial key requires an internet connection').'. '.('Please check Settings > Network').'.',
+          ],
+        ],
+        'STALE' => [
+          'humanReadable' => _('Stale'),
+          'error' => [
+            'heading' => _('Stale Server'),
+            'message' => _('Please refresh the page to ensure you load your latest configuration'),
           ],
         ],
       ],
-    ];
-    ?>
-    <unraid-user-profile
-      apikey="<?=($remote['apikey']) ? $remote['apikey'] : ''?>"
-      banner="<?=($display['banner']) ? $display['banner'] : ''?>"
-      bgcolor="<?=($backgnd) ? '#'.$backgnd : ''?>"
-      csrf="<?=$var['csrf_token']?>"
-      displaydesc="<?=($display['headerdescription']!='no') ? 'true' : ''?>"
-      expiretime="<?=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0)?>"
-      hide-my-servers="<?=(file_exists('/usr/local/sbin/unraid-api')) ? '' : 'yes' ?>"
-      locale="<?=($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US'?>"
-      locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
-      metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
-      prop-state-endpoint="/plugins/dynamix.unraid.net/include/state.php"
-      reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
-      send-crash-info="<?=$remote['sendCrashInfo']?>"
-      serverdesc="<?=$var['COMMENT']?>"
-      servermodel="<?=$var['SYS_MODEL']?>"
-      serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
-      textcolor="<?=($header) ? '#'.$header : ''?>"
-      theme="<?=$display['theme']?>"
-      uptime="<?=1000*(time() - round(strtok(exec("cat /proc/uptime"),' ')))?>"
-      ></unraid-user-profile>
+     'regWizPopUp' => [
+        'regWiz' => _('Registration Wizard'),
+        'toHome' => _('To Registration Wizard Home'),
+        'continueTrial' => _('Continue Trial'),
+        'serverInfoToggle' => _('Toggle server info visibility'),
+        'youCanSafelyCloseThisWindow' => _('You can safely close this window'),
+       'automaticallyClosingIn' => sprintf(_('Auto closing in %s'), '{0}'),
+        'byeBye' => _('bye bye 👋'),
+        'browserWillSelfDestructIn' => sprintf(_('Browser will self destruct in %s'), '{0}'),
+        'closingPopUpMayLeadToErrors' => _('Closing this pop-up window while actions are being preformed may lead to unintended errors'),
+        'goBack' => _('Go Back'),
+        'shutDown' => _('Shut Down'),
+        'haveAccountSignIn' => _('Already have an account').'? '._('Sign In'),
+        'noAccountSignUp' => _('Do not have an account').'? '._('Sign Up'),
+        'serverInfo' => [
+          'flash' => _('Flash'),
+          'product' => _('Product'),
+          'GUID' => _('GUID'),
+          'name' => _('Name'),
+          'ip' => _('IP'),
+        ],
+        'forms' => [
+          'displayName' => _('Display Name'),
+          'emailAddress' => _('Email Address'),
+          'displayNameOrEmailAddress' => _('Display Name or Email Address'),
+          'displayNameRootMessage' => _('Use your Unraid.net credentials, not your local server credentials'),
+          'honeyPotCopy' => _('If you fill this field out then your email will not be sent'),
+          'fieldRequired' => _('This field is required'),
+          'submit' => _('Submit'),
+          'submitting' => _('Submitting'),
+          'notValid' => _('Form not valid'),
+          'cancel' => _('Cancel'),
+          'confirm' => _('Confirm'),
+          'createMyAccount' => _('Create My Account'),
+          'subject' => _('Subject'),
+          'password' => _('Password'),
+          'togglePasswordVisibility' => _('Toggle Password Visibility'),
+          'message' => _('Message'),
+          'confirmPassword' => _('Confirm Password'),
+          'passwordMinimum' => _('8 or more characters'),
+          'comments' => _('comments'),
+          'newsletterCopy' => _('Sign me up for the monthly Unraid newsletter').': '._('a digest of recent blog posts, community videos, popular forum threads, product announcements, and more'),
+          'terms' => [
+            'iAgree' => _('I agree to the'),
+            'text' => _('Terms of Use'),
+          ],
+        ],
+        'routes' => [
+          'extendTrial' => [
+            'heading' => [
+              'loading' => _('Extending Trial'),
+              'error' => _('Trial Extension Failed'),
+            ],
+          ],
+          'forgotPassword' => [
+            'heading' => _('Forgot Password'),
+            'subheading' => _("After resetting your password come back to the Registration Wizard pop-up window to Sign In and complete your server's registration"),
+            'resetPasswordNow' => _('Reset Password Now'),
+            'backToSignIn' => _('Back to Sign In'),
+          ],
+          'signIn' => [
+            'heading' => [
+              'signIn' => _('Unraid.net Sign In'),
+              'recover' => _('Unraid.net Sign In to Recover Key'),
+              'replace' => _('Unraid.net Sign In to Replace Key'),
+            ],
+            'subheading' => _('Please sign in with your Unraid.net forum account'),
+            'form' => [
+              'replacementConditions' => [
+                'name' => _('Acknowledge Replacement Conditions'),
+                'label' => _('I acknowledge that replacing a license key results in permanently blacklisting the previous USB Flash GUID'),
+              ],
+              'label' => [
+                'password' => [
+                  'replace' => _('Unraid.net account password'),
+                ],
+              ],
+            ],
+          ],
+          'signUp' => [
+            'heading' => _('Sign Up for Unraid.net'),
+            'subheading' => _('This setup will help you get your server up and running'),
+          ],
+          'signOut' => [
+            'heading' => _('Unraid.net Sign Out'),
+          ],
+          'success' => [
+            'heading' => [
+              'username' => sprintf(_('Hi %s'), '{0}'),
+              'default' => _('Success'),
+            ],
+            'subheading' => [
+              'extention' => _('Your trial will expire in 15 days'),
+              'newTrial' => _('Your trial will expire in 30 days'),
+            ],
+            'signIn' => [
+              'tileTitle' => [
+                'actionFail' => sprintf(_('%s was not signed in to your Unraid.net account'), '{0}'),
+                'actionSuccess' => sprintf(_('%s is signed in to your Unraid.net account'), '{0}'),
+                'loading' => sprintf(_('Signing in %s to Unraid.net account'), '{0}'),
+              ],
+            ],
+            'signOut' => [
+              'tileTitle' => [
+                'actionFail' => sprintf(_('%s was not signed out of your Unraid.net account'), '{0}'),
+                'actionSuccess' => sprintf(_('%s was signed out of your Unraid.net account'), '{0}'),
+                'loading' => sprintf(_('Signing out %s from Unraid.net account'), '{0}'),
+              ],
+            ],
+            'keys' => [
+              'trial' => _('Trial'),
+              'basic' => _('Basic'),
+              'plus' => _('Plus'),
+              'pro' => _('Pro'),
+            ],
+            'extended' => sprintf(_('%s Key Extended'), '{0}'),
+            'recovered' => sprintf(_('%s Key Recovered'), '{0}'),
+            'replaced' => sprintf(_('%s Key Replaced'), '{0}'),
+            'created' => sprintf(_('%s Key Created'), '{0}'),
+            'install' => [
+              'loading' => sprintf(_('Installing %s Key'), '{0}'),
+              'error' => sprintf(_('%s Key Install Error'), '{0}'),
+              'success' => sprintf(_('Installed %s Key'), '{0}'),
+            ],
+            'timeout' => sprintf(_('Communication with %s has timed out'), '{0}'),
+            'loading1' => _('Please keep this window open'),
+            'loading2' => _('Were working our magic'),
+            'countdown' => [
+              'success' => [
+                'prefix' => sprintf(_('Auto closing in %s'), '{0}'),
+                'text' => _('You can safely close this window'),
+              ],
+              'error' => [
+                'prefix' => sprintf(_('Auto redirecting in %s'), '{0}'),
+                'text' => _('Back to Registration Home'),
+                'complete' => _('Back in a flash ⚡️'),
+              ],
+            ],
+          ],
+          'troubleshoot' => [
+            'heading' => [
+             'default' => _('Troubleshoot'),
+             'success' => _('Thank you for contacting Unraid'),
+            ],
+            'subheading' => [
+              'default' => _("Forgot what Unraid.net account you used").'? '._("Have a USB flash device that already has an account associated with it").'? '._("Just give us the details about what happened and we'll do our best to get you up and running again").'.',
+              'success' => _('We have received your e-mail and will respond in the order it was received').'. '._('While we strive to respond to all requests as quickly as possible please allow for up to 3 business days for a response').'.',
+            ],
+            'relevantServerData' => _('Your USB Flash GUID and other relevant server data will also be sent'),
+          ],
+          'verifyEmail' => [
+            'heading' => _('Verify Email'),
+            'form' => [
+              'verificationCode' => _('verification code'),
+              'verifyCode' => _('Paste or Enter code'),
+            ],
+            'noCode' => _("Didn't get code?"),
+          ],
+          'whatIsUnraidNet' => [
+            'heading' => _('What is Unraid.net?'),
+            'subheading' => _('Expand your servers capabilities'),
+            'copy' => _('With an Unraid.net account you can start using My Servers (beta) which gives you access to the following features:'),
+            'features' => [
+              'secureRemoteAccess' => [
+                'heading' => _('Secure remote access'),
+                'copy' => _("Whether you need to add a share container or virtual machine do it all from the webGui from anytime and anywhere using HTTPS").'. '._("Best of all all SSL certificates are verified by Let's Encrypt so no browser security warnings").'.',
+              ],
+              'realTimeMonitoring' => [
+                'heading' => _('Real-time Monitoring'),
+                'copy' => _('Get quick real-time info on the status of your servers such as storage container and VM usage').'. '._('And not just for one server but all the servers in your Unraid fleet'),
+              ],
+              'usbFlashBackup' => [
+                'heading' => _('USB Flash Backup'),
+                'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure').'. '._('Never self-managehost your flash backups again'),
+              ],
+              'regKeyManagement' => [
+                'heading' => _('Registration key management'),
+                'copy' => _('Download any registration key linked to your account').'. '._('Upgrade keys to higher editions').'.',
+              ],
+            ],
+          ],
+          'notFound' => [
+            'subheading' => _('Page Not Found'),
+          ],
+          'notAllowed' => [
+            'subheading' => _('Page Not Allowed'),
+          ],
+        ],
+      ],
+    ],
+   ];
+  ?>
+  <unraid-user-profile
+   apikey="<?=($remote['apikey']) ? $remote['apikey'] : ''?>"
+   banner="<?=($display['banner']) ? $display['banner'] : ''?>"
+   bgcolor="<?=($backgnd) ? '#'.$backgnd : ''?>"
+   srf="<?=$var['csrf_token']?>"
+   displaydesc="<?=($display['headerdescription']!='no') ? 'true' : ''?>"
+   expiretime="<?=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0)?>"
+   hide-my-servers="<?=(file_exists('/usr/local/sbin/unraid-api')) ? '' : 'yes' ?>"
+   locale="<?=($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US'?>"
+   locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
+   metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
+   prop-state-endpoint="/plugins/dynamix.unraid.net/include/state.php"
+   reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
+   send-crash-info="<?=$remote['sendCrashInfo']?>"
+   serverdesc="<?=$var['COMMENT']?>"
+   servermodel="<?=$var['SYS_MODEL']?>"
+   serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
+   textcolor="<?=($header) ? '#'.$header : ''?>"
+   theme="<?=$display['theme']?>"
+   uptime="<?=1000*(time() - round(strtok(exec("cat /proc/uptime"),' ')))?>"
+  ></unraid-user-profile>
   </div>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
@@ -1031,6 +1010,7 @@ if ($myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
+$nchan = [];
 foreach ($pages as $page) {
   $close = false;
   if (isset($page['Title'])) {
@@ -1072,10 +1052,25 @@ foreach ($pages as $page) {
       echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
     }
   }
+  // create list of nchan scripts to be started
+  if (isset($page['Nchan'])) $nchan = array_merge($nchan, explode(',',$page['Nchan']));
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
-unset($pages,$page,$pgs,$pg,$icon);
+
+$running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
+$start   = array_diff($nchan, $running); // returns any new scripts to be started
+$stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
+
+// stop running nchan scripts
+foreach ($stop as $script) exec("pkill -f $nchan_go/$script >/dev/null");
+// start nchan scripts per page
+foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
+// update list of current running nchan scripts
+$running = array_merge(array_diff($running,$stop),$nchan);
+if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
+
+unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop);
 ?>
 </div></div>
 <div class="spinner fixed"></div>
