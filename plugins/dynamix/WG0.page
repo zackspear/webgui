@@ -1,6 +1,7 @@
 Menu="VPNmanager:100"
 Title="Tunnel wg0"
 Tag="icon-vpn"
+Nchan="wg_poller"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
