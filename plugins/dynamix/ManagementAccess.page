@@ -180,13 +180,13 @@ function checkPorts(form,provision) {
   return true;
 }
 function updateTELNET(form) {
-  form.PORTTELNET.disabled = form.USE_TELNET.value=="_(no)_";
+  form.PORTTELNET.disabled = form.USE_TELNET.value=="no";
 }
 function updateSSH(form) {
-  form.PORTSSH.disabled = form.USE_SSH.value=="_(no)_";
+  form.PORTSSH.disabled = form.USE_SSH.value=="no";
 }
 function updateSSL(form) {
-  form.PORTSSL.disabled = form.USE_SSL.value=="_(no)_";
+  form.PORTSSL.disabled = form.USE_SSL.value=="no";
 }
 $(function(){
   var form = document.SSLSettings;
