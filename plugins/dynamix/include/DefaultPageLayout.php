@@ -1080,23 +1080,25 @@ foreach ($pages as $page) {
 }
 if (count($pages)) {
   $running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
-  $start   = array_diff($nchan, $running); // returns any new scripts to be started
-  $stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
-  // update list of current running nchan scripts
-  $running = array_merge($start,$running);
-  // start nchan scripts per page
-  foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
-/*
-  For the time being we don't stop the scripts, which allows multiple active browser sessions to work
-  The only exception is docker_load, which causes known high cpu load
-*/
-  if (in_array('docker_load',$stop)) {
-    foreach ($stop as $script) if ($script=='docker_load') exec("pkill $script >/dev/null &");
-    array_splice($running,array_search('docker_load',$running),1);
+  $start   = array_diff($nchan, $running);  // returns any new scripts to be started
+  $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
+  $running = array_merge($start, $running); // update list of current running nchan scripts
+  // start nchan scripts which are new
+  foreach ($start as $row) {
+    $script = explode(':',$row)[0];
+    exec("$nchan_go/$script &>/dev/null &");
+  }
+  // stop nchan scripts with the :stop option
+  foreach ($stop as $row) {
+    [$script,$opt] = explode(':',$row);
+    if ($opt == 'stop') {
+      exec("pkill $script >/dev/null &");
+      array_splice($running,array_search($row,$running),1);
+    }
   }
   if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
 }
-unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop);
+unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt);
 ?>
 </div></div>
 <div class="spinner fixed"></div>

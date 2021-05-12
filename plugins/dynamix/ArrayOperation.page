@@ -276,15 +276,15 @@ devices.on('message', function(data) {
     if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
   }
   display_diskio();
+<?if ($var['fsState']=='Stopped'):?>
+  setTimeout(function(){devices.stop();},0);
+<?endif;?>
 });
 
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
   devices.start();
-<?if ($var['fsState']=='Stopped'):?>
-  setTimeout(function(){devices.stop();},100);
-<?endif;?>
 });
 function formatWarning(val) {
   if (val==true)
