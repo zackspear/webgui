@@ -1083,7 +1083,7 @@ if (count($pages)) {
   $start   = array_diff($nchan, $running); // returns any new scripts to be started
   $stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
   // stop running nchan scripts
-  foreach ($stop as $script) exec("pkill $script >/dev/null");
+  foreach ($stop as $script) exec("pkill $script >/dev/null &");
   // start nchan scripts per page
   foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
   // update list of current running nchan scripts
