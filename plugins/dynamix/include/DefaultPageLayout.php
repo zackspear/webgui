@@ -501,10 +501,10 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
  <div id="template">
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
-  <div class="logo">
-  <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-  <?=_('Version')?>: <?=$var['version']?><?=$notes?>
-  </div>
+   <div class="logo">
+   <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
+   <?=_('Version')?>: <?=$var['version']?><?=$notes?>
+   </div>
 <!-- RegWiz -->
     <?
     if (file_exists('/boot/config/plugins/Unraid.net/myservers.cfg')) {
