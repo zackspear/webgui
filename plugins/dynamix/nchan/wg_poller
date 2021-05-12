@@ -29,7 +29,7 @@ function my_scale($value, &$unit) {
 
 while (true) {
   $now = time(); $i = 0;
-  unset($dump);   $vtun = [];
+  unset($dump);  $vtun = [];
   exec('wg show all dump',$dump);
   foreach ($dump as $row) {
     $row = preg_split('/\s+/',$row);
