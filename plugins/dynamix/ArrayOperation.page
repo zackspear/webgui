@@ -283,7 +283,7 @@ $(function(){
   if (form.input !== undefined) selectInput(form);
   devices.start();
 <?if ($var['fsState']=='Stopped'):?>
-  setTimeout(function(){devices.stop();},1000);
+  setTimeout(function(){devices.stop();},1100);
 <?endif;?>
 });
 function formatWarning(val) {
