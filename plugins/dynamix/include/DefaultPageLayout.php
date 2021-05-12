@@ -419,8 +419,6 @@ $(function() {
 </script>
 <!-- RegWiz-->
 <style>
-<!-- RegWiz-->
-<style>
 #header {
   z-index: 102 !important;
   display: -webkit-box;
