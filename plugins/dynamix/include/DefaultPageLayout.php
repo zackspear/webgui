@@ -984,9 +984,6 @@ echo '<script id="unraid-wc" defer src="'.$upcSrc.'"></script>';
   </div>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
-function nchan_name($d) {return explode(':',$d)[0];}
-function nchan_stop($d) {return explode(':',$d)[1];}
-
 // Build page menus
 echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
 foreach ($tasks as $button) {
