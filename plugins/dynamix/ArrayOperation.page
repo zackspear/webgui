@@ -3,8 +3,8 @@ Title="Array Operation"
 Tag="snowflake-o"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -179,7 +179,7 @@ function tab0() {
   $.cookie('tab','tab0',{path:'/'});
 }
 function parityStatus() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'parity'},function(data) {
+  $.post('/webGui/include/ParityList.php',{},function(data) {
     if (data) {$.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});}
     timers.parityStatus = setTimeout(parityStatus,3000);
     if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {

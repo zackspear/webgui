@@ -3,8 +3,8 @@ Title="Boot Device"
 Tag="paw"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,19 +15,9 @@ Tag="paw"
  */
 ?>
 <script>
-function boot_status() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'flash'},function(data) {
-    if (data) {$('#boot_device').html(data); display_diskio();}
-<?if ($var['fsState']=='Started'):?>
-    timers.boot_status = setTimeout(boot_status,3000);
-<?endif;?>
-  });
-}
 <?if ($var['fsState']=='Started'):?>
 $('#tab3').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
-
-boot_status();
 </script>
 
 <table class="disk_status wide">
