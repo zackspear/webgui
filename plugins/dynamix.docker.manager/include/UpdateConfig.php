@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,14 +20,6 @@ $template_repos = $dockerManPaths['template-repos'];
 $user_prefs     = $dockerManPaths['user-prefs'];
 
 switch ($_POST['action']) {
-case 'docker_load_start':
-  $daemon = "/usr/local/emhttp/plugins/dynamix.docker.manager/scripts/docker_load";
-  if (!exec("pgrep -f $daemon")) passthru("$daemon &>/dev/null &");
-  break;
-case 'docker_load_stop':
-  $daemon = "/usr/local/emhttp/plugins/dynamix.docker.manager/scripts/docker_load";
-  if (exec("pgrep -f $daemon")) passthru("pkill -f $daemon &>/dev/null &");
-  break;
 case 'autostart':
   // update container autostart setting
   $container = urldecode(($_POST['container']));
