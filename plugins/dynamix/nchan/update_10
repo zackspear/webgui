@@ -1,0 +1,27 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+$docroot  = '/usr/local/emhttp';
+require_once "$docroot/webGui/include/publish.php";
+
+while (true) {
+  unset($memory,$sys,$rpms);
+  exec("grep -Po '^Mem(Total|Available):\s+\K\d+' /proc/meminfo",$memory);
+  exec("df /boot /var/log /var/lib/docker|grep -Po '\d+%'",$sys);
+  exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$rpms);
+  $rpms = count($rpms) ? implode(" RPM\0",$rpms).' RPM' : '';
+  publish('update10', max(round((1-$memory[1]/$memory[0])*100),0)."%\0".implode("\0",$sys)."\n".$rpms);
+  sleep(10);
+}
+?>

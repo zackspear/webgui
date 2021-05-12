@@ -273,16 +273,6 @@ case 'extra':
   extra_group();
   echo "\0".($error+$warning)."\0".($red+$orange)."\0".($fail+$smart)."\0".($full+$high);
   break;
-case 'sys':
-  exec("grep -Po '^Mem(Total|Available):\s+\K\d+' /proc/meminfo",$memory);
-  exec("df /boot /var/log /var/lib/docker|grep -Po '\d+%'",$sys);
-  $mem = max(round((1-$memory[1]/$memory[0])*100),0);
-  echo "{$mem}%\0".implode("\0",$sys);
-  break;
-case 'fan':
-  exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$rpms);
-  if ($rpms) echo implode(" RPM\0",$rpms).' RPM';
-  break;
 case 'port':
   $i = 0;
   $ports = explode(',',$_POST['ports']);
