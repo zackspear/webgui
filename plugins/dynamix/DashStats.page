@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller"
+Nchan="wg_poller,update_10"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -695,11 +695,6 @@ function moreInfo(data,table) {
   return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
 }
 function update5() {
-<?if ($fans):?>
-  $.post('<?=$url?>',{cmd:'fan'},function(data) {
-    $.each(data.split('\0'),function(k,v) {$('#fan'+k).html(v);});
-  });
-<?endif;?>
   $.post('<?=$url?>',{cmd:'speed',port:port_select,timestamp:timestamp,rx_bytes:rx_bytes,tx_bytes:tx_bytes,},function(d) {
     var data = d.split('\0');
     $('#inbound').text(data[0]);
@@ -769,19 +764,6 @@ function update30() {
 <?endif;?>
     });
     timer30 = setTimeout(update30,30000);
-  });
-}
-function update60() {
-  $.post('<?=$url?>',{cmd:'sys'},function(data) {
-    $.each(data.split('\0'),function(k,v) {
-      var load = v.slice(0,-1);
-      if (load >= <?=$display['critical']?>) var color = 'redbar';
-      else if (load >= <?=$display['warning']?>) var color = 'orangebar';
-      else var color = '';
-      $('.sys'+k).text(v);
-      $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
-    });
-    setTimeout(update60,60000);
   });
 }
 function attributes(page,disk) {
@@ -957,14 +939,13 @@ function simplef() {
 var cpuload = new NchanSubscriber('/sub/cpuload');
 cpuload.on('message',function(data) {
 /*
-message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
-The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
-var json = $.parseJSON(message);
-$.each(json["cpuload"],function(k,v) {
-  $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
-});
+  message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
+  The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
+  var json = $.parseJSON(message);
+  $.each(json["cpuload"],function(k,v) {
+    $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
+  });
 */
-//data is the cpuload.ini file contents
   var ini = parseINI(data);
   $.each(ini,function(k,v) {
     var load = v['host'];
@@ -975,6 +956,22 @@ $.each(json["cpuload"],function(k,v) {
     $('.'+k).text(load);
     $('#'+k).finish().animate({width:load},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
   });
+});
+
+var update10 = new NchanSubscriber('/sub/update10');
+update10.on('message',function(d) {
+  var data = d.split('\n');
+  $.each(data[0].split('\0'),function(k,v) {
+    var load = v.slice(0,-1);
+    if (load >= <?=$display['critical']?>) var color = 'redbar';
+    else if (load >= <?=$display['warning']?>) var color = 'orangebar';
+    else var color = '';
+    $('.sys'+k).text(v);
+    $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
+  });
+<?if ($fans):?>
+  $.each(data[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
+<?endif;?>
 });
 
 <?if ($wireguard):?>
@@ -1055,9 +1052,9 @@ $(function() {
 <?if ($wireguard):?>
   wireguard.start();
 <?endif;?>
+  update10.start();
   update5();
   update15();
-  update60();
   toggleCPU(true);
   toggleView('sys_view',true);
   toggleView('mb_view',true);

@@ -1082,12 +1082,18 @@ if (count($pages)) {
   $running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
   $start   = array_diff($nchan, $running); // returns any new scripts to be started
   $stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
-  // stop running nchan scripts
-  foreach ($stop as $script) exec("pkill $script >/dev/null &");
+  // update list of current running nchan scripts
+  $running = array_merge($start,$running);
   // start nchan scripts per page
   foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
-  // update list of current running nchan scripts
-  $running = array_merge(array_diff($stop,$running),$nchan);
+/*
+  For the time being we don't stop the scripts, which allows multiple active browser sessions to work
+  The only exception is docker_load, which causes known high cpu load
+*/
+  if (in_array('docker_load',$stop)) {
+    foreach ($stop as $script) if ($script=='docker_load') exec("pkill $script >/dev/null &");
+    array_splice($running,array_search('docker_load',$running),1);
+  }
   if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
 }
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop);
