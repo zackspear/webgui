@@ -1098,7 +1098,7 @@ if (count($pages)) {
   }
   if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
 }
-unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$script);
+unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt);
 ?>
 </div></div>
 <div class="spinner fixed"></div>
