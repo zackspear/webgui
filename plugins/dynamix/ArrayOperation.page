@@ -1,7 +1,7 @@
 Menu="Main:5"
 Title="Array Operation"
 Tag="snowflake-o"
-Nchan="device_list,diskload"
+Nchan="device_list,disk_load"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
