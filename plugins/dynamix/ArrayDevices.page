@@ -59,24 +59,6 @@ function toggle_diskio(init) {
 <?if ($var['fsState']=='Started'):?>
 $('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
-var devices = new NchanSubscriber('/sub/devices');
-devices.on('message', function(data) {
-  // split table sections
-  var tables = data.split('\0');
-  for (var n=0; n < tables.length; n++) {
-    // get table name and content
-    var table = tables[n].split('\n');
-    if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
-  }
-  display_diskio();
-});
-
-$(function(){
-  devices.start();
-<?if ($var['fsState']=='Stopped'):?>
-  setTimeout(function(){devices.stop();},100);
-<?endif;?>
-});
 </script>
 
 <table class="disk_status wide">

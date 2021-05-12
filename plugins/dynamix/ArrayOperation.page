@@ -264,9 +264,25 @@ $parity = $var['mdResync'] ? "<br><small>_(Disabled)_ -- _(Parity operation is r
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
+var devices = new NchanSubscriber('/sub/devices');
+devices.on('message', function(data) {
+  // split table sections
+  var tables = data.split('\0');
+  for (var n=0; n < tables.length; n++) {
+    // get table name and content
+    var table = tables[n].split('\n');
+    if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
+  }
+  display_diskio();
+});
+
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
+  devices.start();
+<?if ($var['fsState']=='Stopped'):?>
+  setTimeout(function(){devices.stop();},100);
+<?endif;?>
 });
 function formatWarning(val) {
   if (val==true)
