@@ -1078,19 +1078,18 @@ foreach ($pages as $page) {
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
-
-$running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
-$start   = array_diff($nchan, $running); // returns any new scripts to be started
-$stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
-
-// stop running nchan scripts
-foreach ($stop as $script) exec("pkill -f $nchan_go/$script >/dev/null");
-// start nchan scripts per page
-foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
-// update list of current running nchan scripts
-$running = array_merge(array_diff($running,$stop),$nchan);
-if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
-
+if (count($pages)) {
+  $running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
+  $start   = array_diff($nchan, $running); // returns any new scripts to be started
+  $stop    = array_diff($running, $nchan); // returns any old scripts to be stopped
+  // stop running nchan scripts
+  foreach ($stop as $script) exec("pkill -f $nchan_go/$script >/dev/null");
+  // start nchan scripts per page
+  foreach ($start as $script) exec("$nchan_go/$script &>/dev/null &");
+  // update list of current running nchan scripts
+  $running = array_merge(array_diff($stop,$running),$nchan);
+  if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
+}
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop);
 ?>
 </div></div>
