@@ -191,8 +191,9 @@ function parityStatus() {
 }
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
+  devices.stop();
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else {devices.start();$('input[name="cmdStop"]').remove();}});
 <?else:?>
   form.submit();
 <?endif;?>
