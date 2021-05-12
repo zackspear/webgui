@@ -1,7 +1,0 @@
-#!/bin/bash
-# stop diskload daemon
-DAEMON="diskload"
-if [[ "$(pgrep $DAEMON)" != "" ]]; then
-  logger "Stopping $DAEMON"
-  pkill $DAEMON
-fi

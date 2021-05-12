@@ -1,7 +1,6 @@
 Menu="Main:1"
 Title="Array Devices"
 Tag="database"
-Nchan="device_list"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
