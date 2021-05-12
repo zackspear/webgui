@@ -145,7 +145,7 @@ function checkPorts(form,provision) {
     var name = check[i]['name'];
     var item = $(form).find('input[name="'+key+'"]');
     if (!item.val()) item.val(portdefault);
-		item.val(parseInt(item.val()));
+    item.val(parseInt(item.val()));
     if ($(item).is(':disabled')) continue;
     if (provision)
       var userPort = '<?=$var['PORTSSL']?>';
@@ -180,13 +180,13 @@ function checkPorts(form,provision) {
   return true;
 }
 function updateTELNET(form) {
-  form.PORTTELNET.disabled = form.USE_TELNET.value=="_(no)_";
+  form.PORTTELNET.disabled = form.USE_TELNET.value=="no";
 }
 function updateSSH(form) {
-  form.PORTSSH.disabled = form.USE_SSH.value=="_(no)_";
+  form.PORTSSH.disabled = form.USE_SSH.value=="no";
 }
 function updateSSL(form) {
-  form.PORTSSL.disabled = form.USE_SSL.value=="_(no)_";
+  form.PORTSSL.disabled = form.USE_SSL.value=="no";
 }
 $(function(){
   var form = document.SSLSettings;

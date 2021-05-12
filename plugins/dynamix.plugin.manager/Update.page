@@ -31,6 +31,7 @@ if (file_exists('/boot/previous/changes.txt')) {
   }
   $branch = strpos($version,'rc')!==false ? _('Next') : (strpos($version,'beta')!==false ? _('Beta') : _('Stable'));
 }
+$reboot = preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20));
 ?>
 <style>
 input[value="_(Install)_"],input[value="_(Update)_"],input[value="_(Restore)_"]{margin:0}
@@ -68,14 +69,14 @@ function updateInfo(data) {
 function initlist() {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true,check:<?=$check?>},function(data) {
     $('#os_list').html(data);
-<?if (preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20))):?>
-    $('#change_branch').prop('disabled',true);
-<?endif;?>
 <?if ($bzroot):?>
     $('#previous').show();
 <?endif;?>
     loadlist();
   });
+}
+function warning (data) {
+  return data.replace('green','orange').replace("<?=_('up-to-date')?>","<?=_('Reboot')?>").replace('check','warning');
 }
 function loadlist(id,check) {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||<?=$check?>},function(data) {
@@ -84,15 +85,22 @@ function loadlist(id,check) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
-        case 'update':
+        case 'update' : data = warning(data);
         case 'return' : updateInfo(data); break;
-        case 'install': list.find(tr).remove(); list.append(data); loadlist(null,1); break;
+        case 'install': list.find(tr).remove(); list.append(warning(data)); break;
       }
     } else {
+<?if (!$reboot):?>
       updateInfo(data);
+<?else:?>
+      updateInfo(warning(data));
+<?endif;?>
     }
     $('#os_table').trigger('update');
     $('#checkos').prop('disabled',false);
+<?if ($reboot):?>
+    $('#change_branch').prop('disabled',true);
+<?endif;?>
   });
 }
 $(function() {

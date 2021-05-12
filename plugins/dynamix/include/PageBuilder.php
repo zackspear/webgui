@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -30,9 +30,9 @@ function get_file_key($file,$default) {
 function build_pages($pattern) {
   global $site;
   foreach (glob($pattern,GLOB_NOSORT) as $entry) {
-    [$header, $content] = explode("---\n", file_get_contents($entry),2);
+    [$header, $content] = explode("\n---\n", file_get_contents($entry),2);
     $page = @parse_ini_string($header);
-    if ( ! $page ) exec("logger -t 'webGUI' Invalid .page format: $entry");
+    if (!$page) {exec("logger -t 'webGUI' Invalid .page format: $entry"); continue;}
     $page['file'] = $entry;
     $page['root'] = dirname($entry);
     $page['name'] = basename($entry, '.page');

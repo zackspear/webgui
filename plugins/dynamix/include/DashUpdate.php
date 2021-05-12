@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -129,7 +129,7 @@ function device_name(&$disk) {
 }
 function device_status(&$disk, &$error, &$warning) {
   global $var;
-  if (disk['type']!='Extra' && $var['fsState']=='Stopped') {
+  if ($disk['type']!='Extra' && $var['fsState']=='Stopped') {
     $color = 'green'; $text = 'off-line';
   } else switch ($disk['color']) {
     case 'green-on'    : $color = 'green';  $text = 'active';     break;

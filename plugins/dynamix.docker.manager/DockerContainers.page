@@ -3,11 +3,12 @@ Title="Docker Containers"
 Tag="cubes"
 Cond="is_file('/var/run/dockerd.pid')"
 Markdown="false"
+Nchan="docker_load"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -80,11 +81,6 @@ function resetSorting() {
 }
 function listview() {
   var more = $.cookie('docker_listview_mode')=='advanced';
-  if (more) {
-    $.post('/plugins/dynamix.docker.manager/include/UpdateConfig.php',{action:'docker_load_start'});
-  } else {
-    $.post('/plugins/dynamix.docker.manager/include/UpdateConfig.php',{action:'docker_load_stop'});
-  } 
   $('.docker_readmore').readmore({maxHeight:32,moreLink:"<a href='#' style='text-align:center'><i class='fa fa-chevron-down'></i></a>",lessLink:"<a href='#' style='text-align:center'><i class='fa fa-chevron-up'></i></a>"});
   $('input.autostart').each(function(){
     var wait = $('#'+$(this).prop('id').replace('auto','wait'));
@@ -147,8 +143,8 @@ function loadlist() {
 function sizes() {
   openBox("/plugins/dynamix.docker.manager/include/ContainerSize.php","_(Container Size)_",600,600);
 }
-var watchDocker = new NchanSubscriber('/sub/dockerload');
-watchDocker.on('message', function(data){
+var dockerload = new NchanSubscriber('/sub/dockerload');
+dockerload.on('message', function(data){
   data = data.split('\n');
   for (var i=0,row; row=data[i]; i++) {
     var id = row.split(';');
@@ -167,6 +163,6 @@ $(function() {
     listview();
   });
   loadlist();
-  watchDocker.start();
+  dockerload.start();
 });
 </script>

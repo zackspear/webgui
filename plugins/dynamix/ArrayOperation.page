@@ -1,10 +1,11 @@
 Menu="Main:5"
 Title="Array Operation"
 Tag="snowflake-o"
+Nchan="device_list,disk_load"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -179,7 +180,7 @@ function tab0() {
   $.cookie('tab','tab0',{path:'/'});
 }
 function parityStatus() {
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'parity'},function(data) {
+  $.post('/webGui/include/ParityList.php',{},function(data) {
     if (data) {$.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});}
     timers.parityStatus = setTimeout(parityStatus,3000);
     if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
@@ -191,8 +192,9 @@ function parityStatus() {
 }
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
+  devices.stop();
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else {devices.start();$('input[name="cmdStop"]').remove();}});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -264,9 +266,25 @@ $parity = $var['mdResync'] ? "<br><small>_(Disabled)_ -- _(Parity operation is r
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
+var devices = new NchanSubscriber('/sub/devices');
+devices.on('message', function(data) {
+  // split table sections
+  var tables = data.split('\0');
+  for (var n=0; n < tables.length; n++) {
+    // get table name and content
+    var table = tables[n].split('\n');
+    if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
+  }
+  display_diskio();
+});
+
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
+  devices.start();
+<?if ($var['fsState']=='Stopped'):?>
+  setTimeout(function(){devices.stop();},100);
+<?endif;?>
 });
 function formatWarning(val) {
   if (val==true)

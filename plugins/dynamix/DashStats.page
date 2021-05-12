@@ -1,4 +1,5 @@
 Menu="Dashboard"
+Nchan="wg_poller"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -977,8 +978,8 @@ $.each(json["cpuload"],function(k,v) {
 });
 
 <?if ($wireguard):?>
-var statistics = new NchanSubscriber('/sub/wireguard');
-statistics.on('message', function(data) {
+var wireguard = new NchanSubscriber('/sub/wireguard');
+wireguard.on('message', function(data) {
   var n = {};
   var rows = data.split('\0');
   for (var i=0,row; row=rows[i]; i++) {
@@ -1050,6 +1051,10 @@ $(function() {
   dropdown('enter_share');
 <?endif;?>
   dropdown('enter_view');
+  cpuload.start();
+<?if ($wireguard):?>
+  wireguard.start();
+<?endif;?>
   update5();
   update15();
   update60();
@@ -1086,10 +1091,6 @@ $(function() {
   toggleView('shares_view',true);
   portMenu();
   loadlist(true);
-  cpuload.start();
-<?if ($wireguard):?>
-  statistics.start();
-<?endif;?>
   sortTable($('#db-box1'),$.cookie('db-box1'));
   sortTable($('#db-box2'),$.cookie('db-box2'));
   sortTable($('#db-box3'),$.cookie('db-box3'));

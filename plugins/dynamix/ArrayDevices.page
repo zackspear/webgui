@@ -3,8 +3,8 @@ Title="Array Devices"
 Tag="database"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,17 +16,9 @@ Tag="database"
 ?>
 <script>
 function toggle_state(device,name,action) {
-  var event = null;
   var button = null;
   if (name) {
-    var array = ["parity","disk","array"];
-    var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
-    var flash = ["flash"];
     var group = name.replace(/(\d+|\*)$/,'');
-    if (array.includes(group)) event = 'array_status';
-    else if (pools.includes(group)) event = 'pool_status';
-    else if (flash.includes(group)) event = 'boot_status';
-    else event = 'open_status';
     if (name.slice(-1)!='*') {
       $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     } else {
@@ -41,8 +33,8 @@ function toggle_state(device,name,action) {
     $('[id^="dev-"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     button = '[id^=button-]';
   }
-  pauseEvents(event);
-  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action,state:'<?=$var['mdState']?>',csrf:'<?=$var['csrf_token']?>'},function(){resumeEvents(event,500);if (button) $(button).prop('disabled',false);});
+  devices.stop();
+  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action,state:'<?=$var['mdState']?>',csrf:'<?=$var['csrf_token']?>'},function(){devices.start();if (button) $(button).prop('disabled',false);});
 }
 function display_diskio() {
   if ($.cookie('diskio')===undefined) {
@@ -62,20 +54,10 @@ function toggle_diskio(init) {
   }
   display_diskio();
 }
-function array_status() {
-  var diskio = $.cookie('diskio')===undefined ? 0 : 1;
-  $.post('/webGui/include/DeviceList.php',{path:'<?=$path?>',device:'array'},function(data) {
-    if (data) {$('#array_devices').html(data); display_diskio();}
-<?if ($var['fsState']=='Started'):?>
-    timers.array_status = setTimeout(array_status,3000);
-<?endif;?>
-  });
-}
+
 <?if ($var['fsState']=='Started'):?>
 $('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
-
-array_status();
 </script>
 
 <table class="disk_status wide">
