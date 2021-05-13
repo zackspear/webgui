@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?PHP
 /* Copyright 2005-2021, Lime Technology
  * Copyright 2012-2021, Bergware International.
@@ -19,7 +20,7 @@ function update($url, $payload) {
 }
 
 $dyn_cfg = '/boot/config/plugins/dynamix/dynamix.cfg';
-$mys_cfg = '/boot/config/plugins/Unraid.net/myservers.cfg';
+$mys_cfg = '/boot/config/plugins/dynamix.my.servers/myservers.cfg';
 
 if (file_exists($dyn_cfg) && !file_exists($mys_cfg)) {
   $orig = parse_ini_file($dyn_cfg,true);
