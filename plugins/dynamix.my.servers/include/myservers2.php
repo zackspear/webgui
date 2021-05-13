@@ -5,6 +5,7 @@
     }
 
     $serverstate = [
+      "avatar" => $remote['avatar'],
       "deviceCount" => $var['deviceCount'],
       "email" => ($remote['email']) ? $remote['email'] : '',
       "flashproduct" => $var['flashProduct'],
@@ -17,10 +18,13 @@
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
       "registered" => empty($remote['apikey']) || empty($var['regFILE']) ? 0 : 1,
-      "servername" => $var['NAME'],
+      "sendCrashInfo" => $remote['sendCrashInfo'] || 'no',
       "serverip" => $_SERVER['SERVER_ADDR'],
+      "servername" => $var['NAME'],
       "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
+      "ts" => time(),
+      "username" => $remote['username'],
     ];
     // upc translations
     $upc_translations = [
@@ -54,7 +58,7 @@
         'seconds' => _('seconds'),
         'ago' => _('ago'),
         'basicPlusPro' => [
-          'heading' => _('Thank you for choosing Unraid OS'),
+          'heading' => _('Thank you for choosing Unraid OS').'!',
           'message' => [
             'registered' => _('Get started by signing in to Unraid.net'),
             'upgradeEligible' => _('To support more storage devices as your server grows click Upgrade Key')
@@ -68,11 +72,11 @@
           'extend' => _('Extend Trial'),
         ],
         'upc' => [
-          'avatarAlt' => _("{0} Avatar"),
+          'avatarAlt' => '{0} '._('Avatar'),
           'confirmClosure' => _('Confirm closure then continue to webGUI'),
           'closeDropdown' => _('Close dropdown'),
           'openDropdown' => _('Open dropdown'),
-          'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure. You have an open pop-up.'),
+          'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure').'. '._('You have an open pop-up').'.',
           'trialHasExpiredSeeOptions' => _('Trial has expired see options below'),
           'extraLinks' => [
             'newTab' => sprintf(_('Opens %s in new tab'), '{0}'),
@@ -137,15 +141,15 @@
           'signInActions' => [
             'resolve' => _('Sign In to resolve'),
             'purchaseKey' => _('Sign In to Purchase Key'),
-            'purchaseKeyOrExtendTrial' => _('@:upc.signInActions.purchaseKey or @:actions.extend'),
+            'purchaseKeyOrExtendTrial' => '@:upc.signInActions.purchaseKey or @:actions.extend',
           ],
         ],
         'stateData' => [
           'ENOKEYFILE' => [
             'humanReadable' => _('No Keyfile'),
             'heading' => [
-              'registered' => _('Thanks for supporting Unraid'),
-              'notRegistered' => _("Let's unleash your hardware!"),
+              'registered' => _('Thanks for supporting Unraid').'!',
+              'notRegistered' => _("Let's unleash your hardware"),
             ],
             'message' => [
               'registered' => _('You are all set 👍'),
@@ -154,8 +158,8 @@
           ],
           'TRIAL' => [
             'humanReadable' => _('Trial'),
-            'heading' => _('Thank you for choosing Unraid OS'),
-            'message' => _('Your Trial key includes all the functionality and device support of a Pro key.') . ' ' . _('After your Trial has reached expiration your server still functions normally until the next time you Stop the array or reboot your server.') . ' ' . _('At that point you may either purchase a license key or request a Trial extension.'),
+            'heading' => _('Thank you for choosing Unraid OS').'!',
+            'message' => _('Your Trial key includes all the functionality and device support of a Pro key').'. '._('After your Trial has reached expiration your server still functions normally until the next time you Stop the array or reboot your server').'. '._('At that point you may either purchase a license key or request a Trial extension').'.',
             '_extraMsg' => sprintf(_('You have %s remaining on your Trial key'), '{parsedExpireTime}'),
           ],
           'EEXPIRED' => [
@@ -163,8 +167,8 @@
             'heading' => _('Your Trial has expired'),
             'message' => [
               'base' => _('To continue using Unraid OS you may purchase a license key'),
-              'extensionNotEligible' => _('You have used all your Trial extensions') .' @:stateData.EEXPIRED.message.base',
-              'extensionEligible' => '@:stateData.EEXPIRED.message.base ' . _('Alternately, you may request a Trial extension'),
+              'extensionNotEligible' => _('You have used all your Trial extensions').' @:stateData.EEXPIRED.message.base',
+              'extensionEligible' => '@:stateData.EEXPIRED.message.base '._('Alternately, you may request a Trial extension'),
             ],
           ],
           'BASIC' => [
@@ -181,24 +185,24 @@
             'error' => [
               'heading' => _('Registration key / GUID mismatch'),
               'message' => [
-                'default' => _('The license key file does not correspond to the USB Flash boot device. Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key.'),
-                'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months.'),
-                'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device. Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key.'),
+                'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key').'.',
+                'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months').'.',
+                'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
               ],
             ],
           ],
           'ENOKEYFILE2' => [
             'humanReadable' => _('Missing key file'),
             'error' => [
-              'heading' => _('@:stateData.ENOKEYFILE2.humanReadable'),
-              'message' => _('It appears that your license key file is corrupted or missing. The key file should be located in the bootconfig directory on your USB Flash boot device. If you do not have a backup copy of your license key file you may attempt to recover your key. If this was a Trial installation, you may purchase a license key.'),
+              'heading' => '@:stateData.ENOKEYFILE2.humanReadable',
+              'message' => _('It appears that your license key file is corrupted or missing').". "._('The key file should be located in the bootconfig directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
             ],
           ],
           'ETRIAL' => [
             'humanReadable' => _('Invalid installation'),
             'error' => [
-              'heading' => _('@:stateData.ETRIAL.humanReadable'),
-              'message' => _('It is not possible to use a Trial key with an existing Unraid OS installation. You may purchase a license key corresponding to this USB Flash device to continue using this installation.'),
+              'heading' => '@:stateData.ETRIAL.humanReadable',
+              'message' => _('It is not possible to use a Trial key with an existing Unraid OS installation').'. '._('You may purchase a license key corresponding to this USB Flash device to continue using this installation').'.',
             ],
           ],
           'ENOKEYFILE1' => [
@@ -218,36 +222,36 @@
           'EGUID1' => [
             'humanReadable' => _('Multiple License Keys Present'),
             'error' => [
-              'heading' => _('@:stateData.EGUID1.humanReadable'),
-              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device. Please remove all key files except the one you want to replace from the bootconfig directory on your USB Flash boot device. Alternately you may purchase a license key for this USB flash device. If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first.'),
+              'heading' => '@:stateData.EGUID1.humanReadable',
+              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the bootconfig directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
             ],
           ],
           'EBLACKLISTED' => [
             'humanReadable' => _('BLACKLISTED'),
             'error' => [
               'heading' => _('Blacklisted USB Flash GUID'),
-              'message' => _('This USB Flash boot device has been blacklisted. This can occur as a result of transferring your license key to a replacement USB Flash device, and you are currently booted from your old USB Flash device. A USB Flash device may also be blacklisted if we discover the serial number is not unique – this is common with USB card readers.'),
+              'message' => _('This USB Flash boot device has been blacklisted').'. '._('This can occur as a result of transferring your license key to a replacement USB Flash device, and you are currently booted from your old USB Flash device').'. '._('A USB Flash device may also be blacklisted if we discover the serial number is not unique – this is common with USB card readers').'.',
             ],
           ],
           'EBLACKLISTED1' => [
-            'humanReadable' => _('@:stateData.EBLACKLISTED.humanReadable'),
+            'humanReadable' =>'@:stateData.EBLACKLISTED.humanReadable',
             'error' => [
               'heading' => _('USB Flash device error'),
-              'message' => _('This USB Flash device has an invalid GUID. Please try a different USB Flash device.'),
+              'message' => _('This USB Flash device has an invalid GUID').'. '._('Please try a different USB Flash device').'.',
             ],
           ],
           'EBLACKLISTED2' => [
-            'humanReadable' => _('@:stateData.EBLACKLISTED.humanReadable'),
+            'humanReadable' => '@:stateData.EBLACKLISTED.humanReadable',
             'error' => [
               'heading' => _('USB Flash has no serial number'),
-              'message' => _('@:stateData.EBLACKLISTED.error.message'),
+              'message' => '@:stateData.EBLACKLISTED.error.message',
             ],
           ],
           'ENOCONN' => [
             'humanReadable' => _('Trial Requires Internet Connection'),
             'error' => [
               'heading' => _('Cannot validate Unraid Trial key'),
-              'message' => _('Your Trial key requires an internet connection. Please check Settings > Network.'),
+              'message' => _('Your Trial key requires an internet connection').'. '.('Please check Settings > Network').'.',
             ],
           ],
           'STALE' => [
@@ -270,8 +274,8 @@
           'closingPopUpMayLeadToErrors' => _('Closing this pop-up window while actions are being preformed may lead to unintended errors'),
           'goBack' => _('Go Back'),
           'shutDown' => _('Shut Down'),
-          'haveAccountSignIn' => _('Already have an account? Sign In'),
-          'noAccountSignUp' => _("Don't have an account? Sign Up"),
+          'haveAccountSignIn' => _('Already have an account').'? '._('Sign In'),
+          'noAccountSignUp' => _('Do not have an account').'? '._('Sign Up'),
           'serverInfo' => [
             'flash' => _('Flash'),
             'product' => _('Product'),
@@ -299,7 +303,7 @@
             'confirmPassword' => _('Confirm Password'),
             'passwordMinimum' => _('8 or more characters'),
             'comments' => _('comments'),
-            'newsletterCopy' => _('Sign me up for the monthly Unraid newsletter: a digest of recent blog posts, community videos, popular forum threads, product announcements, and more'),
+            'newsletterCopy' => _('Sign me up for the monthly Unraid newsletter').': '._('a digest of recent blog posts, community videos, popular forum threads, product announcements, and more'),
             'terms' => [
               'iAgree' => _('I agree to the'),
               'text' => _('Terms of Use'),
@@ -403,8 +407,8 @@
                 'success' => _('Thank you for contacting Unraid'),
               ],
               'subheading' => [
-                'default' => _("Forgot what Unraid.net account you used? Have a USB flash device that already has an account associated with it? Just give us the details about what happened and we'll do our best to get you up and running again."),
-                'success' => _('We have received your e-mail and will respond in the order it was received. While we strive to respond to all requests as quickly as possible please allow for up to 3 business days for a response.'),
+                'default' => _("Forgot what Unraid.net account you used").'? '._("Have a USB flash device that already has an account associated with it").'? '._("Just give us the details about what happened and we'll do our best to get you up and running again").'.',
+                'success' => _('We have received your e-mail and will respond in the order it was received').'. '._('While we strive to respond to all requests as quickly as possible please allow for up to 3 business days for a response').'.',
               ],
               'relevantServerData' => _('Your USB Flash GUID and other relevant server data will also be sent'),
             ],
@@ -423,19 +427,19 @@
               'features' => [
                 'secureRemoteAccess' => [
                   'heading' => _('Secure remote access'),
-                  'copy' => _("Whether you need to add a share container or virtual machine do it all from the webGui from anytime and anywhere using HTTPS. Best of all all SSL certificates are verified by Let's Encrypt so no browser security warnings."),
+                  'copy' => _("Whether you need to add a share container or virtual machine do it all from the webGui from anytime and anywhere using HTTPS").'. '._("Best of all all SSL certificates are verified by Let's Encrypt so no browser security warnings").'.',
                 ],
                 'realTimeMonitoring' => [
                   'heading' => _('Real-time Monitoring'),
-                  'copy' => _('Get quick real-time info on the status of your servers such as storage container and VM usage. And not just for one server but all the servers in your Unraid fleet'),
+                  'copy' => _('Get quick real-time info on the status of your servers such as storage container and VM usage').'. '._('And not just for one server but all the servers in your Unraid fleet'),
                 ],
                 'usbFlashBackup' => [
                   'heading' => _('USB Flash Backup'),
-                  'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure. Never self-managehost your flash backups again'),
+                  'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure').'. '._('Never self-managehost your flash backups again'),
                 ],
                 'regKeyManagement' => [
                   'heading' => _('Registration key management'),
-                  'copy' => _('Download any registration key linked to your account. Upgrade keys to higher editions.'),
+                  'copy' => _('Download any registration key linked to your account').'. '._('Upgrade keys to higher editions').'.',
                 ],
               ],
             ],
