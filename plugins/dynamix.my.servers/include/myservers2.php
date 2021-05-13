@@ -465,7 +465,7 @@
       locale="<?=($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US'?>"
       locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
       metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
-      prop-state-endpoint="/plugins/dynamix.my.servers/include/state.php"
+      plg-path="dynamix.my.servers"
       reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
       send-crash-info="<?=$remote['sendCrashInfo']?>"
       serverdesc="<?=$var['COMMENT']?>"
