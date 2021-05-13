@@ -60,6 +60,7 @@ function update_translation($locale) {
 }
 while (true) {
   $status = array_fill(0,6,"<td>-</td>");
+  $power = $load = false;
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
   if ($display['locale'] != $locale_init) {
