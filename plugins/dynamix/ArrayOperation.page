@@ -277,7 +277,7 @@ devices.on('message', function(data) {
   }
   display_diskio();
 <?if ($var['fsState']=='Stopped'):?>
-  setTimeout(function(){devices.stop();},0);
+  setTimeout(function(){devices.stop();},1000);
 <?endif;?>
 });
 
