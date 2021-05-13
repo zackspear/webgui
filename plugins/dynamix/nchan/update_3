@@ -1,0 +1,89 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+$docroot = '/usr/local/emhttp';
+$net     = '/sys/class/net';
+$data    = [];
+
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/publish.php";
+
+exec("ls $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
+
+// satisfy translations (not used)
+if (!function_exists('_')) {
+  function _($text) {return $text;}
+}
+
+$time = microtime(true);
+foreach ($ports as $port) {
+  $data[$port]['rx'] = (float)file_get_contents("$net/$port/statistics/rx_bytes");
+  $data[$port]['tx'] = (float)file_get_contents("$net/$port/statistics/tx_bytes");
+  $data[$port]['ts'] = $time;
+}
+while (true) {
+  $echo = $mode = $rxtx = $stat = [];
+  foreach ($ports as $port) {
+    $rx = (float)file_get_contents("$net/$port/statistics/rx_bytes");
+    $tx = (float)file_get_contents("$net/$port/statistics/tx_bytes");
+    $ts = $time - $data[$port]['ts'];
+    if ($ts > 0) {
+      $rx_speed = my_scale(($rx-$data[$port]['rx'])/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+      $tx_speed = my_scale(($tx-$data[$port]['tx'])/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+    } else {
+      $rx_speed = '---';
+      $tx_speed = '---';
+    }
+    $data[$port]['rx'] = $rx;
+    $data[$port]['tx'] = $tx;
+    $data[$port]['ts'] = $time;
+    $echo[] = "$port\0$rx_speed\0$tx_speed";
+
+    $mtu = file_get_contents("$net/$port/mtu");
+    $link = file_get_contents("$net/$port/carrier")==1;
+    if (substr($port,0,4)=='bond') {
+      if ($link) {
+        $bond_mode = str_replace('Bonding Mode: ','',file("/proc/net/bonding/$port",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)[1]);
+        $mode[] = "$bond_mode, mtu $mtu";
+      } else $mode[] = "bond down";
+    } elseif ($port=='lo') {
+      $mode[] = $link ? "loopback" : "not set";
+    } else {
+      if ($link) {
+        $speed = file_get_contents("$net/$port/speed");
+        $duplex = file_get_contents("$net/$port/duplex");
+        $mode[] = "$speed Mbps, $duplex duplex, mtu $mtu";
+      } else $mode[] = "interface down";
+    }
+
+    $rxtx[] = "$rx\0$tx";
+
+    $rx_errors = file_get_contents("$net/$port/statistics/rx_errors");
+    $rx_drops  = file_get_contents("$net/$port/statistics/rx_dropped");
+    $rx_fifo   = file_get_contents("$net/$port/statistics/rx_fifo_errors");
+    $tx_errors = file_get_contents("$net/$port/statistics/tx_errors");
+    $tx_drops  = file_get_contents("$net/$port/statistics/tx_dropped");
+    $tx_fifo   = file_get_contents("$net/$port/statistics/tx_fifo_errors");
+    $stat[] = "Errors: {$rx_errors}<br>Drops: {$rx_drops}<br>Overruns: {$rx_fifo}\0Errors: {$tx_errors}<br>Drops: {$tx_drops}<br>Overruns: {$tx_fifo}";
+  }
+
+  $echo = implode("\n",$echo);
+  $mode = implode("\0",$mode);
+  $rxtx = implode("\0",$rxtx);
+  $stat = implode("\0",$stat);
+
+  publish('update3',"$echo\1$mode\1$rxtx\1$stat");
+  sleep(3);
+  $time = microtime(true);
+}
