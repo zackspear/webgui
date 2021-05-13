@@ -12,16 +12,22 @@
  */
 ?>
 <?
+session_start();
 $docroot  = '/usr/local/emhttp';
 $varroot  = '/var/local/emhttp';
 $smartALL = '/boot/config/smart-all.cfg';
 $smartONE = '/boot/config/smart-one.cfg';
 
-// add translations
-$_SERVER['REQUEST_URI'] = 'main';
-require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
+extract(parse_plugin_cfg('dynamix',true));
+
+// add translations
+$_SERVER['REQUEST_URI'] = 'main';
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
+// remember current language
+$locale_init = $locale;
 
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
@@ -250,7 +256,7 @@ function array_online(&$disk) {
   return implode('',$echo);
 }
 function show_totals($text,$array,$name) {
-  global $var, $display, $sum;
+  global $var, $display, $sum, $locale;
   $echo = [];
   $ctrl1 = "onclick=\"toggle_state('Device','$name','down')\"";
   $ctrl2 = "onclick=\"toggle_state('Device','$name','up')\"";
@@ -317,18 +323,39 @@ function cache_slots($off,$pool,$min,$slots) {
   $out .= "</select></form>";
   return $out;
 }
-
+function update_translation($locale) {
+  global $docroot,$language;
+  $language = [];
+  if ($locale) {
+    $text = "$docroot/languages/$locale/translations.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/translations.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = unserialize(file_get_contents($store));
+    }
+    $text = "$docroot/languages/$locale/main.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/main.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
+}
 while (true) {
   $var    = (array)parse_ini_file("$varroot/var.ini");
   $devs   = (array)parse_ini_file("$varroot/devs.ini",true);
   $disks  = (array)parse_ini_file("$varroot/disks.ini",true);
   $sec    = (array)parse_ini_file("$varroot/sec.ini",true);
   $diskio = @(array)parse_ini_file("$varroot/diskload.ini");
-  extract(parse_plugin_cfg('dynamix',true));
   $crypto = false;
   $pools  = pools_filter($disks);
   $echo   = [];
-
+  // check for language changes
+  extract(parse_plugin_cfg('dynamix',true));
+  if ($display['locale'] != $locale_init) {
+    $locale_init = $display['locale'];
+    update_translation($locale_init);
+  }
   // sort unassigned devices on disk identification
   if (count($devs)>1) array_multisort(array_column($devs,'sectors'),SORT_DESC,array_map('model',array_column($devs,'id')),SORT_NATURAL|SORT_FLAG_CASE,array_column($devs,'device'),$devs);
 

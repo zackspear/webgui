@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update_10"
+Nchan="wg_poller,update_1,update_2,update_3"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -94,15 +94,12 @@ $down  = max(count($conf)-$up,0);
 $fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
 $autofan = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
 $group = $var['shareSMBEnabled']=='yes' | $var['shareNFSEnabled']=='yes';
-$url   = "/webGui/include/DashUpdate.php";
 $names = [];
 $cache_only = $encrypted = 0;
 foreach ($shares as $share) {
-  $names[] = $share['name'];
   if ($share['useCache']=='only') $cache_only++;
   if ($share['luksStatus']>0) $encrypted++;
 }
-$names = implode(',',$names);
 $passwd = $nopass = 0;
 foreach ($users as $user) if ($user['passwd']=='yes') $passwd++; else $nopass++;
 
@@ -561,7 +558,6 @@ foreach ($users as $user) {
 var timer30 = null;
 var orange = 70;
 var red = 90;
-var timestamp = 0, rx_bytes = 0, tx_bytes = 0;
 var ports = [<?=implode(',',array_map('escapestring',$ports))?>];
 
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
@@ -652,8 +648,6 @@ function changeView(item) {
   if (item==0) $('.view1').show(); else $('.view1').hide();
   if (item==1) $('.view2').show(); else $('.view2').hide();
   if (item==2) $('.view3').show(); else $('.view3').hide();
-  clearTimeout(timer30);
-  update30();
 }
 function smartMenu(table) {
   $(table).find('[id^="smart-"]').each(function() {
@@ -671,6 +665,7 @@ function smartMenu(table) {
       opts.push({divider:true});
       opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
     }
+    $(id).bind('click',function(){update2.stop();}).bind('mouseout',function(){setTimeout(function(){update2.start();},15000);});
     context.attach(id,opts);
   });
 }
@@ -684,7 +679,6 @@ function portMenu() {
 function portSelect(name) {
   $.cookie('port_select',name,{expires:3650});
   port_select = name;
-  timestamp = 0, rx_bytes = 0, tx_bytes = 0;
 }
 function moreInfo(data,table) {
   var info = [];
@@ -694,25 +688,8 @@ function moreInfo(data,table) {
   if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
   return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
 }
-function update5() {
-  $.post('<?=$url?>',{cmd:'speed',port:port_select,timestamp:timestamp,rx_bytes:rx_bytes,tx_bytes:tx_bytes,},function(d) {
-    var data = d.split('\0');
-    $('#inbound').text(data[0]);
-    $('#outbound').text(data[1]);
-    timestamp = data[2];
-    rx_bytes = data[3];
-    tx_bytes = data[4];
-    setTimeout(update5,5000);
-  });
-}
-function update15() {
-<?if ($var['fsState']=='Started' && $group):?>
-  var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-  $.post('<?=$url?>',{cmd:'shares',com:tag,names:'<?=addslashes(htmlspecialchars($names))?>'},function(data) {
-    $.each(data.split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
-  });
-<?endif;?>
 <?if ($apcupsd):?>
+function update15() {
   $.get('/plugins/dynamix.apcupsd/include/UPSstatus.php',{all:'false'},function(d) {
     var data = d.replace(/<\/?tr>/g,'').replace(/<td/g,'<span').replace(/td>/g,'span>;').split(';');
     $('#ups_status').html(data[0]);
@@ -720,52 +697,10 @@ function update15() {
     $('#ups_timeleft').html(data[2]);
     $('#ups_nompower').html(data[3]);
     $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
-  });
-<?endif;?>
-  $.post('<?=$url?>',{cmd:'status',number:'<?=$display['number']?>'},function(data) {$('span.info.title').html(data);});
-  $.post('<?=$url?>',{cmd:'parity',time:'<?=$display['date'].($display['date']!='%c'?", {$display['time']}":"")?>'},function(d) {
-    var data = d.split('\0');
-    $('#parity').html(data[0]);
-    $('#program').html(data[1]);
     setTimeout(update15,15000);
   });
 }
-function update30() {
-  var tag = $.cookie('enter_view')==0 ? 'main' : $.cookie('enter_view')==1 ? 'port' : $.cookie('enter_view')==2 ? 'link' : 'main';
-  $.post('<?=$url?>',{cmd:'port',view:tag,ports:ports.join(',')},function(data) {
-    $.each(data.split('\0'),function(k,v) {$('#'+tag+k).html(v);});
-  });
-  $.post('<?=$url?>',{cmd:'array',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
-    var data = d.split('\0');
-    var info = moreInfo(data,"_(Array)_");
-    $('#array_list').html(data[0]);
-    $('#array_info').parent().css('display',info?'':'none');
-    $('#array_info').html(info);
-    smartMenu('#array_list');
-    $.post('<?=$url?>',{cmd:'cache',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
-      var text = d.split('\r');
-      for (var i=0,t; t=text[i]; i++) {
-        var data = t.split('\0');
-        var info = moreInfo(data,"_(Cache)_");
-        $('#cache_list'+i).html(t);
-        $('#cache_info'+i).parent().css('display',info?'':'none');
-        $('#cache_info'+i).html(info);
-        smartMenu('#cache_list'+i);
-      }
-<?if ($devs):?>
-      $.post('<?=$url?>',{cmd:'extra',path:'<?=$path?>',hot:'<?=$display['hot']?>',max:'<?=$display['max']?>',unit:'<?=$display['unit']?>',text:<?=$display['text']?>,critical:'<?=$display['critical']?>',warning:'<?=$display['warning']?>'},function(d) {
-        var data = d.split('\0');
-        var info = moreInfo(data,"_(Unassigned)_");
-        $('#extra_list').html(data[0]);
-        $('#extra_info').parent().css('display',info?'':'none');
-        $('#extra_info').html(info);
-        smartMenu('#extra_list');
-      });
 <?endif;?>
-    });
-    timer30 = setTimeout(update30,30000);
-  });
-}
 function attributes(page,disk) {
   var tab = page=='New' ? 'tab2' : 'tab3';
   $.cookie('one',tab,{path:'/'});
@@ -782,7 +717,7 @@ function identity(page,disk) {
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
 function acknowledge(disk) {
-  $.post('/webGui/include/Acknowledge.php',{disk:disk},function(){clearTimeout(timer30);update30();});
+  $.post('/webGui/include/Acknowledge.php',{disk:disk});
 }
 function dropdown(menu) {
   var select = 'select[name="'+menu+'"]';
@@ -906,7 +841,6 @@ function ShutdownNow() {
   document.boot.cmd.value = 'shutdown';
   document.boot.submit();
 }
-
 <?if ($sleep):?>
 function Sleep() {
 <?if ($confirm['sleep']):?>
@@ -920,7 +854,6 @@ function SleepNow() {
   $.get('/plugins/dynamix.s3.sleep/include/SleepMode.php',function(){refresh();});
 }
 <?endif;?>
-
 function sortTable(table,index) {
   if (!index) return;
   index = index.split(';');
@@ -929,7 +862,6 @@ function sortTable(table,index) {
     table.find('tbody[sort="'+n+'"]').appendTo(table);
   }
 }
-
 function simplef() {
   var text = arguments[0];
   for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
@@ -958,10 +890,11 @@ cpuload.on('message',function(data) {
   });
 });
 
-var update10 = new NchanSubscriber('/sub/update10');
-update10.on('message',function(d) {
-  var data = d.split('\n');
-  $.each(data[0].split('\0'),function(k,v) {
+var update1 = new NchanSubscriber('/sub/update1');
+update1.on('message',function(d) {
+  var part = d.split('\1');
+  // memory & disk load
+  $.each(part[0].split('\0'),function(k,v) {
     var load = v.slice(0,-1);
     if (load >= <?=$display['critical']?>) var color = 'redbar';
     else if (load >= <?=$display['warning']?>) var color = 'orangebar';
@@ -970,8 +903,70 @@ update10.on('message',function(d) {
     $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
   });
 <?if ($fans):?>
-  $.each(data[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
+  // fans rpm
+  $.each(part[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
 <?endif;?>
+<?if ($var['fsState']=='Started' && $group):?>
+  // stream counters (smb only)
+  var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
+  if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
+<?endif;?>
+});
+
+var update2 = new NchanSubscriber('/sub/update2');
+update2.on('message',function(d) {
+  var part = d.split('\1');
+  var data = part[0].split('\0');
+  var info = moreInfo(data,"_(Array)_");
+  // array devices
+  $('#array_list').html(data[0]);
+  $('#array_info').parent().css('display',info?'':'none');
+  $('#array_info').html(info);
+  smartMenu('#array_list');
+  // pool devices
+  var text = part[1].split('\r');
+  for (var i=0,t; t=text[i]; i++) {
+    var data = t.split('\0');
+    var info = moreInfo(data,"_(Cache)_");
+    $('#cache_list'+i).html(t);
+    $('#cache_info'+i).parent().css('display',info?'':'none');
+    $('#cache_info'+i).html(info);
+    smartMenu('#cache_list'+i);
+  }
+<?if ($devs):?>
+  // unassigned devices
+  var data = part[2].split('\0');
+  var info = moreInfo(data,"_(Unassigned)_");
+  $('#extra_list').html(data[0]);
+  $('#extra_info').parent().css('display',info?'':'none');
+  $('#extra_info').html(info);
+  smartMenu('#extra_list');
+<?endif;?>
+  // parity status
+  $('span.info.title').html(part[3]);
+  // parity schedule
+  var data = part[4].split('\0');
+  $('#parity').html(data[0]);
+  $('#program').html(data[1]);
+});
+
+var update3 = new NchanSubscriber('/sub/update3');
+update3.on('message',function(d) {
+  var part = d.split('\1');
+  var ports = part[0].split('\n');
+  // rx/tx speeds
+  for (var i=0,port; port=ports[i]; i++) {
+    var data = port.split('\0');
+    if (data[0] == port_select) {
+      $('#inbound').text(data[1]);
+      $('#outbound').text(data[2]);
+      break;
+    }
+  }
+  // port counters
+  $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
+  $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
+  $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
 });
 
 <?if ($wireguard):?>
@@ -1052,9 +1047,12 @@ $(function() {
 <?if ($wireguard):?>
   wireguard.start();
 <?endif;?>
-  update10.start();
-  update5();
+  update1.start();
+  update2.start();
+  update3.start();
+<?if ($apcupsd):?>
   update15();
+<?endif;?>
   toggleCPU(true);
   toggleView('sys_view',true);
   toggleView('mb_view',true);
