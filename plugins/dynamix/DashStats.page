@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update_1,update_2,update_3"
+Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -688,19 +688,6 @@ function moreInfo(data,table) {
   if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
   return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
 }
-<?if ($apcupsd):?>
-function update15() {
-  $.get('/plugins/dynamix.apcupsd/include/UPSstatus.php',{all:'false'},function(d) {
-    var data = d.replace(/<\/?tr>/g,'').replace(/<td/g,'<span').replace(/td>/g,'span>;').split(';');
-    $('#ups_status').html(data[0]);
-    $('#ups_bcharge').html(data[1]);
-    $('#ups_timeleft').html(data[2]);
-    $('#ups_nompower').html(data[3]);
-    $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
-    setTimeout(update15,15000);
-  });
-}
-<?endif;?>
 function attributes(page,disk) {
   var tab = page=='New' ? 'tab2' : 'tab3';
   $.cookie('one',tab,{path:'/'});
@@ -969,6 +956,18 @@ update3.on('message',function(d) {
   $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
 });
 
+<?if ($apcupsd):?>
+var apcups = new NchanSubscriber('/sub/apcups');
+apcups.on('message',function(d) {
+  var data = d.replace(/<\/?tr>/g,'').replace(/<td/g,'<span').replace(/td>/g,'span>;').split(';');
+  $('#ups_status').html(data[0]);
+  $('#ups_bcharge').html(data[1]);
+  $('#ups_timeleft').html(data[2]);
+  $('#ups_nompower').html(data[3]);
+  $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
+});
+<?endif;?>
+
 <?if ($wireguard):?>
 var wireguard = new NchanSubscriber('/sub/wireguard');
 wireguard.on('message', function(data) {
@@ -1051,7 +1050,7 @@ $(function() {
   update2.start();
   update3.start();
 <?if ($apcupsd):?>
-  update15();
+  apcups.start();
 <?endif;?>
   toggleCPU(true);
   toggleView('sys_view',true);
