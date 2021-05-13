@@ -1,5 +1,5 @@
 Menu="ManagementAccess:100"
-Title="Unraid.net"
+Title="My Servers"
 Icon="icon-u-globe"
 Tag="globe"
 ---
@@ -27,7 +27,7 @@ function applyCrashInfoSetting(button) {
     $( ".result" ).html( data );
   });
   $.post('/webGui/include/Dispatcher.php',{
-    "#cfg": "/boot/config/plugins/Unraid.net/myservers.cfg",
+    "#cfg": "/boot/config/plugins/dynamix.my.servers/myservers.cfg",
     "remote_sendCrashInfo": $('#sendCrashInfo').val(),
   }, function() {
     $(button).html(oldlabel);
@@ -38,7 +38,7 @@ function applyCrashInfoSetting(button) {
 </script>
 
 <form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
-_(Unraid.net Status)_:
+_(Unraid.net account status)_:
 : <unraid-authed prop-registered="<? echo $isRegistered ?>"></unraid-authed>
 
 _(Send crash information to Unraid developers)_:

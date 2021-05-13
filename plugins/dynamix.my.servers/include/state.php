@@ -21,8 +21,8 @@ require_once "$docroot/webGui/include/Translations.php";
 $var = (array)parse_ini_file('state/var.ini');
 $license_state = strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']);
 $key_contents = str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE']))));
-if (file_exists('/boot/config/plugins/Unraid.net/myservers.cfg')) {
-  extract(parse_ini_file('/boot/config/plugins/Unraid.net/myservers.cfg',true));
+if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
+  extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
 
 $arr = [];
@@ -43,6 +43,7 @@ $arr['event'] = 'STATE';
 $arr['ts'] = time();
 $arr['deviceCount'] = $var['deviceCount'];
 $arr['guid'] = $var['flashGUID'];
+$arr['regGuid'] = $var['regGUID'];
 $arr['state'] = $license_state;
 $arr['keyfile'] = $key_contents;
 $arr['reggen'] = $var['regGen'];
