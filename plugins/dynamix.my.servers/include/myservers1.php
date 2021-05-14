@@ -40,7 +40,7 @@ function upcEnv(str) {
 <?
 // Determine what source we should use for web components
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) { // context needed for the UPC ENV local check for signed out users
-  extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
+  @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
 // When signed out and there's no cookie, UPC ENV should be 'local' to avoid use of external resource. Otherwise default of 'production'.
 $UPC_ENV = $_COOKIE['UPC_ENV'] ?? ((empty($remote['apikey']) || empty($var['regFILE'])) ? 'local' : 'production');

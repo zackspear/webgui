@@ -1,7 +1,7 @@
     <!-- myservers2 -->
     <?
     if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
-      extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
+      @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
     }
 
     $serverstate = [
