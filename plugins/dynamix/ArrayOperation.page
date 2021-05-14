@@ -283,10 +283,10 @@ devices.on('connect', function(e) {
 });
 <?endif;?>
 
+devices.start();
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
-  devices.start();
 });
 function formatWarning(val) {
   if (val==true)
