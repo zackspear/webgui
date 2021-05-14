@@ -4,8 +4,8 @@ Tag="puzzle-piece"
 Cond="glob('/boot/config/plugins-stale/*.plg')"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -45,24 +45,14 @@ foreach (glob("/boot/config/plugins-stale/*.plg", GLOB_NOSORT) as $plugin_file) 
   $version = plugin("version", $plugin_file);
   if ($version === false) $version = _("unknown");
 
-  // version info
-  $version_info = $version;
-
   // status info
-  $status_info = _("STALE");
+  $status = "<span class='orange-text'><i class='fa fa-unlink'></i>&nbsp;"._('STALE')."</span>";
 
   // action
   $action = make_link("delete", $plugin_file);
 
   // echo our plugin information
-  echo "<tr>";
-  echo "<td><img src=\"/{$icon}\" /></td>";
-  echo "<td>{$desc}</td>";
-  echo "<td>{$author}</td>";
-  echo "<td>{$version_info}</td>";
-  echo "<td>{$status_info}</td>";
-  echo "<td>{$action}</td>";
-  echo "</tr>";
+  echo "<tr><td><img src='$icon'></td><td>$desc</td><td>$author</td><td>$version</td><td>$status</td><td>$action</td></tr>";
 }
 
 echo "</tbody></table>";
