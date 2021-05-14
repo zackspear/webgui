@@ -276,10 +276,12 @@ devices.on('message', function(data) {
     if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
   }
   display_diskio();
-<?if ($var['fsState']=='Stopped'):?>
-  setTimeout(function(){devices.stop();},1000);
-<?endif;?>
 });
+<?if ($var['fsState']=='Stopped'):?>
+devices.on('connect', function(e) {
+  setTimeout(function(){devices.stop();},1000);
+});
+<?endif;?>
 
 $(function(){
   var form = document.arrayOps;
