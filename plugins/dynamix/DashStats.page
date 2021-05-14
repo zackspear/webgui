@@ -166,7 +166,7 @@ span.ups{width:200px;display:inline-block}
 span.tx{width:75px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
-span#load{width:120px;display:inline-block}
+span#load{width:170px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
 i.heat{margin-left:8px}
@@ -247,17 +247,16 @@ form[name=boot]{display:none}
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-cpu'></i><div class='section'>_(Processor)_<br>
-<span id='load'>_(Load)_: <span class='cpu'>0%</span></span><span id='cpu-temp'></span><br><br></div>
+<span>_(Load)_:</span><span  id='load'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span>
+<span id='cpu-temp'></span><br><br></div>
 <i class='fa fa-fw chevron' id='cpu_view' onclick='toggleChevron("cpu_view",1)'></i>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
 <a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a></td><td></td></tr>
-<tr class='cpu_open'><td></td><td>_(Overall Load)_:</td>
-<td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
 foreach ($cpus as $pair) {
-  list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
+  [$cpu1, $cpu2] = preg_split('/[,-]/',$pair);
   echo "<tr class='cpu_open'><td></td>";
   if ($cpu2)
     echo "<td>CPU $cpu1 - HT $cpu2</td><td><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></td><td><span class='cpu$cpu2 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></td>";
