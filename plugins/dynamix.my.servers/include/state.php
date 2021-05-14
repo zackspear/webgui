@@ -22,7 +22,7 @@ $var = (array)parse_ini_file('state/var.ini');
 $license_state = strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']);
 $key_contents = str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE']))));
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
-  extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
+  @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
 
 $arr = [];
