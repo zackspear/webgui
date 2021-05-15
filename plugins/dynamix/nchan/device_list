@@ -462,6 +462,6 @@ while (true) {
   }
 
   publish('devices', implode("\0",$echo));
-  sleep(1);
+  usleep(250000);
 }
 ?>
