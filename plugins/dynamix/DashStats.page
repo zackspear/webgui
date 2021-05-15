@@ -704,8 +704,7 @@ function identity(page,disk) {
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
 function acknowledge(disk) {
-  update2.stop();
-  $.post('/webGui/include/Acknowledge.php',{disk:disk},function(){update2.start();});
+  $.post('/webGui/include/Acknowledge.php',{disk:disk});
 }
 function dropdown(menu) {
   var select = 'select[name="'+menu+'"]';
