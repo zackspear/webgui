@@ -182,7 +182,7 @@ function device_smart(&$disk, &$fail, &$smart) {
   $color  = 'green';
   $file   = "state/smart/$name";
   if (file_exists("$file") && exec("grep -Pom1 '^SMART.*: \K[A-Z]+' ".escapeshellarg($file)." |tr -d '\n' 2>/dev/null", $ssa) && in_array("$ssa",$failed)) {
-    $title = "S.M.A.R.T health-check failed\n"; $thumb = 'thumbs-o-down'; $color = 'red'; $text = 'fail'; $fail++;
+    $title = _('SMART health-check failed')."\n"; $thumb = 'thumbs-o-down'; $color = 'red'; $text = 'fail'; $fail++;
   } else {
     if (empty($saved["smart"]["$name.ack"])) {
       exec("awk 'NR>7{print $1,$2,$4,$6,$9,$10}' ".escapeshellarg($file)." 2>/dev/null", $codes);
