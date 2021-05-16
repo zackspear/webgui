@@ -663,7 +663,7 @@ function smartMenu(table) {
     opts.push({text:"_(Identity)_",icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
     if (view.search('green-text') == -1) {
       opts.push({divider:true});
-      opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(id,disk);}});
     }
     $(id).bind('click',function(){update2.stop();}).bind('mouseout',function(){setTimeout(function(){update2.start();},15000);});
     context.attach(id,opts);
@@ -703,8 +703,8 @@ function identity(page,disk) {
   $.cookie('one',tab,{path:'/'});
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
-function acknowledge(disk) {
-  $.post('/webGui/include/Acknowledge.php',{disk:disk});
+function acknowledge(id,disk) {
+  $.post('/webGui/include/Acknowledge.php',{disk:disk},function(){$(id).removeClass('fa-thumbs-o-down orange-text').addClass('fa-thumbs-o-up green-text');$(id.replace('smart','text')).text("<?=_('healthy')?>");});
 }
 function dropdown(menu) {
   var select = 'select[name="'+menu+'"]';

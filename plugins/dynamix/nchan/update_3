@@ -84,6 +84,6 @@ while (true) {
   $stat = implode("\0",$stat);
 
   publish('update3',"$echo\1$mode\1$rxtx\1$stat");
-  sleep(3);
+  sleep(2);
   $time = microtime(true);
 }
