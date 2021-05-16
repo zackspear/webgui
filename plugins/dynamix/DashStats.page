@@ -305,7 +305,7 @@ foreach ($cpus as $pair) {
 <?=mk_option("", "0", _("General info"))?>
 <?=mk_option("", "1", _("Counters info"))?>
 <?=mk_option("", "2", _("Errors info"))?>
-<?=mk_option("", "3", _("Network chart"))?>
+<?=mk_option("", "3", _("Network traffic"))?>
 </select></td>
 <td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
 <td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i></td><td></td></tr>
