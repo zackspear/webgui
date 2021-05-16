@@ -40,10 +40,10 @@ while (true) {
     $tx = (float)file_get_contents("$net/$port/statistics/tx_bytes");
     $ts = $time - $data[$port]['ts'];
     if ($ts > 0) {
-      $rxd = $rx-$data[$port]['rx'];
-      $txd = $tx-$data[$port]['tx'];
-      $rx_speed = my_scale($rxd/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
-      $tx_speed = my_scale($txd/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+      $rxd = ($rx-$data[$port]['rx'])/$ts*8;
+      $txd = ($tx-$data[$port]['tx'])/$ts*8;
+      $rx_speed = my_scale($rxd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+      $tx_speed = my_scale($txd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
     } else {
       $rxd = $txd = 0;
       $rx_speed = '---';
@@ -52,7 +52,7 @@ while (true) {
     $data[$port]['rx'] = $rx;
     $data[$port]['tx'] = $tx;
     $data[$port]['ts'] = $time;
-    $echo[] = "$port\0$rx_speed\0$tx_speed\0$ts\0$rxd\0$txd";
+    $echo[] = "$port\0$rx_speed\0$tx_speed\0$rxd\0$txd";
     // interface general information
     $mtu = file_get_contents("$net/$port/mtu");
     $link = file_get_contents("$net/$port/carrier")==1;
