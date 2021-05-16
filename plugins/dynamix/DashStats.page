@@ -795,17 +795,17 @@ function update900() {
   setTimeout(update900,900000);
 }
 function attributes(page,disk) {
-  var tab = page=='New' ? 'tab2' :'tab3';
+  var tab = page=='New' ? 'tab2' : 'tab3';
   $.cookie('one',tab,{path:'/'});
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
 function capabilities(page,disk) {
-  var tab = page=='New' ? 'tab3' :'tab4';
+  var tab = page=='New' ? 'tab3' : 'tab4';
   $.cookie('one',tab,{path:'/'});
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
 function identity(page,disk) {
-  var tab = page=='New' ? 'tab4' :'tab5';
+  var tab = page=='New' ? 'tab4' : 'tab5';
   $.cookie('one',tab,{path:'/'});
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
@@ -823,15 +823,15 @@ function dropdown(menu) {
 function toggleChevron(field,action) {
   switch (action) {
     case 0:
-    case 1:var view = field; break;
-    case 2:var view = $.cookie('enter_view')||0; view++; view = 'view'+view; break;
-    case 3:var view = $.cookie('enter_share')||0; view++; view = 'user'+view; break;
-    case 4:var view = $.cookie('enter_share')||0; view++; view = 'share'+view; break;
+    case 1: var view = field; break;
+    case 2: var view = $.cookie('enter_view')||0; view++; view = 'view'+view; break;
+    case 3: var view = $.cookie('enter_share')||0; view++; view = 'user'+view; break;
+    case 4: var view = $.cookie('enter_share')||0; view++; view = 'share'+view; break;
   }
   toggleView(field,false,view);
   var visible = $('.'+view).is(':visible');
-  var chevron = visible ? 'fa-chevron-up' :'fa-chevron-down';
-  var remove  = visible ? 'fa-chevron-down' :'fa-chevron-up';
+  var chevron = visible ? 'fa-chevron-up' : 'fa-chevron-down';
+  var remove  = visible ? 'fa-chevron-down' : 'fa-chevron-up';
   $('i#'+field).removeClass(remove).addClass(chevron);
   if (action==1) {
     if (visible) toggleCPU(true); else $('.cpu_open').hide();
@@ -964,7 +964,7 @@ function simplef() {
 var cpuload = new NchanSubscriber('/sub/cpuload');
 cpuload.on('message',function(data) {
 /*
-  message should be something like:{"cpuload":{"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
+  message should be something like:{"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
   The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
   var json = $.parseJSON(message);
   $.each(json["cpuload"],function(k,v) {
@@ -1005,7 +1005,7 @@ update1.on('message',function(d) {
 <?endif;?>
 <?if ($var['fsState']=='Started' && $group):?>
   // stream counters (smb only)
-  var tag = $('.smb').is(':visible') ? 'smb' :$('.nfs').is(':visible') ? 'nfs' :'';
+  var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
   if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
 <?endif;?>
 });
@@ -1093,7 +1093,7 @@ wireguard.on('message', function(data) {
       $('td#'+vtun+'-hs-'+n[vtun]).text("_(not received)_");
     } else if (info[1] > 86400) {
       var d = parseInt(info[1]/86400);
-      var s = d==1 ? " _(day)_" :" _(days)_";
+      var s = d==1 ? " _(day)_" : " _(days)_";
       $('td#'+vtun+'-hs-'+n[vtun]).text(simplef("_(%s ago)_",d+s));
     } else {
       var h = parseInt(info[1]/3600).pad();
@@ -1151,7 +1151,7 @@ $(function() {
     for (var x = 0; x < index.length-1; x++) {
       if (index[x+1]-index[x]!=1) {sorted=false; break;}
     }
-    sorted ? $.removeCookie(table.prop('id')) :$.cookie(table.prop('id'),index.join(';'),{expires:3650});
+    sorted ? $.removeCookie(table.prop('id')) : $.cookie(table.prop('id'),index.join(';'),{expires:3650});
   }});
 <?if ($group):?>
   dropdown('enter_share');
