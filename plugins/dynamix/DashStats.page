@@ -635,27 +635,25 @@ function resetCharts() {
   txd = txd.slice(-timeline);
 }
 function addChartCpu(now, load) {
-  var newtime = now + 1;
-  cputime = newtime;
+  cputime = now + 1;
   for (var i=0; i < cpu.length-timeline; i++) {
     // clear values outside graph
-    cpu[i].x = newtime-timeline;
+    cpu[i].x = cputime-timeline;
     cpu[i].y = 0;
   }
-  cpu.push({x:newtime, y:load});
+  cpu.push({x:cputime, y:load});
 }
 function addChartNet(now, rx, tx) {
-  var newtime = now + 1;
-  nettime = newtime;
+  nettime = now + 1;
   for (var i=0; i < rxd.length-timeline; i++) {
     // clear values outside graph
-    rxd[i].x = newtime-timeline;
-    txd[i].x = newtime-timeline;
+    rxd[i].x = nettime-timeline;
+    txd[i].x = nettime-timeline;
     rxd[i].y = 0;
     txd[i].y = 0;
   }
-  rxd.push({x:newtime, y:rx});
-  txd.push({x:newtime, y:tx});
+  rxd.push({x:nettime, y:rx});
+  txd.push({x:nettime, y:tx});
 }
 function toggleVPN(id,vtun) {
   var up = $('#vpn-active');
