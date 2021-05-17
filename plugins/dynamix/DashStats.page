@@ -617,7 +617,7 @@ Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2
 
 function initCharts(now) {
   // initialize graphs entries
-  for (i = 0; i < timeline; i++) {
+  for (var i=0; i < timeline; i++) {
     var x = now + i;
     var y = 0;
     cpu.push({x, y});
@@ -630,16 +630,16 @@ function initCharts(now) {
 }
 function resetCharts() {
   // prevent unlimited graph growing
-  cpu = cpu.slice(cpu.length - timeline, cpu.length);
-  rxd = rxd.slice(rxd.length - timeline, rxd.length);
-  txd = txd.slice(txd.length - timeline, txd.length);
+  cpu = cpu.slice(-timeline);
+  rxd = rxd.slice(-timeline);
+  txd = txd.slice(-timeline);
 }
 function addChartCpu(now, load) {
   var newtime = now + 1;
   cputime = newtime;
-  for (var i = 0; i < cpu.length - timeline; i++) {
+  for (var i=0; i < cpu.length-timeline; i++) {
     // clear values outside graph
-    cpu[i].x = newtime - timeline;
+    cpu[i].x = newtime-timeline;
     cpu[i].y = 0;
   }
   cpu.push({x:newtime, y:load});
@@ -647,10 +647,10 @@ function addChartCpu(now, load) {
 function addChartNet(now, rx, tx) {
   var newtime = now + 1;
   nettime = newtime;
-  for (var i = 0; i < rxd.length - timeline; i++) {
+  for (var i=0; i < rxd.length-timeline; i++) {
     // clear values outside graph
-    rxd[i].x = newtime - timeline;
-    txd[i].x = newtime - timeline;
+    rxd[i].x = newtime-timeline;
+    txd[i].x = newtime-timeline;
     rxd[i].y = 0;
     txd[i].y = 0;
   }
