@@ -601,7 +601,7 @@ var options_net = {
   colors:['#e22828','#ff8c2f'],
   markers:{size:0},
   xaxis:{type:'datetime', range:timeline-1, labels:{show:false}, axisTicks:{show:false}},
-  yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'b/s',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
+  yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true},
   legend:{show:false}
 };

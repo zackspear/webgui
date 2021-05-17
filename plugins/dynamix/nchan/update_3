@@ -26,19 +26,18 @@ if (!function_exists('_')) {
   function _($text) {return $text;}
 }
 
-$time = microtime(true);
+$time0 = $time = microtime(true);
 foreach ($ports as $port) {
   $data[$port]['rx'] = (float)file_get_contents("$net/$port/statistics/rx_bytes");
   $data[$port]['tx'] = (float)file_get_contents("$net/$port/statistics/tx_bytes");
-  $data[$port]['ts'] = $time;
 }
 while (true) {
   $echo = $mode = $rxtx = $stat = [];
+  $ts = $time - $time0;
   foreach ($ports as $port) {
     // inbound + outbound speed
     $rx = (float)file_get_contents("$net/$port/statistics/rx_bytes");
     $tx = (float)file_get_contents("$net/$port/statistics/tx_bytes");
-    $ts = $time - $data[$port]['ts'];
     if ($ts > 0) {
       $rxd = ($rx-$data[$port]['rx'])/$ts*8;
       $txd = ($tx-$data[$port]['tx'])/$ts*8;
@@ -51,7 +50,6 @@ while (true) {
     }
     $data[$port]['rx'] = $rx;
     $data[$port]['tx'] = $tx;
-    $data[$port]['ts'] = $time;
     $echo[] = "$port\0$rx_speed\0$tx_speed\0$rxd\0$txd";
     // interface general information
     $mtu = file_get_contents("$net/$port/mtu");
@@ -88,6 +86,7 @@ while (true) {
   $stat = implode("\0",$stat);
 
   publish('update3',"$echo\1$mode\1$rxtx\1$stat");
+  $time0 = $time;
   sleep(1);
   $time = microtime(true);
 }
