@@ -615,8 +615,9 @@ if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $
 var port_select = $.cookie('port_select')||ports[0];
 
 <?if ($wireguard):?>
-function initCharts(now) {
+function initCharts() {
   // initialize graphs entries
+  var now = new Date().getTime();
   var c = ($.cookie('cpu-init')||'').split(';');
   var r = ($.cookie('rxd-init')||'').split(';');
   var t = ($.cookie('txd-init')||'').split(';');
@@ -771,6 +772,9 @@ function portMenu() {
 }
 function portSelect(name) {
   $.cookie('port_select',name,{expires:3650});
+  $.removeCookie('rxd-init');
+  $.removeCookie('txd-init');
+  initCharts();
   port_select = name;
 }
 function moreInfo(data,table) {
@@ -1126,7 +1130,7 @@ var sortableHelper = function(e,ui){
 $(function() {
   cpuchart.render();
   netchart.render();
-  initCharts(new Date().getTime());
+  initCharts();
   $('table').sortable({helper:sortableHelper,items:'.sortable',handle:'.section,.next',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
   update:function(e,ui){
     var table = ui.item.parent();
