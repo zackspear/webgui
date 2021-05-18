@@ -618,12 +618,14 @@ Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2
 
 function initCharts(now) {
   // initialize graphs entries
+  var c = ($.cookie('cpu-init')||'').split(';');
+  var r = ($.cookie('rxd-init')||'').split(';');
+  var t = ($.cookie('txd-init')||'').split(';');
   for (var i=0; i < timeline; i++) {
     var x = now + i;
-    var y = 0;
-    cpu.push({x, y});
-    rxd.push({x, y});
-    txd.push({x, y});
+    var y = c[i]||0; cpu.push({x,y});
+    var y = r[i]||0; rxd.push({x,y});
+    var y = t[i]||0; txd.push({x,y});
   }
   // next graph entry
   cputime = x + 1;
@@ -721,7 +723,6 @@ function setCase() {
     }
   });
 }
-
 function changeMode(item) {
   var user = $.cookie('users_view');
   var share = $.cookie('shares_view');
@@ -981,6 +982,7 @@ cpuload.on('message',function(data) {
     if (k=='cpu') {
       addChartCpu(cputime, load);
       cpuchart.updateSeries([{data:cpu}]);
+      $.cookie('cpu-init', cpu.slice(-timeline).map(function(o){return o.y;}).join(';'));
     }
     load += '%';
     $('.'+k).text(load);
@@ -1060,6 +1062,8 @@ update3.on('message',function(d) {
       $('#outbound').text(data[2]);
       addChartNet(nettime, data[3], data[4]);
       netchart.updateSeries([{data:rxd},{data:txd}]);
+      $.cookie('rxd-init', rxd.slice(-timeline).map(function(o){return o.y;}).join(';'));
+      $.cookie('txd-init', txd.slice(-timeline).map(function(o){return o.y;}).join(';'));
       break;
     }
   }
