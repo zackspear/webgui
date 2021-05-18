@@ -571,16 +571,14 @@ foreach ($users as $user) {
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(){return this.slice(-timeline).map(function(o){return o.y;}).join(';');}
 
-var orange = 70;
-var red = 90;
-var ports = [<?=implode(',',array_map('escapestring',$ports))?>];
-
-var cpu = [];
-var rxd = [];
-var txd = [];
-
-var cputime = 0;
-var nettime = 0;
+var orange   = 70;
+var red      = 90;
+var ports    = [<?=implode(',',array_map('escapestring',$ports))?>];
+var cpu      = [];
+var rxd      = [];
+var txd      = [];
+var cputime  = 0;
+var nettime  = 0;
 var timeline = 30; // 30 seconds time window in graph
 
 var options_cpu = {
