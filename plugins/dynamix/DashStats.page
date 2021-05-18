@@ -614,12 +614,15 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
 
+function initArray(cookie) {
+  return ($.cookie(cookie)||'').split(';');
+}
 function initCharts() {
   // initialize graphs entries
   var now = new Date().getTime();
-  var c = ($.cookie('cpu-init')||'').split(';');
-  var r = ($.cookie('rxd-init')||'').split(';');
-  var t = ($.cookie('txd-init')||'').split(';');
+  var c = initArray('cpu-init');
+  var r = initArray('rxd-init');
+  var t = initArray('txd-init');
   for (var i=0; i < timeline; i++) {
     var x = now + i;
     var y = c[i]||0; cpu.push({x,y});
