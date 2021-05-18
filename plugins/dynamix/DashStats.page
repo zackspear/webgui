@@ -568,6 +568,9 @@ foreach ($users as $user) {
 <div id="iframe-popup"></div>
 &nbsp;
 <script>
+Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
+Array.prototype.tail = function(){return this.slice(-timeline).map(function(o){return o.y;}).join(';');}
+
 var orange = 70;
 var red = 90;
 var ports = [<?=implode(',',array_map('escapestring',$ports))?>];
@@ -614,8 +617,6 @@ if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $
 var port_select = $.cookie('port_select')||ports[0];
 
 <?if ($wireguard):?>
-Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
-
 function initCharts(now) {
   // initialize graphs entries
   var c = ($.cookie('cpu-init')||'').split(';');
@@ -982,7 +983,7 @@ cpuload.on('message',function(data) {
     if (k=='cpu') {
       addChartCpu(cputime, load);
       cpuchart.updateSeries([{data:cpu}]);
-      $.cookie('cpu-init', cpu.slice(-timeline).map(function(o){return o.y;}).join(';'));
+      $.cookie('cpu-init', cpu.tail());
     }
     load += '%';
     $('.'+k).text(load);
@@ -1062,8 +1063,8 @@ update3.on('message',function(d) {
       $('#outbound').text(data[2]);
       addChartNet(nettime, data[3], data[4]);
       netchart.updateSeries([{data:rxd},{data:txd}]);
-      $.cookie('rxd-init', rxd.slice(-timeline).map(function(o){return o.y;}).join(';'));
-      $.cookie('txd-init', txd.slice(-timeline).map(function(o){return o.y;}).join(';'));
+      $.cookie('rxd-init', rxd.tail());
+      $.cookie('txd-init', txd.tail());
       break;
     }
   }
