@@ -614,7 +614,6 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
 
-<?if ($wireguard):?>
 function initCharts() {
   // initialize graphs entries
   var now = new Date().getTime();
@@ -660,6 +659,7 @@ function addChartNet(now, rx, tx) {
   rxd.push({x:newtime, y:rx});
   txd.push({x:newtime, y:tx});
 }
+<?if ($wireguard):?>
 function toggleVPN(id,vtun) {
   var up = $('#vpn-active');
   var down = $('#vpn-inactive');
