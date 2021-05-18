@@ -271,6 +271,10 @@ function xmlToCommand($xml, $create_paths=false) {
   $Variables[]   = 'TZ="'.$var['timeZone'].'"';
   // Add HOST_OS variable
   $Variables[]   = 'HOST_OS="Unraid"';
+  // Docker labels for WebUI and Icon
+  $Labels[]      = 'net.unraid.docker.managed=dockerman';
+  if (strlen($xml['WebUI']))  $Labels[] = 'net.unraid.docker.webui='.escapeshellarg($xml['WebUI']);
+  if (strlen($xml['Icon'])) $Labels[] = 'net.unraid.docker.icon='.escapeshellarg($xml['Icon']);
 
   foreach ($xml['Config'] as $key => $config) {
     $confType        = strtolower(strval($config['Type']));
