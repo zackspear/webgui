@@ -54,7 +54,7 @@ switch ($UPC_ENV) {
     $upcSrc = 'https://registration-dev.unraid.net/webComps/unraid.js';
     break;
   case 'local': // forces load from webGUI filesystem.
-    $upcSrc = '/webGui/webComps/' . $upcBase; // @NOTE - that using autov(); would render the file name below the body tag. So dont use it :(
+    $upcSrc = '/plugins/dynamix.my.servers/webComps/' . $upcBase; // @NOTE - that using autov(); would render the file name below the body tag. So dont use it :(
     break;
   case 'development': // dev server for RegWiz development
     $upcSrc = 'https://launchpad.unraid.test:6969/webComps/unraid.js';
@@ -72,7 +72,7 @@ setTimeout(() => {
     console.log('[UPC] Fallback to filesystem src 😖');
     const el = document.createElement('script');
     el.type = 'text/javascript';
-    el.src = '<?autov('/webGui/webComps/' . $upcBase) ?>';
+    el.src = '<?autov('/plugins/dynamix.my.servers/webComps/' . $upcBase) ?>';
     return document.head.appendChild(el);
   }
   return false;

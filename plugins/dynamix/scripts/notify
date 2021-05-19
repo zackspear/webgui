@@ -156,7 +156,7 @@ case 'cron-init':
   parse_cron_cfg("dynamix", "plugin-check", $text);
   $text = empty($notify['system']) ? "" : "# Generated system monitoring schedule:\n{$notify['system']} $docroot/plugins/dynamix/scripts/monitor &> /dev/null\n\n";
   parse_cron_cfg("dynamix", "monitor", $text);
-  $text = empty($notify['docker_update']) ? "" : "# Generated docker monitoring schedule:\n{$notify['docker_update']} $docroot/plugins/dynamix.docker.manager/scripts/dockerupdate.php check &> /dev/null\n\n";
+  $text = empty($notify['docker_update']) ? "" : "# Generated docker monitoring schedule:\n{$notify['docker_update']} $docroot/plugins/dynamix.docker.manager/scripts/dockerupdate check &> /dev/null\n\n";
   parse_cron_cfg("dynamix", "docker-update", $text);
   $text = empty($notify['language_update']) ? "" : "# Generated languages version check schedule:\n{$notify['language_update']} $docroot/plugins/dynamix.plugin.manager/scripts/languagecheck &> /dev/null\n\n";
   parse_cron_cfg("dynamix", "language-check", $text);
