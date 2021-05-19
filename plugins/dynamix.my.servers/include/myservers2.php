@@ -3,29 +3,6 @@
     if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
       @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
     }
-
-    $serverstate = [
-      "avatar" => $remote['avatar'],
-      "deviceCount" => $var['deviceCount'],
-      "email" => ($remote['email']) ? $remote['email'] : '',
-      "flashproduct" => $var['flashProduct'],
-      "flashvendor" => $var['flashVendor'],
-      "guid" => $var['flashGUID'],
-      "regGuid" => $var['regGUID'],
-      "internalip" => $_SERVER['SERVER_ADDR'],
-      "internalport" => $_SERVER['SERVER_PORT'],
-      "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
-      "protocol" => $_SERVER['REQUEST_SCHEME'],
-      "reggen" => (int)$var['regGen'],
-      "registered" => empty($remote['apikey']) || empty($var['regFILE']) ? 0 : 1,
-      "sendCrashInfo" => $remote['sendCrashInfo'] || 'no',
-      "serverip" => $_SERVER['SERVER_ADDR'],
-      "servername" => $var['NAME'],
-      "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
-      "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
-      "ts" => time(),
-      "username" => $remote['username'],
-    ];
     // upc translations
     $upc_translations = [
       ($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US' => [
@@ -453,9 +430,31 @@
         ],
       ],
     ];
+    // feeds server vars to Vuex store in a slightly different array than state.php
+    $serverstate = [
+      "avatar" => $remote['avatar'],
+      "deviceCount" => $var['deviceCount'],
+      "email" => ($remote['email']) ? $remote['email'] : '',
+      "flashproduct" => $var['flashProduct'],
+      "flashvendor" => $var['flashVendor'],
+      "guid" => $var['flashGUID'],
+      "regGuid" => $var['regGUID'],
+      "internalip" => $_SERVER['SERVER_ADDR'],
+      "internalport" => $_SERVER['SERVER_PORT'],
+      "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+      "protocol" => $_SERVER['REQUEST_SCHEME'],
+      "reggen" => (int)$var['regGen'],
+      "registered" => empty($remote['apikey']) || empty($var['regFILE']) ? 0 : 1,
+      "serverip" => $_SERVER['SERVER_ADDR'],
+      "servername" => $var['NAME'],
+      "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
+      "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
+      "ts" => time(),
+      "username" => $remote['username'],
+    ];
     ?>
     <unraid-user-profile
-      apikey="<?=($remote['apikey']) ? $remote['apikey'] : ''?>"
+      apikey="<?=@$upc['apikey']?>"
       banner="<?=($display['banner']) ? $display['banner'] : ''?>"
       bgcolor="<?=($backgnd) ? '#'.$backgnd : ''?>"
       csrf="<?=$var['csrf_token']?>"
