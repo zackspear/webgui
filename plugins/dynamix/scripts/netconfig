@@ -115,7 +115,8 @@ if ($run) {
   exec("/usr/local/sbin/create_network_ini >/dev/null");
   // restart dashboard Nchan port monitoring
   exec('pkill update_3');
-  file_put_contents('/tmp/nchan',implode(',',array_filter(explode(',',file_get_contents('/tmp/nchan')),function($n){return $n!='update_3';})));
+  $nchan = '/tmp/nchan';
+  if (file_exists($nchan)) file_put_contents($nchan,implode(',',array_filter(explode(',',file_get_contents($nchan)),function($n){return $n!='update_3';})));
 }
 exit(0);
 ?>
