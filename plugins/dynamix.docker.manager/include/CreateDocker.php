@@ -752,6 +752,7 @@ _(Categories)_:
   <optgroup label="_(Categories)_">
   <option value="Backup:">_(Backup)_</option>
   <option value="Cloud:">_(Cloud)_</option>
+  <option value="Crypto:">_(Crypto Currency)_</option>
   <option value="Downloaders:">_(Downloaders)_</option>
   <option value="Drivers:">_(Drivers)_</option>
   <option value="GameServers:">_(Game Servers)_</option>
