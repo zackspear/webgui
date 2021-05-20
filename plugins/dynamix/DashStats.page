@@ -166,7 +166,7 @@ div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
 div.right{float:right;margin:-20px 0 0 0;text-align:center}
-div[id$=chart]{margin-top:-16px;margin-bottom:-24px;padding:0}
+div[id$=chart]{margin-top:-12px;margin-bottom:-24px;padding:0}
 .section,.next{cursor:grab}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
@@ -263,8 +263,8 @@ form[name=boot]{display:none}
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
-<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a></td><td></td></tr>
-<tr class='cpu_open'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
+<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><a id="toggle-chart" onclick='toggleChart()' title="_(Click to toggle CPU chart)_" style='float:right'><span class="hand fa fa-bar-chart"></span></a></td><td></td></tr>
+<tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
 foreach ($cpus as $pair) {
@@ -786,7 +786,7 @@ function moreInfo(data,table) {
   if (data[2]>0) info.push(data[2]+" _(heat warning)_"+(data[2]==1?'':'s'));
   if (data[3]>0) info.push(data[3]+" _(SMART error)_"+(data[3]==1?'':'s'));
   if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
-  return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
+  return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" :"";
 }
 function autoscale(value,text,size,kilo) {
   if (kilo==null) kilo = 1000;
@@ -854,14 +854,25 @@ function toggleCPU(init) {
       $('.cpu_open').show();
       $('.cpu_close').text("_(Hide details)_");
       $('.cpu_view').find('td').css('padding-bottom','0');
+      $('#toggle-chart').show();
+      toggleChart(true);
     } else {
       $('.cpu_open').hide();
       $('.cpu_close').text("_(Show details)_");
       $('.cpu_view').find('td').css('padding-bottom','20px');
+      $('#toggle-chart').hide();
     }
   } else {
     $('.cpu_open').hide();
   }
+}
+function toggleChart(init) {
+  if (!init) {if ($.cookie('cpu-chart')===undefined) $.cookie('cpu-chart','close',{expires:3650}); else $.removeCookie('cpu-chart');}
+    if ($.cookie('cpu-chart')===undefined) {
+      $('.cpu_chart').show();
+    } else {
+      $('.cpu_chart').hide();
+    }
 }
 function toggleView(field,init,view) {
   if (!view) view = $.cookie(field)||field;
@@ -1180,6 +1191,7 @@ $(function() {
 <?endif;?>
   update900();
   toggleCPU(true);
+  toggleChart(true);
   toggleView('sys_view',true);
   toggleView('mb_view',true);
   toggleView('cpu_view',true);
