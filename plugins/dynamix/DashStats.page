@@ -186,7 +186,7 @@ td.none{text-align:center;padding-top:12px}
 input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .sys_view,.mb_view,.cpu_view,.cpu_open,.mem_view,.port_view,.ups_view,.fan_view,.docker_view,.vm_view,.parity_view,.array_view,.my_view,.extra_view{display:none}
 .share1,.share2,.share3,.view1,.view2,.view3,.view4,.user1,.user2,.user3{display:none}
-.port_view{z-index:1001}
+.port_view,.chevron,#apps,#vms{z-index:10000}
 #shares_view_on,#users_view_on,#array_view_on,#extra_view_on{display:none}
 <?foreach ($pools as $pool):?>
 ._<?=$pool?>_view{display:none}
@@ -640,6 +640,7 @@ function initCharts() {
     var x = now + i;
     var y = c[i]||0; cpu.push({x,y});
   }
+  cputime = x + 1;
   var r = initArray('rxd-init');
   var t = initArray('txd-init');
   for (var i=0; i < netline; i++) {
@@ -647,7 +648,6 @@ function initCharts() {
     var y = r[i]||0; rxd.push({x,y});
     var y = t[i]||0; txd.push({x,y});
   }
-  cputime = x + 1;
   nettime = x + 1;
 }
 function resetCharts() {
@@ -765,12 +765,12 @@ function changeView(item) {
 }
 function changeCPUline(val) {
   cpuline = val;
-  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline', cpuline);
+  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline',val,{expires:3650});
   cpuchart.updateOptions({xaxis:{range:cpuline-1}});
 }
 function changeNetline(val) {
   netline = val;
-  if (val==30) $.removeCookie('netline'); else $.cookie('netline', netline);
+  if (val==30) $.removeCookie('netline'); else $.cookie('netline',val,{expires:3650});
   netchart.updateOptions({xaxis:{range:netline-1}});
 }
 function smartMenu(table) {
