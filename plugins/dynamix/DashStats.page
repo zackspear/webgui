@@ -178,6 +178,7 @@ span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
+select#cpuline,select#netline{border:none;padding-top:0;padding-bottom:0}
 i.heat{margin-left:8px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
 tr.hidden{display:none;height:0;lineheight:0}
@@ -263,7 +264,14 @@ form[name=boot]{display:none}
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
-<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><a id="toggle-chart" onclick='toggleChart()' title="_(Click to toggle CPU chart)_" style='float:right'><span class="hand fa fa-bar-chart"></span></a></td><td></td></tr>
+<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle' style='float:right'>
+<span><select id='cpuline' class='auto' onchange='changeCPUline(this.value)'>
+<?=mk_option("","10", _("10 s"));?>
+<?=mk_option("","30", _("30 s"));?>
+<?=mk_option("","60", _("1 m"));?>
+<?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
+</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-bar-chart"></span></a></span></td><td></td></tr>
 <tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
@@ -307,7 +315,13 @@ foreach ($cpus as $pair) {
 <?=mk_option("", "1", _("Counters info"))?>
 <?=mk_option("", "2", _("Errors info"))?>
 <?=mk_option("", "3", _("Network traffic"))?>
-</select></td>
+</select><span class='view4' style='margin-left:12px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
+<?=mk_option("","10", _("10 s"));?>
+<?=mk_option("","30", _("30 s"));?>
+<?=mk_option("","60", _("1 m"));?>
+<?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
+</select></span></td>
 <td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
 <td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i></td><td></td></tr>
 <?
@@ -569,7 +583,7 @@ foreach ($users as $user) {
 &nbsp;
 <script>
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
-Array.prototype.tail = function(){return this.slice(-timeline).map(function(o){return o.y;}).join(';');}
+Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
 
 var orange   = 70;
 var red      = 90;
@@ -579,7 +593,8 @@ var rxd      = [];
 var txd      = [];
 var cputime  = 0;
 var nettime  = 0;
-var timeline = 30; // 30 seconds time window in graph
+var cpuline  = $.cookie('cpuline')||30;
+var netline  = $.cookie('netline')||30;
 
 var options_cpu = {
   series:[{name:'load', data:cpu.slice()}],
@@ -589,7 +604,7 @@ var options_cpu = {
   stroke:{curve:'smooth', width:1},
   colors:['#ff8c2f'],
   markers:{size:0},
-  xaxis:{type:'datetime', range:timeline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
+  xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
   yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true},
   legend:{show:false}
@@ -602,7 +617,7 @@ var options_net = {
   stroke:{curve:'smooth', width:1},
   colors:['#e22828','#ff8c2f'],
   markers:{size:0},
-  xaxis:{type:'datetime', range:timeline-1, labels:{show:false}, axisTicks:{show:false}},
+  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}},
   yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true},
   legend:{show:false}
@@ -621,30 +636,32 @@ function initCharts() {
   // initialize graphs entries
   var now = new Date().getTime();
   var c = initArray('cpu-init');
-  var r = initArray('rxd-init');
-  var t = initArray('txd-init');
-  for (var i=0; i < timeline; i++) {
+  for (var i=0; i < cpuline; i++) {
     var x = now + i;
     var y = c[i]||0; cpu.push({x,y});
+  }
+  var r = initArray('rxd-init');
+  var t = initArray('txd-init');
+  for (var i=0; i < netline; i++) {
+    var x = now + i;
     var y = r[i]||0; rxd.push({x,y});
     var y = t[i]||0; txd.push({x,y});
   }
-  // next graph entry
   cputime = x + 1;
   nettime = x + 1;
 }
 function resetCharts() {
   // prevent unlimited graph growing
-  cpu = cpu.slice(-timeline);
-  rxd = rxd.slice(-timeline);
-  txd = txd.slice(-timeline);
+  cpu = cpu.slice(-cpuline);
+  rxd = rxd.slice(-netline);
+  txd = txd.slice(-netline);
 }
 function addChartCpu(now, load) {
   var newtime = now + 1;
   cputime = newtime;
-  for (var i=0; i < cpu.length-timeline; i++) {
+  for (var i=0; i < cpu.length-cpuline; i++) {
     // clear values outside graph
-    cpu[i].x = newtime-timeline;
+    cpu[i].x = newtime-cpuline;
     cpu[i].y = 0;
   }
   cpu.push({x:newtime, y:load});
@@ -652,10 +669,10 @@ function addChartCpu(now, load) {
 function addChartNet(now, rx, tx) {
   var newtime = now + 1;
   nettime = newtime;
-  for (var i=0; i < rxd.length-timeline; i++) {
+  for (var i=0; i < rxd.length-netline; i++) {
     // clear values outside graph
-    rxd[i].x = newtime-timeline;
-    txd[i].x = newtime-timeline;
+    rxd[i].x = newtime-netline;
+    txd[i].x = newtime-netline;
     rxd[i].y = 0;
     txd[i].y = 0;
   }
@@ -745,6 +762,16 @@ function changeView(item) {
   if (item==1) $('.view2').show(); else $('.view2').hide();
   if (item==2) $('.view3').show(); else $('.view3').hide();
   if (item==3) $('.view4').show(); else $('.view4').hide();
+}
+function changeCPUline(val) {
+  cpuline = val;
+  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline', cpuline);
+  cpuchart.updateOptions({xaxis:{range:cpuline-1}});
+}
+function changeNetline(val) {
+  netline = val;
+  if (val==30) $.removeCookie('netline'); else $.cookie('netline', netline);
+  netchart.updateOptions({xaxis:{range:netline-1}});
 }
 function smartMenu(table) {
   $(table).find('[id^="smart-"]').each(function() {
@@ -854,13 +881,13 @@ function toggleCPU(init) {
       $('.cpu_open').show();
       $('.cpu_close').text("_(Hide details)_");
       $('.cpu_view').find('td').css('padding-bottom','0');
-      $('#toggle-chart').show();
+      $('#chart-toggle').show();
       toggleChart(true);
     } else {
       $('.cpu_open').hide();
       $('.cpu_close').text("_(Show details)_");
       $('.cpu_view').find('td').css('padding-bottom','20px');
-      $('#toggle-chart').hide();
+      $('#chart-toggle').hide();
     }
   } else {
     $('.cpu_open').hide();
@@ -870,8 +897,10 @@ function toggleChart(init) {
   if (!init) {if ($.cookie('cpu-chart')===undefined) $.cookie('cpu-chart','close',{expires:3650}); else $.removeCookie('cpu-chart');}
     if ($.cookie('cpu-chart')===undefined) {
       $('.cpu_chart').show();
+      $('#cpuline').show();
     } else {
       $('.cpu_chart').hide();
+      $('#cpuline').hide();
     }
 }
 function toggleView(field,init,view) {
@@ -999,7 +1028,7 @@ cpuload.on('message',function(data) {
     if (k=='cpu') {
       addChartCpu(cputime, load);
       cpuchart.updateSeries([{data:cpu}]);
-      $.cookie('cpu-init', cpu.tail());
+      $.cookie('cpu-init', cpu.tail(cpuline));
     }
     load += '%';
     $('.'+k).text(load);
@@ -1079,8 +1108,8 @@ update3.on('message',function(d) {
       $('#outbound').text(data[2]);
       addChartNet(nettime, data[3], data[4]);
       netchart.updateSeries([{data:rxd},{data:txd}]);
-      $.cookie('rxd-init', rxd.tail());
-      $.cookie('txd-init', txd.tail());
+      $.cookie('rxd-init', rxd.tail(netline));
+      $.cookie('txd-init', txd.tail(netline));
       break;
     }
   }
@@ -1227,5 +1256,7 @@ $(function() {
   sortTable($('#db-box1'),$.cookie('db-box1'));
   sortTable($('#db-box2'),$.cookie('db-box2'));
   sortTable($('#db-box3'),$.cookie('db-box3'));
+  $('#cpuline').val(cpuline);
+  $('#netline').val(netline);
 });
 </script>
