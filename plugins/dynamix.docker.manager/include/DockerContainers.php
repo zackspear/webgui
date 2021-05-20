@@ -110,9 +110,9 @@ foreach ($containers as $ct) {
   $registry = $info['registry'];
   [$author,$version] = explode(':',$ct['Image']);
   if ($registry) {
-    echo "<a href='".htmlspecialchars($registry)."' target='_blank'>".htmlspecialchars($author)."</a>";
+    echo "<a href='".htmlspecialchars($registry)."' target='_blank'>".htmlspecialchars(compress($author,24))."</a>";
   } else {
-    echo htmlspecialchars($author);
+    echo htmlspecialchars(compress($author,24));
   }
   echo "</span></td><td class='updatecolumn'>";
   switch ($updateStatus) {
