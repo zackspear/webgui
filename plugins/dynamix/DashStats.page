@@ -640,6 +640,7 @@ function initCharts() {
     var x = now + i;
     var y = c[i]||0; cpu.push({x,y});
   }
+  cputime = x + 1;
   var r = initArray('rxd-init');
   var t = initArray('txd-init');
   for (var i=0; i < netline; i++) {
@@ -647,7 +648,6 @@ function initCharts() {
     var y = r[i]||0; rxd.push({x,y});
     var y = t[i]||0; txd.push({x,y});
   }
-  cputime = x + 1;
   nettime = x + 1;
 }
 function resetCharts() {
@@ -765,12 +765,12 @@ function changeView(item) {
 }
 function changeCPUline(val) {
   cpuline = val;
-  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline', cpuline);
+  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline',val,{expires:3650});
   cpuchart.updateOptions({xaxis:{range:cpuline-1}});
 }
 function changeNetline(val) {
   netline = val;
-  if (val==30) $.removeCookie('netline'); else $.cookie('netline', netline);
+  if (val==30) $.removeCookie('netline'); else $.cookie('netline',val,{expires:3650});
   netchart.updateOptions({xaxis:{range:netline-1}});
 }
 function smartMenu(table) {
