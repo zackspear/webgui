@@ -1190,8 +1190,8 @@ $(function() {
   apcups.start();
 <?endif;?>
   update900();
-  toggleCPU(true);
   toggleChart(true);
+  toggleCPU(true);
   toggleView('sys_view',true);
   toggleView('mb_view',true);
   toggleView('cpu_view',true);
