@@ -786,7 +786,7 @@ function moreInfo(data,table) {
   if (data[2]>0) info.push(data[2]+" _(heat warning)_"+(data[2]==1?'':'s'));
   if (data[3]>0) info.push(data[3]+" _(SMART error)_"+(data[3]==1?'':'s'));
   if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
-  return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" :"";
+  return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
 }
 function autoscale(value,text,size,kilo) {
   if (kilo==null) kilo = 1000;
