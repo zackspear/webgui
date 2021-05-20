@@ -23,8 +23,8 @@ $dyn_cfg = '/boot/config/plugins/dynamix/dynamix.cfg';
 $mys_cfg = '/boot/config/plugins/dynamix.my.servers/myservers.cfg';
 
 if (file_exists($dyn_cfg) && !file_exists($mys_cfg)) {
-  $orig = parse_ini_file($dyn_cfg,true);
-  $var = (array)parse_ini_file('/usr/local/emhttp/state/var.ini',true);
+  $orig = @parse_ini_file($dyn_cfg,true);
+  $var = @(array)parse_ini_file('/usr/local/emhttp/state/var.ini',true);
   $url = "http://localhost:".$var['PORT']."/update.php";
 
   // write [remote] section to myservers.cfg
