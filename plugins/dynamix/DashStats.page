@@ -265,7 +265,7 @@ form[name=boot]{display:none}
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
 <a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle' style='float:right'>
-<span><select id='cpuline' class='auto' onchange='changeCPUline(this.value)'>
+<span><select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
@@ -318,7 +318,7 @@ foreach ($cpus as $pair) {
 </select></td>
 <td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
 <td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i>
-<span class='view4' style='float:right;margin-right:28px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
+<span class='view4' style='float:right;margin-right:28px'><select id='netline' class='auto' title="_(Select time frame)_" onchange='changeNetline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
