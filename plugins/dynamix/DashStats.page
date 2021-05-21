@@ -178,7 +178,7 @@ span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
-select#cpuline,select#netline{border:none;padding-top:0;padding-bottom:0}
+select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 i.heat{margin-left:8px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
 tr.hidden{display:none;height:0;lineheight:0}
@@ -271,7 +271,7 @@ form[name=boot]{display:none}
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
 <?=mk_option("","300", _("5 m"));?>
-</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-bar-chart"></span></a></span></td><td></td></tr>
+</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-fw fa-bar-chart"></span></a></span></td><td></td></tr>
 <tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
@@ -315,15 +315,16 @@ foreach ($cpus as $pair) {
 <?=mk_option("", "1", _("Counters info"))?>
 <?=mk_option("", "2", _("Errors info"))?>
 <?=mk_option("", "3", _("Network traffic"))?>
-</select><span class='view4' style='margin-left:12px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
+</select></td>
+<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
+<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i>
+<span class='view4' style='float:right;margin-right:28px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
 <?=mk_option("","300", _("5 m"));?>
-</select></span></td>
-<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
-<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i></td><td></td></tr>
+</select></span></td><td></td></tr>
 <?
 $c = 0;
 foreach ($ports as $port) {
