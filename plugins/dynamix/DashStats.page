@@ -151,11 +151,11 @@ $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 
 switch ($display['theme']) {
-  case 'white': $color = '#1c1b1b'; $grid = '#e0e0e0'; break;
-  case 'black': $color = '#f2f2f2'; $grid = '#303030'; break;
+  case 'white': $color = '#1c1b1b'; $grid = '#e3e3e3'; break;
+  case 'black': $color = '#f2f2f2'; $grid = '#2b2b2b'; break;
   case 'azure': $color = '#606e7f'; $grid = '#f3f0f4'; break;
   case 'gray' : $color = '#606e7f'; $grid = '#0c0f0b'; break;
-  default     : $color = '#1c1b1b'; $grid = '#c0c0c0'; break;
+  default     : $color = '#1c1b1b'; $grid = '#e3e3e3'; break;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
