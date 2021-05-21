@@ -270,7 +270,6 @@ form[name=boot]{display:none}
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
-<?=mk_option("","300", _("5 m"));?>
 </select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-fw fa-bar-chart"></span></a></span></td><td></td></tr>
 <tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
@@ -323,7 +322,6 @@ foreach ($cpus as $pair) {
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
-<?=mk_option("","300", _("5 m"));?>
 </select></span></td><td></td></tr>
 <?
 $c = 0;
@@ -618,7 +616,7 @@ var options_net = {
   stroke:{curve:'smooth', width:1},
   colors:['#e22828','#ff8c2f'],
   markers:{size:0},
-  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}},
+  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
   yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
