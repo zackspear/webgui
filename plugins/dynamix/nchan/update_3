@@ -26,30 +26,32 @@ if (!function_exists('_')) {
   function _($text) {return $text;}
 }
 
-$time = microtime(true);
+$time0 = $time = microtime(true);
 foreach ($ports as $port) {
   $data[$port]['rx'] = (float)file_get_contents("$net/$port/statistics/rx_bytes");
   $data[$port]['tx'] = (float)file_get_contents("$net/$port/statistics/tx_bytes");
-  $data[$port]['ts'] = $time;
 }
 while (true) {
   $echo = $mode = $rxtx = $stat = [];
+  $ts = $time - $time0;
   foreach ($ports as $port) {
+    // inbound + outbound speed
     $rx = (float)file_get_contents("$net/$port/statistics/rx_bytes");
     $tx = (float)file_get_contents("$net/$port/statistics/tx_bytes");
-    $ts = $time - $data[$port]['ts'];
     if ($ts > 0) {
-      $rx_speed = my_scale(($rx-$data[$port]['rx'])/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
-      $tx_speed = my_scale(($tx-$data[$port]['tx'])/$ts*8,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+      $rxd = ($rx-$data[$port]['rx'])/$ts*8;
+      $txd = ($tx-$data[$port]['tx'])/$ts*8;
+      $rx_speed = my_scale($rxd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
+      $tx_speed = my_scale($txd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
     } else {
+      $rxd = $txd = 0;
       $rx_speed = '---';
       $tx_speed = '---';
     }
     $data[$port]['rx'] = $rx;
     $data[$port]['tx'] = $tx;
-    $data[$port]['ts'] = $time;
-    $echo[] = "$port\0$rx_speed\0$tx_speed";
-
+    $echo[] = "$port\0$rx_speed\0$tx_speed\0$rxd\0$txd";
+    // interface general information
     $mtu = file_get_contents("$net/$port/mtu");
     $link = file_get_contents("$net/$port/carrier")==1;
     if (substr($port,0,4)=='bond') {
@@ -66,9 +68,9 @@ while (true) {
         $mode[] = "$speed Mbps, $duplex duplex, mtu $mtu";
       } else $mode[] = "interface down";
     }
-
+    // interface counters
     $rxtx[] = "$rx\0$tx";
-
+    // interface errors
     $rx_errors = file_get_contents("$net/$port/statistics/rx_errors");
     $rx_drops  = file_get_contents("$net/$port/statistics/rx_dropped");
     $rx_fifo   = file_get_contents("$net/$port/statistics/rx_fifo_errors");
@@ -84,6 +86,7 @@ while (true) {
   $stat = implode("\0",$stat);
 
   publish('update3',"$echo\1$mode\1$rxtx\1$stat");
-  sleep(3);
+  $time0 = $time;
+  sleep(1);
   $time = microtime(true);
 }

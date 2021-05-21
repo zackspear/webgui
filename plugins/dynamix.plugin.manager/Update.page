@@ -89,6 +89,7 @@ function loadlist(id,check) {
         case 'return' : updateInfo(data); break;
         case 'install': list.find(tr).remove(); list.append(warning(data)); break;
       }
+      $('#change_branch').prop('disabled',true);
     } else {
 <?if (!$reboot):?>
       updateInfo(data);

@@ -295,6 +295,9 @@ class DockerTemplates {
 			$tmp['paused'] = $ct['Paused'];
 			$tmp['autostart'] = in_array($name, $autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
+			// read docker label for WebUI & Icon
+			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
+			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
 			if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name);
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
@@ -884,6 +887,8 @@ class DockerClient {
 			[$net, $id]       = explode(':',$c['NetworkMode']);
 			$c['CPUset']      = $info['HostConfig']['CpusetCpus'];
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
+			$c['Icon']        = $info['Config']['Labels']['net.unraid.docker.icon'] ?? false;
+			$c['Url']         = $info['Config']['Labels']['net.unraid.docker.webui'] ?? false;
 			$c['Ports']       = [];
 			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
 			if ($driver[$c['NetworkMode']]=='bridge') {

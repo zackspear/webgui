@@ -20,7 +20,7 @@ function dmidecode($key,$n,$all=true) {
   foreach ($entries as $entry) {
     $property = [];
     foreach (explode("\n",$entry) as $line) if (strpos($line,': ')!==false) {
-      list($key,$value) = explode(': ',trim($line));
+      [$key,$value] = explode(': ',trim($line));
       $property[$key] = $value;
     }
     $properties[] = $property;
@@ -128,14 +128,14 @@ $memory_installed = $memory_maximum = 0;
 $memory_devices = dmidecode('Memory Device','17');
 foreach ($memory_devices as $device) {
   if (!is_numeric($device['Size'][0])) continue;
-  list($size, $unit) = explode(' ',$device['Size']);
+  [$size, $unit] = explode(' ',$device['Size']);
   $base = array_search($unit,$sizes);
   if ($base!==false) $memory_installed += $size*pow(1024,$base);
   if (!$memory_type && $device['Type']!='Unknown') $memory_type = $device['Type'];
 }
 $memory_array = dmidecode('Physical Memory Array','16');
 foreach ($memory_array as $device) {
-  list($size, $unit) = explode(' ',$device['Maximum Capacity']);
+  [$size, $unit] = explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
@@ -149,6 +149,14 @@ if ($memory_installed >= 1024) {
 // If maximum < installed then roundup maximum to the next power of 2 size of installed. E.g. 6 -> 8 or 12 -> 16
 $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
+
+switch ($display['theme']) {
+  case 'white': $color = '#1c1b1b'; break;
+  case 'black': $color = '#f2f2f2'; break;
+  case 'azure': $color = '#606e7f'; break;
+  case 'gray' : $color = '#606e7f'; break;
+  default     : $color = '#1c1b1b'; break;
+}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
@@ -158,6 +166,7 @@ div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
 div.left{float:left;width:66%;margin-top:-12px}
 div.right{float:right;margin:-20px 0 0 0;text-align:center}
+div[id$=chart]{margin-top:-12px;margin-bottom:-24px;padding:0}
 .section,.next{cursor:grab}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
@@ -169,13 +178,15 @@ span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
+select#cpuline,select#netline{border:none;padding-top:0;padding-bottom:0}
 i.heat{margin-left:8px}
-a.cpu_close,span.hand{cursor:pointer}
+a.cpu_close,span.hand{cursor:pointer;z-index:1001}
 tr.hidden{display:none;height:0;lineheight:0}
 td.none{text-align:center;padding-top:12px}
 input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .sys_view,.mb_view,.cpu_view,.cpu_open,.mem_view,.port_view,.ups_view,.fan_view,.docker_view,.vm_view,.parity_view,.array_view,.my_view,.extra_view{display:none}
-.share1,.share2,.share3,.view1,.view2,.view3,.user1,.user2,.user3{display:none}
+.share1,.share2,.share3,.view1,.view2,.view3,.view4,.user1,.user2,.user3{display:none}
+.port_view,.chevron,#apps,#vms{z-index:10000}
 #shares_view_on,#users_view_on,#array_view_on,#extra_view_on{display:none}
 <?foreach ($pools as $pool):?>
 ._<?=$pool?>_view{display:none}
@@ -191,6 +202,7 @@ form[name=boot]{display:none}
 .switch-button-background{top:12px}
 <?endif;?>
 </style>
+<script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/docker.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
@@ -252,12 +264,19 @@ form[name=boot]{display:none}
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
-<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a></td><td></td></tr>
-<tr class='cpu_open'><td></td><td>_(Overall Load)_:</td>
-<td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
+<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle' style='float:right'>
+<span><select id='cpuline' class='auto' onchange='changeCPUline(this.value)'>
+<?=mk_option("","10", _("10 s"));?>
+<?=mk_option("","30", _("30 s"));?>
+<?=mk_option("","60", _("1 m"));?>
+<?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
+</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-bar-chart"></span></a></span></td><td></td></tr>
+<tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
+<tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
 foreach ($cpus as $pair) {
-  list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
+  [$cpu1, $cpu2] = preg_split('/[,-]/',$pair);
   echo "<tr class='cpu_open'><td></td>";
   if ($cpu2)
     echo "<td>CPU $cpu1 - HT $cpu2</td><td><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></td><td><span class='cpu$cpu2 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></td>";
@@ -295,9 +314,16 @@ foreach ($cpus as $pair) {
 <?=mk_option("", "0", _("General info"))?>
 <?=mk_option("", "1", _("Counters info"))?>
 <?=mk_option("", "2", _("Errors info"))?>
-</select></td>
-<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i></td>
-<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i></td><td></td></tr>
+<?=mk_option("", "3", _("Network traffic"))?>
+</select><span class='view4' style='margin-left:12px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
+<?=mk_option("","10", _("10 s"));?>
+<?=mk_option("","30", _("30 s"));?>
+<?=mk_option("","60", _("1 m"));?>
+<?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
+</select></span></td>
+<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
+<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i></td><td></td></tr>
 <?
 $c = 0;
 foreach ($ports as $port) {
@@ -316,6 +342,7 @@ foreach ($ports as $port) {
   $c += 2;
 }
 ?>
+<tr class="view4"><td colspan="4"><div id="netchart"></div></td><td></td></tr>
 </tbody>
 <?if ($wireguard):?>
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
@@ -555,17 +582,104 @@ foreach ($users as $user) {
 <div id="iframe-popup"></div>
 &nbsp;
 <script>
-var timer30 = null;
-var orange = 70;
-var red = 90;
-var ports = [<?=implode(',',array_map('escapestring',$ports))?>];
+Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
+Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
+
+var orange   = 70;
+var red      = 90;
+var ports    = [<?=implode(',',array_map('escapestring',$ports))?>];
+var cpu      = [];
+var rxd      = [];
+var txd      = [];
+var cputime  = 0;
+var nettime  = 0;
+var cpuline  = $.cookie('cpuline')||30;
+var netline  = $.cookie('netline')||30;
+
+var options_cpu = {
+  series:[{name:'load', data:cpu.slice()}],
+  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:1000}}, toolbar:{show:false}, zoom:{enabled:false}},
+  dataLabels:{enabled:false},
+  tooltip:{enabled:false},
+  stroke:{curve:'smooth', width:1},
+  colors:['#ff8c2f'],
+  markers:{size:0},
+  xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
+  yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
+  grid:{show:true},
+  legend:{show:false}
+};
+var options_net = {
+  series:[{name:'receive', data:rxd.slice()},{name:'transmit', data:txd.slice()}],
+  chart:{height:120, type:'line', fontFamily:'clear-sans', animations:{enabled:true, easing:'linear', dynamicAnimation:{speed:1000}}, toolbar:{show:false}, zoom:{enabled:false}},
+  dataLabels:{enabled:false},
+  tooltip:{enabled:false},
+  stroke:{curve:'smooth', width:1},
+  colors:['#e22828','#ff8c2f'],
+  markers:{size:0},
+  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}},
+  yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
+  grid:{show:true},
+  legend:{show:false}
+};
+
+var cpuchart = new ApexCharts(document.querySelector('#cpuchart'), options_cpu);
+var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
 
+function initArray(cookie) {
+  return ($.cookie(cookie)||'').split(';');
+}
+function initCharts() {
+  // initialize graphs entries
+  var now = new Date().getTime();
+  var c = initArray('cpu-init');
+  for (var i=0; i < cpuline; i++) {
+    var x = now + i;
+    var y = c[i]||0; cpu.push({x,y});
+  }
+  cputime = x + 1;
+  var r = initArray('rxd-init');
+  var t = initArray('txd-init');
+  for (var i=0; i < netline; i++) {
+    var x = now + i;
+    var y = r[i]||0; rxd.push({x,y});
+    var y = t[i]||0; txd.push({x,y});
+  }
+  nettime = x + 1;
+}
+function resetCharts() {
+  // prevent unlimited graph growing
+  cpu = cpu.slice(-cpuline);
+  rxd = rxd.slice(-netline);
+  txd = txd.slice(-netline);
+}
+function addChartCpu(now, load) {
+  var newtime = now + 1;
+  cputime = newtime;
+  for (var i=0; i < cpu.length-cpuline; i++) {
+    // clear values outside graph
+    cpu[i].x = newtime-cpuline;
+    cpu[i].y = 0;
+  }
+  cpu.push({x:newtime, y:load});
+}
+function addChartNet(now, rx, tx) {
+  var newtime = now + 1;
+  nettime = newtime;
+  for (var i=0; i < rxd.length-netline; i++) {
+    // clear values outside graph
+    rxd[i].x = newtime-netline;
+    txd[i].x = newtime-netline;
+    rxd[i].y = 0;
+    txd[i].y = 0;
+  }
+  rxd.push({x:newtime, y:rx});
+  txd.push({x:newtime, y:tx});
+}
 <?if ($wireguard):?>
-Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
-
 function toggleVPN(id,vtun) {
   var up = $('#vpn-active');
   var down = $('#vpn-inactive');
@@ -629,7 +743,6 @@ function setCase() {
     }
   });
 }
-
 function changeMode(item) {
   var user = $.cookie('users_view');
   var share = $.cookie('shares_view');
@@ -648,6 +761,17 @@ function changeView(item) {
   if (item==0) $('.view1').show(); else $('.view1').hide();
   if (item==1) $('.view2').show(); else $('.view2').hide();
   if (item==2) $('.view3').show(); else $('.view3').hide();
+  if (item==3) $('.view4').show(); else $('.view4').hide();
+}
+function changeCPUline(val) {
+  cpuline = val;
+  if (val==30) $.removeCookie('cpuline'); else $.cookie('cpuline',val,{expires:3650});
+  cpuchart.updateOptions({xaxis:{range:cpuline-1}});
+}
+function changeNetline(val) {
+  netline = val;
+  if (val==30) $.removeCookie('netline'); else $.cookie('netline',val,{expires:3650});
+  netchart.updateOptions({xaxis:{range:netline-1}});
 }
 function smartMenu(table) {
   $(table).find('[id^="smart-"]').each(function() {
@@ -663,7 +787,7 @@ function smartMenu(table) {
     opts.push({text:"_(Identity)_",icon:'fa-home',action:function(e){e.preventDefault();identity(page,disk);}});
     if (view.search('green-text') == -1) {
       opts.push({divider:true});
-      opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(disk);}});
+      opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(id,disk);}});
     }
     $(id).bind('click',function(){update2.stop();}).bind('mouseout',function(){setTimeout(function(){update2.start();},15000);});
     context.attach(id,opts);
@@ -678,6 +802,9 @@ function portMenu() {
 }
 function portSelect(name) {
   $.cookie('port_select',name,{expires:3650});
+  $.removeCookie('rxd-init');
+  $.removeCookie('txd-init');
+  initCharts();
   port_select = name;
 }
 function moreInfo(data,table) {
@@ -687,6 +814,20 @@ function moreInfo(data,table) {
   if (data[3]>0) info.push(data[3]+" _(SMART error)_"+(data[3]==1?'':'s'));
   if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
   return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
+}
+function autoscale(value,text,size,kilo) {
+  if (kilo==null) kilo = 1000;
+  var unit = kilo==1024 ? ['','ki','Mi','Gi','Ti','Pi','Ei'] :['','k','M','G','T','P','E'];
+  var base = value>1?Math.floor(Math.log(value)/Math.log(kilo)):0;
+  var data = base<unit.length?value/Math.pow(kilo, base):0;
+  var scale = (data<100?100:10)/size;
+  if (data==0) base=0;
+  return ((Math.round(scale*data)/scale)+' '+unit[base]+text).replace(".","<?=$display['number'][0]?>");
+}
+function update900() {
+  // prevent chart overflowing, reset every 15 minutes
+  resetCharts();
+  setTimeout(update900,900000);
 }
 function attributes(page,disk) {
   var tab = page=='New' ? 'tab2' : 'tab3';
@@ -703,8 +844,8 @@ function identity(page,disk) {
   $.cookie('one',tab,{path:'/'});
   location.replace('/Dashboard/'+page+'?name='+disk);
 }
-function acknowledge(disk) {
-  $.post('/webGui/include/Acknowledge.php',{disk:disk});
+function acknowledge(id,disk) {
+  $.post('/webGui/include/Acknowledge.php',{disk:disk},function(){$(id).removeClass('fa-thumbs-o-down orange-text').addClass('fa-thumbs-o-up green-text');$(id.replace('smart','text')).text("<?=_('healthy')?>");});
 }
 function dropdown(menu) {
   var select = 'select[name="'+menu+'"]';
@@ -740,14 +881,27 @@ function toggleCPU(init) {
       $('.cpu_open').show();
       $('.cpu_close').text("_(Hide details)_");
       $('.cpu_view').find('td').css('padding-bottom','0');
+      $('#chart-toggle').show();
+      toggleChart(true);
     } else {
       $('.cpu_open').hide();
       $('.cpu_close').text("_(Show details)_");
       $('.cpu_view').find('td').css('padding-bottom','20px');
+      $('#chart-toggle').hide();
     }
   } else {
     $('.cpu_open').hide();
   }
+}
+function toggleChart(init) {
+  if (!init) {if ($.cookie('cpu-chart')===undefined) $.cookie('cpu-chart','close',{expires:3650}); else $.removeCookie('cpu-chart');}
+    if ($.cookie('cpu-chart')===undefined) {
+      $('.cpu_chart').show();
+      $('#cpuline').show();
+    } else {
+      $('.cpu_chart').hide();
+      $('#cpuline').hide();
+    }
 }
 function toggleView(field,init,view) {
   if (!view) view = $.cookie(field)||field;
@@ -871,6 +1025,11 @@ cpuload.on('message',function(data) {
     if (load >= red) var color = 'redbar';
     else if (load >= orange) var color = 'orangebar';
     else var color = '';
+    if (k=='cpu') {
+      addChartCpu(cputime, load);
+      cpuchart.updateSeries([{data:cpu}]);
+      $.cookie('cpu-init', cpu.tail(cpuline));
+    }
     load += '%';
     $('.'+k).text(load);
     $('#'+k).finish().animate({width:load},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
@@ -947,6 +1106,10 @@ update3.on('message',function(d) {
     if (data[0] == port_select) {
       $('#inbound').text(data[1]);
       $('#outbound').text(data[2]);
+      addChartNet(nettime, data[3], data[4]);
+      netchart.updateSeries([{data:rxd},{data:txd}]);
+      $.cookie('rxd-init', rxd.tail(netline));
+      $.cookie('txd-init', txd.tail(netline));
       break;
     }
   }
@@ -1008,6 +1171,9 @@ var sortableHelper = function(e,ui){
 };
 
 $(function() {
+  cpuchart.render();
+  netchart.render();
+  initCharts();
   $('table').sortable({helper:sortableHelper,items:'.sortable',handle:'.section,.next',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
   update:function(e,ui){
     var table = ui.item.parent();
@@ -1052,6 +1218,8 @@ $(function() {
 <?if ($apcupsd):?>
   apcups.start();
 <?endif;?>
+  update900();
+  toggleChart(true);
   toggleCPU(true);
   toggleView('sys_view',true);
   toggleView('mb_view',true);
@@ -1088,5 +1256,7 @@ $(function() {
   sortTable($('#db-box1'),$.cookie('db-box1'));
   sortTable($('#db-box2'),$.cookie('db-box2'));
   sortTable($('#db-box3'),$.cookie('db-box3'));
+  $('#cpuline').val(cpuline);
+  $('#netline').val(netline);
 });
 </script>
