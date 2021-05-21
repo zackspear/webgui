@@ -151,11 +151,11 @@ $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 
 switch ($display['theme']) {
-  case 'white': $color = '#1c1b1b'; break;
-  case 'black': $color = '#f2f2f2'; break;
-  case 'azure': $color = '#606e7f'; break;
-  case 'gray' : $color = '#606e7f'; break;
-  default     : $color = '#1c1b1b'; break;
+  case 'white': $color = '#1c1b1b'; $grid = '#e3e3e3'; break;
+  case 'black': $color = '#f2f2f2'; $grid = '#2b2b2b'; break;
+  case 'azure': $color = '#606e7f'; $grid = '#f3f0f4'; break;
+  case 'gray' : $color = '#606e7f'; $grid = '#0c0f0b'; break;
+  default     : $color = '#1c1b1b'; $grid = '#e3e3e3'; break;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -178,7 +178,7 @@ span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
-select#cpuline,select#netline{border:none;padding-top:0;padding-bottom:0}
+select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 i.heat{margin-left:8px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
 tr.hidden{display:none;height:0;lineheight:0}
@@ -265,13 +265,12 @@ form[name=boot]{display:none}
 </td><td></td></tr>
 <tr class='cpu_view'><td></td><td colspan='3'><?=$cpumodel?><br>
 <a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle' style='float:right'>
-<span><select id='cpuline' class='auto' onchange='changeCPUline(this.value)'>
+<span><select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
-<?=mk_option("","300", _("5 m"));?>
-</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-bar-chart"></span></a></span></td><td></td></tr>
+</select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-fw fa-bar-chart"></span></a></span></td><td></td></tr>
 <tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
@@ -315,15 +314,15 @@ foreach ($cpus as $pair) {
 <?=mk_option("", "1", _("Counters info"))?>
 <?=mk_option("", "2", _("Errors info"))?>
 <?=mk_option("", "3", _("Network traffic"))?>
-</select><span class='view4' style='margin-left:12px'><select id='netline' class='auto' onchange='changeNetline(this.value)'>
+</select></td>
+<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
+<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i>
+<span class='view4' style='float:right;margin-right:24px'><select id='netline' class='auto' title="_(Select time frame)_" onchange='changeNetline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
-<?=mk_option("","300", _("5 m"));?>
-</select></span></td>
-<td><i class='view1'>_(Mode of operation)_</i><i class='view2'>_(Received packets)_</i><i class='view3'>_(Receive counters)_</i><i class='view4 red-text'>_(Inbound)_</i></td>
-<td><i class='view1'></i><i class='view2'>_(Transmitted packets)_</i><i class='view3'>_(Transmit counters)_</i><i class='view4 orange-text'>_(Outbound)_</i></td><td></td></tr>
+</select></span></td><td></td></tr>
 <?
 $c = 0;
 foreach ($ports as $port) {
@@ -606,7 +605,7 @@ var options_cpu = {
   markers:{size:0},
   xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
   yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true},
+  grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
 var options_net = {
@@ -617,9 +616,9 @@ var options_net = {
   stroke:{curve:'smooth', width:1},
   colors:['#e22828','#ff8c2f'],
   markers:{size:0},
-  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}},
+  xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
   yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true},
+  grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
 
