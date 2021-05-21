@@ -151,11 +151,11 @@ $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 
 switch ($display['theme']) {
-  case 'white': $color = '#1c1b1b'; break;
-  case 'black': $color = '#f2f2f2'; break;
-  case 'azure': $color = '#606e7f'; break;
-  case 'gray' : $color = '#606e7f'; break;
-  default     : $color = '#1c1b1b'; break;
+  case 'white': $color = '#1c1b1b'; $grid = '#e0e0e0'; break;
+  case 'black': $color = '#f2f2f2'; $grid = '#303030'; break;
+  case 'azure': $color = '#606e7f'; $grid = '#f3f0f4'; break;
+  case 'gray' : $color = '#606e7f'; $grid = '#0c0f0b'; break;
+  default     : $color = '#1c1b1b'; $grid = '#c0c0c0'; break;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -606,7 +606,7 @@ var options_cpu = {
   markers:{size:0},
   xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
   yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true},
+  grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
 var options_net = {
@@ -619,7 +619,7 @@ var options_net = {
   markers:{size:0},
   xaxis:{type:'datetime', range:netline-1, labels:{show:false}, axisTicks:{show:false}},
   yaxis:{tickAmount:4, labels:{formatter:function(v,i){return autoscale(v,'bps',1);}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
-  grid:{show:true},
+  grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
 
