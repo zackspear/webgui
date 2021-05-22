@@ -299,50 +299,13 @@ function openUpgrade() {
     openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
   });
 }
-function notifier() {
-  var tub1 = 0, tub2 = 0, tub3 = 0;
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
-    if (json && /^<!DOCTYPE html>/.test(json)) {
-      // Session is invalid, user has logged out from another tab
-      $(location).attr('href','/');
-    }
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-<?if ($notify['display']):?>
-      switch (notify.importance) {
-        case 'alert'  : tub1++; break;
-        case 'warning': tub2++; break;
-        case 'normal' : tub3++; break;
-      }
-<?else:?>
-      $.jGrowl(notify.subject+'<br>'+notify.description, {
-        group: notify.importance,
-        header: notify.event+': '+notify.timestamp,
-        theme: notify.file,
-        click: function(e,m,o) { if (notify.link) location=notify.link;},
-        beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
-        afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
-      });
-<?endif;?>
-    });
-<?if ($notify['display']):?>
-    $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
-    $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
-    $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
-    if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
-    if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
-    if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
-<?endif;?>
-    timers.notifier = setTimeout(notifier,5000);
-  });
-}
 function digits(number) {
   if (number < 10) return 'one';
   if (number < 100) return 'two';
   return 'three';
 }
 function openNotifier(filter) {
+  notifier.stop();
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
@@ -356,17 +319,18 @@ function openNotifier(filter) {
         });
       }
     });
+    notifier.start();
   });
 }
 function closeNotifier(filter) {
-  clearTimeout(timers.notifier);
+  notifier.stop();
   $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
       if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
-    setTimeout(notifier,100);
+    notifier.start();
   });
 }
 function viewHistory(filter) {
@@ -478,7 +442,7 @@ if ($myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
-$nchan = [];
+$nchan = ['notify_poller'];
 foreach ($pages as $page) {
   $close = false;
   if (isset($page['Title'])) {
@@ -606,6 +570,39 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
+var notifier = new NchanSubscriber('/sub/notify');
+notifier.on('message', function(json) {
+  var tub1 = 0, tub2 = 0, tub3 = 0;
+  var data = $.parseJSON(json);
+  $.each(data, function(i, notify) {
+<?if ($notify['display']):?>
+    switch (notify.importance) {
+      case 'alert'  : tub1++; break;
+      case 'warning': tub2++; break;
+      case 'normal' : tub3++; break;
+    }
+<?else:?>
+    $.jGrowl(notify.subject+'<br>'+notify.description, {
+      group: notify.importance,
+      header: notify.event+': '+notify.timestamp,
+      theme: notify.file,
+      click: function(e,m,o) { if (notify.link) location=notify.link;},
+      beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
+      afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
+    });
+<?endif;?>
+  });
+<?if ($notify['display']):?>
+  $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
+  $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
+  $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
+  if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
+  if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
+  if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
+<?endif;?>
+});
+
 var watchdog = new NchanSubscriber('/sub/var');
 watchdog.on('message', function(data) {
   var ini = parseINI(data);
@@ -662,7 +659,7 @@ $(function() {
   $('#licensetype').addClass('red-text');
 <?endif;?>
 <?if ($notify['entity'] & 1 == 1):?>
-  $.post('/webGui/include/Notify.php',{cmd:'init'},function(){timers.notifier = setTimeout(notifier,0);});
+  $.post('/webGui/include/Notify.php',{cmd:'init'},function(){notifier.start();});
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').each(function(){$(this).on('input change',function() {
