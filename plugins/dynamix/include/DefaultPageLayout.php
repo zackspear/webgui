@@ -88,6 +88,9 @@ var before = new Date();
 // page timer events
 var timers = {};
 
+// current csrf_token
+var csrf_token = "<?=$var['csrf_token']?>";
+
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -175,14 +178,14 @@ function chkDelete(form, button) {
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
-  var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token=<?=$var["csrf_token"]?>&done=<?=urlencode(_("Done"))?>';
+  var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location=location;}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
   var window_name = title.replace(/ /g,"_");
-  var form_html = '<form action="/logging.htm" method="post" target="'+window_name+'">'+'<input type="hidden" name="csrf_token" value="<?=$var["csrf_token"]?>" />'+'<input type="hidden" name="title" value="'+title+'" />';
+  var form_html = '<form action="/logging.htm" method="post" target="'+window_name+'">'+'<input type="hidden" name="csrf_token" value="'+csrf_token+'">'+'<input type="hidden" name="title" value="'+title+'">';
   var vars = cmd.split('&');
   form_html += '<input type="hidden" name="cmd" value="'+vars[0]+'">';
   for (var i = 1; i < vars.length; i++) {
@@ -359,7 +362,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   if (s.type.toLowerCase() == "post" && !s.crossDomain) {
     s.data = s.data || "";
     s.data += s.data?"&":"";
-    s.data += "csrf_token=<?=$var['csrf_token']?>";
+    s.data += "csrf_token="+csrf_token;
   }
 });
 
@@ -571,9 +574,14 @@ function parseINI(data){
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
 var notifier = new NchanSubscriber('/sub/notify');
-notifier.on('message', function(json) {
+notifier.on('message', function(d) {
   var tub1 = 0, tub2 = 0, tub3 = 0;
-  var data = $.parseJSON(json);
+  var part = d.split('\0');
+  if (csrf_token != part[1]) {
+    // Stale session, force login
+    $(location).attr('href','/');
+  }
+  var data = $.parseJSON(part[0]);
   $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
     switch (notify.importance) {
@@ -736,7 +744,7 @@ $(function() {
       });
     });
   }
-  $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:'<?=$var['csrf_token']?>'}));
+  $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
   watchdog.start();
 });
 </script>

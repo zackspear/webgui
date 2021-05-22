@@ -13,11 +13,14 @@
 ?>
 <?
 $docroot = '/usr/local/emhttp';
+$varroot = '/var/local/emhttp';
 $notify  = "$docroot/webGui/scripts/notify";
+
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
-  publish('notify', shell_exec("$notify get"));
+  $var = (array)parse_ini_file("$varroot/var.ini");
+  publish('notify', shell_exec("$notify get")."\0".$var['csrf_token']);
   sleep(3);
 }
 ?>
