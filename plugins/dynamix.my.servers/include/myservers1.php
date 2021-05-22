@@ -24,40 +24,29 @@ unraid-launchpad {
   z-index: 10001;
 }
 </style>
-<script type="text/javascript">
-function upcEnv(str) {
-  const ckName = 'UPC_ENV';
-  const ckDate = new Date();
-  const ckDays = 30;
-  ckDate.setTime(ckDate.getTime()+(ckDays*24*60*60*1000));
-  console.log(`✨ ${ckName} set…reloading ✨ `);
-  setTimeout(() => {
-    window.location.reload();
-  }, 2000);
-  return document.cookie = `${ckName}=${str}; expires=${ckDate.toGMTString()}`;
-};
-</script>
 <?
-// Determine what source we should use for web components
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) { // context needed for the UPC ENV local check for signed out users
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
-// When signed out and there's no cookie, UPC ENV should be 'local' to avoid use of external resource. Otherwise default of 'production'.
-$UPC_ENV = $_COOKIE['UPC_ENV'] ?? ((empty($remote['apikey']) || empty($var['regFILE'])) ? 'local' : 'production');
-$upcLocalSrc = '/plugins/dynamix.my.servers/webComps/unraid.min.js';
-$upcSrc = 'https://registration.unraid.net/webComps/unraid.min.js'; // by default prod is loaded from hosted sources
+// Determine what source we should use for web components
+if (!file_exists('/usr/local/sbin/unraid-api')) { // When NOT using the plugin we should load the UPC from the file system unless $_COOKIE['UPC_ENV'] exists.
+  $UPC_ENV = $_COOKIE['UPC_ENV'] ?? 'local';
+} else { // When PLG exists load from local when not signed in but when signed in load UPC from production.
+  $UPC_ENV = $_COOKIE['UPC_ENV'] ?? ((empty($remote['apikey']) || empty($var['regFILE'])) ? 'local' : 'production');
+}
+$upcLocalSrc = '/plugins/dynamix.my.servers/webComps/unraid.min.js'; // @NOTE - that using autov(); would render the file name below the body tag. So dont use it :(
 switch ($UPC_ENV) {
-  case 'staging': // min version of staging
+  case 'production':
+    $upcSrc = 'https://registration.unraid.net/webComps/unraid.min.js';
+    break;
+  case 'staging':
     $upcSrc = 'https://registration-dev.unraid.net/webComps/unraid.min.js';
     break;
-  case 'staging-debug': // non-min version of staging
-    $upcSrc = 'https://registration-dev.unraid.net/webComps/unraid.js';
-    break;
-  case 'local': // forces load from webGUI filesystem.
-    $upcSrc = $upcLocalSrc; // @NOTE - that using autov(); would render the file name below the body tag. So dont use it :(
-    break;
-  case 'development': // dev server for RegWiz development
+  case 'development':
     $upcSrc = 'https://launchpad.unraid.test:6969/webComps/unraid.js';
+    break;
+  default: // load from webGUI filesystem.
+    $upcSrc = $upcLocalSrc;
     break;
 }
 // add the intended web component source to the DOM
@@ -77,5 +66,16 @@ setTimeout(() => {
   }
   return false;
 }, 2000);
+function upcEnv(str) { // overwrite upc src
+  const ckName = 'UPC_ENV';
+  const ckDate = new Date();
+  const ckDays = 30;
+  ckDate.setTime(ckDate.getTime()+(ckDays*24*60*60*1000));
+  console.log(`✨ ${ckName} set…reloading ✨ `);
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000);
+  return document.cookie = `${ckName}=${str}; expires=${ckDate.toGMTString()}`;
+};
 </script>
 <!-- /myservers1 -->
