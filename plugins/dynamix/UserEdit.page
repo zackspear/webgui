@@ -20,11 +20,13 @@ Tag="user"
 <?return;?>
 <?endif;?>
 <?
-$user = "/boot/config/plugins/dynamix/users/$name.png";
-$void = "<img src='/webGui/images/user.png' width='48' height='48' id='image' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='"._('Click to select PNG file')."'>";
-$icon = "<i class='fa fa-trash top' title='"._('Restore default image')."' onclick='restore()'></i>";
-
+$user   = "/boot/config/plugins/dynamix/users/$name.png";
+$void   = "<img src='/webGui/images/user.png' width='48' height='48' id='image' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='"._('Click to select PNG file')."'>";
+$icon   = "<i class='fa fa-trash top' title='"._('Restore default image')."' onclick='restore()'></i>";
 $zxcvbn = file_exists('/boot/config/plugins/dynamix/zxcvbn.js');
+
+$file   = "/boot/config/ssh/root/authorized_keys";
+$text   = preg_replace(["/\r\n/","/\r/"],"\n", @file_get_contents($file) ?: '');
 ?>
 <style>
 <?if ($display['theme']=='gray'):?>
@@ -160,6 +162,11 @@ $(function(){
     var files = e.target.files;
     if ($('#dropbox').triggerHandler({type:'drop',dataTransfer:{files:files}})==false) e.stopImmediatePropagation();
   });
+  // auto size the textarea
+  $('form').find('textarea').on('input change',function(){
+    $(this).prop('rows',Math.max(($(this).val().match(/\n/g)||[]).length+1,10));
+    $('form').find('input[value="_(Upload)_"]').prop('disabled',false);
+  });
 });
 </script>
 <div class="spinner fixed"></div>
@@ -208,6 +215,19 @@ _(Retype password)_:
 &nbsp;
 : <input type="submit" name="cmdUserEdit" value="_(Change)_" onclick="this.value='Change'" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
 </form>
+
+<?if ($name == 'root'):?>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#include" value="/webGui/include/update.file.php">
+<input type="hidden" name="#file" value="<?=$file;?>">
+_(SSH authorized keys)_:
+: <textarea spellcheck="false" cols="80" rows="<?=max(substr_count($text,"\n")+1,10)?>" maxlength="16384" name="text" style="resize:none;font-family:bitstream;width:65.5%"><?=htmlspecialchars($text)?></textarea>
+
+&nbsp;
+: <input type="submit" value="_(Upload)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+
+</form>
+<?endif;?>
 
 <?if ($name != 'root' && $var['shareSMBEnabled'] != 'no'):?>
 <script>
