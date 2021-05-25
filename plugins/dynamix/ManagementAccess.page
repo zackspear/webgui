@@ -114,11 +114,6 @@ function updateDNS(button) {
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
-function jsprintf() {
-  var text = arguments[0];
-  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
-  return text;
-}
 function validatePorts(form) {
   if (checkPorts(form,false)) {
     form.submit();
@@ -166,15 +161,15 @@ function checkPorts(form,provision) {
   }, []);
 
   if ( range.length > 0 ) {
-    swal({title:'_(Port out of range)_',text:jsprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    swal({title:'_(Port out of range)_',text:sprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
   }
   if ( list.length > 0 ) {
-    swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
   }
   if ( duplicates.length > 0 ) {
-    swal({title:'_(Duplicate port entered)_',text:jsprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    swal({title:'_(Duplicate port entered)_',text:sprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
   }
   return true;

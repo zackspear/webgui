@@ -45,11 +45,6 @@ $(function(){
   localFolder(document.syslog.local_server.value);
   logOptions(document.syslog.log_rotation.value);
 });
-function jsprintf() {
-  var text = arguments[0];
-  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
-  return text;
-}
 function validatePort(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
   var currentPort = "<?=($syslog['local_server'] && $syslog['server_protocol'] != "udp") ? $syslog['server_port'] : "0"?>";
@@ -57,12 +52,12 @@ function validatePort(form) {
   var remotePort = $(form).find('input[name="remote_port"]');
   var protocol = $(form).find('select[name="server_protocol"]').val();
   if ( !port.val() ) port.val("514");
-	port.val(parseInt(port.val()));
-	remotePort.val(parseInt(remotePort.val()));
+  port.val(parseInt(port.val()));
+  remotePort.val(parseInt(remotePort.val()));
   var newport = port.val();
   if (newport != currentPort && protocol != "udp"  && $(form).find('select[name="local_server"]').val() ) {
     if (portsInUse.includes(newport) ) {
-      swal({title:'_(Port already in use)_',text:jsprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+      swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
       return;
     }
   }
@@ -76,12 +71,12 @@ function validatePort(form) {
     list.push("_(Remote syslog port)_");
   }
   if ( list.length > 0 ) {
-    swal({title:'_(Port out of range)_',text:jsprintf('_(%s is out of range (minimum 1 maximum 65535))_',list.join(", ")),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    swal({title:'_(Port out of range)_',text:sprintf('_(%s is out of range (minimum 1 maximum 65535))_',list.join(", ")),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return;
   }
   form.submit();
 }
-      
+
 </script>
 
 <form markdown="1" name="syslog" method="POST" action="/update.php" target="progressFrame">

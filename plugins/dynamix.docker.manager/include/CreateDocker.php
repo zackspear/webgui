@@ -307,11 +307,6 @@ if (!String.prototype.replaceAll) {
     return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
   };
 }
-function simplef() {
-  var text = arguments[0];
-  for (var i=1,arg; arg=arguments[i]; i++) text = text.replace('%s',arg);
-  return _(text);
-}
 // Create config nodes using templateDisplayConfig
 function makeConfig(opts) {
   confNum += 1;
@@ -329,7 +324,7 @@ function makeConfig(opts) {
     escapeQuote(opts.Value),
     opts.Buttons,
     opts.Required=='true' ? 'required' : '',
-    simplef('Container %s',opts.Type)
+    sprintf('Container %s',opts.Type)
   );
   newConfig = "<div id='ConfigNum"+opts.Number+"' class='config_"+opts.Display+"'' >"+newConfig+"</div>";
   newConfig = $($.parseHTML(newConfig));
@@ -1049,7 +1044,7 @@ function load_contOverview() {
     // Handle code block being created by authors indenting (manually editing the xml and spacing)
     new_overview = new_overview.replaceAll("    ","&nbsp;&nbsp;&nbsp;&nbsp;");
     new_overview = marked(new_overview);
-  } else 
+  } else
     new_overview = new_overview.replaceAll("\n","");
   $("#contDescription").html(new_overview);
 }
