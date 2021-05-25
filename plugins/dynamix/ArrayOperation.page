@@ -1,7 +1,7 @@
 Menu="Main:5"
 Title="Array Operation"
 Tag="snowflake-o"
-Nchan="device_list,disk_load"
+Nchan="device_list,disk_load,parity_list"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -179,17 +179,6 @@ function tab0() {
   $.removeCookie('one',{path:'/'});
   $.cookie('tab','tab0',{path:'/'});
 }
-function parityStatus() {
-  $.post('/webGui/include/ParityList.php',{},function(data) {
-    if (data) {$.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});}
-    timers.parityStatus = setTimeout(parityStatus,3000);
-    if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
-      $('#cancelButton').val('Done').prop('onclick',null).off('click').click(function(){refresh();});
-      $('#cancelText').html('');
-      $('#line4').html("_(completed)_");
-    }
-  });
-}
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
   devices.stop();
@@ -232,7 +221,6 @@ function shutdown_now(form,cmd) {
 function toggleApply(checked) {
   $('input[name="#apply"]').prop('disabled',!checked);
 }
-parityStatus();
 <?if ($tabbed):?>
 $('.tabs').append(ctrl);
 if ($.cookie('tab')=='tab0') $('i.toggle').hide();
@@ -283,7 +271,20 @@ devices.on('connect', function(e) {
 });
 <?endif;?>
 
+var parityStatus = new NchanSubscriber('/sub/parity');
+parityStatus.on('message', function(data) {
+  $.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
+  if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
+    $('#cancelButton').val('Done').prop('onclick',null).off('click').click(function(){refresh();});
+    $('#cancelText').html('');
+    $('#line4').html("_(completed)_");
+  }
+});
+
 devices.start();
+<?if ($var['mdResyncPos']):?>
+parityStatus.start();
+<?endif;?>
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
