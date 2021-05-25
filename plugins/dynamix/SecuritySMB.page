@@ -4,8 +4,8 @@ Tag="windows"
 Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$sec):0))"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -30,7 +30,7 @@ $width = [123,300];
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name) echo mk_option("", $list['name'], compress($list['name']));
 }
 ?>
 </select></span><input type="button" id="readsmb" value="_(Read)_" class="clone" onclick="readSMB()" disabled>
@@ -43,7 +43,7 @@ $rows = [];
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], compress($list['name']));
 }
 if ($rows) echo "<option>("._('All').")</option>";
 foreach ($rows as $row) echo $row;
@@ -123,7 +123,7 @@ _(Security)_:
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') echo mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') echo mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') echo mk_option("", $list['name'], compress($list['name']));
 }
 ?>
 </select></span><input type="button" id="readusersmb" value="_(Read)_" class="clone" onclick="readUserSMB()" disabled>
@@ -136,7 +136,7 @@ $rows = [];
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') $rows[] = mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') $rows[] = mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='secure') $rows[] = mk_option("", $list['name'], compress($list['name']));
 }
 if ($rows) echo "<option>("._('All').")</option>";
 foreach ($rows as $row) echo $row;
@@ -165,7 +165,7 @@ foreach ($rows as $row) echo $row;
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') echo mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') echo mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') echo mk_option("", $list['name'], compress($list['name']));
 }
 ?>
 </select></span><input type="button" id="readusersmb" value="_(Read)_" class="clone" onclick="readUserSMB()" disabled>
@@ -178,7 +178,7 @@ $rows = [];
 if (isset($disks[$name])) {
   foreach (array_filter($disks,'clone_list') as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') $rows[] = mk_option("", $list['name'], _(my_disk($list['name']),3));
 } else {
-  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') $rows[] = mk_option("", $list['name'], $list['name']);
+  foreach ($shares as $list) if ($list['name']!=$name && $sec[$list['name']]['security']=='private') $rows[] = mk_option("", $list['name'], compress($list['name']));
 }
 if ($rows) echo "<option>("._('All').")</option>";
 foreach ($rows as $row) echo $row;
