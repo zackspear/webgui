@@ -3,8 +3,8 @@ Title="Share Settings"
 Tag="share-alt-square"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -62,7 +62,7 @@ $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), 
 <span class="wrap"><select name="readshare" class="clone" onchange="toggleButton('readshare',false)">
 <option disabled selected>_(select)_...</option>
 <?
-foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option("", $list['name'], $list['name']);
+foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option("", $list['name'], compress($list['name']));
 ?>
 </select></span><input type="button" id="readshare" value="_(Read)_" class="clone" onclick="readShare()" disabled>
 </div>
@@ -72,7 +72,7 @@ foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option(""
 <span class="wrap"><select id="s3" name="writeshare" multiple="multiple" style="display:none" onchange="toggleButton('writeshare',this.id)">
 <?
 $rows = [];
-foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], $list['name']);
+foreach ($shares as $list) if ($list['name']!=$name) $rows[] = mk_option("", $list['name'], compress($list['name']));
 if ($rows) echo "<option>("._('All').")</option>";
 foreach ($rows as $row) echo $row;
 ?>
