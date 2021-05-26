@@ -112,6 +112,19 @@ function upload(remove) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'<?=addslashes(htmlspecialchars($name))?>.png'});
   }
 }
+function checkKey(form) {
+  // check syntax of ssh keys
+  var rows = form.text.value.split('\n');
+  for (var i=0,row; row=rows[i]; i++) {
+    var data = row.split(' ');
+    // key must have 3 fields, starts with ssh or ecdsa, is for root user
+    if (data.length!=3 || data[0].search(/^(ssh|ecdsa)/)==-1 || data[2].search('root@')==-1) {
+      swal({title:"_(Invalid Key)_",text:"["+(i+1)+"] "+data[0].substr(0,10)+": _(Syntax of the key is incorrect)_!",type:"error",html:true,confirmButtonText:"_(Ok)_"});
+      return false;
+    }
+  }
+  return true;
+}
 $(function(){
   var dropbox = $('#dropbox');
   // attach the drag-n-drop feature to the 'dropbox' element
@@ -165,7 +178,7 @@ $(function(){
   // auto size the textarea
   $('form').find('textarea').on('input change',function(){
     $(this).prop('rows',Math.max(($(this).val().match(/\n/g)||[]).length+1,10));
-    $('form').find('input[value="_(Upload)_"]').prop('disabled',false);
+    $('form').find('input[value="_(Save)_"]').prop('disabled',false);
   });
 });
 </script>
@@ -199,7 +212,7 @@ _(Delete)_<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.f
 : <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
 </form>
 <br><br>
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return checkPassword(this)">
+<form markdown="1" method="POST" action="/update.htm" onsubmit="return checkPassword(this)" target="progressFrame">
 <input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
 _(Password)_:
 <input type="hidden" name="userPassword" value="">
@@ -217,14 +230,14 @@ _(Retype password)_:
 </form>
 
 <?if ($name == 'root'):?>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" method="POST" action="/update.php" onsubmit="return checkKey(this)" target="progressFrame">
 <input type="hidden" name="#include" value="/webGui/include/update.file.php">
 <input type="hidden" name="#file" value="<?=$file;?>">
 _(SSH authorized keys)_:
-: <textarea spellcheck="false" cols="80" rows="<?=max(substr_count($text,"\n")+1,10)?>" maxlength="16384" name="text" style="resize:none;font-family:bitstream;width:65.5%"><?=htmlspecialchars($text)?></textarea>
+: <textarea spellcheck="false" cols="80" rows="<?=max(substr_count($text,"\n")+1,10)?>" maxlength="16384" name="text" style="resize:none;white-space:normal;font-family:bitstream;width:65.5%"><?=htmlspecialchars($text)?></textarea>
 
 &nbsp;
-: <input type="submit" value="_(Upload)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" value="_(Save)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 
 </form>
 <?endif;?>
