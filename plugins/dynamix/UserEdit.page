@@ -117,8 +117,8 @@ function checkKey(form) {
   var rows = form.text.value.split('\n');
   for (var i=0,row; row=rows[i]; i++) {
     var data = row.split(' ');
-    // key must have 3 fields, starts with ssh or ecdsa, is for root user
-    if (data.length!=3 || data[0].search(/^(ssh|ecdsa)/)==-1 || data[2].search('root@')==-1) {
+    // key must have 3 fields, starts with ssh or ecdsa, and is for user
+    if (data.length!=3 || data[0].search(/^(ssh|ecdsa)/)==-1 || data[2].search('@')==-1) {
       swal({title:"_(Invalid Key)_",text:"["+(i+1)+"] "+data[0].substr(0,10)+": _(Syntax of the key is incorrect)_!",type:"error",html:true,confirmButtonText:"_(Ok)_"});
       return false;
     }
