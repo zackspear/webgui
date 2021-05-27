@@ -192,6 +192,9 @@ $(function(){
 </script>
 <form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changePorts" value="apply">
+_(User 'root')_:
+: <a href="/Settings/Users/ManagementAccess/UserEdit?name=root">_(Set password)_</a>
+
 _(Start page)_:
 : <select name="START_PAGE">
 <?foreach ($tasks as $task) echo mk_option($var['START_PAGE']??'Main', $task, _($task));?>
