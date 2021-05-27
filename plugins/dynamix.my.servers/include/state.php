@@ -30,13 +30,11 @@ if (empty($remote['apikey']) || empty($var['regFILE']) || empty($remote['usernam
   $arr['registered'] = 0;
   $arr['username'] = '';
   $arr['avatar'] = '';
-  $arr['apikey'] = '';
   $arr['sendCrashInfo'] = 0;
 } else {
   $arr['registered'] = 1;
   $arr['username'] = $remote['username'];
   $arr['avatar'] = $remote['avatar'];
-  $arr['apikey'] = $remote['apikey'];
   $arr['sendCrashInfo'] = $remote['sendCrashInfo'] || 'no';
 }
 $arr['event'] = 'STATE';
