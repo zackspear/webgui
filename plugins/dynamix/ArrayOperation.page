@@ -275,7 +275,7 @@ var parityStatus = new NchanSubscriber('/sub/parity');
 parityStatus.on('message', function(data) {
   $.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
   if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
-    $('#cancelButton').val('Done').prop('onclick',null).off('click').click(function(){refresh();});
+    $('#cancelButton').val("_(Done)_").prop('onclick',null).off('click').click(function(){refresh();});
     $('#cancelText').html('');
     $('#line4').html("_(completed)_");
   }
