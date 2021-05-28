@@ -95,6 +95,9 @@ var timers = {};
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
 
+// form has unsaved changes indicator
+var formHasUnsavedChanges = false;
+
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -662,6 +665,7 @@ $('.back_to_top').click(function(event) {
   return false;
 });
 $(function() {
+  watchdog.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
@@ -677,8 +681,13 @@ $(function() {
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').each(function(){$(this).on('input change',function() {
     var form = $(this).parentsUntil('form').parent();
     form.find('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').not('input.lock').prop('disabled',false);
-    form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){refresh(form.offset().top)});
+    form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){formHasUnsavedChanges=false;refresh(form.offset().top);});
   });});
+  // add leave confirmation when form has changed without applying (opt-in function)
+  $('form.js-confirm-leave').each(function() {
+    $(this).on('change',function(){formHasUnsavedChanges=true;}).on('submit',function(){formHasUnsavedChanges=false;});
+  });
+  $(window).on('beforeunload',function(e){if (formHasUnsavedChanges) return '';}); // note: the browser creates its own popup window and warning message
 
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
@@ -749,7 +758,6 @@ $(function() {
     });
   }
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
-  watchdog.start();
 });
 </script>
 </body>
