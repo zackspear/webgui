@@ -188,6 +188,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .share1,.share2,.share3,.view1,.view2,.view3,.view4,.user1,.user2,.user3{display:none}
 .port_view,.chevron,#apps,#vms{z-index:10000}
 #shares_view_on,#users_view_on,#array_view_on,#extra_view_on{display:none}
+#db-box2{margin-bottom:140px}
 <?foreach ($pools as $pool):?>
 ._<?=$pool?>_view{display:none}
 #_<?=$pool?>_view_on{display:none}
