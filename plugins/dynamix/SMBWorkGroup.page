@@ -21,6 +21,7 @@ _(Workgroup)_:
 
 :smb_workgroup_help:
 
+<?if ($var['USE_NETBIOS']=="yes"):?>
 _(Local master)_:
 : <select name="localMaster" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
   <?=mk_option($var['localMaster'], "no", _('No'))?>
@@ -29,6 +30,7 @@ _(Local master)_:
 
 :smb_local_master_help:
 
+<?endif?>
 &nbsp;
 : <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($var['fsState']=="Started"):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>
