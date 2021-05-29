@@ -112,7 +112,7 @@ if (!empty($strLoadedModules)) {
   // Yah! CPU and motherboard supported and enabled in BIOS
   echo _("Enabled");
 } else {
-  echo '<a href="http://lime-technology.com/wiki/index.php/UnRAID_Manual_6#Determining_HVM.2FIOMMU_Hardware_Support" target="_blank">';
+  echo '<a href="https://wiki.unraid.net/Manual/VM_Management#System_Preparation" target="_blank">';
   if (strpos($strCPUInfo,'vmx')===false && strpos($strCPUInfo, 'svm')===false) {
     // CPU doesn't support virtualization
     echo _("Not Available");
@@ -133,7 +133,7 @@ if (!empty($iommu_groups)) {
   // Yah! CPU and motherboard supported and enabled in BIOS
   echo _("Enabled");
 } else {
-  echo '<a href="http://lime-technology.com/wiki/index.php/UnRAID_Manual_6#Determining_HVM.2FIOMMU_Hardware_Support" target="_blank">';
+  echo '<a href="https://wiki.unraid.net/Manual/VM_Management#Determining_HVM.2FIOMMU_Hardware_Support" target="_blank">';
   if (strpos($strCPUInfo,'vmx')===false && strpos($strCPUInfo, 'svm')===false) {
     // CPU doesn't support virtualization so iommu would be impossible
     echo _("Not Available");

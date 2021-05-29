@@ -86,9 +86,9 @@ input[type=email]{margin-top:8px;float:left}
 <div id="spinner_image"><img src="/webGui/images/loading.gif"/></div>
 <div id="footer_panel">
 <hr>
-<a href="https://lime-technology.com" target="_blank"><?=_('Website')?></a>&nbsp;|&nbsp;
-<a href="https://lime-technology.com/forum" target="_blank"><?=_('Forum')?></a>&nbsp;|&nbsp;
-<a href="https://lime-technology.com/wiki" target="_blank"><?=_('Wiki')?></a>
+<a href="https://unraid.net" target="_blank"><?=_('Website')?></a>&nbsp;|&nbsp;
+<a href="https://unraid.net/forum" target="_blank"><?=_('Forum')?></a>&nbsp;|&nbsp;
+<a href="https://unraid.net/wiki" target="_blank"><?=_('Docs')?></a>
 </div>
 </div>
 <script type="text/javascript" src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
