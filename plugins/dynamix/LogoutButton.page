@@ -1,4 +1,3 @@
-Cond="file_exists('/etc/nginx/htpasswd')"
 Menu="Buttons:2"
 Title="Logout"
 Icon="icon-u-logout"
