@@ -1,9 +1,13 @@
 <?php
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
-require_once "$docroot/webGui/include/Translations.php";
 $var = parse_ini_file('state/var.ini');
 $error = '';
+
+// Translation support
+extract(parse_plugin_cfg('dynamix',true));
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
 
 if ($_SERVER['REQUEST_URI'] == '/logout') {
     // User Logout

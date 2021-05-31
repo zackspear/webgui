@@ -55,7 +55,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
     <meta name="referrer" content="same-origin">
-    <title><?=$var['NAME']?>/<? _('SetPassword') ?></title>
+    <title><?=$var['NAME']?>/SetPassword</title>
     <link rel="icon" href="webGui/images/animated-logo.svg" sizes="any" type="image/svg+xml">
     <style>
     /************************
@@ -343,8 +343,8 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
                 <p>Please set a password for the root user account.  Maximum length is 128 characters.</p>
             </header>
             <noscript>
-                <p class="error"><?= _('The Unraid OS webgui requires JavaScript. Please enable it.') ?></p>
-                <p class="error"><?= _('Please also ensure you have cookies enabled.') ?></p>
+                <p class="error"><?= _('The Unraid OS webgui requires JavaScript').'. '._('Please enable it').'.' ?></p>
+                <p class="error"><?= _('Please also ensure you have cookies enabled').'.' ?></p>
             </noscript>
             <form action="/login" method="POST" class="js-validate w-full flex flex-col">
                 <label for="password"><?= _('Username') ?></label>
