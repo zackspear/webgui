@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
-  publish('session', $var['csrf_token']);
+  publish('session', $var['csrf_token'], 0);
   sleep(10);
 }
 ?>
