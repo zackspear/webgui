@@ -22,6 +22,7 @@ $encrypt = false;
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
 foreach ($disks as $disk) {
+  if (!isset($disk['fsType'])) continue;
   if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
     $encrypt = true;
     if ($disk['luksState']==0) $forced = true;
