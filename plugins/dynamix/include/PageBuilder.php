@@ -22,7 +22,7 @@ function get_ini_key($key,$default) {
 }
 
 function get_file_key($file,$default) {
-  [$key, $default] = explode('=',$default,2);
+  [$key, $default] = my_explode('=',$default);
   $var = @parse_ini_file($file);
   return $var[$key] ?? $default;
 }
