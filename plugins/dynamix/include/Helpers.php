@@ -257,4 +257,7 @@ function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
 }
+function my_explode($split,$key,$count=2) {
+  return array_replace(array_fill(0,$count,''),explode($split,$key,$count));
+}
 ?>

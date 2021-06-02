@@ -30,7 +30,7 @@ function get_file_key($file,$default) {
 function build_pages($pattern) {
   global $site;
   foreach (glob($pattern,GLOB_NOSORT) as $entry) {
-    [$header, $content] = explode("\n---\n", file_get_contents($entry),2);
+    [$header, $content] = my_explode("\n---\n",file_get_contents($entry));
     $page = @parse_ini_string($header);
     if (!$page) {exec("logger -t 'webGUI' Invalid .page format: $entry"); continue;}
     $page['file'] = $entry;
@@ -52,7 +52,7 @@ function find_pages($item) {
       case '/': $menu = get_file_key($menu,strtok(' ')); break;
     }
     while ($menu !== false) {
-      [$menu,$rank] = explode(':',$menu);
+      [$menu,$rank] = my_explode(':',$menu);
       if ($menu == $item) {
         $enabled = true;
         if (isset($page['Cond'])) eval("\$enabled={$page['Cond']};");

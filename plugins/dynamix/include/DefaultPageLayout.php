@@ -511,7 +511,7 @@ if (count($pages)) {
   }
   // stop nchan scripts with the :stop option
   foreach ($stop as $row) {
-    [$script,$opt] = explode(':',$row);
+    [$script,$opt] = my_explode(':',$row);
     if ($opt == 'stop') {
       exec("pkill $script >/dev/null &");
       array_splice($running,array_search($row,$running),1);

@@ -4,8 +4,8 @@ Icon="icon-clock"
 Tag="clock-o"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -24,7 +24,7 @@ _(Current date and time)_:
 _(Time zone)_:
 : <select name="timeZone" size="1"><?
   foreach ($keys as $key) {
-    list($timezone, $city) = explode('|', $key);
+    [$timezone, $city] = my_explode('|', $key);
     echo mk_option($var['timeZone'], $timezone, $city);
   }
 ?></select>

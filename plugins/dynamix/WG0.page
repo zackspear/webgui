@@ -51,7 +51,7 @@ function readConf(&$peer_wg,&$wg,$vtun) {
       if ($i) $peer_wg[] = $i;
       $rows = explode("\n",$entry);
       foreach ($rows as $row) {
-        [$id,$data] = array_map('trim',explode('=',$row,2));
+        [$id,$data] = array_map('trim',my_explode('=',$row));
         switch ($id) {
         case 'PostUp':
         case 'PostDown':
@@ -64,10 +64,10 @@ function readConf(&$peer_wg,&$wg,$vtun) {
           break;
         case 'Endpoint':
           if ($data[0]=='[') {
-            [$ip,$port] = explode(']:',$data);
+            [$ip,$port] = my_explode(']:',$data);
             $ip = substr($ip,1);
           } else {
-            [$ip,$port] = explode(':',$data);
+            [$ip,$port] = my_explode(':',$data);
           }
           $wg["Endpoint:$i"] = $ip;
           $wg["ListenPort:$i"] = $port;
@@ -83,11 +83,11 @@ function readConf(&$peer_wg,&$wg,$vtun) {
   if (file_exists($cfg)) {
     $more = parse_ini_file($cfg);
     foreach ($more as $key => $data) {
-      [$id,$i] = explode(':',$key);
+      [$id,$i] = my_explode(':',$key);
       if ($id!='Address') continue;
       switch ($more['PROT:0']) {
       case '46':
-        [$ip4,$ip6] = array_map('trim',explode(',',$data));
+        [$ip4,$ip6] = array_map('trim',my_explode(',',$data));
         $more[$key] = $ip4;
         $more["Address6:$i"] = $ip6;
         break;
@@ -98,8 +98,8 @@ function readConf(&$peer_wg,&$wg,$vtun) {
       }
     }
     $wg = array_merge($wg,$more);
-    [$subnet,$mask] = explode('/',$wg['Network:0']);
-    [$subnet6,$mask6] = explode('/',$wg['Network6:0']);
+    [$subnet,$mask] = my_explode('/',$wg['Network:0']);
+    [$subnet6,$mask6] = my_explode('/',$wg['Network6:0']);
     $netbase[$vtun] = ip2long($subnet) & (0x100000000-2**(32-$mask));
     $netbase6[$vtun] = $subnet6 ?: $netpool6[$vtun];
   } else {

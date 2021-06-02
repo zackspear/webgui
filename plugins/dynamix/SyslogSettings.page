@@ -26,7 +26,7 @@ $bind = $var['BIND_MGT']=='yes';
 $list = ['*', $eth0['IPADDR:0']];
 
 foreach ($output as $line) {
-  [$ip, $port] = explode(':', $line);
+  [$ip, $port] = my_explode(':', $line);
   if (!in_array($port, $portsInUse) && (!$bind || in_array($ip, $list))) $portsInUse[] = $port;
 }
 ?>
