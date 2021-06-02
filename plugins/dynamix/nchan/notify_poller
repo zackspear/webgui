@@ -21,7 +21,7 @@ require_once "$docroot/webGui/include/publish.php";
 while (true) {
   $get = shell_exec("$notify get");
   if (!file_exists($unread) || file_get_contents($unread)!=$get) {
-    publish('notify', $get, 0);
+    publish('notify', $get);
     file_put_contents($unread,$get);
   }
   sleep(3);
