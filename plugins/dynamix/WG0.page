@@ -1000,14 +1000,14 @@ function getPublicIP(ip,wg,protocol) {
     if ((protocol==''||protocol=='46') && ext_ipv4 && ip) {
       if (!int_ipv4) {
         $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint does not resolve to an IPv4 address)_. _(In most cases, this should be your public WAN IPv4)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
-      } else if (!endpoints.includes(int_ipv4)) {
+      } else if (!endpoints.includes(int_ipv4) && int_ipv4 != ext_ipv4) {
         $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+int_ipv4+".</b> _(In most cases, this should be your public WAN IPv4 instead)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
       }
     }
     if ((protocol=='6'||protocol=='46') && ext_ipv6 && ip) {
       if (!int_ipv6) {
         $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint does not resolve to an IPv6 address)_. _(In most cases, this should be your public WAN IPv6)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
-      } else if (!endpoints.includes(int_ipv6)) {
+      } else if (!endpoints.includes(int_ipv6) && int_ipv6 != ext_ipv6) {
         $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+int_ipv6+".</b> _(In most cases, this should be your public WAN IPv6 instead)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
       }
     }
