@@ -108,12 +108,12 @@ $myfile = "case-model.cfg";
 $mycase = file_exists("$boot/$myfile") ? file_get_contents("$boot/$myfile") : false;
 
 $board  = dmidecode('Base Board Information','2',0);
-$serial = _("s/n").": {$board['Serial Number']}";
-$board  = "{$board['Manufacturer']} {$board['Product Name']}".($board['Version'] ? ", "._("Version")." {$board['Version']}" : "");
+$serial = _("s/n").": ".($board['Serial Number'] ?? "--");
+$board  = ($board['Manufacturer'] ?? "").' '.($board['Product Name'] ?? "").' '.(isset($board['Version']) ? ", "._("Version")." ".$board['Version'] : "");
 
 $bios = dmidecode('BIOS Information','0',0);
-$biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date']),$display['date']),0);
-$bios = $bios['Vendor'].($bios['Version'] ? ", "._("Version")." {$bios['Version']}" : "");
+$biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date'] ?? ""),$display['date']),0);
+$bios = $bios['Vendor'].(isset($bios['Version']) ? ", "._("Version")." ".$bios['Version'] : "");
 
 $cpu = dmidecode('Processor Information','4',0);
 $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version']);
