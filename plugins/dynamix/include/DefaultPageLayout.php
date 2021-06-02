@@ -669,6 +669,7 @@ $('.back_to_top').click(function(event) {
 });
 $(function() {
   watchdog.start();
+  session_check.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
