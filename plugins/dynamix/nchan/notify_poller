@@ -14,15 +14,15 @@
 <?
 $docroot = '/usr/local/emhttp';
 $notify  = "$docroot/webGui/scripts/notify";
-$unread  = '/tmp/unread.tmp';
+$unread  = '';
 
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
   $get = shell_exec("$notify get");
-  if (!file_exists($unread) || file_get_contents($unread)!=$get) {
+  if ($get != $unread) {
     publish('notify', $get);
-    file_put_contents($unread,$get);
+    $unread = $get;
   }
   sleep(3);
 }
