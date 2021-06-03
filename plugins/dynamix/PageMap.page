@@ -33,7 +33,7 @@ function show_map($menu, $level) {
     return;
   echo "<ul>";
   foreach ($pages as $page) {
-    $link  ="<a href='/{$page['name']}'>{$page['name']}</a>";
+    $link  = "<a href='/{$page['name']}'>{$page['name']}</a>";
     $title = $page['Title'] ?? '';
     $type  = $page['Type'] ?? '';
     if ($type == "menu") {
