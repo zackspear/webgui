@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2018, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -875,7 +875,7 @@
 
 	function getHostCPUModel() {
 		$cpu = explode('#', exec("dmidecode -q -t 4|awk -F: '{if(/Version:/) v=$2; else if(/Current Speed:/) s=$2} END{print v\"#\"s}'"));
-		list($strCPUModel) = explode('@', str_replace(["Processor","CPU","(C)","(R)","(TM)"], ["","","&#169;","&#174;","&#8482;"], $cpu[0]) . '@');
+		[$strCPUModel] = my_explode('@', str_replace(["Processor","CPU","(C)","(R)","(TM)"], ["","","&#169;","&#174;","&#8482;"], $cpu[0]) . '@', 1);
 		return trim($strCPUModel);
 	}
 
@@ -1084,9 +1084,9 @@
 			$auto = $device['tag'];
 			$vendor = $device['source']['vendor']['@attributes']['id'];
 			$remove_usb = $remove_pci = false;
-			list($product,$remove_usb) = explode('#',$device['source']['product']['@attributes']['id']);
+			[$product,$remove_usb] = my_explode('#',$device['source']['product']['@attributes']['id']);
 			$pci = $device['source']['address']['@attributes'];
-			list($function,$remove_pci) = explode('#',$pci['function']);
+			[$function,$remove_pci] = my_explode('#',$pci['function']);
 			if ($remove_usb || $remove_pci) unset($new['devices']['hostdev'][$key]);
 			foreach ($hostold as $k => $d) {
 				$v = $d['source']['vendor']['@attributes']['id'];

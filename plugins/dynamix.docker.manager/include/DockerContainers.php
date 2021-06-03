@@ -49,7 +49,7 @@ $autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
 $names = array_map('var_split', $autostart);
 
 function my_lang_time($text) {
-  [$number, $text] = explode(' ',$text,2);
+  [$number, $text] = my_explode(' ',$text,2);
   return sprintf(_("%s $text"),$number);
 }
 function my_lang_log($text) {
@@ -57,7 +57,7 @@ function my_lang_log($text) {
   if (isset($language['healthy'])) $text = str_replace('healthy',$language['healthy'],$text);
   if (isset($language['Exited'])) $text = str_replace('Exited',$language['Exited'],$text);
   if (strpos($text,'ago')!==false) {
-    [$t1,$t2] = explode(') ',$text);
+    [$t1,$t2] = my_explode(') ',$text);
     return $t1.'): '.my_lang_time($t2);
   }
   return _(_($text),2);
@@ -94,7 +94,7 @@ foreach ($containers as $ct) {
   $paths = [];
   $ct['Volumes'] = is_array($ct['Volumes']) ? $ct['Volumes'] : [];
   foreach ($ct['Volumes'] as $mount) {
-    list($host_path,$container_path,$access_mode) = explode(':',$mount);
+    [$host_path,$container_path,$access_mode] = my_explode(':',$mount,3);
     $paths[] = sprintf('%s<i class="fa fa-%s" style="margin:0 6px"></i>%s', htmlspecialchars($container_path), $access_mode=='ro'?'long-arrow-left':'arrows-h', htmlspecialchars($host_path));
   }
   echo "<tr class='sortable'><td class='ct-name' style='width:220px;padding:8px'>";
@@ -108,7 +108,7 @@ foreach ($containers as $ct) {
   if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars(${ct['BaseImage']})."<br>";
   echo _('By').": ";
   $registry = $info['registry'];
-  [$author,$version] = explode(':',$ct['Image']);
+  [$author,$version] = my_explode(':',$ct['Image']);
   if ($registry) {
     echo "<a href='".htmlspecialchars($registry)."' target='_blank'>".htmlspecialchars(compress($author,24))."</a>";
   } else {

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -54,7 +54,7 @@ $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($line = fgets($handle)) !== false) {
-    [$date,$duration,$speed,$status,$error] = explode('|',$line);
+    [$date,$duration,$speed,$status,$error] = my_explode('|',$line,5);
     if ($speed==0) $speed = _('Unavailable');
     $date = str_replace(' ',', ',strtr(str_replace('  ',' 0',$date),$month));
     if ($duration>0||$status<>0) $list[] = "<tr><td>$date</td><td>".his_duration($duration)."</td><td>$speed</td><td>".($status==0?_('OK'):($status==-4?_('Canceled'):$status))."</td><td>$error</td></tr>";

@@ -16,6 +16,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $_SERVER['REQUEST_URI'] = 'plugins';
 require_once "$docroot/webGui/include/Translations.php";
 
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 $system  = $_GET['system'] ?? false;
@@ -31,7 +32,7 @@ $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
 
 if ($audit) {
-  [$plg,$action] = explode(':',$audit);
+  [$plg,$action] = my_explode(':',$audit);
   switch ($action) {
     case 'return' : $check = true; break;
     case 'remove' : return;

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ function dmidecode($key,$n,$all=true) {
   foreach ($entries as $entry) {
     $property = [];
     foreach (explode("\n",$entry) as $line) if (strpos($line,': ')!==false) {
-      list($key,$value) = explode(': ',trim($line));
+      [$key,$value] = my_explode(': ',trim($line));
       $property[$key] = $value;
     }
     $properties[] = $property;
@@ -170,14 +170,14 @@ $memory_installed = $memory_maximum = 0;
 $memory_devices = dmidecode('Memory Device','17');
 foreach ($memory_devices as $device) {
   if ($device['Type']=='Unknown') continue;
-  list($size, $unit) = explode(' ',$device['Size']);
+  [$size, $unit] = my_explode(' ',$device['Size']);
   $base = array_search($unit,$sizes);
   if ($base!==false) $memory_installed += $size*pow(1024,$base);
   if (!$memory_type) $memory_type = $device['Type'];
 }
 $memory_array = dmidecode('Physical Memory Array','16');
 foreach ($memory_array as $device) {
-  [$size, $unit] = explode(' ',$device['Maximum Capacity']);
+  [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";

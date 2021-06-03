@@ -206,7 +206,7 @@ if ($_GET['rmTemplate']) {
 #########################
 
 if ($_GET['xmlTemplate']) {
-  [$xmlType, $xmlTemplate] = explode(':', urldecode($_GET['xmlTemplate']));
+  [$xmlType, $xmlTemplate] = my_explode(':', urldecode($_GET['xmlTemplate']));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
     $templateName = $xml['Name'];

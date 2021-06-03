@@ -67,7 +67,7 @@ if ($link = parent_link()) echo "<tbody class='tablesorter-infoOnly'><tr><td><di
 
 echo "<tbody>";
 foreach ($dirs as $row) {
-  [$type,$name,$size,$time,$set] = explode('|',$row);
+  [$type,$name,$size,$time,$set] = my_explode('|',$row,5);
   $file = pathinfo($name);
   $name = $file['basename'];
   $devs = explode(',',$set);
@@ -81,7 +81,7 @@ foreach ($dirs as $row) {
 }
 if (count($dirs)) echo "</tbody><tbody>";
 foreach ($files as $row) {
-  [$type,$name,$size,$time,$set] = explode('|',$row);
+  [$type,$name,$size,$time,$set] = my_explode('|',$row,5);
   $file = pathinfo($name);
   $name = $file['basename'];
   $ext  = strtolower($file['extension']);

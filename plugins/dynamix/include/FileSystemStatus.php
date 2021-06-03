@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,6 +11,9 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
+
 $cmd  = $_POST['cmd'];
 $path = $_POST['path'];
 
@@ -20,7 +23,7 @@ case 'scrub':
   echo shell_exec("/sbin/btrfs $cmd status $path");
   break;
 default:
-  [$dev,$id] = explode(' ',$path);
+  [$dev,$id] = my_explode(' ',$path);
   $file = "/var/lib/$cmd/check.status.$id";
   if (file_exists($file)) {
     switch ($cmd) {
