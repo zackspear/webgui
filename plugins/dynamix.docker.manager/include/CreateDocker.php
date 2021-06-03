@@ -908,7 +908,6 @@ _(Privileged)_:
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <meta name="format-detection" content="telephone=no">
 <meta name="viewport" content="width=1600">
 <meta name="robots" content="noindex, nofollow">
