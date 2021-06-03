@@ -992,23 +992,22 @@ function importFile(file) {
 function getPublicIP(ip,wg,protocol) {
   $.post('/webGui/include/update.wireguard.php',{'#cmd':'public','#ip':ip,'#prot':protocol},function(x){
     var ips = x.split(';');
-    var endpoints = [<?=implode(',',array_map(function($v){return "'$v'";},$endpoints))?>];
-    var int_ipv4 = ips[0];
+    var wgx_ipv4 = ips[0];
     var ext_ipv4 = ips[1];
-    var int_ipv6 = ips[2];
+    var wgx_ipv6 = ips[2];
     var ext_ipv6 = ips[3];
     if ((protocol==''||protocol=='46') && ext_ipv4 && ip) {
-      if (!int_ipv4) {
+      if (!wgx_ipv4) {
         $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint does not resolve to an IPv4 address)_. _(In most cases, this should be your public WAN IPv4)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
-      } else if (!endpoints.includes(int_ipv4) && int_ipv4 != ext_ipv4) {
-        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+int_ipv4+".</b> _(In most cases, this should be your public WAN IPv4 instead)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
+      } else if (wgx_ipv4 != ext_ipv4) {
+        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(In most cases, this should be your public WAN IPv4 instead)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
       }
     }
     if ((protocol=='6'||protocol=='46') && ext_ipv6 && ip) {
-      if (!int_ipv6) {
+      if (!wgx_ipv6) {
         $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint does not resolve to an IPv6 address)_. _(In most cases, this should be your public WAN IPv6)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
-      } else if (!endpoints.includes(int_ipv6) && int_ipv6 != ext_ipv6) {
-        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+int_ipv6+".</b> _(In most cases, this should be your public WAN IPv6 instead)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
+      } else if (wgx_ipv6 != ext_ipv6) {
+        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(In most cases, this should be your public WAN IPv6 instead)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
       }
     }
 <?if (!$public):?>
