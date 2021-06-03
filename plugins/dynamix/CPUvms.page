@@ -31,7 +31,7 @@ function create() {
   for ($c = 0; $c < $loop; $c++) {
     $max = ($c==$loop-1 ? ($total%32?:32) : 32);
     for ($n = 0; $n < $max; $n++) {
-      [$cpu1, $cpu2] = array_replace(array_fill(0,2,''),preg_split('/[,-]/',$cpus[$c*32+$n]));
+      [$cpu1, $cpu2] = my_preg_split('/[,-]/',$cpus[$c*32+$n]);
       if (empty($text[$n])) $text[$n] = '';
       $text[$n] .= "$cpu1<br>";
       if ($cpu2) $text[$n] .= "$cpu2<br>";

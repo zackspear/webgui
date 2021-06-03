@@ -36,7 +36,7 @@ function _($text, $do=-1) {
     foreach ($keys as $key) if (isset($language[$key])) $text = preg_replace("/\b$key\b/",$language[$key],$text);
     return $text;
   case 3: // device translation
-    [$p1,$p2] = preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text);
+    [$p1,$p2] = array_pad(preg_split('/(?<=[a-z])(?= ?[0-9]+)/i',$text),2,'');
     return _($p1).$p2;
   default: // regular translation
     $text = $language[preg_replace(['/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"\']|<.+?\/?>/','/^(null|yes|no|true|false|on|off|none)$/i','/  +/'],['','$1.',' '],$text)] ?? $text;

@@ -214,7 +214,7 @@ function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
   if (!file_exists($log)) return [0,0,0,0,0];
   [$date,$duration,$speed,$status,$error] = my_explode('|',exec("tail -1 $log"),5);
-  [$y,$m,$d,$t] = preg_split('/ +/',$date);
+  [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
   return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error];
 }
 function urlencode_path($path) {
@@ -257,7 +257,10 @@ function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
 }
-function my_explode($split,$key,$count=2) {
-  return array_replace(array_fill(0,$count,''),explode($split,$key,$count));
+function my_explode($split,$text,$count=2) {
+  return array_pad(explode($split,$text,$count),$count,'');
+}
+function my_preg_split($split,$text,$count=2) {
+  return array_pad(preg_split($split,$text,$count),$count,'');
 }
 ?>

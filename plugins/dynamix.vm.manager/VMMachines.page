@@ -5,9 +5,9 @@ Cond="is_file('/var/run/libvirt/libvirtd.pid')"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -28,7 +28,7 @@ function showCPUs($uuid) {
   echo "<div class='four'>";
   foreach ($cpus as $pair) {
     unset($cpu1,$cpu2);
-    list($cpu1, $cpu2) = preg_split('/[,-]/',$pair);
+    [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
     $check = in_array($cpu1, $vcpu) ? 'fa-circle orange-text':'fa-circle-o';
     if (!$cpu2) {
       echo "<label><i class='fa fa-fw $check'></i>&nbsp;&nbsp;cpu $cpu1</label>";
@@ -44,7 +44,7 @@ function vsize($size,$expand=true) {
   $units = ['','K','M','G','T','P','E','Z','Y'];
   if ($expand) {
     $size = str_replace(['B',' ',',', '.'],'',strtoupper($size));
-    [$c1,$c2] = preg_split('/(?<=[0-9])(?=[A-Z])/',$size);
+    [$c1,$c2] = my_preg_split('/(?<=[0-9])(?=[A-Z])/',$size);
     return $c1 * pow(1024,array_search($c2,$units)?:0);
   } else {
     $base = $size ? floor(log($size,1024)) : 0;
