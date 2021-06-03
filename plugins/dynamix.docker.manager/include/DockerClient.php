@@ -22,6 +22,7 @@ if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
   require_once "$docroot/webGui/include/Translations.php";
 }
 
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
 
 $dockerManPaths = [
