@@ -447,8 +447,8 @@ echo "<div class='tabs'>";
 $tab = 1;
 $view = $myPage['name'];
 $pages = [];
-if ($myPage['text']) $pages[$view] = $myPage;
-if ($myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
+if (isset($myPage['text'])) $pages[$view] = $myPage;
+if (isset($myPage['Type']) && $myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
