@@ -224,7 +224,7 @@ if ($_GET['xmlTemplate']) {
             }
           }
           $arrConfig['Name'] = strip_tags($arrConfig['Name']);
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']);        
+          $arrConfig['Description'] = strip_tags($arrConfig['Description']);
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
