@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2018, Lime Technology
- * Copyright 2015-2018, Derek Macias, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -670,7 +670,7 @@
 						continue;
 					}
 
-					list($gpu_bus, $gpu_slot, $gpu_function) = explode(":", str_replace('.', ':', $gpu['id']));
+					[$gpu_bus, $gpu_slot, $gpu_function] = my_explode(":", str_replace('.', ':', $gpu['id']), 3);
 
 					$strXVGA = '';
 					if (empty($gpudevs_used) && empty($domain['ovmf'])) {
@@ -710,7 +710,7 @@
 						continue;
 					}
 
-					list($audio_bus, $audio_slot, $audio_function) = explode(":", str_replace('.', ':', $audio['id']));
+					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
@@ -731,7 +731,7 @@
 						continue;
 					}
 
-					list($pci_bus, $pci_slot, $pci_function) = explode(":", str_replace('.', ':', $pci_id));
+					[$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
@@ -2005,7 +2005,7 @@
 					if ($keypair[0] == 'host' && !empty($keypair[1])) {
 						$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
 						$tmp2 = $this->get_node_device_information($devid);
-						list($bus, $slot, $func) = explode(":", str_replace('.', ':', $keypair[1]));
+						[$bus, $slot, $func] = my_explode(":", str_replace('.', ':', $keypair[1]), 3);
 						$devs[] = [
 							'domain' => '0x0000',
 							'bus' => '0x' . $bus,

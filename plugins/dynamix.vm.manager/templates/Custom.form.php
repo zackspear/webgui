@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -156,7 +156,7 @@
 				foreach ($arrExistingConfig['usb'] as $arrExistingUSB) {
 					if ($strNewUSBID == $arrExistingUSB['id']) continue 2;
 				}
-				list($strVendor,$strProduct) = explode(':', $strNewUSBID);
+				[$strVendor,$strProduct] = my_explode(':', $strNewUSBID);
 				// hot-attach usb
 				file_put_contents('/tmp/hotattach.tmp', "<hostdev mode='subsystem' type='usb'><source startupPolicy='optional'><vendor id='0x".$strVendor."'/><product id='0x".$strProduct."'/></source></hostdev>");
 				exec("virsh attach-device ".escapeshellarg($uuid)." /tmp/hotattach.tmp --live 2>&1", $arrOutput, $intReturnCode);
@@ -169,7 +169,7 @@
 			// hot-detach any old usb devices
 			foreach ($arrExistingConfig['usb'] as $arrExistingUSB) {
 				if (!in_array($arrExistingUSB['id'], $arrNewUSBIDs)) {
-					list($strVendor, $strProduct) = explode(':', $arrExistingUSB['id']);
+					[$strVendor, $strProduct] = my_explode(':', $arrExistingUSB['id']);
 					file_put_contents('/tmp/hotdetach.tmp', "<hostdev mode='subsystem' type='usb'><source startupPolicy='optional'><vendor id='0x".$strVendor."'/><product id='0x".$strProduct."'/></source></hostdev>");
 					exec("virsh detach-device ".escapeshellarg($uuid)." /tmp/hotdetach.tmp --live 2>&1", $arrOutput, $intReturnCode);
 					unlink('/tmp/hotdetach.tmp');

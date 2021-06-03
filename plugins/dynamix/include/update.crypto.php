@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -14,12 +14,13 @@
 // add translations
 $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 $index = $_GET['index'];
 $tests = explode(',',$_GET['test']);
 if ($index < count($tests)) {
   $test = $tests[$index];
-  list($name,$size) = explode(':',$test);
+  [$name,$size] = my_explode(':',$test);
   if (!$size) {
     $default = $test==$_GET['hash'];
     if ($index>0) $test .= '|tail -1';

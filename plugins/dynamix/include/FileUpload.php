@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,6 +19,8 @@ $plugins   = '/var/log/plugins';
 $boot      = "/boot/config/plugins";
 $safepaths = ["$boot/dynamix"];
 $safeexts  = ['.png'];
+
+require_once "$docroot/webGui/include/Helpers.php";
 
 switch ($_POST['cmd'] ?? 'load') {
 case 'load':
@@ -62,7 +64,7 @@ case 'add':
       $result = false;
       break;
     }
-    [$home,$name] = explode(' (',urldecode($_POST['name']));
+    [$home,$name] = my_explode(' (',urldecode($_POST['name']));
     $name  = rtrim($name,')'); $i = 0;
     $place = "$plugins/lang-$file.xml";
     $child = ['LanguageURL','Language','LanguageLocal','LanguagePack','Author','Name','TemplateURL','Version','Icon','Description','Changes'];

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,9 +11,10 @@
  */
 ?>
 <?
-session_start();
-session_write_close();
-
+if (session_status()==PHP_SESSION_NONE) {
+  session_start();
+  session_write_close();
+}
 require_once "$docroot/webGui/include/Markdown.php";
 
 function _($text, $do=-1) {
@@ -22,13 +23,13 @@ function _($text, $do=-1) {
   if (!$text) return '';
   switch ($do) {
   case 0: // date translation
-    parse_array($language['Months_array'],$months);
-    parse_array($language['Days_array'],$days);
+    parse_array($language['Months_array'] ?? '',$months);
+    parse_array($language['Days_array'] ?? '',$days);
     foreach ($months as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     foreach ($days as $word => $that) if (strpos($text,$word)!==false) {$text = str_replace($word,$that,$text); break;}
     return $text;
   case 1: // number translation
-    parse_array($language['Numbers_array'],$numbers);
+    parse_array($language['Numbers_array'] ?? '',$numbers);
     return $numbers[$text] ?? $text;
   case 2: // time translation
     $keys = ['days','hours','minutes','seconds','day','hour','minute','second'];

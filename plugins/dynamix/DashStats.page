@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update_1,update_2,update_3,ups_status"
+Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop"
 ---
 <?PHP
 /* Copyright 2005-2021, Lime Technology
@@ -20,7 +20,7 @@ function dmidecode($key,$n,$all=true) {
   foreach ($entries as $entry) {
     $property = [];
     foreach (explode("\n",$entry) as $line) if (strpos($line,': ')!==false) {
-      [$key,$value] = explode(': ',trim($line));
+      [$key,$value] = my_explode(': ',trim($line));
       $property[$key] = $value;
     }
     $properties[] = $property;
@@ -108,12 +108,12 @@ $myfile = "case-model.cfg";
 $mycase = file_exists("$boot/$myfile") ? file_get_contents("$boot/$myfile") : false;
 
 $board  = dmidecode('Base Board Information','2',0);
-$serial = _("s/n").": {$board['Serial Number']}";
-$board  = "{$board['Manufacturer']} {$board['Product Name']}".($board['Version'] ? ", "._("Version")." {$board['Version']}" : "");
+$serial = _("s/n").": ".($board['Serial Number'] ?? "--");
+$board  = ($board['Manufacturer'] ?? "").' '.($board['Product Name'] ?? "").' '.(isset($board['Version']) ? ", "._("Version")." ".$board['Version'] : "");
 
 $bios = dmidecode('BIOS Information','0',0);
-$biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date']),$display['date']),0);
-$bios = $bios['Vendor'].($bios['Version'] ? ", "._("Version")." {$bios['Version']}" : "");
+$biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date'] ?? ""),$display['date']),0);
+$bios = $bios['Vendor'].(isset($bios['Version']) ? ", "._("Version")." ".$bios['Version'] : "");
 
 $cpu = dmidecode('Processor Information','4',0);
 $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version']);
@@ -128,14 +128,14 @@ $memory_installed = $memory_maximum = 0;
 $memory_devices = dmidecode('Memory Device','17');
 foreach ($memory_devices as $device) {
   if (!is_numeric($device['Size'][0])) continue;
-  [$size, $unit] = explode(' ',$device['Size']);
+  [$size, $unit] = my_explode(' ',$device['Size']);
   $base = array_search($unit,$sizes);
   if ($base!==false) $memory_installed += $size*pow(1024,$base);
   if (!$memory_type && $device['Type']!='Unknown') $memory_type = $device['Type'];
 }
 $memory_array = dmidecode('Physical Memory Array','16');
 foreach ($memory_array as $device) {
-  [$size, $unit] = explode(' ',$device['Maximum Capacity']);
+  [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
   if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";

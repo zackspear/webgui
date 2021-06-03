@@ -22,6 +22,7 @@ $encrypt = false;
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
 foreach ($disks as $disk) {
+  if (!isset($disk['fsType'])) continue;
   if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
     $encrypt = true;
     if ($disk['luksState']==0) $forced = true;
@@ -351,7 +352,7 @@ function formatWarning(val) {
             <i class="fa fa-fw fa-dot-circle-o"></i>_(Error code)_: <?=my_error($status)?></td></tr>
 <?        endif;
         elseif ($var['sbSynced2']==0):
-          [$date,$duration,$speed,$status,$error] = explode('|', read_parity_log($var['sbSynced']));
+          [$date,$duration,$speed,$status,$error] = my_explode('|', read_parity_log($var['sbSynced']),5);
           if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0))?><br><?=sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0')?>
             <i class="fa fa-fw fa-clock-o"></i>_(Duration)_: <?=my_check($duration,$speed)?></td></tr>

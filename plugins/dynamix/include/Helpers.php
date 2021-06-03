@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -213,8 +213,8 @@ function read_parity_log($epoch, $busy=false) {
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
   if (!file_exists($log)) return [0,0,0,0,0];
-  list($date,$duration,$speed,$status,$error) = explode('|',exec("tail -1 $log"));
-  list($y,$m,$d,$t) = preg_split('/ +/',$date);
+  [$date,$duration,$speed,$status,$error] = my_explode('|',exec("tail -1 $log"),5);
+  [$y,$m,$d,$t] = preg_split('/ +/',$date);
   return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error];
 }
 function urlencode_path($path) {
@@ -256,5 +256,8 @@ function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) 
 function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
+}
+function my_explode($split,$key,$count=2) {
+  return array_replace(array_fill(0,$count,''),explode($split,$key,$count));
 }
 ?>

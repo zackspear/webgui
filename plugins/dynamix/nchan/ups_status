@@ -27,6 +27,10 @@ require_once "$docroot/webGui/include/Translations.php";
 // remember current language
 $locale_init = $locale;
 
+// close session, it is not needed anymore
+session_unset();
+session_destroy();
+
 $state = [
   'TRIM ONLINE'  => 'Online (trim)',
   'BOOST ONLINE' => 'Online (boost)',

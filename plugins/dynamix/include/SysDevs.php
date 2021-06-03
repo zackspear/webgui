@@ -15,6 +15,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 switch ($_POST['table']) {
 case 't1':
@@ -198,7 +199,7 @@ case 't2':
 case 't3':
   exec('lsusb|sort',$lsusb);
   foreach ($lsusb as $line) {
-    list($bus,$id) = explode(':', $line, 2);
+    [$bus,$id] = my_explode(':',$line);
     echo "<tr><td>$bus:</td><td>".trim($id)."</td></tr>";
   }
   break;

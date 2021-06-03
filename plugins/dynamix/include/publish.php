@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
+/* Copyright 2005-2021, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -10,7 +10,7 @@
  */
 ?>
 <?
-function curl_socket($socket, $url, $postdata = NULL)
+function curl_socket($socket, $url, $postdata=NULL)
 {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_UNIX_SOCKET_PATH, $socket);
@@ -23,8 +23,8 @@ function curl_socket($socket, $url, $postdata = NULL)
     curl_close($ch);
     return $result;
 }
-function publish($endpoint, $message)
+function publish($endpoint, $message, $len=1)
 {
-    return curl_socket("/var/run/nginx.socket", "http://localhost/pub/$endpoint?buffer_length=1", $message);
+    return curl_socket("/var/run/nginx.socket", "http://localhost/pub/$endpoint?buffer_length=$len", $message);
 }
 ?>

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,6 +15,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 $unit = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
 $list = [];
@@ -36,7 +37,7 @@ function gap($text) {
 }
 function byteval($data) {
   global $unit;
-  [$value,$base] = explode(' ',gap($data));
+  [$value,$base] = my_explode(' ',gap($data));
   return $value*pow(1000,array_search($base,$unit));
 }
 
@@ -44,8 +45,8 @@ exec("docker ps -sa --format='{{.Names}}|{{.Size}}'",$container);
 echo align(_('Name'),-30).align(_('Container')).align(_('Writable')).align(_('Log'))."\n";
 echo str_repeat('-',69)."\n";
 foreach ($container as $ct) {
-  [$name,$size] = explode('|',$ct);
-  [$writable,$dummy,$total] = explode(' ',str_replace(['(',')'],'',$size));
+  [$name,$size] = my_explode('|',$ct);
+  [$writable,$dummy,$total] = my_explode(' ',str_replace(['(',')'],'',$size),3);
   $list[] = ['name' => $name, 'total' => byteval($total), 'writable' => byteval($writable), 'log' => (exec("docker inspect --format='{{.LogPath}}' $name|xargs du -b 2>/dev/null |cut -f1")) ?: "0"];
 }
 $sum = ['total' => 0, 'writable' => 0, 'log' => 0];

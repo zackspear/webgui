@@ -17,6 +17,7 @@ $_SERVER['REQUEST_URI'] = 'settings';
 // special case when script is called on form-submit and processed by update.php
 if (!isset($_SESSION['locale'])) $_SESSION['locale'] = $_POST['#locale'];
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 $etc      = '/etc/wireguard';
 $validIP4 = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
@@ -91,7 +92,7 @@ function createPeerFiles($vtun) {
     if (count($gone)) {
       foreach ($gone as $peer) {
         // one or more peers are removed, delete the associated files
-        [$n,$i] = explode('-',$peer);
+        [$n,$i] = my_explode('-',$peer);
         delPeer($n,$i);
       }
       $new = 1;
@@ -132,7 +133,7 @@ function parseInput(&$input,&$x) {
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
-    [$id,$i] = explode(':',$key);
+    [$id,$i] = my_explode(':',$key);
     if ($i != $section) {
       $conf[] = "\n[Peer]";
       // add peers only for peer sections
@@ -325,7 +326,7 @@ case 'import':
     $i = $key-1;
     foreach (explode("\n",$entry) as $row) {
       if (ltrim($row)[0]!='#') {
-        [$id,$data] = array_map('trim',explode('=',$row,2));
+        [$id,$data] = array_map('trim',my_explode('=',$row));
         $import["$id:$i"] = $data;
       } elseif ($i>=0) {
         $import["Name:$i"] = substr(trim($row),1);
@@ -335,7 +336,7 @@ case 'import':
   if ($import['PrivateKey:0'] && !$import['PublicKey:0']) $import['PublicKey:0'] = exec("wg pubkey <<<'{$import['PrivateKey:0']}'");
   $import['UPNP:0'] = 'no';
   $import['NAT:0'] = 'no';
-  [$subnet,$mask] = explode('/',$import['Address:0']);
+  [$subnet,$mask] = my_explode('/',$import['Address:0']);
   if (ipv4($subnet)) {
     $mask = ($mask>0 && $mask<32) ? $mask : 24;
     $import['Network:0'] = long2ip(ip2long($subnet) & (0x100000000-2**(32-$mask))).'/'.$mask;
@@ -399,7 +400,7 @@ case 'upnpc':
   if ($_POST['#wg']=='active') {
     exec("timeout $t1 stdbuf -o0 upnpc -u $xml -m $link -l 2>/dev/null|grep -Po \"^(ExternalIPAddress = \K.+|.+\KUDP.+>$ip:[0-9]+ 'WireGuard-$vtun')\"",$upnp);
     [$addr,$upnp] = $upnp;
-    [$type,$rule] = explode(' ',$upnp);
+    [$type,$rule] = my_explode(' ',$upnp);
     echo $rule ? "UPnP: $addr:$rule/$type" : _("UPnP: forwarding not set");
   } else {
     echo _("UPnP: tunnel is inactive");

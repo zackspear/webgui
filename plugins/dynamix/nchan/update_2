@@ -27,6 +27,10 @@ require_once "$docroot/webGui/include/Translations.php";
 // remember current language
 $locale_init = $locale;
 
+// close session, it is not needed anymore
+session_unset();
+session_destroy();
+
 function my_clock($time) {
   if (!$time) return _('less than a minute');
   $days = floor($time/1440);

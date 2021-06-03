@@ -206,7 +206,7 @@ if ($_GET['rmTemplate']) {
 #########################
 
 if ($_GET['xmlTemplate']) {
-  [$xmlType, $xmlTemplate] = explode(':', urldecode($_GET['xmlTemplate']));
+  [$xmlType, $xmlTemplate] = my_explode(':', urldecode($_GET['xmlTemplate']));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
     $templateName = $xml['Name'];
@@ -224,7 +224,7 @@ if ($_GET['xmlTemplate']) {
             }
           }
           $arrConfig['Name'] = strip_tags($arrConfig['Name']);
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']);        
+          $arrConfig['Description'] = strip_tags($arrConfig['Description']);
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {

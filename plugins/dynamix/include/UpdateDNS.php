@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,6 +15,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 $cli = php_sapi_name()=='cli';
 
@@ -34,7 +35,7 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
 }
 
 // protocol, hostname, internalport
-list($protocol, $hostname, $internalport) = explode(":", rtrim(file_get_contents("/var/run/nginx.origin")));
+[$protocol, $hostname, $internalport] = my_explode(":", rtrim(file_get_contents("/var/run/nginx.origin")),3);
 $hostname = substr($hostname, 2);
 if (!preg_match('/.*\.unraid\.net$/', $hostname)) {
   response_complete(406, '{"error":"'._('Nothing to do').'"}');

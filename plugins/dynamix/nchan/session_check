@@ -13,17 +13,13 @@
 ?>
 <?
 $docroot = '/usr/local/emhttp';
-$notify  = "$docroot/webGui/scripts/notify";
-$unread  = '';
+$varroot = '/var/local/emhttp';
 
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
-  $get = shell_exec("$notify get");
-  if ($get != $unread) {
-    publish('notify', $get);
-    $unread = $get;
-  }
-  sleep(3);
+  $var = (array)parse_ini_file("$varroot/var.ini");
+  publish('session', $var['csrf_token'], 0);
+  sleep(10);
 }
 ?>

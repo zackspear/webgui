@@ -3,8 +3,8 @@ Tag="navicon"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,7 @@ Markdown="false"
  */
 ?>
 <?
-[$root,$main,$rest] = explode('/',substr($dir,1),3);
+[$root,$main,$rest] = my_explode('/',substr($dir,1),3);
 $user = ($root=='mnt' && ($main=='user'|| $main=='user0')) ? 1 : 0;
 ?>
 <style>

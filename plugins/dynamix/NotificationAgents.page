@@ -110,7 +110,7 @@ foreach ($xml->Agent as $agent) {
     if (isset($match[1])) {
       foreach (explode(PHP_EOL, $match[1]) as $line) {
         if (strpos($line, "=")) {
-          list($k, $v) = explode("=",str_replace("\"", "", $line),2);
+          [$k, $v] = my_explode("=",str_replace("\"", "", $line),2);
           $values[$k] = $v;
         }
       }

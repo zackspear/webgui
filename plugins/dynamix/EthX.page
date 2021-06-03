@@ -25,7 +25,7 @@ array_multisort($sort_ethX,$vlan_ethX);
 $cmd = 'Down';
 $more = true;
 if (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
-  list($master_ethX,$root) = explode(' ',$locked);
+  [$master_ethX,$root] = my_explode(' ',$locked);
   $reason = _('member of')." $master_ethX ("._('see interface')." $root)";
   $class = 'green-text';
 } elseif (!exec("ip link show ethX|grep -om1 'UP>'")) {

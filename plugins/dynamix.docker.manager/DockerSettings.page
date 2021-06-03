@@ -4,9 +4,9 @@ Icon="icon-docker"
 Tag="icon-docker"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -49,7 +49,7 @@ foreach ($custom as $network) {
   $gw6 = exec("ip -6 route show dev $network default|awk '{print $3}'");
   $route4 = exec("ip -4 route show dev $network $ip4|awk '{print $1}'");
   $route6 = exec("ip -6 route show dev $network $ip6|awk '{print $1}'");
-  [$eth,$vlan] = explode('.',$network);
+  [$eth,$vlan] = my_explode('.',$network);
   $eth = str_replace(['bond','br'],'eth',$eth);
   if (!$vlan) {
     $protocol[$network] = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -81,12 +81,12 @@ function normalize($network) {
   return strtoupper(str_replace('.','_',$network));
 }
 function base_min($route) {
-  [$net,$mask] = explode('/',$route);
+  [$net,$mask] = my_explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip((ip2long($net)>>$mask)<<$mask));
 }
 function base_max($route) {
-  [$net,$mask] = explode('/',$route);
+  [$net,$mask] = my_explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip(((ip2long($net)>>$mask)<<$mask)+pow(2,$mask)-1));
 }
@@ -315,8 +315,8 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-[$subnet,$mask] = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
-[$range,$size] = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
+[$subnet,$mask] = my_explode('/',$dockercfg["DOCKER_SUBNET_$port"] ?? '');
+[$range,$size] = my_explode('/',$dockercfg["DOCKER_RANGE_$port"] ?? '');
 $disabled = $subnet ? '':'disabled';
 $dhcpDisabled = $range ? '':'disabled';
 ?>
@@ -383,8 +383,8 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-[$subnet6,$mask6] = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
-[$range6,$size6] = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
+[$subnet6,$mask6] = my_explode('/',$dockercfg["DOCKER_SUBNET6_$port"] ?? '');
+[$range6,$size6] = my_explode('/',$dockercfg["DOCKER_RANGE6_$port"] ?? '');
 $disabled = $subnet6 ? '':'disabled';
 $dhcpDisabled = $range6 ? '':'disabled';
 ?>
@@ -415,7 +415,7 @@ _(Docker version)_:
 
 :docker_version_help:
 
-<?if ($dockercfg['DOCKER_IMAGE_TYPE']!='folder'):?>
+<?if (($dockercfg['DOCKER_IMAGE_TYPE'] ?? '')!='folder'):?>
 _(Docker vDisk location)_:
 : <?=$dockercfg['DOCKER_IMAGE_FILE']?>
 <?else:?>
@@ -462,7 +462,7 @@ _(IPv4 custom network on interface)_ <?=$network?>:
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-[$eth,$vlan] = explode('.',$network);
+[$eth,$vlan] = my_explode('.',$network);
 $eth = str_replace(['bond','br'],'eth',$eth);
 if (!$vlan) {
   $protocol = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -471,8 +471,8 @@ if (!$vlan) {
     if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = $$eth[str_replace('VLANID','PROTOCOL',$key)] ?? 'ipv4'; break;}
   }
 }
-[$subnet,$mask] = explode('/',$dockercfg["DOCKER_SUBNET_$port"]);
-[$range,$size] = explode('/',$dockercfg["DOCKER_RANGE_$port"]);
+[$subnet,$mask] = my_explode('/',$dockercfg["DOCKER_SUBNET_$port"] ?? '');
+[$range,$size] = my_explode('/',$dockercfg["DOCKER_RANGE_$port"] ?? '');
 ?>
 <?if ($protocol != 'ipv6' && $subnet):?>
 _(IPv4 custom network on interface)_ <?=$network?>:
@@ -498,7 +498,7 @@ _(IPv6 custom network on interface)_ <?=$network?>:
 <?foreach ($unset as $network):?>
 <?
 $port = normalize($network);
-[$eth,$vlan] = explode('.',$network);
+[$eth,$vlan] = my_explode('.',$network);
 $eth = str_replace(['bond','br'],'eth',$eth);
 if (!$vlan) {
   $protocol = $$eth['PROTOCOL:0'] ?? 'ipv4';
@@ -507,8 +507,8 @@ if (!$vlan) {
     if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = $$eth[str_replace('VLANID','PROTOCOL',$key)] ?? 'ipv4'; break;}
   }
 }
-[$subnet6,$mask6] = explode('/',$dockercfg["DOCKER_SUBNET6_$port"]);
-[$range6,$size6] = explode('/',$dockercfg["DOCKER_RANGE6_$port"]);
+[$subnet6,$mask6] = my_explode('/',$dockercfg["DOCKER_SUBNET6_$port"] ?? '');
+[$range6,$size6] = my_explode('/',$dockercfg["DOCKER_RANGE6_$port"] ?? '');
 ?>
 <?if ($protocol != 'ipv4' && $subnet6):?>
 _(IPv6 custom network on interface)_ <?=$network?>:

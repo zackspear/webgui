@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,7 +18,7 @@ require_once "$docroot/webGui/include/Translations.php";
 
 $disks = array_merge_recursive((array)parse_ini_file('state/disks.ini',true), (array)parse_ini_file('state/devs.ini',true));
 require_once "$docroot/webGui/include/CustomMerge.php";
-require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Preselect.php";
 
 function normalize($text, $glue='_') {
@@ -78,7 +78,7 @@ case "attributes":
     // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
     foreach ($output as $line) {
       if (strpos($line,':')===false) continue;
-      list($name,$value) = explode(':', $line);
+      [$name,$value] = explode(':', $line);
       $name = ucfirst(strtolower($name));
       $value = trim($value);
       $color = '';
@@ -125,7 +125,7 @@ case "identify":
   foreach ($output as $line) {
     if (!$line) continue;
     if (strpos($line,'VALID ARGUMENTS')!==false) break;
-    list($title,$info) = array_map('trim', explode(':', $line, 2));
+    [$title,$info] = array_map('trim', my_explode(':',$line));
     if (in_array($info,$passed)) $info = "<span class='green-text'>"._('Passed')."</span>";
     if (in_array($info,$failed)) $info = "<span class='red-text'>"._('Failed')."</span>";
     echo "<tr>".normalize(preg_replace('/ is:$/',':',"$title:"),' ')."<td>$info</td></tr>";

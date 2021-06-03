@@ -4,8 +4,8 @@ Tag="icon-network"
 Cond="file_exists('/boot/config/network-rules.cfg')"
 ---
 <?PHP
-/* Copyright 2020, Lime Technology
- * Copyright 2020, Bergware International.
+/* Copyright 2021, Lime Technology
+ * Copyright 2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,7 +19,7 @@ Cond="file_exists('/boot/config/network-rules.cfg')"
 $cfg = '/boot/config/network-rules.cfg';
 
 function strip($item) {
-  list($key,$val) = explode('"',$item);
+  [$key,$val] = my_explode('"',$item);
   return $val;
 }
 
@@ -28,7 +28,7 @@ exec("grep -Po '^# \K.*' $cfg",$info);
 
 $link = []; $i = 0;
 foreach ($rules as $rule) {
-  list($mac,$eth) = array_map('strip',explode(',',$rule));
+  [$mac,$eth] = array_map('strip',my_explode(',',$rule));
   $link[$eth]['mac'] = $mac;
   $link[$eth]['info'] = $info[$i++];
 }

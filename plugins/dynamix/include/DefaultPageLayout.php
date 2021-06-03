@@ -447,12 +447,12 @@ echo "<div class='tabs'>";
 $tab = 1;
 $view = $myPage['name'];
 $pages = [];
-if ($myPage['text']) $pages[$view] = $myPage;
-if ($myPage['Type']=='xmenu') $pages = array_merge($pages, find_pages($view));
+if (!empty($myPage['text'])) $pages[$view] = $myPage;
+if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($view));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
-$nchan = ['notify_poller'];
+$nchan = ['notify_poller','session_check'];
 foreach ($pages as $page) {
   $close = false;
   if (isset($page['Title'])) {
@@ -511,7 +511,7 @@ if (count($pages)) {
   }
   // stop nchan scripts with the :stop option
   foreach ($stop as $row) {
-    [$script,$opt] = explode(':',$row);
+    [$script,$opt] = my_explode(':',$row);
     if ($opt == 'stop') {
       exec("pkill $script >/dev/null &");
       array_splice($running,array_search($row,$running),1);
@@ -580,15 +580,18 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
-var notifier = new NchanSubscriber('/sub/notify');
-notifier.on('message', function(d) {
-  var tub1 = 0, tub2 = 0, tub3 = 0;
-  var part = d.split('\0');
-  if (csrf_token != part[1]) {
+var session_check = new NchanSubscriber('/sub/session');
+session_check.on('message', function(token) {
+  if (csrf_token != token) {
     // Stale session, force login
     $(location).attr('href','/');
   }
-  var data = $.parseJSON(part[0]);
+});
+
+var notifier = new NchanSubscriber('/sub/notify');
+notifier.on('message', function(d) {
+  var tub1 = 0, tub2 = 0, tub3 = 0;
+  var data = $.parseJSON(d);
   $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
     switch (notify.importance) {
@@ -666,6 +669,7 @@ $('.back_to_top').click(function(event) {
 });
 $(function() {
   watchdog.start();
+  session_check.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});

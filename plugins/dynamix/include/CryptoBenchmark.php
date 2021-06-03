@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
-[$luks,$size,$hash,$rng] = explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"));
+[$luks,$size,$hash,$rng] = my_explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"),4);
 $luks = str_replace('-plain64','',trim(explode(':',$luks)[1]));
 $size = str_replace(' bits','',trim(explode(':',$size)[1]));
 $hash = trim(explode(':',$hash)[1]);
