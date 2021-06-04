@@ -692,7 +692,6 @@ $(function() {
     e.preventDefault();
     formHasUnsavedChanges=true;
   }).on('submit',function(e){
-    e.preventDefault();
     formHasUnsavedChanges=false;
   });
   $(window).on('beforeunload',function(e){if (formHasUnsavedChanges) return '';}); // note: the browser creates its own popup window and warning message
