@@ -689,7 +689,6 @@ $(function() {
   });});
   // add leave confirmation when form has changed without applying (opt-in function)
   $('form.js-confirm-leave').on('change',function(e){
-    e.preventDefault();
     formHasUnsavedChanges=true;
   }).on('submit',function(e){
     formHasUnsavedChanges=false;
