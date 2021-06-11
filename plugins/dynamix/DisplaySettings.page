@@ -16,8 +16,8 @@ Tag="desktop"
  */
 ?>
 <?
-$void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title=\"_(Click to select PNG file)_\">";
-$icon = "<i class='fa fa-trash top' title='Restore default image' onclick='restore()'></i>";
+$void = "<img src='/webGui/images/banner.png' id='image' width='330' height='30' onclick='$(&quot;#drop&quot;).click()' style='cursor:pointer' title='_(Click to select PNG file)_'>";
+$icon = "<i class='fa fa-trash top' title='_(Restore default image)_' onclick='restore()'></i>";
 $plugins = '/var/log/plugins';
 
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
