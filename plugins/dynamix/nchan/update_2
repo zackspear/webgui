@@ -278,8 +278,8 @@ while (true) {
   $disks = (array)parse_ini_file("$varroot/disks.ini",true);
   $saved = @(array)parse_ini_file("$varroot/monitor.ini",true);
   $echo  = [];
-  require_once "$docroot/webGui/include/CustomMerge.php";
-  require_once "$docroot/webGui/include/Preselect.php";
+  require "$docroot/webGui/include/CustomMerge.php";
+  require "$docroot/webGui/include/Preselect.php";
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
   if ($display['locale'] != $locale_init) {
