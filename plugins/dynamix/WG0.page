@@ -1014,7 +1014,7 @@ function getPublicIP(ip,wg,protocol) {
       } else if (wgx_ipv4 != ext_ipv4) {
         $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(In most cases, this should be your public WAN IPv4 instead)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
       } else if (endpoints.includes(wgx_ipv4) && isPublic(wgx_ipv4)) {
-        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(Your server seems to be directly connected to the Internet)_</span></dd>\n").show();
+        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(Your Unraid Server is reachable from the internet)_</span></dd>\n").show();
       }
     }
     if ((protocol=='6'||protocol=='46') && ext_ipv6 && ip) {
@@ -1023,7 +1023,7 @@ function getPublicIP(ip,wg,protocol) {
       } else if (wgx_ipv6 != ext_ipv6) {
         $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(In most cases, this should be your public WAN IPv6 instead)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
       } else if (endpoints.includes(wgx_ipv6)) {
-        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(Your server seems to be directly connected to the Internet)_</span></dd>\n").show();
+        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(Your Unraid Server is reachable from the internet)_</span></dd>\n").show();
       }
     }
 <?if (!$public):?>
