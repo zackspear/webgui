@@ -19,7 +19,6 @@ require_once "$docroot/webGui/include/Preselect.php";
 $unassigned = array_key_exists($name, $devs);
 $disks = array_merge_recursive($disks, $devs);
 $disk = &$disks[$name];
-$dev  = $disk['device'];
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 $yes = _('Yes');
