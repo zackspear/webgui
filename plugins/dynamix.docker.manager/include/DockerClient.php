@@ -1001,7 +1001,7 @@ class DockerUtil {
 	}
 
 	public static function custom() {
-		return static::docker("network ls --filter driver='bridge' --filter driver='macvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
+		return static::docker("network ls --filter driver='bridge' --filter driver='ipvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
 	}
 
 	public static function network($custom) {
