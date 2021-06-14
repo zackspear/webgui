@@ -1,8 +1,5 @@
 <?php
 session_start();
-// purge sessions older than 2 days
-session_gc();
-session_destroy();
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";

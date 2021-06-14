@@ -70,6 +70,9 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
             if ($output !== false) {
                 $strCredentials = explode(":", $output);
                 if (password_verify($_POST['password'], $strCredentials[1])) {
+                    // purge sessions older than 2 days
+                    session_gc();
+                    session_destroy();
                     // Successful login, start session
                     @unlink($failfile);
                     session_start();
