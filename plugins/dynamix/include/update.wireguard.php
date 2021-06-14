@@ -85,7 +85,7 @@ function autostart($cmd,$vtun) {
   }
 }
 function createPeerFiles($vtun) {
-  global $etc,$peers,$name,$gone;
+  global $etc,$peers,$name,$gone,$vpn;
   $dir = "$etc/peers";
   $tmp = "/tmp/list.tmp";
   if (is_dir($dir)) {
@@ -118,7 +118,7 @@ function createPeerFiles($vtun) {
     $cfg    = "$dir/peer-$name-$vtun-$id.conf";
     $cfgold = @file_get_contents($cfg) ?: '';
     $cfgnew = implode("\n",$peer)."\n";
-    if ($cfgnew !== $cfgold) {
+    if ($cfgnew !== $cfgold && !$vpn) {
       $list[] = "$vtun: peer $id (".($peer[1][0]=='#' ? substr($peer[1],1) : _('no name')).')';
       file_put_contents($cfg,$cfgnew);
       $png = str_replace('.conf','.png',$cfg);
@@ -129,7 +129,7 @@ function createPeerFiles($vtun) {
   if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else @unlink($tmp);
 }
 function parseInput(&$input,&$x) {
-  global $conf,$user,$var,$default,$default6;
+  global $conf,$user,$var,$default,$default6,$vpn;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
@@ -185,6 +185,7 @@ function parseInput(&$input,&$x) {
       $var['allowedIPs'] = implode(', ',array_map('host',array_filter($list)));
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
+      if ($value==7) $vpn = true;
       break;
     case 'Network':
     case 'Network6':
@@ -262,7 +263,7 @@ case 'update':
   $var['shared1']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared1']))));
   $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
   $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
-  $x = 1;
+  $x = 1; $vpn = false;
   parseInput($_POST,$x);
   addPeer($x);
   exec("wg-quick down $vtun 2>/dev/null");
