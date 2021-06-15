@@ -22,10 +22,6 @@ table tr td{padding:0 0 3px 0;margin:0}
 table tr td.thin{line-height:8px;height:8px}
 </style>
 <script>
-$(window).bind('beforeunload',function(e){
-  // warn user if they leave the page with unsaved changes
-  if ($('#applycfg') && $('#applycfg').is(":visible") && !$('#applycfg').prop('disabled')) return "You have unsaved changes";
-});
 $(function(){
   $('#t1').load('/webGui/include/SysDevs.php',{table:'t1'});
   $('#t2').load('/webGui/include/SysDevs.php',{table:'t2'});
@@ -72,7 +68,7 @@ function applyCfg() {
 <?=my_hyperlink(_("To see natural IOMMU groups for your hardware, go to the [VM Manager] page and set the **PCIe ACS override** setting to **Disabled**"),'/Settings/VMSettings')?>.</p>
 <?endif;?>
 
-<pre><form id="vfiopci" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<pre><form id="vfiopci" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 
 **_(CPU Thread Pairings)_**
 
