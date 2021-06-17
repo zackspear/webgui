@@ -19,21 +19,22 @@ Nchan="wg_poller"
 $etc = '/etc/wireguard';
 $tmp = '/tmp/list.tmp';
 
-unset($subnets,$hosts,$subnets6,$hosts6,$vtuns,$macvlan,$docker);
+unset($subnets,$hosts,$subnets6,$hosts6,$vtuns,$ipvlan,$docker);
 exec("ip -4 route show scope link|awk '/^[^d].+ dev (eth|br|bond)[0-9]+/{print \$1}'",$subnets);
 exec("ip -4 addr show scope global|awk '/inet .+ (eth|br|bond)[0-9]+/{split(\$2,ip,\"/\");print ip[1]}'",$hosts);
 exec("ip -6 route show type unicast|grep -Pv 'expires|shim-'|awk '/^[^dfm:]/{print \$1}'",$subnets6);
 exec("ip -6 addr show scope global|grep -PA2 ': (eth|br|bond)\d+'|awk '/inet6 .+ (global|noprefixroute) \$/{split(\$2,ip,\"/\");print ip[1]}'",$hosts6);
 exec("ls  --indicator-style=none $etc/wg*.conf*|grep -Po wg[0-9]+",$vtuns);
-exec("docker network ls --filter driver='macvlan' --format='{{.Name}}'",$macvlan);
+exec("docker network ls --filter driver='ipvlan' --format='{{.Name}}' 2>/dev/null",$ipvlan);
 
 // add subnets defined in Docker custom networks
-exec("docker network inspect --format='{{range .IPAM.Config}}{{println .Subnet}}{{end}}' ".implode(' ',$macvlan),$docker);
-foreach (array_filter($docker) as $network) {
-  if (strpos($network,'.')!==false && !in_array($network,$subnets)) $subnets[] = $network;
-  elseif (strpos($network,':')!==false && !in_array($network,$subnets6)) $subnets6[] = $network;
+if (count($ipvlan)) {
+  exec("docker network inspect --format='{{range .IPAM.Config}}{{println .Subnet}}{{end}}' ".implode(' ',$ipvlan),$docker);
+  foreach (array_filter($docker) as $network) {
+    if (strpos($network,'.')!==false && !in_array($network,$subnets)) $subnets[] = $network;
+    elseif (strpos($network,':')!==false && !in_array($network,$subnets6)) $subnets6[] = $network;
+  }
 }
-
 $subnets = implode(', ',$subnets);
 $hosts = implode(', ',$hosts);
 $subnets6 = implode(', ',$subnets6);
@@ -1014,7 +1015,7 @@ function getPublicIP(ip,wg,protocol) {
       } else if (wgx_ipv4 != ext_ipv4) {
         $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(In most cases, this should be your public WAN IPv4 instead)_: <b>"+ext_ipv4+"</b></span></dd>\n").show();
       } else if (endpoints.includes(wgx_ipv4) && isPublic(wgx_ipv4)) {
-        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(Your server seems to be directly connected to the Internet)_</span></dd>\n").show();
+        $('#endpoint4-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv4+".</b> _(Your Unraid Server is reachable from the internet)_</span></dd>\n").show();
       }
     }
     if ((protocol=='6'||protocol=='46') && ext_ipv6 && ip) {
@@ -1023,7 +1024,7 @@ function getPublicIP(ip,wg,protocol) {
       } else if (wgx_ipv6 != ext_ipv6) {
         $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(In most cases, this should be your public WAN IPv6 instead)_: <b>"+ext_ipv6+"</b></span></dd>\n").show();
       } else if (endpoints.includes(wgx_ipv6)) {
-        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(Your server seems to be directly connected to the Internet)_</span></dd>\n").show();
+        $('#endpoint6-'+wg).html("<dt>&nbsp;</dt><dd><span class='input'></span>  <span class='block'>_(Remark)_: _(The Local endpoint resolves to)_ <b>"+wgx_ipv6+".</b> _(Your Unraid Server is reachable from the internet)_</span></dd>\n").show();
       }
     }
 <?if (!$public):?>

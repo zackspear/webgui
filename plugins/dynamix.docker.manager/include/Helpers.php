@@ -292,8 +292,8 @@ function xmlToCommand($xml, $create_paths=false) {
     } elseif ($confType == 'port') {
       switch ($driver[$xml['Network']]) {
       case 'host':
-      case 'macvlan':
-        // Export ports as variable if network is set to host or macvlan
+      case 'ipvlan':
+        // Export ports as variable if network is set to host or ipvlan
         $Variables[] = strtoupper(escapeshellarg($Mode.'_PORT_'.$containerConfig).'='.escapeshellarg($hostConfig));
         break;
       case 'bridge':

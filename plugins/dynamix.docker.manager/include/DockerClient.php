@@ -399,7 +399,7 @@ class DockerUpdate{
 
 	// DEPRECATED: Only used for Docker Index V1 type update checks
 	public function getRemoteVersion($image) {
-		[$strRepo, $strTag] = explode(':', DockerUtil::ensureImageTag($image));
+		[$strRepo, $strTag] = array_pad(explode(':', DockerUtil::ensureImageTag($image)),2,'');
 		$apiUrl = sprintf('http://index.docker.io/v1/repositories/%s/tags/%s', $strRepo, $strTag);
 		//$this->debug("API URL: $apiUrl");
 		$apiContent = $this->download_url($apiUrl);
@@ -407,7 +407,7 @@ class DockerUpdate{
 	}
 
 	public function getRemoteVersionV2($image) {
-		[$strRepo, $strTag] = explode(':', DockerUtil::ensureImageTag($image));
+		[$strRepo, $strTag] = array_pad(explode(':', DockerUtil::ensureImageTag($image)),2,'');
 		/*
 		 * Step 1: Check whether or not the image is in a private registry, get corresponding auth data and generate manifest url
 		 */
@@ -842,7 +842,7 @@ class DockerClient {
 		if (empty($dockerConfig['auths']) || empty($dockerConfig['auths'][ $configKey ])) {
 			return $ret;
 		}
-		[$ret['username'], $ret['password']] = explode(':', base64_decode($dockerConfig['auths'][ $configKey ]['auth']));
+		[$ret['username'], $ret['password']] = array_pad(explode(':', base64_decode($dockerConfig['auths'][ $configKey ]['auth'])),2,'');
 
 		return $ret; 
 	}
@@ -884,7 +884,7 @@ class DockerClient {
 			$c['Volumes']     = $info['HostConfig']['Binds'];
 			$c['Created']     = $this->humanTiming($ct['Created']);
 			$c['NetworkMode'] = $ct['HostConfig']['NetworkMode'];
-			[$net, $id]       = explode(':',$c['NetworkMode']);
+			[$net, $id]       = array_pad(explode(':',$c['NetworkMode']),2,'');
 			$c['CPUset']      = $info['HostConfig']['CpusetCpus'];
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
 			$c['Icon']        = $info['Config']['Labels']['net.unraid.docker.icon'] ?? false;
@@ -901,7 +901,7 @@ class DockerClient {
 			$ip = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
 			$ports = is_array($ports) ? $ports : array();
 			foreach ($ports as $port => $value) {
-				[$PrivatePort, $Type] = explode('/', $port);
+				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
 				$c['Ports'][] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort']:$PrivatePort, 'NAT' => $nat, 'Type' => $Type ];
 			}
 			$this::$containersCache[] = $c;
@@ -960,7 +960,7 @@ class DockerClient {
 
 class DockerUtil {
 	public static function ensureImageTag($image) {
-		[$strRepo, $strTag] = array_map('trim', explode(':', $image.':'));
+		[$strRepo, $strTag] = array_map('trim', array_pad(explode(':', $image.':'),2,''));
 		if (strpos($strRepo, 'sha256:') === 0) {
 			// sha256 was provided instead of actual repo name so truncate it for display:
 			$strRepo = substr($strRepo, 7, 12);
@@ -996,12 +996,12 @@ class DockerUtil {
 
 	public static function driver() {
 		$list = [];
-		foreach (static::docker("network ls --format='{{.Name}}={{.Driver}}'",true) as $network) {[$net,$driver] = explode('=',$network); $list[$net] = $driver;}
+		foreach (static::docker("network ls --format='{{.Name}}={{.Driver}}'",true) as $network) {[$net,$driver] = array_pad(explode('=',$network),2,''); $list[$net] = $driver;}
 		return $list;
 	}
 
 	public static function custom() {
-		return static::docker("network ls --filter driver='bridge' --filter driver='macvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
+		return static::docker("network ls --filter driver='bridge' --filter driver='ipvlan' --format='{{.Name}}'|grep -v '^bridge$'",true);
 	}
 
 	public static function network($custom) {

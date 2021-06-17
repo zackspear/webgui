@@ -47,7 +47,7 @@ function cpu_pinning() {
     $max = ($c == $loop-1 ? ($total%16?:16) : 16);
     for ($n = 0; $n < $max; $n++) {
       unset($cpu1,$cpu2);
-      [$cpu1, $cpu2] = preg_split('/[,-]/',$cpus[$c*16+$n]);
+      [$cpu1, $cpu2] = my_preg_split('/[,-]/',$cpus[$c*16+$n]);
       $check1 = in_array($cpu1, $vcpu) ? ' checked':'';
       $check2 = $cpu2 ? (in_array($cpu2, $vcpu) ? ' checked':''):'';
       $row1[] = "<label id='cpu$cpu1' class='checkbox'>$cpu1<input type='checkbox' id='box$cpu1'$check1><span class='checkmark'></span></label>";
