@@ -172,8 +172,13 @@ case 'add':
   $ticket = $timestamp;
   $mailtest = false;
   $overrule = false;
-  $host = rtrim(file_get_contents("/var/run/nginx.origin"));
-
+  
+  $var = parse_ini_file('/var/local/emhttp/var.ini');
+  $host_name = strtolower($var['NAME']);
+  $host_tld = $var['LOCAL_TLD'] ? strtolower(".{$var['LOCAL_TLD']}") : "";
+  $host_port = $var['PORT'] != 80 ? ":{$var['PORT']}" : "";
+  $host = "http://{$host_name}{$host_tld}{$host_port}";
+  
   $options = getopt("l:e:s:d:i:m:r:xtb");
   foreach ($options as $option => $value) {
     switch ($option) {
