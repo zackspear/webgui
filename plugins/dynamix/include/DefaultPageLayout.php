@@ -58,6 +58,7 @@ html{font-size:<?=$display['font']?>}
 .upgrade_notice i{margin:14px;float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 <?
+$nchan = ["$docroot/webGui/nchan/notify_poller","$docroot/webGui/nchan/session_check"];
 $safemode = $var['safeMode']=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
@@ -412,6 +413,8 @@ foreach ($tasks as $button) {
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
   echo "<a href='/$page' onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
+  // create list of nchan scripts to be started
+  if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 unset($tasks);
 if ($display['usage']) my_usage();
@@ -431,8 +434,11 @@ foreach ($buttons as $button) {
     }
     $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
     echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
-  } else
+  } else {
     echo "<div id='{$button['Link']}'></div>";
+  }
+  // create list of nchan scripts to be started
+  if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 unset($buttons,$button);
 if ($notify['display']) {
@@ -452,7 +458,6 @@ if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($v
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
-$nchan = ['notify_poller','session_check'];
 foreach ($pages as $page) {
   $close = false;
   if (isset($page['Title'])) {
@@ -495,31 +500,31 @@ foreach ($pages as $page) {
     }
   }
   // create list of nchan scripts to be started
-  if (isset($page['Nchan'])) $nchan = array_merge($nchan, explode(',',$page['Nchan']));
+  if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
 if (count($pages)) {
-  $running = file_exists($nchan_no) ? explode(',',file_get_contents($nchan_no)) : [];
+  $running = file_exists($nchan_pid) ? explode("\n",file_get_contents($nchan_pid)) : [];
   $start   = array_diff($nchan, $running);  // returns any new scripts to be started
   $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
   $running = array_merge($start, $running); // update list of current running nchan scripts
   // start nchan scripts which are new
   foreach ($start as $row) {
     $script = explode(':',$row)[0];
-    exec("$nchan_go/$script &>/dev/null &");
+    exec("$script &>/dev/null &");
   }
   // stop nchan scripts with the :stop option
   foreach ($stop as $row) {
     [$script,$opt] = my_explode(':',$row);
     if ($opt == 'stop') {
-      exec("pkill $script >/dev/null &");
+      exec("pkill -f $script >/dev/null &");
       array_splice($running,array_search($row,$running),1);
     }
   }
-  if (count($running)) file_put_contents($nchan_no,implode(',',$running)); else @unlink($nchan_no);
+  if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)); else @unlink($nchan_pid);
 }
-unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt);
+unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt,$nchan_run);
 ?>
 </div></div>
 <div class="spinner fixed"></div>

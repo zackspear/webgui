@@ -14,6 +14,13 @@
 // Keep $_SESSION to store language selection
 session_start();
 
+// Register Nchan scripts
+function nchan_merge($root, $script) {
+  global $docroot, $nchan_run, $nchan;
+  $nchan_run = "$docroot/$root/nchan";
+  $nchan = array_merge($nchan, array_map(function($n){global $nchan_run; return "$nchan_run/$n";}, explode(',',$script)));
+}
+
 // Define root path
 $docroot = $_SERVER['DOCUMENT_ROOT'];
 
@@ -65,11 +72,11 @@ $task = strtok($path,'/');
 
 // Here's the page we're rendering
 $myPage   = $site[basename($path)];
-$pageroot = $docroot.'/'.dirname($myPage['file']);
+$pageroot = $docroot.'/'.$myPage['root'];
 
 // Nchan script start/stop tracking
-$nchan_go = "$pageroot/nchan";
-$nchan_no = "/tmp/nchan";
+$nchan_pid = "/var/run/nchan.pid";
+$nchan_run = "";
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
