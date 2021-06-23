@@ -58,7 +58,7 @@ html{font-size:<?=$display['font']?>}
 .upgrade_notice i{margin:14px;float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 <?
-$nchan = ["$docroot/webGui/nchan/notify_poller","$docroot/webGui/nchan/session_check"];
+$nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
@@ -512,13 +512,13 @@ if (count($pages)) {
   // start nchan scripts which are new
   foreach ($start as $row) {
     $script = explode(':',$row)[0];
-    exec("$script &>/dev/null &");
+    exec("$docroot/$script &>/dev/null &");
   }
   // stop nchan scripts with the :stop option
   foreach ($stop as $row) {
     [$script,$opt] = my_explode(':',$row);
     if ($opt == 'stop') {
-      exec("pkill -f $script >/dev/null &");
+      exec("pkill -f $docroot/$script >/dev/null &");
       array_splice($running,array_search($row,$running),1);
     }
   }

@@ -16,8 +16,8 @@ session_start();
 
 // Register Nchan scripts
 function nchan_merge($root, $script) {
-  global $docroot, $nchan_run, $nchan;
-  $nchan_run = "$docroot/$root/nchan";
+  global $nchan_run, $nchan;
+  $nchan_run = "$root/nchan";
   $nchan = array_merge($nchan, array_map(function($n){global $nchan_run; return "$nchan_run/$n";}, explode(',',$script)));
 }
 
