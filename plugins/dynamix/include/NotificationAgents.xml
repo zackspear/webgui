@@ -73,7 +73,16 @@ LOG="/var/log/notify_${SCRIPTNAME%.*}"
 [[ -z "${DESCRIPTION}" ]] && DESCRIPTION='No description'
 [[ -z "${IMPORTANCE}" ]] && IMPORTANCE='normal'
 [[ -z "${TIMESTAMP}" ]] && TIMESTAMP=$(date +%s)
-[[ -n "${LINK}" ]] && [[ ${LINK} != http* ]] && LINK=$(</var/run/nginx.origin)${LINK}
+# ensure link has a host
+if [[ -n "${LINK}" ]] && [[ ${LINK} != http* ]]; then
+source <(grep "NAME\|LOCAL_TLD\|PORT" /usr/local/emhttp/state/var.ini 2>/dev/null)
+HOST_NAME=${NAME,,}
+[[ -n ${LOCAL_TLD} ]] && LOCAL_TLD=".${LOCAL_TLD,,}"
+[[ "${PORT}" = "80" ]] && PORT=
+[[ -n ${PORT} ]] && PORT=":${PORT}"
+HOST="http://${HOST_NAME}${LOCAL_TLD}${PORT}"
+LINK=${HOST}${LINK}
+fi
 # note: there is no default for CONTENT
 
 # send DESCRIPTION and/or CONTENT. Ignore the default DESCRIPTION.
