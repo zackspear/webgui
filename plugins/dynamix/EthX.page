@@ -123,13 +123,13 @@ _(Enable bonding)_:
 <div markdown="1" id="bond-members-ethX" style="display:none">
 _(Bonding mode)_:
 : <select name="BONDING_MODE" onchange="checkBondingSettings(this.form,-1,'ethX')">
-  <?=mk_option($eth0['BONDING_MODE'], "0", _("balance-rr")." (0)")?>
-  <?=mk_option($eth0['BONDING_MODE'], "1", _("active-backup")." (1)",isset($ethX['BONDING_MODE'])?'':'selected')?>
-  <?=mk_option($eth0['BONDING_MODE'], "2", _("balance-xor")." (2)")?>
-  <?=mk_option($eth0['BONDING_MODE'], "3", _("broadcast")." (3)")?>
-  <?=mk_option($eth0['BONDING_MODE'], "4", _("802.3ad")." (4)")?>
-  <?=mk_option($eth0['BONDING_MODE'], "5", _("balance-tlb")." (5)")?>
-  <?=mk_option($eth0['BONDING_MODE'], "6", _("balance-alb")." (6)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "0", _("balance-rr")." (0)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "1", _("active-backup")." (1)",isset($ethX['BONDING_MODE'])?'':'selected')?>
+  <?=mk_option($ethX['BONDING_MODE'], "2", _("balance-xor")." (2)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "3", _("broadcast")." (3)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "4", _("802.3ad")." (4)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "5", _("balance-tlb")." (5)")?>
+  <?=mk_option($ethX['BONDING_MODE'], "6", _("balance-alb")." (6)")?>
   </select>
   <span id="attention0" style="display:none">**_(Attention)_:** _(this mode requires a network switch with proper setup and support)_...</span>
 
