@@ -23,20 +23,23 @@ require_once "$docroot/webGui/include/publish.php";
 if (!function_exists('_')) {
   function _($text) {return $text;}
 }
+function ports() {
+  exec("ls $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
+  return $ports;
+}
 
 // initialize variables
 $time0 = $time = microtime(true);
-exec("ls $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
-foreach ($ports as $port) {
+foreach (ports() as $port) {
   $data[$port]['rx'] = (float)file_get_contents("$net/$port/statistics/rx_bytes");
   $data[$port]['tx'] = (float)file_get_contents("$net/$port/statistics/tx_bytes");
 }
 // loop
 while (true) {
-  $ports = $echo = $mode = $rxtx = $stat = [];
+  $echo = $mode = $rxtx = $stat = [];
   $ts = $time - $time0;
   exec("ls $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
-  foreach ($ports as $port) {
+  foreach (ports() as $port) {
     // inbound + outbound speed
     $rx = (float)file_get_contents("$net/$port/statistics/rx_bytes");
     $tx = (float)file_get_contents("$net/$port/statistics/tx_bytes");
