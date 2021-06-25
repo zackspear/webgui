@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -57,7 +57,6 @@ function reboot_offline() {
    .done(function(){location = '/Main';})
    .fail(function(){$('div.notice').html('<span class="title"><?=_("Reboot")?></span><?=_("System is rebooting")?>... '+timer()); setTimeout(reboot_offline,1000);});
 }
-
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
    .done(function(){$('div.notice').html('<span class="title"><?=_("Shutdown")?></span><?=_("System is going down")?>... '+timer()); setTimeout(shutdown_online,5000);})
@@ -70,7 +69,13 @@ function shutdown_offline() {
     setTimeout(shutdown_offline,5000);
   } else {
     $('div.notice').html('<span class="title"><?=_("Shutdown")?></span><?=_("System is powered off")?>...');
+    setTimeout(power_on,1000);
   }
+}
+function power_on() {
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
+   .done(function(){location = '/Main';})
+   .fail(function(){setTimeout(power_on,1000);});
 }
 $(document).ajaxSend(function(elm, xhr, s){
   if (s.type == "POST") {
