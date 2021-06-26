@@ -53,7 +53,7 @@ switch ($UPC_ENV) {
 echo '<script id="unraid-wc" defer src="' . $upcSrc . '"></script>';
 ?>
 <script type="text/javascript">
-const upcEnvCookie = "<?=$_COOKIE['UPC_ENV']??''?>";
+const upcEnvCookie = '<?echo $_COOKIE['UPC_ENV'] ?>';
 if (upcEnvCookie) console.debug('[UPC_ENV] ✨', upcEnvCookie);
 // If the UPC isn't defined after 2secs inject UPC via
 setTimeout(() => {
