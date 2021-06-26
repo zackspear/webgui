@@ -471,7 +471,7 @@
       metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
       plg-path="dynamix.my.servers"
       reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
-      send-crash-info="<?=$remote['sendCrashInfo']?>"
+      send-crash-info="<?=$remote['sendCrashInfo']??''?>"
       serverdesc="<?=$var['COMMENT']?>"
       servermodel="<?=$var['SYS_MODEL']?>"
       serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
