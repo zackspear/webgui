@@ -362,11 +362,6 @@
                 'loading' => sprintf(_('Installing %s Key'), '{0}'),
                 'error' => sprintf(_('%s Key Install Error'), '{0}'),
                 'success' => sprintf(_('Installed %s Key'), '{0}'),
-                'manualInstructions' => _('To manually install the key paste the key file url into the Key file URL field on the webGUI Registration page and then click Install Key') . '.',
-                'copyFail' => _('Unable to copy'),
-                'copySuccess' => _('Copied key url') . '!',
-                'copyButton' => _('Copy Key URL'),
-                'copyBeforeClose' => _('Please copy the Key URL before closing this window'),
               ],
               'timeout' => sprintf(_('Communication with %s has timed out'), '{0}'),
               'loading1' => _('Please keep this window open'),
@@ -471,7 +466,7 @@
       metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
       plg-path="dynamix.my.servers"
       reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
-      send-crash-info="<?=$remote['sendCrashInfo']?>"
+      send-crash-info="<?=$remote['sendCrashInfo']??''?>"
       serverdesc="<?=$var['COMMENT']?>"
       servermodel="<?=$var['SYS_MODEL']?>"
       serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
