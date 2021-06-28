@@ -45,11 +45,8 @@ function replaceName(name) {
   if (x>0) search = search.substring(0,x+5) + name;
 }
 
-function replaceOrigin(new_origin,new_port) {
-  if (parent.location.hostname == "localhost")
-    origin = parent.location.protocol + "//" + parent.location.hostname + ":" + new_port;
-  else
-    origin = new_origin;
+function replaceOrigin(new_origin) {
+  origin = new_origin;
 }
 
 function addLog(logLine) {

@@ -12,6 +12,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$certFile = "/boot/config/ssl/certs/certificate_bundle.pem";
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
@@ -36,13 +37,13 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 
-if (file_exists("/boot/config/ssl/certs/certificate_bundle.pem")) {
-  $subject = exec("/usr/bin/openssl x509 -subject -noout -in /etc/ssl/certs/unraid_bundle.pem");
+if (file_exists($certFile)) {
+  $subject = exec("/usr/bin/openssl x509 -subject -noout -in $certFile");
   if (!preg_match('/.*\.unraid\.net$/', $subject)) {
     if ($cli) exit(0);  // cert common name isn't <hash>.unraid.net
-    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' /boot/config/ssl/certs/certificate_bundle.pem"}');
+    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' $certFile"}');
   }
-  exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in /etc/ssl/certs/unraid_bundle.pem",$arrout,$retval_expired);
+  exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in $certFile",$arrout,$retval_expired);
   if ($retval_expired === 0) {
     if ($cli) exit(0);  // not within 30 days of cert expire date
     response_complete(406, '{"error":"'._('Cannot renew cert until within 30 days of expiry').'"}');
@@ -80,9 +81,8 @@ if ($cli) {
     }
     response_complete(406, '{"error":"'.$strError.'"}');
   }
-  $_POST['text'] = $json['bundle']; // nice way to leverage CertUpload.php to save the cert
+  $_POST['text'] = $json['bundle']; // nice way to leverage CertUpload.php to save the cert and reload nginx
   include(__DIR__.'/CertUpload.php');
-  exec("/etc/rc.d/rc.nginx reload");
 }
 
 response_complete($httpcode, $result, _('LE Cert Provisioned successfully'));

@@ -34,13 +34,6 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
-// protocol, hostname, internalport
-[$protocol, $hostname, $internalport] = my_explode(":", rtrim(file_get_contents("/var/run/nginx.origin")),3);
-$hostname = substr($hostname, 2);
-if (!preg_match('/.*\.unraid\.net$/', $hostname)) {
-  response_complete(406, '{"error":"'._('Nothing to do').'"}');
-}
-
 // keyfile
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
