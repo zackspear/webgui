@@ -747,7 +747,7 @@ _(SMART controller type)_:
   <input type="text" name="smPort1" value="<?=$disk['smPort1']?>" class="option"><select name="smPort1" class="narrow" style="display:none" disabled></select>
   <input type="text" name="smPort2" value="<?=$disk['smPort2']?>" class="option"><select name="smPort2" class="narrow" style="display:none" disabled></select>
   <input type="text" name="smPort3" value="<?=$disk['smPort3']?>" class="option"><select name="smPort3" class="narrow" style="display:none" disabled></select><span id="devtext" class="devtext">/dev/</span>
-  <input type="text" name="smDevice" value="<?=$disk['smDevice']?>" class="option" placeholder="<?=$dev?>"><span id="helptext" class="helptext">enter disk index and device name as applicable to your controller</span>
+  <input type="text" name="smDevice" value="<?=$disk['smDevice']?>" class="option" placeholder="<?=$dev?>"><span id="helptext" class="helptext">_(enter disk index and device name as applicable to your controller)_</span>
 
 :info_controller_type_help:
 
