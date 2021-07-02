@@ -54,8 +54,9 @@ $text = in_array($name,$pools) ? _('This will ERASE content of ALL devices in th
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 <style>
 input.option{display:none;width:40px}
-span.devtext{display:none;font-weight:bold}
-span.helptext{display:none;font-style:italic}
+select.option{display:none}
+span#devtext{display:none;font-weight:bold}
+span#helptext{display:none;font-style:italic}
 span.code{display:inline-block;width:186px}
 </style>
 <script>
@@ -744,10 +745,10 @@ _(SMART controller type)_:
   <?=mk_option($disk['smType'], "-d marvell", "Marvell")?>
   <?=mk_option($disk['smType'], "-d megaraid", "MegaRAID")?>
   </select>
-  <input type="text" name="smPort1" value="<?=$disk['smPort1']?>" class="option"><select name="smPort1" class="narrow" style="display:none" disabled></select>
-  <input type="text" name="smPort2" value="<?=$disk['smPort2']?>" class="option"><select name="smPort2" class="narrow" style="display:none" disabled></select>
-  <input type="text" name="smPort3" value="<?=$disk['smPort3']?>" class="option"><select name="smPort3" class="narrow" style="display:none" disabled></select><span id="devtext" class="devtext">/dev/</span>
-  <input type="text" name="smDevice" value="<?=$disk['smDevice']?>" class="option" placeholder="<?=$dev?>"><span id="helptext" class="helptext">_(enter disk index and device name as applicable to your controller)_</span>
+  <input type="text" name="smPort1" value="<?=$disk['smPort1']?>" class="option"><select name="smPort1" class="narrow option" disabled></select>
+  <input type="text" name="smPort2" value="<?=$disk['smPort2']?>" class="option"><select name="smPort2" class="narrow option" disabled></select>
+  <input type="text" name="smPort3" value="<?=$disk['smPort3']?>" class="option"><select name="smPort3" class="narrow option" disabled></select><span id="devtext">/dev/</span>
+  <input type="text" name="smDevice" value="<?=$disk['smDevice']?>" class="option" placeholder="<?=$dev?>"><span id="helptext">_(enter disk index and device name as applicable to your controller)_</span>
 
 :info_controller_type_help:
 
