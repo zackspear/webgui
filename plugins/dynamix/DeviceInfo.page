@@ -20,6 +20,7 @@ $unassigned = array_key_exists($name, $devs);
 $disks = array_merge_recursive($disks, $devs);
 $disk = &$disks[$name];
 $dev  = $disk['device'];
+$id   = $disk['id'];
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 $yes = _('Yes');
@@ -62,19 +63,6 @@ if ($.cookie('deletepool')!=null) {
   $.removeCookie('deletepool');
   done();
 }
-function doDispatch(form) {
-  var fields = {};
-<?if ($display['unit']=='F'):?>
-  var hottemp = $(form).find('input[name="<?=$disk['id']?>_hotTemp"]');
-  var maxtemp = $(form).find('input[name="<?=$disk['id']?>_maxTemp"]');
-  if (hottemp.val()>0) hottemp.val(Math.round((hottemp.val()-32)*5/9));
-  if (maxtemp.val()>0) maxtemp.val(Math.round((maxtemp.val()-32)*5/9));
-<?endif;?>
-  fields['#cfg'] = "/boot/config/smart-one.cfg";
-  fields['#cleanup'] = true;
-  $(form).find('input[name^="<?=$disk['id']?>_"]').each(function(){fields[$(this).attr('name').replace(/\./g,'%3E')] = $(this).val(); $(this).prop('disabled',true);});
-  $.post('/webGui/include/Dispatcher.php',fields);
-}
 function prepareDeviceInfo(form) {
   var events = [];
   for (var i=0; i < <?=count($preselect)?>; i++) {
@@ -85,8 +73,12 @@ function prepareDeviceInfo(form) {
   custom = custom.length ? custom.split(',') : [];
   for (var i=0; i < custom.length; i++) events.push(custom[i].trim());
   form.smEvents.value = events.join('|');
-  if (form.smEvents.value == '<?=implode('|',$events)?>') form.smEvents.value = '';
+  if (form.smEvents.value == '<?=$numbers?>') form.smEvents.value = '';
   if (form.smLevel.value == 1.00) form.smLevel.value = '';
+<?if ($display['unit']=='F'):?>
+  if (form.hotTemp.value>0) form.hotTemp.value = Math.round((form.hotTemp.value-32)*5/9);
+  if (form.maxTemp.value>0) form.maxTemp.value = Math.round((form.maxTemp.value-32)*5/9);
+<?endif;?>
 }
 function setGlue(form,reset) {
   var data =
@@ -355,7 +347,7 @@ _(Identification)_:
 
 <?else:?>
 _(Identification)_:
-: <?=my_id($disk['id'])?>&nbsp;(<?=$disk['device']?>)
+: <?=my_id($id)?>&nbsp;(<?=$dev?>)
 
 <?endif;?>
 <?if (!$unassigned):?>
@@ -422,7 +414,6 @@ _(File system type)_:
   </select>
 
 <?endif;?>
-<?if (in_array($name,$pools)):?>
 <?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
 _(Enable user share assignment)_:
 : <select id="shareEnabled" name="diskShareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
@@ -437,7 +428,6 @@ _(Minimum free space)_:
 
 :info_free_space_help:
 
-<?endif;?>
 _(Warning disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="diskWarning.<?=$disk['idx']?>" class="narrow" value="<?=strlen($disk['warning'])?$disk['warning']:''?>" placeholder="<?=$display['warning']?>">
 
@@ -571,9 +561,9 @@ _(btrfs scrub status)_:
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
 
 _(btrfs check status)_:
 : <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -582,7 +572,7 @@ _(btrfs check status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[3]" value="<?=$id?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> _(Options (see Help))_
@@ -593,7 +583,7 @@ _(btrfs check status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[3]" value="<?=$id?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -617,9 +607,9 @@ _(btrfs check status)_:
 <?endif;?>
 <?if (strpos($disk['fsType'],"reiserfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
 
 _(reiserfsck status)_:
 : <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -628,7 +618,7 @@ _(reiserfsck status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[3]" value="<?=$id?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> _(Options (see Help))_
@@ -639,7 +629,7 @@ _(reiserfsck status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[3]" value="<?=$id?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -657,9 +647,9 @@ _(reiserfsck status)_:
 <?endif;?>
 <?if (strpos($disk['fsType'],"xfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
 
 _(xfs_repair status)_:
 : <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -668,7 +658,7 @@ _(xfs_repair status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[3]" value="<?=$id?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> _(Options (see Help))_
@@ -698,20 +688,20 @@ _(xfs_repair status)_:
 <?if (strpos($disks[$name]['status'],'_NP')===false):?>
 <div id="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
 
-<form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="doDispatch(this);prepareDeviceInfo(this)">
-<input type="hidden" name="#file" value="/boot/config/smart-one.cfg">
+<form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
+<input type="hidden" name="#file"    value="/boot/config/smart-one.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
-<input type="hidden" name="#section" value="<?=$disk['id']?>">
+<input type="hidden" name="#section" value="<?=$id?>">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="smEvents" value="">
-<input type="hidden" name="smGlue" value="<?=$var['smGlue']?>">
+<input type="hidden" name="smGlue"   value="<?=$var['smGlue']?>">
 _(Warning disk temperature threshold)_ (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=$disk['id']?>_hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
+: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=strlen($disk['hotTemp'])?displayTemp($disk['hotTemp']):''?>" placeholder="<?=displayTemp($display['hot'])?>">
 
 :info_warning_temp_help:
 
 _(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="<?=$disk['id']?>_maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
+: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=strlen($disk['maxTemp'])?displayTemp($disk['maxTemp']):''?>" placeholder="<?=displayTemp($display['max'])?>">
 
 :info_critical_temp_help:
 
@@ -757,7 +747,7 @@ _(SMART controller type)_:
   <input type="text" name="smPort1" value="<?=$disk['smPort1']?>" class="option"><select name="smPort1" class="narrow" style="display:none" disabled></select>
   <input type="text" name="smPort2" value="<?=$disk['smPort2']?>" class="option"><select name="smPort2" class="narrow" style="display:none" disabled></select>
   <input type="text" name="smPort3" value="<?=$disk['smPort3']?>" class="option"><select name="smPort3" class="narrow" style="display:none" disabled></select><span id="devtext" class="devtext">/dev/</span>
-  <input type="text" name="smDevice" value="<?=$disk['smDevice']??''?>" class="option" placeholder="<?=htmlspecialchars($disk['device'])?>"><span id="helptext" class="helptext">enter disk index and device name as applicable to your controller</span>
+  <input type="text" name="smDevice" value="<?=$disk['smDevice']?>" class="option" placeholder="<?=$dev?>"><span id="helptext" class="helptext">enter disk index and device name as applicable to your controller</span>
 
 :info_controller_type_help:
 
