@@ -287,9 +287,9 @@ function freeSpace(val) {
 }
 $(function() {
 <?if (count($sheets)>1):?>
-  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/Device?name=<?=$prev?>' title='previous device'>";
+  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/Device?name=<?=$prev?>' title='_(previous device)_'>";
       ctrl += "<button type='button' style='margin-right:4px' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-left fa-fw'></i></button></a>";
-      ctrl += "<a href='/Main/Device?name=<?=$next?>' title='next device'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
+      ctrl += "<a href='/Main/Device?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
