@@ -118,16 +118,16 @@ _(Mover logging)_:
 :mover_logging_help:
 
 <?endif;?>
-<? if ($setup == true):?>
-&nbsp;
-: <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
-<? endif; ?>
+<?if ($setup):?>
 <?if ($pool_devices):?>
-&nbsp;
-<?if (file_exists("/var/run/mover.pid")):?>
-: <input type="submit" name="cmdStartMover" value="_(Move now)_" disabled> _(Mover is running)_.
+<?if (file_exists('/var/run/mover.pid')):?>
+<input type="submit" name="cmdStartMover" value="_(Move now)_" disabled> _(Mover is running)_
 <?else:?>
-: <input type="submit" name="cmdStartMover" value="_(Move now)_"> _(Click to invoke the Mover)_.
+<input type="submit" name="cmdStartMover" value="_(Move now)_"> _(Click to invoke the Mover)_
 <?endif;?>
+<?else:?>
+&nbsp;
+<?endif;?>
+: <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?endif;?>
 </form>

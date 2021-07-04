@@ -63,7 +63,7 @@ while (true) {
     $echo[] = "$port\0$rx_speed\0$tx_speed\0$rxd\0$txd";
     // interface general information
     $mtu = port_get_contents("$net/$port/mtu");
-    $link = true; //port_get_contents("$net/$port/carrier")==1;
+    $link = port_get_contents("$net/$port/carrier")==1;
     if (substr($port,0,4)=='bond') {
       if ($link) {
         $bond_mode = file_exists("$bond/$port") ? str_replace('Bonding Mode: ','',@file("$bond/$port",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)[1]) : '---';

@@ -38,30 +38,32 @@ function find_tasks() {
   sort($tasks);
   return $tasks;
 }
-$tasks = find_tasks();
-$internalip = $eth0['IPADDR:0'];
-$keyfile = @file_get_contents($var['regFILE']);
+$tasks       = find_tasks();
+$internalip  = $eth0['IPADDR:0'];
+$rebindip    = "192.168.42.42";
+$keyfile     = @file_get_contents($var['regFILE']);
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
-$certFile = "/boot/config/ssl/certs/certificate_bundle.pem";
+$certFile    = "/boot/config/ssl/certs/certificate_bundle.pem";
 $certPresent = file_exists("$certFile");
-$certSubject="";
-if ($certPresent) $certSubject = exec("/usr/bin/openssl x509 -noout -subject -nameopt multiline -in $certFile | /usr/bin/sed -n 's/ *commonName *= //p'");
-$isLEcert = $certPresent && preg_match('/.*\.unraid\.net$/', $certSubject);
+$certSubject = $certPresent ? exec("openssl x509 -noout -subject -nameopt multiline -in $certFile 2>/dev/null|sed -n 's/ *commonName *= //p'") : "";
+$isLEcert    = $certPresent && preg_match('/.*\.unraid\.net$/', $certSubject);
+
 if ($isLEcert) {
-  exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in $certFile",$arrout,$retval_expired);
-  $rebindtest_ip = exec("/usr/bin/host -4 rebindtest.unraid.net |sed -n 's/.*has address //p'");
-  $dnsRebindingProtection = ($rebindtest_ip != "192.168.42.42");
+  exec("openssl x509 -checkend 2592000 -noout -in $certFile 2>/dev/null", $arrout,$retval_expired);
+  $rebindtest_ip = exec("host -4 rebindtest.unraid.net 2>/dev/null|sed -n 's/.*has address //p'");
+  $dnsRebindingProtection = ($rebindtest_ip != $rebindip);
   if (!$dnsRebindingProtection) {
-    $certtest_ip = exec("/usr/bin/host -4 $certSubject |sed -n 's/.*has address //p'");
+    $certtest_ip = exec("host -4 $certSubject 2>/dev/null|sed -n 's/.*has address //p'");
     $dnsValid = ($certtest_ip == $internalip);
   }
   // more: similar test for "www.$certSubject" dns valid goes here
 }
-$provisionlabel = $isLEcert ? _('Renew') : _('Provision');
+
+$provisionlabel     = $isLEcert ? _('Renew') : _('Provision');
 $disabled_provision = $keyfile===false || ($isLEcert && $retval_expired===0) ? 'disabled' : '';
 $disabled_updatedns = $keyfile!==false && $isLEcert ? '' : 'disabled';
-$disabled_delete = $certPresent && $var['USE_SSL']!='auto' ? '' : 'disabled';
-$disabled_auto = $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
+$disabled_delete    = $certPresent && $var['USE_SSL']!='auto' ? '' : 'disabled';
+$disabled_auto      = $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
 
 // Get ports in use
 $portsInUse = [];
@@ -139,10 +141,10 @@ function checkPorts(form,provision) {
     swal({title:'_(Port out of range)_',text:sprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
   }
-//  if ( list.length > 0 ) {
-//    swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-//    return false;
-//  }
+  if ( list.length > 0 ) {
+    swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
+    return false;
+  }
   if ( duplicates.length > 0 ) {
     swal({title:'_(Duplicate port entered)_',text:sprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return false;
