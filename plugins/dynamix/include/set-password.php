@@ -162,8 +162,8 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
         background-color: #f15a2c;
         background: -webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));
         background: linear-gradient(90deg,#e22828 0,#ff8c2f);
-        -webkit-box-shadow: 0;
-        box-shadow: 0;
+        -webkit-box-shadow: none;
+        box-shadow: none;
         cursor: pointer;
         outline: none;
     }
