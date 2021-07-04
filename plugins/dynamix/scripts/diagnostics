@@ -352,6 +352,11 @@ if (file_exists($vfiopci)) {
   $log = "/$diag/logs/vfio-pci.txt";
   exert("todos <$vfiopci >".escapeshellarg($log));
 }
+// generate unraid-api.txt
+if (file_exists("/usr/local/sbin/unraid-api")) {
+  $log = "/$diag/system/unraid-api.txt";
+  exert("unraid-api report | todos >".escapeshellarg($log));
+}
 // create resulting zip file and remove temp folder
 exert("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
 if ($cli) {
