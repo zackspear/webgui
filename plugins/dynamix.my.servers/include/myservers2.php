@@ -162,9 +162,9 @@
             'error' => [
               'heading' => _('Registration key / GUID mismatch'),
               'message' => [
-                'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key').'.',
+                'default' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the */config* directory on your USB Flash boot device or choose Purchase Key').'.',
                 'replacementIneligible' => _('Your Unraid registration key is ineligible for replacement as it has been replaced within the last 12 months').'.',
-                'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the /boot/config directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
+                'replacementEligible' => _('The license key file does not correspond to the USB Flash boot device').'. '._('Please copy the correct key file to the */config* directory on your USB Flash boot device or choose Purchase Key or Replace Key').'.',
               ],
             ],
           ],
@@ -172,7 +172,7 @@
             'humanReadable' => _('Missing key file'),
             'error' => [
               'heading' => '@:stateData.ENOKEYFILE2.humanReadable',
-              'message' => _('It appears that your license key file is corrupted or missing').". "._('The key file should be located in the bootconfig directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
+              'message' => _('It appears that your license key file is corrupted or missing').". "._('The key file should be located in the */config* directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
             ],
           ],
           'ETRIAL' => [
@@ -200,7 +200,7 @@
             'humanReadable' => _('Multiple License Keys Present'),
             'error' => [
               'heading' => '@:stateData.EGUID1.humanReadable',
-              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the bootconfig directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
+              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the */config* directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
             ],
           ],
           'EBLACKLISTED' => [
@@ -413,11 +413,11 @@
                 ],
                 'realTimeMonitoring' => [
                   'heading' => _('Real-time Monitoring'),
-                  'copy' => _('Get quick real-time info on the status of your servers such as storage container and VM usage').'. '._('And not just for one server but all the servers in your Unraid fleet'),
+                  'copy' => _('Get quick real-time info on the status of your servers such as storage, container, and VM usage').'. '._('And not just for one server but all the servers in your Unraid fleet'),
                 ],
                 'usbFlashBackup' => [
                   'heading' => _('USB Flash Backup'),
-                  'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure').'. '._('Never self-managehost your flash backups again'),
+                  'copy' => _('Click a button and your flash is automatically backed up to Unraid.net enabling easy recovery in the event of a device failure').'. '._('Never self-manage/host your flash backups again'),
                 ],
                 'regKeyManagement' => [
                   'heading' => _('Registration key management'),
