@@ -788,7 +788,7 @@ _(VLAN number)_:
 : <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=$eth0["VLANID:INDEX"]?>" class="narrow gap" required>
   <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-INDEX'))">
 
-_(Network protocol):
+_(Network protocol)_:
 : <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,'eth0',INDEX)">
   <?=mk_option($eth0["PROTOCOL:INDEX"], 'ipv4', _('IPv4 only'))?>
   <?=mk_option($eth0["PROTOCOL:INDEX"], 'ipv6', _('IPv6 only'))?>
