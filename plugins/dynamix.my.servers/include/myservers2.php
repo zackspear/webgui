@@ -111,7 +111,7 @@
           'opensNewHttpsWindow' => [
             'base' => sprintf(_('Opens new HTTPS window to %s'), '{0}'),
             'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign In')),
-            'signIn' => sprintf(_('Opens new HTTPS window to %s'), _('Sign Out')),
+            'signOut' => sprintf(_('Opens new HTTPS window to %s'), _('Sign Out')),
             'purchase' => sprintf(_('Opens new HTTPS window to %s'), _('Purchase Key')),
             'upgrade' => sprintf(_('Opens new HTTPS window to %s'), _('Upgrade Key')),
           ],
