@@ -24,7 +24,7 @@ function installPlugin(file) {
 }
 </script>
 
-<div class="notice">_(CLick **Install** to download and install the **Community Applications** plugin)_</div>
+<div class="notice">_(Click **Install** to download and install the **Community Applications** plugin)_</div>
 
 <form markdown="1" name="ca_install" method="POST" target="progressFrame">
 <input type="hidden" name="file" value="https://raw.githubusercontent.com/Squidly271/community.applications/master/plugins/community.applications.plg">
