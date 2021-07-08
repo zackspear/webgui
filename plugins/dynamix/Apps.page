@@ -1,0 +1,34 @@
+Menu="Tasks:80"
+Name="Apps"
+Code="e942"
+---
+<?PHP
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+*/
+?>
+<style>
+div.notice{margin:150px 0 20px 0}
+</style>
+
+<script>
+function installPlugin(file) {
+  openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=install&arg2="+file,"_(Install Plugin)_",600,900,true);
+}
+</script>
+
+<div class="notice">_(CLick **Install** to download and install the **Community Applications** plugin)_</div>
+
+<form markdown="1" name="ca_install" method="POST" target="progressFrame">
+<input type="hidden" name="file" value="https://raw.githubusercontent.com/Squidly271/community.applications/master/plugins/community.applications.plg">
+
+&nbsp;
+: <input type="button" value="_(Install)_" onclick="installPlugin(this.form.file.value)">
+</form>
