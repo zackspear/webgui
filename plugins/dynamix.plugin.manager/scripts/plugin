@@ -370,6 +370,7 @@ if ($argc < 2) {
   echo $usage;
   exit(1);
 }
+$notify  = '/usr/local/emhttp/webGui/scripts/notify';
 $boot    = '/boot/config/plugins';
 $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
@@ -516,6 +517,10 @@ if ($method == 'install') {
       if (dirname($plugin_file) == "$boot") {
         move($plugin_file, "$boot-error");
       }
+      $event = "Install error";
+      $subject = "plugin: ".basename($plugin_file);
+      $description = "Plugin failed to install";
+      exec("$notify -e $event -s $subject -d $description) -i 2");
       exit(1);
     }
     unlink("$plugins/$plugin");
