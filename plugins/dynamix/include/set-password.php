@@ -339,7 +339,8 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
             <header>
                 <h1><?=$var['NAME']?></h1>
                 <h2><?=$var['COMMENT']?></h2>
-                <p><?=_('Please set a password for the root user account')?>. <?=_('Max password length is 128 characters')?>.</p>
+                <p><?=_('Please set a password for the root user account')?>.</p>
+                <p><?=_('Max password length is 128 characters')?>.</p>
             </header>
             <noscript>
                 <p class="error"><?=_('The Unraid OS webgui requires JavaScript')?>. <?=_('Please enable it')?>.</p>
