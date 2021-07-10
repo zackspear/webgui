@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
 
 $result = exec( "/usr/bin/passwd --status root");
 if (($result === false) || (substr($result, 0, 6) !== "root P"))
-  include("$docroot/webGui/include/set-password.php");
+  include "$docroot/webGui/include/set-password.php";
 else
-  include("$docroot/webGui/include/login.php");
+  include "$docroot/webGui/include/login.php";
 ?>
