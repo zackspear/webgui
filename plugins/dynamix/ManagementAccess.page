@@ -93,35 +93,24 @@ function updateDNS(button) {
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
-function validatePorts(form) {
-  if (checkPorts(form,false)) form.submit();
-}
-function checkPorts(form,provision) {
+function checkPorts(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
   var range = [], list = [], duplicates = [];
-  if (provision) { // SSL is already set to auto
-    var checks = [{'key':"PORTSSL", 'used':"", 'port':"<?=$var['PORTSSL']?>", 'default':"443", 'name':"_(HTTPS port)_"}];
-  } else {
-    var checks = [
-      {'key':"PORTTELNET", 'used':"<?=$var['USE_TELNET']=='yes'?>", 'port':"<?=$var['PORTTELNET']?>", 'default':"23" , 'name':"_(TELNET port)_"},
-      {'key':"PORTSSH"   , 'used':"<?=$var['USE_SSH']=='yes'?>"   , 'port':"<?=$var['PORTSSH']?>"   , 'default':"22" , 'name':"_(SSH port)_"},
-      {'key':"PORT"      , 'used':"<?=$var['USE_SSL']=='no'?>"    , 'port':"<?=$var['PORT']?>"      , 'default':"80" , 'name':"_(HTTP port)_"},
-      {'key':"PORTSSL"   , 'used':"<?=$var['USE_SSL']!='no'?>"    , 'port':"<?=$var['PORTSSL']?>"   , 'default':"443", 'name':"_(HTTPS port)_"}
-    ];
-  }
+  var checks = [
+    {'key':"PORTTELNET", 'used':"<?=$var['USE_TELNET']=='yes'?>", 'port':"<?=$var['PORTTELNET']?>", 'default':"23" , 'name':"_(TELNET port)_"},
+    {'key':"PORTSSH"   , 'used':"<?=$var['USE_SSH']=='yes'?>"   , 'port':"<?=$var['PORTSSH']?>"   , 'default':"22" , 'name':"_(SSH port)_"},
+    {'key':"PORT"      , 'used':"<?=$var['USE_SSL']=='no'?>"    , 'port':"<?=$var['PORT']?>"      , 'default':"80" , 'name':"_(HTTP port)_"},
+    {'key':"PORTSSL"   , 'used':"<?=$var['USE_SSL']!='no'?>"    , 'port':"<?=$var['PORTSSL']?>"   , 'default':"443", 'name':"_(HTTPS port)_"}
+  ];
   for (var i=0,check; check=checks[i]; i++) {
     var item = $(form).find('input[name="'+check['key']+'"]');
     if ($(item).is(':disabled')) continue;
     var current = (check['port']||check['default']).toString();
-    if (provision) {
-      var userPort = current;
-    } else {
-      item.val(parseInt(item.val()));
-      var userPort = (item.val()||check['default']).toString();
-      if (userPort < 1 || userPort > 65535) range.push(userPort+' ('+check['name']+')');
-    }
+    item.val(parseInt(item.val()));
+    var userPort = (item.val()||check['default']).toString();
+    if (userPort < 1 || userPort > 65535) range.push(userPort+' ('+check['name']+')');
     duplicates.push(userPort);
-    if ((check['used'] == '1' && userPort != current) || provision) {
+    if (check['used'] == '1' && userPort != current) {
       if (portsInUse.includes(userPort)) list.push(userPort+' ('+check['name']+')');
     }
   }
@@ -131,17 +120,17 @@ function checkPorts(form,provision) {
 
   if (range.length > 0) {
     swal({title:'_(Port out of range)_',text:sprintf('_(Port %s is out of range (minimum 1 maximum 65535))_',range.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-    return false;
+    return;
   }
   if (list.length > 0) {
     swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',list.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-    return false;
+    return;
   }
   if (duplicates.length > 0) {
     swal({title:'_(Duplicate port entered)_',text:sprintf('_(Port %s is duplicated)_',duplicates.join(', ')),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
-    return false;
+    return;
   }
-  return true;
+  form.submit();
 }
 function updateTELNET(form) {
   form.PORTTELNET.disabled = form.USE_TELNET.value=='no';
@@ -245,7 +234,7 @@ _(Local TLD)_:
 :mgmt_local_tld_help:
 
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="validatePorts(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="button" value="_(Apply)_" onclick="checkPorts(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
 
 </form>
 <div style="height:24px"></div>
