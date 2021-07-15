@@ -93,6 +93,7 @@ function updateDNS(button) {
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
+
 function checkPorts(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
   var range = [], list = [], duplicates = [];
@@ -132,16 +133,20 @@ function checkPorts(form) {
   }
   form.submit();
 }
+
 function updateTELNET(form) {
   form.PORTTELNET.disabled = form.USE_TELNET.value=='no';
 }
+
 function updateSSH(form) {
   form.PORTSSH.disabled = form.USE_SSH.value=='no';
 }
+
 function updateSSL(form) {
   form.PORT.disabled = form.USE_SSL.value=='yes';
   form.PORTSSL.disabled = form.USE_SSL.value=='no';
 }
+
 $(function(){
   var form = document.SSLSettings;
   updateTELNET(form);
