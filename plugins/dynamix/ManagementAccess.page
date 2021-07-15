@@ -106,8 +106,8 @@ function checkPorts(form) {
   for (var i=0,check; check=checks[i]; i++) {
     var item = $(form).find('input[name="'+check['key']+'"]');
     if ($(item).is(':disabled')) continue;
-    var current = (check['port']||check['default']).toString();
     item.val(parseInt(item.val()));
+    var current = (check['port']||check['default']).toString();
     var userPort = (item.val()||check['default']).toString();
     if (userPort < 1 || userPort > 65535) range.push(userPort+' ('+check['name']+')');
     duplicates.push(userPort);
