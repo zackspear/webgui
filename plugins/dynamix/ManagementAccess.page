@@ -116,7 +116,7 @@ function checkPorts(form,provision) {
     if (provision) {
       var userPort = current;
     } else {
-      item.val(parseInt(item.val());
+      item.val(parseInt(item.val()));
       var userPort = (item.val()||check['default']).toString();
       if (userPort < 1 || userPort > 65535) range.push(userPort+' ('+check['name']+')');
     }
