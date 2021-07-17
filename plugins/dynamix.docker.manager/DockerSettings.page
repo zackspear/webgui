@@ -238,6 +238,12 @@ _(Template Authoring Mode)_:
 
 :docker_authoring_mode_help:
 
+_(Docker custom network type)_:
+: <select name="DOCKER_NETWORK_TYPE">
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
+  </select>
+
 _(Host access to custom networks)_:
 : <select name="DOCKER_ALLOW_ACCESS">
   <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], '', _('Disabled'))?>
@@ -435,6 +441,9 @@ _(Docker LOG rotation)_:
 : <?=$dockercfg['DOCKER_LOG_ROTATION']=='yes' ? _('Enabled') : _('Disabled')?>
 
 :docker_log_rotation_active_help:
+
+_(Docker custom network type)_:
+: <?=$dockercfg['DOCKER_NETWORK_TYPE']=='' ? _('macvlan') : _('ipvlan')?>
 
 _(Host access to custom networks)_:
 : <?=$dockercfg['DOCKER_ALLOW_ACCESS']=='yes' ? _('Enabled') : _('Disabled')?>
