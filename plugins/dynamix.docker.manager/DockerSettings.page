@@ -238,20 +238,22 @@ _(Template Authoring Mode)_:
 
 :docker_authoring_mode_help:
 
-_(Docker custom network type)_:
-: <select name="DOCKER_NETWORK_TYPE">
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
-  </select>
-
 _(Host access to custom networks)_:
-: <select name="DOCKER_ALLOW_ACCESS">
+: <select name="DOCKER_ALLOW_ACCESS" onchange="changeAccess(this.value)">
   <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], '', _('Disabled'))?>
   <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], 'yes', _('Enabled'))?>
   </select>
 
 :docker_custom_network_access_help:
 
+<div markdown="1" id="network-type" style="display:none">
+_(Docker custom network type)_:
+: <select name="DOCKER_NETWORK_TYPE">
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
+  </select>
+
+</div>
 _(Preserve user defined networks)_:
 : <select name="DOCKER_USER_NETWORKS">
   <?=mk_option($dockercfg['DOCKER_USER_NETWORKS'], 'remove', _('No'))?>
@@ -442,14 +444,16 @@ _(Docker LOG rotation)_:
 
 :docker_log_rotation_active_help:
 
-_(Docker custom network type)_:
-: <?=$dockercfg['DOCKER_NETWORK_TYPE']=='' ? _('macvlan') : _('ipvlan')?>
-
 _(Host access to custom networks)_:
 : <?=$dockercfg['DOCKER_ALLOW_ACCESS']=='yes' ? _('Enabled') : _('Disabled')?>
 
 :docker_custom_network_active_help:
 
+<div markdown="1" style="<?=$dockercfg['DOCKER_ALLOW_ACCESS']=='' ? 'display:none' : ''?>">
+_(Docker custom network type)_:
+: <?=$dockercfg['DOCKER_NETWORK_TYPE']=='' ? _('macvlan') : _('ipvlan')?>
+
+</div>
 _(Preserve user defined networks)_:
 : <?=$dockercfg['DOCKER_USER_NETWORKS']=='preserve' ? _('Yes') : _('No')?>
 
@@ -722,6 +726,9 @@ function changeDHCP(id,ip,sid) {
     }
   }
 }
+function changeAccess(value) {
+  if (value=='') $('#network-type').hide('slow'); else $('#network-type').show('slow');
+}
 function customDHCP(id,ip) {
   var checked = $('#'+id).prop('checked');
   id = '#'+id.substr(0,id.length-4);
@@ -983,5 +990,6 @@ $(function() {
     $.cookie('dockersettings_view_mode', $('.advancedview').is(':checked') ? 'advanced':'basic', {expires:3650});
   });
   showStatus('pid','dockerd');
+  changeAccess("<?=$dockercfg['DOCKER_ALLOW_ACCESS']?>");
 });
 </script>
