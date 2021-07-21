@@ -305,7 +305,7 @@ foreach ($plugins as $plugin) {
   $plgURL = exert("plugin pluginURL ".escapeshellarg($plugin));
   
   $installedPlugins .= basename($plugin)." - $plgVer";
-  if ( ! $pluginList[$plgURL] && basename($plugin) !== "unRAIDServer.plg")
+  if ( $pluginList && ! $pluginList[$plgURL] && basename($plugin) !== "unRAIDServer.plg")
     $installedPlugins .= "  (Unknown to Community Applications)";
   if ( $pluginList[$plgURL]['blacklist'] )
     $installedPlugins .= "  (Blacklisted)";
