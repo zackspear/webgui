@@ -107,10 +107,11 @@ function download_url($url, $path = "", $bg = false, $timeout = 15) {
   return $out ?: false;
 }
 
+exert("mkdir -p /boot/logs");
+
 if ($cli) {
 // script is called from CLI
   echo "Starting diagnostics collection... ";
-  exert("mkdir -p /boot/logs");
   $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
   $date = date('Ymd-Hi');
   $diag = "$server-diagnostics-$date";
@@ -309,12 +310,16 @@ foreach ($plugins as $plugin) {
     $installedPlugins .= "  (Unknown to Community Applications)";
   if ( $pluginList[$plgURL]['blacklist'] )
     $installedPlugins .= "  (Blacklisted)";
-  if ( $pluginList[$plgURL]['deprecated'] )
+  if ( $pluginList[$plgURL]['deprecated'] || ( $pluginList[$plgURL]['dmax'] && version_compare($unraid['version'],"<") ) )
     $installedPlugins .= "  (Deprecated)";
   if ( $pluginList[$plgURL]['version'] > $plgVer ) 
     $installedPlugins .= "  (Update available: {$pluginList[$plgURL]['version']})";
   elseif ($pluginList[$plgURL])
     $installedPlugins .= "  (Up to date)";
+  if ( $pluginList[$plgURL]['max'] && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<") )
+    $installedPlugins .= "  (Incompatible)";
+  if ( $pluginList[$plgURL]['min'] && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">") )
+    $installedPlugins .= "  (Incompatible)";
   
   $installedPlugins .= "\r\n";
 }
