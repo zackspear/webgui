@@ -88,11 +88,30 @@ function cache_filter($disks) {
 function pools_filter($disks) {
   return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
 }
+function download_url($url, $path = "", $bg = false, $timeout = 15) {
+  $ch = curl_init();
+  curl_setopt($ch,CURLOPT_URL,$url);
+  curl_setopt($ch,CURLOPT_FRESH_CONNECT,true);
+  curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+  curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
+  curl_setopt($ch,CURLOPT_TIMEOUT,$timeout);
+  curl_setopt($ch,CURLOPT_ENCODING,"");
+  curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+  $out = curl_exec($ch);
+  curl_close($ch);
+  if ( $path )
+    file_put_contents($path,$out);
+
+  return $out ?: false;
+}
+
+exert("mkdir -p /boot/logs");
 
 if ($cli) {
 // script is called from CLI
   echo "Starting diagnostics collection... ";
-  exert("mkdir -p /boot/logs");
   $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
   $date = date('Ymd-Hi');
   $diag = "$server-diagnostics-$date";
@@ -277,9 +296,32 @@ foreach (pools_filter($disks) as $pool) {
   }
 }
 // create installed plugin information
+$pluginList = json_decode(download_url("https://raw.githubusercontent.com/Squidly271/AppFeed/master/pluginList.json"),true);
+if ( ! $pluginList )
+  $installedPlugins = "Could not download current plugin versions\r\n\r\n";
+
 $plugins = glob("/var/log/plugins/*.plg");
 foreach ($plugins as $plugin) {
-  $installedPlugins .= basename($plugin)." - ".exert("plugin version ".escapeshellarg($plugin))."\r\n";
+  $plgVer = exert("plugin version ".escapeshellarg($plugin));
+  $plgURL = exert("plugin pluginURL ".escapeshellarg($plugin));
+  
+  $installedPlugins .= basename($plugin)." - $plgVer";
+  if ( $pluginList && ! $pluginList[$plgURL] && basename($plugin) !== "unRAIDServer.plg")
+    $installedPlugins .= "  (Unknown to Community Applications)";
+  if ( $pluginList[$plgURL]['blacklist'] )
+    $installedPlugins .= "  (Blacklisted)";
+  if ( $pluginList[$plgURL]['deprecated'] || ( $pluginList[$plgURL]['dmax'] && version_compare($unraid['version'],"<") ) )
+    $installedPlugins .= "  (Deprecated)";
+  if ( $pluginList[$plgURL]['version'] > $plgVer ) 
+    $installedPlugins .= "  (Update available: {$pluginList[$plgURL]['version']})";
+  elseif ($pluginList[$plgURL])
+    $installedPlugins .= "  (Up to date)";
+  if ( $pluginList[$plgURL]['max'] && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<") )
+    $installedPlugins .= "  (Incompatible)";
+  if ( $pluginList[$plgURL]['min'] && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">") )
+    $installedPlugins .= "  (Incompatible)";
+  
+  $installedPlugins .= "\r\n";
 }
 $installedPlugins = $installedPlugins ?: "No additional Plugins Installed";
 file_put_contents("/$diag/system/plugins.txt",$installedPlugins);
