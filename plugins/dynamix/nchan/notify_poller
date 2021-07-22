@@ -14,16 +14,11 @@
 <?
 $docroot = '/usr/local/emhttp';
 $notify  = "$docroot/webGui/scripts/notify";
-$unread  = '';
 
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
-  $get = shell_exec("$notify get");
-  if ($get != $unread) {
-    publish('notify', $get);
-    $unread = $get;
-  }
+  publish('notify', shell_exec("$notify get"));
   sleep(3);
 }
 ?>

@@ -341,6 +341,12 @@ foreach (glob("/var/log/syslog*") as $file) {
   if (basename($file)=='syslog' && filesize($file)>=$max) exert("tail -n 200 ".escapeshellarg("$log.txt")." >".escapeshellarg("$log.last200.txt"));
   exert("truncate -s '<$max' ".escapeshellarg("$log.txt"));
 }
+// copy dhcplog
+$dhcplog = "/var/log/dhcplog";
+if (file_exists($dhcplog)) {
+  $log = "/$diag/logs/dhcplog.txt";
+  exert("todos <$dhcplog >".escapeshellarg($log));
+}
 // copy graphql-api.log
 $graphql = "/var/log/graphql-api.log";
 if (file_exists($graphql)) {
