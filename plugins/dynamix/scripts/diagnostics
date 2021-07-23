@@ -310,7 +310,7 @@ foreach ($plugins as $plugin) {
     $installedPlugins .= "  (Unknown to Community Applications)";
   if ( $pluginList[$plgURL]['blacklist'] )
     $installedPlugins .= "  (Blacklisted)";
-  if ( $pluginList[$plgURL]['deprecated'] || ( $pluginList[$plgURL]['dmax'] && version_compare($unraid['version'],"<") ) )
+  if ( $pluginList[$plgURL]['deprecated'] || ( $pluginList[$plgURL]['dmax'] && version_compare($pluginList[$plgURL]['dmax'],$unraid['version'],"<") ) )
     $installedPlugins .= "  (Deprecated)";
   if ( $pluginList[$plgURL]['version'] > $plgVer ) 
     $installedPlugins .= "  (Update available: {$pluginList[$plgURL]['version']})";
