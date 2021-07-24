@@ -225,6 +225,7 @@ if ($_GET['xmlTemplate']) {
           }
           $arrConfig['Name'] = strip_tags($arrConfig['Name']);
           $arrConfig['Description'] = strip_tags($arrConfig['Description']);
+					$arrConfig['Requires'] = strip_tags($arrConfig['Requires']);
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
@@ -735,6 +736,18 @@ _(Overview)_:
 :docker_client_overview_help:
 
 </div>
+<div markdown="1" class="basic">
+_(Additional Requirements)_:
+: <span id="contRequires" class="boxed blue-text"></span>
+
+</div>
+<div markdown="1" class="advanced">
+_(Additional Requirements)_:
+: <textarea name="contRequires" spellcheck="false" cols="80" Rows="3" style="width:56%"></textarea>
+
+:docker_client_additional_requirements_help:
+
+</div>
 
 <div markdown="1" class="<?=$showAdditionalInfo?>">
 _(Repository)_:
@@ -1046,6 +1059,15 @@ function load_contOverview() {
   new_overview = marked(new_overview);
   new_overview = new_overview.replaceAll("\n","<br>"); // has to be after marked
   $("#contDescription").html(new_overview);
+  
+  var new_requires = $("textarea[name='contRequires']").val();
+  new_requires = new_requires.replaceAll("[","<").replaceAll("]",">");
+  // Handle code block being created by authors indenting (manually editing the xml and spacing)
+  new_requires = new_requires.replaceAll("    ","&nbsp;&nbsp;&nbsp;&nbsp;");
+  new_requires = marked(new_requires);
+  new_requires = new_requires.replaceAll("\n","<br>"); // has to be after marked
+	new_requires = new_requires ? new_requires : "<em>_(None Listed)_</em>";
+  $("#contRequires").html(new_requires);
 }
 
 $(function() {

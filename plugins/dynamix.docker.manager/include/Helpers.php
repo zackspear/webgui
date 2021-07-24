@@ -45,6 +45,7 @@ function postToXML($post, $setOwnership=false) {
   $xml->DateInstalled      = xml_encode(time());
   $xml->DonateText         = xml_encode($post['contDonateText']);
   $xml->DonateLink         = xml_encode($post['contDonateLink']);
+	$xml->Requires           = xml_encode($post['contRequires']);
 
   // V1 compatibility
   $xml->Description        = xml_encode($post['contOverview']);
@@ -120,6 +121,7 @@ function xmlToVar($xml) {
   $out['CPUset']      = xml_decode($xml->CPUset);
   $out['DonateText']  = xml_decode($xml->DonateText);
   $out['DonateLink']  = xml_decode($xml->DonateLink);
+	$out['Requires']    = xml_decode($xml->Requires);
   $out['Config']      = [];
   if (isset($xml->Config)) {
     foreach ($xml->Config as $config) {
