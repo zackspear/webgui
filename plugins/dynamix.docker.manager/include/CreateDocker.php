@@ -1066,7 +1066,7 @@ function load_contOverview() {
   new_requires = new_requires.replaceAll("    ","&nbsp;&nbsp;&nbsp;&nbsp;");
   new_requires = marked(new_requires);
   new_requires = new_requires.replaceAll("\n","<br>"); // has to be after marked
-	new_requires = new_requires ? new_requires : "<em>_(None Listed)_</em>";
+  new_requires = new_requires ? new_requires : "<em>_(None Listed)_</em>";
   $("#contRequires").html(new_requires);
 }
 
