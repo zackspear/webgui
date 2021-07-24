@@ -144,7 +144,6 @@ function updateSSH(form) {
 
 function updateSSL(form) {
   form.PORT.disabled = form.USE_SSL.value=='yes';
-  form.PORTSSL.disabled = form.USE_SSL.value=='no';
 }
 
 $(function(){
