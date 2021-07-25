@@ -534,6 +534,7 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer
+echo "\n<!--\n".str_repeat("#",30)."\n Footer\n".str_repeat("#",30)."\n-->\n";
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
 $progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
 switch ($var['fsState']) {
