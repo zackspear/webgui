@@ -17,6 +17,21 @@ $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+function usb_physical_port($usbbusdev) {
+  if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
+    //udevadm info -a   --name=/dev/bus/usb/003/002 | grep KERNEL==
+    $udevcmd = "udevadm info -a   --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==" ;
+    exec($udevcmd , $udev);
+    if (isset($udev)) {
+    $physical_busid = trim(substr($udev[0], 13) , '"') ;
+    if (substr($physical_busid,0,3) =='usb') {
+      $physical_busid = substr($physical_busid,3).'-0' ;
+      }
+    } else { $physical_busid = "None" ;}    
+  } else $physical_busid = "None" ;
+  return($physical_busid) ;
+}
+
 switch ($_POST['table']) {
 case 't1':
   exec('for group in $(ls /sys/kernel/iommu_groups/ -1|sort -n);do echo "IOMMU group $group";for device in $(ls -1 "/sys/kernel/iommu_groups/$group"/devices/);do echo -n $\'\t\';lspci -ns "$device"|awk \'BEGIN{ORS=" "}{print "["$3"]"}\';lspci -s "$device";done;done',$groups);
@@ -136,7 +151,9 @@ case 't1':
             } else {
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:|sort;fi;done',$getusb);
               foreach($getusb as $usbdevice) {
-                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$usbdevice</td></tr>";
+                [$bus,$id] = my_explode(':',$usbdevice);
+                $usbport = usb_physical_port($usbdevice) ;
+                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus : Port: $usbport   \t ".trim($id)."</td></tr>";
               }
               unset($getusb);
             }
@@ -200,7 +217,8 @@ case 't3':
   exec('lsusb|sort',$lsusb);
   foreach ($lsusb as $line) {
     [$bus,$id] = my_explode(':',$line);
-    echo "<tr><td>$bus:</td><td>".trim($id)."</td></tr>";
+    $usbport = usb_physical_port($line) ;
+    echo "<tr><td>$bus : Port: $usbport </td><td>   ".trim($id)."</td></tr>";
   }
   break;
 case 't4':
