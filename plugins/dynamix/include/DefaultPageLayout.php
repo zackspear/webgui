@@ -421,7 +421,7 @@ if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  eval("?> \n<!--\n".str_repeat("#",30)."\n Button: {$button['file']}\n".str_repeat("#",30)."\n-->\n");
+  echo "\n<!--\n".str_repeat("#",30)."\n {$button['file']}\n".str_repeat("#",30)."\n-->\n";
   eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -502,7 +502,7 @@ foreach ($pages as $page) {
   }
   // create list of nchan scripts to be started
   if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
-  eval("?> \n<!--\n".str_repeat("#",30)."\n {$page['file']}\n".str_repeat("#",30)."\n-->\n");
+  echo "\n<!--\n".str_repeat("#",30)."\n {$page['file']}\n".str_repeat("#",30)."\n-->\n";
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
