@@ -421,7 +421,7 @@ if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  eval("?> \n<!--\n".str_repeat("#",30)."\n {$button['file']}\n".str_repeat("#",30)."\n-->\n");
+  eval("?> \n<!--\n".str_repeat("#",30)."\n Button: {$button['file']}\n".str_repeat("#",30)."\n-->\n");
   eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
