@@ -153,7 +153,7 @@ case 't1':
               foreach($getusb as $usbdevice) {
                 [$bus,$id] = my_explode(':',$usbdevice);
                 $usbport = usb_physical_port($usbdevice) ;
-                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus : Port: $usbport   \t ".trim($id)."</td></tr>";
+               echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus Port $usbport\t\t".trim($id)."</td></tr>";
               }
               unset($getusb);
             }
@@ -218,7 +218,7 @@ case 't3':
   foreach ($lsusb as $line) {
     [$bus,$id] = my_explode(':',$line);
     $usbport = usb_physical_port($line) ;
-    echo "<tr><td>$bus : Port: $usbport </td><td>   ".trim($id)."</td></tr>";
+    echo "<tr><td>$bus Port $usbport</td><td>  ".trim($id)."</td></tr>";
   }
   break;
 case 't4':
