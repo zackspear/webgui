@@ -140,7 +140,7 @@ function xmlToVar($xml) {
               break;
           }
         }
-        $c[$key] = $value;
+        $c[$key] = strip_tags(html_entity_decode($value));
       }
       $out['Config'][] = $c;
     }
