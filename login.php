@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
         // delete the session cookie
         $params = session_get_cookie_params();
         setcookie(session_name(), '', 0, '/', $params['domain'], $params['secure'], isset($params['httponly']));
+        syslog(LOG_INFO, "Successfull logout user root from ".$_SERVER['REMOTE_ADDR']);
     }
     $error = _('Successfully logged out');
 }
