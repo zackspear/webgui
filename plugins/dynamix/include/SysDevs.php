@@ -21,14 +21,15 @@ function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
     //udevadm info -a   --name=/dev/bus/usb/003/002 | grep KERNEL==
     $udevcmd = "udevadm info -a   --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==" ;
+    $physical_busid = _("None") ;
     exec($udevcmd , $udev);
     if (isset($udev)) {
     $physical_busid = trim(substr($udev[0], 13) , '"') ;
     if (substr($physical_busid,0,3) =='usb') {
       $physical_busid = substr($physical_busid,3).'-0' ;
       }
-    } else { $physical_busid = "None" ;}    
-  } else $physical_busid = "None" ;
+    }     
+  } 
   return($physical_busid) ;
 }
 
