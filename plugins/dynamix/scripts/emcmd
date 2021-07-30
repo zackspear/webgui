@@ -8,7 +8,7 @@ function emhttp_command($cmd)
     return curl_socket("/var/run/emhttpd.socket", "http://localhost/update", $cmd);
 }
 $result = emhttp_command($argv[1]);
-if ($result === "") exit(0);
+if ($result == "") exit(0);
 echo "$result".PHP_EOL;
 exit(1);
 ?>
