@@ -154,7 +154,8 @@ case 't1':
               foreach($getusb as $usbdevice) {
                 [$bus,$id] = my_explode(':',$usbdevice);
                 $usbport = usb_physical_port($usbdevice) ;
-               echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus Port $usbport\t\t".trim($id)."</td></tr>";
+                if (strlen($usbport) > 7 ) {$usbport .= "\t"; } else { $usbport .= "\t\t"; }
+                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus Port $usbport".trim($id)."</td></tr>";
               }
               unset($getusb);
             }
