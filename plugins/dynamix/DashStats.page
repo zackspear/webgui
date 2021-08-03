@@ -1023,7 +1023,6 @@ cpuload.on('message',function(data) {
     if (k=='cpu') {
       addChartCpu(cputime, load);
       cpuchart.updateSeries([{data:cpu}]);
-      $.cookie('cpu-init', cpu.tail(cpuline));
     }
     load += '%';
     $('.'+k).text(load);
@@ -1103,8 +1102,6 @@ update3.on('message',function(d) {
       $('#outbound').text(data[2]);
       addChartNet(nettime, data[3], data[4]);
       netchart.updateSeries([{data:rxd},{data:txd}]);
-      $.cookie('rxd-init', rxd.tail(netline));
-      $.cookie('txd-init', txd.tail(netline));
       break;
     }
   }
@@ -1253,5 +1250,11 @@ $(function() {
   sortTable($('#db-box3'),$.cookie('db-box3'));
   $('#cpuline').val(cpuline);
   $('#netline').val(netline);
+  // remember latest graph values
+  $(window).on('beforeunload',function(e){
+    $.cookie('cpu-init', cpu.tail(cpuline));
+    $.cookie('rxd-init', rxd.tail(netline));
+    $.cookie('txd-init', txd.tail(netline));
+  });
 });
 </script>
