@@ -147,10 +147,10 @@ function refresh(top) {
   if (typeof top === 'undefined') {
     for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) { element.disabled = true; }
     for (var i=0,link; link=document.getElementsByTagName('a')[i]; i++) { link.style.color = "gray"; } //fake disable
-    location = location;
+    location.reload();
   } else {
     $.cookie('top',top,{path:'/'});
-    location = location;
+    location.reload();
   }
 }
 function initab() {
