@@ -447,7 +447,7 @@ echo "</div></div></div>";
 
 // Build page content
 // Reload page every X minutes during extended viewing?
-if (isset($myPage['Load'])) echo "\n<script>timers.reload = setTimeout(function(){location.reload();},".($myPage['Load']*60000).");</script>\n";
+if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setTimeout(function(){location.reload();},".($myPage['Load']*60000).");</script>\n";
 echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
