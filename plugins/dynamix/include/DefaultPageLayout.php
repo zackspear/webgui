@@ -17,6 +17,7 @@ $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
+$config  = "/boot/config";
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
@@ -62,7 +63,7 @@ $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
-$banner = '/boot/config/plugins/dynamix/banner.png';
+$banner = "$config/plugins/dynamix/banner.png";
 echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
@@ -364,7 +365,18 @@ $(function() {
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
   $.jGrowl.defaults.themeState = '';
   Shadowbox.setup('a.sb-enable', {modal:true});
+// add any pre-existing reboot notices
+<?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
+<?foreach ($rebootNotice as $notice):?>
+  var rebootMessage = "<?=trim($notice)?>";
+  if (rebootMessage) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
+<?endforeach;?>
+// check for flash offline / corrupted. docker.cfg is guaranteed to always exist
+<?if (!@parse_ini_file("$config/docker.cfg") || !@parse_ini_file("$config/domain.cfg") || !@parse_ini_file("$config/ident.cfg")):?>
+  addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?></a>");
+<?endif;?>
 });
+
 var mobiles=['ipad','iphone','ipod','android'];
 var device=navigator.platform.toLowerCase();
 for (var i=0,mobile; mobile=mobiles[i]; i++) {
@@ -377,26 +389,8 @@ $.ajaxPrefilter(function(s, orig, xhr){
     s.data += "csrf_token="+csrf_token;
   }
 });
-
-// add any pre-existing reboot notices
-$(function() {
-<?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
-<?foreach ($rebootNotice as $notice):?>
-  var rebootMessage = "<?=trim($notice)?>";
-  if ( rebootMessage ) {
-    addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
-  }
-<?endforeach;?>
-});
-
-// check for flash offline / corrupted. docker.cfg is guaranteed to always exist
-<?if ( ! @parse_ini_file("/boot/config/docker.cfg") || ! @parse_ini_file("/boot/config/domain.cfg") || ! @parse_ini_file("/boot/config/ident.cfg") ):?>
-$(function() {
-  addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?>");
-});
-<?endif;?>
 </script>
-<? include "/usr/local/emhttp/plugins/dynamix.my.servers/include/myservers1.php" ?>
+<?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
  <div id="template">
@@ -406,7 +400,7 @@ $(function() {
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
    <?=_('Version')?>: <?=$var['version']?><?=$notes?>
    </div>
-   <? include "/usr/local/emhttp/plugins/dynamix.my.servers/include/myservers2.php" ?>
+   <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
