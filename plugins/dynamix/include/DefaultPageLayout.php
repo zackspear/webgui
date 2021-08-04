@@ -187,7 +187,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
-  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
+  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location=location;}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
 function openWindow(cmd,title,height,width) {
@@ -588,8 +588,8 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
-var keepalive = new NchanSubscriber('/sub/session');
-keepalive.on('message', function(token) {
+var session_check = new NchanSubscriber('/sub/session');
+session_check.on('message', function(token) {
   if (csrf_token != token) {
     // Stale session, force login
     $(location).attr('href','/');
@@ -630,8 +630,8 @@ notifier.on('message', function(d) {
 });
 
 var watchdog = new NchanSubscriber('/sub/var');
-watchdog.on('message', function(d) {
-  var ini = parseINI(d);
+watchdog.on('message', function(data) {
+  var ini = parseINI(data);
   var state = ini['fsState'];
   var progress = ini['fsProgress'];
   var status;
@@ -675,13 +675,9 @@ $('.back_to_top').click(function(event) {
   $('html,body').animate({scrollTop:0},backtotopduration);
   return false;
 });
-
-// During extended viewing, reload page every 30 min.
-setTimeout(function(){location.reload();},1800000);
-
 $(function() {
   watchdog.start();
-  keepalive.start();
+  session_check.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});

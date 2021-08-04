@@ -585,6 +585,8 @@ foreach ($users as $user) {
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
 
+var orange   = 70;
+var red      = 90;
 var ports    = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu      = [];
 var rxd      = [];
@@ -654,28 +656,28 @@ function resetCharts() {
   rxd = rxd.slice(-netline);
   txd = txd.slice(-netline);
 }
-function addChartCpu(load) {
-  cputime++;
-  var i = cpu.length - cpuline;
-  if (i > 0) { // clear value outside graph
-    i = i - 1;
-    cpu[i].x = cputime - cpuline;
+function addChartCpu(now, load) {
+  var newtime = now + 1;
+  cputime = newtime;
+  for (var i=0; i < cpu.length-cpuline; i++) {
+    // clear values outside graph
+    cpu[i].x = newtime-cpuline;
     cpu[i].y = 0;
   }
-  cpu.push({x:cputime, y:load});
+  cpu.push({x:newtime, y:load});
 }
-function addChartNet(rx, tx) {
-  nettime++;
-  var i = rxd.length - netline;
-  if (i > 0) { // clear value outside graph
-    i = i - 1;
-    rxd[i].x = nettime - netline;
+function addChartNet(now, rx, tx) {
+  var newtime = now + 1;
+  nettime = newtime;
+  for (var i=0; i < rxd.length-netline; i++) {
+    // clear values outside graph
+    rxd[i].x = newtime-netline;
+    txd[i].x = newtime-netline;
     rxd[i].y = 0;
-    txd[i].x = nettime - netline;
     txd[i].y = 0;
   }
-  rxd.push({x:nettime, y:rx});
-  txd.push({x:nettime, y:tx});
+  rxd.push({x:newtime, y:rx});
+  txd.push({x:newtime, y:tx});
 }
 <?if ($wireguard):?>
 function toggleVPN(id,vtun) {
@@ -1001,15 +1003,9 @@ function sortTable(table,index) {
     table.find('tbody[sort="'+n+'"]').appendTo(table);
   }
 }
-function setColor(l, t1, t2) {
-  switch (true) {
-  case (l >= t1): return 'redbar';
-  case (l >= t2): return 'orangebar';
-  default       : return '';}
-}
 
 var cpuload = new NchanSubscriber('/sub/cpuload');
-cpuload.on('message',function(d) {
+cpuload.on('message',function(data) {
 /*
   message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
   The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
@@ -1018,16 +1014,19 @@ cpuload.on('message',function(d) {
     $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
   });
 */
-  var ini = parseINI(d);
+  var ini = parseINI(data);
   $.each(ini,function(k,v) {
     var load = v['host'];
-    var color = setColor(load, 90, 70);
+    if (load >= red) var color = 'redbar';
+    else if (load >= orange) var color = 'orangebar';
+    else var color = '';
     if (k=='cpu') {
-      addChartCpu(load);
+      addChartCpu(cputime, load);
       cpuchart.updateSeries([{data:cpu}]);
     }
-    $('.'+k).text(load+'%');
-    $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
+    load += '%';
+    $('.'+k).text(load);
+    $('#'+k).finish().animate({width:load},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
   });
 });
 
@@ -1037,7 +1036,9 @@ update1.on('message',function(d) {
   // memory & disk load
   $.each(part[0].split('\0'),function(k,v) {
     var load = v.slice(0,-1);
-    var color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
+    if (load >= <?=$display['critical']?>) var color = 'redbar';
+    else if (load >= <?=$display['warning']?>) var color = 'orangebar';
+    else var color = '';
     $('.sys'+k).text(v);
     $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
   });
@@ -1099,7 +1100,7 @@ update3.on('message',function(d) {
     if (data[0] == port_select) {
       $('#inbound').text(data[1]);
       $('#outbound').text(data[2]);
-      addChartNet(data[3], data[4]);
+      addChartNet(nettime, data[3], data[4]);
       netchart.updateSeries([{data:rxd},{data:txd}]);
       break;
     }
@@ -1124,9 +1125,9 @@ apcups.on('message',function(d) {
 
 <?if ($wireguard):?>
 var wireguard = new NchanSubscriber('/sub/wireguard');
-wireguard.on('message', function(d) {
+wireguard.on('message', function(data) {
   var n = {};
-  var rows = d.split('\0');
+  var rows = data.split('\0');
   for (var i=0,row; row=rows[i]; i++) {
     var info = row.split(';');
     var vtun = info[0];
