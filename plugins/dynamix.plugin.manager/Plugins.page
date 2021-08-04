@@ -27,7 +27,7 @@ $check = $notify['version'] ? 0 : 1;
 #plugin_tree{width:33%;height:200px;overflow-y:scroll}
 table tbody td{line-height:normal}
 </style>
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script>
 <?if ($display['resize']):?>
 function resize(bind) {

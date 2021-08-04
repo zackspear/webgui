@@ -181,7 +181,7 @@ span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px
 </div>
 
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
 <script>

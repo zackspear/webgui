@@ -285,7 +285,7 @@ dl,dt,dd{line-height:normal!important}
 </style>
 
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/markdown.js')?>"></script>
 <script>
