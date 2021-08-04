@@ -18,6 +18,8 @@ $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 $config  = "/boot/config";
+
+function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
@@ -419,7 +421,7 @@ if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  echo "\n<!--\n".str_repeat("#",30)."\n {$button['file']}\n".str_repeat("#",30)."\n-->\n";
+  annotate($button['file']);
   eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -500,7 +502,7 @@ foreach ($pages as $page) {
   }
   // create list of nchan scripts to be started
   if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
-  echo "\n<!--\n".str_repeat("#",30)."\n {$page['file']}\n".str_repeat("#",30)."\n-->\n";
+  annotate($page['file']);
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
@@ -532,7 +534,7 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer
-echo "\n<!--\n".str_repeat("#",30)."\n Footer\n".str_repeat("#",30)."\n-->\n";
+annotate('Footer');
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
 $progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
 switch ($var['fsState']) {
