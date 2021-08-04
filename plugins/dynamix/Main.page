@@ -1,4 +1,4 @@
 Menu="Tasks:1"
 Type="xmenu"
 Code="e908"
-Load="true"
+Load="30"
