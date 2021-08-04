@@ -2,8 +2,8 @@ Menu='Buttons'
 Link='nav-user'
 ---
 <?
-/* Copyright 2020, Lime Technology
- * Copyright 2020, Andrew Zawadzki.
+/* Copyright 2021, Lime Technology
+ * Copyright 2021, Andrew Zawadzki.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -36,7 +36,7 @@ function ca_pluginUpdateInstall(plugin) {
 function ca_pluginUpdateShowInfo(cmd,title,height,width,load,func,id) {
 	// open shadowbox window (run in foreground)
 	var run = cmd.split('?')[0].substr(-4)=='.php' ? cmd : '/logging.htm?cmd='+cmd+'&csrf_token=<?=$var['csrf_token']?>';
-	var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:false,onClose:function(){location=location;}}) : {modal:false};
+	var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:false,onClose:function(){location.reload();}}) : {modal:false};
 	Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
 
