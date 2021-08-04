@@ -677,7 +677,8 @@ $('.back_to_top').click(function(event) {
 });
 
 // During extended viewing, reload page every 30 min.
-setTimeout(function(){location.reload();},1800000);
+// Page may issue clearTimeout(timers.reload) to disable reloading
+timers.reload = setTimeout(function(){location.reload();},1800000);
 
 $(function() {
   watchdog.start();
