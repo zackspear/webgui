@@ -99,6 +99,10 @@ var csrf_token = "<?=$var['csrf_token']?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
+// During extended viewing, reload page every 30 min.
+// Page may issue clearTimeout(timers.reload) to disable reloading
+timers.reload = setTimeout(function(){location.reload();},1800000);
+
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -675,10 +679,6 @@ $('.back_to_top').click(function(event) {
   $('html,body').animate({scrollTop:0},backtotopduration);
   return false;
 });
-
-// During extended viewing, reload page every 30 min.
-// Page may issue clearTimeout(timers.reload) to disable reloading
-timers.reload = setTimeout(function(){location.reload();},1800000);
 
 $(function() {
   watchdog.start();
