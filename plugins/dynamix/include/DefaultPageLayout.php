@@ -102,10 +102,6 @@ var csrf_token = "<?=$var['csrf_token']?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
-// During extended viewing, reload page every 30 min.
-// Page may issue clearTimeout(timers.reload) to disable reloading
-timers.reload = setTimeout(function(){location.reload();},1800000);
-
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -450,12 +446,13 @@ if ($notify['display']) {
 echo "</div></div></div>";
 
 // Build page content
+// Reload page every 30 min during extended viewing?
+if ($myPage['Load']=='true') echo "\n<script>timers.reload = setTimeout(function(){location.reload();},1800000);</script>\n";
 echo "<div class='tabs'>";
 $tab = 1;
-$view = $myPage['name'];
 $pages = [];
-if (!empty($myPage['text'])) $pages[$view] = $myPage;
-if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($view));
+if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
+if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
