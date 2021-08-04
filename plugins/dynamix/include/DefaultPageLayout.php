@@ -17,6 +17,9 @@ $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
+$config  = "/boot/config";
+
+function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
@@ -62,7 +65,7 @@ $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
-$banner = '/boot/config/plugins/dynamix/banner.png';
+$banner = "$config/plugins/dynamix/banner.png";
 echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
@@ -147,10 +150,10 @@ function refresh(top) {
   if (typeof top === 'undefined') {
     for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) { element.disabled = true; }
     for (var i=0,link; link=document.getElementsByTagName('a')[i]; i++) { link.style.color = "gray"; } //fake disable
-    location = location;
+    location.reload();
   } else {
     $.cookie('top',top,{path:'/'});
-    location = location;
+    location.reload();
   }
 }
 function initab() {
@@ -187,7 +190,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
-  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location=location;}}) : {modal:false};
+  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
 function openWindow(cmd,title,height,width) {
@@ -360,7 +363,18 @@ $(function() {
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
   $.jGrowl.defaults.themeState = '';
   Shadowbox.setup('a.sb-enable', {modal:true});
+// add any pre-existing reboot notices
+<?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
+<?foreach ($rebootNotice as $notice):?>
+  var rebootMessage = "<?=trim($notice)?>";
+  if (rebootMessage) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
+<?endforeach;?>
+// check for flash offline / corrupted. docker.cfg is guaranteed to always exist
+<?if (!@parse_ini_file("$config/docker.cfg") || !@parse_ini_file("$config/domain.cfg") || !@parse_ini_file("$config/ident.cfg")):?>
+  addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?></a>");
+<?endif;?>
 });
+
 var mobiles=['ipad','iphone','ipod','android'];
 var device=navigator.platform.toLowerCase();
 for (var i=0,mobile; mobile=mobiles[i]; i++) {
@@ -373,26 +387,8 @@ $.ajaxPrefilter(function(s, orig, xhr){
     s.data += "csrf_token="+csrf_token;
   }
 });
-
-// add any pre-existing reboot notices
-$(function() {
-<?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
-<?foreach ($rebootNotice as $notice):?>
-  var rebootMessage = "<?=trim($notice)?>";
-  if ( rebootMessage ) {
-    addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
-  }
-<?endforeach;?>
-});
-
-// check for flash offline / corrupted. docker.cfg is guaranteed to always exist
-<?if ( ! @parse_ini_file("/boot/config/docker.cfg") || ! @parse_ini_file("/boot/config/domain.cfg") || ! @parse_ini_file("/boot/config/ident.cfg") ):?>
-$(function() {
-  addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?>");
-});
-<?endif;?>
 </script>
-<? include "/usr/local/emhttp/plugins/dynamix.my.servers/include/myservers1.php" ?>
+<?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
  <div id="template">
@@ -402,7 +398,7 @@ $(function() {
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
    <?=_('Version')?>: <?=$var['version']?><?=$notes?>
    </div>
-   <? include "/usr/local/emhttp/plugins/dynamix.my.servers/include/myservers2.php" ?>
+   <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
@@ -421,7 +417,7 @@ if ($display['usage']) my_usage();
 echo "</div>";
 echo "<div id='nav-right'>";
 foreach ($buttons as $button) {
-  echo "\n<!--\n".str_repeat("#",30)."\n {$button['file']}\n".str_repeat("#",30)."\n-->\n";
+  annotate($button['file']);
   eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -450,12 +446,13 @@ if ($notify['display']) {
 echo "</div></div></div>";
 
 // Build page content
+// Reload page every X minutes during extended viewing?
+if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setTimeout(function(){location.reload();},".($myPage['Load']*60000).");</script>\n";
 echo "<div class='tabs'>";
 $tab = 1;
-$view = $myPage['name'];
 $pages = [];
-if (!empty($myPage['text'])) $pages[$view] = $myPage;
-if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($view));
+if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
+if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
@@ -502,7 +499,7 @@ foreach ($pages as $page) {
   }
   // create list of nchan scripts to be started
   if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
-  echo "\n<!--\n".str_repeat("#",30)."\n {$page['file']}\n".str_repeat("#",30)."\n-->\n";
+  annotate($page['file']);
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }
@@ -534,7 +531,7 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 <iframe id="progressFrame" name="progressFrame" frameborder="0"></iframe>
 <?
 // Build footer
-echo "\n<!--\n".str_repeat("#",30)."\n Footer\n".str_repeat("#",30)."\n-->\n";
+annotate('Footer');
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
 $progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
 switch ($var['fsState']) {
@@ -588,8 +585,8 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
-var session_check = new NchanSubscriber('/sub/session');
-session_check.on('message', function(token) {
+var keepalive = new NchanSubscriber('/sub/session');
+keepalive.on('message', function(token) {
   if (csrf_token != token) {
     // Stale session, force login
     $(location).attr('href','/');
@@ -630,8 +627,8 @@ notifier.on('message', function(d) {
 });
 
 var watchdog = new NchanSubscriber('/sub/var');
-watchdog.on('message', function(data) {
-  var ini = parseINI(data);
+watchdog.on('message', function(d) {
+  var ini = parseINI(d);
   var state = ini['fsState'];
   var progress = ini['fsProgress'];
   var status;
@@ -675,9 +672,10 @@ $('.back_to_top').click(function(event) {
   $('html,body').animate({scrollTop:0},backtotopduration);
   return false;
 });
+
 $(function() {
   watchdog.start();
-  session_check.start();
+  keepalive.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});

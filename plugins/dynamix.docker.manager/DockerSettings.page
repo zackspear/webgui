@@ -572,7 +572,7 @@ _(btrfs scrub status)_:
 </div>
 <?endif;?>
 
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 function prepareDocker(form) {
