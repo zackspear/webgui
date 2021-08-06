@@ -25,11 +25,8 @@ $DockerStopped = pgrep('dockerd')===false;
 
 function strposX($s, $c, $n=1) {
   $p = 0;
-  while ($p = strpos($s,$c,$p)!==false) {
-    if (!--$n) return $p;
-    $p++;
-  }
-  return false;
+  while ($n && $p=strpos($s,$c,$p)!==false) {$n--; $p+=strlen($c);}
+  return $p;
 }
 
 unset($custom,$other);
