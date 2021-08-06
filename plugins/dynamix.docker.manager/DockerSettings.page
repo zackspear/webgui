@@ -23,6 +23,12 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 $DockerClient  = new DockerClient();
 $DockerStopped = pgrep('dockerd')===false;
 
+function strposX($s, $c, $n=1) {
+  $p = 0;
+  while ($n && $p=strpos($s,$c,$p)!==false) {$n--; $p+=strlen($c);}
+  return $p;
+}
+
 unset($custom,$other);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^br[0-9]'",$custom);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^(bond|eth)[0-9]'",$other);
@@ -42,13 +48,12 @@ foreach ($other as $network) {
 $include = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $protocol = [];
 foreach ($custom as $network) {
   if (in_array($network,$slaves)) continue;
-  $ip4 = exec("ip -4 addr show $network|awk '/inet /{print $2}'");
-  $ip6 = exec("ip -6 addr show $network noprefixroute|awk '/inet6 /{print $2}'");
-  $ip6 = $ip6 ?: exec("ip -6 addr show $network scope global permanent|awk '/inet6 /{print $2}'");
-  $gw4 = exec("ip -4 route show dev $network default|awk '{print $3}'");
-  $gw6 = exec("ip -6 route show dev $network default|awk '{print $3}'");
-  $route4 = exec("ip -4 route show dev $network $ip4|awk '{print $1}'");
-  $route6 = exec("ip -6 route show dev $network $ip6|awk '{print $1}'");
+  $ip4    = exec("ip -4 addr show $network|awk '/inet /{print $2;exit}'");
+  $ip6    = exec("ip -6 addr show $network scope global|awk '/inet6 /{print $2;exit}'");
+  $gw4    = $ip4 ? exec("ip -4 route show dev $network default|awk '{print $3;exit}'") : '';
+  $gw6    = $ip6 ? exec("ip -6 route show dev $network default|awk '{print $3;exit}'") : '';
+  $route4 = $ip4 ? exec("ip -4 route show dev $network $ip4|awk '{print $1;exit}'") : '';
+  $route6 = $ip6 ? exec("ip -6 route show dev $network|awk '/^".substr($ip6,0,strposX($ip6,':',4))."/{print $1;exit}'") : '';
   [$eth,$vlan] = my_explode('.',$network);
   $eth = str_replace(['bond','br'],'eth',$eth);
   if (!$vlan) {
