@@ -34,6 +34,14 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
+$certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
+$certhostname = file_exists($certpath) ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
+
+// only proceed when a hash.unraid.net SSL certificate is active 
+if (!preg_match('/.*\.unraid\.net$/', $certhostname)) {
+  response_complete(406, '{"error":"'._('Nothing to do').'"}');
+}
+
 // keyfile
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
