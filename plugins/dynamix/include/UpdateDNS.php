@@ -46,12 +46,16 @@ $keyfile = @base64_encode($keyfile);
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 $internalip = $eth0['IPADDR:0'];
 
-$ch = curl_init('https://keys.lime-technology.com/account/server/register');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, [
+// build post array
+$post = [
   'internalip' => $internalip,
   'keyfile' => $keyfile
-]);
+];
+
+// report necessary server details to limetech for DNS updates
+$ch = curl_init('https://keys.lime-technology.com/account/server/register');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $result = curl_exec($ch);
 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
