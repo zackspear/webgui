@@ -34,6 +34,14 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
+$certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
+$certhostname = file_exists($certpath) ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
+
+// only proceed when a hash.unraid.net SSL certificate is active 
+if (!preg_match('/.*\.unraid\.net$/', $certhostname)) {
+  response_complete(406, '{"error":"'._('Nothing to do').'"}');
+}
+
 // keyfile
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
@@ -46,17 +54,30 @@ $keyfile = @base64_encode($keyfile);
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 $internalip = $eth0['IPADDR:0'];
 
-$ch = curl_init('https://keys.lime-technology.com/account/server/register');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, [
+// build post array
+$post = [
   'internalip' => $internalip,
   'keyfile' => $keyfile
-]);
+];
+
+// report necessary server details to limetech for DNS updates
+$ch = curl_init('https://keys.lime-technology.com/account/server/register');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $result = curl_exec($ch);
 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error = curl_error($ch);
 curl_close($ch);
+
+if ($argv[1] == "-v") {
+  unset($post['keyfile']);
+  echo "Request:\n";
+  echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+  echo "Response (HTTP $httpcode):\n";
+  echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?: $error;
+  echo "\n";
+}
 
 if ($result === false) {
   response_complete(500, '{"error":"'.$error.'"}');
