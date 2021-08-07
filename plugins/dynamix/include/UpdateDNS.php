@@ -62,6 +62,15 @@ $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error = curl_error($ch);
 curl_close($ch);
 
+if ($argv[1] == "-v") {
+  unset($post['keyfile']);
+  echo "Request:\n";
+  echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+  echo "Response (HTTP $httpcode):\n";
+  echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?: $error;
+  echo "\n";
+}
+
 if ($result === false) {
   response_complete(500, '{"error":"'.$error.'"}');
 }
