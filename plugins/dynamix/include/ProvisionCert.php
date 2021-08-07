@@ -40,19 +40,18 @@ extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 if (file_exists($certFile)) {
   $subject = exec("/usr/bin/openssl x509 -subject -noout -in $certFile");
   if (!preg_match('/.*\.unraid\.net$/', $subject)) {
-    if ($cli) exit(0);  // cert common name isn't <hash>.unraid.net
+    // cert common name isn't <hash>.unraid.net
     response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' $certFile"}');
   }
   exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in $certFile",$arrout,$retval_expired);
   if ($retval_expired === 0) {
-    if ($cli) exit(0);  // not within 30 days of cert expire date
+    // not within 30 days of cert expire date
     response_complete(406, '{"error":"'._('Cannot renew cert until within 30 days of expiry').'"}');
   }
 }
 
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
-  if ($cli) exit(0);
   response_complete(406, '{"error":"'.('License key required').'"}');
 }
 $keyfile = @base64_encode($keyfile);
@@ -71,7 +70,7 @@ $result = curl_exec($ch);
 $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
-// go ahead and save the cert then reload nginx for cli
+// save the cert
 if ($cli) {
   $json = @json_decode($result,true);
   if (empty($json['bundle'])) {
