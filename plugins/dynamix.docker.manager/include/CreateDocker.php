@@ -197,8 +197,8 @@ if ($_GET['updateContainer']){
 ##   REMOVE TEMPLATE   ##
 #########################
 
-if (isset($_POST['rmTemplate'])) {
-  unlink($_POST['rmTemplate']);
+if ($_GET['rmTemplate']) {
+  unlink($_GET['rmTemplate']);
 }
 
 #########################
@@ -901,7 +901,7 @@ _(Privileged)_:
 </form>
 </div>
 
-<form method="POST" id="formTemplate" style="display:none">
+<form method="GET" id="formTemplate">
   <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
 </form>
