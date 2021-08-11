@@ -133,10 +133,10 @@ function vfs_luks($fs) {
   return ($fs != vfs_type($fs));
 }
 function fs_info(&$disk) {
-  global $display;
+  global $display, $pools;
   $echo = [];
-  if (empty($disk['fsStatus'])) {
-    return ($disk['type']=='Cache') ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
+  if (empty($disk['fsStatus']) || $disk['fsStatus']=='-') {
+    return ($disk['type']=='Cache' && !in_array($disk['name'],$pools)) ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
   } elseif ($disk['fsStatus']=='Mounted') {
     $echo[] = "<td>".vfs_type($disk['fsType'])."</td>";
     $echo[] = "<td>".my_scale(($disk['fsSize']??0)*1024,$unit,-1)." $unit</td>";
