@@ -197,8 +197,8 @@ if ($_GET['updateContainer']){
 ##   REMOVE TEMPLATE   ##
 #########################
 
-if ($_GET['rmTemplate']) {
-  unlink($_GET['rmTemplate']);
+if ($_POST['rmTemplate']) {
+  if (file_exists($_POST['rmTemplate']) && dirname($_POST['rmTemplate'])==$dockerManPaths['templates-user']) unlink($_POST['rmTemplate']);
 }
 
 #########################
@@ -616,7 +616,7 @@ function loadTemplate(el) {
 
 function rmTemplate(tmpl) {
   var name = tmpl.split(/[\/]+/).pop();
-  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$("#rmTemplate").val(tmpl);$("#formTemplate").submit();});
+  swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$("#rmTemplate").val(tmpl);$("#formTemplate1").submit();});
 }
 
 function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
@@ -903,6 +903,8 @@ _(Privileged)_:
 
 <form method="GET" id="formTemplate">
   <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
+</form>
+<form method="POST" id="formTemplate1">
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
 </form>
 
