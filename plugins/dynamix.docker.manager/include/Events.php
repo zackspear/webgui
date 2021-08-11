@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,11 +16,15 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
 require_once "$docroot/webGui/include/Translations.php";
-
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
-$DockerClient = new DockerClient();
 $_REQUEST     = array_merge($_GET, $_POST);
+$csrf_token   = $_REQUEST['token'] ?? '';
+$var          = (array)parse_ini_file("$docroot/state/var.ini");
+// Protection
+if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) exit;
+
+$DockerClient = new DockerClient();
 $action       = $_REQUEST['action'] ?? '';
 $container    = $_REQUEST['container'] ?? '';
 $name         = $_REQUEST['name'] ?? '';
