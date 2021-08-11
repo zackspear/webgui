@@ -71,11 +71,6 @@ function cpu_pinning() {
 ##########################
 
 if (isset($_POST['contName'])) {
-  $csrf_token = $_POST['token'] ?? '';
-  $var = (array)parse_ini_file("$docroot/state/var.ini");
-  // Protection
-  if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) goto END;
-
   $postXML = postToXML($_POST, true);
   $dry_run = $_POST['dryRun']=='true' ? true : false;
   $existing = $_POST['existingContainer'] ?? false;
@@ -160,12 +155,7 @@ if (isset($_POST['contName'])) {
 ##########################
 
 if ($_GET['updateContainer']){
-  $csrf_token = $_GET['token'] ?? '';
-  $var = (array)parse_ini_file("$docroot/state/var.ini");
-  // Protection
-  if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) goto END;
-
-  $echo = isset($_GET['mute']);
+  $echo = $_GET['mute'] ? false : true;
   if ($echo) {
     readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
     @flush();
@@ -208,11 +198,6 @@ if ($_GET['updateContainer']){
 #########################
 
 if ($_GET['rmTemplate']) {
-  $csrf_token = $_GET['token'] ?? '';
-  $var = (array)parse_ini_file("$docroot/state/var.ini");
-  // Protection
-  if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) goto END;
-
   unlink($_GET['rmTemplate']);
 }
 
@@ -221,11 +206,6 @@ if ($_GET['rmTemplate']) {
 #########################
 
 if ($_GET['xmlTemplate']) {
-  $csrf_token = $_GET['token'] ?? '';
-  $var = (array)parse_ini_file("$docroot/state/var.ini");
-  // Protection
-  if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) goto END;
-
   [$xmlType, $xmlTemplate] = my_explode(':', urldecode($_GET['xmlTemplate']));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
@@ -702,7 +682,6 @@ $(function() {
 <div id="canvas">
 <form markdown="1" method="POST" autocomplete="off" onsubmit="prepareConfig(this)">
 <input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>">
-<input type="hidden" name="token" value="<?=$var['csrf_token']?>">
 <input type="hidden" name="contCPUset" value="">
 <?if ($xmlType=='edit'):?>
 <?if ($DockerClient->doesContainerExist($templateName)):?>
@@ -925,7 +904,6 @@ _(Privileged)_:
 <form method="GET" id="formTemplate">
   <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
-  <input type="hidden" name="token" value="<?=$var['csrf_token']?>">
 </form>
 
 <div id="dialogAddConfig" style="display:none"></div>
@@ -1081,7 +1059,7 @@ function load_contOverview() {
   new_overview = marked(new_overview);
   new_overview = new_overview.replaceAll("\n","<br>"); // has to be after marked
   $("#contDescription").html(new_overview);
-
+  
   var new_requires = $("textarea[name='contRequires']").val();
   new_requires = new_requires.replaceAll("[","<").replaceAll("]",">");
   // Handle code block being created by authors indenting (manually editing the xml and spacing)

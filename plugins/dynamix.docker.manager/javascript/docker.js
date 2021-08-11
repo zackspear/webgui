@@ -52,7 +52,7 @@ function dockerTerminal(container,shell) {
   var top = (screen.height-height)/2;
   var left = (screen.width-width)/2;
   var win = window.open('', container, 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
-  $.get(eventURL,{action:'terminal', name:container, shell:shell, token:csrf_token}, function(){win.location='/dockerterminal/'+container+'/'; win.focus();});
+  $.get(eventURL,{action:'terminal',name:container,shell:shell},function(){win.location='/dockerterminal/'+container+'/'; win.focus();});
 }
 function popupWithIframe(title, cmd, reload, func) {
   pauseEvents();
@@ -84,7 +84,7 @@ function popupWithIframe(title, cmd, reload, func) {
 }
 function execUpContainer(container) {
   var title = _('Updating the container')+': '+container;
-  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&token='+csrf_token+'&ct[]='+encodeURIComponent(container);
+  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
   popupWithIframe(title, cmd, true, 'loadlist');
 }
 function addContainer() {
@@ -97,7 +97,7 @@ function editContainer(container, template) {
   var path = location.pathname;
   var x = path.indexOf('?');
   if (x!=-1) path = path.substring(0, x);
-  location = path+'/UpdateContainer?token='+csrf_token+'&xmlTemplate=edit:'+template;
+  location = path+'/UpdateContainer?xmlTemplate=edit:'+template;
 }
 function updateContainer(container) {
   var body = _('Update container')+': '+container;
@@ -153,7 +153,6 @@ function rmImage(image, imageName) {
 }
 function eventControl(params, spin) {
   if (spin) $('#'+params['container']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
-  params['token'] = csrf_token;
   $.post(eventURL, params, function(data) {
     if (data.success === true) {
       if (spin) setTimeout(spin+'()',500); else location=window.location.href;
@@ -171,33 +170,33 @@ function eventControl(params, spin) {
 function startAll() {
   $('input[type=button]').prop('disabled',true);
   for (var i=0,ct; ct=docker[i]; i++) if (ct.state==0) $('#'+ct.id).parent().find('i').removeClass('fa-square').addClass('fa-refresh fa-spin');
-  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'start', token:csrf_token},function(){loadlist();});
+  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'start'},function(){loadlist();});
 }
 function stopAll() {
   $('input[type=button]').prop('disabled',true);
   for (var i=0,ct; ct=docker[i]; i++) if (ct.state==1) $('#'+ct.id).parent().find('i').removeClass('fa-play fa-pause').addClass('fa-refresh fa-spin');
-  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'stop', token:csrf_token},function(){loadlist();});
+  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'stop'},function(){loadlist();});
 }
 function pauseAll() {
   $('input[type=button]').prop('disabled',true);
   for (var i=0,ct; ct=docker[i]; i++) if (ct.state==1 && ct.pause==0) $('#'+ct.id).parent().find('i').removeClass('fa-play').addClass('fa-refresh fa-spin');
-  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'pause', token:csrf_token},function(){loadlist();});
+  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'pause'},function(){loadlist();});
 }
 function resumeAll() {
   $('input[type=button]').prop('disabled',true);
   for (var i=0,ct; ct=docker[i]; i++) if (ct.state==1 && ct.pause==1) $('#'+ct.id).parent().find('i').removeClass('fa-pause').addClass('fa-refresh fa-spin');
-  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'unpause', token:csrf_token},function(){loadlist();});
+  $.post('/plugins/dynamix.docker.manager/include/ContainerManager.php',{action:'unpause'},function(){loadlist();});
 }
 function checkAll() {
   $('input[type=button]').prop('disabled',true);
   $('.updatecolumn').html('<span style="color:#267CA8"><i class="fa fa-refresh fa-spin"></i> '+_('checking')+'...</span>');
-  $.post('/plugins/dynamix.docker.manager/include/DockerUpdate.php',{token:csrf_token},function(){loadlist();});
+  $.post('/plugins/dynamix.docker.manager/include/DockerUpdate.php',{},function(){loadlist();});
 }
 function updateAll() {
   $('input[type=button]').prop('disabled',true);
   var ct = '';
   for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURI(d.name);
-  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&token='+csrf_token+ct;
+  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;
   popupWithIframe(_('Updating all Containers'), cmd, true, 'loadlist');
 }
 function rebuildAll() {
@@ -205,12 +204,12 @@ function rebuildAll() {
   $('div.spinner.fixed').show('slow');
   var ct = [];
   for (var i=0,d; d=docker[i]; i++) if (d.update==2) ct.push(encodeURI(d.name));
-  $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true, mute:true, token:csrf_token, ct},function(){loadlist();});
+  $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true,mute:true,ct},function(){loadlist();});
 }
 function containerLogs(container, id) {
   var height = 600;
   var width = 900;
-  var run = eventURL+'?action=log&container='+id+'&token='+csrf_token+'&title='+_('Log for:')+' '+container;
+  var run = eventURL+'?action=log&container='+id+'&title='+_('Log for:')+' '+container;
   var top = (screen.height-height) / 2;
   var left = (screen.width-width) / 2;
   var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;

@@ -15,11 +15,6 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
-$csrf_token = $_POST['token'] ?? '';
-$var = (array)parse_ini_file("$docroot/state/var.ini");
-// Protection
-if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) exit;
-
 $ncsi = exec("wget --spider -nv -T10 -t1 http://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")=='OK';
 $DockerTemplates = new DockerTemplates();
 if ($ncsi) $DockerTemplates->downloadTemplates();

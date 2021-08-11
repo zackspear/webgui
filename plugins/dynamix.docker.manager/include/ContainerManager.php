@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2018, Lime Technology
+ * Copyright 2014-2018, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2018, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -14,11 +14,6 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-
-$csrf_token = $_POST['token'] ?? '';
-$var = (array)parse_ini_file("$docroot/state/var.ini");
-// Protection
-if (empty($csrf_token) || $csrf_token!=$var['csrf_token']) exit;
 
 $user_prefs = $dockerManPaths['user-prefs'];
 $action     = $_POST['action'];
