@@ -262,7 +262,7 @@ devices.on('message', function(data) {
   for (var n=0; n < tables.length; n++) {
     // get table name and content
     var table = tables[n].split('\n');
-    if ($('#'+table[0]).length) $('#'+table[0]).html(table[1]);
+    $('#'+table[0]).html(table[1]);
   }
   display_diskio();
 });

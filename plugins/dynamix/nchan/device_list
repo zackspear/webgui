@@ -133,10 +133,10 @@ function vfs_luks($fs) {
   return ($fs != vfs_type($fs));
 }
 function fs_info(&$disk) {
-  global $display;
+  global $display, $pools;
   $echo = [];
-  if (empty($disk['fsStatus'])) {
-    return ($disk['type']=='Cache') ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
+  if (empty($disk['fsStatus']) || $disk['fsStatus']=='-') {
+    return ($disk['type']=='Cache' && !in_array($disk['name'],$pools)) ? "<td colspan='4'>"._('Device is part of a pool')."</td><td></td>" : "<td colspan='5'></td>";
   } elseif ($disk['fsStatus']=='Mounted') {
     $echo[] = "<td>".vfs_type($disk['fsType'])."</td>";
     $echo[] = "<td>".my_scale(($disk['fsSize']??0)*1024,$unit,-1)." $unit</td>";
@@ -417,7 +417,6 @@ while (true) {
   $cache  = cache_filter($disks); $n = 2;
   foreach ($pools as $pool) {
     $echo[$n] = "pool_device".($n-2)."\n";
-    $tmp = "/var/tmp/$pool.log.tmp";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
     if ($var['fsState']=='Stopped') {
       $log = @(array)parse_ini_file($tmp);
@@ -427,18 +426,14 @@ while (true) {
         if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
-      file_put_contents($tmp,implode("\n",$data));
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>";
     } else {
-      if ($cache[$pool]['devices']) {
-        foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
-          if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
-          $echo[$n] .= array_online($disk);
-        }
-        if ($display['total'] && $cache[$pool]['devices']>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false,"$pool*");
-        $sum = initSum();
+      foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
+        if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
+        $echo[$n] .= array_online($disk);
       }
-      @unlink($tmp);
+      if ($display['total'] && $cache[$pool]['devices']>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false,"$pool*");
+      $sum = initSum();
     }
     $n++;
   }
