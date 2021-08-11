@@ -609,8 +609,8 @@ function toggleMode(el,disabled) {
 function loadTemplate(el) {
   var template = $(el).val();
   if (template.length) {
-    $('#formTemplate2').find("input[name='xmlTemplate']").val(template);
-    $('#formTemplate2').submit();
+    $('#formTemplate').find("input[name='xmlTemplate']").val(template);
+    $('#formTemplate').submit();
   }
 }
 
@@ -901,11 +901,11 @@ _(Privileged)_:
 </form>
 </div>
 
+<form method="GET" id="formTemplate">
+  <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
+</form>
 <form method="POST" id="formTemplate1">
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
-</form>
-<form method="GET" id="formTemplate2">
-  <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
 </form>
 
 <div id="dialogAddConfig" style="display:none"></div>
