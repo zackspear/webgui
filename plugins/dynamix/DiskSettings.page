@@ -236,7 +236,7 @@ _(Default SMART controller type)_:
 :disk_default_smart_controller_help:
 
 _(Default SMART attribute notifications)_:
-: <input type="text" name="smCustom" value="<?=$var['smCustom']?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
+: <input type="text" name="smCustom" value="<?=$var['smCustom']??''?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
 
 <?for ($x = 0; $x < count($preselect); $x++):?>
 &nbsp;

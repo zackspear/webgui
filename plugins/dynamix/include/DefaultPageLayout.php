@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = $_COOKIE['fontSize'] ?? $display['font'];
+$display['font'] = unscript($_COOKIE['fontSize'] ?? $display['font']);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];

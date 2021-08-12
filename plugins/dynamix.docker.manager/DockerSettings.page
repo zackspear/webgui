@@ -465,7 +465,7 @@ _(Preserve user defined networks)_:
 $net = normalize($network);
 $docker_dhcp = "DOCKER_DHCP_$net";
 ?>
-<?if ($dockercfg[$docker_dhcp] || empty($dockercfg["DOCKER_AUTO_$net"])):?>
+<?if (isset($dockercfg[$docker_dhcp]) || empty($dockercfg["DOCKER_AUTO_$net"])):?>
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
@@ -500,7 +500,7 @@ _(IPv4 custom network on interface)_ <?=$network?>:
 <?
 $net = normalize($network);
 $docker_dhcp6 = "DOCKER_DHCP6_$net";
-if ($dockercfg[$docker_dhcp6] || empty($dockercfg["DOCKER_AUTO_$net"])):?>
+if (isset($dockercfg[$docker_dhcp6]) || empty($dockercfg["DOCKER_AUTO_$net"])):?>
 <?$wide = true;?>
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="gw6">**_(Subnet)_:** <?=$route?></span>

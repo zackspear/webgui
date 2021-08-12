@@ -63,8 +63,8 @@ function embed(&$syslinux, $key, $value) {
 
 $arrSizePrefix = [0 => '', 1 => 'K', 2 => 'M', 3 => 'G', 4 => 'T', 5 => 'P'];
 $_REQUEST      = array_merge($_GET, $_POST);
-$action        = $_REQUEST['action'] ?? '';
-$uuid          = $_REQUEST['uuid'] ?? '';
+$action        = unscript($_REQUEST['action'] ?? '');
+$uuid          = unscript($_REQUEST['uuid'] ?? '');
 $arrResponse   = [];
 
 if ($uuid) {
