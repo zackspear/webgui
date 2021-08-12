@@ -16,8 +16,8 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-$index = $_GET['index'];
-$tests = explode(',',$_GET['test']);
+$index = unscript($_GET['index']);
+$tests = explode(',',unscript($_GET['test']));
 if ($index < count($tests)) {
   $test = $tests[$index];
   [$name,$size] = my_explode(':',$test);

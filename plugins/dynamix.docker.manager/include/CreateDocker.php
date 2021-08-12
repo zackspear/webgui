@@ -154,14 +154,14 @@ if (isset($_POST['contName'])) {
 ##   UPDATE CONTAINER   ##
 ##########################
 
-if ($_GET['updateContainer']){
-  $echo = $_GET['mute'] ? false : true;
+if (unscript($_GET['updateContainer'])){
+  $echo = isset($_GET['mute']);
   if ($echo) {
     readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
     @flush();
   }
   foreach ($_GET['ct'] as $value) {
-    $tmpl = $DockerTemplates->getUserTemplate(urldecode($value));
+    $tmpl = $DockerTemplates->getUserTemplate(unscript(urldecode($value)));
     if ($echo && !$tmpl) {
       echo "<script>addLog('<p>"._('Configuration not found').". "._('Was this container created using this plugin')."?</p>');</script>";
       @flush();
@@ -205,8 +205,8 @@ if ($_POST['rmTemplate']) {
 ##    LOAD TEMPLATE    ##
 #########################
 
-if ($_GET['xmlTemplate']) {
-  [$xmlType, $xmlTemplate] = my_explode(':', urldecode($_GET['xmlTemplate']));
+if (unscript($_GET['xmlTemplate'])) {
+  [$xmlType, $xmlTemplate] = my_explode(':', unscript(urldecode($_GET['xmlTemplate'])));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
     $templateName = $xml['Name'];

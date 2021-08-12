@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -34,8 +34,8 @@ extract(parse_plugin_cfg('dynamix',true));
 </head>
 <body style="margin:14px 10px">
 <?
-$file = $_GET['file'];
-$tmp = $_GET['tmp'] ? '/var/tmp' : '/tmp/plugins/';
+$file = unscript($_GET['file']);
+$tmp = unscript($_GET['tmp']) ? '/var/tmp' : '/tmp/plugins/';
 
 if (file_exists($file) && strpos(realpath($file),$tmp)===0 && substr($file,-4)=='.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*"._('No release notes available')."!*");
 ?>

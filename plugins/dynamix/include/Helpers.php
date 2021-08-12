@@ -263,4 +263,7 @@ function my_explode($split,$text,$count=2) {
 function my_preg_split($split,$text,$count=2) {
   return array_pad(preg_split($split,$text,$count),$count,'');
 }
+function unscript($text) {
+  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
+}
 ?>

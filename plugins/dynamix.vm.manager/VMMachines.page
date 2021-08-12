@@ -52,10 +52,10 @@ function vsize($size,$expand=true) {
   }
 }
 
-$uuid = $_GET['uuid'];
+$uuid = unscript($_GET['uuid']);
 $subaction = $_GET['subaction'] ?? false;
-if ($_GET['refresh']) {
-  $vm = $_GET['name'];
+if (unscript($_GET['refresh'])) {
+  $vm = unscript($_GET['name']);
   if ($lv->domain_is_active($vm)) {
     echo "<meta http-equiv='refresh' content='5; url=/VMs?name=$vm&amp;refresh=true'>";
     $msg = "Waiting for $vm to shutdown...";

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -37,7 +37,7 @@ if (file_exists($user_prefs)) {
 $i = 0;
 $menu = [];
 $kvm = ['var kvm=[];'];
-$show = explode(',',$_GET['show']) ?? [];
+$show = explode(',',unscript($_GET['show'])) ?? [];
 
 foreach ($vms as $vm) {
   $res = $lv->get_domain_by_name($vm);

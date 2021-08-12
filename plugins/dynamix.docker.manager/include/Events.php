@@ -19,16 +19,18 @@ require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
+function unscript($text) {
+  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
+}
 function safe($text) {
-  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',html_entity_decode($text));
+  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript($text));
 }
 
 $DockerClient = new DockerClient();
-$_REQUEST     = array_merge(array_map('safe',$_GET), $_POST);
-$action       = $_REQUEST['action'] ?? '';
-$container    = $_REQUEST['container'] ?? '';
-$name         = $_REQUEST['name'] ?? '';
-$image        = $_REQUEST['image'] ?? '';
+$action       = unscript($_REQUEST['action'] ?? '');
+$container    = unscript($_REQUEST['container'] ?? '');
+$name         = unscript($_REQUEST['name'] ?? '');
+$image        = unscript($_REQUEST['image'] ?? '');
 $arrResponse  = ['error' => _('Missing parameters')];
 
 switch ($action) {
@@ -68,8 +70,8 @@ switch ($action) {
 		break;
 	case 'log':
 		if ($container) {
-			$since = $_REQUEST['since'] ?? '';
-			$title = $_REQUEST['title'] ?? '';
+			$since = safe($_REQUEST['since'] ?? '');
+			$title = safe($_REQUEST['title'] ?? '');
 			require_once "$docroot/webGui/include/ColorCoding.php";
 			if (!$since) {
 				readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
