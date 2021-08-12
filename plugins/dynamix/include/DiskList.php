@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,13 +23,13 @@ $disks   = parse_ini_file('state/disks.ini',true);
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
-$compute = $_GET['compute'];
-$path    = $_GET['path'];
-$fill    = $_GET['fill'];
+$compute = unscript($_GET['compute']);
+$path    = unscript($_GET['path']);
+$fill    = unscript($_GET['fill']);
 
 $display = [];
-$display['scale'] = $_GET['scale'];
-$display['number'] = $_GET['number'];
+$display['scale'] = unscript($_GET['scale']);
+$display['number'] = unscript($_GET['number']);
 
 // Display export settings
 function disk_share_settings($protocol,$share) {

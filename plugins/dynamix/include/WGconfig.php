@@ -18,7 +18,7 @@ require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 
-$file = $_GET['file'];
+$file = unscript($_GET['file']);
 $path = realpath('/etc/wireguard'.$_GET['path']);
 $csrf = exec("grep -Pom1 '^csrf_token=\"\K.[^\"]+' /var/local/emhttp/var.ini");
 if (!$path || strpos($path,'/boot/config/wireguard')!==0 || !$_GET['csrf_token'] || $_GET['csrf_token']!=$csrf) return;

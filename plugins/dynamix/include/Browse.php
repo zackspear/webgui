@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -42,9 +42,9 @@ function my_devs(&$devs) {
 }
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
-$dir   = urldecode($_GET['dir']);
-$path  = $_GET['path'];
-$user  = $_GET['user'];
+$dir   = unscript(urldecode($_GET['dir']));
+$path  = unscript($_GET['path']);
+$user  = unscript($_GET['user']);
 $all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
 $fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: _('---')) : _('flash');
 $fmt   = "%F {$display['time']}";

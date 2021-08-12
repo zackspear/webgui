@@ -234,9 +234,9 @@
 		exit;
 	}
 
-	if ($_GET['uuid']) {
+	if (unscript($_GET['uuid'])) {
 		// edit an existing VM
-		$uuid = $_GET['uuid'];
+		$uuid = unscript($_GET['uuid']);
 		$dom = $lv->domain_get_domain_by_uuid($uuid);
 		$boolRunning = $lv->domain_get_state($dom)=='running';
 		$strXML = $lv->domain_get_xml($dom);

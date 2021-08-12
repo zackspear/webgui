@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -28,8 +28,8 @@ switch ($display['theme']) {
 }
 
 $strSelectedTemplate = array_keys($arrAllTemplates)[1];
-if (!empty($_GET['template']) && !(empty($arrAllTemplates[$_GET['template']]))) {
-	$strSelectedTemplate = $_GET['template'];
+if (!empty(unscript($_GET['template'])) && !(empty($arrAllTemplates[unscript($_GET['template'])]))) {
+	$strSelectedTemplate = unscript($_GET['template']);
 }
 
 $arrLoad = [
@@ -41,9 +41,9 @@ $arrLoad = [
 ];
 $strIconURL = '/plugins/dynamix.vm.manager/templates/images/'.$arrLoad['icon'];
 
-if (!empty($_GET['uuid'])) {
+if (!empty(unscript($_GET['uuid']))) {
 	// Edit VM mode
-	$res = $lv->domain_get_domain_by_uuid($_GET['uuid']);
+	$res = $lv->domain_get_domain_by_uuid(unscript($_GET['uuid']));
 
 	if ($res === false) {
 		echo "<p class='notice'>"._('Invalid VM to edit').".</p><input type='button' value=\""._('Done')."\" onclick='done()'>";
@@ -59,7 +59,7 @@ if (!empty($_GET['uuid'])) {
 		'state' => $lv->domain_get_state($res)
 	];
 
-	if (empty($_GET['template'])) {
+	if (empty(unscript($_GET['template']))) {
 		// read vm-template attribute
 		$strTemplateOS = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@os');
 		$strLibreELEC = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@libreelec');
