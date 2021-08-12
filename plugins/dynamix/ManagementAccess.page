@@ -250,7 +250,7 @@ _(CA-signed certificate file)_:
 : <?=$certFile?>
 
 _(Certificate subject)_:
-: <?=$certSubject?>
+: [<?=$certSubject?>](https://<?=$certSubject?>:<?=$var['PORTSSL']?>)
 
 _(Certificate issuer)_:
 : <?=shell_exec("/usr/bin/openssl x509 -text -noout -in $certFile | sed -n -e 's/^.*Issuer: //p'")?>
@@ -270,10 +270,6 @@ _(Certificate expiration)_:
 &nbsp;
 : _(DNS Propagation is PENDING)_
 
-<?else:?>
-&nbsp;
-: [link](https://<?=$certSubject?>:<?=$var['PORTSSL']?>)
-
 <?endif;?>
 <?else:?>
 _(CA-signed certificate file)_:
@@ -286,3 +282,11 @@ _(CA-signed certificate file)_:
 :mgmt_certificate_expiration_help:
 
 </form>
+<?if (!is_link("/usr/local/sbin/unraid-api")):?>
+<div style="height:24px"></div>
+<form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
+_(Unraid.net account status)_:
+: <unraid-authed prop-registered="<? echo $isRegistered ?>"></unraid-authed>
+
+</form>
+<?endif;?>
