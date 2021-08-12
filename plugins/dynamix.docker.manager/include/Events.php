@@ -19,6 +19,9 @@ require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
+function unscript($text) {
+  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
+}
 function safe($text) {
   return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript(html_entity_decode($text)));
 }
