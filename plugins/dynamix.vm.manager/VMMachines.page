@@ -52,7 +52,7 @@ function vsize($size,$expand=true) {
   }
 }
 
-$uuid = unscript($_GET['uuid'];
+$uuid = unscript($_GET['uuid']);
 $subaction = $_GET['subaction'] ?? false;
 if (unscript($_GET['refresh'])) {
   $vm = unscript($_GET['name']);
