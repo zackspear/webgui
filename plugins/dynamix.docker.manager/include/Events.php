@@ -20,7 +20,7 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 function safe($text) {
-  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript(html_entity_decode($text));
+  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript(html_entity_decode($text)));
 }
 
 $DockerClient = new DockerClient();
