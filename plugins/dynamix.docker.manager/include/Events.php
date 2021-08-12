@@ -23,7 +23,7 @@ function unscript($text) {
   return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
 }
 function safe($text) {
-  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript(html_entity_decode($text)));
+  return preg_replace('/[!@#$%^&\*\(\)\[\]{}"\|\?<>\/;]+/','',unscript($text));
 }
 
 $DockerClient = new DockerClient();
