@@ -1,8 +1,6 @@
 <?php
 // incuded in login.php
 
-if (!function_exists('_')) exit; // exit on direct calls
-
 function fileRead($file) {
     $text = "";
     if (file_exists($file)) {
