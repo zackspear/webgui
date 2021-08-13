@@ -16,15 +16,8 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
 require_once "$docroot/webGui/include/Translations.php";
-
+require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-
-function unscript($text) {
-  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
-}
-function unhook($text) {
-  return preg_replace("/['\"](.*)?['\"];?.+$/",'',unscript($text));
-}
 
 $DockerClient = new DockerClient();
 $action       = unscript($_REQUEST['action']);
