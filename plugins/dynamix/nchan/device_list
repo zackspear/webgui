@@ -94,7 +94,7 @@ function device_info(&$disk,$online) {
 }
 function device_browse(&$disk) {
   $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
-  return "<a href=\"/Main/Browse?dir=".htmlspecialchars($dir)."\"><i class='icon-u-tab' title='"._('Browse')." $dir'></i></a>";
+  return "<a href=\"/Main/Browse?dir=".htmlspecialchars($dir)."\"><i class=\"icon-u-tab\" title=\""._('Browse')." $dir\"></i></a>";
 }
 function device_desc(&$disk) {
   global $var;
