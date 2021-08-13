@@ -98,7 +98,7 @@ foreach ($disks as $name => $disk) {
     echo "<td>$type</td>";
     echo "<td>".my_scale(($disk['fsSize'])*1024, $unit)." $unit</td>";
     echo "<td>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-    echo "<td><a href='/$path/Browse?dir=/mnt/$name'><img src='/webGui/images/explore.png' title='"._('Browse')." /mnt/$name'></a></td>";
+    echo "<td><a href=\"/$path/Browse?dir=/mnt/$name\"><i class='icon-u-tab' title=\""._('Browse')." /mnt/$name\"></i></a></td>";
     echo "</tr>";
     foreach ($ssz2[$name] as $sharename => $sharesize) {
       if ($sharename=='share.total') continue;
@@ -112,14 +112,14 @@ foreach ($disks as $name => $disk) {
       echo "<td></td>";
       echo "<td class='disk-$row-1'>".my_scale($sharesize*1024, $unit)." $unit</td>";
       echo "<td class='disk-$row-2'>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-      echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' title='"._('Recompute')."...' onclick='$.cookie(\"ssz\",\"ssz\",{path:\"/\"});$(\".disk-$row-1\").html(\""._('Please wait')."...\");$(\".disk-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
+      echo "<td><a href=\"/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}\" target=\"progressFrame\" title=\""._('Recompute')."...\" onclick='$.cookie(\"ssz\",\"ssz\",{path:\"/\"});$(\".disk-$row-1\").html(\""._('Please wait')."...\");$(\".disk-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
       echo "</tr>";
     }
   } else {
     echo "<td>$type</td>";
-    echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
+    echo "<td><a href=\"/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}\" target=\"progressFrame\" onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
     echo "<td>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-    echo "<td><a href='/$path/Browse?dir=/mnt/$name'><i class='icon-u-tab' title=\""._('Browse')." /mnt/$name\"></i></a></td>";
+    echo "<td><a href=\"/$path/Browse?dir=/mnt/$name\"><i class=\"icon-u-tab\" title=\""._('Browse')." /mnt/$name\"></i></a></td>";
     echo "</tr>";
   }
 }
