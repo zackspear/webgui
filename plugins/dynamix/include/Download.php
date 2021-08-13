@@ -13,9 +13,15 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $file = $_POST['file'];
+
+function rootpath($file) {
+  global $docroot;
+  return substr(realpath("$docroot/$file"),0,strlen($docroot))==$docroot;
+}
+
 switch ($_POST['cmd']) {
 case 'save':
-  if (is_file("$docroot/$file") && strpos(realpath("$docroot/$file"), $docroot.'/') !== 0) exit;
+  if (is_file("$docroot/$file") && !rootpath($file)) exit;
   $source = $_POST['source'];
   $opts = $_POST['opts'] ?? 'qlj';
   if (in_array(pathinfo($source, PATHINFO_EXTENSION),['txt','conf','png'])) {
@@ -29,15 +35,16 @@ case 'save':
   echo "/$file";
   break;
 case 'delete':
-  if (strpos(realpath("$docroot/$file"), $docroot.'/')===0) @unlink("$docroot/$file");
+  if (is_file("$docroot/$file") && rootpath($file)) unlink("$docroot/$file");
   break;
 case 'diag':
-  if (is_file("$docroot/$file") && strpos(realpath("$docroot/$file"), $docroot.'/') !== 0) exit;
+  if (is_file("$docroot/$file") && !rootpath($file)) exit;
   $anon = empty($_POST['anonymize']) ? '' : escapeshellarg($_POST['anonymize']);
   exec("echo $docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file")." | at NOW > /dev/null 2>&1");
   echo "/$file";
   break;
 case 'unlink':
+  if (!rootpath($file)) exit;
   $backup = readlink("$docroot/$file");
   exec("rm -f '$docroot/$file' '$backup'");
   break;
