@@ -70,7 +70,7 @@ function cpu_pinning() {
 ##   CREATE CONTAINER   ##
 ##########################
 
-if (isset($_POST['contName'])) {
+if ($_POST['contName']) {
   $postXML = postToXML($_POST, true);
   $dry_run = $_POST['dryRun']=='true' ? true : false;
   $existing = $_POST['existingContainer'] ?? false;
