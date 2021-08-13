@@ -13,14 +13,14 @@
 <?
 // remove malicious code appended after variable assignment
 function unscript($text) {
-  return trim(explode(';',html_entity_decode($text))[0]);
-}
-// remove malicious code appended after string variable
-function unhook($text) {
-  return preg_replace("/['\"](.*)?['\"];?.+$/",'',html_entity_decode($text));
+  return trim(explode(';',untangle($text))[0]);
 }
 // remove malicious HTML elements
 function untangle($text) {
   return preg_replace('#<.+?>(.*?)</.+?>#','',html_entity_decode($text));
+}
+// remove malicious code appended after string variable
+function unhook($text) {
+  return preg_replace("#['\"](.*?)['\"];?.+$#",'',html_entity_decode($text));
 }
 ?>
