@@ -244,7 +244,7 @@ function xmlToCommand($xml, $create_paths=false) {
   // Add HOST_OS variable
   $Variables[]   = 'HOST_OS="Unraid"';
   // Add HOST_HOSTNAME variable 
-  $Variables[]   = 'HOST_HOSTNAME="'.gethostname().'"';
+  $Variables[]   = 'HOST_HOSTNAME="'.$var['NAME'].'"';
   // Add HOST_CONTAINERNAME variable
   $Variables[]   = 'HOST_CONTAINERNAME="'.$xml['Name'].'"';
   // Docker labels for WebUI and Icon
