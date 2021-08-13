@@ -15,9 +15,11 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Secure.php";
 
-if (isset($_GET['mount'])) {
-  exec("ps -C btrfs -o cmd=|awk '/\/mnt\/{$_GET['mount']}$/{print $2}'",$action);
+$mount = unbind($_GET['mount']);
+if ($mount) {
+  exec("ps -C btrfs -o cmd=|awk '/\/mnt\/$mount\$/{print $2}'",$action);
   echo implode(',',$action);
 } elseif (empty($_GET['btrfs'])) {
   $var = parse_ini_file("state/var.ini");
