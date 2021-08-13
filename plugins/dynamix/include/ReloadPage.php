@@ -17,7 +17,7 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Secure.php";
 
-$mount = unbind($_GET['mount']);
+$mount = unscript($_GET['mount']??'');
 if ($mount) {
   exec("ps -C btrfs -o cmd=|awk '/\/mnt\/$mount\$/{print $2}'",$action);
   echo implode(',',$action);

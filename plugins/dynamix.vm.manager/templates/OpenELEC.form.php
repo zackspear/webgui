@@ -51,7 +51,7 @@
 		}
 	}
 
-	if ($_POST['delete_version']) {
+	if (isset($_POST['delete_version'])) {
 		$arrDeleteOpenELEC = [];
 		if (array_key_exists($_POST['delete_version'], $arrOpenELECVersions)) {
 			$arrDeleteOpenELEC = $arrOpenELECVersions[$_POST['delete_version']];
@@ -75,7 +75,7 @@
 		exit;
 	}
 
-	if ($_POST['download_path']) {
+	if (isset($_POST['download_path'])) {
 		$arrDownloadOpenELEC = [];
 		if (array_key_exists($_POST['download_version'], $arrOpenELECVersions)) {
 			$arrDownloadOpenELEC = $arrOpenELECVersions[$_POST['download_version']];
@@ -270,8 +270,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	}
 
 	// create new VM
-	if ($_POST['createvm']) {
-		if ($_POST['xmldesc']) {
+	if (isset($_POST['createvm'])) {
+		if (isset($_POST['xmldesc'])) {
 			// XML view
 			$new = $lv->domain_define($_POST['xmldesc'], $_POST['domain']['xmlstartnow']==1);
 			if ($new){
@@ -282,7 +282,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			}
 		} else {
 			// form view
-			if ($_POST['shares'][0]['source']) {
+			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
 			if ($lv->domain_new($_POST)){
@@ -296,7 +296,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 	}
 
 	// update existing VM
-	if ($_POST['updatevm']) {
+	if (isset($_POST['updatevm'])) {
 		$uuid = $_POST['domain']['uuid'];
 		$dom = $lv->domain_get_domain_by_uuid($uuid);
 		$oldAutoStart = $lv->domain_get_autostart($dom)==1;
@@ -339,7 +339,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		}
 
 		// backup xml for existing domain in ram
-		if ($dom && !$_POST['xmldesc']) {
+		if ($dom && empty($_POST['xmldesc'])) {
 			$oldName = $lv->domain_get_name($dom);
 			$newName = $_POST['domain']['name'];
 			$oldDir = $domain_cfg['DOMAINDIR'].$oldName;
@@ -357,12 +357,12 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		}
 
 		// construct updated config
-		if ($_POST['xmldesc']) {
+		if (isset($_POST['xmldesc'])) {
 			// XML view
 			$xml = $_POST['xmldesc'];
 		} else {
 			// form view
-			if ($_POST['shares'][0]['source']) {
+			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
 			$arrExistingConfig = custom::createArray('domain',$strXML);
@@ -389,7 +389,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		exit;
 	}
 
-	if (unscript($_GET['uuid'])) {
+	if (isset($_GET['uuid'])) {
 		// edit an existing VM
 		$uuid = unscript($_GET['uuid']);
 		$dom = $lv->domain_get_domain_by_uuid($uuid);

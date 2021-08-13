@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  * Copyright 2015, Dan Landon.
  *
  * This program is free software; you can redistribute it and/or
@@ -16,21 +16,22 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Secure.php";
 
 $state = [
-  'TRIM ONLINE'  => 'Online (trim)',
-  'BOOST ONLINE' => 'Online (boost)',
-  'ONLINE'       => 'Online',
-  'ONBATT'       => 'On battery',
-  'COMMLOST'     => 'Lost communication',
-  'NOBATT'       => 'No battery detected'
+  'TRIM ONLINE'  => _('Online (trim)'),
+  'BOOST ONLINE' => _('Online (boost)'),
+  'ONLINE'       => _('Online'),
+  'ONBATT'       => _('On battery'),
+  'COMMLOST'     => _('Lost communication'),
+  'NOBATT'       => _('No battery detected')
 ];
 
 $red    = "class='red-text'";
 $green  = "class='green-text'";
 $orange = "class='orange-text'";
 $status = array_fill(0,6,"<td>-</td>");
-$all    = $_GET['all']=='true';
+$all    = unscript($_GET['all']??'')=='true';
 $result = [];
 
 if (file_exists("/var/run/apcupsd.pid")) {

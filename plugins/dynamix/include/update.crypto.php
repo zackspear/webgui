@@ -16,19 +16,19 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-$index = unscript($_GET['index']);
-$tests = explode(',',unscript($_GET['test']));
+$index = unscript($_GET['index']??'');
+$tests = explode(',',unscript($_GET['test']??''));
 if ($index < count($tests)) {
   $test = $tests[$index];
   [$name,$size] = my_explode(':',$test);
   if (!$size) {
-    $default = $test==$_GET['hash'];
+    $default = ($test==($_GET['hash']??''));
     if ($index>0) $test .= '|tail -1';
     if ($default) echo "<b>";
     echo preg_replace(['/^(# Tests.*\n)/','/\n$/'],["$1\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -h $test"));
     echo $default ? " (default)</b>\n" : "\n";
   } else {
-    $default = $test==$_GET['luks'];
+    $default = ($test==($_GET['luks']??''));
     if ($index>5) $size .= '|tail -1';
     if ($default) echo "<b>";
     echo preg_replace(['/^# Tests.*\n/','/\n$/'],["\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -c $name -s $size"));

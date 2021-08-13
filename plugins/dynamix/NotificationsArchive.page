@@ -4,8 +4,8 @@ Icon="icon-archive"
 Tag="archive"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ function resize(bind) {
 <?endif;?>
 function archiveList(init) {
   timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/webGui/include/NotificationsArchive.php',{filter:'<?=addslashes(htmlspecialchars($_GET['filter']))?>'},function(data) {
+  $.get('/webGui/include/NotificationsArchive.php',{filter:"<?=unscript($_GET['filter']??'')?>"},function(data) {
     clearTimeout(timers.archive);
     if (data) $('#archive_list').html(data);
     if (init) {

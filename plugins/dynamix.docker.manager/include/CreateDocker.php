@@ -154,7 +154,7 @@ if (isset($_POST['contName'])) {
 ##   UPDATE CONTAINER   ##
 ##########################
 
-if (unscript($_GET['updateContainer'])){
+if (isset($_GET['updateContainer'])){
   $echo = empty($_GET['mute']);
   if ($echo) {
     readfile("$docroot/plugins/dynamix.docker.manager/log.htm");

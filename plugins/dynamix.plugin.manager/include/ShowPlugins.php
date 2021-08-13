@@ -19,11 +19,11 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$system  = $_GET['system'] ?? false;
-$branch  = $_GET['branch'] ?? false;
-$audit   = $_GET['audit'] ?? false;
-$check   = $_GET['check'] ?? false;
-$init    = $_GET['init'] ?? false;
+$system  = unscript($_GET['system']??'');
+$branch  = unscript($_GET['branch']??'');
+$audit   = unscript($_GET['audit']??'');
+$check   = unscript($_GET['check']??'');
+$init    = unscript($_GET['init']??'');
 $empty   = true;
 $install = false;
 $updates = 0;

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -24,7 +24,7 @@
 	$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
 
 	// create new VM
-	if ($_POST['createvm']) {
+	if (isset($_POST['createvm'])) {
 		$new = $lv->domain_define($_POST['xmldesc'], $_POST['domain']['startnow']==1);
 		if ($new){
 			$lv->domain_set_autostart($new, $_POST['domain']['autostart']==1);
@@ -37,7 +37,7 @@
 	}
 
 	// update existing VM
-	if ($_POST['updatevm']) {
+	if (isset($_POST['updatevm'])) {
 		$uuid = $_POST['domain']['uuid'];
 		$dom = $lv->domain_get_domain_by_uuid($uuid);
 		$oldAutoStart = $lv->domain_get_autostart($dom)==1;
@@ -62,7 +62,7 @@
 		exit;
 	}
 
-	if (unscript($_GET['uuid'])) {
+	if (isset($_GET['uuid'])) {
 		// edit an existing VM
 		$uuid = unscript($_GET['uuid']);
 		$dom = $lv->domain_get_domain_by_uuid($uuid);

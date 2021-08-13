@@ -18,10 +18,10 @@ require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 
-$file = unscript($_GET['file']);
-$path = realpath('/etc/wireguard'.$_GET['path']);
+$file = unscript($_GET['file']??'');
+$path = realpath('/etc/wireguard'.unscript($_GET['path']??''));
 $csrf = exec("grep -Pom1 '^csrf_token=\"\K.[^\"]+' /var/local/emhttp/var.ini");
-if (!$path || strpos($path,'/boot/config/wireguard')!==0 || !$_GET['csrf_token'] || $_GET['csrf_token']!=$csrf) return;
+if (!$path || strpos($path,'/boot/config/wireguard')!==0 || empty($_GET['csrf_token']) || $_GET['csrf_token']!=$csrf) return;
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
@@ -38,15 +38,15 @@ img:hover{transform:scale(1.1)}
 function cleanUp(id,file) {
   if (document.hasFocus()) {
     $('#'+id).val("<?=_('Download')?>").prop('disabled',false);
-    $.post('/webGui/include/Download.php',{cmd:'delete',file:file,csrf_token:'<?=$_GET['csrf_token']?>'});
+    $.post('/webGui/include/Download.php',{cmd:'delete',file:file,csrf_token:'<?=unscript($_GET["csrf_token"]??"")?>'});
   } else {
     setTimeout(function(){cleanUp(id,file);},1000);
   }
 }
 function download(id,source,file) {
   $('#'+id).val("<?=_('Downloading')?>...").prop('disabled',true);
-  $.post('/webGui/include/Download.php',{cmd:'save',source:source+'.conf',file:file,opts:'qj',csrf_token:'<?=$_GET['csrf_token']?>'},function(){
-    $.post('/webGui/include/Download.php',{cmd:'save',source:source+'.png',file:file,opts:'qj',csrf_token:'<?=$_GET['csrf_token']?>'},function(zip){
+  $.post('/webGui/include/Download.php',{cmd:'save',source:source+'.conf',file:file,opts:'qj',csrf_token:'<?=unscript($_GET["csrf_token"]??"")?>'},function(){
+    $.post('/webGui/include/Download.php',{cmd:'save',source:source+'.png',file:file,opts:'qj',csrf_token:'<?=unscript($_GET["csrf_token"]??"")?>'},function(zip){
       location = zip;
       setTimeout(function(){cleanUp(id,file);},1000);
     });
@@ -54,7 +54,7 @@ function download(id,source,file) {
 }
 </script>
 <body>
-<h3><u><?=$_GET['path']?_('Remote peer configuration'):_('Local server configuration')?></u></h3>
+<h3><u><?=unscript($_GET['path']??'') ? _('Remote peer configuration') : _('Local server configuration')?></u></h3>
 <div>
 <pre>
 <?readfile("$path/$file.conf")?>
@@ -62,7 +62,7 @@ function download(id,source,file) {
 </div>
 <div>
 <?if (file_exists("$path/$file.png")):?>
-<img src="/webGui/include/WGimage.php?file=<?="$file.png"?>&csrf_token=<?=$_GET['csrf_token']?>&v=<?=filemtime("$path/$file.png")?>">
+<img src="/webGui/include/WGimage.php?file=<?="$file.png"?>&csrf_token=<?=unscript($_GET['csrf_token']??'')?>&v=<?=filemtime("$path/$file.png")?>">
 <?endif;?>
 <input type="button" value="Close" onclick="top.Shadowbox.close()">
 <input type="button" id="download" value="<?=_('Download')?>" onclick="download(this.id,'<?="$path/$file"?>','<?=$file?>.zip')">
