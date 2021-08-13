@@ -1,8 +1,6 @@
 <?php
 // included in login.php
 
-if (!function_exists('_')) exit; // exit on direct calls
-
 $REMOTE_ADDR = $_SERVER['REMOTE_ADDR'] ?? "unknown";
 $MAX_PASS_LENGTH = 128;
 $VALIDATION_MESSAGES = [
