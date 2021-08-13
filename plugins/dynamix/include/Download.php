@@ -44,8 +44,9 @@ case 'diag':
   echo "/$file";
   break;
 case 'unlink':
+  $real = pathinfo("$docroot/$file");
   $backup = readlink("$docroot/$file");
-  if ($backup) exec("rm -f '$docroot/$file' '$backup'");
+  if ($backup && $real['dirname']==$docroot) exec("rm -f '$docroot/$file' '$backup'");
   break;
 case 'backup':
   echo exec("$docroot/webGui/scripts/flash_backup");
