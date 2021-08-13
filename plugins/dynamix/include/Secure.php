@@ -19,8 +19,8 @@ function unscript($text) {
 function unhook($text) {
   return preg_replace("/['\"](.*)?['\"];?.+$/",'',html_entity_decode($text));
 }
-// remove malicious script elements
-function uncode($text) {
-  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
+// remove malicious HTML elements
+function unwanted($text) {
+  return preg_replace('#<.+?>(.*?)</.+?>#','',html_entity_decode($text));
 }
 ?>
