@@ -14,7 +14,7 @@ $POST_ERROR = '';
 /**
  * POST handler
  */
-if (!empty($_POST['password']) && !empty($_POST['confirmPassword'])) {
+if (!empty($_POST['password']) && !empty($_POST['confirmPassword']) && $_POST['csrf_token']==$var['csrf_token']) {
     if ($_POST['password'] !== $_POST['confirmPassword']) return $POST_ERROR = $VALIDATION_MESSAGES['mismatch'];
     if (strlen($_POST['password']) > $MAX_PASS_LENGTH) return $POST_ERROR = $VALIDATION_MESSAGES['maxLength'];
 
@@ -347,6 +347,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
                 <p class="error"><?=_('Please also ensure you have cookies enabled')?>.</p>
             </noscript>
             <form action="/login" method="POST" class="js-validate w-full flex flex-col">
+                <input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>">
                 <label for="password"><?= _('Username') ?></label>
                 <input name="username" type="text" value="root" disabled title="<?=_('Username not changeable')?>">
 
