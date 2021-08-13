@@ -285,7 +285,7 @@ function xmlToCommand($xml, $create_paths=false) {
     }
   }
   $logSize = $logFile = '';
-  if ($cfg['DOCKER_LOG_ROTATION']=='yes') {
+  if (($cfg['DOCKER_LOG_ROTATION']??'')=='yes') {
     $logSize = $cfg['DOCKER_LOG_SIZE'] ?? '10m';
     $logSize = "--log-opt max-size='$logSize'";
     $logFile = $cfg['DOCKER_LOG_FILES'] ?? '1';
@@ -359,7 +359,7 @@ function pullImage($name, $image, $echo=true) {
     $cnt = json_decode($line, true);
     $id = $cnt['id'] ?? '';
     $status = $cnt['status'] ?? '';
-    if ($cnt['error']) $strError = $cnt['error'];
+    if (isset($cnt['error'])) $strError = $cnt['error'];
     if ($waitID !== false) {
       if ($echo) {
         echo "<script>stop_Wait($waitID);</script>\n";
