@@ -243,10 +243,10 @@ function xmlToCommand($xml, $create_paths=false) {
   $Variables[]   = 'TZ="'.$var['timeZone'].'"';
   // Add HOST_OS variable
   $Variables[]   = 'HOST_OS="Unraid"';
-  // Add HOST_HOSTNAME variable
-  $Variables[]   = 'HOST_HOSTNAME=$HOSTNAME';
+  // Add HOST_HOSTNAME variable 
+  $Variables[]   = 'HOST_HOSTNAME="'.gethostname().'"';
   // Add HOST_CONTAINERNAME variable
-  $Variables[]   = 'HOST_CONTAINERNAME='.escapeshellarg($xml['Name']);  
+  $Variables[]   = 'HOST_CONTAINERNAME="'.$xml['Name'].'"';
   
   // Docker labels for WebUI and Icon
   $Labels[]      = 'net.unraid.docker.managed=dockerman';
