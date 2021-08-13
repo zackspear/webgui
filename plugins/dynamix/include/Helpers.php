@@ -266,4 +266,7 @@ function my_preg_split($split,$text,$count=2) {
 function unscript($text) {
   return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
 }
+function unhook($text) {
+  return preg_replace("/['\"](.*)?['\"];?.+$/",'',unscript($text));
+}
 ?>
