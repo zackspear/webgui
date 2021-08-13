@@ -44,9 +44,8 @@ case 'diag':
   echo "/$file";
   break;
 case 'unlink':
-  if (!rootpath($file)) exit;
   $backup = readlink("$docroot/$file");
-  exec("rm -f '$docroot/$file' '$backup'");
+  if ($backup) exec("rm -f '$docroot/$file' '$backup'");
   break;
 case 'backup':
   echo exec("$docroot/webGui/scripts/flash_backup");
