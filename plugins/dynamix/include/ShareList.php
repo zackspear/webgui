@@ -101,7 +101,7 @@ foreach ($shares as $name => $share) {
     echo "<td>$cache</td>";
     echo "<td>".my_scale($ssz1[$name]['disk.total']*1024, $unit)." $unit</td>";
     echo "<td>".my_scale($share['free']*1024, $unit)." $unit</td>";
-    echo "<td><a href='/$path/Browse?dir=/mnt/user/".urlencode($name)."'><img src='/webGui/images/explore.png' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></a></td>";
+    echo "<td><a href='/$path/Browse?dir=/mnt/user/".urlencode($name)."'><i class='icon-u-tab' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></i></a></td>";
     echo "</tr>";
     foreach ($ssz1[$name] as $diskname => $disksize) {
       if ($diskname=='disk.total') continue;
@@ -122,7 +122,7 @@ foreach ($shares as $name => $share) {
     echo "<td>$cache</td>";
     echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
     echo "<td>".my_scale($share['free']*1024, $unit)." $unit</td>";
-    echo "<td><a href='$path/Browse?dir=/mnt/user/".urlencode($name)."'><img src='/webGui/images/explore.png' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></a></td>";
+    echo "<td><a href='/$path/Browse?dir=/mnt/user/".urlencode($name)."'><i class='icon-u-tab' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></i></a></td>";
     echo "</tr>";
   }
 }

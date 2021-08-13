@@ -119,7 +119,7 @@ foreach ($disks as $name => $disk) {
     echo "<td>$type</td>";
     echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
     echo "<td>".my_scale($disk['fsFree']*1024, $unit)." $unit</td>";
-    echo "<td><a href='$path/Browse?dir=/mnt/$name'><img src='/webGui/images/explore.png' title='"._('Browse')." /mnt/$name'></a></td>";
+    echo "<td><a href='/$path/Browse?dir=/mnt/$name'><i class='icon-u-tab' title=\""._('Browse')." /mnt/$name\"></i></a></td>";
     echo "</tr>";
   }
 }
