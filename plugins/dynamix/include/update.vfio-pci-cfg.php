@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,13 +11,16 @@
  */
 ?>
 <?
-$old = (is_file("/boot/config/vfio-pci.cfg")) ? rtrim(file_get_contents("/boot/config/vfio-pci.cfg")) : '';
-$new = $_GET["cfg"];
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Secure.php";
+
+$vfio = '/boot/config/vfio-pci.cfg';
+$old  = is_file($vfio) ? rtrim(file_get_contents($vfio)) : '';
+$new  = $_GET["cfg"]??'';
+
 if ($old !== $new) {
-  exec("cp -f /boot/config/vfio-pci.cfg /boot/config/vfio-pci.cfg.bak");
-  exec("echo \"$new\" >/boot/config/vfio-pci.cfg", $output, $myreturn );
-  if ($myreturn !== "0") {
-    echo "1";
-  }
+  exec("cp -f $vfio $vfio.bak");
+  exec("echo \"$new\" >$vfio", $output, $myreturn );
+  if ($myreturn !== "0") {echo "1";}
 }
 ?>

@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
+/* Copyright 2005-2021, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,17 +11,19 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Secure.php";
 
-function addLog($line) { echo "<script>addLog('$line');</script>"; }
+function addLog($line) {echo "<script>addLog('$line');</script>";}
 
 readfile("$docroot/logging.htm");
 $var = parse_ini_file('state/var.ini');
+$url = unscript($_GET['url']??'');
 
-$parsed_url = parse_url($_GET['url']);
-if (($parsed_url['host']=="keys.lime-technology.com")||($parsed_url['host']=="lime-technology.com")) {
-  addLog("Downloading {$_GET['url']} ... ");
-  $key_file = basename($_GET['url']);
-  exec("/usr/bin/wget -q -O ".escapeshellarg("/boot/config/$key_file")." ".escapeshellarg($_GET['url']), $output, $return_var);
+$parsed_url = parse_url($url);
+if (isset($parsed_url['host']) && ($parsed_url['host']=="keys.lime-technology.com" || $parsed_url['host']=="lime-technology.com")) {
+  addLog("Downloading $url ... ");
+  $key_file = basename($url);
+  exec("/usr/bin/wget -q -O ".escapeshellarg("/boot/config/$key_file")." ".escapeshellarg($url), $output, $return_var);
   if ($return_var === 0) {
     if ($var['mdState'] == "STARTED")
       addLog("<br>Installing ... Please Stop array to complete key installation.<br>");
@@ -33,5 +35,5 @@ if (($parsed_url['host']=="keys.lime-technology.com")||($parsed_url['host']=="li
   }
 }
 else
-  addLog("ERROR, bad or missing key file URL: {$_GET['url']}<br>");
+  addLog("ERROR, bad or missing key file URL: $url<br>");
 ?>

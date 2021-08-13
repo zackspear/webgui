@@ -109,8 +109,8 @@
 		$arrConfigDefaults = array_replace_recursive($arrConfigDefaults, $arrAllTemplates[$strSelectedTemplate]['overrides']);
 	}
 	// create new VM
-	if ($_POST['createvm']) {
-		if ($_POST['xmldesc']) {
+	if (isset($_POST['createvm'])) {
+		if (isset($_POST['xmldesc'])) {
 			// XML view
 			$new = $lv->domain_define($_POST['xmldesc'], $_POST['domain']['xmlstartnow']==1);
 			if ($new){
@@ -139,7 +139,7 @@
 	}
 
 	// update existing VM
-	if ($_POST['updatevm']) {
+	if (isset($_POST['updatevm'])) {
 		$uuid = $_POST['domain']['uuid'];
 		$dom = $lv->domain_get_domain_by_uuid($uuid);
 		$oldAutoStart = $lv->domain_get_autostart($dom)==1;
@@ -182,7 +182,7 @@
 		}
 
 		// backup xml for existing domain in ram
-		if ($dom && !$_POST['xmldesc']) {
+		if ($dom && empty($_POST['xmldesc'])) {
 			$oldName = $lv->domain_get_name($dom);
 			$newName = $_POST['domain']['name'];
 			$oldDir = $domain_cfg['DOMAINDIR'].$oldName;
@@ -200,7 +200,7 @@
 		}
 
 		// construct updated config
-		if ($_POST['xmldesc']) {
+		if (isset($_POST['xmldesc'])) {
 			// XML view
 			$xml = $_POST['xmldesc'];
 		} else {
@@ -234,7 +234,7 @@
 		exit;
 	}
 
-	if (unscript($_GET['uuid'])) {
+	if (isset($_GET['uuid'])) {
 		// edit an existing VM
 		$uuid = unscript($_GET['uuid']);
 		$dom = $lv->domain_get_domain_by_uuid($uuid);

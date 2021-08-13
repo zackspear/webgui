@@ -15,7 +15,9 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'plugins';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Secure.php";
 
 exec("mv -f /boot/previous/* /boot");
-file_put_contents("$docroot/plugins/unRAIDServer/README.md","**"._('DOWNGRADE TO VERSION')." {$_GET['version']}**");
+$version = unscript($_GET['version']??'');
+file_put_contents("$docroot/plugins/unRAIDServer/README.md","**"._('DOWNGRADE TO VERSION')." $version**");
 ?>

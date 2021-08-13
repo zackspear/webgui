@@ -52,9 +52,9 @@ function vsize($size,$expand=true) {
   }
 }
 
-$uuid = unscript($_GET['uuid']);
+$uuid = unscript($_GET['uuid']??'');
 $subaction = $_GET['subaction'] ?? false;
-if (unscript($_GET['refresh'])) {
+if (isset($_GET['refresh'])) {
   $vm = unscript($_GET['name']);
   if ($lv->domain_is_active($vm)) {
     echo "<meta http-equiv='refresh' content='5; url=/VMs?name=$vm&amp;refresh=true'>";
@@ -69,7 +69,7 @@ if ($subaction) {
   if ($subaction == 'disk-resize') {
     $capacity = vsize($_GET['cap']);
     if ($capacity > vsize($_GET['oldcap'])) {
-      shell_exec("qemu-img resize -q ".escapeshellarg($_GET['disk'])." ".vsize($capacity,0));
+      shell_exec("qemu-img resize -q ".escapeshellarg(unscript($_GET['disk']??''))." ".vsize($capacity,0));
     $msg = $vm." disk capacity has been changed to {$_GET['cap']}";
     } else {
       $msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";

@@ -13,6 +13,7 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/Secure.php";
 
 // Helper functions
 function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
@@ -262,8 +263,5 @@ function my_explode($split,$text,$count=2) {
 }
 function my_preg_split($split,$text,$count=2) {
   return array_pad(preg_split($split,$text,$count),$count,'');
-}
-function unscript($text) {
-  return preg_replace('#<script(.*?)>(.+?)</script>#','',html_entity_decode($text));
 }
 ?>

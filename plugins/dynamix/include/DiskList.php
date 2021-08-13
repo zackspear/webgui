@@ -23,13 +23,13 @@ $disks   = parse_ini_file('state/disks.ini',true);
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
-$compute = unscript($_GET['compute']);
-$path    = unscript($_GET['path']);
-$fill    = unscript($_GET['fill']);
+$compute = unscript($_GET['compute']??'');
+$path    = unscript($_GET['path']??'');
+$fill    = unscript($_GET['fill']??'');
 
 $display = [];
-$display['scale'] = unscript($_GET['scale']);
-$display['number'] = unscript($_GET['number']);
+$display['scale'] = unscript($_GET['scale']??'');
+$display['number'] = unscript($_GET['number']??'');
 
 // Display export settings
 function disk_share_settings($protocol,$share) {

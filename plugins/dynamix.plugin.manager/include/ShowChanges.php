@@ -34,8 +34,8 @@ extract(parse_plugin_cfg('dynamix',true));
 </head>
 <body style="margin:14px 10px">
 <?
-$file = unscript($_GET['file']);
-$tmp = unscript($_GET['tmp']) ? '/var/tmp' : '/tmp/plugins/';
+$file = unscript($_GET['file']??'');
+$tmp = unscript($_GET['tmp']??'') ? '/var/tmp' : '/tmp/plugins/';
 
 if (file_exists($file) && strpos(realpath($file),$tmp)===0 && substr($file,-4)=='.txt') echo Markdown(file_get_contents($file)); else echo Markdown("*"._('No release notes available')."!*");
 ?>

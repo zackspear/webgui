@@ -154,8 +154,8 @@ if (isset($_POST['contName'])) {
 ##   UPDATE CONTAINER   ##
 ##########################
 
-if (unscript($_GET['updateContainer'])){
-  $echo = $_GET['mute'] ? false : true;
+if (isset($_GET['updateContainer'])){
+  $echo = empty($_GET['mute']);
   if ($echo) {
     readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
     @flush();
@@ -182,7 +182,7 @@ if (unscript($_GET['updateContainer'])){
       stopContainer($Name, $echo);
     }
     // force kill container if still running after 10 seconds
-    if (!$_GET['communityApplications']) removeContainer($Name, $echo);
+    if (empty($_GET['communityApplications'])) removeContainer($Name, $echo);
     execCommand($cmd, $echo);
     $DockerClient->flushCaches();
     $newImageID = $DockerClient->getImageID($Repository);
@@ -197,7 +197,7 @@ if (unscript($_GET['updateContainer'])){
 ##   REMOVE TEMPLATE   ##
 #########################
 
-if ($_POST['rmTemplate']) {
+if (isset($_POST['rmTemplate'])) {
   if (file_exists($_POST['rmTemplate']) && dirname($_POST['rmTemplate'])==$dockerManPaths['templates-user']) unlink($_POST['rmTemplate']);
 }
 

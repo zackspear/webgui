@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Bergware International
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Bergware International
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,9 +15,11 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Secure.php";
 
-if (isset($_GET['mount'])) {
-  exec("ps -C btrfs -o cmd=|awk '/\/mnt\/{$_GET['mount']}$/{print $2}'",$action);
+$mount = unscript($_GET['mount']??'');
+if ($mount) {
+  exec("ps -C btrfs -o cmd=|awk '/\/mnt\/$mount\$/{print $2}'",$action);
   echo implode(',',$action);
 } elseif (empty($_GET['btrfs'])) {
   $var = parse_ini_file("state/var.ini");

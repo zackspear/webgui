@@ -20,7 +20,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 $boot  = "/boot/config/plugins/dynamix";
-$file  = $_GET['file'] ?? $_POST['file'];
+$file  = unscript($_GET['file'] ?? $_POST['file']);
 $model = $_POST['model'] ?? false;
 $exist = file_exists("$boot/$file");
 
@@ -85,13 +85,13 @@ function importFile(file) {
   }  
   var reader = new FileReader();
   reader.readAsDataURL(file);
-  reader.onload = function(e){$.post('/webGui/include/SelectCase.php',{mode:'file',file:'<?=$file?>',data:e.target.result,csrf_token:'<?=$_GET['csrf']?>'},function(){top.Shadowbox.close();})};
+  reader.onload = function(e){$.post('/webGui/include/SelectCase.php',{mode:'file',file:'<?=$file?>',data:e.target.result,csrf_token:'<?=unscript($_GET["csrf"])?>'},function(){top.Shadowbox.close();})};
 }
 function setCase(model) {
-  $.post('/webGui/include/SelectCase.php',{mode:'set',file:'<?=$file?>',model:model,csrf_token:'<?=$_GET['csrf']?>'},function(){top.Shadowbox.close();});
+  $.post('/webGui/include/SelectCase.php',{mode:'set',file:'<?=$file?>',model:model,csrf_token:'<?=unscript($_GET["csrf"])?>'},function(){top.Shadowbox.close();});
 }
 function deleteCase() {
-  $.post('/webGui/include/SelectCase.php',{mode:'del',file:'<?=$file?>',csrf_token:'<?=$_GET['csrf']?>'},function(){top.Shadowbox.close();});
+  $.post('/webGui/include/SelectCase.php',{mode:'del',file:'<?=$file?>',csrf_token:'<?=unscript($_GET["csrf"])?>'},function(){top.Shadowbox.close();});
 }
 $(function() {
   $('#tab1').prop('checked',true);

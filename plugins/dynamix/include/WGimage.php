@@ -11,12 +11,15 @@
  */
 ?>
 <?
-$file = realpath('/etc/wireguard/peers/'.$_GET['file']);
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Secure.php";
+
+$file = realpath('/etc/wireguard/peers/'.unscript($_GET['file']??''));
 $lastmod = filemtime($file);
 $csrf = exec("grep -Pom1 '^csrf_token=\"\K.[^\"]+' /var/local/emhttp/var.ini");
-if (!$file || strpos($file,'/boot/config/wireguard')!==0 || !$_GET['csrf_token'] || $_GET['csrf_token']!=$csrf) return;
+if (!$file || strpos($file,'/boot/config/wireguard')!==0 || empty($_GET['csrf_token']) || $_GET['csrf_token']!=$csrf) return;
 
-if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $lastmod) {
+if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']??'') >= $lastmod) {
   header($_SERVER["SERVER_PROTOCOL"].' 304 Not Modified');
 } else {
   header('Last-Modified:'.gmdate('D, d M Y H:i:s', $lastmod).' GMT');

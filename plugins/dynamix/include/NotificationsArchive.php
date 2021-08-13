@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,11 +15,11 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
-
+require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
-$filter = $_GET['filter'];
+$filter = unscript($_GET['filter']??'');
 $files = glob("{$dynamix['notify']['path']}/archive/*.notify", GLOB_NOSORT);
 usort($files, create_function('$a,$b', 'return filemtime($b)-filemtime($a);'));
 

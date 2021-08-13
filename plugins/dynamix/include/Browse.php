@@ -42,9 +42,9 @@ function my_devs(&$devs) {
 }
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
-$dir   = unscript(urldecode($_GET['dir']));
-$path  = unscript($_GET['path']);
-$user  = unscript($_GET['user']);
+$dir   = urldecode($_GET['dir']??'');
+$path  = unscript($_GET['path']??'');
+$user  = unscript($_GET['user']??'');
 $all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
 $fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: _('---')) : _('flash');
 $fmt   = "%F {$display['time']}";

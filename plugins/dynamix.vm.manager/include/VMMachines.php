@@ -37,7 +37,7 @@ if (file_exists($user_prefs)) {
 $i = 0;
 $menu = [];
 $kvm = ['var kvm=[];'];
-$show = explode(',',unscript($_GET['show'])) ?? [];
+$show = explode(',',unscript($_GET['show']??''));
 
 foreach ($vms as $vm) {
   $res = $lv->get_domain_by_name($vm);

@@ -28,7 +28,7 @@ switch ($display['theme']) {
 }
 
 $strSelectedTemplate = array_keys($arrAllTemplates)[1];
-if (!empty(unscript($_GET['template'])) && !(empty($arrAllTemplates[unscript($_GET['template'])]))) {
+if (isset($_GET['template']) && isset($arrAllTemplates[unscript($_GET['template'])])) {
 	$strSelectedTemplate = unscript($_GET['template']);
 }
 
@@ -41,7 +41,7 @@ $arrLoad = [
 ];
 $strIconURL = '/plugins/dynamix.vm.manager/templates/images/'.$arrLoad['icon'];
 
-if (!empty(unscript($_GET['uuid']))) {
+if (isset($_GET['uuid'])) {
 	// Edit VM mode
 	$res = $lv->domain_get_domain_by_uuid(unscript($_GET['uuid']));
 
@@ -59,7 +59,7 @@ if (!empty(unscript($_GET['uuid']))) {
 		'state' => $lv->domain_get_state($res)
 	];
 
-	if (empty(unscript($_GET['template']))) {
+	if (empty($_GET['template'])) {
 		// read vm-template attribute
 		$strTemplateOS = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@os');
 		$strLibreELEC = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@libreelec');
