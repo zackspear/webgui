@@ -20,7 +20,7 @@ function unhook($text) {
   return preg_replace("/['\"](.*)?['\"];?.+$/",'',html_entity_decode($text));
 }
 // remove malicious HTML elements
-function unwanted($text) {
+function untangle($text) {
   return preg_replace('#<.+?>(.*?)</.+?>#','',html_entity_decode($text));
 }
 ?>
