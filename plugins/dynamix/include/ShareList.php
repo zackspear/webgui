@@ -24,7 +24,7 @@ $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 $compute = unscript($_GET['compute']??'');
-$path    = unscript($_GET['path']??'');
+$path    = untangle($_GET['path']??'');
 $fill    = unscript($_GET['fill']??'');
 
 $display = [];
@@ -91,7 +91,7 @@ foreach ($shares as $name => $share) {
    default: $luks = "<a class='info' onclick='return false'><i class='padlock fa fa-lock red-text'></i><span>"._('Unknown encryption state')."</span></a>"; break;
   } else $luks = "";
   echo "<tr>";
-  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href='$path/Share?name=".urlencode($name)."' onclick=\"$.cookie('one','tab1',{path:'/'})\">".compress($name)."</a></td>";
+  echo "<td><a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href=\"/$path/Share?name=".urlencode($name)."\" onclick=\"$.cookie('one','tab1',{path:'/'})\">".compress($name)."</a></td>";
   echo "<td>{$share['comment']}</td>";
   echo "<td>".user_share_settings($var['shareSMBEnabled'], $sec[$name])."</td>";
   echo "<td>".user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name])."</td>";
@@ -101,7 +101,7 @@ foreach ($shares as $name => $share) {
     echo "<td>$cache</td>";
     echo "<td>".my_scale($ssz1[$name]['disk.total']*1024, $unit)." $unit</td>";
     echo "<td>".my_scale($share['free']*1024, $unit)." $unit</td>";
-    echo "<td><a href='/$path/Browse?dir=/mnt/user/".urlencode($name)."'><img src='/webGui/images/explore.png' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></a></td>";
+    echo "<td><a href=\"/$path/Browse?dir=/mnt/user/".urlencode($name)."\"><i class=\"icon-u-tab\" title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></i></a></td>";
     echo "</tr>";
     foreach ($ssz1[$name] as $diskname => $disksize) {
       if ($diskname=='disk.total') continue;
@@ -115,14 +115,14 @@ foreach ($shares as $name => $share) {
       echo "<td></td>";
       echo "<td class='share-$row-1'>".my_scale($disksize*1024, $unit)." $unit</td>";
       echo "<td class='share-$row-2'>".my_scale($disks[$diskname]['fsFree']*1024, $unit)." $unit</td>";
-      echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' title='"._('Recompute')."...' onclick='$.cookie(\"ssz\",\"ssz\",{path:\"/\"});$(\".share-$row-1\").html(\""._('Please wait')."...\");$(\".share-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
+      echo "<td><a href=\"/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}\" target=\"progressFrame\" title=\""._('Recompute')."...\" onclick='$.cookie(\"ssz\",\"ssz\",{path:\"/\"});$(\".share-$row-1\").html(\""._('Please wait')."...\");$(\".share-$row-2\").html(\"\");'><i class='fa fa-refresh icon'></i></a></td>";
       echo "</tr>";
     }
   } else {
     echo "<td>$cache</td>";
-    echo "<td><a href='/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}' target='progressFrame' onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
+    echo "<td><a href=\"/update.htm?cmd=$cmd&csrf_token={$var['csrf_token']}\" target=\"progressFrame\" onclick=\"$.cookie('ssz','ssz',{path:'/'});$(this).text('"._('Please wait')."...')\">"._('Compute')."...</a></td>";
     echo "<td>".my_scale($share['free']*1024, $unit)." $unit</td>";
-    echo "<td><a href='$path/Browse?dir=/mnt/user/".urlencode($name)."'><img src='/webGui/images/explore.png' title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></a></td>";
+    echo "<td><a href=\"/$path/Browse?dir=/mnt/user/".urlencode($name)."\"><i class=\"icon-u-tab\" title=\""._('Browse')." /mnt/user/".urlencode($name)."\"></i></a></td>";
     echo "</tr>";
   }
 }
