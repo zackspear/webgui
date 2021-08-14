@@ -56,14 +56,14 @@ case 'wait':
 case 'templates':
   // update template
   readfile("$docroot/update.htm");
-  $repos = $_POST['template_repos'];
-  file_put_contents($template_repos, $repos);
+  file_put_contents($template_repos, $_POST['template_repos']);
   $DockerTemplates = new DockerTemplates();
   $DockerTemplates->downloadTemplates();
   break;
 case 'exist':
   // docker file or folder exists?
-  echo file_exists($_POST['name']) ? 0 : 1;
+  $file = $_POST['name'];
+  if (substr($file,0,5)=='/mnt/') echo file_exists($file) ? 0 : 1;
   break;
 }
 ?>
