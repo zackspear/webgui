@@ -86,6 +86,8 @@ $notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBo
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script src="<?autov('/webGui/javascript/translate.'.($locale?:'en_US').'.js')?>"></script>
 <script>
+String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
+
 Shadowbox.init({skipSetup:true});
 
 // server uptime
@@ -223,6 +225,9 @@ function showFooter(data, id) {
 }
 function showNotice(data) {
   $('#user-notice').html(data.replace(/<a>(.*)<\/a>/,"<a href='/Plugins'>$1</a>"));
+}
+function escapeQuotes(form) {
+  $(form).find('input[type=text]').each(function(){$(this).val($(this).val().replace(/"/g,'\\"'));});
 }
 
 // Banner warning system
@@ -696,6 +701,14 @@ $(function() {
   // add leave confirmation when form has changed without applying (opt-in function)
   $('form.js-confirm-leave').on('change',function(e){formHasUnsavedChanges=true;}).on('submit',function(e){formHasUnsavedChanges=false;});
   $(window).on('beforeunload',function(e){if (formHasUnsavedChanges) return '';}); // note: the browser creates its own popup window and warning message
+  // form parser: add escapeQuotes protection
+  $('form').each(function(){
+    var action = $(this).prop('action').actionName();
+    if (action=='update.htm' || action=='update.php') {
+      var onsubmit = $(this).attr('onsubmit')||'';
+      $(this).attr('onsubmit','escapeQuotes(this);'+onsubmit);
+    }
+  });
 
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
