@@ -371,7 +371,7 @@
               ],
               'timeout' => sprintf(_('Communication with %s has timed out'), '{0}'),
               'loading1' => _('Please keep this window open'),
-              'loading2' => _("We're working our magic"),
+              'loading2' => _("Still working our magic"),
               'countdown' => [
                 'success' => [
                   'prefix' => sprintf(_('Auto closing in %s'), '{0}'),
