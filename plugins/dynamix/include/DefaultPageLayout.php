@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = unscript($_COOKIE['fontSize'] ?? $display['font']);
+$display['font'] = filter_var($_COOKIE['fontSize']??$display['font'], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -42,7 +42,7 @@ function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
 <style>
 <?if ($display['font']):?>
-html{font-size:<?=$display['font']?>}
+html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?if ($header):?>
 #header,#header .logo,#header .text-right a{color:#<?=$header?>}
