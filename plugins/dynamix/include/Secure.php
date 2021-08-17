@@ -13,7 +13,7 @@
 <?
 // remove malicious code appended after variable assignment
 function unscript($text) {
-  return trim(explode(';',untangle($text))[0]);
+  return trim(preg_split('/[;|&\?]/',untangle($text))[0]);
 }
 // remove malicious HTML elements
 function untangle($text) {

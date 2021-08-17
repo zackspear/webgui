@@ -205,7 +205,7 @@ if (isset($_POST['rmTemplate'])) {
 ##    LOAD TEMPLATE    ##
 #########################
 
-if (unscript($_GET['xmlTemplate'])) {
+if (isset($_GET['xmlTemplate'])) {
   [$xmlType, $xmlTemplate] = my_explode(':', unscript(urldecode($_GET['xmlTemplate'])));
   if (is_file($xmlTemplate)) {
     $xml = xmlToVar($xmlTemplate);
