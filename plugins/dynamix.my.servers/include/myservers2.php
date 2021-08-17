@@ -47,6 +47,7 @@
           'recover' => _('Recover Key'),
           'replace' => _('Replace Key'),
           'extend' => _('Extend Trial'),
+          'signOutUnraidNet' => _('Sign Out of Unraid.net'),
         ],
         'upc' => [
           'avatarAlt' => '{0} '._('Avatar'),
@@ -370,7 +371,7 @@
               ],
               'timeout' => sprintf(_('Communication with %s has timed out'), '{0}'),
               'loading1' => _('Please keep this window open'),
-              'loading2' => _('Were working our magic'),
+              'loading2' => _('Still working our magic'),
               'countdown' => [
                 'success' => [
                   'prefix' => sprintf(_('Auto closing in %s'), '{0}'),
@@ -432,6 +433,10 @@
               'subheading' => _('Page Not Allowed'),
             ],
           ],
+        ],
+        'wanIpCheck' => [
+          'match' => sprintf(_('Remark: your WAN IPv4 is **%s**'), '{0}'),
+          'mismatch' => sprintf(_("Remark: Unraid's WAN IPv4 **%1s** does not match your client's WAN IPv4 **%2s**"), '{0}', '{1}').'. '._('This may indicate a complex network that will not work with this Remote Access solution').'. '._('Ignore this message if you are currently connected via Remote Access or VPN').'.',
         ],
       ],
     ];

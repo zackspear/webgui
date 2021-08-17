@@ -282,11 +282,3 @@ _(CA-signed certificate file)_:
 :mgmt_certificate_expiration_help:
 
 </form>
-<?if (!is_link("/usr/local/sbin/unraid-api")):?>
-<div style="height:24px"></div>
-<form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
-_(Unraid.net account status)_:
-: <unraid-authed prop-registered="<? echo $isRegistered ?>"></unraid-authed>
-
-</form>
-<?endif;?>
