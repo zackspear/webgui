@@ -56,6 +56,7 @@ $internalip = $eth0['IPADDR:0'];
 
 // build post array
 $post = [
+  'plgversion' => 'na',
   'internalip' => $internalip,
   'keyfile' => $keyfile
 ];
