@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Bergware International
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Bergware International
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -37,5 +37,5 @@ default:
 if (isset($_POST['update'])) {$span = ""; $_span = "";}
 else {$span = "<span id='progress' class='status'>"; $_span = "</span>";}
 
-echo $pid ? "{$span}"._('Status').":<span class='green'>"._('Running')."</span>{$_span}" : "{$span}Status:<span class='orange'>"._('Stopped')."</span>{$_span}";
+echo $pid ? "{$span}"._('Status').":<span class='green'>"._('Running')."</span>{$_span}" : "{$span}"._('Status').":<span class='orange'>"._('Stopped')."</span>{$_span}";
 ?>
