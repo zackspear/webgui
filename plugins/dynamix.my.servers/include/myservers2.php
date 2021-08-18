@@ -454,7 +454,7 @@
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
-      "registered" => empty($remote['username']) || empty($var['regFILE']) ? 0 : 1,
+      "registered" => empty($remote['username']) ? 0 : 1,
       "serverip" => $_SERVER['SERVER_ADDR'],
       "servername" => $var['NAME'],
       "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
