@@ -41,7 +41,7 @@ $UPC_ENV_CK = in_array($_COOKIE['UPC_ENV'], $ALLOWED_UPC_ENV_VALS)
 if (!file_exists('/usr/local/sbin/unraid-api')) { // When NOT using the plugin we should load the UPC from the file system unless $UPC_ENV_CK exists.
   $UPC_ENV = $UPC_ENV_CK ?? 'local';
 } else { // When PLG exists load from local when not signed in but when signed in load UPC from production.
-  $UPC_ENV = $UPC_ENV_CK ?? ((empty($remote['apikey']) || empty($var['regFILE'])) ? 'local' : 'production');
+  $UPC_ENV = $UPC_ENV_CK ?? ((empty($remote['username']) || empty($var['regFILE'])) ? 'local' : 'production');
 }
 $upcLocalSrc = '/plugins/dynamix.my.servers/webComps/unraid.min.js'; // @NOTE - that using autov(); would render the file name below the body tag. So dont use it :(
 switch ($UPC_ENV) {

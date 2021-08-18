@@ -26,7 +26,7 @@ if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
 }
 
 $arr = [];
-if (empty($remote['apikey']) || empty($var['regFILE']) || empty($remote['username']) || empty($remote['avatar'])) {
+if (empty($remote['username'])) {
   $arr['registered'] = 0;
   $arr['username'] = '';
   $arr['avatar'] = '';
