@@ -38,7 +38,7 @@ echo "<ul class='jqueryFileTree'>";
 // Parent dirs
 if ($_POST['show_parent']=='true') echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."/\">..</a></li>";
 
-if (file_exists($rootdir)) {
+if (is_dir($rootdir)) {
   if (mb_substr($rootdir,-1)!='/') $rootdir .= '/';
   $names = array_filter(scandir($rootdir),function($n){return $n!='.' && $n!='..';});
   if (count($names)) {
