@@ -36,7 +36,7 @@ $checkbox = (isset($_POST['multiSelect']) && $_POST['multiSelect']=='true') ? "<
 
 echo "<ul class='jqueryFileTree'>";
 // Parent dirs
-if ($_POST['show_parent']=='true') echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir),ENT_QUOTES)."/\">..</a></li>";
+if ($_POST['show_parent']=='true') echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."/\">..</a></li>";
 
 if (file_exists($rootdir)) {
   if (mb_substr($rootdir,-1)!='/') $rootdir .= '/';
@@ -44,12 +44,12 @@ if (file_exists($rootdir)) {
   if (count($names)) {
     natcasesort($names);
     foreach ($names as $dir) if (is_dir($rootdir.$dir)) {
-      $htmlRel  = htmlspecialchars($rootdir.$dir,ENT_QUOTES);
+      $htmlRel  = htmlspecialchars($rootdir.$dir);
       $htmlName = htmlspecialchars(mb_strlen($dir)<=33 ? $dir : mb_substr($dir,0,33).'...');
       echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
     }
     foreach ($names as $file) if (is_file($rootdir.$file)) {
-      $htmlRel  = htmlspecialchars($rootdir.$file,ENT_QUOTES);
+      $htmlRel  = htmlspecialchars($rootdir.$file);
       $htmlName = htmlspecialchars($file);
       $ext      = mb_strtolower(pathinfo($file)['extension']);
       foreach ($filters as $filter) if (empty($filter)||$ext==$filter) {
