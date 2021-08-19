@@ -24,12 +24,15 @@
  * -> prevents debug users from exploring system's directory structure
  * ex: $root = $_SERVER['DOCUMENT_ROOT'];
  */
+$docroot = '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Secure.php";
+
 $root = '/';
 if (!$root) exit("ERROR: Root filesystem directory not set in jqueryFileTree.php");
 
-$rootdir = realpath($root.($_POST['dir'] ?? ''));
-$filters = (array)($_POST['filter'] ?? '');
-$match   = ($_POST['match'] ?? '.*');
+$rootdir = realpath($root.$_POST['dir']);
+$filters = (array)($_POST['filter']);
+$match   = unhook($_POST['match']);
 
 // set checkbox if multiSelect set to true
 $checkbox = (isset($_POST['multiSelect']) && $_POST['multiSelect']=='true') ? "<input type='checkbox'>" : "";
