@@ -27,7 +27,7 @@
 $root = '/';
 if (!$root) exit("ERROR: Root filesystem directory not set in jqueryFileTree.php");
 
-$rootdir = preg_replace("#[\/]+#","/",$root.($_POST['dir'] ?? ''));
+$rootdir = realpath($root.($_POST['dir'] ?? ''));
 $filters = (array)($_POST['filter'] ?? '');
 $match   = ($_POST['match'] ?? '.*');
 
