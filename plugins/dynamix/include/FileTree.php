@@ -9,7 +9,7 @@
  *
  * History:
  *
- * 1.2.0 - adapted by Bergware for use in Unraid - support UTF-8 encoding
+ * 1.2.0 - adapted by Bergware for use in Unraid - support UTF-8 encoding & hardening
  * 1.1.1 - SECURITY: forcing root to prevent users from determining system's file structure (per DaveBrad)
  * 1.1.0 - adding multiSelect (checkbox) support (08/22/2014)
  * 1.0.2 - fixes undefined 'dir' error - by itsyash (06/09/2014)
@@ -24,21 +24,18 @@
  * -> prevents debug users from exploring system's directory structure
  * ex: $root = $_SERVER['DOCUMENT_ROOT'];
  */
-$docroot = '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Secure.php";
-
 $root = '/';
 if (!$root) exit("ERROR: Root filesystem directory not set in jqueryFileTree.php");
 
-$rootdir = realpath($root.$_POST['dir']);
-$filters = (array)($_POST['filter']);
-$match   = unhook($_POST['match']);
+$docroot  = '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Secure.php";
 
-// set checkbox if multiSelect set to true
-$checkbox = (isset($_POST['multiSelect']) && $_POST['multiSelect']=='true') ? "<input type='checkbox'>" : "";
+$rootdir  = realpath($root.$_POST['dir']);
+$filters  = (array)($_POST['filter']);
+$match    = unbundle($_POST['match']);
+$checkbox = $_POST['multiSelect']=='true' ? "<input type='checkbox'>" : "";
 
 echo "<ul class='jqueryFileTree'>";
-// Parent dirs
 if ($_POST['show_parent']=='true') echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."/\">..</a></li>";
 
 if (is_dir($rootdir)) {
@@ -56,7 +53,7 @@ if (is_dir($rootdir)) {
       $htmlName = htmlspecialchars($file);
       $ext      = mb_strtolower(pathinfo($file)['extension']);
       foreach ($filters as $filter) if (empty($filter)||$ext==$filter) {
-        if (empty($match)||preg_match("#$match#",$file)) echo "<li class='file ext_$ext'>$checkbox<a href='#' rel=\"$htmlRel\">$htmlName</a></li>";
+        if (empty($match)||preg_match("/$match/",$file)) echo "<li class='file ext_$ext'>$checkbox<a href='#' rel=\"$htmlRel\">$htmlName</a></li>";
       }
     }
   }

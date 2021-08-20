@@ -64,7 +64,7 @@ switch ($action) {
 	case 'log':
 		if ($container) {
 			$since = unscript($_REQUEST['since']??'');
-			$title = unhook($_REQUEST['title']??'');
+			$title = unbundle($_REQUEST['title']??'');
 			require_once "$docroot/webGui/include/ColorCoding.php";
 			if (!$since) {
 				readfile("$docroot/plugins/dynamix.docker.manager/log.htm");

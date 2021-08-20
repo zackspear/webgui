@@ -371,7 +371,7 @@ $(function() {
 // add any pre-existing reboot notices
 <?$rebootNotice = @file("/tmp/reboot_notifications") ?: [];?>
 <?foreach ($rebootNotice as $notice):?>
-  var rebootMessage = "<?=trim($notice)?>";
+  var rebootMessage = "<?=unbundle($notice)?>";
   if (rebootMessage) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+rebootMessage,false,true);
 <?endforeach;?>
 // check for flash offline / corrupted. docker.cfg is guaranteed to always exist
