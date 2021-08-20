@@ -48,7 +48,6 @@ $arr['reggen'] = $var['regGen'];
 $arr['flashproduct'] = $var['flashProduct'];
 $arr['flashvendor'] = $var['flashVendor'];
 $arr['servername'] = $var['NAME'];
-$arr['serverip'] = $_SERVER['SERVER_ADDR'];
 $arr['internalip'] = $_SERVER['SERVER_ADDR'];
 $arr['internalport'] = $_SERVER['SERVER_PORT'];
 $arr['protocol'] = $_SERVER['REQUEST_SCHEME'];
