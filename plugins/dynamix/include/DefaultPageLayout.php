@@ -97,6 +97,7 @@ var before = new Date();
 
 // page timer events
 var timers = {};
+timers.bannerWarning = null;
 
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
@@ -234,7 +235,6 @@ function escapeQuotes(form) {
 
 var bannerWarnings = [];
 var currentBannerWarning = 0;
-var bannerWarningInterval = null;
 var osUpgradeWarning = false;
 
 function addBannerWarning(text,warning=true,noDismiss=false) {
@@ -246,11 +246,7 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
     if (!noDismiss) text += "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
     bannerWarnings[arrayEntry] = text;
   } else return bannerWarnings.indexOf(text);
-
-  if (!bannerWarningInterval) {
-    showBannerWarnings();
-    bannerWarningInterval = setInterval(showBannerWarnings,10000);
-  }
+  if (timers.bannerWarning==null) showBannerWarnings();
   return arrayEntry;
 }
 
@@ -261,6 +257,7 @@ function dismissBannerWarning(entry,cookieText) {
 
 function removeBannerWarning(entry) {
   bannerWarnings[entry] = false;
+  clearTimeout(timers.bannerWarning);
   showBannerWarnings();
 }
 
@@ -276,12 +273,13 @@ function showBannerWarnings() {
   var allWarnings = bannerFilterArray(Object.values(bannerWarnings));
   if (allWarnings.length == 0) {
     $(".upgrade_notice").hide();
-    clearInterval(bannerWarningInterval);
+    timers.bannerWarning = null;
     return;
   }
   if (currentBannerWarning >= allWarnings.length) currentBannerWarning = 0;
   $(".upgrade_notice").show().html(allWarnings[currentBannerWarning]);
   currentBannerWarning++;
+  timers.bannerWarning = setTimeout(showBannerWarnings,10000);
 }
 
 function addRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
@@ -352,6 +350,11 @@ function closeNotifier(filter) {
 function viewHistory(filter) {
   location.replace('/Tools/NotificationsArchive?filter='+filter);
 }
+function flashReport() {
+  $.post('/webGui/include/Report.php',{cmd:'config'},function(check){
+    if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?></a>");
+  });
+}
 $(function() {
   var tab = $.cookie('one')||$.cookie('tab')||'tab1';
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
@@ -370,10 +373,8 @@ $(function() {
     notices = notices.split('\n');
     for (var i=0,notice; notice=notices[i]; i++) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+notice,false,true);
   });
-// check for flash offline / corrupted.
-  $.post('/webGui/include/Report.php',{cmd:'config'},function(check){
-    if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?></a>");
-  });
+// check for flash offline / corrupted (delayed).
+  setTimeout(flashReport,5000);
 });
 
 var mobiles=['ipad','iphone','ipod','android'];
