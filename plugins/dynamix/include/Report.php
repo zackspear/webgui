@@ -12,16 +12,6 @@
 ?>
 <?
 switch ($_POST['cmd']) {
-case 'vfat':
-  $check = "/var/tmp/check.vfat";
-  if (!file_exists($check)) {
-    $disks = parse_ini_file('/var/local/emhttp/disks.ini',true);
-    file_put_contents($check,exec("lsblk -lo NAME /dev/{$disks['flash']['device']}|awk '(NR>2)'"));
-  }
-  $dev = file_get_contents($check);
-  passthru("fsck.vfat -n /dev/$dev",$status);
-  echo $status;
-  break;
 case 'sha256':
   $boot  = "/boot";
   $check = "/var/tmp/check.sha256";
