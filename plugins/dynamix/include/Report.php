@@ -14,8 +14,11 @@
 switch ($_POST['cmd']) {
 case 'config':
   $config = "/boot/config";
-  $files  = ['disk','docker','domain','flash','ident','network','share']; // config files to check
-  foreach ($files as $file) if (file_exists("$config/$file.cfg") && !$test=@parse_ini_file("$config/$file.cfg")) {echo 1; break;}
+  $files  = ['disk:0','docker:1','domain:1','flash:0','ident:1','share:0']; // config files to check
+  foreach ($files as $file) {
+    [$name,$need] = explode(':',$file);
+    if (($need && !file_exists("$config/$name.cfg")) || (file_exists("$config/$name.cfg") && !$test=@parse_ini_file("$config/$name.cfg"))) {echo 1; break;}
+  }
   echo 0;
   break;
 case 'notice':
