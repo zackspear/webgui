@@ -234,7 +234,7 @@ function escapeQuotes(form) {
 
 var bannerWarnings = [];
 var currentBannerWarning = 0;
-var bannerWarningInterval = null;
+var timers.bannerWarning = null;
 var osUpgradeWarning = false;
 
 function addBannerWarning(text,warning=true,noDismiss=false) {
@@ -246,11 +246,7 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
     if (!noDismiss) text += "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
     bannerWarnings[arrayEntry] = text;
   } else return bannerWarnings.indexOf(text);
-
-  if (!bannerWarningInterval) {
-    showBannerWarnings();
-    bannerWarningInterval = setInterval(showBannerWarnings,10000);
-  }
+  if (timers.bannerWarning==null) showBannerWarnings();
   return arrayEntry;
 }
 
@@ -261,6 +257,7 @@ function dismissBannerWarning(entry,cookieText) {
 
 function removeBannerWarning(entry) {
   bannerWarnings[entry] = false;
+  clearTimeout(timers.bannerWarning);
   showBannerWarnings();
 }
 
@@ -276,12 +273,13 @@ function showBannerWarnings() {
   var allWarnings = bannerFilterArray(Object.values(bannerWarnings));
   if (allWarnings.length == 0) {
     $(".upgrade_notice").hide();
-    clearInterval(bannerWarningInterval);
+    timers.bannerWarning = null;
     return;
   }
   if (currentBannerWarning >= allWarnings.length) currentBannerWarning = 0;
   $(".upgrade_notice").show().html(allWarnings[currentBannerWarning]);
   currentBannerWarning++;
+  timers.bannerWarning = setTimeout(showBannerWarnings,10000);
 }
 
 function addRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
