@@ -12,13 +12,11 @@
 ?>
 <?
 switch ($_POST['cmd']) {
-case 'sha256':
-  $boot  = "/boot";
-  $check = "/var/tmp/check.sha256";
-  $image = ['bzroot','bzimage']; // image files to check
-  if (!file_exists($check)) foreach ($image as $file) file_put_contents($check,trim(file_get_contents("$boot/$file.sha256"))."  $boot/$file\n",FILE_APPEND);
-  passthru("sha256sum --status -c $check",$status);
-  echo $status;
+case 'config':
+  $config = "/boot/config";
+  $files  = ['disk','docker','domain','ident','share']; // config files to check
+  foreach ($files as $file) if (file_exists("$config/$file.cfg") && !$test=@parse_ini_file("$config/$file.cfg")) {echo 1; break;}
+  echo 0;
   break;
 case 'notice':
   $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
