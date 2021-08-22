@@ -371,7 +371,7 @@ $(function() {
     for (var i=0,notice; notice=notices[i]; i++) addBannerWarning("<i class='fa fa-warning' style='float:initial;'></i> "+notice,false,true);
   });
 // check for flash offline / corrupted.
-  $.post('/webGui/include/Report.php',{cmd:'vfat'},function(check){
+  $.post('/webGui/include/Report.php',{cmd:"<?=$usb['check']?>"},function(check){
     if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://wiki.unraid.net/Manual/Changing_The_Flash_Device'><?=_('See also here')?></a>");
   });
 });
