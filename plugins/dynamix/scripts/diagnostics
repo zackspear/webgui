@@ -122,26 +122,28 @@ function geturls_certdetails($file, $hostname) {
   $cn = trim($matches[1]);
   // replace wildcard with hostname
   $cn = str_replace('*', $hostname, $cn);
+  $cn_priv = $cn;
   // anonymize Unraid.net hash
-  $cn = preg_replace('/.*\.unraid\.net/', 'hash.unraid.net', $cn);
+  $cn_priv = preg_replace('/.*\.unraid\.net/', 'hash.unraid.net', $cn_priv);
 
   // determine type
   $type = 'user-provided';
   if (strpos($data, "Self-signed") !== false) $type = 'self-signed';
   if (strpos($cn, ".unraid.net") !== false) $type = 'unraid.net';
 
-  return [$cn, $type];
+  return [$cn, $cn_priv, $type];
 }
-function geturls_checkhost($host) {
+function geturls_checkhost($host, $hostpriv="") {
   // called by the geturls() function
 
   // the 'host' command will fail if there is no TLD or if it is ".local", so skip it
   if (strpos($host, '.') === false || strpos($host, '.local') !== false) {
     return '';
   }
+  if (!$hostpriv) $hostpriv = $host;
   $output = $result = null;
   exec("/usr/bin/host ".escapeshellarg($host), $output, $result);
-  return ($result != 0) ? "  ERROR: the name {$host} does not resolve on this network\n" : '';
+  return ($result != 0) ? "  ERROR: the host {$hostpriv} does not resolve on this network\n" : '';
 }
 function geturls() {
   $var = parse_ini_file('/var/local/emhttp/var.ini');
@@ -199,18 +201,17 @@ function geturls() {
   // this is available when USE_SSL != no, and the certificate file exists
   $https_1_cert = "{$var['NAME']}_unraid_bundle.pem";
   if ($var['USE_SSL'] != "no" && file_exists("{$cert_path}{$https_1_cert}")) {
-    [$https_1_host, $https_1_type] = geturls_certdetails("{$cert_path}{$https_1_cert}", $var['NAME']);
-
-    $https_1_url = "https://{$https_1_host}{$https_port}";
+    [$https_1_host, $https_1_hostpriv, $https_1_type] = geturls_certdetails("{$cert_path}{$https_1_cert}", $var['NAME']);
+    $https_1_url = "https://{$https_1_hostpriv}{$https_port}";
     $urls .= "{$https_1_primary}HTTPS url 1 ($https_1_type): {$https_1_url}{$https_1_msg}\n";
-    $urls .= geturls_checkhost($https_1_host);
+    $urls .= geturls_checkhost($https_1_host, $https_1_hostpriv);
     if ($https_1_host != $expected_host) {
-      $urls .= "  ERROR: the certificate host in {$https_1_cert} should be {$expected_host}\n";
+      $urls .= "  ERROR: the certificate Subject CN in {$https_1_cert} should be {$expected_host}\n";
     }
   } else {
     // add a note that this url is not configured
     $urls .= "HTTPS url 1 (undefined): https://{$expected_host}{$https_port}\n  (this url is not configured, it will not work)\n";
-    $urls .= geturls_checkhost($https_1_host);
+    $urls .= geturls_checkhost($expected_host);
   }
 
   // calculate https url
@@ -218,9 +219,13 @@ function geturls() {
   // this is usually an Unraid.net LE cert, but it can also be a user-provided cert
   $https_2_cert = 'certificate_bundle.pem';
   if (file_exists("{$cert_path}{$https_2_cert}")) {
-    [$https_2_host, $https_2_type] = geturls_certdetails("{$cert_path}{$https_2_cert}", $var['NAME']);
-    $https_2_url = "https://{$https_2_host}{$https_port}";
+    [$https_2_host, $https_2_hostpriv, $https_2_type] = geturls_certdetails("{$cert_path}{$https_2_cert}", $var['NAME']);
+    $https_2_url = "https://{$https_2_hostpriv}{$https_port}";
     $urls .= "{$https_2_primary}HTTPS url 2 ({$https_2_type}): {$https_2_url}\n";
+    $urls .= geturls_checkhost($https_2_host, $https_2_hostpriv);
+    if (strpos($https_2_host, ".unraid.net") === false && $https_2_host != $expected_host) {
+      $urls .= "  ERROR: the certificate Subject CN in {$https_2_cert} should be {$expected_host}\n";
+    }
   }
 
   // get a list of the certificate files on the flash drive
