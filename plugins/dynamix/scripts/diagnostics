@@ -106,6 +106,131 @@ function download_url($url, $path = "", $bg = false, $timeout = 15) {
 
   return $out ?: false;
 }
+function geturls_certdetails($file, $hostname) {
+  // called by the geturls() function
+
+  // best to ensure the file exists before calling this function
+  if (!file_exists($file)) return ['', ''];
+
+  // read the cert
+  $data = null;
+  exec("/usr/bin/openssl x509 -noout -subject -nameopt multiline -in ".escapeshellarg($file), $data);
+  $data = implode("\n", $data);
+
+  // determine cn
+  preg_match('/ *commonName *= (.*)/', $data, $matches);
+  $cn = trim($matches[1]);
+  // replace wildcard with hostname
+  $cn = str_replace('*', $hostname, $cn);
+  // anonymize Unraid.net hash
+  $cn = preg_replace('/.*\.unraid\.net/', 'hash.unraid.net', $cn);
+
+  // determine type
+  $type = 'user-provided';
+  if (strpos($data, "Self-signed") !== false) $type = 'self-signed';
+  if (strpos($cn, ".unraid.net") !== false) $type = 'unraid.net';
+
+  return [$cn, $type];
+}
+function geturls_checkhost($host) {
+  // called by the geturls() function
+
+  // the 'host' command will fail if there is no TLD or if it is ".local", so skip it
+  if (strpos($host, '.') === false || strpos($host, '.local') !== false) {
+    return '';
+  }
+  $output = $result = null;
+  exec("/usr/bin/host ".escapeshellarg($host), $output, $result);
+  return ($result != 0) ? "  ERROR: the name {$host} does not resolve on this network\n" : '';
+}
+function geturls() {
+  $var = parse_ini_file('/var/local/emhttp/var.ini');
+  extract(parse_ini_file('/var/local/emhttp/network.ini',true));
+  $internalip = $eth0['IPADDR:0'];
+  $host_tld_msg = $var['LOCAL_TLD'] ? '': '[blank] (FYI - a blank TLD can cause issues for Mac and Linux clients)';
+
+  // show raw data from config files
+  $urls = '';
+  $urls .= "Server Name: {$var['NAME']}\n";
+  $urls .= "Local TLD:   {$var['LOCAL_TLD']}{$host_tld_msg}\n";
+  $urls .= "HTTP port:   {$var['PORT']}\n";
+  $urls .= "HTTPS port:  {$var['PORTSSL']}\n";
+  $urls .= "Internal IP: {$internalip}\n";
+  $urls .= "USE SSL:     {$var['USE_SSL']}\n\n";
+  $urls .= "Available URLs:\n  (the URL marked with an asterisk is the primary url for this server)\n";
+
+  // calculate variables
+  $cert_path = "/boot/config/ssl/certs/";
+  $host_name = $var['NAME'];
+  $host_tld = $var['LOCAL_TLD'] ? ".{$var['LOCAL_TLD']}" : '';
+  $expected_host = "{$host_name}{$host_tld}";
+  $http_port = $var['PORT'] != 80 ? ":{$var['PORT']}" : '';
+  $https_port = $var['PORTSSL'] != 443 ? ":{$var['PORTSSL']}" : '';
+  $http_primary = $https_1_primary = $https_2_primary = $http_msg = $https_1_msg = '';
+  switch($var['USE_SSL']) {
+    case "no":
+      $http_primary = '*';
+      break;
+    case "yes":
+      $https_1_primary = '*';
+      $http_msg = "\n  (this will redirect to the primary url)";
+      break;
+    case "auto":
+      $https_2_primary = '*';
+      $http_msg = "\n  (this will redirect to the primary url)";
+      $https_1_msg = "\n  (this will redirect to the primary url)";
+      break;
+  }
+
+  // calculate http ip url
+  $http_ip_url = "http://{$internalip}{$http_port}";
+  $urls .= "HTTP IP url: {$http_ip_url}{$http_msg}\n";
+
+  // calculate http url
+  $http_url = "http://{$expected_host}{$http_port}";
+  $urls .= "{$http_primary}HTTP url: {$http_url}{$http_msg}\n";
+  $urls .= geturls_checkhost($expected_host);
+
+  // calculate https url - self-signed or user-provided
+  // this is available when USE_SSL != no, and the certificate file exists
+  $https_1_cert = "{$var['NAME']}_unraid_bundle.pem";
+  if ($var['USE_SSL'] != "no" && file_exists("{$cert_path}{$https_1_cert}")) {
+    [$https_1_host, $https_1_type] = geturls_certdetails("{$cert_path}{$https_1_cert}", $var['NAME']);
+
+    $https_1_url = "https://{$https_1_host}{$https_port}";
+    $urls .= "{$https_1_primary}HTTPS url 1 ($https_1_type): {$https_1_url}{$https_1_msg}\n";
+    $urls .= geturls_checkhost($https_1_host);
+    if ($https_1_host != $expected_host) {
+      $urls .= "  ERROR: the certificate host in {$https_1_cert} should be {$expected_host}\n";
+    }
+  } else {
+    // add a note that this url is not configured
+    $urls .= "HTTPS url 1 (undefined): https://{$expected_host}{$https_port}\n  (this url is not configured, it will not work)\n";
+    $urls .= geturls_checkhost($https_1_host);
+  }
+
+  // calculate https url
+  // this is available if the certificate file exists, regardless of the USE_SSL setting
+  // this is usually an Unraid.net LE cert, but it can also be a user-provided cert
+  $https_2_cert = 'certificate_bundle.pem';
+  if (file_exists("{$cert_path}{$https_2_cert}")) {
+    [$https_2_host, $https_2_type] = geturls_certdetails("{$cert_path}{$https_2_cert}", $var['NAME']);
+    $https_2_url = "https://{$https_2_host}{$https_port}";
+    $urls .= "{$https_2_primary}HTTPS url 2 ({$https_2_type}): {$https_2_url}\n";
+  }
+
+  // get a list of the certificate files on the flash drive
+  $dirlisting[0] = "{$cert_path}";
+  if (file_exists($cert_path)) {
+    exec("ls -l ".escapeshellarg($cert_path), $dirlisting);
+  } else {
+    $dirlisting[1] = "Directory not found";
+  }
+  $urls .= "\n\n".implode("\n", $dirlisting)."\n";
+  $urls = str_replace("\n", "\r\n", $urls);
+  return $urls;
+
+}
 
 exert("mkdir -p /boot/logs");
 
@@ -325,6 +450,8 @@ foreach ($plugins as $plugin) {
 }
 $installedPlugins = $installedPlugins ?: "No additional Plugins Installed";
 file_put_contents("/$diag/system/plugins.txt",$installedPlugins);
+// determine urls
+file_put_contents("/$diag/system/urls.txt",geturls());
 // copy libvirt information (if existing)
 $libvirtd = "/var/log/libvirt/libvirtd.log";
 if (file_exists($libvirtd)) {
