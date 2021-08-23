@@ -17,7 +17,7 @@ case 'config':
   $files  = ['disk:0','docker:1','domain:1','flash:0','ident:1','share:0']; // config files to check
   foreach ($files as $file) {
     [$name,$need] = explode(':',$file);
-    if (($need && !file_exists("$config/$name.cfg")) || (file_exists("$config/$name.cfg") && !$test=@parse_ini_file("$config/$name.cfg"))) {echo 1; break;}
+    if (($need && !file_exists("$config/$name.cfg")) || (file_exists("$config/$name.cfg") && !@parse_ini_file("$config/$name.cfg"))) {echo 1; break;}
   }
   echo 0;
   break;
