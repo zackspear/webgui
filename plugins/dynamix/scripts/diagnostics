@@ -154,6 +154,9 @@ function geturls() {
     $internalip_msg = "redacted (FYI - this system has a routable IP address, ensure it is behind a firewall)";
   }
   $host_tld_msg = $var['LOCAL_TLD'] ? '': '[blank] (FYI - a blank TLD can cause issues for Mac and Linux clients)';
+  $rebindip = "192.168.42.42";
+  $rebindtest_ip = exec("host -4 rebindtest.unraid.net 2>/dev/null|sed -n 's/.*has address //p'");
+  $rebind_msg = ($rebindtest_ip != $rebindip) ? "is enabled, hash.unraid.net urls will not work" : "is disabled, hash.unraid.net urls will work";
 
   // show raw data from config files
   $urls = '';
@@ -162,7 +165,8 @@ function geturls() {
   $urls .= "HTTP port:   {$var['PORT']}\n";
   $urls .= "HTTPS port:  {$var['PORTSSL']}\n";
   $urls .= "Internal IP: {$internalip_msg}\n";
-  $urls .= "USE SSL:     {$var['USE_SSL']}\n\n";
+  $urls .= "USE SSL:     {$var['USE_SSL']}\n";
+  $urls .= "DNS Rebinding Protection {$rebind_msg} on this network\n\n";
   $urls .= "Available URLs:\n  (the URL marked with an asterisk is the primary url for this server)\n";
 
   // calculate variables
