@@ -24,22 +24,34 @@
  * -> prevents debug users from exploring system's directory structure
  * ex: $root = $_SERVER['DOCUMENT_ROOT'];
  */
-$root = '/';
+
+function path($dir) {
+  return mb_substr($dir,-1)=='/' ? $dir : $dir.'/';
+}
+function is_top($dir) {
+  global $root;
+  return strlen($dir)>strlen($root);
+}
+function is_low($dir) {
+  global $root;
+  return substr($dir,0,strlen($root))==$root;
+}
+
+$root = path(realpath($_POST['root']));
 if (!$root) exit("ERROR: Root filesystem directory not set in jqueryFileTree.php");
 
-$docroot  = '/usr/local/emhttp';
+$docroot = '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Secure.php";
 
-$rootdir  = realpath($root.$_POST['dir']);
+$rootdir  = path(realpath($_POST['dir']));
 $filters  = (array)($_POST['filter']);
 $match    = unbundle($_POST['match']);
 $checkbox = $_POST['multiSelect']=='true' ? "<input type='checkbox'>" : "";
 
 echo "<ul class='jqueryFileTree'>";
-if ($_POST['show_parent']=='true') echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."/\">..</a></li>";
+if ($_POST['show_parent']=='true' && is_top($rootdir)) echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."\">..</a></li>";
 
-if (is_dir($rootdir)) {
-  if (mb_substr($rootdir,-1)!='/') $rootdir .= '/';
+if (is_low($rootdir) && is_dir($rootdir)) {
   $names = array_filter(scandir($rootdir),function($n){return $n!='.' && $n!='..';});
   if (count($names)) {
     natcasesort($names);
