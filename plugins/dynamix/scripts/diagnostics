@@ -232,6 +232,22 @@ function geturls() {
     }
   }
 
+  if ($var['USE_SSL'] != "no") {
+    $telnet_disabled = ($var['USE_TELNET'] == "no") ? " (disabled)" : "";
+    $ssh_disabled = ($var['USE_SSH'] == "no") ? " (disabled)" : "";
+
+    $urls .= "\nTip: if DNS goes down and you lose access to the webgui, use telnet{$telnet_disabled}, ";
+    $urls .= "ssh{$ssh_disabled}, or a local keyboard/monitor to run:\n";
+    $urls .= "  use_ssl no\n";
+    $urls .= "to enable 'HTTP IP url' and make 'HTTP url' the primary url for the system. ";
+    if ($var['USE_SSL'] == "auto") {
+      $urls .= "Or:\n";
+      $urls .= "  use_ssl yes\n";
+      $urls .= "to make 'HTTPS url 1' the primary.";    
+    }
+    $urls .= "\nOnce DNS has been restored, navigate to Settings -> Management Access and set 'Use SSL' back to '{$var['USE_SSL']}'\n";
+  }
+
   // get a list of the certificate files on the flash drive
   $dirlisting[0] = "{$cert_path}";
   if (file_exists($cert_path)) {
