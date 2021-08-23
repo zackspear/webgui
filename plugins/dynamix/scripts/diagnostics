@@ -146,7 +146,11 @@ function geturls_checkhost($host) {
 function geturls() {
   $var = parse_ini_file('/var/local/emhttp/var.ini');
   extract(parse_ini_file('/var/local/emhttp/network.ini',true));
-  $internalip = $eth0['IPADDR:0'];
+  $internalip = $internalip_msg = $eth0['IPADDR:0'];
+  if (filter_var($internalip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
+    $internalip = "ipaddress";
+    $internalip_msg = "redacted (FYI - this system has a routable IP address, ensure it is behind a firewall)";
+  }
   $host_tld_msg = $var['LOCAL_TLD'] ? '': '[blank] (FYI - a blank TLD can cause issues for Mac and Linux clients)';
 
   // show raw data from config files
@@ -155,7 +159,7 @@ function geturls() {
   $urls .= "Local TLD:   {$var['LOCAL_TLD']}{$host_tld_msg}\n";
   $urls .= "HTTP port:   {$var['PORT']}\n";
   $urls .= "HTTPS port:  {$var['PORTSSL']}\n";
-  $urls .= "Internal IP: {$internalip}\n";
+  $urls .= "Internal IP: {$internalip_msg}\n";
   $urls .= "USE SSL:     {$var['USE_SSL']}\n\n";
   $urls .= "Available URLs:\n  (the URL marked with an asterisk is the primary url for this server)\n";
 
