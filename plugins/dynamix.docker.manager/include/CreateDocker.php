@@ -638,7 +638,7 @@ function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select
     allowBrowsing: true
   },
   function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-  function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
+  function(folder){if(on_folders){p.val(folder.replace(/\/\/+/g,'/'));p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
   // Format fileTree according to parent position, height and width
   ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
   // close if click elsewhere

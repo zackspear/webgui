@@ -20,7 +20,7 @@ function untangle($text) {
   return preg_replace('#<.+?>(.*?)</.+?>#','',html_entity_decode($text));
 }
 // remove malicious code appended after string variable
-function unhook($text) {
-  return trim(preg_split('/[;|&\?=]/',preg_replace(["#['\"](.*?)['\"];?.+$#","#[()\[\]/\\&]#"],'',html_entity_decode($text)))[0]);
+function unbundle($text) {
+  return trim(preg_split('/[;|\?=]/',preg_replace(["#['\"](.*?)['\"];?.+$#","#[()\[\]/\\&`]#"],'',html_entity_decode($text)))[0]);
 }
 ?>

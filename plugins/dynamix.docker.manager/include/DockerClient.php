@@ -23,6 +23,7 @@ if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
 }
 
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $dockerManPaths = [
 	'autostart-file' => "/var/lib/docker/unraid-autostart",
@@ -38,8 +39,10 @@ $dockerManPaths = [
 ];
 
 // load network variables if needed.
-if (!isset($eth0)) extract(parse_ini_file("$docroot/state/network.ini",true));
-$host = $eth0['IPADDR:0'] ?? '0.0.0.0';
+$ethX = 'eth0';
+if (!isset($$ethX)) extract(parse_ini_file("$docroot/state/network.ini",true));
+$host = ipaddr($ethX);
+$host = is_array($host) ? $host[0] : $host;
 
 // get network drivers
 $driver = DockerUtil::driver();

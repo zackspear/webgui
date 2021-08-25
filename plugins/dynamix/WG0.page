@@ -40,6 +40,15 @@ $hosts = implode(', ',$hosts);
 $subnets6 = implode(', ',$subnets6);
 $hosts6 = implode(', ',$hosts6);
 
+function ifname($eth,$new) {
+  return str_replace('eth',$new,$eth);
+}
+function iflink($eth) {
+  $system = '/sys/class/net/';
+  if (file_exists($system.ifname($eth,'br'))) return ifname($eth,'br');
+  if (file_exists($system.ifname($eth,'bond'))) return ifname($eth,'bond');
+  return $eth;
+}
 function concat($array) {
   return implode(',',array_map(function($v){return "'$v'";},$array));
 }
@@ -120,11 +129,12 @@ $build     = false;
 $script    = "$docroot/webGui/scripts/upnp_port";
 $template  = "$docroot/webGui/WGX.page";
 $tower     = $var['NAME'];
-$server    = $eth0['IPADDR:0'];
-$server6   = $eth0['IPADDR6:0'];
-$dnsserver = $eth0['DNS_SERVER1'];
+$ethX      = 'eth0';
+$server    = ipaddr($ethX);
+$server    = is_array($server) ? $server[0] : $server;
+$dnsserver = $$ethX['DNS_SERVER1'];
 
-$link      = file_exists('/sys/class/net/br0') ? 'br0' : (file_exists('/sys/class/net/bond0') ? 'bond0' : 'eth0');
+$link      = iflink($ethX);
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
 $postUp1   = "logger -t wireguard 'Tunnel WireGuard-<wg> started'";
 $postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
@@ -169,11 +179,11 @@ $netport['wg0']  = 51820;
 
 // gather IPv4 and IPv6 addresses for available interfaces
 $endpoints = [];
-$ethX = 'eth0';
-while (isset($$ethX)) {
-  if (!empty($$ethX['IPADDR:0']))  $endpoints[] = $$ethX['IPADDR:0'];
-  if (!empty($$ethX['IPADDR6:0'])) $endpoints[] = $$ethX['IPADDR6:0'];
-  $ethX = 'eth'.(substr($ethX,3)+1);
+$eth = 'eth0';
+while (isset($$eth)) {
+  if (!empty($$eth['IPADDR:0']))  $endpoints[] = $$eth['IPADDR:0'];
+  if (!empty($$eth['IPADDR6:0'])) $endpoints[] = $$eth['IPADDR6:0'];
+  $eth = 'eth'.(substr($eth,3)+1);
 }
 
 // remove obsolete tunnels
@@ -245,11 +255,11 @@ Array.prototype.bind     = function(w){return (this.join(';')).replace(/<WG>/g,w
 var xml = $.cookie('upnp')||'<?=@file_get_contents('/var/tmp/upnp')?>';
 var netbase = {}, netpool = {}, netport = {}, netbase6 = {}, netpool6 = {};
 
-netbase['wg0'] = <?=$netbase['wg0']?>;
-netpool['wg0'] = '<?=$netpool['wg0']?>';
-netport['wg0'] = '<?=$netport['wg0']?>';
-netbase6['wg0'] = '<?=$netbase6['wg0']?>';
-netpool6['wg0'] = '<?=$netpool6['wg0']?>';
+netbase['wg0']  = <?=$netbase['wg0']?>;
+netpool['wg0']  = "<?=$netpool['wg0']?>";
+netport['wg0']  = "<?=$netport['wg0']?>";
+netbase6['wg0'] = "<?=$netbase6['wg0']?>";
+netpool6['wg0'] = "<?=$netpool6['wg0']?>";
 
 // polyfill to fix reportValidity() for Firefox
 if (!HTMLInputElement.prototype.reportValidity || (navigator.userAgent.indexOf("Firefox") !== -1)) {
@@ -1083,7 +1093,7 @@ $(function(){
   getPublicIP($('#endpoint-wg0').val(),'wg0',$('#protocol-wg0').val());
   $('div.content').prepend('<div class="preset"><input type="button" value="_(Import Tunnel)_" onclick="$(&apos;input#file&apos;).trigger(&apos;click&apos;);"><input type="button" value="_(Add Tunnel)_" onclick="addTunnel()";<?=$this_wg0?"":" disabled"?>></div>');
   $('div#title').eq(0).find('span.left').append(ctrl);
-  $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnp','#gw':'<?=$eth0['GATEWAY:0']?>','#link':'<?=$link?>'},function(url){
+  $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnp','#gw':"<?=$$ethX['GATEWAY:0']?>",'#link':"<?=$link?>"},function(url){
     if (url) {
       $('div.upnp').show();
       $.cookie('upnp',url,{expires:3650});
