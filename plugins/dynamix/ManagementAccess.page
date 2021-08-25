@@ -94,7 +94,8 @@ function updateDNS(button) {
   };
   var success = function(data) {
     $(button).prop("disabled", false).html("_(Update DNS)_");
-    swal({title:"",text:"_(Your local IP address)_ <?=is_array($addr)?$addr[0]:$addr?> _(has been updated for unraid.net)_.",type:"success",html:true,confirmButtonText:"_(Ok)_"});
+    <?$text = _('Your local IP address %s has been updated for unraid.net')?>
+    swal({title:"",text:"<?=sprintf($text,is_array($addr)?$addr[0]:$addr)?>",type:"success",html:true,confirmButtonText:"_(Ok)_"});
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
