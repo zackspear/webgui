@@ -57,7 +57,7 @@ $internalip = ipaddr($ethX);
 
 // build post array
 $post = [
-  'plgversion' => 'na',
+  'plgversion' => 'base-'.$var['version'],
   'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
   'keyfile' => $keyfile
 ];
