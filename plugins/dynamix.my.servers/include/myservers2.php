@@ -144,9 +144,9 @@
             'humanReadable' => _('Trial Expired'),
             'heading' => _('Your Trial has expired'),
             'message' => [
-              'base' => _('To continue using Unraid OS you may purchase a license key'),
-              'extensionNotEligible' => _('You have used all your Trial extensions').' @:stateData.EEXPIRED.message.base',
-              'extensionEligible' => '@:stateData.EEXPIRED.message.base '._('Alternately, you may request a Trial extension'),
+              'base' => _('To continue using Unraid OS you may purchase a license key').'. ',
+              'extensionNotEligible' => _('You have used all your Trial extensions').'. @:stateData.EEXPIRED.message.base',
+              'extensionEligible' => '@:stateData.EEXPIRED.message.base '._('Alternately, you may request a Trial extension').'.',
             ],
           ],
           'BASIC' => [
