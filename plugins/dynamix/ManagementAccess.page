@@ -43,7 +43,7 @@ function plain($ip) {
 }
 $tasks       = find_tasks();
 $ethX        = 'eth0';
-$internalip  = ipaddr($ethX);
+$addr        = ipaddr($ethX);
 $rebindip    = "192.168.42.42";
 $keyfile     = @file_get_contents($var['regFILE']);
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
@@ -59,7 +59,7 @@ if ($isLEcert) {
   $dnsRebindingProtection = ($rebindtest_ip != $rebindip);
   if (!$dnsRebindingProtection) {
     $certtest_ip = exec("host $prot $certSubject 2>/dev/null|awk '{print \$4}'");
-    $dnsValid = is_array($internalip) ? in_array($certtest_ip,$internalip) : $certtest_ip==$internalip;
+    $dnsValid = is_array($addr) ? in_array($certtest_ip,$addr) : $certtest_ip==$addr;
   }
   // more: similar test for "www.$certSubject" dns valid goes here
 }
@@ -75,7 +75,7 @@ $portsInUse = [];
 exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\\[::1\\]/{print \$9}'|sort -u", $output);
 
 $bind = $var['BIND_MGT']=='yes';
-$list = is_array($internalip) ? array_merge(['*'],$internalip) : ['*',$internalip];
+$list = is_array($addr) ? array_merge(['*'],$addr) : ['*',$addr];
 
 foreach ($output as $line) {
   [$ip, $port] = my_explode(':', $line);
@@ -94,7 +94,7 @@ function updateDNS(button) {
   };
   var success = function(data) {
     $(button).prop("disabled", false).html("_(Update DNS)_");
-    swal({title:"",text:"_(Your local IP address)_ <?=$internalip?> _(has been updated for unraid.net)_.",type:"success",html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:"",text:"_(Your local IP address)_ <?=is_array($addr)?$addr[0]:$addr?> _(has been updated for unraid.net)_.",type:"success",html:true,confirmButtonText:"_(Ok)_"});
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
