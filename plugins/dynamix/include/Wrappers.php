@@ -67,4 +67,17 @@ function port_name($port) {
 function exceed($value, $limit, $top=100) {
   return ($value>$limit && $limit>0 && $value<=$top);
 }
+function ipaddr($ethX='eth0') {
+  global $$ethX;
+  switch ($$ethX['PROTOCOL:0']) {
+  case 'ipv4':
+    return $$ethX['IPADDR:0'];
+  case 'ipv6':
+    return $$ethX['IPADDR6:0'];
+  case 'ipv4+ipv6':
+    return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];
+  default:
+    return $$ethX['IPADDR:0'];
+  }
+}
 ?>

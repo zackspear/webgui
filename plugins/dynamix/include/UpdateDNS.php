@@ -52,12 +52,13 @@ $keyfile = @base64_encode($keyfile);
 
 // internalip
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
-$internalip = $eth0['IPADDR:0'];
+$ethX       = 'eth0';
+$internalip = ipaddr($ethX);
 
 // build post array
 $post = [
   'plgversion' => 'na',
-  'internalip' => $internalip,
+  'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
   'keyfile' => $keyfile
 ];
 

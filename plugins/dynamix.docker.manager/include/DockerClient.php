@@ -38,8 +38,10 @@ $dockerManPaths = [
 ];
 
 // load network variables if needed.
-if (!isset($eth0)) extract(parse_ini_file("$docroot/state/network.ini",true));
-$host = $eth0['IPADDR:0'] ?? '0.0.0.0';
+$ethX = 'eth0';
+if (!isset($$ethX)) extract(parse_ini_file("$docroot/state/network.ini",true));
+$host = ipaddr($ethX);
+$host = is_array($host) ? $host[0] : $host;
 
 // get network drivers
 $driver = DockerUtil::driver();

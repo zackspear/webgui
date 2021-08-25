@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,6 +16,7 @@ $certFile = "/boot/config/ssl/certs/certificate_bundle.pem";
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $cli = php_sapi_name()=='cli';
 
@@ -54,15 +55,16 @@ $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
   response_complete(406, '{"error":"'.('License key required').'"}');
 }
-$keyfile = @base64_encode($keyfile);
-$internalip = $eth0['IPADDR:0'];
+$keyfile      = @base64_encode($keyfile);
+$ethX         = 'eth0';
+$internalip   = ipaddr($ethX);
 $internalport = $var['PORTSSL'];
 
 $ch = curl_init('https://keys.lime-technology.com/account/ssl/provisioncert');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
-  'internalip' => $internalip,
+  'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
   'internalport' => $internalport,
   'keyfile' => $keyfile
 ]);

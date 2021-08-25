@@ -21,7 +21,8 @@
 		$disks = @parse_ini_file("$docroot/state/disks.ini", true);
 		extract(parse_plugin_cfg("dynamix",true));
 	}
-	if (!isset($eth0) && is_file("$docroot/state/network.ini")) {
+	$ethX = 'eth0';
+	if (!isset($$ethX) && is_file("$docroot/state/network.ini")) {
 		extract(parse_ini_file("$docroot/state/network.ini",true));
 	}
 

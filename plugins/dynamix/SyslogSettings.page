@@ -16,18 +16,23 @@ Tag="file-text-o"
  */
 ?>
 <?
-$syslog = @(array)parse_ini_file('/boot/config/rsyslog.cfg');
+$syslog = (array)@parse_ini_file('/boot/config/rsyslog.cfg');
 
+function plain($ip) {
+  return str_replace(['[',']'],'',$ip);
+}
 // Get ports in use
 $portsInUse = [];
-exec("lsof -Pni4|awk '/LISTEN/{print \$9}'", $output);
+exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\[::1\]/{print \$9}'|uniq", $output);
 
+$ethX       = 'eth0';
+$internalip = ipaddr($ethX);
 $bind = $var['BIND_MGT']=='yes';
-$list = ['*', $eth0['IPADDR:0']];
+$list = is_array($internalip) ? array_merge(['*'],$internalip) : ['*',$internalip];
 
 foreach ($output as $line) {
   [$ip, $port] = my_explode(':', $line);
-  if (!in_array($port, $portsInUse) && (!$bind || in_array($ip, $list))) $portsInUse[] = $port;
+  if (!in_array($port,$portsInUse) && (!$bind || in_array(plain($ip),$list))) $portsInUse[] = $port;
 }
 ?>
 <style>
@@ -55,22 +60,22 @@ function validatePort(form) {
   port.val(parseInt(port.val()));
   remotePort.val(parseInt(remotePort.val()));
   var newport = port.val();
-  if (newport != currentPort && protocol != "udp"  && $(form).find('select[name="local_server"]').val() ) {
-    if (portsInUse.includes(newport) ) {
+  if (newport != currentPort && protocol != "udp" && $(form).find('select[name="local_server"]').val()) {
+    if (portsInUse.includes(newport)) {
       swal({title:'_(Port already in use)_',text:sprintf('_(Port %s is already in use by other services)_',newport),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
       return;
     }
   }
   var list = [];
-  if ( newport < 1 || newport > 65535 ) {
+  if (newport < 1 || newport > 65535) {
     list.push("_(Local syslog port)_");
   }
-	var remote = remotePort.val();
-  if ( ! remote ) remote = 514;
-  if ( remote < 1 || remote > 65535 ) {
+  var remote = remotePort.val();
+  if (!remote) remote = 514;
+  if (remote < 1 || remote > 65535) {
     list.push("_(Remote syslog port)_");
   }
-  if ( list.length > 0 ) {
+  if (list.length > 0) {
     swal({title:'_(Port out of range)_',text:sprintf('_(%s is out of range (minimum 1 maximum 65535))_',list.join(", ")),type:'error',showCancelButton:false,confirmButtonText:"_(OK)_"});
     return;
   }
