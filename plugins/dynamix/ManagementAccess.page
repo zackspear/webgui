@@ -72,7 +72,7 @@ $disabled_auto      = $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 
 
 // Get ports in use
 $portsInUse = [];
-exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\[::1\]/{print \$9}'|uniq", $output);
+exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\\[::1\\]/{print \$9}'|uniq", $output);
 
 $bind = $var['BIND_MGT']=='yes';
 $list = is_array($internalip) ? array_merge(['*'],$internalip) : ['*',$internalip];
