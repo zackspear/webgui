@@ -23,6 +23,7 @@ if (substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
 }
 
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $dockerManPaths = [
 	'autostart-file' => "/var/lib/docker/unraid-autostart",
