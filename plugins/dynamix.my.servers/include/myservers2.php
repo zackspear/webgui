@@ -363,7 +363,7 @@
                 'loading' => sprintf(_('Installing %s Key'), '{0}'),
                 'error' => sprintf(_('%s Key Install Error'), '{0}'),
                 'success' => sprintf(_('Installed %s Key'), '{0}'),
-                'manualInstructions' => _('To manually install the key paste the key file url into the Key file URL field on the webGUI Registration page and then click Install Key') . '.',
+                'manualInstructions' => _("To manually install the key paste the key file url into the Key file URL field on the webGUI Tools > Registration page and then click Install Key") . '.',
                 'copyFail' => _('Unable to copy'),
                 'copySuccess' => _('Copied key url') . '!',
                 'copyButton' => _('Copy Key URL'),
