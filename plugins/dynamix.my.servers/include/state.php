@@ -50,6 +50,7 @@ $arr['flashvendor'] = $var['flashVendor'];
 $arr['servername'] = $var['NAME'];
 $arr['internalip'] = $_SERVER['SERVER_ADDR'];
 $arr['internalport'] = $_SERVER['SERVER_PORT'];
+$arr['plgVersion'] = 'base-'.$var['version'];
 $arr['protocol'] = $_SERVER['REQUEST_SCHEME'];
 $arr['locale'] = $_SESSION['locale'] ? $_SESSION['locale'] : 'en_US';
 $arr['expiretime']=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0);
