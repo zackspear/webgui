@@ -452,6 +452,7 @@
       "internalip" => $_SERVER['SERVER_ADDR'],
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+      "plgVersion" => 'base-'.$var['version'],
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
       "registered" => empty($remote['username']) ? 0 : 1,
