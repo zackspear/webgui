@@ -21,6 +21,7 @@
         'contactSupport' => _('Contact Support'),
         'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
         'continueToUnraid' => _('Continue to Unraid'),
+        'description' => _('Description'),
         'year' => _('year'),
         'years' => _('years'),
         'month' => _('month'),
