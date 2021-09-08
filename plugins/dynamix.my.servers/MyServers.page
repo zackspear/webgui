@@ -1,0 +1,81 @@
+Menu="ManagementAccess:100"
+Title="My Servers"
+Icon="icon-u-globe"
+Tag="globe"
+---
+<?PHP
+/* Copyright 2005-2018, Lime Technology
+ * Copyright 2012-2018, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * more:
+ * - if someone deletes the myservers.cfg or directly edits [remote] section therein, it may be possible 
+ * that server will appear 'unregistered' in webgui but not on My Servers.
+ * - appears someone could register, enable remote access, then unregister, replace the ssl cert, and
+ * now can remotely access using url that matches their cert. This is probably a bug here, but we might
+ * want to rework this somewhat to explicitly enable this 'feature' (remote access using user-provided cert).
+ */
+$isRegistered = !empty($remote['username']);
+?>
+<script>
+$('body').on('change keyup', '#UnraidNetSettings', function(data) {
+  $(this).find('.applyBtn').removeAttr('disabled');
+});
+
+function registerServer(button) {
+    var oldlabel = $.trim($(button).text());
+    var failure = function(data) {
+        var status = data.status;
+        var obj = data.responseJSON;
+        var msg = "_(Sorry, an error occurred)_<br>_(The error is)_: " + obj.error + ".";
+        $(button).prop("disabled", false).html(oldlabel);
+        swal({
+          title: "Oops",
+          text: msg,
+          type: "error",
+          html: true,
+          confirmButtonText: "_(Ok)_"
+        });
+    };
+
+    var postobj = {
+      "#cfg": "/boot/config/plugins/dynamix.my.servers/myservers.cfg",
+      "remote_anonMode": $('#anonMode').val(),
+    };
+
+    var success = function(data) {
+        $(button).prop("disabled", false).html(oldlabel);
+        $.post('/webGui/include/Dispatcher.php', postobj, function(data2) {
+            button.form.submit();
+        });
+    };
+
+    $(button).prop("disabled", true).html("_(Applying)_ <i class=\"fa fa-spinner fa-spin\" aria-hidden=\"true\"></i>");
+    $.post("/webGui/include/UpdateDNS.php", postobj, success).fail(failure);
+}
+</script>
+
+<form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
+_(Unraid.net account status)_:
+: <unraid-authed prop-registered="<? echo $isRegistered ?>"></unraid-authed>
+
+<div markdown="1" id="anonmode">
+_(Enable anonymous mode)_:
+: <select id="anonMode" size="1">
+  <?=mk_option($remote['anonMode'], "false", _("No"))?>
+  <?=mk_option($remote['anonMode'], "true", _("Yes"))?>
+  </select>
+
+:unraidnet_anonmode_help:
+
+</div>
+
+&nbsp;
+: <button class="applyBtn" type="button" onclick="registerServer(this)" disabled="disabled">_(Apply)_</button>
+</form>
