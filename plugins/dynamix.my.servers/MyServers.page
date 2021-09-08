@@ -1,5 +1,5 @@
 Menu="ManagementAccess:100"
-Title="My Servers"
+Title="Unraid.net account"
 Icon="icon-u-globe"
 Tag="globe"
 ---
@@ -61,10 +61,11 @@ function registerServer(button) {
 }
 </script>
 
-<form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
 _(Unraid.net account status)_:
 : <unraid-authed prop-registered="<? echo $isRegistered ?>"></unraid-authed>
 
+<?if($isRegistered):?>
+<form id="UnraidNetSettings" markdown="1" name="UnraidNetSettings" method="POST" action="/update.htm" target="progressFrame">
 <div markdown="1" id="anonmode">
 _(Enable anonymous mode)_:
 : <select id="anonMode" size="1">
@@ -79,3 +80,4 @@ _(Enable anonymous mode)_:
 &nbsp;
 : <button class="applyBtn" type="button" onclick="registerServer(this)" disabled="disabled">_(Apply)_</button>
 </form>
+<?endif?>
