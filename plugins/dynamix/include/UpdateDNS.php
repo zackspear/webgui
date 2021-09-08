@@ -64,9 +64,11 @@ $internalip = ipaddr($ethX);
 // build post array
 $post = [
   'plgversion' => 'base-'.$var['version'],
-  'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
   'keyfile' => $keyfile
 ];
+if (preg_match('/.*\.unraid\.net$/', $certhostname)) {
+  $post['internalip'] = is_array($internalip) ? $internalip[0] : $internalip;
+}
 if ($isRegistered) {
   $post['servercomment'] = $var['COMMENT'];
 }
