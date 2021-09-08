@@ -34,11 +34,17 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
+// remoteaccess, externalport
+if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
+  @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
+}
+$isRegistered = !empty($remote) && !empty($remote['username']);
+
 $certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
 $certhostname = file_exists($certpath) ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
 
-// only proceed when a hash.unraid.net SSL certificate is active 
-if (!preg_match('/.*\.unraid\.net$/', $certhostname)) {
+// only proceed when a hash.unraid.net SSL certificate is active or when signed in
+if (!$isRegistered && !preg_match('/.*\.unraid\.net$/', $certhostname)) {
   response_complete(406, '{"error":"'._('Nothing to do').'"}');
 }
 
@@ -61,6 +67,9 @@ $post = [
   'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
   'keyfile' => $keyfile
 ];
+if ($isRegistered) {
+  $post['servercomment'] = $var['COMMENT'];
+}
 
 // report necessary server details to limetech for DNS updates
 $ch = curl_init('https://keys.lime-technology.com/account/server/register');
