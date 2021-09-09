@@ -21,6 +21,7 @@
         'contactSupport' => _('Contact Support'),
         'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
         'continueToUnraid' => _('Continue to Unraid'),
+        'description' => _('Description'),
         'year' => _('year'),
         'years' => _('years'),
         'month' => _('month'),
@@ -286,6 +287,10 @@
               'iAgree' => _('I agree to the'),
               'text' => _('Terms of Use'),
             ],
+            'anonMode' => [
+              'name' => _('Anonymous Mode'),
+              'label' => _('Keep server details anonymous'),
+            ],
           ],
           'routes' => [
             'extendTrial' => [
@@ -442,6 +447,7 @@
     ];
     // feeds server vars to Vuex store in a slightly different array than state.php
     $serverstate = [
+      "anonMode" => $remote['anonMode'] === 'true',
       "avatar" => $remote['avatar'],
       "deviceCount" => $var['deviceCount'],
       "email" => ($remote['email']) ? $remote['email'] : '',
