@@ -21,7 +21,7 @@ function strip($area) {
   return preg_replace(["/^|(\n)  /","/\n$/"],["$1",""],$area);
 }
 $file    = '/boot/syslinux/syslinux.cfg';
-$current = file_get_contents($file);
+$current = @file_get_contents($file);
 $default = @file_get_contents("$file-") ?: $current;
 $current = preg_replace(["/\r\n/","/\r/","/\n$/"],["\n","\n",""],$current);
 $default = preg_replace(["/\r\n/","/\r/","/\n$/"],["\n","\n",""],$default);
