@@ -53,7 +53,6 @@ $arr['keyfile'] = $key_contents;
 $arr['reggen'] = $var['regGen'];
 $arr['flashproduct'] = $var['flashProduct'];
 $arr['flashvendor'] = $var['flashVendor'];
-$arr['anonMode'] = $remote['anonMode'] === 'true';
 $arr['servername'] = $var['NAME'];
 $arr['serverdesc'] = $var['COMMENT'];
 $arr['internalip'] = $_SERVER['SERVER_ADDR'];
