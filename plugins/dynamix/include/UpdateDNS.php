@@ -70,6 +70,7 @@ if (preg_match('/.*\.unraid\.net$/', $certhostname)) {
   $post['internalip'] = is_array($internalip) ? $internalip[0] : $internalip;
 }
 if ($isRegistered) {
+  $post['servername'] = $var['NAME'];
   $post['servercomment'] = $var['COMMENT'];
 }
 
