@@ -445,6 +445,12 @@
         ],
       ],
     ];
+    $configErrorEnum = [ // used to map $var['configValid'] value to mimic unraid-api's `configError` ENUM
+      "error" => 'UNKNOWN_ERROR',
+      "invalid" => 'INVALID',
+      "nokeyserver" => 'NO_KEY_SERVER',
+      "withdrawn" => 'WITHDRAWN',
+    ];
     // feeds server vars to Vuex store in a slightly different array than state.php
     $serverstate = [
       "anonMode" => $remote['anonMode'] === 'true',
@@ -467,6 +473,10 @@
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
       "ts" => time(),
       "username" => $remote['username'],
+      'configValid' => $var['configValid'] === 'yes',
+      'configError' => $var['configValid'] !== 'yes'
+        ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
+        : null,
     ];
     ?>
     <unraid-user-profile

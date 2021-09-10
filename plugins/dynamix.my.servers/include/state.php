@@ -47,7 +47,9 @@ $arr['keyfile'] = $key_contents;
 $arr['reggen'] = $var['regGen'];
 $arr['flashproduct'] = $var['flashProduct'];
 $arr['flashvendor'] = $var['flashVendor'];
+$arr['anonMode'] = $remote['anonMode'] === 'true';
 $arr['servername'] = $var['NAME'];
+$arr['serverdesc'] = $var['COMMENT'];
 $arr['internalip'] = $_SERVER['SERVER_ADDR'];
 $arr['internalport'] = $_SERVER['SERVER_PORT'];
 $arr['plgVersion'] = 'base-'.$var['version'];
@@ -55,8 +57,10 @@ $arr['protocol'] = $_SERVER['REQUEST_SCHEME'];
 $arr['locale'] = $_SESSION['locale'] ? $_SESSION['locale'] : 'en_US';
 $arr['expiretime']=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0);
 $arr['uptime']=1000*(time() - round(strtok(exec("cat /proc/uptime"),' ')));
-$arr['serverdesc'] = $_SERVER['COMMENT'];
-$arr['anonMode'] = $remote['anonMode'] === 'true';
+$arr['configValid'] = $var['configValid'] === 'yes';
+$arr['configError'] = !$arr['configValid']
+  ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
+  : null;
 
 echo json_encode($arr);
 ?>
