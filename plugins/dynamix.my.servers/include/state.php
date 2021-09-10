@@ -24,6 +24,12 @@ $key_contents = str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@fil
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
+$configErrorEnum = [ // used to map $var['configValid'] value to mimic unraid-api's `configError` ENUM
+  "error" => 'UNKNOWN_ERROR',
+  "invalid" => 'INVALID',
+  "nokeyserver" => 'NO_KEY_SERVER',
+  "withdrawn" => 'WITHDRAWN',
+];
 
 $arr = [];
 if (empty($remote['username'])) {
