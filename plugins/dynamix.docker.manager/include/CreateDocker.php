@@ -823,10 +823,14 @@ _(Docker Hub URL)_:
 
 </div>
 <div markdown="1" class="noshow"> <!-- Deprecated for author to enter or change, but needs to be present -->
-_(Template URL)_:
-: <input type="text" name="contTemplateURL">
+Donation Text:
+: <input type="text" name="contDonateText">
 
-:docker_client_template_url_help:
+Donation Link:
+: <input type="text" name="contDonateLink">
+
+Template URL:
+: <input type="text" name="contTemplateURL">
 
 </div>
 <div markdown="1" class="advanced">
