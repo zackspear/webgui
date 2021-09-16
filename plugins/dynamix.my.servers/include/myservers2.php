@@ -459,6 +459,7 @@
       "internalip" => $_SERVER['SERVER_ADDR'],
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+      "osVersion" => $var['version'],
       "plgVersion" => 'base-'.$var['version'],
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
