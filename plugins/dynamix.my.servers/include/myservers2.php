@@ -447,6 +447,9 @@
       "nokeyserver" => 'NO_KEY_SERVER',
       "withdrawn" => 'WITHDRAWN',
     ];
+    // required for boolean to check if user has unraid.net Let's Encrypt cert
+    $hasCert = file_exists('/boot/config/ssl/certs/certificate_bundle.pem');
+    $externalhostname = $hasCert ? trim(exec("/usr/bin/openssl x509 -subject -noout -in /boot/config/ssl/certs/certificate_bundle.pem | awk -F' = ' '{print $2}'")) : '';
     // feeds server vars to Vuex store in a slightly different array than state.php
     $serverstate = [
       "avatar" => $remote['avatar'],
@@ -473,6 +476,7 @@
       'configError' => $var['configValid'] !== 'yes'
         ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
         : null,
+      'hasUnraidNetSSL' => preg_match('/.*\.unraid\.net$/', $externalhostname),
     ];
     ?>
     <unraid-user-profile
