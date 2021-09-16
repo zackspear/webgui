@@ -57,6 +57,19 @@
           'openDropdown' => _('Open dropdown'),
           'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure').'. '._('You have an open pop-up').'.',
           'trialHasExpiredSeeOptions' => _('Trial has expired see options below'),
+          'errorCertRequiresSignIn' => _('Sign In before your Unraid.net SSL certificate expires'),
+          'noRemoteApikeyRegisteredWithPlg' => [
+            'heading' => _('My Servers Error'),
+            'msg' => _('Unraid.net re-authentication required'),
+          ],
+          'errorTooManyDisks' => [
+            'heading' => 'Too many devices',
+            'msg' => [
+              'base' => 'You must upgrade your key to support more devices.',
+              'basic' => 'Your Basic key supports 6 devices.',
+              'plus' => 'Your Plus key supports 12 devices.',
+            ],
+          ],
           'extraLinks' => [
             'newTab' => sprintf(_('Opens %s in new tab'), '{0}'),
             'myServers' => _('My Servers Dashboard'),
