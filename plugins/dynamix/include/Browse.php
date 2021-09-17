@@ -46,7 +46,7 @@ $dir   = urldecode($_GET['dir']??'');
 $path  = unscript($_GET['path']??'');
 $user  = unscript($_GET['user']??'');
 $all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: _('---')) : _('flash');
+$fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: '---') : _('flash');
 $fmt   = "%F {$display['time']}";
 $dirs  = $files = [];
 $total = $i = 0;
