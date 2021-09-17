@@ -23,7 +23,7 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 // If either kvm_intel or kvm_amd are loaded then Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support was found
 $hardware = !empty(shell_exec("/etc/rc.d/rc.libvirt test"));
 if (!$hardware) {
-  echo "<p class='notice'>".('Your hardware does not have Intel VT-x or AMD-V capability').". "._('This is required to create VMs in KVM').". "._('Please disable the VM function').". ";
+  echo "<p class='notice'>"._('Your hardware does not have Intel VT-x or AMD-V capability').". "._('This is required to create VMs in KVM').". "._('Please disable the VM function').". ";
   echo "<a href='https://wiki.unraid.net/Manual/VM_Management#Determining_HVM.2FIOMMU_Hardware_Support' target='_blank'> "._('Click here to see the Unraid Wiki for more information')."</a></p>";
 }
 
