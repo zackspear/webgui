@@ -202,7 +202,7 @@
             'humanReadable' => _('Multiple License Keys Present'),
             'error' => [
               'heading' => '@:stateData.EGUID1.humanReadable',
-              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '.('Please remove all key files except the one you want to replace from the */config* directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
+              'message' => _('There are multiple license key files present on your USB flash device and none of them correspond to the USB Flash boot device').'. '._('Please remove all key files except the one you want to replace from the */config* directory on your USB Flash boot device').'. '._('Alternately you may purchase a license key for this USB flash device').'. '._('If you want to replace one of your license keys with a new key bound to this USB Flash device please first remove all other key files first').'.',
             ],
           ],
           'EBLACKLISTED' => [
@@ -230,7 +230,7 @@
             'humanReadable' => _('Trial Requires Internet Connection'),
             'error' => [
               'heading' => _('Cannot validate Unraid Trial key'),
-              'message' => _('Your Trial key requires an internet connection').'. '.('Please check Settings > Network').'.',
+              'message' => _('Your Trial key requires an internet connection').'. '._('Please check Settings > Network').'.',
             ],
           ],
           'STALE' => [
