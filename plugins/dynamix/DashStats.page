@@ -355,7 +355,7 @@ foreach ($ports as $port) {
 <?$vpn = basename($wg,'.conf'); $peers = vpn_peers($wg);?>
 <tr class='vpn_view'><td></td><td class='vpn'><i class='icon-vpn vpn<?=in_array($vpn,$wg_up)?'':' inactive'?>' onclick="toggleVPN($(this),'<?=$vpn?>')" title="Toggle tunnel state"></i><?="Tunnel $vpn"?></td><td class='vpn right'>_(Activity)_</td><td class='vpn right'>_(Handshake)_</td><td></td></tr>
 <?foreach ($peers as $i => $peer):?>
-<tr class='vpn_view'><td></td><td class='left'><?=$peer?></td><td class='right' id='<?="$vpn-rx-".($i-1)?>'>_(---)_</td><td class='right' id='<?="$vpn-hs-".($i-1)?>'>_(inactive)_</td><td></td></tr>
+<tr class='vpn_view'><td></td><td class='left'><?=$peer?></td><td class='right' id='<?="$vpn-rx-".($i-1)?>'>---</td><td class='right' id='<?="$vpn-hs-".($i-1)?>'>_(inactive)_</td><td></td></tr>
 <?endforeach;?>
 <?endforeach;?>
 </tbody>
