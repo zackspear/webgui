@@ -18,8 +18,13 @@ Tag="download"
 function installPlugin(name) {
   var file = name.trim();
   var plugin = file.replace(/^.*(\\|\/|\:)/,'').replace('.plg','')+':install';
-  if (file) openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=install&arg2="+file,"_(Install Plugin)_",600,900,true,'loadlist',plugin);
+  var func = plugin.includes('dynamix.unraid.net') ? 'reloadToList' : 'loadlist'; // conditionally reload on closure of shadboxbox for My Servers plugin
+  if (file) openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=install&arg2="+file,"_(Install Plugin)_",600,900,true,func,plugin);
 }
+function reloadToList() {
+  $.removeCookie('tab',{path:'/'});
+  window.location.href = '/Plugins';
+};
 </script>
 **_(Enter URL of remote plugin file or local plugin file)_**
 
