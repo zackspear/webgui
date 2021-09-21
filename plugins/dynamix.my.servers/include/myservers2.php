@@ -462,8 +462,6 @@
       "nokeyserver" => 'NO_KEY_SERVER',
       "withdrawn" => 'WITHDRAWN',
     ];
-    // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
-    $hasUnraidNetSSL = file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : '';
     // feeds server vars to Vuex store in a slightly different array than state.php
     $serverstate = [
       "avatar" => $remote['avatar'],
@@ -490,7 +488,7 @@
       'configError' => $var['configValid'] !== 'yes'
         ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
         : null,
-      'hasUnraidNetSSL' => $hasUnraidNetSSL,
+      'hasUnraidNetSSL' => file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : 0, // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
     ];
     ?>
     <unraid-user-profile
