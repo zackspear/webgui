@@ -301,9 +301,9 @@ _(Certificate expiration)_:
 <?endif;?>
 <?else:?>
 _(CA-signed certificate file)_:
-: _(Not present)_ <?if(!$isRegistered):?><?endif;?>
+: _(Not present)_
 
-  <?if (!$isRegistered):?>
+<?if (!$isRegistered):?>
 &nbsp;
 : <i class="fa fa-warning icon warning"></i> <em>_(You must be signed in to Unraid.net in order to generate an Unraid.net SSL certificate)_</em>
 <?endif;?>
