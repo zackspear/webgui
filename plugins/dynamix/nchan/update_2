@@ -21,7 +21,7 @@ require_once "$docroot/webGui/include/publish.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
-$_SERVER['REQUEST_URI'] = 'dashboard';
+$_SERVER['REQUEST_URI'] = 'dashboard/main';
 $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 // remember current language

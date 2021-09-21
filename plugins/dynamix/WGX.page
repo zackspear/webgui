@@ -318,7 +318,7 @@ _(Peer preshared key)_:
 : <span class="input"><input type="text" name="PresharedKey:<?=$i?>" class="wide preshared-<?=$i?>" maxlength="64" value="<?=$wgX["PresharedKey:$i"]??''?>" onchange="highlight($(document.wgX),this,<?=$i?>)" placeholder="(_(optional)_)"></span>
   <input type="button" class="form" value="_(Generate Key)_" onclick="presharedkey($(document.wgX),'<?=$i?>')">
 
-: wg_peer_preshared_key_help:
+:wg_peer_preshared_key_help:
 
 </div>
 <div markdown="1" class="advanced wgX zone<?=$i?>" style="display:none">
