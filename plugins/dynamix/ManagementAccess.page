@@ -70,7 +70,7 @@ $provisionlabel     = $isLEcert ? _('Renew') : _('Provision');
 $disabled_provision = !$isRegistered || $keyfile===false || ($isLEcert && $retval_expired===0) ? 'disabled' : '';
 $disabled_updatedns = $isRegistered && $keyfile!==false && $isLEcert ? '' : 'disabled';
 $disabled_delete    = $certPresent && $var['USE_SSL']!='auto' ? '' : 'disabled';
-$disabled_yes       = !$isRegistered || $keyfile===false ? 'disabled' : '';
+$disabled_yes       = (!$isRegistered && $isLEcert) || $keyfile===false ? 'disabled' : '';
 $disabled_auto      = $isRegistered && $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
 
 // Get ports in use
@@ -283,6 +283,13 @@ $format = $display['date'].($display['date']!='%c' ? ', '.str_replace(['%M','%R'
 _(Certificate expiration)_:
 : <?=_(strftime($format, $time),0)?>
 
+<?if (!$isRegistered):?>
+&nbsp;
+: 
+<!-- <span class="red" style="padding-left: 0;"><i class="fa fa-warning"></i> _(Certificate will not renew unless you are signed in to Unraid.net)_</span> -->
+<span><i class="fa fa-warning icon warning"></i> <em>_(Certificate will not renew unless you are signed in to Unraid.net)_</em></span>
+<?endif;?>
+
 <?if ($dnsRebindingProtection):?>
 &nbsp;
 : _(DNS Rebinding Protection is ENABLED)_
@@ -294,7 +301,12 @@ _(Certificate expiration)_:
 <?endif;?>
 <?else:?>
 _(CA-signed certificate file)_:
-: _(Not present)_
+: _(Not present)_ <?if(!$isRegistered):?><?endif;?>
+
+  <?if (!$isRegistered):?>
+&nbsp;
+: <i class="fa fa-warning icon warning"></i> <em>_(You must be signed in to Unraid.net in order to generate an Unraid.net SSL certificate)_</em>
+<?endif;?>
 
 <?endif;?>
 &nbsp;
