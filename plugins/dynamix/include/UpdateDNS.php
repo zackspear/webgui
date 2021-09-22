@@ -40,9 +40,19 @@ if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
 }
 $isRegistered = !empty($remote) && !empty($remote['username']);
 
-$certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
-$certhostname = file_exists($certpath) ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
-$isCertUnraidNet = preg_match('/.*\.unraid\.net$/', $certhostname);
+$hasCert = file_exists('/boot/config/ssl/certs/certificate_bundle.pem');
+$isCertUnraidNet = $hasCert && preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']);
+
+// protocols, hostnames, ports
+$internalprotocol = 'http';
+$internalport = $var['PORT'];
+$internalhostname = $var['NAME'] . (empty($var['LOCAL_TLD']) ? '' : '.'.$var['LOCAL_TLD']);
+
+if ($var['USE_SSL']!='no' && $hasCert) {
+  $internalprotocol = 'https';
+  $internalport = $var['PORTSSL'];
+  $internalhostname = $_SERVER['SERVER_NAME'];
+}
 
 // only proceed when a hash.unraid.net SSL certificate is active or when signed in
 if (!$isRegistered && !$isCertUnraidNet) {
@@ -73,6 +83,9 @@ if ($isCertUnraidNet) {
 if ($isRegistered) {
   $post['servername'] = $var['NAME'];
   $post['servercomment'] = $var['COMMENT'];
+  $post['internalprotocol'] = $internalprotocol;
+  $post['internalport'] = $internalport;
+  $post['internalhostname'] = $internalhostname;
 }
 
 // report necessary server details to limetech for DNS updates
