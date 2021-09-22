@@ -34,6 +34,8 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
+$var = parse_ini_file("/var/local/emhttp/var.ini");
+
 // remoteaccess, externalport
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
@@ -60,7 +62,6 @@ if (!$isRegistered && !$isCertUnraidNet) {
 }
 
 // keyfile
-$var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
   response_complete(406, '{"error":"'._('Registration key required').'"}');
@@ -72,20 +73,23 @@ extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 $ethX       = 'eth0';
 $internalip = ipaddr($ethX);
 
+// My Servers version
+$plgversion = 'base-'.$var['version'];
+
 // build post array
 $post = [
-  'plgversion' => 'base-'.$var['version'],
-  'keyfile' => $keyfile
+  'keyfile' => $keyfile,
+  'plgversion' => $plgversion
 ];
 if ($isCertUnraidNet) {
   $post['internalip'] = is_array($internalip) ? $internalip[0] : $internalip;
 }
 if ($isRegistered) {
-  $post['servername'] = $var['NAME'];
-  $post['servercomment'] = $var['COMMENT'];
-  $post['internalprotocol'] = $internalprotocol;
-  $post['internalport'] = $internalport;
   $post['internalhostname'] = $internalhostname;
+  $post['internalport'] = $internalport;
+  $post['internalprotocol'] = $internalprotocol;
+  $post['servercomment'] = $var['COMMENT'];
+  $post['servername'] = $var['NAME'];
 }
 
 // report necessary server details to limetech for DNS updates
