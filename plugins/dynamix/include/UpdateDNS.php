@@ -92,6 +92,21 @@ if ($isRegistered) {
   $post['servername'] = $var['NAME'];
 }
 
+// if remote access disabled, maxage is 36 hours. If enabled, maxage is 9 mins 45 seconds
+$maxage = (!isset($remoteaccess) || $remoteaccess != 'yes') ? 36*60*60 : (10*60)-15;
+$datafile = "/tmp/UpdateDNS.txt";
+$dataprev = @file_get_contents($datafile) ?: '';
+$datanew = implode("\n",$post)."\n";
+if ($datanew == $dataprev && (time()-filemtime($datafile) < $maxage)) {
+  if ($argv[1] == "-v") {
+    unset($post['keyfile']);
+    echo "Request:\n";
+    echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+  }
+  response_complete(204, null, _('No change to report'));
+}
+file_put_contents($datafile,$datanew);
+
 // report necessary server details to limetech for DNS updates
 $ch = curl_init('https://keys.lime-technology.com/account/server/register');
 curl_setopt($ch, CURLOPT_POST, 1);
