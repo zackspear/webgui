@@ -34,15 +34,27 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
+$var = parse_ini_file("/var/local/emhttp/var.ini");
+
 // remoteaccess, externalport
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
 $isRegistered = !empty($remote) && !empty($remote['username']);
 
-$certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
-$certhostname = file_exists($certpath) ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
-$isCertUnraidNet = preg_match('/.*\.unraid\.net$/', $certhostname);
+$hasCert = file_exists('/boot/config/ssl/certs/certificate_bundle.pem');
+$isCertUnraidNet = $hasCert && preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']);
+
+// protocols, hostnames, ports
+$internalprotocol = 'http';
+$internalport = $var['PORT'];
+$internalhostname = $var['NAME'] . (empty($var['LOCAL_TLD']) ? '' : '.'.$var['LOCAL_TLD']);
+
+if ($var['USE_SSL']!='no' && $hasCert) {
+  $internalprotocol = 'https';
+  $internalport = $var['PORTSSL'];
+  $internalhostname = $_SERVER['SERVER_NAME'];
+}
 
 // only proceed when a hash.unraid.net SSL certificate is active or when signed in
 if (!$isRegistered && !$isCertUnraidNet) {
@@ -50,7 +62,6 @@ if (!$isRegistered && !$isCertUnraidNet) {
 }
 
 // keyfile
-$var = parse_ini_file("/var/local/emhttp/var.ini");
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
   response_complete(406, '{"error":"'._('Registration key required').'"}');
@@ -62,18 +73,39 @@ extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 $ethX       = 'eth0';
 $internalip = ipaddr($ethX);
 
+// My Servers version
+$plgversion = 'base-'.$var['version'];
+
 // build post array
 $post = [
-  'plgversion' => 'base-'.$var['version'],
-  'keyfile' => $keyfile
+  'keyfile' => $keyfile,
+  'plgversion' => $plgversion
 ];
 if ($isCertUnraidNet) {
   $post['internalip'] = is_array($internalip) ? $internalip[0] : $internalip;
 }
 if ($isRegistered) {
-  $post['servername'] = $var['NAME'];
+  $post['internalhostname'] = $internalhostname;
+  $post['internalport'] = $internalport;
+  $post['internalprotocol'] = $internalprotocol;
   $post['servercomment'] = $var['COMMENT'];
+  $post['servername'] = $var['NAME'];
 }
+
+// if remote access disabled, maxage is 36 hours. If enabled, maxage is 9 mins 45 seconds
+$maxage = (!isset($remoteaccess) || $remoteaccess != 'yes') ? 36*60*60 : (10*60)-15;
+$datafile = "/tmp/UpdateDNS.txt";
+$dataprev = @file_get_contents($datafile) ?: '';
+$datanew = implode("\n",$post)."\n";
+if ($datanew == $dataprev && (time()-filemtime($datafile) < $maxage)) {
+  if ($argv[1] == "-v") {
+    unset($post['keyfile']);
+    echo "Request:\n";
+    echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+  }
+  response_complete(204, null, _('No change to report'));
+}
+file_put_contents($datafile,$datanew);
 
 // report necessary server details to limetech for DNS updates
 $ch = curl_init('https://keys.lime-technology.com/account/server/register');
