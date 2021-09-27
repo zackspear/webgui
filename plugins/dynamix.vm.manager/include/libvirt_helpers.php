@@ -32,6 +32,24 @@
 	$arrAllTemplates = [
 		' Windows ' => '', /* Windows Header */
 
+		'Windows 11' => [
+			'form' => 'Custom.form.php',
+			'icon' => 'windows11.png',
+			'os' => 'windowstpm',
+			'overrides' => [
+				'domain' => [
+					'ovmf' => 2,
+					'mem' => 4096 * 1024,
+					'maxmem' => 4096 * 1024
+				],
+				'disk' => [
+					[
+						'size' => '64G'
+					]
+				]
+			]
+		],
+
 		'Windows 10' => [
 			'form' => 'Custom.form.php',
 			'icon' => 'windows.png',
@@ -1025,6 +1043,16 @@
 			$strUSBMode = 'usb3-qemu';
 		}
 
+		if (!empty($lv->domain_get_ovmf($res))) {
+		  if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
+			  $strOVMF = '1';
+			} else if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
+			  $strOVMF = '2';
+		  } else {
+			  $strOVMF = '0';
+  		}
+  	}
+
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1044,7 +1072,7 @@
 				'hyperv' => ($lv->domain_get_feature($res, 'hyperv') ? 1 : 0),
 				'autostart' => ($lv->domain_get_autostart($res) ? 1 : 0),
 				'state' => $lv->domain_state_translate($dom['state']),
-				'ovmf' => ($lv->domain_get_ovmf($res) ? 1 : 0),
+				'ovmf' => $strOVMF,
 				'usbmode' => $strUSBMode
 			],
 			'media' => [

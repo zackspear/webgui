@@ -422,6 +422,11 @@
 					} else {
 						echo mk_option('', '0', _('OVMF').' ('._('Not Available').')', 'disabled');
 					}
+					if (file_exists('/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi-tpm.fd')) {
+						echo mk_option($arrConfig['domain']['ovmf'], '2', _('OVMF TPM'));
+					} else {
+						echo mk_option('', '0', _('OVMF TPM').' ('._('Not Available').')', 'disabled');
+					}
 				?>
 				</select>
 				<?if (!empty($arrConfig['domain']['state'])) {?>
@@ -439,6 +444,11 @@
 			<p>
 				<b>OVMF</b><br>
 				(Open Virtual Machine Firmware) adds support for booting VMs using UEFI, but virtual machine guests must also support UEFI.  Assigning graphics devices to a OVMF-based virtual machine requires that the graphics device also support UEFI.
+			</p>
+			<p>
+				<b>OVMF TPM</b><br>
+				(Open Virtual Machine Firmware) adds support for booting VMs using UEFI with TPM, but virtual machine guests must also support UEFI.  Assigning graphics devices to a OVMF-based virtual machine requires that the graphics device also support UEFI.<br>
+				<b>Only available if SWTPM plugin from the CA App is installed!</b>
 			</p>
 			<p>
 				Once a VM is created this setting cannot be adjusted.
@@ -1254,7 +1264,8 @@ $(function() {
 	}
 
 	$('.advancedview').change(function () {
-		if ($(this).is(':checked')) {
+		if 
+		($(this).is(':checked')) {
 			setTimeout(function() {
 				editor.refresh();
 			}, 100);
