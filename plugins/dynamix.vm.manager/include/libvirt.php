@@ -300,8 +300,8 @@
   				$loader = "<loader readonly='yes' type='pflash'>/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi-tpm.fd</loader>
   							<nvram>/etc/libvirt/qemu/nvram/".$uuid."_VARS-pure-efi-tpm.fd</nvram>";
 
-          $swtpm = "<tpm model='tpm-tis'>
-  							<backend type='emulator' version='2.0'/>
+				$swtpm = "<tpm model='tpm-tis'>
+  							<backend type='emulator' version='2.0' persistent_state='yes'/>
   						</tpm>";
 	  		}
 	  	}
