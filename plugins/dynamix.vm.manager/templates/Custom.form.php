@@ -1264,8 +1264,7 @@ $(function() {
 	}
 
 	$('.advancedview').change(function () {
-		if 
-		($(this).is(':checked')) {
+		if ($(this).is(':checked')) {
 			setTimeout(function() {
 				editor.refresh();
 			}, 100);
