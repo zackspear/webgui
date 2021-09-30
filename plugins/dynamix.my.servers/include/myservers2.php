@@ -57,6 +57,19 @@
           'openDropdown' => _('Open dropdown'),
           'pleaseConfirmClosureYouHaveOpenPopUp' => _('Please confirm closure').'. '._('You have an open pop-up').'.',
           'trialHasExpiredSeeOptions' => _('Trial has expired see options below'),
+          'errorCertRequiresSignIn' => _('Sign In before your Unraid.net SSL certificate expires'),
+          'noRemoteApikeyRegisteredWithPlg' => [
+            'heading' => _('My Servers Error'),
+            'msg' => _('Unraid.net re-authentication required'),
+          ],
+          'errorTooManyDisks' => [
+            'heading' => 'Too many devices',
+            'msg' => [
+              'base' => 'You must upgrade your key to support more devices.',
+              'basic' => 'Your Basic key supports 6 devices.',
+              'plus' => 'Your Plus key supports 12 devices.',
+            ],
+          ],
           'extraLinks' => [
             'newTab' => sprintf(_('Opens %s in new tab'), '{0}'),
             'myServers' => _('My Servers Dashboard'),
@@ -436,8 +449,10 @@
           ],
         ],
         'wanIpCheck' => [
+          'checking' => _('Checking Wan IPs'),
           'match' => sprintf(_('Remark: your WAN IPv4 is **%s**'), '{0}'),
           'mismatch' => sprintf(_("Remark: Unraid's WAN IPv4 **%1s** does not match your client's WAN IPv4 **%2s**"), '{0}', '{1}').'. '._('This may indicate a complex network that will not work with this Remote Access solution').'. '._('Ignore this message if you are currently connected via Remote Access or VPN').'.',
+          'resolveError' => _('DNS issue, unable to resolve mothership.unraid.net'),
         ],
       ],
     ];
@@ -459,6 +474,7 @@
       "internalip" => $_SERVER['SERVER_ADDR'],
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+      "osVersion" => $var['version'],
       "plgVersion" => 'base-'.$var['version'],
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
@@ -472,6 +488,7 @@
       'configError' => $var['configValid'] !== 'yes'
         ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
         : null,
+      'hasUnraidNetSSL' => file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : 0, // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
     ];
     ?>
     <unraid-user-profile
