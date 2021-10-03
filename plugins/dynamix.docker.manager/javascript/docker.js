@@ -1,6 +1,6 @@
 var eventURL = '/plugins/dynamix.docker.manager/include/Events.php';
 
-function addDockerContainerContext(container, image, template, started, paused, update, autostart, webui, shell, id, Support, Project, Registry) {
+function addDockerContainerContext(container, image, template, started, paused, update, autostart, webui, shell, id, Support, Project, Registry, donateLink) {
   var opts = [];
   if (started && !paused) {
     if (webui !== '' && webui != '#') opts.push({text:_('WebUI'), icon:'fa-globe', href:webui, target:'_blank'});
@@ -29,15 +29,22 @@ function addDockerContainerContext(container, image, template, started, paused, 
   }
   opts.push({divider:true});
   opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmContainer(container, image, id);}});
-  if (Support) {
+  if ( Support || Project ) {
     opts.push({divider:true});
-    opts.push({text:_('Support'), icon:'fa-question', href:Support, target:'_blank'});
   }
   if (Project) {
     opts.push({text:_('Project Page'), icon:'fa-life-ring', href:Project, target:'_blank'});
   }
+  if (Support) {
+    opts.push({text:_('Support'), icon:'fa-question', href:Support, target:'_blank'});
+  }
+
   if (Registry) {
     opts.push({text:_('More Info'),icon:'fa-info-circle', href:Registry, target:'_blank'});
+  }
+  if (donateLink) {
+    opts.push({divider:true});
+    opts.push({text:_('Donate'),icon:'fa-external-link', href:donateLink,target:'_blank'});
   }
   context.attach('#'+id, opts);
 }

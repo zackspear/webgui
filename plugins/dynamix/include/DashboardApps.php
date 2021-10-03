@@ -50,7 +50,8 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     $support = html_entity_decode($info['Support']);
     $project = html_entity_decode($info['Project']);
     $registry = html_entity_decode($info['registry']);
-    $menu[] = sprintf("addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s');", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry));
+    $donateLink = html_entity_decode($info['DonateLink']);
+    $menu[] = sprintf("addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s', '%s');", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry), addslashes($donateLink));
     $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
     $status = $running ? ($paused ? 'paused' : 'started') : 'stopped';
     $color = $status=='started' ? 'green-text' : ($status=='paused' ? 'orange-text' : 'red-text');
