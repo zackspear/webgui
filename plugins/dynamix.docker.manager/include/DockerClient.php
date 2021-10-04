@@ -311,6 +311,7 @@ class DockerTemplates {
 			$tmp['registry'] = $tmp['registry'] ?? $this->getTemplateValue($image, 'Registry');
 			$tmp['Support'] = $tmp['Support'] ?? $this->getTemplateValue($image, 'Support');
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
+			$tmp['DonateLink'] = $tmp['DonateLink'] ?? $this->getTemplateValue($image, 'DonateLink');
 			if (!$tmp['updated'] || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
