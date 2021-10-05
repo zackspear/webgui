@@ -34,7 +34,9 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$result);
 }
 
-$var = parse_ini_file("/var/local/emhttp/var.ini");
+$var = parse_ini_file('/var/local/emhttp/var.ini');
+
+$remoteaccess = 'no';
 
 // remoteaccess, externalport
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
@@ -93,7 +95,7 @@ if ($isRegistered) {
 }
 
 // if remote access disabled, maxage is 36 hours. If enabled, maxage is 9 mins 45 seconds
-$maxage = (!isset($remoteaccess) || $remoteaccess != 'yes') ? 36*60*60 : (10*60)-15;
+$maxage = ($remoteaccess == 'no') ? 36*60*60 : (10*60)-15;
 $datafile = "/tmp/UpdateDNS.txt";
 $dataprev = @file_get_contents($datafile) ?: '';
 $datanew = implode("\n",$post)."\n";
