@@ -447,8 +447,7 @@
 			</p>
 			<p>
 				<b>OVMF TPM</b><br>
-				(Open Virtual Machine Firmware) adds support for booting VMs using UEFI with TPM, but virtual machine guests must also support UEFI.  Assigning graphics devices to a OVMF-based virtual machine requires that the graphics device also support UEFI.<br>
-				<b>Only available if SWTPM plugin from the CA App is installed!</b>
+				(Open Virtual Machine Firmware) adds support for booting VMs using UEFI with TPM and Secure Boot available, but virtual machine guests must also support UEFI.  Assigning graphics devices to a OVMF-based virtual machine requires that the graphics device also support UEFI.<br>
 			</p>
 			<p>
 				Once a VM is created this setting cannot be adjusted.
