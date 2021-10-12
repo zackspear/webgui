@@ -44,8 +44,12 @@ if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
 }
 $isRegistered = !empty($remote) && !empty($remote['username']);
 
-$hasCert = file_exists('/boot/config/ssl/certs/certificate_bundle.pem');
-$isCertUnraidNet = $hasCert && preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']);
+$certpath = '/boot/config/ssl/certs/certificate_bundle.pem';
+$hasCert = file_exists($certpath);
+$certhostname = $hasCert ? trim(exec("/usr/bin/openssl x509 -subject -noout -in $certpath | awk -F' = ' '{print $2}'")) : '';
+// handle wildcard certs
+$certhostname = str_replace('*', $var['NAME'], $certhostname);
+$isCertUnraidNet = preg_match('/.*\.unraid\.net$/', $certhostname);
 
 // protocols, hostnames, ports
 $internalprotocol = 'http';
@@ -55,7 +59,7 @@ $internalhostname = $var['NAME'] . (empty($var['LOCAL_TLD']) ? '' : '.'.$var['LO
 if ($var['USE_SSL']!='no' && $hasCert) {
   $internalprotocol = 'https';
   $internalport = $var['PORTSSL'];
-  $internalhostname = $_SERVER['SERVER_NAME'];
+  $internalhostname = $certhostname;
 }
 
 // only proceed when a hash.unraid.net SSL certificate is active or when signed in
