@@ -62,8 +62,8 @@ if ($var['USE_SSL']!='no' && $hasCert) {
   $internalhostname = $certhostname;
 }
 
-// only proceed when a hash.unraid.net SSL certificate is active or when signed in
-if (!$isRegistered && !$isCertUnraidNet) {
+// only proceed when signed in
+if (!$isRegistered) {
   response_complete(406, '{"error":"'._('Nothing to do').'"}');
 }
 
