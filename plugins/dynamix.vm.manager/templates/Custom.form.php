@@ -413,7 +413,7 @@
 		<tr class="advanced">
 			<td>_(BIOS)_:</td>
 			<td>
-				<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_" <?if (!empty($arrConfig['domain']['state'])) echo 'disabled="disabled"';?>>
+				<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_">
 				<?
 					echo mk_option($arrConfig['domain']['ovmf'], '0', _('SeaBIOS'));
 
@@ -1255,7 +1255,9 @@ $(function() {
 
 	function resetForm() {
 		$("#vmform .domain_vcpu").change(); // restore the cpu checkbox disabled states
-		<?if (!empty($arrConfig['domain']['state'])) echo '$(\'#vmform #domain_ovmf\').prop(\'disabled\', true); // restore bios disabled state' . "\n";?>
+		<?if (!empty($arrConfig['domain']['state'])):?>
+		<?=$arrConfig['domain']['ovmf']==0 ? "$('#vmform #domain_ovmf').prop('disabled',true);\n" : "$('#vmform #domain_ovmf option[value=0]').prop('disabled',true);\n"?>
+		<?endif?>
 		<?if ($boolRunning):?>
 		$("#vmform").find('input[type!="button"],select,.mac_generate').prop('disabled', true);
 		$("#vmform").find('input[name^="usb"]').prop('disabled', false);
