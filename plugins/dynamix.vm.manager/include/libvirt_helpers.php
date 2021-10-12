@@ -904,21 +904,35 @@
 		return trim($strCPUModel);
 	}
 
-	function getNetworkBridges() {
-		exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrValidBridges);
+	function getValidNetworks() {
+		global $lv;
+		$arrValidNetworks = [];
+		exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
 
-		if (!is_array($arrValidBridges)) {
-			$arrValidBridges = [];
+		if (!is_array($arrBridges)) {
+			$arrBridges = [];
 		}
 
 		// Make sure the default libvirt bridge is first in the list
-		if (($key = array_search('virbr0', $arrValidBridges)) !== false) {
-			unset($arrValidBridges[$key]);
+		if (($key = array_search('virbr0', $arrBridges)) !== false) {
+			unset($arrBridges[$key]);
 		}
 		// We always list virbr0 because libvirt might not be started yet (thus the bridge doesn't exists)
-		array_unshift($arrValidBridges, 'virbr0');
+		array_unshift($arrBridges, 'virbr0');
 
-		return array_values($arrValidBridges);
+		$arrValidNetworks['bridges'] = array_values($arrBridges);
+
+		$arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
+
+		if (($key = array_search('default', $arrVirtual)) !== false) {
+			unset($arrVirtual[$key]);
+		}
+
+		array_unshift($arrVirtual, 'default');
+
+		$arrValidNetworks['libvirt'] = array_values($arrVirtual);
+
+		return $arrValidNetworks;
 	}
 
 	function domain_to_config($uuid) {

@@ -619,11 +619,25 @@
 						continue;
 					}
 					$netmodel = $nic['model'] ?: 'virtio-net';
-					$netstr .= "<interface type='bridge'>
-									<mac address='{$nic['mac']}'/>
-									<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
-									<model type='$netmodel'/>
-								</interface>";
+
+					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
+					exec("brctl show | cut -f1| awk NF | sed -n '1!p'", $br);
+
+					if($net_res) {
+						$netstr .= "<interface type='network'>
+										<mac address='{$nic['mac']}'/>
+										<source network='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
+										<model type='$netmodel'/>
+									</interface>";
+					} elseif(in_array($nic['network'], $br)) {
+						$netstr .= "<interface type='bridge'>
+										<mac address='{$nic['mac']}'/>
+										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
+										<model type='$netmodel'/>
+									</interface>";
+					} else {
+						continue;
+					}
 				}
 			}
 
@@ -2100,25 +2114,22 @@
 
 		function get_nic_info($domain) {
 			$macs = $this->get_xpath($domain, "//domain/devices/interface/mac/@address", false);
-			$net = $this->get_xpath($domain, "//domain/devices/interface/@type", false);
-			$bridge = $this->get_xpath($domain, "//domain/devices/interface/source/@bridge", false);
-			$model = $this->get_xpath($domain, "//domain/devices/interface/model/@type", false);
 			if (!$macs)
 				return $this->_set_last_error();
 			$ret = [];
 			for ($i = 0; $i < $macs['num']; $i++) {
-				if ($net[$i] != 'bridge')
-					$tmp = libvirt_domain_get_network_info($domain, $macs[$i]);
-				if ($tmp)
-					$ret[] = $tmp;
-				else {
+				$net = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../source/@*", false);
+				$model = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../model/@type", false);
+
+				if(empty(macs[$i]) && empty($net[0])) {
 					$this->_set_last_error();
-					$ret[] = [
-						'mac' => $macs[$i],
-						'network' => $bridge[$i],
-						'model' => $model[$i]
-					];
+					continue;
 				}
+				$ret[] = [
+					'mac' => $macs[$i],
+					'network' => $net[0],
+					'model' => $model[0]
+				];
 			}
 
 			return $ret;
@@ -2383,6 +2394,19 @@
 			$xml = join("\n", $tmp);
 
 			return $this->domain_define($xml);
+		}
+
+		function libvirt_get_net_res($conn, $net) {
+			return libvirt_network_get($conn, $net);
+		}
+
+		function libvirt_get_net_list($conn, $opt=VIR_NETWORKS_ALL) {
+			// VIR_NETWORKS_{ACTIVE|INACTIVE|ALL}
+			return libvirt_list_networks($conn, $opt);
+		}
+
+		function libvirt_get_net_xml($res, $xpath=NULL) {
+			return libvirt_network_get_xml_desc($res, $xpath);
 		}
 	}
 ?>

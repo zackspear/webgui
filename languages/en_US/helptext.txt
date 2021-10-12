@@ -1494,11 +1494,16 @@ Open the folder for the version of Windows you are installing and then select th
 Three drivers will be found. Select them all, click next, and the vDisks you have assigned will appear.
 :end
 
-:vms_network_bridge_help:
-Select the name of the network bridge you wish to use as default for your VMs,
-the setting 'virbr0' will let libvirt create a virtual bridge that utilizes NAT (network address translation)
-and act as a DHCP server to hand out IP addresses to virtual machines directly.
-More optional selections are present when virtual bridges are created under network settings.
+:vms_network_source_help:
+Select the name of the network you wish to use as default for your VMs.
+You can choose between **'bridges'** created under network settings or
+**'libvirt'** created with virsh command in the terminal.
+The bridge **'virbr0'** and the associated virtual network **'default'** are
+created by libvirt.  
+Both utilizes NAT (network address translation) and act as a DHCP server to hand out IP addresses to virtual machines directly.
+More optional selections are present for bridges under network settings or for libvirt networks with the virsh command in the terminal.
+
+**If your are unsure, choose 'virbr0' as the recommended Unraid default.**
 
 NOTE: You can also specify a network bridge on a per-VM basis.
 :end
