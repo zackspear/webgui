@@ -18,10 +18,32 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
 $cli = php_sapi_name()=='cli';
+$verbose = $cli && $argv[1] == "-v";
 
 function response_complete($httpcode, $result, $cli_success_msg='') {
-  global $cli;
+  global $cli, $verbose, $post, $var, $remote, $certhostname, $isRegistered, $remoteaccess;
   if ($cli) {
+    if ($verbose) {
+      echo "Unraid OS {$var['version']}".PHP_EOL;
+      echo ($isRegistered) ? "Signed in to Unraid.net as {$remote['username']}".PHP_EOL : 'Not signed in to Unraid.net'.PHP_EOL ;
+      echo "Use SSL is {$var['USE_SSL']}".PHP_EOL;
+      if ($certhostname) {
+        echo host_lookup($certhostname);
+        if ($remoteaccess == 'yes') {
+          echo host_lookup("www.".$certhostname);
+        }
+      }
+      echo PHP_EOL;
+      if ($post) {
+        $post['keyfile'] = substr($post['keyfile'], 0, 5)."...";
+        echo 'Request:'.PHP_EOL;
+        echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
+      }
+      if ($result) {
+        echo "Response (HTTP $httpcode):".PHP_EOL;
+        echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
+      }
+    }
     $json = @json_decode($result,true);
     if (!empty($json['error'])) {
       echo 'Error: '.$json['error'].PHP_EOL;
@@ -32,6 +54,13 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   header('Content-Type: application/json');
   http_response_code($httpcode);
   exit((string)$result);
+}
+
+function host_lookup($host) {
+  $output = $result = null;
+  if (!file_exists("/usr/bin/host")) return('');
+  exec("/usr/bin/host ".escapeshellarg($host), $output, $result);
+  return($output[0].PHP_EOL);
 }
 
 $var = parse_ini_file('/var/local/emhttp/var.ini');
@@ -100,15 +129,11 @@ if ($isRegistered) {
 
 // if remote access disabled, maxage is 36 hours. If enabled, maxage is 9 mins 45 seconds
 $maxage = ($remoteaccess == 'no') ? 36*60*60 : (10*60)-15;
+if ($verbose) $maxage = 0;
 $datafile = "/tmp/UpdateDNS.txt";
 $dataprev = @file_get_contents($datafile) ?: '';
 $datanew = implode("\n",$post)."\n";
 if ($datanew == $dataprev && (time()-filemtime($datafile) < $maxage)) {
-  if ($argv[1] == "-v") {
-    unset($post['keyfile']);
-    echo "Request:\n";
-    echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
-  }
   response_complete(204, null, _('No change to report'));
 }
 file_put_contents($datafile,$datanew);
@@ -123,16 +148,8 @@ $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error = curl_error($ch);
 curl_close($ch);
 
-if ($argv[1] == "-v") {
-  unset($post['keyfile']);
-  echo "Request:\n";
-  echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
-  echo "Response (HTTP $httpcode):\n";
-  echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?: $error;
-  echo "\n";
-}
-
 if ($result === false) {
+  // TBD: delete $datafile?
   response_complete(500, '{"error":"'.$error.'"}');
 }
 
