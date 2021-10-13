@@ -27,16 +27,15 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
       echo "Unraid OS {$var['version']}".PHP_EOL;
       echo ($isRegistered) ? "Signed in to Unraid.net as {$remote['username']}".PHP_EOL : 'Not signed in to Unraid.net'.PHP_EOL ;
       echo "Use SSL is {$var['USE_SSL']}".PHP_EOL;
-      if ($certhostname) {
-        echo host_lookup($certhostname);
-        if ($remoteaccess == 'yes') {
-          echo host_lookup("www.".$certhostname);
-        }
-      }
-      echo PHP_EOL;
       if ($post) {
-        $post['keyfile'] = substr($post['keyfile'], 0, 5)."...";
-        echo 'Request:'.PHP_EOL;
+        if ($post['internalprotocol'] && $post['internalhostname'] && $post['internalport']) {
+          $localport = ($post['internalport'] != 80 && $post['internalport'] != 443) ? ':'.$post['internalport'] : '';
+          $localurl = $post['internalprotocol']."://".$post['internalhostname'].$localport;
+          echo 'Local Access url: '.$localurl.PHP_EOL;
+          if ($certhostname) echo host_lookup($certhostname);
+        }
+        if ($post['keyfile']) $post['keyfile'] = substr($post['keyfile'], 0, 5)."...";
+        echo PHP_EOL.'Request:'.PHP_EOL;
         echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
       }
       if ($result) {
@@ -60,7 +59,7 @@ function host_lookup($host) {
   $output = $result = null;
   if (!file_exists("/usr/bin/host")) return('');
   exec("/usr/bin/host ".escapeshellarg($host), $output, $result);
-  return($output[0].PHP_EOL);
+  return("  ".$output[0].PHP_EOL);
 }
 
 $var = parse_ini_file('/var/local/emhttp/var.ini');
