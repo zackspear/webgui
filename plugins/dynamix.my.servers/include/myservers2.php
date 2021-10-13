@@ -484,10 +484,12 @@
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
       "ts" => time(),
       "username" => $remote['username'],
-      'configValid' => $var['configValid'] === 'yes',
-      'configError' => $var['configValid'] !== 'yes'
-        ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
-        : null,
+      "config" => [
+        'valid' => $var['configValid'] === 'yes',
+        'error' => $var['configValid'] !== 'yes'
+          ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
+          : null,
+      ],
       'hasUnraidNetSSL' => file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : 0, // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
     ];
     ?>
