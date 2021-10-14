@@ -148,7 +148,7 @@ $error = curl_error($ch);
 curl_close($ch);
 
 if ($result === false) {
-  // TBD: delete $datafile?
+  @unlink($datafile);
   response_complete(500, '{"error":"'.$error.'"}');
 }
 
