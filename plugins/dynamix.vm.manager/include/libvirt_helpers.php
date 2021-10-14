@@ -1049,14 +1049,14 @@
 			$strUSBMode = 'usb3-qemu';
 		}
 
+		$strOVMF = '0';
 		if (!empty($lv->domain_get_ovmf($res))) {
-		  if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
+			$ovmfloader = $lv->domain_get_ovmf($res);
+		  if (strpos($ovmfloader, '_CODE-pure-efi.fd') !== false) {
 			  $strOVMF = '1';
-			} else if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
+		  } else if (strpos($ovmfloader, '_CODE-pure-efi-tpm.fd') !== false) {
 			  $strOVMF = '2';
-		  } else {
-			  $strOVMF = '0';
-  		}
+		  }
   	}
 
 		return [
@@ -1148,8 +1148,10 @@
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);
 		if (!$new['devices']['hostdev']) unset($new['devices']['hostdev']);
+		// preserve tpm
+		if (!$new['devices']['tpm']) unset($old['devices']['tpm']);
 		// remove existing auto-generated settings
-		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['cpu']['@attributes'],$old['os']['boot']);
+		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}

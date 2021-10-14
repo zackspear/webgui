@@ -429,9 +429,6 @@
 					}
 				?>
 				</select>
-				<?if (!empty($arrConfig['domain']['state'])) {?>
-					<input type="hidden" name="domain[ovmf]" value="<?=htmlspecialchars($arrConfig['domain']['ovmf'])?>">
-				<?}?>
 			</td>
 		</tr>
 	</table>
@@ -1389,10 +1386,10 @@ $(function() {
 
 	$("#vmform #domain_ovmf").change(function changeBIOSEvent() {
 		// using OVMF - disable vmvga vnc option
-		if ($(this).val() == '1' && $("#vmform #vncmodel").val() == 'vmvga') {
+		if ($(this).val() != '0' && $("#vmform #vncmodel").val() == 'vmvga') {
 			$("#vmform #vncmodel").val('qxl');
 		}
-		$("#vmform #vncmodel option[value='vmvga']").prop('disabled', ($(this).val() == '1'));
+		$("#vmform #vncmodel option[value='vmvga']").prop('disabled', ($(this).val() != '0'));
 	}).change(); // fire event now
 
 	$("#vmform").on("spawn_section", function spawnSectionEvent(evt, section, sectiondata) {

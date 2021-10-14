@@ -279,6 +279,7 @@
 			$pae = ($arch == 'i686') ? '<pae/>' : '';
 
 			$loader = '';
+			$swtpm = '';
 			if (!empty($domain['ovmf'])) {
 			  if ($domain['ovmf'] == 1) {
 			  	if (!is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
