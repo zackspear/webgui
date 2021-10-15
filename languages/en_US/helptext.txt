@@ -1505,7 +1505,10 @@ More optional selections are present for bridges under network settings or for l
 
 **If your are unsure, choose 'virbr0' as the recommended Unraid default.**
 
-NOTE: You can also specify a network bridge on a per-VM basis.
+NOTE: You can also specify a network source on a per-VM basis.
+
+**IMPORTANT: Most LibVirt networks only become active as soon as the associated interface is up.  
+This can be ensured with an 'ip link set <ethx> up' at the beginning of the go file.**
 :end
 
 :vms_host_shutdown_help:
