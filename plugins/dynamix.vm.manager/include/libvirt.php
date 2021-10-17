@@ -287,6 +287,10 @@
 			  		mkdir('/etc/libvirt/qemu/nvram/', 0777, true);
 				  	copy('/usr/share/qemu/ovmf-x64/OVMF_VARS-pure-efi.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd');
 				  }
+				if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
+					// Delete OVMF-TPM VARS for this VM if found
+					unlink('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd');
+				  }
 
 				  $loader = "<loader readonly='yes' type='pflash'>/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd</loader>
 				  			<nvram>/etc/libvirt/qemu/nvram/".$uuid."_VARS-pure-efi.fd</nvram>";
@@ -297,6 +301,10 @@
   					mkdir('/etc/libvirt/qemu/nvram/', 0777, true);
   					copy('/usr/share/qemu/ovmf-x64/OVMF_VARS-pure-efi-tpm.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd');
   				}
+				if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
+					// Delete OVMF VARS for this VM if found
+					unlink('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd');
+				  }
 
   				$loader = "<loader readonly='yes' type='pflash'>/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi-tpm.fd</loader>
   							<nvram>/etc/libvirt/qemu/nvram/".$uuid."_VARS-pure-efi-tpm.fd</nvram>";
