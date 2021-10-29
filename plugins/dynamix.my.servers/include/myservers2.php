@@ -334,8 +334,8 @@
               ],
             ],
             'signUp' => [
-              'heading' => _('Sign Up for Unraid.net'),
-              'subheading' => _('This setup will help you get your server up and running'),
+              'heading' => _('Create Unraid.net Account'),
+              'subheading' => _('This will start your free 30-day Trial'),
             ],
             'signOut' => [
               'heading' => _('Unraid.net Sign Out'),
