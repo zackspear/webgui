@@ -125,7 +125,6 @@ function updateTime() {
   var days = parseInt(uptime/86400);
   var hour = parseInt(uptime/3600%24);
   var mins = parseInt(uptime/60%60);
-  $('span.uptime').html(((days|hour|mins)?plus(days,"<?=_('day')?>","<?=_('days')?>",(hour|mins)==0)+plus(hour,"<?=_('hour')?>","<?=_('hours')?>",mins==0)+plus(mins,"<?=_('minute')?>","<?=_('minutes')?>",true):"<?=_('less than a minute')?>"));
   uptime += Math.round((now.getTime() - before.getTime())/1000);
   before = now;
   if (expiretime > 0) {
