@@ -331,6 +331,10 @@
 		]
 	];
 
+	$fedora = '/var/tmp/fedora-virtio-isos';
+	// set variable to obtained information
+	if (file_exists($fedora)) $virtio_isos = unserialize(file_get_contents($fedora)); else {
+	// else initialize variable
 	$virtio_isos = [
 		'virtio-win-0.1.208-1' => [
 			'name' => 'virtio-win-0.1.208-1.iso',
@@ -494,7 +498,7 @@
 			'size' => 160659456,
 			'md5' => 'd406bf6748b9ba4c872c5b5301ba7272'
 		]
-	];
+	];}
 
 	// Read configuration file (guaranteed to exist)
 	$domain_cfgfile = "/boot/config/domain.cfg";

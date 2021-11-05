@@ -4,9 +4,9 @@ Icon="icon-virtualization"
 Tag="columns"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2021, Lime Technology
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -144,27 +144,8 @@ _(Default ISO storage path)_:
 
 </div>
 _(Default Windows VirtIO driver ISO)_ (_(optional)_):
-: <select id="winvirtio_select">
-  <?$iso_dir = $domain_cfg['MEDIADIR'];
-    if (empty($iso_dir) || !is_dir($iso_dir)) {
-      $iso_dir = '/mnt/user/isos/';
-    } else {
-      $iso_dir = str_replace('//', '/', $iso_dir.'/');
-    }
-    $strMatch = '';
-    if (!empty($domain_cfg['MEDIADIR']) && !empty($domain_cfg['VIRTIOISO']) && dirname($domain_cfg['VIRTIOISO']) != '.' && is_file($domain_cfg['VIRTIOISO'])) {
-      $strMatch = 'manual';
-    }
-    foreach ($virtio_isos as $key => $value) {
-      if (($domain_cfg['VIRTIOISO'] == $iso_dir.$value['name']) && is_file($iso_dir.$value['name'])) {
-        $strMatch = $value['name'];
-      }
-        echo mk_option($strMatch, $value['name'], $value['name']);
-    }
-    echo mk_option($strMatch, 'manual', _('Manual'));
-  ?>
-  </select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"
-  <?if ($var['fsState'] == "Started"):?>placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"><i class="fa fa-trash" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_"><span>_(Remove)_</span></i><i class="fa fa-download" id="download_button" title="_(Download Windows VirtIO driver ISO)_"> <span>_(Download)_</span></i><span id="download_status"></span<?endif;?>>
+: <select id="winvirtio_select" disabled></select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"
+  <?if ($var['fsState'] == "Started"):?>placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"><i class="fa fa-trash fa-fw" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_">&nbsp;<span>_(Remove)_</span></i><i class="fa fa-download fa-fw" id="download_button" title="_(Download Windows VirtIO driver ISO)_">&nbsp;<span>_(Download)_</span></i><span id="download_status"></span<?endif;?>>
 
 :vms_virtio_driver_help:
 
@@ -284,6 +265,9 @@ function btrfsScrub(path) {
   });
 }
 $(function(){
+  $.post("/plugins/dynamix.vm.manager/include/Fedora-virtio-isos.php",{},function(isos) {
+    $('#winvirtio_select').html(isos).prop('disabled',false).change();
+  });
   $("#applyBtn").click(function(){
     if ($("#deleteCheckbox").length && $("#deleteCheckbox").is(":checked")) {
       $("#removeForm").submit();
@@ -393,7 +377,7 @@ $(function(){
         $("#winvirtio").val(data.path);
       }
     }, "json");
-  }).change(); // Fire now too!
+  });
   if ($.cookie('vmsettings_view_mode') == 'advanced') {
     $('.advanced').show();
     $('.basic').hide();
