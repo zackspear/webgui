@@ -455,9 +455,9 @@ case 'virtio-win-iso-download':
 		$strCleanCmd = '(chmod 777 '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; chown nobody:users '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; rm -f '.escapeshellarg($strMD5File).' '.escapeshellarg($strMD5StatusFile).')';
 		//$strCleanPgrep = '-f "chmod.*chown.*rm.*'.$strMD5StatusFile.'"';
 		$strAllCmd = "#!/bin/bash\n\n";
-		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile)." 2>$monitor && ";
-		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 1 && ';
-		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 2 && ';
+		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile)." 2>$monitor && sleep 1 && ";
+		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 2 && ';
+		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 3 && ';
 		$strAllCmd .= $strCleanCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
 		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' && ';
 		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript);
