@@ -55,6 +55,7 @@ $arrValidBridges   = getNetworkBridges();
 $pcie_acs_override = detect($syslinux, 'pcie_acs_override');
 $vfio_allow_unsafe = detect($syslinux, 'allow_unsafe_interrupts');
 $bgcolor           = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
+$started           = $var['fsState']=='Started';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -87,7 +88,7 @@ _(Enable VMs)_:
   <?= mk_option($libvirt_service, 'enable', _('Yes'))?>
   </select>
   <?if ($hardware):?>
-  <?if ($var['fsState'] != "Started"):?>
+  <?if (!$started):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($libvirt_service=='enable')?'_(VMs will be available after Array is Started)_':'_(Apply to activate VMs after Array is Started)_'?></span>
   <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE'])) || !is_dir($domain_cfg['DOMAINDIR']) || !is_dir($domain_cfg['MEDIADIR'])):?>
   <span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
@@ -121,7 +122,7 @@ _(Libvirt vdisk size)_:
 _(Libvirt storage location)_:
 : <input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
  <?if (file_exists($domain_cfg['IMAGE_FILE'])):?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> _(Delete Image File)_</label></span><?endif;?>
- <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+ <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
  <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
  <?endif;?><span id="IMAGE_ERROR" class="errortext"></span>
 
@@ -130,22 +131,24 @@ _(Libvirt storage location)_:
 <?endif;?>
 _(Default VM storage path)_:
 : <input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="DOMAINDIR" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
-  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_storage_help:
 
 _(Default ISO storage path)_:
 : <input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="MEDIADIR" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
-  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+  <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_iso_storage_help:
 
 </div>
 _(Default Windows VirtIO driver ISO)_ (_(optional)_):
-: <select id="winvirtio_select" disabled></select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"
-  <?if ($var['fsState'] == "Started"):?>placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"><i class="fa fa-trash fa-fw" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_">&nbsp;<span>_(Remove)_</span></i><i class="fa fa-download fa-fw" id="download_button" title="_(Download Windows VirtIO driver ISO)_">&nbsp;<span>_(Download)_</span></i><span id="download_status"></span<?endif;?>>
+: <select id="winvirtio_select" class="lock" disabled></select><input type="text" id="winvirtio" name="VIRTIOISO" data-pickfilter="iso" data-pickcloseonfile="true" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['VIRTIOISO'])?>"<?if ($started):?> placeholder="_(Click to Select)_" pattern="^[^\\]*\.(iso|ISO)$"<?endif;?>>
+<?if ($started):?>
+  <i class="fa fa-trash fa-fw" id="remove_button" title="_(Remove Windows VirtIO driver ISO)_"><span>&nbsp;_(Remove)_</span></i><i class="fa fa-download fa-fw" id="download_button" title="_(Download Windows VirtIO driver ISO)_"><span>&nbsp;_(Download)_</span></i><span id="download_status"></span>
+<?endif;?>
 
 :vms_virtio_driver_help:
 
@@ -266,7 +269,12 @@ function btrfsScrub(path) {
 }
 $(function(){
   $.post("/plugins/dynamix.vm.manager/include/Fedora-virtio-isos.php",{},function(isos) {
-    $('#winvirtio_select').html(isos).prop('disabled',false).change();
+    $('#winvirtio_select').html(isos).prop('disabled',false).change().each(function(){$(this).on('change',function() {
+      // attach button updates when select element changes
+      var form = $(this).parentsUntil('form').parent();
+      form.find('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').not('input.lock').prop('disabled',false);
+      form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){formHasUnsavedChanges=false;refresh(form.offset().top);});
+    });});
   });
   $("#applyBtn").click(function(){
     if ($("#deleteCheckbox").length && $("#deleteCheckbox").is(":checked")) {
@@ -317,9 +325,7 @@ $(function(){
           checkDownloadTimer = setTimeout(checkOrInitDownload, 1000);
           return;
         }
-        if (data.status == 'Done') {
-          $("#winvirtio_select").change();
-        }
+        if (data.status == "_(Done)_") $("#winvirtio_select").change();
       }
     }, "json");
   };
@@ -368,9 +374,7 @@ $(function(){
         $("#remove_button").hide('fast');
         $("#download_button").removeClass('fa-circle-o-notch fa-spin').addClass('fa-download').show('fast');
         $("#download_status").html('').show('fast');
-        if (data.pid) {
-          checkOrInitDownload(true);
-        }
+        if (data.pid) checkOrInitDownload(true);
       } else {
         $("#download_button,#download_status").hide('fast');
         $("#remove_button").show('fast');
@@ -396,7 +400,7 @@ $(function(){
   });
 <?endif;?>
   showStatus('pid','libvirt/libvirtd');
-  <?if ($var['fsState'] == "Started"):?>
+  <?if ($started):?>
   $("#IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
     $("#IMAGE_FILE").val(folder + 'libvirt.img').change();
   });
