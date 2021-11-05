@@ -445,7 +445,7 @@ case 'virtio-win-iso-download':
 		// Save to /boot/config/domain.conf
 		$domain_cfg['MEDIADIR'] = $_REQUEST['download_path'];
 		$domain_cfg['VIRTIOISO'] = $strTargetFile;
-		$tmp = ''; $monitor = '/tmp/wget.monitor'; $dots = ' ... ';
+		$tmp = ''; $monitor = '/tmp/wget.monitor'; $dots = '... ';
 		foreach ($domain_cfg as $key => $value) $tmp .= "$key=\"$value\"\n";
 		file_put_contents($domain_cfgfile, $tmp);
 		$strDownloadCmd = 'wget -cO '.escapeshellarg($strTargetFile).' '.escapeshellarg($arrDownloadVirtIO['url']);
@@ -476,8 +476,9 @@ case 'virtio-win-iso-download':
 				}
 			} else {
 				if (pgrep($strDownloadPgrep, false)) {
-					// Get Download percent completed
-					$arrResponse['status'] = _('Downloading').$dots.exec("tail -2 $monitor|grep -Po '\d+%'");
+					// Get Download progress and eta
+					[$done,$eta] = my_explode(' ',exec("tail -2 $monitor|awk 'NF==9 {print \$7,\$9;exit}'"));
+					$arrResponse['status'] = _('Downloading').$dots.$done.',&nbsp;&nbsp;'._('ETA').': '.$eta;
 				} elseif (pgrep($strVerifyPgrep, false)) {
 					// Status = running md5 check
 					$arrResponse['status'] = _('Verifying').$dots;
