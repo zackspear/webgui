@@ -445,59 +445,65 @@ case 'virtio-win-iso-download':
 		// Save to /boot/config/domain.conf
 		$domain_cfg['MEDIADIR'] = $_REQUEST['download_path'];
 		$domain_cfg['VIRTIOISO'] = $strTargetFile;
-		$tmp = '';
+		$tmp = ''; $monitor = '/tmp/wget.monitor'; $dots = ' ... ';
 		foreach ($domain_cfg as $key => $value) $tmp .= "$key=\"$value\"\n";
 		file_put_contents($domain_cfgfile, $tmp);
-		$strDownloadCmd = 'wget -nv -c -O '.escapeshellarg($strTargetFile).' '.escapeshellarg($arrDownloadVirtIO['url']);
+		$strDownloadCmd = 'wget -cO '.escapeshellarg($strTargetFile).' '.escapeshellarg($arrDownloadVirtIO['url']);
 		$strDownloadPgrep = '-f "wget.*'.$strTargetFile.'.*'.$arrDownloadVirtIO['url'].'"';
-		$strVerifyCmd = 'md5sum -c '.escapeshellarg($strMD5File);
-		$strVerifyPgrep = '-f "md5sum.*'.$strMD5File.'"';
-		$strCleanCmd = '(chmod 777 '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; chown nobody:users '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; rm '.escapeshellarg($strMD5File).' '.escapeshellarg($strMD5StatusFile).')';
-		$strCleanPgrep = '-f "chmod.*chown.*rm.*'.$strMD5StatusFile.'"';
+		$strVerifyCmd = $arrDownloadVirtIO['md5'] ? 'md5sum -c '.escapeshellarg($strMD5File) : 'md5sum '.escapeshellarg($strTargetFile);
+		$strVerifyPgrep = '-f "md5sum.*'.($arrDownloadVirtIO['md5'] ? $strMD5File : $strTargetFile).'"';
+		$strCleanCmd = '(chmod 777 '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; chown nobody:users '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; rm -f '.escapeshellarg($strMD5File).' '.escapeshellarg($strMD5StatusFile).')';
+		//$strCleanPgrep = '-f "chmod.*chown.*rm.*'.$strMD5StatusFile.'"';
 		$strAllCmd = "#!/bin/bash\n\n";
-		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
-		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" > '.escapeshellarg($strMD5File).' && ';
-		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && ';
+		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile)." 2>$monitor && ";
+		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 1 && ';
+		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 2 && ';
 		$strAllCmd .= $strCleanCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
-		$strAllCmd .= 'rm '.escapeshellarg($strLogFile).' && ';
-		$strAllCmd .= 'rm '.escapeshellarg($strInstallScript);
+		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' && ';
+		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript);
 		$arrResponse = [];
 		if (file_exists($strTargetFile)) {
 			if (!file_exists($strLogFile)) {
 				if (!pgrep($strDownloadPgrep, false)) {
 					// Status = done
-					$arrResponse['status'] = 'Done';
+					$arrResponse['status'] = _('Done');
 					$arrResponse['localpath'] = $strTargetFile;
 					$arrResponse['localfolder'] = dirname($strTargetFile);
 				} else {
 					// Status = cleanup
-					$arrResponse['status'] = 'Cleanup ... ';
+					$arrResponse['status'] = _('Cleanup').$dots;
 				}
 			} else {
 				if (pgrep($strDownloadPgrep, false)) {
 					// Get Download percent completed
-					$intSize = filesize($strTargetFile);
-					$strPercent = 0;
-					if ($intSize > 0) {
-						$strPercent = round(($intSize / $arrDownloadVirtIO['size']) * 100);
-					}
-					$arrResponse['status'] = 'Downloading ... '.$strPercent.'%';
+					$arrResponse['status'] = _('Downloading').$dots.exec("tail -2 $monitor|grep -Po '\d+%'");
 				} elseif (pgrep($strVerifyPgrep, false)) {
 					// Status = running md5 check
-					$arrResponse['status'] = 'Verifying ... ';
+					$arrResponse['status'] = _('Verifying').$dots;
 				} elseif (file_exists($strMD5StatusFile)) {
 					// Status = running extract
-					$arrResponse['status'] = 'Cleanup ... ';
+					$arrResponse['status'] = _('Cleanup').$dots;
 					// Examine md5 status
 					$strMD5StatusContents = file_get_contents($strMD5StatusFile);
-					if (strpos($strMD5StatusContents, ': FAILED') !== false) {
+					if (strpos($strMD5StatusContents, ': FAILED')!==false) {
 						// ERROR: MD5 check failed
 						unset($arrResponse['status']);
-						$arrResponse['error'] = 'MD5 verification failed, your download is incomplete or corrupted.';
+						$arrResponse['error'] = _('MD5 verification failed, your download is incomplete or corrupted');
+					} elseif (!$arrDownloadVirtIO['md5']) {
+						// MD5 checksum & size missing: add these
+						$fedora = '/var/tmp/fedora-virtio-isos';
+						if (file_exists($fedora)) {
+							$virtio_isos = unserialize(file_get_contents($fedora));
+							$iso = basename($arrDownloadVirtIO['name'], '.iso');
+							$virtio_isos[$iso]['size'] = filesize($strTargetFile);
+							$virtio_isos[$iso]['md5'] = explode(' ',$strMD5StatusContents)[0];
+							file_put_contents($fedora,serialize($virtio_isos));
+						}
 					}
 				} elseif (!file_exists($strMD5File)) {
+					@unlink($monitor);
 					// Status = running md5 check
-					$arrResponse['status'] = 'Downloading ... 100%';
+					$arrResponse['status'] = _('Downloading').$dots.'100%';
 					if (!pgrep($strInstallScriptPgrep, false) && !$boolCheckOnly) {
 						// Run all commands
 						file_put_contents($strInstallScript, $strAllCmd);
@@ -513,7 +519,7 @@ case 'virtio-win-iso-download':
 				chmod($strInstallScript, 0777);
 				exec($strInstallScript.' >/dev/null 2>&1 &');
 			}
-			$arrResponse['status'] = 'Downloading ... ';
+			$arrResponse['status'] = _('Downloading').$dots;
 		}
 		$arrResponse['pid'] = pgrep($strInstallScriptPgrep, false);
 	}
@@ -548,7 +554,7 @@ case 'virtio-win-iso-cancel':
 				@unlink($strMD5File);
 				@unlink($strMD5StatusFile);
 				@unlink($strLogFile);
-				$arrResponse['status'] = 'Done';
+				$arrResponse['status'] = _('Done');
 			}
 		}
 	}
@@ -567,7 +573,8 @@ case 'virtio-win-iso-remove':
 		break;
 	}
 	if (is_file($file)) {
-		$arrResponse = ['success' => unlink($file)];
+		foreach (glob($file.'*') as $name) unlink($name);
+		$arrResponse = ['success' => true];
 		break;
 	}
 	if (empty($path) || !is_dir($path)) {
@@ -575,14 +582,11 @@ case 'virtio-win-iso-remove':
 	} else {
 		$path = str_replace('//', '/', $path.'/');
 	}
-	$file = $path.$file;
-	if (is_file($file)) {
-		$arrResponse = ['success' => unlink($file)];
-		break;
+	if (is_file($path.$file)) {
+		foreach (glob($path.$file.'*') as $name) unlink($name);
+		$arrResponse = ['success' => true];
 	}
-	$arrResponse = ['success' => false];
 	break;
-
 default:
 	$arrResponse = ['error' => _('Unknown action')." '$action'"];
 	break;

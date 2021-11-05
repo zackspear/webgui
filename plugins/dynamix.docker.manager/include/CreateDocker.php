@@ -909,6 +909,7 @@ _(Privileged)_:
   <input type="hidden" id="xmlTemplate" name="xmlTemplate" value="">
 </form>
 <form method="POST" id="formTemplate1">
+  <input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>">
   <input type="hidden" id="rmTemplate" name="rmTemplate" value="">
 </form>
 
