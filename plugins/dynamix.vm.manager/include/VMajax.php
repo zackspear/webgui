@@ -460,7 +460,8 @@ case 'virtio-win-iso-download':
 		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 3 && ';
 		$strAllCmd .= $strCleanCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
 		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript);
+		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript).' && ';
+		$strAllCmd .= 'rm -f '.escapeshellarg($monitor);
 		$arrResponse = [];
 		if (file_exists($strTargetFile)) {
 			if (!file_exists($strLogFile)) {
@@ -513,13 +514,14 @@ case 'virtio-win-iso-download':
 				}
 			}
 		} elseif (!$boolCheckOnly) {
+			@unlink($monitor);
 			if (!pgrep($strInstallScriptPgrep, false)) {
 				// Run all commands
 				file_put_contents($strInstallScript, $strAllCmd);
 				chmod($strInstallScript, 0777);
 				exec($strInstallScript.' >/dev/null 2>&1 &');
 			}
-			$arrResponse['status'] = _('Downloading').$dots;
+			$arrResponse['status'] = _('Downloading').$dots.'0%';
 		}
 		$arrResponse['pid'] = pgrep($strInstallScriptPgrep, false);
 	}
