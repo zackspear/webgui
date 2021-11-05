@@ -23,7 +23,7 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 // get Fedora download archive
 $fedora  = '/var/tmp/fedora-virtio-isos';
 $archive = 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio';
-exec("wget -T10 -qO- $archive|grep -Po '\"\\Kvirtio-win-[^/]+'|sort -Vr",$isos);
+exec("wget -T10 -qO- $archive|grep -Po '\"\\Kvirtio-win-[^/]+'",$isos);
 
 if (count($isos)>1) {
   // delete obsolete entries
