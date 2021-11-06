@@ -814,6 +814,11 @@ _(Project Page)_:
 
 :docker_client_project_page_help:
 
+_(Read Me First)_:
+: <input type="text" name="contReadMe">
+
+:docker_client_readme_help:
+
 </div>
 <div markdown="1" class="advanced">
 _(Docker Hub URL)_:
@@ -831,6 +836,7 @@ Donation Link:
 
 Template URL:
 : <input type="text" name="contTemplateURL">
+
 
 </div>
 <div markdown="1" class="advanced">
