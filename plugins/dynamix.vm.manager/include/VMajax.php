@@ -459,9 +459,7 @@ case 'virtio-win-iso-download':
 		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 3 && ';
 		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 3 && ';
 		$strAllCmd .= $strCleanCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript).' && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($monitor);
+		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' '.escapeshellarg($strInstallScript).' '.escapeshellarg($monitor);
 		$arrResponse = [];
 		if (file_exists($strTargetFile)) {
 			if (!file_exists($strLogFile)) {
