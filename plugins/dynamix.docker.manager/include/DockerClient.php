@@ -283,7 +283,7 @@ class DockerTemplates {
 		return $WebUI;
 	}
 
-	public function getAllInfo($reload=false,$com=true) {
+	public function getAllInfo($reload=false,$com=true,$communityApplications=false) {
 		global $dockerManPaths, $host;
 		$DockerClient = new DockerClient();
 		$DockerUpdate = new DockerUpdate();
@@ -301,7 +301,9 @@ class DockerTemplates {
 			// read docker label for WebUI & Icon
 			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
 			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
-			if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name);
+			if ( ! $communityApplications ) {
+				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name);
+			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
 				$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
