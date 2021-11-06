@@ -56,6 +56,7 @@ $pcie_acs_override = detect($syslinux, 'pcie_acs_override');
 $vfio_allow_unsafe = detect($syslinux, 'allow_unsafe_interrupts');
 $bgcolor           = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 $started           = $var['fsState']=='Started';
+$libvirt_up        = $libvirt_running=='yes';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -99,7 +100,7 @@ _(Enable VMs)_:
 
 <?if ($hardware):?>
 <div class="advanced" markdown="1">
-<?if ($libvirt_running == 'yes'):?>
+<?if ($libvirt_up):?>
 <?$libvirt_info = libvirt_version('libvirt')?>
 <?$qemu_info = $lv->get_connect_information()?>
 _(Libvirt version)_:
@@ -115,12 +116,12 @@ _(Libvirt storage location)_:
 
 <?else: /* Libvirt is stopped */ ?>
 _(Libvirt vdisk size)_:
-: <input id="IMAGE_SIZE" type="number" min="1" name="IMAGE_SIZE" value="<?=htmlspecialchars($domain_cfg['IMAGE_SIZE']);?>" style="width:50px;" required="required" />_(GB)_ <span id="SIZE_ERROR" class="errortext"></span>
+: <input type="number" id="IMAGE_SIZE" name="IMAGE_SIZE" min="1" value="<?=htmlspecialchars($domain_cfg['IMAGE_SIZE']);?>" style="width:50px;" required="required" />_(GB)_ <span id="SIZE_ERROR" class="errortext"></span>
 
 :vms_libvirt_vdisk_size_help:
 
 _(Libvirt storage location)_:
-: <input id="IMAGE_FILE" type="text" name="IMAGE_FILE" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
+: <input type="text" id="IMAGE_FILE" name="IMAGE_FILE" autocomplete="off" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
  <?if (file_exists($domain_cfg['IMAGE_FILE'])):?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> _(Delete Image File)_</label></span><?endif;?>
  <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
  <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
@@ -130,14 +131,14 @@ _(Libvirt storage location)_:
 
 <?endif;?>
 _(Default VM storage path)_:
-: <input type="text" id="domaindir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="DOMAINDIR" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
+: <input type="text" id="domaindir" name="DOMAINDIR" autocomplete="off" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_storage_help:
 
 _(Default ISO storage path)_:
-: <input type="text" id="mediadir" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" name="MEDIADIR" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="Click to Select" pattern="^[^\\]*/$">
+: <input type="text" id="mediadir" name="MEDIADIR" autocomplete="off" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="<?=is_dir('/mnt/user')?'/mnt/user':'/mnt'?>" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
@@ -209,7 +210,7 @@ _(VFIO allow unsafe interrupts)_:
 
 <?endif;?>
 
-<?if ($libvirt_running == 'yes' && trim(shell_exec('stat -c %T -f /etc/libvirt'))=='btrfs'):?>
+<?if ($libvirt_up && trim(shell_exec('stat -c %T -f /etc/libvirt'))=='btrfs'):?>
 <div class="advanced" markdown="1">
 <div id="title"><span class="left"><i class="title fa fa-list"></i>_(Libvirt volume info)_</span></div>
 _(btrfs filesystem show)_:
@@ -243,7 +244,7 @@ _(btrfs scrub status)_:
 <?endif;?>
 </div>
 
-<?elseif ($libvirt_running != 'yes'):?>
+<?elseif (!$libvirt_up):?>
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
   <input type="hidden" name="#command" value="/plugins/dynamix.vm.manager/scripts/libvirt_rm">
 </form>
@@ -254,7 +255,7 @@ _(btrfs scrub status)_:
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
 <script>
 function prepareFS(form,cookie,value) {
-  if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
+  if ($(form).find('input[type="submit"]').val()=="_(Cancel)_") $.removeCookie(cookie); else $.cookie(cookie,value);
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -404,9 +405,9 @@ $(function(){
   $("#IMAGE_FILE").fileTreeAttach(null, null, function(folder) {
     $("#IMAGE_FILE").val(folder + 'libvirt.img').change();
   });
-  $("#domaindir").fileTreeAttach();
-  $("#mediadir").fileTreeAttach();
-  $("#winvirtio").fileTreeAttach();
+  $('#domaindir').fileTreeAttach();
+  $('#mediadir').fileTreeAttach();
+  $('#winvirtio').fileTreeAttach();
   <?endif;?>
   if ($("#IMAGE_FILE").length) {
     $("#IMAGE_FILE").on("input change", function(){
@@ -435,11 +436,11 @@ $(function(){
       $("#hostshutdown").prop("disabled", checked);
       $("#pcie_acs_override").prop("disabled", checked);
       $("#vm_shutdown_timeout").prop("disabled", checked);
-      $("#applyBtn").val(checked ? "Delete" : "Apply").removeAttr('disabled');
+      $("#applyBtn").val(checked ? "_(Delete)_" : "_(Apply)_").removeAttr('disabled');
     });
   }
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:'reboot'}, function(data){
-    var rebootMessage = "VM Settings: A reboot is required to apply changes";
+    var rebootMessage = "_(VM Settings: A reboot is required to apply changes)_";
     if (data.modified) addRebootNotice(rebootMessage); else removeRebootNotice(rebootMessage);
   });
   if ($.cookie('btrfs-scrub-vm')) btrfsScrub($.cookie('btrfs-scrub-vm'));

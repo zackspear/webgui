@@ -422,17 +422,17 @@ case 'virtio-win-iso-download':
 		$arrDownloadVirtIO = $virtio_isos[$strKeyName];
 	}
 	if (empty($arrDownloadVirtIO)) {
-		$arrResponse = ['error' => 'Unknown version: '.$_REQUEST['download_version']];
+		$arrResponse = ['error' => _('Unknown version').': '.$_REQUEST['download_version']];
 	} elseif (empty($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'Specify a ISO storage path first'];
+		$arrResponse = ['error' => _('Specify a ISO storage path first')];
 	} elseif (!is_dir($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'ISO storage path doesn\'t exist, please create the user share (or empty folder) first'];
+		$arrResponse = ['error' => _("ISO storage path doesn't exist, please create the user share (or empty folder) first")];
 	} else {
 		@mkdir($_REQUEST['download_path'], 0777, true);
 		$_REQUEST['download_path'] = realpath($_REQUEST['download_path']).'/';
 		// Check free space
 		if (disk_free_space($_REQUEST['download_path']) < $arrDownloadVirtIO['size']+10000) {
-			$arrResponse['error'] = 'Not enough free space, need at least '.ceil($arrDownloadVirtIO['size']/1000000).'MB';
+			$arrResponse['error'] = _('Not enough free space, need at least').' '.ceil($arrDownloadVirtIO['size']/1000000).'MB';
 			break;
 		}
 		$boolCheckOnly = !empty($_REQUEST['checkonly']);
@@ -445,7 +445,7 @@ case 'virtio-win-iso-download':
 		// Save to /boot/config/domain.conf
 		$domain_cfg['MEDIADIR'] = $_REQUEST['download_path'];
 		$domain_cfg['VIRTIOISO'] = $strTargetFile;
-		$tmp = ''; $monitor = '/tmp/wget.monitor'; $dots = ' ... ';
+		$tmp = ''; $monitor = '/tmp/wget.monitor'; $dots = '... ';
 		foreach ($domain_cfg as $key => $value) $tmp .= "$key=\"$value\"\n";
 		file_put_contents($domain_cfgfile, $tmp);
 		$strDownloadCmd = 'wget -cO '.escapeshellarg($strTargetFile).' '.escapeshellarg($arrDownloadVirtIO['url']);
@@ -455,12 +455,11 @@ case 'virtio-win-iso-download':
 		$strCleanCmd = '(chmod 777 '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; chown nobody:users '.escapeshellarg($_REQUEST['download_path']).' '.escapeshellarg($strTargetFile).'; rm -f '.escapeshellarg($strMD5File).' '.escapeshellarg($strMD5StatusFile).')';
 		//$strCleanPgrep = '-f "chmod.*chown.*rm.*'.$strMD5StatusFile.'"';
 		$strAllCmd = "#!/bin/bash\n\n";
-		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile)." 2>$monitor && ";
-		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 1 && ';
-		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 2 && ';
+		$strAllCmd .= $strDownloadCmd.' >>'.escapeshellarg($strLogFile)." 2>$monitor && sleep 1 && ";
+		$strAllCmd .= 'echo "'.$arrDownloadVirtIO['md5'].'  '.$strTargetFile.'" >'.escapeshellarg($strMD5File).' && sleep 3 && ';
+		$strAllCmd .= $strVerifyCmd.' >'.escapeshellarg($strMD5StatusFile).' 2>/dev/null && sleep 3 && ';
 		$strAllCmd .= $strCleanCmd.' >>'.escapeshellarg($strLogFile).' 2>&1 && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' && ';
-		$strAllCmd .= 'rm -f '.escapeshellarg($strInstallScript);
+		$strAllCmd .= 'rm -f '.escapeshellarg($strLogFile).' '.escapeshellarg($strInstallScript).' '.escapeshellarg($monitor);
 		$arrResponse = [];
 		if (file_exists($strTargetFile)) {
 			if (!file_exists($strLogFile)) {
@@ -475,8 +474,9 @@ case 'virtio-win-iso-download':
 				}
 			} else {
 				if (pgrep($strDownloadPgrep, false)) {
-					// Get Download percent completed
-					$arrResponse['status'] = _('Downloading').$dots.exec("tail -2 $monitor|grep -Po '\d+%'");
+					// Get Download progress and eta
+					[$done,$eta] = my_explode(' ',exec("tail -2 $monitor|awk 'NF==9 {print \$7,\$9;exit}'"));
+					$arrResponse['status'] = _('Downloading').$dots.$done.',&nbsp;&nbsp;'._('ETA').': '.$eta;
 				} elseif (pgrep($strVerifyPgrep, false)) {
 					// Status = running md5 check
 					$arrResponse['status'] = _('Verifying').$dots;
@@ -513,13 +513,14 @@ case 'virtio-win-iso-download':
 				}
 			}
 		} elseif (!$boolCheckOnly) {
+			@unlink($monitor);
 			if (!pgrep($strInstallScriptPgrep, false)) {
 				// Run all commands
 				file_put_contents($strInstallScript, $strAllCmd);
 				chmod($strInstallScript, 0777);
 				exec($strInstallScript.' >/dev/null 2>&1 &');
 			}
-			$arrResponse['status'] = _('Downloading').$dots;
+			$arrResponse['status'] = _('Downloading').$dots.'0%';
 		}
 		$arrResponse['pid'] = pgrep($strInstallScriptPgrep, false);
 	}

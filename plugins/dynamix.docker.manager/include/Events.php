@@ -21,7 +21,7 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $DockerClient = new DockerClient();
 $action       = unscript($_REQUEST['action']??'');
-$container    = unscript($_REQUEST['container']??'');
+$container    = unbundle($_REQUEST['container']??'');
 $name         = unscript($_REQUEST['name']??'');
 $image        = unscript($_REQUEST['image']??'');
 $arrResponse  = ['error' => _('Missing parameters')];

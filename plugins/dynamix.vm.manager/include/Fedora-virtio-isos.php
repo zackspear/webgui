@@ -36,8 +36,8 @@ if (count($isos)>1) {
     $file = implode('-',$file);
     $virtio_isos[$iso]['name'] = "$iso.iso";
     $virtio_isos[$iso]['url'] = "$archive/$iso/$file.iso";
-    $virtio_isos[$iso]['size'] = 600*1024*1024; // assume 600 MB
-    $virtio_isos[$iso]['md5'] = ''; // unused md5
+    $virtio_isos[$iso]['size'] = 600*1024*1024; // assume 600 MB - adjusted once file is downloaded
+    $virtio_isos[$iso]['md5'] = ''; // unused md5 - created once file is downloaded
   }
   // sort with newest version first
   uksort($virtio_isos,function($a,$b){return strnatcmp($b,$a);});
