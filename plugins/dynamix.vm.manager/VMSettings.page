@@ -436,11 +436,11 @@ $(function(){
       $("#hostshutdown").prop("disabled", checked);
       $("#pcie_acs_override").prop("disabled", checked);
       $("#vm_shutdown_timeout").prop("disabled", checked);
-      $("#applyBtn").val(checked ? "Delete" : "Apply").removeAttr('disabled');
+      $("#applyBtn").val(checked ? "_(Delete)_" : "_(Apply)_").removeAttr('disabled');
     });
   }
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:'reboot'}, function(data){
-    var rebootMessage = "VM Settings: A reboot is required to apply changes";
+    var rebootMessage = "_(VM Settings: A reboot is required to apply changes)_";
     if (data.modified) addRebootNotice(rebootMessage); else removeRebootNotice(rebootMessage);
   });
   if ($.cookie('btrfs-scrub-vm')) btrfsScrub($.cookie('btrfs-scrub-vm'));
