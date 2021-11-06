@@ -422,17 +422,17 @@ case 'virtio-win-iso-download':
 		$arrDownloadVirtIO = $virtio_isos[$strKeyName];
 	}
 	if (empty($arrDownloadVirtIO)) {
-		$arrResponse = ['error' => 'Unknown version: '.$_REQUEST['download_version']];
+		$arrResponse = ['error' => _('Unknown version').': '.$_REQUEST['download_version']];
 	} elseif (empty($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'Specify a ISO storage path first'];
+		$arrResponse = ['error' => _('Specify a ISO storage path first')];
 	} elseif (!is_dir($_REQUEST['download_path'])) {
-		$arrResponse = ['error' => 'ISO storage path doesn\'t exist, please create the user share (or empty folder) first'];
+		$arrResponse = ['error' => _("ISO storage path doesn't exist, please create the user share (or empty folder) first")];
 	} else {
 		@mkdir($_REQUEST['download_path'], 0777, true);
 		$_REQUEST['download_path'] = realpath($_REQUEST['download_path']).'/';
 		// Check free space
 		if (disk_free_space($_REQUEST['download_path']) < $arrDownloadVirtIO['size']+10000) {
-			$arrResponse['error'] = 'Not enough free space, need at least '.ceil($arrDownloadVirtIO['size']/1000000).'MB';
+			$arrResponse['error'] = _('Not enough free space, need at least').' '.ceil($arrDownloadVirtIO['size']/1000000).'MB';
 			break;
 		}
 		$boolCheckOnly = !empty($_REQUEST['checkonly']);
