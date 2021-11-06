@@ -56,6 +56,7 @@ $pcie_acs_override = detect($syslinux, 'pcie_acs_override');
 $vfio_allow_unsafe = detect($syslinux, 'allow_unsafe_interrupts');
 $bgcolor           = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 $started           = $var['fsState']=='Started';
+$libvirt_up        = $libvirt_running=='yes';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -99,7 +100,7 @@ _(Enable VMs)_:
 
 <?if ($hardware):?>
 <div class="advanced" markdown="1">
-<?if ($libvirt_running == 'yes'):?>
+<?if ($libvirt_up):?>
 <?$libvirt_info = libvirt_version('libvirt')?>
 <?$qemu_info = $lv->get_connect_information()?>
 _(Libvirt version)_:
@@ -115,7 +116,7 @@ _(Libvirt storage location)_:
 
 <?else: /* Libvirt is stopped */ ?>
 _(Libvirt vdisk size)_:
-: <input id="IMAGE_SIZE" type="number" min="1" name="IMAGE_SIZE" value="<?=htmlspecialchars($domain_cfg['IMAGE_SIZE']);?>" style="width:50px;" required="required" />_(GB)_ <span id="SIZE_ERROR" class="errortext"></span>
+: <input type="number" id="IMAGE_SIZE" name="IMAGE_SIZE" min="1" value="<?=htmlspecialchars($domain_cfg['IMAGE_SIZE']);?>" style="width:50px;" required="required" />_(GB)_ <span id="SIZE_ERROR" class="errortext"></span>
 
 :vms_libvirt_vdisk_size_help:
 
@@ -209,7 +210,7 @@ _(VFIO allow unsafe interrupts)_:
 
 <?endif;?>
 
-<?if ($libvirt_running == 'yes' && trim(shell_exec('stat -c %T -f /etc/libvirt'))=='btrfs'):?>
+<?if ($libvirt_up && trim(shell_exec('stat -c %T -f /etc/libvirt'))=='btrfs'):?>
 <div class="advanced" markdown="1">
 <div id="title"><span class="left"><i class="title fa fa-list"></i>_(Libvirt volume info)_</span></div>
 _(btrfs filesystem show)_:
@@ -243,7 +244,7 @@ _(btrfs scrub status)_:
 <?endif;?>
 </div>
 
-<?elseif ($libvirt_running != 'yes'):?>
+<?elseif (!$libvirt_up):?>
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
   <input type="hidden" name="#command" value="/plugins/dynamix.vm.manager/scripts/libvirt_rm">
 </form>
@@ -254,7 +255,7 @@ _(btrfs scrub status)_:
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
 <script>
 function prepareFS(form,cookie,value) {
-  if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
+  if ($(form).find('input[type="submit"]').val()=="_(Cancel)_") $.removeCookie(cookie); else $.cookie(cookie,value);
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
