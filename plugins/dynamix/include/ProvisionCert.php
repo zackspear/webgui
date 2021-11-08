@@ -38,6 +38,14 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 
+if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
+  @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
+}
+$isRegistered = !empty($remote) && !empty($remote['username']);
+if (!$isRegistered) {
+  response_complete(406, '{"error":"'._('Must be signed in to Unraid.net to provision cert').'"}');
+}
+
 if (file_exists($certFile)) {
   $subject = exec("/usr/bin/openssl x509 -subject -noout -in $certFile");
   if (!preg_match('/.*\.unraid\.net$/', $subject)) {
