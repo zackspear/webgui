@@ -493,7 +493,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(Download Folder)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" id="download_path" placeholder="_(e.g.)_ /mnt/user/domains/" title="_(Folder to save the LibreELEC image to)_" />
+					<input type="text" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" id="download_path" placeholder="_(e.g.)_ /mnt/user/domains/" title="_(Folder to save the LibreELEC image to)_" />
 				</td>
 			</tr>
 		</table>
@@ -516,7 +516,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(Config Folder)_:</td>
 				<td>
-					<input type="text" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrConfig['shares'][0]['source'])?>" name="shares[0][source]" placeholder="_(e.g.)_ /mnt/user/appdata/libreelec" title="_(path on Unraid share to save LibreELEC settings)_" required/>
+					<input type="text" name="shares[0][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrConfig['shares'][0]['source'])?>" placeholder="_(e.g.)_ /mnt/user/appdata/libreelec" title="_(path on Unraid share to save LibreELEC settings)_" required/>
 					<input type="hidden" value="<?=htmlspecialchars($arrConfig['shares'][0]['target'])?>" name="shares[0][target]" />
 				</td>
 			</tr>
@@ -722,7 +722,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<tr class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
 					<td>_(Graphics ROM BIOS)_:</td>
 					<td>
-						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="<?=htmlspecialchars($arrGPU['rom'])?>" name="gpu[<?=$i?>][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
+						<input type="text" name="gpu[<?=$i?>][rom]" autocomplete="off" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrGPU['rom'])?>" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 					</td>
 				</tr>
 			</table>
@@ -763,7 +763,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				<tr class="advanced romfile">
 					<td>_(Graphics ROM BIOS)_:</td>
 					<td>
-						<input type="text" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/" value="" name="gpu[{{INDEX}}][rom]" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
+						<input type="text" name="gpu[{{INDEX}}][rom]" autocomplete="off" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 					</td>
 				</tr>
 			</table>
