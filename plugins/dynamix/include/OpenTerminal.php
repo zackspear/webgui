@@ -29,6 +29,7 @@ case 'syslog':
   if ($pid) exec("kill $pid");
   @unlink('/var/run/syslog.sock');
   $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
+  usleep(100000);
   exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
   break;
 case 'log':
@@ -39,6 +40,7 @@ case 'log':
   if ($pid) exec("kill $pid");
   @unlink('/var/tmp/$name.sock');
   $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
+  usleep(100000);
   exec("ttyd-exec -o -i '/var/tmp/$name.sock' $command");
   break;
 case 'docker':
@@ -50,6 +52,7 @@ case 'docker':
   if ($pid) exec("kill $pid");
   @unlink("/var/tmp/$id.sock");
   $command = $exec ? "docker exec -it '$name' $shell" : "docker logs -f -n 40 '$name'";
+  usleep(100000);
   exec("ttyd-exec -o -i '/var/tmp/$id.sock' $command");
   break;
 }
