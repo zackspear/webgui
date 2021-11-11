@@ -15,7 +15,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Secure.php";
 
 function valid($path,$file) {
-  return file_exists($file) && substr($file,0,strlen($path))==$path;
+  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -n 40 -f '$file'" : "bash --login --restricted";
 }
 switch ($_GET['tag']) {
 case 'ttyd':
@@ -30,7 +30,7 @@ case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   @unlink('/var/run/syslog.sock');
-  $command = valid($path,$file) ? "tail -n 40 -f '$file'" : "bash --login";
+  $command = valid($path,$file);
   exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
   break;
 case 'log':
@@ -40,7 +40,7 @@ case 'log':
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/tmp\\/$name.sock:{print \$1}'");
   if ($pid) exec("kill $pid");
   @unlink('/var/tmp/$name.sock');
-  $command = valid($path,$file) ? "tail -n 40 -f '$file'" : "bash --login";
+  $command = valid($path,$file);
   usleep(100000);
   exec("ttyd-exec -o -i '/var/tmp/$name.sock' $command");
   break;
