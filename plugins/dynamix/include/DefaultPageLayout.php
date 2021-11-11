@@ -351,7 +351,7 @@ function digits(number) {
 }
 function openNotifier(filter) {
   notifier.stop();
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
       if (notify.importance == filter) {
@@ -360,7 +360,7 @@ function openNotifier(filter) {
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
+          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
     });
@@ -369,10 +369,10 @@ function openNotifier(filter) {
 }
 function closeNotifier(filter) {
   notifier.stop();
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
-      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
+      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
     notifier.start();
@@ -644,7 +644,7 @@ notifier.on('message', function(d) {
       theme: notify.file,
       click: function(e,m,o) { if (notify.link) location=notify.link;},
       beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
+      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
       afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
     });
 <?endif;?>
@@ -718,7 +718,7 @@ $(function() {
   $('#licensetype').addClass('red-text');
 <?endif;?>
 <?if ($notify['entity'] & 1 == 1):?>
-  $.post('/webGui/include/Notify.php',{cmd:'init'},function(){notifier.start();});
+  $.post('/webGui/include/Notify.php',{cmd:'init',csrf_token:csrf_token},function(){notifier.start();});
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').not('.lock').each(function(){$(this).on('input change',function() {
