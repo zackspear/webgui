@@ -61,46 +61,6 @@ switch ($action) {
 			}
 		}
 		break;
-	case 'log':
-		if ($container) {
-			$since = unscript($_REQUEST['since']??'');
-			$title = unbundle($_REQUEST['title']??'');
-			require_once "$docroot/webGui/include/ColorCoding.php";
-			if (!$since) {
-				readfile("$docroot/plugins/dynamix.docker.manager/log.htm");
-				echo "<script>document.title = \"$title\";</script>";
-				echo "<script>addLog('".addslashes("<p style='text-align:center'><span class='error label'>"._('Error')."</span><span class='warn label'>"._('Warning')."</span><span class='system label'>"._('System')."</span><span class='array label'>"._('Array')."</span><span class='login label'>"._('Login')."</span></p>")."');</script>";
-				$tail = 350;
-			} else {
-				$tail = null;
-			}
-			$echo = function($s) use ($match) {
-				$line = substr(trim($s), 8);
-				$span = "span";
-				foreach ($match as $type) {
-					foreach ($type['text'] as $text) {
-						if (preg_match("/$text/i",$line)) {
-							$span = "span class='{$type['class']}'";
-							break 2;
-						}
-					}
-				}
-				echo "<script>addLog('".addslashes("<$span>".htmlspecialchars($line)."</span>")."');</script>";
-				@flush();
-			};
-			$DockerClient->getContainerLog($container, $echo, $tail, $since);
-			echo '<script>setTimeout("loadLog(\''.addslashes(htmlspecialchars($container)).'\',\''.time().'\')", 2000);</script>';
-			@flush();
-			exit;
-		}
-		break;
-	case 'terminal':
-		$shell = $_REQUEST['shell'] ?: 'sh';
-		$pid = exec("pgrep -a ttyd|awk '/\\/$name\\.sock/{print \$1}'");
-		if ($pid) exec("kill $pid");
-		@unlink("/var/tmp/$name.sock");
-		exec("ttyd-exec -o -i '/var/tmp/$name.sock' docker exec -it '$name' $shell");
-		break;
 	default:
 		$arrResponse = ['error' => _('Unknown action')." '$action'"];
 		break;

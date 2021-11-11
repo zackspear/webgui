@@ -99,6 +99,17 @@ var before = new Date();
 var timers = {};
 timers.bannerWarning = null;
 
+// opened tty windows
+var tty_window = {};
+var _cookies_ = document.cookie.split(';');
+for (var i=0,_cookie_; _cookie_=_cookies_[i]; i++) {
+  var _tag_ = _cookie_.split('=')[0];
+  if (_tag_.search(/^.win-open-/)!=-1) {
+    var _name_ = _tag_.split('-')[2];
+    var _size_ = _cookie_.split('=')[1];
+    tty_window[_name_] = makeWindow(_name_,_size_.split('-')[0],_size_.split('-')[1]);
+  }
+}
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
 
@@ -189,6 +200,13 @@ function chkDelete(form, button) {
   button.value = form.confirmDelete.checked ? "<?=_('Delete')?>" : "<?=_('Apply')?>";
   button.disabled = false;
 }
+function makeWindow(name,height,width) {
+  var top = (screen.height-height)/2;
+  if (top < 0) {top = 0; height = screen.availHeight;}
+  var left = (screen.width-width)/2;
+  if (left < 0) {left = 0; width = screen.availWidth;}
+  return window.open('',name,'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
+}
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
@@ -213,9 +231,24 @@ function openWindow(cmd,title,height,width) {
   if (top < 0) {top = 0; height = screen.availHeight;}
   var left = (screen.availWidth-width)/2;
   if (left < 0) {left = 0; width = screen.availWidth;}
-  var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;
-  window.open('', window_name, options);
+  makeWindow(window_name,height,width);
   form.submit();
+}
+function openTerminal(tag,name,more,height,width) {
+  if (/MSIE|Edge/.test(navigator.userAgent)) {
+    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+    return;
+  }
+  // open terminal window (run in background)
+  var top = (screen.height-height)/2;
+  if (top < 0) {top = 0; height = screen.availHeight;}
+  var left = (screen.width-width)/2;
+  if (left < 0) {left = 0; width = screen.availWidth;}
+  name = name.replace(/ /g,"_");
+  tty_window[name] = makeWindow(name,height,width);
+  $.cookie('win-open-'+name,height+'-'+width,{path:'/'});
+  var socket = (['ttyd','syslog'].includes(tag) ? '/webterminal/' : '/logterminal/')+(more.length==12 ? more : name)+'/';
+  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window[name].location=socket; tty_window[name].focus();});
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
@@ -320,7 +353,7 @@ function digits(number) {
 }
 function openNotifier(filter) {
   notifier.stop();
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
       if (notify.importance == filter) {
@@ -329,7 +362,7 @@ function openNotifier(filter) {
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});}
+          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
     });
@@ -338,10 +371,10 @@ function openNotifier(filter) {
 }
 function closeNotifier(filter) {
   notifier.stop();
-  $.post('/webGui/include/Notify.php',{cmd:'get'},function(json) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
-      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});
+      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
     notifier.start();
@@ -613,7 +646,7 @@ notifier.on('message', function(d) {
       theme: notify.file,
       click: function(e,m,o) { if (notify.link) location=notify.link;},
       beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file});},
+      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
       afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
     });
 <?endif;?>
@@ -687,7 +720,7 @@ $(function() {
   $('#licensetype').addClass('red-text');
 <?endif;?>
 <?if ($notify['entity'] & 1 == 1):?>
-  $.post('/webGui/include/Notify.php',{cmd:'init'},function(){notifier.start();});
+  $.post('/webGui/include/Notify.php',{cmd:'init',csrf_token:csrf_token},function(){notifier.start();});
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').not('.lock').each(function(){$(this).on('input change',function() {

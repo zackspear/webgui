@@ -57,6 +57,7 @@ $vfio_allow_unsafe = detect($syslinux, 'allow_unsafe_interrupts');
 $bgcolor           = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 $started           = $var['fsState']=='Started';
 $libvirt_up        = $libvirt_running=='yes';
+$libvirt_log       = file_exists("/var/log/libvirt/libvirtd.log");
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -196,15 +197,15 @@ _(VFIO allow unsafe interrupts)_:
 :vms_vfio_interupts_help:
 
 </div>
-<?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
-<input type="button" onclick="openWindow('/webGui/scripts/tail_log&arg1=libvirt/libvirtd.log','<?=_('Libvirt Log')?>',600,900);" value="<?=_('View libvirt log')?>"/>
+<?if ($libvirt_log):?>
+<input type="button" onclick="openTerminal('log','libvirt','libvirt/libvirtd.log',600,900);" value="<?=_('View libvirt log')?>"/>
 <?else:?>
 &nbsp;
 <?endif;?>
 <?endif;?>
 : <input type="button" id="applyBtn" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
-<?if (file_exists("/var/log/libvirt/libvirtd.log")):?>
+<?if ($libvirt_log):?>
 
 :vms_libvirt_log_help:
 

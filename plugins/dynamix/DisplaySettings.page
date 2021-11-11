@@ -46,6 +46,20 @@ function upload() {
   } else if (filename) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'banner.png'});
   }
+  // save font size in cookie
+  $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
+  // update terminal font size
+  var arg1 = $('input[name="#arg[1]"]');
+  if (arg1.val() != $('#tty').val()) {
+    arg1.val($('#tty').val());
+    $.each(tty_window,function(name,win){
+      $.removeCookie('win-open-'+name,{path:'/'});
+      win.close();
+    });
+  } else {
+    $('input[name="#command"]').prop('disabled',true);
+    arg1.prop('disabled',true);
+  }
 }
 function presetTime(form) {
   var system = form.date.selectedIndex==0;
@@ -60,9 +74,6 @@ function presetRefresh(form) {
 }
 function presetPassive(index) {
   if (index==0) $('#passive').hide(); else $('#passive').show();
-}
-function saveFontSize() {
-  $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
 }
 function updateDirection(lang) {
   // var rtl = ['ar_AR','fa_FA'].includes(lang) ? "dir='rtl' " : "";
@@ -128,9 +139,11 @@ $(function() {
 
 :display_settings_help:
 
-<form markdown="1" name="display_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="saveFontSize();upload();">
+<form markdown="1" name="display_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="upload()">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="display">
+<input type="hidden" name="#command" value="/webGui/scripts/tty_font">
+<input type="hidden" name="#arg[1]" value="<?=$display['tty']?>">
 <input type="hidden" name="rtl" value="<?=$display['rtl']?>">
 _(Language)_:
 : <select name="locale" class="fixed" onchange="updateDirection(this.value)">
@@ -154,6 +167,18 @@ _(Font size)_:
   </select>
 
 :display_font_size_help:
+
+_(Terminal font size)_:
+: <select name="tty" id="tty">
+  <?=mk_option($display['tty'], "11","11")?>
+  <?=mk_option($display['tty'], "13","13")?>
+  <?=mk_option($display['tty'], "15","15")?>
+  <?=mk_option($display['tty'], "17","17")?>
+  <?=mk_option($display['tty'], "19","19")?>
+  <?=mk_option($display['tty'], "21","21")?>
+  </select>
+
+:display_tty_size_help:
 
 _(Date format)_:
 : <select name="date" onchange="presetTime(this.form)">
