@@ -17,20 +17,18 @@ require_once "$docroot/webGui/include/Secure.php";
 switch ($_GET['tag']) {
 case 'ttyd':
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/ttyd.sock:{print \$1}'");
-  if (!$pid) {
-    @unlink('/var/run/ttyd.sock');
-    exec("ttyd-exec -o -i '/var/run/ttyd.sock' bash --login");
-  }
+  if ($pid) break;
+  @unlink('/var/run/ttyd.sock');
+  exec("ttyd-exec -o -i '/var/run/ttyd.sock' bash --login");
   break;
 case 'syslog':
+  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/syslog.sock:{print \$1}'");
+  if ($pid) break;
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
-  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/syslog.sock:{print \$1}'");
-  if (!$pid) {
-    @unlink('/var/run/syslog.sock');
-    $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
-    exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
-  }
+  @unlink('/var/run/syslog.sock');
+  $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
+  exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
   break;
 case 'log':
   $path = '/var/log/';
