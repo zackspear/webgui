@@ -56,7 +56,10 @@ function upload() {
       $.removeCookie('win-open-'+name,{path:'/'});
       win.close();
     });
-  } else arg1.val('');
+  } else {
+    $('input[name="#command"]').prop('disabled',true);
+    arg1.prop('disabled',true);
+  }
 }
 function presetTime(form) {
   var system = form.date.selectedIndex==0;

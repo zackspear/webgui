@@ -107,9 +107,7 @@ for (var i=0,_cookie_; _cookie_=_cookies_[i]; i++) {
   if (_tag_.search(/^.win-open-/)!=-1) {
     var _name_ = _tag_.split('-')[2];
     var _size_ = _cookie_.split('=')[1];
-    var _height_ = _size_.split('-')[0];
-    var _width_ = _size_.split('-')[1];
-    tty_window[_name_] = makeWindow(_name_,_height_,_width_);
+    tty_window[_name_] = makeWindow(_name_,_size_.split('-')[0],_size_.split('-')[1]);
   }
 }
 // current csrf_token

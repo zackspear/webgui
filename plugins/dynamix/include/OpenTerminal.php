@@ -19,7 +19,7 @@ case 'ttyd':
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/ttyd.sock:{print \$1}'");
   if (!$pid) {
     @unlink('/var/run/ttyd.sock');
-    exec("ttyd-exec -i '/var/run/ttyd.sock' bash --login");
+    exec("ttyd-exec -o -i '/var/run/ttyd.sock' bash --login");
   }
   break;
 case 'syslog':
@@ -29,7 +29,7 @@ case 'syslog':
   if ($pid) exec("kill $pid");
   @unlink('/var/run/syslog.sock');
   $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
-  exec("ttyd-exec -i '/var/run/syslog.sock' $command");
+  exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
   break;
 case 'log':
   $path = '/var/log/';
@@ -39,7 +39,7 @@ case 'log':
   if ($pid) exec("kill $pid");
   @unlink('/var/tmp/$name.sock');
   $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
-  exec("ttyd-exec -i '/var/tmp/$name.sock' $command");
+  exec("ttyd-exec -o -i '/var/tmp/$name.sock' $command");
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
@@ -50,7 +50,7 @@ case 'docker':
   if ($pid) exec("kill $pid");
   @unlink("/var/tmp/$id.sock");
   $command = $exec ? "docker exec -it '$name' $shell" : "docker logs -f -n 40 '$name'";
-  exec("ttyd-exec -i '/var/tmp/$id.sock' $command");
+  exec("ttyd-exec -o -i '/var/tmp/$id.sock' $command");
   break;
 }
 ?>
