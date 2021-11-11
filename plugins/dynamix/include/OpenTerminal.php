@@ -19,14 +19,10 @@ function command($path,$file) {
 }
 switch ($_GET['tag']) {
 case 'ttyd':
-  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/ttyd.sock:{print \$1}'");
-  if ($pid) break;
   @unlink('/var/run/ttyd.sock');
   exec("ttyd-exec -o -i '/var/run/ttyd.sock' bash --login");
   break;
 case 'syslog':
-  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/syslog.sock:{print \$1}'");
-  if ($pid) break;
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   @unlink('/var/run/syslog.sock');
@@ -36,23 +32,17 @@ case 'log':
   $path = '/var/log/';
   $name = unbundle($_GET['name']);
   $file = realpath($path.$_GET['more']);
-  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/tmp\\/$name.sock:{print \$1}'");
-  if ($pid) exec("kill $pid");
   @unlink('/var/tmp/$name.sock');
-  usleep(100000);
   exec("ttyd-exec -o -i '/var/tmp/$name.sock' ".command($path,$file));
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
-  $shell = unbundle($_GET['more']) ?: 'sh';
-  $exec = strlen($shell)!=12; // container-id
-  $id = $exec ? $name : $shell;
-  $pid = exec("pgrep -a ttyd|awk '/\\/var\\/tmp\\/$id\\.sock/{print \$1}'");
-  if ($pid) exec("kill $pid");
-  @unlink("/var/tmp/$id.sock");
-  usleep(100000);
-  $command = $exec ? "docker exec -it '$name' $shell" : "docker logs -f -n 40 '$name'";
-  exec("ttyd-exec -o -i '/var/tmp/$id.sock' $command");
+  $more = unbundle($_GET['more']) ?: 'sh';
+  $exec = strlen($more)!=12; // container-id
+  $sock = $exec ? $name : $more;
+  @unlink("/var/tmp/$sock.sock");
+  $command = $exec ? "docker exec -it '$name' $more" : "docker logs -f -n 40 '$name'";
+  exec("ttyd-exec -o -i '/var/tmp/$sock.sock' $command");
   break;
 }
 ?>
