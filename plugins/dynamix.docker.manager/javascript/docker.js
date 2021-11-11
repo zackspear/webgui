@@ -4,7 +4,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
   var opts = [];
   if (started && !paused) {
     if (webui !== '' && webui != '#') opts.push({text:_('WebUI'), icon:'fa-globe', href:webui, target:'_blank'});
-    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); dockerTerminal(container,shell);}});
+    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); openTerminal('docker',container,shell,600,900);}});
     opts.push({divider:true});
   }
   if (update==1) {
@@ -23,7 +23,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:_('Start'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
   }
   opts.push({divider:true});
-  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); containerLogs(container, id);}});
+  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,id,600,900);}});
   if (template) {
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
@@ -52,9 +52,6 @@ function addDockerImageContext(image, imageTag) {
   var opts = [];
   opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmImage(image, imageTag);}});
   context.attach('#'+image, opts);
-}
-function dockerTerminal(container,shell) {
-  openTerminal('docker',container,shell,600,900);
 }
 function popupWithIframe(title, cmd, reload, func) {
   pauseEvents();
@@ -207,7 +204,4 @@ function rebuildAll() {
   var ct = [];
   for (var i=0,d; d=docker[i]; i++) if (d.update==2) ct.push(encodeURI(d.name));
   $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true,mute:true,ct},function(){loadlist();});
-}
-function containerLogs(container, id) {
-  openTerminal('docker',container,id,600,900);
 }
