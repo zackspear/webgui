@@ -14,7 +14,7 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Secure.php";
 
-function valid($path,$file) {
+function command($path,$file) {
   return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -n 40 -f '$file'" : "bash --login --restricted";
 }
 switch ($_GET['tag']) {
@@ -30,8 +30,7 @@ case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   @unlink('/var/run/syslog.sock');
-  $command = valid($path,$file);
-  exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
+  exec("ttyd-exec -o -i '/var/run/syslog.sock' ".command($path,$file));
   break;
 case 'log':
   $path = '/var/log/';
@@ -40,9 +39,8 @@ case 'log':
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/tmp\\/$name.sock:{print \$1}'");
   if ($pid) exec("kill $pid");
   @unlink('/var/tmp/$name.sock');
-  $command = valid($path,$file);
   usleep(100000);
-  exec("ttyd-exec -o -i '/var/tmp/$name.sock' $command");
+  exec("ttyd-exec -o -i '/var/tmp/$name.sock' ".command($path,$file));
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
@@ -52,8 +50,8 @@ case 'docker':
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/tmp\\/$id\\.sock/{print \$1}'");
   if ($pid) exec("kill $pid");
   @unlink("/var/tmp/$id.sock");
-  $command = $exec ? "docker exec -it '$name' $shell" : "docker logs -f -n 40 '$name'";
   usleep(100000);
+  $command = $exec ? "docker exec -it '$name' $shell" : "docker logs -f -n 40 '$name'";
   exec("ttyd-exec -o -i '/var/tmp/$id.sock' $command");
   break;
 }
