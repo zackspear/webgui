@@ -26,11 +26,11 @@ case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   $pid = exec("pgrep -a ttyd|awk '/\\/var\\/run\\/syslog.sock:{print \$1}'");
-  if ($pid) exec("kill $pid");
-  @unlink('/var/run/syslog.sock');
-  $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
-  usleep(100000);
-  exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
+  if (!$pid) {
+    @unlink('/var/run/syslog.sock');
+    $command = file_exists($file) ? "tail -n 40 -f '$file'" : "bash --login";
+    exec("ttyd-exec -o -i '/var/run/syslog.sock' $command");
+  }
   break;
 case 'log':
   $path = '/var/log/';
