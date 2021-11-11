@@ -314,6 +314,7 @@ class DockerTemplates {
 			$tmp['Support'] = $tmp['Support'] ?? $this->getTemplateValue($image, 'Support');
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			$tmp['DonateLink'] = $tmp['DonateLink'] ?? $this->getTemplateValue($image, 'DonateLink');
+			$tmp['ReadMe'] = $tmp['ReadMe'] ?? $this->getTemplateValue($image, 'ReadMe');
 			if (!$tmp['updated'] || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
@@ -547,7 +548,7 @@ class DockerUpdate{
 	public function updateUserTemplate($Container) {
 		$changed = false;
 		$DockerTemplates = new DockerTemplates();
-		$validElements = ['Support', 'Overview', 'Category', 'Project', 'Icon'];
+		$validElements = ['Support', 'Overview', 'Category', 'Project', 'Icon', 'ReadMe'];
 		$validAttributes = ['Name', 'Default', 'Description', 'Display', 'Required', 'Mask'];
 		// Get user template file and abort if fail
 		if (!$file = $DockerTemplates->getUserTemplate($Container)) {
