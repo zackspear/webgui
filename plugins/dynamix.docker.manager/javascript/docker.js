@@ -54,12 +54,7 @@ function addDockerImageContext(image, imageTag) {
   context.attach('#'+image, opts);
 }
 function dockerTerminal(container,shell) {
-  var height = 600;
-  var width = 900;
-  var top = (screen.height-height)/2;
-  var left = (screen.width-width)/2;
-  var win = window.open('', container, 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
-  $.get(eventURL,{action:'terminal',name:container,shell:shell},function(){win.location='/dockerterminal/'+container+'/'; win.focus();});
+  openTerminal('docker',container,shell,600,900);
 }
 function popupWithIframe(title, cmd, reload, func) {
   pauseEvents();
@@ -214,11 +209,5 @@ function rebuildAll() {
   $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true,mute:true,ct},function(){loadlist();});
 }
 function containerLogs(container, id) {
-  var height = 600;
-  var width = 900;
-  var run = eventURL+'?action=log&container='+id+'&title='+_('Log for:')+' '+container;
-  var top = (screen.height-height) / 2;
-  var left = (screen.width-width) / 2;
-  var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;
-  window.open(run, _('log'), options);
+  openTerminal('docker',container,id,600,900);
 }

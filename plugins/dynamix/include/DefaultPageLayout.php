@@ -99,6 +99,19 @@ var before = new Date();
 var timers = {};
 timers.bannerWarning = null;
 
+// opened tty windows
+var tty_window = {};
+var _cookies_ = document.cookie.split(';');
+for (var i=0,_cookie_; _cookie_=_cookies_[i]; i++) {
+  var _tag_ = _cookie_.split('=')[0];
+  if (_tag_.search(/^.win-open-/)!=-1) {
+    var _name_ = _tag_.split('-')[2];
+    var _size_ = _cookie_.split('=')[1];
+    var _height_ = _size_.split('-')[0];
+    var _width_ = _size_.split('-')[1];
+    tty_window[_name_] = makeWindow(_name_,_height_,_width_);
+  }
+}
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
 
@@ -189,6 +202,13 @@ function chkDelete(form, button) {
   button.value = form.confirmDelete.checked ? "<?=_('Delete')?>" : "<?=_('Apply')?>";
   button.disabled = false;
 }
+function makeWindow(name,height,width) {
+  var top = (screen.height-height)/2;
+  if (top < 0) {top = 0; height = screen.availHeight;}
+  var left = (screen.width-width)/2;
+  if (left < 0) {left = 0; width = screen.availWidth;}
+  return window.open('',name,'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
+}
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
@@ -213,9 +233,20 @@ function openWindow(cmd,title,height,width) {
   if (top < 0) {top = 0; height = screen.availHeight;}
   var left = (screen.availWidth-width)/2;
   if (left < 0) {left = 0; width = screen.availWidth;}
-  var options = 'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left;
-  window.open('', window_name, options);
+  makeWindow(window_name,height,width);
   form.submit();
+}
+function openTerminal(tag,name,more,height,width) {
+  // open terminal window (run in background)
+  var top = (screen.height-height)/2;
+  if (top < 0) {top = 0; height = screen.availHeight;}
+  var left = (screen.width-width)/2;
+  if (left < 0) {left = 0; width = screen.availWidth;}
+  name = name.replace(/ /g,"_");
+  tty_window[name] = makeWindow(name,height,width);
+  $.cookie('win-open-'+name,height+'-'+width,{path:'/'});
+  var socket = (['ttyd','syslog'].includes(tag) ? '/webterminal/' : '/logterminal/')+(more.length==12 ? more : name)+'/';
+  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window[name].location=socket; tty_window[name].focus();});
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
