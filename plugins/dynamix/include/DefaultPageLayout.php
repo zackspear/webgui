@@ -227,10 +227,6 @@ function openWindow(cmd,title,height,width) {
   form_html += '</form>';
   var form = $(form_html);
   $('body').append(form);
-  var top = (screen.availHeight-height)/2;
-  if (top < 0) {top = 0; height = screen.availHeight;}
-  var left = (screen.availWidth-width)/2;
-  if (left < 0) {left = 0; width = screen.availWidth;}
   makeWindow(window_name,height,width);
   form.submit();
 }
@@ -240,10 +236,6 @@ function openTerminal(tag,name,more,height,width) {
     return;
   }
   // open terminal window (run in background)
-  var top = (screen.height-height)/2;
-  if (top < 0) {top = 0; height = screen.availHeight;}
-  var left = (screen.width-width)/2;
-  if (left < 0) {left = 0; width = screen.availWidth;}
   name = name.replace(/ /g,"_");
   tty_window[name] = makeWindow(name,height,width);
   $.cookie('win-open-'+name,height+'-'+width,{path:'/'});
