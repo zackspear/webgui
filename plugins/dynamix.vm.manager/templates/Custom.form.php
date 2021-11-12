@@ -1016,7 +1016,7 @@
 					<?
 					foreach (array_keys($arrValidNetworks) as $key) {
 
-						echo mk_option("", $key, "- ".$key." -", "disabled");
+						echo mk_option("", $key, "- "._($key)." -", "disabled");
 
 						foreach ($arrValidNetworks[$key] as $strNetwork) {
 							echo mk_option($arrNic['network'], $strNetwork, $strNetwork);
@@ -1078,7 +1078,7 @@
 					<?
 					foreach (array_keys($arrValidNetworks) as $key) {
 
-						echo mk_option("", $key, "- ".$key." -", "disabled");
+						echo mk_option("", $key, "- "._($key)." -", "disabled");
 
 						foreach ($arrValidNetworks[$key] as $strNetwork) {
 							echo mk_option($domain_bridge, $strNetwork, $strNetwork);
