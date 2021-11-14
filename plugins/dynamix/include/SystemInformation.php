@@ -95,8 +95,8 @@ echo "{$bios['Vendor']} Version {$bios['Version']}. Dated: {$bios['Release Date'
 <div><span class="key"><?=_('CPU')?>:</span>
 <?
 $cpu = dmidecode('Processor Information','4',0);
-$cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version']);
-echo $cpumodel.(strpos($cpumodel,'@')!==false ? "" : " @ {$cpu['Current Speed']}");
+$cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version'] ?? exec("grep -Pom1 'model name\s+:\s*\K.+' /proc/cpuinfo"));
+echo $cpumodel.(strpos($cpumodel,'@')===false && !empty($cpu['Current Speed']) ? " @ {$cpu['Current Speed']}" : "");
 ?>
 </div>
 <div><span class="key"><?=_('HVM')?>:</span>
