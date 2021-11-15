@@ -28,7 +28,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
   opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmContainer(container, image, id);}});
-  if (Support || Project || ReadMe) {
+  if (ReadMe||Project||Support||Registry) {
     opts.push({divider:true});
   }
   if (ReadMe) {
