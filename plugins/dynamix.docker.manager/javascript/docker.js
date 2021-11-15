@@ -27,9 +27,8 @@ function addDockerContainerContext(container, image, template, started, paused, 
   if (template) {
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
-  opts.push({divider:true});
   opts.push({text:_('Remove'), icon:'fa-trash', action:function(e){e.preventDefault(); rmContainer(container, image, id);}});
-  if ( Support || Project || ReadMe ) {
+  if (Support || Project || ReadMe) {
     opts.push({divider:true});
   }
   if (ReadMe) {
@@ -41,7 +40,6 @@ function addDockerContainerContext(container, image, template, started, paused, 
   if (Support) {
     opts.push({text:_('Support'), icon:'fa-question', href:Support, target:'_blank'});
   }
-
   if (Registry) {
     opts.push({text:_('More Info'),icon:'fa-info-circle', href:Registry, target:'_blank'});
   }
