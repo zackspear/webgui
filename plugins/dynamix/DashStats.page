@@ -1003,8 +1003,8 @@ function sortTable(table,index) {
 }
 function setColor(l, t1, t2) {
   switch (true) {
-  case (l >= t1): return 'redbar';
-  case (l >= t2): return 'orangebar';
+  case (t1 > 0 && l >= t1): return 'redbar';
+  case (t2 > 0 && l >= t2): return 'orangebar';
   default       : return '';}
 }
 
