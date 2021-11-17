@@ -922,18 +922,18 @@
 
 		$arrValidNetworks['bridges'] = array_values($arrBridges);
 
-        // This breaks VMSettings.page if libvirt is not running
-        if ($libvirt_running == "yes") {
-		    $arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
-
-		    if (($key = array_search('default', $arrVirtual)) !== false) {
-		    	unset($arrVirtual[$key]);
-		    }
-
-		    array_unshift($arrVirtual, 'default');
-
-		    $arrValidNetworks['libvirt'] = array_values($arrVirtual);
-        }
+		// This breaks VMSettings.page if libvirt is not running
+        	if ($libvirt_running == "yes") {
+			$arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
+			
+			if (($key = array_search('default', $arrVirtual)) !== false) {
+				unset($arrVirtual[$key]);
+			}
+			
+			array_unshift($arrVirtual, 'default');
+			
+			$arrValidNetworks['libvirt'] = array_values($arrVirtual);
+		}
 
 		return $arrValidNetworks;
 	}
