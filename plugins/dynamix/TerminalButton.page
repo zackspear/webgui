@@ -17,6 +17,7 @@ Code="e93f"
 ?>
 <script>
 function TerminalButton() {
-  openTerminal('ttyd','ttyd','',600,900);
+  var d = new Date();
+  openTerminal('ttyd','Web Terminal '+d.getTime(),'',600,900);
 }
 </script>

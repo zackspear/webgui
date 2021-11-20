@@ -1,5 +1,0 @@
-#!/bin/bash
-if [[ -n $1 ]]; then
-  pkill ttyd
-  sed -ri "s/fontSize=[0-9]+/fontSize=$1/" /etc/default/ttyd
-fi
