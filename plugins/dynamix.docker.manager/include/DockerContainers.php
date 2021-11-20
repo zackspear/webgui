@@ -106,7 +106,7 @@ foreach ($containers as $ct) {
     $appname = htmlspecialchars($name);
   }
   echo "<span class='outer'><span id='$id' class='hand'>$image</span><span class='inner'><span class='appname $update'>$appname</span><br><i id='load-$id' class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
-  echo "<span class='advanced' style='display:block;margin-top:8px'>"._('Container ID').": $id<br>";
+  echo "<div class='advanced' style='margin-top:8px'>"._('Container ID').": $id<br>";
   if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars(${ct['BaseImage']})."<br>";
   echo _('By').": ";
   $registry = $info['registry'];
@@ -116,7 +116,7 @@ foreach ($containers as $ct) {
   } else {
     echo htmlspecialchars(compress($author,24));
   }
-  echo "</span></td><td class='updatecolumn'>";
+  echo "</div></td><td class='updatecolumn'>";
   switch ($updateStatus) {
   case 0:
     echo "<span class='green-text' style='white-space:nowrap;'><i class='fa fa-check fa-fw'></i> "._('up-to-date')."</span>";

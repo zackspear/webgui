@@ -808,7 +808,7 @@ page for that disk.
 :end
 
 :disk_spinup_groups_help:
-If set to 'Yes' then the [Spinup Groups](/Help) feature is enabled.
+If set to 'Yes' then the spinup groups feature is enabled.
 :end
 
 :disk_default_partition_format_help:
@@ -2012,6 +2012,10 @@ Link to a support thread on Lime-Technology's forum.
 
 :docker_client_project_page_help:
 Link to the project page (eg: www.plex.tv)
+:end
+
+:docker_client_readme_help:
+Link to a readme file or page
 :end
 
 :docker_client_hub_url_help:

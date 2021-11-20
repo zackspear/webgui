@@ -44,8 +44,8 @@ $docroot = '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Secure.php";
 
 $rootdir  = path(realpath($_POST['dir']));
-$filters  = (array)($_POST['filter']);
-$match    = unbundle($_POST['match']);
+$filters  = (array)$_POST['filter'];
+$match    = $_POST['match'];
 $checkbox = $_POST['multiSelect']=='true' ? "<input type='checkbox'>" : "";
 
 echo "<ul class='jqueryFileTree'>";
@@ -58,7 +58,7 @@ if (is_low($rootdir) && is_dir($rootdir)) {
     foreach ($names as $dir) if (is_dir($rootdir.$dir)) {
       $htmlRel  = htmlspecialchars($rootdir.$dir);
       $htmlName = htmlspecialchars(mb_strlen($dir)<=33 ? $dir : mb_substr($dir,0,33).'...');
-      echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
+      if (empty($match)||preg_match("/$match/",$rootdir.$dir)) echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
     }
     foreach ($names as $file) if (is_file($rootdir.$file)) {
       $htmlRel  = htmlspecialchars($rootdir.$file);
