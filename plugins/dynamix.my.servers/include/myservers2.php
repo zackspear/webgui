@@ -471,7 +471,7 @@
       "flashvendor" => $var['flashVendor'],
       "guid" => $var['flashGUID'],
       "regGuid" => $var['regGUID'],
-      "internalip" => $_SERVER['SERVER_ADDR'],
+      "internalip" => is_array(ipaddr()) ? ipaddr()[0] : ipaddr(),
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
       "osVersion" => $var['version'],
