@@ -239,6 +239,9 @@ function autov($file,$ret=false) {
   else
     echo $newFile;
 }
+function trim_slash($dir){
+  return preg_replace('://+:','/',$dir);
+}
 function transpose_user_path($path) {
   if (strpos($path, '/mnt/user/') === 0 && file_exists($path)) {
     $realdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($path)." 2>/dev/null"));
