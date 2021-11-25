@@ -1507,8 +1507,8 @@ More optional selections are present for bridges under network settings or for l
 
 NOTE: You can also specify a network source on a per-VM basis.
 
-**IMPORTANT: Most LibVirt networks only become active as soon as the associated interface is up.  
-This can be ensured with an 'ip link set <ethx> up' at the beginning of the go file.**
+**IMPORTANT: Neither Libvirt nor Unraid automatically brings up an interface that is assigned to a Libvirt network.
+Before you use a Libvirt network, please go to Settings -> Network Settings and, if necessary, manually set the associated interface to up.**
 :end
 
 :vms_host_shutdown_help:
