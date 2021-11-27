@@ -30,11 +30,11 @@ function path($dir) {
 }
 function is_top($dir) {
   global $root;
-  return strlen($dir)>strlen($root);
+  return mb_strlen($dir)>mb_strlen($root);
 }
 function is_low($dir) {
   global $root;
-  return substr($dir,0,strlen($root))==$root;
+  return mb_substr($dir,0,mb_strlen($root))==$root;
 }
 
 $root = path(realpath($_POST['root']));
@@ -57,7 +57,7 @@ if (is_low($rootdir) && is_dir($rootdir)) {
     natcasesort($names);
     foreach ($names as $dir) if (is_dir($rootdir.$dir)) {
       $htmlRel  = htmlspecialchars($rootdir.$dir);
-      $htmlName = htmlspecialchars(mb_strlen($dir)<=33 ? $dir : mb_substr($dir,0,33).'...');
+      $htmlName = htmlspecialchars(mb_strlen($dir)<=33 ? $dir : mb_substr($dir,0,30).'...');
       if (empty($match)||preg_match("/$match/",$rootdir.$dir)) echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
     }
     foreach ($names as $file) if (is_file($rootdir.$file)) {
