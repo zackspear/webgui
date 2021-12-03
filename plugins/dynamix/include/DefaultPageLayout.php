@@ -99,17 +99,6 @@ var before = new Date();
 var timers = {};
 timers.bannerWarning = null;
 
-// opened tty windows
-var tty_window = {};
-var _cookies_ = document.cookie.split(';');
-for (var i=0,_cookie_; _cookie_=_cookies_[i]; i++) {
-  var _tag_ = _cookie_.split('=')[0];
-  if (_tag_.search(/^.win-open-/)!=-1) {
-    var _name_ = _tag_.split('-')[2];
-    var _size_ = _cookie_.split('=')[1];
-    tty_window[_name_] = makeWindow(_name_,_size_.split('-')[0],_size_.split('-')[1]);
-  }
-}
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
 
@@ -237,10 +226,9 @@ function openTerminal(tag,name,more,height,width) {
   }
   // open terminal window (run in background)
   name = name.replace(/ /g,"_");
-  tty_window[name] = makeWindow(name,height,width);
-  $.cookie('win-open-'+name,height+'-'+width,{path:'/'});
-  var socket = (['ttyd','syslog'].includes(tag) ? '/webterminal/' : '/logterminal/')+(more.length==12 ? more : name)+'/';
-  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window[name].location=socket; tty_window[name].focus();});
+  tty_window = makeWindow(name,height,width);
+  var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+(more.length==12 ? more : name)+'/';
+  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});

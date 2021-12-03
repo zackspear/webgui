@@ -46,21 +46,6 @@ function upload() {
   } else if (filename) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'banner.png'});
   }
-  // save font size in cookie
-  $.cookie('fontSize',$('#font option:selected').val(),{path:'/',expires:3650});
-  // update terminal font size
-  var arg1 = $('input[name="#arg[1]"]');
-  if (arg1.val() != $('#tty').val()) {
-    arg1.val($('#tty').val());
-    $.each(tty_window,function(name,win){
-      $.removeCookie('win-open-'+name,{path:'/'});
-      win.close();
-    });
-  } else {
-    $('input[name="#command"]').prop('disabled',true);
-    arg1.prop('disabled',true);
-  }
-}
 function presetTime(form) {
   var system = form.date.selectedIndex==0;
   if (system) form.time.selectedIndex = 0;
@@ -142,8 +127,6 @@ $(function() {
 <form markdown="1" name="display_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="upload()">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="display">
-<input type="hidden" name="#command" value="/webGui/scripts/tty_font">
-<input type="hidden" name="#arg[1]" value="<?=$display['tty']?>">
 <input type="hidden" name="rtl" value="<?=$display['rtl']?>">
 _(Language)_:
 : <select name="locale" class="fixed" onchange="updateDirection(this.value)">
