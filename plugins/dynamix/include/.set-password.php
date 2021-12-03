@@ -90,7 +90,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     body {
         background: var(--body-bg);
         color: var(--body-text-color);
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         font-size: .875rem;
         padding: 0;
         margin: 0;
@@ -116,7 +116,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     }
     .button {
         color: #ff8c2f;
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         background: -webkit-gradient(linear,left top,right top,from(#e03237),to(#fd8c3c)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e03237),to(#fd8c3c)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e03237),to(#e03237)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#fd8c3c),to(#fd8c3c)) 100% 100% no-repeat;
         background: linear-gradient(90deg,#e03237 0,#fd8c3c) 0 0 no-repeat,linear-gradient(90deg,#e03237 0,#fd8c3c) 0 100% no-repeat,linear-gradient(0deg,#e03237 0,#e03237) 0 100% no-repeat,linear-gradient(0deg,#fd8c3c 0,#fd8c3c) 100% 100% no-repeat;
         background-size: 100% 2px,100% 2px,2px 100%,2px 100%;
@@ -156,7 +156,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     [type=password],
     [type=text] {
         color: var(--form-text-color);
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         font-size: .875rem;
         background-color: var(--form-bg-color);
         width: 100%;
