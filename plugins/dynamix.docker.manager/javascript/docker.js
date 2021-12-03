@@ -61,7 +61,7 @@ function popupWithIframe(title, cmd, reload, func) {
     autoOpen:true,
     title:title,
     draggable:true,
-    width:800,
+    width:900,
     height:((screen.height / 5) * 4) || 0,
     resizable:true,
     modal:true,
