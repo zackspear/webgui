@@ -492,7 +492,6 @@ foreach ($pages as $page) {
     $pgs = find_pages($page['name']);
     foreach ($pgs as $pg) {
       @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
-      $link = "$path/{$pg['name']}";
       $icon = $pg['Icon'] ?? "<i class='icon-app PanelIcon'></i>";
       if (substr($icon,-4)=='.png') {
         $root = $pg['root'];
@@ -509,7 +508,7 @@ foreach ($pages as $page) {
         if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
         $icon = "<i class='fa $icon PanelIcon'></i>";
       }
-      echo "<div class=\"Panel\"><a href=\"$link\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
+      echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
     }
   }
   // create list of nchan scripts to be started
