@@ -62,46 +62,16 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     /  Fonts
     /
     /************************/
-    @font-face {
-        font-family: 'ClearSans';
-        src: url('/webGui/styles/clear-sans-bold-italic.eot');
-        src: url('/webGui/styles/clear-sans-bold-italic.eot?#iefix') format('embedded-opentype'),
-             url('/webGui/styles/clear-sans-bold-italic.woff') format('woff'),
-             url('/webGui/styles/clear-sans-bold-italic.ttf') format('truetype'),
-             url('/webGui/styles/clear-sans-bold-italic.svg#clear_sansbold_italic') format('svg');
-        font-weight: bold;
-        font-style: italic;
-    }
-    @font-face {
-        font-family: 'ClearSans';
-        src: url('/webGui/styles/clear-sans-bold.eot');
-        src: url('/webGui/styles/clear-sans-bold.eot?#iefix') format('embedded-opentype'),
-             url('/webGui/styles/clear-sans-bold.woff') format('woff'),
-             url('/webGui/styles/clear-sans-bold.ttf') format('truetype'),
-             url('/webGui/styles/clear-sans-bold.svg#clear_sansbold') format('svg');
-        font-weight: bold;
-        font-style: normal;
-    }
-    @font-face {
-        font-family: 'ClearSans';
-        src: url('/webGui/styles/clear-sans-italic.eot');
-        src: url('/webGui/styles/clear-sans-italic.eot?#iefix') format('embedded-opentype'),
-             url('/webGui/styles/clear-sans-italic.woff') format('woff'),
-             url('/webGui/styles/clear-sans-italic.ttf') format('truetype'),
-             url('/webGui/styles/clear-sans-italic.svg#clear_sansitalic') format('svg');
-        font-weight: normal;
-        font-style: italic;
-    }
-    @font-face {
-        font-family: 'ClearSans';
-        src: url('/webGui/styles/clear-sans.eot');
-        src: url('/webGui/styles/clear-sans.eot?#iefix') format('embedded-opentype'),
-             url('/webGui/styles/clear-sans.woff') format('woff'),
-             url('/webGui/styles/clear-sans.ttf') format('truetype'),
-             url('/webGui/styles/clear-sans.svg#clear_sansregular') format('svg');
-        font-weight: normal;
-        font-style: normal;
-    }
+    @font-face{font-family:clear-sans;font-weight:normal;font-style:normal;
+    src:url('/webGui/styles/clear-sans.eot?20210203');src:url('/webGui/styles/clear-sans.eot?20210203#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans.woff?20210203') format('woff'),url('/webGui/styles/clear-sans.ttf?20210203') format('truetype'),url('/webGui/styles/clear-sans.svg?20210203#clear-sans') format('svg')}
+    @font-face{font-family:clear-sans;font-weight:bold;font-style:normal;
+    src:url('/webGui/styles/clear-sans-bold.eot?20210203');src:url('/webGui/styles/clear-sans-bold.eot?20210203?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold.woff?20210203') format('woff'),url('/webGui/styles/clear-sans-bold.ttf?20210203') format('truetype'),url('/webGui/styles/clear-sans-bold.svg?20210203#clear-sans-bold') format('svg')}
+    @font-face{font-family:clear-sans;font-weight:normal;font-style:italic;
+    src:url('/webGui/styles/clear-sans-italic.eot?20210203');src:url('/webGui/styles/clear-sans-italic.eot?20210203?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-italic.woff?20210203') format('woff'),url('/webGui/styles/clear-sans-italic.ttf?20210203') format('truetype'),url('/webGui/styles/clear-sans-italic.svg?20210203#clear-sans-italic') format('svg')}
+    @font-face{font-family:clear-sans;font-weight:bold;font-style:italic;
+    src:url('/webGui/styles/clear-sans-bold-italic.eot?20210203');src:url('/webGui/styles/clear-sans-bold-italic.eot?20210203?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold-italic.woff?20210203') format('woff'),url('/webGui/styles/clear-sans-bold-italic.ttf?20210203') format('truetype'),url('/webGui/styles/clear-sans-bold-italic.svg?20210203#clear-sans-bold-italic') format('svg')}
+    @font-face{font-family:bitstream;font-weight:normal;font-style:normal;
+    src:url('/webGui/styles/bitstream.eot?20210203');src:url('/webGui/styles/bitstream.eot?20210203?#iefix') format('embedded-opentype'),url('/webGui/styles/bitstream.woff?20210203') format('woff'),url('/webGui/styles/bitstream.ttf?20210203') format('truetype'),url('/webGui/styles/bitstream.svg?20210203#bitstream') format('svg')}
 
     /************************
     /
@@ -120,7 +90,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     body {
         background: var(--body-bg);
         color: var(--body-text-color);
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         font-size: .875rem;
         padding: 0;
         margin: 0;
@@ -146,7 +116,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     }
     .button {
         color: #ff8c2f;
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         background: -webkit-gradient(linear,left top,right top,from(#e03237),to(#fd8c3c)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e03237),to(#fd8c3c)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e03237),to(#e03237)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#fd8c3c),to(#fd8c3c)) 100% 100% no-repeat;
         background: linear-gradient(90deg,#e03237 0,#fd8c3c) 0 0 no-repeat,linear-gradient(90deg,#e03237 0,#fd8c3c) 0 100% no-repeat,linear-gradient(0deg,#e03237 0,#e03237) 0 100% no-repeat,linear-gradient(0deg,#fd8c3c 0,#fd8c3c) 100% 100% no-repeat;
         background-size: 100% 2px,100% 2px,2px 100%,2px 100%;
@@ -186,7 +156,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
     [type=password],
     [type=text] {
         color: var(--form-text-color);
-        font-family: ClearSans, sans-serif;
+        font-family: clear-sans, sans-serif;
         font-size: .875rem;
         background-color: var(--form-bg-color);
         width: 100%;

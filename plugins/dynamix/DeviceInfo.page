@@ -352,11 +352,13 @@ _(Identification)_:
 
 <?endif;?>
 <?if (!$unassigned):?>
+<?if ($disk['type']!='Parity'):?>
 _(Comments)_:
 : <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
 :info_comments_help:
 
+<?endif;?>
 _(Partition size)_:
 : <?=my_number($disk['sizeSb'])?> KB (K=1024)
 
