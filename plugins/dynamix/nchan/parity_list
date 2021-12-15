@@ -16,6 +16,7 @@ session_start();
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
 $log     = '/boot/config/parity-checks.log';
+$stamps  = '/var/tmp/stamps.ini';
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -75,10 +76,12 @@ while (true) {
     $locale_init = $display['locale'];
     update_translation($locale_init);
   }
+  $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
+  $sbSynced = array_shift($synced);
   if ($var['mdResyncPos']) {
     $data = [];
     $data[] = my_scale($var['mdResyncSize']*1024,$unit,-1)." $unit";
-    $data[] = _(my_clock(floor((time()-$var['sbSynced'])/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
+    $data[] = _(my_clock(floor((time()-($sbSynced?:$var['sbSynced']))/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResyncSize']/100+1)),1,$display['number'][0],'')." %)";
     $data[] = $var['mdResyncDt'] ? my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec" : '---';
     $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($var['mdResyncSize']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
@@ -88,12 +91,14 @@ while (true) {
     if ($var['sbSynced']>0 && $var['sbSynced2']>0) {
       $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
       if (!in_parity_log($log,$timestamp)) {
-        $duration = $var['sbSynced2'] - $var['sbSynced'];
+        $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
+        $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
         $status   = $var['sbSyncExit'];
-        $speed    = ($status==0) ? my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/s" : _('Unavailable');
+        $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration+array_sum($idle)),$unit,1)." $unit/s" : 0;
         $error    = $var['sbSyncErrs'];
         $year     = date('Y',$var['sbSynced2']);
         if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error\n",FILE_APPEND);
+        if (file_exists($stamps)) unlink($stamps);
       }
     }
   }
