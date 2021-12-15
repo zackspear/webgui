@@ -11,8 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$stamps  = '/var/tmp/stamps.ini';
+$stamps = '/var/tmp/stamps.ini';
 
 switch ($_POST['action']) {
 case 'pause':

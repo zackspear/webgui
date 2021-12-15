@@ -23,6 +23,7 @@ $mode   = ['Disabled','Daily','Weekly','Monthly','Yearly','Custom'];
 $days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 $memory = '/tmp/memory.tmp';
+
 if (file_exists($memory)) {
   parse_str(file_get_contents($memory), $parity);
   if (empty($parity['hour'])) $parity['hour'] = "";
@@ -31,6 +32,8 @@ if (file_exists($memory)) {
   if (empty($parity['month'])) $parity['month'] = "";
   if (empty($parity['write'])) $parity['write'] = "";
 }
+if ($parity['mode']<2) $parity['cumulative'] = '';
+if ($parity['mode']==2) $parity['frequency'] = '1';
 ?>
 <script>
 <?if ($parity['mode']==5):?>
@@ -84,6 +87,12 @@ function presetParity(form) {
   form.month.disabled = mode<4;
   form.write.disabled = mode==0;
 }
+function showCumulative(val,pace) {
+  if (val=='') $('#cumulative').hide(pace); else $('#cumulative').show(pace);
+}
+$(function(){
+  showCumulative($('select[name="cumulative"]').val());
+});
 </script>
 <form markdown="1" name="parity_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareParity(this)">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg"/>
@@ -188,6 +197,27 @@ _(Write corrections to parity disk)_:
 
 :parity_write_corrections_help:
 
+_(Cumulative parity check)_:
+: <select name="cumulative" onchange="showCumulative(this.value,'slow')" <?=$parity['mode']>1?'':'disabled'?>>
+  <?=mk_option($parity['cumulative'], "", _("No"))?>
+  <?=mk_option($parity['cumulative'], "1", _("Yes"))?>
+  </select>
+
+<div markdown="1" id="cumulative" style="display:none">
+_(Accumulation frequency)_:
+: <select name="frequency">
+  <?=mk_option($parity['frequency'], "1", _("Daily"))?>
+  <?=mk_option($parity['frequency'], "7", _("Weekly"),$parity['mode']==2 ? 'disabled' : '')?>
+  </select>
+
+_(Accumulation duration)_:
+: <select name="duration">
+  <?for ($h=1; $h<24; $h++):?>
+  <?=mk_option($parity['duration'], $h, $h.' '._('hour'.($h==1?'':'s')))?>
+  <?endfor;?>
+  </select>
+
+</div>
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></td>
 </form>
