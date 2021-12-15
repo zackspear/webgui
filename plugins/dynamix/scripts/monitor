@@ -41,6 +41,7 @@ $errors = [];
 $top    = 120;
 
 function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
+  global $stamps;
   $log = '/boot/config/parity-checks.log';
   $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
   if (file_exists($log)) {
@@ -54,6 +55,7 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
     $year = date('Y',$epoch);
     $line = "$year $timestamp|$duration|$speed|$status|$error";
     if ($status==0||file_exists($log)) file_put_contents($log,"$line\n",FILE_APPEND);
+    if (file_exists($stamps)) unlink($stamps);
   }
   return str_replace("\n","",$line);
 }
@@ -256,6 +258,7 @@ if ($warn>0) {
 // process parity check, parity sync and data-rebuild notifications
 $name = 'parity';
 $last = $saved[$item][$name] ?? '';
+$stamps = '/var/tmp/stamps.ini';
 if ($var['mdResyncPos']) {
   if (!$last) {
     if (strstr($var['mdResyncAction'],"recon")) {
@@ -273,9 +276,12 @@ if ($var['mdResyncPos']) {
   }
 } else {
   if ($last) {
-    $duration = $var['sbSynced2'] - $var['sbSynced'];
-    $status = $var['sbSyncExit'];
-    $speed = $status==0 ? my_scale($var['mdResyncSize']*1024/$duration,$unit,1)." $unit/s" : "Unavailable";
+    $synced   = file_exists($stamps) ? array_filter(explode(',',file_get_contents($stamps))) : [];
+    $sbSynced = array_shift($synced);
+    $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
+    $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
+    $status   = $var['sbSyncExit'];
+    $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration+array_sum($idle)),$unit,1)." $unit/s" : 0;
     [$entry,$duration,$speed,$status,$error] = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";

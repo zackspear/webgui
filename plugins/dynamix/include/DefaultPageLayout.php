@@ -662,8 +662,9 @@ watchdog.on('message', function(d) {
     else if (ini['mdResyncAction']=="check") action = "<?=_('Read-Check')?>";
     else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
     action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-    status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>')+"</span>";
-    if (ini['mdResync']==0) status += "(<?=_('Paused')?>)";
+    status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
+    if (ini['mdResync']==0) status += " &bullet; <?=_('Paused')?>";
+    status += "</span>";
   }
   if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
   $('#statusbar').html(status);
