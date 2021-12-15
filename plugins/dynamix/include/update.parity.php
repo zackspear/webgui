@@ -34,32 +34,32 @@ if (isset($_POST['#apply'])) {
     switch ($dotm) {
       case '28-31':
         $term = '[[ $(date +%e -d +1day) -eq 1 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
-      case 'W1'   :
+      case 'W1':
         $dotm = '*';
         $term = '[[ $(date +%e) -le 7 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
-      case 'W2'   :
+      case 'W2':
         $dotm = '*';
         $term = '[[ $(date +%e -d -7days) -le 7 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
-      case 'W3'   :
+      case 'W3':
         $dotm = '*';
         $term = '[[ $(date +%e -d -14days) -le 7 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
-      case 'W4'   :
+      case 'W4':
         $dotm = '*';
         $term = '[[ $(date +%e -d -21days) -le 7 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
-      case 'WL'   :
+      case 'WL':
         $dotm = '*';
         $term = '[[ $(date +%e -d +7days) -le 7 ]] && ';
-        $end = ' || :';
+        $end  = ' || :';
         break;
     }
     $cron[] = "# Generated parity check schedule:";
