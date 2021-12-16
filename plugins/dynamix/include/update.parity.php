@@ -71,7 +71,7 @@ if (isset($_POST['#apply'])) {
         $end  = ' || :';
       }
       $cron[] = "$m $H * * * $ctrl pause &> /dev/null";
-      $cron[] = "$time * * $day {$test}{$ctrl} resume &> /dev/null";
+      $cron[] = "$time * * $day {$test}{$ctrl} resume &> /dev/null$end";
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end";
   }
