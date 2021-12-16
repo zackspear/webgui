@@ -67,7 +67,7 @@ if (isset($_POST['#apply'])) {
       [$m, $h] = explode(' ',$time);
       $h = ($h + $_POST['duration']) % 24;
       if ($_POST['frequency']==7) {
-        $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
+        $test = '[[ $(((($(date +%s)-$(grep -Po "^sbSynced=\K\d+" /proc/mdstat))/86400)%7)) -eq 0 ]] && ';
         $end1 = ' || :';
       }
       $cron[] = "$m $h * * * $parity pause &> /dev/null";
