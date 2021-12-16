@@ -76,7 +76,7 @@ if (isset($_POST['#apply'])) {
         if ($day != '*') {
           $M = '*';
         } elseif ($dotm != '*') {
-          $test = '[[ $(date +%U -d "@$(grep -Po \'^sbSynced=\K\d+\' /proc/mdstat)" -ne $(date +%U) ]] && ';
+          $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
           $end  = ' || :';
         }
         break;
