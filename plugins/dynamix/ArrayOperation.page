@@ -304,7 +304,7 @@ parityStatus.start();
 <?else:?>
 var parityMonitor = new NchanSubscriber('/sub/parity_monitor');
 parityMonitor.on('message', function(data){if (data>0) refresh();});
-setTimeout(function(){parityMonitor.start();},1250);
+setTimeout(function(){parityMonitor.start();},2000);
 <?endif;?>
 $(function(){
   var form = document.arrayOps;
