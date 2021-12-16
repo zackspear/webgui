@@ -30,7 +30,7 @@ if (isset($_POST['#apply'])) {
     $month = $_POST['month'] ?? '*';
     $day   = $_POST['day'] ?? '*';
     $write = $_POST['write'] ?? '';
-    $term  = $end = '';
+    $term  = $test = $end = '';
     switch ($dotm) {
       case '28-31':
         $term = '[[ $(date +%e -d +1day) -eq 1 ]] && ';
@@ -76,20 +76,13 @@ if (isset($_POST['#apply'])) {
         if ($day != '*') {
           $M = '*';
         } elseif ($dotm != '*') {
-          $M = $month=='*' ? date('m') : month($month);
-          $M = exec("date +%e -d '$M/1+1month-1day'");
-          $s0 = strpos($dotm,'-')===false ? $dotm : $M;
-          $s1 = []; $x1 = $s0;
-          for ($n=0; $n<4; $n++) {
-            $x1 += 7; if ($x1 > $M) $x1 -= $M;
-            $s1[] = $x1;
-          }
-          $M = implode(',',$s1);
+          $test = '[[ $(date +%U -d "@$(grep -Po \'^sbSynced=\K\d+\' /proc/mdstat)" -ne $(date +%U) ]] && ';
+          $end  = ' || :';
         }
         break;
       }
       $cron[] = "$m $H * * * $ctrl pause &> /dev/null";
-      $cron[] = "$time $M * $day $ctrl resume &> /dev/null";
+      $cron[] = "$time * * $day {$test}{$ctrl} resume &> /dev/null";
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end";
   }

@@ -22,14 +22,14 @@ function mdstat($key) {
 if (mdstat('mdResyncPos')>0) {
   switch ($argv[1]) {
   case 'pause':
-    if (mdstat('sbSynced')>0) {
+    if (mdstat('mdResync')>0) {
       if (!file_exists($stamps)) file_put_contents($stamps,parse_ini_file('/var/local/emhttp/var.ini')['sbSynced']);
       file_put_contents($stamps,','.time(),FILE_APPEND);
       exec("$mdcmd nocheck pause");
     }
     break;
   case 'resume':
-    if (mdstat('sbSynced')==0) {
+    if (mdstat('mdResync')==0) {
       file_put_contents($stamps,','.time(),FILE_APPEND);
       exec("$mdcmd check resume");
     }
