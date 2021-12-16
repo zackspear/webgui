@@ -222,6 +222,7 @@ _(Accumulation duration)_:
   </select>
 
 :parity_accumulation_duration_help:
+
 </div>
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></td>
