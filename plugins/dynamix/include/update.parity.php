@@ -75,7 +75,7 @@ if (isset($_POST['#apply'])) {
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end2";
   }
-  parse_cron_cfg("dynamix", "parity-check", implode("\n",$cron)."\n");
+  parse_cron_cfg("dynamix", "parity-check", count($cron)>0 ? implode("\n",$cron)."\n" : "");
   @unlink($memory);
 } else {
   file_put_contents($memory, http_build_query($_POST));
