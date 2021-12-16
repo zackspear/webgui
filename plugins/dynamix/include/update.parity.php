@@ -64,22 +64,11 @@ if (isset($_POST['#apply'])) {
     }
     $cron[] = "# Generated parity check schedule:";
     if ($_POST['cumulative']==1) {
-      $freq = $_POST['frequency'];
-      $span = $_POST['duration'];
       [$m, $h] = explode(' ',$time);
-      $H = ($h + $span) % 24;
-      switch ($freq) {
-      case 1: // daily resume
-        $M = '*';
-        break;
-      case 7: // weekly resume
-        if ($day != '*') {
-          $M = '*';
-        } elseif ($dotm != '*') {
-          $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
-          $end  = ' || :';
-        }
-        break;
+      $H = ($h + $_POST['duration']) % 24;
+      if ($_POST['frequency']==7) {
+        $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
+        $end  = ' || :';
       }
       $cron[] = "$m $H * * * $ctrl pause &> /dev/null";
       $cron[] = "$time * * $day {$test}{$ctrl} resume &> /dev/null";
