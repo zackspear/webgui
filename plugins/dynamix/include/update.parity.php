@@ -65,12 +65,12 @@ if (isset($_POST['#apply'])) {
     $cron[] = "# Generated parity check schedule:";
     if ($_POST['cumulative']==1) {
       [$m, $h] = explode(' ',$time);
-      $H = ($h + $_POST['duration']) % 24;
+      $h = ($h + $_POST['duration']) % 24;
       if ($_POST['frequency']==7) {
         $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
         $end1 = ' || :';
       }
-      $cron[] = "$m $H * * * $parity pause &> /dev/null";
+      $cron[] = "$m $h * * * $parity pause &> /dev/null";
       $cron[] = "$time * * * {$test}{$parity} resume &> /dev/null$end1";
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end2";
