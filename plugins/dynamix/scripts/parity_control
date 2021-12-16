@@ -15,16 +15,24 @@
 $stamps = '/var/tmp/stamps.ini';
 $mdcmd  = '/usr/local/sbin/mdcmd';
 
-if (exec("grep -Po '^mdResyncPos=\K\d+' /proc/mdstat")>0) {
+function mdstat($key) {
+  return exec("grep -Po '^$key=\K\d+' /proc/mdstat");
+}
+
+if (mdstat('mdResyncPos')>0) {
   switch ($argv[1]) {
   case 'pause':
-    if (!file_exists($stamps)) file_put_contents($stamps,parse_ini_file('/var/local/emhttp/var.ini')['sbSynced']);
-    file_put_contents($stamps,','.time(),FILE_APPEND);
-    exec("$mdcmd nocheck pause");
+    if (mdstat('sbSynced')>0) {
+      if (!file_exists($stamps)) file_put_contents($stamps,parse_ini_file('/var/local/emhttp/var.ini')['sbSynced']);
+      file_put_contents($stamps,','.time(),FILE_APPEND);
+      exec("$mdcmd nocheck pause");
+    }
     break;
   case 'resume':
-    file_put_contents($stamps,','.time(),FILE_APPEND);
-    exec("$mdcmd check resume");
+    if (mdstat('sbSynced')==0) {
+      file_put_contents($stamps,','.time(),FILE_APPEND);
+      exec("$mdcmd check resume");
+    }
     break;
   }
 }

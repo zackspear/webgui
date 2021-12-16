@@ -69,34 +69,27 @@ if (isset($_POST['#apply'])) {
       [$m, $h] = explode(' ',$time);
       $H = ($h + $span) % 24;
       switch ($freq) {
-      case 1: // daily
-        $M1 = $M2 = $D = '*';
+      case 1: // daily resume
+        $M = '*';
         break;
-      case 7: // weekly
+      case 7: // weekly resume
         if ($day != '*') {
-          $M1 = $M2 = '*';
-          $D = strtok($day,',');
-          if ($H < $h) $D = ($D + 1) % 7;
+          $M = '*';
         } elseif ($dotm != '*') {
-          $D = '*';
           $M = $month=='*' ? date('m') : month($month);
           $M = exec("date +%e -d '$M/1+1month-1day'");
           $s0 = strpos($dotm,'-')===false ? $dotm : $M;
-          $s1 = $s2 = [];
-          $x1 = $s0 + ($H < $h ? 1 : 0); if ($x1 > $M) $x1 -= $M;
-          $x2 = $s0;
-          for ($n=0; $n<5; $n++) {
-            $s1[] = $x1; $s2[] = $x2;
+          $s1 = []; $x1 = $s0;
+          for ($n=0; $n<4; $n++) {
             $x1 += 7; if ($x1 > $M) $x1 -= $M;
-            $x2 += 7; if ($x2 > $M) $x2 -= $M;
+            $s1[] = $x1;
           }
-          $M1 = implode(',',$s1);
-          $M2 = implode(',',$s2);
+          $M = implode(',',$s1);
         }
         break;
       }
-      $cron[] = "$m $H $M1 * $D $ctrl pause &> /dev/null";
-      $cron[] = "$m $h $M2 * $D $ctrl resume &> /dev/null";
+      $cron[] = "$m $H * * * $ctrl pause &> /dev/null";
+      $cron[] = "$time $M * $day $ctrl resume &> /dev/null";
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end";
   }
