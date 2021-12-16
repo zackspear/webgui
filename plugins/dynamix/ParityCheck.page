@@ -203,12 +203,16 @@ _(Cumulative parity check)_:
   <?=mk_option($parity['cumulative'], "1", _("Yes"))?>
   </select>
 
+:parity_cumulative_check_help:
+
 <div markdown="1" id="cumulative" style="display:none">
 _(Accumulation frequency)_:
 : <select name="frequency">
   <?=mk_option($parity['frequency'], "1", _("Daily"))?>
   <?=mk_option($parity['frequency'], "7", _("Weekly"),$parity['mode']==2 ? 'disabled' : '')?>
   </select>
+
+:parity_accumulation_frequency_help:
 
 _(Accumulation duration)_:
 : <select name="duration">
@@ -217,6 +221,7 @@ _(Accumulation duration)_:
   <?endfor;?>
   </select>
 
+:parity_accumulation_duration_help:
 </div>
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></td>
