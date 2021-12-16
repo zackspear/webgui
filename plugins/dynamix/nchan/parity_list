@@ -102,6 +102,7 @@ while (true) {
       }
     }
   }
+  publish('parity_monitor', $var['mdResyncPos']);
   sleep(1);
 }
 ?>

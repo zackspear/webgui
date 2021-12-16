@@ -300,6 +300,10 @@ devices.start();
 <?if ($var['mdResyncPos']):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 parityStatus.start();
+<?else:?>
+var parityMonitor = new NchanSubscriber('/sub/parity_monitor');
+parityMonitor.on('message', function(data){if (data>0) refresh();});
+parityMonitor.start();
 <?endif;?>
 $(function(){
   var form = document.arrayOps;
