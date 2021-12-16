@@ -37,7 +37,7 @@ if ($name) {
 <style>
 div.clone1{position:absolute;right:0;margin-top:0}
 div.clone2{position:absolute;right:0;margin-top:48px}
-span.input{display:inline-block;width:420px}
+span.input{display:inline-block;width:330px}
 <?if ($themes1):?>
 span.wrap{display:inline-block;width:128px}
 select.clone{min-width:123px;max-width:123px;margin-right:0}
