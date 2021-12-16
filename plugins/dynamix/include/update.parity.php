@@ -16,7 +16,7 @@ require_once "$docroot/webGui/include/Wrappers.php";
 
 $memory = '/tmp/memory.tmp';
 $mdcmd  = '/usr/local/sbin/mdcmd';
-$ctrl   = '/usr/local/emhttp/webGui/scripts/parity_control';
+$parity = '/usr/local/emhttp/webGui/scripts/parity_control';
 
 function month($m) {
   return array_filter(explode(',',$m),function($x){return $x>=date('m');})[0];
@@ -70,8 +70,8 @@ if (isset($_POST['#apply'])) {
         $test = '[[ $(date +%U -d @$(grep -Po "^sbSynced=\K\d+" /proc/mdstat) -ne $(date +%U) ]] && ';
         $end1 = ' || :';
       }
-      $cron[] = "$m $H * * * $ctrl pause &> /dev/null";
-      $cron[] = "$time * * $day {$test}{$ctrl} resume &> /dev/null$end1";
+      $cron[] = "$m $H * * * $parity pause &> /dev/null";
+      $cron[] = "$time * * $day {$test}{$parity} resume &> /dev/null$end1";
     }
     $cron[] = "$time $dotm $month $day {$term}{$mdcmd} check $write &> /dev/null$end2";
   }
