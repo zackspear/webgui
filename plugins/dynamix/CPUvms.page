@@ -83,7 +83,7 @@ function apply(form) {
         var name = data[i];
         $('#'+id+'-'+name.strip()).show('slow');
         // step 2: apply the changes by updating the vm or container
-        $.post('/webGui/include/UpdateTwo.php',{id:id,name:encodeURI(name)},function(reply){
+        $.post('/webGui/include/UpdateTwo.php',{id:id,name:encodeURIComponent(name)},function(reply){
           if (reply.error) {
             // report error and reload table
             swal({type:'error',title:"_(Execution error)_",text:reply.error,html:true,confirmButtonText:"_(Ok)_"},function(){
