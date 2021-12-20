@@ -358,7 +358,7 @@ $theme_dark = in_array($display['theme'],['black','gray']);
 
                 <form action="/login" method="POST">
                     <p>
-                        <input name="username" type="text" placeholder="<?=_('Username')?>" autocapitalize="none" autocomplete="off" autofocus required>
+                        <input name="username" type="text" placeholder="<?=_('Username')?>" autocapitalize="none" autocomplete="off" spellcheck="false" autofocus required>
                         <input name="password" type="password" placeholder="<?=_('Password')?>" required>
                     </p>
                     <?if ($error) echo "<p class='error'>$error</p>";?>
