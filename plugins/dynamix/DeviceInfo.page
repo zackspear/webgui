@@ -352,7 +352,7 @@ _(Identification)_:
 
 <?endif;?>
 <?if (!$unassigned):?>
-<?if ($disk['type']!='Parity'):?>
+<?if ($disk['type']=='Data' || ($disk['type']=='Cache' && in_array($disk['name'],$pools))):?>
 _(Comments)_:
 : <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 

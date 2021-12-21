@@ -195,7 +195,7 @@ function checkAll() {
 function updateAll() {
   $('input[type=button]').prop('disabled',true);
   var ct = '';
-  for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURI(d.name);
+  for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURIComponent(d.name);
   var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;
   popupWithIframe(_('Updating all Containers'), cmd, true, 'loadlist');
 }
@@ -203,6 +203,6 @@ function rebuildAll() {
   $('input[type=button]').prop('disabled',true);
   $('div.spinner.fixed').show('slow');
   var ct = [];
-  for (var i=0,d; d=docker[i]; i++) if (d.update==2) ct.push(encodeURI(d.name));
+  for (var i=0,d; d=docker[i]; i++) if (d.update==2) ct.push(encodeURIComponent(d.name));
   $.get('/plugins/dynamix.docker.manager/include/CreateDocker.php',{updateContainer:true,mute:true,ct},function(){loadlist();});
 }

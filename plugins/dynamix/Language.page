@@ -41,7 +41,7 @@ label.button:hover{color:#f2f2f2;background:-webkit-gradient(linear,left top,rig
 function execute(cmd,title,language,name,filedata) {
   var keys = {};
   <?foreach ($keys as $key => $name) echo "keys['$key'] = '".strtok($keys[$key],' (')."'\n";?>
-  $.post("/webGui/include/FileUpload.php",{cmd:cmd,filename:language,name:encodeURI(name),filedata:filedata},function(list){
+  $.post("/webGui/include/FileUpload.php",{cmd:cmd,filename:language,name:encodeURIComponent(name),filedata:filedata},function(list){
     if (list.indexOf('Error 500')==-1) {
       var installed = [];
       if (list.length) {

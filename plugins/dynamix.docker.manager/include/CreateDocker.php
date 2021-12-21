@@ -1008,7 +1008,7 @@ _(Password Mask)_:
 <input type="hidden" name="confRequired[]" value="{7}">
 <input type="hidden" name="confMask[]" value="{8}">
 <span class="{11}">{0}:</span>
-: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" {11}>{10}<br><span class='orange-text'>{12}: {1}</span><br><span class="orange-text">{4}</span><br>
+: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" spellcheck="false" {11}>{10}<br><span class='orange-text'>{12}: {1}</span><br><span class="orange-text">{4}</span><br>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">

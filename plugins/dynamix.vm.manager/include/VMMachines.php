@@ -35,7 +35,6 @@ if (file_exists($user_prefs)) {
   natcasesort($vms);
 }
 $i = 0;
-$menu = [];
 $kvm = ['var kvm=[];'];
 $show = explode(',',unscript($_GET['show']??''));
 
@@ -93,7 +92,7 @@ foreach ($vms as $vm) {
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
   unset($dom);
-  $menu[] = sprintf("addVMContext('%s','%s','%s','%s','%s','%s');", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vnc),addslashes($log));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vnc),addslashes($log));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':
@@ -116,7 +115,7 @@ foreach ($vms as $vm) {
 
   /* VM information */
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'>";
-  echo "<span class='outer'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span></td>";
+  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
@@ -168,5 +167,5 @@ foreach ($vms as $vm) {
   echo "</tbody></table>";
   echo "</td></tr>";
 }
-echo "\0".implode($menu).implode($kvm);
+echo "\0".implode($kvm);
 ?>
