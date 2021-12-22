@@ -17,6 +17,6 @@ Code="e936"
 ?>
 <script>
 function LogButton() {
-  openTerminal('syslog','syslog','',screen.availHeight/2,screen.availWidth/2);
+  openTerminal('syslog','syslog','',Math.max(screen.availHeight/2,600),Math.max(screen.availWidth/2,900));
 }
 </script>

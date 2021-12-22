@@ -4,7 +4,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
   var opts = [];
   if (started && !paused) {
     if (webui !== '' && webui != '#') opts.push({text:_('WebUI'), icon:'fa-globe', href:webui, target:'_blank'});
-    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); openTerminal('docker',container,shell,screen.availHeight/2,screen.availWidth/2);}});
+    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); openTerminal('docker',container,shell,Math.max(screen.availHeight/2,600),Math.max(screen.availWidth/2,900));}});
     opts.push({divider:true});
   }
   if (update==1) {
@@ -23,7 +23,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:_('Start'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
   }
   opts.push({divider:true});
-  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,id,screen.availHeight/2,screen.availWidth/2);}});
+  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,id,Math.max(screen.availHeight/2,600),Math.max(screen.availWidth/2,900));}});
   if (template) {
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
