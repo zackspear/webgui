@@ -18,6 +18,6 @@ Code="e93f"
 <script>
 function TerminalButton() {
   var d = new Date();
-  openTerminal('ttyd','Web Terminal '+d.getTime(),'',600,900);
+  openTerminal('ttyd','Web Terminal '+d.getTime(),'',screen.availHeight/2,screen.availWidth/2);
 }
 </script>
