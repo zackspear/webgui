@@ -61,11 +61,5 @@ case 'docker':
   exec("ttyd-exec -o -i '/var/tmp/$sock.sock' $command");
   @unlink("/var/tmp/$sock.sock");
   break;
-case 'command':
-  $name = unbundle($_GET['name']);
-  $command = unscript($_GET['more']);
-  exec("ttyd-exec -o -i '/var/tmp/$name.sock' $command");
-  @unlink("/var/tmp/$name.sock");
-  break;
 }
 ?>
