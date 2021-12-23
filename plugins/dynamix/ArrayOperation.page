@@ -79,6 +79,7 @@ tr#copy,tr#file{display:none}
 td.gap{padding-left:26px!important}
 td.wrap{white-space:normal!important}
 span#pass{display:none;margin-left:20px}
+span.status.vhshift{margin-top:0;margin-right:-9px}
 </style>
 <script src="<?autov('/webGui/javascript/jquery.base64.js')?>"></script>
 <script>
