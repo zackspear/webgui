@@ -4,7 +4,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
   var opts = [];
   if (started && !paused) {
     if (webui !== '' && webui != '#') opts.push({text:_('WebUI'), icon:'fa-globe', href:webui, target:'_blank'});
-    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); openTerminal('docker',container,shell,600,900);}});
+    opts.push({text:_('Console'), icon:'fa-terminal', action:function(e){e.preventDefault(); openTerminal('docker',container,shell,Math.max(screen.availHeight*3/5,600),Math.max(screen.availWidth/2,900));}});
     opts.push({divider:true});
   }
   if (update==1) {
@@ -23,7 +23,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:_('Start'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
   }
   opts.push({divider:true});
-  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,id,600,900);}});
+  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,id,Math.max(screen.availHeight*3/5,600),Math.max(screen.availWidth/2,900));}});
   if (template) {
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
@@ -61,8 +61,8 @@ function popupWithIframe(title, cmd, reload, func) {
     autoOpen:true,
     title:title,
     draggable:true,
-    width:900,
-    height:((screen.height / 5) * 4) || 0,
+    width: Math.max(screen.availWidth/2,900),
+    height: Math.max(screen.availHeight*3/5,600),
     resizable:true,
     modal:true,
     show:{effect:'fade', duration:250},
@@ -78,9 +78,9 @@ function popupWithIframe(title, cmd, reload, func) {
       }
     }
   });
-  $('.ui-dialog .ui-dialog-titlebar').addClass('menu');
-  $('.ui-dialog .ui-dialog-title').css('text-align', 'center').css('width', '100%');
-  $('.ui-dialog .ui-dialog-content').css('padding', '12');
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
 }
 function execUpContainer(container) {
   var title = _('Updating the container')+': '+container;
