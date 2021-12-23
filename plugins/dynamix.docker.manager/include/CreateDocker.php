@@ -435,6 +435,7 @@ function addConfigPopup() {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
   $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
   $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
@@ -518,6 +519,7 @@ function editConfigPopup(num,disabled) {
     }
   });
   $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
   $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
   $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
