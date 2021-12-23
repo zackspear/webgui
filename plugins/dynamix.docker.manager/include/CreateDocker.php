@@ -270,7 +270,7 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.switchbutton.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
 <style>
 .noshow,.advanced{display:none}
@@ -438,7 +438,6 @@ function addConfigPopup() {
   $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
   $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
 }
 
@@ -522,7 +521,6 @@ function editConfigPopup(num,disabled) {
   $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
   $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
   $('.desc_readmore').readmore({maxHeight:10});
 }

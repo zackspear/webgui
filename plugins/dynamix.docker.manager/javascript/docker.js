@@ -78,9 +78,9 @@ function popupWithIframe(title, cmd, reload, func) {
       }
     }
   });
-  $('.ui-dialog .ui-dialog-titlebar').addClass('menu');
-  $('.ui-dialog .ui-dialog-title').css('text-align', 'center').css('width', '100%');
-  $('.ui-dialog .ui-dialog-content').css('padding', '12');
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
 }
 function execUpContainer(container) {
   var title = _('Updating the container')+': '+container;
