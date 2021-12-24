@@ -103,7 +103,7 @@ echo "</tbody>";
 $dirs  = count($dirs);
 $files = count($files);
 $objs  = $dirs + $files;
-if ($objs==0 && !exec("find \"$dir\" -maxdepth 0 -empty -exec echo 1 \;")) {
+if ($objs==0 && !exec("find ".escapeshellarg($dir)." -maxdepth 0 -empty -exec echo 1 \;")) {
   echo "<tfoot><tr><td></td><td colspan='4'>"._('No listing: Too many files')."</td></tr></tfoot>";
 } else {
   $total = ' ('.my_scale($total,$unit).' '.$unit.' '._('total').')';
