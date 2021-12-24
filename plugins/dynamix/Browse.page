@@ -25,7 +25,7 @@ $user = ($root=='mnt' && ($main=='user'|| $main=='user0')) ? 1 : 0;
 <script>
 $(function(){
   timers.browse = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/webGui/include/Browse.php',{dir:encodeURIComponent("<?=htmlspecialchars(str_replace('\\','\\\\',$dir),ENT_COMPAT)?>"),path:"<?=$path?>",user:<?=$user?>},function(data){
+  $.get('/webGui/include/Browse.php',{dir:encodeURIComponent("<?=str_replace('\\','\\\\',$dir)?>"),path:"<?=$path?>",user:<?=$user?>},function(data){
     clearTimeout(timers.browse);
     var table = $('table.indexer');
     var col = $.cookie('col')||1;
