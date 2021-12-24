@@ -42,7 +42,7 @@ function my_devs(&$devs) {
 }
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
-$dir   = urldecode($_GET['dir']??'');
+$dir   = preg_replace('://+:','/',htmlspecialchars_decode(rawurldecode($_GET['dir']??''),ENT_QUOTES));
 $path  = unscript($_GET['path']??'');
 $user  = unscript($_GET['user']??'');
 $all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
@@ -74,7 +74,7 @@ foreach ($dirs as $row) {
   $devs = explode(',',$set);
   echo "<tr>";
   echo "<td data=''><div class='icon-dir'></div></td>";
-  echo "<td><a href=\"/$path?dir=".rawurlencode($full)."\">".htmlspecialchars($name)."</a></td>";
+  echo "<td><a href=\"/$path?dir=".rawurlencode(htmlspecialchars($full,ENT_COMPAT))."\">".htmlspecialchars($name,ENT_COMPAT)."</a></td>";
   echo "<td data='0'>&lt;FOLDER&gt;</td>";
   echo "<td data='$time'>".my_time($time,$fmt)."</td>";
   echo "<td class='loc'>".my_devs($devs)."</td>";
@@ -91,7 +91,7 @@ foreach ($files as $row) {
   $tag  = strpos($set,',')===false ? '' : 'warning';
   echo "<tr>";
   echo "<td data='$ext'><div class='icon-file icon-$ext'></div></td>";
-  echo "<td><a href=\"".htmlspecialchars($full)."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($name)."</a></td>";
+  echo "<td><a href=\"".htmlspecialchars($full,ENT_COMPAT)."\" download target=\"_blank\" class=\"".($tag?:'none')."\">".htmlspecialchars($name,ENT_COMPAT)."</a></td>";
   echo "<td data='$size' class='$tag'>".my_scale($size,$unit)." $unit</td>";
   echo "<td data='$time' class='$tag'>".my_time($time,$fmt)."</td>";
   echo "<td class='loc $tag'>".my_devs($devs)."</td>";
