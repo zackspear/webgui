@@ -45,7 +45,7 @@ $disks = parse_ini_file('state/disks.ini',true);
 $dir   = preg_replace('://+:','/',htmlspecialchars_decode(rawurldecode($_GET['dir']??''),ENT_QUOTES));
 $path  = unscript($_GET['path']??'');
 $user  = unscript($_GET['user']??'');
-$all   = $docroot.preg_replace('/([\\\\\'" @^&=;:(){}[\]])/','\\\\$1',$dir).'/*';
+$all   = $docroot.preg_replace('/([\\\\\'" @^&=;:<>(){}[\]])/','\\\\$1',$dir).'/*';
 $fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: '---') : _('flash');
 $fmt   = "%F {$display['time']}";
 $dirs  = $files = [];
