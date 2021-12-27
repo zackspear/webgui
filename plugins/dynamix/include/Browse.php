@@ -42,23 +42,23 @@ function my_devs(&$devs) {
 }
 extract(parse_plugin_cfg('dynamix',true));
 $disks = parse_ini_file('state/disks.ini',true);
-$dir   = urldecode($_GET['dir']??'');
-$path  = unscript($_GET['path']??'');
-$user  = unscript($_GET['user']??'');
-$all   = $docroot.preg_replace('/([\'" &()[\]\\\\])/','\\\\$1',$dir).'/*';
-$fix   = substr($dir,0,4)=='/mnt' ? (explode('/',trim_slash($dir))[2] ?: '---') : _('flash');
+$dir   = realpath(htmlspecialchars_decode(rawurldecode($_GET['dir'])));
+$path  = unscript($_GET['path']);
+[$root,$main,$rest] = my_explode('/',mb_substr($dir,1),3);
+$fix   = $root=='mnt' ? ($main ?: '---') : ($root=='boot' ? _('flash') : '---');
+$user  = $root=='mnt' && in_array($main,['user','user0']);
 $fmt   = "%F {$display['time']}";
 $dirs  = $files = [];
 $total = $i = 0;
 
 if ($user) {
   $tag = implode('|',array_merge(['disk'],pools_filter($disks)));
-  $set = explode(';',str_replace(',;',',',preg_replace("/($tag)/",';$1',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS $all 2>/dev/null"))));
+  $set = explode(';',str_replace(',;',',',preg_replace("/($tag)/",';$1',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg($dir)."/* 2>/dev/null"))));
 }
-$stat = popen("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' $all",'r');
+$stat = popen("shopt -s dotglob; stat -L -c'%F|%n|%s|%Y' ".escapeshellarg($dir)."/* 2>/dev/null",'r');
 while (($row = fgets($stat))!==false) {
   $row .= $user ? "|{$set[++$i]}" : "|$fix";
-  if (substr($row,0,3)=='dir') $dirs[] = $row; else $files[] = $row;
+  if ($row[0]=='d') $dirs[] = $row; else $files[] = $row;
 }
 pclose($stat);
 
@@ -74,8 +74,8 @@ foreach ($dirs as $row) {
   $devs = explode(',',$set);
   echo "<tr>";
   echo "<td data=''><div class='icon-dir'></div></td>";
-  echo "<td><a href=\"/$path?dir=".rawurlencode($full)."\">".htmlspecialchars($name)."</a></td>";
-  echo "<td data='0'>&lt;FOLDER&gt;</td>";
+  echo "<td><a href=\"/$path?dir=".rawurlencode(htmlspecialchars($full))."\">".htmlspecialchars($name)."</a></td>";
+  echo "<td data='0'>&lt;"._('FOLDER')."&gt;</td>";
   echo "<td data='$time'>".my_time($time,$fmt)."</td>";
   echo "<td class='loc'>".my_devs($devs)."</td>";
   echo "</tr>";
@@ -103,7 +103,7 @@ echo "</tbody>";
 $dirs  = count($dirs);
 $files = count($files);
 $objs  = $dirs + $files;
-if ($objs==0 && !exec("find \"$dir\" -maxdepth 0 -empty -exec echo 1 \;")) {
+if ($objs==0 && !exec("find ".escapeshellarg($dir)." -maxdepth 0 -empty -exec echo 1 \;")) {
   echo "<tfoot><tr><td></td><td colspan='4'>"._('No listing: Too many files')."</td></tr></tfoot>";
 } else {
   $total = ' ('.my_scale($total,$unit).' '.$unit.' '._('total').')';

@@ -94,7 +94,7 @@ while (true) {
         $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
         $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
         $status   = $var['sbSyncExit'];
-        $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration+array_sum($idle)),$unit,1)." $unit/s" : 0;
+        $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
         $error    = $var['sbSyncErrs'];
         $year     = date('Y',$var['sbSynced2']);
         if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error\n",FILE_APPEND);

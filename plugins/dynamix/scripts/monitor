@@ -281,7 +281,7 @@ if ($var['mdResyncPos']) {
     $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
     $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
     $status   = $var['sbSyncExit'];
-    $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration+array_sum($idle)),$unit,1)." $unit/s" : 0;
+    $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
     [$entry,$duration,$speed,$status,$error] = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
