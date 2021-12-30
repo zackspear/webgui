@@ -55,11 +55,17 @@ case 'log':
 case 'docker':
   $name = unbundle($_GET['name']);
   $more = unbundle($_GET['more']) ?: 'sh';
-  $exec = strlen($more)!=12; // container-id
-  $sock = $exec ? $name : $more;
-  $command = $exec ? "docker exec -it '$name' $more" : "docker logs -f -n 40 '$name'";
+  $sock = $name;
+  if ($more=='.log') {
+    $sock .= $more;
+    $docker = '/var/tmp/docker.log';
+    file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 40 '$name'\nbash --login\n");
+    chmod($docker,0755);
+    $command = "bash $docker";
+  } else $command = "docker exec -it '$name' $more";
   exec("ttyd-exec -o -i '/var/tmp/$sock.sock' $command");
   @unlink("/var/tmp/$sock.sock");
+  if ($docker) unlink($docker);
   break;
 }
 ?>

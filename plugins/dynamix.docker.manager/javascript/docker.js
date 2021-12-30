@@ -23,7 +23,7 @@ function addDockerContainerContext(container, image, template, started, paused, 
     opts.push({text:_('Start'), icon:'fa-play', action:function(e){e.preventDefault(); eventControl({action:'start', container:id}, 'loadlist');}});
   }
   opts.push({divider:true});
-  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,'log');}});
+  opts.push({text:_('Logs'), icon:'fa-navicon', action:function(e){e.preventDefault(); openTerminal('docker',container,'.log');}});
   if (template) {
     opts.push({text:_('Edit'), icon:'fa-wrench', action:function(e){e.preventDefault(); editContainer(container, template);}});
   }
