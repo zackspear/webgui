@@ -60,7 +60,7 @@ case 'docker':
     $sock = "/var/tmp/$name.log.sock";
     file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 40 '$name'\nbash --login\n");
     chmod($docker,0755);
-    exec("ttyd-exec -o -i '$sock' bash $docker");
+    exec("ttyd-exec -o -i '$sock' $docker");
   } else {
     $sock = "/var/tmp/$name.sock";
     exec("ttyd-exec -o -i '$sock' docker exec -it '$name' $more");
