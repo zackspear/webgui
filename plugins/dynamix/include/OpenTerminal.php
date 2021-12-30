@@ -22,7 +22,7 @@ extract(parse_plugin_cfg('dynamix',true));
 exec("sed -ri 's/fontSize=[0-9]+/fontSize=${display['tty']}/' /etc/default/ttyd");
 
 function command($path,$file) {
-  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -n 40 -f '$file'" : "bash --login --restricted";
+  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -f -n 60 '$file'" : "bash --login --restricted";
 }
 switch ($_GET['tag']) {
 case 'ttyd':
@@ -58,7 +58,7 @@ case 'docker':
   $docker = '/var/tmp/docker.log';
   if ($more=='.log') {
     $sock = "/var/tmp/$name.log.sock";
-    file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 40 '$name'\nbash --login\n");
+    file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 60 '$name'\nbash --login\n");
     chmod($docker,0755);
     exec("ttyd-exec -o -i '$sock' $docker");
   } else {
