@@ -27,30 +27,30 @@ function command($path,$file) {
 switch ($_GET['tag']) {
 case 'ttyd':
   // check if ttyd already running
-  exec("pgrep -f '/var/run/ttyd.sock'", $ttyd_pid, $retval);
+  $sock = "/var/run/ttyd.sock";
+  exec("pgrep -f '$sock'", $ttyd_pid, $retval);
   if ($retval == 0) {
-      // check if there are any child processes, ie, curently open tty windows
-      exec("pgrep -P ${ttyd_pid[0]}", $output, $retval);
-      if ($retval != 0) {
-        // no child processes, restart ttyd to pick up possible font size change
-        exec("kill ${ttyd_pid[0]}");
-      }
+    // check if there are any child processes, ie, curently open tty windows
+    exec("pgrep -P ".$ttyd_pid[0], $output, $retval);
+    // no child processes, restart ttyd to pick up possible font size change
+    if ($retval != 0) exec("kill ".$ttyd_pid[0]);
   }
-  if ($retval != 0)
-    exec("ttyd-exec -i '/var/run/ttyd.sock' bash --login");
+  if ($retval != 0) exec("ttyd-exec -i '$sock' bash --login");
   break;
 case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
-  exec("ttyd-exec -o -i '/var/run/syslog.sock' ".command($path,$file));
-  @unlink('/var/run/syslog.sock');
+  $sock = "/var/run/syslog.sock";
+  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
+  @unlink($sock);
   break;
 case 'log':
   $path = '/var/log/';
   $name = unbundle($_GET['name']);
   $file = realpath($path.$_GET['more']);
-  exec("ttyd-exec -o -i '/var/tmp/$name.sock' ".command($path,$file));
-  @unlink('/var/tmp/$name.sock');
+  $sock = "/var/tmp/$name.sock";
+  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
+  @unlink($sock);
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
