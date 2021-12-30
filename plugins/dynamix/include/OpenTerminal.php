@@ -22,7 +22,7 @@ extract(parse_plugin_cfg('dynamix',true));
 exec("sed -ri 's/fontSize=[0-9]+/fontSize=${display['tty']}/' /etc/default/ttyd");
 
 function command($path,$file) {
-  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -f -n 60 '$file'" : "bash --login --restricted";
+  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -f -n 60 '$file'" : "read";
 }
 switch ($_GET['tag']) {
 case 'ttyd':
