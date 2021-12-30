@@ -58,7 +58,7 @@ case 'docker':
   $docker = '/var/tmp/docker.log';
   if ($more=='.log') {
     $sock = "/var/tmp/$name.log.sock";
-    file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 60 '$name'\nbash --login\n");
+    file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 60 '$name'\nread\n");
     chmod($docker,0755);
     exec("ttyd-exec -o -i '$sock' $docker");
   } else {
