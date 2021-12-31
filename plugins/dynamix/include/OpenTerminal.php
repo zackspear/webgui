@@ -55,7 +55,7 @@ case 'log':
 case 'docker':
   $name = unbundle($_GET['name']);
   $more = unbundle($_GET['more']) ?: 'sh';
-  $docker = "/var/tmp/run.$name.sh";
+  $docker = "/var/tmp/$name.run.sh";
   if ($more=='.log') {
     $sock = "/var/tmp/$name.log.sock";
     file_put_contents($docker,"#!/bin/bash\ndocker logs -f -n 60 '$name'\nread\n");
