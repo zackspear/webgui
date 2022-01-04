@@ -73,7 +73,7 @@ function addVMContext(name, uuid, template, state, vncurl, log){
   }
   opts.push({divider:true});
   if (log !== "") {
-    opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log,600,900);}});
+    opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
   }
   opts.push({text:_("Edit"), icon:"fa-pencil", href:path+'/UpdateVM?uuid='+uuid});
   if (state == "shutoff") {
