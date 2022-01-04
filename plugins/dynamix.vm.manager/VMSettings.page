@@ -198,7 +198,7 @@ _(VFIO allow unsafe interrupts)_:
 
 </div>
 <?if ($libvirt_log):?>
-<input type="button" onclick="openTerminal('log','libvirt','libvirt/libvirtd.log',600,900);" value="<?=_('View libvirt log')?>"/>
+<input type="button" onclick="openTerminal('log','libvirt','libvirt/libvirtd.log');" value="<?=_('View libvirt log')?>"/>
 <?else:?>
 &nbsp;
 <?endif;?>
