@@ -453,8 +453,6 @@ function formatWarning(val) {
 <?  else:
       switch ($var['mdState']):
       case "STOPPED":
-        maintenance_mode();
-        check_encryption();
         if (strstr($var['mdResyncAction'],"recon")):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line and start **Parity-Sync** and/or **Data-Rebuild**)_.</td></tr>
@@ -476,10 +474,10 @@ function formatWarning(val) {
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line)_.</td></tr>
 <?      endif;
-        break;
-      case "NEW_ARRAY":
         maintenance_mode();
         check_encryption();
+        break;
+      case "NEW_ARRAY":
         if (strpos($disks['parity']['status'],"DISK_NP")===0 && strpos($disks['parity2']['status'],"DISK_NP")===0):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will record all disk information and bring the array on-line)_.
@@ -490,27 +488,29 @@ function formatWarning(val) {
           <br>_(The array will be immediately available, but **unprotected** until Parity-Sync completes)_.
           <br><input type="checkbox" name="md_invalidslot" value="99">_(Parity is already valid)_.</td></tr>
 <?      endif;
-        break;
-      case "DISABLE_DISK":
         maintenance_mode();
-        check_encryption();?>
+        check_encryption();
+        break;
+      case "DISABLE_DISK":?>
         <tr><td><?status_indicator()?>**_(Stopped)_**. _(Missing disk)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)" disabled></td>
         <td>**_(Start)_** _(will disable the missing disk and then bring the array on-line. Install a replacement disk as soon as possible)_.
         <br><input type="checkbox" name="confirmStart" value="OFF" onclick="$('#cmdStart').prop('disabled',!arrayOps.confirmStart.checked)"><small>_(Yes, I want to do this)_</small></td></tr>
-<?      break;
-      case "RECON_DISK":
-        maintenance_mode();
-        check_encryption();?>
+<?      maintenance_mode();
+        check_encryption();
+        break;
+      case "RECON_DISK":?>
         <tr><td><?status_indicator()?>**_(Stopped)_**. _(Replacement disk installed)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
         <td>**_(Start)_** _(will start **Parity-Sync** and/or **Data-Rebuild**)_.</td></tr>
-<?      break;
+<?      maintenance_mode();
+        check_encryption();
+        break;
       case "SWAP_DSBL":
-        if ($var['fsCopyPrcnt']=="100"):
-          maintenance_mode();
-          check_encryption();?>
+        if ($var['fsCopyPrcnt']=="100"):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Upgrading disk/swapping parity)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild)_.</td></tr>
-<?      else:?>
+<?        maintenance_mode();
+          check_encryption();
+        else:?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Upgrading disk/swapping parity)_.</td><td><input type="submit" name="cmdCopy" value="_(Copy)_" disabled></td>
           <td>**_(Copy)_** _(will copy the parity information to the new *parity* disk)_.
           <br>_(Once copy completes, the array may be Started, to initiate Data-Rebuild of the disabled disk)_.
