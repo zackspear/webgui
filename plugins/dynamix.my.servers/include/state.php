@@ -36,12 +36,10 @@ if (empty($remote['username'])) {
   $arr['registered'] = 0;
   $arr['username'] = '';
   $arr['avatar'] = '';
-  $arr['sendCrashInfo'] = 0;
 } else {
   $arr['registered'] = 1;
   $arr['username'] = $remote['username'];
   $arr['avatar'] = $remote['avatar'];
-  $arr['sendCrashInfo'] = $remote['sendCrashInfo'] || 'no';
 }
 $arr['event'] = 'STATE';
 $arr['ts'] = time();
