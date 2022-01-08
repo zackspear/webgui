@@ -12,7 +12,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$certFile = "/boot/config/ssl/certs/certificate_bundle.pem";
+$certPath = "/boot/config/ssl/certs/certificate_bundle.pem";
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
@@ -46,18 +46,23 @@ if (!$isRegistered) {
   response_complete(406, '{"error":"'._('Must be signed in to Unraid.net to provision cert').'"}');
 }
 
-if (file_exists($certFile)) {
-  $subject = exec("/usr/bin/openssl x509 -subject -noout -in $certFile");
-  if (!preg_match('/.*\.unraid\.net$/', $subject)) {
-    // cert common name isn't <hash>.unraid.net
-    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' $certFile"}');
-  }
-  exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in $certFile",$arrout,$retval_expired);
-  if ($retval_expired === 0) {
-    // not within 30 days of cert expire date
-    response_complete(406, '{"error":"'._('Cannot renew cert until within 30 days of expiry').'"}');
+$certPresent = file_exists($certPath);
+if ($certPresent) {
+  $subject = exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath));
+  $isLegacyCert = preg_match('/.*\.unraid\.net$/', $certSubject);
+  $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $certSubject);
+  if ($isLegacyCert || $isWildcardCert) {    
+    exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in ".escapeshellarg($certPath), $arrout, $retval_expired);
+    if ($retval_expired === 0) {
+      // not within 30 days of cert expire date
+      response_complete(406, '{"error":"'._('Cannot renew cert until within 30 days of expiry').'"}');
+    }
+  } else {
+    // assume custom cert
+    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' $certPath"}');
   }
 }
+$endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildcard";
 
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
@@ -68,7 +73,7 @@ $ethX         = 'eth0';
 $internalip   = ipaddr($ethX);
 $internalport = $var['PORTSSL'];
 
-$ch = curl_init('https://keys.lime-technology.com/account/ssl/provisioncert');
+$ch = curl_init("https://keys.lime-technology.com/account/ssl/$endpoint");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
@@ -90,7 +95,7 @@ if ($cli) {
     }
     response_complete(406, '{"error":"'.$strError.'"}');
   }
-  $_POST['text'] = $json['bundle']; // nice way to leverage CertUpload.php to save the cert and reload nginx
+  $_POST['text'] = $json['bundle']; // nice way to leverage CertUpload.php to save the cert
   include(__DIR__.'/CertUpload.php');
 }
 

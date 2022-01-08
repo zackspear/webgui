@@ -17,8 +17,11 @@ $text = $_POST['text'] ?? '';
 file_put_contents("{$certFile}.new", $text);
 
 //validate certificate_bundle.pem.new is for *.unraid.net before moving it over to certificate_bundle.pem
-if (preg_match('/[0-9a-f]{40}\.unraid\.net$/', exec("/usr/bin/openssl x509 -in {$certFile}.new -subject -noout 2>&1"))) {
+$certSubject = exec("/usr/bin/openssl x509 -in {$certFile}.new -subject -noout 2>&1");
+$isLEcert    = preg_match('/.*\.myunraid\.net$/', $certSubject) || preg_match('/.*\.unraid\.net$/', $certSubject);
+if ($isLEcert) {
   rename("{$certFile}.new", "$certFile");
+  syslog(LOG_NOTICE, 'Updated *.hash.myunraid.net certificate: '.$certFile);
 } else {
   unlink("{$certFile}.new");
 }
