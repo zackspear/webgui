@@ -226,7 +226,7 @@ function openTerminal(tag,name,more) {
   }
   // open terminal window (run in background)
   name = name.replace(/ /g,"_");
-  tty_window = makeWindow(name,Math.max(screen.availHeight*3/5,600),Math.max(screen.availWidth/2,900));
+  tty_window = makeWindow(name,Math.max(screen.availHeight*3/5,600),Math.min(Math.max(screen.availWidth/2,900),1600));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
