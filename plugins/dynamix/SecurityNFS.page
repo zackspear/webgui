@@ -72,7 +72,7 @@ _(Security)_:
 : <input type="submit" name="changeShareSecurityNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
-<?if ($sec_nfs[$name]['security']=="private"):?>
+<?if ($sec_nfs[$name]['security']=='private'):?>
 <form markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 _(Rule)_:
@@ -86,10 +86,14 @@ _(Rule)_:
 <script>
 $(function() {
   initDropdownNFS(false);
+  if ($.cookie('hostList')!=null) {
+    var host = $('input[name="shareHostListNFS"]');
+    host.val($.cookie('hostList'));
+    setTimeout(function(){host.trigger('change');},100);
+    $.removeCookie('hostList',{path:'/'});
+  }
 <?if ($tabbed):?>
-<?
-$path=='Shares/Share' ? $t=2 : $t=1;
-?>
+<?$path=='Shares/Share' ? $t=2 : $t=1;?>
   $('#tab<?=$t?>').bind({click:function(){initDropdownNFS(true);}});
 <?endif;?>
 });
@@ -106,8 +110,9 @@ function readNFS() {
     var data = $.parseJSON(json);
     form.shareExportNFS.value = data.export;
     form.shareSecurityNFS.value = data.security;
+    if (data.hostList != '') $.cookie('hostList',data.hostList,{path:'/'});
+    $(form).find('select').trigger('change');
   });
-  $(form).find('select').trigger('change');
 }
 function writeNFS(data,n,i) {
   if (data) {
