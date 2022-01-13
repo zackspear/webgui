@@ -452,7 +452,7 @@
           'checking' => _('Checking Wan IPs'),
           'match' => sprintf(_('Remark: your WAN IPv4 is **%s**'), '{0}'),
           'mismatch' => sprintf(_("Remark: Unraid's WAN IPv4 **%1s** does not match your client's WAN IPv4 **%2s**"), '{0}', '{1}').'. '._('This may indicate a complex network that will not work with this Remote Access solution').'. '._('Ignore this message if you are currently connected via Remote Access or VPN').'.',
-          'resolveError' => _('DNS issue, unable to resolve mothership.unraid.net'),
+          'resolveError' => _('DNS issue, unable to resolve wanip4.unraid.net'),
         ],
       ],
     ];
