@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 // add 'ipaddr' function for 6.9 backwards compatibility
 if (!function_exists('ipaddr')) {
-  function ipaddr($ethX='eth0') {
+  function ipaddr($ethX='eth0', $prot=4) {
     global $$ethX;
     switch ($$ethX['PROTOCOL:0']) {
     case 'ipv4':
@@ -27,7 +27,10 @@ if (!function_exists('ipaddr')) {
     case 'ipv6':
       return $$ethX['IPADDR6:0'];
     case 'ipv4+ipv6':
-      return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];
+      switch ($prot) {
+      case 4: return $$ethX['IPADDR:0'];
+      case 6: return $$ethX['IPADDR6:0'];
+      default:return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];}
     default:
       return $$ethX['IPADDR:0'];
     }
@@ -283,7 +286,7 @@ $post = [
 ];
 if ($isCertUnraidNet) {
   // if there is an unraid.net cert, enable local ddns regardless of use_ssl value
-  $post['internalip'] = is_array($internalip) ? $internalip[0] : $internalip;
+  $post['internalip'] = $internalip;
   // if DNS Rebind Protection is disabled and host.unraid.net does not resolve to the internalip, disable caching
   if ($rebindDisabled && host_lookup_ip(generate_internal_host($certhostname, $post['internalip'])) != $post['internalip']) $dnserr = true;
 }

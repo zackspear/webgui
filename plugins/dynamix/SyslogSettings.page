@@ -28,7 +28,7 @@ exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\\[::1\\]/{print \$9}
 $ethX = 'eth0';
 $addr = ipaddr($ethX);
 $bind = $var['BIND_MGT']=='yes';
-$list = is_array($addr) ? array_merge(['*'],$addr) : ['*',$addr];
+$list = ['*',$addr];
 
 foreach ($output as $line) {
   [$ip, $port] = my_explode(':', $line);
