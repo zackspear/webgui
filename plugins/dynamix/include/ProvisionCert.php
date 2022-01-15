@@ -77,7 +77,7 @@ $ch = curl_init("https://keys.lime-technology.com/account/ssl/$endpoint");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
-  'internalip' => is_array($internalip) ? $internalip[0] : $internalip,
+  'internalip' => $internalip,
   'internalport' => $internalport,
   'keyfile' => $keyfile
 ]);

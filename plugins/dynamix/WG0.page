@@ -131,7 +131,6 @@ $template  = "$docroot/webGui/WGX.page";
 $tower     = $var['NAME'];
 $ethX      = 'eth0';
 $server    = ipaddr($ethX);
-$server    = is_array($server) ? $server[0] : $server;
 $dnsserver = $$ethX['DNS_SERVER1'];
 
 $link      = iflink($ethX);

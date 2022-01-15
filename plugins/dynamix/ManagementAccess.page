@@ -67,7 +67,7 @@ if ($certPresent) {
     $dnsRebindingProtection = ($rebindtest_ip != $rebindip);
     if (!$dnsRebindingProtection) {
       $certtest_ip = exec("host $protocol $subjectURL 2>/dev/null|awk '{print \$4}'");
-      $dnsValid = is_array($addr) ? in_array($certtest_ip, $addr) : $certtest_ip==$addr;
+      $dnsValid = $certtest_ip==$addr;
     }
     // more: similar test for "www.$certSubject" dns valid goes here
   }
@@ -86,7 +86,7 @@ $portsInUse = [];
 exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\\[::1\\]/{print \$9}'|sort -u", $output);
 
 $bind = $var['BIND_MGT']=='yes';
-$list = is_array($addr) ? array_merge(['*'],$addr) : ['*',$addr];
+$list = ['*',$addr];
 
 foreach ($output as $line) {
   [$ip, $port] = my_explode(':', $line);
@@ -119,7 +119,7 @@ function updateDNS(button) {
   var success = function(data) {
     $(button).prop("disabled", false).html("_(Update DNS)_");
     <?$text = _('Your local IP address %s has been updated for unraid.net')?>
-    swal({title:"",text:"<?=sprintf($text,is_array($addr)?$addr[0]:$addr)?>",type:"success",html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:"",text:"<?=sprintf($text,$addr)?>",type:"success",html:true,confirmButtonText:"_(Ok)_"});
   };
   $.post("/webGui/include/UpdateDNS.php",success).fail(failure);
 }
