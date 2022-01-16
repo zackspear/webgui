@@ -826,9 +826,6 @@ _(Docker Hub URL)_:
 
 :docker_client_hub_url_help:
 
-Template URL:
-: <input type="text" name="contTemplateURL">
-
 </div>
 <div markdown="1" class="noshow"> <!-- Deprecated for author to enter or change, but needs to be present -->
 Donation Text:
@@ -837,6 +834,9 @@ Donation Text:
 Donation Link:
 : <input type="text" name="contDonateLink">
 
+Template URL:
+: <input type="text" name="contTemplateURL">
+  
 </div>
 <div markdown="1" class="advanced">
 _(Icon URL)_:
