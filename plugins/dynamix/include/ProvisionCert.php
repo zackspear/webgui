@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -42,12 +42,10 @@ if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
 $isRegistered = !empty($remote) && !empty($remote['username']);
-if (!$isRegistered) {
-  response_complete(406, '{"error":"'._('Must be signed in to Unraid.net to provision cert').'"}');
-}
 
 $certPresent = file_exists($certPath);
 if ($certPresent) {
+  // renew existing cert
   $subject = exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath));
   $isLegacyCert = preg_match('/.*\.unraid\.net$/', $certSubject);
   $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $certSubject);
@@ -59,7 +57,12 @@ if ($certPresent) {
     }
   } else {
     // assume custom cert
-    response_complete(406, '{"error":"'._('Cannot provision cert that would overwrite your existing custom cert at').' $certPath"}');
+    response_complete(406, '{"error":"'._('Cannot renew a custom cert at').' $certPath"}');
+  }
+} else {
+  // provision new cert
+  if (!$isRegistered) {
+    response_complete(406, '{"error":"'._('Must be signed in to Unraid.net to provision cert').'"}');
   }
 }
 $endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildcard";

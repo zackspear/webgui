@@ -185,6 +185,7 @@ $(function(){
 </script>
 <form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changePorts" value="Apply">
+<input type="hidden" name="server_https" value="<?=$_SERVER['HTTPS']?>">
 <input type="hidden" name="server_name" value="<?=$_SERVER['HTTP_HOST']?>">
 <input type="hidden" name="server_addr" value="<?=$_SERVER['SERVER_ADDR']?>">
 _(User 'root')_:
@@ -273,6 +274,7 @@ _(Local TLD)_:
 </form>
 <div style="height:24px"></div>
 <form markdown="1" name="Provision" method="POST" target="progressFrame" action="/update.htm" onsubmit="provisionHandler(event, this)">
+<input type="hidden" name="server_https" value="<?=$_SERVER['HTTPS']?>">
 <input type="hidden" name="server_name" value="<?=$_SERVER['HTTP_HOST']?>">
 <input type="hidden" name="server_addr" value="<?=$_SERVER['SERVER_ADDR']?>">
 <?if ($certPresent):?>

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -75,7 +75,7 @@ function generate_external_host($host, $ip) {
   return $host;
 }
 function verbose_output($httpcode, $result) {
-  global $cli, $verbose, $anon, $post, $var, $certhostname, $isRegistered, $isCertUnraidNet, $rebindDisabled, $remote;
+  global $cli, $verbose, $anon, $post, $var, $certhostname, $isRegistered, $rebindDisabled, $remote, $restartNginx;
   global $remoteaccess;
   global $icon_warn, $icon_ok;
   if (!$cli || !$verbose) return;
@@ -119,7 +119,7 @@ function verbose_output($httpcode, $result) {
       if ($internalhostip) {
         // $internalhostip will not be defined for .local domains, ok to skip
         echo ($internalhosterr) ? $icon_warn : $icon_ok;
-        echo "{$post['internalhostname']} resolves to {$internalhostip}";
+        echo generate_internal_host($post['internalhostname'], $post['internalip'])." resolves to {$internalhostip}";
         echo ($internalhosterr) ? ", it should resolve to {$post['internalip']}" : "";
         echo PHP_EOL;
       }
@@ -130,7 +130,7 @@ function verbose_output($httpcode, $result) {
         echo ($certhosterr) ? ", it should resolve to {$post['internalip']}" : "";
         echo PHP_EOL;
       }
-      if ($remoteaccess == 'yes' && $isCertUnraidNet && $post['externalprotocol'] && $post['externalhostname'] && $post['externalport']) {
+      if ($remoteaccess == 'yes' && $post['externalprotocol'] && $post['externalhostname'] && $post['externalport']) {
         $remoteurl = $post['externalprotocol']."://".generate_external_host($post['externalhostname'], $wanip).format_port($post['externalport']);
         echo 'Remote Access url: '.$remoteurl.PHP_EOL;
         echo ($externalhosterr) ? $icon_warn : $icon_ok;
@@ -138,9 +138,14 @@ function verbose_output($httpcode, $result) {
         echo ($externalhosterr) ? "does not resolve to an IP address" : "resolves to {$externalhostip}";
         echo PHP_EOL;
       }
+      if ($restartNginx) {
+        echo "IP address changes were detected, nginx was reloaded".PHP_EOL;
+      } else {
+        echo "IP address changes were not detected, nginx was not reloaded".PHP_EOL;
+      }
     }
     // output post data
-    if ($post['keyfile']) $post['keyfile'] = substr($post['keyfile'], 0, 5)."...";
+    if ($post['keyfile']) $post['keyfile'] = "[redacted]";
     echo PHP_EOL.'Request:'.PHP_EOL;
     echo @json_encode($post, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
   }
@@ -176,6 +181,32 @@ if ($cli && $argv[1] == "-vv") {
   $verbose = true;
 }
 $var = parse_ini_file('/var/local/emhttp/var.ini');
+$ver = parse_ini_file("/etc/unraid-version");
+extract(parse_ini_file('/var/local/emhttp/network.ini',true));
+$nginx = parse_ini_file('/var/local/nginx/state.ini');
+$restartNginx = false;
+// *******************
+// fake a few values (remove this when state file is fully populated)
+if ($nginx['LANFQDN']) {
+  if (!$nginx['CERTNAME']) {
+    $nginx['CERTNAME']=preg_replace('/([^\.]*)\.(.*)/', "*.$2", $nginx['LANFQDN']);
+  }
+  if (!$nginx['CERTPATH']) {
+    if (preg_match('/.*unraid\.net$/', $nginx['CERTNAME'])) {
+      $nginx['CERTPATH']='/boot/config/ssl/certs/certificate_bundle.pem';
+    } else {
+      $nginx['CERTPATH']="/boot/config/ssl/certs/{$var['NAME']}_unraid_bundle.pem";
+    }
+  }
+}
+if (!$nginx['LANIP']) {
+  $nginx['LANIP'] = ipaddr();
+}
+if (!$nginx['WANIP']) {
+  $nginx['WANIP'] = trim(@file_get_contents("https://wanip4.unraid.net/"));
+}
+// *******************
+
 $dnserr = false;
 $icon_warn = "⚠️  ";
 $icon_ok = "✅  ";
@@ -224,41 +255,42 @@ if ($cli) {
       if ($pairs) $text .= "[$section]\n".$pairs;
     }
     if ($text) file_put_contents('/boot/config/plugins/dynamix.my.servers/myservers.cfg', $text);
-    // reload nginx
-    exec("/etc/rc.d/rc.nginx reload &>/dev/null");
+    // need nginx reload
+    $restartNginx = true;
   }
 }
 $isRegistered = !empty($remote) && !empty($remote['username']);
 
-$certhostname = '';
-$certPath = '/boot/config/ssl/certs/certificate_bundle.pem';
-$hasCert = file_exists($certPath);
-if ($hasCert) {
-  $certhostname = trim(exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath)." | awk -F' = ' '{print $2}'"));
-  $isCertUnraidNet = preg_match('/.*\.(my)?unraid\.net$/', $certhostname);
-  if (!$isCertUnraidNet) {
-    // handle custom wildcard certs
-    $certhostname = str_replace('*', $var['NAME'], $certhostname);
-  }
-}
-
 // protocols, hostnames, ports
 $internalprotocol = 'http';
 $internalport = $var['PORT'];
-$internalhostname = $var['NAME'] . (empty($var['LOCAL_TLD']) ? '' : '.'.$var['LOCAL_TLD']);
+$internalhostname = $nginx['LANMDNS'];
 $externalprotocol = 'https';
-$externalhostname = $certhostname;
+// keyserver will expand *.hash.myunraid.net or add www to hash.unraid.net as needed
+$externalhostname = $nginx['CERTNAME'];
+$isLegacyCert = preg_match('/.*\.unraid\.net$/', $nginx['CERTNAME']);
+$isWildcardCert = preg_match('/.*\.myunraid\.net$/', $nginx['CERTNAME']);
 
-if ($var['USE_SSL']!='no' && $hasCert) {
+// if not signed in, or if certs were deleted after configuring remote access, disable
+if (!$isRegistered || (!$isLegacyCert && !$isWildcardCert) || $remoteaccess != 'yes') $remoteaccess = 'no';
+
+if ($var['USE_SSL']=='yes') {
+  // certificate assumed to exist
+  // the subject of the certificate must match $var['NAME'].$var['LOCAL_TLD']
   $internalprotocol = 'https';
   $internalport = $var['PORTSSL'];
-  $internalhostname = $certhostname;
+}
+if ($var['USE_SSL']=='auto') {
+  // certificate assumed to exist
+  $internalprotocol = 'https';
+  $internalport = $var['PORTSSL'];
+  // keyserver will expand *.hash.myunraid.net as needed
+  $internalhostname = $nginx['CERTNAME'];
 }
 
-// only proceed when when signed in (or when (my)?unraid.net SSL certificate is active in 6.10.0-rc1 and earlier)
-$requireAuth = !version_compare($var['version'], '6.10.0-rc1', '<=');
-if (($requireAuth && !$isRegistered) || (!$requireAuth && !$isRegistered && !$isCertUnraidNet)) {
-  response_complete(406, '{"error":"'._('Nothing to do').'"}');
+// only proceed when when signed in or when legacy unraid.net SSL certificate exists
+if (!$isRegistered && !$isLegacyCert) {
+    response_complete(406, '{"error":"'._('Nothing to do').'"}');
 }
 
 // keyfile
@@ -269,12 +301,13 @@ if ($keyfile === false) {
 $keyfile = @base64_encode($keyfile);
 
 // internalip
-extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 $ethX       = 'eth0';
 $internalip = ipaddr($ethX);
 
 // My Servers version
-$plgversion = trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net*.plg 2>/dev/null'));
+$plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg") ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.plg 2>/dev/null'))
+  : file_exists("/var/log/plugins/dynamix.unraid.net.staging.plg") ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.staging.plg 2>/dev/null'))
+  : 'base-'.$var['version'];
 
 // DNS Rebind Protection
 $rebindDisabled = (host_lookup_ip("rebindtest.unraid.net") == "192.168.42.42");
@@ -284,19 +317,25 @@ $post = [
   'keyfile' => $keyfile,
   'plgversion' => $plgversion
 ];
-if ($isCertUnraidNet) {
-  // if there is an unraid.net cert, enable local ddns regardless of use_ssl value
+if ($isLegacyCert) {
+  // sign in not required to maintain local ddns for unraid.net cert
+  // enable local ddns regardless of use_ssl value
   $post['internalip'] = $internalip;
   // if DNS Rebind Protection is disabled and host.unraid.net does not resolve to the internalip, disable caching
   if ($rebindDisabled && host_lookup_ip(generate_internal_host($certhostname, $post['internalip'])) != $post['internalip']) $dnserr = true;
 }
 if ($isRegistered) {
+  // if signed in, send data needed to maintain My Servers Dashboard
   $post['internalhostname'] = $internalhostname;
   $post['internalport'] = $internalport;
   $post['internalprotocol'] = $internalprotocol;
   $post['remoteaccess'] = $remoteaccess;
   $post['servercomment'] = $var['COMMENT'];
   $post['servername'] = $var['NAME'];
+  if ($isWildcardCert) {
+    // keyserver needs the internalip to generate the local access url
+    $post['internalip'] = $internalip;
+  }
   if ($remoteaccess == 'yes') {
     // include wanip in the cache file so we can track if it changes
     $post['_wanip'] = trim(@file_get_contents("https://wanip4.unraid.net/"));
@@ -306,6 +345,14 @@ if ($isRegistered) {
     // if wanip.hash.myunraid.net or www.hash.unraid.net does not resolve to the wanip, disable caching
     if (host_lookup_ip(generate_external_host($post['externalhostname'], $post['_wanip'])) != $post['_wanip']) $dnserr = true;
   }
+}
+
+// if WANIP has changed since nginx started, need reload
+if ($post['_wanip'] && ($post['_wanip'] != $nginx['WANIP'])) $restartNginx = true;
+if (version_compare($ver['version'],"6.10.0-rc2","<=")) $restartNginx = false;
+if ($restartNginx) {
+  // we actually use 'reload'
+  exec("/etc/rc.d/rc.nginx reload &>/dev/null");
 }
 
 // maxage is 36 hours
