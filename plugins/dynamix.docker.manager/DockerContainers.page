@@ -160,7 +160,7 @@ dockerload.on('message', function(msg){
   }
 });
 dockerload.on('error', function(code,error) {
-  swal({title:"Docker Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 $(function() {
   $('.advancedview').switchButton({labels_placement:'left', on_label:"_(Advanced View)_", off_label:"_(Basic View)_", checked:$.cookie('docker_listview_mode')=='advanced'});

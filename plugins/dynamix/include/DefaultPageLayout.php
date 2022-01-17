@@ -597,7 +597,7 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
-var defaultPage = new NchanSubscriber('/sub/session,var<?=$entity?",notify":""?>',{subscriber:'websocket',reconnect:'persist'});
+var defaultPage = new NchanSubscriber('/sub/session,var<?=$entity?",notify":""?>',{subscriber:'websocket'});
 defaultPage.on('message', function(msg,meta) {
   switch (meta.id.channel()) {
   case 0:
@@ -627,7 +627,7 @@ defaultPage.on('message', function(msg,meta) {
       else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
       status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
-      if (ini['mdResync']==0) status += " &bullet; <?=_('Paused')?>";
+      if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
       status += "</span>";
     }
     if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
@@ -668,7 +668,7 @@ defaultPage.on('message', function(msg,meta) {
   }
 });
 defaultPage.on('error', function(code,error) {
-  swal({title:"Default Page Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+  swal({title:"<?=_('Nchan communication error')?>", text:"<?=_('Please reload page')?>", type:"warning", html:true, confirmButtonText:"<?=_('Ok')?>"});
 });
 
 var backtotopoffset = 250;

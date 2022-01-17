@@ -395,6 +395,9 @@ watchDHCP.on('message', function(data) {
     }
   }
 });
+watchDHCP.on('error', function(code,error) {
+  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+});
 $(function() {
   var ctrl = "<span id='wait_eth0' class='status vshift red-text' style='display:none;font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
   var form = document.eth0_settings;
