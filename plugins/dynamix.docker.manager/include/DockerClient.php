@@ -545,6 +545,9 @@ class DockerUpdate{
 	}
 
 	public function updateUserTemplate($Container) {
+		// Don't update templates, but leave code in place for future reference
+		return;
+				
 		$changed = false;
 		$DockerTemplates = new DockerTemplates();
 		$validElements = ['Support', 'Overview', 'Category', 'Project', 'Icon', 'ReadMe'];
