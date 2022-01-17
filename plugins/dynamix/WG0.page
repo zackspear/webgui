@@ -1081,6 +1081,9 @@ statistics.on('message', function(data) {
     $('span[class^="rx-'+vtun+'"]').text('---');
   }
 });
+statistics.on('error', function(code,error) {
+  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+});
 
 $(function(){
   var form = $(document.wg0);
