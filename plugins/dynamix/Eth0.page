@@ -382,7 +382,7 @@ function viewToggle(eth,vlan) {
   }
   $(view).toggle('slow');
 }
-var watchDHCP = new NchanSubscriber('/sub/dhcp');
+var watchDHCP = new NchanSubscriber('/sub/dhcp',{subscriber:'websocket'});
 watchDHCP.on('message', function(data) {
   data = data.split(' ');
   for (var i=0,row; row=data[i]; i++) {

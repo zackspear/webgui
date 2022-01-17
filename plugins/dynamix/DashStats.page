@@ -593,6 +593,7 @@ var cputime  = 0;
 var nettime  = 0;
 var cpuline  = $.cookie('cpuline')||30;
 var netline  = $.cookie('netline')||30;
+var update2  = true;
 
 var options_cpu = {
   series:[{name:'load', data:cpu.slice()}],
@@ -787,7 +788,7 @@ function smartMenu(table) {
       opts.push({divider:true});
       opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(id,disk);}});
     }
-    $(id).bind('click',function(){update2.stop();}).bind('mouseout',function(){setTimeout(function(){update2.start();},15000);});
+    $(id).bind('click',function(){update2=false;}).bind('mouseout',function(){setTimeout(function(){update2=true;},15000);});
     context.attach(id,opts);
   });
 }
@@ -1005,113 +1006,131 @@ function setColor(l, t1, t2) {
   switch (true) {
   case (t1 > 0 && l >= t1): return 'redbar';
   case (t2 > 0 && l >= t2): return 'orangebar';
-  default       : return '';}
+  default: return '';}
 }
 
-var cpuload = new NchanSubscriber('/sub/cpuload');
-cpuload.on('message',function(d) {
-/*
-  message should be something like: {"cpuload": {"cpu":[0,0],"cpu0":[0,0],"cpu1":[0,0],"cpu2":[0,0],"cpu3":[0,0]}}
-  The array values are [<load-percentage>,<guest-percentage>].  guest-percentage is that part of load-percentage that is being consumed by VM guests
-  var json = $.parseJSON(message);
-  $.each(json["cpuload"],function(k,v) {
-    $('#'+k).animate({width:v[0]+'%'},{step:function(){$('#'+k).css('overflow','visible');}}).text(v[0]+'%');
-  });
-*/
-  var ini = parseINI(d);
-  $.each(ini,function(k,v) {
-    var load = v['host'];
-    var color = setColor(load, 90, 70);
-    if (k=='cpu') {
-      addChartCpu(load);
-      cpuchart.updateSeries([{data:cpu}]);
-    }
-    $('.'+k).text(load+'%');
-    $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
-  });
-});
-
-var update1 = new NchanSubscriber('/sub/update1');
-update1.on('message',function(d) {
-  var part = d.split('\1');
-  // memory & disk load
-  $.each(part[0].split('\0'),function(k,v) {
-    var load = v.slice(0,-1);
-    var color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
-    $('.sys'+k).text(v);
-    $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
-  });
+var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket',reconnect:'persist'});
+dashboard.on('message',function(msg,meta) {
+  switch (meta.id.channel()) {
+  case 0:
+    var ini = parseINI(msg);
+    // cpu load
+    $.each(ini,function(k,v) {
+      var load = v['host'];
+      var color = setColor(load, 90, 70);
+      if (k=='cpu') {
+        addChartCpu(load);
+        cpuchart.updateSeries([{data:cpu}]);
+      }
+      $('.'+k).text(load+'%');
+      $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
+    });
+    break;
+  case 1:
+    var part = msg.split('\1');
+    // memory & disk load
+    $.each(part[0].split('\0'),function(k,v) {
+      var load = v.slice(0,-1);
+      var color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
+      $('.sys'+k).text(v);
+      $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
+    });
 <?if ($fans):?>
-  // fans rpm
-  $.each(part[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
+    // fans rpm
+    $.each(part[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
 <?endif;?>
 <?if ($var['fsState']=='Started' && $group):?>
-  // stream counters (smb only)
-  var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-  if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
+    // stream counters (smb only)
+    var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
+    if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
 <?endif;?>
-});
-
-var update2 = new NchanSubscriber('/sub/update2');
-update2.on('message',function(d) {
-  var part = d.split('\1');
-  var data = part[0].split('\0');
-  var info = moreInfo(data,"_(Array)_");
-  // array devices
-  $('#array_list').html(data[0]);
-  $('#array_info').parent().css('display',info?'':'none');
-  $('#array_info').html(info);
-  smartMenu('#array_list');
-  // pool devices
-  var text = part[1].split('\r');
-  for (var i=0,t; t=text[i]; i++) {
-    var data = t.split('\0');
-    var info = moreInfo(data,"_(Cache)_");
-    $('#cache_list'+i).html(t);
-    $('#cache_info'+i).parent().css('display',info?'':'none');
-    $('#cache_info'+i).html(info);
-    smartMenu('#cache_list'+i);
-  }
-<?if ($devs):?>
-  // unassigned devices
-  var data = part[2].split('\0');
-  var info = moreInfo(data,"_(Unassigned)_");
-  $('#extra_list').html(data[0]);
-  $('#extra_info').parent().css('display',info?'':'none');
-  $('#extra_info').html(info);
-  smartMenu('#extra_list');
-<?endif;?>
-  // parity status
-  $('span.info.title').html(part[3]);
-  // parity schedule
-  var data = part[4].split('\0');
-  $('#parity').html(data[0]);
-  $('#program').html(data[1]);
-});
-
-var update3 = new NchanSubscriber('/sub/update3');
-update3.on('message',function(d) {
-  var part = d.split('\1');
-  var ports = part[0].split('\n');
-  // rx/tx speeds
-  for (var i=0,port; port=ports[i]; i++) {
-    var data = port.split('\0');
-    if (data[0] == port_select) {
-      $('#inbound').text(data[1]);
-      $('#outbound').text(data[2]);
-      addChartNet(data[3], data[4]);
-      netchart.updateSeries([{data:rxd},{data:txd}]);
-      break;
+    break;
+  case 2:
+    if (!update2) break;
+    var part = msg.split('\1');
+    var data = part[0].split('\0');
+    var info = moreInfo(data,"_(Array)_");
+    // array devices
+    $('#array_list').html(data[0]);
+    $('#array_info').parent().css('display',info?'':'none');
+    $('#array_info').html(info);
+    smartMenu('#array_list');
+    // pool devices
+    var text = part[1].split('\r');
+    for (var i=0,t; t=text[i]; i++) {
+      var data = t.split('\0');
+      var info = moreInfo(data,"_(Cache)_");
+      $('#cache_list'+i).html(t);
+      $('#cache_info'+i).parent().css('display',info?'':'none');
+      $('#cache_info'+i).html(info);
+      smartMenu('#cache_list'+i);
     }
+<?if ($devs):?>
+    // unassigned devices
+    var data = part[2].split('\0');
+    var info = moreInfo(data,"_(Unassigned)_");
+    $('#extra_list').html(data[0]);
+    $('#extra_info').parent().css('display',info?'':'none');
+    $('#extra_info').html(info);
+    smartMenu('#extra_list');
+<?endif;?>
+    // parity status
+    $('span.info.title').html(part[3]);
+    // parity schedule
+    var data = part[4].split('\0');
+    $('#parity').html(data[0]);
+    $('#program').html(data[1]);
+    break;
+  case 3:
+    var part = msg.split('\1');
+    var ports = part[0].split('\n');
+    // rx & tx speeds
+    for (var i=0,port; port=ports[i]; i++) {
+      var data = port.split('\0');
+      if (data[0] == port_select) {
+        $('#inbound').text(data[1]);
+        $('#outbound').text(data[2]);
+        addChartNet(data[3], data[4]);
+        netchart.updateSeries([{data:rxd},{data:txd}]);
+        break;
+      }
+    }
+    // port counters
+    $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
+    $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
+    $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
+    break;
+  case 4:
+    // wireguard tunnels
+    var n = {};
+    var rows = msg.split('\0');
+    for (var i=0,row; row=rows[i]; i++) {
+      var info = row.split(';');
+      var vtun = info[0];
+      if (typeof n[vtun]=='undefined') n[vtun] = 0; else n[vtun]++;
+      if (info[1] == 0) {
+        $('td#'+vtun+'-hs-'+n[vtun]).text("_(not received)_");
+      } else if (info[1] > 86400) {
+        var d = parseInt(info[1]/86400);
+        var s = d==1 ? " _(day)_" : " _(days)_";
+        $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",d+s));
+      } else {
+        var h = parseInt(info[1]/3600).pad();
+        var m = parseInt(info[1]/60%60).pad();
+        var s = parseInt(info[1]%60).pad();
+        $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",h+':'+m+':'+s));
+      }
+      $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i><span class="tx">'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i></span>');
+    }
+    break;
   }
-  // port counters
-  $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
-  $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
-  $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
+});
+dashboard.on('error', function(code,error) {
+  swal({title:"Dashboard Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 
 <?if ($apcupsd):?>
-var apcups = new NchanSubscriber('/sub/apcups');
+var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket',reconnect:'persist'});
 apcups.on('message',function(d) {
   var data = d.replace(/<\/?tr>/g,'').replace(/<td/g,'<span').replace(/td>/g,'span>;').split(';');
   $('#ups_status').html(data[0]);
@@ -1120,31 +1139,8 @@ apcups.on('message',function(d) {
   $('#ups_nompower').html(data[3]);
   $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
 });
-<?endif;?>
-
-<?if ($wireguard):?>
-var wireguard = new NchanSubscriber('/sub/wireguard');
-wireguard.on('message', function(d) {
-  var n = {};
-  var rows = d.split('\0');
-  for (var i=0,row; row=rows[i]; i++) {
-    var info = row.split(';');
-    var vtun = info[0];
-    if (typeof n[vtun]=='undefined') n[vtun] = 0; else n[vtun]++;
-    if (info[1] == 0) {
-      $('td#'+vtun+'-hs-'+n[vtun]).text("_(not received)_");
-    } else if (info[1] > 86400) {
-      var d = parseInt(info[1]/86400);
-      var s = d==1 ? " _(day)_" : " _(days)_";
-      $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",d+s));
-    } else {
-      var h = parseInt(info[1]/3600).pad();
-      var m = parseInt(info[1]/60%60).pad();
-      var s = parseInt(info[1]%60).pad();
-      $('td#'+vtun+'-hs-'+n[vtun]).text(sprintf("_(%s ago)_",h+':'+m+':'+s));
-    }
-    $('td#'+vtun+'-rx-'+n[vtun]).html(info[2]+'&nbsp;<i class="fa fa-fw fa-arrow-down"></i><span class="tx">'+info[3]+'&nbsp;<i class="fa fa-fw fa-arrow-up"></i></span>');
-  }
+apcups.on('error', function(code,error) {
+  swal({title:"APC-UPS Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 <?endif;?>
 
@@ -1199,13 +1195,7 @@ $(function() {
   dropdown('enter_share');
 <?endif;?>
   dropdown('enter_view');
-  cpuload.start();
-<?if ($wireguard):?>
-  wireguard.start();
-<?endif;?>
-  update1.start();
-  update2.start();
-  update3.start();
+  dashboard.start();
 <?if ($apcupsd):?>
   apcups.start();
 <?endif;?>

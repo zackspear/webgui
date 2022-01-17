@@ -1047,7 +1047,7 @@ function getPublicIP(ip,wg,protocol) {
 var tstate = [];
 tstate['wg0'] = "<?=$check_wg0 ? 'active' : ''?>";
 
-var statistics = new NchanSubscriber('/sub/wireguard');
+var statistics = new NchanSubscriber('/sub/wireguard',{subscriber:'websocket'});
 statistics.on('message', function(data) {
   var list = [];
   var rows = data.split('\0');

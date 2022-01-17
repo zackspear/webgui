@@ -200,7 +200,6 @@ function stopParity(form,text) {
 <?endif;?>
 }
 function pauseParity(form) {
-  parityStatus.stop();
   $.post('/webGui/include/ParityControl.php',{action:'pause'},function(){
     $('#pauseButton').val("_(Resume)_").prop('disabled',true).prop('onclick',null).off('click').click(function(){resumeParity(form);});
     $(form).append('<input type="hidden" name="cmdNoCheck" value="Pause">');
@@ -208,7 +207,6 @@ function pauseParity(form) {
   });
 }
 function resumeParity(form) {
-  parityStatus.stop();
   $.post('/webGui/include/ParityControl.php',{action:'resume'},function(){
     $('#pauseButton').val("_(Pause)_").prop('disabled',true).prop('onclick',null).off('click').click(function(){pauseParity(form);});
     $(form).append('<input type="hidden" name="cmdCheck" value="Resume">');
@@ -263,56 +261,67 @@ $parity = $activeP ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
-var devices = new NchanSubscriber('/sub/devices');
-devices.on('message', function(data) {
-  // split table sections
-  var tables = data.split('\0');
-  for (var n=0; n < tables.length; n++) {
-    // get table name and content
-    var table = tables[n].split('\n');
-    $('#'+table[0]).html(table[1]);
+var devices = new NchanSubscriber('/sub/devices<?=$activeP?",parity":""?>',{subscriber:'websocket',reconnect:'persist'});
+devices.on('message', function(msg,meta) {
+  switch (<?if ($activeP):?>meta.id.channel()<?else:?>0<?endif;?>) {
+  case 0:
+    // array + pool + ua devices
+    var tables = msg.split('\0');
+    for (var n=0; n < tables.length; n++) {
+      // get table name and content
+      var table = tables[n].split('\n');
+      $('#'+table[0]).html(table[1]);
+    }
+    display_diskio();
+    break;
+  case 1:
+    // running parity status
+    $.each(msg.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
+    // button control
+    if (!msg && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
+      $('#cancelButton').val("_(Done)_").prop('onclick',null).off('click').click(function(){refresh();});
+      $('#pauseButton').prop('disabled',true);
+      $('#cancelText').html('');
+      $('#line4').html("_(completed)_");
+    } else if ($('#pauseButton').length>0 && $('#pauseButton').prop('disabled')==false) {
+      var form = document.arrayOps;
+      if ($('#pauseButton').val()=="_(Pause)_" && msg.search("_(paused)_")!=-1) {
+        $('#pauseButton').val("_(Resume)_").prop('onclick',null).off('click').click(function(){resumeParity(form);});
+      } else if ($('#pauseButton').val()=="_(Resume)_" && msg.search("_(paused)_")==-1) {
+        $('#pauseButton').val("_(Pause)_").prop('onclick',null).off('click').click(function(){pauseParity(form);});
+      }
+    }
+    break;
   }
-  display_diskio();
+});
+devices.on('error', function(code,error) {
+  swal({title:"Devices Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 <?if ($var['fsState']=='Stopped'):?>
 devices.on('connect', function(e) {
   setTimeout(function(){devices.stop();},1000);
 });
 <?endif;?>
-
-var parityStatus = new NchanSubscriber('/sub/parity');
-parityStatus.on('message', function(data){
-  $.each(data.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
-  if (!data && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
-    $('#cancelButton').val("_(Done)_").prop('onclick',null).off('click').click(function(){refresh();});
-    $('#pauseButton').prop('disabled',true);
-    $('#cancelText').html('');
-    $('#line4').html("_(completed)_");
-  } else if ($('#pauseButton').length>0 && $('#pauseButton').prop('disabled')==false) {
-    var form = document.arrayOps;
-    if ($('#pauseButton').val()=="_(Pause)_" && data.search("_(paused)_")!=-1) {
-      $('#pauseButton').val("_(Resume)_").prop('onclick',null).off('click').click(function(){resumeParity(form);});
-    } else if ($('#pauseButton').val()=="_(Resume)_" && data.search("_(paused)_")==-1) {
-      $('#pauseButton').val("_(Pause)_").prop('onclick',null).off('click').click(function(){pauseParity(form);});
-    }
-  }
-});
-
 devices.start();
 <?if ($activeP):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
-parityStatus.start();
 <?else:?>
-var parityMonitor = new NchanSubscriber('/sub/parity_monitor');
-parityMonitor.on('message', function(data){if (data>0) refresh();});
-setTimeout(function(){parityMonitor.start();},2000);
+var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket',reconnect:'persist'});
+monitor.on('message', function(msg) {
+  if (msg > 0) refresh();
+});
+monitor.on('error', function(code,error) {
+  swal({title:"Monitor Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+});
+setTimeout(function(){monitor.start();},2500);
 <?endif;?>
+
 $(function(){
   var form = document.arrayOps;
   if (form.input !== undefined) selectInput(form);
 });
 function formatWarning(val) {
-  if (val==true)
+  if (val==true) {
     swal({
       title:"_(Format Unmountable disks)_",
       text: "_(Create an empty file system on the disks shown as **Unmountable** discarding all data currently on the disks and update parity to reflect this)_. "+
@@ -320,9 +329,10 @@ function formatWarning(val) {
             "<p><br>**_(WARNING)_**"+
             "<p>_(A format is **NEVER** part of a data recovery or disk rebuild process and if done in such circumstances will normally lead to loss of all data on the disks being formatted)_.",
       type: "warning",
-      confirmButtonText:"_(Ok)_",
-      html: true
+      html: true,
+      confirmButtonText:"_(Ok)_"
     });
+  }
 }
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">

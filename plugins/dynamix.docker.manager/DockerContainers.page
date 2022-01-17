@@ -148,9 +148,9 @@ function loadlist() {
 function sizes() {
   openBox("/plugins/dynamix.docker.manager/include/ContainerSize.php","_(Container Size)_",600,600);
 }
-var dockerload = new NchanSubscriber('/sub/dockerload');
-dockerload.on('message', function(data){
-  data = data.split('\n');
+var dockerload = new NchanSubscriber('/sub/dockerload',{subscriber:'websocket'});
+dockerload.on('message', function(msg){
+  var data = msg.split('\n');
   for (var i=0,row; row=data[i]; i++) {
     var id = row.split(';');
     var w1 = Math.round(Math.min(id[1].slice(0,-1)/<?=count($cpus)*count(preg_split('/[,-]/',$cpus[0]))?>,100)*100)/100+'%';
@@ -158,6 +158,9 @@ dockerload.on('message', function(data){
     $('.mem-'+id[0]).text(id[2]);
     $('#cpu-'+id[0]).css('width',w1);
   }
+});
+dockerload.on('error', function(code,error) {
+  swal({title:"Docker Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 $(function() {
   $('.advancedview').switchButton({labels_placement:'left', on_label:"_(Advanced View)_", off_label:"_(Basic View)_", checked:$.cookie('docker_listview_mode')=='advanced'});
