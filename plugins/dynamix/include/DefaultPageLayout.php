@@ -18,6 +18,7 @@ $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 $config  = "/boot/config";
+$entity  = $notify['entity'] & 1 == 1;
 
 function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
 ?>
@@ -87,6 +88,7 @@ $notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBo
 <script src="<?autov('/webGui/javascript/translate.'.($locale?:'en_US').'.js')?>"></script>
 <script>
 String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
+String.prototype.channel = function(){return this.split(':')[1].split(',').findIndex((e)=>/\[\d\]/.test(e));}
 
 Shadowbox.init({skipSetup:true});
 
@@ -332,7 +334,6 @@ function digits(number) {
   return 'three';
 }
 function openNotifier(filter) {
-  notifier.stop();
   $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
@@ -346,18 +347,15 @@ function openNotifier(filter) {
         });
       }
     });
-    notifier.start();
   });
 }
 function closeNotifier(filter) {
-  notifier.stop();
   $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
     var data = $.parseJSON(json);
     $.each(data, function(i, notify) {
       if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
-    notifier.start();
   });
 }
 function viewHistory(filter) {
@@ -599,76 +597,80 @@ function parseINI(data){
 // unraid animated logo
 var unraid_logo = '<?readfile("$docroot/webGui/images/animated-logo.svg")?>';
 
-var keepalive = new NchanSubscriber('/sub/session');
-keepalive.on('message', function(token) {
-  if (csrf_token != token) {
-    // Stale session, force login
-    $(location).attr('href','/');
-  }
-});
-
-var notifier = new NchanSubscriber('/sub/notify');
-notifier.on('message', function(d) {
-  var tub1 = 0, tub2 = 0, tub3 = 0;
-  var data = $.parseJSON(d);
-  $.each(data, function(i, notify) {
-<?if ($notify['display']):?>
-    switch (notify.importance) {
-      case 'alert'  : tub1++; break;
-      case 'warning': tub2++; break;
-      case 'normal' : tub3++; break;
+var defaultPage = new NchanSubscriber('/sub/session,var<?=$entity?",notify":""?>',{subscriber:'websocket',reconnect:'persist'});
+defaultPage.on('message', function(msg,meta) {
+  switch (meta.id.channel()) {
+  case 0:
+    // stale session, force login
+    if (csrf_token != msg) location.replace('/');
+    break;
+  case 1:
+    // message field in footer
+    var ini = parseINI(msg);
+    var state = ini['fsState'];
+    var progress = ini['fsProgress'];
+    var status;
+    if (state=='Stopped') {
+      status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>";
+    } else if (state=='Started') {
+      status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>";
+    } else if (state=='Formatting') {
+      status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>";
+    } else {
+      status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
     }
-<?else:?>
-    $.jGrowl(notify.subject+'<br>'+notify.description, {
-      group: notify.importance,
-      header: notify.event+': '+notify.timestamp,
-      theme: notify.file,
-      click: function(e,m,o) { if (notify.link) location=notify.link;},
-      beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-      beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
-      afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
-    });
-<?endif;?>
-  });
+    if (ini['mdResyncPos']>0) {
+      var action;
+      if (ini['mdResyncAction'].indexOf("recon")>=0) action = "<?=_('Parity-Sync / Data-Rebuild')?>";
+      else if (ini['mdResyncAction'].indexOf("clear")>=0) action = "<?=_('Clearing')?>";
+      else if (ini['mdResyncAction']=="check") action = "<?=_('Read-Check')?>";
+      else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
+      action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
+      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
+      if (ini['mdResync']==0) status += " &bullet; <?=_('Paused')?>";
+      status += "</span>";
+    }
+    if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
+    $('#statusbar').html(status);
+    break;
+  case 2:
+    // notifications
+    var tub1 = 0, tub2 = 0, tub3 = 0;
+    var data = $.parseJSON(msg);
+    $.each(data, function(i, notify) {
 <?if ($notify['display']):?>
-  $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
-  $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
-  $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
-  if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
-  if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
-  if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
+      switch (notify.importance) {
+        case 'alert'  : tub1++; break;
+        case 'warning': tub2++; break;
+        case 'normal' : tub3++; break;
+      }
+<?else:?>
+      $.jGrowl(notify.subject+'<br>'+notify.description, {
+        group: notify.importance,
+        header: notify.event+': '+notify.timestamp,
+        theme: notify.file,
+        click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
+        beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
+        afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
+      });
 <?endif;?>
+    });
+<?if ($notify['display']):?>
+    $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
+    $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
+    $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
+    if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
+    if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
+    if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
+<?endif;?>
+    break;
+  }
+});
+defaultPage.on('error', function(code,error) {
+  swal({title:"Default Page Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 
-var watchdog = new NchanSubscriber('/sub/var');
-watchdog.on('message', function(d) {
-  var ini = parseINI(d);
-  var state = ini['fsState'];
-  var progress = ini['fsProgress'];
-  var status;
-  if (state=='Stopped') {
-    status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>";
-  } else if (state=='Started') {
-    status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>";
-  } else if (state=='Formatting') {
-    status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>";
-  } else {
-    status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
-  }
-  if (ini['mdResyncPos']>0) {
-    var action;
-    if (ini['mdResyncAction'].indexOf("recon")>=0) action = "<?=_('Parity-Sync / Data-Rebuild')?>";
-    else if (ini['mdResyncAction'].indexOf("clear")>=0) action = "<?=_('Clearing')?>";
-    else if (ini['mdResyncAction']=="check") action = "<?=_('Read-Check')?>";
-    else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
-    action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-    status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
-    if (ini['mdResync']==0) status += " &bullet; <?=_('Paused')?>";
-    status += "</span>";
-  }
-  if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
-  $('#statusbar').html(status);
-});
 var backtotopoffset = 250;
 var backtotopduration = 500;
 $(window).scroll(function() {
@@ -688,9 +690,11 @@ $('.back_to_top').click(function(event) {
   return false;
 });
 
+<?if ($entity):?>
+$.post('/webGui/include/Notify.php',{cmd:'init',csrf_token:csrf_token});
+<?endif;?>
 $(function() {
-  watchdog.start();
-  keepalive.start();
+  defaultPage.start();
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
@@ -698,9 +702,6 @@ $(function() {
   $('#licensetype').addClass('orange-text');
 <?elseif (!in_array($var['regTy'],['Trial','Basic','Plus','Pro'])):?>
   $('#licensetype').addClass('red-text');
-<?endif;?>
-<?if ($notify['entity'] & 1 == 1):?>
-  $.post('/webGui/include/Notify.php',{cmd:'init',csrf_token:csrf_token},function(){notifier.start();});
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
   $('form').find('select,input[type=text],input[type=number],input[type=password],input[type=checkbox],input[type=radio],input[type=file],textarea').not('.lock').each(function(){$(this).on('input change',function() {
@@ -719,7 +720,6 @@ $(function() {
       $(this).attr('onsubmit','clearTimeout(timers.flashReport);escapeQuotes(this);'+onsubmit);
     }
   });
-
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top',{path:'/'});

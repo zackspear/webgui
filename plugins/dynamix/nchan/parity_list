@@ -78,15 +78,14 @@ while (true) {
   }
   $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
   $sbSynced = array_shift($synced);
+  $data = [];
   if ($var['mdResyncPos']) {
-    $data = [];
     $data[] = my_scale($var['mdResyncSize']*1024,$unit,-1)." $unit";
     $data[] = _(my_clock(floor((time()-($sbSynced?:$var['sbSynced']))/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResyncSize']/100+1)),1,$display['number'][0],'')." %)";
     $data[] = $var['mdResyncDt'] ? my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec" : '---';
     $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($var['mdResyncSize']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
-    publish('parity', implode(';',$data));
   } else {
     if ($var['sbSynced']>0 && $var['sbSynced2']>0) {
       $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
@@ -102,7 +101,8 @@ while (true) {
       }
     }
   }
-  publish('parity_monitor', $var['mdResyncPos']);
+  publish('parity', implode(';',$data));
+  publish('monitor', $var['mdResyncPos']);
   sleep(1);
 }
 ?>
