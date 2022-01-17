@@ -20,6 +20,7 @@ $keyfile = file_exists($var['luksKeyfile']);
 $missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
 $activeP = $var['mdResyncPos']>0;
+
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
 foreach ($disks as $disk) {
@@ -261,7 +262,7 @@ $parity = $activeP ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
-var devices = new NchanSubscriber('/sub/devices<?=$activeP?",parity":""?>',{subscriber:'websocket',reconnect:'persist'});
+var devices = new NchanSubscriber('/sub/devices<?=$activeP?",parity":""?>',{subscriber:'websocket'});
 devices.on('message', function(msg,meta) {
   switch (<?if ($activeP):?>meta.id.channel()<?else:?>0<?endif;?>) {
   case 0:
@@ -295,7 +296,7 @@ devices.on('message', function(msg,meta) {
   }
 });
 devices.on('error', function(code,error) {
-  swal({title:"Devices Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 <?if ($var['fsState']=='Stopped'):?>
 devices.on('connect', function(e) {
@@ -306,12 +307,12 @@ devices.start();
 <?if ($activeP):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
-var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket',reconnect:'persist'});
+var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket'});
 monitor.on('message', function(msg) {
   if (msg > 0) refresh();
 });
 monitor.on('error', function(code,error) {
-  swal({title:"Monitor Nchan execution error", text:code+'<br>'+error, type:"warning", html:true, confirmButtonText:"_(Ok)_"});
+  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 setTimeout(function(){monitor.start();},2500);
 <?endif;?>
