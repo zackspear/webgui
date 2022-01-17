@@ -27,8 +27,8 @@ pre>p{margin:0;padding:0}
 <script>
 var diagnosticsFile = "";
 var file = "";
-var diagnostic = new NchanSubscriber('/sub/diagnostic');
-diagnostic.on('message',function(data) {
+var diagnostic = new NchanSubscriber('/sub/diagnostic',{subscriber:'websocket'});
+diagnostic.on('message', function(data) {
   if (data) {
     if (data == diagnosticsFile.replace("/","")+"FINISHED") {
       diagnostic.stop();
