@@ -264,7 +264,7 @@ $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS ope
 ?>
 var devices = new NchanSubscriber('/sub/devices<?=$activeP?",parity":""?>',{subscriber:'websocket'});
 devices.on('message', function(msg,meta) {
-  switch (<?if ($activeP):?>meta.id.channel()<?else:?>0<?endif;?>) {
+  switch (<?if($activeP):?>meta.id.channel()<?else:?>0<?endif;?>) {
   case 0:
     // array + pool + ua devices
     var tables = msg.split('\0');
@@ -305,9 +305,7 @@ devices.start();
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
 var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket'});
-monitor.on('message', function(msg) {
-  if (msg > 0) refresh();
-});
+monitor.on('message', function(msg){if (msg > 0) refresh();});
 setTimeout(function(){monitor.start();},2500);
 <?endif;?>
 
