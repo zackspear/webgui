@@ -295,9 +295,6 @@ devices.on('message', function(msg,meta) {
     break;
   }
 });
-devices.on('error', function(code,error) {
-  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
-});
 <?if ($var['fsState']=='Stopped'):?>
 devices.on('connect', function(e) {
   setTimeout(function(){devices.stop();},1000);
@@ -310,9 +307,6 @@ setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton'
 var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket'});
 monitor.on('message', function(msg) {
   if (msg > 0) refresh();
-});
-monitor.on('error', function(code,error) {
-  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 setTimeout(function(){monitor.start();},2500);
 <?endif;?>
