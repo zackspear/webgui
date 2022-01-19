@@ -1125,10 +1125,6 @@ dashboard.on('message',function(msg,meta) {
     break;
   }
 });
-dashboard.on('error', function(code,error) {
-  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
-});
-
 <?if ($apcupsd):?>
 var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
 apcups.on('message',function(d) {
@@ -1138,9 +1134,6 @@ apcups.on('message',function(d) {
   $('#ups_timeleft').html(data[2]);
   $('#ups_nompower').html(data[3]);
   $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
-});
-apcups.on('error', function(code,error) {
-  swal({title:"_(Nchan communication error)_", text:"_(Please reload page)_", type:"warning", html:true, confirmButtonText:"_(Ok)_"});
 });
 <?endif;?>
 
