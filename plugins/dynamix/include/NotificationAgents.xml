@@ -75,13 +75,8 @@ LOG="/var/log/notify_${SCRIPTNAME%.*}"
 [[ -z "${TIMESTAMP}" ]] && TIMESTAMP=$(date +%s)
 # ensure link has a host
 if [[ -n "${LINK}" ]] && [[ ${LINK} != http* ]]; then
-source <(grep "NAME\|LOCAL_TLD\|PORT" /usr/local/emhttp/state/var.ini 2>/dev/null)
-HOST_NAME=${NAME,,}
-[[ -n ${LOCAL_TLD} ]] && LOCAL_TLD=".${LOCAL_TLD,,}"
-[[ "${PORT}" = "80" ]] && PORT=
-[[ -n ${PORT} ]] && PORT=":${PORT}"
-HOST="http://${HOST_NAME}${LOCAL_TLD}${PORT}"
-LINK=${HOST}${LINK}
+source <(grep "NGINX_DEFAULTURL" /usr/local/emhttp/state/nginx.ini 2>/dev/null)
+LINK=${NGINX_DEFAULTURL}${LINK}
 fi
 # note: there is no default for CONTENT
 
