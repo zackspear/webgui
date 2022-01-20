@@ -75,7 +75,7 @@ function generate_external_host($host, $ip) {
   return $host;
 }
 function verbose_output($httpcode, $result) {
-  global $cli, $verbose, $anon, $plgversion, $post, $var, $certhostname, $isRegistered, $rebindDisabled, $remote, $reloadNginx;
+  global $cli, $verbose, $anon, $plgversion, $post, $var, $certhostname, $isRegistered, $rebindDisabled, $remote, $reloadNginx, $nginx;
   global $remoteaccess;
   global $icon_warn, $icon_ok;
   if (!$cli || !$verbose) return;
@@ -83,7 +83,7 @@ function verbose_output($httpcode, $result) {
   if ($anon) echo "(Output is anonymized, use '-vv' to see full details)".PHP_EOL;
   echo "Unraid OS {$var['version']}".((strpos($plgversion, "base-") === false) ? " with My Servers plugin version {$plgversion}" : '').PHP_EOL;
   echo ($isRegistered) ? "{$icon_ok}Signed in to Unraid.net as {$remote['username']}".PHP_EOL : "{$icon_warn}Not signed in to Unraid.net".PHP_EOL ;
-  echo "Use SSL is {$var['USE_SSL']}".PHP_EOL;
+  echo "Use SSL is {$nginx['NGINX_USESSL']}".PHP_EOL;
   echo ($rebindDisabled) ? "{$icon_ok}Rebind protection is disabled".PHP_EOL : "{$icon_warn}Rebind protection is enabled".PHP_EOL;
   if ($post) {
     $wanip = trim(@file_get_contents("https://wanip4.unraid.net/"));
@@ -180,7 +180,7 @@ if ($cli && $argv[1] == "-vv") {
 }
 $var = parse_ini_file('/var/local/emhttp/var.ini');
 extract(parse_ini_file('/var/local/emhttp/network.ini',true));
-$nginx = parse_ini_file('/var/local/nginx/state.ini');
+$nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
 $reloadNginx = false;
 $dnserr = false;
 $icon_warn = "⚠️  ";
@@ -202,7 +202,7 @@ if (empty($remote['wanport'])) {
 }
 // remoteaccess, externalport
 if ($cli) {
-  $remoteaccess = $remote['wanaccess'];
+  $remoteaccess = (empty($nginx['NGINX_WANFQDN'])) ? 'no' : 'yes';
   $externalport = $remote['wanport'];
 } else {
   $remoteaccess = $_POST['remoteaccess'];
@@ -238,35 +238,32 @@ $isRegistered = !empty($remote) && !empty($remote['username']);
 
 // protocols, hostnames, ports
 $internalprotocol = 'http';
-$internalport = $var['PORT'];
-$internalhostname = $nginx['LANMDNS'];
+$internalport = $nginx['NGINX_PORT'];
+$internalhostname = $nginx['NGINX_LANMDNS'];
 $externalprotocol = 'https';
 // keyserver will expand *.hash.myunraid.net or add www to hash.unraid.net as needed
-$externalhostname = $nginx['CERTNAME'];
-$isLegacyCert = preg_match('/.*\.unraid\.net$/', $nginx['CERTNAME']);
-$isWildcardCert = preg_match('/.*\.myunraid\.net$/', $nginx['CERTNAME']);
+$externalhostname = $nginx['NGINX_CERTNAME'];
+$isLegacyCert = preg_match('/.*\.unraid\.net$/', $nginx['NGINX_CERTNAME']);
+$isWildcardCert = preg_match('/.*\.myunraid\.net$/', $nginx['NGINX_CERTNAME']);
 
-// if not signed in, or if certs were deleted after configuring remote access, disable
-if (!$isRegistered || (!$isLegacyCert && !$isWildcardCert) || $remoteaccess != 'yes') $remoteaccess = 'no';
-
-if ($var['USE_SSL']=='yes') {
+if ($nginx['NGINX_USESSL']=='yes') {
   // certificate assumed to exist
-  // the subject of the certificate must match $var['NAME'].$var['LOCAL_TLD']
+  // the subject of the certificate assumed to match $var['NAME'].$var['LOCAL_TLD']
   $internalprotocol = 'https';
-  $internalport = $var['PORTSSL'];
+  $internalport = $nginx['NGINX_PORTSSL'];
 }
-if ($var['USE_SSL']=='auto') {
-  // certificate assumed to exist
+if ($nginx['NGINX_USESSL']=='auto' && $nginx['NGINX_CERTNAME']) {
+  // for 6.9, check $nginx['NGINX_CERTNAME'] to ensure the cert exists
   $internalprotocol = 'https';
-  $internalport = $var['PORTSSL'];
+  $internalport = $nginx['NGINX_PORTSSL'];
   // keyserver will expand *.hash.myunraid.net as needed
-  $internalhostname = $nginx['CERTNAME'];
+  $internalhostname = $nginx['NGINX_CERTNAME'];
 }
 
 // My Servers version
 $plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg") ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.plg 2>/dev/null'))
-  : file_exists("/var/log/plugins/dynamix.unraid.net.staging.plg") ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.staging.plg 2>/dev/null'))
-  : 'base-'.$var['version'];
+  : ( file_exists("/var/log/plugins/dynamix.unraid.net.staging.plg") ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.staging.plg 2>/dev/null'))
+  : 'base-'.$var['version'] );
 
 // DNS Rebind Protection - this checks the server but clients could still have issues
 $rebindDisabled = (host_lookup_ip("rebindtest.unraid.net") == "192.168.42.42");
@@ -323,7 +320,7 @@ if ($isRegistered) {
 }
 
 // if remoteaccess is enabled in 6.10.0-rc3+ and WANIP has changed since nginx started, reload nginx
-if ($post['_wanip'] && ($post['_wanip'] != $nginx['WANIP']) && version_compare($var['version'],"6.10.0-rc2",">")) $reloadNginx = true;
+if ($post['_wanip'] && ($post['_wanip'] != $nginx['NGINX_WANIP']) && version_compare($var['version'],"6.10.0-rc2",">")) $reloadNginx = true;
 if ($reloadNginx) {
   exec("/etc/rc.d/rc.nginx reload &>/dev/null");
 }
