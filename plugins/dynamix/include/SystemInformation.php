@@ -242,7 +242,7 @@ echo $openssl_ver;
 <div><span class="key"><?=_('Uptime')?>:</span> <span id="uptime"></span></div>
 <div style="margin-top:24px;margin-bottom:12px"><span class="key"></span>
 <input type="button" value="<?=_('Close')?>" onclick="top.Shadowbox.close()">
-<?if (isset($_GET['more'])):?>
+<?if (!empty($_GET['more'])):?>
 <a href="<?=htmlspecialchars($_GET['more'])?>" class="button" style="display:inline-block;padding:1px" target="_parent"><?=_('More')?></a>
 <?endif;?>
 </div></div>

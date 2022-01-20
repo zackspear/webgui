@@ -44,6 +44,9 @@ function vpn_peers($file) {
   }
   return $peers;
 }
+// adjust the text color in log window
+$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
+exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
 
 $dockerd = pgrep('dockerd');
 $libvirtd = pgrep('libvirtd');
@@ -160,6 +163,7 @@ switch ($display['theme']) {
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 <style>
 div.frame{float:left;margin:14px 0}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
@@ -722,9 +726,6 @@ function loadlist(init) {
     var data = d.split(/\0/);
     $('.docker_view').html(data[0]);
     $('.vm_view').html(data[1]);
-    var script = document.createElement('script');
-    script.innerHTML = data[2];
-    document.head.appendChild(script);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,function(){noApps();});
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,function(){noVMs();});
     context.init({preventDoubleContext:false,left:true,above:false});

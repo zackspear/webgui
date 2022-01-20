@@ -22,7 +22,6 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
 $display = $_POST['display'];
-$menu = [];
 
 if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
   $user_prefs = $dockerManPaths['user-prefs'];
@@ -52,14 +51,14 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     $registry = html_entity_decode($info['registry']);
     $donateLink = html_entity_decode($info['DonateLink']);
     $readme = html_entity_decode($info['ReadMe']);
-    $menu[] = sprintf("addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s','%s','%s');", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry), addslashes($donateLink), addslashes($readme));
+    $menu = sprintf("onclick=\"addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry), addslashes($donateLink), addslashes($readme));
     $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
     $status = $running ? ($paused ? 'paused' : 'started') : 'stopped';
     $color = $status=='started' ? 'green-text' : ($status=='paused' ? 'orange-text' : 'red-text');
     $update = $updateStatus==1 ? 'blue-text' : '';
     $icon = $info['icon'] ?: '/plugins/dynamix.docker.manager/images/question.png';
     $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img' onerror=this.src='/plugins/dynamix.docker.manager/images/question.png';>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-    echo "<span class='outer solid apps $status'><span id='$id' class='hand'>$image</span><span class='inner'><span class='$update'>$name</span><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
+    echo "<span class='outer solid apps $status'><span id='$id' $menu class='hand'>$image</span><span class='inner'><span class='$update'>$name</span><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
   }
   $none = count($containers) ? _('No running docker containers') : _('No docker containers defined');
   echo "<span id='no_apps' style='display:none'>$none<br><br></span>";
@@ -94,7 +93,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
     $template = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@name');
     if (empty($template)) $template = 'Custom';
     $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
-    $menu[] = sprintf("addVMContext('%s','%s','%s','%s','%s','%s');", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vnc), addslashes($log));
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vnc), addslashes($log));
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
@@ -115,11 +114,9 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
       break;
     }
     $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-    echo "<span class='outer solid vms $status'><span id='vm-$uuid' class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
+    echo "<span class='outer solid vms $status'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
   }
   $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
   echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
   echo "</td><td></td></tr>";
 }
-echo "\0";
-echo implode($menu);
