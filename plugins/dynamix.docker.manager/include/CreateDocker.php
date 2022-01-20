@@ -270,7 +270,7 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.switchbutton.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 
 <style>
 .noshow,.advanced{display:none}

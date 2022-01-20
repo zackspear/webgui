@@ -44,6 +44,9 @@ function vpn_peers($file) {
   }
   return $peers;
 }
+// adjust the text color in log window
+$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
+exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
 
 $dockerd = pgrep('dockerd');
 $libvirtd = pgrep('libvirtd');
@@ -160,6 +163,7 @@ switch ($display['theme']) {
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 <style>
 div.frame{float:left;margin:14px 0}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
