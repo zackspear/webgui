@@ -727,7 +727,6 @@ function loadlist(init) {
     $('.docker_view').html(data[0]);
     $('.vm_view').html(data[1]);
     var script = document.createElement('script');
-    script.innerHTML = data[2];
     document.head.appendChild(script);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,function(){noApps();});
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,function(){noVMs();});

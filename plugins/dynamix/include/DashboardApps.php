@@ -64,8 +64,8 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
   echo "<span id='no_apps' style='display:none'>$none<br><br></span>";
   echo "</td><td></td></tr>";
 }
+echo "\0";
 if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
-  echo "\0";
   $user_prefs = '/boot/config/plugins/dynamix.vm.manager/userprefs.cfg';
   $vms = $lv->get_domains();
   if (file_exists($user_prefs)) {
