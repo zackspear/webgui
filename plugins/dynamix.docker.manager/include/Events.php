@@ -43,15 +43,15 @@ switch ($action) {
 		if ($container) $arrResponse = ['success' => $DockerClient->restartContainer($container)];
 		break;
 	case 'remove_container':
-		if ($container) $arrResponse = ['success' => $DockerClient->removeContainer($name, $container, 1)];
+		if ($container) $arrResponse = ['success' => $DockerClient->doesContainerExist($name) ? $DockerClient->removeContainer($name, $container, 1) : true];
 		break;
 	case 'remove_image':
-		if ($image) $arrResponse = ['success' => $DockerClient->removeImage($image)];
+		if ($image) $arrResponse = ['success' => $DockerClient->doesImageExist($image) ? $DockerClient->removeImage($image) : true];
 		break;
 	case 'remove_all':
 		if ($container && $image) {
 			// first: try to remove container
-			$ret = $DockerClient->removeContainer($name, $container, 2);
+			$ret = $DockerClient->doesContainerExist($name) ? $DockerClient->removeContainer($name, $container, 2) : true;
 			if ($ret === true) {
 				// next: try to remove image
 				$arrResponse = ['success' => $DockerClient->removeImage($image)];
