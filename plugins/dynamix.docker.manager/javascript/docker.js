@@ -157,13 +157,14 @@ function eventControl(params, spin) {
     if (data.success === true) {
       if (spin) setTimeout(spin+'()',500); else location=window.location.href;
     } else {
-      swal({
+      $('div.spinner.fixed').hide('slow');
+      setTimeout(function(){swal({
         title:_('Execution error'), html:true,
         text:data.success, type:'error',
-        confirmButtonText:_('Ok'),
+        confirmButtonText:_('Ok')
       },function(){
-        if (spin) setTimeout(spin+'()',500); else location=window.location.href;
-      });
+        if (spin) setTimeout(spin+'()',500); else location=window.location.href;});
+      },100);
     }
   },'json');
 }
