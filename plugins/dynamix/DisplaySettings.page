@@ -208,17 +208,23 @@ _(Page view)_:
   <?=mk_option($display['tabs'], "1",_('Non-tabbed'))?>
   </select>
 
+:display_page_view_help:
+
 _(Placement of Users menu)_:
 : <select name="users">
   <?=mk_option($display['users'], "Tasks:3",_('Header menu'))?>
   <?=mk_option($display['users'], "UserPreferences",_('Settings menu'))?>
   </select>
 
+:display_users_menu_help:
+
 _(Listing height)_:
 : <select name="resize">
   <?=mk_option($display['resize'], "0",_('Automatic'))?>
   <?=mk_option($display['resize'], "1",_('Fixed'))?>
   </select>
+
+:display_listing_height_help:
 
 _(Display device name)_:
 : <select name="raw">
