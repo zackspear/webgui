@@ -173,12 +173,6 @@ case 'add':
   $mailtest = false;
   $overrule = false;
   
-  $var = parse_ini_file('/var/local/emhttp/var.ini');
-  $host_name = strtolower($var['NAME']);
-  $host_tld = $var['LOCAL_TLD'] ? strtolower(".{$var['LOCAL_TLD']}") : "";
-  $host_port = $var['PORT'] != 80 ? ":{$var['PORT']}" : "";
-  $host = "http://{$host_name}{$host_tld}{$host_port}";
-  
   $options = getopt("l:e:s:d:i:m:r:xtb");
   foreach ($options as $option => $value) {
     switch ($option) {
@@ -211,8 +205,9 @@ case 'add':
       $noBrowser = true;
       break;
      case 'l':
+      $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
       $link = $value;
-      $fqdnlink = (strpos($link,"http") === 0) ? $link : $host.$link;
+      $fqdnlink = (strpos($link,"http") === 0) ? $link : $nginx['NGINX_DEFAULTURL'].$link;
       break;
     }
   }
