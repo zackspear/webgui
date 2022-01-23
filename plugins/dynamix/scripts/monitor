@@ -309,7 +309,7 @@ if ($warn!="rw") {
 
 // check docker image disk utilization
 system('mountpoint -q /var/lib/docker', $retval);
-if ($retval===0) {
+if ($retval===0 && exec("df /var/lib/docker|grep -Po '^/dev/\Kloop'")) {
   $item = 'system';
   $name = 'docker';
   $last = $saved[$item][$name] ?? '';

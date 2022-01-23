@@ -427,6 +427,8 @@ case 'virtio-win-iso-download':
 		$arrResponse = ['error' => _('Specify a ISO storage path first')];
 	} elseif (!is_dir($_REQUEST['download_path'])) {
 		$arrResponse = ['error' => _("ISO storage path doesn't exist, please create the user share (or empty folder) first")];
+	} elseif (substr(realpath($_REQUEST['download_path'])?:'',0,5) != '/mnt/') {
+		$arrResponse = ['error' => _('Invalid storage path')];
 	} else {
 		@mkdir($_REQUEST['download_path'], 0777, true);
 		$_REQUEST['download_path'] = realpath($_REQUEST['download_path']).'/';
