@@ -216,13 +216,13 @@ foreach ($sPorts as $port) {
     if ($link) {
       $bond_mode = str_replace('Bonding Mode: ','',file("/proc/net/bonding/$port",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)[1]);
       echo "$port: $bond_mode, mtu $mtu";
-    } else echo "$port: bond down";
+    } else echo "$port: ",_("bond down");
   } else {
     if ($link) {
       $speed = file_get_contents("$int/speed");
       $duplex = file_get_contents("$int/duplex");
       echo "$port: $speed Mbps, $duplex duplex, mtu $mtu";
-    } else echo "$port: "._("interface down");
+    } else echo "$port: ",_("interface down");
   }
 }
 ?>
