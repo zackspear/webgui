@@ -559,7 +559,7 @@ foreach (glob("/var/log/syslog*") as $file) {
     exert("sed -ri 's|(host: \").+(\.unraid\.net(:[0-9]+)?\")|\\1hash\\2|;s|(referrer: \"https?://).+(\.unraid\.net)|\\1hash\\2|' ".escapeshellarg("$log.txt"));
     foreach ($titles as $mover) {
       $title = "/{$mover[0]}..".substr($mover,-1)."/...";
-			exert("sed -i 's/".str_replace("/","\/",$mover)."/".str_replace("/","\/",$title)."/g' ".escapeshellarg("$log.txt")." 2>/dev/null");
+      exert("sed -i 's/".str_replace("/","\/",$mover)."/".str_replace("/","\/",$title)."/g' ".escapeshellarg("$log.txt")." 2>/dev/null");
       //exert("sed -ri 's|(file: [.>cr].*)[ /]$mover/.*$|\\1 file: $title|' ".escapeshellarg("$log.txt")." 2>/dev/null");
     }
     exert("grep -n ' cache_dirs: -' ".escapeshellarg("$log.txt")." 2>/dev/null|cut -d: -f1", $rows);
