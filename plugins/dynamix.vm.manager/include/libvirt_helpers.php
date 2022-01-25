@@ -1155,7 +1155,7 @@
 		// preserve tpm
 		if (!$new['devices']['tpm']) unset($old['devices']['tpm']);
 		// remove existing auto-generated settings
-		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
+		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['devices']['filesystem'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}
