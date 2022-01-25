@@ -236,7 +236,7 @@ span.lite{background-color:#ededed}
 span.label{font-size:1.2rem;padding:2px 0 2px 6px;margin-right:6px;border-radius:4px;display:inline;width:auto;vertical-align:middle}
 span.cpu-speed{display:block;color:#3b5998}
 span.status{float:right;font-size:1.4rem;margin-top:30px;padding-right:8px;letter-spacing:1.8px}
-span.status.vhshift{margin-top:0;margin-right:0}
+span.status.vhshift{margin-top:0;margin-right:-9px}
 span.status.vshift{margin-top:-16px}
 span.status.hshift{margin-right:-20px}
 span.diskinfo{float:left;clear:both;margin-top:5px;padding-left:10px}
