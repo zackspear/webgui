@@ -62,7 +62,7 @@ textarea{resize:none}
 #nav-block{-ms-overflow-style:none;overflow:-moz-scrollbars-none}
 #nav-block.mozilla{margin-left:-17px;overflow-y:scroll}
 #nav-block>div{direction:ltr}
-#nav-item{width:40px;text-align:left;padding:14px 24px 14px 0;border-bottom:1px solid #42453e;font-size:18px;overflow:hidden;transition:.2s background-color ease}
+#nav-item{width:40px;text-align:left;padding:14px 24px 14px 0;border-bottom:1px solid #42453e;font-size:18px!important;overflow:hidden;transition:.2s background-color ease}
 #nav-item:hover{width:auto;color:#ffdfb9;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f);-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out;border-bottom-color:#e22828}
 #nav-item:hover a{color:#ffdfb9;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f);border-bottom-color:#e22828}
 #nav-item img{display:none}
