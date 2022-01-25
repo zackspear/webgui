@@ -49,16 +49,19 @@ function shareDisks($share) {
   return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/usr/local/emhttp/mnt/user/$share")." 2>/dev/null") ?: "";
 }
 function anonymize($text,$select) {
-  global $all, $customShares;
+  global $all, $customShares,$unraid_vars;
   if ($all) return $text;
   switch ($select) {
   case 1:
+    // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
+    $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
+		
     $rows = explode("\n", $text);
     $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu$customShares)\b/";
     foreach ($rows as &$row) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
-        $row = preg_replace("/^(\s*\[(cachePool|name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token)\] => \S).*(\S)$/","$1..$3",$row);
+        $row = preg_replace("/^(\s*\[(cachePool|name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token|NGINX_DEFAULTURL|NGINX_CERTNAME|NGINX_LANFQDN|NGINX_WANFQDN|NGINX_WANIP)\] => \S).*(\S)$/","$1..$3",$row);
       }
     }
     return implode("\n", $rows);
@@ -325,6 +328,7 @@ exert("mkdir -p ".escapeshellarg("/$diag/system")." ".escapeshellarg("/$diag/con
 exert("top -bn1 -o%CPU 2>/dev/null|todos >".escapeshellarg("/$diag/system/top.txt"));
 // make Unraid version reference
 $unraid = parse_ini_file('/etc/unraid-version');
+$unraid_vars = parse_ini_file('/var/local/emhttp/var.ini');
 file_put_contents("/$diag/unraid-".$unraid['version'].".txt",$unraid['version']."\r\n");
 // add bz*.sha256 values
 exert("tail /boot/bz*.sha256 >> ".escapeshellarg("/$diag/unraid-".$unraid['version'].".txt"));
