@@ -53,8 +53,8 @@ function anonymize($text,$select) {
   if ($all) return $text;
   switch ($select) {
   case 1:
-		// remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
-		$text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
+    // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
+    $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
 		
     $rows = explode("\n", $text);
     $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu$customShares)\b/";
