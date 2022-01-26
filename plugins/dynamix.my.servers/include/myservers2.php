@@ -20,6 +20,7 @@
         'closePopUp' => sprintf(_('Close %s'), _('Pop-up')),
         'contactSupport' => _('Contact Support'),
         'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
+        'lanIpCopied' => _('LAN IP Copied'),
         'continueToUnraid' => _('Continue to Unraid'),
         'description' => _('Description'),
         'year' => _('year'),
