@@ -19,7 +19,7 @@
         'backToPopUp' => sprintf(_('Back to %s'), _('Pop-up')),
         'closePopUp' => sprintf(_('Close %s'), _('Pop-up')),
         'contactSupport' => _('Contact Support'),
-        'lanIp' => sprintf(_('LAN IP %s'), '{0}'),
+        'lanIp' => sprintf(_('Click to copy LAN IP %s'), '{0}'),
         'lanIpCopied' => _('LAN IP Copied'),
         'continueToUnraid' => _('Continue to Unraid'),
         'description' => _('Description'),
