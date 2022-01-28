@@ -321,3 +321,7 @@ a.bannerDismiss {float:right;cursor:pointer;text-decoration:none;margin-right:1r
 .bannerDismiss::before {content:"\e92f";font-family:Unraid;color:#e68a00;}
 a.bannerInfo {cursor:pointer;text-decoration:none;}
 .bannerInfo::before {content:"\f05a";font-family:fontAwesome;color:#e68a00;}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#1c1b1b}
+::-webkit-scrollbar-thumb{background:gray}
+::-webkit-scrollbar-thumb:hover{background:#f2f2f2}
