@@ -340,6 +340,12 @@
             ],
             'signOut' => [
               'heading' => _('Unraid.net Sign Out'),
+              'warnings' => [
+                'remoteAccessDisabled' => _('Remote access will be disabled'),
+                'remoteAccessInaccessible' => sprintf(_('You will no longer have access to this server using <abbr title="%s" class="italic">this url</abbr>'), '{0}'),
+                'disablingFlashBackup' => _('Automated flash backups will be disabled until you sign in again'),
+                'downloadFlashBackup' => _('Download latest backup from My Servers Dashboard'),
+              ],
             ],
             'success' => [
               'heading' => [
@@ -463,15 +469,19 @@
       "nokeyserver" => 'NO_KEY_SERVER',
       "withdrawn" => 'WITHDRAWN',
     ];
-    // feeds server vars to Vuex store in a slightly different array than state.php
-    $serverstate = [
+    $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
+    $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
       "avatar" => $remote['avatar'],
+      "config" => [
+        'valid' => $var['configValid'] === 'yes',
+        'error' => $var['configValid'] !== 'yes' ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR') : null,
+      ],
       "deviceCount" => $var['deviceCount'],
-      "email" => ($remote['email']) ? $remote['email'] : '',
+      "email" => $remote['email'] ?? '',
       "flashproduct" => $var['flashProduct'],
       "flashvendor" => $var['flashVendor'],
       "guid" => $var['flashGUID'],
-      "regGuid" => $var['regGUID'],
+      'hasUnraidNetSSL' => file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : 0, // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
       "internalip" => ipaddr(),
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
@@ -479,24 +489,19 @@
       "plgVersion" => 'base-'.$var['version'],
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
-      "registered" => empty($remote['username']) ? 0 : 1,
+      "regGuid" => $var['regGUID'],
+      "registered" => !empty($remote['username']),
       "servername" => $var['NAME'],
       "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
       "ts" => time(),
       "username" => $remote['username'],
-      "config" => [
-        'valid' => $var['configValid'] === 'yes',
-        'error' => $var['configValid'] !== 'yes'
-          ? (array_key_exists($var['configValid'], $configErrorEnum) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR')
-          : null,
-      ],
-      'hasUnraidNetSSL' => file_exists('/boot/config/ssl/certs/certificate_bundle.pem') ? preg_match('/.*\.unraid\.net$/', $_SERVER['SERVER_NAME']) : 0, // required for boolean to check if user has unraid.net Let's Encrypt cert. Using for a less expensive check w/ $_SERVER['SERVER_NAME'] compared to reading cert file contents on every page load
+      "wanFQDN" => $nginx['NGINX_WANFQDN'] ?? '',
     ];
     ?>
     <unraid-user-profile
       apikey="<?=@$upc['apikey']?>"
-      banner="<?=($display['banner']) ? $display['banner'] : ''?>"
+      banner="<?=$display['banner'] ?? ''?>"
       bgcolor="<?=($backgnd) ? '#'.$backgnd : ''?>"
       csrf="<?=$var['csrf_token']?>"
       displaydesc="<?=($display['headerdescription']!='no') ? 'true' : ''?>"
@@ -506,7 +511,7 @@
       locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
       metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
       plg-path="dynamix.my.servers"
-      reg-wiz-time="<?=($remote['regWizTime']) ? $remote['regWizTime'] : ''?>"
+      reg-wiz-time="<?=$remote['regWizTime'] ?? ''?>"
       serverdesc="<?=$var['COMMENT']?>"
       servermodel="<?=$var['SYS_MODEL']?>"
       serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
