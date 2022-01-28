@@ -418,11 +418,17 @@
             ],
             'verifyEmail' => [
               'heading' => _('Verify Email'),
+              'subheading' => sprintf(_('We have sent a verifcation email to %s'), '{0}'),
               'form' => [
                 'verificationCode' => _('verification code'),
                 'verifyCode' => _('Paste or Enter code'),
               ],
               'noCode' => _("Didn't get code?"),
+            ],
+            'verifyEmailResend' => [
+              'heading' => _('Resend Email Verification Code'),
+              'goBack' => _("Have the code now? Go Back"),
+              'resend' => _("Resend Code"),
             ],
             'whatIsUnraidNet' => [
               'heading' => _('What is Unraid.net?'),
