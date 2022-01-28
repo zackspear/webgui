@@ -46,6 +46,7 @@ function upload() {
   } else if (filename) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'banner.png'});
   }
+}
 function presetTime(form) {
   var system = form.date.selectedIndex==0;
   if (system) form.time.selectedIndex = 0;
