@@ -46,7 +46,7 @@ $isRegistered = !empty($remote) && !empty($remote['username']);
 $certPresent = file_exists($certPath);
 if ($certPresent) {
   // renew existing cert
-  $subject = exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath));
+  $certSubject = exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath));
   $isLegacyCert = preg_match('/.*\.unraid\.net$/', $certSubject);
   $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $certSubject);
   if ($isLegacyCert || $isWildcardCert) {    
