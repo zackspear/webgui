@@ -57,7 +57,7 @@ if ($certPresent) {
     }
   } else {
     // assume custom cert
-    response_complete(406, '{"error":"'._('Cannot renew a custom cert at').' $certPath"}');
+    response_complete(406, '{"error":"'._('Cannot renew a custom cert at').' '.$certPath.'"}');
   }
 } else {
   // provision new cert
@@ -69,7 +69,7 @@ $endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildca
 
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
-  response_complete(406, '{"error":"'.('License key required').'"}');
+  response_complete(406, '{"error":"'._('License key required').'"}');
 }
 $keyfile      = @base64_encode($keyfile);
 $ethX         = 'eth0';
