@@ -440,12 +440,12 @@ function formatWarning(val) {
   case "Copying":?>
     <tr><td><?status_indicator()?>**_(Starting, copying)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoCopy" value="_(Cancel)_"></td><td></td></tr>
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-    <td><?=sprintf(_('Current operation started on **%s**'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
+    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
 <?  break;
   case "Clearing":?>
     <tr><td><?status_indicator()?>**_(Started, clearing)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoClear" value="_(Cancel)_"></td><td></td></tr>
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-    <td><?=sprintf(_('Current operation started on **%s**'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
+    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
 <?  break;
   case "Stopping":?>
     <tr><td><?status_indicator()?>**_(Stopping)_...**</td><td><input type="submit" name="cmdStop" value="_(Stop)_" disabled></td><td></td></tr>
