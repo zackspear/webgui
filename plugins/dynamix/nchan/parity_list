@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -68,6 +68,16 @@ function update_translation($locale) {
     }
   }
 }
+function tag($d) {
+  return str_replace('D','disk',$d);
+}
+function size() {
+  global $varroot,$var;
+  $d = explode(' ',$var['mdResyncAction']);
+  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
+  $disks = (array)parse_ini_file("$varroot/disks.ini",true);
+  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
+}
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -79,12 +89,13 @@ while (true) {
   $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
   $sbSynced = array_shift($synced);
   $data = [];
+  $size = size();
   if ($var['mdResyncPos']) {
-    $data[] = my_scale($var['mdResyncSize']*1024,$unit,-1)." $unit";
+    $data[] = my_scale($size*1024,$unit,-1)." $unit";
     $data[] = _(my_clock(floor((time()-($sbSynced?:$var['sbSynced']))/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
-    $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($var['mdResyncSize']/100+1)),1,$display['number'][0],'')." %)";
+    $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($size/100+1)),1,$display['number'][0],'')." %)";
     $data[] = $var['mdResyncDt'] ? my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec" : '---';
-    $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($var['mdResyncSize']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
+    $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($size-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
   } else {
     if ($var['sbSynced']>0 && $var['sbSynced2']>0) {
@@ -93,16 +104,29 @@ while (true) {
         $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
         $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
         $status   = $var['sbSyncExit'];
-        $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
+        $action   = $var['mdResyncAction'];
+        $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
         $error    = $var['sbSyncErrs'];
         $year     = date('Y',$var['sbSynced2']);
-        if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error\n",FILE_APPEND);
+        if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
         if (file_exists($stamps)) unlink($stamps);
       }
     }
   }
+  switch ($var['fsState']) {
+  case 'Copying':
+    $fsState = $var['fsCopyPrcnt']."% "._('completed');
+    break;
+  case 'Clearing':
+    $fsState = $var['fsClearPrcnt']."% "._('completed');
+    break;
+  default:
+    $fsState = substr($var['fsState'],-3)!='ing' ? 'stop' : '';
+    break;
+  }
   publish('parity', implode(';',$data));
   publish('monitor', $var['mdResyncPos']);
+  publish('fsState', $fsState);
   sleep(1);
 }
 ?>

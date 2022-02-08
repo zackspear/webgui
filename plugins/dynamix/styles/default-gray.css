@@ -154,8 +154,8 @@ table.share_status tr.share_status_size>td{padding-left:40px}
 table.share_status tr.share_status_size>td+td{padding-left:15px}
 table.share_status tbody tr{border-bottom:1px solid #0c0f0b}
 table.share_status tbody tr:last-child td{border-bottom:1px solid #606e7f}
-table.share_status tbody tr.alert{color:#f0000c;background-color:#ff9e9e}
-table.share_status tbody tr.warn{color:#e68a00;background-color:#feefb3}
+table.share_status tbody tr.alert{color:#f0000c}
+table.share_status tbody tr.warn{color:#e68a00}
 table.share_status.share tr td:last-child{width:4%;text-align:right;padding-right:10px}
 table.share_status.fixed tr>td+td{min-width:39px;font-size:1.1rem;text-align:center;padding:0}
 table.share_status.table{margin-top:36px}

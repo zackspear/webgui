@@ -620,11 +620,13 @@ defaultPage.on('message', function(msg,meta) {
       status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
     }
     if (ini['mdResyncPos']>0) {
-      var action;
-      if (ini['mdResyncAction'].indexOf("recon")>=0) action = "<?=_('Parity-Sync / Data-Rebuild')?>";
-      else if (ini['mdResyncAction'].indexOf("clear")>=0) action = "<?=_('Clearing')?>";
-      else if (ini['mdResyncAction']=="check") action = "<?=_('Read-Check')?>";
-      else if (ini['mdResyncAction'].indexOf("check")>=0) action = "<?=_('Parity-Check')?>";
+      var resync = ini['mdResyncAction'].split(' ');
+      switch (resync[0]) {
+        case 'recon': var action = ['P','Q'].includes(resync[1]) ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
+        case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
+        case 'check': var action = resync.length>1 ? "<?=_('Parity-Check')?>" : "<?=_('Read-Check')?>"; break;
+        default     : var action = '';
+      }
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
       status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
       if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";

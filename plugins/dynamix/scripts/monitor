@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -40,7 +40,7 @@ $pools  = pools_filter($disks);
 $errors = [];
 $top    = 120;
 
-function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
+function read_write_parity_log($epoch,$duration,$speed,$status,$error,$action) {
   global $stamps;
   $log = '/boot/config/parity-checks.log';
   $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
@@ -53,11 +53,11 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error) {
   }
   if (empty($line)) {
     $year = date('Y',$epoch);
-    $line = "$year $timestamp|$duration|$speed|$status|$error";
-    if ($status==0||file_exists($log)) file_put_contents($log,"$line\n",FILE_APPEND);
+    $line = "$year $timestamp|$duration|$speed|$status|$error|$action\n";
+    if ($status==0||file_exists($log)) file_put_contents($log,$line,FILE_APPEND);
     if (file_exists($stamps)) unlink($stamps);
   }
-  return str_replace("\n","",$line);
+  return trim($line);
 }
 function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
@@ -156,6 +156,15 @@ function check_usage(&$disk,$used,$text,$info) {
       unset($saved[$item][$name]);
     }
   }
+}
+function tag($d) {
+  return str_replace('D','disk',$d);
+}
+function size() {
+  global $var, $disks;
+  $d = explode(' ',$var['mdResyncAction']);
+  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
+  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
 }
 
 // check array devices
@@ -258,19 +267,18 @@ if ($warn>0) {
 // process parity check, parity sync and data-rebuild notifications
 $name = 'parity';
 $last = $saved[$item][$name] ?? '';
+$size = size();
 $stamps = '/var/tmp/stamps.ini';
 if ($var['mdResyncPos']) {
   if (!$last) {
-    if (strstr($var['mdResyncAction'],"recon")) {
-      $last = 'Parity sync / Data rebuild';
-    } elseif (strstr($var['mdResyncAction'],"clear")) {
-      $last = 'Disk clear';
-    } elseif ($var['mdResyncAction']=="check") {
-      $last = 'Read check';
-    } elseif (strstr($var['mdResyncAction'],"check")) {
-      $last = 'Parity check';
+    $resync = explode(' ',$var['mdResyncAction']);
+    switch ($resync[0]) {
+      case 'recon': $last = in_array($resync[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
+      case 'clear': $last = 'Disk-Clear'; break;
+      case 'check': $last = count($resync)>1 ? 'Parity-Check' : 'Read-Check'; break;
+      default     : $last = '';
     }
-    $info = "Size: ".my_scale($var['mdResyncSize']*1024,$unit)." $unit";
+    $info = "Size: ".my_scale($size*1024,$unit)." $unit";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
     $saved[$item][$name] = $last;
   }
@@ -281,8 +289,8 @@ if ($var['mdResyncPos']) {
     $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
     $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
     $status   = $var['sbSyncExit'];
-    $speed    = $status==0 ? my_scale($var['mdResyncSize']*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
-    [$entry,$duration,$speed,$status,$error] = explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs']));
+    $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
+    [$date,$duration,$speed,$status,$error,$action] = my_explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs'],$var['mdResyncAction']),6);
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\" 2>/dev/null");

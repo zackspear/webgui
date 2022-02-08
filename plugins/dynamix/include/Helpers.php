@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -209,14 +209,14 @@ function read_parity_log($epoch, $busy=false) {
     }
     fclose($handle);
   }
-  return $line ?: $last ?: '0|0|0|0|0';
+  return $line ?: $last ?: '0|0|0|0|0|0';
 }
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
-  if (!file_exists($log)) return [0,0,0,0,0];
-  [$date,$duration,$speed,$status,$error] = my_explode('|',exec("tail -1 $log"),5);
+  if (!file_exists($log)) return [0,0,0,0,0,0];
+  [$date,$duration,$speed,$status,$error,$action] = my_explode('|',exec("tail -1 $log"),6);
   [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
-  return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error];
+  return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error, $action];
 }
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
