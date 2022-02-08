@@ -355,7 +355,7 @@ function formatWarning(val) {
     if (!$activeP):
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
-?>      <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Sync)_"></td><td>**_(Sync)_** _(will start **<?=$resync?>**)_.</td></tr>
+?>      <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Sync)_"></td><td>**<?=_('Sync')?>** <?=_("will start **$resync**")?>.</td></tr>
 <?    elseif ($action[0]=="clear"):?>
         <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Clear)_"></td><td>**_(Clear)_** _(will start **Disk-Clear** of new data disk(s))_.</td></tr>
 <?    else:
@@ -470,7 +470,7 @@ function formatWarning(val) {
         if ($action[0]=="recon"):
           $resync = resync($action[1]);
 ?>        <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
-          <td>**_(Start)_** _(will bring the array on-line and start **<?=$resync?>**)_.</td></tr>
+          <td>**<?=_('Start')?>** <?=_("will bring the array on-line and start **$resync**")?>.</td></tr>
 <?      elseif ($action[0]=="clear"):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(New data disk(s) detected)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line and start **Disk-Clear** of new data disk(s))_.</td></tr>
