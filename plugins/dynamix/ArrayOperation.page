@@ -438,7 +438,7 @@ function formatWarning(val) {
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td><td></td></tr>
 <?  break;
   case "Copying":?>
-    <tr><td><?status_indicator()?>**_(Started, copying)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoCopy" value="_(Cancel)_"></td><td></td></tr>
+    <tr><td><?status_indicator()?>**_(Starting, copying)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoCopy" value="_(Cancel)_"></td><td></td></tr>
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
     <td><?=sprintf(_('Current operation started on **%s**'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
 <?  break;
