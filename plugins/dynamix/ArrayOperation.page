@@ -613,7 +613,7 @@ function formatWarning(val) {
 <?if ($btrfs):?>
 <script>
 function enable_stop() {
-  $.get('/webGui/include/ReloadPage.php',{btrfs:'btrfs'},function(data) {
+  $.get('/webGui/include/ReloadPage.php',function(data) {
     switch (data) {
     case 'disable':
       setTimeout(enable_stop,5000);
