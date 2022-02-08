@@ -396,10 +396,10 @@ function formatWarning(val) {
     else:
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
-?>      <tr><td>_(<?=$resync?> in progress)_.</td><td>
+?>      <tr><td><?=_("$resync in progress")?>.</td><td>
         <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'<?=$resync?>')" disabled></td>
-        <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause <?=$resync?>)_.<?else:?>**_(Resume)_** _(will resume <?=$resync?>)_.<?endif;?><br>**_(Cancel)_** _(will stop <?=$resync?>)_.
+        <td id="cancelText"><?if ($var['mdResync']):?>**<?=_('Pause')?>** <?=_("will pause $resync")?>.<?else:?>**<?=_('Resume')?>** <?=_("will resume $resync")?>.<?endif;?><br>**<?=_('Cancel')?>** <?=_("will stop $resync")?>.
         <br>_(WARNING: canceling may leave the array unprotected)_!</td></tr>
 <?    elseif ($action[0]=="clear"):?>
         <tr><td>_(Disk-Clear in progress)_.</td><td>
