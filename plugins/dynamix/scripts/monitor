@@ -248,7 +248,6 @@ if ($warn>0) {
 // process parity check, parity sync and data-rebuild notifications
 $name = 'parity';
 $last = $saved[$item][$name] ?? '';
-$size = size();
 if ($var['mdResyncPos']) {
   if (!$last) {
     $resync = explode(' ',$var['mdResyncAction']);
@@ -258,7 +257,7 @@ if ($var['mdResyncPos']) {
       case 'check': $last = count($resync)>1 ? 'Parity-Check' : 'Read-Check'; break;
       default     : $last = '';
     }
-    $info = "Size: ".my_scale($size*1024,$unit)." $unit";
+    $info = "Size: ".my_scale(size()*1024,$unit)." $unit";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
     $saved[$item][$name] = $last;
   }
