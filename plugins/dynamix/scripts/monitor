@@ -138,15 +138,6 @@ function check_usage(&$disk,$used,$text,$info) {
     }
   }
 }
-function tag($d) {
-  return str_replace('D','disk',$d);
-}
-function size() {
-  global $var, $disks;
-  $d = explode(' ',$var['mdResyncAction']);
-  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
-  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
-}
 
 // check array devices
 foreach ($disks as $disk) {
@@ -250,14 +241,14 @@ $name = 'parity';
 $last = $saved[$item][$name] ?? '';
 if ($var['mdResyncPos']) {
   if (!$last) {
-    $resync = explode(' ',$var['mdResyncAction']);
-    switch ($resync[0]) {
-      case 'recon': $last = in_array($resync[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
+    $action = preg_split('/\s+/',$var['mdResyncAction']);
+    switch ($action[0]) {
+      case 'recon': $last = in_array($action[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
       case 'clear': $last = 'Disk-Clear'; break;
-      case 'check': $last = count($resync)>1 ? 'Parity-Check' : 'Read-Check'; break;
+      case 'check': $last = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;
       default     : $last = '';
     }
-    $info = "Size: ".my_scale(size()*1024,$unit)." $unit";
+    $info = "Size: ".my_scale($var['mdResyncSize']*1024,$unit)." $unit";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last started")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
     $saved[$item][$name] = $last;
   }

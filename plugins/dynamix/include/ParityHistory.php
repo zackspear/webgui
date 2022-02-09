@@ -55,7 +55,7 @@ if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($line = fgets($handle)) !== false) {
     [$date,$duration,$speed,$status,$error,$action] = my_explode('|',$line,6);
-    $action = explode(' ',$action);
+    $action = preg_split('/\s+/',$action);
     switch ($action[0]) {
       case 'recon': $action = in_array($action[1],['P','Q']) ? _('Parity-Sync') : _('Data-Rebuild'); break;
       case 'check': $action = count($action)>1 ? _('Parity-Check') : _('Read-Check'); break;

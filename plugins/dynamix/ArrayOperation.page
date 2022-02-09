@@ -19,7 +19,7 @@ Nchan="device_list,disk_load,parity_list"
 $keyfile = file_exists($var['luksKeyfile']);
 $missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
-$activeP = $var['mdResyncPos']>0;
+$spot    = $var['mdResyncPos']>0;
 
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
@@ -245,13 +245,13 @@ $('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
 <?
-$parity = $activeP ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>" : "";
+$parity = $spot ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>" : "";
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
-var devices = new NchanSubscriber('/sub/devices<?=$activeP?",parity":""?>',{subscriber:'websocket'});
+var devices = new NchanSubscriber('/sub/devices<?=$spot?",parity":""?>',{subscriber:'websocket'});
 devices.on('message', function(msg,meta) {
-  switch (<?if($activeP):?>meta.id.channel()<?else:?>0<?endif;?>) {
+  switch (<?if($spot):?>meta.id.channel()<?else:?>0<?endif;?>) {
   case 0:
     // array + pool + ua devices
     var tables = msg.split('\0');
@@ -303,7 +303,7 @@ fsState.on('message', function(msg) {
   }
 });
 fsState.start();
-<?elseif ($activeP):?>
+<?elseif ($spot):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
 var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket'});
@@ -352,8 +352,8 @@ function formatWarning(val) {
      <small>_(Yes, I want to do this)_</small></a>
       </td></tr>
 <?  endif;
-    $action = explode(' ',$var['mdResyncAction']);
-    if (!$activeP):
+    $action = preg_split('/\s+/',$var['mdResyncAction']);
+    if (!$spot):
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
 ?>      <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Sync)_"></td><td>**<?=_('Sync')?>** <?=_("will start **$resync**")?>.</td></tr>
@@ -423,16 +423,20 @@ function formatWarning(val) {
         <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'Read-Check')" disabled></td>
         <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause Read-Check)_.<?else:?>**_(Resume)_** _(will resume Read-Check)_.<?endif;?><br>**_(Cancel)_** _(will stop Read-Check)_.</td></tr>
-<?    endif;?>
+<?    endif;
+      $stamps = '/var/tmp/stamps.ini';
+      $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
+      $sbSynced = array_shift($synced) ?: $var['sbSynced'];
+      $sbUpdate = $var['mdResyncDt'] ? $sbSynced : $var['sbUpdated'];?>
       <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-      <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
+      <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResyncDt']?_('started'):_('paused')),_(my_time($sbUpdate).day_count($sbUpdate),0))?></td></tr>
       <tr><td>_(Total size)_:</td><td id="line0"></td><td></td></tr>
       <tr><td>_(Elapsed time)_:</td><td id="line1"></td><td></td></tr>
       <tr><td>_(Current position)_:</td><td id="line2"></td><td></td></tr>
       <tr><td>_(Estimated speed)_:</td><td id="line3"></td><td></td></tr>
       <tr><td>_(Estimated finish)_:</td><td id="line4"></td><td></td></tr>
 <?    if ($action[0]=="check"):?>
-        <tr><td><?=$var['mdResyncCorr']==0 ? _('Sync errors detected') : _('Sync errors corrected')?>:</td><td id="line5"></td><td></td></tr>
+      <tr><td><?=$var['mdResyncCorr']==0 ? _('Sync errors detected') : _('Sync errors corrected')?>:</td><td id="line5"></td><td></td></tr>
 <?    endif;
     endif;
     break;

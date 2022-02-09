@@ -18,6 +18,7 @@ $varroot = '/var/local/emhttp';
 $log     = '/boot/config/parity-checks.log';
 $stamps  = '/var/tmp/stamps.ini';
 $resync  = '/var/tmp/resync.ini';
+$syncSz  = '/var/tmp/syncSz.ini';
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -34,15 +35,13 @@ $locale_init = $locale;
 session_unset();
 session_destroy();
 
-function in_parity_log($log,$timestamp) {
+function new_parity_log($log,$timestamp) {
   if (file_exists($log)) {
     $handle = fopen($log, 'r');
-    while (($line = fgets($handle))!==false) {
-      if (strpos($line,$timestamp)!==false) break;
-    }
+    while (($line = fgets($handle))!==false) {if (substr_compare($line,$timestamp,0,strlen($timestamp))==0) break;}
     fclose($handle);
   }
-  return !empty($line);
+  return empty($line);
 }
 function my_clock($time) {
   if (!$time) return _('less than a minute');
@@ -69,16 +68,6 @@ function update_translation($locale) {
     }
   }
 }
-function tag($d) {
-  return str_replace('D','disk',$d);
-}
-function size() {
-  global $varroot,$var;
-  $d = explode(' ',$var['mdResyncAction']);
-  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
-  $disks = (array)parse_ini_file("$varroot/disks.ini",true);
-  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
-}
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -88,33 +77,34 @@ while (true) {
     update_translation($locale_init);
   }
   $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
-  $sbSynced = array_shift($synced);
+  $sbSynced = array_shift($synced) ?: $var['sbSynced'];
   $data = [];
-  $size = size();
-  if ($var['mdResyncPos']) {
+  $spot = $var['mdResyncPos'];
+  if ($spot>0) {
+    $size   = $var['mdResyncSize'];
+    $delta  = $var['mdResyncDt'];
+    $bytes  = $var['mdResyncDb'];
+    if (!file_exists($syncSz)) file_put_contents($syncSz,$size);
     if (!file_exists($resync)) file_put_contents($resync,$var['mdResyncAction']);
     $data[] = my_scale($size*1024,$unit,-1)." $unit";
-    $data[] = _(my_clock(floor((time()-($sbSynced?:$var['sbSynced']))/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
-    $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($size/100+1)),1,$display['number'][0],'')." %)";
-    $data[] = $var['mdResyncDt'] ? my_scale($var['mdResyncDb']*1024/$var['mdResyncDt'],$unit, 1)." $unit/sec" : '---';
-    $data[] = $var['mdResyncDb'] ? _(my_clock(round(((($var['mdResyncDt']*(($size-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2) : _('Unknown');
+    $data[] = _(my_clock(floor((time()-$sbSynced)/60)),2).($delta ? '' : ' ('._('paused').')');
+    $data[] = my_scale($spot*1024,$unit)." $unit (".number_format($spot/($size/100+1),1,$display['number'][0],'')." %)";
+    $data[] = $delta ? my_scale($bytes*1024/$delta,$unit, 1)." $unit/sec" : '---';
+    $data[] = $bytes ? _(my_clock(round(((($delta*(($size-$spot)/($bytes/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
-  } else {
-    if ($var['sbSynced']>0 && $var['sbSynced2']>0) {
-      $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
-      if (!in_parity_log($log,$timestamp)) {
-        $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
-        $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
-        $status   = $var['sbSyncExit'];
-        $action   = @file_get_contents($resync) ?: $var['mdResyncAction'];
-        $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
-        $error    = $var['sbSyncErrs'];
-        $year     = date('Y',$var['sbSynced2']);
-        if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
-        if (file_exists($stamps)) unlink($stamps);
-        if (file_exists($resync)) unlink($resync);
-      }
+  } elseif ($var['sbSynced']>0 && $var['sbSynced2']>0) {
+    $timestamp = date('Y',$var['sbSynced2']).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
+    if (new_parity_log($log,$timestamp)) {
+      $idle = []; while (count($synced)>1) $idle[] = array_pop($synced)-array_pop($synced);
+      $duration = $var['sbSynced2']-$sbSynced;
+      $status   = $var['sbSyncExit'];
+      $action   = file_get_contents($resync);
+      $size     = file_get_contents($syncSz);
+      $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
+      $error    = $var['sbSyncErrs'];
+      file_put_contents($log,"$timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
     }
+    array_map('unlink',array_filter([$stamps,$resync,$syncSz],function($f){return file_exists($f);}));
   }
   switch ($var['fsState']) {
   case 'Copying':
@@ -128,7 +118,7 @@ while (true) {
     break;
   }
   publish('parity', implode(';',$data));
-  publish('monitor', $var['mdResyncPos']);
+  publish('monitor', $spot);
   publish('fsState', $fsState);
   sleep(1);
 }

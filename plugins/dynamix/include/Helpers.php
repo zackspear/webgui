@@ -201,10 +201,10 @@ function escapestring($name) {
 function read_parity_log($epoch, $busy=false) {
   $log = '/boot/config/parity-checks.log';
   if (file_exists($log)) {
-    $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
+    $timestamp = date('Y',$epoch).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
     $handle = fopen($log, 'r');
-    while (($line = fgets($handle)) !== false) {
-      if (strpos($line,$timestamp)!==false) break;
+    while (($line = fgets($handle))!==false) {
+      if (substr_compare($line,$timestamp,0,strlen($timestamp))==0) break;
       if ($busy) $last = $line;
     }
     fclose($handle);

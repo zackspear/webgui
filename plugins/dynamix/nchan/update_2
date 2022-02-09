@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,6 +15,8 @@
 session_start();
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
+$stamps  = '/var/tmp/stamps.ini';
+$resync  = '/var/tmp/resync.ini';
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -272,21 +274,14 @@ function update_translation($locale) {
     }
   }
 }
-function tag($d) {
-  return str_replace('D','disk',$d);
-}
-function size() {
-  global $var,$disks;
-  $d = explode(' ',$var['mdResyncAction']);
-  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
-  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
-}
 while (true) {
   $var   = (array)parse_ini_file("$varroot/var.ini");
   $devs  = (array)parse_ini_file("$varroot/devs.ini",true);
   $disks = (array)parse_ini_file("$varroot/disks.ini",true);
   $saved = @(array)parse_ini_file("$varroot/monitor.ini",true);
   $echo  = [];
+  $size  = $var['mdResyncSize'];
+  $spot  = $var['mdResyncPos'];
   require "$docroot/webGui/include/CustomMerge.php";
   require "$docroot/webGui/include/Preselect.php";
   // check for language changes
@@ -321,7 +316,17 @@ while (true) {
     if (strpos($disk['status'],"DISK_NP")===0) $parity_disabled++;
     elseif (strpos($disk['status'],"DISK_INVALID")===0) $parity_invalid++;
   }
-  if ($var['mdResync']==0) {
+  if ($spot) {
+    $number = $display['number'];
+    $action = preg_split('/\s+/',$var['mdResyncAction']);
+    switch ($action[0]) {
+      case "recon": $mode = in_array($action[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
+      case "clear": $mode = 'Disk-Clear'; break;
+      case "check": $mode = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;
+      default     : $mode = ''; break;
+    }
+    $echo[3] .= "<span class='orange'>"._($mode).' '._('in progress').'... '._('Completed').': '.number_format($spot/($size/100+1),1,$number[0],$number[1])." %.</span>";
+  } else {
     if ($parity_slots==$parity_disabled) {
       $echo[3] .= "<span class='red'>"._('Parity disk'.($parity_slots==1?'':'s')." not present")."</span>";
     } elseif ($parity_slots > $parity_invalid) {
@@ -337,41 +342,39 @@ while (true) {
         $echo[3] .= "<span class='red strong'>"._('Data is invalid')."</span>";
       }
     }
-  } else {
-    $number = $display['number'];
-    $action = explode(' ',$var['mdResyncAction']);
-    switch ($action[0]) {
-      case "recon": $mode = in_array($action[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
-      case "clear": $mode = 'Disk-Clear'; break;
-      case "check": $mode = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;
-      default     : $mode = ''; break;
-    }
-    $echo[3] .= "<span class='orange'>"._($mode).' '._('in progress').'... '._('Completed').': '.number_format($var['mdResyncPos']/(size()/100+1),1,$number[0],$number[1])." %.</span>";
   }
 
   // parity schedule
-  $frmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
-  $idle = $var['mdResync']==0;
-  if ($var['sbSyncExit']!=0) {
-    $echo[4] = sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0));
-    $echo[4].= "<br><i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($var['sbSyncExit']);
+  $delta = $var['mdResyncDt'];
+  $bytes = $var['mdResyncDb'];
+  $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
+  $sbSynced = array_shift($synced) ?: $var['sbSynced'];
+  $sbUpdate = $delta ? $sbSynced : $var['sbUpdated'];
+  if ($spot) {
+    $echo[4] = sprintf(_('Current operation %s on **%s**'),($delta?_('started'):_('paused')),_(my_time($sbUpdate).day_count($sbUpdate),0));
+    $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": "._(my_clock(floor((time()-$sbSynced)/60)),2);
+    $echo[4].= "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '.($bytes ? _(my_clock(round(((($delta*(($size-$spot)/($bytes/100+1)))/100)/60),0)),2) : _('Unknown'));
     $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
-  } elseif ($var['sbSynced']==0) {
-    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
-    if (!$date) {
-      $echo[4] = _('Parity has not been checked yet');
-    } elseif ($status==0) {
-      $echo[4] = sprintf(_('Last checked on **%s**'),_(my_time($date).day_count($date),0));
-      $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
-      $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
-    } else {
-      $echo[4] = sprintf(_('Last check incomplete on **%s**'),_(my_time($date).day_count($date),0));
-      $echo[4].= "<br><i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
-      $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
-    }
-  } elseif ($var['sbSynced2']==0) {
-    if ($idle) {
-      [$date,$duration,$speed,$status,$error,$action] = my_explode('|', read_parity_log($var['sbSynced'],!$idle),6);
+  } else {
+    if ($var['sbSyncExit']!=0) {
+      $echo[4] = sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0));
+      $echo[4].= "<br><i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($var['sbSyncExit']);
+      $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
+    } elseif ($var['sbSynced']==0) {
+      [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
+      if (!$date) {
+        $echo[4] = _('Parity has not been checked yet');
+      } elseif ($status==0) {
+        $echo[4] = sprintf(_('Last checked on **%s**'),_(my_time($date).day_count($date),0));
+        $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
+        $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      } else {
+        $echo[4] = sprintf(_('Last check incomplete on **%s**'),_(my_time($date).day_count($date),0));
+        $echo[4].= "<br><i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($status);
+        $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
+      }
+    } elseif ($var['sbSynced2']==0) {
+      [$date,$duration,$speed,$status,$error,$action] = my_explode('|', read_parity_log($var['sbSynced'],$spot),6);
       if ($status==0) {
         $echo[4] = sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0));
         $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
@@ -382,18 +385,13 @@ while (true) {
         $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
       }
     } else {
-      $echo[4] = sprintf(_('Current operation %s on **%s**'),($var['mdResync']?_('started'):_('paused')),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0));
-      $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": "._(my_clock(floor((time()-$var['sbUpdated'])/60)),2);
-      $echo[4].= "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '._(my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2);
+      [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
+      $echo[4] = sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0));
+      $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_check($duration,$speed);
       $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     }
-  } else {
-    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
-    $echo[4] = sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0));
-    $echo[4].= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_check($duration,$speed);
-    $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
   }
-  if ($idle) {
+  if (!$spot) {
     [$m,$h] = explode(' ', $parity['hour']);
     $time = time();
     $check = true;
@@ -458,6 +456,7 @@ while (true) {
     }
     $echo[4] .= "\0";
     if ($check) {
+      $frmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
       $echo[4] .= sprintf(_('Next check scheduled on **%s**'),_(strftime($frmt,$time+$t),0));
       $echo[4] .= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
     } else {
