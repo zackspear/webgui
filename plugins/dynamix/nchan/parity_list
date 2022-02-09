@@ -104,7 +104,7 @@ while (true) {
       $error    = $var['sbSyncErrs'];
       file_put_contents($log,"$timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
     }
-    array_map('unlink',array_filter([$stamps,$resync,$syncSz],function($f){return file_exists($f);}));
+    array_map('unlink',array_filter([$stamps,$resync,$syncSz],'file_exists'));
   }
   switch ($var['fsState']) {
   case 'Copying':
