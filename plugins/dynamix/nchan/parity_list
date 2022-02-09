@@ -17,6 +17,7 @@ $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
 $log     = '/boot/config/parity-checks.log';
 $stamps  = '/var/tmp/stamps.ini';
+$resync  = '/var/tmp/resync.ini';
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -91,6 +92,7 @@ while (true) {
   $data = [];
   $size = size();
   if ($var['mdResyncPos']) {
+    if (!file_exists($resync)) file_put_contents($resync,$var['mdResyncAction']);
     $data[] = my_scale($size*1024,$unit,-1)." $unit";
     $data[] = _(my_clock(floor((time()-($sbSynced?:$var['sbSynced']))/60)),2).($var['mdResyncDt'] ? '' : ' ('._('paused').')');
     $data[] = my_scale($var['mdResyncPos']*1024,$unit)." $unit (".number_format(($var['mdResyncPos']/($size/100+1)),1,$display['number'][0],'')." %)";
@@ -104,12 +106,13 @@ while (true) {
         $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
         $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
         $status   = $var['sbSyncExit'];
-        $action   = $var['mdResyncAction'];
+        $action   = file_get_contents($resync) ?: $var['mdResyncAction'];
         $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
         $error    = $var['sbSyncErrs'];
         $year     = date('Y',$var['sbSynced2']);
         if ($status==0||file_exists($log)) file_put_contents($log,"$year $timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
         if (file_exists($stamps)) unlink($stamps);
+        if (file_exists($resync)) unlink($resync);
       }
     }
   }

@@ -32,6 +32,7 @@ extract(parse_plugin_cfg("dynamix",true));
 $notify = "$docroot/webGui/scripts/notify";
 $ram    = "/var/local/emhttp/monitor.ini";
 $rom    = "/boot/config/plugins/dynamix/monitor.ini";
+$resync = '/var/tmp/resync.ini';
 $saved  = @parse_ini_file($ram,true);
 $high1  = $display['critical'];
 $high2  = $display['warning'];
@@ -40,8 +41,10 @@ $pools  = pools_filter($disks);
 $errors = [];
 $top    = 120;
 
+$var['mdResyncAction'] = file_exists($resync) ? file_get_contents($resync) : $var['mdResyncAction'];
+
 function read_write_parity_log($epoch,$duration,$speed,$status,$error,$action) {
-  global $stamps;
+  global $stamps,$resync;
   $log = '/boot/config/parity-checks.log';
   $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
   if (file_exists($log)) {
@@ -56,6 +59,7 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error,$action) {
     $line = "$year $timestamp|$duration|$speed|$status|$error|$action\n";
     if ($status==0||file_exists($log)) file_put_contents($log,$line,FILE_APPEND);
     if (file_exists($stamps)) unlink($stamps);
+    if (file_exists($resync)) unlink($resync);
   }
   return trim($line);
 }
