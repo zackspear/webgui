@@ -276,12 +276,6 @@ if ($var['mdResyncPos']) {
   }
 } else {
   if ($last) {
-    $synced   = file_exists($stamps) ? array_filter(explode(',',file_get_contents($stamps))) : [];
-    $sbSynced = array_shift($synced);
-    $idle = []; while (count($synced)>1) $idle[] = array_pop($synced) - array_pop($synced);
-    $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
-    $status   = $var['sbSyncExit'];
-    $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
     [$date,$duration,$speed,$status,$error,$action] = read_last_log($var['sbSynced2']);
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
