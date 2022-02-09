@@ -295,7 +295,7 @@ var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket'});
 fsState.on('message', function(msg) {
   switch (msg) {
   case 'stop':
-    setTimeout(refresh,1250);
+    if (!timers.fsState) timers.fsState = setTimeout(refresh,1250);
     break;
   default:
     if (msg) $('#fsState').html(msg);

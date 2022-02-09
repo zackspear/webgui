@@ -32,7 +32,6 @@ extract(parse_plugin_cfg("dynamix",true));
 $notify = "$docroot/webGui/scripts/notify";
 $ram    = "/var/local/emhttp/monitor.ini";
 $rom    = "/boot/config/plugins/dynamix/monitor.ini";
-$resync = '/var/tmp/resync.ini';
 $saved  = @parse_ini_file($ram,true);
 $high1  = $display['critical'];
 $high2  = $display['warning'];
@@ -41,10 +40,7 @@ $pools  = pools_filter($disks);
 $errors = [];
 $top    = 120;
 
-$var['mdResyncAction'] = file_exists($resync) ? file_get_contents($resync) : $var['mdResyncAction'];
-
-function read_write_parity_log($epoch,$duration,$speed,$status,$error,$action) {
-  global $stamps,$resync;
+function read_parity_log($epoch) {
   $log = '/boot/config/parity-checks.log';
   $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
   if (file_exists($log)) {
@@ -54,14 +50,7 @@ function read_write_parity_log($epoch,$duration,$speed,$status,$error,$action) {
     }
     fclose($handle);
   }
-  if (empty($line)) {
-    $year = date('Y',$epoch);
-    $line = "$year $timestamp|$duration|$speed|$status|$error|$action\n";
-    if ($status==0||file_exists($log)) file_put_contents($log,$line,FILE_APPEND);
-    if (file_exists($stamps)) unlink($stamps);
-    if (file_exists($resync)) unlink($resync);
-  }
-  return trim($line);
+  return my_explode('|',$line,6);
 }
 function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
@@ -272,7 +261,6 @@ if ($warn>0) {
 $name = 'parity';
 $last = $saved[$item][$name] ?? '';
 $size = size();
-$stamps = '/var/tmp/stamps.ini';
 if ($var['mdResyncPos']) {
   if (!$last) {
     $resync = explode(' ',$var['mdResyncAction']);
@@ -294,7 +282,7 @@ if ($var['mdResyncPos']) {
     $duration = $var['sbSynced2'] - ($sbSynced?:$var['sbSynced']);
     $status   = $var['sbSyncExit'];
     $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
-    [$date,$duration,$speed,$status,$error,$action] = my_explode('|', read_write_parity_log($var['sbSynced2'],$duration,$speed,$status,$var['sbSyncErrs'],$var['mdResyncAction']),6);
+    [$date,$duration,$speed,$status,$error,$action] = read_parity_log($var['sbSynced2']);
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\" 2>/dev/null");
