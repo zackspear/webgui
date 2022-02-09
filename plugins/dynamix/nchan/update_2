@@ -272,6 +272,15 @@ function update_translation($locale) {
     }
   }
 }
+function tag($d) {
+  return str_replace('D','disk',$d);
+}
+function size() {
+  global $var,$disks;
+  $d = explode(' ',$var['mdResyncAction']);
+  if (in_array($d[1],['P','Q'])) return $var['mdResyncSize'];
+  return max($disks[tag($d[1])]['size']??0, $disks[tag($d[2])]['size']??0) ?: $var['mdResyncSize'];
+}
 while (true) {
   $var   = (array)parse_ini_file("$varroot/var.ini");
   $devs  = (array)parse_ini_file("$varroot/devs.ini",true);
@@ -329,18 +338,15 @@ while (true) {
       }
     }
   } else {
-    $mode = '';
     $number = $display['number'];
-    if (strstr($var['mdResyncAction'],"recon")) {
-      $mode = 'Parity-Sync/Data-Rebuild';
-    } elseif (strstr($var['mdResyncAction'],"clear")) {
-      $mode = 'Clearing';
-    } elseif ($var['mdResyncAction']=="check") {
-      $mode = 'Read-Check';
-    } elseif (strstr($var['mdResyncAction'],"check")) {
-      $mode = 'Parity-Check';
+    $action = explode(' ',$var['mdResyncAction']);
+    switch ($action[0]) {
+      case "recon": $mode = in_array($action[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
+      case "clear": $mode = 'Disk-Clear'; break;
+      case "check": $mode = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;
+      default     : $mode = ''; break;
     }
-    $echo[3] .= "<span class='orange'>"._($mode).' '._('in progress').'... '._('Completed').': '.number_format(($var['mdResyncPos']/($var['mdResync']/100+1)),1,$number[0],$number[1])." %.</span>";
+    $echo[3] .= "<span class='orange'>"._($mode).' '._('in progress').'... '._('Completed').': '.number_format($var['mdResyncSize']/($var['mdResync']/100+1),1,$number[0],$number[1])." %.</span>";
   }
 
   // parity schedule
@@ -455,7 +461,7 @@ while (true) {
       $echo[4] .= sprintf(_('Next check scheduled on **%s**'),_(strftime($frmt,$time+$t),0));
       $echo[4] .= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
     } else {
-      $echo[4] .= "<i class='fa fa-search'></i> "._('Scheduled parity check is disabled');
+      $echo[4] .= _('Scheduled parity check is disabled');
     }
   } else {
     $echo[4] .= "\0";
