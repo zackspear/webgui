@@ -362,7 +362,7 @@ while (true) {
     }
   } elseif ($var['sbSynced2']==0) {
     if ($idle) {
-      [$date,$duration,$speed,$status,$error,$action] = explode('|', read_parity_log($var['sbSynced'],!$idle));
+      [$date,$duration,$speed,$status,$error,$action] = my_explode('|', read_parity_log($var['sbSynced'],!$idle),6);
       if ($status==0) {
         $echo[4] = sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0)).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
         $echo[4] .= " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
