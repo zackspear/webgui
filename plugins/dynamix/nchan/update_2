@@ -350,7 +350,7 @@ while (true) {
     $echo[4] = sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0)).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     $echo[4] .= " <i class='fa fa-fw fa-dot-circle-o'></i> "._('Error code').": ".my_error($var['sbSyncExit']);
   } elseif ($var['sbSynced']==0) {
-    [$date,$duration,$speed,$status,$error] = last_parity_log();
+    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
     if (!$date) {
       $echo[4] = _('Parity has not been checked yet');
     } elseif ($status==0) {
@@ -362,7 +362,7 @@ while (true) {
     }
   } elseif ($var['sbSynced2']==0) {
     if ($idle) {
-      [$entry,$duration,$speed,$status,$error] = explode('|', read_parity_log($var['sbSynced'],!$idle));
+      [$date,$duration,$speed,$status,$error,$action] = explode('|', read_parity_log($var['sbSynced'],!$idle));
       if ($status==0) {
         $echo[4] = sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0)).'<br>'.sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
         $echo[4] .= " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').": ".my_check($duration,$speed);
@@ -376,7 +376,7 @@ while (true) {
       $echo[4] .= "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '._(my_clock(round(((($var['mdResyncDt']*(($var['mdResync']-$var['mdResyncPos'])/($var['mdResyncDb']/100+1)))/100)/60),0)),2);
     }
   } else {
-    [$date,$duration,$speed,$status,$error] = last_parity_log();
+    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
     $echo[4] = sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0)).'<br>'.sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     $echo[4] .= " <i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_check($duration,$speed);
   }

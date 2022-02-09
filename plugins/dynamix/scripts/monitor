@@ -40,18 +40,6 @@ $pools  = pools_filter($disks);
 $errors = [];
 $top    = 120;
 
-function read_last_log($epoch) {
-  $log = '/boot/config/parity-checks.log';
-  $timestamp = str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
-  if (file_exists($log)) {
-    $handle = fopen($log, 'r');
-    while (($line = fgets($handle))!==false) {
-      if (strpos($line,$timestamp)!==false) break;
-    }
-    fclose($handle);
-  }
-  return my_explode('|',$line,6);
-}
 function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
   $name = $disk['name'];
@@ -276,7 +264,7 @@ if ($var['mdResyncPos']) {
   }
 } else {
   if ($last) {
-    [$date,$duration,$speed,$status,$error,$action] = read_last_log($var['sbSynced2']);
+    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\" 2>/dev/null");
