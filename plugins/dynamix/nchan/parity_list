@@ -83,7 +83,7 @@ while (true) {
   $sbSynced = array_shift($synced) ?: $var['sbSynced'];
   $data = [];
   $spot = $var['mdResyncPos'];
-  if ($spot>0) {
+  if ($spot) {
     $size   = $var['mdResyncSize'];
     $delta  = $var['mdResyncDt'];
     $bytes  = $var['mdResyncDb'];
