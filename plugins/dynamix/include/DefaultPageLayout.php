@@ -620,7 +620,7 @@ defaultPage.on('message', function(msg,meta) {
       status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
     }
     if (ini['mdResyncPos']>0) {
-      var resync = ini['mdResyncAction'].split(' ');
+      var resync = ini['mdResyncAction'].split(/\s+/);
       switch (resync[0]) {
         case 'recon': var action = ['P','Q'].includes(resync[1]) ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
         case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
