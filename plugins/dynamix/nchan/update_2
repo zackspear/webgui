@@ -391,7 +391,9 @@ while (true) {
       $echo[4].= "<br><i class='fa fa-fw fa-search'></i> ".sprintf(_('Finding **%s** error'.($var['sbSyncErrs']==1?'':'s')),$var['sbSyncErrs']?:'0');
     }
   }
-  if (!$spot) {
+  if ($spot) {
+    $echo[4] .= "\0";
+  } else {
     [$m,$h] = explode(' ', $parity['hour']);
     $time = time();
     $check = true;
@@ -462,10 +464,7 @@ while (true) {
     } else {
       $echo[4] .= _('Scheduled parity check is disabled');
     }
-  } else {
-    $echo[4] .= "\0";
   }
-
   publish('update2', implode("\1",$echo));
   sleep(5);
 }
