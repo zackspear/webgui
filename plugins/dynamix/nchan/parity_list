@@ -68,6 +68,9 @@ function update_translation($locale) {
     }
   }
 }
+function create_sync($file) {
+  return file_exists($file) ? explode(',',file_get_contents($file)) : [];
+}
 function create_file($file,$data) {
   if (!file_exists($file)) file_put_contents($file,$data);
 }
@@ -79,7 +82,7 @@ while (true) {
     $locale_init = $display['locale'];
     update_translation($locale_init);
   }
-  $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
+  $synced = create_sync($stamps);
   $sbSynced = array_shift($synced) ?: $var['sbSynced'];
   $data = [];
   $spot = $var['mdResyncPos'];
