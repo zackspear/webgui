@@ -73,6 +73,9 @@ function create_sync($file) {
 function create_file($file,$action,$size) {
   if (!file_exists($file)) file_put_contents($file,$action.','.$size);
 }
+function delete_file($file) {
+  array_map('unlink',array_filter($file,'file_exists'));
+}
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -107,7 +110,7 @@ while (true) {
       $error    = $var['sbSyncErrs'];
       file_put_contents($log,"$timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
     }
-    array_map('unlink',array_filter([$stamps,$resync],'file_exists'));
+    delete_file([$stamps,$resync]);
   }
   switch ($var['fsState']) {
   case 'Copying':
