@@ -68,6 +68,9 @@ function update_translation($locale) {
     }
   }
 }
+function create_file($file,$data) {
+  if (!file_exists($file)) file_put_contents($file,$data);
+}
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -84,15 +87,15 @@ while (true) {
     $size   = $var['mdResyncSize'];
     $delta  = $var['mdResyncDt'];
     $bytes  = $var['mdResyncDb'];
-    if (!file_exists($syncSz)) file_put_contents($syncSz,$size);
-    if (!file_exists($resync)) file_put_contents($resync,$var['mdResyncAction']);
+    create_file($syncSz,$size);
+    create_file($resync,$var['mdResyncAction']);
     $data[] = my_scale($size*1024,$unit,-1)." $unit";
     $data[] = _(my_clock(floor((time()-$sbSynced)/60)),2).($delta ? '' : ' ('._('paused').')');
     $data[] = my_scale($spot*1024,$unit)." $unit (".number_format($spot/($size/100+1),1,$display['number'][0],'')." %)";
     $data[] = $delta ? my_scale($bytes*1024/$delta,$unit, 1)." $unit/sec" : '---';
     $data[] = $bytes ? _(my_clock(round(((($delta*(($size-$spot)/($bytes/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
-  } elseif ($var['sbSynced']>0 && $var['sbSynced2']>0) {
+  } elseif ($var['sbSynced'] && $var['sbSynced2']) {
     $timestamp = date('Y',$var['sbSynced2']).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
     if (new_parity_log($log,$timestamp)) {
       $idle = []; while (count($synced)>1) $idle[] = array_pop($synced)-array_pop($synced);
