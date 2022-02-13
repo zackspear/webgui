@@ -616,7 +616,7 @@ defaultPage.on('message', function(msg,meta) {
     if (ini['mdResyncPos']>0) {
       var resync = ini['mdResyncAction'].split(/\s+/);
       switch (resync[0]) {
-        case 'recon': var action = ['P','Q'].includes(resync[1]) ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
+        case 'recon': var action = resync[1]=='P' ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
         case 'check': var action = resync.length>1 ? "<?=_('Parity-Check')?>" : "<?=_('Read-Check')?>"; break;
         case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
         default     : var action = '';

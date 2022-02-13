@@ -320,7 +320,7 @@ while (true) {
     $number = $display['number'];
     $action = preg_split('/\s+/',$var['mdResyncAction']);
     switch ($action[0]) {
-      case "recon": $mode = in_array($action[1],['P','Q']) ? 'Parity-Sync' : 'Data-Rebuild'; break;
+      case "recon": $mode = $action[1]=='P' ? 'Parity-Sync' : 'Data-Rebuild'; break;
       case "check": $mode = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;
       case "clear": $mode = 'Disk-Clear'; break;
       default     : $mode = ''; break;
