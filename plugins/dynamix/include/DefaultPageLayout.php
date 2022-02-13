@@ -607,24 +607,18 @@ defaultPage.on('message', function(msg,meta) {
   case 1:
     // message field in footer
     var ini = parseINI(msg);
-    var state = ini['fsState'];
-    var progress = ini['fsProgress'];
-    var status;
-    if (state=='Stopped') {
-      status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>";
-    } else if (state=='Started') {
-      status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>";
-    } else if (state=='Formatting') {
-      status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>";
-    } else {
-      status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+state)+"</span>";
+    switch (ini['fsState']) {
+      case 'Stopped'   : var status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>"; break;
+      case 'Started'   : var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>"; break;
+      case 'Formatting': var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>"; break;
+      default          : var status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+ini['fsState'])+"</span>";
     }
     if (ini['mdResyncPos']>0) {
       var resync = ini['mdResyncAction'].split(/\s+/);
       switch (resync[0]) {
         case 'recon': var action = ['P','Q'].includes(resync[1]) ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
-        case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
         case 'check': var action = resync.length>1 ? "<?=_('Parity-Check')?>" : "<?=_('Read-Check')?>"; break;
+        case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
         default     : var action = '';
       }
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
@@ -632,7 +626,7 @@ defaultPage.on('message', function(msg,meta) {
       if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
       status += "</span>";
     }
-    if (progress) status += "&bullet;<span class='blue strong'>"+_(progress)+"</span>";
+    if (ini['fsProgress']) status += "&bullet;<span class='blue strong'>"+_(ini['fsProgress'])+"</span>";
     $('#statusbar').html(status);
     break;
   case 2:
