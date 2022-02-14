@@ -104,9 +104,7 @@ while (true) {
     $timestamp = date('Y',$var['sbSynced2']).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
     if (new_parity_log($log,$timestamp)) {
       $idle = []; while (count($synced)>1) $idle[] = array_pop($synced)-array_pop($synced);
-      [$action,$size] = my_explode(',',@file_get_contents($resync));
-      $size     = $size ?: $var['mdResyncSize'];
-      $action   = $action ?: $var['mdResyncAction'];
+      [$action,$size] = file_exists($resync) ? my_explode(',',file_get_contents($resync)) : [$var['mdResyncAction'],$var['mdResyncSize']];
       $duration = $var['sbSynced2']-$sbSynced;
       $status   = $var['sbSyncExit'];
       $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
