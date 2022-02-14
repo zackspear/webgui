@@ -90,9 +90,7 @@ while (true) {
   $data = [];
   $spot = $var['mdResyncPos'];
   if ($spot) {
-    $size   = $var['mdResyncSize'];
-    $delta  = $var['mdResyncDt'];
-    $bytes  = $var['mdResyncDb'];
+    [$size,$delta,$bytes] = [$var['mdResyncSize'],$var['mdResyncDt'],$var['mdResyncDb']];
     create_file($resync,$var['mdResyncAction'],$size);
     $data[] = my_scale($size*1024,$unit,-1)." $unit";
     $data[] = _(my_clock(floor((time()-$sbSynced)/60)),2).($delta ? '' : ' ('._('paused').')');
