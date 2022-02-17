@@ -15,6 +15,7 @@
 session_start();
 $docroot  = '/usr/local/emhttp';
 $varroot  = '/var/local/emhttp';
+$pool_log = '/var/tmp/pool_log.tmp';
 $smartALL = '/boot/config/smart-all.cfg';
 $smartONE = '/boot/config/smart-one.cfg';
 
@@ -419,19 +420,21 @@ while (true) {
     $echo[$n] = "pool_device".($n-2)."\n";
     foreach ($cache as $disk) if (prefix($disk['name'])==$pool) $crypto |= $disk['luksState']!=0 || vfs_luks($disk['fsType']);
     if ($var['fsState']=='Stopped') {
-      $log = @(array)parse_ini_file($tmp);
+      $log = file_exists($pool_log) ? parse_ini_file($pool_log) : [];
       $off = false;
       foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
         $echo[$n] .= array_offline($disk,$pool);
         if (isset($log[$disk['name']])) $off |= ($log[$disk['name']]!=$disk['id']); else $log[$disk['name']] = $disk['id'];
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
+      file_put_contents($pool_log,implode("\n",$data));
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='9'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>";
     } else {
       foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
         if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
         $echo[$n] .= array_online($disk);
       }
+      @unlink($pool_log);
       if ($display['total'] && $cache[$pool]['devices']>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$pool]['devices'])),false,"$pool*");
       $sum = initSum();
     }

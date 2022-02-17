@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,14 +16,14 @@ $stamps = '/var/tmp/stamps.ini';
 $mdcmd  = '/usr/local/sbin/mdcmd';
 
 function mdstat($key) {
-  return exec("grep -Po '^$key=\K\d+' /proc/mdstat");
+  return exec("grep -Pom1 '^$key=\K.+' /proc/mdstat");
 }
-
-if (mdstat('mdResyncPos')>0) {
+// Only act on active parity-check operation
+if (mdstat('mdResyncPos')>0 && substr(mdstat('mdResyncAction'),0,7)=='check P') {
   switch ($argv[1]) {
   case 'pause':
     if (mdstat('mdResync')>0) {
-      if (!file_exists($stamps)) file_put_contents($stamps,parse_ini_file('/var/local/emhttp/var.ini')['sbSynced']);
+      if (!file_exists($stamps)) file_put_contents($stamps,mdstat('sbSynced'));
       file_put_contents($stamps,','.time(),FILE_APPEND);
       exec("$mdcmd nocheck pause");
     }

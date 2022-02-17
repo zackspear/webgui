@@ -2,8 +2,8 @@ Menu="Dashboard"
 Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -276,7 +276,7 @@ form[name=boot]{display:none}
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
 </select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-fw fa-bar-chart"></span></a></span></td><td></td></tr>
-<tr class='cpu_open cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
+<tr class='cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
 <?
 foreach ($cpus as $pair) {
@@ -880,14 +880,10 @@ function toggleCPU(init) {
     if ($.cookie('cpu')===undefined) {
       $('.cpu_open').show();
       $('.cpu_close').text("_(Hide details)_");
-      $('.cpu_view').find('td').css('padding-bottom','0');
-      $('#chart-toggle').show();
       toggleChart(true);
     } else {
       $('.cpu_open').hide();
       $('.cpu_close').text("_(Show details)_");
-      $('.cpu_view').find('td').css('padding-bottom','20px');
-      $('#chart-toggle').hide();
     }
   } else {
     $('.cpu_open').hide();
