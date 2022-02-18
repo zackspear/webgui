@@ -48,7 +48,7 @@ function this_duration($time) {
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 </head>
 <style>
-table.share_status thead tr td:nth-child(2){width:18%}
+table.share_status thead tr td:nth-child(2){width:20%}
 </style>
 <body>
 <table class='share_status'><thead><tr><td><?=_('Action')?></td><td><?=_('Date')?></td><td><?=_('Size')?></td><td><?=_('Duration')?></td><td><?=_('Speed')?></td><td><?=_('Status')?></td><td><?=_('Errors')?></td></tr></thead><tbody>
