@@ -136,7 +136,7 @@ function my_check($time, $speed) {
   $hour = floor($hmss/3600);
   $mins = $hmss/60%60;
   $secs = $hmss%60;
-  return plus($days,'day',($hour|$mins|$secs)==0).plus($hour,'hour',($mins|$secs)==0).plus($mins,'minute',$secs==0).plus($secs,'second',true).". "._('Average speed').": $speed";
+  return plus($days,'day',($hour|$mins|$secs)==0).plus($hour,'hour',($mins|$secs)==0).plus($mins,'minute',$secs==0).plus($secs,'second',true).". "._('Average speed').": ".($speed[-1]=='s' ? $speed : my_scale($speed,$unit,1)." $unit/s");
 }
 function my_error($code) {
   switch ($code) {
@@ -209,14 +209,14 @@ function read_parity_log($epoch, $busy=false) {
     }
     fclose($handle);
   }
-  return $line ?: $last ?: '0|0|0|0|0|0';
+  return $line ?: $last ?: '0|0|0|0|0|0|0';
 }
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
-  if (!file_exists($log)) return [0,0,0,0,0,0];
-  [$date,$duration,$speed,$status,$error,$action] = my_explode('|',exec("tail -1 $log"),6);
+  if (!file_exists($log)) return [0,0,0,0,0,0,0];
+  [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',exec("tail -1 $log"),7);
   [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
-  return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error, $action];
+  return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error, $action, $size];
 }
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
@@ -263,5 +263,8 @@ function my_explode($split,$text,$count=2) {
 }
 function my_preg_split($split,$text,$count=2) {
   return array_pad(preg_split($split,$text,$count),$count,'');
+}
+function delete_file(...$file) {
+  array_map('unlink',array_filter($file,'file_exists'));
 }
 ?>

@@ -74,9 +74,6 @@ function create_sync($file) {
 function create_file($file,$action,$size) {
   if (!file_exists($file)) file_put_contents($file,$action.','.$size);
 }
-function delete_file($file) {
-  array_map('unlink',array_filter($file,'file_exists'));
-}
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -105,11 +102,11 @@ while (true) {
       [$action,$size] = file_exists($resync) ? my_explode(',',file_get_contents($resync)) : [$var['mdResyncAction'],$var['mdResyncSize']];
       $duration = $var['sbSynced2']-$sbSynced;
       $status   = $var['sbSyncExit'];
-      $speed    = $status==0 ? my_scale($size*1024/($duration-array_sum($idle)),$unit,1)." $unit/s" : 0;
+      $speed    = $status==0 ? round($size*1024/($duration-array_sum($idle))) : 0;
       $error    = $var['sbSyncErrs'];
-      file_put_contents($log,"$timestamp|$duration|$speed|$status|$error|$action\n",FILE_APPEND);
+      file_put_contents($log,"$timestamp|$duration|$speed|$status|$error|$action|$size\n",FILE_APPEND);
     }
-    delete_file([$stamps,$resync]);
+    delete_file($stamps,$resync);
   }
   switch ($var['fsState']) {
   case 'Copying':
