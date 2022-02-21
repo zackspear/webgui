@@ -47,14 +47,17 @@ function this_duration($time) {
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 </head>
+<style>
+table.share_status thead tr td:nth-child(2){width:20%}
+</style>
 <body>
-<table class='share_status'><thead><tr><td><?=_('Action')?></td><td><?=_('Date')?></td><td><?=_('Duration')?></td><td><?=_('Speed')?></td><td><?=_('Status')?></td><td><?=_('Errors')?></td></tr></thead><tbody>
+<table class='share_status'><thead><tr><td><?=_('Action')?></td><td><?=_('Date')?></td><td><?=_('Size')?></td><td><?=_('Duration')?></td><td><?=_('Speed')?></td><td><?=_('Status')?></td><td><?=_('Errors')?></td></tr></thead><tbody>
 <?
 $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($line = fgets($handle)) !== false) {
-    [$date,$duration,$speed,$status,$error,$action] = my_explode('|',$line,6);
+    [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$line,7);
     $action = preg_split('/\s+/',$action);
     switch ($action[0]) {
       case 'recon': $action = in_array($action[1],['P','Q']) ? _('Parity-Sync') : _('Data-Rebuild'); break;
@@ -62,9 +65,13 @@ if (file_exists($log)) {
       case 'clear': $action = _('Disk-Clear'); break;
       default     : $action = '-'; break;
     }
-    $speed = $speed ?: _('Unavailable');
     $date = str_replace(' ',', ',strtr(str_replace('  ',' 0',$date),$month));
-    if ($duration>0||$status<>0) $list[] = "<tr><td>$action</td><td>$date</td><td>".this_duration($duration)."</td><td>$speed</td><td>".($status==0?_('OK'):($status==-4?_('Canceled'):$status))."</td><td>$error</td></tr>";
+    $size = $size ? my_scale($size*1024,$unit,-1)." $unit" : '-';
+    $duration = this_duration($duration);
+    // handle both old and new speed notation
+    $speed = $speed ? ($speed[-1]=='s' ? $speed : my_scale($speed,$unit,1)." $unit/s") : _('Unavailable');
+    $status = $status==0 ? _('OK') : ($status==-4 ? _('Canceled') : $status);
+    $list[] = "<tr><td>$action</td><td>$date</td><td>$size</td><td>$duration</td><td>$speed</td><td>$status</td><td>$error</td></tr>";
   }
   fclose($handle);
 }

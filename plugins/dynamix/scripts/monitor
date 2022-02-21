@@ -254,7 +254,7 @@ if ($var['mdResyncPos']) {
   }
 } else {
   if ($last) {
-    [$date,$duration,$speed,$status,$error,$action] = last_parity_log();
+    [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();
     $info = $status==0 ? "Duration: ".my_check($duration, $speed) : ($status==-4 ? "Canceled" : "Error code: $status");
     $level = ($status==0 && $var['sbSyncErrs']==0) ? "normal" : "warning";
     exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $last")." -s ".escapeshellarg("Notice [$server] - $last finished ($error errors)")." -d ".escapeshellarg("$info")." -i \"$level\" 2>/dev/null");
@@ -321,8 +321,7 @@ if ($saved) {
     if ($text != @file_get_contents($ram)) file_put_contents($ram, $text);
     if (!file_exists($rom) || exec("diff -q $ram $rom")) file_put_contents($rom, $text);
   } else {
-    @unlink($ram);
-    @unlink($rom);
+    delete_file($ram,$rom);
   }
 }
 exit(0);
