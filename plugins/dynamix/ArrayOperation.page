@@ -191,9 +191,8 @@ function tab0() {
 }
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
-  devices.stop();
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else {devices.start();$('input[name="cmdStop"]').remove();}});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -252,18 +251,34 @@ $parity = $spot ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</s
 $mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
 $btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
 ?>
+var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
+arraymonitor.on('message', function(state) {
+  if (state==1 && !timers.arraymonitor) timers.arraymonitor = setTimeout(refresh,1250);
+});
+
 var devices = new NchanSubscriber('/sub/devices<?=$spot?",parity":""?>',{subscriber:'websocket'});
 devices.on('message', function(msg,meta) {
   switch (<?if($spot):?>meta.id.channel()<?else:?>0<?endif;?>) {
   case 0:
     // array + pool + ua devices
     var tables = msg.split('\0');
+    // get array state
+    var stopped = tables.pop();
     for (var n=0; n < tables.length; n++) {
       // get table name and content
       var table = tables[n].split('\n');
       $('#'+table[0]).html(table[1]);
     }
     display_diskio();
+    // stop updating when array is stopped
+    if (stopped==1) {
+<?if ($var['fsState']=='Started'):?>
+      setTimeout(refresh,0);
+<?else:?>
+      devices.stop();
+      arraymonitor.start();
+<?endif;?>
+    }
     break;
   case 1:
     // running parity status
@@ -287,12 +302,8 @@ devices.on('message', function(msg,meta) {
     break;
   }
 });
-<?if ($var['fsState']=='Stopped'):?>
-devices.on('connect', function(e) {
-  setTimeout(function(){devices.stop();},1250);
-});
-<?endif;?>
 devices.start();
+
 <?if (substr($var['fsState'],-3)=='ing'):?>
 var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket'});
 fsState.on('message', function(msg) {
@@ -309,9 +320,9 @@ fsState.start();
 <?elseif ($spot):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
-var monitor = new NchanSubscriber('/sub/monitor',{subscriber:'websocket'});
-monitor.on('message', function(msg){if (msg>0) refresh();});
-setTimeout(function(){monitor.start();},2500);
+var paritymonitor = new NchanSubscriber('/sub/paritymonitor',{subscriber:'websocket'});
+paritymonitor.on('message', function(spot){if (spot>0) refresh();});
+setTimeout(function(){paritymonitor.start();},5000);
 <?endif;?>
 
 $(function(){

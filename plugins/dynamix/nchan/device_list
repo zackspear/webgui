@@ -463,7 +463,11 @@ while (true) {
     $echo[$n] .= "</tr>";
   }
 
+  $n++;
+  $echo[$n] = $var['fsState']=='Stopped' ? 1 : 0;
+
   publish('devices', implode("\0",$echo));
+  publish('arraymonitor', $var['fsState']=='Started' ? 1 : 0);
   usleep(333333);
 }
 ?>

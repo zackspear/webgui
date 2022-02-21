@@ -120,7 +120,7 @@ while (true) {
     break;
   }
   publish('parity', implode(';',$data));
-  publish('monitor', $spot);
+  publish('paritymonitor', $spot);
   publish('fsState', $fsState);
   sleep(1);
 }
