@@ -154,10 +154,10 @@ function rmImage(image, imageName) {
 function eventControl(params, spin) {
   if (spin) $('#'+params['container']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
   $.post(eventURL, params, function(data) {
+    $('div.spinner.fixed').hide('slow');
     if (data.success === true) {
       if (spin) setTimeout(spin+'()',500); else location=window.location.href;
     } else {
-      $('div.spinner.fixed').hide('slow');
       setTimeout(function(){swal({
         title:_('Execution error'), html:true,
         text:data.success, type:'error',
