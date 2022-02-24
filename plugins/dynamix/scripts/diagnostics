@@ -21,7 +21,7 @@ $var = (array)@parse_ini_file("$get/var.ini");
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $nerdpackversion = strtok(parse_ini_file('/etc/unraid-version')['version'], '.') . '.' . strtok('.');
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/boot/config/plugins/NerdPack/packages/'.$nerdpackversion,'/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
+$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/boot/config/plugins/DevPack/packages/'.$nerdpackversion,'/boot/config/plugins/NerdPack/packages/'.$nerdpackversion,'/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 function curl_socket($socket, $url, $postdata = NULL) {
   $ch = curl_init($url);
