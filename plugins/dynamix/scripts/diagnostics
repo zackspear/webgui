@@ -20,7 +20,7 @@ $get = "/var/local/emhttp";
 $var = (array)@parse_ini_file("$get/var.ini");
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/extra','/boot/syslinux','/var/log','/var/log/plugins','/var/log/packages','/tmp'];
+$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 function curl_socket($socket, $url, $postdata = NULL) {
   $ch = curl_init($url);
