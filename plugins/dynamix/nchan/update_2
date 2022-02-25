@@ -148,7 +148,7 @@ function device_status(&$disk, &$error, &$warning) {
     case 'green-blink' : $color = 'grey';   $text = 'standby';    break;
     case 'blue-on'     : $color = 'blue';   $text = 'unassigned'; break;
     case 'blue-blink'  : $color = 'grey';   $text = 'unassigned'; break;
-    case 'yellow-on'   : $color = 'yellow'; $text =  $disk['type']=='Parity' ? 'invalid') : 'emulated';   $warning++; break;
+    case 'yellow-on'   : $color = 'yellow'; $text =  $disk['type']=='Parity' ? 'invalid' : 'emulated';   $warning++; break;
     case 'yellow-blink': $color = 'grey';   $text =  $disk['type']=='Parity' ? 'invalid' : 'emulated';   $warning++; break;
     case 'red-on'      : $color = 'red';    $text = 'disabled';   $error++; break;
     case 'red-blink'   : $color = 'grey';   $text = 'disabled';   $error++; break;
