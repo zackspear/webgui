@@ -296,11 +296,13 @@ $(function() {
   $('div[id=title]:first').append(ctrl);
 <?endif;?>
 <?endif;?>
+<?if (strpos($disk['status'],'_NP')===false):?>
   var form = document.smart_settings;
 <?if (!isset($disk['smType'])):?>
   form.smType.selectedIndex = 0;
 <?endif;?>
   setGlue(form,false);
+<?endif;?>
   if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
   var btrfs = false;
   if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
@@ -461,7 +463,7 @@ _(Critical disk utilization threshold)_ (%):
     <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
-    <?$empty = $disks[$name]['devices']==0?>
+    <?$empty = $disk['devices']==0?>
     <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
   <?endif;?>
 </form>
@@ -688,7 +690,7 @@ _(xfs_repair status)_:
 </form>
 <?endif;?>
 
-<?if (strpos($disks[$name]['status'],'_NP')===false):?>
+<?if (strpos($disk['status'],'_NP')===false):?>
 <div id="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
