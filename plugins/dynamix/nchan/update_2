@@ -144,16 +144,16 @@ function device_status(&$disk, &$error, &$warning) {
   if ($disk['type']!='Extra' && $var['fsState']=='Stopped') {
     $color = 'green'; $text = 'off-line';
   } else switch ($disk['color']) {
-    case 'green-on'    : $color = 'green';  $text = _('active');     break;
-    case 'green-blink' : $color = 'grey';   $text = _('standby');    break;
-    case 'blue-on'     : $color = 'blue';   $text = _('unassigned'); break;
-    case 'blue-blink'  : $color = 'grey';   $text = _('unassigned'); break;
-    case 'yellow-on'   : $color = 'yellow'; $text =  $disk['type']=='Parity' ? _('invalid') : _('emulated');   $warning++; break;
-    case 'yellow-blink': $color = 'grey';   $text =  $disk['type']=='Parity' ? _('invalid') : _('emulated');   $warning++; break;
-    case 'red-on'      : $color = 'red';    $text = _('disabled');   $error++; break;
-    case 'red-blink'   : $color = 'grey';   $text = _('disabled');   $error++; break;
-    case 'red-off'     : $color = 'red';    $text = _('faulty');     $error++; break;
-    case 'grey-off'    : $color = 'grey';   $text = _('no device');  break;
+    case 'green-on'    : $color = 'green';  $text = 'active';     break;
+    case 'green-blink' : $color = 'grey';   $text = 'standby';    break;
+    case 'blue-on'     : $color = 'blue';   $text = 'unassigned'; break;
+    case 'blue-blink'  : $color = 'grey';   $text = 'unassigned'; break;
+    case 'yellow-on'   : $color = 'yellow'; $text =  $disk['type']=='Parity' ? 'invalid') : 'emulated';   $warning++; break;
+    case 'yellow-blink': $color = 'grey';   $text =  $disk['type']=='Parity' ? 'invalid' : 'emulated';   $warning++; break;
+    case 'red-on'      : $color = 'red';    $text = 'disabled';   $error++; break;
+    case 'red-blink'   : $color = 'grey';   $text = 'disabled';   $error++; break;
+    case 'red-off'     : $color = 'red';    $text = 'faulty';     $error++; break;
+    case 'grey-off'    : $color = 'grey';   $text = 'no device';  break;
   }
   return "<i class='fa fa-circle orb $color-orb middle'></i>"._($text);
 }
