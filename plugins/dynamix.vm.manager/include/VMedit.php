@@ -94,8 +94,9 @@ body{-webkit-overflow-scrolling:touch}
 #vmform table{margin-top:0}
 #vmform div#title + table{margin-top:0}
 #vmform table tr{vertical-align:top;line-height:40px}
-#vmform table tr td:nth-child(odd){width:220px;text-align:right;padding-right:10px}
-#vmform table tr td:nth-child(even){width:100px}
+#vmform table tr td:nth-child(odd){width:300px;text-align:right;padding-right:10px}
+#vmform table tr td:nth-child(even){width:110px}
+#vmform table tr td:first-child{padding-right:30px}
 #vmform table tr td:last-child{width:inherit}
 #vmform .multiple{position:relative}
 #vmform .sectionbutton{position:absolute;left:2px;cursor:pointer;opacity:0.4;font-size:1.4rem;line-height:17px;z-index:10;transition-property:opacity,left;transition-duration:0.1s;transition-timing-function:linear}
@@ -132,6 +133,8 @@ span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
 #vmform .disk{display:none}
 #vmform .disk_preview{display:inline-block;color:#BBB;transform:translate(0px, 1px)}
 span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px 12px;line-height:72px;margin-right:16px;}
+i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
+input[type=checkbox]{margin-left:0}
 </style>
 
 <span class="status advancedview_panel" style="margin-top:<?=$top?>px"><input type="checkbox" class="advancedview"></span>
