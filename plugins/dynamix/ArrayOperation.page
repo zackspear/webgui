@@ -275,8 +275,7 @@ devices.on('message', function(msg,meta) {
 <?if ($var['fsState']=='Started'):?>
       setTimeout(refresh,0);
 <?else:?>
-      devices.stop();
-      arraymonitor.start();
+      if (!timers.stopped) timers.stopped = setTimeout(function(){devices.stop(); arraymonitor.start();},1000);
 <?endif;?>
     }
     break;
