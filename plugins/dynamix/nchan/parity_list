@@ -38,8 +38,8 @@ session_destroy();
 
 function new_parity_log($log,$timestamp) {
   global $timer;
-  // check every 30s
-  if (time()-$timer < 30) return false;
+  // check once a minute
+  if (time()-$timer < 60) return false;
   $timer = time();
   if (file_exists($log)) {
     $handle = fopen($log, 'r');
