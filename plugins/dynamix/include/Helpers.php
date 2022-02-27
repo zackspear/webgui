@@ -201,8 +201,7 @@ function escapestring($name) {
 function tail($file, $rows=1) {
   $file = new SplFileObject($file);
   $file->seek(SEEK_END);
-  $end = $file->key();
-  $file->seek($end-$rows);
+  $file->seek($file->key()-$rows);
   $echo = [];
   while (!$file->eof()) {
     $echo[] = $file->current();
