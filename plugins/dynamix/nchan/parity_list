@@ -18,7 +18,6 @@ $varroot = '/var/local/emhttp';
 $log     = '/boot/config/parity-checks.log';
 $stamps  = '/var/tmp/stamps.ini';
 $resync  = '/var/tmp/resync.ini';
-$timer   = time();
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -37,10 +36,6 @@ session_unset();
 session_destroy();
 
 function new_parity_log($log,$timestamp) {
-  global $timer;
-  // check every 30s
-  if (time()-$timer < 30) return false;
-  $timer = time();
   if (file_exists($log)) {
     $handle = fopen($log, 'r');
     while (($line = fgets($handle))!==false) {if (substr_compare($line,$timestamp,0,strlen($timestamp))==0) break;}
