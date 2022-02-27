@@ -198,7 +198,6 @@ function compress($name,$size=18,$end=6) {
 function escapestring($name) {
   return "\"$name\"";
 }
-
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
   [$date,$duration,$speed,$status,$error,$action,$size] = file_exists($log) ? my_explode('|',exec("tail -1 $log"),7) : array_fill(0,7,0);
@@ -208,7 +207,6 @@ function last_parity_log() {
   }
   return [$date,$duration,$speed,$status,$error,$action,$size];
 }
-
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
