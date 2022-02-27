@@ -67,8 +67,8 @@ function update_translation($locale) {
 function create_sync($file) {
   return file_exists($file) ? explode(',',file_get_contents($file)) : [];
 }
-function create_file($file,$action,$size) {
-  if (!file_exists($file)) file_put_contents($file,$action.','.$size);
+function create_file($file,...$data) {
+  if (!file_exists($file)) file_put_contents($file,implode(',',$data));
 }
 
 while (true) {
