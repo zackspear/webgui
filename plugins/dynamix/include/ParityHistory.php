@@ -69,7 +69,7 @@ if (file_exists($log)) {
     $size = $size ? my_scale($size*1024,$unit,-1)." $unit" : '-';
     $duration = this_duration($duration);
     // handle both old and new speed notation
-    $speed = $speed ? ($speed[-1]=='s' ? $speed : my_scale($speed,$unit,1)." $unit/s") : _('Unavailable');
+    $speed = $speed ? (is_numeric($speed) ? my_scale($speed,$unit,1)." $unit/s" : $speed) : _('Unavailable');
     $status = $status==0 ? _('OK') : ($status==-4 ? _('Canceled') : $status);
     $list[] = "<tr><td>$action</td><td>$date</td><td>$size</td><td>$duration</td><td>$speed</td><td>$status</td><td>$error</td></tr>";
   }
