@@ -93,7 +93,7 @@ while (true) {
     $data[] = $bytes ? _(my_clock(round(((($delta*(($size-$spot)/($bytes/100+1)))/100)/60),0)),2) : _('Unknown');
     $data[] = $var['sbSyncErrs'];
   } elseif ($var['sbSynced'] && $var['sbSynced2']) {
-    $timestamp = date('Y',$var['sbSynced2']).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
+    $timestamp = str_replace(['.0','.'],['  ',' '],date('Y.M.d H:i:s',$var['sbSynced2']));
     if (new_parity_log($timestamp)) {
       $idle = []; while (count($synced)>1) $idle[] = array_pop($synced)-array_pop($synced);
       [$action,$size] = file_exists($resync) ? my_explode(',',file_get_contents($resync)) : [$var['mdResyncAction'],$var['mdResyncSize']];
