@@ -198,26 +198,17 @@ function compress($name,$size=18,$end=6) {
 function escapestring($name) {
   return "\"$name\"";
 }
-function read_parity_log($epoch, $busy=false) {
-  $log = '/boot/config/parity-checks.log';
-  if (file_exists($log)) {
-    $timestamp = date('Y',$epoch).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$epoch));
-    $handle = fopen($log, 'r');
-    while (($line = fgets($handle))!==false) {
-      if (substr_compare($line,$timestamp,0,strlen($timestamp))==0) break;
-      if ($busy) $last = $line;
-    }
-    fclose($handle);
-  }
-  return $line ?: $last ?: '0|0|0|0|0|0|0';
-}
+
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
-  if (!file_exists($log)) return [0,0,0,0,0,0,0];
-  [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',exec("tail -1 $log"),7);
-  [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
-  return [strtotime("$d-$m-$y $t"), $duration, $speed, $status, $error, $action, $size];
+  [$date,$duration,$speed,$status,$error,$action,$size] = file_exists($log) ? my_explode('|',exec("tail -1 $log"),7) : array_fill(0,7,0);
+  if ($date) {
+    [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
+    $date = strtotime("$d-$m-$y $t");
+  }
+  return [$date,$duration,$speed,$status,$error,$action,$size];
 }
+
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }

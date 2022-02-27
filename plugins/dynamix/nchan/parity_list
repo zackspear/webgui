@@ -35,13 +35,9 @@ $locale_init = $locale;
 session_unset();
 session_destroy();
 
-function new_parity_log($log,$timestamp) {
-  if (file_exists($log)) {
-    $handle = fopen($log, 'r');
-    while (($line = fgets($handle))!==false) {if (substr_compare($line,$timestamp,0,strlen($timestamp))==0) break;}
-    fclose($handle);
-  }
-  return empty($line);
+function new_parity_log($timestamp) {
+  global $log;
+  return file_exists($log) ? (substr_compare(exec("tail -1 $log"),$timestamp,0,strlen($timestamp))==0 ? false : true) : true;
 }
 function my_clock($time) {
   if (!$time) return _('less than a minute');
@@ -74,6 +70,7 @@ function create_sync($file) {
 function create_file($file,$action,$size) {
   if (!file_exists($file)) file_put_contents($file,$action.','.$size);
 }
+
 while (true) {
   $var = (array)parse_ini_file("$varroot/var.ini");
   // check for language changes
@@ -97,7 +94,7 @@ while (true) {
     $data[] = $var['sbSyncErrs'];
   } elseif ($var['sbSynced'] && $var['sbSynced2']) {
     $timestamp = date('Y',$var['sbSynced2']).' '.str_replace(['.0','.'],['  ',' '],date('M.d H:i:s',$var['sbSynced2']));
-    if (new_parity_log($log,$timestamp)) {
+    if (new_parity_log($timestamp)) {
       $idle = []; while (count($synced)>1) $idle[] = array_pop($synced)-array_pop($synced);
       [$action,$size] = file_exists($resync) ? my_explode(',',file_get_contents($resync)) : [$var['mdResyncAction'],$var['mdResyncSize']];
       $duration = $var['sbSynced2']-$sbSynced;
