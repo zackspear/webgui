@@ -198,9 +198,21 @@ function compress($name,$size=18,$end=6) {
 function escapestring($name) {
   return "\"$name\"";
 }
+function tail($file, $rows=1) {
+  $file = new SplFileObject($file);
+  $file->seek(SEEK_END);
+  $end = $file->key();
+  $file->seek($end-$rows);
+  $echo = [];
+  while (!$file->eof()) {
+    $echo[] = $file->current();
+    $file->next();
+  }
+  return implode($echo);
+}
 function last_parity_log() {
   $log = '/boot/config/parity-checks.log';
-  [$date,$duration,$speed,$status,$error,$action,$size] = file_exists($log) ? my_explode('|',exec("tail -1 $log"),7) : array_fill(0,7,0);
+  [$date,$duration,$speed,$status,$error,$action,$size] = file_exists($log) ? my_explode('|',tail($log),7) : array_fill(0,7,0);
   if ($date) {
     [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
     $date = strtotime("$d-$m-$y $t");

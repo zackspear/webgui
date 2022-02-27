@@ -37,7 +37,7 @@ session_destroy();
 
 function new_parity_log($timestamp) {
   global $log;
-  return file_exists($log) ? explode('|',exec("tail -1 $log"))[0]!=$timestamp : true;
+  return file_exists($log) ? explode('|',tail($log))[0]!=$timestamp : true;
 }
 function my_clock($time) {
   if (!$time) return _('less than a minute');
