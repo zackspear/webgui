@@ -56,8 +56,8 @@ table.share_status thead tr td:nth-child(2){width:20%}
 $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
-  while (($line = fgets($handle)) !== false) {
-    [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$line,7);
+  while (($row = fgets($handle))!==false) {
+    [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$row,7);
     $action = preg_split('/\s+/',$action);
     switch ($action[0]) {
       case 'recon': $action = in_array($action[1],['P','Q']) ? _('Parity-Sync') : _('Data-Rebuild'); break;
