@@ -200,7 +200,7 @@ function escapestring($name) {
 }
 function tail($file, $rows=1) {
   $file = new SplFileObject($file);
-  $file->seek(SEEK_END);
+  $file->seek(PHP_INT_MAX);
   $file->seek($file->key()-$rows);
   $echo = [];
   while (!$file->eof()) {
