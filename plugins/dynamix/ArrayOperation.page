@@ -320,7 +320,7 @@ fsState.start();
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
 var paritymonitor = new NchanSubscriber('/sub/paritymonitor',{subscriber:'websocket'});
-paritymonitor.on('message', function(spot){if (spot>0) refresh();});
+paritymonitor.on('message', function(busy){if (busy==1) refresh();});
 setTimeout(function(){paritymonitor.start();},5000);
 <?endif;?>
 

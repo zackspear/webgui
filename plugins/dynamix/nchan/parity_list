@@ -83,7 +83,7 @@ while (true) {
   $sbSynced = array_shift($synced) ?: $var['sbSynced'];
   $data = [];
   $spot = $var['mdResyncPos'];
-  if ($spot) {
+  if ($spot>0) {
     [$size,$delta,$bytes] = [$var['mdResyncSize'],$var['mdResyncDt'],$var['mdResyncDb']];
     create_file($resync,$var['mdResyncAction'],$size);
     $data[] = my_scale($size*1024,$unit,-1)." $unit";
@@ -117,7 +117,7 @@ while (true) {
     break;
   }
   publish('parity', implode(';',$data));
-  publish('paritymonitor', $spot);
+  publish('paritymonitor', $spot>0 ? 1 : 0);
   publish('fsState', $fsState);
   sleep(1);
 }
