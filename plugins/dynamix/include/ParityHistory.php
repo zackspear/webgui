@@ -56,8 +56,8 @@ table.share_status thead tr td:nth-child(2){width:20%}
 $log = '/boot/config/parity-checks.log'; $list = [];
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
-  while (($line = fgets($handle)) !== false) {
-    [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$line,7);
+  while (($row = fgets($handle))!==false) {
+    [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$row,7);
     $action = preg_split('/\s+/',$action);
     switch ($action[0]) {
       case 'recon': $action = in_array($action[1],['P','Q']) ? _('Parity-Sync') : _('Data-Rebuild'); break;
@@ -69,7 +69,7 @@ if (file_exists($log)) {
     $size = $size ? my_scale($size*1024,$unit,-1)." $unit" : '-';
     $duration = this_duration($duration);
     // handle both old and new speed notation
-    $speed = $speed ? ($speed[-1]=='s' ? $speed : my_scale($speed,$unit,1)." $unit/s") : _('Unavailable');
+    $speed = $speed ? (is_numeric($speed) ? my_scale($speed,$unit,1)." $unit/s" : $speed) : _('Unavailable');
     $status = $status==0 ? _('OK') : ($status==-4 ? _('Canceled') : $status);
     $list[] = "<tr><td>$action</td><td>$date</td><td>$size</td><td>$duration</td><td>$speed</td><td>$status</td><td>$error</td></tr>";
   }
@@ -78,7 +78,7 @@ if (file_exists($log)) {
 if ($list)
   foreach (array_reverse($list) as $row) echo $row;
 else
-  echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'>",_('No parity check history present'),"!</td></tr>";
+  echo "<tr><td colspan='7' style='text-align:center;padding-top:12px'>",_('No parity check history present'),"!</td></tr>";
 ?>
 </tbody></table>
 <div style="text-align:center;margin-top:12px"><input type="button" value="<?=_('Done')?>" onclick="top.Shadowbox.close()"></div>

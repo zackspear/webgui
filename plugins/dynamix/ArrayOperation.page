@@ -320,7 +320,7 @@ fsState.start();
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
 var paritymonitor = new NchanSubscriber('/sub/paritymonitor',{subscriber:'websocket'});
-paritymonitor.on('message', function(spot){if (spot>0) refresh();});
+paritymonitor.on('message', function(busy){if (busy==1) refresh();});
 setTimeout(function(){paritymonitor.start();},5000);
 <?endif;?>
 
@@ -380,13 +380,13 @@ function formatWarning(val) {
           <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Read-Check** of all array disks)_.</td></tr>
 <?      endif;?>
         <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-<?      if ($var['sbSyncExit']!=0):?>
+<?      [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();
+        if ($var['sbSyncExit']!=0):?>
           <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0))?><?if ($var['sbSynced2']):?>
           <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error($var['sbSyncExit'])?>
           <br><i class="fa fa-fw fa-search"></i> <?=print_error($var['sbSyncErrs'])?><?endif;?></td></tr>
 <?      elseif ($var['sbSynced']==0):
-          [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();?>
-<?        if ($status==0):?>
+          if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time($date).day_count($date),0))?>
             <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
@@ -396,7 +396,6 @@ function formatWarning(val) {
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
 <?        endif;
         elseif ($var['sbSynced2']==0):
-          [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|', read_parity_log($var['sbSynced']),6);
           if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0))?>
             <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
@@ -406,8 +405,7 @@ function formatWarning(val) {
             <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error($status)?>
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
 <?        endif;
-        else:
-          [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();?>
+        else:?>
           <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0))?>
           <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
           <br><i class="fa fa-fw fa-search"></i> <?=print_error($var['sbSyncErrs'])?></td></tr>
