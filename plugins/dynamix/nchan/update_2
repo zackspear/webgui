@@ -139,7 +139,7 @@ function device_name(&$disk) {
   $name = my_disk($disk['name']);
   [$p1,$p2] = explode(' ',$name);
   $name = _($p1).($p2?" $p2":"");
-  return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
+  return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
 }
 function device_status(&$disk, &$error, &$warning) {
   global $var;

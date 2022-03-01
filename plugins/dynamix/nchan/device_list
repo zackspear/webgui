@@ -68,7 +68,7 @@ function device_info(&$disk,$online) {
             ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
             ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
             ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
-             $disk['type']=='New' ? "<a href=\"".htmlspecialchars("/Main/$type?name=$name")."\">$fancyname</a>" : $fancyname;
+             $disk['type']=='New' ? "<a href=\"".htmlspecialchars("/Main/Settings/$type?name=$name")."\">$fancyname</a>" : $fancyname;
   if ($crypto) switch ($disk['luksState']) {
     case 0:
       if (!vfs_luks($disk['fsType']))

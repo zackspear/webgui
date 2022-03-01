@@ -3,8 +3,8 @@ Title="$name _(Settings)_"
 Tag="hdd-o"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -22,8 +22,11 @@ $disk = &$disks[$name];
 $dev  = $disk['device'];
 $id   = $disk['id'];
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
-$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
+$bgcolor = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
 $yes = _('Yes');
+
+$mode = ['Disabled','Hourly','Daily','Weekly','Monthly'];
+$days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 function sharename($share) {
   return substr($share,0,-4);
@@ -64,6 +67,38 @@ if ($.cookie('deletepool')!=null) {
   $.removeCookie('deletepool');
   done();
 }
+<?if (strpos($disk['fsType'],"btrfs")!==false):?>
+function presetBTRFS(form,job) {
+  var mode = form.mode.value;
+  form.min.disabled = mode==0;
+  form.day.disabled = mode==0 || mode!=3;
+  form.dotm.disabled = mode==0 || mode!=4;
+  form.hour1.disabled = mode==0;
+  form.hour2.disabled = mode==0;
+  form.day.value = form.day.disabled ? '*' : (form.day.value=='*' ? 0 : form.day.value);
+  form.dotm.value = form.dotm.disabled ? '*' : (form.dotm.value=='*' ? 1 : form.dotm.value);
+  if (mode==1) {$(job+'-hour1').hide(); $(job+'-hour2').show();} else {$(job+'-hour2').hide(); $(job+'-hour1').show();}
+}
+function prepareBTRFS(form,cookie,value) {
+  var include = '';
+  var mode = form.mode.value;
+  form.hour.value = mode!=1 ? form.hour1.value : form.hour2.value;
+  form.min.value = mode!=1 ? form.min.value : 0;
+  form.hour1.disabled = true;
+  form.hour2.disabled = true;
+  for (var i=0,item; item=form.disk.options[i]; i++) {
+    if (item.selected) {
+      if (include.length) include += ',';
+      include += item.value;
+      item.selected = false;
+    }
+  }
+  item = form.disk.options[0];
+  item.value = include;
+  item.selected = true;
+  $.cookie(cookie,value)
+}
+<?endif;?>
 function prepareDeviceInfo(form) {
   var events = [];
   for (var i=0; i < <?=count($preselect)?>; i++) {
@@ -287,9 +322,9 @@ function freeSpace(val) {
 }
 $(function() {
 <?if (count($sheets)>1):?>
-  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/Main/Device?name=<?=$prev?>' title='_(previous device)_'>";
+  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
       ctrl += "<button type='button' style='margin-right:4px' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-left fa-fw'></i></button></a>";
-      ctrl += "<a href='/Main/Device?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
+      ctrl += "<a href='/<?=$path?>?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
@@ -524,6 +559,60 @@ _(btrfs balance status)_:
 
 <?endif;?>
 </form>
+<hr>
+<?$balance = "balance_$tag";?>
+<form markdown="1" name="balance_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
+<input type="hidden" name="#file" value="dynamix/dynamix.cfg">
+<input type="hidden" name="#section" value="balance_<?=$tag?>">
+<input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
+<input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?>">
+<input type="hidden" name="hour" value="">
+_(Balance schedule)_:
+: <select name="mode" onchange="presetBTRFS(this.form,'#balance')">
+  <?for ($m=0; $m<count($mode); $m++):?>
+  <?=mk_option($$balance['mode'], strval($m), _($mode[$m]))?>
+  <?endfor;?>
+  </select>
+
+_(Day of the week)_:
+: <select name="day">
+  <?for ($d=0; $d<count($days); $d++):?>
+  <?=mk_option($$balance['day'], strval($d), _($days[$d]),0)?>
+  <?endfor;?>
+  <?=mk_option($$balance['day'], "*", "--------", _("disabled"))?>
+  </select>
+
+_(Day of the month)_:
+: <select name="dotm">
+  <?for ($d=1; $d<=31; $d++):?>
+  <?=mk_option($$balance['dotm'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  <?=mk_option($$balance['dotm'], "*", "--------", _("disabled"))?>
+  </select>
+
+_(Time of the day)_:
+: <span id="balance-hour1" style="display:none"><select name="hour1" class="narrow">
+  <?for ($d=0; $d<=23; $d++):?>
+  <?=mk_option($$balance['hour'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>
+  <select name="min" class="narrow">
+  <?for ($d=0; $d<=55; $d+=5):?>
+  <?=mk_option($$balance['min'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>&nbsp;&nbsp;_(HH:MM)_</span>
+: <span id="balance-hour2" style="display:none"><select name="hour2">
+  <?=mk_option($$balance['hour'], "*/1", _("Every hour"))?>
+  <?=mk_option($$balance['hour'], "*/2", _("Every 2 hours"))?>
+  <?=mk_option($$balance['hour'], "*/3", _("Every 3 hours"))?>
+  <?=mk_option($$balance['hour'], "*/4", _("Every 4 hours"))?>
+  <?=mk_option($$balance['hour'], "*/6", _("Every 6 hours"))?>
+  <?=mk_option($$balance['hour'], "*/8", _("Every 8 hours"))?>
+  </select></span>
+
+&nbsp;
+: <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
+</form>
 <?endif;?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
@@ -562,6 +651,60 @@ _(btrfs scrub status)_:
 : <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
+</form>
+<hr>
+<?$scrub = "scrub_$tag";?>
+<form markdown="1" name="scrub_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
+<input type="hidden" name="#file" value="dynamix/dynamix.cfg">
+<input type="hidden" name="#section" value="scrub_<?=$tag?>">
+<input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
+<input type="hidden" name="#job" value="scrub_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_scrub start /mnt/<?=$tag?> -r">
+<input type="hidden" name="hour" value="">
+_(Scrub schedule)_:
+: <select name="mode" onchange="presetBTRFS(this.form,'#scrub')">
+  <?for ($m=0; $m<count($mode); $m++):?>
+  <?=mk_option($$scrub['mode'], strval($m), _($mode[$m]))?>
+  <?endfor;?>
+  </select>
+
+_(Day of the week)_:
+: <select name="day">
+  <?for ($d=0; $d<count($days); $d++):?>
+  <?=mk_option($$scrub['day'], strval($d), _($days[$d]),0)?>
+  <?endfor;?>
+  <?=mk_option($$scrub['day'], "*", "--------", _("disabled"))?>
+  </select>
+
+_(Day of the month)_:
+: <select name="dotm">
+  <?for ($d=1; $d<=31; $d++):?>
+  <?=mk_option($$scrub['dotm'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  <?=mk_option($scrub['dotm'], "*", "--------", _("disabled"))?>
+  </select>
+
+_(Time of the day)_:
+: <span id="scrub-hour1" style="display:none"><select name="hour1" class="narrow">
+  <?for ($d=0; $d<=23; $d++):?>
+  <?=mk_option($$scrub['hour'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>
+  <select name="min" class="narrow">
+  <?for ($d=0; $d<=55; $d+=5):?>
+  <?=mk_option($$scrub['min'], strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>&nbsp;&nbsp;_(HH:MM)_</span>
+: <span id="scrub-hour2" style="display:none"><select name="hour2">
+  <?=mk_option($$scrub['hour'], "*/1", _("Every hour"))?>
+  <?=mk_option($$scrub['hour'], "*/2", _("Every 2 hours"))?>
+  <?=mk_option($$scrub['hour'], "*/3", _("Every 3 hours"))?>
+  <?=mk_option($$scrub['hour'], "*/4", _("Every 4 hours"))?>
+  <?=mk_option($$scrub['hour'], "*/6", _("Every 6 hours"))?>
+  <?=mk_option($$scrub['hour'], "*/8", _("Every 8 hours"))?>
+  </select></span>
+
+&nbsp;
+: <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
 </form>
 <?endif?>
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
@@ -789,3 +932,12 @@ _(Name)_:
 <input type="hidden" name="poolSlots" value="0">
 <input type='hidden' name='csrf_token' value='<?=$var['csrf_token']?>'>
 </form>
+
+<?if (strpos($disk['fsType'],"btrfs")!==false):?>
+<script>
+$(function(){
+  presetBTRFS(document.balance_schedule,'#balance');
+  presetBTRFS(document.scrub_schedule,'#scrub');
+});
+</script>
+<?endif;?>
