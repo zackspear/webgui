@@ -193,7 +193,7 @@ function btrfsBalance(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -205,7 +205,7 @@ function btrfsScrub(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
@@ -217,7 +217,7 @@ function btrfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function rfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
@@ -229,7 +229,7 @@ function rfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
@@ -241,7 +241,7 @@ function xfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
@@ -338,13 +338,13 @@ $(function() {
   setGlue(form,false);
 <?endif;?>
   if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
-  var btrfs = false;
-  if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
-  if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
-  if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
-  if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
-  if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
-  if (!btrfs) {
+  var status = true;
+  if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (status) {
     $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
       var action = a.split(',');
       for (var i=0,busy; busy=action[i]; i++) {
