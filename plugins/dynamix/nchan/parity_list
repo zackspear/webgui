@@ -111,7 +111,7 @@ while (true) {
   else $fsState = '';
 
   if ($var['fsState']!='Started') $process = -1;
-  elseif ($spot) $process = 1;
+  elseif ($spot>0) $process = 1;
   elseif (file_exists('/var/run/mover.pid')) $process = 2;
   elseif (exec('pgrep -cf /sbin/btrfs')>0) $process = 3;
   else $process = 0;
