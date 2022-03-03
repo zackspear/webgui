@@ -68,7 +68,7 @@ if ($.cookie('deletepool')!=null) {
   done();
 }
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
-function presetBTRFS(form,job) {
+function presetBTRFS(form,hour) {
   var mode = form.mode.value;
   form.min.disabled = mode==0;
   form.day.disabled = mode==0 || mode!=3;
@@ -77,9 +77,9 @@ function presetBTRFS(form,job) {
   form.hour2.disabled = mode==0;
   form.day.value = form.day.disabled ? '*' : (form.day.value=='*' ? 0 : form.day.value);
   form.dotm.value = form.dotm.disabled ? '*' : (form.dotm.value=='*' ? 1 : form.dotm.value);
-  if (mode==1) {$(job+'-hour1').hide(); $(job+'-hour2').show();} else {$(job+'-hour2').hide(); $(job+'-hour1').show();}
+  if (mode==1) {$(hour+'1').hide(); $(hour+'2').show();} else {$(hour+'2').hide(); $(hour+'1').show();}
 }
-function prepareBTRFS(form,cookie,value) {
+function prepareBTRFS(form) {
   var include = '';
   var mode = form.mode.value;
   form.hour.value = mode!=1 ? form.hour1.value : form.hour2.value;
@@ -96,7 +96,6 @@ function prepareBTRFS(form,cookie,value) {
   item = form.disk.options[0];
   item.value = include;
   item.selected = true;
-  $.cookie(cookie,value)
 }
 <?endif;?>
 function prepareDeviceInfo(form) {
@@ -194,7 +193,7 @@ function btrfsBalance(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function btrfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
@@ -206,7 +205,7 @@ function btrfsScrub(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function btrfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
@@ -218,7 +217,7 @@ function btrfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function rfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
@@ -230,7 +229,7 @@ function rfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function xfsCheck(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
@@ -242,7 +241,7 @@ function xfsCheck(path) {
       refresh();
     }
   });
-  return true;
+  return false;
 }
 function updateMode(form,mode) {
   $(form).find('input[name="#arg[3]"]').val(mode);
@@ -339,14 +338,14 @@ $(function() {
   setGlue(form,false);
 <?endif;?>
   if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
-  var btrfs = false;
-  if ($.cookie('btrfs-balance-<?=$tag?>')) btrfs = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
-  if ($.cookie('btrfs-scrub-<?=$tag?>')) btrfs = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
-  if ($.cookie('btrfs-check-<?=$tag?>')) btrfs = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
-  if ($.cookie('rfs-check-<?=$tag?>')) btrfs = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
-  if ($.cookie('xfs-check-<?=$tag?>')) btrfs = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
-  if (!btrfs) {
-    $.get('/webGui/include/ReloadPage.php',{mount:'<?=$tag?>'},function(a){
+  var status = true;
+  if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (status) {
+    $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
       var action = a.split(',');
       for (var i=0,busy; busy=action[i]; i++) {
         switch (busy) {
@@ -561,14 +560,14 @@ _(btrfs balance status)_:
 </form>
 <hr>
 <?$balance = "balance_$tag";?>
-<form markdown="1" name="balance_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
+<form markdown="1" name="balance_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this)">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="balance_<?=$tag?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
 <input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?>">
 <input type="hidden" name="hour" value="">
 _(Balance schedule)_:
-: <select name="mode" onchange="presetBTRFS(this.form,'#balance')">
+: <select name="mode" onchange="presetBTRFS(this.form,'#balance-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
   <?=mk_option($$balance['mode'], strval($m), _($mode[$m]))?>
   <?endfor;?>
@@ -654,14 +653,14 @@ _(btrfs scrub status)_:
 </form>
 <hr>
 <?$scrub = "scrub_$tag";?>
-<form markdown="1" name="scrub_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
+<form markdown="1" name="scrub_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this)">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="scrub_<?=$tag?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
 <input type="hidden" name="#job" value="scrub_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_scrub start /mnt/<?=$tag?> -r">
 <input type="hidden" name="hour" value="">
 _(Scrub schedule)_:
-: <select name="mode" onchange="presetBTRFS(this.form,'#scrub')">
+: <select name="mode" onchange="presetBTRFS(this.form,'#scrub-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
   <?=mk_option($$scrub['mode'], strval($m), _($mode[$m]))?>
   <?endfor;?>
@@ -936,8 +935,8 @@ _(Name)_:
 <?if (strpos($disk['fsType'],"btrfs")!==false):?>
 <script>
 $(function(){
-  presetBTRFS(document.balance_schedule,'#balance');
-  presetBTRFS(document.scrub_schedule,'#scrub');
+  presetBTRFS(document.balance_schedule,'#balance-hour');
+  presetBTRFS(document.scrub_schedule,'#scrub-hour');
 });
 </script>
 <?endif;?>

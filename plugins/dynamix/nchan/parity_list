@@ -105,20 +105,21 @@ while (true) {
     }
     delete_file($stamps,$resync);
   }
-  switch ($var['fsState']) {
-  case 'Copying':
-    $fsState = $var['fsCopyPrcnt']."% "._('completed');
-    break;
-  case 'Clearing':
-    $fsState = $var['fsClearPrcnt']."% "._('completed');
-    break;
-  default:
-    $fsState = substr($var['fsState'],-3)!='ing' ? 'stop' : '';
-    break;
-  }
+  if ($var['fsState']=='Copying') $fsState = $var['fsCopyPrcnt']."% "._('completed');
+  elseif ($var['fsState']=='Clearing') $fsState = $var['fsClearPrcnt']."% "._('completed');
+  elseif (substr($var['fsState'],-3)!='ing') $fsState = 'stop';
+  else $fsState = '';
+
+  if ($var['fsState']!='Started') $process = -1;
+  elseif ($spot>0) $process = 1;
+  elseif (file_exists('/var/run/mover.pid')) $process = 2;
+  elseif (exec('pgrep -cf /sbin/btrfs')>0) $process = 3;
+  else $process = 0;
+
   publish('parity', implode(';',$data));
   publish('paritymonitor', $spot>0 ? 1 : 0);
   publish('fsState', $fsState);
+  publish('mymonitor', $process);
   sleep(1);
 }
 ?>

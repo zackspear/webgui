@@ -246,11 +246,32 @@ $('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
-<?
-$parity = $spot ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>" : "";
-$mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
-$btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
-?>
+
+<?if ($var['fsState']=='Started'):?>
+var mymonitor = new NchanSubscriber('/sub/mymonitor',{subscriber:'websocket'});
+mymonitor.on('message', function(state) {
+  switch (state) {
+  case '0': // normal operation
+    $('#stop_button').prop('disabled',false);
+    $('#stop_text').html("");
+    break;
+  case '1': // parity running
+    $('#stop_button').prop('disabled',true);
+    $('#stop_text').html("<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>");
+    break;
+  case '2': // mover running
+    $('#stop_button').prop('disabled',true);
+    $('#stop_text').html("<br><small>_(Disabled)_ -- _(Mover is running)_</small>");
+    break;
+  case '3': // btrfs running
+    $('#stop_button').prop('disabled',true);
+    $('#stop_text').html("<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>");
+    break;
+  }
+});
+mymonitor.start();
+<?endif;?>
+
 var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
 arraymonitor.on('message', function(state) {
   if (state==1 && !timers.arraymonitor) timers.arraymonitor = setTimeout(refresh,1250);
@@ -350,8 +371,8 @@ function formatWarning(val) {
 <?switch ($var['fsState']):
   case "Started":?>
     <tr><td><?status_indicator()?>**_(Started)_<?=(($var['startMode']=='Maintenance')?' - _(Maintenance Mode)_':'')?>**</td>
-    <td><input type="button" value="_(Stop)_" onclick="stopArray(this.form)"<?if ($parity||$mover||$btrfs):?> disabled<?endif;?>></td>
-    <td id="stop">**_(Stop)_** _(will take the array off-line)_.<?=$parity?:$mover?:$btrfs?:''?></td></tr>
+    <td><input type="button" id="stop_button" value="_(Stop)_" onclick="stopArray(this.form)"></td>
+    <td>**_(Stop)_** _(will take the array off-line)_.<span id="stop_text"></span></td></tr>
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
@@ -632,24 +653,6 @@ function formatWarning(val) {
 </table>
 </form>
 <!-- markdown fix --></p><?if (isset($display['sleep'])) eval('?>'.parse_file($display['sleep']))?>
-<?if ($btrfs):?>
-<script>
-function enable_stop() {
-  $.get('/webGui/include/ReloadPage.php',function(data) {
-    switch (data) {
-    case 'disable':
-      setTimeout(enable_stop,5000);
-    break;
-    case 'enable':
-      var stop = $('td#stop');
-      stop.html(stop.html().replace("<?=$btrfs?>",""));
-      $('input[value="_(Stop)_"]').prop('disabled',false);
-    break;}
-  });
-}
-enable_stop();
-</script>
-<?endif;?>
 
 :array_status_help:
 <?if ($var['fsState']=="Stopped"):?>
