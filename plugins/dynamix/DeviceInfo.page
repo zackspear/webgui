@@ -502,6 +502,7 @@ _(Critical disk utilization threshold)_ (%):
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
+<?$usage = exec("/sbin/btrfs fi usage /mnt/$tag|grep -Pom1 '^Data,RAID.+ \\(\\K[^)]+'");?>
 
 _(btrfs filesystem df)_:
 : <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/$tag")."</pre>"?>
@@ -514,6 +515,9 @@ _(btrfs balance status)_:
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 <input type="hidden" name="#arg[3]" value="">
+
+&nbsp;
+: &nbsp;_(Current usage ratio)_: <?=round($usage*1,1)?> % --- <?=($usage*1 <= 75) ? "_(Full Balance recommended)_" : "_(No Balance required)_"?>
 
 &nbsp;
 : <input type="submit" value="_(Balance)_">
@@ -564,7 +568,7 @@ _(btrfs balance status)_:
 _(Balance schedule)_:
 : <select name="mode" onchange="presetBTRFS(this.form,'#balance-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
-  <?=mk_option($$balance['mode'], strval($m), _($mode[$m]))?>
+  <?=mk_option($$balance['mode'], strval($m), _($mode[$m]).($m<4 ? '': ' ('._('recommended').')'))?>
   <?endfor;?>
   </select>
 
@@ -604,7 +608,7 @@ _(Time of the day)_:
   <?=mk_option($$balance['hour'], "*/8", _("Every 8 hours"))?>
   </select></span>
 
-_(Balance usage)_ (%):
+_(Block group usage)_ (%):
 : <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=$$balance['usage']?>" placeholder="30">
 
 &nbsp;
