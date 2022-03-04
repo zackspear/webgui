@@ -88,7 +88,7 @@ function prepareBTRFS(form) {
   form.hour2.disabled = true;
   if (form.usage.value != '') {
     var job = $(form).find('input[name="#job"]');
-    job.val(job.val().replace('=30','='+form.usage.value));
+    job.val(job.val().replace('=50','='+form.usage.value));
   }
 }
 <?endif;?>
@@ -563,7 +563,7 @@ _(btrfs balance status)_:
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="balance_<?=$tag?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
-<input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?> -dusage=30">
+<input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?> -dusage=50">
 <input type="hidden" name="hour" value="">
 _(Balance schedule)_:
 : <select name="mode" onchange="presetBTRFS(this.form,'#balance-hour')">
@@ -609,7 +609,7 @@ _(Time of the day)_:
   </select></span>
 
 _(Block group usage)_ (%):
-: <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=$$balance['usage']?>" placeholder="30">
+: <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=$$balance['usage']?>" placeholder="50">
 
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
