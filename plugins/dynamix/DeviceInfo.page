@@ -86,16 +86,10 @@ function prepareBTRFS(form) {
   form.min.value = mode!=1 ? form.min.value : 0;
   form.hour1.disabled = true;
   form.hour2.disabled = true;
-  for (var i=0,item; item=form.disk.options[i]; i++) {
-    if (item.selected) {
-      if (include.length) include += ',';
-      include += item.value;
-      item.selected = false;
-    }
+  if (form.usage.value != '') {
+    var job = $(form).find('input[name="#job"]');
+    job.val(job.val().replace('=30','='+form.usage.value));
   }
-  item = form.disk.options[0];
-  item.value = include;
-  item.selected = true;
 }
 <?endif;?>
 function prepareDeviceInfo(form) {
@@ -565,7 +559,7 @@ _(btrfs balance status)_:
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="balance_<?=$tag?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
-<input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?>">
+<input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?> -dusage=30">
 <input type="hidden" name="hour" value="">
 _(Balance schedule)_:
 : <select name="mode" onchange="presetBTRFS(this.form,'#balance-hour')">
@@ -609,6 +603,9 @@ _(Time of the day)_:
   <?=mk_option($$balance['hour'], "*/6", _("Every 6 hours"))?>
   <?=mk_option($$balance['hour'], "*/8", _("Every 8 hours"))?>
   </select></span>
+
+_(Balance usage)_ (%):
+: <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=$$balance['usage']?>" placeholder="30">
 
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
