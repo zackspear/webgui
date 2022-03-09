@@ -246,11 +246,56 @@ $('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
-<?
-$parity = $spot ? "<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>" : "";
-$mover = file_exists('/var/run/mover.pid') ? "<br><small>_(Disabled)_ -- _(Mover is running)_</small>" : "";
-$btrfs = exec('pgrep -cf /sbin/btrfs') ? "<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>" : "";
-?>
+
+<?if ($var['fsState']=='Started'):?>
+var mymonitor = new NchanSubscriber('/sub/mymonitor',{subscriber:'websocket'});
+mymonitor.on('message', function(state) {
+  switch (state) {
+  case '0': // normal operation
+    $('#stop-button').prop('disabled',false);
+    $('#stop-text').html("");
+<?if ($var['fsState']!="Stopped"):?>
+    $('#spinup-button').prop('disabled',false);
+    $('#spindown-button').prop('disabled',false);
+<?endif;?>
+<?if ($var['shareUser']=='e' && $pool_devices):?>
+    $('#mover-button').prop('disabled',false);
+    $('#mover-text').html("<b>_(Move)_</b> _(will immediately invoke the Mover)_.&nbsp;<a href=\"/Main/Settings/Scheduler\"<?if($tabbed):?> onclick=\"$.cookie('one','tab2',{path:'/'})\"<?endif;?>>(_(Schedule)_)</a>");
+<?endif;?>
+    break;
+  case '1': // parity running
+    $('#stop-button').prop('disabled',true);
+    $('#stop-text').html("<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>");
+<?if ($var['fsState']!="Stopped"):?>
+    $('#spinup-button').prop('disabled',true);
+    $('#spindown-button').prop('disabled',true);
+<?endif;?>
+<?if ($var['shareUser']=='e' && $pool_devices):?>
+    $('#mover-button').prop('disabled',true);
+    $('#mover-text').html("_(Disabled)_ -- _(Parity operation is running)_");
+<?endif;?>
+    break;
+  case '2': // mover running
+    $('#stop-button').prop('disabled',true);
+    $('#stop-text').html("<br><small>_(Disabled)_ -- _(Mover is running)_</small>");
+<?if ($var['shareUser']=='e' && $pool_devices):?>
+    $('#mover-button').prop('disabled',true);
+    $('#mover-text').html("_(Disabled)_ - _(Mover is running)_.");
+<?endif;?>
+    break;
+  case '3': // btrfs running
+    $('#stop-button').prop('disabled',true);
+    $('#stop-text').html("<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>");
+<?if ($var['shareUser']=='e' && $pool_devices):?>
+    $('#mover-button').prop('disabled',true);
+    $('#mover-text').html("_(Disabled)_ -- _(BTRFS operation is running)_");
+<?endif;?>
+    break;
+  }
+});
+mymonitor.start();
+<?endif;?>
+
 var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
 arraymonitor.on('message', function(state) {
   if (state==1 && !timers.arraymonitor) timers.arraymonitor = setTimeout(refresh,1250);
@@ -350,8 +395,8 @@ function formatWarning(val) {
 <?switch ($var['fsState']):
   case "Started":?>
     <tr><td><?status_indicator()?>**_(Started)_<?=(($var['startMode']=='Maintenance')?' - _(Maintenance Mode)_':'')?>**</td>
-    <td><input type="button" value="_(Stop)_" onclick="stopArray(this.form)"<?if ($parity||$mover||$btrfs):?> disabled<?endif;?>></td>
-    <td id="stop">**_(Stop)_** _(will take the array off-line)_.<?=$parity?:$mover?:$btrfs?:''?></td></tr>
+    <td><input type="button" id="stop-button" value="_(Stop)_" onclick="stopArray(this.form)"></td>
+    <td>**_(Stop)_** _(will take the array off-line)_.<span id="stop-text"></span></td></tr>
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
@@ -374,7 +419,7 @@ function formatWarning(val) {
         <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Clear)_"></td><td>**_(Clear)_** _(will start **Disk-Clear** of new data disk(s))_.</td></tr>
 <?    else:
         if ($action[0]=="check" && count($action)>1):?>
-          <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
+          <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1',{path:'/'})"<?endif;?>>(_(Schedule)_)</a>
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>_(Write corrections to parity)_</small></td></tr>
 <?      elseif ($action[0]=="check"):?>
           <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Read-Check** of all array disks)_.</td></tr>
@@ -594,7 +639,7 @@ function formatWarning(val) {
 </form>
 <?endif;?><!-- markdown fix -->
 <table markdown="1" class="array_status noshift">
- <tr><td></td><td><input type="button" id="button-up" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('up')" value="_(Spin Up)_"<?=$parity?' disabled':''?>><input type="button" id="button-down" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('down')" value="_(Spin Down)_"<?=$parity?' disabled':''?>></td>
+ <tr><td></td><td><input type="button" id="spinup-button" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('up')" value="_(Spin Up)_"><input type="button" id="spindown-button" onclick="$('[id^=button-]').prop('disabled',true);toggle_state('down')" value="_(Spin Down)_"></td>
  <td>**_(Spin Up)_** _(will immediately spin up all disks)_.<br>**_(Spin Down)_** _(will immediately spin down all disks)_.</td></tr>
  <tr><td></td><td><input type="button" value="_(Clear Stats)_" onclick="toggle_state('Clear')"></td><td>**_(Clear Stats)_** _(will immediately clear all disk statistics)_.</td></tr>
  <tr><td></td><td class="line" colspan="2"></td></tr>
@@ -602,15 +647,7 @@ function formatWarning(val) {
 <?if ($var['shareUser']=='e' && $pool_devices):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table markdown="1" class="array_status noshift">
- <tr><td></td>
-<?if (substr($var['fsState'],-3)!='ing'):?>
-<?if ($mover):?>
- <td><input type="submit" name="cmdStartMover" value="_(Move)_" disabled></td><td>_(Disabled)_ - _(Mover is running)_.</td>
-<?else:?>
- <td><input type="submit" name="cmdStartMover" value="_(Move)_"></td><td>**_(Move)_** _(will immediately invoke the Mover)_.&nbsp;&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab2',{path:'/'})"<?endif;?>>(_(Schedule)_)</a></td>
-<?endif;?>
-<?endif;?>
- </tr>
+<tr><td></td><td><input type="submit" id="mover-button" name="cmdStartMover" value="_(Move)_"></td><td id="mover-text"></td></tr>
 </table>
 </form>
 <?endif;?>
@@ -632,24 +669,6 @@ function formatWarning(val) {
 </table>
 </form>
 <!-- markdown fix --></p><?if (isset($display['sleep'])) eval('?>'.parse_file($display['sleep']))?>
-<?if ($btrfs):?>
-<script>
-function enable_stop() {
-  $.get('/webGui/include/ReloadPage.php',function(data) {
-    switch (data) {
-    case 'disable':
-      setTimeout(enable_stop,5000);
-    break;
-    case 'enable':
-      var stop = $('td#stop');
-      stop.html(stop.html().replace("<?=$btrfs?>",""));
-      $('input[value="_(Stop)_"]').prop('disabled',false);
-    break;}
-  });
-}
-enable_stop();
-</script>
-<?endif;?>
 
 :array_status_help:
 <?if ($var['fsState']=="Stopped"):?>
