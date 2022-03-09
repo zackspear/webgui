@@ -1,6 +1,3 @@
-@unraid/shared-components
-UNLICENSED
-
 @vue/cli-service
 MIT
 The MIT License (MIT)
