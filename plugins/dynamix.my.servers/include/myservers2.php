@@ -521,6 +521,7 @@
       serverdesc="<?=$var['COMMENT']?>"
       servermodel="<?=$var['SYS_MODEL']?>"
       serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"
+      show-banner-gradient="<?=$display['showBannerGradient'] ?? 'yes'?>"
       textcolor="<?=($header) ? '#'.$header : ''?>"
       theme="<?=$display['theme']?>"
       uptime="<?=1000*(time() - round(strtok(exec("cat /proc/uptime"),' ')))?>"
