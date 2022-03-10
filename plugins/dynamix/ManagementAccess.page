@@ -310,7 +310,7 @@ _(CA-signed certificate file)_:
 
 <?endif;?>
 &nbsp;
-: <button type="submit" name="changePorts" value="Provision" <?=$disabled_provision?>><?=$provisionlabel?></button><button type="submit" name="changePorts" value="Delete" <?=$disabled_delete?> >_(Delete)_</button><button type="button" onclick="updateDNS(this)" <?=$disabled_updatedns?>>_(Update DNS)_</button>
+: <button type="submit" name="changePorts" value="Provision" <?=$disabled_provision?>><?=$provisionlabel?></button><button type="submit" name="changePorts" value="Delete" <?=$disabled_delete?> >_(Delete)_</button><!-- <button type="button" onclick="updateDNS(this)" <?=$disabled_updatedns?>>_(Update DNS)_</button> -->
 
 <?if ($certPresent && $isLegacyCert):?>
 &nbsp;
