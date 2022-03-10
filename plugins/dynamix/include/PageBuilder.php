@@ -67,10 +67,11 @@ function find_pages($item) {
 }
 
 function tab_title($title,$path,$tag) {
-  global $docroot;
-  if (preg_match('/^(disk|parity)/',$title)) {
+  global $docroot,$pools;
+  $names = implode('|',array_merge(['disk','parity'],$pools));
+  if (preg_match("/^($names)/",$title)) {
     $device = strtok($title,' ');
-    $title = str_replace($device,_(my_disk($device),3),$title);
+    $title = str_replace($device,_(ucfirst(my_disk($device)),3),$title);
   }
   $title = _(parse_text($title));
   if (!$tag || substr($tag,-4)=='.png') {
