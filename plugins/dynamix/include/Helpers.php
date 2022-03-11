@@ -55,7 +55,7 @@ function my_temp($value) {
 }
 function my_disk($name,$raw=false) {
   global $display;
-  return $display['raw']||$raw ? $name : preg_replace('/(\d+)$/',' $1',$name);
+  return $display['raw']||$raw ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
   return strpos($disk['status'],'_NP')===false;
