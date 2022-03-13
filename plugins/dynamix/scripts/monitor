@@ -168,7 +168,7 @@ foreach ($disks as $disk) {
   case 'yellow':
     if ($warn!=$last) {
       if ($var['fsState']!='Stopped') {
-        $status = $name=='parity' ? "parity-sync in progress" : "drive not ready, content being reconstructed";
+        $status = $name=='parity' ? "parity-sync in progress" : " is being reconstructed and is available for normal operation";
         exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text, $status")." -d ".escapeshellarg("$info")." 2>/dev/null");
       }
       $saved[$item][$name] = $warn;
