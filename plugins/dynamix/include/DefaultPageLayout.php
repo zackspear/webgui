@@ -421,7 +421,7 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  echo "<a href='/$page' onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
+  echo "<a href='#' onclick='initab();window.location=\"/$page\"'>"._($button['Name'] ?? $page)."</a></div>";
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
@@ -662,9 +662,6 @@ defaultPage.on('message', function(msg,meta) {
 <?endif;?>
     break;
   }
-});
-defaultPage.on('error', function(code,error) {
-  swal({title:"<?=_('Nchan communication error')?>", text:"<?=_('Page will be reloaded')?>", type:"warning", html:true, confirmButtonText:"<?=_('Ok')?>"},function(){setTimeout(refresh,50);});
 });
 
 var backtotopoffset = 250;
