@@ -663,9 +663,6 @@ defaultPage.on('message', function(msg,meta) {
     break;
   }
 });
-defaultPage.on('error', function(code,error) {
-  swal({title:"<?=_('Nchan communication error')?>", text:"<?=_('Page will be reloaded')?>", type:"warning", html:true, confirmButtonText:"<?=_('Ok')?>"},function(){setTimeout(refresh,50);});
-});
 
 var backtotopoffset = 250;
 var backtotopduration = 500;
