@@ -43,8 +43,10 @@ function host_lookup_ip($host) {
   return($ip);
 }
 function rebindDisabled() {
+  global $isLegacyCert;
+  $rebindtesturl = $isLegacyCert ? "rebindtest.unraid.net" : "rebindtest.myunraid.net";
   // DNS Rebind Protection - this checks the server but clients could still have issues
-  return host_lookup_ip("rebindtest.unraid.net") == "192.168.42.42";
+  return host_lookup_ip($rebindtesturl) == "192.168.42.42";
 }
 function format_port($port) {
   return ($port != 80 && $port != 443) ? ':'.$port : '';
@@ -79,7 +81,7 @@ function generate_external_host($host, $ip) {
   return $host;
 }
 function verbose_output($httpcode, $result) {
-  global $cli, $verbose, $anon, $plgversion, $post, $var, $isRegistered, $remote, $reloadNginx, $nginx;
+  global $cli, $verbose, $anon, $plgversion, $post, $var, $isRegistered, $remote, $reloadNginx, $nginx, $isLegacyCert;
   global $remoteaccess;
   global $icon_warn, $icon_ok;
   if (!$cli || !$verbose) return;
@@ -88,7 +90,8 @@ function verbose_output($httpcode, $result) {
   echo "Unraid OS {$var['version']}".((strpos($plgversion, "base-") === false) ? " with My Servers plugin version {$plgversion}" : '').PHP_EOL;
   echo ($isRegistered) ? "{$icon_ok}Signed in to Unraid.net as {$remote['username']}".PHP_EOL : "{$icon_warn}Not signed in to Unraid.net".PHP_EOL ;
   echo "Use SSL is {$nginx['NGINX_USESSL']}".PHP_EOL;
-  echo (rebindDisabled()) ? "{$icon_ok}Rebind protection is disabled".PHP_EOL : "{$icon_warn}Rebind protection is enabled".PHP_EOL;
+  echo (rebindDisabled()) ? "{$icon_ok}Rebind protection is disabled" : "{$icon_warn}Rebind protection is enabled";
+  echo " for ".($isLegacyCert ? "unraid.net" : "myunraid.net").PHP_EOL;
   if ($post) {
     $wanip = trim(@file_get_contents("https://wanip4.unraid.net/"));
     // check the data
