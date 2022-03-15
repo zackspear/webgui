@@ -161,12 +161,18 @@ function verbose_output($httpcode, $result) {
     echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
   }
 }
-
+/**
+ * @name response_complete
+ * @param {HTTP Response Status Code} $httpcode https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+ * @param {String|Array} $result - strings are assumed to be encoded JSON. Arrays will be encoded to JSON.
+ * @param {String} $cli_success_msg
+ */
 function response_complete($httpcode, $result, $cli_success_msg='') {
   global $cli, $verbose;
+  $mutatedResult = is_array($result) ? json_encode($result) : $result;
   if ($cli) {
     if ($verbose) verbose_output($httpcode, $result);
-    $json = @json_decode($result,true);
+    $json = @json_decode($mutatedResult,true);
     if (!empty($json['error'])) {
       echo 'Error: '.$json['error'].PHP_EOL;
       exit(1);
@@ -175,7 +181,7 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   }
   header('Content-Type: application/json');
   http_response_code($httpcode);
-  exit((string)$result);
+  exit((string)$mutatedResult);
 }
 
 $cli = php_sapi_name()=='cli';
@@ -282,13 +288,13 @@ $plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg") ? trim(@exe
 
 // only proceed when when signed in or when legacy unraid.net SSL certificate exists
 if (!$isRegistered && !$isLegacyCert) {
-    response_complete(406, '{"error":"'._('Nothing to do').'"}');
+    response_complete(406, array('error' => _('Nothing to do')));
 }
 
 // keyfile
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
-  response_complete(406, '{"error":"'._('Registration key required').'"}');
+  response_complete(406, array('error' => _('Registration key required')));
 }
 $keyfile = @base64_encode($keyfile);
 
@@ -370,7 +376,7 @@ curl_close($ch);
 if ($result === false) {
   // delete cache file to retry submission on next run
   @unlink($datafile);
-  response_complete(500, '{"error":"'.$error.'"}');
+  response_complete(500, array('error' => $error));
 }
 
 response_complete($httpcode, $result, _('success'));
