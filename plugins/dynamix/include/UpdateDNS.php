@@ -43,8 +43,10 @@ function host_lookup_ip($host) {
   return($ip);
 }
 function rebindDisabled() {
+  global $isLegacyCert;
+  $rebindtesturl = $isLegacyCert ? "rebindtest.unraid.net" : "rebindtest.myunraid.net";
   // DNS Rebind Protection - this checks the server but clients could still have issues
-  return host_lookup_ip("rebindtest.unraid.net") == "192.168.42.42";
+  return host_lookup_ip($rebindtesturl) == "192.168.42.42";
 }
 function format_port($port) {
   return ($port != 80 && $port != 443) ? ':'.$port : '';
@@ -79,7 +81,7 @@ function generate_external_host($host, $ip) {
   return $host;
 }
 function verbose_output($httpcode, $result) {
-  global $cli, $verbose, $anon, $plgversion, $post, $var, $isRegistered, $remote, $reloadNginx, $nginx;
+  global $cli, $verbose, $anon, $plgversion, $post, $var, $isRegistered, $remote, $reloadNginx, $nginx, $isLegacyCert;
   global $remoteaccess;
   global $icon_warn, $icon_ok;
   if (!$cli || !$verbose) return;
@@ -88,7 +90,8 @@ function verbose_output($httpcode, $result) {
   echo "Unraid OS {$var['version']}".((strpos($plgversion, "base-") === false) ? " with My Servers plugin version {$plgversion}" : '').PHP_EOL;
   echo ($isRegistered) ? "{$icon_ok}Signed in to Unraid.net as {$remote['username']}".PHP_EOL : "{$icon_warn}Not signed in to Unraid.net".PHP_EOL ;
   echo "Use SSL is {$nginx['NGINX_USESSL']}".PHP_EOL;
-  echo (rebindDisabled()) ? "{$icon_ok}Rebind protection is disabled".PHP_EOL : "{$icon_warn}Rebind protection is enabled".PHP_EOL;
+  echo (rebindDisabled()) ? "{$icon_ok}Rebind protection is disabled" : "{$icon_warn}Rebind protection is enabled";
+  echo " for ".($isLegacyCert ? "unraid.net" : "myunraid.net").PHP_EOL;
   if ($post) {
     $wanip = trim(@file_get_contents("https://wanip4.unraid.net/"));
     // check the data
@@ -161,12 +164,18 @@ function verbose_output($httpcode, $result) {
     echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
   }
 }
-
+/**
+ * @name response_complete
+ * @param {HTTP Response Status Code} $httpcode https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+ * @param {String|Array} $result - strings are assumed to be encoded JSON. Arrays will be encoded to JSON.
+ * @param {String} $cli_success_msg
+ */
 function response_complete($httpcode, $result, $cli_success_msg='') {
   global $cli, $verbose;
+  $mutatedResult = is_array($result) ? json_encode($result) : $result;
   if ($cli) {
     if ($verbose) verbose_output($httpcode, $result);
-    $json = @json_decode($result,true);
+    $json = @json_decode($mutatedResult,true);
     if (!empty($json['error'])) {
       echo 'Error: '.$json['error'].PHP_EOL;
       exit(1);
@@ -175,7 +184,7 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   }
   header('Content-Type: application/json');
   http_response_code($httpcode);
-  exit((string)$result);
+  exit((string)$mutatedResult);
 }
 
 $cli = php_sapi_name()=='cli';
@@ -282,13 +291,13 @@ $plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg") ? trim(@exe
 
 // only proceed when when signed in or when legacy unraid.net SSL certificate exists
 if (!$isRegistered && !$isLegacyCert) {
-    response_complete(406, '{"error":"'._('Nothing to do').'"}');
+    response_complete(406, array('error' => _('Nothing to do')));
 }
 
 // keyfile
 $keyfile = @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
-  response_complete(406, '{"error":"'._('Registration key required').'"}');
+  response_complete(406, array('error' => _('Registration key required')));
 }
 $keyfile = @base64_encode($keyfile);
 
@@ -370,7 +379,7 @@ curl_close($ch);
 if ($result === false) {
   // delete cache file to retry submission on next run
   @unlink($datafile);
-  response_complete(500, '{"error":"'.$error.'"}');
+  response_complete(500, array('error' => $error));
 }
 
 response_complete($httpcode, $result, _('success'));
