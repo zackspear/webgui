@@ -973,8 +973,6 @@ This can be an image file with a specific size or a dedicated folder.
 If the system needs to create a new docker image file, this is the default size to use specified in GB.
 
 To resize an existing image file, specify the new size here. Next time the Docker service is started the file (and file system) will be increased to the new size (but never decreased).
-
-WARNING: resizing the docker image file will empty its content. Docker containers need to be re-installed afterwards.
 :end
 
 :docker_vdisk_location_help:
