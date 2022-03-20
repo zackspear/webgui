@@ -421,11 +421,7 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   echo "<div id='nav-item'";
   echo $task==$page ? " class='active'>" : ">";
-  if ($themes2) {
-    echo "<a href=\"/$page\" onclick='initab()'>"._($button['Name'] ?? $page)."</a></div>";
-  } else {
-    echo "<a href='#' onclick='initab();window.location=\"/$page\"'>"._($button['Name'] ?? $page)."</a></div>";
-  }
+  echo "<a href=\"/$page\" onclick='initab();window.location=\"/$page\"'>"._($button['Name'] ?? $page)."</a></div>";
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
