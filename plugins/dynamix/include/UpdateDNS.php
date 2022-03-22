@@ -93,7 +93,7 @@ function verbose_output($httpcode, $result) {
   echo (rebindDisabled()) ? "{$icon_ok}Rebind protection is disabled" : "{$icon_warn}Rebind protection is enabled";
   echo " for ".($isLegacyCert ? "unraid.net" : "myunraid.net").PHP_EOL;
   if ($post) {
-    $wanip = trim(@file_get_contents("https://wanip4.unraid.net/") ?: @file_get_contents("https://wanip6.unraid.net/"));
+    $wanip = trim(@file_get_contents("https://wanip4.unraid.net/"));
     // check the data
     $certhostname = $nginx['NGINX_CERTNAME'];
     if ($certhostname) {
@@ -331,7 +331,7 @@ if ($isRegistered) {
   }
   if ($remoteaccess == 'yes') {
     // include wanip in the cache file so we can track if it changes
-    $post['_wanip'] = trim(@file_get_contents("https://wanip4.unraid.net/") ?: @file_get_contents("https://wanip6.unraid.net/"));
+    $post['_wanip'] = trim(@file_get_contents("https://wanip4.unraid.net/"));
     $post['externalhostname'] = $externalhostname;
     $post['externalport'] = $externalport;
     $post['externalprotocol'] = $externalprotocol;
@@ -345,7 +345,7 @@ if ($post['_wanip'] && ($post['_wanip'] != $nginx['NGINX_WANIP']) && version_com
 // if remoteaccess is currently disabled (perhaps because a wanip was not available when nginx was started)
 //    BUT the system is configured to have it enabled AND a wanip is now available
 //    then reload nginx
-if ($remoteaccess == 'no' && $nginx['NGINX_WANACCESS'] == 'yes' && !empty(trim(@file_get_contents("https://wanip4.unraid.net/") ?: @file_get_contents("https://wanip6.unraid.net/")))) $reloadNginx = true;
+if ($remoteaccess == 'no' && $nginx['NGINX_WANACCESS'] == 'yes' && !empty(trim(@file_get_contents("https://wanip4.unraid.net/")))) $reloadNginx = true;
 if ($reloadNginx) {
   exec("/etc/rc.d/rc.nginx reload &>/dev/null");
 }
