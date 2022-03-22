@@ -157,34 +157,34 @@ function refresh(top) {
     for (var i=0,link; link=document.getElementsByTagName('a')[i]; i++) { link.style.color = "gray"; } //fake disable
     location.reload();
   } else {
-    $.cookie('top',top,{path:'/'});
+    $.cookie('top',top);
     location.reload();
   }
 }
 function initab() {
-  $.removeCookie('one',{path:'/'});
-  $.removeCookie('tab',{path:'/'});
+  $.removeCookie('one');
+  $.removeCookie('tab');
 }
 function settab(tab) {
 <?switch ($myPage['name']):?>
 <?case'Main':?>
-  $.cookie('tab',tab,{path:'/'});
+  $.cookie('tab',tab);
 <?if ($var['fsState']=='Started'):?>
-  $.cookie('one','tab1',{path:'/'});
+  $.cookie('one','tab1');
 <?endif;?>
 <?break;?>
 <?case'Cache':case'Data':case'Flash':case'Parity':?>
-  $.cookie('one',tab,{path:'/'});
+  $.cookie('one',tab);
 <?break;?>
 <?default:?>
-  $.cookie(($.cookie('one')==null?'tab':'one'),tab,{path:'/'});
+  $.cookie(($.cookie('one')==null?'tab':'one'),tab);
 <?endswitch;?>
 }
 function done(key) {
   var url = location.pathname.split('/');
   var path = '/'+url[1];
   if (key) for (var i=2; i<url.length; i++) if (url[i]==key) break; else path += '/'+url[i];
-  $.removeCookie('one',{path:'/'});
+  $.removeCookie('one');
   location.replace(path);
 }
 function chkDelete(form, button) {
@@ -266,7 +266,7 @@ function addBannerWarning(text,warning=true,noDismiss=false) {
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true",{expires:365,path:'/'});
+  $.cookie(cookieText,"true",{expires:365});
   removeBannerWarning(entry);
 }
 
@@ -318,9 +318,9 @@ function showUpgrade(text,noDismiss=false) {
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
   if (set)
-    $.cookie('os_upgrade','true',{path:'/'});
+    $.cookie('os_upgrade','true');
   else
-    $.removeCookie('os_upgrade',{path:'/'});
+    $.removeCookie('os_upgrade');
 }
 function openUpgrade() {
   hideUpgrade();
@@ -506,7 +506,7 @@ foreach ($pages as $page) {
         if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
         $icon = "<i class='fa $icon PanelIcon'></i>";
       }
-      echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1',{path:'/'})\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
+      echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1')\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
     }
   }
   // create list of nchan scripts to be started
@@ -715,7 +715,7 @@ $(function() {
   });
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
-  $.removeCookie('top',{path:'/'});
+  $.removeCookie('top');
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
