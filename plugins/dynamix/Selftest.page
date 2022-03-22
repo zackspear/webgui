@@ -108,7 +108,7 @@ function startShortTest() {
     $.post('/webGui/include/SmartInfo.php',{cmd:'short',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){timers.testUpdate = setTimeout(testUpdate,0);});
   } else {
     clearTimeout(timers.testUpdate);
-    $.removeCookie('test.<?=addslashes(htmlspecialchars($dev))?>);
+    $.removeCookie('test.<?=addslashes(htmlspecialchars($dev))?>');
     $.post('/webGui/include/SmartInfo.php',{cmd:'stop',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'},function(){setTimeout(testUpdate,0);});
   }
 }
