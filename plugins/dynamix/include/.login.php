@@ -31,6 +31,12 @@ function fileWrite($file, $text) {
         fclose($fp);
     }
 }
+function isValidTimeStamp($timestamp)
+{
+    return ((string) (int) $timestamp === $timestamp) 
+        && ($timestamp <= PHP_INT_MAX)
+        && ($timestamp >= ~PHP_INT_MAX);
+}
 
 $maxfails = 3;
 $cooldown = 15*60;
@@ -44,16 +50,16 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
     $fails = explode("\n", trim($failtext));
     $time = time();
 
-    // remove entries older than $cooldown minutes
+    // remove entries older than $cooldown minutes, and entries that are not timestamps
     $updatefails = false;
     foreach ((array) $fails as $key => $value) {
-        if ($value && $time - $value > $cooldown) {
+        if ( !isValidTimeStamp($value) || ($time - $value > $cooldown) || ($value > $time) ) {
             unset ($fails[$key]);
             $updatefails = true;
         }
     }
     if ($updatefails) {
-        $failtext = implode("\n", $fails);
+        $failtext = implode("\n", $fails)."\n";
         fileWrite($failfile, $failtext);
     }
 
