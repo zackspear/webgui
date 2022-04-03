@@ -185,7 +185,7 @@ foreach ($vms as $vm) {
         $prevnamemac = $ipnamemac ;
         }
     }
-  } else echo "<tr><td>"._('Guest not running or guest agent not install')."</td><td></td><td></td><td></td></tr>";
+  } else echo "<tr><td>"._('Guest not running or guest agent not installed')."</td><td></td><td></td><td></td></tr>";
   
   echo "</tbody></table>";
   echo "</td></tr>";
