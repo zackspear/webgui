@@ -166,23 +166,25 @@ foreach ($vms as $vm) {
   }
 
   /* Display VM  IP Addresses "execute":"guest-network-get-interfaces" --pretty */
-  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('IP Interfaces')."</b></th><th>"._('Type')."</th><th>"._('IP')."</th><th>"._('Prefix')."</th></tr></thead>";
+  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('IP Interfaces')."</b></th><th>"._('Type')."</th><th>"._('IP')."</th><th>"._('Prefix')."</th></tr></thead>";
   $ip=$lv->domain_qemu_agent_command($res, '{"execute":"guest-network-get-interfaces"}', 10, 0) ;
   if ($ip != false) { 
     $ip=json_decode($ip,true) ; 
     $ip=$ip["return"] ; 
+    $duplicates = []; // hide duplicate interface names
     foreach ($ip as $arrIP) {
       $ipname = $arrIP["name"] ;
+      if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
       $iphdwadr = $arrIP["hardware-address"] == "" ?  _("N/A") : $arrIP["hardware-address"] ;
       $iplist = $arrIP["ip-addresses"] ;
       foreach ($iplist as $arraddr) {
         $ipaddrval = $arraddr["ip-address"] ;
+        if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
         $iptype= $arraddr["ip-address-type"] ;
         $ipprefix =$arraddr["prefix"] ;
         $ipnamemac = "$ipname($iphdwadr)" ;
-        if ($ipnamemac == $prevnamemac) $ipnamemac = " " ;
+        if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
         echo "<tr><td>$ipnamemac</td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
-        $prevnamemac = $ipnamemac ;
         }
     }
   } else echo "<tr><td>"._('Guest not running or guest agent not installed')."</td><td></td><td></td><td></td></tr>";
