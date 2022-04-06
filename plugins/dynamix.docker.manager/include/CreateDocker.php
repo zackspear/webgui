@@ -14,7 +14,7 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-libxml_use_internal_errors(false); # Enable xml errors
+libxml_use_internal_errors(true); # Enable xml errors
 
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
