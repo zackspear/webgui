@@ -44,7 +44,6 @@ th.load{width:140px}
 input.wait{width:24px;margin:0 4px;padding:0 5px;border:none;box-shadow:none;background-color:transparent}
 table tbody td{line-height:normal}
 </style>
-<span class="status" style="margin-top:<?=$width?>px"><span><input type="checkbox" class="advancedview"></span></span>
 <table id="docker_containers" class="tablesorter shift">
 <thead><tr><th><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Uptime)_</th><th></th></tr></thead>
 <tbody id="docker_list"><tr><td colspan='9'></td></tr></tbody>
@@ -158,6 +157,7 @@ dockerload.on('message', function(msg){
   }
 });
 $(function() {
+  $(".tabs").append('<span class="status"><span><input type="checkbox" class="advancedview"></span></span>');
   $('.advancedview').switchButton({labels_placement:'left', on_label:"_(Advanced View)_", off_label:"_(Basic View)_", checked:$.cookie('docker_listview_mode')=='advanced'});
   $('.advancedview').change(function(){
     $('.advanced').toggle('slow');
