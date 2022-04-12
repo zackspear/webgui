@@ -51,7 +51,7 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
-function wgQuick($vtun,$state) {
+function wgState($vtun,$state) {
   global $t1;
   exec("timeout $t1 wg-quick $state $vtun 2>/dev/null");
 }
@@ -319,22 +319,22 @@ case 'update':
   parseInput($_POST,$x);
   addPeer($x);
   addDocker($vtun);
-  wgQuick($vtun,'down');
+  wgState($vtun,'down');
   file_put_contents($file,implode("\n",$conf)."\n");
   file_put_contents($cfg,implode("\n",$user)."\n");
   createPeerFiles($vtun);
-  if ($wg) wgQuick($vtun,'up');
+  if ($wg) wgState($vtun,'up');
   $save = false;
   break;
 case 'toggle':
   $vtun = $_POST['#vtun'];
   switch ($_POST['#wg']) {
   case 'stop':
-    wgQuick($vtun,'down');
+    wgState($vtun,'down');
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
-    wgQuick($vtun,'up');
+    wgState($vtun,'up');
     echo status($vtun) ? 0 : 1;
     break;
   }
@@ -358,7 +358,7 @@ case 'addtunnel':
   $vtun = vtun();
   $name = $_POST['#name'];
   touch("$etc/$vtun.conf");
-  wgQuick($vtun,'down');
+  wgState($vtun,'down');
   delete_file("$etc/$vtun.cfg");
   delPeer($vtun);
   autostart('off',$vtun);
@@ -366,7 +366,7 @@ case 'addtunnel':
 case 'deltunnel':
   $vtun = $_POST['#vtun'];
   $name = $_POST['#name'];
-  wgQuick($vtun,'down');
+  wgState($vtun,'down');
   delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
   delPeer($vtun);
   delDocker($vtun);
