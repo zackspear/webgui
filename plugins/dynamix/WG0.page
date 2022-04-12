@@ -59,7 +59,7 @@ function readConf(&$peer_wg,&$wg,$vtun) {
   $conf = "$etc/$vtun.conf";
   $cfg  = "$etc/$vtun.cfg";
   $file = $vpn = false;
-  if (file_exists($conf) && filesize($conf)>0) {
+  if (file_exists($conf) && filesize($conf) > 0) {
     $entries = array_filter(array_map('trim',preg_split('/\[(Interface|Peer)\]/',file_get_contents($conf))));
     foreach ($entries as $key => $entry) {
       $i = $key-1;
@@ -280,10 +280,10 @@ if (!HTMLInputElement.prototype.reportValidity || (navigator.userAgent.indexOf("
 }
 
 function ipv4(ip) {
-  return ip.indexOf('.')>0;
+  return ip.indexOf('.') > 0;
 }
 function ipv6(ip) {
-  return ip.indexOf(':')>0;
+  return ip.indexOf(':') > 0;
 }
 function ipset(ip) {
   return ipv4(ip) ? ip : '['+ip+']';
@@ -451,13 +451,13 @@ function prepareSettings(form,vtun) {
   }
   switch (protocol) {
   case '46':
-    if (ip4.length>0) {
+    if (ip4.length > 0) {
       postup1.push(postup3);
       postup1.push(ip4);
       postup1.push(postupZ.patch(source));
       postdown1.push(postdown3);
     }
-    if (ip6.length>0) {
+    if (ip6.length > 0) {
       postup16.push(postup36);
       postup16.push(ip6);
       postup16.push(postupZ6.patch(source6));
@@ -469,7 +469,7 @@ function prepareSettings(form,vtun) {
     postdown.val(postdown1.bind(vtun));
     break;
   case '6':
-    if (ip6.length>0) {
+    if (ip6.length > 0) {
       postup16.push(postup36);
       postup16.push(ip6);
       postup16.push(postupZ6.patch(source6));
@@ -479,7 +479,7 @@ function prepareSettings(form,vtun) {
     postdown.val(postdown16.bind(vtun));
     break;
   default:
-    if (ip4.length>0) {
+    if (ip4.length > 0) {
       postup1.push(postup3);
       postup1.push(ip4);
       postup1.push(postupZ.patch(source));
@@ -578,12 +578,12 @@ function addPeer(form,vtun) {
     $(this).attr('id','helpinfo'+i);
     var pin = $(this).prev();
     if (!pin.prop('nodeName')) pin = $(this).parent().prev();
-    while (pin.prop('nodeName') && pin.prop('nodeName').search(/(table|dl)/i)==-1) pin = pin.prev();
+    while (pin.prop('nodeName') && pin.prop('nodeName').search(/(table|dl)/i) == -1) pin = pin.prev();
     pin.find('tr:first,dt:last').each(function() {
       var node = $(this);
       var name = node.prop('nodeName').toLowerCase();
       if (name=='dt') {
-        while (!node.html() || node.html().search(/(<input|<select|nbsp;)/i)>=0 || name!='dt') {
+        while (!node.html() || node.html().search(/(<input|<select|nbsp;)/i) >= 0 || name!='dt') {
           if (name=='dt' && node.is(':first-of-type')) break;
           node = node.prev();
           name = node.prop('nodeName').toLowerCase();
@@ -861,12 +861,12 @@ function setAllow(form,subnet,i) {
   var prot = form.find('select[name="PROT:0"]').val();
   if (type!='7') {
     var list = input.val().replace(/ +/g,'').split(',');
-    var n = prot=='46' ? 0 : (list.length>1 ? 2 : 1);
+    var n = prot=='46' ? 0 : (list.length > 1 ? 2 : 1);
     list.splice(0,n);
     list.unshift(subnet);
     list = [...new Set(list)];
     list = list.filter(nodefault);
-    if (n>0) list = list.filter(ipv4);
+    if (n > 0) list = list.filter(ipv4);
   } else {
     var list = prot!='46' ? ['0.0.0.0/0'] : ['0.0.0.0/0','::/0'];
   }
@@ -879,12 +879,12 @@ function setAllow6(form,subnet6,i) {
   var prot = form.find('select[name="PROT:0"]').val();
   if (type!='7') {
     var list = input.val().replace(/ +/g,'').split(',');
-    var n = prot=='46' ? 0 : (list.length>1 ? 2 : 1);
+    var n = prot=='46' ? 0 : (list.length > 1 ? 2 : 1);
     list.splice(0,n);
     list.unshift(subnet6);
     list = [...new Set(list)];
     list = list.filter(nodefault6);
-    if (n>0) list = list.filter(ipv6);
+    if (n > 0) list = list.filter(ipv6);
   } else {
     var list = prot!='46' ? ['::/0'] : ['0.0.0.0/0','::/0'];
   }
@@ -1126,9 +1126,9 @@ $(function(){
     var wg = $('#toggle-wg0').is(':checked') ? 'start' : 'stop';
     $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':wg,'#vtun':'wg0'},function(ok){
       if (wg=='start') {
-        if (ok) tstate['wg0']='active'; else $('#toggle-wg0').switchButton({checked:false});
+        if (ok==0) tstate['wg0']='active'; else $('#toggle-wg0').switchButton({checked:false});
       } else {
-        if (ok) tstate['wg0']=''; else $('#toggle-wg0').switchButton({checked:true});
+        if (ok==0) tstate['wg0']=''; else $('#toggle-wg0').switchButton({checked:true});
       }
 <?if ($wg0['UPNP:0']===''):?>
       $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wg0','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':tstate['wg0']},function(data){$('span.upnp.wg0').text(data);});

@@ -24,8 +24,8 @@ $validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]
 $validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint'];
 
-$t1 = '6';  // 6 sec timeout
-$t2 = '12'; // 12 sec timeout
+$t1 = '10'; // 10 sec timeout
+$t2 = '15'; // 15 sec timeout
 
 function mask2cidr($mask) {
   $long = ip2long($mask);
@@ -33,7 +33,7 @@ function mask2cidr($mask) {
   return 32-log(($long ^ $base)+1,2);
 }
 function ipv4($ip) {
-  return strpos($ip,'.')!==false;
+  return strpos($ip,':')===false;
 }
 function ipv6($ip) {
   return strpos($ip,':')!==false;
@@ -51,18 +51,22 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
+function wgQuick($vtun,$state) {
+  global $t1;
+  exec("timeout $t1 wg-quick $state $vtun 2>/dev/null");
+}
 function status($vtun) {
-  return strpos(exec("wg show interfaces|tr '\n' ' '"),"$vtun ")===false;
+  return in_array($vtun,explode("\n",shell_exec("wg show interfaces")));
 }
 function vtun() {
   global $etc;
   $x = 0; while (file_exists("$etc/wg{$x}.conf")) $x++;
   return "wg{$x}";
 }
-function normalize($id) {
+function normalize(&$id) {
   // ensure correct capitalization of keywords, some VPN providers use the wrong case
   global $normalize;
-  return $normalize[strtolower($id)];
+  $id = $normalize[strtolower($id)];
 }
 function addDocker($vtun) {
   // create a docker network for the WG tunnel. Containers can select to this network for communication
@@ -83,7 +87,7 @@ function delDocker($vtun) {
 function delPeer($vtun, $id='') {
   global $etc,$name;
   $dir = "$etc/peers";
-  foreach (glob("$dir/peer-$name-$vtun-$id*",GLOB_NOSORT) as $peer) unlink($peer);
+  foreach (glob("$dir/peer-$name-$vtun-$id*",GLOB_NOSORT) as $peer) delete_file($peer);
 }
 function addPeer(&$x) {
   global $peers,$var;
@@ -160,7 +164,7 @@ function createPeerFiles($vtun) {
     }
   }
   // store the peer names which are updated
-  if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else @unlink($tmp);
+  if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
 function parseInput(&$input,&$x) {
   global $conf,$user,$var,$default,$default6,$vpn;
@@ -213,7 +217,7 @@ function parseInput(&$input,&$x) {
       }
       break;
     case 'DNS':
-      if ($i>0 && $value) {
+      if ($i > 0 && $value) {
         $user[] = "$id:$x=\"$value\"";
         $var['dns'] = "$id=$value";
       } else $var['dns'] = false;
@@ -314,29 +318,30 @@ case 'update':
   $x = 1; $vpn = false;
   parseInput($_POST,$x);
   addPeer($x);
-  exec("wg-quick down $vtun 2>/dev/null");
+  addDocker($vtun);
+  wgQuick($vtun,'down');
   file_put_contents($file,implode("\n",$conf)."\n");
   file_put_contents($cfg,implode("\n",$user)."\n");
   createPeerFiles($vtun);
-  if ($wg) exec("wg-quick up $vtun >/dev/null");
+  if ($wg) wgQuick($vtun,'up');
   $save = false;
   break;
 case 'toggle':
   $vtun = $_POST['#vtun'];
   switch ($_POST['#wg']) {
   case 'stop':
-    exec("timeout $t1 wg-quick down $vtun 2>/dev/null");
+    wgQuick($vtun,'down');
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
-    exec("timeout $t1 wg-quick up $vtun 2>/dev/null");
+    wgQuick($vtun,'up');
     echo status($vtun) ? 0 : 1;
     break;
   }
   break;
 case 'ping':
   $addr = $_POST['#addr'];
-  echo exec("ping -qc1 -W4 $addr|grep -Po '1 received'");
+  echo exec("ping -qc1 -W4 $addr|grep -Pom1 '1 received'");
   break;
 case 'public':
   $ip = $_POST['#ip'];
@@ -353,18 +358,16 @@ case 'addtunnel':
   $vtun = vtun();
   $name = $_POST['#name'];
   touch("$etc/$vtun.conf");
-  exec("wg-quick down $vtun 2>/dev/null");
-  @unlink("$etc/$vtun.cfg");
+  wgQuick($vtun,'down');
+  delete_file("$etc/$vtun.cfg");
   delPeer($vtun);
-  addDocker($vtun);
   autostart('off',$vtun);
   break;
 case 'deltunnel':
   $vtun = $_POST['#vtun'];
   $name = $_POST['#name'];
-  exec("wg-quick down $vtun 2>/dev/null");
-  @unlink("$etc/$vtun.conf");
-  @unlink("$etc/$vtun.cfg");
+  wgQuick($vtun,'down');
+  delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
   delPeer($vtun);
   delDocker($vtun);
   autostart('off',$vtun);
@@ -378,9 +381,9 @@ case 'import':
     foreach (explode("\n",$entry) as $row) {
       if (ltrim($row)[0]!='#') {
         [$id,$data] = array_map('trim',my_explode('=',$row));
-        $id = normalize($id);
+        normalize($id);
         $import["$id:$i"] = $data;
-      } elseif ($i>=0) {
+      } elseif ($i >= 0) {
         $import["Name:$i"] = substr(trim($row),1);
       }
     }
@@ -390,12 +393,12 @@ case 'import':
   $import['NAT:0'] = 'no';
   [$subnet,$mask] = my_explode('/',$import['Address:0']);
   if (ipv4($subnet)) {
-    $mask = ($mask>0 && $mask<32) ? $mask : 24;
+    $mask = ($mask > 0 && $mask < 32) ? $mask : 24;
     $import['Network:0'] = long2ip(ip2long($subnet) & (0x100000000-2**(32-$mask))).'/'.$mask;
     $import['Address:0'] = $subnet;
     $import['PROT:0'] = '';
   } else {
-    $mask = ($mask>0 && $mask<128) ? $mask : 64;
+    $mask = ($mask > 0 && $mask < 128) ? $mask : 64;
     $import['Network6:0'] = strstr($subnet,'::',true).'::/'.$mask;
     $import['Address:0'] = $subnet;
     $import['PROT:0'] = '6';

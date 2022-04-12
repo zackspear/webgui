@@ -3,8 +3,8 @@ Title="Tunnel wgX"
 Tag="icon-vpn"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -24,7 +24,7 @@ $netpool6['wgX'] = str_replace(':0:0:',':XXX:0:',$netpool6['wg0']);
 $netport['wgX']  = $netport['wg0']+XXX;
 
 // read current configuration
-[$conf_wgX,$cfg_wgX,$this_wgX,$vpn_wgX] = readConf($peer_wgX,$wgX,'wgX');
+[$conf_wgX, $cfg_wgX, $this_wgX, $vpn_wgX] = readConf($peer_wgX, $wgX, 'wgX');
 ?>
 <script>
 netbase['wgX'] = <?=$netbase['wgX']?>;
@@ -56,9 +56,9 @@ $(function(){
     var wg = $('#toggle-wgX').is(':checked') ? 'start' : 'stop';
     $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':wg,'#vtun':'wgX'},function(ok){
       if (wg=='start') {
-        if (ok) tstate['wgX']='active'; else $('#toggle-wgX').switchButton({checked:false});
+        if (ok==0) tstate['wgX']='active'; else $('#toggle-wgX').switchButton({checked:false});
       } else {
-        if (ok) tstate['wgX']=''; else $('#toggle-wgX').switchButton({checked:true});
+        if (ok==0) tstate['wgX']=''; else $('#toggle-wgX').switchButton({checked:true});
       }
 <?if ($wgX['UPNP:0']===''):?>
       $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wgX','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':tstate['wgX']},function(data){$('span.upnp.wgX').text(data);});
@@ -105,11 +105,11 @@ $(function(){
   setProtocol(form,'wgX');
   form.find('input[name^="Address:"]').each(function(){
     var i = $(this).attr('name').split(':')[1];
-    if (i>0) $(this).on('input change',function(){form.find('#ping-button1-'+i).prop('disabled',$(this).val()=='');});
+    if (i > 0) $(this).on('input change',function(){form.find('#ping-button1-'+i).prop('disabled',$(this).val()=='');});
   });
   form.find('input[name^="Address6:"]').each(function(){
     var i = $(this).attr('name').split(':')[1];
-    if (i>0) $(this).on('input change',function(){form.find('.ping-button6-'+i).prop('disabled',$(this).val()=='');});
+    if (i > 0) $(this).on('input change',function(){form.find('.ping-button6-'+i).prop('disabled',$(this).val()=='');});
   });
   form.find('input[name^="gui:Endpoint:"]').each(function(){
     var i = $(this).attr('name').split(':')[2];
