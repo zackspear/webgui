@@ -166,7 +166,7 @@ function createPeerFiles($vtun) {
   // store the peer names which are updated
   if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
-function parseInput(&$input,&$x) {
+function parseInput(&$input,&$x,$vtun) {
   global $conf,$user,$var,$default,$default6,$vpn;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
@@ -176,7 +176,7 @@ function parseInput(&$input,&$x) {
       if ($section==0) {
         // add WG routing for docker containers. Only IPv4 supported
         extract(parse_ini_file('state/network.ini',true));
-        $index   = $x+199;
+        $index   = substr($vtun,2)+200;
         $network = "172.31.$index.0/24";
         $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
         $gateway = $eth0['GATEWAY:0'];
@@ -316,7 +316,7 @@ case 'update':
   $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
   $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
   $x = 1; $vpn = false;
-  parseInput($_POST,$x);
+  parseInput($_POST,$x,$vtun);
   addPeer($x);
   addDocker($vtun);
   wgState($vtun,'down');
@@ -417,9 +417,9 @@ case 'import':
   $conf = ['[Interface]'];
   $var['default'] = $import['PROT:0']=='' ? "AllowedIPs=$default" : "AllowedIPs=$default6";
   $var['internet'] = "Endpoint=unknown";
-  parseInput($import,$x);
-  addPeer($x);
   $vtun = vtun();
+  parseInput($import,$x,$vtun);
+  addPeer($x);
   file_put_contents("$etc/$vtun.conf",implode("\n",$conf)."\n");
   file_put_contents("$etc/$vtun.cfg",implode("\n",$user)."\n");
   delPeer($vtun);
