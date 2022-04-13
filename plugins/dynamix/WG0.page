@@ -54,11 +54,12 @@ function iflink($eth) {
 function concat($array) {
   return implode(',',array_map(function($v){return "'$v'";},$array));
 }
-function readConf(&$peer_wg,&$wg,$vtun) {
+function readConf(&$peer_wg, &$wg, $vtun) {
   global $etc,$netbase,$netpool,$netbase6,$netpool6,$validIP4,$validIP6;
   $conf = "$etc/$vtun.conf";
   $cfg  = "$etc/$vtun.cfg";
-  $file = $vpn = false;
+  $file = false;
+  $vpn  = 0;
   if (file_exists($conf) && filesize($conf) > 0) {
     $entries = array_filter(array_map('trim',preg_split('/\[(Interface|Peer)\]/',file_get_contents($conf))));
     foreach ($entries as $key => $entry) {
@@ -121,8 +122,8 @@ function readConf(&$peer_wg,&$wg,$vtun) {
     $netbase[$vtun] = ip2long($netpool[$vtun]);
     $netbase6[$vtun] = $netpool6[$vtun];
   }
-  foreach ($peer_wg as $i) if ((int)$wg["TYPE:$i"]==7) {$vpn = true; break;}
-  return [$conf,$cfg,$file,$vpn];
+  foreach ($peer_wg as $i) if ($wg["TYPE:$i"]>=7) {$vpn = $wg["TYPE:$i"]; break;}
+  return [$conf, $cfg, $file, $vpn];
 }
 $public    = $nginx['NGINX_WANFQDN'];
 $active    = (array)explode(' ',exec('wg show interfaces'));
@@ -323,7 +324,7 @@ function prepareSettings(form,vtun) {
   var mypool = netpool[vtun];
   var network6 = form.find('input[name="gui:Network6:0"]').val();
   var mypool6 = netpool6[vtun];
-  var vpn = false;
+  var vpn = 0;
   form.find('input[name="Network:0"]').val((network||mypool)+'/'+(form.find('input[name="gui:Mask:0"]').val()||24));
   form.find('input[name="Network6:0"]').val((network6||mypool6)+'/'+(form.find('input[name="gui:Mask6:0"]').val()||64));
   form.find('input[name^="Address:"]').each(function(){
@@ -356,8 +357,8 @@ function prepareSettings(form,vtun) {
     form.find('input[name="#shared2"]').val(form.find('input[name="Network:0"]').val()+', '+hosts);
     break;
   }
-  form.find('select[name^="TYPE:"]').each(function(){if($(this).val()==7){vpn=true;return false};});
-  if (!vpn) form.find('input[name="ListenPort:0"]').val(listen);
+  form.find('select[name^="TYPE:"]').each(function(){if($(this).val()>=7){vpn=$(this).val();return false};});
+  if (vpn==0) form.find('input[name="ListenPort:0"]').val(listen);
   form.find('input[name^="gui:Endpoint:"]').each(function(){
     var i = $(this).attr('name').split(':')[2];
     var endpoint = form.find('input[name="Endpoint:'+i+'"]');
@@ -377,7 +378,7 @@ function prepareSettings(form,vtun) {
 <?if (!is_executable('/usr/bin/upnpc')):?>
   upnp.val('no');
 <?endif;?>
-  if (!xml||vpn||upnp.val()=='no') {
+  if (!xml||vpn > 0||upnp.val()=='no') {
     postup.prop('disabled',true);
     postdown.prop('disabled',true);
   } else {
@@ -489,6 +490,10 @@ function prepareSettings(form,vtun) {
     postdown.val(postdown1.bind(vtun));
     break;
   }
+  $('div[id^="index-wg0-"]').each(function(){
+    var temp = $(this).find('select[name^="TYPE:"]').val();
+    if (temp >= 7) form.find('input[name="#type"]').val(temp);
+  });
   if (!postup.val()) postup.prop('disabled',true);
   if (!postdown.val()) postdown.prop('disabled',true);
 }
@@ -650,6 +655,7 @@ function updatePeer(form,i,n,vtun) {
     form.find('input[name="DNS:'+i+'"]').attr('placeholder',"(_(optional)_)").removeAttr('required');
     break;
   }
+  form.find('#addpeer-'+vtun).prop('disabled',n>=7);
   var subnet = form.find('input[name="Address:'+i+'"]').val();
   var subnet6 = form.find('input[name="Address6:'+i+'"]').val();
   switch (protocol) {
@@ -859,7 +865,7 @@ function setAllow(form,subnet,i) {
   var input = form.find('input[name="AllowedIPs:'+i+'"]');
   var type = form.find('select[name="TYPE:'+i+'"]').val();
   var prot = form.find('select[name="PROT:0"]').val();
-  if (type!='7') {
+  if (type < 7) {
     var list = input.val().replace(/ +/g,'').split(',');
     var n = prot=='46' ? 0 : (list.length > 1 ? 2 : 1);
     list.splice(0,n);
@@ -877,7 +883,7 @@ function setAllow6(form,subnet6,i) {
   var input = form.find('input[name="AllowedIPs:'+i+'"]');
   var type = form.find('select[name="TYPE:'+i+'"]').val();
   var prot = form.find('select[name="PROT:0"]').val();
-  if (type!='7') {
+  if (type < 7) {
     var list = input.val().replace(/ +/g,'').split(',');
     var n = prot=='46' ? 0 : (list.length > 1 ? 2 : 1);
     list.splice(0,n);
@@ -911,19 +917,19 @@ function highlight(form,input,i) {
 }
 function showRemark(form) {
   var upnp = form.find('select[name="UPNP:0"]').val();
-  var vpn = false;
-  form.find('select[name^="TYPE:"]').each(function(){vpn |= $(this).val()=='7';});
-  if (upnp=='' || vpn) form.find('span.remark').hide(); else form.find('span.remark').show();
-  if (upnp=='' && !vpn) form.find('span.upnp').show(); else form.find('span.upnp').hide();
+  var vpn = 0;
+  form.find('select[name^="TYPE:"]').each(function(){if ($(this).val()>=7 && vpn==0) vpn = $(this).val();});
+  if (upnp=='' || vpn > 0) form.find('span.remark').hide(); else form.find('span.remark').show();
+  if (upnp=='' && vpn < 7) form.find('span.upnp').show(); else form.find('span.upnp').hide();
 }
 function showRoute(form,vtun,i) {
   var nat = form.find('select[name="NAT:0"]').val();
-  var vpn = false, lan = false;
+  var vpn = 0, lan = false;
   form.find('select[name^="TYPE:"]').each(function(){
-    vpn |= $(this).val()=='7';
-    lan |= $(this).val()=='6' || $(this).val() % 2;
+    if ($(this).val()>=7 && vpn==0) vpn = $(this).val();
+    else lan |= $(this).val()=='6' || $(this).val() % 2;
   });
-  if (nat=='no' && !vpn && lan) {
+  if (nat=='no' && vpn==0 && lan) {
     $('span#my-static1-'+vtun).show();
     $('span#my-static2-'+vtun).hide();
   } else {
@@ -934,7 +940,7 @@ function showRoute(form,vtun,i) {
 }
 function showAccess(form,i,n) {
   switch (n) {
-    case '0': 
+    case '0':
       switch (form.find('select[name="PROT:0"]').val()) {
         case '6' : var peer_addr = form.find('input[name="Address6:0"]').val()+"</b>"; break;
         case '46': var peer_addr = form.find('input[name="Address:0"]').val()+"</b> _(or)_ <b>"+form.find('input[name="Address6:0"]').val()+"</b>"; break;
@@ -956,6 +962,7 @@ function showAccess(form,i,n) {
       break;
     case '5': form.find('span#access-type-'+i).html("_(Remark)_: _(ensure the peer networks are different from)_ <b><?=exec("ip -4 route show dev $link scope link|awk '{print \$1;exit}'")?></b>"); break;
     case '7': form.find('span#access-type-'+i).html("_(Remark)_: _(this must be the only peer in the tunnel and sole active tunnel when in use)_"); break;
+    case '8': form.find('span#access-type-'+i).html("_(Remark)_: _(VPN tunnel for docker containers only)_"); break;
   }
 }
 function portRemark(form,vtun,val) {
@@ -1124,7 +1131,12 @@ $(function(){
     e.preventDefault();
     e.stopPropagation();
     var wg = $('#toggle-wg0').is(':checked') ? 'start' : 'stop';
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':wg,'#vtun':'wg0'},function(ok){
+    var type = 0;
+    $('div[id^="index-wg0-"]').each(function(){
+      var temp = $(this).find('select[name^="TYPE:"]').val();
+      if (temp >= 7 && type==0) type = temp;
+    });
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'toggle','#wg':wg,'#vtun':'wg0','#type':type},function(ok){
       if (wg=='start') {
         if (ok==0) tstate['wg0']='active'; else $('#toggle-wg0').switchButton({checked:false});
       } else {
@@ -1175,11 +1187,11 @@ $(function(){
   setProtocol(form,'wg0');
   form.find('input[name^="Address:"]').each(function(){
     var i = $(this).attr('name').split(':')[1];
-    if (i>0) $(this).on('input change',function(){form.find('.ping-button1-'+i).prop('disabled',$(this).val()=='');});
+    if (i > 0) $(this).on('input change',function(){form.find('.ping-button1-'+i).prop('disabled',$(this).val()=='');});
   });
   form.find('input[name^="Address6:"]').each(function(){
     var i = $(this).attr('name').split(':')[1];
-    if (i>0) $(this).on('input change',function(){form.find('.ping-button6-'+i).prop('disabled',$(this).val()=='');});
+    if (i > 0) $(this).on('input change',function(){form.find('.ping-button6-'+i).prop('disabled',$(this).val()=='');});
   });
   form.find('input[name^="gui:Endpoint:"]').each(function(){
     var i = $(this).attr('name').split(':')[2];
@@ -1196,15 +1208,18 @@ $(function(){
   } else {
     form.find('select[name="UPNP:0"]').val('no');
   }
-  var vpn = false, lan = false
+  var vpn = 0, lan = false
   form.find('select[name^="TYPE:"]').each(function(){
     var i = $(this).attr('name').split(':')[1];
-    vpn |= $(this).val()=='7';
+    if ($(this).val()>=7 && vpn==0) vpn = $(this).val();
     lan |= $(this).val()=='6' || $(this).val() % 2;
-    form.find('input[name="DNS:'+i+'"]').attr('placeholder',$(this).val()=='7' ? "(_(not used)_)" : "(_(optional)_)");
+    form.find('input[name="DNS:'+i+'"]').attr('placeholder',$(this).val()>=7 ? "(_(not used)_)" : "(_(optional)_)");
     showAccess(form,i,$(this).val());
   });
-  if (vpn) form.find('select[name="NAT:0"]').val('no').prop('disabled',true);
+  if (vpn > 0) {
+    form.find('select[name="NAT:0"]').val('no').prop('disabled',true);
+    form.find('#addpeer-wg0').prop('disabled',true);
+  }
   else if (form.find('select[name="NAT:0"]').val()=='no' && lan) $('span#my-static1-wg0').show();
   else if (lan) $('span#my-static2-wg0').show();
 <?if (file_exists($tmp)):?>
@@ -1222,6 +1237,7 @@ $(function(){
 <input type="hidden" name="#cmd" value="update">
 <input type="hidden" name="#name" value="<?=$tower?>">
 <input type="hidden" name="#vtun" value="wg0">
+<input type="hidden" name="#type" value="0">
 <input type="hidden" name="#wg" value="">
 <input type="hidden" name="#internet" value="<?=$public?>">
 <input type="hidden" name="#subnets1" value="">
@@ -1354,7 +1370,7 @@ _(DNS servers)_:
 _(Peer name)_:
 : <span class="input"><input type="text" name="Name:<?=$i?>" class="wide" maxlength="99" value="<?=$wg0["Name:$i"]??''?>" onchange="quickValidate(this);" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <input type="button" class="form" value="_(Delete Peer)_" onclick="delPeer($(document.wg0),'#index-wg0-<?=$i?>')">
-  <span class="pin"><i class="fa fa-fw fa-eye eye<?=$i?><?=(file_exists("$etc/peers/peer-$tower-wg0-$i.conf")&&(int)$wg0["TYPE:$i"]!=7)?'':' key-off'?>" style="cursor:pointer" onclick="WGconfig(this,'peer-<?=$tower?>-wg0-<?=$i?>','/peers')" title="_(View Peer Config)_"></i>
+  <span class="pin"><i class="fa fa-fw fa-eye eye<?=$i?><?=(file_exists("$etc/peers/peer-$tower-wg0-$i.conf")&&$wg0["TYPE:$i"]<=6)?'':' key-off'?>" style="cursor:pointer" onclick="WGconfig(this,'peer-<?=$tower?>-wg0-<?=$i?>','/peers')" title="_(View Peer Config)_"></i>
   <i class="fa fa-fw fa-key zone<?=$i?><?=$wg0["PublicKey:$i"]?'':' key-off'?>" style="cursor:pointer" onclick="openClose($(document.wg0),null,'div.key<?=$i?>')" title="_(Toggle keys)_"></i>
   <i id="chevron-wg0-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="openClose($(document.wg0),this,'div.zone<?=$i?>')" title="_(Toggle view)_"></i></span>
 
@@ -1369,7 +1385,8 @@ _(Peer type of access)_:
   <?=mk_option($wg0["TYPE:$i"], "4", _("Server hub & spoke access"))?>
   <?=mk_option($wg0["TYPE:$i"], "5", _("LAN hub & spoke access"))?>
   <?=mk_option($wg0["TYPE:$i"], "6", _("Remote tunneled access"))?>
-  <?=mk_option($wg0["TYPE:$i"], "7", _("VPN tunneled access"),count($peer_wg0)==1?'':'disabled')?>
+  <?=mk_option($wg0["TYPE:$i"], "7", _("VPN tunneled access for system"),count($peer_wg0)==1?'':'disabled')?>
+  <?=mk_option($wg0["TYPE:$i"], "8", _("VPN tunneled access for docker"),count($peer_wg0)==1?'':'disabled')?>
   </select></span>
   <span id="access-type-<?=$i?>" class="access-type"></span>
 
@@ -1440,7 +1457,7 @@ _(Persistent keepalive)_:
 <?endforeach;?>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
+: <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" id="addpeer-wg0" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
   <input type="button" class="advanced wg0" value="_(Delete Tunnel)_" style="float:right;display:none" onclick="delTunnel('wg0')"<?=file_exists($conf_wg0)?'':' disabled'?>>
 </form>
 <small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfield</small>
@@ -1464,7 +1481,8 @@ _(Peer type of access)_:
   <?=mk_option(0, "4", _("Server hub & spoke access"))?>
   <?=mk_option(0, "5", _("LAN hub & spoke access"))?>
   <?=mk_option(0, "6", _("Remote tunneled access"))?>
-  <?=mk_option(0, "7", _("VPN tunneled access"),'disabled')?>
+  <?=mk_option(0, "7", _("VPN tunneled access for system"),'disabled')?>
+  <?=mk_option(0, "8", _("VPN tunneled access for docker"),'disabled')?>
   </select></span>
   <span id="access-type-INDEX" class="access-type"></span>
 

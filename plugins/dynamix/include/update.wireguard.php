@@ -53,12 +53,23 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
-function wgState($vtun,$state) {
+function wgState($vtun, $state, $type=0) {
   global $t1;
-  exec("timeout $t1 wg-quick $state $vtun 2>/dev/null");
+  $tmp = '/tmp/wg-quick.tmp';
+  exec("timeout $t1 wg-quick $state $vtun 2>$tmp");
+  $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
+  delete_file($tmp);
+  if ($type==8) {
+    // make VPN tunneled access for Docker containers only
+    $route = exec("grep -Pom1 '^Address=\K.+$' /etc/wireguard/$vtun.conf");
+    sleep(3);
+    // remove default route and set local route instead
+    exec("ip -4 route flush table $table");
+    exec("ip -4 route add $route dev $vtun table $table");
+  }
 }
 function status($vtun) {
-  return in_array($vtun,explode("\n",shell_exec("wg show interfaces")));
+  return in_array($vtun,explode(" ",exec("wg show interfaces")));
 }
 function vtun() {
   global $etc;
@@ -160,7 +171,7 @@ function createPeerFiles($vtun) {
     $cfg    = "$dir/peer-$name-$vtun-$id.conf";
     $cfgold = @file_get_contents($cfg) ?: '';
     $cfgnew = implode("\n",$peer)."\n";
-    if ($cfgnew !== $cfgold && !$vpn) {
+    if ($cfgnew !== $cfgold && $vpn==0) {
       $list[] = "$vtun: peer $id (".($peer[1][0]=='#' ? substr($peer[1],1) : _('no name')).')';
       file_put_contents($cfg,$cfgnew);
       $png = str_replace('.conf','.png',$cfg);
@@ -240,7 +251,7 @@ function parseInput(&$input,&$x,$vtun) {
       $var['allowedIPs'] = implode(', ',array_map('host',array_filter($list)));
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
-      if ($value==7) $vpn = true;
+      if ($value>=7) $vpn = $value;
       break;
     case 'Network':
     case 'Network6':
@@ -319,15 +330,16 @@ case 'update':
   $var['shared1']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared1']))));
   $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
   $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
-  $x = 1; $vpn = false;
+  $x = 1; $vpn = 0;
   parseInput($_POST,$x,$vtun);
   addPeer($x);
   addDocker($vtun);
+  $upstate = status($vtun);
   wgState($vtun,'down');
   file_put_contents($file,implode("\n",$conf)."\n");
   file_put_contents($cfg,implode("\n",$user)."\n");
   createPeerFiles($vtun);
-  if ($wg) wgState($vtun,'up');
+  if ($upstate) wgState($vtun,'up',$_POST['#type']);
   $save = false;
   break;
 case 'toggle':
@@ -338,7 +350,7 @@ case 'toggle':
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
-    wgState($vtun,'up');
+    wgState($vtun,'up',$_POST['#type']);
     echo status($vtun) ? 0 : 1;
     break;
   }
@@ -409,9 +421,10 @@ case 'import':
   }
   $import['Endpoint:0'] = '';
   for ($n = 1; $n <= $i; $n++) {
-    $vpn = strpos($import["AllowedIPs:$n"],$default)!==false || strpos($import["AllowedIPs:$n"],$default6)!==false;
-    if ($vpn) $import["Address:$n"] = '';
-    $import["TYPE:$n"] = $vpn ? 7 : 0;
+    $vpn = array_map('trim',explode(',',$import["AllowedIPs:$n"]));
+    $vpn = (in_array($default, $vpn) || in_array($default6, $vpn)) ? 8 : 0;;
+    if ($vpn==8) $import["Address:$n"] = '';
+    $import["TYPE:$n"] = $vpn;
     ipfilter($import["AllowedIPs:$n"]);
     if ($import["TYPE:$n"]==0) $var['subnets1'] = "AllowedIPs=".$import["AllowedIPs:$n"];
   }
