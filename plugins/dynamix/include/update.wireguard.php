@@ -71,7 +71,7 @@ function normalize(&$id) {
   $id = $normalize[strtolower($id)];
 }
 function addDocker($vtun) {
-  global $dockernet;
+  global $dockerd, $dockernet;
   // create a docker network for the WG tunnel, containers can select this network for communication
   if ($dockerd && !exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
@@ -80,7 +80,7 @@ function addDocker($vtun) {
   }
 }
 function delDocker($vtun) {
-  global $dockernet;
+  global $dockerd, $dockernet;
   // delete the docker network, containers using this network need to be reconfigured
   if ($dockerd && exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
