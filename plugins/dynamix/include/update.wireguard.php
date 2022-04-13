@@ -23,6 +23,7 @@ $etc       = '/etc/wireguard';
 $validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint'];
+$dockernet = "172.31";
 
 $t1 = '10'; // 10 sec timeout
 $t2 = '15'; // 15 sec timeout
@@ -69,18 +70,20 @@ function normalize(&$id) {
   $id = $normalize[strtolower($id)];
 }
 function addDocker($vtun) {
-  // create a docker network for the WG tunnel. Containers can select to this network for communication
+  global $dockernet;
+  // create a docker network for the WG tunnel, containers can select this network for communication
   if (!exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
-    $network = "172.31.$index.0/24";
+    $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
   }
 }
 function delDocker($vtun) {
+  global $dockernet;
   // delete the docker network, containers using this network need to be reconfigured
   if (exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
-    $network = "172.31.$index.0/24";
+    $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
   }
 }
@@ -167,7 +170,7 @@ function createPeerFiles($vtun) {
   if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
 function parseInput(&$input,&$x,$vtun) {
-  global $conf,$user,$var,$default,$default6,$vpn;
+  global $conf,$user,$var,$default,$default6,$vpn,$dockernet;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
@@ -177,7 +180,7 @@ function parseInput(&$input,&$x,$vtun) {
         // add WG routing for docker containers. Only IPv4 supported
         extract(parse_ini_file('state/network.ini',true));
         $index   = substr($vtun,2)+200;
-        $network = "172.31.$index.0/24";
+        $network = "$dockernet.$index.0/24";
         $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
         $gateway = $eth0['GATEWAY:0'];
         $conf[]  = "PostUp=ip -4 rule add from $network table $index";
