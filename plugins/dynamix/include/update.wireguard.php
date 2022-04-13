@@ -19,6 +19,7 @@ if (!isset($_SESSION['locale'])) $_SESSION['locale'] = $_POST['#locale'];
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+$dockerd   = is_file('/var/run/dockerd.pid') && is_dir('/proc/'.file_get_contents('/var/run/dockerd.pid'));
 $etc       = '/etc/wireguard';
 $validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
@@ -72,7 +73,7 @@ function normalize(&$id) {
 function addDocker($vtun) {
   global $dockernet;
   // create a docker network for the WG tunnel, containers can select this network for communication
-  if (!exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+  if ($dockerd && !exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
     $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
@@ -81,7 +82,7 @@ function addDocker($vtun) {
 function delDocker($vtun) {
   global $dockernet;
   // delete the docker network, containers using this network need to be reconfigured
-  if (exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+  if ($dockerd && exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
     $index = substr($vtun,2)+200;
     $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
