@@ -37,10 +37,10 @@ if (count($filter)) {
     elseif (strpos($network,':')!==false && !in_array($network,$subnets6)) $subnets6[] = $network;
   }
 }
-$subnets = implode(', ',$subnets);
-$hosts = implode(', ',$hosts);
-$subnets6 = implode(', ',$subnets6);
-$hosts6 = implode(', ',$hosts6);
+$subnets = implode(',',$subnets);
+$hosts = implode(',',$hosts);
+$subnets6 = implode(',',$subnets6);
+$hosts6 = implode(',',$hosts6);
 
 function ifname($eth,$new) {
   return str_replace('eth',$new,$eth);
@@ -54,7 +54,7 @@ function iflink($eth) {
 function concat($array) {
   return implode(',',array_map(function($v){return "'$v'";},$array));
 }
-function readConf(&$peer_wg, &$wg, $vtun) {
+function readConf(&$peer_wg,&$wg,$vtun) {
   global $etc,$netbase,$netpool,$netbase6,$netpool6,$validIP4,$validIP6;
   $conf = "$etc/$vtun.conf";
   $cfg  = "$etc/$vtun.cfg";
@@ -123,7 +123,7 @@ function readConf(&$peer_wg, &$wg, $vtun) {
     $netbase6[$vtun] = $netpool6[$vtun];
   }
   foreach ($peer_wg as $i) if ($wg["TYPE:$i"]>=7) {$vpn = $wg["TYPE:$i"]; break;}
-  return [$conf, $cfg, $file, $vpn];
+  return [$conf,$cfg,$file,$vpn];
 }
 $public    = $nginx['NGINX_WANFQDN'];
 $active    = (array)explode(' ',exec('wg show interfaces'));
@@ -177,7 +177,7 @@ $netpool6['wg0'] = 'fc00:253:0:0::';
 $netport['wg0']  = 51820;
 
 // read current configuration
-[$conf_wg0, $cfg_wg0, $this_wg0, $vpn_wg0] = readConf($peer_wg0, $wg0, 'wg0');
+[$conf_wg0,$cfg_wg0,$this_wg0,$vpn_wg0] = readConf($peer_wg0,$wg0,'wg0');
 
 // gather IPv4 and IPv6 addresses for available interfaces
 $endpoints = [];
@@ -190,7 +190,7 @@ while (isset($$eth)) {
 
 // remove obsolete tunnels
 foreach (glob("$docroot/webGui/WG[1-9]*.page",GLOB_NOSORT) as $wgX) {
-  if (!in_array(strtolower(basename($wgX,'.page')), $vtuns)) {
+  if (!in_array(strtolower(basename($wgX,'.page')),$vtuns)) {
     unlink($wgX);
     $build = true;
   }
@@ -202,7 +202,7 @@ foreach ($vtuns as $wgX) {
   if (!file_exists($file)) {
     $X = filter_var($wgX,FILTER_SANITIZE_NUMBER_INT);
     $nnn = 100 + $X;
-    copy($template, $file);
+    copy($template,$file);
     exec("sed -i 's/parentname:nnn/VPNmanager:$nnn/;s/XXX/$X/g;s/wgX/$wgX/g' $file");
     chmod($file,0644);
     $build = true;
@@ -386,10 +386,9 @@ function prepareSettings(form,vtun) {
     postdown.val(postdown.val().replace(/<port>/,listen));
   }
   postup = form.find('input[name="PostUp:0:1"]');
-  postdown = form.find('input[name="PostDown:0:1"]');
   postup.val(postup.val().replace(/<wg>/,vtun));
+  postdown = form.find('input[name="PostDown:0:1"]');
   postdown.val(postdown.val().replace(/<wg>/,vtun));
-
   postup = form.find('input[name="PostUp:0:2"]');
   postdown = form.find('input[name="PostDown:0:2"]');
   var drop = form.find('input[name="DROP:0"]').val();
@@ -520,7 +519,13 @@ function addTunnel() {
 }
 function delTunnel(vtun) {
   swal({title:"_(Delete Tunnel)_ "+vtun,text:"_(This removes any connections running over this tunnel)_",type:'warning',confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_",showCancelButton:true},function(){
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'deltunnel','#vtun':vtun,'#name':'<?=$tower?>'},function(){clearTunnel(vtun);});
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'deltunnel','#vtun':vtun,'#name':'<?=$tower?>'},function(ok){
+      if (ok==0) {
+        clearTunnel(vtun);
+      } else {
+        setTimeout(function(){swal({title:"_(Delete tunnel failed)_",text:"_(Tunnel has running containers attached)_<br>_(Stop corresponding docker containers)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});},250);
+      }
+    });
   });
 }
 function addPeer(form,vtun) {
@@ -845,7 +850,7 @@ function verifyInSubnet6(field) {
   if (!quickValidate(field)) return false;
   // ensure this IPv6 address is in the Local tunnel network pool IPv6
   var form = $(field).parents('form');
-  var network6 = form.find('input[name="gui:Network6:0"]').val()||form.find('input[name="gui:Network6:0"]').prop('placeholder');;
+  var network6 = form.find('input[name="gui:Network6:0"]').val()||form.find('input[name="gui:Network6:0"]').prop('placeholder');
   var mask6 = form.find('input[name="gui:Mask6:0"]').val()||64;
   if (mask6 !== 64) {
     // this logic only handles IPv6 mask of 64. for other masks, assume the user knows what they are doing.
