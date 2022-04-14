@@ -950,21 +950,21 @@ _(Config Type)_:
   </select>
 
 _(Name)_:
-: <input type="text" name="Name">
+: <input type="text" name="Name" autocomplete="off" spellcheck="false">
 
 <div markdown="1" id="Target">
 <span id="dt1">_(Target)_</span>:
-: <input type="text" name="Target">
+: <input type="text" name="Target" autocomplete="off" spellcheck="false">
 </div>
 
 <div markdown="1" id="Value">
 <span id="dt2">_(Value)_</span>:
-: <input type="text" name="Value">
+: <input type="text" name="Value" autocomplete="off" spellcheck="false">
 </div>
 
 <div markdown="1" id="Default">
 _(Default Value)_:
-: <input type="text" name="Default">
+: <input type="text" name="Default" autocomplete="off" spellcheck="false">
 </div>
 
 <div id="Mode"></div>
