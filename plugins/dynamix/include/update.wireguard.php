@@ -95,7 +95,7 @@ function addDocker($vtun) {
   return $error;
 }
 function delDocker($vtun) {
-  global $dockerd, $dockernet;
+  global $dockerd;
   $error = false;
   if ($dockerd && !dockerNet($vtun)) {
     exec("docker network rm $vtun 2>/dev/null");
