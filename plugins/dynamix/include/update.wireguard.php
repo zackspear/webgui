@@ -53,8 +53,8 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
-function wgState($vtun, $state, $type=0) {
-  global $t1, $etc;
+function wgState($vtun,$state,$type=0) {
+  global $t1,$etc;
   $tmp = '/tmp/wg-quick.tmp';
   exec("timeout $t1 wg-quick $state $vtun 2>$tmp");
   if ($type==8) {
@@ -84,7 +84,7 @@ function dockerNet($vtun) {
   return empty(exec("docker network ls --filter name='$vtun' --format='{{.Name}}'"));
 }
 function addDocker($vtun) {
-  global $dockerd, $dockernet;
+  global $dockerd,$dockernet;
   $error = false;
   if ($dockerd && dockerNet($vtun)) {
     $index = substr($vtun,2)+200;
@@ -103,7 +103,7 @@ function delDocker($vtun) {
   }
   return $error;
 }
-function delPeer($vtun, $id='') {
+function delPeer($vtun,$id='') {
   global $etc,$name;
   $dir = "$etc/peers";
   foreach (glob("$dir/peer-$name-$vtun-$id*",GLOB_NOSORT) as $peer) delete_file($peer);
@@ -160,8 +160,8 @@ function createPeerFiles($vtun) {
         $id = explode('-',basename($file,'.conf'))[3];
         if ($id > $new) {
           // rename files to match revised peers list
-          rename($file, "$peer-$new.conf");
-          rename(str_replace('.conf','.png',$file), "$peer-$new.png");
+          rename($file,"$peer-$new.conf");
+          rename(str_replace('.conf','.png',$file),"$peer-$new.png");
         }
         $new++;
       }
@@ -252,7 +252,7 @@ function parseInput(&$input,&$x,$vtun) {
       break;
     case 'TYPE':
       $list = array_map('trim',explode(',',$value<4 ? ($value%2==1 ? $var['subnets1'] : $var['subnets2']) : ($value<6 ? ($value%2==1 ? $var['shared1'] : $var['shared2']) : $var['default'])));
-      $var['allowedIPs'] = implode(', ',array_map('host',array_filter($list)));
+      $var['allowedIPs'] = implode(',',array_map('host',array_filter($list)));
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
       if ($value>=7) $vpn = $value;
@@ -368,9 +368,9 @@ case 'public':
   $v4 = $_POST['#prot']!='6';
   $v6 = $_POST['#prot']!='';
   $context = stream_context_create(['https'=>['timeout'=>12]]);
-  $int_ipv4 = $v4 ? (preg_match("/^$validIP4$/", $ip) ? $ip : (@dns_get_record($ip, DNS_A)[0]['ip'] ?: '')) : '';
+  $int_ipv4 = $v4 ? (preg_match("/^$validIP4$/",$ip) ? $ip : (@dns_get_record($ip,DNS_A)[0]['ip'] ?: '')) : '';
   $ext_ipv4 = $v4 ? (@file_get_contents('https://wanip4.unraid.net',false,$context) ?: '') : '';
-  $int_ipv6 = $v6 ? (preg_match("/^$validIP6$/", $ip) ? $ip : (@dns_get_record($ip, DNS_AAAA)[0]['ipv6'] ?: '')) : '';
+  $int_ipv6 = $v6 ? (preg_match("/^$validIP6$/",$ip) ? $ip : (@dns_get_record($ip,DNS_AAAA)[0]['ipv6'] ?: '')) : '';
   $ext_ipv6 = $v6 ? (@file_get_contents('https://wanip6.unraid.net',false,$context) ?: '') : '';
   echo "$int_ipv4;$ext_ipv4;$int_ipv6;$ext_ipv6";
   break;
@@ -429,7 +429,7 @@ case 'import':
   $import['Endpoint:0'] = '';
   for ($n = 1; $n <= $i; $n++) {
     $vpn = array_map('trim',explode(',',$import["AllowedIPs:$n"]));
-    $vpn = (in_array($default, $vpn) || in_array($default6, $vpn)) ? 8 : 0;;
+    $vpn = (in_array($default,$vpn) || in_array($default6,$vpn)) ? 8 : 0;
     if ($vpn==8) $import["Address:$n"] = '';
     $import["TYPE:$n"] = $vpn;
     ipfilter($import["AllowedIPs:$n"]);
