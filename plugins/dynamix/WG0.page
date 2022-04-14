@@ -850,7 +850,7 @@ function verifyInSubnet6(field) {
   if (!quickValidate(field)) return false;
   // ensure this IPv6 address is in the Local tunnel network pool IPv6
   var form = $(field).parents('form');
-  var network6 = form.find('input[name="gui:Network6:0"]').val()||form.find('input[name="gui:Network6:0"]').prop('placeholder');;
+  var network6 = form.find('input[name="gui:Network6:0"]').val()||form.find('input[name="gui:Network6:0"]').prop('placeholder');
   var mask6 = form.find('input[name="gui:Mask6:0"]').val()||64;
   if (mask6 !== 64) {
     // this logic only handles IPv6 mask of 64. for other masks, assume the user knows what they are doing.
