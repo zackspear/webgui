@@ -24,7 +24,7 @@ $netpool6['wgX'] = str_replace(':0:0:',':XXX:0:',$netpool6['wg0']);
 $netport['wgX']  = $netport['wg0']+XXX;
 
 // read current configuration
-[$conf_wgX, $cfg_wgX, $this_wgX, $vpn_wgX] = readConf($peer_wgX, $wgX, 'wgX');
+[$conf_wgX,$cfg_wgX,$this_wgX,$vpn_wgX] = readConf($peer_wgX,$wgX,'wgX');
 ?>
 <script>
 netbase['wgX'] = <?=$netbase['wgX']?>;
