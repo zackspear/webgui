@@ -520,7 +520,13 @@ function addTunnel() {
 }
 function delTunnel(vtun) {
   swal({title:"_(Delete Tunnel)_ "+vtun,text:"_(This removes any connections running over this tunnel)_",type:'warning',confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_",showCancelButton:true},function(){
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'deltunnel','#vtun':vtun,'#name':'<?=$tower?>'},function(){clearTunnel(vtun);});
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'deltunnel','#vtun':vtun,'#name':'<?=$tower?>'},function(ok){
+      if (ok==0) {
+        clearTunnel(vtun);
+      } else {
+        setTimeout(function(){swal({title:"_(Delete tunnel failed)_",text:"_(Tunnel has running containers attached)_<br>_(Stop corresponding docker containers)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});},250);
+      }
+    });
   });
 }
 function addPeer(form,vtun) {

@@ -54,19 +54,18 @@ function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
 function wgState($vtun, $state, $type=0) {
-  global $t1;
+  global $t1, $etc;
   $tmp = '/tmp/wg-quick.tmp';
   exec("timeout $t1 wg-quick $state $vtun 2>$tmp");
-  $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
-  delete_file($tmp);
   if ($type==8) {
     // make VPN tunneled access for Docker containers only
-    $route = exec("grep -Pom1 '^Address=\K.+$' /etc/wireguard/$vtun.conf");
+    $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
+    $route = exec("grep -Pom1 '^Address=\K.+$' $etc/$vtun.conf");
     sleep(3);
-    // remove default route and set local route instead
     exec("ip -4 route flush table $table");
     exec("ip -4 route add $route dev $vtun table $table");
   }
+  delete_file($tmp);
 }
 function status($vtun) {
   return in_array($vtun,explode(" ",exec("wg show interfaces")));
@@ -81,23 +80,30 @@ function normalize(&$id) {
   global $normalize;
   $id = $normalize[strtolower($id)];
 }
+function dockerNet($vtun) {
+  return empty(exec("docker network ls --filter name='$vtun' --format='{{.Name}}'"));
+}
 function addDocker($vtun) {
   global $dockerd, $dockernet;
-  // create a docker network for the WG tunnel, containers can select this network for communication
-  if ($dockerd && !exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+  $error = false;
+  if ($dockerd && dockerNet($vtun)) {
     $index = substr($vtun,2)+200;
     $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
+    $error = dockerNet($vtun);
   }
+  return $error;
 }
 function delDocker($vtun) {
   global $dockerd, $dockernet;
-  // delete the docker network, containers using this network need to be reconfigured
-  if ($dockerd && exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+  $error = false;
+  if ($dockerd && !dockerNet($vtun)) {
     $index = substr($vtun,2)+200;
     $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
+    $error = !dockerNet($vtun);
   }
+  return $error;
 }
 function delPeer($vtun, $id='') {
   global $etc,$name;
@@ -382,11 +388,14 @@ case 'addtunnel':
 case 'deltunnel':
   $vtun = $_POST['#vtun'];
   $name = $_POST['#name'];
-  wgState($vtun,'down');
-  delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
-  delPeer($vtun);
-  delDocker($vtun);
-  autostart('off',$vtun);
+  $error = delDocker($vtun);
+  if (!$error) {
+    wgState($vtun,'down');
+    delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
+    delPeer($vtun);
+    autostart('off',$vtun);
+  }
+  echo $error ? 1 : 0;
   break;
 case 'import':
   $name = $_POST['#name'];
