@@ -19,37 +19,90 @@ if (!isset($_SESSION['locale'])) $_SESSION['locale'] = $_POST['#locale'];
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-$etc      = '/etc/wireguard';
-$validIP4 = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
-$validIP6 = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
+$dockerd   = is_file('/var/run/dockerd.pid') && is_dir('/proc/'.file_get_contents('/var/run/dockerd.pid'));
+$etc       = '/etc/wireguard';
+$validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
+$validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
+$normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint'];
+$dockernet = "172.31";
 
-$t1 = '6';  // 6 sec timeout
-$t2 = '12'; // 12 sec timeout
+$t1 = '10'; // 10 sec timeout
+$t2 = '15'; // 15 sec timeout
 
+function mask2cidr($mask) {
+  $long = ip2long($mask);
+  $base = ip2long('255.255.255.255');
+  return 32-log(($long ^ $base)+1,2);
+}
 function ipv4($ip) {
-  return strpos($ip,'.')!==false;
+  return strpos($ip,':')===false;
+}
+function ipv6($ip) {
+  return strpos($ip,':')!==false;
 }
 function ipset($ip) {
   return ipv4($ip) ? $ip : "[$ip]";
 }
-function ipv6($ip) {
+function ipsplit($ip) {
   return ipv4($ip) ? ':' : ']:';
+}
+function ipfilter(&$list) {
+  // we only import IPv4 addresses at this moment, strip any IPv6 addresses
+  $list = implode(', ',array_filter(array_map('trim',explode(',',$list)),'ipv4'));
 }
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
+function wgState($vtun, $state, $type=0) {
+  global $t1;
+  $tmp = '/tmp/wg-quick.tmp';
+  exec("timeout $t1 wg-quick $state $vtun 2>$tmp");
+  $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
+  delete_file($tmp);
+  if ($type==8) {
+    // make VPN tunneled access for Docker containers only
+    $route = exec("grep -Pom1 '^Address=\K.+$' /etc/wireguard/$vtun.conf");
+    sleep(3);
+    // remove default route and set local route instead
+    exec("ip -4 route flush table $table");
+    exec("ip -4 route add $route dev $vtun table $table");
+  }
+}
 function status($vtun) {
-  return strpos(exec("wg show interfaces|tr '\n' ' '"),"$vtun ")===false;
+  return in_array($vtun,explode(" ",exec("wg show interfaces")));
 }
 function vtun() {
   global $etc;
   $x = 0; while (file_exists("$etc/wg{$x}.conf")) $x++;
   return "wg{$x}";
 }
+function normalize(&$id) {
+  // ensure correct capitalization of keywords, some VPN providers use the wrong case
+  global $normalize;
+  $id = $normalize[strtolower($id)];
+}
+function addDocker($vtun) {
+  global $dockerd, $dockernet;
+  // create a docker network for the WG tunnel, containers can select this network for communication
+  if ($dockerd && !exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+    $index = substr($vtun,2)+200;
+    $network = "$dockernet.$index.0/24";
+    exec("docker network create $vtun --subnet=$network 2>/dev/null");
+  }
+}
+function delDocker($vtun) {
+  global $dockerd, $dockernet;
+  // delete the docker network, containers using this network need to be reconfigured
+  if ($dockerd && exec("docker network ls --filter name='$vtun' --format='{{.Name}}'")) {
+    $index = substr($vtun,2)+200;
+    $network = "$dockernet.$index.0/24";
+    exec("docker network rm $vtun 2>/dev/null");
+  }
+}
 function delPeer($vtun, $id='') {
   global $etc,$name;
   $dir = "$etc/peers";
-  foreach (glob("$dir/peer-$name-$vtun-$id*",GLOB_NOSORT) as $peer) unlink($peer);
+  foreach (glob("$dir/peer-$name-$vtun-$id*",GLOB_NOSORT) as $peer) delete_file($peer);
 }
 function addPeer(&$x) {
   global $peers,$var;
@@ -118,7 +171,7 @@ function createPeerFiles($vtun) {
     $cfg    = "$dir/peer-$name-$vtun-$id.conf";
     $cfgold = @file_get_contents($cfg) ?: '';
     $cfgnew = implode("\n",$peer)."\n";
-    if ($cfgnew !== $cfgold && !$vpn) {
+    if ($cfgnew !== $cfgold && $vpn==0) {
       $list[] = "$vtun: peer $id (".($peer[1][0]=='#' ? substr($peer[1],1) : _('no name')).')';
       file_put_contents($cfg,$cfgnew);
       $png = str_replace('.conf','.png',$cfg);
@@ -126,17 +179,30 @@ function createPeerFiles($vtun) {
     }
   }
   // store the peer names which are updated
-  if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else @unlink($tmp);
+  if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
-function parseInput(&$input,&$x) {
-  global $conf,$user,$var,$default,$default6,$vpn;
+function parseInput(&$input,&$x,$vtun) {
+  global $conf,$user,$var,$default,$default6,$vpn,$dockernet;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
     [$id,$i] = my_explode(':',$key);
     if ($i != $section) {
+      if ($section==0) {
+        // add WG routing for docker containers. Only IPv4 supported
+        extract(parse_ini_file('state/network.ini',true));
+        $index   = substr($vtun,2)+200;
+        $network = "$dockernet.$index.0/24";
+        $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
+        $gateway = $eth0['GATEWAY:0'];
+        $conf[]  = "PostUp=ip -4 rule add from $network table $index";
+        $conf[]  = "PostUp=ip -4 route add default via $tunip table $index";
+        $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway table $index";
+        $conf[]  = "PostDown=ip -4 route flush table $index";
+        $conf[]  = "PostDown=ip -4 rule del from $network table $index";
+      }
       $conf[] = "\n[Peer]";
-      // add peers only for peer sections
+      // add peers, this is only used for peer sections
       $addPeer ? addPeer($x) : $addPeer = true;
       $section = $i;
     }
@@ -166,7 +232,7 @@ function parseInput(&$input,&$x) {
       }
       break;
     case 'DNS':
-      if ($i>0 && $value) {
+      if ($i > 0 && $value) {
         $user[] = "$id:$x=\"$value\"";
         $var['dns'] = "$id=$value";
       } else $var['dns'] = false;
@@ -185,7 +251,7 @@ function parseInput(&$input,&$x) {
       $var['allowedIPs'] = implode(', ',array_map('host',array_filter($list)));
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
-      if ($value==7) $vpn = true;
+      if ($value>=7) $vpn = $value;
       break;
     case 'Network':
     case 'Network6':
@@ -200,6 +266,7 @@ function parseInput(&$input,&$x) {
       if ($i==0) {
         $conf[] = "$id=$value";
         $tunnel = "$id=$hosts";
+        $tunip  = $value;
       } else {
         $user[] = "$id:$x=\"$value\"";
         $var['address'] = "$id=$hosts";
@@ -215,8 +282,8 @@ function parseInput(&$input,&$x) {
         $var['endpoint'] = $value ? "Endpoint=".ipset($value) : false;
       } else {
         if ($value) $conf[] = "$id=$value";
-        $var['listenport'] = $value ? "ListenPort=".explode(ipv6($value),$value)[1] : false;
-        if ($var['endpoint'] && strpos($var['endpoint'],ipv6($var['endpoint']))===false) $var['endpoint'] .= ":".explode(ipv6($var['internet']),$var['internet'])[1];
+        $var['listenport'] = $value ? "ListenPort=".explode(ipsplit($value),$value)[1] : false;
+        if ($var['endpoint'] && strpos($var['endpoint'],ipsplit($var['endpoint']))===false) $var['endpoint'] .= ":".explode(ipsplit($var['internet']),$var['internet'])[1];
       }
       break;
     case 'PersistentKeepalive':
@@ -263,32 +330,34 @@ case 'update':
   $var['shared1']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared1']))));
   $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
   $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
-  $x = 1; $vpn = false;
-  parseInput($_POST,$x);
+  $x = 1; $vpn = 0;
+  parseInput($_POST,$x,$vtun);
   addPeer($x);
-  exec("wg-quick down $vtun 2>/dev/null");
+  addDocker($vtun);
+  $upstate = status($vtun);
+  wgState($vtun,'down');
   file_put_contents($file,implode("\n",$conf)."\n");
   file_put_contents($cfg,implode("\n",$user)."\n");
   createPeerFiles($vtun);
-  if ($wg) exec("wg-quick up $vtun >/dev/null");
+  if ($upstate) wgState($vtun,'up',$_POST['#type']);
   $save = false;
   break;
 case 'toggle':
   $vtun = $_POST['#vtun'];
   switch ($_POST['#wg']) {
   case 'stop':
-    exec("timeout $t1 wg-quick down $vtun 2>/dev/null");
+    wgState($vtun,'down');
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
-    exec("timeout $t1 wg-quick up $vtun 2>/dev/null");
+    wgState($vtun,'up',$_POST['#type']);
     echo status($vtun) ? 0 : 1;
     break;
   }
   break;
 case 'ping':
   $addr = $_POST['#addr'];
-  echo exec("ping -qc1 -W4 $addr|grep -Po '1 received'");
+  echo exec("ping -qc1 -W4 $addr|grep -Pom1 '1 received'");
   break;
 case 'public':
   $ip = $_POST['#ip'];
@@ -305,18 +374,18 @@ case 'addtunnel':
   $vtun = vtun();
   $name = $_POST['#name'];
   touch("$etc/$vtun.conf");
-  exec("wg-quick down $vtun 2>/dev/null");
-  @unlink("$etc/$vtun.cfg");
+  wgState($vtun,'down');
+  delete_file("$etc/$vtun.cfg");
   delPeer($vtun);
   autostart('off',$vtun);
   break;
 case 'deltunnel':
   $vtun = $_POST['#vtun'];
   $name = $_POST['#name'];
-  exec("wg-quick down $vtun 2>/dev/null");
-  @unlink("$etc/$vtun.conf");
-  @unlink("$etc/$vtun.cfg");
+  wgState($vtun,'down');
+  delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
   delPeer($vtun);
+  delDocker($vtun);
   autostart('off',$vtun);
   break;
 case 'import':
@@ -328,8 +397,9 @@ case 'import':
     foreach (explode("\n",$entry) as $row) {
       if (ltrim($row)[0]!='#') {
         [$id,$data] = array_map('trim',my_explode('=',$row));
+        normalize($id);
         $import["$id:$i"] = $data;
-      } elseif ($i>=0) {
+      } elseif ($i >= 0) {
         $import["Name:$i"] = substr(trim($row),1);
       }
     }
@@ -339,21 +409,23 @@ case 'import':
   $import['NAT:0'] = 'no';
   [$subnet,$mask] = my_explode('/',$import['Address:0']);
   if (ipv4($subnet)) {
-    $mask = ($mask>0 && $mask<32) ? $mask : 24;
+    $mask = ($mask > 0 && $mask < 32) ? $mask : 24;
     $import['Network:0'] = long2ip(ip2long($subnet) & (0x100000000-2**(32-$mask))).'/'.$mask;
     $import['Address:0'] = $subnet;
     $import['PROT:0'] = '';
   } else {
-    $mask = ($mask>0 && $mask<128) ? $mask : 64;
+    $mask = ($mask > 0 && $mask < 128) ? $mask : 64;
     $import['Network6:0'] = strstr($subnet,'::',true).'::/'.$mask;
     $import['Address:0'] = $subnet;
     $import['PROT:0'] = '6';
   }
   $import['Endpoint:0'] = '';
   for ($n = 1; $n <= $i; $n++) {
-    $vpn = strpos($import["AllowedIPs:$n"],$default)!==false || strpos($import["AllowedIPs:$n"],$default6)!==false;
-    if ($vpn) $import["Address:$n"] = '';
-    $import["TYPE:$n"] = $vpn ? 7 : 0;
+    $vpn = array_map('trim',explode(',',$import["AllowedIPs:$n"]));
+    $vpn = (in_array($default, $vpn) || in_array($default6, $vpn)) ? 8 : 0;;
+    if ($vpn==8) $import["Address:$n"] = '';
+    $import["TYPE:$n"] = $vpn;
+    ipfilter($import["AllowedIPs:$n"]);
     if ($import["TYPE:$n"]==0) $var['subnets1'] = "AllowedIPs=".$import["AllowedIPs:$n"];
   }
   foreach ($import as $key => $val) $sort[] = explode(':',$key)[1];
@@ -362,12 +434,13 @@ case 'import':
   $conf = ['[Interface]'];
   $var['default'] = $import['PROT:0']=='' ? "AllowedIPs=$default" : "AllowedIPs=$default6";
   $var['internet'] = "Endpoint=unknown";
-  parseInput($import,$x);
-  addPeer($x);
   $vtun = vtun();
+  parseInput($import,$x,$vtun);
+  addPeer($x);
   file_put_contents("$etc/$vtun.conf",implode("\n",$conf)."\n");
   file_put_contents("$etc/$vtun.cfg",implode("\n",$user)."\n");
   delPeer($vtun);
+  addDocker($vtun);
   autostart('off',$vtun);
   echo $vtun;
   break;
