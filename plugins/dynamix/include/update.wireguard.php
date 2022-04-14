@@ -128,7 +128,7 @@ function addPeer(&$x) {
   $peers[$x][] = $var['allowedIPs'];                             // AllowedIPs
   $x++;
 }
-function autostart($cmd,$vtun) {
+function autostart($vtun,$cmd) {
   global $etc;
   $autostart = "$etc/autostart";
   $list = @file_get_contents($autostart) ?: '';
@@ -185,7 +185,7 @@ function createPeerFiles($vtun) {
   // store the peer names which are updated
   if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
-function parseInput(&$input,&$x,$vtun) {
+function parseInput($vtun,&$input,&$x) {
   global $conf,$user,$var,$default,$default6,$vpn,$dockernet;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
@@ -335,7 +335,7 @@ case 'update':
   $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
   $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
   $x = 1; $vpn = 0;
-  parseInput($_POST,$x,$vtun);
+  parseInput($vtun,$_POST,$x);
   addPeer($x);
   addDocker($vtun);
   $upstate = status($vtun);
@@ -381,7 +381,7 @@ case 'addtunnel':
   wgState($vtun,'down');
   delete_file("$etc/$vtun.cfg");
   delPeer($vtun);
-  autostart('off',$vtun);
+  autostart($vtun,'off');
   break;
 case 'deltunnel':
   $vtun = $_POST['#vtun'];
@@ -391,7 +391,7 @@ case 'deltunnel':
     wgState($vtun,'down');
     delete_file("$etc/$vtun.conf","$etc/$vtun.cfg");
     delPeer($vtun);
-    autostart('off',$vtun);
+    autostart($vtun,'off');
   }
   echo $error ? 1 : 0;
   break;
@@ -442,17 +442,17 @@ case 'import':
   $var['default'] = $import['PROT:0']=='' ? "AllowedIPs=$default" : "AllowedIPs=$default6";
   $var['internet'] = "Endpoint=unknown";
   $vtun = vtun();
-  parseInput($import,$x,$vtun);
+  parseInput($vtun,$import,$x);
   addPeer($x);
   file_put_contents("$etc/$vtun.conf",implode("\n",$conf)."\n");
   file_put_contents("$etc/$vtun.cfg",implode("\n",$user)."\n");
   delPeer($vtun);
   addDocker($vtun);
-  autostart('off',$vtun);
+  autostart($vtun,'off');
   echo $vtun;
   break;
 case 'autostart':
-  autostart($_POST['#start'],$_POST['#vtun']);
+  autostart($_POST['#vtun'],$_POST['#start']);
   break;
 case 'upnp':
   $upnp = '/var/tmp/upnp';
