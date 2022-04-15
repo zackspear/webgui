@@ -183,6 +183,12 @@ function createPeerFiles($vtun) {
   // store the peer names which are updated
   if (count($list)) file_put_contents($tmp,implode("<br>",$list)); else delete_file($tmp);
 }
+function createList($list) {
+  return implode(', ',array_unique(array_filter(array_map('trim',explode(',',$list)))));
+}
+function createIPs($list) {
+  return implode(', ',array_map('host',array_filter(array_map('trim',explode(',',$list)))));
+}
 function parseInput($vtun,&$input,&$x) {
   global $conf,$user,$var,$default,$default6,$vpn,$dockernet;
   $section = 0; $addPeer = false;
@@ -249,8 +255,8 @@ function parseInput($vtun,&$input,&$x) {
       }
       break;
     case 'TYPE':
-      $list = array_map('trim',explode(',',$value<4 ? ($value%2==1 ? $var['subnets1'] : $var['subnets2']) : ($value<6 ? ($value%2==1 ? $var['shared1'] : $var['shared2']) : $var['default'])));
-      $var['allowedIPs'] = implode(',',array_map('host',array_filter($list)));
+      $list = $value<4 ? ($value%2==1 ? $var['subnets1'] : $var['subnets2']) : ($value<6 ? ($value%2==1 ? $var['shared1'] : $var['shared2']) : $var['default']);
+      $var['allowedIPs'] = createIPs($list);
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
       if ($value>=7) $vpn = $value;
@@ -264,7 +270,7 @@ function parseInput($vtun,&$input,&$x) {
       $user[] = "$id:0=\"$value\"";
       break;
     case 'Address':
-      $hosts = implode(', ',array_map('host',array_filter(explode(', ',$value))));
+      $hosts = createIPs($value);
       if ($i==0) {
         $conf[] = "$id=$value";
         $tunnel = "$id=$hosts";
@@ -295,6 +301,9 @@ function parseInput($vtun,&$input,&$x) {
     case 'PresharedKey':
       if ($value) $conf[] = "$id=$value";
       $var['presharedKey'] = $value ? "$id=$value" : false;
+      break;
+    case 'AllowedIPs':
+      $conf[] = "$id=".createList($value);
       break;
     default:
       if ($value) $conf[] = "$id=$value";
@@ -327,11 +336,11 @@ case 'update':
   $gone = explode(',',$_POST['#deleted']);
   $conf = ['[Interface]'];
   $user = $peers = $var = [];
-  $var['subnets1'] = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#subnets1']))));
-  $var['subnets2'] = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#subnets2']))));
-  $var['shared1']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared1']))));
-  $var['shared2']  = "AllowedIPs=".implode(', ',(array_unique(explode(', ',$_POST['#shared2']))));
-  $var['internet'] = "Endpoint=".implode(', ',(array_unique(explode(', ',$_POST['#internet']))));
+  $var['subnets1'] = "AllowedIPs=".createList($_POST['#subnets1']);
+  $var['subnets2'] = "AllowedIPs=".createList($_POST['#subnets2']);
+  $var['shared1']  = "AllowedIPs=".createList($_POST['#shared1']);
+  $var['shared2']  = "AllowedIPs=".createList($_POST['#shared2']);
+  $var['internet'] = "Endpoint=".createList($_POST['#internet']);
   $x = 1; $vpn = 0;
   parseInput($vtun,$_POST,$x);
   addPeer($x);
