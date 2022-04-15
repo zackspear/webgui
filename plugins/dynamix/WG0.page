@@ -537,7 +537,7 @@ function addPeer(form,vtun) {
   var template = $($('<div/>').loadTemplate($('#peer-template-'+vtun)).html().replace(/INDEX/g,i));
   var peer = i==1 ? $('div#peers-list-'+vtun) : $('[id^="index-'+vtun+'-"]').last();
   $(peer).after(template);
-  if (i==1) form.find('select[name="TYPE:1"] option:last').prop('disabled',false);
+  if (i==1) form.find('select[name="TYPE:1"] option').each(function(){$(this).prop('disabled',false);});
   var address = [], address6 = [];
   var protocol = form.find('select[name="PROT:0"]').val();
   if (protocol!='6') {
