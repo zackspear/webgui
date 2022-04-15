@@ -27,13 +27,12 @@ $netport['wgX']  = $netport['wg0']+XXX;
 [$conf_wgX,$cfg_wgX,$this_wgX,$vpn_wgX] = readConf($peer_wgX,$wgX,'wgX');
 ?>
 <script>
-netbase['wgX'] = <?=$netbase['wgX']?>;
-netpool['wgX'] = '<?=$netpool['wgX']?>';
-netport['wgX'] = '<?=$netport['wgX']?>';
+netbase['wgX']  = <?=$netbase['wgX']?>;
+netpool['wgX']  = '<?=$netpool['wgX']?>';
+netport['wgX']  = '<?=$netport['wgX']?>';
 netbase6['wgX'] = '<?=$netbase6['wgX']?>';
 netpool6['wgX'] = '<?=$netpool6['wgX']?>';
-
-tstate['wgX'] = "<?=$check_wgX ? 'active' : ''?>";
+tstate['wgX']   = "<?=$check_wgX ? 'active' : ''?>";
 
 $(function(){
   var ctrl = "<span class='status vhshift hshift'><i id='block-wgX' class='fa fa-fw fa-chevron-up' style='cursor:pointer' onclick='blockToggle(&quot;wgX&quot;)'></i></span>";

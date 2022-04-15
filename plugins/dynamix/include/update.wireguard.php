@@ -131,15 +131,13 @@ function addPeer(&$x) {
 function autostart($vtun,$cmd) {
   global $etc;
   $autostart = "$etc/autostart";
-  $list = @file_get_contents($autostart) ?: '';
+  $list = file_exists($autostart) ? array_filter(explode(' ',file_get_contents($autostart))) : [];
+  $key = array_search($vtun,$list);
   switch ($cmd) {
-  case 'off':
-    if ($list && strpos($list,"$vtun ")!==false) file_put_contents($autostart,str_replace("$vtun ","",$list));
-    break;
-  case 'on':
-    if (!$list || strpos($list,"$vtun ")===false) file_put_contents($autostart,$list."$vtun ");
-    break;
+    case 'off': if ($key!==false) unset($list[$key]); break;
+    case 'on' : if ($key===false) $list[] = $vtun; break;
   }
+  if (count($list)) file_put_contents($autostart,implode(' ',$list)); else delete_file($autostart);
 }
 function createPeerFiles($vtun) {
   global $etc,$peers,$name,$gone,$vpn;
