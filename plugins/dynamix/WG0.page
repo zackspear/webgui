@@ -1400,7 +1400,7 @@ _(Peer type of access)_:
 
 <div markdown="1" class="keys wg0 key<?=$i?>"<?=$wg0["PublicKey:$i"]?' style="display:none">':'>'?>
 _(Peer private key)_:
-: <span class="input"><input type="text" name="PrivateKey:<?=$i?>" class="wide private-<?=$i?>" maxlength="64" value="<?=$wg0["PrivateKey:$i"]??''?>" onchange="highlight($(document.wg0),this,<?=$i?>)" placeholder="(_(not used)_)"></span>
+: <span class="input"><input type="text" name="PrivateKey:<?=$i?>" class="wide private-<?=$i?>" maxlength="64" value="<?=$wg0["PrivateKey:$i"]??''?>" onchange="highlight($(document.wg0),this,<?=$i?>)" placeholder="(_(optional)_)"></span>
   <input type="button" class="form" value="_(Generate Keypair)_" onclick="keypair($(document.wg0),'<?=$i?>')">
 
 :wg_generate_keypair_help:
