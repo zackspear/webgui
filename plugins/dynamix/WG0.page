@@ -191,7 +191,7 @@ while (isset($$eth)) {
 // remove obsolete tunnels
 foreach (glob("$docroot/webGui/WG[1-9]*.page",GLOB_NOSORT) as $wgX) {
   if (!in_array(strtolower(basename($wgX,'.page')),$vtuns)) {
-    unlink($wgX);
+    delete_file($wgX);
     $build = true;
   }
 }
@@ -279,7 +279,6 @@ if (!HTMLInputElement.prototype.reportValidity || (navigator.userAgent.indexOf("
     }
   };
 }
-
 function ipv4(ip) {
   return ip.indexOf('.') > 0;
 }
@@ -538,7 +537,7 @@ function addPeer(form,vtun) {
   var template = $($('<div/>').loadTemplate($('#peer-template-'+vtun)).html().replace(/INDEX/g,i));
   var peer = i==1 ? $('div#peers-list-'+vtun) : $('[id^="index-'+vtun+'-"]').last();
   $(peer).after(template);
-  if (i==1) form.find('select[name="TYPE:1"] option:last').prop('disabled',false);
+  if (i==1) form.find('select[name="TYPE:1"] option').each(function(){$(this).prop('disabled',false);});
   var address = [], address6 = [];
   var protocol = form.find('select[name="PROT:0"]').val();
   if (protocol!='6') {
@@ -1229,7 +1228,7 @@ $(function(){
   else if (lan) $('span#my-static2-wg0').show();
 <?if (file_exists($tmp)):?>
   setTimeout(function(){swal({title:"_(Peer update required)_",text:"<b><u>_(List of peers)_</u></b><br><span style='display:inline-block;text-align:left'><?=file_get_contents($tmp)?></span>",type:'warning',html:true});},200);
-<?unlink($tmp);?>
+<?delete_file($tmp);?>
 <?endif;?>
 });
 </script>
