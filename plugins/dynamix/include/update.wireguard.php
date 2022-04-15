@@ -255,8 +255,8 @@ function parseInput($vtun,&$input,&$x) {
       $user[] = "$id:$x=\"$value\"";
       if ($value>=7) $vpn = $value;
       break;
+    case 'Network6': if (!$protocol) break;
     case 'Network':
-    case 'Network6':
     case 'UPNP':
     case 'DROP':
     case 'RULE':
