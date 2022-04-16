@@ -91,15 +91,29 @@ function addDocker($vtun) {
     $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
     $error = dockerNet($vtun);
+    if (!$error && !exec("ip rule|grep -Pom1 'from $network'")) {
+      extract(parse_ini_file('state/network.ini',true));
+      $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
+      $gateway = $eth0['GATEWAY:0'];
+      exec("ip -4 rule add from $network table $index");
+      exec("ip -4 route add unreachable default table $index");
+      exec("ip -4 route add $thisnet via $gateway table $index");
+    }
   }
   return $error;
 }
 function delDocker($vtun) {
-  global $dockerd;
+  global $dockerd,$dockernet;
   $error = false;
   if ($dockerd && !dockerNet($vtun)) {
+    $index = substr($vtun,2)+200;
+    $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
     $error = !dockerNet($vtun);
+    if (!$error && exec("ip rule|grep -Pom1 'from $network'")) {
+      exec("ip -4 route flush table $index");
+      exec("ip -4 rule del from $network table $index");
+    }
   }
   return $error;
 }
@@ -203,11 +217,12 @@ function parseInput($vtun,&$input,&$x) {
         $network = "$dockernet.$index.0/24";
         $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
         $gateway = $eth0['GATEWAY:0'];
-        $conf[]  = "PostUp=ip -4 rule add from $network table $index";
+        $conf[]  = "PostUp=ip -4 route flush table $index";
         $conf[]  = "PostUp=ip -4 route add default via $tunip table $index";
         $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway table $index";
         $conf[]  = "PostDown=ip -4 route flush table $index";
-        $conf[]  = "PostDown=ip -4 rule del from $network table $index";
+        $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
+        $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway table $index";
       }
       $conf[] = "\n[Peer]";
       // add peers, this is only used for peer sections
