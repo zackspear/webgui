@@ -35,7 +35,7 @@ function mask2cidr($mask) {
   return 32-log(($long ^ $base)+1,2);
 }
 function ipv4($ip) {
-  return strpos($ip,':')===false;
+  return strpos($ip,'.')!==false;
 }
 function ipv6($ip) {
   return strpos($ip,':')!==false;
