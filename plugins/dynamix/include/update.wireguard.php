@@ -53,6 +53,9 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
+function nonet($network) {
+  return empty(exec("ip rule|grep -Pom1 'from $network'"));
+}
 function wgState($vtun,$state,$type=0) {
   global $t1,$etc;
   $tmp = '/tmp/wg-quick.tmp';
@@ -91,7 +94,7 @@ function addDocker($vtun) {
     $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
     $error = dockerNet($vtun);
-    if (!$error && !exec("ip rule|grep -Pom1 'from $network'")) {
+    if (!$error && nonet($network)) {
       extract(parse_ini_file('state/network.ini',true));
       $thisnet = long2ip(ip2long($eth0['IPADDR:0']) & ip2long($eth0['NETMASK:0'])).'/'.mask2cidr($eth0['NETMASK:0']);
       $gateway = $eth0['GATEWAY:0'];
@@ -376,6 +379,9 @@ case 'toggle':
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
+    $index = substr($vtun,2)+200;
+    $network = "$dockernet.$index.0/24";
+    if (nonet($network)) exec("ip -4 rule add from $network table $index");
     wgState($vtun,'up',$_POST['#type']);
     echo status($vtun) ? 0 : 1;
     break;
