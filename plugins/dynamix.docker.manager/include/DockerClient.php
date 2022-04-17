@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -760,6 +760,7 @@ class DockerClient {
 	public function startContainer($id) {
 		$this->getDockerJSON("/containers/$id/start", 'POST', $code);
 		$this->flushCache($this::$containersCache);
+		addRoute($id); // add route for remote WireGuard access
 		return $code;
 	}
 
@@ -788,6 +789,7 @@ class DockerClient {
 	public function restartContainer($id) {
 		$this->getDockerJSON("/containers/$id/restart", 'POST', $code);
 		$this->flushCache($this::$containersCache);
+		addRoute($id); // add route for remote WireGuard access
 		return $code;
 	}
 
