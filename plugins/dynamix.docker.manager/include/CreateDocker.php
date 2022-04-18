@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2015-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2015-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -145,6 +145,7 @@ if (isset($_POST['contName'])) {
   }
   if ($startContainer) $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
   execCommand($cmd);
+  if ($startContainer) addRoute($Name); // add route for remote WireGuard access
 
   echo '<div style="text-align:center"><button type="button" onclick="done()">'._('Done').'</button></div><br>';
   goto END;
@@ -175,15 +176,18 @@ if (isset($_GET['updateContainer'])){
     if ($echo && !pullImage($Name, $Repository)) continue;
     $oldContainerInfo = $DockerClient->getContainerDetails($Name);
     // determine if the container is still running
+    $startContainer = false;
     if (!empty($oldContainerInfo) && !empty($oldContainerInfo['State']) && !empty($oldContainerInfo['State']['Running'])) {
       // since container was already running, put it back it to a running state after update
       $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
+      $startContainer = true;
       // attempt graceful stop of container first
       stopContainer($Name, $echo);
     }
     // force kill container if still running after 10 seconds
     if (empty($_GET['communityApplications'])) removeContainer($Name, $echo);
     execCommand($cmd, $echo);
+    if ($startContainer) addRoute($Name); // add route for remote WireGuard access
     $DockerClient->flushCaches();
     $newImageID = $DockerClient->getImageID($Repository);
     // remove old orphan image since it's no longer used by this container
@@ -872,7 +876,8 @@ _(Network Type)_:
   <?=mk_option(1,'host',_('Host'))?>
   <?=mk_option(1,'none',_('None'))?>
   <?foreach ($custom as $network):?>
-  <?=mk_option(1,$network,_('Custom')." : $network")?>
+  <?if (substr($network,0,2)=='wg') {$conf=file("/etc/wireguard/$network.conf"); $name=$conf[1][0]=='#' ? $network.' ('.compress(trim(substr($conf[1],1))).')' : $network;} else $name=$network;?>
+  <?=mk_option(1,$network,_('Custom')." : $name")?>
   <?endforeach;?></select>
 
 <div markdown="1" class="myIP noshow">

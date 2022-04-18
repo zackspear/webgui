@@ -765,6 +765,7 @@ class DockerClient {
 	public function startContainer($id) {
 		$this->getDockerJSON("/containers/$id/start", 'POST', $code);
 		$this->flushCache($this::$containersCache);
+		addRoute($id); // add route for remote WireGuard access
 		return $code;
 	}
 
@@ -793,6 +794,7 @@ class DockerClient {
 	public function restartContainer($id) {
 		$this->getDockerJSON("/containers/$id/restart", 'POST', $code);
 		$this->flushCache($this::$containersCache);
+		addRoute($id); // add route for remote WireGuard access
 		return $code;
 	}
 
