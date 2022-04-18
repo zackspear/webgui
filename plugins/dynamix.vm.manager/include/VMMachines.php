@@ -182,7 +182,7 @@ foreach ($vms as $vm) {
         if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
         $iptype = $arraddr["ip-address-type"] ;
         $ipprefix = $arraddr["prefix"] ;
-        $ipnamemac = "$ipname($iphdwadr)" ;
+        $ipnamemac = "$ipname ($iphdwadr)";
         if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
         echo "<tr><td>$ipnamemac</td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
         }
