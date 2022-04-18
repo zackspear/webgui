@@ -69,7 +69,7 @@ function wgState($vtun,$state,$type=0) {
     // make VPN tunneled access for Docker containers only
     $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
     $route = exec("grep -Pom1 '^Address=\K.+$' $etc/$vtun.conf");
-    sleep(3);
+    sleep(1);
     exec("ip -4 route flush table $table");
     exec("ip -4 route add $route dev $vtun table $table");
   }
