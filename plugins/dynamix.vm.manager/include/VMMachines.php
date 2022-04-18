@@ -166,7 +166,7 @@ foreach ($vms as $vm) {
   }
 
   /* Display VM  IP Addresses "execute":"guest-network-get-interfaces" --pretty */
-  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th>"._('Type')."</th><th>"._('IP')."</th><th>"._('Prefix')."</th></tr></thead>";
+  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
   $ip = $lv->domain_qemu_agent_command($res, '{"execute":"guest-network-get-interfaces"}', 10, 0) ;
   if ($ip != false) {
     $ip = json_decode($ip,true) ;
