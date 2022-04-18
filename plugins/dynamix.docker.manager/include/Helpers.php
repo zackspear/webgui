@@ -17,8 +17,7 @@ function addRoute($ct) {
   [$pid,$net] = explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct"));
   $net = substr($net,4,strpos($net,':')-4);
   if ($net != 'br0') return;
-  $dev = is_dir('/sys/class/net/br0') ? 'br0' : (is_dir('/sys/class/net/bond0') ? 'bond0' : 'eth0');
-  $thisip  = exec("ip -4 addr show dev $dev|grep -Pom1 'inet \\K[^/]+'");
+  $thisip  = ipaddr();
   foreach (glob('/etc/wireguard/wg*.cfg') as $cfg) {
     $network = exec("grep -Pom1 '^Network:0=\"\\K[^\"]+' $cfg");
     if ($network) exec("nsenter -n -t $pid ip -4 route add $network via $thisip 2>/dev/null");
