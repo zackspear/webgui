@@ -99,12 +99,12 @@ function addDocker($vtun) {
     $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
     $error = dockerNet($vtun);
-    if (!$error && noNet($network)) {
-      [$thisnet,$gateway] = thisnet();
-      exec("ip -4 rule add from $network table $index");
-      exec("ip -4 route add unreachable default table $index");
-      exec("ip -4 route add $thisnet via $gateway table $index");
-    }
+  }
+  if (!$error && noNet($network)) {
+    [$thisnet,$gateway] = thisnet();
+    exec("ip -4 rule add from $network table $index");
+    exec("ip -4 route add unreachable default table $index");
+    exec("ip -4 route add $thisnet via $gateway table $index");
   }
   return $error;
 }
@@ -116,10 +116,10 @@ function delDocker($vtun) {
     $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
     $error = !dockerNet($vtun);
-    if (!$error && exec("ip rule|grep -Pom1 'from $network'")) {
-      exec("ip -4 route flush table $index");
-      exec("ip -4 rule del from $network table $index");
-    }
+  }
+  if (!$error && exec("ip rule|grep -Pom1 'from $network'")) {
+    exec("ip -4 route flush table $index");
+    exec("ip -4 rule del from $network table $index");
   }
   return $error;
 }
