@@ -14,7 +14,7 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-libxml_use_internal_errors(true); 
+libxml_use_internal_errors(true);
 
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
@@ -841,7 +841,7 @@ Donation Link:
 
 Template URL:
 : <input type="text" name="contTemplateURL">
-  
+
 </div>
 <div markdown="1" class="advanced">
 _(Icon URL)_:
@@ -876,7 +876,17 @@ _(Network Type)_:
   <?=mk_option(1,'host',_('Host'))?>
   <?=mk_option(1,'none',_('None'))?>
   <?foreach ($custom as $network):?>
-  <?if (substr($network,0,2)=='wg') {$conf=file("/etc/wireguard/$network.conf"); $name=$conf[1][0]=='#' ? $network.' ('.compress(trim(substr($conf[1],1))).')' : $network;} else $name=$network;?>
+  <?$name = $network;
+  if (preg_match('/^(br|bond|eth)[0-9]+(\.[0-9]+)?$/',$network)) {
+    [$eth,$x] = my_explode('.',$network);
+    $eth = str_replace(['br','bond'],'eth',$eth);
+    $n = $x ? 1 : 0; while (isset($$eth["VLANID:$n"]) && $$eth["VLANID:$n"] != $x) $n++;
+    if ($$eth["DESCRIPTION:$n"]) $name .= ' -- '.compress(trim($$eth["DESCRIPTION:$n"]));
+  } elseif (preg_match('/^wg[0-9]+$/',$network)) {
+    $conf = file("/etc/wireguard/$network.conf");
+    if ($conf[1][0]=='#') $name .= ' -- '.compress(trim(substr($conf[1],1)));
+  }
+  ?>
   <?=mk_option(1,$network,_('Custom')." : $name")?>
   <?endforeach;?></select>
 
@@ -1077,7 +1087,7 @@ function load_contOverview() {
   new_overview = marked(new_overview);
   new_overview = new_overview.replaceAll("\n","<br>"); // has to be after marked
   $("#contDescription").html(new_overview);
-  
+
   var new_requires = $("textarea[name='contRequires']").val();
   new_requires = new_requires.replaceAll("[","<").replaceAll("]",">");
   // Handle code block being created by authors indenting (manually editing the xml and spacing)
