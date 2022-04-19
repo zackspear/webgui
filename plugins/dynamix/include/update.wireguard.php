@@ -94,9 +94,9 @@ function dockerNet($vtun) {
 function addDocker($vtun) {
   global $dockerd,$dockernet;
   $error = false;
+  $index = substr($vtun,2)+200;
+  $network = "$dockernet.$index.0/24";
   if ($dockerd && dockerNet($vtun)) {
-    $index = substr($vtun,2)+200;
-    $network = "$dockernet.$index.0/24";
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
     $error = dockerNet($vtun);
   }
@@ -111,9 +111,9 @@ function addDocker($vtun) {
 function delDocker($vtun) {
   global $dockerd,$dockernet;
   $error = false;
+  $index = substr($vtun,2)+200;
+  $network = "$dockernet.$index.0/24";
   if ($dockerd && !dockerNet($vtun)) {
-    $index = substr($vtun,2)+200;
-    $network = "$dockernet.$index.0/24";
     exec("docker network rm $vtun 2>/dev/null");
     $error = !dockerNet($vtun);
   }
