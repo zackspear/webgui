@@ -87,6 +87,7 @@ class DockerTemplates {
 		curl_setopt($ch, CURLOPT_ENCODING, "");
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_REFERER, "");
+		curl_setopt($ch, CURLOPT_FAILONERROR, true);
 		$out = curl_exec($ch) ?: false;
 		curl_close($ch);
 		if ($path && $out) file_put_contents($path,$out); elseif ($path) @unlink($path);
@@ -353,6 +354,10 @@ class DockerTemplates {
 		if (!is_file($icon) && is_file($iconRAM)) {
 			@copy($iconRAM,$icon);
 		}
+		if ( !is_file($iconRAM) ) {
+			exec("/usr/bin/logger ".escapeshellarg("$imageName: Could not download icon $imgUrl"));
+		}
+
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';
 	}
 }
