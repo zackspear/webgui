@@ -876,7 +876,7 @@ _(Network Type)_:
   <?=mk_option(1,'host',_('Host'))?>
   <?=mk_option(1,'none',_('None'))?>
   <?foreach ($custom as $network):?>
-  <?if (substr($network,0,2)=='wg') {$conf=file("/etc/wireguard/$network.conf"); $name=$conf[1][0]=='#' ? $network.' ('.compress(trim(substr($conf[1],1))).')' : $network;} else $name=$network;?>
+  <?if (preg_match('/^wg[0-9]+$/',$network)) {$conf=file("/etc/wireguard/$network.conf"); $name=$conf[1][0]=='#' ? $network.' ('.compress(trim(substr($conf[1],1))).')' : $network;} else $name=$network;?>
   <?=mk_option(1,$network,_('Custom')." : $name")?>
   <?endforeach;?></select>
 
