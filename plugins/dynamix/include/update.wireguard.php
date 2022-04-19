@@ -382,7 +382,10 @@ case 'toggle':
   case 'start':
     $index = substr($vtun,2)+200;
     $network = "$dockernet.$index.0/24";
-    if (noNet($network)) exec("ip -4 rule add from $network table $index");
+    if (noNet($network)) {
+      exec("ip -4 rule add from $network table $index");
+      exec("ip -4 route add unreachable default table $index");
+    }
     wgState($vtun,'up',$_POST['#type']);
     echo status($vtun) ? 0 : 1;
     break;
