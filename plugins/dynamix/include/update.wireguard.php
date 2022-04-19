@@ -117,7 +117,7 @@ function delDocker($vtun) {
     exec("docker network rm $vtun 2>/dev/null");
     $error = !dockerNet($vtun);
   }
-  if (!$error && exec("ip rule|grep -Pom1 'from $network'")) {
+  if (!$error && !noNet($network)) {
     exec("ip -4 route flush table $index");
     exec("ip -4 rule del from $network table $index");
   }
