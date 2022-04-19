@@ -881,10 +881,10 @@ _(Network Type)_:
     [$eth,$x] = my_explode('.',$network);
     $eth = str_replace(['br','bond'],'eth',$eth);
     $n = $x ? 1 : 0; while (isset($$eth["VLANID:$n"]) && $$eth["VLANID:$n"] != $x) $n++;
-    if ($$eth["DESCRIPTION:$n"]) $name = $network.' -- '.compress(trim($$eth["DESCRIPTION:$n"]));
+    if ($$eth["DESCRIPTION:$n"]) $name .= ' -- '.compress(trim($$eth["DESCRIPTION:$n"]));
   } elseif (preg_match('/^wg[0-9]+$/',$network)) {
     $conf = file("/etc/wireguard/$network.conf");
-    if ($conf[1][0]=='#') $name = $network.' -- '.compress(trim(substr($conf[1],1)));
+    if ($conf[1][0]=='#') $name .= ' -- '.compress(trim(substr($conf[1],1)));
   }
   ?>
   <?=mk_option(1,$network,_('Custom')." : $name")?>
