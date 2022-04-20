@@ -506,6 +506,11 @@
           'mismatch' => sprintf(_("Remark: Unraid's WAN IPv4 **%1s** does not match your client's WAN IPv4 **%2s**"), '{0}', '{1}').'. '._('This may indicate a complex network that will not work with this Remote Access solution').'. '._('Ignore this message if you are currently connected via Remote Access or VPN').'.',
           'resolveError' => _('DNS issue, unable to resolve wanip4.unraid.net'),
         ],
+        'upcTrigger' => [
+          'upgrade' => _('To support more storage devices as your server grows click the *Open Dropdown* button').'.',
+          'default' => _('Key management is done via the dropdown in the top right of the webGUI on every page').'.',
+          'open' => _('Open Dropdown'),
+        ],
       ],
     ];
     $configErrorEnum = [ // used to map $var['configValid'] value to mimic unraid-api's `configError` ENUM
