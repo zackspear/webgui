@@ -213,7 +213,7 @@ function createIPs($list) {
   return implode(', ',array_map('host',array_filter(array_map('trim',explode(',',$list)))));
 }
 function parseInput($vtun,&$input,&$x) {
-  global $conf,$user,$var,$default,$default6,$vpn;
+  global $conf,$user,$var,$default,$default6,$vpn,$tunip;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
