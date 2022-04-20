@@ -134,6 +134,7 @@
           'myServers' => [
             'heading' => _('My Servers'),
             'beta' => _('beta'),
+            'restarting' => _('Restarting…'),
             'errors' => [
               'unraidApi' => [
                 'heading' => _('Unraid API Error'),
