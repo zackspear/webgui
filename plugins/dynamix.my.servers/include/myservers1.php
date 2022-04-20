@@ -19,7 +19,8 @@ unraid-user-profile {
   height: 100%;
 }
 
-unraid-launchpad {
+unraid-launchpad,
+unraid-promo {
   position: relative;
   z-index: 10001;
 }
