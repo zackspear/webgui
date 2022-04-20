@@ -34,7 +34,7 @@ function mask2cidr($mask) {
   $base = ip2long('255.255.255.255');
   return 32-log(($long ^ $base)+1,2);
 }
-function thisnet($ethX='eth0') {
+function thisNet($ethX='eth0') {
   extract(parse_ini_file('state/network.ini',true));
   $net = long2ip(ip2long($$ethX['IPADDR:0']) & ip2long($$ethX['NETMASK:0'])).'/'.mask2cidr($$ethX['NETMASK:0']);
   return [$net,$$ethX['GATEWAY:0']];
@@ -105,7 +105,7 @@ function addDocker($vtun) {
     $error = dockerNet($vtun);
   }
   if (!$error && !isNet($network)) {
-    [$thisnet,$gateway] = thisnet();
+    [$thisnet,$gateway] = thisNet();
     exec("ip -4 rule add from $network table $index");
     exec("ip -4 route add unreachable default table $index");
     exec("ip -4 route add $thisnet via $gateway table $index");
@@ -222,7 +222,7 @@ function parseInput($vtun,&$input,&$x) {
       if ($section==0) {
         // add WG routing for docker containers. Only IPv4 supported
         [$index,$network] = newNet($vtun);
-        [$thisnet,$gateway] = thisnet();
+        [$thisnet,$gateway] = thisNet();
         $conf[]  = "PostUp=ip -4 route flush table $index";
         $conf[]  = "PostUp=ip -4 route add default via $tunip table $index";
         $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway table $index";
