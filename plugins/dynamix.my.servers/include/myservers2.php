@@ -38,6 +38,7 @@
         'closePromo' => _('Close My Servers details and continue to webGUI'),
         'promoHeading' => _('Enhance your Unraid experience with these<br> My Servers (BETA) features'),
         'learnMore' => _('Learn more'),
+        'checkoutTheMyServersDocs' => _('Checkout the My Servers docs'),
         'popUp' => _('Pop-up'),
         'close' => _('Close'),
         'backToPopUp' => sprintf(_('Back to %s'), _('Pop-up')),
