@@ -347,6 +347,7 @@
                 'loading' => _('Extending Trial'),
                 'error' => _('Trial Extension Failed'),
               ],
+              'message' => _('Not ready to purchase?').'<br>'._('Receive an additional 15 days for your trial').'.',
             ],
             'forgotPassword' => [
               'heading' => _('Forgot Password'),
