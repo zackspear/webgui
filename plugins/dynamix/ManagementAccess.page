@@ -47,7 +47,6 @@ $addr        = ipaddr($ethX);
 $rebindip4   = "192.168.42.42";
 $keyfile     = @file_get_contents($var['regFILE']);
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
-$isRegistered = !empty($remote['username']); // signed in to unraid.net or not
 
 $certFile    = "/boot/config/ssl/certs/certificate_bundle.pem";
 $certPresent = file_exists("$certFile");
