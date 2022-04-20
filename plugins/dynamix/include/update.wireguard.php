@@ -58,8 +58,13 @@ function ipfilter(&$list) {
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
 }
-function noNet($network) {
-  return empty(exec("ip rule|grep -Pom1 'from $network'"));
+function isNet($network) {
+  return !empty(exec("ip rule|grep -Pom1 'from $network'"));
+}
+function newNet($vtun) {
+  global $dockernet;
+  $i = substr($vtun,2)+200;
+  return [$i,"$dockernet.$i.0/24"];
 }
 function wgState($vtun,$state,$type=0) {
   global $t1,$etc;
@@ -92,15 +97,14 @@ function dockerNet($vtun) {
   return empty(exec("docker network ls --filter name='$vtun' --format='{{.Name}}'"));
 }
 function addDocker($vtun) {
-  global $dockerd,$dockernet;
+  global $dockerd;
   $error = false;
-  $index = substr($vtun,2)+200;
-  $network = "$dockernet.$index.0/24";
+  [$index,$network] = newNet($vtun);
   if ($dockerd && dockerNet($vtun)) {
     exec("docker network create $vtun --subnet=$network 2>/dev/null");
     $error = dockerNet($vtun);
   }
-  if (!$error && noNet($network)) {
+  if (!$error && !isNet($network)) {
     [$thisnet,$gateway] = thisnet();
     exec("ip -4 rule add from $network table $index");
     exec("ip -4 route add unreachable default table $index");
@@ -109,15 +113,14 @@ function addDocker($vtun) {
   return $error;
 }
 function delDocker($vtun) {
-  global $dockerd,$dockernet;
+  global $dockerd;
   $error = false;
-  $index = substr($vtun,2)+200;
-  $network = "$dockernet.$index.0/24";
+  [$index,$network] = newNet($vtun);
   if ($dockerd && !dockerNet($vtun)) {
     exec("docker network rm $vtun 2>/dev/null");
     $error = !dockerNet($vtun);
   }
-  if (!$error && !noNet($network)) {
+  if (!$error && isNet($network)) {
     exec("ip -4 route flush table $index");
     exec("ip -4 rule del from $network table $index");
   }
@@ -210,7 +213,7 @@ function createIPs($list) {
   return implode(', ',array_map('host',array_filter(array_map('trim',explode(',',$list)))));
 }
 function parseInput($vtun,&$input,&$x) {
-  global $conf,$user,$var,$default,$default6,$vpn,$dockernet;
+  global $conf,$user,$var,$default,$default6,$vpn;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
@@ -218,8 +221,7 @@ function parseInput($vtun,&$input,&$x) {
     if ($i != $section) {
       if ($section==0) {
         // add WG routing for docker containers. Only IPv4 supported
-        $index   = substr($vtun,2)+200;
-        $network = "$dockernet.$index.0/24";
+        [$index,$network] = newNet($vtun);
         [$thisnet,$gateway] = thisnet();
         $conf[]  = "PostUp=ip -4 route flush table $index";
         $conf[]  = "PostUp=ip -4 route add default via $tunip table $index";
@@ -380,9 +382,8 @@ case 'toggle':
     echo status($vtun) ? 1 : 0;
     break;
   case 'start':
-    $index = substr($vtun,2)+200;
-    $network = "$dockernet.$index.0/24";
-    if (noNet($network)) {
+    [$index,$network] = newNet($vtun);
+    if (!isNet($network)) {
       exec("ip -4 rule add from $network table $index");
       exec("ip -4 route add unreachable default table $index");
     }
