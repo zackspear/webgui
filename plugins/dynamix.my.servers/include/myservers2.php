@@ -542,11 +542,16 @@
       "internalport" => $_SERVER['SERVER_PORT'],
       "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
       "osVersion" => $var['version'],
-      "plgVersion" => $plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg")
+      "plgVersion" => $plgversion = file_exists('/var/log/plugins/dynamix.unraid.net.plg')
         ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.plg 2>/dev/null'))
-        : ( file_exists("/var/log/plugins/dynamix.unraid.net.staging.plg")
+        : ( file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
             ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.staging.plg 2>/dev/null'))
             : 'base-'.$var['version'] ),
+      "plgInstalled" => (file_exists('/var/log/plugins/dynamix.unraid.net.plg')
+        ? 'dynamix.unraid.net.plg'
+        : (file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
+          ? 'dynamix.unraid.net.staging.plg'
+          : '')),
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
       "regGuid" => $var['regGUID'],
