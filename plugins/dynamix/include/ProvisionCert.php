@@ -41,7 +41,6 @@ extract(parse_ini_file('/var/local/emhttp/network.ini',true));
 if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
   @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
 }
-$isRegistered = !empty($remote) && !empty($remote['username']);
 
 $certPresent = file_exists($certPath);
 if ($certPresent) {
@@ -58,11 +57,6 @@ if ($certPresent) {
   } else {
     // assume custom cert
     response_complete(406, '{"error":"'._('Cannot renew a custom cert at').' '.$certPath.'"}');
-  }
-} else {
-  // provision new cert
-  if (!$isRegistered) {
-    response_complete(406, '{"error":"'._('Must be signed in to Unraid.net to provision cert').'"}');
   }
 }
 $endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildcard";

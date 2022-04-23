@@ -47,7 +47,6 @@ $addr        = ipaddr($ethX);
 $rebindip4   = "192.168.42.42";
 $keyfile     = @file_get_contents($var['regFILE']);
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
-$isRegistered = !empty($remote['username']); // signed in to unraid.net or not
 
 $certFile    = "/boot/config/ssl/certs/certificate_bundle.pem";
 $certPresent = file_exists("$certFile");
@@ -76,10 +75,10 @@ if ($certPresent) {
 }
 
 $provisionlabel     = $isLEcert ? _('Renew') : _('Provision');
-$disabled_provision = !$isRegistered || $keyfile===false || ($isLEcert && $retval_expired===0) ? 'disabled' : '';
-$disabled_updatedns = $isRegistered && $keyfile!==false && $isLEcert ? '' : 'disabled';
+$disabled_provision = $keyfile===false || ($isLEcert && $retval_expired===0) ? 'disabled' : '';
+$disabled_updatedns = $keyfile!==false && $isLEcert ? '' : 'disabled';
 $disabled_delete    = $certPresent && $var['USE_SSL']!='auto' ? '' : 'disabled';
-$disabled_auto      = $isRegistered && $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
+$disabled_auto      = $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
 $upgradelabel       = _('Upgrade Cert');
 
 // Get ports in use
@@ -95,20 +94,12 @@ foreach ($output as $line) {
 }
 ?>
 <script>
-var isRegistered = <?= $isRegistered ? 1 : 0 ?>;
-var notRegisteredMsg = '<?= _('Sign In to Unraid.net required') ?>';
-
 function provisionHandler(event, form) { // provisions and renewals require being Signed In to Unraid.net
-  if (event.submitter.value === 'Delete') return true; // always allow deletes regardless of isRegistered value
-  if (event.submitter.value === 'Renew') return true; // always allow renewals regardless of isRegistered value
-  if (!isRegistered) {
-    event.preventDefault();
-    return alert(notRegisteredMsg);
-  }
+  if (event.submitter.value === 'Delete') return true; // always allow deletes
+  if (event.submitter.value === 'Renew') return true; // always allow renewals
 };
 
 function updateDNS(button) {
-  if (!isRegistered) return alert(notRegisteredMsg);
   $(button).prop("disabled", true).html("<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>_(Update DNS)_");
   var failure = function(data) {
     var status = data.status;
@@ -301,11 +292,6 @@ _(Certificate expiration)_:
 <?else:?>
 _(CA-signed certificate file)_:
 : _(Not present)_
-
-<?if (!$isRegistered):?>
-&nbsp;
-: <i class="fa fa-warning icon warning"></i> <em>_(You must be signed in to Unraid.net in order to generate an Unraid.net SSL certificate)_</em>
-<?endif;?>
 
 <?endif;?>
 &nbsp;
