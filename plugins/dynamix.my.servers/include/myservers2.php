@@ -523,8 +523,13 @@
       "withdrawn" => 'WITHDRAWN',
     ];
     $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
+    $plgInstalled = (file_exists('/var/log/plugins/dynamix.unraid.net.plg')
+    ? 'dynamix.unraid.net.plg'
+    : (file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
+      ? 'dynamix.unraid.net.staging.plg'
+      : ''));
     $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
-      "avatar" => $remote['avatar'],
+      "avatar" => (!empty($remote['avatar']) && $plgInstalled) ? $remote['avatar'] : '',
       "config" => [
         'valid' => $var['configValid'] === 'yes',
         'error' => $var['configValid'] !== 'yes'
@@ -547,20 +552,16 @@
         : ( file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
             ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.staging.plg 2>/dev/null'))
             : 'base-'.$var['version'] ),
-      "plgInstalled" => (file_exists('/var/log/plugins/dynamix.unraid.net.plg')
-        ? 'dynamix.unraid.net.plg'
-        : (file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
-          ? 'dynamix.unraid.net.staging.plg'
-          : '')),
+      "plgInstalled" => $plgInstalled,
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
       "regGuid" => $var['regGUID'],
-      "registered" => !empty($remote['username']),
+      "registered" => (!empty($remote['username']) && $plgInstalled),
       "servername" => $var['NAME'],
       "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
       "ts" => time(),
-      "username" => $remote['username'],
+      "username" => (!empty($remote['username']) && $plgInstalled) ? $remote['username'] : '',
       "wanFQDN" => $nginx['NGINX_WANFQDN'] ?? '',
     ];
     /** @TODO - prop refactor needed. The issue is because the prop names share the same name as the vuex store variables
