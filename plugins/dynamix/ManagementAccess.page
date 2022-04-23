@@ -38,9 +38,6 @@ function find_tasks() {
   sort($tasks);
   return $tasks;
 }
-function plain($ip) {
-  return str_replace(['[',']'],'',$ip);
-}
 $tasks       = find_tasks();
 $ethX        = 'eth0';
 $addr        = ipaddr($ethX);
@@ -85,13 +82,15 @@ $upgradelabel       = _('Upgrade Cert');
 $portsInUse = [];
 exec("lsof -Pni|awk '/LISTEN/ && \$9!~/127.0.0.1/ && \$9!~/\\[::1\\]/{print \$9}'|sort -u", $output);
 
-$bind = $var['BIND_MGT']=='yes';
+$bind = false; //= $var['BIND_MGT']=='yes'; - not used in 6.10
 $list = ['*',$addr];
 
 foreach ($output as $line) {
-  [$ip, $port] = my_explode(':', $line);
-  if (!in_array($port,$portsInUse) && (!$bind || in_array(plain($ip),$list))) $portsInUse[] = $port;
+  [$ip, $port] = my_explode($line[0]=='[' ? ']:' : ':',$line);
+  if ($ip[0]=='[') $ip = substr($ip,1); // ipv6 address
+  if (!in_array($port,$portsInUse) && (!$bind || in_array($ip,$list))) $portsInUse[] = $port;
 }
+sort($portsInUse,SORT_NUMERIC);
 ?>
 <script>
 function provisionHandler(event, form) { // provisions and renewals require being Signed In to Unraid.net
@@ -117,7 +116,7 @@ function updateDNS(button) {
 }
 
 function checkPorts(form) {
-  var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
+  var portsInUse = [<?=implode(',',$portsInUse)?>];
   var range = [], list = [], duplicates = [];
   var checks = [
     {'key':"PORTTELNET", 'used':"<?=$var['USE_TELNET']=='yes'?>", 'port':"<?=$var['PORTTELNET']?>", 'default':"23" , 'name':"_(TELNET port)_"},
@@ -134,7 +133,7 @@ function checkPorts(form) {
     if (userPort < 1 || userPort > 65535) range.push(userPort+' ('+check['name']+')');
     duplicates.push(userPort);
     if (check['used'] == '1' && userPort != current) {
-      if (portsInUse.includes(userPort)) list.push(userPort+' ('+check['name']+')');
+      if (portsInUse.includes(parseInt(userPort))) list.push(userPort+' ('+check['name']+')');
     }
   }
   duplicates = duplicates.reduce(function(acc, el, i, arr) {
