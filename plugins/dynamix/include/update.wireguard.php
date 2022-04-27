@@ -23,7 +23,7 @@ $dockerd   = is_file('/var/run/dockerd.pid') && is_dir('/proc/'.file_get_content
 $etc       = '/etc/wireguard';
 $validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
-$normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint'];
+$normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint','listenport'=>'ListenPort','mtu'=>'MTU','persistentkeepalive'=>'PersistentKeepalive'];
 $dockernet = "172.31";
 
 $t1 = '10'; // 10 sec timeout
@@ -91,7 +91,7 @@ function vtun() {
 function normalize(&$id) {
   // ensure correct capitalization of keywords, some VPN providers use the wrong case
   global $normalize;
-  $id = $normalize[strtolower($id)];
+  $id = $normalize[strtolower($id)] ?? $id;
 }
 function dockerNet($vtun) {
   return empty(exec("docker network ls --filter name='$vtun' --format='{{.Name}}'"));
