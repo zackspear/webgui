@@ -91,6 +91,7 @@ function vtun() {
 function normalize(&$id) {
   // ensure correct capitalization of keywords, some VPN providers use the wrong case
   global $normalize;
+  // allow fallback for non-included keywords
   $id = $normalize[strtolower($id)] ?? $id;
 }
 function dockerNet($vtun) {
