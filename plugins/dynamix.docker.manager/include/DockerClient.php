@@ -338,7 +338,7 @@ class DockerTemplates {
 	public function getIcon($Repository,$contName) {
 		global $docroot, $dockerManPaths;
 		$imgUrl = $this->getTemplateValue($Repository, 'Icon','all',$contName);
-		if (!$imgUrl) return '';
+		if (!$imgUrl || trim($imgUrl) == "/plugins/dynamix.docker.manager/images/question.png") return '';
 
 		$imageName = $contName ?: $name;
 		$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
