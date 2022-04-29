@@ -46,9 +46,9 @@ function rebindDisabled() {
   global $isLegacyCert;
   $rebindtesturl = $isLegacyCert ? "rebindtest.unraid.net" : "rebindtest.myunraid.net";
   // DNS Rebind Protection - this checks the server but clients could still have issues
-  $validResponse = array("192.168.42.42", "fd42::");
+  $validResponse = array("192.168.42.42", "fd42");
   $response = host_lookup_ip($rebindtesturl);
-  return in_array($response, $validResponse);
+  return in_array(explode('::',$response)[0], $validResponse);
 }
 function format_port($port) {
   return ($port != 80 && $port != 443) ? ':'.$port : '';
