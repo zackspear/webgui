@@ -16,10 +16,9 @@ if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
   session_start();
   session_write_close();
 }
-// delete empty session file
+// remove empty and temporary (made by scripts) sessions
 $session = '/var/lib/php/sess_'.session_id();
 if (file_exists($session) && filesize($session)==0) unlink($session);
-// remove session which is created by scripts
 if (session_status()==PHP_SESSION_ACTIVE && count($_SESSION??[])==1 && isset($_SESSION['locale'])) session_destroy();
 
 require_once "$docroot/webGui/include/Markdown.php";
