@@ -12,13 +12,15 @@
 ?>
 <?
 // start new session as required
-if (session_status()==PHP_SESSION_NONE && isset($_SESSION) && !isset($login_locale)) {
+if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
   session_start();
   session_write_close();
 }
-// remove session which is created by scripts
-if (session_status()==PHP_SESSION_ACTIVE && count($_SESSION)==1 && isset($_SESSION['locale'])) session_destroy();
-
+// remove empty and temporary session files
+$session = '/var/lib/php/sess_'.session_id();
+if (file_exists($session)) {
+  if (filesize($session)===0 || (count($_SESSION??[])==1 && isset($_SESSION['locale']))) unlink($session);
+}
 require_once "$docroot/webGui/include/Markdown.php";
 
 function _($text, $do=-1) {
