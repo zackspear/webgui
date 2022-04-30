@@ -16,11 +16,11 @@ if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
   session_start();
   session_write_close();
 }
-// remove empty and temporary (made by scripts) sessions
+// remove empty and temporary session files
 $session = '/var/lib/php/sess_'.session_id();
-if (file_exists($session) && filesize($session)==0) unlink($session);
-if (session_status()==PHP_SESSION_ACTIVE && count($_SESSION??[])==1 && isset($_SESSION['locale'])) session_destroy();
-
+if (file_exists($session)) {
+  if (filesize($session)===0 || (session_status()==PHP_SESSION_ACTIVE && count($_SESSION??[])==1 && isset($_SESSION['locale']))) unlink($session);
+}
 require_once "$docroot/webGui/include/Markdown.php";
 
 function _($text, $do=-1) {
