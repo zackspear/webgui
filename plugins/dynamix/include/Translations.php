@@ -19,7 +19,7 @@ if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
 // remove empty and temporary session files
 $session = '/var/lib/php/sess_'.session_id();
 if (file_exists($session)) {
-  if (filesize($session)===0 || (session_status()==PHP_SESSION_ACTIVE && count($_SESSION??[])==1 && isset($_SESSION['locale']))) unlink($session);
+  if (filesize($session)===0 || (count($_SESSION??[])==1 && isset($_SESSION['locale']))) unlink($session);
 }
 require_once "$docroot/webGui/include/Markdown.php";
 
