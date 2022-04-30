@@ -381,6 +381,35 @@ done
     </Script>
   </Agent>
   <Agent>
+    <Name>ServerChan</Name>
+    <Variables>
+      <Variable Help="Get your SendKey from [a href='https://sct.ftqq.com/sendkey' target='_blank'][u]here[/u][/a]." Desc="SendKey" Default="FILL WITH YOUR OWN">SENDKEY</Variable>
+      <Variable Help="Optional. Specify the message channel(s) used for this push, e.g., '9' or '9|66'. [b]To disable this feature, specify 'none'.[/b]" Desc="Specific Channel" Default="none">CHANNEL</Variable>
+      <Variable Help="Optional. Specify the openid(s) or UID(s) used for this push, e.g., 'openid1,openid2' or 'UID1|UID2'. [b]To disable this feature, specify 'none'.[/b]" Desc="Specific Openid" Default="none">OPENID</Variable>
+      <Variable Help="Specify the fields which are included in the title of the notification." Desc="Notification Title" Default="$SUBJECT">TITLE</Variable>
+      <Variable Help="Specify the fields which are included in the message body of the notification." Desc="Notification Message" Default="$DESCRIPTION">MESSAGE</Variable>
+    </Variables>
+    <Script>
+      <![CDATA[
+      #!/bin/bash
+      ############
+      {0}
+      ############
+      TITLE=$(echo -e "$TITLE")
+      MESSAGE=$(echo -e "$MESSAGE")
+      [[ -n "${CHANNEL}" && "${CHANNEL}" == "none" ]] && CHANNEL=""
+      [[ -n "${OPENID}" && "${OPENID}" == "none" ]] && OPENID=""
+
+      curl -s -k -X POST \
+      -F "title=$TITLE" \
+      -F "desp=$MESSAGE" \
+      -F "channel=$CHANNEL" \
+      -F "openid=$OPENID" \
+      "https://sctapi.ftqq.com/$SENDKEY.send" 2>&1
+      ]]>
+    </Script>
+  </Agent>
+  <Agent>
     <Name>Slack</Name>
     <Variables>
       <Variable Help="Get your WebHook as explained [a href='https://api.slack.com/incoming-webhooks' target='_blank'][u]here[/u].[/a]" Desc="WebHook URL" Default="USE YOUR OWN WEBHOOK VALUE HERE">WEBH_URL</Variable>
