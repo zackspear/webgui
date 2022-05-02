@@ -397,8 +397,9 @@ done
       ############
       {0}
       ############
-      #Pushplus don't allow \n in title
+      #Pushplus don't allow \n in title and the length limit is 100 for free accounts
       TITLE=$(echo -e "$TITLE" | tr "\n" " ")
+      TITLE=$(echo "${TITLE:0:95}")
       MESSAGE=$(echo -e "$MESSAGE")
       [[ -n "${TOPIC}" && "${TOPIC}" == "none" ]] && TOPIC=""
       [[ -n "${CHANNEL}" && "${CHANNEL}" == "none" ]] && CHANNEL="wechat"
@@ -433,8 +434,9 @@ done
       ############
       {0}
       ############
+      # Markdown newline style for message content
       TITLE=$(echo -e "$TITLE")
-      MESSAGE=$(echo -e "$MESSAGE")
+      MESSAGE=$(echo -e "$MESSAGE" | sed -z 's/\n/\n\n/g')
       [[ -n "${CHANNEL}" && "${CHANNEL}" == "none" ]] && CHANNEL=""
       [[ -n "${OPENID}" && "${OPENID}" == "none" ]] && OPENID=""
 
