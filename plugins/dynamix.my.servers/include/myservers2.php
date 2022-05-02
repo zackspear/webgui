@@ -73,6 +73,7 @@
           'upgrade' => _('Upgrade Key'),
           'recover' => _('Recover Key'),
           'replace' => _('Replace Key'),
+          'replaceIneligible' => _('Replace Key Ineligible'),
           'extend' => _('Extend Trial'),
           'startTrial' => _('Start Trial'),
           'signOutUnraidNet' => _('Sign Out of Unraid.net'),
@@ -493,6 +494,12 @@
                   'heading' => _('Plus more on the way'),
                   'copy' => _('All you need is an active internet connection, an Unraid.net account, and the <span>My Servers</span> plugin').'. '._('Get started by installing the plugin') . '.',
                 ],
+              ],
+            ],
+            'replaceKey' => [
+              'subheading' => [
+                'registered' => 'A record of your replacement will be sent to your Unraid.net account email address',
+                'notRegistered' => 'A record of your replacement will be sent to this email',
               ],
             ],
             'notFound' => [
