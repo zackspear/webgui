@@ -73,6 +73,7 @@
           'upgrade' => _('Upgrade Key'),
           'recover' => _('Recover Key'),
           'replace' => _('Replace Key'),
+          'replaceIneligible' => _('Replace Key Ineligible'),
           'extend' => _('Extend Trial'),
           'startTrial' => _('Start Trial'),
           'signOutUnraidNet' => _('Sign Out of Unraid.net'),
