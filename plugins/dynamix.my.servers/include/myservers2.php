@@ -495,6 +495,12 @@
                 ],
               ],
             ],
+            'replaceKey' => [
+              'subheading' => [
+                'registered' => 'A record of your replacement will be sent to your Unraid.net account email address',
+                'notRegistered' => 'A record of your replacement will be sent to this email',
+              ],
+            ],
             'notFound' => [
               'subheading' => _('Page Not Found'),
             ],
