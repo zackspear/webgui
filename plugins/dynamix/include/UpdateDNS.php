@@ -378,10 +378,10 @@ $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error = curl_error($ch);
 curl_close($ch);
 
-if ($result === false) {
+if ( ($result === false) || ($httpcode != "200") ) {
   // delete cache file to retry submission on next run
   @unlink($datafile);
-  response_complete(500, array('error' => $error));
+  response_complete($httpcode ?? "500", array('error' => $error));
 }
 
 response_complete($httpcode, $result, _('success'));
