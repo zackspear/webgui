@@ -51,9 +51,15 @@ function ipset($ip) {
 function ipsplit($ip) {
   return ipv4($ip) ? ':' : ']:';
 }
+function ipv4Addr($value) {
+  return array_filter(array_map('trim',explode(',',$value)),'ipv4');
+}
+function ipv6Addr($value) {
+  return array_filter(array_map('trim',explode(',',$value)),'ipv6');
+}
 function ipfilter(&$list) {
-  // we only import IPv4 addresses at this moment, strip any IPv6 addresses
-  $list = implode(', ',array_filter(array_map('trim',explode(',',$list)),'ipv4'));
+  // we only import IPv4 addresses, strip any IPv6 addresses
+  $list = implode(', ',ipv4Addr($list));
 }
 function host($ip) {
   return strpos($ip,'/')!==false ? $ip : (ipv4($ip) ? "$ip/32" : "$ip/128");
@@ -73,7 +79,7 @@ function wgState($vtun,$state,$type=0) {
   if ($type==8) {
     // make VPN tunneled access for Docker containers only
     $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
-    $route = exec("grep -Pom1 '^Address=\K.+$' $etc/$vtun.conf");
+    $route = implode(ipv4Addr(exec("grep -Pom1 '^Address=\K.+$' $etc/$vtun.conf")));
     sleep(1);
     exec("ip -4 route flush table $table");
     exec("ip -4 route add $route dev $vtun table $table");
@@ -296,7 +302,7 @@ function parseInput($vtun,&$input,&$x) {
       if ($i==0) {
         $conf[] = "$id=$value";
         $tunnel = "$id=$hosts";
-        $tunip  = $value;
+        $tunip  = implode(ipv4Addr($value));
       } else {
         $user[] = "$id:$x=\"$value\"";
         $var['address'] = "$id=$hosts";
