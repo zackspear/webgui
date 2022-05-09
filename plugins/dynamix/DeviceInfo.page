@@ -560,10 +560,10 @@ _(btrfs balance status)_:
 <?endif;?>
 </form>
 <hr>
-<?$balance = "balance_$tag";?>
+<?$balance = str_replace('-','_',"balance_$tag")?>
 <form markdown="1" name="balance_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this)">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
-<input type="hidden" name="#section" value="balance_<?=$tag?>">
+<input type="hidden" name="#section" value="<?=$balance?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
 <input type="hidden" name="#job" value="balance_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_balance start /mnt/<?=$tag?> -dusage=50">
 <input type="hidden" name="hour" value="">
@@ -656,10 +656,10 @@ _(btrfs scrub status)_:
 <?endif;?>
 </form>
 <hr>
-<?$scrub = "scrub_$tag";?>
+<?$scrub = str_replace('-','_',"scrub_$tag")?>
 <form markdown="1" name="scrub_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareBTRFS(this)">
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
-<input type="hidden" name="#section" value="scrub_<?=$tag?>">
+<input type="hidden" name="#section" value="<?=$scrub?>">
 <input type="hidden" name="#include" value="/webGui/include/update.btrfs.php">
 <input type="hidden" name="#job" value="scrub_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/btrfs_scrub start /mnt/<?=$tag?> -r">
 <input type="hidden" name="hour" value="">

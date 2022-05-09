@@ -563,8 +563,8 @@ echo " <a href='https://wiki.unraid.net/Manual' target='_blank' title=\""._('Onl
 echo "</span></div>";
 ?>
 <script>
-// Firefox specific workaround
-if (typeof InstallTrigger!=='undefined') $('#nav-block').addClass('mozilla');
+// Firefox specific workaround, not needed anymore in firefox version 100 and higher
+//if (typeof InstallTrigger!=='undefined') $('#nav-block').addClass('mozilla');
 
 function parseINI(data){
   var regex = {
