@@ -226,7 +226,7 @@
             'humanReadable' => _('Missing key file'),
             'error' => [
               'heading' => '@:stateData.ENOKEYFILE2.humanReadable',
-              'message' => _('It appears that your license key file is corrupted or missing').'. '._('The key file should be located in the */config* directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may attempt to recover your key').'. '._('If this was a Trial installation, you may purchase a license key').'.',
+              'message' => _('It appears that your license key file is corrupted or missing').'. '._('The key file should be located in the */config* directory on your USB Flash boot device').'. '._('If you do not have a backup copy of your license key file you may install the My Servers (beta) plugin to attempt to recover your key').'. '._('If this was an expired Trial installation, you may purchase a license key').'.',
             ],
           ],
           'ETRIAL' => [
