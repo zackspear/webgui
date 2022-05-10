@@ -25,7 +25,7 @@ $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
 // check connectivity first
-echo _("Checking connectivty")."...\n";
+echo _("Checking connectivity")."...\n";
 if (exec("wget --spider --no-check-certificate -nv -T10 -t1 https://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")) {
   $check = popen('plugin checkall','r');
   while (!feof($check)) echo fgets($check);
