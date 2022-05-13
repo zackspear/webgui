@@ -452,6 +452,8 @@ case 'import':
     }
   }
   if ($import['PrivateKey:0'] && !$import['PublicKey:0']) $import['PublicKey:0'] = exec("wg pubkey <<<'{$import['PrivateKey:0']}'");
+  // delete ListenPort and let WG generate a random local port
+  unset($import['ListenPort:0']);
   $import['UPNP:0'] = 'no';
   $import['NAT:0'] = 'no';
   [$subnet,$mask] = my_explode('/',$import['Address:0']);
