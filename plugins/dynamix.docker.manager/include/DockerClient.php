@@ -302,7 +302,7 @@ class DockerTemplates {
 			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
 			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
 			if ( ! $communityApplications ) {
-				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name);
+				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$tmp['icon']);
 			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
@@ -335,9 +335,10 @@ class DockerTemplates {
 		return $info;
 	}
 
-	public function getIcon($Repository,$contName) {
+	public function getIcon($Repository,$contName,$tmpIconUrl='') {
 		global $docroot, $dockerManPaths;
 		$imgUrl = $this->getTemplateValue($Repository, 'Icon','all',$contName);
+		if (!$imgUrl) $imgUrl = $tmpIconUrl;
 		if (!$imgUrl || trim($imgUrl) == "/plugins/dynamix.docker.manager/images/question.png") return '';
 
 		$imageName = $contName ?: $name;
