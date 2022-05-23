@@ -173,6 +173,7 @@ function setGlue(form,reset) {
     $('input[name="smDevice"]').val('').hide();
     $('#helptext').hide();
   }
+  form.smGlue.value = form.smType.selectedIndex>0 ? data[n]['glue'] : "<?=$var['smGlue']?>";
 }
 function prepareFS(form,cookie,value) {
   if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
