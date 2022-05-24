@@ -521,6 +521,7 @@
           'default' => _('Key management is done via the dropdown in the top right of the webGUI on every page').'.',
           'open' => _('Open Dropdown'),
         ],
+        'yargYePirate' => _('Oh no! Are you pirating Unraid OS?<br>Are you ready to buy a real license?'),
       ],
     ];
     $configErrorEnum = [ // used to map $var['configValid'] value to mimic unraid-api's `configError` ENUM

@@ -251,7 +251,7 @@ _(Use SSL/TLS)_:
 : <select name="USE_SSL" onchange="updateSSL(this.form)">
   <?=mk_option($var['USE_SSL'], "no", _('No'))?>
   <?=mk_option($var['USE_SSL'], "yes", _('Yes'))?>
-  <?=mk_option($var['USE_SSL'], "auto", _('Auto'), $disabled_auto)?>
+  <?=mk_option($var['USE_SSL'], "auto", _('Strict'), $disabled_auto)?>
   </select>
 
 :mgmt_use_ssl_tls_help:
