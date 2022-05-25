@@ -82,5 +82,11 @@ case 'docker':
     exec("ttyd-exec -i '$sock' docker exec -it '$name' $more");
   }
   break;
+case 'lxc':
+  $name = unbundle($_GET['name']);
+  $more = unbundle($_GET['more']);
+  $sock = "/var/tmp/$name.sock";
+  exec("ttyd-exec -i '$sock' lxc-attach $name $more");
+  break;
 }
 ?>
