@@ -32,7 +32,7 @@
 	$arrValidCdromBuses = getValidCdromBuses();
 	$arrValidVNCModels = getValidVNCModels();
 	$arrValidKeyMaps = getValidKeyMaps();
-	$arrValidBridges = getNetworkBridges();
+	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
 
 	$arrConfigDefaults = [
@@ -1007,12 +1007,17 @@
 				</td>
 			</tr>
 			<tr class="advanced">
-				<td>_(Network Bridge)_:</td>
+				<td>_(Network Source)_:</td>
 				<td>
 					<select name="nic[<?=$i?>][network]">
 					<?
-					foreach ($arrValidBridges as $strBridge) {
-						echo mk_option($arrNic['network'], $strBridge, $strBridge);
+					foreach (array_keys($arrValidNetworks) as $key) {
+
+						echo mk_option("", $key, "- "._($key)." -", "disabled");
+
+						foreach ($arrValidNetworks[$key] as $strNetwork) {
+							echo mk_option($arrNic['network'], $strNetwork, $strNetwork);
+						}
 					}
 					?>
 					</select>
@@ -1041,8 +1046,8 @@
 				</p>
 
 				<p>
-					<b>Network Bridge</b><br>
-					The default libvirt managed network bridge (virbr0) will be used, otherwise you may specify an alternative name for a private network bridge to the host.
+					<b>Network Source</b><br>
+					The default libvirt managed network bridge (virbr0) will be used, otherwise you may specify an alternative name for a private network to the host.
 				</p>
 
 				<p>
@@ -1064,12 +1069,17 @@
 				</td>
 			</tr>
 			<tr class="advanced">
-				<td>_(Network Bridge)_:</td>
+				<td>_(Network Source)_:</td>
 				<td>
 					<select name="nic[{{INDEX}}][network]">
 					<?
-					foreach ($arrValidBridges as $strBridge) {
-						echo mk_option($domain_bridge, $strBridge, $strBridge);
+					foreach (array_keys($arrValidNetworks) as $key) {
+
+						echo mk_option("", $key, "- "._($key)." -", "disabled");
+
+						foreach ($arrValidNetworks[$key] as $strNetwork) {
+							echo mk_option($domain_bridge, $strNetwork, $strNetwork);
+						}
 					}
 					?>
 					</select>

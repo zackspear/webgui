@@ -28,7 +28,7 @@
 	$arrValidOtherDevices = getValidOtherDevices();
 	$arrValidUSBDevices = getValidUSBDevices();
 	$arrValidDiskDrivers = getValidDiskDrivers();
-	$arrValidBridges = getNetworkBridges();
+	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
 
 	// Read localpaths in from libreelec.cfg
@@ -827,12 +827,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</td>
 				</tr>
 				<tr class="advanced">
-					<td>_(Network Bridge)_:</td>
+					<td>_(Network Source)_:</td>
 					<td>
 						<select name="nic[<?=$i?>][network]">
 						<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($arrNic['network'], $strBridge, $strBridge);
+						foreach (array_keys($arrValidNetworks) as $key) {
+
+							echo mk_option("", $key, "- "._($key)." -", "disabled");
+
+							foreach ($arrValidNetworks as $strNetwork) {
+								echo mk_option($arrNic['network'], $strNetwork, $strNetwork);
+							}
 						}
 						?>
 						</select>
@@ -859,8 +864,8 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</p>
 
 					<p>
-						<b>Network Bridge</b><br>
-						The default libvirt managed network bridge (virbr0) will be used, otherwise you may specify an alternative name for a private network bridge to the host.
+						<b>Network Source</b><br>
+						The default libvirt managed network bridge (virbr0) will be used, otherwise you may specify an alternative name for a private network to the host.
 					</p>
 
 				<p>
@@ -882,12 +887,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</td>
 				</tr>
 				<tr class="advanced">
-					<td>_(Network Bridge)_:</td>
+					<td>_(Network Source)_:</td>
 					<td>
 						<select name="nic[{{INDEX}}][network]">
 						<?
-						foreach ($arrValidBridges as $strBridge) {
-							echo mk_option($domain_bridge, $strBridge, $strBridge);
+						foreach (array_keys($arrValidNetworks) as $key) {
+
+							echo mk_option("", $key, "- "._($key)." -", "disabled");
+
+							foreach ($arrValidNetworks as $strNetwork) {
+								echo mk_option($domain_bridge, $strNetwork, $strNetwork);
+							}
 						}
 						?>
 						</select>
