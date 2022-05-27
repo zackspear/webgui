@@ -84,8 +84,7 @@ function cleanupFails(string $failFile, int $time): int {
 function verifyUsernamePassword(string $username, string $password): bool {
     if ($username != "root") return false;
 
-    // @TODO: integrate with PAM to avoid direct access to /etc/shadow and validate other user names
-    $output = exec("/usr/bin/grep root /etc/shadow");
+    $output = exec("/usr/bin/getent shadow $username");
     if ($output === false) return false;
     $credentials = explode(":", $output);
     return password_verify($password, $credentials[1]);
