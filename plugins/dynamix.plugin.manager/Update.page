@@ -77,7 +77,7 @@ function initlist() {
 }
 function warning (data) {
   $('#change_branch').prop('disabled',true);
-  return data.replace('green','orange').replace("<?=_('up-to-date')?>","<?=_('Reboot')?>").replace('check','warning');
+  return data.replace('green','orange').replace("<?=_('up-to-date')?>","<?=_('Reboot')?>").replace('checking','warning');
 }
 function loadlist(id,check) {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||<?=$check?>},function(data) {
