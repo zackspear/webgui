@@ -24,7 +24,7 @@ extract(parse_plugin_cfg('dynamix',true));
 
 $rows = 90;
 $wait = "read -N 1 -p '\n\e[92m** "._('Press ANY KEY to close this window')." ** \e[0m'";
-$run  = '/usr/local/emhttp/webGui/scripts/run_cmd';
+$run  = "$docroot/webGui/scripts/run_cmd";
 
 // set tty window font size
 if (isset($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
