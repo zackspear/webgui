@@ -22,15 +22,16 @@ require_once "$docroot/webGui/include/Wrappers.php";
 // Get the webGui configuration preferences
 extract(parse_plugin_cfg('dynamix',true));
 
-$rows = 80;
-$wait = "read -N 1 -p '\n** "._('Press ANY KEY to close this window')." ** '";
+$rows = 90;
+$wait = "read -N 1 -p '\n\e[92m** "._('Press ANY KEY to close this window')." ** \e[0m'";
+$run  = '/usr/local/emhttp/webGui/scripts/run_cmd';
 
 // set tty window font size
 if (isset($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
 
 function command($path,$file) {
-  global $rows,$wait;
-  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -f -n $rows '$file'" : $wait;
+  global $run,$rows,$wait;
+  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "$run tail -f -n $rows '$file'" : $wait;
 }
 switch ($_GET['tag']) {
 case 'ttyd':
@@ -69,11 +70,11 @@ case 'docker':
     if (empty(exec("docker ps --filter=name='$name' --format={{.Names}}"))) {
       // container stopped - read log and wait for user input
       $docker = "/var/tmp/$name.run.sh";
-      file_put_contents($docker,"#!/bin/bash\ndocker logs -n $rows '$name'\n$wait\n");
+      file_put_contents($docker,"#!/bin/bash\n$run docker logs -n $rows '$name'\n$wait\n");
       chmod($docker,0755);
     } else {
       // container started - read log continuously
-      $docker = "docker logs -f -n $rows '$name'";
+      $docker = "$run docker logs -f -n $rows '$name'";
     }
     exec("ttyd-exec -i '$sock' $docker");
   } else {
@@ -86,7 +87,7 @@ case 'lxc':
   $name = unbundle($_GET['name']);
   $more = unbundle($_GET['more']);
   $sock = "/var/tmp/$name.sock";
-  exec("ttyd-exec -i '$sock' lxc-attach $name $more");
+  exec("ttyd-exec -i '$sock' lxc-attach '$name' $more");
   break;
 }
 ?>
