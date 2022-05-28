@@ -16,7 +16,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/ColorCoding.php";
 
 $last  = "\e[0m";
-$color = ['text' => $last, 'login' => "\e[95m", 'warn' => "\e[93m", 'error' => "\e[91m", 'system' => "\e[96m", 'array' => "\e[92m"];
+$color = ['text' => $last, 'error' => "\e[91m", 'warn' => "\e[93m", 'system' => "\e[96m", 'array' => "\e[92m", 'login' => "\e[95m"];
 $call  = ['tail','docker'];
 
 if (!in_array($argv[1],$call)) exit;
@@ -24,6 +24,7 @@ if (!in_array($argv[1],$call)) exit;
 array_shift($argv);
 $cmd = popen(implode(' ',array_map('escapeshellarg',$argv)),'r');
 
+foreach ($color as $cat => $val) echo $val,$cat,$last,"  "; echo "\n\n";
 while (($line = fgets($cmd))!==false) {
   $lead = $last;
   foreach ($match as $type) foreach ($type['text'] as $text) {
