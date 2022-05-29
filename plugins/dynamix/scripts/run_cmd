@@ -17,22 +17,26 @@ require_once "$docroot/webGui/include/ColorCoding.php";
 
 $last  = "\e[0m";
 $color = ['text' => $last, 'error' => "\e[91m", 'warn' => "\e[93m", 'system' => "\e[96m", 'array' => "\e[92m", 'login' => "\e[95m"];
-$call  = ['tail','docker'];
+$call  = ['tail','docker','grep'];
 
 if (!in_array($argv[1],$call)) exit;
 
-array_shift($argv);
-$cmd = popen(implode(' ',array_map('escapeshellarg',$argv)),'r');
+$dummy = array_shift($argv);
+$files = array_pop($argv);
+array_multisort(array_map('filemtime',($logs = glob($files,GLOB_NOSORT))),SORT_ASC,$logs);
+if (empty($logs)) $logs = [$files];
 
 foreach ($color as $cat => $val) echo $val,$cat,$last,"  "; echo "\n\n";
-while (($line = fgets($cmd))!==false) {
-  $lead = $last;
-  foreach ($match as $type) foreach ($type['text'] as $text) if (preg_match("/$text/i",$line)) {
-    $lead = $color[$type['class']];
-    break 2;
+foreach ($logs as $log) {
+  $cmd = popen(implode(' ',$argv).' '.escapeshellarg($log),'r');
+  while (($line = fgets($cmd))!==false) {
+    $lead = $last;
+    foreach ($match as $type) foreach ($type['text'] as $text) if (preg_match("/$text/i",$line)) {
+      $lead = $color[$type['class']];
+      break 2;
+    }
+    echo $lead,rtrim($line,"\n"),$last,"\n";
   }
-  echo $lead,rtrim($line,"\n"),$last,"\n";
+  pclose($cmd);
 }
-
-pclose($cmd);
 ?>
