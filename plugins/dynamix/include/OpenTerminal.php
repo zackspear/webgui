@@ -27,7 +27,7 @@ $wait = "read -N 1 -p '\n\e[92m** "._('Press ANY KEY to close this window')." **
 $run  = "$docroot/webGui/scripts/run_cmd";
 
 // set tty window font size
-if (isset($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
+if (!empty($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
 
 function wait($name,$cmd) {
   global $run,$wait;
