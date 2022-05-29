@@ -16,13 +16,13 @@ require_once "$docroot/webGui/include/ColorCoding.php";
 
 array_multisort(array_map('filemtime',($logs = glob($_POST['log'].'*',GLOB_NOSORT))),SORT_ASC,$logs);
 $sum = array_sum(array_map(function($log){return count(file($log));},$logs));
-$max = 5000;
+$max = $_POST['max'];
 $row = 0;
 
 foreach ($logs as $log) {
   $fh = fopen($log,'r');
   while (($line = fgets($fh)) !== false) {
-    if ($max < $sum - $row++) continue;
+    if ($max > 0 && $max < $sum - $row++) continue;
     $span = '<span class="log text">';
     foreach ($match as $type) foreach ($type['text'] as $text) if (preg_match("/$text/i",$line)) {
       $span = '<span class="log '.$type['class'].'">';
