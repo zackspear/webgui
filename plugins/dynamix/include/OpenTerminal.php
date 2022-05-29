@@ -66,7 +66,7 @@ case 'disklog':
   $sock = "/var/tmp/$name.sock";
   $ata  = exec("ls -n '/sys/block/$name'|grep -Pom1 'ata\d+'");
   $dev  = $ata ? $name.'|'.$ata.'[.:]' : $name;
-  exec("ttyd-exec -i '$sock' ".wait($name,"grep -P '$dev' '/var/log/syslog*'"));
+  exec("ttyd-exec -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
   break;
 case 'log':
   // read vm log file
