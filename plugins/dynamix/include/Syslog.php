@@ -23,9 +23,9 @@ foreach ($logs as $log) {
   $fh = fopen($log,'r');
   while (($line = fgets($fh)) !== false) {
     if ($max > 0 && $max < $sum - $row++) continue;
-    $span = '<span class="log text">';
+    $span = '<span class="text">';
     foreach ($match as $type) foreach ($type['text'] as $text) if (preg_match("/$text/i",$line)) {
-      $span = '<span class="log '.$type['class'].'">';
+      $span = '<span class="'.$type['class'].'">';
       break 2;
     }
     echo $span,htmlspecialchars(rtrim($line,"\n")),"</span>";

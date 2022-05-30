@@ -34,7 +34,7 @@ if (file_exists($cfg)) {
 $select = implode($select);
 ?>
 <style>
-span.log{display:block}
+span:not(label){display:block}
 input#max{border:none;width:60px;margin:0;padding:0}
 </style>
 <script>
