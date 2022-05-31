@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-// Copyright 2005-2021, Lime Technology
+// Copyright 2005-2022, Lime Technology
 // License: GPLv2 only
 //
 // Program updates made by Bergware International (April 2020)
@@ -226,6 +226,12 @@ function plugin($method, $plugin_file, &$error) {
   if ($method == 'changes') {
     if (!$xml->CHANGES) return false;
     return trim($xml->CHANGES);
+  }
+
+  // alert message
+  if ($method == 'alert') {
+    if (!$xml->ALERT) return false;
+    return trim($xml->ALERT);
   }
 
   // check if $method is an attribute
@@ -477,7 +483,7 @@ if ($method == 'install') {
     echo "plugin: installed Unraid version is too high, require at most version $max\n";
     if (dirname($plugin_file) == "$boot") {
       move($plugin_file, "$boot-error");
-    }		
+    }
     exit(1);
   }
   $plugin = basename($plugin_file);

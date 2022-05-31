@@ -4,8 +4,8 @@ Icon="icon-update"
 Tag="upload"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -49,7 +49,8 @@ function update_table(branch) {
     if (branch) original = branch;
   }
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,branch:branch},function(data) {
-    updateInfo(data);
+    data = data.split('\0');
+    updateInfo(data[0]);
     $('#os_table').trigger('update');
   });
 }
@@ -68,7 +69,8 @@ function updateInfo(data) {
 }
 function initlist() {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true,check:<?=$check?>},function(data) {
-    $('#os_list').html(data);
+    data = data.split('\0');
+    $('#os_list').html(data[0]);
 <?if ($bzroot):?>
     $('#previous').show();
 <?endif;?>
@@ -81,20 +83,21 @@ function warning (data) {
 }
 function loadlist(id,check) {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||<?=$check?>},function(data) {
+    data = data.split('\0');
     var list = $('#os_list');
     if (id) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
-        case 'update' : data = warning(data);
-        case 'return' : updateInfo(data); break;
-        case 'install': list.find(tr).remove(); list.append(warning(data)); break;
+        case 'update' : data[0] = warning(data[0]);
+        case 'return' : updateInfo(data[0]); break;
+        case 'install': list.find(tr).remove(); list.append(warning(data[0])); break;
       }
     } else {
 <?if (!$reboot):?>
-      updateInfo(data);
+      updateInfo(data[0]);
 <?else:?>
-      updateInfo(warning(data));
+      updateInfo(warning(data[0]));
 <?endif;?>
     }
     $('#os_table').trigger('update');
@@ -102,6 +105,7 @@ function loadlist(id,check) {
 <?if ($reboot):?>
     $('#change_branch').prop('disabled',true);
 <?endif;?>
+    if (data[1] != null) openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file='+data[1],"_(Alert Message)_",600,900);
   });
 }
 $(function() {
