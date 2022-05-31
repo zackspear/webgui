@@ -69,8 +69,7 @@ function updateInfo(data) {
 }
 function initlist() {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{init:true,system:true,check:<?=$check?>},function(data) {
-    data = data.split('\0');
-    $('#os_list').html(data[0]);
+    $('#os_list').html(data);
 <?if ($bzroot):?>
     $('#previous').show();
 <?endif;?>
