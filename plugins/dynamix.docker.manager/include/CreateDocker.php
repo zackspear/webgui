@@ -338,9 +338,9 @@ function makeConfig(opts) {
   newConfig = $($.parseHTML(newConfig));
   value     = newConfig.find("input[name='confValue[]']");
   if (opts.Type == "Path") {
-    value.attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+    value.attr("onclick", "openFileBrowser(this,$(this).val(),$(this).val(),'',true,false);");
   } else if (opts.Type == "Device") {
-    value.attr("onclick", "openFileBrowser(this,$(this).val()||'/dev','',false,true);")
+    value.attr("onclick", "openFileBrowser(this,'/dev','/dev','',false,true);")
   } else if (opts.Type == "Variable" && opts.Default.split("|").length > 1) {
     var valueOpts = opts.Default.split("|");
     var newValue = "<select name='confValue[]' class='selectVariable' default='"+valueOpts[0]+"'>";
@@ -570,7 +570,7 @@ function toggleMode(el,disabled) {
   switch ($(el)[0].selectedIndex) {
   case 0: // Path
     mode.html("<dl><dt>_(Access Mode)_:</dt><dd><select name='Mode'><option value='rw'>_(Read/Write)_</option><option value='rw,slave'>_(Read/Write - Slave)_</option><option value='rw,shared'>_(Read/Write - Shared)_</option><option value='ro'>_(Read Only)_</option><option value='ro,slave'>_(Read Only - Slave)_</option><option value='ro,shared'>_(Read Only - Shared)_</option></select></dd></dl>");
-    value.bind("click", function(){openFileBrowser(this,$(this).val(), 'sh', true, false);});
+    value.bind("click", function(){openFileBrowser(this, $(this).val(), $(this).val(), 'sh', true, false);});
     targetDiv.find('#dt1').text("_(Container Path)_");
     valueDiv.find('#dt2').text("_(Host Path)_");
     break;
@@ -604,7 +604,7 @@ function toggleMode(el,disabled) {
     targetDiv.hide();
     defaultDiv.hide();
     valueDiv.find('#dt2').text("_(Value)_");
-    value.bind("click", function(){openFileBrowser(this,$(this).val()||'/dev', '', true, true);});
+    value.bind("click", function(){openFileBrowser(this, '/dev', '/dev', '', true, true);});
     break;
   }
   reloadTriggers();
@@ -623,11 +623,11 @@ function rmTemplate(tmpl) {
   swal({title:"_(Are you sure)_?",text:"_(Remove template)_: "+name,type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$("#rmTemplate").val(tmpl);$("#formTemplate1").submit();});
 }
 
-function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
+function openFileBrowser(el, top, root, filter, on_folders, on_files, close_on_select) {
   if (on_folders === undefined) on_folders = true;
   if (on_files   === undefined) on_files = true;
   if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
-  if (!root.trim()) root = "/mnt/user/";
+  if (!root.trim()) {root = "/mnt/user/"; top = "/mnt/";}
   p = $(el);
   // Skip is fileTree is already open
   if (p.next().hasClass('fileTree')) return null;
@@ -637,6 +637,7 @@ function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select
   p.after("<span id='fileTree"+r+"' class='textarea fileTree'></span>");
   var ft = $('#fileTree'+r);
   ft.fileTree({
+    top: top,
     root: root,
     filter: filter,
     allowBrowsing: true
