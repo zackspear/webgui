@@ -311,10 +311,13 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
 
+function showUpgradeChanges() {
+  openBox("/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=/tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>",600,900);
+}
 function showUpgrade(text,noDismiss=false) {
   if ($.cookie('os_upgrade')==null) {
     if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
-    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
+    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
 }
 function confirmUpgrade() {
@@ -734,7 +737,7 @@ $(function() {
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
   showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <a><?=_('Update Now')?></a>");
+  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' style='cursor:pointer'></span> <a><?=_('Update Now')?></a>");
 <?endif;?>
 <?if (!$notify['system']):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications' style='cursor:pointer'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
