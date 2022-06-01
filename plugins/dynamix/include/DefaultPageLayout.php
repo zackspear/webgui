@@ -737,7 +737,7 @@ $(function() {
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
   showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' style='cursor:pointer'></span> <a><?=_('Update Now')?></a>");
+  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' style='cursor:pointer' title=\"<?=_('Release Notes')?>\"></span> <a><?=_('Update Now')?></a>");
 <?endif;?>
 <?if (!$notify['system']):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications' style='cursor:pointer'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
