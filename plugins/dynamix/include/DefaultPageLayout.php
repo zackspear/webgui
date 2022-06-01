@@ -19,6 +19,7 @@ $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
+$alerts  = '/tmp/plugins/my_alerts.txt';
 
 function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
 ?>
@@ -316,6 +317,11 @@ function showUpgrade(text,noDismiss=false) {
     osUpgradeWarning = addBannerWarning(text.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
 }
+function confirmUpgrade() {
+  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
+  });
+}
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
   if (set)
@@ -325,9 +331,11 @@ function hideUpgrade(set) {
 }
 function openUpgrade() {
   hideUpgrade();
-  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
-    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
-  });
+<?if (file_exists($alerts)):?>
+  openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=<?=$alerts?>',"<?=_('Alert Message')?>",600,900,true,'confirmUpgrade');
+<?else:?>
+  confirmUpgrade();
+<?endif;?>
 }
 function digits(number) {
   if (number < 10) return 'one';
