@@ -166,7 +166,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     if (($changes = plugin('changes',$changes_file)) !== false) {
       $txtfile = "/tmp/plugins/".basename($plugin_file,'.plg').".txt";
       file_put_contents($txtfile,$changes);
-      $version .= "&nbsp;<a href='#' title=\""._('View Release Notes')."\" onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=".urlencode($txtfile)."','"._('Release Notes')."',600,900); return false\"><span class='fa fa-info-circle fa-fw big blue-text'></span></a>";
+      $version .= "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=$txtfile','"._('Release Notes')."',600,900)\"></span>";
     }
     if ($rank < 2 && ($alert = plugin('alert',$changes_file)) !== false) {
       // generate alert message (if existing) when newer version is available
