@@ -17,9 +17,18 @@ case 'config':
   $files  = ['disk:0','docker:1','domain:1','flash:0','ident:1','share:0']; // config files to check
   foreach ($files as $file) {
     [$name,$need] = explode(':',$file);
-    if (($need && !file_exists("$config/$name.cfg")) || (file_exists("$config/$name.cfg") && !@parse_ini_file("$config/$name.cfg"))) {echo 1; break;}
+    for ( $i=0;$i<2;$i++) {
+      if (($need && !file_exists("$config/$name.cfg")) || (file_exists("$config/$name.cfg") && !@parse_ini_file("$config/$name.cfg"))) {
+        $flag = 1;
+        sleep(1);
+      } else {
+        $flag = 0;
+        break;
+      }
+    }
+    if ( $flag ) break;
   }
-  echo 0;
+  echo $flag;
   break;
 case 'notice':
   $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
