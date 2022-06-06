@@ -19,6 +19,7 @@ $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
+$alerts  = '/tmp/plugins/my_alerts.txt';
 
 function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
 ?>
@@ -61,6 +62,7 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice{position:fixed;top:1px;left:0;width:100%;height:40px;line-height:40px;color:#e68a00;background:#feefb3;border-bottom:#e68a00 1px solid;text-align:center;font-size:1.4rem;z-index:999}
 .upgrade_notice i{margin:14px;float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
+span.big.blue-text{cursor:pointer}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -76,7 +78,7 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<a href='#' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?tmp=1&file=$notes','"._('Release Notes')."',600,900);return false\"><span class='fa fa-info-circle fa-fw'></span></a>"
+$notes = "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=$notes','"._('Release Notes')."',600,900)\"></span>";
 ?>
 </style>
 
@@ -310,11 +312,19 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
 
+function showUpgradeChanges() {
+  openBox("/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=/tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>",600,900);
+}
 function showUpgrade(text,noDismiss=false) {
   if ($.cookie('os_upgrade')==null) {
     if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
-    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.*)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
+    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
+}
+function confirmUpgrade() {
+  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
+  });
 }
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
@@ -325,9 +335,11 @@ function hideUpgrade(set) {
 }
 function openUpgrade() {
   hideUpgrade();
-  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
-    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
-  });
+<?if (file_exists($alerts)):?>
+  openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=<?=$alerts?>',"<?=_('Alert Message')?>",600,900,true,'confirmUpgrade');
+<?else:?>
+  confirmUpgrade();
+<?endif;?>
 }
 function digits(number) {
   if (number < 10) return 'one';
@@ -726,10 +738,10 @@ $(function() {
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
   showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <a><?=_('Update Now')?></a>");
+  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' title=\"<?=_('Release Notes')?>\"></span> <a><?=_('Update Now')?></a>");
 <?endif;?>
 <?if (!$notify['system']):?>
-  addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications' style='cursor:pointer'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
+  addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
 <?endif;?>
 <?if ($notify['display']):?>

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -27,6 +27,7 @@ $init    = unscript($_GET['init']??'');
 $empty   = true;
 $install = false;
 $updates = 0;
+$alerts  = '/tmp/plugins/my_alerts.txt';
 $builtin = ['unRAIDServer'];
 $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
@@ -41,6 +42,7 @@ if ($audit) {
   }
 }
 
+delete_file($alerts);
 foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   //only consider symlinks
   $plugin_file = @readlink($plugin_link);
@@ -161,11 +163,14 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     elseif ($status=='need check') $rank = '2';
     elseif ($status=='up-to-date') $rank = '3';
     else $rank = '4';
-    $changes = plugin('changes',$changes_file);
-    if ($changes !== false) {
+    if (($changes = plugin('changes',$changes_file)) !== false) {
       $txtfile = "/tmp/plugins/".basename($plugin_file,'.plg').".txt";
       file_put_contents($txtfile,$changes);
-      $version .= "&nbsp;<a href='#' title=\""._('View Release Notes')."\" onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=".urlencode($txtfile)."','"._('Release Notes')."',600,900); return false\"><span class='fa fa-info-circle fa-fw big blue-text'></span></a>";
+      $version .= "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=$txtfile','"._('Release Notes')."',600,900)\"></span>";
+    }
+    if ($rank < 2 && ($alert = plugin('alert',$changes_file)) !== false) {
+      // generate alert message (if existing) when newer version is available
+      file_put_contents($alerts,($os ? "" : "## $name\n\n").$alert."\n\n",FILE_APPEND);
     }
     //write plugin information
     $empty = false;
@@ -177,4 +182,5 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
 }
 if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
 if (!$init && !$os) echo "\0".$updates;
+if (!$init && file_exists($alerts)) echo "\0".$alerts;
 ?>

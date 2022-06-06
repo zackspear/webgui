@@ -22,15 +22,23 @@ require_once "$docroot/webGui/include/Wrappers.php";
 // Get the webGui configuration preferences
 extract(parse_plugin_cfg('dynamix',true));
 
-$rows = 80;
-$wait = "read -N 1 -p '\n** "._('Press ANY KEY to close this window')." ** '";
+$rows = 90;
+$wait = "read -N 1 -p '\n\e[92m** "._('Press ANY KEY to close this window')." ** \e[0m'";
+$run  = "$docroot/webGui/scripts/run_cmd";
 
 // set tty window font size
-if (isset($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
+if (!empty($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
 
+function wait($name,$cmd) {
+  global $run,$wait;
+  $exec = "/var/tmp/$name.run.sh";
+  file_put_contents($exec,"#!/bin/bash\n$run $cmd\n$wait\n");
+  chmod($exec,0755);
+  return $exec;
+}
 function command($path,$file) {
-  global $rows,$wait;
-  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "tail -f -n $rows '$file'" : $wait;
+  global $run,$wait,$rows;
+  return (file_exists($file) && substr($file,0,strlen($path))==$path) ? "$run tail -f -n $rows '$file'" : $wait;
 }
 switch ($_GET['tag']) {
 case 'ttyd':
@@ -52,6 +60,14 @@ case 'syslog':
   $sock = "/var/run/syslog.sock";
   exec("ttyd-exec -i '$sock' ".command($path,$file));
   break;
+case 'disklog':
+  // read disk log info (main page)
+  $name = unbundle($_GET['name']);
+  $sock = "/var/tmp/$name.sock";
+  $ata  = exec("ls -n '/sys/block/$name'|grep -Pom1 'ata\d+'");
+  $dev  = $ata ? $name.'|'.$ata.'[.:]' : $name;
+  exec("ttyd-exec -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
+  break;
 case 'log':
   // read vm log file
   $path = '/var/log/';
@@ -66,15 +82,10 @@ case 'docker':
   if ($more=='.log') {
     // read docker container log
     $sock = "/var/tmp/$name.log.sock";
-    if (empty(exec("docker ps --filter=name='$name' --format={{.Names}}"))) {
-      // container stopped - read log and wait for user input
-      $docker = "/var/tmp/$name.run.sh";
-      file_put_contents($docker,"#!/bin/bash\ndocker logs -n $rows '$name'\n$wait\n");
-      chmod($docker,0755);
-    } else {
-      // container started - read log continuously
-      $docker = "docker logs -f -n $rows '$name'";
-    }
+    if (empty(exec("docker ps --filter=name='$name' --format={{.Names}}")))
+      $docker = wait($name,"docker logs -n $rows '$name'"); // container stopped
+    else
+      $docker = "$run docker logs -f -n $rows '$name'"; // container started
     exec("ttyd-exec -i '$sock' $docker");
   } else {
     // docker console command
@@ -86,7 +97,7 @@ case 'lxc':
   $name = unbundle($_GET['name']);
   $more = unbundle($_GET['more']);
   $sock = "/var/tmp/$name.sock";
-  exec("ttyd-exec -i '$sock' lxc-attach $name $more");
+  exec("ttyd-exec -i '$sock' lxc-attach '$name' $more");
   break;
 }
 ?>
