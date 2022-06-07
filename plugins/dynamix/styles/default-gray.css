@@ -57,7 +57,7 @@ textarea{resize:none}
 #header .text-right a{color:#606e7f}
 #header .text-right #licensetype{font-weight:bold;font-style:italic;margin-right:4px}
 #menu{position:fixed;top:0;left:0;bottom:12px;width:65px;padding:0;margin:0;background-color:#383a34;z-index:2000;box-shadow:inset -1px 0 2px #121510}
-#nav-block{position:absolute;top:0;bottom:12px;color:#ffdfb9;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl;letter-spacing:1.8px}
+#nav-block{position:absolute;top:0;bottom:12px;color:#ffdfb9;white-space:nowrap;float:left;overflow-y:scroll;direction:rtl;letter-spacing:1.8px;scrollbar-width:none}
 #nav-block::-webkit-scrollbar{display:none}
 #nav-block{-ms-overflow-style:none;overflow:-moz-scrollbars-none}
 #nav-block.mozilla{margin-left:-17px;overflow-y:scroll}
@@ -76,9 +76,9 @@ textarea{resize:none}
 #nav-item a i{display:none}
 #nav-user{display:block;float:left;text-align:center;border:none}
 #nav-user.probe{font-size:1.1rem;margin-left:3px;margin-right:8px}
-#nav-tub1{position:fixed;top:56px;right:400px}
-#nav-tub2{position:fixed;top:56px;right:370px}
-#nav-tub3{position:fixed;top:56px;right:340px}
+#nav-tub1{position:fixed;top:62px;right:104px}
+#nav-tub2{position:fixed;top:62px;right:74px}
+#nav-tub3{position:fixed;top:62px;right:44px}
 .LanguageButton{font-size:12px !important;} /* Fix Switch Language Being Cut-Off */
 span.tub span[id^='txt-tub']{margin-top:7px}
 #title{color:#39587f;margin:20px 0 10px 0;padding:10px 0;clear:both;background-color:#1b1d1b;border-bottom:1px solid #606e7f;letter-spacing:1.8px}
@@ -106,7 +106,7 @@ span.tub span[id^='txt-tub']{margin-top:7px}
 .blue-orb{color:#0099ff}
 .yellow-orb{color:#ff9900}
 .red-orb{color:#ff3300}
-.usage-bar{position:fixed;top:61px;right:450px;height:2.2rem;line-height:2.2rem;width:14rem;background-color:#606060}
+.usage-bar{position:fixed;top:67px;right:148px;height:2.2rem;line-height:2.2rem;width:11rem;background-color:#606060}
 .usage-bar>span{display:block;height:3px;color:#ffffff;background-color:#606e7f}
 .usage-disk{position:relative;height:2.2rem;line-height:2.2rem;background-color:#232523;margin:0}
 .usage-disk>span:first-child{position:absolute;left:0;margin:0!important;height:3px;background-color:#606e7f}

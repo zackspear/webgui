@@ -34,7 +34,13 @@ if (file_exists($cfg)) {
 $select = implode($select);
 ?>
 <style>
-span:not(label){display:block}
+span.text{display:block}
+span.error{display:block}
+span.warn{display:block}
+span.system{display:block}
+span.array{display:block}
+span.login{display:block}
+span.label{display:inline}
 input#max{border:none;width:60px;margin:0;padding:0}
 </style>
 <script>
