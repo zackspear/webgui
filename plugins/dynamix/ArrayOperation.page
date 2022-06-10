@@ -198,9 +198,9 @@ function stopArray(form) {
 <?endif;?>
 }
 function stopParity(form,text) {
-  $(form).append('<input type="hidden" name="cmdNoCheck" value="Cancel">');
+  $(form).append('<input type="hidden" name="cmdCheckCancel" value="">');
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the running operation)_: "+text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdNoCheck"]').remove();});
+  swal({title:"_(Proceed)_?",text:"_(This will stop the running operation)_: "+text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdCheckCancel"]').remove();});
 <?else:?>
   form.submit();
 <?endif;?>
@@ -208,14 +208,14 @@ function stopParity(form,text) {
 function pauseParity(form) {
   $.post('/webGui/include/ParityControl.php',{action:'pause'},function(){
     $('#pauseButton').val("_(Resume)_").prop('disabled',true).prop('onclick',null).off('click').click(function(){resumeParity(form);});
-    $(form).append('<input type="hidden" name="cmdNoCheck" value="Pause">');
+    $(form).append('<input type="hidden" name="cmdCheckPause" value="">');
     form.submit();
   });
 }
 function resumeParity(form) {
   $.post('/webGui/include/ParityControl.php',{action:'resume'},function(){
     $('#pauseButton').val("_(Pause)_").prop('disabled',true).prop('onclick',null).off('click').click(function(){pauseParity(form);});
-    $(form).append('<input type="hidden" name="cmdCheck" value="Resume">');
+    $(form).append('<input type="hidden" name="cmdCheckResume" value="">');
     form.submit();
   });
 }
@@ -414,9 +414,9 @@ function formatWarning(val) {
     if (!$spot):
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
-?>      <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Sync)_"></td><td>**<?=_('Sync')?>** <?=_("will start **$resync**")?>.</td></tr>
+?>      <tr><td></td><td><input type="submit" name="cmdCheckSync" value="_(Sync)_"></td><td>**<?=_('Sync')?>** <?=_("will start **$resync**")?>.</td></tr>
 <?    elseif ($action[0]=="clear"):?>
-        <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Clear)_"></td><td>**_(Clear)_** _(will start **Disk-Clear** of new data disk(s))_.</td></tr>
+        <tr><td></td><td><input type="submit" name="cmdCheckClear" value="_(Clear)_"></td><td>**_(Clear)_** _(will start **Disk-Clear** of new data disk(s))_.</td></tr>
 <?    else:
         if ($action[0]=="check" && count($action)>1):?>
           <tr><td>_(Parity is valid)_.</td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Parity-Check**)_.&nbsp;<a href="/Main/Settings/Scheduler"<?if ($tabbed):?> onclick="$.cookie('one','tab1')"<?endif;?>>(_(Schedule)_)</a>
