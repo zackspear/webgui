@@ -28,7 +28,7 @@ foreach ($logs as $log) {
       $span = '<span class="'.$type['class'].'">';
       break 2;
     }
-    echo $span,htmlspecialchars(rtrim($line,"\n")),"</span>";
+    echo $span,htmlspecialchars($line),"</span>";
   }
   fclose($fh);
 }
