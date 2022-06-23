@@ -63,6 +63,8 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice i{margin:14px;float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
+pre#body{font-family:clear-sans;text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
+pre#text{text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -78,7 +80,7 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=$notes','"._('Release Notes')."',600,900)\"></span>";
+$notes = "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
 ?>
 </style>
 
@@ -100,8 +102,9 @@ var expiretime = <?=$var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var
 var before = new Date();
 
 // page timer events
-var timers = {};
+const timers = {};
 timers.bannerWarning = null;
+timers.footerAlert = null;
 
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
@@ -155,7 +158,7 @@ function updateTime() {
 }
 function refresh(top) {
   if (typeof top === 'undefined') {
-    for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) { element.disabled = true; }
+    for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) {element.disabled = true;}
     for (var i=0,link; link=document.getElementsByTagName('a')[i]; i++) { link.style.color = "gray"; } //fake disable
     location.reload();
   } else {
@@ -205,7 +208,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
-  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")',0);}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
+  var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
 }
 function openWindow(cmd,title,height,width) {
@@ -234,6 +237,53 @@ function openTerminal(tag,name,more) {
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.max(screen.availHeight*3/5,600),Math.min(Math.max(screen.availWidth/2,900),1600));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
+}
+function footerAlert(text,timer) {
+  if (timers.footerAlert) {
+    timers.footerAlert = null;
+    $('#countdown').html('');
+    return;
+  }
+  $('#countdown').html('<span class="red-text strong">'+text+'</span>');
+  if (!timers.footerAlert) timers.footerAlert = setTimeout(footerAlert,timer||5000);
+}
+function openPlugin(cmd,title,plg,func) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
+    if (pid==0) return;
+    plugins.start();
+    swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+      plugins.stop();
+      $('.sweet-alert').removeClass('nchan');
+      $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
+        if (pid > 0) footerAlert("<?=_('Background process still running')?>");
+        if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+      });
+    });
+    $('.sweet-alert').addClass('nchan');
+  });
+}
+function openChanges(cmd,title) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
+    if (pid==0) return;
+    changes.start();
+    swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+      changes.stop();
+      $('.sweet-alert').removeClass('nchan');
+    });
+    $('.sweet-alert').addClass('nchan');
+  });
+}
+function openAlert(cmd,title,func) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
+    if (pid==0) return;
+    changes.start();
+    swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+      changes.stop();
+      $('.sweet-alert').removeClass('nchan');
+      if (proceed) setTimeout(func+'()',250);
+    });
+    $('.sweet-alert').addClass('nchan');
+  });
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
@@ -313,18 +363,13 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
 }
 
 function showUpgradeChanges() {
-  openBox("/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=/tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>",600,900);
+  openChanges("showchanges /tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>");
 }
 function showUpgrade(text,noDismiss=false) {
   if ($.cookie('os_upgrade')==null) {
     if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
     osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
-}
-function confirmUpgrade() {
-  swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
-    openBox("/plugins/dynamix.plugin.manager/scripts/plugin&arg1=update&arg2=unRAIDServer.plg","<?=_('Update')?> Unraid OS",600,900,true);
-  });
 }
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
@@ -333,13 +378,26 @@ function hideUpgrade(set) {
   else
     $.removeCookie('os_upgrade');
 }
+function confirmUpgrade(confirm) {
+  if (confirm) {
+    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+      setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+    });
+  } else {
+    setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+  }
+}
 function openUpgrade() {
   hideUpgrade();
-<?if (file_exists($alerts)):?>
-  openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=<?=$alerts?>',"<?=_('Alert Message')?>",600,900,true,'confirmUpgrade');
-<?else:?>
-  confirmUpgrade();
-<?endif;?>
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
+    if (data==0) {
+      // no alert message - proceed with upgrade
+      confirmUpgrade(true);
+    } else {
+      // show alert message and ask for confirmation
+      openAlert("showchanges <?=$alerts?>","<?=_('Alert Message')?>",'confirmUpgrade');
+    }
+  });
 }
 function digits(number) {
   if (number < 10) return 'one';
@@ -626,7 +684,7 @@ defaultPage.on('message', function(msg,meta) {
       case 'Formatting': var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>"; break;
       default          : var status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+ini['fsState'])+"</span>";
     }
-    if (ini['mdResyncPos']>0) {
+    if (ini['mdResyncPos'] > 0) {
       var resync = ini['mdResyncAction'].split(/\s+/);
       switch (resync[0]) {
         case 'recon': var action = resync[1]=='P' ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
@@ -675,6 +733,23 @@ defaultPage.on('message', function(msg,meta) {
 <?endif;?>
     break;
   }
+});
+
+var plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
+plugins.on('message', function(data) {
+  let box = $('pre#text');
+  const text = box.html().split('<br>');
+  if (data.slice(-1) == '\r') {
+    text[text.length-1] = data.slice(0,-1);
+  } else {
+    text.push(data.slice(0,-1));
+  }
+  box.html(text.join('<br>')).scrollTop(box[0].scrollHeight);
+});
+
+var changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
+changes.on('message', function(data) {
+  $('pre#body').html(data);
 });
 
 var backtotopoffset = 250;

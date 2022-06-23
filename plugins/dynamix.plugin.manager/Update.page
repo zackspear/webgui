@@ -19,9 +19,10 @@ Tag="upload"
 $version = $branch = $date = _('unknown');
 $bzroot  = file_exists('/boot/previous/bzroot');
 $check   = $notify['unraidos'] ? 0 : 1;
+$changes = '/boot/previous/changes.txt';
 
-if (file_exists('/boot/previous/changes.txt')) {
-  exec("head -n4 /boot/previous/changes.txt",$rows);
+if (file_exists($changes)) {
+  exec("head -n4 $changes",$rows);
   foreach ($rows as $row) {
     $i = stripos($row,'version');
     if ($i !== false) {
@@ -39,9 +40,29 @@ input[value="_(Install)_"],input[value="_(Update)_"],input[value="_(Restore)_"]{
 span.vhshift{margin-top:13px!important}
 <?endif;?>
 </style>
+
 <script>
 var original = null;
+const args = {};
 
+function openInstall(cmd,title,plg) {
+  if (cmd == null) {
+    openPlugin(args.cmd,args.title,args.plg);
+    return;
+  }
+  args.cmd = cmd;
+  args.title = title;
+  args.plg = plg;
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
+    if (data==0) {
+      // no alert message - proceed with update
+      setTimeout(openInstall);
+    } else {
+      // show alert message and ask for confirmation
+      openAlert("showchanges <?=$alerts?>","_(Alert Message)_",'openInstall');
+    }
+  });
+}
 function update_table(branch) {
   if (original) {
     if (branch != original) branch = '';
@@ -82,21 +103,20 @@ function warning (data) {
 }
 function loadlist(id,check) {
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{system:true,audit:id,check:check||<?=$check?>},function(data) {
-    data = data.split('\0');
     var list = $('#os_list');
     if (id) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
-        case 'update' : data[0] = warning(data[0]);
-        case 'return' : updateInfo(data[0]); break;
-        case 'install': list.find(tr).remove(); list.append(warning(data[0])); break;
+        case 'update' : data = warning(data);
+        case 'return' : updateInfo(data); break;
+        case 'install': list.find(tr).remove(); list.append(warning(data)); break;
       }
     } else {
 <?if (!$reboot):?>
-      updateInfo(data[0]);
+      updateInfo(data);
 <?else:?>
-      updateInfo(warning(data[0]));
+      updateInfo(warning(data));
 <?endif;?>
     }
     $('#os_table').trigger('update');
@@ -104,12 +124,11 @@ function loadlist(id,check) {
 <?if ($reboot):?>
     $('#change_branch').prop('disabled',true);
 <?endif;?>
-    if (data[1] != null) openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file='+data[1],"_(Alert Message)_",600,900);
   });
 }
 $(function() {
   initlist();
-  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value='<?=_('Check for Updates')?>' onclick='openBox(\"/plugins/dynamix.plugin.manager/scripts/plugin&arg1=checkos\",\"<?=_('System Update Check')?>\",600,600,true,\"loadlist\",\":return\")' disabled></span>");
+  $('.tabs').append("<span class='status vhshift'><input type='button' id='checkos' value=\"_(Check for Updates)_\" onclick='openPlugin(\"plugin checkos\",\"_(System Update Check)_\",\":return\")' disabled></span>");
 });
 </script>
 <table class='tablesorter plugins shift' id='os_table'>

@@ -3,6 +3,7 @@ body.stop-scrolling{height:100%;overflow:hidden}
 -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";/* IE8 */
 background-color:rgba(0, 0, 0, 0.4);position:fixed;left:0;right:0;top:0;bottom:0;display:none;z-index:10000}
 .sweet-alert{background-color:white;font-family:clear-sans;width:478px;padding:17px;border-radius:5px;text-align:center;position:fixed;left:50%;top:50%;margin-left:-256px;margin-top:-200px;overflow:hidden;display:none;z-index:99999}
+.sweet-alert.nchan{height:600px;width:900px;margin-left:-480px}
 @media all and (max-width:540px){.sweet-alert{width:auto;margin-left:0;margin-right:0;left:15px;right:15px}}
 .sweet-alert h2{color:#575757;font-size:3rem;text-align:center;font-weight:600;text-transform:none;position:relative;margin:25px 0;padding:0;line-height:40px;display:block}
 .sweet-alert p{color:#797979;font-size:1.5rem;text-align:center;font-weight:300;position:relative;text-align:inherit;float:none;margin:0;padding:0;line-height:normal}
