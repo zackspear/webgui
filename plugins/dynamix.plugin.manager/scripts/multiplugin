@@ -39,9 +39,8 @@ foreach ($plugins as $plugin) {
   $line = '';
   $run = popen("plugin $method $plugin",'r');
   while (!feof($run)) {
-    $c = fgetc($run);
-    $line .= $c;
-    if (in_array($c,["\r","\n"])) {write($line); $line = '';}
+    $line .= fgetc($run);
+    if (in_array($line[-1],["\r","\n"])) {write($line); $line = '';}
   }
   pclose($run);
   write("\n");
