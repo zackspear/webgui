@@ -307,7 +307,7 @@ class DockerTemplates {
 			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
-				$webui = $this->getTemplateValue($ct['Image'], 'WebUI');
+				$webui = $tmp['url'] ?: $this->getTemplateValue($ct['Image'], 'WebUI');
 				if (strlen($webui) > 0 && !preg_match("%\[(IP|PORT:(\d+))\]%", $webui)) {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
