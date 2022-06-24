@@ -280,7 +280,7 @@ function openAlert(cmd,title,func) {
     swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       changes.stop();
       $('.sweet-alert').hide('slow').removeClass('nchan');
-      if (proceed) setTimeout(func+'()',250);
+      if (proceed) setTimeout(func+'()',750);
     });
     $('.sweet-alert').addClass('nchan');
   });
