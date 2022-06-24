@@ -248,7 +248,7 @@ if ($method == 'install') {
   console(3);
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
   $name = basename($argv[2]);
-  write("language: installing language pack $name\n");
+  write("language: installing language pack\n");
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
     $langURL = $argv[2];
