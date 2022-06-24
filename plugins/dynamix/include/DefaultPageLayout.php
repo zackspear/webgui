@@ -21,7 +21,7 @@ $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
 
-function annotate($text) {echo "\n<!--\n".str_repeat("#",strlen($text))."\n$text\n".str_repeat("#",strlen($text))."\n-->\n";}
+function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
@@ -255,7 +255,7 @@ function openPlugin(cmd,title,plg,func) {
       plugins.stop();
       $('.sweet-alert').removeClass('nchan');
       $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
-        if (pid > 0) footerAlert("<?=_('Background process still running')?>");
+        if (pid > 0) footerAlert("<?=_('Process continued in background')?>");
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       });
     });
