@@ -301,17 +301,23 @@ function plugin($method, $plugin_file, &$error) {
     $name = '/tmp/validate-plugin.tmp';
     foreach ($xml->FILE as $file) {
       if ($file->URL) {
-        if (download($file->URL, $name, $error, false) === false) {
+        $url = $file->URL;
+        @unlink($name);
+      } elseif ($file->SHA256) {
+        if (!is_file($name) && download($url, $name, $error, false) === false) {
           @unlink($name);
           return false;
         }
-      } elseif ($file->SHA256) {
         if (hash_file('sha256', $name) != $file->SHA256) {
           $error = "bad file SHA256";
           @unlink($name);
           return false;
         }
       } elseif ($file->MD5) {
+        if (!is_file($name) && download($url, $name, $error, false) === false) {
+          @unlink($name);
+          return false;
+        }
         if (md5_file($name) != $file->MD5) {
           $error = "bad file MD5";
           @unlink($name);
