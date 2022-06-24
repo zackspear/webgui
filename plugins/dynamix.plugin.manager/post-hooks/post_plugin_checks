@@ -24,7 +24,7 @@ function newurl($url) {
   return str_replace($oldURL,$newURL,$url);
 }
 function searchLink(&$db,$url) {
-  if ($url) for ($i = 0; $i < count($db); $i++) if ($db[$i]['PluginURL']==$url or $db[$i]['PluginURL']==newurl($url)) return $db[$i]['Support'];
+  if ($url) for ($i = 0; $i < count($db); $i++) if ($db[$i]['PluginURL']==$url) return $db[$i]['Support'];
 }
 
 $method = $argv[1];
@@ -35,7 +35,7 @@ if ($method == 'install' or $method == 'update') {
   $info = readJson('/tmp/community.applications/tempFiles/templates.json');
   // find matching support link
   $url = plugin('pluginURL', $plugin);
-  if ($support = searchLink($info, $url)) {
+  if ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) {
     // update incorrect or missing support links
     if (plugin('support', $plugin) != $support) {
       $xml = @simplexml_load_file($plugin);
