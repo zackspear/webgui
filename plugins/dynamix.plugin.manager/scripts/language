@@ -246,13 +246,14 @@ if ($argc < 3) {
 //
 if ($method == 'install') {
   console(3);
-  write("language: installing language pack\n");
+  $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
+  $name = basename($argv[2]);
+  write("language: installing language pack $name\n");
   // check for URL
-  if (substr($argv[2],0,7)=='http://' || substr($argv[2],0,8)=='https://') {
+  if (preg_match('#^https?://#',$argv[2])) {
     $langURL = $argv[2];
-    write("language: downloading $langURL\n");
-    $name = basename($langURL);
     $xml_file = "$tmp/$name";
+    write("language: downloading $name\n");
     if (!download($langURL, $xml_file, $error)) {
       write("language: $error\n");
       @unlink($xml_file);
@@ -260,7 +261,6 @@ if ($method == 'install') {
     }
   } else {
     $xml_file = realpath($argv[2]);
-    $name = basename($xml_file);
   }
   $link_file = "$plugins/$name";
   $lang_file = "$boot/$name";
