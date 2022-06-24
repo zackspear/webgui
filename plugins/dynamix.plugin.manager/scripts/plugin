@@ -557,12 +557,13 @@ $unraid = parse_ini_file('/etc/unraid-version');
 if ($method == 'install') {
   console(3);
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
-  write("plugin: installing: {$argv[2]}\n");
+  $plugin = basename($argv[2]);
+  write("plugin: installing: $plugin\n");
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
     $pluginURL = $argv[2];
-    write("plugin: downloading $pluginURL\n");
-    $plugin_file = "$tmp/".basename($pluginURL);
+    $plugin_file = "$tmp/$plugin";
+    write("plugin: downloading: $plugin\n");
     if (!download($pluginURL, $plugin_file, $error)) {
       write("plugin: $error\n");
       @unlink($plugin_file);
@@ -588,7 +589,6 @@ if ($method == 'install') {
     }
     exit(1);
   }
-  $plugin = basename($plugin_file);
   $symlink = "$plugins/$plugin";
   // check for re-install
   $installed_plugin_file = @readlink($symlink);

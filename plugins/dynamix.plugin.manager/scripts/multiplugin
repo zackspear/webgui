@@ -36,8 +36,14 @@ function write($message){
 
 foreach ($plugins as $plugin) {
   if (!$plugin) continue;
+  $line = '';
   $run = popen("plugin $method $plugin",'r');
-  while (!feof($run)) write(fgets($run));
+  while (!feof($run)) {
+    $c = fgetc($run);
+    $line .= $c;
+    if (in_array($c,["\r","\n"])) {write($line); $line = '';}
+  }
   pclose($run);
+  write("\n");
 }
 ?>
