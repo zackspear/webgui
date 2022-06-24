@@ -268,11 +268,12 @@ class DockerTemplates {
 		return false;
 	}
 
-	private function getControlURL(&$ct, $myIP) {
+	private function getControlURL(&$ct, $myIP, $WebUI) {
 		global $host;
 		$port = &$ct['Ports'][0];
 		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'], 'MyIP') ?: ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : ($port['IP'] ?: DockerUtil::myIP($ct['Name'])));
-		$WebUI = preg_replace("%\[IP\]%", $myIP, $this->getTemplateValue($ct['Image'], 'WebUI'));
+		// Get the WebUI address from the templates as a fallback
+		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?: $this->getTemplateValue($ct['Image'], 'WebUI'));
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];
 			foreach ($ct['Ports'] as $port) {
@@ -312,7 +313,7 @@ class DockerTemplates {
 					$tmp['url'] = $webui;
 				} else {
 					$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
-					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip)) : $tmp['url'];
+					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip, $tmp['url'])) : $tmp['url'];
 				}
 				$tmp['shell'] = $tmp['shell'] ?? $this->getTemplateValue($image, 'Shell');
 			}
