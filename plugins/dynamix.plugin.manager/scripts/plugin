@@ -230,7 +230,7 @@ function post_hooks() {
 //
 function download($url, $name, &$error, $write=true) {
   $plg = basename($url);
-  if ($file = popen("wget --compression=auto --no-cache --progress=dot -O $name $url 2>&1", 'r')) {
+  if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --timeout=30 --tries=5 --wait=15 --waitretry=5 -O $name $url 2>&1", 'r')) {
     if ($write) write("plugin: downloading: $plg ...\r");
     $level = -1;
     while (!feof($file)) {
