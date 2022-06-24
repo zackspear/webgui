@@ -56,7 +56,7 @@ function error_desc($code) {
 //
 function console($i) {
   global $console, $argv;
-  $console = empty($argv[$i]) && $argv[$i]!='nchan';
+  $console = !(isset($argv[$i]) && $argv[$i]=='nchan');
 }
 
 // Function to write either to console (echo) or nchan (curl)

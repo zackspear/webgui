@@ -20,7 +20,7 @@ $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
 $file    = realpath($argv[1] ?? '');
-$console = empty($argv[2]) && $argv[2]!='nchan';
+$console = !(isset($argv[2]) && $argv[2]=='nchan');
 $valid   = ['/var/tmp/','/tmp/plugins/'];
 $good    = false;
 

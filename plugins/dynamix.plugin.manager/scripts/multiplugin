@@ -14,7 +14,7 @@
 <?
 $method  = $argv[1];
 $plugins = explode('*',$argv[2]);
-$console = empty($argv[3]) && $argv[3]!='nchan';
+$console = !(isset($argv[3]) && $argv[3]=='nchan');
 
 function write($message){
   global $console;
