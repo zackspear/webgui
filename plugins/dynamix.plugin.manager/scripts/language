@@ -253,7 +253,7 @@ if ($method == 'install') {
   if (preg_match('#^https?://#',$argv[2])) {
     $langURL = $argv[2];
     $xml_file = "$tmp/$name";
-    write("language: downloading $name\n");
+    write("language: downloading: $name\n");
     if (!download($langURL, $xml_file, $error)) {
       write("language: $error\n");
       @unlink($xml_file);
