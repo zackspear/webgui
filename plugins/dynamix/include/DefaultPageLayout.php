@@ -253,7 +253,7 @@ function openPlugin(cmd,title,plg,func) {
     plugins.start();
     swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       plugins.stop();
-      $('.sweet-alert').hide('slow').removeClass('nchan');
+      $('.sweet-alert').hide('fast').removeClass('nchan');
       $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
         if (pid > 0) footerAlert("<?=_('Process continued in background')?>");
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
@@ -268,7 +268,7 @@ function openChanges(cmd,title) {
     changes.start();
     swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       changes.stop();
-      $('.sweet-alert').hide('slow').removeClass('nchan');
+      $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
   });
@@ -279,7 +279,7 @@ function openAlert(cmd,title,func) {
     changes.start();
     swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       changes.stop();
-      $('.sweet-alert').hide('slow').removeClass('nchan');
+      $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
     });
     $('.sweet-alert').addClass('nchan');
