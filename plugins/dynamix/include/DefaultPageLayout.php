@@ -104,7 +104,6 @@ var before = new Date();
 // page timer events
 const timers = {};
 timers.bannerWarning = null;
-timers.footerAlert = null;
 
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
@@ -240,12 +239,12 @@ function openTerminal(tag,name,more) {
 }
 function footerAlert(text,cmd,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
-    if (pid > 0) {
-      $('#countdown').html('<span class="red-text strong">'+text+'</span>');
-      setTimeout(function(){footerAlert(text,cmd,plg,func);},500);
-    } else {
+    if (pid == 0) {
       $('#countdown').html('');
-      if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")');
+      if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+    } else {
+      $('#countdown').html('<span class="red-text strong">'+text+'</span>');
+      setTimeout(function(){footerAlert(text,cmd,plg,func);},250);
     }
   });
 }
@@ -256,10 +255,7 @@ function openPlugin(cmd,title,plg,func) {
     swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
-        if (pid > 0) footerAlert("<?=_('Process continued in background')?>",cmd,plg,func);
-        else if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
-      });
+      setTimeout(function(){footerAlert("<?=_('Process continued in background')?>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
