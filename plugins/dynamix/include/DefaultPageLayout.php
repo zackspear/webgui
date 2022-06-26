@@ -258,7 +258,7 @@ function openPlugin(cmd,title,plg,func) {
       $('.sweet-alert').hide('fast').removeClass('nchan');
       $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
         if (pid > 0) footerAlert("<?=_('Process continued in background')?>",cmd,plg,func);
-        if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+        else if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       });
     });
     $('.sweet-alert').addClass('nchan');
