@@ -41,7 +41,7 @@ function make_link($method, $arg, $extra='') {
   } else {
     $cmd = "plugin $method $arg".($extra?" $extra":"");
   }
-  return "$check<input type='button' id='$id' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\");'$disabled>";
+  return "$check<input type='button' id='$id' data='$arg' class='$method' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\");'$disabled>";
 }
 
 // trying our best to find an icon

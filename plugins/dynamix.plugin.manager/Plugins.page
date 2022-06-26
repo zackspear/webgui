@@ -68,6 +68,11 @@ function resize(bind) {
 function multiRemove() {
   if ($('input.remove:checked').length > 1) $('#removeall').show(); else $('#removeall').hide();
 }
+function updateList() {
+  let list = [];
+  $('input.update').each(function(){list.push($(this).attr('data'));});
+  openPlugin("multiplugin update "+list.join('*'),"_(Update All Plugins)_",":return");
+}
 function removeList() {
   let list = [];
   $('input.remove:checked').each(function(){list.push($(this).attr('data'));});
@@ -128,7 +133,7 @@ $(function() {
   initlist();
   $('#plugin_tree').fileTree({root:'/boot/',top:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
   $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
-  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='openPlugin(\"plugin updateall\",\"_(Update All Plugins)_\",\":return\")'></span>");
+  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
   $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value=\"_(Check For Updates)_\" onclick='openPlugin(\"checkall\",\"_(Plugin Update Check)_\",\":return\")' disabled></span>");
 });
 </script>
