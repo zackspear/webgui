@@ -486,6 +486,10 @@ $console = true; // default output is console, nchan otherwise
 //
 if ($method == 'checkall') {
   console(2);
+  if (!$cmd = realpath($argv[0])) {
+    write("Unknown command: {$argv[0]}\n");
+    exit(1);
+  }
   foreach (glob("$plugins/*.plg", GLOB_NOSORT) as $link) {
     // skip OS related plugins
     if (in_array(basename($link,'.plg'),$builtin)) continue;
@@ -495,7 +499,7 @@ if ($method == 'checkall') {
     if (plugin('pluginURL', $installed_plugin_file, $error) === false) continue;
     $plugin = basename($installed_plugin_file);
     write("plugin: checking $plugin ...\n");
-    exec(realpath($argv[0])." check $plugin >/dev/null");
+    exec("$cmd check $plugin >/dev/null");
   }
   exit(0);
 }
@@ -505,6 +509,10 @@ if ($method == 'checkall') {
 //
 if ($method == 'updateall') {
   console(2);
+  if (!$cmd = realpath($argv[0])) {
+    write("Unknown command: {$argv[0]}\n");
+    exit(1);
+  }
   foreach (glob("$plugins/*.plg", GLOB_NOSORT) as $link) {
     // skip OS related plugins
     if (in_array(basename($link,'.plg'),$builtin)) continue;
@@ -518,7 +526,7 @@ if ($method == 'updateall') {
     // update only when newer
     if (strcmp($latest,$version) > 0) {
       write("plugin: updating $plugin ...\n");
-      exec(realpath($argv[0])." update $plugin >/dev/null");
+      exec("$cmd update $plugin >/dev/null");
     }
   }
   exit(0);
@@ -529,6 +537,10 @@ if ($method == 'updateall') {
 //
 if ($method == 'checkos') {
   console(2);
+  if (!$cmd = realpath($argv[0])) {
+    write("Unknown command: {$argv[0]}\n");
+    exit(1);
+  }
   foreach ($builtin as $link) {
     // only consider symlinks
     $installed_plugin_file = @readlink("$plugins/$link.plg");
@@ -536,7 +548,7 @@ if ($method == 'checkos') {
     if (plugin("pluginURL", $installed_plugin_file, $error) === false) continue;
     $plugin = basename($installed_plugin_file);
     write("plugin: checking $plugin ...\n");
-    exec(realpath($argv[0])." check $plugin >/dev/null");
+    exec("$cmd check $plugin >/dev/null");
   }
   exit(0);
 }
