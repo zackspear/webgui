@@ -34,7 +34,7 @@ function check_plugin($arg, &$ncsi) {
 function make_link($method, $arg, $extra='') {
   $plg = basename($arg,'.plg').':'.$method;
   $id = str_replace(['.',' ','_'],'',$plg);
-  $check = $method=='remove' ? "<input type='checkbox' onClick='document.getElementById(\"$id\").disabled=!this.checked'>" : "";
+  $check = $method=='remove' ? "<input type='checkbox' data='$arg' class='remove' onClick='document.getElementById(\"$id\").disabled=!this.checked;multiRemove()'>" : "";
   $disabled = $check ? ' disabled' : '';
   if ($method == 'delete') {
     $cmd = "plugin_rm $arg"; $plg = "";
