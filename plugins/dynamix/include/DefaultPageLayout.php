@@ -238,14 +238,16 @@ function openTerminal(tag,name,more) {
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
-function footerAlert(text,timer) {
-  if (timers.footerAlert) {
-    timers.footerAlert = null;
-    $('#countdown').html('');
-    return;
-  }
-  $('#countdown').html('<span class="red-text strong">'+text+'</span>');
-  if (!timers.footerAlert) timers.footerAlert = setTimeout(footerAlert,timer||5000);
+function footerAlert(text,cmd,plg,func) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
+    if (pid > 0) {
+      $('#countdown').html('<span class="red-text strong">'+text+'</span>');
+      setTimeout(function(){footerAlert(text,cmd,plg,func);},500);
+    } else {
+      $('#countdown').html('');
+      if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")');
+    }
+  });
 }
 function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
@@ -255,7 +257,7 @@ function openPlugin(cmd,title,plg,func) {
       plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
-        if (pid > 0) footerAlert("<?=_('Process continued in background')?>");
+        if (pid > 0) footerAlert("<?=_('Process continued in background')?>",cmd,plg,func);
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       });
     });
