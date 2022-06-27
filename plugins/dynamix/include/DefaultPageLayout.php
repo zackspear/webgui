@@ -65,6 +65,8 @@ html{font-size:<?=$display['font']?>%}
 span.big.blue-text{cursor:pointer}
 pre#body{font-family:clear-sans;text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
 pre#text{text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
+#countdown span{padding:2px 30px;background-color:#ff9e9e;color:#f0000c;font-weight:bold;border:1px solid #f0000c;border-radius:20px}
+#countdown span.done{background-color:#dff2bf;color:#4f8a10;border-color:#4f8a10}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -104,6 +106,12 @@ var before = new Date();
 // page timer events
 const timers = {};
 timers.bannerWarning = null;
+
+const footer = {};
+footer.text = $.cookie('footer_text');
+footer.cmd = $.cookie('footer_cmd');
+footer.plg = $.cookie('footer_plg');
+footer.func = $.cookie('footer_func');
 
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
@@ -240,10 +248,21 @@ function openTerminal(tag,name,more) {
 function footerAlert(text,cmd,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
     if (pid == 0) {
-      $('#countdown').html('');
-      if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+      if ($.cookie('footer')==null) {
+        $('#countdown').html('');
+        if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+      } else {
+        $.removeCookie('footer');
+        $('#countdown').find('span').addClass('done');
+        setTimeout(function(){footerAlert(text,cmd,plg,func);},250);
+      }
     } else {
-      $('#countdown').html('<span class="red-text strong">'+text+'</span>');
+      $('#countdown').html('<span>'+text+'</span>');
+      $.cookie('footer','alert');
+      $.cookie('footer_text',text);
+      $.cookie('footer_cmd',cmd);
+      $.cookie('footer_plg',plg);
+      $.cookie('footer_func',func);
       setTimeout(function(){footerAlert(text,cmd,plg,func);},250);
     }
   });
@@ -255,7 +274,7 @@ function openPlugin(cmd,title,plg,func) {
     swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      setTimeout(function(){footerAlert("<?=_('Process continued in background')?>",cmd,plg,func);});
+      setTimeout(function(){footerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
@@ -802,6 +821,7 @@ $(function() {
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top');
+  if ($.cookie('footer')!=null) footerAlert(footer.text,footer.cmd,footer.plg,footer.func);
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
