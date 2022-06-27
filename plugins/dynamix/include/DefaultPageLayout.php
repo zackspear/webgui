@@ -59,14 +59,13 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
-.upgrade_notice{position:fixed;top:1px;left:0;width:100%;height:40px;line-height:40px;color:#e68a00;background:#feefb3;border-bottom:#e68a00 1px solid;text-align:center;font-size:1.4rem;z-index:999}
-.upgrade_notice i{margin:14px;float:right;cursor:pointer}
+.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:40px;line-height:40px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:40px;text-align:center;font-size:1.4rem;z-index:999}
+.upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
+.upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
 pre#body{font-family:clear-sans;text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
 pre#text{text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
-#countdown span{padding:2px 30px;background-color:#ff9e9e;color:#f0000c;font-weight:bold;border:1px solid #f0000c;border-radius:20px}
-#countdown span.done{background-color:#dff2bf;color:#4f8a10;border-color:#4f8a10}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -107,11 +106,11 @@ var before = new Date();
 const timers = {};
 timers.bannerWarning = null;
 
-const footer = {};
-footer.text = $.cookie('footer_text');
-footer.cmd = $.cookie('footer_cmd');
-footer.plg = $.cookie('footer_plg');
-footer.func = $.cookie('footer_func');
+const addAlert = {};
+addAlert.text = $.cookie('addAlert-text');
+addAlert.cmd = $.cookie('addAlert-cmd');
+addAlert.plg = $.cookie('addAlert-plg');
+addAlert.func = $.cookie('addAlert-func');
 
 // current csrf_token
 var csrf_token = "<?=$var['csrf_token']?>";
@@ -245,25 +244,29 @@ function openTerminal(tag,name,more) {
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
-function footerAlert(text,cmd,plg,func) {
+function bannerAlert(text,cmd,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
     if (pid == 0) {
-      if ($.cookie('footer')==null) {
-        $('#countdown').html('');
+      if ($(".upgrade_notice").hasClass('done') || timers.bannerAlert==null) {
+        forcedBanner = false;
+        if ($.cookie('addAlert') != null) {
+          removeBannerWarning($.cookie('addAlert'));
+          $.removeCookie('addAlert');
+        }
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
-        $.removeCookie('footer');
-        $('#countdown').find('span').addClass('done');
-        setTimeout(function(){footerAlert(text,cmd,plg,func);},250);
+        $(".upgrade_notice").addClass('done');
+        timers.bannerAlert = null;
+        setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
     } else {
-      $('#countdown').html('<span>'+text+'</span>');
-      $.cookie('footer','alert');
-      $.cookie('footer_text',text);
-      $.cookie('footer_cmd',cmd);
-      $.cookie('footer_plg',plg);
-      $.cookie('footer_func',func);
-      setTimeout(function(){footerAlert(text,cmd,plg,func);},250);
+      $(".upgrade_notice").removeClass('done');
+      $.cookie('addAlert',addBannerWarning(text,true,true,true));
+      $.cookie('addAlert-text',text);
+      $.cookie('addAlert-cmd',cmd);
+      $.cookie('addAlert-plg',plg);
+      $.cookie('addAlert-func',func);
+      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},250);
     }
   });
 }
@@ -274,7 +277,7 @@ function openPlugin(cmd,title,plg,func) {
     swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      setTimeout(function(){footerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
@@ -321,29 +324,38 @@ function escapeQuotes(form) {
 var bannerWarnings = [];
 var currentBannerWarning = 0;
 var osUpgradeWarning = false;
+var forcedBanner = false;
 
-function addBannerWarning(text,warning=true,noDismiss=false) {
+function addBannerWarning(text,warning=true, noDismiss=false, forced=false) {
   var cookieText = text.replace(/[^a-z0-9]/gi,'');
   if ($.cookie(cookieText) == "true") return false;
-  if (warning) text = "<i class='fa fa-warning' style='float:initial;'></i> "+text;
+  if (warning) text = "<i class='fa fa-warning fa-fw' style='float:initial'></i> "+text;
   if (bannerWarnings.indexOf(text) < 0) {
-    var arrayEntry = bannerWarnings.push("placeholder") - 1;
+    if (forced) {
+      var arrayEntry = 0; bannerWarnings = []; clearTimeout(timers.bannerWarning); timers.bannerWarning = null; forcedBanner = true;
+    } else {
+      var arrayEntry = bannerWarnings.push("placeholder") - 1;
+    }
     if (!noDismiss) text += "<a class='bannerDismiss' onclick='dismissBannerWarning("+arrayEntry+",&quot;"+cookieText+"&quot;)'></a>";
     bannerWarnings[arrayEntry] = text;
-  } else return bannerWarnings.indexOf(text);
+  } else {
+    return bannerWarnings.indexOf(text);
+  }
   if (timers.bannerWarning==null) showBannerWarnings();
   return arrayEntry;
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true",{expires:365});
+  $.cookie(cookieText,"true");
   removeBannerWarning(entry);
 }
 
 function removeBannerWarning(entry) {
-  bannerWarnings[entry] = false;
-  clearTimeout(timers.bannerWarning);
-  showBannerWarnings();
+  if (!forcedBanner) {
+    bannerWarnings[entry] = false;
+    clearTimeout(timers.bannerWarning);
+    showBannerWarnings();
+  }
 }
 
 function bannerFilterArray(array) {
@@ -821,7 +833,7 @@ $(function() {
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top');
-  if ($.cookie('footer')!=null) footerAlert(footer.text,footer.cmd,footer.plg,footer.func);
+  if ($.cookie('addAlert')!=null) bannerAlert(addAlert.text,addAlert.cmd,addAlert.plg,addAlert.func);
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
