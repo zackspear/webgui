@@ -23,6 +23,7 @@ $system  = unscript($_GET['system']??'');
 $branch  = unscript($_GET['branch']??'');
 $audit   = unscript($_GET['audit']??'');
 $check   = unscript($_GET['check']??'');
+$cmd     = unscript($_GET['cmd']??'');
 $init    = unscript($_GET['init']??'');
 $empty   = true;
 $install = false;
@@ -31,6 +32,12 @@ $alerts  = '/tmp/plugins/my_alerts.txt';
 $builtin = ['unRAIDServer'];
 $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
+
+if ($cmd=='alert') {
+  // signal alert message yer or no
+  echo is_file($alerts) ? 1 : 0;
+  die();
+}
 
 if ($audit) {
   [$plg,$action] = my_explode(':',$audit);
@@ -166,7 +173,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     if (($changes = plugin('changes',$changes_file)) !== false) {
       $txtfile = "/tmp/plugins/".basename($plugin_file,'.plg').".txt";
       file_put_contents($txtfile,$changes);
-      $version .= "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openBox('/plugins/dynamix.plugin.manager/include/ShowChanges.php?file=$txtfile','"._('Release Notes')."',600,900)\"></span>";
+      $version .= "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $txtfile','"._('Release Notes')."')\"></span>";
     }
     if ($rank < 2 && ($alert = plugin('alert',$changes_file)) !== false) {
       // generate alert message (if existing) when newer version is available
@@ -182,5 +189,4 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
 }
 if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
 if (!$init && !$os) echo "\0".$updates;
-if (!$init && file_exists($alerts)) echo "\0".$alerts;
 ?>

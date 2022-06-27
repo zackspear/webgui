@@ -522,6 +522,11 @@
           'open' => _('Open Dropdown'),
         ],
         'yargYePirate' => _('Oh no! Are you pirating Unraid OS?<br>Are you ready to buy a real license?'),
+        'keyFileNotValid' => _('Key file not valid'),
+        'installFailed' => [
+          'heading' => _('My Servers plugin install failed'),
+          'message' => _('The My Servers plugin install is incomplete').'. '._('Please uninstall and reinstall the My Servers plugin').'. '._('Be sure to let the install complete before you close the window').'.',
+        ],
       ],
     ];
     $configErrorEnum = [ // used to map $var['configValid'] value to mimic unraid-api's `configError` ENUM
@@ -531,11 +536,18 @@
       "withdrawn" => 'WITHDRAWN',
     ];
     $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
-    $plgInstalled = (file_exists('/var/log/plugins/dynamix.unraid.net.plg')
-    ? 'dynamix.unraid.net.plg'
-    : (file_exists('/var/log/plugins/dynamix.unraid.net.staging.plg')
-      ? 'dynamix.unraid.net.staging.plg'
-      : ''));
+
+    $plgInstalled = '';
+    if (!file_exists('/var/lib/pkgtools/packages/dynamix.unraid.net') && !file_exists('/var/lib/pkgtools/packages/dynamix.unraid.net.staging')) {
+      $plgInstalled = ''; // base OS only, My Servers plugin not installed • show ad for My Servers
+    } else {
+      // plugin is installed but if the unraid-api file doesn't fully install it's a failed install
+      if (file_exists('/var/lib/pkgtools/packages/dynamix.unraid.net')) $plgInstalled = 'dynamix.unraid.net.plg';
+      if (file_exists('/var/lib/pkgtools/packages/dynamix.unraid.net.staging')) $plgInstalled = 'dynamix.unraid.net.staging.plg';
+      // plugin install failed • append failure detected so we can show warning about failed install via UPC
+      if (!file_exists('/usr/local/sbin/unraid-api')) $plgInstalled = $plgInstalled . '_installFailed';
+    }
+
     $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
       "avatar" => (!empty($remote['avatar']) && $plgInstalled) ? $remote['avatar'] : '',
       "config" => [
@@ -597,7 +609,7 @@
       csrf="<?=$var['csrf_token']?>"
       displaydesc="<?=($display['headerdescription']!='no') ? 'true' : ''?>"
       expiretime="<?=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0)?>"
-      hide-my-servers="<?=(file_exists('/usr/local/sbin/unraid-api')) ? '' : 'yes' ?>"
+      hide-my-servers="<?=$plgInstalled ? '' : 'yes' ?>"
       locale="<?=($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US'?>"
       locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
       metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
