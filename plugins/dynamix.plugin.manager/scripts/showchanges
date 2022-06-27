@@ -14,17 +14,15 @@
 <?
 session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
-require_once "$docroot/webGui/include/Wrappers.php";
-// Get the webGui configuration preferences
-extract(parse_plugin_cfg('dynamix',true));
-
 // add translations
 $_SERVER['REQUEST_URI'] = 'plugins';
 $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-$console = !(isset($argv[1]) && $argv[1]=='nchan');
+$file    = realpath($argv[1] ?? '');
+$console = !(isset($argv[2]) && $argv[2]=='nchan');
+$valid   = ['/var/tmp/','/tmp/plugins/'];
+$good    = false;
 
 function write($message){
   global $console;
@@ -33,7 +31,7 @@ function write($message){
   } else {
     $nchan = curl_init();
     curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
+      CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
       CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $message,
@@ -43,14 +41,10 @@ function write($message){
     curl_close($nchan);
   }
 }
-
-// check connectivity first
-write(_("Checking connectivity")."...\n");
-if (exec("wget --spider --no-check-certificate -nv -T10 -t1 https://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")) {
-  $check = popen('plugin checkall','r');
-  while (!feof($check)) write(fgets($check));
-  pclose($check);
+if ($file) {
+  foreach ($valid as $check) if (strncmp($file,$check,strlen($check))===0) $good = true;
+  if ($good && pathinfo($file)['extension']=='txt') write(Markdown(file_get_contents($file)));
 } else {
-  write(_("No response, aborting")."!\n");
+  write(Markdown("*"._('No release notes available')."!*"));
 }
 ?>

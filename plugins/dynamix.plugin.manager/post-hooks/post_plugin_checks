@@ -1,0 +1,54 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
+
+function readJson($file) {
+  return is_file($file) ? json_decode(file_get_contents($file),true) : [];
+}
+function newurl($url) {
+  $oldURL = 'https://raw.github.com/';
+  $newURL = 'https://raw.githubusercontent.com/';
+  return str_replace($oldURL,$newURL,$url);
+}
+function searchLink(&$db,$url) {
+  if ($url) for ($i = 0; $i < count($db); $i++) if ($db[$i]['PluginURL']==$url) return $db[$i]['Support'];
+}
+
+$method = $argv[1];
+$plugin = "/boot/config/plugins/{$argv[2]}";
+
+if ($method == 'install' or $method == 'update') {
+  // update support link in plugin file
+  $info = readJson('/tmp/community.applications/tempFiles/templates.json');
+  // find matching support link
+  $url = plugin('pluginURL', $plugin);
+  if ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) {
+    // update incorrect or missing support links
+    if (plugin('support', $plugin) != $support) {
+      $xml = @simplexml_load_file($plugin);
+      if ($xml->xpath('//PLUGIN/@support')[0]) {
+        // support link exists, update it
+        $xml->xpath('//PLUGIN/@support')[0] = $support;
+      } else {
+        // support link is missing, add it
+        $xml->addAttribute('support', $support);
+      }
+      echo "Updating support link\n";
+      file_put_contents($plugin, $xml->saveXML());
+    }
+  }
+}
+?>
