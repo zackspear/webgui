@@ -595,6 +595,12 @@ if (file_exists($vfiopci)) {
   $log = "/$diag/logs/vfio-pci.txt";
   exert("todos <$vfiopci >".escapeshellarg($log));
 }
+// copy wg-quick log
+$wgquick = '/var/log/wg-quick.log';
+if (file_exists($wgquick)) {
+  $log = "/$diag/logs/wg-quick.txt";
+  exert("todos <$wgquick >".escapeshellarg($log));
+}
 // generate unraid-api.txt
 if (file_exists("/usr/local/sbin/unraid-api")) {
   $log = "/$diag/system/unraid-api.txt";
