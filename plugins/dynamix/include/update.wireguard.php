@@ -75,7 +75,9 @@ function newNet($vtun) {
 function wgState($vtun,$state,$type=0) {
   global $t1,$etc;
   $tmp = '/tmp/wg-quick.tmp';
+  $log = '/var/log/wg-quick.log';
   exec("timeout $t1 wg-quick $state $vtun 2>$tmp");
+  file_put_contents($log, "wg-quick $state $vtun\n".file_get_contents($tmp)."\n", FILE_APPEND);
   if ($type==8) {
     // make VPN tunneled access for Docker containers only
     $table = exec("grep -Pom1 'fwmark \K[\d]+' $tmp");
