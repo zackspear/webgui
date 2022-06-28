@@ -57,7 +57,7 @@ switch ($UPC_ENV) {
     $upcSrc = 'https://registration-dev-logs.unraid.net/webComps/unraid.min.js';
     break;
   case 'development':
-    $upcSrc = 'https://launchpad.unraid.test:6969/webComps/unraid.js';
+    $upcSrc = 'https://launchpad.unraid.test:6969/webComps/unraid.js?t=' . time();
     break;
   default: // load from webGUI filesystem.
     $upcSrc = $upcLocalSrc;
