@@ -239,7 +239,7 @@ function openTerminal(tag,name,more) {
     return;
   }
   // open terminal window (run in background)
-  name = name.replace(/ /g,"_");
+  name = name.replace(/[ #]/g,"_");
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.max(screen.availHeight*3/5,600),Math.min(Math.max(screen.availWidth/2,900),1600));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
@@ -253,6 +253,7 @@ function bannerAlert(text,cmd,plg,func) {
           removeBannerWarning($.cookie('addAlert'));
           $.removeCookie('addAlert');
         }
+        $(".upgrade_notice").removeClass('done');
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
         $(".upgrade_notice").addClass('done');
@@ -260,7 +261,6 @@ function bannerAlert(text,cmd,plg,func) {
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
     } else {
-      $(".upgrade_notice").removeClass('done');
       $.cookie('addAlert',addBannerWarning(text,true,true,true));
       $.cookie('addAlert-text',text);
       $.cookie('addAlert-cmd',cmd);

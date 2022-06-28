@@ -598,7 +598,7 @@ if (file_exists($vfiopci)) {
 $wgquick = '/var/log/wg-quick.log';
 if (file_exists($wgquick)) {
   $log = "/$diag/logs/wg-quick.txt";
-  exert("todos <$wgquick >".escapeshellarg($log));
+  run("todos <$wgquick >".escapeshellarg($log));
 }
 
 // generate unraid-api.txt
