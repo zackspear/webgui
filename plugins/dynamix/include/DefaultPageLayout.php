@@ -253,6 +253,7 @@ function bannerAlert(text,cmd,plg,func) {
           removeBannerWarning($.cookie('addAlert'));
           $.removeCookie('addAlert');
         }
+        $(".upgrade_notice").removeClass('done');
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
         $(".upgrade_notice").addClass('done');
@@ -260,7 +261,6 @@ function bannerAlert(text,cmd,plg,func) {
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
     } else {
-      $(".upgrade_notice").removeClass('done');
       $.cookie('addAlert',addBannerWarning(text,true,true,true));
       $.cookie('addAlert-text',text);
       $.cookie('addAlert-cmd',cmd);
