@@ -300,6 +300,7 @@ function plugin($method, $plugin_file, &$error) {
   if ($method  == 'validate') {
     $name = '/tmp/validate-plugin.tmp';
     foreach ($xml->FILE as $file) if ($file->URL) {
+      if (!$file->SHA256 and !$file->MD5) continue;
       if (download($file->URL, $name, $error, false) === false) {
         @unlink($name);
         return false;
