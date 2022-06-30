@@ -304,7 +304,7 @@ _(Local TLD)_:
 <div style="height:24px"></div>
 <form markdown="1">
 <?if ($cert1Present):?>
-_(Self-signed or user-provided certificate file)_:
+_(Self-signed or user-provided certificate)_:
 : <?=$cert1File?>
 
 <?if ($cert1URLvalid):?>
