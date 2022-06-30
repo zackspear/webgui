@@ -38,6 +38,19 @@ function find_tasks() {
   sort($tasks);
   return $tasks;
 }
+function acceptableCert($certFile, $hostname, $expectedURL) {
+  if (!file_exists($certFile)) return false;
+  $certURLs=null;
+  // get Subject URL and all SAN URLs from cert
+  exec("openssl x509 -noout -subject -nameopt multiline -in $certFile | sed -n 's/ *commonName *= //p' ; openssl x509 -noout -ext subjectAltName -in $certFile | grep -Eo \"DNS:[a-zA-Z 0-9.*-]*\" | sed \"s/DNS://g\"", $certURLs);
+  foreach($certURLs as $certURL) {
+    // adjust for wildcard certs
+    $certURL = str_replace('*', $hostname, $certURL);
+    // case-insensitive compare
+    if (strcasecmp($certURL, $expectedURL) == 0) return true;
+  }
+  return false;
+}
 $tasks       = find_tasks();
 $ethX        = 'eth0';
 #$addr        = ipaddr($ethX);
@@ -45,29 +58,41 @@ $addr        = $_SERVER['SERVER_ADDR'];
 $keyfile     = @file_get_contents($var['regFILE']);
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
 
-$certFile    = "/boot/config/ssl/certs/certificate_bundle.pem";
-$certPresent = file_exists("$certFile");
-if ($certPresent) {
-  $certSubject = exec("/usr/bin/openssl x509 -in $certFile -noout -subject -nameopt multiline 2>/dev/null|sed -n 's/ *commonName *= //p'");
-  $certIssuer  = exec("/usr/bin/openssl x509 -in $certFile -noout -text | sed -n -e 's/^.*Issuer: //p'");
-  $certExpires = exec("/usr/bin/openssl x509 -in $certFile -noout -text | sed -n -e 's/^.*Not After : //p'");
-  $isLegacyCert = preg_match('/.*\.unraid\.net$/', $certSubject);
-  $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $certSubject);
+// self-signed or user-provided cert
+$cert1File    = "/boot/config/ssl/certs/{$var['NAME']}_unraid_bundle.pem";
+$cert1Present = file_exists("$cert1File");
+if ($cert1Present) {
+  $cert1URL = $var['NAME'].".".$var['LOCAL_TLD'];
+  // if user replaced cert without reloading nginx, the cert on the flash could be invalid
+  $cert1URLvalid = acceptableCert($cert1File, $var['NAME'], $cert1URL);
+  $cert1Issuer  = exec("/usr/bin/openssl x509 -in $cert1File -noout -text | sed -n -e 's/^.*Issuer: //p'");
+  $cert1Expires = exec("/usr/bin/openssl x509 -in $cert1File -noout -text | sed -n -e 's/^.*Not After : //p'");
+}
+
+// unraid.net, myunraid.net LE cert. could potentially be user provided as well
+$cert2File    = "/boot/config/ssl/certs/certificate_bundle.pem";
+$cert2Present = file_exists("$cert2File");
+if ($cert2Present) {
+  $cert2Subject = exec("/usr/bin/openssl x509 -in $cert2File -noout -subject -nameopt multiline 2>/dev/null|sed -n 's/ *commonName *= //p'");
+  $cert2Issuer  = exec("/usr/bin/openssl x509 -in $cert2File -noout -text | sed -n -e 's/^.*Issuer: //p'");
+  $cert2Expires = exec("/usr/bin/openssl x509 -in $cert2File -noout -text | sed -n -e 's/^.*Not After : //p'");
+  $isLegacyCert = preg_match('/.*\.unraid\.net$/', $cert2Subject);
+  $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $cert2Subject);
   $isLEcert = $isLegacyCert || $isWildcardCert;
-  $subjectURL = $certSubject;
+  $subject2URL = $cert2Subject;
   if ($isWildcardCert) {
     if (strpos($addr, ":") === false)
-      $subjectURL = str_replace("*", str_replace(".", "-", $addr), $subjectURL);
+      $subject2URL = str_replace("*", str_replace(".", "-", $addr), $subject2URL);
     else
-      $subjectURL = str_replace("*", str_replace(":", "-", $addr), $subjectURL);
+      $subject2URL = str_replace("*", str_replace(":", "-", $addr), $subject2URL);
   }
   if ($isLEcert) {
-    exec("openssl x509 -checkend 2592000 -noout -in $certFile 2>/dev/null", $arrout, $retval_expired);
+    exec("openssl x509 -checkend 2592000 -noout -in $cert2File 2>/dev/null", $arrout, $retval_expired);
     if (strpos($addr, ":") === false) {
       $rebindtest_ip = exec("host -4 -t A rebindtest4.myunraid.net 2>/dev/null|awk '{print \$4}'");
       $dnsRebindingProtection = ($rebindtest_ip != "192.168.42.42");
       if (!$dnsRebindingProtection) {
-        $cert_ip = exec("host -4 -t A $subjectURL 2>/dev/null|awk '{print \$4}'");
+        $cert_ip = exec("host -4 -t A $subject2URL 2>/dev/null|awk '{print \$4}'");
         $dnsValid = $cert_ip==$addr;
       }
     } else {
@@ -76,7 +101,7 @@ if ($certPresent) {
       // $dnsRebindingProtection = ($rebindtest_ip != "fd42::42");
       $dnsRebindingProtection = ($rebindtest_ip != "fd42::42") && ($rebindtest_ip != "fd42::");
       if (!$dnsRebindingProtection) {
-        $cert_ip = exec("host -6 -t AAAA $subjectURL 2>/dev/null|awk '{print \$4}'");
+        $cert_ip = exec("host -6 -t AAAA $subject2URL 2>/dev/null|awk '{print \$4}'");
         $dnsValid = $cert_ip==$addr;
       }
     }
@@ -87,7 +112,7 @@ $cert_time_format   = $display['date'].($display['date']!='%c' ? ', '.str_replac
 $provisionlabel     = $isLEcert ? _('Renew') : _('Provision');
 $disabled_provision = $keyfile===false || ($isLEcert && $retval_expired===0) ? 'disabled' : '';
 $disabled_updatedns = $keyfile!==false && $isLEcert ? '' : 'disabled';
-$disabled_delete    = $certPresent && $var['USE_SSL']!='auto' ? '' : 'disabled';
+$disabled_delete    = $cert2Present && $var['USE_SSL']!='auto' ? '' : 'disabled';
 $disabled_auto      = $isLEcert && !$dnsRebindingProtection && $dnsValid ? '' : 'disabled';
 $upgradelabel       = _('Upgrade Cert');
 
@@ -275,22 +300,50 @@ _(Local TLD)_:
 : <input type="button" value="_(Apply)_" onclick="checkPorts(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
 
 </form>
+
+<div style="height:24px"></div>
+<form markdown="1">
+<?if ($cert1Present):?>
+_(Self-signed or user-provided certificate file)_:
+: <?=$cert1File?>
+
+<?if ($cert1URLvalid):?>
+_(Certificate URL)_:
+: [<?=$cert1URL?>](https://<?=$cert1URL?>:<?=$var['PORTSSL']?>)
+<?else:?>
+_(Certificate URL)_:
+: Certificate not valid for <?=$cert1URL?>
+<?endif;?>
+
+_(Certificate issuer)_:
+: <?=$cert1Issuer?>
+
+_(Certificate expiration)_:
+: <?=_(strftime($cert_time_format, strtotime($cert1Expires)),0)?>
+
+<?else:?>
+_(Self-signed certificate file)_:
+: _(Not present)_
+<?endif;?>
+
+</form>
+
 <div style="height:24px"></div>
 <form markdown="1" name="Provision" method="POST" target="progressFrame" action="/update.htm" onsubmit="provisionHandler(event, this)">
 <input type="hidden" name="server_name" value="<?=strtok($_SERVER['HTTP_HOST'],":")?>">
 <input type="hidden" name="server_addr" value="<?=$_SERVER['SERVER_ADDR']?>">
-<?if ($certPresent):?>
-_(CA-signed certificate file)_:
-: <?=$certFile?>
+<?if ($cert2Present):?>
+_(Unraid Let's Encrypt certificate)_:
+: <?=$cert2File?>
 
-_(Certificate subject)_:
-: [<?=$certSubject?>](https://<?=$subjectURL?>:<?=$var['PORTSSL']?>)
+_(Certificate URL)_:
+: [<?=$cert2Subject?>](https://<?=$subject2URL?>:<?=$var['PORTSSL']?>)
 
 _(Certificate issuer)_:
-: <?=$certIssuer?>
+: <?=$cert2Issuer?>
 
 _(Certificate expiration)_:
-: <?=_(strftime($cert_time_format, strtotime($certExpires)),0)?>
+: <?=_(strftime($cert_time_format, strtotime($cert2Expires)),0)?>
 
 <?if ($dnsRebindingProtection):?>
 &nbsp;
@@ -309,7 +362,7 @@ _(CA-signed certificate file)_:
 &nbsp;
 : <button type="submit" name="changePorts" value="Provision" <?=$disabled_provision?>><?=$provisionlabel?></button><button type="submit" name="changePorts" value="Delete" <?=$disabled_delete?> >_(Delete)_</button><!-- <button type="button" onclick="updateDNS(this)" <?=$disabled_updatedns?>>_(Update DNS)_</button> -->
 
-<?if ($certPresent && $isLegacyCert):?>
+<?if ($cert2Present && $isLegacyCert):?>
 &nbsp;
 : <button type="submit" name="changePorts" value="Upgrade"><?=$upgradelabel?></button>
 <?endif;?>
