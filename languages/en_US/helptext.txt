@@ -1153,6 +1153,13 @@ Select **Strict** to enable *exclusive* use of an Unraid.net SSL
 certificate for https access (see **Provision** below).  Note that a DNS
 server must be reachable.
 
+**Redirects:** When accessing `http://<server-ip-address>` or `http://<server-name>.<localTLD>`, the 
+behavior will change depending on the value of the Use SSL/TLS setting:
+
+* If Use SSL/TLS is set to **Strict**, you will be redirected to `https://<lan-ip>.<hash>.myunraid.net`
+* If Use SSL/TLS is set to **Yes**, you will be redirected to `https://<server-ip-address> or https://<server-name>.<localTLD>`
+* If Use SSL/TLS is set to **No**, then the http url will load directly.
+
 Important: **Strict** may not be selectable if your router or upstream DNS server has
 [DNS rebinding protection](https://en.wikipedia.org/wiki/DNS_rebinding) enabled. DNS rebinding
 protection prevents DNS from resolving a private IP network range. DNS rebinding protection is meant as
@@ -1198,6 +1205,11 @@ Enter the HTTPS port, default port is 443.
 
 :mgmt_local_tld_help:
 Enter your local Top Level Domain. May be blank.
+:end
+
+:mgmt_local_access_urls_help:
+The Local Access URLs shown above are based on your current settings. 
+To adjust URLs or redirects, see the help text for "Use SSL/TLS".
 :end
 
 :mgmt_certificate_expiration_help:
