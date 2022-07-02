@@ -1,3 +1,4 @@
+#!/usr/bin/php -q
 <?PHP
 /* Copyright 2005-2022, Lime Technology
  * Copyright 2012-2022, Bergware International.
@@ -11,16 +12,31 @@
  */
 ?>
 <?
+session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-// add translations
-$_SERVER['REQUEST_URI'] = 'main';
-require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
+// add translations
+$_SERVER['REQUEST_URI'] = 'main';
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
+
 $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May '=>'-05-',' Jun '=>'-06-',' Jul '=>'-07-',' Aug '=>'-08-',' Sep '=>'-09-',' Oct '=>'-10-',' Nov '=>'-11-',' Dec '=>'-12-'];
 
+function write($message){
+  $nchan = curl_init();
+  curl_setopt_array($nchan,[
+    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  curl_exec($nchan);
+  curl_close($nchan);
+}
 function this_plus($val, $word, $last) {
   return $val>0 ? (($val||$last)?($val.' '.$word.($last?'':', ')):'') : '';
 }
@@ -33,27 +49,10 @@ function this_duration($time) {
   $secs = $hmss%60;
   return this_plus($days,_('day'),($hour|$mins|$secs)==0).this_plus($hour,_('hr'),($mins|$secs)==0).this_plus($mins,_('min'),$secs==0).this_plus($secs,_('sec'),true);
 }
-?>
-<!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
-</head>
-<style>
-table.share_status thead tr td:nth-child(2){width:20%}
-</style>
-<body>
-<table class='share_status'><thead><tr><td><?=_('Action')?></td><td><?=_('Date')?></td><td><?=_('Size')?></td><td><?=_('Duration')?></td><td><?=_('Speed')?></td><td><?=_('Status')?></td><td><?=_('Errors')?></td></tr></thead><tbody>
-<?
-$log = '/boot/config/parity-checks.log'; $list = [];
+$log  = "/boot/config/parity-checks.log";
+$head = "<table style='margin-top:10px'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
+$list = [];
+
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($row = fgets($handle))!==false) {
@@ -75,12 +74,10 @@ if (file_exists($log)) {
   }
   fclose($handle);
 }
-if ($list)
-  foreach (array_reverse($list) as $row) echo $row;
-else
-  echo "<tr><td colspan='7' style='text-align:center;padding-top:12px'>",_('No parity check history present'),"!</td></tr>";
+if ($list) {
+  $list = array_reverse($list);
+} else {
+  $list[] = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No parity check history present')."!</td></tr>";
+}
+write($head.implode($list)."</table>");
 ?>
-</tbody></table>
-<div style="text-align:center;margin-top:12px"><input type="button" value="<?=_('Done')?>" onclick="top.Shadowbox.close()"></div>
-</body>
-</html>
