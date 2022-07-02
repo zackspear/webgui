@@ -64,8 +64,8 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
-pre#body{font-family:clear-sans;text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
-pre#text{text-align:left;margin:-10px 0 0 30px;padding:0;height:400px;white-space:normal;border:none}
+pre#body{font-family:clear-sans;text-align:left;margin:0;padding:0;height:450px;white-space:normal;border:none}
+pre#text{text-align:left;margin:0;padding:0;height:450px;white-space:normal;border:none}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -274,7 +274,7 @@ function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     plugins.start();
-    swal({title:title+'<hr>',text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
@@ -286,7 +286,7 @@ function openChanges(cmd,title) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     changes.start();
-    swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
@@ -297,7 +297,7 @@ function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     changes.start();
-    swal({title:title+'<hr>',text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
