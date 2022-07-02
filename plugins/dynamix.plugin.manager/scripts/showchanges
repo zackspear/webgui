@@ -14,33 +14,32 @@
 <?
 session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Wrappers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'plugins';
 $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
 $file    = realpath($argv[1] ?? '');
-$console = !(isset($argv[2]) && $argv[2]=='nchan');
 $valid   = ['/var/tmp/','/tmp/plugins/'];
 $good    = false;
 
 function write($message){
-  global $console;
-  if ($console) {
-    echo $message;
-  } else {
-    $nchan = curl_init();
-    curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
-      CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
-      CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => $message,
-      CURLOPT_RETURNTRANSFER => true
-    ]);
-    curl_exec($nchan);
-    curl_close($nchan);
-  }
+  $nchan = curl_init();
+  curl_setopt_array($nchan,[
+    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  curl_exec($nchan);
+  curl_close($nchan);
 }
+
 if ($file) {
   foreach ($valid as $check) if (strncmp($file,$check,strlen($check))===0) $good = true;
   if ($good && pathinfo($file)['extension']=='txt') write(Markdown(file_get_contents($file)));
