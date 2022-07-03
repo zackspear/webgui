@@ -273,9 +273,9 @@ function bannerAlert(text,cmd,plg,func) {
 function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    plugins.start();
+    nchan_plugins.start();
     swal({title:title,text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
-      plugins.stop();
+      nchan_plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
     });
@@ -307,9 +307,9 @@ function openChanges(cmd,title,nchan) {
 function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    changes.start();
+    nchan_changes.start();
     swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
-      changes.stop();
+      nchan_changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
     });
