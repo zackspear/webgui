@@ -49,12 +49,12 @@ function this_duration($time) {
   $secs = $hmss%60;
   return this_plus($days,_('day'),($hour|$mins|$secs)==0).this_plus($hour,_('hr'),($mins|$secs)==0).this_plus($mins,_('min'),$secs==0).this_plus($secs,_('sec'),true);
 }
-$inlog  = "/boot/config/parity-checks.log";
-$inhead = "<table style='margin-top:10px;background-color:inherit'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
-$inlist = [];
+$log  = "/boot/config/parity-checks.log";
+$head = "<table style='margin-top:10px;background-color:inherit'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
+$list = [];
 
-if (file_exists($inlog)) {
-  $handle = fopen($inlog, 'r');
+if (file_exists($log)) {
+  $handle = fopen($log, 'r');
   while (($row = fgets($handle))!==false) {
     [$date,$duration,$speed,$status,$error,$action,$size] = my_explode('|',$row,7);
     $action = preg_split('/\s+/',$action);
@@ -70,15 +70,15 @@ if (file_exists($inlog)) {
     // handle both old and new speed notation
     $speed = $speed ? (is_numeric($speed) ? my_scale($speed,$unit,1)." $unit/s" : $speed) : _('Unavailable');
     $status = $status==0 ? _('OK') : ($status==-4 ? _('Canceled') : $status);
-    $inlist[] = "<tr><td>$action</td><td>$date</td><td>$size</td><td>$duration</td><td>$speed</td><td>$status</td><td>$error</td></tr>";
+    $list[] = "<tr><td>$action</td><td>$date</td><td>$size</td><td>$duration</td><td>$speed</td><td>$status</td><td>$error</td></tr>";
   }
   fclose($handle);
 }
-if ($inlist) {
-  $inlist = array_reverse($inlist);
+if ($list) {
+  $list = array_reverse($list);
 } else {
-  $inlist[] = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No parity check history present')."!</td></tr>";
+  $list[] = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No parity check history present')."!</td></tr>";
 }
-write($inhead.implode($inlist)."</table>");
-unset($inhead,$inlist);
+write($head.implode($list)."</table>");
+unset($head,$list);
 ?>
