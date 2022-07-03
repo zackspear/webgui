@@ -220,7 +220,7 @@ function resumeParity(form) {
   });
 }
 function parityHistory() {
-  openChanges("parity_history","_(Parity Operation History)_");
+  openChanges("parity_history", "_(Parity Operation History)_", "phistory");
 }
 function shutdown_now(form,cmd) {
   $(form).append('<input type="hidden" name="cmd" value="'+cmd+'">');

@@ -282,12 +282,22 @@ function openPlugin(cmd,title,plg,func) {
     $('.sweet-alert').addClass('nchan');
   });
 }
-function openChanges(cmd,title) {
+function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    changes.start();
+    switch (nchan) {
+      case 'phistory': phistory.start(); break;
+      case 'feedback': feedback.start(); break;
+      case 'sysinfo' : sysinfo.start(); break;
+      default        : changes.start(); break;
+    }
     swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
-      changes.stop();
+      switch (nchan) {
+        case 'phistory': phistory.stop(); break;
+        case 'feedback': feedback.stop(); break;
+        case 'sysinfo' : sysinfo.stop(); break;
+        default        : changes.stop(); break;
+      }
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
@@ -778,6 +788,21 @@ plugins.on('message', function(data) {
 
 var changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
 changes.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
+phistory.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
+feedback.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
+sysinfo.on('message', function(data) {
   $('pre#body').html(data);
 });
 
