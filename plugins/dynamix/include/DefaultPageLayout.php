@@ -282,22 +282,32 @@ function openPlugin(cmd,title,plg,func) {
     $('.sweet-alert').addClass('nchan');
   });
 }
-function openChanges(cmd,title,nchan) {
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
+function startStopNchan(cmd,nchan) {
+  switch (cmd) {
+    case 'start':
     switch (nchan) {
       case 'phistory': phistory.start(); break;
       case 'feedback': feedback.start(); break;
       case 'sysinfo' : sysinfo.start(); break;
       default        : changes.start(); break;
     }
+    break;
+    case 'stop':
+    switch (nchan) {
+      case 'phistory': phistory.stop(); break;
+      case 'feedback': feedback.stop(); break;
+      case 'sysinfo' : sysinfo.stop(); break;
+      default        : changes.stop(); break;
+    }
+    break;
+  }
+}
+function openChanges(cmd,title,nchan) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
+    if (pid==0) return;
+    startStopNchan('start',nchan);
     swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
-      switch (nchan) {
-        case 'phistory': phistory.stop(); break;
-        case 'feedback': feedback.stop(); break;
-        case 'sysinfo' : sysinfo.stop(); break;
-        default        : changes.stop(); break;
-      }
+      startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
