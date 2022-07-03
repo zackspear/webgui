@@ -16,7 +16,7 @@ $file = $_POST['file'];
 
 function validpath($file) {
   global $docroot;
-  return strncmp(realpath(dirname("$docroot/$file")),$docroot,strlen($docroot))===0;
+  return realpath(dirname("$docroot/$file")) == $docroot;
 }
 
 switch ($_POST['cmd']) {
