@@ -23,7 +23,7 @@ function write($message){
   } else {
     $nchan = curl_init();
     curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=1',
+      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
       CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
       CURLOPT_POST => 1,
       CURLOPT_POSTFIELDS => $message,
@@ -34,6 +34,7 @@ function write($message){
   }
 }
 
+usleep(50000);
 foreach ($plugins as $plugin) {
   if (!$plugin) continue;
   $line = '';

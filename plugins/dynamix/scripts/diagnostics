@@ -25,7 +25,7 @@ $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var
 function write($message) {
   $nchan = curl_init();
   curl_setopt_array($nchan,[
-    CURLOPT_URL => "http://localhost/pub/diagnostics?buffer_length=1",
+    CURLOPT_URL => "http://localhost/pub/diagnostics?buffer_length=0",
     CURLOPT_UNIX_SOCKET_PATH => "/var/run/nginx.socket",
     CURLOPT_POST => 1,
     CURLOPT_POSTFIELDS => $message,

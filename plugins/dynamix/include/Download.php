@@ -14,14 +14,14 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $file = $_POST['file'];
 
-function rootpath($file) {
+function validpath($file) {
   global $docroot;
-  return substr(realpath("$docroot/$file"),0,strlen($docroot))==$docroot;
+  return strncmp(realpath(dirname("$docroot/$file")),$docroot,strlen($docroot))===0;
 }
 
 switch ($_POST['cmd']) {
 case 'save':
-  if (is_file("$docroot/$file") && !rootpath($file)) exit;
+  if (!validpath($file)) break;
   $source = $_POST['source'];
   $opts = $_POST['opts'] ?? 'qlj';
   if (in_array(pathinfo($source, PATHINFO_EXTENSION),['txt','conf','png'])) {
@@ -35,10 +35,10 @@ case 'save':
   echo "/$file";
   break;
 case 'delete':
-  if (is_file("$docroot/$file") && rootpath($file)) unlink("$docroot/$file");
+  if (validpath($file) && is_file("$docroot/$file")) unlink("$docroot/$file");
   break;
 case 'diag':
-  if (is_file("$docroot/$file") && !rootpath($file)) exit;
+  if (!validpath($file)) break;
   $anon = empty($_POST['anonymize']) ? '' : escapeshellarg($_POST['anonymize']);
   exec("echo $docroot/webGui/scripts/diagnostics $anon ".escapeshellarg("$docroot/$file")." | at -M now > /dev/null 2>&1");
   echo "/$file";
