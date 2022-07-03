@@ -22,7 +22,7 @@ $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 ul,li{margin:0;padding-top:0;padding-bottom:0}
 pre.pre{margin:30px 0}
 pre>p{margin:0;padding:0}
-pre#text{height:250px!important}
+pre#text{height:380px!important}
 </style>
 
 <script>
@@ -32,6 +32,7 @@ var diagnostic = new NchanSubscriber('/sub/diagnostics',{subscriber:'websocket'}
 diagnostic.on('message', function(data) {
   if (data == '_DONE_') {
     diagnostic.stop();
+    $('.sweet-alert').hide('fast').removeClass('nchan');
     swal.close();
     location = diagnosticsFile;
     setTimeout(cleanUp,4000);
@@ -61,8 +62,8 @@ function diagnostics(file) {
   $.post('/webGui/include/Download.php',{cmd:'diag',file:file,anonymize:anonymize},function(zip) {
     diagnosticsFile = zip;
     diagnostic.start();
-    swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><br><pre id='text'></pre><hr>",html:true,type:"info",confirmButtonText:"_(Close)_"});
-    $('.sweet-alert').css({'height':'600','width':'900'});
+    swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><br><pre id='text'></pre><hr>",html:true,confirmButtonText:"_(Close)_"});
+    $('.sweet-alert').addClass('nchan');
   });
 }
 </script>
