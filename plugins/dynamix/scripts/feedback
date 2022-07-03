@@ -39,7 +39,7 @@ function write($message){
 $var     = parse_ini_file('state/var.ini');
 $unraid  = parse_ini_file('/etc/unraid-version');
 $keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
-$width   = in_array($display['theme'],['azure','gray']) ? '98.4%' : '100%';
+$inwidth = in_array($display['theme'],['azure','gray']) ? '98.4%' : '100%';
 
 $instyle = ["<style>"];
 $instyle[] = "div.spinner.fixed{z-index:100000}";
@@ -49,7 +49,7 @@ $instyle[] = "div.four label:first-child{margin-left:0}";
 $instyle[] = "div.four label{margin-left:2%;cursor:pointer}";
 $instyle[] = "div.allpanels{display:none;position:absolute;left:0;right:0;top:40px;bottom:0;overflow:auto}";
 $instyle[] = "div#footer_panel{position:absolute;left:0;right:0;bottom:0;height:30px;line-height:30px;text-align:center}";
-$instyle[] = "textarea.feedback{width:$width;height:330px;margin:0;resize:none}";
+$instyle[] = "textarea.feedback{width:$inwidth;height:330px;margin:0;resize:none}";
 $instyle[] = "input.submit[type=button]{margin-right:0;float:right}";
 $instyle[] = "input.submit[type=email]{margin-top:10px;float:left}";
 $instyle[] = "p.note,label.note{font-size:1.1rem!important;display:block}";
