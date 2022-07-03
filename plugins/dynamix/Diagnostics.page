@@ -29,7 +29,7 @@ pre#text{height:500px!important}
 var diagnosticsFile = "";
 var nchan_diagnostics = new NchanSubscriber('/sub/diagnostics',{subscriber:'websocket'});
 
-diagnostic.on('message', function(data) {
+nchan_diagnostics.on('message', function(data) {
   if (data == '_DONE_') {
     nchan_diagnostics.stop();
     $('.sweet-alert').hide('fast').removeClass('nchan');
