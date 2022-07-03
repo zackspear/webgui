@@ -193,4 +193,5 @@ $list[] = "<tr><td>"._('OpenSSL').":</td><td>$openssl</td></tr>";
 $list[] = "<tr><td>"._('Uptime').":</td><td><span class='uptime'></span></td></tr></table>";
 
 write($style.implode($list));
+unset($list);
 ?>
