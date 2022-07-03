@@ -282,23 +282,14 @@ function openPlugin(cmd,title,plg,func) {
     $('.sweet-alert').addClass('nchan');
   });
 }
-function startStopNchan(cmd,nchan) {
+function startStopNchan(cmd, nchan='changes') {
+  let channel = {changes,phistory,feedback,sysinfo};
   switch (cmd) {
-    case 'start':
-    switch (nchan) {
-      case 'phistory': phistory.start(); break;
-      case 'feedback': feedback.start(); break;
-      case 'sysinfo' : sysinfo.start(); break;
-      default        : changes.start(); break;
-    }
+  case 'start':
+    channel[nchan].start();
     break;
-    case 'stop':
-    switch (nchan) {
-      case 'phistory': phistory.stop(); break;
-      case 'feedback': feedback.stop(); break;
-      case 'sysinfo' : sysinfo.stop(); break;
-      default        : changes.stop(); break;
-    }
+  case 'stop':
+    channel[nchan].stop();
     break;
   }
 }
