@@ -46,7 +46,7 @@ case 'diag':
 case 'unlink':
   if (!validpath($file)) break;
   if ($backup = readlink("$docroot/$file")) unlink($backup);
-  unlink("$docroot/$file");
+  if (is_file("$docroot/$file")) unlink("$docroot/$file");
   break;
 case 'backup':
   echo exec("$docroot/webGui/scripts/flash_backup");
