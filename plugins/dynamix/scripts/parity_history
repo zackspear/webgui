@@ -50,7 +50,7 @@ function this_duration($time) {
   return this_plus($days,_('day'),($hour|$mins|$secs)==0).this_plus($hour,_('hr'),($mins|$secs)==0).this_plus($mins,_('min'),$secs==0).this_plus($secs,_('sec'),true);
 }
 $log  = "/boot/config/parity-checks.log";
-$head = "<table style='margin-top:10px'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
+$head = "<table style='margin-top:10px;background-color:inherit'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
 $list = [];
 
 if (file_exists($log)) {

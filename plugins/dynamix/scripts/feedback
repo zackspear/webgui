@@ -1,0 +1,192 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+session_start();
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
+
+function write($message){
+  $nchan = curl_init();
+  curl_setopt_array($nchan,[
+    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  curl_exec($nchan);
+  curl_close($nchan);
+}
+
+$var     = parse_ini_file('state/var.ini');
+$unraid  = parse_ini_file('/etc/unraid-version');
+$keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
+$width   = in_array($display['theme'],['azure','gray']) ? '98.4%' : '100%';
+
+$instyle = ["<style>"];
+$instyle[] = "div.spinner.fixed{z-index:100000}";
+$instyle[] = "div#control_panel{position:absolute;left:0;right:0;top:0;padding-top:8px;line-height:24px;white-space:nowrap}";
+$instyle[] = "div.four{text-align:center;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box}";
+$instyle[] = "div.four label:first-child{margin-left:0}";
+$instyle[] = "div.four label{margin-left:2%;cursor:pointer}";
+$instyle[] = "div.allpanels{display:none;position:absolute;left:0;right:0;top:40px;bottom:0;overflow:auto}";
+$instyle[] = "div#footer_panel{position:absolute;left:0;right:0;bottom:0;height:30px;line-height:30px;text-align:center}";
+$instyle[] = "textarea.feedback{width:$width;height:330px;margin:0;resize:none}";
+$instyle[] = "input.submit[type=button]{margin-right:0;float:right}";
+$instyle[] = "input.submit[type=email]{margin-top:10px;float:left}";
+$instyle[] = "p.note,label.note{font-size:1.1rem!important;display:block}";
+$instyle[] = "p.success{text-align:center!important;margin-top:20px}";
+$instyle[] = "span.spacer{margin:0 4px}";
+$instyle[] = "</style>";
+
+$inhtml = ["<div>"];
+$inhtml[] = "<div id='control_panel' class='four'>";
+$inhtml[] = "<label for='optFeatureRequest'><input type='radio' name='mode' id='optFeatureRequest' value='featurerequest' checked='checked'/> "._('Product Suggestion')."</label>";
+$inhtml[] = "<label for='optBugReport'><input type='radio' name='mode' id='optBugReport' value='bugreport'/> "._('Bug Report')."</label>";
+$inhtml[] = "<label for='optComment'><input type='radio' name='mode' id='optComment' value='comment'/> "._('Other Comment')."</label>";
+$inhtml[] = "<hr>";
+$inhtml[] = "</div>";
+$inhtml[] = "<div id='thanks_panel' class='allpanels'></div>";
+$inhtml[] = "<div id='featurerequest_panel' class='allpanels'>";
+$inhtml[] = "<textarea id='featureDescription' class='feedback' placeholder=\""._('Please summarize your suggestion here').".\"></textarea>";
+$inhtml[] = "<br>";
+$inhtml[] = "<input type='email' id='featureEmail' class='submit' autocomplete='off' spellcheck='false' placeholder=\""._('Contact Email Address').' ('._('optional').")\"><input type='button' id='featureSubmit' class='submit' value=\""._('Submit')."\"/>";
+$inhtml[] = "</div>";
+$inhtml[] = "<div id='bugreport_panel' class='allpanels'>";
+$inhtml[] = "<textarea id='bugDescription' class='feedback'></textarea>";
+$inhtml[] = "<input type='email' id='bugEmail' class='submit' autocomplete='off' spellcheck='false' placeholder=\""._('Contact Email Address').". ("._('optional').")\"><input type='button' id='bugSubmit' class='submit' value=\""._('Submit')."\"/>";
+$inhtml[] = "<label class='note' for='anonymize'><input type='checkbox' id='anonymize' value='1' />"._('Anonymize diagnostics (may make troubleshooting more difficult)')."</label>";
+$inhtml[] = "<p class='note'><b>"._('NOTE').":</b> <i>"._('Submission of this bug report will automatically send your system diagnostics to Lime Technology').".</i></p>";
+$inhtml[] = "</div>";
+$inhtml[] = "<div id='comment_panel' class='allpanels'>";
+$inhtml[] = "<textarea id='commentDescription' class='feedback' placeholder=\""._('Type your question or comment to Lime Technology here').".\"></textarea>";
+$inhtml[] = "<br>";
+$inhtml[] = "<input type='email' id='commentEmail' class='submit' autocomplete='off' spellcheck='false' placeholder=\""._('Contact Email Address')." ("._('optional').")\"><input type='button' id='commentSubmit' class='submit' value=\""._('Submit')."\"/>";
+$inhtml[] = "</div>";
+$inhtml[] = "<div id='footer_panel'>";
+$inhtml[] = "<a href='https://unraid.net' target='_blank'>"._('Website')."</a><span class='spacer blue-text'>|</span>";
+$inhtml[] = "<a href='https://forums.unraid.net' target='_blank'>"._('Forum')."</a><span class='spacer blue-text'>|</span>";
+$inhtml[] = "<a href='https://wiki.unraid.net/Documentation' target='_blank'>"._('Docs')."</a>";
+$inhtml[] = "</div>";
+$inhtml[] = "</div>";
+
+$inscript = ["<script>"];
+$inscript[] = "var inkeyfile = '$keyfile';";
+$inscript[] = "var unraid_osversion = '{$unraid['version']}';";
+$inscript[] = "var unraid_timestamp = ".time().";";
+$inscript[] = "var inpageurl = window.top.location.href;";
+
+$inscript[] = "function featurerequest_reset() {";
+$inscript[] = "  \$('#featureDescription').val('');";
+$inscript[] = "  \$('#featureEmail').val('');";
+$inscript[] = "}";
+
+$inscript[] = "function bugreport_reset() {";
+$inscript[] = "  \$('#bugDescription').val(\""._('Bug Description').": \\n\\n\\n"._('How to reproduce').": \\n\\n\\n"._('Expected results').": \\n\\n\\n"._('Actual results').": \\n\\n\\n"._('Other information').": \\n\");";
+$inscript[] = "  \$('#bugEmail').val('');";
+$inscript[] = "}";
+
+$inscript[] = "function comment_reset() {";
+$inscript[] = "  \$('#commentDescription').val('');";
+$inscript[] = "  \$('#commentEmail').val('');";
+$inscript[] = "}";
+
+$inscript[] = "function form_submit(url, params, panel, diagnostics) {";
+$inscript[] = "  panel.find('textarea,input').prop('disabled',true);";
+$inscript[] = "  \$('div.spinner.fixed').show();";
+$inscript[] = "  if (diagnostics) {";
+$inscript[] = "    var anonymize = \$('#anonymize').is(':checked') ? '1' : '';";
+$inscript[] = "    \$.get('/webGui/include/Feedback.php',{getdiagnostics:1,anonymize:anonymize},function(data) {";
+$inscript[] = "      params.diagnostics = data;";
+$inscript[] = "      form_submit(url, params, panel);";
+$inscript[] = "    }).fail(function() {";
+$inscript[] = "      \$('div.spinner.fixed').hide();";
+$inscript[] = "      panel.fadeOut('fast').find('textarea,input').prop('disabled', false);";
+$inscript[] = "      var failure_message = \"<p class='red-text' style='text-align:center;'>"._('Sorry, an error occurred')." ("._('Unable to generate system diagnostics')." "._('Please try again later').".</p>\";";
+$inscript[] = "      \$('#thanks_panel').html(failure_message).fadeIn('fast');";
+$inscript[] = "    });";
+$inscript[] = "    return;";
+$inscript[] = "  }";
+$inscript[] = "  params.timestamp = unraid_timestamp;";
+$inscript[] = "  params.osversion = unraid_osversion;";
+$inscript[] = "  params.keyfile = inkeyfile;";
+$inscript[] = "  params.pageurl = inpageurl;";
+$inscript[] = "  \$.post(url,params,function(data) {";
+$inscript[] = "    \$('div.spinner.fixed').hide();";
+$inscript[] = "    if (data.error) {";
+$inscript[] = "      var failure_message = \"<p class='red-text' style='text-align:center;'>"._('Sorry, an error occurred').". "._('Please try again later').".</p>\";";
+$inscript[] = "      \$('#thanks_panel').html(failure_message).fadeIn('fast');";
+$inscript[] = "    } else {";
+$inscript[] = "      data.message = data.message || '';";
+$inscript[] = "      var url_parts = url.split('/');";
+$inscript[] = "      var success_message = '<div style=\"text-align:center\"><h2 style=\"color:#4f8a10!important\">"._("Thank You")."!</h2><img src=\"/webGui/images/feedback_'+url_parts[4]+'.png\"/><p class=\"success\">'+data.message+'</p></div>';";
+$inscript[] = "      \$('#thanks_panel').html(success_message).fadeIn('fast', function() {";
+$inscript[] = "        var resetfunction = window[url_parts[4]+'_reset'];";
+$inscript[] = "        if (typeof resetfunction !== 'undefined' && \$.isFunction(resetfunction)) {";
+$inscript[] = "          resetfunction();";
+$inscript[] = "        }";
+$inscript[] = "      });";
+$inscript[] = "    }";
+$inscript[] = "  }).fail(function(jqXHR, textStatus, errorThrown) {";
+$inscript[] = "    if (jqXHR.responseJSON && jqXHR.responseJSON.error) {";
+$inscript[] = "      errorThrown = jqXHR.responseJSON.error;";
+$inscript[] = "    }";
+$inscript[] = "    var failure_message = \"<p class='red-text' style='text-align:center;'>"._('Sorry, an error occurred').". "._('Please try again later').".</p>\";";
+$inscript[] = "    \$('#thanks_panel').html(failure_message).fadeIn('fast');";
+$inscript[] = "  }).always(function() {";
+$inscript[] = "    \$('#spinner_image').fadeOut('fast');";
+$inscript[] = "    panel.fadeOut('fast').find('textarea,input').prop('disabled', false);";
+$inscript[] = "  });";
+$inscript[] = "}";
+
+$inscript[] = "\$(function() {";
+$inscript[] = "  \$('#control_panel input[type=radio]').click(function() {";
+$inscript[] = "    var showPanel = '#'+\$('#control_panel input[type=radio]:checked').val()+'_panel';";
+$inscript[] = "    $('.allpanels').not(showPanel).fadeOut('fast');";
+$inscript[] = "    var loadfunction = window[\$('#control_panel input[type=radio]:checked').val()+'_load'];";
+$inscript[] = "    if (typeof loadfunction !== 'undefined' && \$.isFunction(loadfunction)) {";
+$inscript[] = "      loadfunction();";
+$inscript[] = "    } else {";
+$inscript[] = "      \$(showPanel).fadeIn('fast');";
+$inscript[] = "    }";
+$inscript[] = "  });";
+$inscript[] = "  \$('#featureSubmit').click(function featureSubmitClick(){";
+$inscript[] = "    if (\$('#featureDescription').val() === '') return;";
+$inscript[] = "    form_submit('https://keys.lime-technology.com/feedback/featurerequest',{description:\$('#featureDescription').val(),email:\$('#featureEmail').val()},\$('#featurerequest_panel'));";
+$inscript[] = "  });";
+$inscript[] = "  \$('#bugSubmit').click(function bugSubmitClick(){";
+$inscript[] = "    if (\$('#bugDescription').val() === '') return;";
+$inscript[] = "    form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:\$('#bugDescription').val(),email:\$('#bugEmail').val()},\$('#bugreport_panel'),true);";
+$inscript[] = "  });";
+$inscript[] = "  \$('#commentSubmit').click(function commentSubmitClick(){";
+$inscript[] = "    if (\$('#commentDescription').val() === '') return;";
+$inscript[] = "    form_submit('https://keys.lime-technology.com/feedback/comment',{description:\$('#commentDescription').val(),email:\$('#commentEmail').val()},\$('#comment_panel'));";
+$inscript[] = "  });";
+$inscript[] = "  featurerequest_reset();";
+$inscript[] = "  bugreport_reset();";
+$inscript[] = "  comment_reset();";
+$inscript[] = "  \$('#optFeatureRequest').click();";
+$inscript[] = "});";
+$inscript[] = "</script>";
+
+write(implode($instyle).implode($inhtml).implode($inscript));
+unset($instyle,$inhtml,$inscript);
+?>
