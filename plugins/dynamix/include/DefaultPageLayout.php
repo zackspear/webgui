@@ -283,7 +283,7 @@ function openPlugin(cmd,title,plg,func) {
   });
 }
 function startStopNchan(cmd, name='changes') {
-  let channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo};
+  const channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo};
   switch (cmd) {
   case 'start':
     channel['nchan_'+name].start();
