@@ -28,7 +28,7 @@ $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May 
 function write($message){
   $nchan = curl_init();
   curl_setopt_array($nchan,[
-    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
+    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
     CURLOPT_POSTFIELDS => $message,
