@@ -27,11 +27,11 @@ pre#text{height:500px!important}
 
 <script>
 var diagnosticsFile = "";
-var diagnostic = new NchanSubscriber('/sub/diagnostics',{subscriber:'websocket'});
+var nchan_diagnostics = new NchanSubscriber('/sub/diagnostics',{subscriber:'websocket'});
 
 diagnostic.on('message', function(data) {
   if (data == '_DONE_') {
-    diagnostic.stop();
+    nchan_diagnostics.stop();
     $('.sweet-alert').hide('fast').removeClass('nchan');
     swal.close();
     location = diagnosticsFile;
@@ -62,8 +62,8 @@ function diagnostics(file) {
   var anonymize = $('#anonymize').is(':checked') ? '' : '-a';
   $.post('/webGui/include/Download.php',{cmd:'diag',file:file,anonymize:anonymize},function(zip) {
     if (zip) {
-      diagnostic.start();
       diagnosticsFile = zip;
+      nchan_diagnostics.start();
       swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='text'></pre>",html:true,showConfirmButton:false});
       $('.sweet-alert').addClass('nchan');
     } else {
