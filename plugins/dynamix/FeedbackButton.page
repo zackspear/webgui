@@ -18,6 +18,6 @@ Code="e93e"
 ?>
 <script>
 function FeedbackButton() {
-  openChanges("feedback","_(Feedback)_");
+  openChanges("feedback", "_(Feedback)_", "feedback");
 }
 </script>

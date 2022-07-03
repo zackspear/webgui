@@ -17,6 +17,6 @@ Code="e930"
 ?>
 <script>
 function InfoButton() {
-  openChanges("system_information","_(System Information)_");
+  openChanges("system_information", "_(System Information)_", "sysinfo");
 }
 </script>
