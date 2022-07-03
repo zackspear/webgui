@@ -283,13 +283,13 @@ function openPlugin(cmd,title,plg,func) {
   });
 }
 function startStopNchan(cmd, nchan='changes') {
-  let channel = {changes,phistory,feedback,sysinfo};
+  let channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo};
   switch (cmd) {
   case 'start':
-    channel[nchan].start();
+    channel['nchan_'+nchan].start();
     break;
   case 'stop':
-    channel[nchan].stop();
+    channel['nchan_'+nchan].stop();
     break;
   }
 }
@@ -775,8 +775,8 @@ defaultPage.on('message', function(msg,meta) {
   }
 });
 
-var plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
-plugins.on('message', function(data) {
+var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
+nchan_plugins.on('message', function(data) {
   let box = $('pre#text');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
@@ -787,23 +787,23 @@ plugins.on('message', function(data) {
   box.html(text.join('<br>')).scrollTop(box[0].scrollHeight);
 });
 
-var changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
-changes.on('message', function(data) {
+var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
+nchan_changes.on('message', function(data) {
   $('pre#body').html(data);
 });
 
-var phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
-phistory.on('message', function(data) {
+var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
+nchan_phistory.on('message', function(data) {
   $('pre#body').html(data);
 });
 
-var feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
-feedback.on('message', function(data) {
+var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
+nchan_feedback.on('message', function(data) {
   $('pre#body').html(data);
 });
 
-var sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
-sysinfo.on('message', function(data) {
+var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
+nchan_sysinfo.on('message', function(data) {
   $('pre#body').html(data);
 });
 
