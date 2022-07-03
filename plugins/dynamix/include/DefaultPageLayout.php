@@ -282,14 +282,14 @@ function openPlugin(cmd,title,plg,func) {
     $('.sweet-alert').addClass('nchan');
   });
 }
-function startStopNchan(cmd, nchan='changes') {
+function startStopNchan(cmd, name='changes') {
   let channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo};
   switch (cmd) {
   case 'start':
-    channel['nchan_'+nchan].start();
+    channel['nchan_'+name].start();
     break;
   case 'stop':
-    channel['nchan_'+nchan].stop();
+    channel['nchan_'+name].stop();
     break;
   }
 }
