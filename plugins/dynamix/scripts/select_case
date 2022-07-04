@@ -1,0 +1,91 @@
+#!/usr/bin/php -q
+<?PHP
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+session_start();
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard';
+$_SESSION['locale'] = $display['locale'];
+require_once "$docroot/webGui/include/Translations.php";
+
+function write($message){
+  $nchan = curl_init();
+  curl_setopt_array($nchan,[
+    CURLOPT_URL => 'http://localhost/pub/selectcase?buffer_length=0',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  curl_exec($nchan);
+  curl_close($nchan);
+}
+
+$boot   = "/boot/config/plugins/dynamix";
+$file   = $argv[1];
+$exist  = is_file("$boot/$file");
+$cmodel = $exist ? file_get_contents("$boot/$file") : '';
+
+$style = ["<style>"];
+$style[] = "div.case-list{float:left;padding:10px;margin:0 30px 64px 0;height:128px;width:128px;text-align:center}";
+$style[] = "div.case-list span{position:relative;top:64px;width:auto;max-width:128px;height:128px;font-size:128px;cursor:pointer}";
+$style[] = "div.case-list span.fa{top:24px;height:128px;width:auto;max-width:80px;font-size:80px;cursor:pointer}";
+$style[] = "div.case-list:hover{color:#f0000c}";
+$style[] = "div.case-name{position:relative;top:74px}";
+$style[] = "div.custom-name{position:relative;top:10px}";
+$style[] = "</style>";
+
+$script = ["<script>"];
+$script[] = "function selectDone() {";
+$script[] = "  nchan_selectcase.stop();";
+$script[] = "  $('.sweet-alert').hide('fast').removeClass('nchan');";
+$script[] = "  swal.close();";
+$script[] = "  getCase();";
+$script[] = "}";
+$script[] = "function setCase(model) {";
+$script[] = "  \$.post('/webGui/include/SelectCase.php',{mode:'set',file:'$file',model:model},function(){selectDone();});";
+$script[] = "}";
+$script[] = "function importFile(file) {";
+$script[] = "  if (file.name.split('.').pop().toLowerCase() != 'png') return;";
+$script[] = "  var reader = new FileReader();";
+$script[] = "  reader.readAsDataURL(file);";
+$script[] = "  reader.onload = function(e){\$.post('/webGui/include/SelectCase.php',{mode:'file',file:'$file',data:e.target.result},function(){selectDone();})};";
+$script[] = "}";
+$script[] = "</script>";
+
+$html = ["<div>"];
+$cases = explode("\n",file_get_contents("$docroot/webGui/styles/default-cases.css"));
+foreach ($cases as $case) if (substr($case,0,6)=='.case-') $models[] = substr($case,1,strpos($case,':')-1);
+natsort($models);
+for ($i=0; $i < count($models); $i++) {
+  $model = $models[$i];
+  $name = substr($model,5);
+  $title = str_replace('3u-avs-10-4','3u-avs-10/4',$name);
+  $select = $name==$cmodel ? 'color:#e68a00' : '';
+  $html[] = "<div id='$name' class='case-list' style='$select' onclick='setCase(\"$name\")'><span class='$model'></span><div class='case-name'>$title</div></div>";
+}
+$html[] = "<div id='Custom' class='case-list' style='$select' onclick='$(\"input#file\").trigger(\"click\")'><span class='fa fa-file-image-o'></span><div class='custom-name'>"._('custom image')."</div></div>";
+$i++;
+$html[] = "</div></div>";
+$select = substr($cmodel,-4)=='.png' ? 'color:#e68a00' : '';
+$html[] = "<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>";
+$html[] = "</div>";
+
+usleep(50000);
+write(implode($style).implode($script).implode($html));
+?>

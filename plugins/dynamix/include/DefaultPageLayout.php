@@ -283,7 +283,7 @@ function openPlugin(cmd,title,plg,func) {
   });
 }
 function startStopNchan(cmd, name='changes') {
-  const channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo};
+  const channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo,nchan_selectcase};
   switch (cmd) {
   case 'start':
     channel['nchan_'+name].start();
@@ -804,6 +804,11 @@ nchan_feedback.on('message', function(data) {
 
 var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
 nchan_sysinfo.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
+nchan_selectcase.on('message', function(data) {
   $('pre#body').html(data);
 });
 
