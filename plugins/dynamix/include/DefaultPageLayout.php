@@ -273,21 +273,32 @@ function bannerAlert(text,cmd,plg,func) {
 function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    plugins.start();
+    nchan_plugins.start();
     swal({title:title,text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
-      plugins.stop();
+      nchan_plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
 }
-function openChanges(cmd,title) {
+function startStopNchan(cmd, name='changes') {
+  const channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo,nchan_selectcase};
+  switch (cmd) {
+  case 'start':
+    channel['nchan_'+name].start();
+    break;
+  case 'stop':
+    channel['nchan_'+name].stop();
+    break;
+  }
+}
+function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    changes.start();
+    startStopNchan('start',nchan);
     swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
-      changes.stop();
+      startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
@@ -296,9 +307,9 @@ function openChanges(cmd,title) {
 function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
-    changes.start();
+    nchan_changes.start();
     swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
-      changes.stop();
+      nchan_changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
     });
@@ -764,8 +775,8 @@ defaultPage.on('message', function(msg,meta) {
   }
 });
 
-var plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
-plugins.on('message', function(data) {
+var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
+nchan_plugins.on('message', function(data) {
   let box = $('pre#text');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
@@ -776,8 +787,28 @@ plugins.on('message', function(data) {
   box.html(text.join('<br>')).scrollTop(box[0].scrollHeight);
 });
 
-var changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
-changes.on('message', function(data) {
+var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
+nchan_changes.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
+nchan_phistory.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
+nchan_feedback.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
+nchan_sysinfo.on('message', function(data) {
+  $('pre#body').html(data);
+});
+
+var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
+nchan_selectcase.on('message', function(data) {
   $('pre#body').html(data);
 });
 

@@ -6,9 +6,9 @@ Markdown="false"
 Nchan="docker_load:stop"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -142,8 +142,15 @@ function loadlist(init) {
     if (rebuild) rebuildAll();
   });
 }
+function hide_spinner() {
+  // we need to hide the spinner as soon as info is present or the window is closed
+  if (!$('.sweet-alert').hasClass('nchan') || $('pre#text').html() != '') $('div.spinner.fixed').hide(); else setTimeout(hide_spinner,250);
+}
 function sizes() {
-  openBox("/plugins/dynamix.docker.manager/include/ContainerSize.php","_(Container Size)_",600,600);
+  // show spinner over window
+  $('div.spinner.fixed').css({'z-index':'100000'}).show();
+  setTimeout(hide_spinner,1000);
+  openPlugin('container_size', "_(Container Size)_");
 }
 var dockerload = new NchanSubscriber('/sub/dockerload',{subscriber:'websocket'});
 dockerload.on('message', function(msg){

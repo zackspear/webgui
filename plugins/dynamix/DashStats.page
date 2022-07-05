@@ -249,7 +249,7 @@ form[name=boot]{display:none}
 <i id='mycase' class='fa fa-hdd-o'></i><br>
 <?endif;?>
 </span>
-<input type='button' value="_(Edit)_" style="margin-right:0" onclick='openBox("/webGui/include/SelectCase.php?file=<?=$myfile?>&csrf=<?=$var['csrf_token']?>","_(Select Case Model)_",700,980,true,"setCase");return false'>
+<input type='button' value="_(Edit)_" style="margin-right:0" onclick='openChanges("select_case <?=$myfile?>", "_(Select Case Model)_", "selectcase")'>
 </div>
 </td><td></td></tr>
 </tbody>
@@ -731,7 +731,7 @@ function loadlist(init) {
     context.init({preventDoubleContext:false,left:true,above:false});
   });
 }
-function setCase() {
+function getCase() {
   $.post('/webGui/include/SelectCase.php',{mode:'get',file:'<?=$myfile?>'},function(model){
     if (!model) {
       $('#casing').html("<i id='mycase' class='fa fa-hdd-o'></i><br>");

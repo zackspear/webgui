@@ -1,6 +1,7 @@
 #!/bin/bash
 
 text="Deleting $1 ..."
+sleep 0.05
 if [[ -z $2 ]]; then
   echo $text
 else
