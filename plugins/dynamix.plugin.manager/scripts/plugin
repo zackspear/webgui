@@ -442,6 +442,14 @@ function move($src_file, $tar_dir) {
   return rename($src_file, $tar_dir."/".basename($src_file));
 }
 
+$notify  = '/usr/local/emhttp/webGui/scripts/notify';
+$boot    = '/boot/config/plugins';
+$plugins = '/var/log/plugins';
+$tmp     = '/tmp/plugins';
+$method  = $argv[1];
+$builtin = ['unRAIDServer','unRAIDServer-'];
+$console = $argv[$argc-1] != 'nchan'; // console or nchan output
+
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
 //  $plugin_file - is an absolute path, eg, "/boot/config/plugins/myplugin.plg"
@@ -451,13 +459,6 @@ if ($argc < 2) {
   write($usage);
   exit(1);
 }
-$notify  = '/usr/local/emhttp/webGui/scripts/notify';
-$boot    = '/boot/config/plugins';
-$plugins = '/var/log/plugins';
-$tmp     = '/tmp/plugins';
-$method  = $argv[1];
-$builtin = ['unRAIDServer','unRAIDServer-'];
-$console = $argv[$argc-1] != 'nchan'; // console or nchan output
 
 // plugin checkall
 // check all installed plugins, except built-in

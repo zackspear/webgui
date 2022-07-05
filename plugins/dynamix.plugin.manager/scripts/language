@@ -174,18 +174,18 @@ function language($method, $xml_file, &$error) {
   }
 }
 
-// MAIN - single argument
-if ($argc < 2) {
-  write($usage);
-  exit(1);
-}
-
 $docroot = '/usr/local/emhttp';
 $boot    = '/boot/config/plugins';
 $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
+
+// MAIN - single argument
+if ($argc < 2) {
+  write($usage);
+  exit(1);
+}
 
 // language checkall
 // check all installed languages
