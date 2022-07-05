@@ -162,14 +162,6 @@ function error_desc($code) {
   }
 }
 
-// Set output control
-// Check for optional parameter 'nchan'
-//
-function console($i) {
-  global $console, $argv;
-  $console = !(isset($argv[$i]) && $argv[$i]=='nchan');
-}
-
 // Function to write either to console (echo) or nchan (curl)
 // Default output is console, use optional parameter "nchan" to write to nchan instead
 //
@@ -465,13 +457,12 @@ $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
-$console = true; // default output is console, nchan otherwise
+$console = $argv[$argc-1] != 'nchan'; // console or nchan output
 
 // plugin checkall
 // check all installed plugins, except built-in
 //
 if ($method == 'checkall') {
-  console(2);
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
     exit(1);
@@ -494,7 +485,6 @@ if ($method == 'checkall') {
 // update all installed plugins, which have a update available
 //
 if ($method == 'updateall') {
-  console(2);
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
     exit(1);
@@ -522,7 +512,6 @@ if ($method == 'updateall') {
 // check built-in only
 //
 if ($method == 'checkos') {
-  console(2);
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
     exit(1);
@@ -553,7 +542,6 @@ if ($argc < 3) {
 //
 $unraid = parse_ini_file('/etc/unraid-version');
 if ($method == 'install') {
-  console(3);
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
   $plugin = basename($argv[2]);
   write("plugin: installing: $plugin\n");
@@ -667,7 +655,6 @@ if ($method == 'install') {
 // directory.
 //
 if ($method == 'check') {
-  console(3);
   $plugin = $argv[2];
   $symlink = "$plugins/$plugin";
   write("plugin: checking: $plugin ...\n");
@@ -709,7 +696,6 @@ if ($method == 'check') {
 // Finally we mark the new.plg "installed".
 //
 if ($method == 'update') {
-  console(3);
   $plugin = $argv[2];
   $symlink = "$plugins/$plugin";
   write("plugin: updating: $plugin\n");
@@ -763,7 +749,6 @@ if ($method == 'update') {
 // only .plg files should have a remove method
 //
 if ($method == 'remove') {
-  console(3);
   $plugin = $argv[2];
   $symlink = "$plugins/$plugin";
   write("plugin: removing: $plugin\n");
@@ -793,7 +778,6 @@ if ($method == 'remove') {
 
 // return attribute
 //
-console(3);
 $plugin_file = $argv[2];
 $value = plugin($method, $plugin_file, $error);
 if ($value === false) {

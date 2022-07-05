@@ -1,5 +1,7 @@
 #!/usr/bin/php -q
 <?
+# Copyright 2005-2022, Lime Technology
+#
 # Usage: newperms [dir] [owner] [group]
 # Recursively changes the ownership and permissions of the directory and all files/subdirs
 # within the directory.
@@ -16,8 +18,8 @@
 #  go+u    Copy the user permissions to group and other
 #  ugo+X   Set the 'x' bit for directories in user, group, and other
 
-$console = $argv[$argc-1] != 'nchan';
-if (!$console) unset($argv[$argc-1]);
+$console = $argv[$argc-1] != 'nchan'; // console or nchan output
+if (!$console) unset($argv[$argc-1]); // remove nchan parameter
 
 function write($message) {
   global $console;
@@ -39,8 +41,8 @@ function write($message) {
 
 function process($path) {
   global $argv;
-  $owner = $argv[2] ?: "nobody";
-  $group = $argv[3] ?: "users";
+  $owner = $argv[2] ?: 'nobody';
+  $group = $argv[3] ?: 'users';
   if (is_dir($path)) {
     write("Processing: $path\n");
     write("... chmod -R u-x,go-rwx,go+u,ugo+X $path\n");
@@ -56,12 +58,13 @@ function process($path) {
 $startTime = time();
 
 if ($argv[1]) {
+  usleep(50000);
   $paths = explode('*',rawurldecode($argv[1]));
   foreach ($paths as $path) process($path);
 } else {
   $disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
   foreach ($disks as $disk => $prop) {
-    if (is_dir("/mnt/$disk") && $prop['status'] !== "DISK_NP_DSBL" && $prop['status'] !== "DISK_NP") process("/mnt/$disk");
+    if (is_dir("/mnt/$disk") && !in_array($prop['status'],['DISK_NP_DSBL','DISK_NP'])) process("/mnt/$disk");
   }
 }
 

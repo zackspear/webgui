@@ -24,7 +24,7 @@ $_SERVER['REQUEST_URI'] = 'plugins';
 $_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-$console = !(isset($argv[1]) && $argv[1]=='nchan');
+$console = $argv[$argc-1] != 'nchan'; // console or nchan output
 
 function write($message){
   global $console;
