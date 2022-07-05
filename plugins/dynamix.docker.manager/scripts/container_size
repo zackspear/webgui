@@ -1,6 +1,7 @@
+#!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,15 +12,32 @@
  */
 ?>
 <?
+session_start();
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Wrappers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
+$_SESSION['locale'] = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $unit = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
 $list = [];
 
+function write($message){
+  $nchan = curl_init();
+  curl_setopt_array($nchan,[
+    CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  curl_exec($nchan);
+  curl_close($nchan);
+}
 function autoscale($value) {
   global $unit;
   $size = count($unit);
@@ -29,34 +47,33 @@ function autoscale($value) {
   $decimals = $base ? ($value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100===0 ? 0 : 2))) : 0;
   return number_format($value, $decimals, '.', $value>9999 ? ',' : '').' '.$unit[$base];
 }
-function align($text, $w=13) {
-  return sprintf("%{$w}s",$text);
+function align($text, $w=21) {
+  return $text.str_repeat('&nbsp;',$w-strlen($text));
 }
 function gap($text) {
   return preg_replace('/([kMGTPEZY]?B)$/'," $1",$text);
 }
 function byteval($data) {
   global $unit;
-  [$value,$base] = my_explode(' ',gap($data));
+  [$value,$base] = explode(' ',gap($data));
   return $value*pow(1000,array_search($base,$unit));
 }
 
 exec("docker ps -sa --format='{{.Names}}|{{.Size}}'",$container);
-echo align(_('Name'),-30).align(_('Container')).align(_('Writable')).align(_('Log'))."\n";
-echo str_repeat('-',69)."\n";
 foreach ($container as $ct) {
-  [$name,$size] = my_explode('|',$ct);
-  [$writable,$dummy,$total] = my_explode(' ',str_replace(['(',')'],'',$size),3);
+  [$name,$size] = explode('|',$ct);
+  [$writable,$dummy,$total] = explode(' ',str_replace(['(',')'],'',$size));
   $list[] = ['name' => $name, 'total' => byteval($total), 'writable' => byteval($writable), 'log' => (exec("docker inspect --format='{{.LogPath}}' $name|xargs du -b 2>/dev/null |cut -f1")) ?: "0"];
 }
 $sum = ['total' => 0, 'writable' => 0, 'log' => 0];
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
+$i = 0;
+write(align(_('Name'),42).align(_('Container')).align(_('Writable'))._('Log')."\n");
 foreach ($list as $ct) {
-  echo align($ct['name'],-30).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).align(autoscale($ct['log']))."\n";
+  write(($i++==0 ? '<hr>':'').align($ct['name'],42).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
   $sum['total'] += $ct['total'];
   $sum['writable'] += $ct['writable'];
   $sum['log'] += $ct['log'];
 }
-echo str_repeat('-',69)."\n";
-echo align(_('Total size'),-30).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).align(autoscale($sum['log']))."\n";
+write("<hr>".align(_('Total size'),42).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n");
 ?>
