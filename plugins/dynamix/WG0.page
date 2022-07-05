@@ -913,7 +913,7 @@ function ping(form,button,field) {
   });
 }
 function WGconfig(icon,file,path) {
-  if (!$(icon).hasClass('key-off')) openBox('/webGui/include/WGconfig.php?file='+file+'&path='+path+'&csrf_token=<?=$var['csrf_token']?>',"_(WireGuard Configuration)_",600,600);
+  if (!$(icon).hasClass('key-off')) openChanges('wg_config '+file+' '+path, "_(WireGuard Configuration)_");
 }
 function highlight(form,input,i) {
   $(input).css({'color':'#e68a00'});
