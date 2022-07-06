@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,7 +12,6 @@
  */
 ?>
 <?
-session_start();
 $docroot  = '/usr/local/emhttp';
 $varroot  = '/var/local/emhttp';
 $pool_log = '/var/tmp/pool_log.tmp';
@@ -25,14 +24,11 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'main';
-$_SESSION['locale'] = $display['locale'];
+$login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
+
 // remember current language
 $locale_init = $locale;
-
-// close session, it is not needed anymore
-session_unset();
-session_destroy();
 
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];

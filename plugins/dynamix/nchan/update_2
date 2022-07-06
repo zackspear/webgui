@@ -12,7 +12,6 @@
  */
 ?>
 <?
-session_start();
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
 $stamps  = '/var/tmp/stamps.ini';
@@ -24,14 +23,11 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'dashboard/main';
-$_SESSION['locale'] = $display['locale'];
+$login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
+
 // remember current language
 $locale_init = $locale;
-
-// close session, it is not needed anymore
-session_unset();
-session_destroy();
 
 function my_clock($time) {
   if (!$time) return _('less than a minute');
