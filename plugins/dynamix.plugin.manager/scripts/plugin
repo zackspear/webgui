@@ -206,14 +206,14 @@ function pre_hooks() {
 
 // Run hooked scripts after successful or failed completion of "method"
 // method = install, update, remove, check
-// hook programs receives two parameters: method and plugin-name
+// hook programs receives three parameters: method and plugin-name and error (empty if none)
 //
 function post_hooks() {
-  global $method, $plugin;
+  global $method, $plugin, $error;
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
-    run("$hook $method $plugin");
+    run("$hook $method $plugin $error");
   }
 }
 

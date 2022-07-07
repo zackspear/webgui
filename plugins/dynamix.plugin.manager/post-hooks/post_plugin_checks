@@ -29,12 +29,12 @@ function searchLink(&$db,$url) {
 
 $method = $argv[1];
 $name   = $argv[2];
+$error  = $argv[3];
 $plugin = "/boot/config/plugins/$name";
-$link   = "/var/log/plugins/$name";
 
 if ($method == 'install' or $method == 'update') {
-  // check if plugin is installed
-  if (@readlink($link)===false) die;
+  // check if plugin 
+  if ($error) die;
   // update support link in plugin file
   $info = readJson('/tmp/community.applications/tempFiles/templates.json');
   // find matching support link
