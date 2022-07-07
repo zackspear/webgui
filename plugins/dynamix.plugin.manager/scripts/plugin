@@ -208,8 +208,8 @@ function pre_hooks() {
 // method = install, update, remove, check
 // hook programs receives three parameters: method and plugin-name and error (empty if none)
 //
-function post_hooks() {
-  global $method, $plugin, $error;
+function post_hooks($error) {
+  global $method, $plugin;
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
@@ -620,7 +620,7 @@ if ($method == 'install') {
       $description = "Plugin failed to install";
       exec("$notify -e $event -s $subject -d $description) -i 2");
       // run hook scripts for post processing
-      post_hooks();
+      post_hooks($error);
       exit(1);
     }
     // remove symlink for re-install
@@ -636,7 +636,7 @@ if ($method == 'install') {
         move($plugin_file, "$boot-error");
       }
       // run hook scripts for post processing
-      post_hooks();
+      post_hooks($error);
       exit(1);
     }
   }
@@ -651,9 +651,8 @@ if ($method == 'install') {
     write("script: $plugin executed\n");
     logger("script: $plugin executed");
   }
-  $error = '';
   // run hook scripts for post processing
-  post_hooks();
+  post_hooks('');
   exit(0);
 }
 
@@ -687,13 +686,12 @@ if ($method == 'check') {
   if ($version === false) {
     write("plugin: $error\n");
     // run hook scripts for post processing
-    post_hooks();
+    post_hooks($error);
     exit(1);
   }
   write("$version\n");
-  $error = '';
   // run hook scripts for post processing
-  post_hooks();
+  post_hooks('');
   exit(0);
 }
 
@@ -742,7 +740,7 @@ if ($method == 'update') {
   if (plugin('install', $plugin_file, $error) === false) {
     write("plugin: $error\n");
     // run hook scripts for post processing
-    post_hooks();
+    post_hooks($error);
     exit(1);
   }
   // install was successful, save the updated plugin so it installs again next boot
@@ -752,9 +750,8 @@ if ($method == 'update') {
   symlink($target, $symlink);
   write("plugin: $plugin updated\n");
   logger("plugin: $plugin updated");
-  $error = '';
   // run hook scripts for post processing
-  post_hooks();
+  post_hooks('');
   exit(0);
 }
 
@@ -777,7 +774,7 @@ if ($method == 'remove') {
       if (is_file($installed_plugin_file)) symlink($installed_plugin_file, $symlink);
       write("plugin: $error\n");
       // run hook scripts for post processing
-      post_hooks();
+      post_hooks($error);
       exit(1);
     }
   }
@@ -786,9 +783,8 @@ if ($method == 'remove') {
   write("plugin: $plugin removed\n");
   logger("plugin: $plugin removed");
   exec("/usr/local/sbin/update_cron");
-  $error = '';
   // run hook scripts for post processing
-  post_hooks();
+  post_hooks('');
   exit(0);
 }
 
