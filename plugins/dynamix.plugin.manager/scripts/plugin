@@ -629,6 +629,7 @@ if ($method == 'install') {
     // run hook scripts for pre processing
     pre_hooks();
     // fresh install
+    $error = '';
     if (plugin('install', $plugin_file, $error) === false) {
       write("plugin: $error\n");
       if (dirname($plugin_file) == "$boot") {
@@ -650,6 +651,7 @@ if ($method == 'install') {
     write("script: $plugin executed\n");
     logger("script: $plugin executed");
   }
+  $error = '';
   // run hook scripts for post processing
   post_hooks();
   exit(0);
@@ -689,6 +691,7 @@ if ($method == 'check') {
     exit(1);
   }
   write("$version\n");
+  $error = '';
   // run hook scripts for post processing
   post_hooks();
   exit(0);
@@ -749,6 +752,7 @@ if ($method == 'update') {
   symlink($target, $symlink);
   write("plugin: $plugin updated\n");
   logger("plugin: $plugin updated");
+  $error = '';
   // run hook scripts for post processing
   post_hooks();
   exit(0);
@@ -782,6 +786,7 @@ if ($method == 'remove') {
   write("plugin: $plugin removed\n");
   logger("plugin: $plugin removed");
   exec("/usr/local/sbin/update_cron");
+  $error = '';
   // run hook scripts for post processing
   post_hooks();
   exit(0);
