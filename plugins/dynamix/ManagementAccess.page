@@ -378,7 +378,7 @@ _(Certificate URL)_:
 : <?=$cert1URL?>
 <?else:?>
 _(Certificate URL)_:
-: Certificate not valid for <?=$cert1URL?>
+: _(Certificate not valid for)_ <?=$cert1URL?>
 <?endif;?>
 
 _(Certificate issuer)_:
