@@ -360,9 +360,12 @@ echo "</ul></dd></dl>\n";
 _(Self-signed or user-provided certificate)_:
 : <?=$cert1File?>
 
-<?if ($cert1URLvalid):?>
+<?if ($cert1URLvalid && $var['USE_SSL']=='yes'):?>
 _(Certificate URL)_:
 : [<?=$cert1URL?>](https://<?=$cert1URL?>:<?=$var['PORTSSL']?>)
+<?elseif ($cert1URLvalid):?>
+_(Certificate URL)_:
+: <?=$cert1URL?>
 <?else:?>
 _(Certificate URL)_:
 : Certificate not valid for <?=$cert1URL?>
