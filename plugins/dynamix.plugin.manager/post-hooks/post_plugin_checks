@@ -33,7 +33,7 @@ $error  = $argv[3];
 $plugin = "/boot/config/plugins/$name";
 
 if ($method == 'install' or $method == 'update') {
-  // check if plugin 
+  // check if method successfully completed
   if ($error) die;
   // update support link in plugin file
   $info = readJson('/tmp/community.applications/tempFiles/templates.json');
