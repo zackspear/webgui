@@ -23,6 +23,7 @@ if (!$console) unset($argv[$argc-1]); // remove nchan parameter
 
 function done() {
   write('_DONE_');
+  exit(0);
 }
 function write($message) {
   global $console;

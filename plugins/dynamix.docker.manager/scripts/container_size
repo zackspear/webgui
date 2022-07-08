@@ -27,6 +27,7 @@ $list = [];
 
 function done() {
   write('_DONE_');
+  exit(0);
 }
 function write($message){
   $nchan = curl_init();

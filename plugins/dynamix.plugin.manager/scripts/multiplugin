@@ -19,6 +19,7 @@ $call    = ['plg' => 'plugin', 'xml' => 'language'];
 
 function done() {
   write('_DONE_');
+  exit(0);
 }
 function write($message){
   global $console;

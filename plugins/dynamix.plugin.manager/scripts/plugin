@@ -166,6 +166,7 @@ function error_desc($code) {
 //
 function done() {
   write('_DONE_');
+  exit(0);
 }
 
 // Function to write either to console (echo) or nchan (curl)
@@ -486,7 +487,6 @@ if ($method == 'checkall') {
     exec("$cmd check $plugin >/dev/null");
   }
   done();
-  exit(0);
 }
 
 // plugin updateall
@@ -514,7 +514,6 @@ if ($method == 'updateall') {
     }
   }
   done();
-  exit(0);
 }
 
 // plugin checkos
@@ -535,7 +534,6 @@ if ($method == 'checkos') {
     exec("$cmd check $plugin >/dev/null");
   }
   done();
-  exit(0);
 }
 
 // MAIN - two or three arguments
@@ -662,7 +660,6 @@ if ($method == 'install') {
   // run hook scripts for post processing
   post_hooks();
   done();
-  exit(0);
 }
 
 // plugin check [plugin]
@@ -762,7 +759,6 @@ if ($method == 'update') {
   // run hook scripts for post processing
   post_hooks();
   done();
-  exit(0);
 }
 
 // plugin remove [plugin]
@@ -796,7 +792,6 @@ if ($method == 'remove') {
   // run hook scripts for post processing
   post_hooks();
   done();
-  exit(0);
 }
 
 // return attribute

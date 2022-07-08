@@ -55,6 +55,7 @@ function error_desc($code) {
 //
 function done() {
   write('_DONE_');
+  exit(0);
 }
 
 // Function to write either to console (echo) or nchan (curl)
@@ -208,7 +209,6 @@ if ($method == 'checkall') {
     exec(realpath($argv[0])." check $name >/dev/null");
   }
   done();
-  exit(0);
 }
 
 // language updateall
@@ -231,7 +231,6 @@ if ($method == 'updateall') {
     }
   }
   done();
-  exit(0);
 }
 
 // MAIN - two arguments
@@ -272,7 +271,6 @@ if ($method == 'install') {
   write("language: $lang language pack installed\n");
   logger("language: $lang language pack installed");
   done();
-  exit(0);
 }
 
 // language check [language]
@@ -343,7 +341,6 @@ if ($method == 'update') {
   write("language: $lang language pack updated\n");
   logger("language: $lang language pack updated");
   done();
-  exit(0);
 }
 
 // language remove [language]
@@ -365,7 +362,6 @@ if ($method == 'remove') {
   write("language: $lang language pack removed\n");
   logger("language: $lang language pack removed");
   done();
-  exit(0);
 }
 
 // return attribute
