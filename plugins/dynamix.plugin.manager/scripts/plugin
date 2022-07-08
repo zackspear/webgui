@@ -204,16 +204,16 @@ function pre_hooks() {
   }
 }
 
-// Run hooked scripts after successful completion of "method"
+// Run hooked scripts after successful or failed completion of "method"
 // method = install, update, remove, check
-// hook programs receives two parameters: method and plugin-name
+// hook programs receives three parameters: method and plugin-name and error (empty if none)
 //
-function post_hooks() {
+function post_hooks($error='') {
   global $method, $plugin;
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
-    run("$hook $method $plugin");
+    run("$hook $method $plugin $error");
   }
 }
 
@@ -619,6 +619,8 @@ if ($method == 'install') {
       $subject = "plugin: ".basename($plugin_file);
       $description = "Plugin failed to install";
       exec("$notify -e $event -s $subject -d $description) -i 2");
+      // run hook scripts for post processing
+      post_hooks($error);
       exit(1);
     }
     // remove symlink for re-install
@@ -632,6 +634,8 @@ if ($method == 'install') {
       if (dirname($plugin_file) == "$boot") {
         move($plugin_file, "$boot-error");
       }
+      // run hook scripts for post processing
+      post_hooks($error);
       exit(1);
     }
   }
@@ -680,6 +684,8 @@ if ($method == 'check') {
   $version = plugin('version', $plugin_file, $error);
   if ($version === false) {
     write("plugin: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   write("$version\n");
@@ -732,6 +738,8 @@ if ($method == 'update') {
   // install the updated plugin
   if (plugin('install', $plugin_file, $error) === false) {
     write("plugin: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   // install was successful, save the updated plugin so it installs again next boot
@@ -764,6 +772,8 @@ if ($method == 'remove') {
       // but if can't remove, restore the symlink
       if (is_file($installed_plugin_file)) symlink($installed_plugin_file, $symlink);
       write("plugin: $error\n");
+      // run hook scripts for post processing
+      post_hooks($error);
       exit(1);
     }
   }

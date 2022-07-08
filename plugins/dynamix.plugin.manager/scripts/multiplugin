@@ -15,6 +15,7 @@
 $method  = $argv[1];
 $plugins = explode('*',$argv[2]);
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
+$call    = ['plg' => 'plugin', 'xml' => 'language'];
 
 function write($message){
   global $console;
@@ -36,9 +37,9 @@ function write($message){
 
 usleep(50000);
 foreach ($plugins as $plugin) {
-  if (!$plugin) continue;
+  if (!$plugin || (!$cmd = $call[pathinfo($plugin)['extension']])) continue;
   $line = '';
-  $run = popen("plugin $method $plugin",'r');
+  $run = popen("$cmd $method $plugin",'r');
   while (!feof($run)) {
     $line .= fgetc($run);
     if (in_array($line[-1],["\r","\n"])) {write($line); $line = '';}
