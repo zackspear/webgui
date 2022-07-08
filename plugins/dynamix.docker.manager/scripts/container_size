@@ -75,4 +75,5 @@ foreach ($list as $ct) {
   $sum['log'] += $ct['log'];
 }
 write("<hr>".align(_('Total size'),42).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n");
+write('_DONE_');
 ?>
