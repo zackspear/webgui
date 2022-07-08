@@ -777,6 +777,10 @@ defaultPage.on('message', function(msg,meta) {
 
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
+  if (data == '_DONE_') {
+    $('button.confirm').text("<?=_('Done')?>");
+    return;
+  }
   let box = $('pre#text');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {

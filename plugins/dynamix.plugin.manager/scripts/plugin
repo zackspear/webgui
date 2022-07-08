@@ -479,6 +479,7 @@ if ($method == 'checkall') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
+  write('_DONE_');
   exit(0);
 }
 
@@ -506,6 +507,7 @@ if ($method == 'updateall') {
       exec("$cmd update $plugin >/dev/null");
     }
   }
+  write('_DONE_');
   exit(0);
 }
 
@@ -526,6 +528,7 @@ if ($method == 'checkos') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
+  write('_DONE_');
   exit(0);
 }
 
