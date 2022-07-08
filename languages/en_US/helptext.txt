@@ -1262,9 +1262,10 @@ starts; and re-created if the server hostname or local TLD is changed.
 
 **nginx stapling support**
 
-Whether nginx enables OCSP Staping is determined by which certificate is in use:<br>
-`config/ssl/certs/certificate_bundle.pem` => Yes<br>
-`config/ssl/certs/<server-name>_unraid_bundle.pem` => No
+OCSP Stapling is automatically enabled if the certificate contains an OCSP responder URL.
+
+Hence, for self-signed certificates stapling is not enabled; for CA-signed certificates
+stabling is enabled.
 :end
 
 :ftp_server_help:
