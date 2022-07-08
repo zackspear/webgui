@@ -113,10 +113,13 @@ $http_port = $var['PORT'] != 80 ? ":{$var['PORT']}" : '';
 $https_port = $var['PORTSSL'] != 443 ? ":{$var['PORTSSL']}" : '';
 
 $http_ip_url = "http://{$nginx['NGINX_LANIP']}{$http_port}/";
-$http_url = "http://{$nginx['NGINX_LANMDNS']}{$http_port}/";
 $https_ip_url = "https://{$nginx['NGINX_LANIP']}{$https_port}/";
-$https_url = "https://{$nginx['NGINX_LANMDNS']}{$https_port}/";
-$https_2_url = "https://{$nginx['NGINX_LANFQDN']}{$https_port}/";
+$http_ip6_url = "http://{$nginx['NGINX_LANIP6']}{$http_port}/";
+$https_ip6_url = "https://{$nginx['NGINX_LANIP6']}{$https_port}/";
+$http_mdns_url = "http://{$nginx['NGINX_LANMDNS']}{$http_port}/";
+$https_mdns_url = "https://{$nginx['NGINX_LANMDNS']}{$https_port}/";
+$https_fqdn_url = "https://{$nginx['NGINX_LANFQDN']}{$https_port}/";
+$https_fqdn6_url = "https://{$nginx['NGINX_LANFQDN6']}{$https_port}/";
 
 $urls = array();
 // push an array of three values into the $urls array:
@@ -125,21 +128,28 @@ $urls = array();
 //   2 - the certificate file used, or null
 switch($var['USE_SSL']) {
   case 'no':
-    $urls[] = [$http_ip_url, null, null];
-    $urls[] = [$http_url, null, null];
-    if ($nginx['NGINX_LANFQDN']) $urls[] = [$https_2_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, null, null];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, null, null];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, null, null];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
     break;
   case 'yes':
-    $urls[] = [$http_ip_url, $https_ip_url, null];
-    $urls[] = [$https_ip_url, null, "{$var['NAME']}_unraid_bundle.pem"];
-    $urls[] = [$http_url, $https_url, null];
-    $urls[] = [$https_url, null, "{$var['NAME']}_unraid_bundle.pem"];
-    if ($nginx['NGINX_LANFQDN']) $urls[] = [$https_2_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_ip_url, null];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$https_ip_url, null, "{$var['NAME']}_unraid_bundle.pem"];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_ip6_url, null];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$https_ip6_url, null, "{$var['NAME']}_unraid_bundle.pem"];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_mdns_url, null];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$https_mdns_url, null, "{$var['NAME']}_unraid_bundle.pem"];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
     break;
   case 'auto': // aka strict
-    $urls[] = [$http_ip_url, $https_2_url, null];
-    $urls[] = [$http_url, $https_2_url, null];
-    $urls[] = [$https_2_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_fqdn_url, null];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_fqdn6_url, null];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_fqdn_url, null];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
     break;
 }
 
@@ -360,12 +370,15 @@ echo "</ul></dd></dl>\n";
 _(Self-signed or user-provided certificate)_:
 : <?=$cert1File?>
 
-<?if ($cert1URLvalid):?>
+<?if ($cert1URLvalid && $var['USE_SSL']=='yes'):?>
 _(Certificate URL)_:
-: [<?=$cert1URL?>](https://<?=$cert1URL?>:<?=$var['PORTSSL']?>)
+: [<?=$cert1URL?>](https://<?=$cert1URL?><?=$https_port?>)
+<?elseif ($cert1URLvalid):?>
+_(Certificate URL)_:
+: <?=$cert1URL?>
 <?else:?>
 _(Certificate URL)_:
-: Certificate not valid for <?=$cert1URL?>
+: _(Certificate not valid for)_ <?=$cert1URL?>
 <?endif;?>
 
 _(Certificate issuer)_:
@@ -390,7 +403,7 @@ _(Unraid Let's Encrypt certificate)_:
 : <?=$cert2File?>
 
 _(Certificate URL)_:
-: [<?=$cert2Subject?>](https://<?=$subject2URL?>:<?=$var['PORTSSL']?>)
+: [<?=$cert2Subject?>](https://<?=$subject2URL?><?=$https_port?>)
 
 _(Certificate issuer)_:
 : <?=$cert2Issuer?>

@@ -59,7 +59,7 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
-.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:40px;line-height:40px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:40px;text-align:center;font-size:1.4rem;z-index:999}
+.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
 .upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
@@ -215,7 +215,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
-  Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(height,screen.availHeight), width:Math.min(width,screen.availWidth), options:options});
+  Shadowbox.open({content:run, player:'iframe', title:title, height:600, width:900, options:options});
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
@@ -240,7 +240,7 @@ function openTerminal(tag,name,more) {
   }
   // open terminal window (run in background)
   name = name.replace(/[ #]/g,"_");
-  tty_window = makeWindow(name+(more=='.log'?more:''),Math.max(screen.availHeight*3/5,600),Math.min(Math.max(screen.availWidth/2,900),1600));
+  tty_window = makeWindow(name+(more=='.log'?more:''),600,900);
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
@@ -823,6 +823,8 @@ $(window).scroll(function() {
 <?if ($themes1):?>
   var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
   $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
+  // banner
+  $('div.upgrade_notice').css($(this).scrollTop() > 24 ? {position:'fixed',top:'0'} : {position:'absolute',top:'24px'});
 <?endif;?>
 });
 $('.back_to_top').click(function(event) {
