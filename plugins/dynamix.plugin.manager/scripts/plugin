@@ -655,6 +655,7 @@ if ($method == 'install') {
   }
   // run hook scripts for post processing
   post_hooks();
+  write('_DONE_');
   exit(0);
 }
 
@@ -754,6 +755,7 @@ if ($method == 'update') {
   logger("plugin: $plugin updated");
   // run hook scripts for post processing
   post_hooks();
+  write('_DONE_');
   exit(0);
 }
 
@@ -787,6 +789,7 @@ if ($method == 'remove') {
   exec("/usr/local/sbin/update_cron");
   // run hook scripts for post processing
   post_hooks();
+  write('_DONE_');
   exit(0);
 }
 
