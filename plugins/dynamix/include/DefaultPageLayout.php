@@ -59,7 +59,7 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
-.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:40px;line-height:40px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:40px;text-align:center;font-size:1.4rem;z-index:999}
+.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
 .upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
