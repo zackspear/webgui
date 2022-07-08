@@ -51,6 +51,12 @@ function error_desc($code) {
   }
 }
 
+// Signal DONE to caller
+//
+function done() {
+  write('_DONE_');
+}
+
 // Function to write either to console (echo) or nchan (curl)
 // Default output is console, use optional parameter "nchan" to write to nchan instead
 //
@@ -201,6 +207,7 @@ if ($method == 'checkall') {
     write("language: checking $lang language pack ...\n");
     exec(realpath($argv[0])." check $name >/dev/null");
   }
+  done();
   exit(0);
 }
 
@@ -223,6 +230,7 @@ if ($method == 'updateall') {
       exec(realpath($argv[0])." update $name >/dev/null");
     }
   }
+  done();
   exit(0);
 }
 
@@ -263,6 +271,7 @@ if ($method == 'install') {
   symlink($lang_file, $link_file);
   write("language: $lang language pack installed\n");
   logger("language: $lang language pack installed");
+  done();
   exit(0);
 }
 
@@ -333,6 +342,7 @@ if ($method == 'update') {
   symlink($lang_file, $link_file);
   write("language: $lang language pack updated\n");
   logger("language: $lang language pack updated");
+  done();
   exit(0);
 }
 
@@ -354,6 +364,7 @@ if ($method == 'remove') {
   }
   write("language: $lang language pack removed\n");
   logger("language: $lang language pack removed");
+  done();
   exit(0);
 }
 
