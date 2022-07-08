@@ -17,6 +17,9 @@ $plugins = explode('*',$argv[2]);
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 $call    = ['plg' => 'plugin', 'xml' => 'language'];
 
+function done() {
+  write('_DONE_');
+}
 function write($message){
   global $console;
   if ($console) {
@@ -47,4 +50,5 @@ foreach ($plugins as $plugin) {
   pclose($run);
   write("\n");
 }
+done();
 ?>
