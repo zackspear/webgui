@@ -297,7 +297,7 @@ function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     startStopNchan('start',nchan);
-    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
       startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
