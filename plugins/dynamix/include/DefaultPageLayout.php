@@ -272,7 +272,7 @@ function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     nchan_plugins.start();
-    swal({title:title,text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
@@ -295,7 +295,7 @@ function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     startStopNchan('start',nchan);
-    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
       startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
@@ -306,7 +306,7 @@ function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     nchan_changes.start();
-    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       nchan_changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
@@ -779,7 +779,7 @@ nchan_plugins.on('message', function(data) {
     $('button.confirm').text("<?=_('Done')?>");
     return;
   }
-  let box = $('pre#text');
+  let box = $('pre#swaltext');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
     text[text.length-1] = data.slice(0,-1);
@@ -791,27 +791,27 @@ nchan_plugins.on('message', function(data) {
 
 var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
 nchan_changes.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
 nchan_phistory.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
 nchan_feedback.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
 nchan_sysinfo.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
 nchan_selectcase.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var backtotopoffset = 250;
