@@ -24,9 +24,9 @@ pre.pre{margin:30px 0}
 pre>p{margin:0;padding:0}
 pre#swaltext{height:700px!important}
 @media (max-width:960px){pre#swaltext{height:500px!important}}
-@media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-450px}}
+@media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
 @media (max-height:768px){pre#swaltext{height:500px!important}}
-@media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-450px}}
+@media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
 </style>
 
 <script>
