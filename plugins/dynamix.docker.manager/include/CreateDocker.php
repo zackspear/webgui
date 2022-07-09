@@ -403,7 +403,7 @@ function addConfigPopup() {
   popup.dialog({
     title: title,
     resizable: false,
-    width: 900,
+    width: 800,
     modal: true,
     show : {effect: 'fade' , duration: 250},
     hide : {effect: 'fade' , duration: 250},
@@ -477,7 +477,7 @@ function editConfigPopup(num,disabled) {
   popup.dialog({
     title: title,
     resizable: false,
-    width: 900,
+    width: 800,
     modal: true,
     show: {effect:'fade', duration: 250},
     hide: {effect:'fade', duration: 250},

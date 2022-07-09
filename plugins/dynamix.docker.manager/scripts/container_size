@@ -50,7 +50,7 @@ function autoscale($value) {
   $decimals = $base ? ($value>=100 ? 0 : ($value>=10 ? 1 : (round($value*100)%100===0 ? 0 : 2))) : 0;
   return number_format($value, $decimals, '.', $value>9999 ? ',' : '').' '.$unit[$base];
 }
-function align($text, $w=21) {
+function align($text, $w=30) {
   return $text.str_repeat('&nbsp;',$w-min(strlen($text),$w-1));
 }
 function gap($text) {
@@ -71,13 +71,13 @@ foreach ($container as $ct) {
 $sum = ['total' => 0, 'writable' => 0, 'log' => 0];
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
 $i = 0;
-write(align(_('Name'),42).align(_('Container')).align(_('Writable'))._('Log')."\n");
+write(align(_('Name'),50).align(_('Container')).align(_('Writable'))._('Log')."\n");
 foreach ($list as $ct) {
-  write(($i++==0 ? '<hr>':'').align($ct['name'],42).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
+  write(($i++==0 ? '<hr>':'').align($ct['name'],50).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
   $sum['total'] += $ct['total'];
   $sum['writable'] += $ct['writable'];
   $sum['log'] += $ct['log'];
 }
-write("<hr>".align(_('Total size'),42).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n");
+write("<hr>".align(_('Total size'),50).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n");
 done();
 ?>
