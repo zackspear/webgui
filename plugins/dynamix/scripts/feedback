@@ -99,7 +99,7 @@ $script[] = "  \$('#featureEmail').val('');";
 $script[] = "}";
 
 $script[] = "function bugreport_reset() {";
-$script[] = "  \$('#bugDescription').val(\""._('Bug Description').": \\n\\n\\n"._('How to reproduce').": \\n\\n\\n"._('Expected results').": \\n\\n\\n"._('Actual results').": \\n\\n\\n"._('Other information').": \\n\");";
+$script[] = "  \$('#bugDescription').val(\""._('Bug Description').": \\n\\n\\n\\n\\n"._('How to reproduce').": \\n\\n\\n\\n\\n"._('Expected results').": \\n\\n\\n\\n\\n"._('Actual results').": \\n\\n\\n\\n\\n"._('Other information').": \\n\");";
 $script[] = "  \$('#bugEmail').val('');";
 $script[] = "}";
 
