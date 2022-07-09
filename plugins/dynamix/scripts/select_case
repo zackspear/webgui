@@ -41,7 +41,7 @@ $exist  = is_file("$boot/$file");
 $cmodel = $exist ? file_get_contents("$boot/$file") : '';
 
 $style = ["<style>"];
-$style[] = "div.case-list{float:left;padding:10px;margin:0 30px 64px 0;height:128px;width:128px;text-align:center;cursor:pointer}";
+$style[] = "div.case-list{float:left;padding:10px;margin:0 45px 64px 0;height:128px;width:128px;text-align:center;cursor:pointer}";
 $style[] = "div.case-list span{position:relative;top:64px;width:auto;max-width:128px;height:128px;font-size:128px}";
 $style[] = "div.case-list span.fa{top:24px;max-width:80px;font-size:80px}";
 $style[] = "div.case-list:hover{color:#f0000c}";
