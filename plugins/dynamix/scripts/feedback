@@ -49,6 +49,8 @@ $style[] = "div.four label{margin-left:2%;cursor:pointer}";
 $style[] = "div.allpanels{display:none;position:absolute;left:0;right:0;top:40px;bottom:0;overflow:auto}";
 $style[] = "div#footer_panel{position:absolute;left:0;right:0;bottom:0;height:30px;line-height:30px;text-align:center}";
 $style[] = "textarea.feedback{width:$width;height:530px;margin:0;resize:none}";
+$style[] = "@media (max-width:960px){textarea.feedback{height:330px}}";
+$style[] = "@media (max-height:768px){textarea.feedback{height:330px}}";
 $style[] = "input.submit[type=button]{margin-right:0;float:right}";
 $style[] = "input.submit[type=email]{margin-top:10px;float:left}";
 $style[] = "p.note,label.note{font-size:1.1rem!important;display:block}";
