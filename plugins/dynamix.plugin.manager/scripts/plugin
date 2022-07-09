@@ -457,6 +457,9 @@ $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 
+// short delay to allow nchan initialization
+usleep(50000);
+
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
 //  $plugin_file - is an absolute path, eg, "/boot/config/plugins/myplugin.plg"
