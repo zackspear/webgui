@@ -2,8 +2,12 @@ body.stop-scrolling{height:100%;overflow:hidden}
 .sweet-overlay{background-color:black;/* IE8 */
 -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=40)";/* IE8 */
 background-color:rgba(0, 0, 0, 0.4);position:fixed;left:0;right:0;top:0;bottom:0;display:none;z-index:10000}
+pre#body{font-family:clear-sans;text-align:left;margin:0;padding:0;height:650px;white-space:normal;border:none}
+pre#text{text-align:left;margin:0;padding:0;height:650px;white-space:normal;border:none}
 .sweet-alert{font-family:clear-sans;width:480px;padding:17px;border-style:solid;border-width:thin;border-radius:10px;text-align:center;position:fixed;left:50%;top:50%;margin-left:-240px;overflow:hidden;display:none;z-index:99999}
 .sweet-alert.nchan{height:800px;width:1200px;margin-left:-610px}
+@media all and (max-height:768px){pre#body,pre#text{height:450px}}
+@media all and (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-460px}}
 .sweet-alert h2{color:#575757;font-size:3rem;text-align:center;font-weight:600;text-transform:none;position:relative;margin:25px 0;padding:0;line-height:40px;display:block}
 .sweet-alert p{color:#797979;font-size:1.5rem;text-align:center;font-weight:300;position:relative;text-align:inherit;float:none;margin:0;padding:0;line-height:normal}
 .sweet-alert.nchan h2{background-color:rgba(192,192,192,0.3);margin:0;padding:20px 0}

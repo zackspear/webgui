@@ -64,8 +64,6 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
-pre#body{font-family:clear-sans;text-align:left;margin:0;padding:0;height:650px;white-space:normal;border:none}
-pre#text{text-align:left;margin:0;padding:0;height:650px;white-space:normal;border:none}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';

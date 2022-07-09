@@ -22,7 +22,9 @@ $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 ul,li{margin:0;padding-top:0;padding-bottom:0}
 pre.pre{margin:30px 0}
 pre>p{margin:0;padding:0}
-pre#text{height:500px!important}
+pre#text{height:700px!important}
+@media all and (max-height:768px){pre#text{height:500px!important}}
+@media all and (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-460px}}
 </style>
 
 <script>
