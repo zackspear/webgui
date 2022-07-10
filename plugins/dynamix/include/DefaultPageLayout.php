@@ -274,6 +274,7 @@ function openPlugin(cmd,title,plg,func) {
     nchan_plugins.start();
     swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
+      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
     });
@@ -776,6 +777,7 @@ defaultPage.on('message', function(msg,meta) {
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
   if (data == '_DONE_') {
+    $('div.spinner.fixed').hide();
     $('button.confirm').text("<?=_('Done')?>");
     return;
   }
