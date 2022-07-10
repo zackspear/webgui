@@ -213,7 +213,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
-  Shadowbox.open({content:run, player:'iframe', title:title, height:window.innerHeight > 768 ? 800 : 600, width:window.innerWidth > 960 ? 1200 : 900, options:options});
+  Shadowbox.open({content:run, player:'iframe', title:title, height:800, width:1200, options:options});
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
@@ -238,7 +238,7 @@ function openTerminal(tag,name,more) {
   }
   // open terminal window (run in background)
   name = name.replace(/[ #]/g,"_");
-  tty_window = makeWindow(name+(more=='.log'?more:''),window.innerHeight > 768 ? 800 : 600,window.innerWidth > 960 ? 1200 : 900);
+  tty_window = makeWindow(name+(more=='.log'?more:''),800,1200);
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
