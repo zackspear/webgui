@@ -81,6 +81,6 @@ if (is_file("$path/$file.png")) {
   $html[] = "<img src=\"/$file.png?v=".filemtime("$path/$file.png")."\">";
 }
 
-usleep(50000);
+usleep(100000);
 write(implode($style).implode($script).implode($html));
 ?>

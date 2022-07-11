@@ -257,7 +257,6 @@ function bannerAlert(text,cmd,plg,func) {
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
         $(".upgrade_notice").removeClass('alert').addClass('done');
-        $("i.fa-bomb").hide();
         timers.bannerAlert = null;
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }

@@ -191,6 +191,6 @@ $list[] = "<tr><td>"._('Kernel').":</td><td>$kernel</td></tr>";
 $list[] = "<tr><td>"._('OpenSSL').":</td><td>$openssl</td></tr>";
 $list[] = "<tr><td>"._('Uptime').":</td><td><span class='uptime'></span></td></tr></table>";
 
-usleep(50000);
+usleep(100000);
 write($style.implode($list));
 ?>
