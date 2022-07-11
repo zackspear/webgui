@@ -85,6 +85,6 @@ $select = substr($cmodel,-4)=='.png' ? 'color:#e68a00' : '';
 $html[] = "<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>";
 $html[] = "</div>";
 
-usleep(100000);
+usleep(50000);
 write(implode($style).implode($script).implode($html));
 ?>
