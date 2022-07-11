@@ -65,7 +65,7 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
-i.fa-bomb{font-size:2rem;float:right;margin-top:8px;margin-right:20px;cursor:pointer}
+i.fa-bomb{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -267,7 +267,7 @@ function bannerAlert(text,cmd,plg,func) {
       $.cookie('addAlert-cmd',cmd);
       $.cookie('addAlert-plg',plg);
       $.cookie('addAlert-func',func);
-      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},250);
+      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
     }
   });
 }
@@ -282,19 +282,21 @@ function openPlugin(cmd,title,plg,func) {
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?><i class='fa fa-bomb fa-fw' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func);});
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
 }
 function abortOperation(pid) {
-  $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
-    clearTimeout(timers.bannerAlert);
-    timers.bannerAlert = null;
-    forcedBanner = false;
-    removeBannerWarning($.cookie('addAlert'));
-    $.removeCookie('addAlert');
-    $(".upgrade_notice").removeClass('alert done').hide();
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
+      clearTimeout(timers.bannerAlert);
+      timers.bannerAlert = null;
+      forcedBanner = false;
+      removeBannerWarning($.cookie('addAlert'));
+      $.removeCookie('addAlert');
+      $(".upgrade_notice").removeClass('alert done').hide();
+    });
   });
 }
 function startStopNchan(cmd, name='changes') {
@@ -352,7 +354,7 @@ var currentBannerWarning = 0;
 var osUpgradeWarning = false;
 var forcedBanner = false;
 
-function addBannerWarning(text,warning=true, noDismiss=false, forced=false) {
+function addBannerWarning(text, warning=true, noDismiss=false, forced=false) {
   var cookieText = text.replace(/[^a-z0-9]/gi,'');
   if ($.cookie(cookieText) == "true") return false;
   if (warning) text = "<i class='fa fa-warning fa-fw' style='float:initial'></i> "+text;
@@ -377,11 +379,10 @@ function dismissBannerWarning(entry,cookieText) {
 }
 
 function removeBannerWarning(entry) {
-  if (!forcedBanner) {
-    bannerWarnings[entry] = false;
-    clearTimeout(timers.bannerWarning);
-    showBannerWarnings();
-  }
+  if (forcedBanner) return;
+  bannerWarnings[entry] = false;
+  clearTimeout(timers.bannerWarning);
+  showBannerWarnings();
 }
 
 function bannerFilterArray(array) {
@@ -402,7 +403,7 @@ function showBannerWarnings() {
   if (currentBannerWarning >= allWarnings.length) currentBannerWarning = 0;
   $(".upgrade_notice").show().html(allWarnings[currentBannerWarning]);
   currentBannerWarning++;
-  timers.bannerWarning = setTimeout(showBannerWarnings,10000);
+  timers.bannerWarning = setTimeout(showBannerWarnings,3000);
 }
 
 function addRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
