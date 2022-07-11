@@ -61,6 +61,7 @@ html{font-size:<?=$display['font']?>%}
 .inline_help{display:none}
 .upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
 .upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
+.upgrade_notice.alert{color:#f0000c;background-color:#ff9e9e;border-color:#f0000c}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
@@ -251,10 +252,10 @@ function bannerAlert(text,cmd,plg,func) {
           removeBannerWarning($.cookie('addAlert'));
           $.removeCookie('addAlert');
         }
-        $(".upgrade_notice").removeClass('done');
+        $(".upgrade_notice").removeClass('alert done');
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
-        $(".upgrade_notice").addClass('done');
+        $(".upgrade_notice").removeClass('alert').addClass('done');
         timers.bannerAlert = null;
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
@@ -270,7 +271,10 @@ function bannerAlert(text,cmd,plg,func) {
 }
 function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
+    if (pid==0) {
+      $(".upgrade_notice").addClass('alert');
+      return;
+    }
     nchan_plugins.start();
     swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
