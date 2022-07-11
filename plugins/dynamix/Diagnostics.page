@@ -22,7 +22,11 @@ $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 ul,li{margin:0;padding-top:0;padding-bottom:0}
 pre.pre{margin:30px 0}
 pre>p{margin:0;padding:0}
-pre#text{height:500px!important}
+pre#swaltext{height:700px!important}
+@media (max-width:960px){pre#swaltext{height:500px!important}}
+@media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
+@media (max-height:768px){pre#swaltext{height:500px!important}}
+@media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
 </style>
 
 <script>
@@ -37,7 +41,7 @@ nchan_diagnostics.on('message', function(data) {
     location = diagnosticsFile;
     setTimeout(cleanUp,4000);
   } else {
-    let box = $('pre#text');
+    let box = $('pre#swaltext');
     box.html(box.html()+'<br>'+data).scrollTop(box[0].scrollHeight);
   }
 });
@@ -64,7 +68,7 @@ function diagnostics(file) {
     if (zip) {
       diagnosticsFile = zip;
       nchan_diagnostics.start();
-      swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='text'></pre>",html:true,showConfirmButton:false});
+      swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='swaltext'></pre>",html:true,showConfirmButton:false});
       $('.sweet-alert').addClass('nchan');
     } else {
       $("#download").attr("disabled",false);

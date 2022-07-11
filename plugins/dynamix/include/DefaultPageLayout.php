@@ -61,11 +61,11 @@ html{font-size:<?=$display['font']?>%}
 .inline_help{display:none}
 .upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
 .upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
+.upgrade_notice.alert{color:#f0000c;background-color:#ff9e9e;border-color:#f0000c}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
-pre#body{font-family:clear-sans;text-align:left;margin:0;padding:0;height:450px;white-space:normal;border:none}
-pre#text{text-align:left;margin:0;padding:0;height:450px;white-space:normal;border:none}
+i.fa-bomb{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
@@ -215,7 +215,7 @@ function openBox(cmd,title,height,width,load,func,id) {
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
-  Shadowbox.open({content:run, player:'iframe', title:title, height:600, width:900, options:options});
+  Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(screen.availHeight,800), width:Math.min(screen.availWidth,1200), options:options});
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
@@ -240,7 +240,7 @@ function openTerminal(tag,name,more) {
   }
   // open terminal window (run in background)
   name = name.replace(/[ #]/g,"_");
-  tty_window = makeWindow(name+(more=='.log'?more:''),600,900);
+  tty_window = makeWindow(name+(more=='.log'?more:''),Math.min(screen.availHeight,800),Math.min(screen.availWidth,1200));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
@@ -253,10 +253,11 @@ function bannerAlert(text,cmd,plg,func) {
           removeBannerWarning($.cookie('addAlert'));
           $.removeCookie('addAlert');
         }
-        $(".upgrade_notice").removeClass('done');
+        $(".upgrade_notice").removeClass('alert done');
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
-        $(".upgrade_notice").addClass('done');
+        $(".upgrade_notice").removeClass('alert').addClass('done');
+        $("i.fa-bomb").hide();
         timers.bannerAlert = null;
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
@@ -266,20 +267,36 @@ function bannerAlert(text,cmd,plg,func) {
       $.cookie('addAlert-cmd',cmd);
       $.cookie('addAlert-plg',plg);
       $.cookie('addAlert-func',func);
-      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},250);
+      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
     }
   });
 }
 function openPlugin(cmd,title,plg,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
+    if (pid==0) {
+      $(".upgrade_notice").addClass('alert');
+      return;
+    }
     nchan_plugins.start();
-    swal({title:title,text:"<pre id='text'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
+      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?>",cmd,plg,func);});
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
+  });
+}
+function abortOperation(pid) {
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+    $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
+      clearTimeout(timers.bannerAlert);
+      timers.bannerAlert = null;
+      forcedBanner = false;
+      removeBannerWarning($.cookie('addAlert'));
+      $.removeCookie('addAlert');
+      $(".upgrade_notice").removeClass('alert done').hide();
+    });
   });
 }
 function startStopNchan(cmd, name='changes') {
@@ -297,7 +314,7 @@ function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     startStopNchan('start',nchan);
-    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
       startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
@@ -308,7 +325,7 @@ function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     nchan_changes.start();
-    swal({title:title,text:"<pre id='body'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       nchan_changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
@@ -337,7 +354,7 @@ var currentBannerWarning = 0;
 var osUpgradeWarning = false;
 var forcedBanner = false;
 
-function addBannerWarning(text,warning=true, noDismiss=false, forced=false) {
+function addBannerWarning(text, warning=true, noDismiss=false, forced=false) {
   var cookieText = text.replace(/[^a-z0-9]/gi,'');
   if ($.cookie(cookieText) == "true") return false;
   if (warning) text = "<i class='fa fa-warning fa-fw' style='float:initial'></i> "+text;
@@ -362,11 +379,10 @@ function dismissBannerWarning(entry,cookieText) {
 }
 
 function removeBannerWarning(entry) {
-  if (!forcedBanner) {
-    bannerWarnings[entry] = false;
-    clearTimeout(timers.bannerWarning);
-    showBannerWarnings();
-  }
+  if (forcedBanner) return;
+  bannerWarnings[entry] = false;
+  clearTimeout(timers.bannerWarning);
+  showBannerWarnings();
 }
 
 function bannerFilterArray(array) {
@@ -387,7 +403,7 @@ function showBannerWarnings() {
   if (currentBannerWarning >= allWarnings.length) currentBannerWarning = 0;
   $(".upgrade_notice").show().html(allWarnings[currentBannerWarning]);
   currentBannerWarning++;
-  timers.bannerWarning = setTimeout(showBannerWarnings,10000);
+  timers.bannerWarning = setTimeout(showBannerWarnings,3000);
 }
 
 function addRebootNotice(message="<?=_('You must reboot for changes to take effect')?>") {
@@ -777,7 +793,12 @@ defaultPage.on('message', function(msg,meta) {
 
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
-  let box = $('pre#text');
+  if (data == '_DONE_') {
+    $('div.spinner.fixed').hide();
+    $('button.confirm').text("<?=_('Done')?>");
+    return;
+  }
+  let box = $('pre#swaltext');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
     text[text.length-1] = data.slice(0,-1);
@@ -789,27 +810,27 @@ nchan_plugins.on('message', function(data) {
 
 var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
 nchan_changes.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
 nchan_phistory.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
 nchan_feedback.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
 nchan_sysinfo.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
 nchan_selectcase.on('message', function(data) {
-  $('pre#body').html(data);
+  $('pre#swalbody').html(data);
 });
 
 var backtotopoffset = 250;

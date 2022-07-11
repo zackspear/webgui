@@ -162,6 +162,13 @@ function error_desc($code) {
   }
 }
 
+// Signal DONE to caller
+//
+function done() {
+  write('_DONE_');
+  exit(0);
+}
+
 // Function to write either to console (echo) or nchan (curl)
 // Default output is console, use optional parameter "nchan" to write to nchan instead
 //
@@ -450,6 +457,9 @@ $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 
+// short delay to allow nchan initialization
+usleep(50000);
+
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
 //  $plugin_file - is an absolute path, eg, "/boot/config/plugins/myplugin.plg"
@@ -479,7 +489,7 @@ if ($method == 'checkall') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
-  exit(0);
+  done();
 }
 
 // plugin updateall
@@ -506,7 +516,7 @@ if ($method == 'updateall') {
       exec("$cmd update $plugin >/dev/null");
     }
   }
-  exit(0);
+  done();
 }
 
 // plugin checkos
@@ -526,7 +536,7 @@ if ($method == 'checkos') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
-  exit(0);
+  done();
 }
 
 // MAIN - two or three arguments
@@ -652,7 +662,7 @@ if ($method == 'install') {
   }
   // run hook scripts for post processing
   post_hooks();
-  exit(0);
+  done();
 }
 
 // plugin check [plugin]
@@ -751,7 +761,7 @@ if ($method == 'update') {
   logger("plugin: $plugin updated");
   // run hook scripts for post processing
   post_hooks();
-  exit(0);
+  done();
 }
 
 // plugin remove [plugin]
@@ -784,7 +794,7 @@ if ($method == 'remove') {
   exec("/usr/local/sbin/update_cron");
   // run hook scripts for post processing
   post_hooks();
-  exit(0);
+  done();
 }
 
 // return attribute

@@ -21,6 +21,10 @@
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 if (!$console) unset($argv[$argc-1]); // remove nchan parameter
 
+function done() {
+  write('_DONE_');
+  exit(0);
+}
 function write($message) {
   global $console;
   if ($console) {
@@ -73,4 +77,5 @@ $hours = floor($time/3600);
 $mins  = floor($time/60%60);
 $secs  = floor($time%60);
 write("Completed, elapsed time: ".sprintf('%02d:%02d:%02d', $hours, $mins, $secs)."\n");
+done();
 ?>

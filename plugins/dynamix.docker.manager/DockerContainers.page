@@ -142,14 +142,9 @@ function loadlist(init) {
     if (rebuild) rebuildAll();
   });
 }
-function hide_spinner() {
-  // we need to hide the spinner as soon as info is present or the window is closed
-  if (!$('.sweet-alert').hasClass('nchan') || $('pre#text').html() != '') $('div.spinner.fixed').hide(); else setTimeout(hide_spinner,250);
-}
 function sizes() {
   // show spinner over window
   $('div.spinner.fixed').css({'z-index':'100000'}).show();
-  setTimeout(hide_spinner,1000);
   openPlugin('container_size', "_(Container Size)_");
 }
 var dockerload = new NchanSubscriber('/sub/dockerload',{subscriber:'websocket'});
