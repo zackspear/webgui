@@ -456,6 +456,7 @@ $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
+if (!$console) usleep(50000);
 
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
@@ -524,7 +525,6 @@ if ($method == 'checkos') {
     write("Unknown command: {$argv[0]}\n");
     exit(1);
   }
-  usleep(50000);
   foreach ($builtin as $link) {
     // only consider symlinks
     $installed_plugin_file = @readlink("$plugins/$link.plg");
