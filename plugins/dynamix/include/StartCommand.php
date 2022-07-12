@@ -38,7 +38,7 @@ if ($command && strncmp($name,$path,strlen($path))===0) {
   } elseif (!pgrep($name)) {
     // only execute when command and valid path is given and command not already running
     exec("echo \"$name $args\" | at -M now >/dev/null 2>&1");
-    usleep(50000);
+    usleep(5000);
     $pid = pgrep($name); // started
   }
 }
