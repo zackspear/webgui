@@ -257,7 +257,6 @@ function bannerAlert(text,cmd,plg,func) {
         if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
       } else {
         $(".upgrade_notice").removeClass('alert').addClass('done');
-        $("i.fa-bomb").hide();
         timers.bannerAlert = null;
         setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
       }
@@ -288,7 +287,7 @@ function openPlugin(cmd,title,plg,func) {
   });
 }
 function abortOperation(pid) {
-  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave the system unstable')?>!",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
       clearTimeout(timers.bannerAlert);
       timers.bannerAlert = null;
