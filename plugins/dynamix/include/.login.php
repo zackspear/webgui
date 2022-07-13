@@ -498,11 +498,13 @@ $theme_dark = in_array($display['theme'], ['black', 'gray']);
 
             <div class="form">
                 <form class="js-removeTimeout" action="/login" method="POST">
-                    <? if (($twoFactorRequired && $token) || !$twoFactorRequired) { ?>
+                    <? if (($twoFactorRequired && !empty($token)) || !$twoFactorRequired) { ?>
                         <p>
                             <input name="username" type="text" placeholder="<?=_('Username')?>" autocapitalize="none" autocomplete="off" spellcheck="false" autofocus required>
                             <input name="password" type="password" placeholder="<?=_('Password')?>" required>
+                            <? if ($twoFactorRequired && !empty($token)) { ?>
                             <input name="token" type="hidden" value="<?= $token ?>">
+                            <? } ?>
                         </p>
                         <? if ($error) echo "<p class='error'>$error</p>"; ?>
                         <p>
@@ -532,7 +534,7 @@ $theme_dark = in_array($display['theme'], ['black', 'gray']);
                     </script>
                 </form>
 
-                <? if (($twoFactorRequired && $token) || !$twoFactorRequired) { ?>
+                <? if (($twoFactorRequired && !empty($token)) || !$twoFactorRequired) { ?>
                     <div class="js-addTimeout hidden">
                         <p class="error" style="padding-top:10px;"><?=_('Transparent 2FA Token timed out')?></p>
                         <a href="https://forums.unraid.net/my-servers/" class="button button--small" title="<?=_('Go to My Servers Dashboard')?>"><?=_('Go to My Servers Dashboard')?></a>
@@ -540,13 +542,13 @@ $theme_dark = in_array($display['theme'], ['black', 'gray']);
                 <? } ?>
             </div>
 
-            <? if (($twoFactorRequired && $token) || !$twoFactorRequired) { ?>
+            <? if (($twoFactorRequired && !empty($token)) || !$twoFactorRequired) { ?>
                 <p class="js-removeTimeout"><a href="https://wiki.unraid.net/Manual/Troubleshooting#Lost_root_Password" target="_blank"><?=_('Password recovery')?></a></p>
             <? } ?>
 
         </div>
     </section>
-    <? if ($token) { ?>
+    <? if ($twoFactorRequired && !empty($token)) { ?>
         <script type="text/javascript">
             const $elsToRemove = document.querySelectorAll('.js-removeTimeout');
             const $elsToShow = document.querySelectorAll('.js-addTimeout');
