@@ -39,6 +39,12 @@ if ($cmd=='alert') {
   die();
 }
 
+if ($cmd=='pending') {
+  // prepare pending status for multi operations
+  foreach (explode('*',$_GET['plugin']) as $plugin) file_put_contents("/tmp/plugins/pluginPending/$plugin",'multi');
+  die();
+}
+
 if ($audit) {
   [$plg,$action] = my_explode(':',$audit);
   switch ($action) {

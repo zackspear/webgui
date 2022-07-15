@@ -15,20 +15,41 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$method = $argv[1];
-$plugin = $argv[2];
+$type    = $argv[1];   // plugin or language
+$method  = $argv[2];   // install, update, remove, check
+$name    = $argv[3];   // plugin name (*.plg) or language name (*.xml)
 
-// validate plugin update (not applicable to OS updates)
-if ($method == 'check' and $plugin != 'unRAIDServer.plg') {
-  $old_plugin = "/boot/config/plugins/$plugin";
-  $new_plugin = "/tmp/plugins/$plugin";
-  if (plugin('version', $new_plugin) > plugin('version', $old_plugin)) {
-    echo "Validating $plugin update\n";
-    if (($status = plugin('validate', $new_plugin)) != 'valid') {
-      echo "$status\n";
-      // restore original plugin and undo update
-      copy($old_plugin, $new_plugin);
+$plugin  = "/boot/config/plugins/$name";
+$pending = "/tmp/plugins/pluginPending";
+
+// set pending status
+if (!is_dir($pending)) mkdir($pending);
+if ($method != 'check') file_put_contents("$pending/$name",$method);
+
+switch ($type) {
+case 'plugin':
+  switch ($method) {
+  case 'update':
+    // implicit validation on plugin update
+    if (@readlink("/var/log/plugins/$name")) plugin('check', $name);
+    break;
+  case 'check':
+    // validate plugin update (not applicable to OS updates)
+    if ($name == 'unRAIDServer.plg') break;
+    $new_plugin = "/tmp/plugins/$name";
+    if (plugin('version', $new_plugin) > plugin('version', $plugin)) {
+      echo "Validating $name update\n";
+      if (($status = plugin('validate', $new_plugin)) != 'valid') {
+        echo "$status\n";
+        // restore original plugin and undo update
+        copy($plugin, $new_plugin);
+      }
     }
+    break;
   }
+  break;
+case 'language':
+  // nothing defined
+  break;
 }
 ?>

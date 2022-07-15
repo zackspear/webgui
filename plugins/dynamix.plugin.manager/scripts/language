@@ -79,6 +79,34 @@ function write($message) {
   }
 }
 
+// Run hooked scripts before correct execution of "method"
+// method = install, update, remove, check
+// hook programs receives three parameters: type=language and method and language-name
+//
+function pre_hooks() {
+  global $method, $name;
+  $language = pathinfo($name)['extension'] == 'xml' ? $name : "lang-$name.xml";
+  $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/pre-hooks";
+  foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
+    write("Executing hook script: ".basename($hook)."\n");
+    run("$hook language $method $language");
+  }
+}
+
+// Run hooked scripts after successful or failed completion of "method"
+// method = install, update, remove, check
+// hook programs receives four parameters: type=language and method and language-name and error (empty if none)
+//
+function post_hooks($error='') {
+  global $method, $name;
+  $language = pathinfo($name)['extension'] == 'xml' ? $name : "lang-$name.xml";
+  $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
+  foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
+    write("Executing hook script: ".basename($hook)."\n");
+    run("$hook language $method $language $error");
+  }
+}
+
 // Download a file from a URL.
 // Returns TRUE if success else FALSE and fills in error.
 //
@@ -262,8 +290,12 @@ if ($method == 'install') {
   $link_file = "$plugins/$name";
   $lang_file = "$boot/$name";
   @unlink($link_file);
+  // run hook scripts for pre processing
+  pre_hooks();
   if (language('install', $xml_file, $error) === false) {
     write("language: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   $lang = language('Language', $xml_file, $error) ?: substr($name,0,-4);
@@ -271,6 +303,8 @@ if ($method == 'install') {
   symlink($lang_file, $link_file);
   write("language: $lang language pack installed\n");
   logger("language: $lang language pack installed");
+  // run hook scripts for post processing
+  post_hooks();
   done();
 }
 
@@ -296,12 +330,18 @@ if ($method == 'check') {
     @unlink($xml_file);
     exit(1);
   }
+  // run hook scripts for pre processing
+  pre_hooks();
   $version = language('Version', $xml_file, $error);
   if ($version === false) {
     write("language: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   write("$version\n");
+  // run hook scripts for post processing
+  post_hooks();
   exit(0);
 }
 
@@ -333,14 +373,20 @@ if ($method == 'update') {
   // install the updated plugin
   @unlink("$boot/dynamix/lang-$name.zip");
   @unlink($link_file);
+  // run hook scripts for pre processing
+  pre_hooks();
   if (language('install', $xml_file, $error) === false) {
     write("language: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack updated\n");
   logger("language: $lang language pack updated");
+  // run hook scripts for post processing
+  post_hooks();
   done();
 }
 
@@ -356,12 +402,18 @@ if ($method == 'remove') {
     exit(1);
   }
   $lang = language('Language', $lang_file, $error) ?: $name;
+  // run hook scripts for pre processing
+  pre_hooks();
   if (language('remove', $lang_file, $error) === false) {
     write("language: $error\n");
+    // run hook scripts for post processing
+    post_hooks($error);
     exit(1);
   }
   write("language: $lang language pack removed\n");
   logger("language: $lang language pack removed");
+  // run hook scripts for post processing
+  post_hooks();
   done();
 }
 

@@ -36,7 +36,7 @@ const args = {};
 
 function openInstall(cmd,title,plg) {
   if (cmd == null) {
-    openPlugin(args.cmd,args.title,args.plg);
+    openPlugin(args.cmd,args.title,args.plg,null,1);
     return;
   }
   args.cmd = cmd;
@@ -69,14 +69,22 @@ function multiRemove() {
   if ($('input.remove:checked').length > 1) $('#removeall').show(); else $('#removeall').hide();
 }
 function updateList() {
-  let list = [];
-  $('input.update').each(function(){list.push($(this).attr('data'));});
-  openPlugin("multiplugin update "+list.join('*'),"_(Update All Plugins)_",":return");
+  var plugin = [];
+  $('input.update').each(function(){plugin.push($(this).attr('data'));});
+  var plugins = plugin.join('*');
+  $('#updateall').hide();
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'pending',plugin:plugins},function() {
+    openPlugin("multiplugin update "+plugins,"_(Update All Plugins)_",":return","loadlist",1);
+  });
 }
 function removeList() {
-  let list = [];
-  $('input.remove:checked').each(function(){list.push($(this).attr('data'));});
-  openPlugin("multiplugin remove "+list.join('*'),"_(Remove Selected Plugins)_","","refresh");
+  var plugin = [];
+  $('input.remove:checked').each(function(){plugin.push($(this).attr('data'));});
+  var plugins = plugin.join('*');
+  $('#removeall').hide();
+  $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'pending',plugin:plugins},function() {
+    openPlugin("multiplugin remove "+plugins,"_(Remove Selected Plugins)_","","refresh",1);
+  });
 }
 function updateInfo(data) {
   var updates = data.split('\n');
@@ -85,6 +93,8 @@ function updateInfo(data) {
     for (var i=0,field; field=fields[i]; i++) {
       var row = field.split('::');
       $('#'+row[0]).attr('data',row[1]).html(row[2]);
+      var removeButton = $('input[data="'+row[0].substr(4).replace(/-/g,'.')+'.plg'+'"]');
+      if (row[2].indexOf('hourglass') >= 0) removeButton.hide(); else removeButton.show();
     }
   }
 }
@@ -123,10 +133,10 @@ function loadlist(id,check) {
       }
     } else {
       updateInfo(data[0]);
+      if (data[1] > 1) $('#updateall').show(); else $('#updateall').hide();
     }
     $('#plugin_table').trigger('update');
     $('#checkall').find('input').prop('disabled',false);
-    if (data[1] > 1) $('#updateall').show(); else $('#updateall').hide();
   });
 }
 $(function() {

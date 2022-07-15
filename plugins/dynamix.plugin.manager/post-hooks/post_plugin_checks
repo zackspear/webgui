@@ -27,32 +27,47 @@ function searchLink(&$db,$url) {
   if ($url) for ($i = 0; $i < count($db); $i++) if ($db[$i]['PluginURL']==$url) return $db[$i]['Support'];
 }
 
-$method = $argv[1];
-$name   = $argv[2];
-$error  = $argv[3];
-$plugin = "/boot/config/plugins/$name";
+$type    = $argv[1];   // plugin or language
+$method  = $argv[2];   // install, update, remove, check
+$name    = $argv[3];   // plugin name (*.plg) or language name (*.xml)
+$error   = $argv[4];   // error code (empty if none)
 
-if ($method == 'install' or $method == 'update') {
-  // check if method successfully completed
-  if ($error) die;
-  // update support link in plugin file
-  $info = readJson('/tmp/community.applications/tempFiles/templates.json');
-  // find matching support link
-  $url = plugin('pluginURL', $plugin);
-  if ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) {
-    // update incorrect or missing support links
-    if (plugin('support', $plugin) != $support) {
-      $xml = @simplexml_load_file($plugin);
-      if ($xml->xpath('//PLUGIN/@support')[0]) {
-        // support link exists, update it
-        $xml->xpath('//PLUGIN/@support')[0] = $support;
-      } else {
-        // support link is missing, add it
-        $xml->addAttribute('support', $support);
+$plugin  = "/boot/config/plugins/$name";
+$pending = "/tmp/plugins/pluginPending";
+
+switch ($type) {
+case 'plugin':
+  switch ($method) {
+  case 'install':
+  case 'update':
+    // abort if method was unsuccessful
+    if ($error) break;
+    // update support link in plugin file
+    $info = readJson('/tmp/community.applications/tempFiles/templates.json');
+    // find matching support link
+    $url = plugin('pluginURL', $plugin);
+    if ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) {
+      // update incorrect or missing support links
+      if (plugin('support', $plugin) != $support) {
+        $xml = @simplexml_load_file($plugin);
+        if ($xml->xpath('//PLUGIN/@support')[0]) {
+          // support link exists, update it
+          $xml->xpath('//PLUGIN/@support')[0] = $support;
+        } else {
+          // support link is missing, add it
+          $xml->addAttribute('support', $support);
+        }
+        echo "Updating support link\n";
+        file_put_contents($plugin, $xml->saveXML());
       }
-      echo "Updating support link\n";
-      file_put_contents($plugin, $xml->saveXML());
     }
   }
+  break;
+case 'language':
+  // nothing defined
+  break;
 }
+
+// unset pending status
+if ($method != 'check') @unlink("$pending/$name");
 ?>
