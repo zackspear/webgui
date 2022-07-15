@@ -79,6 +79,14 @@ function write($message) {
   }
 }
 
+// Run command and obtain output
+//
+function run($command) {
+  $run = popen($command,'r');
+  while (!feof($run)) write(fgets($run));
+  return pclose($run);
+}
+
 // Run hooked scripts before correct execution of "method"
 // method = install, update, remove, check
 // hook programs receives three parameters: type=language and method and language-name
