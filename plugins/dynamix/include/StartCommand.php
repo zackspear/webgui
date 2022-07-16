@@ -20,7 +20,8 @@ function pgrep($proc) {
 
 if (isset($_POST['kill']) && $_POST['kill'] > 1) {
   exec("kill ".$_POST['kill']);
-  die;
+  foreach (glob("/tmp/plugins/pluginPending/*") as $file) unlink($file);
+  die();
 }
 
 $start = isset($_POST['start']) && $_POST['start'] == 1;
