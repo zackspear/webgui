@@ -261,8 +261,8 @@ function bannerAlert(text,cmd,plg,func,start) {
           } else if ('Plugins' == '<?=$task?>') {
             setTimeout(refresh);
           }
-          $.removeCookie('addAlert-page');
         }
+        $.removeCookie('addAlert-page');
       } else {
         $(".upgrade_notice").removeClass('alert').addClass('done');
         timers.bannerAlert = null;
@@ -301,6 +301,7 @@ function abortOperation(pid) {
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
       clearTimeout(timers.bannerAlert);
       timers.bannerAlert = null;
+      timers.callback = null;
       forcedBanner = false;
       removeBannerWarning($.cookie('addAlert'));
       $.removeCookie('addAlert');
