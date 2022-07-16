@@ -244,21 +244,29 @@ function openTerminal(tag,name,more) {
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
 }
-function bannerAlert(text,cmd,plg,func) {
+function bannerAlert(text,cmd,plg,func,start) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
     if (pid == 0) {
-      if ($(".upgrade_notice").hasClass('done') || timers.bannerAlert==null) {
+      if ($(".upgrade_notice").hasClass('done') || timers.bannerAlert == null) {
         forcedBanner = false;
         if ($.cookie('addAlert') != null) {
           removeBannerWarning($.cookie('addAlert'));
           $.removeCookie('addAlert');
         }
         $(".upgrade_notice").removeClass('alert done');
-        if (plg != null) setTimeout((func||'loadlist')+'("'+plg+'")',250);
+        timers.callback = null;
+        if (plg != null) {
+          if ($.cookie('addAlert-page') == null || $.cookie('addAlert-page') == '<?=$task?>') {
+            setTimeout((func||'loadlist')+'("'+plg+'")',250);
+          } else if ('Plugins' == '<?=$task?>') {
+            setTimeout(refresh);
+          }
+        }
+        $.removeCookie('addAlert-page');
       } else {
         $(".upgrade_notice").removeClass('alert').addClass('done');
         timers.bannerAlert = null;
-        setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
+        setTimeout(function(){bannerAlert(text,cmd,plg,func,start);},1000);
       }
     } else {
       $.cookie('addAlert',addBannerWarning(text,true,true,true));
@@ -266,12 +274,14 @@ function bannerAlert(text,cmd,plg,func) {
       $.cookie('addAlert-cmd',cmd);
       $.cookie('addAlert-plg',plg);
       $.cookie('addAlert-func',func);
-      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func);},1000);
+      if ($.cookie('addAlert-page') == null) $.cookie('addAlert-page','<?=$task?>');
+      timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func,start);},1000);
+      if (start == 1 && timers.callback == null && plg != null) timers.callback = setTimeout((func||'loadlist')+'("'+plg+'")',250);
     }
   });
 }
-function openPlugin(cmd,title,plg,func) {
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
+function openPlugin(cmd,title,plg,func,start=0) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan',start:start},function(pid) {
     if (pid==0) {
       $(".upgrade_notice").addClass('alert');
       return;
@@ -281,16 +291,17 @@ function openPlugin(cmd,title,plg,func) {
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func);});
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func,start);});
     });
     $('.sweet-alert').addClass('nchan');
   });
 }
 function abortOperation(pid) {
-  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave the system unstable')?>!",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
       clearTimeout(timers.bannerAlert);
       timers.bannerAlert = null;
+      timers.callback = null;
       forcedBanner = false;
       removeBannerWarning($.cookie('addAlert'));
       $.removeCookie('addAlert');
@@ -886,7 +897,7 @@ $(function() {
   var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top');
-  if ($.cookie('addAlert')!=null) bannerAlert(addAlert.text,addAlert.cmd,addAlert.plg,addAlert.func);
+  if ($.cookie('addAlert') != null) bannerAlert(addAlert.text,addAlert.cmd,addAlert.plg,addAlert.func);
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>

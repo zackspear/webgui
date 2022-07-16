@@ -41,7 +41,11 @@ function make_link($method, $arg, $extra='') {
   } else {
     $cmd = "plugin $method $arg".($extra?" $extra":"");
   }
-  return "$check<input type='button' id='$id' data='$arg' class='$method' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\");'$disabled>";
+  if (is_file("/tmp/plugins/pluginPending/$arg") && !$check) {
+    return "<span class='orange-text'><i class='fa fa-hourglass-o fa-fw'></i>&nbsp;"._('pending')."</span>";
+  } else {
+    return "$check<input type='button' id='$id' data='$arg' class='$method' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\");'$disabled>";
+  }
 }
 
 // trying our best to find an icon

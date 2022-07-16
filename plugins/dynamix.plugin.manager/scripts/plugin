@@ -200,27 +200,27 @@ function run($command) {
 
 // Run hooked scripts before correct execution of "method"
 // method = install, update, remove, check
-// hook programs receives two parameters: method and plugin-name
+// hook programs receives three parameters: type=plugin and method and plugin-name
 //
 function pre_hooks() {
   global $method, $plugin;
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/pre-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
-    run("$hook $method $plugin");
+    run("$hook plugin $method $plugin");
   }
 }
 
 // Run hooked scripts after successful or failed completion of "method"
 // method = install, update, remove, check
-// hook programs receives three parameters: method and plugin-name and error (empty if none)
+// hook programs receives four parameters: type=plugin and method and plugin-name and error (empty if none)
 //
 function post_hooks($error='') {
   global $method, $plugin;
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
-    run("$hook $method $plugin $error");
+    run("$hook plugin $method $plugin $error");
   }
 }
 

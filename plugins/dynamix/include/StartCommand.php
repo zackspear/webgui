@@ -18,11 +18,13 @@ function pgrep($proc) {
   return exec("pgrep -f $proc");
 }
 
-if (!empty($_POST['kill']) && $_POST['kill'] > 1) {
+if (isset($_POST['kill']) && $_POST['kill'] > 1) {
   exec("kill ".$_POST['kill']);
-  die;
+  foreach (glob("/tmp/plugins/pluginPending/*") as $file) unlink($file);
+  die();
 }
 
+$start = isset($_POST['start']) && $_POST['start'] == 1;
 [$command,$args] = explode(' ',unscript($_POST['cmd']??''),2);
 
 // find absolute path of command
@@ -35,11 +37,11 @@ if ($command && strncmp($name,$path,strlen($path))===0) {
   if (isset($_POST['pid'])) {
     // return running pid
     $pid = pgrep($name);
-  } elseif (!pgrep($name)) {
-    // only execute when command and valid path is given and command not already running
+  } elseif ($start or !pgrep($name)) {
+    // start command in background and return pid
     exec("echo \"$name $args\" | at -M now >/dev/null 2>&1");
     usleep(5000);
-    $pid = pgrep($name); // started
+    $pid = pgrep($name);
   }
 }
 echo $pid;
