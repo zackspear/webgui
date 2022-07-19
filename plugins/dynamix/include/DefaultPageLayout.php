@@ -287,6 +287,7 @@ function openPlugin(cmd,title,plg,func,start=0) {
       return;
     }
     nchan_plugins.start();
+    $('.sweet-alert').show();
     swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
@@ -324,6 +325,7 @@ function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     startStopNchan('start',nchan);
+    $('.sweet-alert').show();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
       startStopNchan('stop',nchan);
       $('.sweet-alert').hide('fast').removeClass('nchan');
@@ -335,6 +337,7 @@ function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) return;
     nchan_changes.start();
+    $('.sweet-alert').show();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       nchan_changes.stop();
       $('.sweet-alert').hide('fast').removeClass('nchan');
