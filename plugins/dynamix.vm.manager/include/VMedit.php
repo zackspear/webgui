@@ -90,7 +90,7 @@ if (isset($_GET['uuid'])) {
 
 <style>
 body{-webkit-overflow-scrolling:touch}
-.fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
+.fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:relative;z-index:100;display:none}
 #vmform table{margin-top:0}
 #vmform div#title + table{margin-top:0}
 #vmform table tr{vertical-align:top;line-height:40px}
