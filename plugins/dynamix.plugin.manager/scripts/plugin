@@ -232,8 +232,8 @@ function download($url, $name, &$error, $write=true) {
   if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --timeout=30 --tries=5 --waitretry=5 -O $name $url 2>&1", 'r')) {
     if ($write) write("plugin: downloading: $plg ...\r");
     $level = -1;
-    while (!feof($file)) {
-      if (preg_match('/\d+%/', fgets($file), $matches)) {
+    while (($line = fgets($file)) !== false) {
+      if (preg_match('/\d+%/', $line, $matches)) {
         $percentage = substr($matches[0],0,-1);
         if ($percentage > $level) {
           if ($write) write("plugin: downloading: $plg ... $percentage%\r");
@@ -241,12 +241,15 @@ function download($url, $name, &$error, $write=true) {
         }
       }
     }
-    if (($perror = pclose($file)) == 0) {
-      if ($write) write("plugin: downloading: $plg ... done\n");
-      return true;
-    } else {
+    if (($perror = pclose($file)) != 0) {
       $error = "$plg download failure (".error_desc($perror).")";
       return false;
+    } elseif (filesize($name) == 0) {
+      if ($write) write("plugin: download failure: zero-length file\n");
+      return false;
+    } else {
+      if ($write) write("plugin: downloading: $plg ... done\n");
+      return true;
     }
   } else {
     $error = "$plg failed to open";
@@ -350,6 +353,20 @@ function plugin($method, $plugin_file, &$error) {
         if (!mkdir(dirname($name), 0770, true)) {
           $error = "unable to create parent directory for $name";
           return false;
+        }
+      }
+      // If file already exists, check the SHA256/MD5 (if supplied)
+      if (file_exists($name)) {
+        if ($file->SHA256) {
+          logger("plugin: checking: $name - SHA256");
+          if (hash_file('sha256', $name) != $file->SHA256) {
+            unlink($name);
+          }
+        } elseif ($file->MD5) {
+          logger("plugin: checking: $name - MD5");
+          if (md5_file($name) != $file->MD5) {
+            unlink($name);
+          }
         }
       }
       // If file already exists, do not overwrite
