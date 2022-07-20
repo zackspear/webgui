@@ -473,7 +473,7 @@ $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(50000);
+if (!$console) usleep(200000);
 
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
