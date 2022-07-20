@@ -62,7 +62,7 @@ function process($path) {
 $startTime = time();
 
 if ($argv[1]) {
-  usleep(50000);
+  usleep(200000);
   $paths = explode('*',rawurldecode($argv[1]));
   foreach ($paths as $path) process($path);
 } else {
