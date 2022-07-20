@@ -1,10 +1,10 @@
 #!/bin/bash
 
 text="Deleting $1 ..."
-sleep 0.1
 if [[ -z $2 ]]; then
   echo $text
 else
+  sleep 0.2
   curl -sfd $text --unix-socket /var/run/nginx.socket http://localhost/pub/plugins?buffer_length=0 >/dev/null 2>&1
 fi
 
