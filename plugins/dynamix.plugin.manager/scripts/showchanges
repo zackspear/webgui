@@ -39,7 +39,7 @@ function write($message){
   curl_close($nchan);
 }
 
-usleep(200000);
+usleep(300000);
 if ($file) {
   foreach ($valid as $check) if (strncmp($file,$check,strlen($check))===0) $good = true;
   if ($good && pathinfo($file)['extension']=='txt') write(Markdown(file_get_contents($file)));

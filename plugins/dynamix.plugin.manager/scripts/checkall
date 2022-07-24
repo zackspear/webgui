@@ -43,9 +43,9 @@ function write($message){
   }
 }
 
-if (!$console) usleep(200000);
+if (!$console) usleep(300000);
 // check connectivity first
-write(_("Checking connectivity")."...\n");
+write(_("Checking connectivity")." ...\n");
 if (exec("wget --spider --no-check-certificate -nv -T10 -t1 https://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")) {
   $check = popen('plugin checkall','r');
   while (!feof($check)) write(fgets($check));

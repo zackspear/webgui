@@ -188,6 +188,6 @@ $script[] = "  \$('#optFeatureRequest').click();";
 $script[] = "});";
 $script[] = "</script>";
 
-usleep(200000);
+usleep(300000);
 write(implode($style).implode($html).implode($script));
 ?>

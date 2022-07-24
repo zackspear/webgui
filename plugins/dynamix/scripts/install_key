@@ -27,7 +27,7 @@ function write($message) {
 $url = rawurldecode($argv[1]);
 $host = parse_url($url)['host'];
 
-usleep(200000);
+usleep(300000);
 if (in_array($host,['keys.lime-technology.com','lime-technology.com'])) {
   $key_file = basename($url);
   write("Downloading $keyfile ...\n");

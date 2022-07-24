@@ -473,7 +473,7 @@ $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(200000);
+if (!$console) usleep(300000);
 
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
@@ -504,6 +504,7 @@ if ($method == 'checkall') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
+  write("Checking finished.\n");
   done();
 }
 
@@ -531,6 +532,7 @@ if ($method == 'updateall') {
       exec("$cmd update $plugin >/dev/null");
     }
   }
+  write("Updating finished.\n");
   done();
 }
 
@@ -551,6 +553,7 @@ if ($method == 'checkos') {
     write("plugin: checking $plugin ...\n");
     exec("$cmd check $plugin >/dev/null");
   }
+  write("Checking finished.\n");
   done();
 }
 

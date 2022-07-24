@@ -223,7 +223,7 @@ $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(200000);
+if (!$console) usleep(300000);
 
 // MAIN - single argument
 if ($argc < 2) {
