@@ -39,7 +39,7 @@ function write($message){
   }
 }
 
-if (!$console) usleep(200000);
+if (!$console) usleep(300000);
 foreach ($plugins as $plugin) {
   if (!$plugin || (!$cmd = $call[pathinfo($plugin)['extension']])) continue;
   $line = '';

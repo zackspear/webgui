@@ -25,7 +25,7 @@ require_once "$docroot/webGui/include/Translations.php";
 function write($message){
   $nchan = curl_init();
   curl_setopt_array($nchan,[
-    CURLOPT_URL => 'http://localhost/pub/selectcase?buffer_length=0',
+    CURLOPT_URL => 'http://localhost/pub/selectcase?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
     CURLOPT_POSTFIELDS => $message,
@@ -85,6 +85,6 @@ $select = substr($cmodel,-4)=='.png' ? 'color:#e68a00' : '';
 $html[] = "<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>";
 $html[] = "</div>";
 
-usleep(200000);
+usleep(100000);
 write(implode($style).implode($script).implode($html));
 ?>

@@ -25,7 +25,7 @@ require_once "$docroot/webGui/include/Translations.php";
 function write($message){
   $nchan = curl_init();
   curl_setopt_array($nchan,[
-    CURLOPT_URL => 'http://localhost/pub/feedback?buffer_length=0',
+    CURLOPT_URL => 'http://localhost/pub/feedback?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
     CURLOPT_POSTFIELDS => $message,
@@ -188,6 +188,6 @@ $script[] = "  \$('#optFeatureRequest').click();";
 $script[] = "});";
 $script[] = "</script>";
 
-usleep(200000);
+usleep(100000);
 write(implode($style).implode($html).implode($script));
 ?>

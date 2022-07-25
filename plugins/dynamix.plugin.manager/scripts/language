@@ -223,7 +223,7 @@ $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(200000);
+if (!$console) usleep(300000);
 
 // MAIN - single argument
 if ($argc < 2) {
@@ -245,6 +245,7 @@ if ($method == 'checkall') {
     write("language: checking $lang language pack ...\n");
     exec(realpath($argv[0])." check $name >/dev/null");
   }
+  write("language: checking finished.\n");
   done();
 }
 
@@ -267,6 +268,7 @@ if ($method == 'updateall') {
       exec(realpath($argv[0])." update $name >/dev/null");
     }
   }
+  write("language: updating finished.\n");
   done();
 }
 
