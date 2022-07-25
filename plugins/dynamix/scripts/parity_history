@@ -27,7 +27,7 @@ $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May 
 function write($message){
   $nchan = curl_init();
   curl_setopt_array($nchan,[
-    CURLOPT_URL => 'http://localhost/pub/phistory?buffer_length=0',
+    CURLOPT_URL => 'http://localhost/pub/phistory?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
     CURLOPT_POSTFIELDS => $message,
@@ -78,6 +78,6 @@ if ($list) {
 } else {
   $list[] = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No parity check history present')."!</td></tr>";
 }
-usleep(300000);
+usleep(100000);
 write($head.implode($list)."</table>");
 ?>
