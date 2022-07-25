@@ -22,7 +22,8 @@ $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 if (!$console) unset($argv[$argc-1]); // remove nchan parameter
 
 function done() {
-  write('_DONE_');
+  global $console;
+  if (!$console) write('_DONE_');
   exit(0);
 }
 function write($message) {
