@@ -165,8 +165,7 @@ function error_desc($code) {
 // Signal DONE to caller
 //
 function done() {
-  global $console;
-  if (!$console) write('_DONE_');
+  write('_DONE_');
   exit(0);
 }
 

@@ -18,8 +18,7 @@ $console = $argv[$argc-1] != 'nchan'; // console or nchan output
 $call    = ['plg' => 'plugin', 'xml' => 'language', '' => 'language'];
 
 function done() {
-  global $console;
-  if (!$console) write('_DONE_');
+  write('_DONE_');
   exit(0);
 }
 function write($message){
