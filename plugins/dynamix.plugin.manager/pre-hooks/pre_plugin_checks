@@ -21,6 +21,7 @@ $name    = $argv[3];   // plugin name (*.plg) or language name (*.xml)
 
 $plugin  = "/boot/config/plugins/$name";
 $pending = "/tmp/plugins/pluginPending";
+$unraid  = ['unRAIDServer.plg','unRAIDServer-.plg'];
 
 // set pending status
 if (!is_dir($pending)) mkdir($pending);
@@ -30,12 +31,13 @@ switch ($type) {
 case 'plugin':
   switch ($method) {
   case 'update':
-    // implicit validation on plugin update
+    // implicit validation on plugin update (not applicable to OS updates)
+    if (in_array($name, $unraid)) break;
     if (@readlink("/var/log/plugins/$name")) plugin('check', $name);
     break;
   case 'check':
     // validate plugin update (not applicable to OS updates)
-    if ($name == 'unRAIDServer.plg') break;
+    if (in_array($name, $unraid)) break;
     $new_plugin = "/tmp/plugins/$name";
     if (plugin('version', $new_plugin) > plugin('version', $plugin)) {
       echo "Validating $name update\n";
