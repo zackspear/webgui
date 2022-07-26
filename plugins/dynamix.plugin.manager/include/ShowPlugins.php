@@ -138,7 +138,7 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
       copy($plugin_file,$tmp_file);
       exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
       symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-      $next = end(explode("\n",check_plugin($tmp_plg,$ncsi)));
+      $next = end(array_filter(explode("\n",check_plugin($tmp_plg,$ncsi)),function($row){return is_numeric($row[0]);}));
       if (version_compare($next,$past,'>')) {
         copy("/tmp/plugins/$tmp_plg",$tmp_file);
         $plugin_file = $tmp_file;
