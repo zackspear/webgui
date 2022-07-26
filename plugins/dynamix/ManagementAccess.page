@@ -246,15 +246,11 @@ function updateSSH(form) {
   form.PORTSSH.disabled = form.USE_SSH.value=='no';
 }
 
-function updateSSL(form) {
-  form.PORT.disabled = form.USE_SSL.value=='yes';
-}
 
 $(function(){
   var form = document.SSLSettings;
   updateTELNET(form);
   updateSSH(form);
-  updateSSL(form);
 });
 </script>
 <form markdown="1" name="SSLSettings" method="POST" action="/update.htm" target="progressFrame">
@@ -318,7 +314,7 @@ _(Use UPnP)_:
 :mgmt_use_upnp_help:
 
 _(Use SSL/TLS)_:
-: <select name="USE_SSL" onchange="updateSSL(this.form)">
+: <select name="USE_SSL">
   <?=mk_option($var['USE_SSL'], "no", _('No'))?>
   <?=mk_option($var['USE_SSL'], "yes", _('Yes'))?>
   <?=mk_option($var['USE_SSL'], "auto", _('Strict'), $disabled_auto)?>
