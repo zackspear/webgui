@@ -78,10 +78,9 @@ for ($i=0; $i < count($models); $i++) {
   $select = $name==$cmodel ? 'color:#e68a00' : '';
   $html[] = "<div id='$name' class='case-list' style='$select' onclick='setCase(\"$name\")'><span class='$model'></span><div class='case-name'>$title</div></div>";
 }
+$select = $cmodel=='case-model.png' ? 'color:#e68a00' : '';
 $html[] = "<div id='Custom' class='case-list' style='$select' onclick='$(\"input#file\").trigger(\"click\")'><span class='fa fa-file-image-o'></span><div class='custom-name'>"._('custom image')."</div></div>";
-$i++;
 $html[] = "</div></div>";
-$select = substr($cmodel,-4)=='.png' ? 'color:#e68a00' : '';
 $html[] = "<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>";
 $html[] = "</div>";
 
