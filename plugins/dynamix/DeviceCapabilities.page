@@ -18,13 +18,12 @@ Cond="strpos($disks[$name]['status'],'_NP')===false"
 <script>
 $(function() {
   $.post("/webGui/include/SmartInfo.php",{cmd:'capabilities',port:'<?=addslashes(htmlspecialchars($dev))?>',name:'<?=addslashes(htmlspecialchars($name))?>'}, function(data) {
-    $('#disk_capabilities').html(data);
+    $('#disk_capabilities_table').html(data);
   });
 });
 </script>
-<table class='share_status small'>
-<thead><td style="width:33%">_(Feature)_</td><td>_(Value)_</td><td>_(Information)_</td></thead>
-<tbody id="disk_capabilities"><tr><td colspan='3'><div class="spinner"></div></td></tr></tbody>
+<table id="disk_capabilities_table" class='share_status small'>
+
 </table>
 <input type="button" value="_(Done)_" onclick="done()">
 

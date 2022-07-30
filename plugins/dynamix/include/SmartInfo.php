@@ -98,23 +98,65 @@ case "attributes":
   if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>"._('Can not read attributes')."</td></tr>";
   break;
 case "capabilities":
+  echo '<thead><td style="width:33%">'._('Feature').'</td><td>'._('Value').'</td><td>'._('Information').'</td></thead><tbody>' ;
   exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
   $row = ['','',''];
   $empty = true;
+  if (substr($port,0,4)=="nvme") $nvme=true ;
+  $nvme_section="info" ;
   foreach ($output as $line) {
-    if (!$line) continue;
+    if (!$line) {echo "<tr></tr>" ;continue;}
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
+    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ; continue ;}
+    if ($nvme && $info[0]=="Supported LBA Sizes" ) { $nvme_section="lbaheading" ; continue ;} 
     append($row[0],$info[0]);
     append($row[1],$info[1]);
     append($row[2],$info[2]);
-    if (substr($row[2],-1)=='.') {
+    if (substr($row[2],-1)=='.' || ($nvme && $nvme_section=="info")) {
       echo "<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>";
       $row = ['','',''];
       $empty = false;
     }
+    if ($nvme && $nvme_section == "psheading") {
+      echo '<tr><td></td><td></td><td></td></tr></body><div><thead>' ;
+      $nvme_section = "psdetail";
+      preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psheadings);
+      for ($i = 1; $i <= 11; $i++) {   
+      echo "<td>".$psheadings['data'.$i]."</td>" ;
+      }
+      echo '</thead><tbody><tr><td>Supported Power States</td></tr>' ;
+    }
+    if ($nvme && $nvme_section == "psdetail") {
+      $nvme_section = "psdetail";
+      echo '<tr>' ;
+      preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psdetails);
+      for ($i = 1; $i <= 11; $i++) {   
+      echo "<td>".$psdetails['data'.$i]."</td>" ;
+      }
+      echo '</tr>' ;
+    }
+    if ($nvme && $nvme_section == "lbaheading") {
+      echo '<tr><td></td><td></td><td></td></tr></body><div><thead>' ;
+      $nvme_section = "lbadetail";
+      preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)$/',$line, $lbaheadings);
+      for ($i = 1; $i <= 5; $i++) {   
+        echo "<td>".$lbaheadings['data'.$i]."</td>" ;
+        }
+      echo '</thead><tbody>' ;
+    }
+    if ($nvme && $nvme_section == "lbadetail") {
+      $nvme_section = "lbadetail";
+      preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)$/',$line, $lbadetails);
+      echo '<tr>' ;
+      for ($i = 1; $i <= 5; $i++) {   
+        echo "<td>".$lbadetails['data'.$i]."</td>" ;
+        }
+      echo '</tr>' ;
+    }
   }
   if ($empty) echo "<tr><td colspan='3' style='text-align:center;padding-top:12px'>"._('Can not read capabilities')."</td></tr>";
+  echo "</tbody>" ;
   break;
 case "identify":
   $passed = ['PASSED','OK'];
