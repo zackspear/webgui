@@ -108,8 +108,6 @@ case "capabilities":
     if (!$line) {echo "<tr></tr>" ;continue;}
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
-    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ; continue ;}
-    if ($nvme && $info[0]=="Supported LBA Sizes" ) { $nvme_section="lbaheading" ; continue ;} 
     append($row[0],$info[0]);
     append($row[1],$info[1]);
     append($row[2],$info[2]);
@@ -118,14 +116,22 @@ case "capabilities":
       $row = ['','',''];
       $empty = false;
     }
+    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ; $row = ['','',''] ; continue ;}
+    if ($nvme && $info[0]=="Supported LBA Sizes" ) {  
+      echo "<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>";
+      $row = ['','',''];
+      $nvme_section="lbaheading" ; 
+      continue ;
+    } 
     if ($nvme && $nvme_section == "psheading") {
-      echo '<tr><td></td><td></td><td></td></tr></body><div><thead>' ;
+      echo '</body><thead>' ;
       $nvme_section = "psdetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psheadings);
       for ($i = 1; $i <= 11; $i++) {   
       echo "<td>".$psheadings['data'.$i]."</td>" ;
       }
-      echo '</thead><tbody><tr><td>Supported Power States</td></tr>' ;
+      $row = ['','',''];
+      echo '</thead><tbody>' ;
     }
     if ($nvme && $nvme_section == "psdetail") {
       $nvme_section = "psdetail";
@@ -134,15 +140,17 @@ case "capabilities":
       for ($i = 1; $i <= 11; $i++) {   
       echo "<td>".$psdetails['data'.$i]."</td>" ;
       }
+      $row = ['','',''];
       echo '</tr>' ;
     }
     if ($nvme && $nvme_section == "lbaheading") {
-      echo '<tr><td></td><td></td><td></td></tr></body><div><thead>' ;
+      echo '</body><thead>' ;
       $nvme_section = "lbadetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)$/',$line, $lbaheadings);
       for ($i = 1; $i <= 5; $i++) {   
         echo "<td>".$lbaheadings['data'.$i]."</td>" ;
         }
+        $row = ['','',''];
       echo '</thead><tbody>' ;
     }
     if ($nvme && $nvme_section == "lbadetail") {
@@ -152,6 +160,7 @@ case "capabilities":
       for ($i = 1; $i <= 5; $i++) {   
         echo "<td>".$lbadetails['data'.$i]."</td>" ;
         }
+        $row = ['','',''];
       echo '</tr>' ;
     }
   }
