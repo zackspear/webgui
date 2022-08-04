@@ -72,11 +72,13 @@ foreach ($vms as $vm) {
   $graphics = '';
   if ($vncport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
+    $protocol = $lv->domain_get_web_protocol($res) ;
     $vnc = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=&path=/wsproxy/' . $wsport . '/';
     $spice = autov('/plugins/dynamix.vm.manager/spice.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port='.$vncport ;
-    $graphics = 'VNC:'.$vncport;
+    $graphics = strtoupper($protocol).":".$vncport;
   } elseif ($vncport == -1) {
-    $graphics = 'VNC:auto';
+    $protocol = $lv->domain_get_web_protocol($res) ;
+    $graphics = strtoupper($protocol).':auto';
   } elseif (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
     foreach ($arrConfig['gpu'] as $arrGPU) {

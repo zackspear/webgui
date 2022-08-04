@@ -76,7 +76,8 @@
 		],
 		'gpu' => [
 			[
-				'id' => 'vnc',
+				'id' => 'virtual',
+				'protcol' => 'vnc',
 				'model' => 'qxl',
 				'keymap' => 'en-us'
 			]
@@ -126,9 +127,11 @@
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
 				$vncport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
+				$protocol = $lv->domain_get_web_protocol($dom);
 				$reply = ['success' => true];
 				if ($vncport > 0) {
 					$reply['vncurl'] = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+					//$reply['spiceurl'] = autov('/plugins/dynamix.vm.manager/spice.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port='.$vncport;
 				}
 			} else {
 				$reply = ['error' => $lv->get_last_error()];
@@ -852,8 +855,9 @@
 					<select name="gpu[<?=$i?>][id]" class="gpu narrow">
 					<?
 						if ($i == 0) {
-							// Only the first video card can be VNC
-							echo mk_option($arrGPU['id'], 'vnc', _('VNC'));
+							// Only the first video card can be VNC or SPICE
+							echo mk_option($arrGPU['id'], 'virtual', _('Virtual'));
+							
 						} else {
 							echo mk_option($arrGPU['id'], '', _('None'));
 						}
@@ -867,20 +871,30 @@
 			</tr>
 
 			<?if ($i == 0) {?>
-			<tr class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vncmodel">
-				<td>_(VNC Video Driver)_:</td>
+				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protcol">
+				<td>_(Virt Protcol)_:</td>
+				<td>
+					<select id="webprotocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(video for VNC)_">
+					<?echo mk_option($arrGPU['protocol'], 'vnc', _('VNC'));?>
+					<?echo mk_option($arrGPU['protocol'], 'spice', _('SPICE'));?>
+					</select>
+				</td>
+			</tr>
+			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
+				<td>_(Virt Video Driver)_:</td>
 				<td>
 					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
 					</select>
 				</td>
 			</tr>
+
 			<tr class="vncpassword">
-				<td>_(VNC Password)_:</td>
+				<td>_(Virt Password)_:</td>
 				<td><input type="password" name="domain[password]" autocomplete='new-password' title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
-			<tr class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vnckeymap">
-				<td>_(VNC Keyboard)_:</td>
+			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
+				<td>_(Virt Keyboard)_:</td>
 				<td>
 					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
@@ -888,36 +902,41 @@
 				</td>
 			</tr>
 			<?}?>
-			<tr class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+			<tr class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 				<td>_(Graphics ROM BIOS)_:</td>
 				<td>
 					<input type="text" name="gpu[<?=$i?>][rom]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrGPU['rom'])?>" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 				</td>
 			</tr>
 		</table>
-		<?if ($i == 0) {?>
+		<?if ($i == 0 || $i == 1) {?>
 		<blockquote class="inline_help">
 			<p>
 				<b>Graphics Card</b><br>
-				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to VNC.
+				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vncmodel">
-				<b>VNC Video Driver</b><br>
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>virtual Video protocol i.e. VNC/SPICE</b><br>
+				If you wish to assign a protocol to use for a virtual screen connections, specify one here.
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
+				<b>virtual Video Driver</b><br>
 				If you wish to assign a different video driver to use for a VNC connection, specify one here.
 			</p>
 
 			<p class="vncpassword">
-				<b>VNC Password</b><br>
+				<b>virtual Password</b><br>
 				If you wish to require a password to connect to the VM over a VNC connection, specify one here.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vnckeymap">
-				<b>VNC Keyboard</b><br>
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
+				<b>virtual Keyboard</b><br>
 				If you wish to assign a different keyboard layout to use for a VNC connection, specify one here.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+			<p class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 				<b>Graphics ROM BIOS</b><br>
 				If you wish to use a custom ROM BIOS for a Graphics card, specify one here.
 			</p>
@@ -1445,7 +1464,7 @@ $(function() {
 
 		if (myindex == 0) {
 			$vnc_sections = $('.vncmodel,.vncpassword,.vnckeymap');
-			if (myvalue == 'vnc') {
+			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			} else {
@@ -1455,7 +1474,7 @@ $(function() {
 		}
 
 		$romfile = $(this).closest('table').find('.romfile');
-		if (myvalue == 'vnc' || myvalue == '') {
+		if (myvalue == 'virtual' || myvalue == '') {
 			slideUpRows($romfile.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			$romfile.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 		} else {
@@ -1505,7 +1524,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'vnc' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
@@ -1532,7 +1551,7 @@ $(function() {
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vncurl) {
-					var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+					if (data.webprotocol === "spice" ) var vnc_window=window.open(data.spiceurl, '_blank', 'scrollbars=yes,resizable=yes'); else var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
 					try {
 						vnc_window.focus();
 					} catch (e) {

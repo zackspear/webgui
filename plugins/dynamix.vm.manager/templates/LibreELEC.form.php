@@ -719,7 +719,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						</select>
 					</td>
 				</tr>
-				<tr class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+				<tr class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 					<td>_(Graphics ROM BIOS)_:</td>
 					<td>
 						<input type="text" name="gpu[<?=$i?>][rom]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrGPU['rom'])?>" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
@@ -733,7 +733,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					If you wish to assign a graphics card to the VM, select it from this list.
 				</p>
 
-				<p class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+				<p class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 					<b>Graphics ROM BIOS</b><br>
 					If you wish to use a custom ROM BIOS for a Graphics card, specify one here.
 				</p>
@@ -1170,7 +1170,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'vnc' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;

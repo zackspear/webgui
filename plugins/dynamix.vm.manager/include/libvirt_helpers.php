@@ -987,7 +987,8 @@
 		$intVNCPort = $lv->domain_get_vnc_port($res);
 		if (!empty($intVNCPort)) {
 			$arrGPUDevices[] = [
-				'id' => 'vnc',
+				'id' => 'virtual',
+				'protocol' => $lv->domain_get_web_protocol($res),
 				'model' => $lv->domain_get_vnc_model($res),
 				'keymap' => $lv->domain_get_vnc_keymap($res)
 			];

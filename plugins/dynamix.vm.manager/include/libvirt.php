@@ -674,7 +674,7 @@
 						continue;
 					}
 
-					if ($gpu['id'] == 'vnc') {
+					if ($gpu['id'] == 'virtual') {
 						$strKeyMap = '';
 						if (!empty($gpu['keymap'])) {
 							$strKeyMap = "keymap='" . $gpu['keymap'] . "'";
@@ -694,11 +694,14 @@
 								$strModelType = 'qxl';
 							}
 						}
-
+						#$strProtocol = 'spice';
+						if (!empty($gpu['protocol'])) {
+							$strProtocol = $gpu['protocol'];
+						} else $strProtocol = " vnc" ;
 						$vnc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
-								<graphics type='vnc' port='-1' autoport='yes' websocket='-1' listen='0.0.0.0' $passwdstr $strKeyMap>
+								<graphics type='$strProtocol' port='-1' autoport='yes' websocket='-1' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
 								</graphics>
 								<video>
@@ -706,6 +709,11 @@
 								</video>";
 
 						$gpudevs_used[] = $gpu['id'];
+						$m		= print_r($vnc,true);
+						$m		= str_replace("\n", " ", $m);
+						$m		= str_replace('"', "'", $m);
+						$cmd	= "/usr/bin/logger ".'"'.$m.'"';
+						exec($cmd);
 
 						continue;
 					}
@@ -785,7 +793,7 @@
 			}
 
 			$memballoon = "<memballoon model='none'/>";
-			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='vnc'; }) )) {
+			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='virtual' ; }) )) {
 				$memballoon = "<memballoon model='virtio'>
 							<alias name='balloon0'/>
 						</memballoon>";
@@ -1794,6 +1802,14 @@
 		function domain_get_vnc_port($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@port', false);
 			$var = (int)$tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
+		function domain_get_web_protocol($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@type', false);
+			$var = $tmp[0];
 			unset($tmp);
 
 			return $var;
