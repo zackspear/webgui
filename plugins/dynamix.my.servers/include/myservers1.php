@@ -87,6 +87,11 @@ function upcEnv(str, reload = true, session = false) { // overwrite upc src
   const ckDays = 30;
   ckDate.setTime(ckDate.getTime()+(ckDays*24*60*60*1000));
   const ckExpire = `expires=${session ? 0 : ckDate.toGMTString()};`;
+  if (!str) { // if no str param provided we remove the cookie to fallback to the enviroment's default JS source
+    console.log(`✨ ${ckName} removed…reloading ♻️ `);
+    document.cookie = `${ckName}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+    return window.location.reload();
+  }
   if (reload) {
     console.log(`✨ ${ckName} set…reloading ✨ `);
     setTimeout(() => {
@@ -95,7 +100,7 @@ function upcEnv(str, reload = true, session = false) { // overwrite upc src
   } else {
     console.log(`✨ ${ckName}=${str} for session ✨ `);
   }
-  return document.cookie = `${ckName}=${str}; ${ckExpire}`;
+  return document.cookie = `${ckName}=${str}; path=/; ${ckExpire}`;
 };
 </script>
 <!-- /myservers1 -->
