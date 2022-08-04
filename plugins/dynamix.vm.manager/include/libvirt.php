@@ -707,13 +707,6 @@
 									<model type='$strModelType'/>
 								</video>";
 
-						$gpudevs_used[] = $gpu['id'];
-						$m		= print_r($vnc,true);
-						$m		= str_replace("\n", " ", $m);
-						$m		= str_replace('"', "'", $m);
-						$cmd	= "/usr/bin/logger ".'"'.$m.'"';
-						exec($cmd);
-
 						continue;
 					}
 

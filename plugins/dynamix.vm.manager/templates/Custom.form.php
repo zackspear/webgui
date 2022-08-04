@@ -874,7 +874,7 @@
 
 			<?if ($i == 0) { ?>
 				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
-				<td>_(Virt Protocol)_:</td>
+				<td>_(Virtual Protocol)_:</td>
 				<td>
 					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual screen)_">
 					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
@@ -882,7 +882,7 @@
 				</td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
-				<td>_(Virt Video Driver)_:</td>
+				<td>_(Virtual Video Driver)_:</td>
 				<td>
 					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
@@ -891,11 +891,11 @@
 			</tr>
 
 			<tr class="vncpassword">
-				<td>_(Virt Password)_:</td>
+				<td>_(Virtual Password)_:</td>
 				<td><input type="password" name="domain[password]" autocomplete='new-password' title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
-				<td>_(Virt Keyboard)_:</td>
+				<td>_(Virtual Keyboard)_:</td>
 				<td>
 					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
@@ -915,6 +915,11 @@
 			<p>
 				<b>Graphics Card</b><br>
 				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>virtual video protocol VDA/SPICE</b><br>
+				If you wish to assign a protocol type, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
@@ -1459,7 +1464,7 @@ $(function() {
 		var myindex = $(this).closest('table').data('index');
 
 		if (myindex == 0) {
-			$vnc_sections = $('.vncmodel,.vncpassword,.vnckeymap');
+			$vnc_sections = $('.protocol,.vncmodel,.vncpassword,.vnckeymap');
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
@@ -1520,7 +1525,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if (gpu != 'VNC' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
