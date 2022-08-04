@@ -303,7 +303,7 @@ function getLibvirtSchema() {
 
 	root.domain.devices.graphics = {
 		"!attrs": {
-			type: ["vnc","spice"],
+			type: ["vnc", "spice"],
 			port: ["-1"],
 			autoport: ["yes", "no"],
 			websocket: ["-1"],

@@ -31,6 +31,7 @@
 	$arrValidDiskBuses = getValidDiskBuses();
 	$arrValidCdromBuses = getValidCdromBuses();
 	$arrValidVNCModels = getValidVNCModels();
+	$arrValidProtocols = getValidProtocols();
 	$arrValidKeyMaps = getValidKeyMaps();
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
@@ -77,7 +78,7 @@
 		'gpu' => [
 			[
 				'id' => 'virtual',
-				'protcol' => 'vnc',
+				'protocol' => 'vnc',
 				'model' => 'qxl',
 				'keymap' => 'en-us'
 			]
@@ -130,7 +131,8 @@
 				$protocol = $lv->domain_get_web_protocol($dom);
 				$reply = ['success' => true];
 				if ($vncport > 0) {
-					$reply['vncurl'] = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+					$reply['virtualurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+					if ($protocol == "spice") $reply['virtualurl']  .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
 					//$reply['spiceurl'] = autov('/plugins/dynamix.vm.manager/spice.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port='.$vncport;
 				}
 			} else {
@@ -870,13 +872,12 @@
 				</td>
 			</tr>
 
-			<?if ($i == 0) {?>
-				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protcol">
-				<td>_(Virt Protcol)_:</td>
+			<?if ($i == 0) { ?>
+				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<td>_(Virt Protocol)_:</td>
 				<td>
-					<select id="webprotocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(video for VNC)_">
-					<?echo mk_option($arrGPU['protocol'], 'vnc', _('VNC'));?>
-					<?echo mk_option($arrGPU['protocol'], 'spice', _('SPICE'));?>
+					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual screen)_">
+					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
 					</select>
 				</td>
 			</tr>
@@ -914,11 +915,6 @@
 			<p>
 				<b>Graphics Card</b><br>
 				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
-			</p>
-
-			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
-				<b>virtual Video protocol i.e. VNC/SPICE</b><br>
-				If you wish to assign a protocol to use for a virtual screen connections, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
@@ -1550,8 +1546,8 @@ $(function() {
 
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
-				if (data.vncurl) {
-					if (data.webprotocol === "spice" ) var vnc_window=window.open(data.spiceurl, '_blank', 'scrollbars=yes,resizable=yes'); else var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+				if (data.virtualurl) {
+					var vnc_window=window.open(data.virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
 					try {
 						vnc_window.focus();
 					} catch (e) {

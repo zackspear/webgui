@@ -68,13 +68,13 @@ foreach ($vms as $vm) {
   }
   $arrValidDiskBuses = getValidDiskBuses();
   $vncport = $lv->domain_get_vnc_port($res);
-  $vnc = '';
+  $virtual = '';
   $graphics = '';
   if ($vncport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
     $protocol = $lv->domain_get_web_protocol($res) ;
-    $vnc = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=&path=/wsproxy/' . $wsport . '/';
-    $spice = autov('/plugins/dynamix.vm.manager/spice.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port='.$vncport ;
+    $virtual = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+    if ($protocol == "spice") $virtual .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
     $graphics = strtoupper($protocol).":".$vncport;
   } elseif ($vncport == -1) {
     $protocol = $lv->domain_get_web_protocol($res) ;
@@ -95,7 +95,7 @@ foreach ($vms as $vm) {
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
   unset($dom);
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vnc),addslashes($spice),addslashes($log));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($virtual),addslashes($log));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':

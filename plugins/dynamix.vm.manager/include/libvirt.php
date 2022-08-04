@@ -694,7 +694,6 @@
 								$strModelType = 'qxl';
 							}
 						}
-						#$strProtocol = 'spice';
 						if (!empty($gpu['protocol'])) {
 							$strProtocol = $gpu['protocol'];
 						} else $strProtocol = " vnc" ;

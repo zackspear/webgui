@@ -14,22 +14,15 @@ function ajaxVMDispatch(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vncurl, spicecurl, log){
+function addVMContext(name, uuid, template, state, virtualurl, log){
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
-  if (vncurl !== "") {
-    opts.push({text:_("VNC Remote"), icon:"fa-desktop", action:function(e) {
+  if (virtualurl !== "") {
+    opts.push({text:_("Virtual Remote"), icon:"fa-desktop", action:function(e) {
       e.preventDefault();
-      window.open(vncurl, '_blank', 'scrollbars=yes,resizable=yes');
-    }});
-    opts.push({divider:true});
-  }
-  if (spicecurl !== "") {
-    opts.push({text:_("Spice Remote"), icon:"fa-desktop", action:function(e) {
-      e.preventDefault();
-      window.open(spicecurl, '_blank', 'scrollbars=yes,resizable=yes');
+      window.open(virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
     }});
     opts.push({divider:true});
   }
