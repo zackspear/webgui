@@ -383,7 +383,7 @@
                 'remoteAccessDisabled' => _('Remote access will be disabled'),
                 'remoteAccessInaccessible' => sprintf(_('You will no longer have access to this server using <abbr title="%s" class="italic">this url</abbr>'), '{0}'),
                 'disablingFlashBackup' => _('Automated flash backups will be disabled until you sign in again'),
-                'downloadFlashBackup' => _('Download latest backup from My Servers Dashboard'),
+                'downloadFlashBackup' => _('Download latest backup from My Servers Dashboard before signing out'),
               ],
             ],
             'success' => [
@@ -548,6 +548,9 @@
       if (!file_exists('/usr/local/sbin/unraid-api')) $plgInstalled = $plgInstalled . '_installFailed';
     }
 
+    // read flashbackup ini file
+    $flashBackup = parse_ini_file('/usr/local/emhttp/state/flashbackup.ini');
+
     $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
       "avatar" => (!empty($remote['avatar']) && $plgInstalled) ? $remote['avatar'] : '',
       "config" => [
@@ -561,6 +564,7 @@
       "extraOrigins" => $api['extraOrigins'] ? explode(',', $api['extraOrigins']) : [],
       "flashproduct" => $var['flashProduct'],
       "flashvendor" => $var['flashVendor'],
+      "flashBackupActivated" => $flashBackup['activated'] ? 'true' : '',
       "guid" => $var['flashGUID'],
       "hasRemoteApikey" => !empty($remote['apikey']),
       "internalip" => ipaddr(),
