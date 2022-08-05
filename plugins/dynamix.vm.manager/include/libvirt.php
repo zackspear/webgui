@@ -1799,6 +1799,14 @@
 			return $var;
 		}
 
+		function domain_get_autoport($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@autoport', false);
+			$var = (int)$tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
 		function domain_get_web_protocol($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@type', false);
 			$var = $tmp[0];

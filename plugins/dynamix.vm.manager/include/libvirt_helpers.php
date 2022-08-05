@@ -993,7 +993,8 @@
 
 		// check for vnc; add to arrGPUDevices
 		$intVNCPort = $lv->domain_get_vnc_port($res);
-		if (!empty($intVNCPort)) {
+		$autoport = $lv->domain_get_autoport($res);
+		if (!empty($intVNCPort) || $autoport == "yes") {
 			$arrGPUDevices[] = [
 				'id' => 'virtual' ,
 				'protocol' => $lv->domain_get_web_protocol($res),

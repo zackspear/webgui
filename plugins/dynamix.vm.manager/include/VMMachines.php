@@ -68,6 +68,7 @@ foreach ($vms as $vm) {
   }
   $arrValidDiskBuses = getValidDiskBuses();
   $vncport = $lv->domain_get_vnc_port($res);
+  $autoport = $lv->domain_get_autoport($res);
   $virtual = '';
   $graphics = '';
   if ($vncport > 0) {
@@ -76,7 +77,7 @@ foreach ($vms as $vm) {
     $virtual = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
     if ($protocol == "spice") $virtual .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
     $graphics = strtoupper($protocol).":".$vncport;
-  } elseif ($vncport == -1) {
+  } elseif ($vncport == -1 || $autoport == "yes") {
     $protocol = $lv->domain_get_web_protocol($res) ;
     $graphics = strtoupper($protocol).':auto';
   } elseif (!empty($arrConfig['gpu'])) {
