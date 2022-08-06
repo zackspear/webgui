@@ -549,7 +549,7 @@
     }
 
     // read flashbackup ini file
-    $flashBackup = parse_ini_file('/usr/local/emhttp/state/flashbackup.ini');
+    $flashBackup = @parse_ini_file('/usr/local/emhttp/state/flashbackup.ini');
 
     $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
       "avatar" => (!empty($remote['avatar']) && $plgInstalled) ? $remote['avatar'] : '',
