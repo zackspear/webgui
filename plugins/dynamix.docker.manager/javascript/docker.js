@@ -101,16 +101,10 @@ function editContainer(container, template) {
   location = path+'/UpdateContainer?xmlTemplate=edit:'+template;
 }
 function updateContainer(container) {
-  var body = _('Update container')+': '+container;
   swal({
-    title:_('Are you sure?'),
-    text:body,
-    type:'warning',
-    showCancelButton:true,
-    confirmButtonText:_('Yes, update it!'),
-    cancelButtonText:_('Cancel')
+    title:_('Are you sure?'),text:_('Update container')+': '+container, type:'warning',showCancelButton:true,confirmButtonText:_('Yes, update it!'),cancelButtonText:_('Cancel')
   },function(){
-    execUpContainer(container);
+    setTimeout(function(){openDocker('update_container '+encodeURIComponent(container),_('Updating the container'),'','loadlist');},250);
   });
 }
 function rmContainer(container, image, id) {
@@ -126,7 +120,7 @@ function rmContainer(container, image, id) {
     cancelButtonText:_('Cancel'),
     showLoaderOnConfirm:true
   },function(c){
-    if (!c) {setTimeout(loadlist,0); return;}
+    if (!c) {setTimeout(loadlist); return;}
     $('div.spinner.fixed').show('slow');
     if ($('#removeimagechk').prop('checked')) {
       eventControl({action:'remove_all', container:id, name:container, image:image},'loadlist');
@@ -196,10 +190,9 @@ function checkAll() {
 }
 function updateAll() {
   $('input[type=button]').prop('disabled',true);
-  var ct = '';
-  for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct += '&ct[]='+encodeURIComponent(d.name);
-  var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true'+ct;
-  popupWithIframe(_('Updating all Containers'), cmd, true, 'loadlist');
+  var ct = [];
+  for (var i=0,d; d=docker[i]; i++) if (d.update==1) ct.push(encodeURIComponent(d.name));
+  openDocker('update_container '+ct.join('*'),_('Updating all Containers'),'','loadlist');
 }
 function rebuildAll() {
   $('input[type=button]').prop('disabled',true);

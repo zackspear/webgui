@@ -40,7 +40,7 @@ nchan_diagnostics.on('message', function(data) {
     swal.close();
     location = diagnosticsFile;
     setTimeout(cleanUp,4000);
-  } else {
+  } else if (data) {
     let box = $('pre#swaltext');
     box.html(box.html()+'<br>'+data).scrollTop(box[0].scrollHeight);
   }

@@ -118,6 +118,8 @@ var csrf_token = "<?=$var['csrf_token']?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
+// docker progess indicators
+var progress_dots = [], progress_span = [];
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -283,16 +285,33 @@ function bannerAlert(text,cmd,plg,func,start) {
 function openPlugin(cmd,title,plg,func,start=0) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan',start:start},function(pid) {
     if (pid==0) {
+      $('div.spinner.fixed').hide();
       $(".upgrade_notice").addClass('alert');
       return;
     }
     nchan_plugins.start();
-    $('.sweet-alert').show();
     swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw abortOps' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func,start);});
+    });
+    $('.sweet-alert').addClass('nchan');
+  });
+}
+function openDocker(cmd,title,plg,func,start=0) {
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:start},function(pid) {
+    if (pid==0) {
+      $('div.spinner.fixed').hide();
+      $(".upgrade_notice").addClass('alert');
+      return;
+    }
+    nchan_docker.start();
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+      nchan_docker.stop();
+      $('div.spinner.fixed').hide();
+      $('.sweet-alert').hide('fast').removeClass('nchan');
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw abortOps' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func);});
     });
     $('.sweet-alert').addClass('nchan');
   });
@@ -323,11 +342,14 @@ function startStopNchan(cmd, name='changes') {
 }
 function openChanges(cmd,title,nchan) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
+    if (pid==0) {
+      $('div.spinner.fixed').hide();
+      return;
+    }
     startStopNchan('start',nchan);
-    $('.sweet-alert').show();
-    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
       startStopNchan('stop',nchan);
+      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
@@ -335,16 +357,27 @@ function openChanges(cmd,title,nchan) {
 }
 function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
+    if (pid==0) {
+      $('div.spinner.fixed').hide();
+      return;
+    }
     nchan_changes.start();
-    $('.sweet-alert').show();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       nchan_changes.stop();
+      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       if (proceed) setTimeout(func+'()',750);
     });
     $('.sweet-alert').addClass('nchan');
   });
+}
+function openDone(data) {
+  if (data == '_DONE_') {
+    $('div.spinner.fixed').hide();
+    $('button.confirm').text("<?=_('Done')?>");
+    return true;
+  }
+  return false;
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
@@ -806,12 +839,8 @@ defaultPage.on('message', function(msg,meta) {
 
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
-  if (data == '_DONE_') {
-    $('div.spinner.fixed').hide();
-    $('button.confirm').text("<?=_('Done')?>");
-    return;
-  }
-  let box = $('pre#swaltext');
+  if (!data || openDone(data)) return;
+  var box = $('pre#swaltext');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
     text[text.length-1] = data.slice(0,-1);
@@ -823,27 +852,81 @@ nchan_plugins.on('message', function(data) {
 
 var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
 nchan_changes.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
 nchan_phistory.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
 nchan_feedback.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
 nchan_sysinfo.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
 nchan_selectcase.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
+});
+
+var nchan_docker = new NchanSubscriber('/sub/docker',{subscriber:'websocket'});
+nchan_docker.on('message', function(data) {
+  if (!data || openDone(data)) return;
+  var box = $('pre#swaltext');
+  data = data.split('\0');
+  switch (data[0]) {
+  case 'addLog':
+    var rows = document.getElementsByClassName('logLine');
+    if (rows.length) {
+      var row = rows[rows.length-1];
+      row.innerHTML += data[1]+'<br>';
+    }
+    break;
+  case 'progress':
+    var rows = document.getElementsByClassName('progress-'+data[1]);
+    if (rows.length) {
+      rows[rows.length-1].textContent = data[2];
+    }
+    break;
+  case 'addToID':
+    var rows = document.getElementById(data[1]);
+    if (rows === null) {
+      rows = document.getElementsByClassName('logLine');
+      if (rows.length) {
+        var row = rows[rows.length-1];
+        row.innerHTML += '<span id="'+data[1]+'">IMAGE ID ['+data[1]+']: <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
+      }
+    } else {
+      var rows_content = rows.getElementsByClassName('content');
+      if (!rows_content.length || rows_content[rows_content.length-1].textContent != data[2]) {
+        rows.innerHTML += '<span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.';
+      }
+    }
+    break;
+  case 'show_Wait':
+    progress_span[data[1]] = document.getElementById('wait-'+data[1]);
+    progress_dots[data[1]] = setInterval(function(){if (((progress_span[data[1]].innerHTML += '.').match(/\./g)||[]).length > 9) progress_span[data[1]].innerHTML = progress_span[data[1]].innerHTML.replace(/\.+$/,'');},500);
+    break;
+  case 'stop_Wait':
+    clearInterval(progress_dots[data[1]]);
+    progress_span[data[1]].innerHTML = '';
+    break;
+  default:
+    box.html(box.html()+data[0]);
+    break;
+  }
+  box.scrollTop(box[0].scrollHeight);
 });
 
 var backtotopoffset = 250;

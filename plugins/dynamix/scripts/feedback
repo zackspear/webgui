@@ -22,17 +22,19 @@ $_SERVER['REQUEST_URI'] = '';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-function write($message){
-  $nchan = curl_init();
-  curl_setopt_array($nchan,[
+function write(...$messages){
+  $com = curl_init();
+  curl_setopt_array($com,[
     CURLOPT_URL => 'http://localhost/pub/feedback?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => true
   ]);
-  curl_exec($nchan);
-  curl_close($nchan);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
 
 $var     = parse_ini_file('state/var.ini');
@@ -188,6 +190,5 @@ $script[] = "  \$('#optFeatureRequest').click();";
 $script[] = "});";
 $script[] = "</script>";
 
-usleep(100000);
-write(implode($style).implode($html).implode($script));
+write(implode($style).implode($html).implode($script),'_DONE_','');
 ?>

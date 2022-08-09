@@ -55,7 +55,7 @@ table tbody td{line-height:normal}
 <input type="button" onclick="resumeAll()" value="_(Resume All)_" style="display:none">
 <input type="button" onclick="checkAll()" value="_(Check for Updates)_" id="checkAll" style="display:none">
 <input type="button" onclick="updateAll()" value="_(Update All)_" id="updateAll" style="display:none">
-<input type="button" onclick="sizes()" value="_(Container Size)_" style="display:none">
+<input type="button" onclick="contSizes()" value="_(Container Size)_" style="display:none">
 <div id="iframe-popup" style="display:none;-webkit-overflow-scrolling:touch;"></div>
 
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
@@ -142,7 +142,7 @@ function loadlist(init) {
     if (rebuild) rebuildAll();
   });
 }
-function sizes() {
+function contSizes() {
   // show spinner over window
   $('div.spinner.fixed').css({'z-index':'100000'}).show();
   openPlugin('container_size', "_(Container Size)_");

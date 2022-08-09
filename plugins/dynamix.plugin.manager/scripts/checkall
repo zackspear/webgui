@@ -23,28 +23,28 @@ $_SERVER['REQUEST_URI'] = 'plugins';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-$console = $argv[$argc-1] != 'nchan'; // console or nchan output
+$nchan = $argv[$argc-1] == 'nchan'; // console or nchan output
 
-function write($message){
-  global $console;
-  if ($console) {
-    echo $message;
-  } else {
-    $nchan = curl_init();
-    curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
+function write(...$messages){
+  global $nchan;
+  if ($nchan) {
+    $com = curl_init();
+    curl_setopt_array($com,[
+      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=1',
       CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
       CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => $message,
       CURLOPT_RETURNTRANSFER => true
     ]);
-    curl_exec($nchan);
-    curl_close($nchan);
+    foreach ($messages as $message) {
+      curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+      curl_exec($com);
+    }
+    curl_close($com);
+  } else {
+    foreach ($messages as $message) echo $message;
   }
 }
 
-if (!$console) usleep(300000);
-// check connectivity first
 write(_("Checking connectivity")." ...\n");
 if (exec("wget --spider --no-check-certificate -nv -T10 -t1 https://www.msftncsi.com/ncsi.txt 2>&1|grep -o 'OK'")) {
   $check = popen('plugin checkall','r');
@@ -53,4 +53,5 @@ if (exec("wget --spider --no-check-certificate -nv -T10 -t1 https://www.msftncsi
 } else {
   write(_("No response, aborting")."!\n");
 }
+if ($nchan) write('_DONE_','');
 ?>

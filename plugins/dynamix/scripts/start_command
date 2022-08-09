@@ -1,0 +1,4 @@
+#!/bin/bash
+DELAY=0.3
+nohup bash -c "sleep $DELAY && $*" 1>/dev/null 2>&1 &
+echo $!

@@ -54,28 +54,31 @@ function error_desc($code) {
 // Signal DONE to caller
 //
 function done() {
-  write('_DONE_');
+  global $nchan;
+  if ($nchan) write('_DONE_','');
   exit(0);
 }
 
 // Function to write either to console (echo) or nchan (curl)
 // Default output is console, use optional parameter "nchan" to write to nchan instead
 //
-function write($message) {
-  global $console;
-  if ($console) {
-    echo $message;
-  } else {
-    $nchan = curl_init();
-    curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
+function write(...$messages){
+  global $nchan;
+  if ($nchan) {
+    $com = curl_init();
+    curl_setopt_array($com,[
+      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=1',
       CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
       CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => $message,
       CURLOPT_RETURNTRANSFER => true
     ]);
-    curl_exec($nchan);
-    curl_close($nchan);
+    foreach ($messages as $message) {
+      curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+      curl_exec($com);
+    }
+    curl_close($com);
+  } else {
+    foreach ($messages as $message) echo $message;
   }
 }
 
@@ -222,8 +225,7 @@ $boot    = '/boot/config/plugins';
 $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
-$console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(300000);
+$nchan   = $argv[$argc-1] == 'nchan'; // console or nchan output
 
 // MAIN - single argument
 if ($argc < 2) {
