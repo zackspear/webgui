@@ -282,7 +282,7 @@ function bannerAlert(text,cmd,plg,func,start) {
     }
   });
 }
-function openPlugin(cmd,title,plg,func,start=0) {
+function openPlugin(cmd,title,plg,func,start=0,button=0) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan',start:start},function(pid) {
     if (pid==0) {
       $('div.spinner.fixed').hide();
@@ -290,7 +290,8 @@ function openPlugin(cmd,title,plg,func,start=0) {
       return;
     }
     nchan_plugins.start();
-    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    setTimeout(function(){$('button.confirm').prop('disabled',button!=0);},100);
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',showConfirmButton:button==0,confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
@@ -299,7 +300,7 @@ function openPlugin(cmd,title,plg,func,start=0) {
     $('.sweet-alert').addClass('nchan');
   });
 }
-function openDocker(cmd,title,plg,func,start=0) {
+function openDocker(cmd,title,plg,func,start=0,button=0) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:start},function(pid) {
     if (pid==0) {
       $('div.spinner.fixed').hide();
@@ -307,7 +308,8 @@ function openDocker(cmd,title,plg,func,start=0) {
       return;
     }
     nchan_docker.start();
-    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    setTimeout(function(){$('button.confirm').prop('disabled',button!=0);},100);
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',showConfirmButton:button==0,confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_docker.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
@@ -374,7 +376,7 @@ function openAlert(cmd,title,func) {
 function openDone(data) {
   if (data == '_DONE_') {
     $('div.spinner.fixed').hide();
-    $('button.confirm').text("<?=_('Done')?>");
+    $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).css('display','initial');
     return true;
   }
   return false;
