@@ -23,7 +23,7 @@
 @font-face{font-family:bitstream;font-weight:normal;font-style:italic; src:url('/webGui/styles/bitstream-italic.woff?20220513') format('woff')}
 @font-face{font-family:bitstream;font-weight:bold;font-style:italic; src:url('/webGui/styles/bitstream-bold-italic.woff?20220513') format('woff')}
 
-html{font-family:clear-sans;font-size:62.5%;height:100%}
+html{font-family:clear-sans;height:100%}
 body{font-size:1.3rem;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .logLine{color:#1c1c1c;font-family:bitstream;font-size:1.2rem;line-height:1.6rem;margin:0 8px;padding:0;text-align:left}
 .logLine.spacing{margin:10px}
@@ -462,7 +462,8 @@ function rgxG(tmplObj) {
   var txt2 = regexText.replace(wsrgx, '');
   return new RegExp(txt2, 'g');
 }
-
+</script>
+<script>
 var dots = [];
 var span = [];
 var ansi_up = new AnsiUp;
@@ -470,7 +471,7 @@ var ansi_up = new AnsiUp;
 function show_Wait(id) {
   span[id] = document.getElementById("wait" + id);
   dots[id] = setInterval(function() {
-    if (((span[id]].innerHTML+='.').match(/\./g)||[]).length > 9) {
+    if (((span[id].innerHTML+='.').match(/\./g)||[]).length > 9) {
       span[id].innerHTML = span[id].innerHTML.replace(/\.+$/,'');
     }
   }, 500);
