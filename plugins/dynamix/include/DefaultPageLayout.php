@@ -372,11 +372,9 @@ function openAlert(cmd,title,func) {
       return;
     }
     nchan_changes.start();
-    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
       nchan_changes.stop();
-      $('div.spinner.fixed').hide();
-      $('.sweet-alert').hide('fast').removeClass('nchan');
-      if (proceed) setTimeout(func+'()',750);
+      if (proceed) setTimeout(func+'()');
     });
     $('.sweet-alert').addClass('nchan');
   });

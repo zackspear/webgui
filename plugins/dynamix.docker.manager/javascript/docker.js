@@ -102,23 +102,16 @@ function editContainer(container, template) {
 }
 function updateContainer(container) {
   swal({
-    title:_('Are you sure?'),text:_('Update container')+': '+container, type:'warning',showCancelButton:true,confirmButtonText:_('Yes, update it!'),cancelButtonText:_('Cancel')
+    title:_('Are you sure?'),text:_('Update container')+': '+container, type:'warning',showCancelButton:true,closeOnConfirm:false,confirmButtonText:_('Yes, update it!'),cancelButtonText:_('Cancel')
   },function(){
-    setTimeout(function(){openDocker('update_container '+encodeURIComponent(container),_('Updating the container'),'','loadlist');},250);
+    openDocker('update_container '+encodeURIComponent(container),_('Updating the container'),'','loadlist');
   });
 }
 function rmContainer(container, image, id) {
   var body = _('Remove container')+': '+container+'<br><br><label><input id="removeimagechk" type="checkbox" checked style="display:inline;width:unset;height:unset;margin-top:unset;margin-bottom:unset">'+_('also remove image')+'</label>';
   $('input[type=button]').prop('disabled',true);
   swal({
-    title:_('Are you sure?'),
-    text:body,
-    type:'warning',
-    html:true,
-    showCancelButton:true,
-    confirmButtonText:_('Yes, delete it!'),
-    cancelButtonText:_('Cancel'),
-    showLoaderOnConfirm:true
+    title:_('Are you sure?'),text:body,type:'warning',html:true,showCancelButton:true,confirmButtonText:_('Yes, delete it!'),cancelButtonText:_('Cancel'),showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist); return;}
     $('div.spinner.fixed').show('slow');
@@ -133,13 +126,7 @@ function rmImage(image, imageName) {
   var body = _('Remove image')+': '+$('<textarea />').html(imageName).text();
   $('input[type=button]').prop('disabled',true);
   swal({
-    title:_('Are you sure?'),
-    text:body,
-    type:'warning',
-    showCancelButton:true,
-    confirmButtonText:_('Yes, delete it!'),
-    cancelButtonText:_('Cancel'),
-    showLoaderOnConfirm:true
+    title:_('Are you sure?'),text:body,type:'warning',html:true,showCancelButton:true,confirmButtonText:_('Yes, delete it!'),cancelButtonText:_('Cancel'),showLoaderOnConfirm:true
   },function(c){
     if (!c) {setTimeout(loadlist,0); return;}
     $('div.spinner.fixed').show('slow');
@@ -153,12 +140,12 @@ function eventControl(params, spin) {
     if (data.success === true) {
       if (spin) setTimeout(spin+'()',500); else location=window.location.href;
     } else {
-      setTimeout(function(){swal({
-        title:_('Execution error'), html:true,
-        text:data.success, type:'error',
-        confirmButtonText:_('Ok')
-      },function(){
-        if (spin) setTimeout(spin+'()',500); else location=window.location.href;});
+      setTimeout(function(){
+        swal({
+          title:_('Execution error'),text:data.success,type:'error',html:true,confirmButtonText:_('Ok')
+        },function(){
+          if (spin) setTimeout(spin+'()',500); else location=window.location.href;
+        });
       },100);
     }
   },'json');
