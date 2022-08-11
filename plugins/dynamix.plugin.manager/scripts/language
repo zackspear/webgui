@@ -211,7 +211,7 @@ function language($method, $xml_file, &$error) {
     }
   case 'dump':
     // dump file: debugging
-    write(print_r($xml,true));
+    write(print_r($xml,true),"");
     return true;
   default:
     // return single attribute
@@ -229,7 +229,7 @@ $nchan   = $argv[$argc-1] == 'nchan'; // console or nchan output
 
 // MAIN - single argument
 if ($argc < 2) {
-  write($usage);
+  write($usage,"");
   exit(1);
 }
 
@@ -276,7 +276,7 @@ if ($method == 'updateall') {
 
 // MAIN - two arguments
 if ($argc < 3) {
-  write($usage);
+  write($usage,"");
   exit(1);
 }
 
@@ -292,7 +292,7 @@ if ($method == 'install') {
     $xml_file = "$tmp/$name";
     write("language: downloading: $name\n");
     if (!download($langURL, $xml_file, $error)) {
-      write("language: $error\n");
+      write("language: $error\n","");
       @unlink($xml_file);
       exit(1);
     }
@@ -305,7 +305,7 @@ if ($method == 'install') {
   // run hook scripts for pre processing
   pre_hooks();
   if (language('install', $xml_file, $error) === false) {
-    write("language: $error\n");
+    write("language: $error\n","");
     // run hook scripts for post processing
     post_hooks($error);
     exit(1);
@@ -328,17 +328,17 @@ if ($method == 'check') {
   $link_file = "$plugins/lang-$name.xml";
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
-    write("language: $name language pack not installed\n");
+    write("language: $name language pack not installed\n","");
     exit(1);
   }
   $templateURL = language('TemplateURL', $lang_file, $error);
   if ($templateURL === false) {
-    write("language: $error\n");
+    write("language: $error\n","");
     exit(1);
   }
   $xml_file = "$tmp/lang-$name.xml";
   if (!download($templateURL, $xml_file, $error)) {
-    write("language: $error\n");
+    write("language: $error\n","");
     @unlink($xml_file);
     exit(1);
   }
@@ -346,7 +346,7 @@ if ($method == 'check') {
   pre_hooks();
   $version = language('Version', $xml_file, $error);
   if ($version === false) {
-    write("language: $error\n");
+    write("language: $error\n","");
     // run hook scripts for post processing
     post_hooks($error);
     exit(1);
@@ -365,13 +365,13 @@ if ($method == 'update') {
   $link_file = "$plugins/lang-$name.xml";
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
-    write("language: $name language pack not installed\n");
+    write("language: $name language pack not installed\n","");
     exit(1);
   }
   // verify previous check has been done
   $xml_file = "$tmp/lang-$name.xml";
   if (!file_exists($xml_file)) {
-    write("language: update does not exist, perform a check first\n");
+    write("language: update does not exist, perform a check first\n","");
     exit (1);
   }
   $lang = language('Language', $xml_file, $error) ?: $name;
@@ -379,7 +379,7 @@ if ($method == 'update') {
   $old_version = language('Version', $lang_file, $error);
   $new_version = language('Version', $xml_file, $error);
   if ($new_version == $old_version) {
-    write("language: $lang language pack not reinstalling same version\n");
+    write("language: $lang language pack not reinstalling same version\n","");
     exit(1);
   }
   // install the updated plugin
@@ -388,7 +388,7 @@ if ($method == 'update') {
   // run hook scripts for pre processing
   pre_hooks();
   if (language('install', $xml_file, $error) === false) {
-    write("language: $error\n");
+    write("language: $error\n","");
     // run hook scripts for post processing
     post_hooks($error);
     exit(1);
@@ -410,14 +410,14 @@ if ($method == 'remove') {
   $link_file = "$plugins/lang-$name.xml";
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
-    write("language: $name language pack not installed\n");
+    write("language: $name language pack not installed\n","");
     exit(1);
   }
   $lang = language('Language', $lang_file, $error) ?: $name;
   // run hook scripts for pre processing
   pre_hooks();
   if (language('remove', $lang_file, $error) === false) {
-    write("language: $error\n");
+    write("language: $error\n","");
     // run hook scripts for post processing
     post_hooks($error);
     exit(1);
@@ -434,7 +434,7 @@ if ($method == 'remove') {
 $xml_file =  $argv[2];
 $value = language($method, $xml_file, $error);
 if ($value === false) {
-  write("language: $error\n");
+  write("language: $error\n","");
   exit(1);
 }
 write("$value\n");
