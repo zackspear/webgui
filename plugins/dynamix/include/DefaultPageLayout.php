@@ -278,7 +278,7 @@ function bannerAlert(text,cmd,plg,func,start) {
       $.cookie('addAlert-func',func);
       if ($.cookie('addAlert-page') == null) $.cookie('addAlert-page','<?=$task?>');
       timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func,start);},1000);
-      if (start == 1 && timers.callback == null && plg != null) timers.callback = setTimeout((func||'loadlist')+'("'+plg+'")',250);
+      if (start==1 && timers.callback==null && plg!=null) timers.callback = setTimeout((func||'loadlist')+'("'+plg+'")',250);
     }
   });
 }
@@ -327,7 +327,7 @@ function openDocker(cmd,title,plg,func,start=0,button=0) {
   });
 }
 function abortOperation(pid) {
-  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,animation:'none',type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
       clearTimeout(timers.bannerAlert);
       timers.bannerAlert = null;
@@ -490,11 +490,11 @@ function hideUpgrade(set) {
 }
 function confirmUpgrade(confirm) {
   if (confirm) {
-    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
-      setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+      openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
     });
   } else {
-    setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+    openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
   }
 }
 function openUpgrade() {
