@@ -22,9 +22,9 @@ $_SERVER['REQUEST_URI'] = 'plugins';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-$file    = realpath($argv[1] ?? '');
-$valid   = ['/var/tmp/','/tmp/plugins/'];
-$good    = false;
+$file  = realpath($argv[1] ?? '');
+$valid = ['/var/tmp/','/tmp/plugins/'];
+$good  = false;
 
 function write(...$messages){
   $com = curl_init();
