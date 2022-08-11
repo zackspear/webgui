@@ -350,16 +350,16 @@ function startStopNchan(cmd, name='changes') {
     break;
   }
 }
-function openChanges(cmd,title,nchan,button=1) {
-  // button = 0 : show CLOSE button
-  // button = 1 : hide CLOSE button (default)
+function openChanges(cmd,title,nchan,button=0) {
+  // button = 0 : hide CLOSE button (default)
+  // button = 1 : show CLOSE button
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
     if (pid==0) {
       $('div.spinner.fixed').hide();
       return;
     }
     startStopNchan('start',nchan);
-    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button==0,confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(){
       startStopNchan('stop',nchan);
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
