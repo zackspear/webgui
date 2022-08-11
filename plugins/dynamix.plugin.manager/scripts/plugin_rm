@@ -12,7 +12,7 @@ if [[ $1 == /boot/config/plugins-error/* || $1 == /boot/config/plugins-stale/* ]
   if [[ -z $2 ]]; then
     echo "$text"
   else
-    write "$text" "_DONE_" ""
+    write "$text " "_DONE_" ""
   fi
   rm $1
 fi
