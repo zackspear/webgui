@@ -384,7 +384,7 @@ function openAlert(cmd,title,func) {
 function openDone(data) {
   if (data == '_DONE_') {
     $('div.spinner.fixed').hide();
-    $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).css('display','initial');
+    $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
     return true;
   }
   return false;
