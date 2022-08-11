@@ -53,10 +53,10 @@ function error_desc($code) {
 
 // Signal DONE to caller
 //
-function done() {
+function done($code) {
   global $nchan;
   if ($nchan) write('_DONE_','');
-  exit(0);
+  exit($code);
 }
 
 // Function to write either to console (echo) or nchan (curl)
@@ -230,7 +230,7 @@ $nchan   = $argv[$argc-1] == 'nchan'; // console or nchan output
 // MAIN - single argument
 if ($argc < 2) {
   write($usage);
-  exit(1);
+  done(1);
 }
 
 // language checkall
@@ -248,7 +248,7 @@ if ($method == 'checkall') {
     exec(realpath($argv[0])." check $name >/dev/null");
   }
   write("language: checking finished.\n");
-  done();
+  done(0);
 }
 
 // language updateall
@@ -271,13 +271,13 @@ if ($method == 'updateall') {
     }
   }
   write("language: updating finished.\n");
-  done();
+  done(0);
 }
 
 // MAIN - two arguments
 if ($argc < 3) {
   write($usage);
-  exit(1);
+  done(1);
 }
 
 // language install [language_file]
@@ -294,7 +294,7 @@ if ($method == 'install') {
     if (!download($langURL, $xml_file, $error)) {
       write("language: $error\n");
       @unlink($xml_file);
-      exit(1);
+      done(1);
     }
   } else {
     $xml_file = realpath($argv[2]);
@@ -308,7 +308,7 @@ if ($method == 'install') {
     write("language: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   $lang = language('Language', $xml_file, $error) ?: substr($name,0,-4);
   copy($xml_file, $lang_file);
@@ -317,7 +317,7 @@ if ($method == 'install') {
   logger("language: $lang language pack installed");
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // language check [language]
@@ -329,18 +329,18 @@ if ($method == 'check') {
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
     write("language: $name language pack not installed\n");
-    exit(1);
+    done(1);
   }
   $templateURL = language('TemplateURL', $lang_file, $error);
   if ($templateURL === false) {
     write("language: $error\n");
-    exit(1);
+    done(1);
   }
   $xml_file = "$tmp/lang-$name.xml";
   if (!download($templateURL, $xml_file, $error)) {
     write("language: $error\n");
     @unlink($xml_file);
-    exit(1);
+    done(1);
   }
   // run hook scripts for pre processing
   pre_hooks();
@@ -349,12 +349,12 @@ if ($method == 'check') {
     write("language: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   write("$version\n");
   // run hook scripts for post processing
   post_hooks();
-  exit(0);
+  done(0);
 }
 
 // language update [language]
@@ -366,7 +366,7 @@ if ($method == 'update') {
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
     write("language: $name language pack not installed\n");
-    exit(1);
+    done(1);
   }
   // verify previous check has been done
   $xml_file = "$tmp/lang-$name.xml";
@@ -380,7 +380,7 @@ if ($method == 'update') {
   $new_version = language('Version', $xml_file, $error);
   if ($new_version == $old_version) {
     write("language: $lang language pack not reinstalling same version\n");
-    exit(1);
+    done(1);
   }
   // install the updated plugin
   @unlink("$boot/dynamix/lang-$name.zip");
@@ -391,7 +391,7 @@ if ($method == 'update') {
     write("language: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
@@ -399,7 +399,7 @@ if ($method == 'update') {
   logger("language: $lang language pack updated");
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // language remove [language]
@@ -411,7 +411,7 @@ if ($method == 'remove') {
   $lang_file = @readlink($link_file);
   if ($lang_file === false) {
     write("language: $name language pack not installed\n");
-    exit(1);
+    done(1);
   }
   $lang = language('Language', $lang_file, $error) ?: $name;
   // run hook scripts for pre processing
@@ -420,13 +420,13 @@ if ($method == 'remove') {
     write("language: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   write("language: $lang language pack removed\n");
   logger("language: $lang language pack removed");
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // return attribute
@@ -435,8 +435,8 @@ $xml_file =  $argv[2];
 $value = language($method, $xml_file, $error);
 if ($value === false) {
   write("language: $error\n");
-  exit(1);
+  done(1);
 }
 write("$value\n");
-exit(0);
+done(0);
 ?>
