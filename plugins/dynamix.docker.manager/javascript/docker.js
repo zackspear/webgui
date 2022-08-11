@@ -102,7 +102,7 @@ function editContainer(container, template) {
 }
 function updateContainer(container) {
   swal({
-    title:_('Are you sure?'),text:_('Update container')+': '+container, type:'warning',showCancelButton:true,closeOnConfirm:false,confirmButtonText:_('Yes, update it!'),cancelButtonText:_('Cancel')
+    title:_('Are you sure?'),text:_('Update container')+': '+container, type:'warning',html:true,showCancelButton:true,closeOnConfirm:false,confirmButtonText:_('Yes, update it!'),cancelButtonText:_('Cancel')
   },function(){
     openDocker('update_container '+encodeURIComponent(container),_('Updating the container'),'','loadlist');
   });

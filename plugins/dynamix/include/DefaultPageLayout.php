@@ -237,7 +237,7 @@ function openWindow(cmd,title,height,width) {
 }
 function openTerminal(tag,name,more) {
   if (/MSIE|Edge/.test(navigator.userAgent)) {
-    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return;
   }
   // open terminal window (run in background)
