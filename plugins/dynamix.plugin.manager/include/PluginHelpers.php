@@ -37,14 +37,18 @@ function make_link($method, $arg, $extra='') {
   $check = $method=='remove' ? "<input type='checkbox' data='$arg' class='remove' onClick='document.getElementById(\"$id\").disabled=!this.checked;multiRemove()'>" : "";
   $disabled = $check ? ' disabled' : '';
   if ($method == 'delete') {
-    $cmd = "plugin_rm $arg"; $plg = "";
+    $cmd  = "plugin_rm $arg";
+    $func = "refresh";
+    $plg  = "";
   } else {
-    $cmd = "plugin $method $arg".($extra?" $extra":"");
+    $cmd  = "plugin $method $arg".($extra?" $extra":"");
+    $func = "loadlist";
   }
+  file_put_contents('/tmp/test',$cmd);
   if (is_file("/tmp/plugins/pluginPending/$arg") && !$check) {
     return "<span class='orange-text'><i class='fa fa-hourglass-o fa-fw'></i>&nbsp;"._('pending')."</span>";
   } else {
-    return "$check<input type='button' id='$id' data='$arg' class='$method' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\");'$disabled>";
+    return "$check<input type='button' id='$id' data='$arg' class='$method' value=\""._(ucfirst($method))."\" onclick='openInstall(\"$cmd\",\""._(ucwords($method)." Plugin")."\",\"$plg\",\"$func\");'$disabled>";
   }
 }
 

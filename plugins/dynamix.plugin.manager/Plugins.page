@@ -34,14 +34,15 @@ table tbody td{line-height:normal}
 <script>
 const args = {};
 
-function openInstall(cmd,title,plg) {
+function openInstall(cmd,title,plg,func) {
   if (cmd == null) {
-    openPlugin(args.cmd,args.title,args.plg,null,1);
+    openPlugin(args.cmd,args.title,args.plg,args.func,1);
     return;
   }
   args.cmd = cmd;
   args.title = title;
   args.plg = plg;
+  args.func = func;
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
     if (data==0) {
       // no alert message - proceed with update
