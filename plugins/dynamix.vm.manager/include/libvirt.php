@@ -666,7 +666,7 @@
 
 			$pcidevs='';
 			$gpudevs_used=[];
-			$vnc='';
+			$vmrc='';
 			if (!empty($gpus)) {
 				foreach ($gpus as $i => $gpu) {
 					// Skip duplicate video devices
@@ -697,7 +697,7 @@
 						if (!empty($gpu['protocol'])) {
 							$strProtocol = $gpu['protocol'];
 						} else $strProtocol = " vnc" ;
-						$vnc = "<input type='tablet' bus='usb'/>
+						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
 								<graphics type='$strProtocol' port='-1' autoport='yes' websocket='-1' listen='0.0.0.0' $passwdstr $strKeyMap>
@@ -824,7 +824,7 @@
 							$ctrl
 							$sharestr
 							$netstr
-							$vnc
+							$vmrc
 							<console type='pty'/>
 							$scsicontroller
 							$pcidevs
@@ -1799,7 +1799,7 @@
 			return $var;
 		}
 
-		function domain_get_autoport($domain) {
+		function domain_get_vmrc_autoport($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@autoport', false);
 			$var = (int)$tmp[0];
 			unset($tmp);
@@ -1807,7 +1807,7 @@
 			return $var;
 		}
 
-		function domain_get_web_protocol($domain) {
+		function domain_get_vmrc_protocol($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@type', false);
 			$var = $tmp[0];
 			unset($tmp);

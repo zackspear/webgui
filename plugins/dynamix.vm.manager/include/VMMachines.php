@@ -67,18 +67,18 @@ foreach ($vms as $vm) {
     $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true);
   }
   $arrValidDiskBuses = getValidDiskBuses();
-  $vncport = $lv->domain_get_vnc_port($res);
-  $autoport = $lv->domain_get_autoport($res);
-  $virtual = '';
+  $vmrcport = $lv->domain_get_vnc_port($res);
+  $autoport = $lv->domain_get_vmrc_autoport($res);
+  $vmrcurl = '';
   $graphics = '';
-  if ($vncport > 0) {
+  if ($vmrcport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
-    $protocol = $lv->domain_get_web_protocol($res) ;
-    $virtual = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-    if ($protocol == "spice") $virtual .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
-    $graphics = strtoupper($protocol).":".$vncport;
-  } elseif ($vncport == -1 || $autoport == "yes") {
-    $protocol = $lv->domain_get_web_protocol($res) ;
+    $protocol = $lv->domain_get_vmrc_protocol($res) ;
+    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+    if ($protocol == "spice") $vmrcurl .= '&port='.$vmrcport ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+    $graphics = strtoupper($protocol).":".$vmrcport;
+  } elseif ($vmrcport == -1 || $autoport == "yes") {
+    $protocol = $lv->domain_get_vmrc_protocol($res) ;
     $graphics = strtoupper($protocol).':auto';
   } elseif (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
@@ -96,7 +96,7 @@ foreach ($vms as $vm) {
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
   unset($dom);
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($virtual),addslashes($log));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),addslashes($log));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':

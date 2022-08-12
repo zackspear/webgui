@@ -31,7 +31,7 @@
 	$arrValidDiskBuses = getValidDiskBuses();
 	$arrValidCdromBuses = getValidCdromBuses();
 	$arrValidVNCModels = getValidVNCModels();
-	$arrValidProtocols = getValidProtocols();
+	$arrValidProtocols = getValidVMRCProtocols();
 	$arrValidKeyMaps = getValidKeyMaps();
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
@@ -80,7 +80,8 @@
 				'id' => 'virtual',
 				'protocol' => 'vnc',
 				'model' => 'qxl',
-				'keymap' => 'en-us'
+				'keymap' => 'en-us',
+				'port' => -1
 			]
 		],
 		'audio' => [
@@ -124,16 +125,15 @@
 		} else {
 			// form view
 			if ($lv->domain_new($_POST)) {
-				// Fire off the vnc popup if available
+				// Fire off the vnc/spice popup if available
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
-				$vncport = $lv->domain_get_vnc_port($dom);
+				$vmrcport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
 				$protocol = $lv->domain_get_web_protocol($dom);
 				$reply = ['success' => true];
-				if ($vncport > 0) {
-					$reply['virtualurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-					if ($protocol == "spice") $reply['virtualurl']  .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
-					//$reply['spiceurl'] = autov('/plugins/dynamix.vm.manager/spice.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port='.$vncport;
+				if ($vmrcport > 0) {
+					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+					if ($protocol == "spice") $reply['vmrcurl']  .= '&port='.$vmrcport ; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
 				}
 			} else {
 				$reply = ['error' => $lv->get_last_error()];
@@ -874,15 +874,29 @@
 
 			<?if ($i == 0) { ?>
 				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
-				<td>_(Virtual Protocol)_:</td>
+				<td>_(VM Console Protocol)_:</td>
 				<td>
-					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual screen)_">
+					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual console)_">
 					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
 					</select>
 				</td>
 			</tr>
+				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced port">
+				<td>_(VM Console Port)_:</td>
+				<td>
+				    <input type="number" min="5900" max="5999" id="port" name="gpu[<?=$i?>][port]" class="textTemplate" title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>" disabled>
+				</td>
+			</tr>
+			<?if ($arrGPU['protocol']=="vnc") { ?>
+			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced wsport">
+				<td>_(VM Console WS Port)_:</td>
+				<td>
+				    <input type="number" min="5700" max="5799" id="wsport" name="gpu[<?=$i?>][wsport]" class="textTemplate" title="_(port for virtual console)_"  value="<?=$arrGPU['wsport']?>" disabled>
+				</td>
+			</tr>
+			<? } ?>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
-				<td>_(Virtual Video Driver)_:</td>
+				<td>_(VM Console Video Driver)_:</td>
 				<td>
 					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
@@ -891,11 +905,11 @@
 			</tr>
 
 			<tr class="vncpassword">
-				<td>_(Virtual Password)_:</td>
+				<td>_(VM Console Password)_:</td>
 				<td><input type="password" name="domain[password]" autocomplete='new-password' title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
-				<td>_(Virtual Keyboard)_:</td>
+				<td>_(VM Console Keyboard)_:</td>
 				<td>
 					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
@@ -924,17 +938,17 @@
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<b>virtual Video Driver</b><br>
-				If you wish to assign a different video driver to use for a VNC connection, specify one here.
+				If you wish to assign a different video driver to use for a VM Console connection, specify one here.
 			</p>
 
 			<p class="vncpassword">
 				<b>virtual Password</b><br>
-				If you wish to require a password to connect to the VM over a VNC connection, specify one here.
+				If you wish to require a password to connect to the VM over a VM Console connection, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
 				<b>virtual Keyboard</b><br>
-				If you wish to assign a different keyboard layout to use for a VNC connection, specify one here.
+				If you wish to assign a different keyboard layout to use for a VM Console connection, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
@@ -1525,7 +1539,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'VNC' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
@@ -1551,10 +1565,10 @@ $(function() {
 
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
-				if (data.virtualurl) {
-					var vnc_window=window.open(data.virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
+				if (data.vmrcurl) {
+					var vmrc_window=window.open(data.virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
 					try {
-						vnc_window.focus();
+						vmrc_window.focus();
 					} catch (e) {
 						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
 						return;

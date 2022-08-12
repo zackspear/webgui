@@ -20,7 +20,7 @@ function addVMContext(name, uuid, template, state, virtualurl, log){
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
   if (virtualurl !== "") {
-    opts.push({text:_("Virtual Remote"), icon:"fa-desktop", action:function(e) {
+    opts.push({text:_("VM Console"), icon:"fa-desktop", action:function(e) {
       e.preventDefault();
       window.open(virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
     }});

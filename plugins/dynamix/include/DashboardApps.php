@@ -82,20 +82,20 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
     $dom = $lv->domain_get_info($res);
     $id = $lv->domain_get_id($res);
     $state = $lv->domain_state_translate($dom['state']);
-    $vncport = $lv->domain_get_vnc_port($res);
-    $virtual = '';
-    if ($vncport > 0) {
+    $vmrcport = $lv->domain_get_vnc_port($res);
+    $vmrcurl = '';
+    if ($vmrcport > 0) {
       $wsport = $lv->domain_get_ws_port($res);
-      $protocol = $lv->domain_get_web_protocol($res) ;
-      $virtual = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-      if ($protocol == "spice") $virtual .= '&port='.$vncport ; else $virtual .= '&port=&path=/wsproxy/' . $wsport . '/';
+      $protocol = $lv->domain_get_vmrc_protocol($res) ;
+      $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+      if ($protocol == "spice") $vmrcurl .= '&port='.$vmrcport ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
     } else {
-      $vncport = ($vncport < 0) ? "auto" : "";
+      $vmrcport = ($vmrcport < 0) ? "auto" : "";
     }
     $template = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@name');
     if (empty($template)) $template = 'Custom';
     $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
-    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($virtual), addslashes($log));
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), addslashes($log));
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
