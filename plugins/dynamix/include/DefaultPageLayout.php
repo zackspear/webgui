@@ -214,6 +214,7 @@ function makeWindow(name,height,width) {
 }
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
+  // included for legacy purposes, replaced by openPlugin
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
@@ -221,6 +222,7 @@ function openBox(cmd,title,height,width,load,func,id) {
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
+  // included for legacy purposes, replaced by openTerminal
   var window_name = title.replace(/ /g,"_");
   var form_html = '<form action="/logging.htm" method="post" target="'+window_name+'">'+'<input type="hidden" name="csrf_token" value="'+csrf_token+'">'+'<input type="hidden" name="title" value="'+title+'">';
   var vars = cmd.split('&');
