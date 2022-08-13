@@ -305,7 +305,7 @@ function openPlugin(cmd,title,plg,func,start=0,button=0) {
     $('button.confirm').prop('disabled',button!=0);
   });
 }
-function openDocker(cmd,title,plg,func,start=0,button=1) {
+function openDocker(cmd,title,plg,func,start=0,button=0) {
   // start  = 0 : run command only when not already running (default)
   // start  = 1 : run command unconditionally
   // button = 0 : show CLOSE button (default)
