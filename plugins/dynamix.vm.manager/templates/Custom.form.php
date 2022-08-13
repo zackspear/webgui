@@ -79,9 +79,11 @@
 			[
 				'id' => 'virtual',
 				'protocol' => 'vnc',
+				'autoport' => 'yes',
 				'model' => 'qxl',
 				'keymap' => 'en-us',
-				'port' => -1
+				'port' => -1 ,
+				'wsport' => -1
 			]
 		],
 		'audio' => [
@@ -129,11 +131,11 @@
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
 				$vmrcport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
-				$protocol = $lv->domain_get_web_protocol($dom);
+				$protocol = $lv->domain_get_vmrc_protocol($dom);
 				$reply = ['success' => true];
 				if ($vmrcport > 0) {
 					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-					if ($protocol == "spice") $reply['vmrcurl']  .= '&port='.$vmrcport ; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
+					if ($protocol == "spice") $reply['vmrcurl']  .= '&port=/wsproxy/'.$vmrcport.'/'; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
 				}
 			} else {
 				$reply = ['error' => $lv->get_last_error()];
@@ -872,29 +874,42 @@
 				</td>
 			</tr>
 
-			<?if ($i == 0) { ?>
+			<?if ($i == 0) { 
+				$hiddenport = $hiddenwsport = "" ;
+				$disabled = "" ;
+				if ($arrGPU['autoport'] == "no"){
+				 if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
+				 if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
+					}
+				?>
 				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<td>_(VM Console Protocol)_:</td>
 				<td>
-					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual console)_">
+					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual console)_" onchange="ProtocolChange(this)" >
 					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
 					</select>
 				</td>
 			</tr>
-				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced port">
-				<td>_(VM Console Port)_:</td>
+				<tr  id="autoportline" name="autoportline" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced autoportline">
+				<td>_(VM Console AutoPort)_:</td>
 				<td>
-				    <input type="number" min="5900" max="5999" id="port" name="gpu[<?=$i?>][port]" class="textTemplate" title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>" disabled>
+				<select  <?=$disabled?>  id="autoport" name="gpu[<?=$i?>][autoport]" class="narrow" onchange="AutoportChange(this)">
+					<?
+						echo mk_option($arrGPU['autoport'], 'yes', _('Yes'));
+						echo mk_option($arrGPU['autoport'], 'no', _('No'));
+						?>
+					</select>
+				
+				<span id="Porttext"  <?=$disbaled?>  <?=$hiddenport?>>_(VM Console Port)_:</span>
+				
+				    <input type="number" size="5" maxlength="5"  id="port" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> <?=$disabled?>  >
+				
+				<span id="WSPorttext" <?=$disbaled?>  <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
+				
+				    <input type="number" size="5" maxlength="5" id="wsport" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> <?=$disabled?> >
 				</td>
 			</tr>
-			<?if ($arrGPU['protocol']=="vnc") { ?>
-			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced wsport">
-				<td>_(VM Console WS Port)_:</td>
-				<td>
-				    <input type="number" min="5700" max="5799" id="wsport" name="gpu[<?=$i?>][wsport]" class="textTemplate" title="_(port for virtual console)_"  value="<?=$arrGPU['wsport']?>" disabled>
-				</td>
-			</tr>
-			<? } ?>
+
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<td>_(VM Console Video Driver)_:</td>
 				<td>
@@ -1253,6 +1268,55 @@
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
+
+function AutoportChange(autoport) {
+		if (autoport.value === "yes") {
+			document.getElementById("port").style.visibility="hidden";
+			document.getElementById("Porttext").style.visibility="hidden";
+			document.getElementById("wsport").style.visibility="hidden";
+			document.getElementById("WSPorttext").style.visibility="hidden";
+		} else {
+			var protocol = document.getElementById("protocol").value ;
+			if (protocol === "vnc") {
+				document.getElementById("port").style.visibility="visible";
+				document.getElementById("Porttext").style.visibility="visible";
+				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.visibility="visible";
+			} else {
+				document.getElementById("port").style.visibility="visible";
+				document.getElementById("Porttext").style.visibility="visible";
+				document.getElementById("wsport").style.visibility="hidden";
+				document.getElementById("WSPorttext").style.visibility="hidden";
+			}
+		}	
+	}
+
+function ProtocolChange(protocol) {
+		var autoport = document.getElementById("autoport").value ;
+		if (autoport === "yes") {
+			document.getElementById("port").style.visibility="hidden";
+			document.getElementById("Porttext").style.visibility="hidden";
+			document.getElementById("wsport").style.visibility="hidden";
+			document.getElementById("WSPorttext").style.visibility="hidden";
+		} else {
+			if (protocol.value === "vnc") {
+				document.getElementById("port").style.visibility="visible";
+				document.getElementById("Porttext").style.visibility="visible";
+				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.visibility="visible";
+			} else {
+				document.getElementById("port").style.visibility="visible";
+				document.getElementById("Porttext").style.visibility="visible";
+				document.getElementById("wsport").style.visibility="hidden";
+				document.getElementById("WSPorttext").style.visibility="hidden";
+			}
+		}	
+	}
+		
+	
+
+
+
 $(function() {
 	function completeAfter(cm, pred) {
 		var cur = cm.getCursor();
@@ -1278,6 +1342,7 @@ $(function() {
 			return inner.tagName;
 		});
 	}
+
 
 	var editor = CodeMirror.fromTextArea(document.getElementById("addcode"), {
 		mode: "xml",
@@ -1312,6 +1377,7 @@ $(function() {
 			}, 100);
 		}
 	});
+
 
 	var regenerateDiskPreview = function (disk_index) {
 		var domaindir = '<?=$domain_cfg['DOMAINDIR']?>' + $('#domain_oldname').val();
@@ -1478,7 +1544,7 @@ $(function() {
 		var myindex = $(this).closest('table').data('index');
 
 		if (myindex == 0) {
-			$vnc_sections = $('.protocol,.vncmodel,.vncpassword,.vnckeymap');
+			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap');
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
@@ -1566,7 +1632,7 @@ $(function() {
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vmrcurl) {
-					var vmrc_window=window.open(data.virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
+					var vmrc_window=window.open(data.vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
 					try {
 						vmrc_window.focus();
 					} catch (e) {

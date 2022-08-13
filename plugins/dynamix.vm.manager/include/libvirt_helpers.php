@@ -997,12 +997,13 @@
 		if (empty($vmrcport) && $autoport == "yes") $vmrcport = -1 ;
 		if (!empty($vmrcport)) {
 			$arrGPUDevices[] = [
-				'id' => 'virtual' ,
+				'id' => 'virtual',
 				'protocol' => $lv->domain_get_vmrc_protocol($res),
 				'model' => $lv->domain_get_vnc_model($res),
 				'keymap' => $lv->domain_get_vnc_keymap($res),
 				'port' => $vmrcport,
-				'wsport' => $lv->domain_get_ws_port($res)
+				'wsport' => $lv->domain_get_ws_port($res),
+				'autoport' => $autoport,
 			];
 		}
 
@@ -1178,7 +1179,7 @@
 		// settings not in the GUI, but maybe customized
 		unset($new['memoryBacking'], $new['clock'], $new['features']);
 		// preserve vnc/spice port settings
-		unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
+		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);

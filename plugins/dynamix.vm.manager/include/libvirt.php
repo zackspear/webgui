@@ -694,13 +694,30 @@
 								$strModelType = 'qxl';
 							}
 						}
+						if (!empty($gpu['autoport'])) {
+							$strAutoport = $gpu['autoport'];
+						} else $strAutoport = "yes" ;
+
+						
+
 						if (!empty($gpu['protocol'])) {
 							$strProtocol = $gpu['protocol'];
-						} else $strProtocol = " vnc" ;
+						} else $strProtocol = "vnc" ;
+
+						if (!empty($gpu['wsport'])) {
+							$strWSport = $gpu['wsport'];
+						} else $strWSport = "-1" ;
+
+						if (!empty($gpu['port'])) {
+							$strPort = $gpu['port'];
+						} else $strPort = "-1" ;
+
+						if ($strAutoport == "yes") $strPort = $strWSport = "-1" ;
+
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
-								<graphics type='$strProtocol' port='-1' autoport='yes' websocket='-1' listen='0.0.0.0' $passwdstr $strKeyMap>
+								<graphics type='$strProtocol' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
 								</graphics>
 								<video>
@@ -1801,7 +1818,7 @@
 
 		function domain_get_vmrc_autoport($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@autoport', false);
-			$var = (int)$tmp[0];
+			$var = $tmp[0];
 			unset($tmp);
 
 			return $var;

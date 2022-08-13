@@ -73,13 +73,14 @@ foreach ($vms as $vm) {
   $graphics = '';
   if ($vmrcport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
-    $protocol = $lv->domain_get_vmrc_protocol($res) ;
-    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-    if ($protocol == "spice") $vmrcurl .= '&port='.$vmrcport ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
-    $graphics = strtoupper($protocol).":".$vmrcport;
-  } elseif ($vmrcport == -1 || $autoport == "yes") {
-    $protocol = $lv->domain_get_vmrc_protocol($res) ;
-    $graphics = strtoupper($protocol).':auto';
+    $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
+    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+    if ($vmrcprotocol == "spice") $vmrcurl .= '&port=/wsproxy/' . $vmrcport . '/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+    $graphics = strtoupper($vmrcprotocol).":".$vmrcport;
+  } elseif ($vmrcport == -1 || $autoport) {
+    $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
+    if ($autoport == "yes") $auto = "auto" ; else $auto="manual" ;
+    $graphics = strtoupper($vmrcprotocol).':'._($auto);
   } elseif (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
     foreach ($arrConfig['gpu'] as $arrGPU) {
@@ -96,7 +97,7 @@ foreach ($vms as $vm) {
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
   unset($dom);
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),addslashes($log));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':

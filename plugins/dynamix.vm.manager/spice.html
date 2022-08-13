@@ -47,6 +47,21 @@
             });
         </script>
 
+<style>
+    body {font-family: Arial, Helvetica, sans-serif;}
+    * {box-sizing: border-box;}
+    
+    
+    /* The popup form - hidden by default */
+    .form-popup {
+      display: none;
+      border: 3px solid #f1f1f1;
+      z-index: 9;
+    }
+    
+
+    </style>
+
         <script type="module" crossorigin="anonymous">
             import * as SpiceHtml5 from './src/main.js';
 
@@ -58,9 +73,13 @@
             var auto = urlParams.get('autoconnect') ;
             var host = urlParams.get("host") ;
             var port = urlParams.get("port") ;
+            var password = urlParams.get("password") ;
+            //document.getElementById("myForm").style.display = "none";
             
             document.getElementById("host").value = host ;
             document.getElementById("port").value = port;
+            document.getElementById("password").value = password;
+
             if (auto === 'true' || auto == '1') {
             auto = true;
             connect();
@@ -69,16 +88,24 @@
             function spice_error(e)
             {
                 disconnect();
+                if (e !== undefined && e.message === "Permission denied.") {
+                  var pass = prompt("Password");
+                  document.getElementById("password").value = pass ;
+                  connect();
+                } 
             }
 
             function connect()
             {
                 var host, port, password, scheme = "ws://", uri;
+                if (window.location.protocol == 'https:') {
+                    scheme = "wss://";
+                }
 
                 host = document.getElementById("host").value;
                 port = document.getElementById("port").value;
                 password = document.getElementById("password").value;
-
+               
 
                 if ((!host) || (!port)) {
                     console.log("must set host and port");
@@ -159,7 +186,7 @@
             });
             */
 
-            document.getElementById('connectButton').onclick = connect;
+            document.getElementById('connectButton').onclick = connect();
             document.getElementById('sendCtrlAltDel').addEventListener('click', function(){ SpiceHtml5.sendCtrlAltDel(sc); });
         </script>
 
@@ -191,6 +218,7 @@
             <div id="spice-screen" class="spice-screen"></div>
         </div>
 
+           
         <script>
             function show_debug_Logs() {
                 var content = document.getElementById('message-div')
@@ -216,11 +244,52 @@
                 document.getElementById('Sidenav').className = 'SidenavClosed';
             }
 
+            function closeForm() {
+            document.getElementById("password").value = passwordpop;    
+            document.getElementById("myForm").style.display = "none";
+            }
+
+            function popup() {
+                dialog = $( "#myform" ).dialog({
+                autoOpen: false,
+                height: 400,
+                width: 350,
+                modal: true,
+                buttons: {
+                "Create an account": addUser,
+                Cancel: function() {
+                dialog.dialog( "close" );
+                }
+                },
+                close: function() {
+                form[ 0 ].reset();
+                allFields.removeClass( "ui-state-error" );
+                }
+                });
+            }
+
             document.getElementById('debugLogs').addEventListener('click', function() { show_debug_Logs(); });
             display_hostname()
 
 
        
         </script>
+         <div class="form-popup" id="myForm">
+            <form class="form-container">
+              <h2>Spice requires a password for connection</h2>
+          
+              <fieldset>
+
+                <label for="password">Password</label>
+                <input type="password" name="passwordpop" id="passwordpop" value="" class="text ui-widget-content ui-corner-all">
+           
+                <!-- Allow form submission with keyboard without duplicating the dialog button -->
+                </fieldset>
+
+          
+              <button type="submit" class="btn conenct" onclick="closeForm()">Connect</button>
+              
+            </form>
+          </div>
     </body>
 </html>

@@ -14,15 +14,16 @@ function ajaxVMDispatch(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, virtualurl, log){
+function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
-  if (virtualurl !== "") {
-    opts.push({text:_("VM Console"), icon:"fa-desktop", action:function(e) {
+  if (vmrcurl !== "") {
+    var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
+    opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
       e.preventDefault();
-      window.open(virtualurl, '_blank', 'scrollbars=yes,resizable=yes');
+      window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
     }});
     opts.push({divider:true});
   }
