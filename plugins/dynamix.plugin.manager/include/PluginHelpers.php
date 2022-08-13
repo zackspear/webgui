@@ -44,7 +44,6 @@ function make_link($method, $arg, $extra='') {
     $cmd  = "plugin $method $arg".($extra?" $extra":"");
     $func = "loadlist";
   }
-  file_put_contents('/tmp/test',$cmd);
   if (is_file("/tmp/plugins/pluginPending/$arg") && !$check) {
     return "<span class='orange-text'><i class='fa fa-hourglass-o fa-fw'></i>&nbsp;"._('pending')."</span>";
   } else {
