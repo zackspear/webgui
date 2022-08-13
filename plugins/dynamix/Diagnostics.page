@@ -22,10 +22,10 @@ $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 ul,li{margin:0;padding-top:0;padding-bottom:0}
 pre.pre{margin:30px 0}
 pre>p{margin:0;padding:0}
-pre#swaltext{height:700px!important}
-@media (max-width:960px){pre#swaltext{height:500px!important}}
+pre#swaltext{height:600px!important}
+@media (max-width:960px){pre#swaltext{height:400px!important}}
 @media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
-@media (max-height:768px){pre#swaltext{height:500px!important}}
+@media (max-height:768px){pre#swaltext{height:400px!important}}
 @media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
 </style>
 
@@ -64,13 +64,15 @@ function zipfile(){
 
 function diagnostics(file) {
   var anonymize = $('#anonymize').is(':checked') ? '' : '-a';
+  nchan_diagnostics.start();
   $.post('/webGui/include/Download.php',{cmd:'diag',file:file,anonymize:anonymize},function(zip) {
     if (zip) {
       diagnosticsFile = zip;
-      nchan_diagnostics.start();
-      swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='swaltext'></pre>",html:true,showConfirmButton:false});
+      swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='swaltext'></pre>",html:true,animation:'none',showConfirmButton:false});
       $('.sweet-alert').addClass('nchan');
+      $('button.confirm').prop('disabled',true);
     } else {
+      nchan_diagnostics.stop();
       $("#download").attr("disabled",false);
     }
   });
