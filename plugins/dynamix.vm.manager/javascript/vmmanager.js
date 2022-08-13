@@ -19,7 +19,7 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
   var path = location.pathname;
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
-  if (vmrcurl !== "") {
+  if (vmrcurl !== "" && state == "running") {
     var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
     opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
       e.preventDefault();

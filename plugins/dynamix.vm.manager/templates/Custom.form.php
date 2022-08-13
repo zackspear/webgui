@@ -875,12 +875,11 @@
 			</tr>
 
 			<?if ($i == 0) { 
-				$hiddenport = $hiddenwsport = "" ;
-				$disabled = "" ;
+				$hiddenport = $hiddenwsport = "hidden" ;
 				if ($arrGPU['autoport'] == "no"){
-				 if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
-				 if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
-					}
+				if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
+				if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
+				}
 				?>
 				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<td>_(VM Console Protocol)_:</td>
@@ -889,24 +888,24 @@
 					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
 					</select>
 				</td>
-			</tr>
+				</tr>
 				<tr  id="autoportline" name="autoportline" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced autoportline">
-				<td>_(VM Console AutoPort)_:</td>
+					<td>_(VM Console AutoPort)_:</td>
 				<td>
-				<select  <?=$disabled?>  id="autoport" name="gpu[<?=$i?>][autoport]" class="narrow" onchange="AutoportChange(this)">
-					<?
+					<select  <?=$disabled?>  id="autoport" name="gpu[<?=$i?>][autoport]" class="narrow" onchange="AutoportChange(this)">
+						<?
 						echo mk_option($arrGPU['autoport'], 'yes', _('Yes'));
 						echo mk_option($arrGPU['autoport'], 'no', _('No'));
 						?>
 					</select>
 				
-				<span id="Porttext"  <?=$disbaled?>  <?=$hiddenport?>>_(VM Console Port)_:</span>
+					<span id="Porttext"  <?=$disbaled?>  <?=$hiddenport?>>_(VM Console Port)_:</span>
 				
-				    <input type="number" size="5" maxlength="5"  id="port" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> <?=$disabled?>  >
+				    <input type="number" size="5" maxlength="5"  id="port" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
 				
-				<span id="WSPorttext" <?=$disbaled?>  <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
+					<span id="WSPorttext" <?=$disbaled?>  <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
 				
-				    <input type="number" size="5" maxlength="5" id="wsport" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> <?=$disabled?> >
+				    <input type="number" size="5" maxlength="5" id="wsport" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 			</tr>
 
