@@ -39,7 +39,7 @@ if ($command && strncmp($name,$path,strlen($path))===0) {
     $pid = pgrep($name);
   } elseif ($start or !pgrep($name)) {
     // start command in background and return pid
-    $pid = exec("$docroot/webGui/scripts/start_command $name $args");
+    $pid = exec("nohup $name $args 1>/dev/null 2>&1 & echo \$!");
   }
 }
 echo $pid;

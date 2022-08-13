@@ -40,7 +40,7 @@ case 'delete':
 case 'diag':
   if (!validpath($file)) break;
   $anon = empty($_POST['anonymize']) ? '' : escapeshellarg($_POST['anonymize']);
-  exec("$docroot/webGui/scripts/start_command diagnostics $anon ".escapeshellarg("$docroot/$file"));
+  exec("nohup diagnostics $anon ".escapeshellarg("$docroot/$file")." 1>/dev/null 2>&1");
   echo "/$file";
   break;
 case 'unlink':
