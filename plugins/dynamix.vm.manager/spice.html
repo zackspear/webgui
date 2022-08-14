@@ -46,25 +46,19 @@
                 document.head.appendChild(loader);
             });
         </script>
-
-<style>
-    body {font-family: Arial, Helvetica, sans-serif;}
-    * {box-sizing: border-box;}
-    
-    
-    /* The popup form - hidden by default */
-    .form-popup {
-      display: none;
-      border: 3px solid #f1f1f1;
-      z-index: 9;
-    }
-    
-
-    </style>
+        <style>
+            /* Password box */
+            {box-sizing: border-box;}
+            .form-popup { display: none; position: fixed; top: 50px; left: 15px; border: 3px solid #f1f1f1; z-index: 9; }
+            .form-container { max-width: 300px; padding: 10px; background-color: white;}
+            .form-container input[type=text], .form-container input[type=password] { width: 90%;  padding: 15px; border: none; background: #f1f1f1; }
+            .form-container input[type=text]:focus, .form-container input[type=password]:focus {background-color: #ddd;outline: none; }
+            .form-container .btn:hover, .open-button:hover { opacity: 1;  }
+        </style>
 
         <script type="module" crossorigin="anonymous">
             import * as SpiceHtml5 from './src/main.js';
-
+            window.connect = connect;
             var host = null, port = null;
             var sc;
             const queryString = window.location.search;
@@ -79,6 +73,7 @@
             document.getElementById("host").value = host ;
             document.getElementById("port").value = port;
             document.getElementById("password").value = password;
+            document.getElementById('hostname').innerHTML = (host) ;
 
             if (auto === 'true' || auto == '1') {
             auto = true;
@@ -89,11 +84,10 @@
             {
                 disconnect();
                 if (e !== undefined && e.message === "Permission denied.") {
-                  var pass = prompt("Password");
-                  document.getElementById("password").value = pass ;
-                  connect();
+                    document.getElementById("passwordForm").style.display = "block";  
                 } 
             }
+
 
             function connect()
             {
@@ -105,7 +99,7 @@
                 host = document.getElementById("host").value;
                 port = document.getElementById("port").value;
                 password = document.getElementById("password").value;
-               
+
 
                 if ((!host) || (!port)) {
                     console.log("must set host and port");
@@ -196,10 +190,10 @@
 
         <div id="login">
             <button onclick="open_nav()">&#9776; SPICE</button>
-            <p id="hostname">Host Console</p>
+            <p id="hostname">Host Console</p>          
         </div>
 
-        <div id="Sidenav" class="SidenavClosed" style="width: 0;">
+         <div id="Sidenav" class="SidenavClosed" style="width: 0;">
             <p class="closebtn" onclick="close_nav()">&#10006;</p>
             <label for="host">Host:</label> <input type='text' id='host' value='localhost'> <!-- localhost --><br>
             <label for="port">Port:</label> <input type='text' id='port' value='5959'><br>
@@ -218,8 +212,26 @@
             <div id="spice-screen" class="spice-screen"></div>
         </div>
 
+        <div class="form-popup" id="passwordForm">
+            <form action="/action_page.php" class="form-container">
+              <h3>Spice requires a password.</h3>
+          
+          
+              <label for="psw"><b>Password</b></label>
+              <input type="password" autocomplete="off" placeholder="Enter Password" id="psw" name="psw" required>
+          
+              <button type="button" class="btn cancel" onclick="connectpsw()">Connect</button>
+            </form>
+          </div>
+
            
         <script>
+            function connectpsw() {
+                document.getElementById("password").value = document.getElementById("psw").value;   
+                document.getElementById("passwordForm").style.display = "none"; 
+                connect() ;   
+            }
+            
             function show_debug_Logs() {
                 var content = document.getElementById('message-div')
                 if (content.style.display === 'block') {
@@ -229,13 +241,6 @@
                 }
             }
 
-            function display_hostname() {
-                var title = new URLSearchParams(window.location.search);
-                name = title.getAll('title');
-                name = name.split('(')[0];
-                document.getElementById('hostname').innerHTML = (name);
-            }
-
             function open_nav() {
                 document.getElementById('Sidenav').className = 'SidenavOpen';
             }
@@ -243,53 +248,8 @@
             function close_nav() {
                 document.getElementById('Sidenav').className = 'SidenavClosed';
             }
-
-            function closeForm() {
-            document.getElementById("password").value = passwordpop;    
-            document.getElementById("myForm").style.display = "none";
-            }
-
-            function popup() {
-                dialog = $( "#myform" ).dialog({
-                autoOpen: false,
-                height: 400,
-                width: 350,
-                modal: true,
-                buttons: {
-                "Create an account": addUser,
-                Cancel: function() {
-                dialog.dialog( "close" );
-                }
-                },
-                close: function() {
-                form[ 0 ].reset();
-                allFields.removeClass( "ui-state-error" );
-                }
-                });
-            }
-
             document.getElementById('debugLogs').addEventListener('click', function() { show_debug_Logs(); });
-            display_hostname()
-
-
-       
+            
         </script>
-         <div class="form-popup" id="myForm">
-            <form class="form-container">
-              <h2>Spice requires a password for connection</h2>
-          
-              <fieldset>
-
-                <label for="password">Password</label>
-                <input type="password" name="passwordpop" id="passwordpop" value="" class="text ui-widget-content ui-corner-all">
-           
-                <!-- Allow form submission with keyboard without duplicating the dialog button -->
-                </fieldset>
-
-          
-              <button type="submit" class="btn conenct" onclick="closeForm()">Connect</button>
-              
-            </form>
-          </div>
     </body>
 </html>
