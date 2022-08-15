@@ -22,17 +22,19 @@ $var = (array)@parse_ini_file("$get/var.ini");
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
-function write($message) {
-  $nchan = curl_init();
-  curl_setopt_array($nchan,[
-    CURLOPT_URL => "http://localhost/pub/diagnostics?buffer_length=0",
-    CURLOPT_UNIX_SOCKET_PATH => "/var/run/nginx.socket",
+function write(...$messages){
+  $com = curl_init();
+  curl_setopt_array($com,[
+    CURLOPT_URL => 'http://localhost/pub/diagnostics?buffer_length=1',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => true
   ]);
-  curl_exec($nchan);
-  curl_close($nchan);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
 function run($cmd, &$save=null) {
   global $cli,$diag;
@@ -616,5 +618,5 @@ if ($cli) {
 }
 
 // signal we are DONE
-write('_DONE_');
+write('_DONE_','');
 ?>

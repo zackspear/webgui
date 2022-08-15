@@ -22,19 +22,20 @@ $_SERVER['REQUEST_URI'] = '';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-function write($message){
-  $nchan = curl_init();
-  curl_setopt_array($nchan,[
+function write(...$messages){
+  $com = curl_init();
+  curl_setopt_array($com,[
     CURLOPT_URL => 'http://localhost/pub/sysinfo?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => true
   ]);
-  curl_exec($nchan);
-  curl_close($nchan);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
-
 function dmidecode($key, $n, $all=true) {
   $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")));
   $properties = [];
@@ -142,7 +143,7 @@ if ($memory_installed >= 1024) {
 $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 
-$style = "<style>table.info{margin-top:10px;background-color:inherit} table.info td:first-child{width:20%;font-weight:bold} tr.ram,tr.port{display:none} span.link{text-decoration:underline;cursor:pointer}</style>";
+$style = "<style>table.info{margin-top:10px;background-color:inherit} table.info td:first-child{width:20%;font-weight:bold;padding-left:10px} tr.ram,tr.port{display:none} span.link{text-decoration:underline;cursor:pointer}</style>";
 
 $list = [];
 $list[] = "<table class='info'><tr><td>"._('Model').":</td><td>$model</td></tr>";
@@ -191,6 +192,5 @@ $list[] = "<tr><td>"._('Kernel').":</td><td>$kernel</td></tr>";
 $list[] = "<tr><td>"._('OpenSSL').":</td><td>$openssl</td></tr>";
 $list[] = "<tr><td>"._('Uptime').":</td><td><span class='uptime'></span></td></tr></table>";
 
-usleep(100000);
-write($style.implode($list));
+write($style.implode($list),'_DONE_','');
 ?>

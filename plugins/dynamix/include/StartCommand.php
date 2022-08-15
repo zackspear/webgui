@@ -39,9 +39,7 @@ if ($command && strncmp($name,$path,strlen($path))===0) {
     $pid = pgrep($name);
   } elseif ($start or !pgrep($name)) {
     // start command in background and return pid
-    exec("echo \"$name $args\" | at -M now >/dev/null 2>&1");
-    usleep(100000);
-    $pid = pgrep($name);
+    $pid = exec("nohup $name $args 1>/dev/null 2>&1 & echo \$!");
   }
 }
 echo $pid;

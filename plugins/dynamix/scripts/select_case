@@ -22,17 +22,19 @@ $_SERVER['REQUEST_URI'] = 'dashboard';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-function write($message){
-  $nchan = curl_init();
-  curl_setopt_array($nchan,[
+function write(...$messages){
+  $com = curl_init();
+  curl_setopt_array($com,[
     CURLOPT_URL => 'http://localhost/pub/selectcase?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => true
   ]);
-  curl_exec($nchan);
-  curl_close($nchan);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
 
 $boot   = "/boot/config/plugins/dynamix";
@@ -45,8 +47,8 @@ $style[] = "div.case-list{float:left;padding:10px;margin:0 45px 64px 0;height:12
 $style[] = "div.case-list span{position:relative;top:64px;width:auto;max-width:128px;height:128px;font-size:128px}";
 $style[] = "div.case-list span.fa{top:24px;max-width:80px;font-size:80px}";
 $style[] = "div.case-list:hover{color:#f0000c}";
-$style[] = "div.case-name{position:relative;top:74px}";
-$style[] = "div.custom-name{position:relative;top:10px}";
+$style[] = "div.case-name{position:relative;top:74px;font-family:clear-sans!important}";
+$style[] = "div.custom-name{position:relative;top:10px;font-family:clear-sans!important}";
 $style[] = "</style>";
 
 $script = ["<script>"];
@@ -84,6 +86,5 @@ $html[] = "</div></div>";
 $html[] = "<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>";
 $html[] = "</div>";
 
-usleep(100000);
-write(implode($style).implode($script).implode($html));
+write(implode($style).implode($script).implode($html),'_DONE_','');
 ?>

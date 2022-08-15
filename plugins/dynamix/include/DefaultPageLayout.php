@@ -118,6 +118,8 @@ var csrf_token = "<?=$var['csrf_token']?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
+// docker progess indicators
+var progress_dots = [], progress_span = [];
 function pauseEvents(id) {
   $.each(timers, function(i,timer){
     if (!id || i==id) clearTimeout(timer);
@@ -212,6 +214,7 @@ function makeWindow(name,height,width) {
 }
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
+  // included for legacy purposes, replaced by openPlugin
   var uri = cmd.split('?');
   var run = uri[0].substr(-4)=='.php' ? cmd+(uri[1]?'&':'?')+'done=<?=urlencode(_("Done"))?>' : '/logging.htm?cmd='+cmd+'&csrf_token='+csrf_token+'&done=<?=urlencode(_("Done"))?>';
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
@@ -219,6 +222,7 @@ function openBox(cmd,title,height,width,load,func,id) {
 }
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
+  // included for legacy purposes, replaced by openTerminal
   var window_name = title.replace(/ /g,"_");
   var form_html = '<form action="/logging.htm" method="post" target="'+window_name+'">'+'<input type="hidden" name="csrf_token" value="'+csrf_token+'">'+'<input type="hidden" name="title" value="'+title+'">';
   var vars = cmd.split('&');
@@ -235,7 +239,7 @@ function openWindow(cmd,title,height,width) {
 }
 function openTerminal(tag,name,more) {
   if (/MSIE|Edge/.test(navigator.userAgent)) {
-    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return;
   }
   // open terminal window (run in background)
@@ -276,29 +280,58 @@ function bannerAlert(text,cmd,plg,func,start) {
       $.cookie('addAlert-func',func);
       if ($.cookie('addAlert-page') == null) $.cookie('addAlert-page','<?=$task?>');
       timers.bannerAlert = setTimeout(function(){bannerAlert(text,cmd,plg,func,start);},1000);
-      if (start == 1 && timers.callback == null && plg != null) timers.callback = setTimeout((func||'loadlist')+'("'+plg+'")',250);
+      if (start==1 && timers.callback==null && plg!=null) timers.callback = setTimeout((func||'loadlist')+'("'+plg+'")',250);
     }
   });
 }
-function openPlugin(cmd,title,plg,func,start=0) {
+function openPlugin(cmd,title,plg,func,start=0,button=0) {
+  // start  = 0 : run command only when not already running (default)
+  // start  = 1 : run command unconditionally
+  // button = 0 : show CLOSE button (default)
+  // button = 1 : hide CLOSE button
+  nchan_plugins.start();
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan',start:start},function(pid) {
     if (pid==0) {
+      nchan_plugins.stop();
+      $('div.spinner.fixed').hide();
       $(".upgrade_notice").addClass('alert');
       return;
     }
-    nchan_plugins.start();
-    $('.sweet-alert').show();
-    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Close')?>"},function(){
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',showConfirmButton:button==0,confirmButtonText:"<?=_('Close')?>"},function(){
       nchan_plugins.stop();
       $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
       setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw abortOps' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func,start);});
     });
     $('.sweet-alert').addClass('nchan');
+    $('button.confirm').prop('disabled',button!=0);
+  });
+}
+function openDocker(cmd,title,plg,func,start=0,button=0) {
+  // start  = 0 : run command only when not already running (default)
+  // start  = 1 : run command unconditionally
+  // button = 0 : hide CLOSE button (default)
+  // button = 1 : show CLOSE button
+  nchan_docker.start();
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:start},function(pid) {
+    if (pid==0) {
+      nchan_docker.stop();
+      $('div.spinner.fixed').hide();
+      $(".upgrade_notice").addClass('alert');
+      return;
+    }
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(){
+      nchan_docker.stop();
+      $('div.spinner.fixed').hide();
+      $('.sweet-alert').hide('fast').removeClass('nchan');
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw abortOps' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func,start);});
+    });
+    $('.sweet-alert').addClass('nchan');
+    $('button.confirm').prop('disabled',button==0);
   });
 }
 function abortOperation(pid) {
-  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+  swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,animation:'none',type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
       clearTimeout(timers.bannerAlert);
       timers.bannerAlert = null;
@@ -321,30 +354,46 @@ function startStopNchan(cmd, name='changes') {
     break;
   }
 }
-function openChanges(cmd,title,nchan) {
+function openChanges(cmd,title,nchan,button=0) {
+  // button = 0 : hide CLOSE button (default)
+  // button = 1 : show CLOSE button
+  startStopNchan('start',nchan);
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
-    startStopNchan('start',nchan);
-    $('.sweet-alert').show();
-    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',confirmButtonText:"<?=_('Done')?>"},function(){
+    if (pid==0) {
       startStopNchan('stop',nchan);
+      $('div.spinner.fixed').hide();
+      return;
+    }
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(){
+      startStopNchan('stop',nchan);
+      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
   });
 }
 function openAlert(cmd,title,func) {
+  nchan_changes.start();
   $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) return;
-    nchan_changes.start();
-    $('.sweet-alert').show();
-    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+    if (pid==0) {
       nchan_changes.stop();
-      $('.sweet-alert').hide('fast').removeClass('nchan');
-      if (proceed) setTimeout(func+'()',750);
+      $('div.spinner.fixed').hide();
+      return;
+    }
+    swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
+      nchan_changes.stop();
+      if (proceed) setTimeout(func+'()');
     });
     $('.sweet-alert').addClass('nchan');
   });
+}
+function openDone(data) {
+  if (data == '_DONE_') {
+    $('div.spinner.fixed').hide();
+    $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
+    return true;
+  }
+  return false;
 }
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
@@ -449,11 +498,11 @@ function hideUpgrade(set) {
 }
 function confirmUpgrade(confirm) {
   if (confirm) {
-    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
-      setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+    swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
+      openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
     });
   } else {
-    setTimeout(function(){openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");},250);
+    openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
   }
 }
 function openUpgrade() {
@@ -806,12 +855,8 @@ defaultPage.on('message', function(msg,meta) {
 
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
-  if (data == '_DONE_') {
-    $('div.spinner.fixed').hide();
-    $('button.confirm').text("<?=_('Done')?>");
-    return;
-  }
-  let box = $('pre#swaltext');
+  if (!data || openDone(data)) return;
+  var box = $('pre#swaltext');
   const text = box.html().split('<br>');
   if (data.slice(-1) == '\r') {
     text[text.length-1] = data.slice(0,-1);
@@ -823,27 +868,81 @@ nchan_plugins.on('message', function(data) {
 
 var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
 nchan_changes.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
 nchan_phistory.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
 nchan_feedback.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
 nchan_sysinfo.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
 });
 
 var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
 nchan_selectcase.on('message', function(data) {
+  if (!data || openDone(data)) return;
   $('pre#swalbody').html(data);
+});
+
+var nchan_docker = new NchanSubscriber('/sub/docker',{subscriber:'websocket'});
+nchan_docker.on('message', function(data) {
+  if (!data || openDone(data)) return;
+  var box = $('pre#swaltext');
+  data = data.split('\0');
+  switch (data[0]) {
+  case 'addLog':
+    var rows = document.getElementsByClassName('logLine');
+    if (rows.length) {
+      var row = rows[rows.length-1];
+      row.innerHTML += data[1]+'<br>';
+    }
+    break;
+  case 'progress':
+    var rows = document.getElementsByClassName('progress-'+data[1]);
+    if (rows.length) {
+      rows[rows.length-1].textContent = data[2];
+    }
+    break;
+  case 'addToID':
+    var rows = document.getElementById(data[1]);
+    if (rows === null) {
+      rows = document.getElementsByClassName('logLine');
+      if (rows.length) {
+        var row = rows[rows.length-1];
+        row.innerHTML += '<span id="'+data[1]+'">IMAGE ID ['+data[1]+']: <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
+      }
+    } else {
+      var rows_content = rows.getElementsByClassName('content');
+      if (!rows_content.length || rows_content[rows_content.length-1].textContent != data[2]) {
+        rows.innerHTML += '<span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.';
+      }
+    }
+    break;
+  case 'show_Wait':
+    progress_span[data[1]] = document.getElementById('wait-'+data[1]);
+    progress_dots[data[1]] = setInterval(function(){if (((progress_span[data[1]].innerHTML += '.').match(/\./g)||[]).length > 9) progress_span[data[1]].innerHTML = progress_span[data[1]].innerHTML.replace(/\.+$/,'');},500);
+    break;
+  case 'stop_Wait':
+    clearInterval(progress_dots[data[1]]);
+    progress_span[data[1]].innerHTML = '';
+    break;
+  default:
+    box.html(box.html()+data[0]);
+    break;
+  }
+  box.scrollTop(box[0].scrollHeight);
 });
 
 var backtotopoffset = 250;

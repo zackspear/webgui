@@ -34,14 +34,15 @@ table tbody td{line-height:normal}
 <script>
 const args = {};
 
-function openInstall(cmd,title,plg) {
+function openInstall(cmd,title,plg,func) {
   if (cmd == null) {
-    openPlugin(args.cmd,args.title,args.plg,null,1);
+    openPlugin(args.cmd,args.title,args.plg,args.func,1);
     return;
   }
   args.cmd = cmd;
   args.title = title;
   args.plg = plg;
+  args.func = func;
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
     if (data==0) {
       // no alert message - proceed with update
@@ -142,9 +143,9 @@ function loadlist(id,check) {
 $(function() {
   initlist();
   $('#plugin_tree').fileTree({root:'/boot/',top:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
-  $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
-  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
   $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value=\"_(Check For Updates)_\" onclick='openPlugin(\"checkall\",\"_(Plugin Update Check)_\",\":return\")' disabled></span>");
+  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
+  $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
 });
 </script>
 <table class='tablesorter plugins shift' id='plugin_table'>

@@ -164,29 +164,32 @@ function error_desc($code) {
 
 // Signal DONE to caller
 //
-function done() {
-  write('_DONE_');
-  exit(0);
+function done($code) {
+  global $nchan;
+  if ($nchan) write('_DONE_','');
+  exit($code);
 }
 
 // Function to write either to console (echo) or nchan (curl)
 // Default output is console, use optional parameter "nchan" to write to nchan instead
 //
-function write($message) {
-  global $console;
-  if ($console) {
-    echo $message;
-  } else {
-    $nchan = curl_init();
-    curl_setopt_array($nchan,[
-      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=0',
+function write(...$messages){
+  global $nchan;
+  if ($nchan) {
+    $com = curl_init();
+    curl_setopt_array($com,[
+      CURLOPT_URL => 'http://localhost/pub/plugins?buffer_length=1',
       CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
       CURLOPT_POST => 1,
-      CURLOPT_POSTFIELDS => $message,
       CURLOPT_RETURNTRANSFER => true
     ]);
-    curl_exec($nchan);
-    curl_close($nchan);
+    foreach ($messages as $message) {
+      curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+      curl_exec($com);
+    }
+    curl_close($com);
+  } else {
+    foreach ($messages as $message) echo $message;
   }
 }
 
@@ -472,8 +475,7 @@ $plugins = '/var/log/plugins';
 $tmp     = '/tmp/plugins';
 $method  = $argv[1];
 $builtin = ['unRAIDServer','unRAIDServer-'];
-$console = $argv[$argc-1] != 'nchan'; // console or nchan output
-if (!$console) usleep(300000);
+$nchan   = $argv[$argc-1] == 'nchan'; // console or nchan output
 
 // In following code,
 //  $plugin - is a basename of a plugin, eg, "myplugin.plg"
@@ -482,7 +484,7 @@ if (!$console) usleep(300000);
 // MAIN - single argument
 if ($argc < 2) {
   write($usage);
-  exit(1);
+  done(1);
 }
 
 // plugin checkall
@@ -491,7 +493,7 @@ if ($argc < 2) {
 if ($method == 'checkall') {
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
-    exit(1);
+    done(1);
   }
   foreach (glob("$plugins/*.plg", GLOB_NOSORT) as $link) {
     // skip OS related plugins
@@ -505,7 +507,7 @@ if ($method == 'checkall') {
     exec("$cmd check $plugin >/dev/null");
   }
   write("plugin: checking finished.\n");
-  done();
+  done(0);
 }
 
 // plugin updateall
@@ -514,7 +516,7 @@ if ($method == 'checkall') {
 if ($method == 'updateall') {
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
-    exit(1);
+    done(1);
   }
   foreach (glob("$plugins/*.plg", GLOB_NOSORT) as $link) {
     // skip OS related plugins
@@ -533,7 +535,7 @@ if ($method == 'updateall') {
     }
   }
   write("plugin: updating finished.\n");
-  done();
+  done(0);
 }
 
 // plugin checkos
@@ -542,7 +544,7 @@ if ($method == 'updateall') {
 if ($method == 'checkos') {
   if (!$cmd = realpath($argv[0])) {
     write("Unknown command: {$argv[0]}\n");
-    exit(1);
+    done(1);
   }
   foreach ($builtin as $link) {
     // only consider symlinks
@@ -554,13 +556,13 @@ if ($method == 'checkos') {
     exec("$cmd check $plugin >/dev/null");
   }
   write("plugin: checking finished.\n");
-  done();
+  done(0);
 }
 
 // MAIN - two or three arguments
 if ($argc < 3) {
   write($usage);
-  exit(1);
+  done(1);
 }
 
 // plugin install [plugin_file]
@@ -582,7 +584,7 @@ if ($method == 'install') {
     if (!download($pluginURL, $plugin_file, $error)) {
       write("plugin: $error\n");
       @unlink($plugin_file);
-      exit(1);
+      done(1);
     }
   } else {
     $plugin_file = realpath($argv[2]);
@@ -594,7 +596,7 @@ if ($method == 'install') {
     if (dirname($plugin_file) == "$boot") {
       move($plugin_file, "$boot-error");
     }
-    exit(1);
+    done(1);
   }
   $max = plugin('max', $plugin_file, $error) ?: plugin('Unraid', $plugin_file, $error);
   if ($max && version_compare($unraid['version'], $max, '>')) {
@@ -602,7 +604,7 @@ if ($method == 'install') {
     if (dirname($plugin_file) == "$boot") {
       move($plugin_file, "$boot-error");
     }
-    exit(1);
+    done(1);
   }
   $symlink = "$plugins/$plugin";
   // check for re-install
@@ -610,30 +612,30 @@ if ($method == 'install') {
   if ($installed_plugin_file !== false) {
     if ($plugin_file == $installed_plugin_file) {
       write("plugin: not re-installing same plugin\n");
-      exit(1);
+      done(1);
     }
     // must have version attributes for re-install
     $version = plugin('version', $plugin_file, $error);
     if ($version === false) {
       write("plugin: $error\n");
-      exit(1);
+      done(1);
     }
     $installed_version = plugin('version', $installed_plugin_file, $error);
     if ($installed_version === false) {
       write("plugin: $error\n");
-      exit(1);
+      done(1);
     }
     // check version installation?
-    $forced = $console ? ($argc==4 ? $argv[3] : false) : ($argc==5 ? $argv[4] : false);
+    $forced = $nchan ? ($argc==5 ? $argv[4] : false) : ($argc==4 ? $argv[3] : false);
     if (!$forced) {
       // do not re-install if same plugin already installed or has higher version
       if (strcmp($version, $installed_version) < 0) {
         write("plugin: not installing older version\n");
-        exit(1);
+        done(1);
       }
       if (strcmp($version, $installed_version) === 0) {
         write("plugin: not reinstalling same version\n");
-        exit(1);
+        done(1);
       }
     }
     // run hook scripts for pre processing
@@ -649,7 +651,7 @@ if ($method == 'install') {
       exec("$notify -e $event -s $subject -d $description) -i 2");
       // run hook scripts for post processing
       post_hooks($error);
-      exit(1);
+      done(1);
     }
     // remove symlink for re-install
     unlink($symlink);
@@ -664,7 +666,7 @@ if ($method == 'install') {
       }
       // run hook scripts for post processing
       post_hooks($error);
-      exit(1);
+      done(1);
     }
   }
   // register successful install
@@ -680,7 +682,7 @@ if ($method == 'install') {
   }
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // plugin check [plugin]
@@ -694,18 +696,18 @@ if ($method == 'check') {
   $installed_plugin_file = @readlink($symlink);
   if ($installed_plugin_file === false) {
     write("plugin: not installed\n");
-    exit(1);
+    done(1);
   }
   $installed_pluginURL = plugin('pluginURL', $installed_plugin_file, $error);
   if ($installed_pluginURL === false) {
     write("plugin: $error\n");
-    exit(1);
+    done(1);
   }
   $plugin_file = "$tmp/$plugin";
   if (!download($installed_pluginURL, $plugin_file, $error)) {
     write("plugin: $error\n");
     @unlink($plugin_file);
-    exit(1);
+    done(1);
   }
   // run hook scripts for pre processing
   pre_hooks();
@@ -714,12 +716,12 @@ if ($method == 'check') {
     write("plugin: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   write("$version\n");
   // run hook scripts for post processing
   post_hooks();
-  exit(0);
+  done(0);
 }
 
 // plugin update [plugin]
@@ -737,7 +739,7 @@ if ($method == 'update') {
   $installed_plugin_file = @readlink($symlink);
   if ($installed_plugin_file === false) {
     write("plugin: $plugin not installed\n");
-    exit(1);
+    done(1);
   }
   // verify previous check has been done
   $plugin_file = "$tmp/$plugin";
@@ -749,17 +751,17 @@ if ($method == 'update') {
   $min = plugin('min', $plugin_file, $error);
   if ($min && version_compare($unraid['version'], $min, '<')) {
     write("plugin: installed Unraid version is too low, require at least version $min\n");
-    exit(1);
+    done(1);
   }
   $max = plugin('max', $plugin_file, $error) ?: plugin('Unraid', $plugin_file, $error);
   if ($max && version_compare($unraid['version'], $max, '>')) {
     write("plugin: installed Unraid version is too high, require at most version $max\n");
-    exit(1);
+    done(1);
   }
   // check for a reinstall of same version
   if (strcmp(plugin('version', $installed_plugin_file, $error), plugin('version', $plugin_file, $error)) === 0) {
     write("Not reinstalling same version\n");
-    exit(1);
+    done(1);
   }
   // run hook scripts for pre processing
   pre_hooks();
@@ -768,7 +770,7 @@ if ($method == 'update') {
     write("plugin: $error\n");
     // run hook scripts for post processing
     post_hooks($error);
-    exit(1);
+    done(1);
   }
   // install was successful, save the updated plugin so it installs again next boot
   unlink($symlink);
@@ -779,7 +781,7 @@ if ($method == 'update') {
   logger("plugin: $plugin updated");
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // plugin remove [plugin]
@@ -802,7 +804,7 @@ if ($method == 'remove') {
       write("plugin: $error\n");
       // run hook scripts for post processing
       post_hooks($error);
-      exit(1);
+      done(1);
     }
   }
   // remove the plugin file
@@ -812,7 +814,7 @@ if ($method == 'remove') {
   exec("/usr/local/sbin/update_cron");
   // run hook scripts for post processing
   post_hooks();
-  done();
+  done(0);
 }
 
 // return attribute
@@ -821,8 +823,8 @@ $plugin_file = $argv[2];
 $value = plugin($method, $plugin_file, $error);
 if ($value === false) {
   write("plugin: $error\n");
-  exit(1);
+  done(1);
 }
 write("$value\n");
-exit(0);
+done(0);
 ?>

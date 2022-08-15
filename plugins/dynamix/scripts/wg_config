@@ -22,17 +22,19 @@ $_SERVER['REQUEST_URI'] = 'settings';
 $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
-function write($message){
-  $nchan = curl_init();
-  curl_setopt_array($nchan,[
-    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=0',
+function write(...$messages){
+  $com = curl_init();
+  curl_setopt_array($com,[
+    CURLOPT_URL => 'http://localhost/pub/changes?buffer_length=1',
     CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
     CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => true
   ]);
-  curl_exec($nchan);
-  curl_close($nchan);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
 
 unset($argv[$argc-1]); // remove nchan parameter
@@ -81,6 +83,5 @@ if (is_file("$path/$file.png")) {
   $html[] = "<img src=\"/$file.png?v=".filemtime("$path/$file.png")."\">";
 }
 
-usleep(300000);
-write(implode($style).implode($script).implode($html));
+write(implode($style).implode($script).implode($html),'_DONE_','');
 ?>
