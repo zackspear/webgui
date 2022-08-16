@@ -758,8 +758,6 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				    <input type="number" size="5" maxlength="5" id="wsport" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 				</tr>
-				<tr><td><span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span></td>
-			</tr>
 			<?}?>
 				<tr class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 					<td>_(Graphics ROM BIOS)_:</td>
