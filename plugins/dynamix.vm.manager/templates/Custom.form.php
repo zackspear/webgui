@@ -506,6 +506,9 @@
 				<select name="media[cdrombus]" class="cdrom_bus narrow">
 				<?mk_dropdown_options($arrValidCdromBuses, $arrConfig['media']['cdrombus']);?>
 				</select>
+				_(Boot Order)_:
+				<input type="number" size="5" maxlength="5" id="cdboot" class="narrow" style="width: 50px;" name="cdboot"   title="_(Boot order)_"  value="<?=$arrConfig['media']['cdromboot']?>" disabled>
+				</td>
 			</td>
 		</tr>
 	</table>
@@ -653,6 +656,8 @@
 					<select name="disk[<?=$i?>][bus]" class="disk_bus narrow">
 					<?mk_dropdown_options($arrValidDiskBuses, $arrDisk['bus']);?>
 					</select>
+				_(Boot Order)_:
+				<input type="number" size="5" maxlength="5" id="wboot" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" disabled>
 				</td>
 			</tr>
 		</table>
@@ -779,6 +784,10 @@
 					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow">
 					<?mk_dropdown_options($arrValidDiskBuses, '');?>
 					</select>
+				</td>
+
+				<td>_(Boot Order)_:</td><td>
+				<input type="number" size="5" maxlength="5" id="wboot" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrdisk['boot']?>" disabled>
 				</td>
 			</tr>
 		</table>
