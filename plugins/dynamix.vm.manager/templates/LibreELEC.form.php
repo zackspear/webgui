@@ -31,6 +31,7 @@
 	$arrValidProtocols = getValidVMRCProtocols();
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
+	$arrValidKeyMaps = getValidKeyMaps();
 
 	// Read localpaths in from libreelec.cfg
 	$strLibreELECConfig = "/boot/config/plugins/dynamix.vm.manager/libreelec.cfg";
@@ -725,7 +726,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					</td>
 				</tr>
 				<?if ($i == 0) { 
-					$hiddenport = $hiddenwsport = "" ;
+					$hiddenport = $hiddenwsport = "hidden" ;
 					if ($arrGPU['autoport'] == "no"){
 					if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
 					if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
@@ -751,11 +752,11 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 										
 					<span id="Porttext"  <?=$hiddenport?>>_(VM Console Port)_:</span>
 				
-				    <input type="number" size="5" maxlength="5"  id="port" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
+				    <input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
 				
 					<span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
 				
-				    <input type="number" size="5" maxlength="5" id="wsport" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
+				    <input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 				</tr>
 			<?}?>
@@ -777,6 +778,20 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					If you wish to assign a protocol type, specify one here.
 				</p>
 	
+				<b>Graphics Card</b><br>
+				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
+				</p>
+
+				<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+					<b>virtual video protocol VDC/SPICE</b><br>
+					If you wish to assign a protocol type, specify one here. 
+				</p>
+
+				<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+					<b>virtual auto port</b><br>
+					Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set. 
+				</p>
+
 
 				<p class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 					<b>Graphics ROM BIOS</b><br>
@@ -1082,21 +1097,23 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
 function AutoportChange(autoport) {
-		if (autoport.value === "yes") {
+		if (autoport.value == "yes") {
 			document.getElementById("port").style.visibility="hidden";
 			document.getElementById("Porttext").style.visibility="hidden";
 			document.getElementById("wsport").style.visibility="hidden";
 			document.getElementById("WSPorttext").style.visibility="hidden";
 		} else {
 			var protocol = document.getElementById("protocol").value ;
-			if (protocol === "vnc") {
-				document.getElementById("port").style.visibility="visible";
-				document.getElementById("Porttext").style.visibility="visible";
+			document.getElementById("port").style.display="inline";
+			document.getElementById("port").style.visibility="visible";
+			document.getElementById("Porttext").style.display="inline";
+			document.getElementById("Porttext").style.visibility="visible";
+			if (protocol == "vnc") {
+				document.getElementById("wsport").style.display="inline";
 				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.display="inline";
 				document.getElementById("WSPorttext").style.visibility="visible";
 			} else {
-				document.getElementById("port").style.visibility="visible";
-				document.getElementById("Porttext").style.visibility="visible";
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
@@ -1105,25 +1122,29 @@ function AutoportChange(autoport) {
 
 function ProtocolChange(protocol) {
 		var autoport = document.getElementById("autoport").value ;
-		if (autoport === "yes") {
+		if (autoport == "yes") {
 			document.getElementById("port").style.visibility="hidden";
 			document.getElementById("Porttext").style.visibility="hidden";
 			document.getElementById("wsport").style.visibility="hidden";
 			document.getElementById("WSPorttext").style.visibility="hidden";
 		} else {
-			if (protocol.value === "vnc") {
-				document.getElementById("port").style.visibility="visible";
-				document.getElementById("Porttext").style.visibility="visible";
+			document.getElementById("port").style.display="inline";
+			document.getElementById("port").style.visibility="visible";
+			document.getElementById("Porttext").style.display="inline";
+			document.getElementById("Porttext").style.visibility="visible";
+			if (protocol.value == "vnc") {
+				document.getElementById("wsport").style.display="inline";
 				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.display="inline";
 				document.getElementById("WSPorttext").style.visibility="visible";
 			} else {
-				document.getElementById("port").style.visibility="visible";
-				document.getElementById("Porttext").style.visibility="visible";
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
 		}	
 	}
+		
+	
 $(function() {
 	function completeAfter(cm, pred) {
 		var cur = cm.getCursor();
