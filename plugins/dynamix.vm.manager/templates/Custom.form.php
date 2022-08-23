@@ -62,7 +62,8 @@
 			'cdrom' => '',
 			'cdrombus' => 'ide',
 			'drivers' => is_file($domain_cfg['VIRTIOISO']) ? $domain_cfg['VIRTIOISO'] : '',
-			'driversbus' => 'ide'
+			'driversbus' => 'ide' ,
+			'cdromboot' => 2
 		],
 		'disk' => [
 			[
@@ -71,7 +72,8 @@
 				'driver' => 'raw',
 				'dev' => 'hda',
 				'select' => $domain_cfg['VMSTORAGEMODE'],
-				'bus' => 'virtio'
+				'bus' => 'virtio' ,
+				'boot' => 1
 			]
 		],
 		'gpu' => [

@@ -475,12 +475,14 @@
 				if ($media['cdrombus'] == 'scsi') {
 					$needSCSIController = true;
 				}
+				$cdromboot = 2 ;
+				$mediaboot = "<boot order='$cdromboot'/>" ;
 				$mediastr = "<disk type='file' device='cdrom'>
 								<driver name='qemu'/>
 								<source file='" . htmlspecialchars($media['cdrom'], ENT_QUOTES | ENT_XML1) . "'/>
 								<target dev='hda' bus='" . $media['cdrombus'] . "'/>
 								<readonly/>
-								<boot order='2'/>
+								$mediaboot
 							</disk>";
 			}
 

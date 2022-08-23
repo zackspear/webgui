@@ -198,6 +198,16 @@ case 'cdrom-change':
 	: ['error' => $lv->get_last_error()];
 	break;
 
+case 'change-media':
+	requireLibvirt();
+	$dev= $_REQUEST['dev'] ;
+	$file= $_REQUEST['file'] ;
+	$cmdstr = "virsh change-media $domName $dev $file" ;
+	$rtn=shell_exec($cmdstr)
+		? ['success' => true]
+		: ['error' => "Change Media Failed"];
+		break;
+
 case 'memory-change':
 	requireLibvirt();
 	$arrResponse = $lv->domain_set_memory($domName, $_REQUEST['memory']*1024)

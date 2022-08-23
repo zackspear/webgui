@@ -37,7 +37,8 @@ if (file_exists($user_prefs)) {
 $i = 0;
 $kvm = ['var kvm=[];'];
 $show = explode(',',unscript($_GET['show']??''));
-
+$path = $domain_cfg['MEDIADIR'] ;
+ 
 foreach ($vms as $vm) {
   $res = $lv->get_domain_by_name($vm);
   $desc = $lv->domain_get_description($res);
@@ -127,7 +128,7 @@ foreach ($vms as $vm) {
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
   echo "<td colspan='8' style='margin:0;padding:0'>";
   echo "<table class='tablesorter domdisk' id='domdisk_table'>";
-  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th></tr></thead>";
+  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th><th>Boot Order</th</tr></thead>";
   echo "<tbody id='domdisk_list'>";
 
   /* Display VM disks */
@@ -137,6 +138,8 @@ foreach ($vms as $vm) {
     $disk = $arrDisk['file'] ?? $arrDisk['partition'];
     $dev = $arrDisk['device'];
     $bus = $arrValidDiskBuses[$arrDisk['bus']] ?? 'VirtIO';
+    $boot= $arrDisk["boot order"] ;
+    if ($boot < 1) $boot="Not set" ;
     echo "<tr><td>$disk</td><td>$bus</td>";
     if ($state == 'shutoff') {
       echo "<td title='Click to increase Disk Size'>";
@@ -152,7 +155,7 @@ foreach ($vms as $vm) {
     } else {
       echo "<td>$capacity</td>";
     }
-    echo "<td>$allocation</td></tr>";
+    echo "<td>$allocation</td><td>$boot</td></tr>";
   }
 
   /* Display VM cdroms */
@@ -162,11 +165,24 @@ foreach ($vms as $vm) {
     $disk = $arrCD['file'] ?? $arrCD['partition'];
     $dev = $arrCD['device'];
     $bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
-    echo "<tr><td>$disk</td><td>$bus</td><td>$capacity</td><td>$allocation</td></tr>";
+    $boot= $arrCD["boot order"] ;
+    if ($boot < 1) $boot="Not set" ;
+    if ($disk != "" ) {
+    $title = _("Eject CD Drive").".";
+    $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\", \"--eject\")" ;
+    echo "<tr><td>$disk <a title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-eject' aria-hidden=true></i></a></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>"; 
+    } else {
+      $title = _("Insert CD").".";
+      $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")" ;
+      $disk = _("No CD image inserted in to drive") ;
+      echo "<tr><td>$disk<a title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-upload' aria-hidden=true></i></a> </td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>"; 
+
+    }
+
   }
 
   /* Display VM  IP Addresses "execute":"guest-network-get-interfaces" --pretty */
-  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
+  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
   $ip = $lv->domain_qemu_agent_command($res, '{"execute":"guest-network-get-interfaces"}', 10, 0) ;
   if ($ip != false) {
     $ip = json_decode($ip,true) ;
@@ -184,7 +200,7 @@ foreach ($vms as $vm) {
         $ipprefix = $arraddr["prefix"] ;
         $ipnamemac = "$ipname ($iphdwadr)";
         if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
-        echo "<tr><td>$ipnamemac</td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
+        echo "<tr><td>$ipnamemac</td><td></td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
         }
     }
   } else echo "<tr><td>"._('Guest not running or guest agent not installed')."</td><td></td><td></td><td></td></tr>";
