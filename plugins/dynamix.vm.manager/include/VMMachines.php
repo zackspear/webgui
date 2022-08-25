@@ -175,7 +175,7 @@ foreach ($vms as $vm) {
       $title = _("Insert CD").".";
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")" ;
       $disk = _("No CD image inserted in to drive") ;
-      echo "<tr><td>$disk<a title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-upload' aria-hidden=true></i></a> </td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>"; 
+      echo "<tr><td>$disk<a title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-bullseye' aria-hidden=true></i></a> </td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>"; 
 
     }
 
