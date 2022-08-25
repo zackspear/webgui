@@ -217,22 +217,39 @@ case "stop":
   exec("smartctl -X $type ".escapeshellarg("/dev/$port"));
   break;
 case "update":
-  $progress = exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
-  if ($progress) {
-    echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
-    break;
+  if ($disk["transport"] == "scsi") {
+    $progress = exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
+    if ($progress) {
+      echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
+      break;
+    } 
+  } else {
+    $progress = exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
+    if ($progress) {
+      echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
+      break;
+    }
   }
-  $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
+  if ($disk["transport"] == "scsi") $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c24-50"));
+  else  $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
     echo "<span class='big'>"._('No self-tests logged on this disk')."</span>";
     break;
   }
-  if (strpos($result, "Completed without error")!==false) {
+  if (strpos($result, "Completed, segment failed")!==false) {
+    echo "<span class='big red-text'>"._($result)."</span>";
+    break;
+  }
+  if (strpos($result, "Completed without error")!==false || strpos($result, "Completed")!==false ) {
     echo "<span class='big green-text'>"._($result)."</span>";
     break;
   }
   if (strpos($result, "Aborted")!==false or strpos($result, "Interrupted")!==false) {
     echo "<span class='big orange-text'>"._($result)."</span>";
+    break;
+  }
+  if (strpos($result, "Failed")!==false) {
+    echo "<span class='big red-text'>"._($result)."</span>";
     break;
   }
   echo "<span class='big red-text'>"._('Errors occurred - Check SMART report')."</span>";
