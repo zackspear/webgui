@@ -1043,6 +1043,7 @@
 				'driver' => 'raw',
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
+				'boot' => $disk['boot order'],
 				'select' => $default_option
 			];
 		}
@@ -1104,6 +1105,7 @@
 			],
 			'media' => [
 				'cdrom' => (!empty($medias) && !empty($medias[0]) && array_key_exists('file', $medias[0])) ? $medias[0]['file'] : '',
+				'cdromboot' => (!empty($medias) && !empty($medias[0]) && array_key_exists('file', $medias[0])) ? $medias[0]['boot order'] : '',
 				'cdrombus' => (!empty($medias) && !empty($medias[0]) && array_key_exists('bus', $medias[0])) ? $medias[0]['bus'] : (stripos($lv->domain_get_machine($res), 'q35')!==false ? 'sata': 'ide'),
 				'drivers' => (!empty($medias) && !empty($medias[1]) && array_key_exists('file', $medias[1])) ? $medias[1]['file'] : '',
 				'driversbus' => (!empty($medias) && !empty($medias[1]) && array_key_exists('bus', $medias[1])) ? $medias[1]['bus'] : (stripos($lv->domain_get_machine($res), 'q35')!==false ? 'sata': 'ide')

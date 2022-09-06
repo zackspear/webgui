@@ -475,12 +475,14 @@
 				if ($media['cdrombus'] == 'scsi') {
 					$needSCSIController = true;
 				}
+				$cdromboot = 2 ;
+				$mediaboot = "<boot order='$cdromboot'/>" ;
 				$mediastr = "<disk type='file' device='cdrom'>
 								<driver name='qemu'/>
 								<source file='" . htmlspecialchars($media['cdrom'], ENT_QUOTES | ENT_XML1) . "'/>
 								<target dev='hda' bus='" . $media['cdrombus'] . "'/>
 								<readonly/>
-								<boot order='2'/>
+								$mediaboot
 							</disk>";
 			}
 
@@ -1037,12 +1039,14 @@
 			$buses =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/target/@bus', false);
 			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/target/@dev', false);
 			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/source/@file', false);
+			$boot  =  $this->get_xpath($dom, '//domain/devices/disk[@device="cdrom"]/boot/@*', false);
 
 			$ret = [];
 			for ($i = 0; $i < $disks['num']; $i++) {
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
 					$tmp['bus'] = $buses[$i];
+					$tmp["boot order"] = $boot[$i] ;
 					$ret[] = $tmp;
 				}
 				else {
@@ -1085,13 +1089,14 @@
 			$buses =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@bus', false);
 			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@dev', false);
 			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/source/@*', false);
+			$boot  =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/boot/@*', false);
 
 			$ret = [];
 			for ($i = 0; $i < $disks['num']; $i++) {
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
 					$tmp['bus'] = $buses[$i];
-
+					$tmp["boot order"] = $boot[$i] ;
 					// Libvirt reports 0 bytes for raw disk images that haven't been
 					// written to yet so we just report the raw disk size for now
 					if ( !empty($tmp['file']) &&
