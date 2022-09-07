@@ -40,7 +40,8 @@ function write(...$messages){
 foreach ($plugins as $plugin) {
   if (!$plugin || (!$cmd = $call[pathinfo($plugin)['extension']])) continue;
   $line = '';
-  $run = popen("$cmd $method $plugin",'r');
+  $pluginArg = $method == "update" ? basename($plugin) : $plugin;
+  $run = popen("$cmd $method $pluginArg",'r');
   while (!feof($run)) {
     $line .= fgetc($run);
     if (in_array($line[-1],["\r","\n"])) {write($line); $line = '';}
