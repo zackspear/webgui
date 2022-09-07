@@ -172,7 +172,8 @@ case "capabilities":
 case "identify":
   $passed = ['PASSED','OK'];
   $failed = ['FAILED','NOK'];
-  exec("smartctl -i $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
+  if ($disk["transport"] == "scsi") $standby = " -n standby " ; else $standby = "" ;
+  exec("smartctl -i $type $standby ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
   exec("smartctl -n standby -H $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '^SMART.*: [A-Z]+'|sed 's:self-assessment test result::'",$output);
   $empty = true;
   foreach ($output as $line) {
@@ -185,7 +186,8 @@ case "identify":
     $empty = false;
   }
   if ($empty) {
-    echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>"._('Can not read identification')."</td></tr>";
+    $spundown = $disk['spundown'] ? "(device spundown, spinup to get information)" : "" ;
+    echo "<tr><td colspan='2' style='text-align:center;padding-top:12px'>"._('Can not read identification'.$spundown)."</td></tr>";
   } else {
     $file = '/boot/config/disk.log';
     $extra = file_exists($file) ? parse_ini_file($file,true) : [];
@@ -233,7 +235,8 @@ case "update":
   if ($disk["transport"] == "scsi") $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c24-50"));
   else  $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
-    echo "<span class='big'>"._('No self-tests logged on this disk')."</span>";
+    $spundown = $disk['spundown'] ? "Device spundown, spinup to get information" : "No self-tests logged on this disk" ;
+    echo "<span class='big'>"._($spundown)."</span>";
     break;
   }
   if (strpos($result, "Completed, segment failed")!==false) {
