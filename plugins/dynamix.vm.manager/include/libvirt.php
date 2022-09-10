@@ -457,7 +457,6 @@
 			foreach (range('a', 'z') as $letter) {
 				$arrAvailableDevs['hd' . $letter] = 'hd' . $letter;
 			}
-			$arrUsedBootOrders = [];
 
 			$needSCSIController = false;
 
@@ -470,12 +469,11 @@
 			$mediastr = '';
 			if (!empty($media['cdrom'])) {
 				unset($arrAvailableDevs['hda']);
-				$arrUsedBootOrders[] = 2;
+				$cdromboot = $media['cdromboot'] ;
 				$media['cdrombus'] = $media['cdrombus'] ?: $bus;
 				if ($media['cdrombus'] == 'scsi') {
 					$needSCSIController = true;
 				}
-				$cdromboot = 2 ;
 				$mediaboot = "<boot order='$cdromboot'/>" ;
 				$mediastr = "<disk type='file' device='cdrom'>
 								<driver name='qemu'/>
@@ -589,11 +587,10 @@
 							$disk['dev'] = array_shift($arrAvailableDevs);
 						}
 						unset($arrAvailableDevs[$disk['dev']]);
-
+						$boot = $disk['boot'] ;
 						$bootorder = '';
-						if (!in_array(1, $arrUsedBootOrders)) {
-							$bootorder = "<boot order='1'/>";
-							$arrUsedBootOrders[] = 1;
+						if ($boot > 0) {
+							$bootorder = "<boot order='$boot'/>" ;
 						}
 
 						$readonly = '';
