@@ -245,6 +245,9 @@
 					if (!empty($disk['bus'])) {
 						$arrReturn['bus'] = $disk['bus'];
 					}
+					if (!empty($disk['boot'])) {
+						$arrReturn['boot'] = $disk['boot'];
+					}
 
 				}
 			}
@@ -474,7 +477,9 @@
 				if ($media['cdrombus'] == 'scsi') {
 					$needSCSIController = true;
 				}
-				$mediaboot = "<boot order='$cdromboot'/>" ;
+				if ($cdromboot > 0) {
+					$mediaboot = "<boot order='$cdromboot'/>" ;
+				}
 				$mediastr = "<disk type='file' device='cdrom'>
 								<driver name='qemu'/>
 								<source file='" . htmlspecialchars($media['cdrom'], ENT_QUOTES | ENT_XML1) . "'/>
