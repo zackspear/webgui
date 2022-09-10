@@ -659,7 +659,7 @@
 					<?mk_dropdown_options($arrValidDiskBuses, $arrDisk['bus']);?>
 					</select>
 				_(Boot Order)_:
-				<input type="number" size="5" maxlength="5" id="wboot" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
+				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
 				</td>
 			</tr>
 		</table>
@@ -786,10 +786,9 @@
 					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow">
 					<?mk_dropdown_options($arrValidDiskBuses, '');?>
 					</select>
-				</td>
-
-				<td>_(Boot Order)_:</td><td>
-				<input type="text" size="5" maxlength="5" id="wboot" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrdisk['boot']?>" disabled>
+				
+				_(Boot Order)_:
+				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
 			</tr>
 		</table>
