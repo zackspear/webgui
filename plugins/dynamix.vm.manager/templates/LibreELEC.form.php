@@ -230,7 +230,8 @@
 				'size' => '',
 				'driver' => 'raw',
 				'dev' => 'hda',
-				'readonly' => 1
+				'readonly' => 1,
+				'boot' => 1
 			]
 		],
 		'gpu' => [
@@ -440,6 +441,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <input type="hidden" name="disk[0][image]" id="disk_0" value="<?=htmlspecialchars($arrConfig['disk'][0]['image'])?>">
 <input type="hidden" name="disk[0][dev]" value="<?=htmlspecialchars($arrConfig['disk'][0]['dev'])?>">
 <input type="hidden" name="disk[0][readonly]" value="1">
+<input type="hidden" name="disk[0][boot]" value="1">
 
 	<div class="installed">
 		<table>
