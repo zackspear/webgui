@@ -21,7 +21,7 @@ function csrf_terminate($reason) {
 putenv('PATH=.:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin');
 chdir('/usr/local/emhttp');
 setlocale(LC_ALL,'en_US.UTF-8');
-date_default_timezone_set(substr(readlink('/etc/localtime-copied-from'),20));
+date_default_timezone_set(substr(readlink('/etc/localtime'),20));
 $secure = array_key_exists('HTTPS', $_SERVER);
 ini_set("session.use_strict_mode", "1");
 // Safari bug prevents use of 'Strict'
