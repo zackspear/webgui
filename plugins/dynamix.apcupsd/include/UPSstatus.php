@@ -56,7 +56,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
       break;
     case 'NOMPOWER':
       $power = strtok($val,' ');
-      $status[3] = $power==0 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+      $status[3] = $power>0 ? "<td $green>$val</td>" : "<td $red>$val</td>";
       break;
     case 'LOADPCT':
       $load = strtok($val,' ');

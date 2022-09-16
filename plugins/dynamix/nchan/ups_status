@@ -84,7 +84,7 @@ while (true) {
       case 'BCHARGE':
         [$val,$unit] = explode(' ', $val, 2);
         $val = intval($val);
-        $status[1] = strtok($val,' ')>$level ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
+        $status[1] = $val>$level ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
         break;
       case 'TIMELEFT':
         [$val,$unit] = explode(' ', $val, 2);
@@ -93,7 +93,7 @@ while (true) {
         break;
       case 'NOMPOWER':
         $power = strtok($val,' ');
-        $status[3] = $power==0 ? "<span $red>$val</span>" : "<span $green>$val</span>";
+        $status[3] = $power>0 ? "<span $green>$val</span>" : "<span $red>$val</span>";
         break;
       case 'LOADPCT':
         $load = strtok($val,' ');
