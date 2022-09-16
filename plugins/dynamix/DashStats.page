@@ -175,7 +175,7 @@ div[id$=chart]{margin-top:-12px;margin-bottom:-24px;padding:0}
 span.ctrl{float:right;margin-right:10px}
 span.outer{float:left}
 span.inner{width:<?=$themes1?153:140?>px}
-span.ups{width:200px;display:inline-block}
+span.ups{width:200px;display:inline-block;margin-bottom:4px}
 span.tx{width:75px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
@@ -184,6 +184,7 @@ span#util{margin-left:20px}
 span[id^=cpu],span[id^=sys]{width:0}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 i.heat{margin-left:8px}
+i.ups{margin-right:8px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
 tr.hidden{display:none;height:0;lineheight:0}
 td.none{text-align:center;padding-top:12px}
@@ -264,7 +265,7 @@ form[name=boot]{display:none}
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-cpu'></i><div class='section'>_(Processor)_<br>
-<span id='load'>_(Load)_: <span class='cpu'>0%</span></span><span id='cpu-temp'></span><br><br></div>
+<span id='load'><i class='ups fa fa-bars'></i>_(Load)_: <span class='cpu'>0%</span></span><span id='cpu-temp'></span><br><br></div>
 <i class='fa fa-fw chevron' id='cpu_view' onclick='toggleChevron("cpu_view",1)'></i>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
@@ -368,15 +369,16 @@ foreach ($ports as $port) {
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-ups'></i><div class='section'>_(Power)_<br>
-<span>_(UPS Load)_: <span id='ups_loadpct'></span></span><br><br></div>
+<span><i class='ups fa fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span><br><br></div>
 <i class='fa fa-fw chevron' id='ups_view' onclick='toggleChevron("ups_view",0)'></i>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
 </td><td></td></tr>
 <tr class='ups_view'><td></td><td colspan='3'>
-<span class='ups'>_(UPS status)_:</span><span id='ups_status'></span><br>
-<span class='ups'>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
-<span class='ups'>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
-<span class='ups'>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
+<span class='ups'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span><br>
+<span class='ups'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
+<span class='ups'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
+<span class='ups'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
+<span class='ups'><i class='ups fa fa-fw fa-ellipsis-h'></i>_(Output voltage)_:</span><span id='ups_outputv'></span><br>
 </td><td></td></tr>
 </tbody>
 <?endif;?>
@@ -1125,12 +1127,13 @@ dashboard.on('message',function(msg,meta) {
 <?if ($apcupsd):?>
 var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
 apcups.on('message',function(d) {
-  var data = d.replace(/<\/?tr>/g,'').replace(/<td/g,'<span').replace(/td>/g,'span>;').split(';');
+  var data = d.split(';');
   $('#ups_status').html(data[0]);
-  $('#ups_bcharge').html(data[1]);
-  $('#ups_timeleft').html(data[2]);
-  $('#ups_nompower').html(data[3]);
-  $('#ups_loadpct').html(data[5].replace('Percent','%')+' - '+data[4]);
+  $('#ups_bcharge').html(data[1].replace('Percent','%'));
+  $('#ups_timeleft').html(data[2].replace('Minutes',"_(minutes)_"));
+  $('#ups_nompower').html(data[3].replace('Watts','W'));
+  $('#ups_loadpct').html(data[4].replace('Percent','%'));
+  $('#ups_outputv').html(data[5].replace('Volts','V'));
 });
 <?endif;?>
 
