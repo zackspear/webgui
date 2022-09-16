@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  * Copyright 2015, Dan Landon.
  *
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,13 @@ require_once "$docroot/webGui/include/Translations.php";
 $locale_init = $locale;
 
 $state = [
-  'TRIM ONLINE'  => 'Online (trim)',
-  'BOOST ONLINE' => 'Online (boost)',
-  'ONLINE'       => 'Online',
-  'ONBATT'       => 'On battery',
-  'COMMLOST'     => 'Lost communication',
-  'NOBATT'       => 'No battery detected'
+  'TRIM ONLINE'  => _('Online (trim)'),
+  'BOOST ONLINE' => _('Online (boost)'),
+  'ONLINE'       => _('Online'),
+  'SLAVE'        => '('._('Slave').')',
+  'ONBATT'       => _('On battery'),
+  'COMMLOST'     => _('Lost communication'),
+  'NOBATT'       => _('No battery detected')
 ];
 
 $red    = "class='red-text'";
@@ -59,44 +60,64 @@ function update_translation($locale) {
   }
 }
 while (true) {
-  $status = array_fill(0,6,"<td>-</td>");
-  $power = $load = false;
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
   if ($display['locale'] != $locale_init) {
     $locale_init = $display['locale'];
     update_translation($locale_init);
   }
+  unset($status,$rows,$power,$load,$freq,$output);
+  $status = array_fill(0,6,"<span>-</span>");
   if (file_exists("/var/run/apcupsd.pid")) {
+    // get battery-level and runtime settings
+    $cfg = parse_plugin_cfg('dynamix.apcupsd');
+    $level = $cfg['BATTERYLEVEL'] ?: 10;
+    $runtime = $cfg['MINUTES'] ?: 5;
     exec("/sbin/apcaccess 2>/dev/null", $rows);
-    for ($i=0; $i<count($rows); $i++) {
-      $row = array_map('trim', explode(':', $rows[$i], 2));
-      $key = $row[0];
-      $val = strtr($row[1], $state);
+    foreach ($rows as $row) {
+      [$key, $val] = array_map('trim', explode(':', $row, 2));
       switch ($key) {
       case 'STATUS':
-        $status[0] = $val ? (stripos($val,'online')===false ? "<td $red>$val</td>" : "<td $green>$val</td>") : "<td $orange>"._('Refreshing')."...</td>";
+        $val = strtr($val, $state);
+        $status[0] = $val ? (stripos($val,'online')!==false ? "<span $green>$val</span>" : "<span $red>$val</span>") : "<span $orange>"._('Refreshing')."...</span>";
         break;
       case 'BCHARGE':
-        $status[1] = strtok($val,' ')<=10 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+        [$val,$unit] = explode(' ', $val, 2);
+        $val = intval($val);
+        $status[1] = strtok($val,' ')>$level ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
         break;
       case 'TIMELEFT':
-        $status[2] = strtok($val,' ')<=5 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+        [$val,$unit] = explode(' ', $val, 2);
+        $val = intval($val);
+        $status[2] = $val>$runtime ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
         break;
       case 'NOMPOWER':
         $power = strtok($val,' ');
-        $status[3] = $power==0 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+        $status[3] = $power==0 ? "<span $red>$val</span>" : "<span $green>$val</span>";
         break;
       case 'LOADPCT':
         $load = strtok($val,' ');
-        $status[5] = $load>=90 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+        $status[4] = $val;
+        break;
+      case 'OUTPUTV':
+        $output = strtok($val,' ');
+        $status[5] = $val;
+        break;
+      case 'NOMINV':
+        $volt = strtok($val,' ');
+        $minv = $volt / 1.1; // +/- 10% tolerance
+        $maxv = $volt * 1.1;
+        break;
+      case 'LINEFREQ':
+        $freq = $val;
         break;
       }
     }
-    if ($power && $load) $status[4] = ($load>=90 ? "<td $red>" : "<td $green>").intval($power*$load/100)." "._('Watts')."</td>";
+    if ($power && isset($load)) $status[4] = ($load<90 ? "<span>" : "<span $red>").intval($power*$load/100)." W (".$status[4].")</span>";
+    elseif (isset($load)) $status[4] = ($load<90 ? "<span>" : "<span $red>").$status[4]."</span>";
+    $status[5] = $output ? (($output<$minv||$output>$maxv ? "<span $red>" : "<span $green>").$status[5].($freq ? " / $freq" : "")."</span>") : $status[5];
   }
-
-  publish('apcups',"<tr>".implode('', $status)."</tr>");
-  sleep(5);
+  publish('apcups',implode(';', $status));
+  sleep(3);
 }
 ?>
