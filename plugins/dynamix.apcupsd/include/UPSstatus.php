@@ -18,13 +18,15 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
 $state = [
-  'TRIM ONLINE'  => _('Online (trim)'),
-  'BOOST ONLINE' => _('Online (boost)'),
-  'ONLINE'       => _('Online'),
-  'SLAVE'        => '('._('Slave').')',
-  'ONBATT'       => _('On battery'),
-  'COMMLOST'     => _('Lost communication'),
-  'NOBATT'       => _('No battery detected')
+  'ONLINE'   => _('Online'),
+  'SLAVE'    => '('._('slave').')',
+  'TRIM'     => '('._('trim').')',
+  'BOOST'    => '('._('boost').')',
+  'COMMLOST' => _('Lost communication'),
+  'ONBATT'   => _('On battery'),
+  'NOBATT'   => _('No battery detected'),
+  'LOWBATT'  => _('Low on battery'),
+  'OVERLOAD' => _('UPS overloaded')
 ];
 
 $red     = "class='red-text'";
@@ -42,7 +44,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
     switch ($key) {
     case 'STATUS':
       $var = strtr($val, $state);
-      $status[0] = $var ? (stripos($var,'online')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
+      $status[0] = $val ? (stripos($val,'online')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
       [$charge,$unit] = explode(' ', $val, 2);
