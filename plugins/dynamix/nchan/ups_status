@@ -35,7 +35,7 @@ $state = [
   'COMMLOST' => _('Lost communication'),
   'ONBATT'   => _('On battery'),
   'NOBATT'   => _('No battery detected'),
-  'LOWBATT'  => _('Low battery'),
+  'LOWBATT'  => _('Low on battery'),
   'OVERLOAD' => _('UPS overloaded')
 ];
 
@@ -69,7 +69,7 @@ while (true) {
     update_translation($locale_init);
   }
   unset($status,$rows,$power,$load,$freq,$output);
-  $status = array_fill(0,6,"<span>-</span>");
+  $status = array_fill(0,7,"<span>-</span>");
   if (file_exists("/var/run/apcupsd.pid")) {
     // get battery-level and runtime settings
     $cfg = parse_plugin_cfg('dynamix.apcupsd');
@@ -79,31 +79,34 @@ while (true) {
     foreach ($rows as $row) {
       [$key, $val] = array_map('trim', explode(':', $row, 2));
       switch ($key) {
+      case 'MODEL':
+        $status[0] = $val;
+        break;
       case 'STATUS':
         $var = strtr($val, $state);
-        $status[0] = $val ? (stripos($val,'online')!==false ? "<span $green>$var</span>" : "<span $red>$var</span>") : "<span $orange>"._('Refreshing')."...</span>";
+        $status[1] = $val ? (stripos($val,'online')!==false ? "<span $green>$var</span>" : "<span $red>$var</span>") : "<span $orange>"._('Refreshing')."...</span>";
         break;
       case 'BCHARGE':
         [$val,$unit] = explode(' ', $val, 2);
         $val = intval($val);
-        $status[1] = $val>$level ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
+        $status[2] = $val>$level ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
         break;
       case 'TIMELEFT':
         [$val,$unit] = explode(' ', $val, 2);
         $val = intval($val);
-        $status[2] = $val>$runtime ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
+        $status[3] = $val>$runtime ? "<span $green>$val $unit</span>" : "<span $red>$val $unit</span>";
         break;
       case 'NOMPOWER':
         $power = strtok($val,' ');
-        $status[3] = $power>0 ? "<span $green>$val</span>" : "<span $red>$val</span>";
+        $status[4] = $power>0 ? "<span $green>$val</span>" : "<span $red>$val</span>";
         break;
       case 'LOADPCT':
         $load = strtok($val,' ');
-        $status[4] = $val;
+        $status[5] = $val;
         break;
       case 'OUTPUTV':
         $output = strtok($val,' ');
-        $status[5] = $val;
+        $status[6] = $val;
         break;
       case 'NOMINV':
         $volt = strtok($val,' ');
@@ -115,9 +118,9 @@ while (true) {
         break;
       }
     }
-    if ($power && isset($load)) $status[4] = ($load<90 ? "<span>" : "<span $red>").intval($power*$load/100)." W (".$status[4].")</span>";
-    elseif (isset($load)) $status[4] = ($load<90 ? "<span>" : "<span $red>").$status[4]."</span>";
-    $status[5] = $output ? (($output<$minv||$output>$maxv ? "<span $red>" : "<span $green>").$status[5].($freq ? " / $freq" : "")."</span>") : $status[5];
+    if ($power && isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").intval($power*$load/100)." W (".$status[5].")</span>";
+    elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
+    $status[6] = $output ? (($output<$minv||$output>$maxv ? "<span $red>" : "<span $green>").$status[6].($freq ? " / $freq" : "")."</span>") : $status[6];
   }
   publish('apcups',implode(';', $status));
   sleep(3);

@@ -181,6 +181,7 @@ span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
+span#ups_model{margin-right:20px}
 span[id^=cpu],span[id^=sys]{width:0}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 i.heat{margin-left:8px}
@@ -369,6 +370,7 @@ foreach ($ports as $port) {
 <thead sort='<?=++$N?>'><tr class='hidden'><td></td><td colspan='3'></td><td></td></tr></thead>
 <tbody sort='<?=$N?>' class='sortable'>
 <tr><td></td><td colspan='3' class='next'><i class='icon-ups'></i><div class='section'>_(Power)_<br>
+<span><i class='ups fa fa-shield'></i>_(UPS Model)_: </span><span id='ups_model'></span>
 <span><i class='ups fa fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span><br><br></div>
 <i class='fa fa-fw chevron' id='ups_view' onclick='toggleChevron("ups_view",0)'></i>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog chevron'></i></a>
@@ -1128,12 +1130,13 @@ dashboard.on('message',function(msg,meta) {
 var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
 apcups.on('message',function(d) {
   var data = d.split(';');
-  $('#ups_status').html(data[0]);
-  $('#ups_bcharge').html(data[1].replace('Percent','%'));
-  $('#ups_timeleft').html(data[2].replace('Minutes',"_(minutes)_"));
-  $('#ups_nompower').html(data[3].replace('Watts','W'));
-  $('#ups_loadpct').html(data[4].replace('Percent','%'));
-  $('#ups_outputv').html(data[5].replace('Volts','V'));
+  $('#ups_model').html(data[0]);
+  $('#ups_status').html(data[1]);
+  $('#ups_bcharge').html(data[2].replace('Percent','%'));
+  $('#ups_timeleft').html(data[3].replace('Minutes',"_(minutes)_"));
+  $('#ups_nompower').html(data[4].replace('Watts','W'));
+  $('#ups_loadpct').html(data[5].replace('Percent','%'));
+  $('#ups_outputv').html(data[6].replace('Volts','V'));
 });
 <?endif;?>
 
