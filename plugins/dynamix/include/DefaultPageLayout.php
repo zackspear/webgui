@@ -21,6 +21,10 @@ $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
 
+// adjust the text color in docker log window
+$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
+exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
+
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
