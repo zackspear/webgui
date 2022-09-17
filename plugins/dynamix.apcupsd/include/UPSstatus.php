@@ -91,5 +91,5 @@ if (file_exists("/var/run/apcupsd.pid")) {
 }
 if (!$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
-echo "<tr>",implode($status),"</tr>\n",implode($result);
+echo "<tr class='double'>",implode($status),"</tr>\n",implode($result);
 ?>

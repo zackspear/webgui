@@ -24,8 +24,9 @@ $cfg = parse_plugin_cfg($sName);
 ?>
 
 <style>
-table.ups thead tr th{width:16.6%;padding-left:10px;}
-table.ups tbody tr td{padding-left:10px;font-weight:bold;}
+table.ups thead tr th{width:16.6%;padding-left:10px}
+table.ups tbody tr td{padding-left:10px;font-weight:bold}
+tr.double{height:3rem;line-height:3rem}
 i.ups{margin-right:8px}
 </style>
 <script>
@@ -47,7 +48,7 @@ $(function() {
 </script>
 <table class="tablesorter shift ups" <?if (!file_exists("/var/run/apcupsd.pid")):?>style="display:none"<?endif;?>>
 <thead><tr><th><i class='ups fa fa-shield'></i>_(UPS Model)_</th><th><i class='ups fa fa-plug'></i>_(UPS Status)_</th><th><i class='ups fa fa-battery'></i>_(Battery Charge)_</th><th><i class='ups fa fa-clock-o'></i>_(Runtime Left)_</th><th><i class='ups fa fa-bolt'></i>_(Nominal Power)_</th><th><i class='ups fa fa-bars'></i>_(UPS Load)_</th><th><i class='ups fa fa-ellipsis-h'></i>_(Output Voltage)_</th></tr></thead>
-<tbody id="ups_summary"><tr><td colspan="7">&nbsp;</td></tr></tbody>
+<tbody id="ups_summary"><tr class="double"><td colspan="7">&nbsp;</td></tr></tbody>
 </table>
 
 <span style="float:right;margin-right:10px"><a href="http://apcupsd.org/manual/manual.html" target="_blank" title="_(APC UPS Daemon user manual)_"><i class="fa fa-file-text-o"></i> <u>_(Online Manual)_</u></a></span>
