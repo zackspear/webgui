@@ -83,8 +83,8 @@ while (true) {
         $status[0] = $val;
         break;
       case 'STATUS':
-        $var = strtr($val, $state);
-        $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<span $green>$var</span>" : "<span $red>$var</span>") : "<span $orange>"._('Refreshing')."...</span>";
+        $text = strtr($val, $state);
+        $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<span $green>$text</span>" : "<span $red>$text</span>") : "<span $orange>"._('Refreshing')."...</span>";
         break;
       case 'BCHARGE':
         $charge = intval($val);

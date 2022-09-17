@@ -46,8 +46,8 @@ if (file_exists("/var/run/apcupsd.pid")) {
       $status[0] = "<td $green>$val</td>";
       break;
     case 'STATUS':
-      $var = strtr($val, $state);
-      $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
+      $text = strtr($val, $state);
+      $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<td $green>$text</td>" : "<td $red>$text</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
       $charge = intval(strtok($val,' '));
