@@ -87,11 +87,11 @@ while (true) {
         $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<span $green>$text</span>" : "<span $red>$text</span>") : "<span $orange>"._('Refreshing')."...</span>";
         break;
       case 'BCHARGE':
-        $charge = intval($val);
+        $charge = round($val);
         $status[2] = $charge>$level ? "<span $green>$charge %</span>" : "<span $red>$charge %</span>";
         break;
       case 'TIMELEFT':
-        $time = intval($val);
+        $time = round($val);
         $unit = _('minutes');
         $status[3] = $time>$runtime ? "<span $green>$time $unit</span>" : "<span $red>$time $unit</span>";
         break;
@@ -101,10 +101,10 @@ while (true) {
         break;
       case 'LOADPCT':
         $load = $val;
-        $status[5] = "$load %";
+        $status[5] = round($load)." %";
         break;
       case 'OUTPUTV':
-        $output = intval($val);
+        $output = round($val);
         $status[6] = "$output V";
         break;
       case 'NOMINV':
@@ -113,11 +113,11 @@ while (true) {
         $maxv = $volt * 1.1;
         break;
       case 'LINEFREQ':
-        $freq = intval($val);
+        $freq = round($val);
         break;
       }
     }
-    if ($power && isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").intval($power*$load/100)." W (".$status[5].")</span>";
+    if ($power && isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
     elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
     $status[6] = $output ? (($output<$minv||$output>$maxv ? "<span $red>" : "<span $green>").$status[6].($freq ? " / $freq Hz" : "")."</span>") : $status[6];
   }

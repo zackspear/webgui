@@ -50,11 +50,11 @@ if (file_exists("/var/run/apcupsd.pid")) {
       $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<td $green>$text</td>" : "<td $red>$text</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
-      $charge = intval(strtok($val,' '));
+      $charge = round(strtok($val,' '));
       $status[2] = $charge>$level ? "<td $green>$charge %</td>" : "<td $red>$charge %</td>";
       break;
     case 'TIMELEFT':
-      $time = intval(strtok($val,' '));
+      $time = round(strtok($val,' '));
       $unit = _('minutes');
       $status[3] = $time>$runtime ? "<td $green>$time $unit</td>" : "<td $red>$time $unit</td>";
       break;
@@ -64,10 +64,10 @@ if (file_exists("/var/run/apcupsd.pid")) {
       break;
     case 'LOADPCT':
       $load = strtok($val,' ');
-      $status[5] = "$load %";
+      $status[5] = round($load)." %";
       break;
     case 'OUTPUTV':
-      $output = intval(strtok($val,' '));
+      $output = round(strtok($val,' '));
       $status[6] = "$output V";
       break;
     case 'NOMINV':
@@ -76,7 +76,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
       $maxv = $volt * 1.1;
       break;
     case 'LINEFREQ':
-      $freq = intval(strtok($val,' '));
+      $freq = round(strtok($val,' '));
       break;
     }
     if ($i%2==0) $result[] = "<tr>";
@@ -84,7 +84,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
     if ($i%2==1) $result[] = "</tr>";
   }
   if (count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
-  if ($power && isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").intval($power*$load/100)." W (".$status[5].")</td>";
+  if ($power && isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").round($power*$load/100)." W (".$status[5].")</td>";
   elseif (isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").$status[5]."</td>";
   $status[6] = $output ? (($output<$minv||$output>$maxv ? "<td $red>" : "<td $green>").$status[6].($freq ? " / $freq Hz" : "")."</td>") : $status[6];
 }
