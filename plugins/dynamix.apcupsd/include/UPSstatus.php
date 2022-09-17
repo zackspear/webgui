@@ -47,29 +47,27 @@ if (file_exists("/var/run/apcupsd.pid")) {
       break;
     case 'STATUS':
       $var = strtr($val, $state);
-      $status[1] = $val ? (stripos($val,'online')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
+      $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
-      [$charge,$unit] = explode(' ', $val, 2);
-      $charge = intval($charge);
-      $status[2] = $charge>$level ? "<td $green>$charge $unit</td>" : "<td $red>$charge $unit</td>";
+      $charge = intval(strtok($val,' '));
+      $status[2] = $charge>$level ? "<td $green>$charge %</td>" : "<td $red>$charge %</td>";
       break;
     case 'TIMELEFT':
-      [$left,$unit] = explode(' ', $val, 2);
-      $left = intval($left);
-      $status[3] = $left>$runtime ? "<td $green>$left $unit</td>" : "<td $red>$left $unit</td>";
+      $time = intval(strtok($val,' '));
+      $status[3] = $time>$runtime ? "<td $green>$time "._('minutes')."</td>" : "<td $red>$time "._('minutes')."</td>";
       break;
     case 'NOMPOWER':
       $power = strtok($val,' ');
-      $status[4] = $power>0 ? "<td $green>$val</td>" : "<td $red>$val</td>";
+      $status[4] = $power>0 ? "<td $green>$power W</td>" : "<td $red>$power W</td>";
       break;
     case 'LOADPCT':
       $load = strtok($val,' ');
-      $status[5] = $val;
+      $status[5] = "$load %";
       break;
     case 'OUTPUTV':
       $output = strtok($val,' ');
-      $status[6] = $val;
+      $status[6] = "$output V";
       break;
     case 'NOMINV':
       $volt = strtok($val,' ');

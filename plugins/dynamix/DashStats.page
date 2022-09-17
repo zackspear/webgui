@@ -1128,15 +1128,15 @@ dashboard.on('message',function(msg,meta) {
 });
 <?if ($apcupsd):?>
 var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
-apcups.on('message',function(d) {
-  var data = d.split(';');
+apcups.on('message',function(data) {
+  data = data.split(';');
   $('#ups_model').html(data[0]);
   $('#ups_status').html(data[1]);
-  $('#ups_bcharge').html(data[2].replace('Percent','%'));
-  $('#ups_timeleft').html(data[3].replace('Minutes',"_(minutes)_"));
-  $('#ups_nompower').html(data[4].replace('Watts','W'));
-  $('#ups_loadpct').html(data[5].replace('Percent','%'));
-  $('#ups_outputv').html(data[6].replace('Volts','V'));
+  $('#ups_bcharge').html(data[2]);
+  $('#ups_timeleft').html(data[3]);
+  $('#ups_nompower').html(data[4]);
+  $('#ups_loadpct').html(data[5]);
+  $('#ups_outputv').html(data[6]);
 });
 <?endif;?>
 
