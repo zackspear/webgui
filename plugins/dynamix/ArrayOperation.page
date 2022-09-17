@@ -492,8 +492,12 @@ function formatWarning(val) {
       <tr><td>_(Estimated speed)_:</td><td id="line3"></td><td></td></tr>
       <tr><td>_(Estimated finish)_:</td><td id="line4"></td><td></td></tr>
 <?    if ($action[0]=="check"):?>
+<?    if (count($action)>1):?>
       <tr><td><?=$var['mdResyncCorr']==0 ? _('Sync errors detected') : _('Sync errors corrected')?>:</td><td id="line5"></td><td></td></tr>
+<?    else:?>
+      <tr><td><?=$var['mdResyncCorr']==0 ? _('Read errors detected') : _('Read errors corrected')?>:</td><td id="line5"></td><td></td></tr>
 <?    endif;
+      endif;
     endif;
     break;
   case "Starting":?>
