@@ -104,7 +104,7 @@ while (true) {
         $status[5] = "$load %";
         break;
       case 'OUTPUTV':
-        $output = $val;
+        $output = intval($val);
         $status[6] = "$output V";
         break;
       case 'NOMINV':
@@ -113,7 +113,7 @@ while (true) {
         $maxv = $volt * 1.1;
         break;
       case 'LINEFREQ':
-        $freq = $val;
+        $freq = intval($val);
         break;
       }
     }

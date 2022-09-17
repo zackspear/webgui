@@ -67,7 +67,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
       $status[5] = "$load %";
       break;
     case 'OUTPUTV':
-      $output = strtok($val,' ');
+      $output = intval(strtok($val,' '));
       $status[6] = "$output V";
       break;
     case 'NOMINV':
@@ -76,7 +76,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
       $maxv = $volt * 1.1;
       break;
     case 'LINEFREQ':
-      $freq = $val;
+      $freq = intval(strtok($val,' '));
       break;
     }
     if ($i%2==0) $result[] = "<tr>";
@@ -86,7 +86,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
   if (count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
   if ($power && isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").intval($power*$load/100)." W (".$status[5].")</td>";
   elseif (isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").$status[5]."</td>";
-  $status[6] = $output ? (($output<$minv||$output>$maxv ? "<td $red>" : "<td $green>").$status[6].($freq ? " / $freq" : "")."</td>") : $status[6];
+  $status[6] = $output ? (($output<$minv||$output>$maxv ? "<td $red>" : "<td $green>").$status[6].($freq ? " / $freq Hz" : "")."</td>") : $status[6];
 }
 if (!$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
