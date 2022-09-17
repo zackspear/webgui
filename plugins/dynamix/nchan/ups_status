@@ -92,7 +92,8 @@ while (true) {
         break;
       case 'TIMELEFT':
         $time = intval($val);
-        $status[3] = $time>$runtime ? "<span $green>$time "._('minutes')."</span>" : "<span $red>$time "._('minutes')."</span>";
+        $unit = _('minutes');
+        $status[3] = $time>$runtime ? "<span $green>$time $unit</span>" : "<span $red>$time $unit</span>";
         break;
       case 'NOMPOWER':
         $power = $val;

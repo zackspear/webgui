@@ -55,7 +55,8 @@ if (file_exists("/var/run/apcupsd.pid")) {
       break;
     case 'TIMELEFT':
       $time = intval(strtok($val,' '));
-      $status[3] = $time>$runtime ? "<td $green>$time "._('minutes')."</td>" : "<td $red>$time "._('minutes')."</td>";
+      $unit = _('minutes');
+      $status[3] = $time>$runtime ? "<td $green>$time $unit</td>" : "<td $red>$time $unit</td>";
       break;
     case 'NOMPOWER':
       $power = strtok($val,' ');
