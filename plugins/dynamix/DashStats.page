@@ -181,7 +181,7 @@ span.busy,i.inactive{opacity:0.5}
 span#inbound{width:75px;display:inline-block}
 span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
-span#ups_model{margin-right:20px}
+span#ups_model{margin-right:30px}
 span[id^=cpu],span[id^=sys]{width:0}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 i.heat{margin-left:8px}
