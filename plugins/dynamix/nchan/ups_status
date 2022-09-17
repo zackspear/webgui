@@ -119,7 +119,7 @@ while (true) {
     }
     if ($power && isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
     elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
-    $status[6] = $output ? (($output>$minv&&$output<$maxv ? "<span $green>" : "<span $red>").$status[6].($freq ? " / $freq Hz" : "")."</span>") : $status[6];
+    $status[6] = $output ? (($output>$minv&&$output<$maxv ? "<span $green>" : "<span $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</span>") : $status[6];
   }
   publish('apcups',implode(';', $status));
   sleep(3);
