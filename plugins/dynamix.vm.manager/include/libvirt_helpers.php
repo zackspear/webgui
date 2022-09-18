@@ -1179,4 +1179,45 @@
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}
+
+	function getVMUSBs($strXML){
+		$arrValidUSBDevices = getValidUSBDevices() ;
+		foreach($arrValidUSBDevices as $key => $data) {
+
+			$array[$key] = [
+					'id' => $data['id'],
+					'name' => $data["name"],
+					'checked' => '',
+					'startupPolicy' => ''
+					];
+		}
+		if ($strXML !="") { 
+			$VMxml = new SimpleXMLElement($strXML);
+			$VMUSB=$VMxml->xpath('//devices/hostdev[@type="usb"]/source') ;
+			foreach($VMUSB as $USB){
+				$vendor=$USB->vendor->attributes()->id ;
+				$product=$USB->product->attributes()->id ;
+				$startupPolicy=$USB->attributes()->startupPolicy ;
+				$id = str_replace('0x', '', $vendor . ':' . $product) ;
+				$found = false ;
+				foreach($arrValidUSBDevices as $key => $data) {
+					if ($data['id'] == $id) {
+						$array[$key]['checked'] = "checked" ;
+						$array[$key]['startupPolicy'] = $startupPolicy ;
+						$found = true ;
+						break ;
+					}
+				}
+				if (!$found) {
+						$array[] = [
+						'id' => $id,
+						'name' => _("USB device is missing"),
+						'checked' => 'checked',
+						'startupPolicy' => $startupPolicy
+						];
+				}
+			}
+		}	
+		return $array ;
+	} 
 ?>
