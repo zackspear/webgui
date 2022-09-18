@@ -68,7 +68,7 @@ while (true) {
     $locale_init = $display['locale'];
     update_translation($locale_init);
   }
-  unset($status,$rows,$power,$load,$freq,$output);
+  unset($status,$rows,$power,$load,$freq,$output,$volt);
   $status = array_fill(0,7,"<span>-</span>");
   if (file_exists("/var/run/apcupsd.pid")) {
     // get battery-level and runtime settings
