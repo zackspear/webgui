@@ -86,7 +86,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
   if (count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
   if ($power && isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").round($power*$load/100)." W (".$status[5].")</td>";
   elseif (isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").$status[5]."</td>";
-  $status[6] = $output ? (($output>$minv&&$output<$maxv ? "<td $green>" : "<td $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</td>") : $status[6];
+  $status[6] = $output ? (($minv<$output && $output<$maxv ? "<td $green>" : "<td $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</td>") : $status[6];
 }
 if (!$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
