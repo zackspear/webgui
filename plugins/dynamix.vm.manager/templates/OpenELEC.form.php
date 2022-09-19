@@ -398,12 +398,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		$strXML = $lv->domain_get_xml($dom);
 		$boolNew = false;
 		$arrConfig = array_replace_recursive($arrConfigDefaults, domain_to_config($uuid));
+		$arrVMUSBs = getVMUSBs($strXML) ;
 	} else {
 		// edit new VM
 		$boolRunning = false;
 		$strXML = '';
 		$boolNew = true;
 		$arrConfig = $arrConfigDefaults;
+		$arrVMUSBs = getVMUSBs($strXML) ;
 	}
 
 	if (array_key_exists($arrConfig['template']['openelec'], $arrLibreELECVersions)) {
@@ -920,15 +922,19 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		</script>
 
 		<table>
+		<tr><td></td>
+			<td>_(Select)_&nbsp&nbsp_(Optional)_</td></tr></div> 
+			<tr>
 			<tr>
 				<td>_(USB Devices)_:</td>
 				<td>
-					<div class="textarea" style="width:540px">
+					<div class="textarea" style="width:640px">
 					<?
-						if (!empty($arrValidUSBDevices)) {
-							foreach($arrValidUSBDevices as $i => $arrDev) {
+						if (!empty($arrVMUSBs)) {
+							foreach($arrVMUSBs as $i => $arrDev) {
 							?>
-							<label for="usb<?=$i?>"><input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>/> <?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+							<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
+							/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp <?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>							
 							<?
 							}
 						} else {
@@ -941,13 +947,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		</table>
 		<blockquote class="inline_help">
 			<p>If you wish to assign any USB devices to your guest, you can select them from this list.</p>
+			<p>Select optional if you want device to be ignored when VM starts if not present.</p>
 		</blockquote>
 
 		<table>
 			<tr>
 				<td>_(Other PCI Devices)_:</td>
 				<td>
-					<div class="textarea" style="width:540px">
+					<div class="textarea" style="width:640px">
 					<?
 						$intAvailableOtherPCIDevices = 0;
 
@@ -1161,7 +1168,7 @@ $(function() {
 
 		<?if (!$boolNew):?>
 		// signal devices to be added or removed
-		form.find('input[name="usb[]"],input[name="pci[]"]').each(function(){
+		form.find('input[name="usb[]"],input[name="pci[]"],input[name="usbopt[]"]').each(function(){
 			if (!$(this).prop('checked')) $(this).prop('checked',true).val($(this).val()+'#remove');
 		});
 		// remove unused graphic cards
@@ -1188,7 +1195,7 @@ $(function() {
 		var postdata = form.find('input,select').serialize().replace(/'/g,"%27");
 		<?if (!$boolNew):?>
 		// keep checkbox visually unchecked
-		form.find('input[name="usb[]"],input[name="pci[]"]').each(function(){
+		form.find('input[name="usb[]"],input[name="pci[]"],input[name="usbopt[]"]').each(function(){
 			if ($(this).val().indexOf('#remove')>0) $(this).prop('checked',false);
 		});
 		<?endif?>
