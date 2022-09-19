@@ -41,7 +41,7 @@ if (file_exists($user_prefs)) {
 
 // Read container info
 $allInfo = $DockerTemplates->getAllInfo();
-$docker = ['var docker=[];'];
+$docker = [];
 $null = '0.0.0.0';
 
 $autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
