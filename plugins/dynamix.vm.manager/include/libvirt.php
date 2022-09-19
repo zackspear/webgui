@@ -262,6 +262,7 @@
 			$nics = $config['nic'];
 			$disks = $config['disk'];
 			$usb = $config['usb'];
+			$usbopt = $config['usbopt'];
 			$shares = $config['shares'];
 			$gpus = $config['gpu'];
 			$pcis = $config['pci'];
@@ -447,8 +448,12 @@
 			if (!empty($usb)) {
 				foreach($usb as $i => $v){
 					$usbx = explode(':', $v);
+					$startupPolicy = '' ;
+					if (isset($usbopt[$i])) {
+						 if (strpos($usbopt[$i], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
+					}	 
 					$usbstr .= "<hostdev mode='subsystem' type='usb'>
-									<source>
+									<source $startupPolicy>
 										<vendor id='0x".$usbx[0]."'/>
 										<product id='0x".$usbx[1]."'/>
 									</source>
