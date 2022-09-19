@@ -1138,6 +1138,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any USB devices to your guest, you can select them from this list.</p>
+		<p>Select optional if you want device to be ignored when VM starts if not present.</p>
 	</blockquote>
 
 	<table>
