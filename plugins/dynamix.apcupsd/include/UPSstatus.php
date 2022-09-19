@@ -18,19 +18,21 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
 $state = [
-  'TRIM ONLINE'  => _('Online (trim)'),
-  'BOOST ONLINE' => _('Online (boost)'),
-  'ONLINE'       => _('Online'),
-  'SLAVE'        => '('._('Slave').')',
-  'ONBATT'       => _('On battery'),
-  'COMMLOST'     => _('Lost communication'),
-  'NOBATT'       => _('No battery detected')
+  'ONLINE'   => _('Online'),
+  'SLAVE'    => '('._('slave').')',
+  'TRIM'     => '('._('trim').')',
+  'BOOST'    => '('._('boost').')',
+  'COMMLOST' => _('Lost communication'),
+  'ONBATT'   => _('On battery'),
+  'NOBATT'   => _('No battery detected'),
+  'LOWBATT'  => _('Low on battery'),
+  'OVERLOAD' => _('UPS overloaded')
 ];
 
 $red     = "class='red-text'";
 $green   = "class='green-text'";
 $orange  = "class='orange-text'";
-$status  = array_fill(0,6,"<td>-</td>");
+$status  = array_fill(0,7,"<td>-</td>");
 $result  = [];
 $level   = $_POST['level'] ?: 10;
 $runtime = $_POST['runtime'] ?: 5;
@@ -40,39 +42,41 @@ if (file_exists("/var/run/apcupsd.pid")) {
   for ($i=0; $i<count($rows); $i++) {
     [$key,$val] = array_map('trim', explode(':', $rows[$i], 2));
     switch ($key) {
+    case 'MODEL':
+      $status[0] = "<td $green>$val</td>";
+      break;
     case 'STATUS':
-      $var = strtr($val, $state);
-      $status[0] = $var ? (stripos($var,'online')!==false ? "<td $green>$var</td>" : "<td $red>$var</td>") : "<td $orange>"._('Refreshing')."...</td>";
+      $text = strtr($val, $state);
+      $status[1] = $val ? (strpos($val,'ONLINE')!==false ? "<td $green>$text</td>" : "<td $red>$text</td>") : "<td $orange>"._('Refreshing')."...</td>";
       break;
     case 'BCHARGE':
-      [$charge,$unit] = explode(' ', $val, 2);
-      $charge = intval($charge);
-      $status[1] = $charge>$level ? "<td $green>$charge $unit</td>" : "<td $red>$charge $unit</td>";
+      $charge = round(strtok($val,' '));
+      $status[2] = $charge>$level ? "<td $green>$charge %</td>" : "<td $red>$charge %</td>";
       break;
     case 'TIMELEFT':
-      [$left,$unit] = explode(' ', $val, 2);
-      $left = intval($left);
-      $status[2] = $left>$runtime ? "<td $green>$left $unit</td>" : "<td $red>$left $unit</td>";
+      $time = round(strtok($val,' '));
+      $unit = _('minutes');
+      $status[3] = $time>$runtime ? "<td $green>$time $unit</td>" : "<td $red>$time $unit</td>";
       break;
     case 'NOMPOWER':
       $power = strtok($val,' ');
-      $status[3] = $power==0 ? "<td $red>$val</td>" : "<td $green>$val</td>";
+      $status[4] = $power>0 ? "<td $green>$power W</td>" : "<td $red>$power W</td>";
       break;
     case 'LOADPCT':
       $load = strtok($val,' ');
-      $status[4] = $val;
+      $status[5] = round($load)." %";
       break;
     case 'OUTPUTV':
-      $output = strtok($val,' ');
-      $status[5] = $val;
+      $output = round(strtok($val,' '));
+      $status[6] = "$output V";
       break;
     case 'NOMINV':
       $volt = strtok($val,' ');
-      $minv = $volt / 1.1; // +/- 10% tolerance
-      $maxv = $volt * 1.1;
+      $minv = floor($volt / 1.1); // +/- 10% tolerance
+      $maxv = ceil($volt * 1.1);
       break;
     case 'LINEFREQ':
-      $freq = $val;
+      $freq = round(strtok($val,' '));
       break;
     }
     if ($i%2==0) $result[] = "<tr>";
@@ -80,11 +84,11 @@ if (file_exists("/var/run/apcupsd.pid")) {
     if ($i%2==1) $result[] = "</tr>";
   }
   if (count($rows)%2==1) $result[] = "<td></td><td></td></tr>";
-  if ($power && isset($load)) $status[4] = ($load<90 ? "<td $green>" : "<td $red>").intval($power*$load/100)." W (".$status[4].")</td>";
-  elseif (isset($load)) $status[4] = ($load<90 ? "<td $green>" : "<td $red>").$status[4]."</td>";
-  $status[5] = $output ? (($output<$minv||$output>$maxv ? "<td $red>" : "<td $green>").$status[5].($freq ? " / $freq" : "")."</td>") : $status[5];
+  if ($power && isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").round($power*$load/100)." W (".$status[5].")</td>";
+  elseif (isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").$status[5]."</td>";
+  $status[6] = $output ? ((!$volt || ($minv<$output && $output<$maxv) ? "<td $green>" : "<td $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</td>") : $status[6];
 }
 if (!$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
-echo "<tr>",implode($status),"</tr>\n",implode($result);
+echo "<tr class='ups'>",implode($status),"</tr>\n",implode($result);
 ?>
