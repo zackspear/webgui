@@ -57,6 +57,7 @@ table tbody td{line-height:normal}
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/docker.js')?>"></script>
 <script>
+var docker = [];
 <?if (!$tabbed):?>
 $('#title').append("<span id='busy' class='red-text strong' style='display:none;margin-left:40px'><?=$busy?></span>");
 <?else:?>
