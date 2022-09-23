@@ -609,6 +609,12 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
   run("unraid-api report | todos >".escapeshellarg($log));
 }
 
+// generate thrid party system diagnostics
+run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));
+if (is_dir("/dev/dri/")) run("ls -lA /sys/class/drm/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/drm.txt")); else null;
+if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/dvb.txt")); else null;
+if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
+
 // create resulting zip file and remove temp folder
 run("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
 if ($cli) {
