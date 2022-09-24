@@ -660,16 +660,38 @@
 			}
 
 			$sharestr = '';
+			$memorybacking ="<memoryBacking>
+								<nosharepages/>
+							</memoryBacking>" ;
+
 			if (!empty($shares) && $os_type != "windows") {
 				foreach ($shares as $i => $share) {
 					if (empty($share['source']) || empty($share['target'])) {
 						continue;
 					}
 
-					$sharestr .= "<filesystem type='mount' accessmode='passthrough'>
-										<source dir='" . htmlspecialchars($share['source'], ENT_QUOTES | ENT_XML1) . "'/>
-										<target dir='" . htmlspecialchars($share['target'], ENT_QUOTES | ENT_XML1) . "'/>
-									</filesystem>";
+					if ($share['mode'] == "virtiofs") {
+						$memorybacking = "<memoryBacking>
+											<source type='memfd'/>
+											<access mode='shared'/>
+											</memoryBacking>" ;
+
+						$sharestr .=	"<filesystem type='mount' accessmode='passthrough'>
+											<driver type='virtiofs' queue='1024' />
+											<source dir='" . htmlspecialchars($share['source'], ENT_QUOTES | ENT_XML1) . "'/>
+											<target dir='" . htmlspecialchars($share['target'], ENT_QUOTES | ENT_XML1) . "'/>
+											<binary path='/usr/libexec/virtiofsd'  xattr='on'>
+												<sandbox mode='chroot'/>
+												<cache mode='always'/>
+												<lock posix='on' flock='on'/>
+											</binary>
+										</filesystem>" ;
+					} else { 
+							$sharestr .= "<filesystem type='mount' accessmode='passthrough'>
+												<source dir='" . htmlspecialchars($share['source'], ENT_QUOTES | ENT_XML1) . "'/>
+												<target dir='" . htmlspecialchars($share['target'], ENT_QUOTES | ENT_XML1) . "'/>
+											</filesystem>";
+					}
 				}
 			}
 
@@ -807,10 +829,8 @@
 						$metadata
 						<currentMemory unit='KiB'>$mem</currentMemory>
 						<memory unit='KiB'>$maxmem</memory>
-						<memoryBacking>
-							<nosharepages/>
-						</memoryBacking>
 						$cpustr
+						$memorybacking
 						<os>
 							$loader
 							<type arch='$arch' machine='$machine'>hvm</type>
@@ -1941,21 +1961,20 @@
 		}
 
 		function domain_get_mount_filesystems($domain) {
-			$xpath = '//domain/devices/filesystem[@type="mount"]';
-
-			$sources = $this->get_xpath($domain, $xpath.'/source/@dir', false);
-			$targets = $this->get_xpath($domain, $xpath.'/target/@dir', false);
-
 			$ret = [];
-			if (!empty($sources)) {
-				for ($i = 0; $i < $sources['num']; $i++) {
+			$strXML = $this->domain_get_xml($domain) ;
+			$xml = new SimpleXMLElement($strXML);
+			$FS=$xml->xpath('//domain/devices/filesystem[@type="mount"]') ;
+			foreach($FS as $FSD){
+					$target=$FSD->target->attributes()->dir ;
+					$source=$FSD->source->attributes()->dir ;
+					$mode=$FSD->driver->attributes()->type ;
 					$ret[] = [
-						'source' => $sources[$i],
-						'target' => $targets[$i]
-					];
-				}
+						'source' => $source,
+						'target' => $target ,
+						'mode' => $mode 
+						];
 			}
-
 			return $ret;
 		}
 
