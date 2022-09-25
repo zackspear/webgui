@@ -26,7 +26,8 @@ $state = [
   'ONBATT'   => _('On battery'),
   'NOBATT'   => _('No battery detected'),
   'LOWBATT'  => _('Low on battery'),
-  'OVERLOAD' => _('UPS overloaded')
+  'OVERLOAD' => _('UPS overloaded'),
+  'SHUTTING DOWN' => _('System goes down')
 ];
 
 $red     = "class='red-text'";
