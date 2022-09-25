@@ -664,9 +664,9 @@
 								<nosharepages/>
 							</memoryBacking>" ;
 
-			if (!empty($shares) && $os_type != "windows") {
+			if (!empty($shares)) {
 				foreach ($shares as $i => $share) {
-					if (empty($share['source']) || empty($share['target'])) {
+					if (empty($share['source']) || empty($share['target']) || ($os_type == "windows" && $share["mode"] == "9p")) {
 						continue;
 					}
 

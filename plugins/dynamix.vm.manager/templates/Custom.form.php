@@ -859,7 +859,7 @@
 				<td>_(Unraid Share Mode)_:</td>
 				<td>
 				<select name="shares[{{INDEX}}][mode]" class="disk_bus narrow">
-					<?echo mk_option('', "9p", _('9p Mode'));;?>
+					<?if ($os_type != "windows") echo mk_option($arrShare['mode'], "9p", _('9p Mode'));;?>
 					<?echo mk_option('', "virtiofs", _('Virtiofs Mode'));;?>
 				</select>
 				</td>
