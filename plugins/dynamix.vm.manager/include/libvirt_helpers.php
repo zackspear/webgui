@@ -502,8 +502,6 @@
 
 	// Read configuration file (guaranteed to exist)
 	$domain_cfgfile = "/boot/config/domain.cfg";
-        // This will clean any ^M characters (\r) caused by windows from the config file
-        shell_exec("sed -i 's!\r!!g' '$domain_cfgfile'");
 	$domain_cfg = parse_ini_file($domain_cfgfile);
 
 	if ($domain_cfg['DEBUG'] != "yes") {
