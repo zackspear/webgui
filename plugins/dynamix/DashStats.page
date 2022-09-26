@@ -277,6 +277,7 @@ form[name=boot]{display:none}
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
 </select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="hand fa fa-fw fa-bar-chart"></span></a></span></td><td></td></tr>
 <tr class='cpu_chart' style='display:none'><td colspan='4'><div id='cpuchart'></div></td><td></td></tr>
 <tr class='cpu_open'><td></td><td>_(Overall Load)_:</td><td colspan='2'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></td><td></td></tr>
@@ -329,6 +330,7 @@ foreach ($cpus as $pair) {
 <?=mk_option("","30", _("30 s"));?>
 <?=mk_option("","60", _("1 m"));?>
 <?=mk_option("","120", _("2 m"));?>
+<?=mk_option("","300", _("5 m"));?>
 </select></span></td><td></td></tr>
 <?
 $c = 0;
@@ -636,26 +638,32 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
 
-function initArray(cookie) {
-  return ($.cookie(cookie)||'').split(';');
-}
-function initCharts() {
-  // initialize graphs entries
-  var now = new Date().getTime();
-  var c = initArray('cpu-init');
-  for (var i=0; i < cpuline; i++) {
-    var x = now + i;
-    var y = c[i]||0; cpu.push({x,y});
-  }
-  cputime = x + 1;
-  var r = initArray('rxd-init');
-  var t = initArray('txd-init');
-  for (var i=0; i < netline; i++) {
-    var x = now + i;
-    var y = r[i]||0; rxd.push({x,y});
-    var y = t[i]||0; txd.push({x,y});
-  }
-  nettime = x + 1;
+function initCharts(clear) {
+  $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
+    data = JSON.parse(data);
+    // initialize graphs entries
+    var now = new Date().getTime();
+    if (!clear) {
+      var c = data.cpu.split(';');
+      var r = data.rxd.split(';');
+      var t = data.txd.split(';');
+      for (var i=0; i < cpuline; i++) {
+        var x = now + i;
+        var y = c[i]||0; cpu.push({x,y});
+      }
+      cputime = x + 1;
+    } else {
+      // clear network graph
+      var r = ''; var t = '';
+      rxd = []; txd = [];
+    }
+    for (var i=0; i < netline; i++) {
+      var x = now + i;
+      var y = r[i]||0; rxd.push({x,y});
+      var y = t[i]||0; txd.push({x,y});
+    }
+    nettime = x + 1;
+  });
 }
 function resetCharts() {
   // prevent unlimited graph growing
@@ -806,9 +814,7 @@ function portMenu() {
 }
 function portSelect(name) {
   $.cookie('port_select',name,{expires:3650});
-  $.removeCookie('rxd-init');
-  $.removeCookie('txd-init');
-  initCharts();
+  initCharts(true);
   port_select = name;
 }
 function moreInfo(data,table) {
@@ -1237,9 +1243,11 @@ $(function() {
   $('#netline').val(netline);
   // remember latest graph values
   $(window).on('beforeunload',function(e){
-    $.cookie('cpu-init', cpu.tail(cpuline));
-    $.cookie('rxd-init', rxd.tail(netline));
-    $.cookie('txd-init', txd.tail(netline));
+    var data = {};
+    data.cpu = cpu.tail(cpuline);
+    data.rxd = rxd.tail(netline);
+    data.txd = txd.tail(netline);
+    $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
 </script>
