@@ -14,15 +14,16 @@ function ajaxVMDispatch(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vncurl, log){
+function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
-  if (vncurl !== "") {
-    opts.push({text:_("VNC Remote"), icon:"fa-desktop", action:function(e) {
+  if (vmrcurl !== "" && state == "running") {
+    var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
+    opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
       e.preventDefault();
-      window.open(vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+      window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
     }});
     opts.push({divider:true});
   }

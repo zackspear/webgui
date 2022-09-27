@@ -31,6 +31,7 @@
 	$arrValidDiskBuses = getValidDiskBuses();
 	$arrValidCdromBuses = getValidCdromBuses();
 	$arrValidVNCModels = getValidVNCModels();
+	$arrValidProtocols = getValidVMRCProtocols();
 	$arrValidKeyMaps = getValidKeyMaps();
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
@@ -78,9 +79,13 @@
 		],
 		'gpu' => [
 			[
-				'id' => 'vnc',
+				'id' => 'virtual',
+				'protocol' => 'vnc',
+				'autoport' => 'yes',
 				'model' => 'qxl',
-				'keymap' => 'en-us'
+				'keymap' => 'en-us',
+				'port' => -1 ,
+				'wsport' => -1
 			]
 		],
 		'audio' => [
@@ -125,13 +130,15 @@
 		} else {
 			// form view
 			if ($lv->domain_new($_POST)) {
-				// Fire off the vnc popup if available
+				// Fire off the vnc/spice popup if available
 				$dom = $lv->get_domain_by_name($_POST['domain']['name']);
-				$vncport = $lv->domain_get_vnc_port($dom);
+				$vmrcport = $lv->domain_get_vnc_port($dom);
 				$wsport = $lv->domain_get_ws_port($dom);
+				$protocol = $lv->domain_get_vmrc_protocol($dom);
 				$reply = ['success' => true];
-				if ($vncport > 0) {
-					$reply['vncurl'] = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host='.$_SERVER['HTTP_HOST'].'&port=&path=/wsproxy/'.$wsport.'/';
+				if ($vmrcport > 0) {
+					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+					if ($protocol == "spice") $reply['vmrcurl']  .= '&port=/wsproxy/'.$vmrcport.'/'; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
 				}
 			} else {
 				$reply = ['error' => $lv->get_last_error()];
@@ -891,8 +898,9 @@
 					<select name="gpu[<?=$i?>][id]" class="gpu narrow">
 					<?
 						if ($i == 0) {
-							// Only the first video card can be VNC
-							echo mk_option($arrGPU['id'], 'vnc', _('VNC'));
+							// Only the first video card can be VNC or SPICE
+							echo mk_option($arrGPU['id'], 'virtual', _('Virtual'));
+							
 						} else {
 							echo mk_option($arrGPU['id'], '', _('None'));
 						}
@@ -905,21 +913,56 @@
 				</td>
 			</tr>
 
-			<?if ($i == 0) {?>
-			<tr class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vncmodel">
-				<td>_(VNC Video Driver)_:</td>
+			<?if ($i == 0) { 
+				$hiddenport = $hiddenwsport = "hidden" ;
+				if ($arrGPU['autoport'] == "no"){
+				if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
+				if ($arrGPU['protocol'] == "spice") $hiddenport = "" ;
+				}
+				?>
+				<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<td>_(VM Console Protocol)_:</td>
+				<td>
+					<select id="protocol" name="gpu[<?=$i?>][protocol]" class="narrow" title="_(protocol for virtual console)_" onchange="ProtocolChange(this)" >
+					<?mk_dropdown_options($arrValidProtocols, $arrGPU['protocol']);?>
+					</select>
+				</td>
+				</tr>
+				<tr  id="autoportline" name="autoportline" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced autoportline">
+					<td>_(VM Console AutoPort)_:</td>
+				<td>
+					<select id="autoport" name="gpu[<?=$i?>][autoport]" class="narrow" onchange="AutoportChange(this)">
+						<?
+						echo mk_option($arrGPU['autoport'], 'yes', _('Yes'));
+						echo mk_option($arrGPU['autoport'], 'no', _('No'));
+						?>
+					</select>
+				
+					<span id="Porttext"  <?=$hiddenport?>>_(VM Console Port)_:</span>
+				
+				    <input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"   title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
+				
+					<span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
+				
+				    <input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"   title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
+				</td>
+			</tr>
+
+			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
+				<td>_(VM Console Video Driver)_:</td>
 				<td>
 					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
 					</select>
 				</td>
 			</tr>
+
 			<tr class="vncpassword">
-				<td>_(VNC Password)_:</td>
+				<td>_(VM Console Password)_:</td>
 				<td><input type="password" name="domain[password]" autocomplete='new-password' title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
-			<tr class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vnckeymap">
-				<td>_(VNC Keyboard)_:</td>
+			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
+				<td>_(VM Console Keyboard)_:</td>
 				<td>
 					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
@@ -927,36 +970,46 @@
 				</td>
 			</tr>
 			<?}?>
-			<tr class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+			<tr class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 				<td>_(Graphics ROM BIOS)_:</td>
 				<td>
 					<input type="text" name="gpu[<?=$i?>][rom]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrGPU['rom'])?>" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 				</td>
 			</tr>
 		</table>
-		<?if ($i == 0) {?>
+		<?if ($i == 0 || $i == 1) {?>
 		<blockquote class="inline_help">
 			<p>
 				<b>Graphics Card</b><br>
-				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to VNC.
+				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vncmodel">
-				<b>VNC Video Driver</b><br>
-				If you wish to assign a different video driver to use for a VNC connection, specify one here.
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>virtual video protocol VDC/SPICE</b><br>
+				If you wish to assign a protocol type, specify one here. 
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>virtual auto port</b><br>
+				Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set. 
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
+				<b>virtual Video Driver</b><br>
+				If you wish to assign a different video driver to use for a VM Console connection, specify one here.
 			</p>
 
 			<p class="vncpassword">
-				<b>VNC Password</b><br>
-				If you wish to require a password to connect to the VM over a VNC connection, specify one here.
+				<b>virtual Password</b><br>
+				If you wish to require a password to connect to the VM over a VM Console connection, specify one here.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] != 'vnc') echo 'was';?>advanced vnckeymap">
-				<b>VNC Keyboard</b><br>
-				If you wish to assign a different keyboard layout to use for a VNC connection, specify one here.
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
+				<b>virtual Keyboard</b><br>
+				If you wish to assign a different keyboard layout to use for a VM Console connection, specify one here.
 			</p>
 
-			<p class="<?if ($arrGPU['id'] == 'vnc') echo 'was';?>advanced romfile">
+			<p class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
 				<b>Graphics ROM BIOS</b><br>
 				If you wish to use a custom ROM BIOS for a Graphics card, specify one here.
 			</p>
@@ -1262,6 +1315,59 @@
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
+
+function AutoportChange(autoport) {
+		if (autoport.value == "yes") {
+			document.getElementById("port").style.visibility="hidden";
+			document.getElementById("Porttext").style.visibility="hidden";
+			document.getElementById("wsport").style.visibility="hidden";
+			document.getElementById("WSPorttext").style.visibility="hidden";
+		} else {
+			var protocol = document.getElementById("protocol").value ;
+			document.getElementById("port").style.display="inline";
+			document.getElementById("port").style.visibility="visible";
+			document.getElementById("Porttext").style.display="inline";
+			document.getElementById("Porttext").style.visibility="visible";
+			if (protocol == "vnc") {
+				document.getElementById("wsport").style.display="inline";
+				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.display="inline";
+				document.getElementById("WSPorttext").style.visibility="visible";
+			} else {
+				document.getElementById("wsport").style.visibility="hidden";
+				document.getElementById("WSPorttext").style.visibility="hidden";
+			}
+		}	
+	}
+
+function ProtocolChange(protocol) {
+		var autoport = document.getElementById("autoport").value ;
+		if (autoport == "yes") {
+			document.getElementById("port").style.visibility="hidden";
+			document.getElementById("Porttext").style.visibility="hidden";
+			document.getElementById("wsport").style.visibility="hidden";
+			document.getElementById("WSPorttext").style.visibility="hidden";
+		} else {
+			document.getElementById("port").style.display="inline";
+			document.getElementById("port").style.visibility="visible";
+			document.getElementById("Porttext").style.display="inline";
+			document.getElementById("Porttext").style.visibility="visible";
+			if (protocol.value == "vnc") {
+				document.getElementById("wsport").style.display="inline";
+				document.getElementById("wsport").style.visibility="visible";
+				document.getElementById("WSPorttext").style.display="inline";
+				document.getElementById("WSPorttext").style.visibility="visible";
+			} else {
+				document.getElementById("wsport").style.visibility="hidden";
+				document.getElementById("WSPorttext").style.visibility="hidden";
+			}
+		}	
+	}
+		
+	
+
+
+
 $(function() {
 	function completeAfter(cm, pred) {
 		var cur = cm.getCursor();
@@ -1287,6 +1393,7 @@ $(function() {
 			return inner.tagName;
 		});
 	}
+
 
 	var editor = CodeMirror.fromTextArea(document.getElementById("addcode"), {
 		mode: "xml",
@@ -1321,6 +1428,7 @@ $(function() {
 			}, 100);
 		}
 	});
+
 
 	var regenerateDiskPreview = function (disk_index) {
 		var domaindir = '<?=$domain_cfg['DOMAINDIR']?>' + $('#domain_oldname').val();
@@ -1487,8 +1595,8 @@ $(function() {
 		var myindex = $(this).closest('table').data('index');
 
 		if (myindex == 0) {
-			$vnc_sections = $('.vncmodel,.vncpassword,.vnckeymap');
-			if (myvalue == 'vnc') {
+			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap');
+			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			} else {
@@ -1498,7 +1606,7 @@ $(function() {
 		}
 
 		$romfile = $(this).closest('table').find('.romfile');
-		if (myvalue == 'vnc' || myvalue == '') {
+		if (myvalue == 'virtual' || myvalue == '') {
 			slideUpRows($romfile.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			$romfile.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 		} else {
@@ -1548,7 +1656,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'vnc' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
@@ -1574,10 +1682,10 @@ $(function() {
 
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
-				if (data.vncurl) {
-					var vnc_window=window.open(data.vncurl, '_blank', 'scrollbars=yes,resizable=yes');
+				if (data.vmrcurl) {
+					var vmrc_window=window.open(data.vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
 					try {
-						vnc_window.focus();
+						vmrc_window.focus();
 					} catch (e) {
 						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
 						return;

@@ -858,6 +858,14 @@
 
 		return $arrValidVNCModels;
 	}
+	function getValidVMRCProtocols() {
+		$arrValidProtocols = [
+			'vnc' => 'VNC',
+			'spice' => 'SPICE'
+		];
+
+		return $arrValidProtocols;
+	}
 
 	function getValidKeyMaps() {
 		$arrValidKeyMaps = [
@@ -981,13 +989,19 @@
 		$arrAudioDevices = [];
 		$arrOtherDevices = [];
 
-		// check for vnc; add to arrGPUDevices
-		$intVNCPort = $lv->domain_get_vnc_port($res);
-		if (!empty($intVNCPort)) {
+		// check for vnc/spice; add to arrGPUDevices
+		$vmrcport = $lv->domain_get_vnc_port($res);
+		$autoport = $lv->domain_get_vmrc_autoport($res);
+		if (empty($vmrcport) && $autoport == "yes") $vmrcport = -1 ;
+		if (!empty($vmrcport)) {
 			$arrGPUDevices[] = [
-				'id' => 'vnc',
+				'id' => 'virtual',
+				'protocol' => $lv->domain_get_vmrc_protocol($res),
 				'model' => $lv->domain_get_vnc_model($res),
-				'keymap' => $lv->domain_get_vnc_keymap($res)
+				'keymap' => $lv->domain_get_vnc_keymap($res),
+				'port' => $vmrcport,
+				'wsport' => $lv->domain_get_ws_port($res),
+				'autoport' => $autoport,
 			];
 		}
 
@@ -1164,8 +1178,8 @@
 		}
 		// settings not in the GUI, but maybe customized
 		unset($new['memoryBacking'], $new['clock'], $new['features']);
-		// preserve vnc port settings
-		unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
+		// preserve vnc/spice port settings
+		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);

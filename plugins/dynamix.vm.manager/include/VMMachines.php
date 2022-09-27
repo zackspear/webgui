@@ -68,15 +68,20 @@ foreach ($vms as $vm) {
     $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true);
   }
   $arrValidDiskBuses = getValidDiskBuses();
-  $vncport = $lv->domain_get_vnc_port($res);
-  $vnc = '';
+  $vmrcport = $lv->domain_get_vnc_port($res);
+  $autoport = $lv->domain_get_vmrc_autoport($res);
+  $vmrcurl = '';
   $graphics = '';
-  if ($vncport > 0) {
+  if ($vmrcport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
-    $vnc = autov('/plugins/dynamix.vm.manager/vnc.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] . '&port=&path=/wsproxy/' . $wsport . '/';
-    $graphics = 'VNC:'.$vncport;
-  } elseif ($vncport == -1) {
-    $graphics = 'VNC:auto';
+    $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
+    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+    if ($vmrcprotocol == "spice") $vmrcurl .= '&port=/wsproxy/' . $vmrcport . '/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+    $graphics = strtoupper($vmrcprotocol).":".$vmrcport;
+  } elseif ($vmrcport == -1 || $autoport) {
+    $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
+    if ($autoport == "yes") $auto = "auto" ; else $auto="manual" ;
+    $graphics = strtoupper($vmrcprotocol).':'._($auto);
   } elseif (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
     foreach ($arrConfig['gpu'] as $arrGPU) {
@@ -93,7 +98,7 @@ foreach ($vms as $vm) {
     $graphics = str_replace("\n", "<br>", trim($graphics));
   }
   unset($dom);
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vnc),addslashes($log));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':

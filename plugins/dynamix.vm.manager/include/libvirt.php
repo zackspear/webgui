@@ -697,7 +697,7 @@
 
 			$pcidevs='';
 			$gpudevs_used=[];
-			$vnc='';
+			$vmrc='';
 			if (!empty($gpus)) {
 				foreach ($gpus as $i => $gpu) {
 					// Skip duplicate video devices
@@ -705,7 +705,7 @@
 						continue;
 					}
 
-					if ($gpu['id'] == 'vnc') {
+					if ($gpu['id'] == 'virtual') {
 						$strKeyMap = '';
 						if (!empty($gpu['keymap'])) {
 							$strKeyMap = "keymap='" . $gpu['keymap'] . "'";
@@ -725,18 +725,35 @@
 								$strModelType = 'qxl';
 							}
 						}
+						if (!empty($gpu['autoport'])) {
+							$strAutoport = $gpu['autoport'];
+						} else $strAutoport = "yes" ;
 
-						$vnc = "<input type='tablet' bus='usb'/>
+						
+
+						if (!empty($gpu['protocol'])) {
+							$strProtocol = $gpu['protocol'];
+						} else $strProtocol = "vnc" ;
+
+						if (!empty($gpu['wsport'])) {
+							$strWSport = $gpu['wsport'];
+						} else $strWSport = "-1" ;
+
+						if (!empty($gpu['port'])) {
+							$strPort = $gpu['port'];
+						} else $strPort = "-1" ;
+
+						if ($strAutoport == "yes") $strPort = $strWSport = "-1" ;
+
+						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
-								<graphics type='vnc' port='-1' autoport='yes' websocket='-1' listen='0.0.0.0' $passwdstr $strKeyMap>
+								<graphics type='$strProtocol' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
 								</graphics>
 								<video>
 									<model type='$strModelType'/>
 								</video>";
-
-						$gpudevs_used[] = $gpu['id'];
 
 						continue;
 					}
@@ -816,7 +833,7 @@
 			}
 
 			$memballoon = "<memballoon model='none'/>";
-			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='vnc'; }) )) {
+			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='virtual' ; }) )) {
 				$memballoon = "<memballoon model='virtio'>
 							<alias name='balloon0'/>
 						</memballoon>";
@@ -853,7 +870,7 @@
 							$ctrl
 							$sharestr
 							$netstr
-							$vnc
+							$vmrc
 							<console type='pty'/>
 							$scsicontroller
 							$pcidevs
@@ -1826,6 +1843,22 @@
 		function domain_get_vnc_port($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@port', false);
 			$var = (int)$tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
+		function domain_get_vmrc_autoport($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@autoport', false);
+			$var = $tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
+		function domain_get_vmrc_protocol($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@type', false);
+			$var = $tmp[0];
 			unset($tmp);
 
 			return $var;
