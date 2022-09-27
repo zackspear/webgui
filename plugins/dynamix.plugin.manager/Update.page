@@ -173,9 +173,8 @@ function zipfile(){
   return '<?=$zip?>-diagnostics-'+localISOTime.substr(0,16).replace(/[-:]/g,'').replace('T','-')+'.zip';
 }
 function diagnostics(file) {
-  var anonymize = $('#anonymize').is(':checked') ? '' : '-a';
   nchan_diagnostics.start();
-  $.post('/webGui/include/Download.php',{cmd:'diag',file:file,anonymize:anonymize},function(zip) {
+  $.post('/webGui/include/Download.php',{cmd:'diag',file:file,anonymize:''},function(zip) {
     if (zip) {
       diagnosticsFile = zip;
       swal({title:"_(Downloading)_...",text:"/boot/logs"+zip+"<hr><pre id='swaltext'></pre>",html:true,animation:'none',showConfirmButton:false});
@@ -183,7 +182,6 @@ function diagnostics(file) {
       $('button.confirm').prop('disabled',true);
     } else {
       nchan_diagnostics.stop();
-      $("#download").attr("disabled",false);
     }
   });
 }

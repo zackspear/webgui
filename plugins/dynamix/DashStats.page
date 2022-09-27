@@ -1160,9 +1160,9 @@ var sortableHelper = function(e,ui){
 };
 
 $(function() {
+  initCharts();
   cpuchart.render();
   netchart.render();
-  initCharts();
   $('table').sortable({helper:sortableHelper,items:'.sortable',handle:'.section,.next',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,
   update:function(e,ui){
     var table = ui.item.parent();
