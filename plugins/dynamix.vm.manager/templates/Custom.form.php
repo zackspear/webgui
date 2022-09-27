@@ -100,7 +100,8 @@
 		'shares' => [
 			[
 				'source' => '',
-				'target' => ''
+				'target' => '',
+				'mode' => ''
 			]
 		]
 	];
@@ -257,6 +258,7 @@
 	if (!$arrConfig['template']['os']) {
 		$arrConfig['template']['os'] = ($arrConfig['domain']['clock']=='localtime' ? 'windows' : 'linux');
 	}
+	$os_type = ((empty($arrConfig['template']['os']) || stripos($arrConfig['template']['os'], 'windows') === false) ? 'other' : 'windows');
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -800,7 +802,18 @@
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 		?>
-		<table class="domain_os other" data-category="Share" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
+		<table  data-category="Share" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
+
+			<tr class="advanced">
+				<td>_(Unraid Share Mode)_:</td>
+				<td>
+				<select name="shares[<?=$i?>][mode]" class="disk_bus narrow">
+					<?if ($os_type != "windows") echo mk_option($arrShare['mode'], "9p", _('9p Mode'));;?>
+					<?echo mk_option($arrShare['mode'], "virtiofs", _('Virtiofs Mode'));;?>
+				</select>
+				</td>
+			</tr>
+
 			<tr class="advanced">
 				<td>_(Unraid Share)_:</td>
 				<td>
@@ -820,8 +833,13 @@
 			<div class="advanced">
 				<blockquote class="inline_help">
 					<p>
+						<b>Unraid Share Mode</b><br>
+						Used to create a VirtFS mapping to a Linux-based guest.  Specify the mode you want to use either 9p or Virtiofs.
+					</p>
+
+					<p>
 						<b>Unraid Share</b><br>
-						Used to create a VirtFS mapping to a Linux-based guest.  Specify the path on the host here.
+						Specify the path on the host here.
 					</p>
 
 					<p>
@@ -837,6 +855,15 @@
 	<?}?>
 	<script type="text/html" id="tmplShare">
 		<table class="domain_os other">
+		<tr class="advanced">
+				<td>_(Unraid Share Mode)_:</td>
+				<td>
+				<select name="shares[{{INDEX}}][mode]" class="disk_bus narrow">
+					<?if ($os_type != "windows") echo mk_option($arrShare['mode'], "9p", _('9p Mode'));;?>
+					<?echo mk_option('', "virtiofs", _('Virtiofs Mode'));;?>
+				</select>
+				</td>
+			</tr>
 			<tr class="advanced">
 				<td>_(Unraid Share)_:</td>
 				<td>
