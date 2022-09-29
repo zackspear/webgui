@@ -37,7 +37,8 @@ function mask2cidr($mask) {
 function thisNet($ethX='eth0') {
   extract(parse_ini_file('state/network.ini',true));
   $net = long2ip(ip2long($$ethX['IPADDR:0']) & ip2long($$ethX['NETMASK:0'])).'/'.mask2cidr($$ethX['NETMASK:0']);
-  return [$net,$$ethX['GATEWAY:0']];
+  $dev = $$ethX['BRIDGING']=='yes' ? $$ethX['BRNAME'] : ($$ethX['BONDING']=='yes' ? $$ethX['BONDNAME'] : $ethX);
+  return [$dev,$net,$$ethX['GATEWAY:0']];
 }
 function ipv4($ip) {
   return strpos($ip,'.')!==false;
@@ -114,10 +115,10 @@ function addDocker($vtun) {
     $error = dockerNet($vtun);
   }
   if (!$error && !isNet($network)) {
-    [$thisnet,$gateway] = thisNet();
+    [$device,$thisnet,$gateway] = thisNet();
     exec("ip -4 rule add from $network table $index");
     exec("ip -4 route add unreachable default table $index");
-    exec("ip -4 route add $thisnet via $gateway table $index");
+    exec("ip -4 route add $thisnet via $gateway dev $device able $index");
   }
   return $error;
 }
@@ -231,13 +232,13 @@ function parseInput($vtun,&$input,&$x) {
       if ($section==0) {
         // add WG routing for docker containers. Only IPv4 supported
         [$index,$network] = newNet($vtun);
-        [$thisnet,$gateway] = thisNet();
+        [$device,$thisnet,$gateway] = thisNet();
         $conf[]  = "PostUp=ip -4 route flush table $index";
-        $conf[]  = "PostUp=ip -4 route add default via $tunip table $index";
-        $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway table $index";
+        $conf[]  = "PostUp=ip -4 route add default via $tunip dev $vtun table $index";
+        $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway dev $device table $index";
         $conf[]  = "PostDown=ip -4 route flush table $index";
         $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
-        $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway table $index";
+        $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway dev $device table $index";
       }
       $conf[] = "\n[Peer]";
       // add peers, this is only used for peer sections
