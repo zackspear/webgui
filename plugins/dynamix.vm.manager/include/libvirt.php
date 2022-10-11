@@ -266,6 +266,7 @@
 			$shares = $config['shares'];
 			$gpus = $config['gpu'];
 			$pcis = $config['pci'];
+			$pciboot = $config['pciboot'];
 			$audios = $config['audio'];
 			$template = $config['template'];
 
@@ -825,8 +826,11 @@
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
-									</source>
-								</hostdev>";
+									</source>" ;
+					if (!empty($pciboot[$i])) {
+						$pcidevs .= "<boot order='".$pciboot[$i]."'/>" ;
+					}
+					$pcidevs .= "</hostdev>";
 
 					$pcidevs_used[] = $pci_id;
 				}
@@ -2092,7 +2096,7 @@
 					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->value;
 					$rom = $xpath->query('rom/@file', $objNode);
 					$rom = ($rom->length > 0 ? $rom->Item(0)->value : '');
-
+					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->value;
 					$devid = str_replace('0x', '', 'pci_'.$dom.'_'.$bus.'_'.$slot.'_'.$func);
 					$tmp2 = $this->get_node_device_information($devid);
 
@@ -2106,6 +2110,7 @@
 						'vendor_id' => $tmp2['vendor_id'],
 						'product' => $tmp2['product_name'],
 						'product_id' => $tmp2['product_id'],
+						'boot' => $boot,
 						'rom' => $rom
 					];
 				}

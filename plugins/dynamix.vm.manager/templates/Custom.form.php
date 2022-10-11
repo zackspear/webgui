@@ -985,27 +985,27 @@
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
-				<b>virtual video protocol VDC/SPICE</b><br>
+				<b>Virtual video protocol VNC/SPICE</b><br>
 				If you wish to assign a protocol type, specify one here. 
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
-				<b>virtual auto port</b><br>
+				<b>Virtual auto port</b><br>
 				Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set. 
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
-				<b>virtual Video Driver</b><br>
+				<b>Virtual Video Driver</b><br>
 				If you wish to assign a different video driver to use for a VM Console connection, specify one here.
 			</p>
 
 			<p class="vncpassword">
-				<b>virtual Password</b><br>
+				<b>Virtual Password</b><br>
 				If you wish to require a password to connect to the VM over a VM Console connection, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
-				<b>virtual Keyboard</b><br>
+				<b>Virtual Keyboard</b><br>
 				If you wish to assign a different keyboard layout to use for a VM Console connection, specify one here.
 			</p>
 
@@ -1199,7 +1199,7 @@
 		<tr>
 			<td>_(USB Devices)_:</td>
 			<td>
-				<div class="textarea" style="width: 640px">
+				<div class="textarea" style="width: 740px">
 				<?
 					if (!empty($arrVMUSBs)) {
 						foreach($arrVMUSBs as $i => $arrDev) {
@@ -1222,25 +1222,33 @@
 	</blockquote>
 
 	<table>
+	<tr><td></td>
+		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+		<tr>
 		<tr>
 			<td>_(Other PCI Devices)_:</td>
 			<td>
-				<div class="textarea" style="width: 640px">
+				<div class="textarea" style="width: 740px">
 				<?
 					$intAvailableOtherPCIDevices = 0;
 
 					if (!empty($arrValidOtherDevices)) {
 						foreach($arrValidOtherDevices as $i => $arrDev) {
-							$extra = '';
-							if (count(array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
+							$bootdisable = $extra = '';
+							if ($arrDev["typeid"] != "0108") $bootdisable = ' disabled="disabled"' ;
+							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
+								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
+									
 							} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 								//$extra .= ' disabled="disabled"';
 								continue;
 							}
 							$intAvailableOtherPCIDevices++;
 					?>
-						<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> <?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
 					}
@@ -1255,6 +1263,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
+		<p>Use boot order to set device as bootable and boot sequence. Only PCI types 0108 supported for boot order.</p>
 	</blockquote>
 
 	<table>
