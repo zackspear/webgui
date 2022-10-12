@@ -1234,7 +1234,7 @@
 
 					if (!empty($arrValidOtherDevices)) {
 						foreach($arrValidOtherDevices as $i => $arrDev) {
-							$bootdisable = $extra = '';
+							$bootdisable = $extra = $pciboot = '';
 							if ($arrDev["typeid"] != "0108") $bootdisable = ' disabled="disabled"' ;
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
