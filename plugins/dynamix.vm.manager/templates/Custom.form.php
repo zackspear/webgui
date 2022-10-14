@@ -805,7 +805,9 @@
 		</table>
 	</script>
 
-	<?foreach ($arrConfig['shares'] as $i => $arrShare) {
+	<?
+	 $arrUnraidShares = getUnraidShares() ;
+	 foreach ($arrConfig['shares'] as $i => $arrShare) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 		?>
@@ -818,20 +820,26 @@
 					<?if ($os_type != "windows") echo mk_option($arrShare['mode'], "9p", _('9p Mode'));;?>
 					<?echo mk_option($arrShare['mode'], "virtiofs", _('Virtiofs Mode'));;?>
 				</select>
+				_(Unraid Share)_:
+				<select name="shares[<?=$i?>][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
+					<?mk_dropdown_options($arrUnraidShares, '');?>
+				</select>
+				</td>
+				</tr>	
+
+			<tr class="advanced">
+				<td> 
+					<text id="shares[<?=$i?>]sourcetext" > _(Unraid Source Path)_: </text> 
+				</td>
+				<td>
+					<input type="text" id="shares[<?=$i?>][source]" name="shares[<?=$i?>][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
 				</td>
 			</tr>
 
-			<tr class="advanced">
-				<td>_(Unraid Share)_:</td>
+			<tr  class="advanced">
+				<td><span id="shares[<?=$i?>][targettext]" >_(Unraid Mount Tag)_:</span></td>
 				<td>
-					<input type="text" name="shares[<?=$i?>][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
-				</td>
-			</tr>
-
-			<tr class="advanced">
-				<td>_(Unraid Mount tag)_:</td>
-				<td>
-					<input type="text" name="shares[<?=$i?>][target]" value="<?=htmlspecialchars($arrShare['target'])?>" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
+					<input type="text" name="shares[<?=$i?>][target]" id="shares[<?=$i?>][target]" value="<?=htmlspecialchars($arrShare['target'])?>" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
 				</td>
 			</tr>
 		</table>
@@ -844,8 +852,14 @@
 						Used to create a VirtFS mapping to a Linux-based guest.  Specify the mode you want to use either 9p or Virtiofs.
 					</p>
 
+					
 					<p>
 						<b>Unraid Share</b><br>
+						Set tag and path to match the selected Unraid share.
+					</p>
+
+					<p>
+						<b>Unraid Source Path</b><br>
 						Specify the path on the host here.
 					</p>
 
@@ -869,19 +883,26 @@
 					<?if ($os_type != "windows") echo mk_option($arrShare['mode'], "9p", _('9p Mode'));;?>
 					<?echo mk_option('', "virtiofs", _('Virtiofs Mode'));;?>
 				</select>
+
+				_(Unraid Share)_:
+				
+				<select name="shares[{{INDEX}}][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
+					<?mk_dropdown_options($arrUnraidShares, '');?>
+				</select>
 				</td>
-			</tr>
+				</tr>	
+
 			<tr class="advanced">
-				<td>_(Unraid Share)_:</td>
+				<td>_(Unraid Source Path)_:</td>
 				<td>
-					<input type="text" name="shares[{{INDEX}}][source]" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
+					<input type="text" name="shares[{{INDEX}}][source]" id="shares[{{INDEX}}][source]" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
 				</td>
 			</tr>
 
 			<tr class="advanced">
-				<td>_(Unraid Mount tag)_:</td>
+				<td>_(Unraid Mount Tag)_:</td>
 				<td>
-					<input type="text" name="shares[{{INDEX}}][target]" value="" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
+					<input type="text" name="shares[{{INDEX}}][target]" id="shares[{{INDEX}}][target]" value="" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
 				</td>
 			</tr>
 		</table>
@@ -1315,6 +1336,28 @@
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
+
+function ShareChange(share) {
+		var value = share.value;
+		var text = share.options[share.selectedIndex].text;
+		var strArray = text.split(":");
+		var index = share.name.indexOf("]") + 1;
+		var name = share.name.substr(0,index) ;
+		if (strArray[0] === "User") {
+			var path = "/mnt/user/" + strArray[1] ;
+		} else {
+			var path = "/mnt/" + strArray[1] ;
+		}
+		if (strArray[0] != "Manual") {
+		document.getElementById(name+"[target]").value = strArray[1] ;	
+		document.getElementById(name+"[source]").value = path ;	
+		document.getElementById(name+"[target]").style.visibility="hidden" ;
+		document.getElementById(name+"[source]").style.visibility="hidden" ;
+		} else {
+			document.getElementById(name+"[target]").style.visibility="visible" ;
+			document.getElementById(name+"[source]").style.visibility="visible" ;
+		}
+}
 
 function AutoportChange(autoport) {
 		if (autoport.value == "yes") {
