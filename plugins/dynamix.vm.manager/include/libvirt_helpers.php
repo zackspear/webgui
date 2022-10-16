@@ -1232,4 +1232,24 @@
 		}	
 		return $array ;
 	} 
+
+	function sharesOnly($disk) {
+		return strpos('Data,Cache',$disk['type'])!==false && $disk['exportable']=='yes';
+	  }
+
+	function getUnraidShares(){
+		$shares  = parse_ini_file('state/shares.ini',true);
+		uksort($shares,'strnatcasecmp');
+		$arrreturn[] = "Manual" ;
+		foreach ($shares as $share) {
+			$arrreturn[] = "User:".$share["name"] ;
+		}
+		$disks   = parse_ini_file('state/disks.ini',true);
+		$disks = array_filter($disks,'sharesOnly');
+
+		foreach ($disks as $name => $disk) {
+			$arrreturn[] = "Disk:".$name ;
+		}
+		return $arrreturn ;
+	}
 ?>
