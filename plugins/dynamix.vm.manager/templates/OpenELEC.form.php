@@ -1004,29 +1004,37 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<p>Select optional if you want device to be ignored when VM starts if not present.</p>
 		</blockquote>
 
-		<table>
+	<table>
+	<tr><td></td>
+		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+		<tr>
 			<tr>
 				<td>_(Other PCI Devices)_:</td>
 				<td>
-					<div class="textarea" style="width:640px">
-					<?
-						$intAvailableOtherPCIDevices = 0;
+				<div class="textarea" style="width: 740px">
+				<?
+					$intAvailableOtherPCIDevices = 0;
 
 						if (!empty($arrValidOtherDevices)) {
 							foreach($arrValidOtherDevices as $i => $arrDev) {
-								$extra = '';
-								if (count(array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
-									$extra .= ' checked="checked"';
+							$bootdisable = $extra = $pciboot = '';
+							if ($arrDev["typeid"] != "0108") $bootdisable = ' disabled="disabled"' ;
+							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
+								$extra .= ' checked="checked"';
+								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
+									
 								} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 									//$extra .= ' disabled="disabled"';
 									continue;
 								}
 								$intAvailableOtherPCIDevices++;
 						?>
-							<label for="pci<?=$i?>"><input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> <?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
-						<?
-							}
+						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+					<?
 						}
+					}
 
 						if (empty($intAvailableOtherPCIDevices)) {
 							echo "<i>"._('None available')."</i>";
@@ -1038,6 +1046,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 		</table>
 		<blockquote class="inline_help">
 			<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
+			<p>Use boot order to set device as bootable and boot sequence. Only PCI types 0108 supported for boot order.</p>
 		</blockquote>
 
 		<table>
