@@ -1464,7 +1464,7 @@ _(Persistent keepalive)_:
 : <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" id="addpeer-wg0" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
   <input type="button" class="advanced wg0" value="_(Delete Tunnel)_" style="float:right;display:none" onclick="delTunnel('wg0')"<?=file_exists($conf_wg0)?'':' disabled'?>>
 </form>
-<small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfield</small>
+<small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld</small>
 
 <script markdown="1" type="text/html" id="peer-template-wg0">
 <div markdown="1" id="index-wg0-INDEX" class="shade-<?=$display['theme']?>">
