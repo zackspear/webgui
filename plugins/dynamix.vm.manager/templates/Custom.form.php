@@ -1360,11 +1360,11 @@ function ShareChange(share) {
 		if (strArray[0] != "Manual") {
 		document.getElementById(name+"[target]").value = strArray[1] ;	
 		document.getElementById(name+"[source]").value = path ;	
-		document.getElementById(name+"[target]").style.visibility="hidden" ;
-		document.getElementById(name+"[source]").style.visibility="hidden" ;
+		document.getElementById(name+"[target]").setAttribute("disabled","disabled");
+		document.getElementById(name+"[source]").setAttribute("disabled","disabled");
 		} else {
-			document.getElementById(name+"[target]").style.visibility="visible" ;
-			document.getElementById(name+"[source]").style.visibility="visible" ;
+			document.getElementById(name+"[target]").removeAttribute("disabled");
+			document.getElementById(name+"[source]").removeAttribute("disabled");
 		}
 }
 
