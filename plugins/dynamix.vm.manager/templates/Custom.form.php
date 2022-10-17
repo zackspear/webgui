@@ -1284,7 +1284,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
-		<p>Use boot order to set device as bootable and boot sequence. Only PCI types 0108 supported for boot order.</p>
+		<p>Use boot order to set device as bootable and boot sequence. Only NVMe devices (PCI types 0108) supported for boot order.</p>
 	</blockquote>
 
 	<table>
