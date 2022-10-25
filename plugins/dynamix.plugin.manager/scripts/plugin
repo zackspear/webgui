@@ -585,6 +585,8 @@ if ($method == 'install') {
     if (!download($pluginURL, $plugin_file, $error)) {
       write("plugin: $error\n");
       @unlink($plugin_file);
+      // run hook scripts for post processing
+      post_hooks($error);
       done(1);
     }
   } else {
