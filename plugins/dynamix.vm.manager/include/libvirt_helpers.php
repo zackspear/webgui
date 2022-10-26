@@ -1252,4 +1252,12 @@
 		}
 		return $arrreturn ;
 	}
+
+	function getgastate($res) {
+        global $lv ;
+        $xml = new SimpleXMLElement($lv->domain_get_xml($res)) ;
+        $data =  $xml->xpath('//channel/target[@name="org.qemu.guest_agent.0"]/@state') ;
+        $data = $data[0]->state ;
+        return $data ;
+	}
 ?>
