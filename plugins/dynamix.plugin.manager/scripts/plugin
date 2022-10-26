@@ -232,6 +232,7 @@ function post_hooks($error='') {
 //
 function download($url, $name, &$error, $write=true) {
   $plg = basename($url);
+  $plg = str_replace('"', '', $plg);
   if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --timeout=30 --tries=5 --waitretry=5 -O $name $url 2>&1", 'r')) {
     if ($write) write("plugin: downloading: $plg ...\r");
     $level = -1;
@@ -245,7 +246,7 @@ function download($url, $name, &$error, $write=true) {
       }
     }
     if (($perror = pclose($file)) != 0) {
-      $error = "$plg download failure (".error_desc($perror).")";
+      $error = "$plg download failure: ".error_desc($perror);
       return false;
     } elseif (filesize($name) == 0) {
       if ($write) write("plugin: download failure: zero-length file\n");
@@ -576,6 +577,8 @@ if ($method == 'install') {
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
   $plugin = basename($argv[2]);
   write("plugin: installing: $plugin\n");
+  // run hook scripts for pre processing
+  pre_hooks();
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
     $pluginURL = $argv[2];
@@ -584,6 +587,8 @@ if ($method == 'install') {
     if (!download($pluginURL, $plugin_file, $error)) {
       write("plugin: $error\n");
       @unlink($plugin_file);
+      // run hook scripts for post processing
+      post_hooks($error);
       done(1);
     }
   } else {
