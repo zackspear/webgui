@@ -577,6 +577,8 @@ if ($method == 'install') {
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
   $plugin = basename($argv[2]);
   write("plugin: installing: $plugin\n");
+  // run hook scripts for pre processing
+  pre_hooks();
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
     $pluginURL = $argv[2];
