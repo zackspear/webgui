@@ -317,10 +317,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 			// hot-attach any new usb devices
 			foreach ($arrNewUSBIDs as $strNewUSBID) {
+				if (strpos($strNewUSBID,"#remove")) continue ;
+				$remove = explode('#', $strNewUSBID) ;
+				$strNewUSBID2 = $remove[0] ;
 				foreach ($arrExistingConfig['usb'] as $arrExistingUSB) {
-					if ($strNewUSBID == $arrExistingUSB['id']) continue 2;
+					if ($strNewUSBID2 == $arrExistingUSB['id']) continue 2;
 				}
-				[$strVendor,$strProduct] = my_explode(':', $strNewUSBID);
+				[$strVendor,$strProduct] = my_explode(':', $strNewUSBID2);
 				// hot-attach usb
 				file_put_contents('/tmp/hotattach.tmp', "<hostdev mode='subsystem' type='usb'><source startupPolicy='optional'><vendor id='0x".$strVendor."'/><product id='0x".$strProduct."'/></source></hostdev>");
 				exec("virsh attach-device ".escapeshellarg($uuid)." /tmp/hotattach.tmp --live 2>&1", $arrOutput, $intReturnCode);
