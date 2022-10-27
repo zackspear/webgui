@@ -593,18 +593,25 @@ if ($method == 'install') {
   $argv[2] = preg_replace('#[\x00-\x1F\x80-\xFF]#', '', $argv[2]);
   $plugin = basename($argv[2]);
   write("plugin: installing: $plugin\n");
-  // run hook scripts for pre processing
-  pre_hooks();
   // check for URL
   if (preg_match('#^https?://#',$argv[2])) {
     $pluginURL = $argv[2];
-    $plugin_file = "$tmp/$plugin";
-    write("plugin: downloading: $plugin\n");
-    if ( (download($pluginURL, $plugin_file, $error) === false) && (download(filter_url($pluginURL), $plugin_file, $error) === false) ) {
-      write("plugin: $error\n");
-      @unlink($plugin_file);
+    if (strpos($pluginURL, ".plg") !== false) {
+      // run hook scripts for pre processing
+      pre_hooks();
+      $plugin_file = "$tmp/$plugin";
+      write("plugin: downloading: $plugin\n");
+      if ( (download($pluginURL, $plugin_file, $error) === false) && (download(filter_url($pluginURL), $plugin_file, $error) === false) ) {
+        write("plugin: $error\n");
+        @unlink($plugin_file);
+        // run hook scripts for post processing
+        post_hooks($error);
+        done(1);
+      }
+    } else {
+      write("plugin: $plugin is not a plg file\n");
       // run hook scripts for post processing
-      post_hooks($error);
+      post_hooks("not a plg file");
       done(1);
     }
   } else {
