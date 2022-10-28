@@ -247,13 +247,15 @@ _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
   <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
   <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
-  </select>
+  </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
+
+:docker_custom_network_type_help:
 
 _(Host access to custom networks)_:
 : <select name="DOCKER_ALLOW_ACCESS">
   <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], '', _('Disabled'))?>
   <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], 'yes', _('Enabled'))?>
-  </select>
+  </select>&nbsp;_(Make sure you understand what you are doing before enabling)_.
 
 :docker_custom_network_access_help:
 
@@ -450,15 +452,17 @@ _(Docker LOG rotation)_:
 _(Docker custom network type)_:
 : <?=$dockercfg['DOCKER_NETWORK_TYPE']=='' ? _('macvlan') : _('ipvlan')?>
 
+:docker_custom_network_type_help:
+
 _(Host access to custom networks)_:
 : <?=$dockercfg['DOCKER_ALLOW_ACCESS']=='yes' ? _('Enabled') : _('Disabled')?>
 
-:docker_custom_network_active_help:
+:docker_custom_network_access_help:
 
 _(Preserve user defined networks)_:
 : <?=$dockercfg['DOCKER_USER_NETWORKS']=='preserve' ? _('Yes') : _('No')?>
 
-:docker_user_defined_network_active_help:
+:docker_user_defined_network_help:
 
 <?foreach ($include as $network => $route):?>
 <?

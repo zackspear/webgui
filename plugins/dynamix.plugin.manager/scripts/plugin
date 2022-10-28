@@ -610,8 +610,6 @@ if ($method == 'install') {
       }
     } else {
       write("plugin: $plugin is not a plg file\n");
-      // run hook scripts for post processing
-      post_hooks("not a plg file");
       done(1);
     }
   } else {
