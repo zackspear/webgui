@@ -1188,6 +1188,8 @@
 		if (!$new['devices']['tpm']) unset($old['devices']['tpm']);
 		// remove existing auto-generated settings
 		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['devices']['filesystem'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
+		// Remove old CPU cache and features
+		unset($old['cpu']['cache'], $old['cpu']['feature']) ;
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}

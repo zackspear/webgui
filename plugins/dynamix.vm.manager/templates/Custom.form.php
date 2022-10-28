@@ -313,7 +313,7 @@
 			<td>_(CPU Mode)_:</td>
 			<td>
 				<select name="domain[cpumode]" title="_(define type of cpu presented to this vm)_">
-				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'emulated' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']);?>
+				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'custom' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']);?>
 				</select>
 			</td>
 		</tr>
