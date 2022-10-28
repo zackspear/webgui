@@ -1177,7 +1177,7 @@
 			foreach ($old['devices']['disk'] as $k => $d) if ($source==$d['source']['@attributes']['file']) $new['devices']['disk'][$key]['driver']['@attributes'] = $d['driver']['@attributes'];
 		}
 		// settings not in the GUI, but maybe customized
-		unset($new['memoryBacking'], $new['clock'], $new['features']);
+		unset($new['memoryBacking'], $new['clock']); //, $new['features']);
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
@@ -1188,6 +1188,7 @@
 		if (!$new['devices']['tpm']) unset($old['devices']['tpm']);
 		// remove existing auto-generated settings
 		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['devices']['filesystem'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
+		unset($old['features']['hyperv']) ;
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}

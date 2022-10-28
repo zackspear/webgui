@@ -431,7 +431,7 @@
 					</clock>";
 
 			$hyperv = '';
-			if (!empty($domain['hyperv']) && $os_type == "windows") {
+			if ($domain['hyperv'] == 1 && $os_type == "windows") {
 				$hyperv = "<hyperv>
 							<relaxed state='on'/>
 							<vapic state='on'/>
