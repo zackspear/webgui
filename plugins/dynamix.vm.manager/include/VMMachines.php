@@ -89,8 +89,10 @@ foreach ($vms as $vm) {
         if ($arrGPU['id'] == $arrDev['id']) {
           if (count(array_filter($arrValidGPUDevices, function($v) use ($arrDev) { return $v['name'] == $arrDev['name']; })) > 1) {
             $graphics .= $arrDev['name'].' ('.$arrDev['id'].')'."\n";
+            $vmrcprotocol = "VGA" ;
           } else {
             $graphics .= $arrDev['name']."\n";
+            $vmrcprotocol = "VGA" ;
           }
         }
       }
