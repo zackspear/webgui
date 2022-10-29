@@ -234,7 +234,7 @@ function download($url, $name, &$error, $write=true) {
   if ($url) {
     $plg = basename($url);
     $plg = str_replace('"', '', $plg);
-    if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --timeout=30 --tries=5 --waitretry=5 -O $name $url 2>&1", 'r')) {
+    if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --prefer-family=IPv4 --timeout=5 --tries=3 --waitretry=3 -O $name $url 2>&1", 'r')) {
       if ($write) write("plugin: downloading: $plg ...\r");
       $level = -1;
       while (($line = fgets($file)) !== false) {
@@ -610,8 +610,6 @@ if ($method == 'install') {
       }
     } else {
       write("plugin: $plugin is not a plg file\n");
-      // run hook scripts for post processing
-      post_hooks("not a plg file");
       done(1);
     }
   } else {
