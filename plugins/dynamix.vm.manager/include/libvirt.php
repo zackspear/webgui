@@ -263,6 +263,7 @@
 			$disks = $config['disk'];
 			$usb = $config['usb'];
 			$usbopt = $config['usbopt'];
+			$usbboot = $config['usbboot'];
 			$shares = $config['shares'];
 			$gpus = $config['gpu'];
 			$pcis = $config['pci'];
@@ -285,6 +286,7 @@
 
 			$loader = '';
 			$swtpm = '';
+			$osbootdev = '';
 			if (!empty($domain['ovmf'])) {
 			  if ($domain['ovmf'] == 1) {
 			  	if (!is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
@@ -299,6 +301,7 @@
 
 				  $loader = "<loader readonly='yes' type='pflash'>/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd</loader>
 				  			<nvram>/etc/libvirt/qemu/nvram/".$uuid."_VARS-pure-efi.fd</nvram>";
+				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;			
 			  }
 			  if ($domain['ovmf'] == 2) {
 				  if (!is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
@@ -317,6 +320,7 @@
 				$swtpm = "<tpm model='tpm-tis'>
   							<backend type='emulator' version='2.0' persistent_state='yes'/>
   						</tpm>";
+				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;  
 	  		}
 	  	}
 
@@ -431,7 +435,7 @@
 					</clock>";
 
 			$hyperv = '';
-			if (!empty($domain['hyperv']) && $os_type == "windows") {
+			if ($domain['hyperv'] == 1 && $os_type == "windows") {
 				$hyperv = "<hyperv>
 							<relaxed state='on'/>
 							<vapic state='on'/>
@@ -450,15 +454,18 @@
 				foreach($usb as $i => $v){
 					$usbx = explode(':', $v);
 					$startupPolicy = '' ;
-					if (isset($usbopt[$i])) {
-						 if (strpos($usbopt[$i], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
+					if (isset($usbopt[$v])) {
+						 if (strpos($usbopt[$v], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
 					}	 
 					$usbstr .= "<hostdev mode='subsystem' type='usb'>
 									<source $startupPolicy>
 										<vendor id='0x".$usbx[0]."'/>
 										<product id='0x".$usbx[1]."'/>
-									</source>
-								</hostdev>";
+									</source>" ;
+					if (!empty($usbboot[$v])) {
+						$usbstr .= "<boot order='".$usbboot[$v]."'/>" ;
+						}					
+					$usbstr .= "</hostdev>";
 				}
 			}
 
@@ -827,8 +834,8 @@
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
 									</source>" ;
-					if (!empty($pciboot[$i])) {
-						$pcidevs .= "<boot order='".$pciboot[$i]."'/>" ;
+					if (!empty($pciboot[$pci_id])) {
+						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
 					}
 					$pcidevs .= "</hostdev>";
 
@@ -842,7 +849,7 @@
 							<alias name='balloon0'/>
 						</memballoon>";
 			}
-
+			#$osbootdev = "" ;
 			return "<domain type='$type' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
 						<uuid>$uuid</uuid>
 						<name>$name</name>
@@ -855,6 +862,7 @@
 						<os>
 							$loader
 							<type arch='$arch' machine='$machine'>hvm</type>
+							$osbootdev
 						</os>
 						<features>
 							<acpi/>
