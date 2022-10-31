@@ -137,6 +137,7 @@ span.disabled{color:#404040}
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="DOCKER_CUSTOM_NETWORKS" value="<?=implode(' ',$unset)?> ">
 <input type="hidden" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>">
+
 _(Enable Docker)_:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED">
   <?=mk_option($dockercfg['DOCKER_ENABLED'], 'no', _('No'))?>
@@ -151,7 +152,7 @@ _(Enable Docker)_:
 :docker_enable_help:
 
 _(Docker Stop Timeout)_:
-: <input class='narrow' id="DOCKER_TIMEOUT" type="number" name="DOCKER_TIMEOUT" min='1' value="<?=$dockercfg['DOCKER_TIMEOUT']?>">_(seconds)_
+: <input class='narrow' id="DOCKER_TIMEOUT" type="number" name="DOCKER_TIMEOUT" min='1' value="<?=$dockercfg['DOCKER_TIMEOUT']?>" placeholder="10">_(seconds)_
 
 :docker_timeout_help:
 
@@ -259,11 +260,11 @@ _(Host access to custom networks)_:
 
 :docker_custom_network_access_help:
 
-_(Preserve user defined networks)_:
+_(Preserve networks not defined in the GUI)_?
 : <select name="DOCKER_USER_NETWORKS">
   <?=mk_option($dockercfg['DOCKER_USER_NETWORKS'], 'remove', _('No'))?>
   <?=mk_option($dockercfg['DOCKER_USER_NETWORKS'], 'preserve', _('Yes'))?>
-  </select>
+  </select>&nbsp;_(Networks to Preserve)_: <?if ($dockercfg['DOCKER_CUSTOM_NETWORKS'] != " "):?><?=$dockercfg['DOCKER_CUSTOM_NETWORKS']?><?else:?><?="none"?><?endif;?>
 
 :docker_user_defined_network_help:
 
@@ -322,6 +323,7 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 
 <?endforeach;?>
 <?if ($include):?>
+
 :docker_include_interface_vlan_ipv4_help:
 
 <?endif;?>
@@ -351,6 +353,7 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?endif;?>
 <?endforeach;?>
 <?if ($unset && $protocol[$network] != 'ipv6'):?>
+
 :docker_exclude_interface_vlan_ipv4_help:
 
 <?endif;?>
@@ -390,6 +393,7 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 
 <?endforeach;?>
 <?if ($include6):?>
+
 :docker_include_interface_vlan_ipv6_help:
 
 <?endif;?>
@@ -417,6 +421,7 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?endif;?>
 <?endforeach;?>
 <?if ($unset && $protocol[$network] != 'ipv4'):?>
+
 :docker_exclude_interface_vlan_ipv6_help:
 
 <?endif;?>
@@ -459,8 +464,8 @@ _(Host access to custom networks)_:
 
 :docker_custom_network_access_help:
 
-_(Preserve user defined networks)_:
-: <?=$dockercfg['DOCKER_USER_NETWORKS']=='preserve' ? _('Yes') : _('No')?>
+_(Preserved networks)_:
+: <?if (($dockercfg['DOCKER_CUSTOM_NETWORKS'] != " ") && ($dockercfg['DOCKER_USER_NETWORKS']=='preserve')):?><?=$dockercfg['DOCKER_CUSTOM_NETWORKS']?><?else:?><?="none"?><?endif;?>
 
 :docker_user_defined_network_help:
 
