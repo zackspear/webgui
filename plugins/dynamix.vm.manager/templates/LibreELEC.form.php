@@ -655,7 +655,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr class="advanced">
 				<td>_(BIOS)_:</td>
 				<td>
-					<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_">
+					<select name="domain[ovmf]" id="domain_ovmf" class="narrow" title="_(Select the BIOS)_.  _(SeaBIOS will work for most)_.  _(OVMF requires a UEFI-compatable OS)_ (_(e.g.)_ _(Windows 8/2012, newer Linux distros)_) _(and if using graphics device passthrough it too needs UEFI)_" onchange="BIOSChange(this)">
 					<?
 						echo mk_option($arrConfig['domain']['ovmf'], '0', _('SeaBIOS'));
 
@@ -666,6 +666,18 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						}
 					?>
 					</select>
+					<?			
+			$usbboothidden =  "hidden" ;
+				if ($arrConfig['domain']['ovmf'] != '0') $usbboothidden = "" ;
+				?>
+				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
+								
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?>>
+				<?
+					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
+					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');
+				?>
+				</select>
 				</td>
 			</tr>
 		</table>
@@ -681,6 +693,10 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				</p>
 				<p>
 					Once a VM is created this setting cannot be adjusted.
+				</p>
+				<p>
+				<b>USB Boot</b><br>
+				Adds support for booting from USB devices using UEFI. No device boot orders can be specified at the same time as this option.<br>
 				</p>
 			</blockquote>
 		</div>
@@ -986,7 +1002,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr><td></td>
-			<td>_(Select)_&nbsp&nbsp_(Optional)_</td></tr></div> 
+			<td>_(Select)_&nbsp&nbsp_(Optional)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
 			<tr>
 			<tr>
 				<td>_(USB Devices)_:</td>
@@ -997,7 +1013,9 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							foreach($arrVMUSBs as $i => $arrDev) {
 							?>
 							<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
-							/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp <?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+							/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp
+							<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
+							<?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 							<?
 							}
 						} else {
@@ -1039,7 +1057,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								$intAvailableOtherPCIDevices++;
 						?>
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
-						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
@@ -1117,6 +1135,20 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
+	
+	function BIOSChange(bios) {
+		var value = bios.value;
+		if (value == "0") {
+			document.getElementById("USBBoottext").style.visibility="hidden";
+			document.getElementById("domain_usbboot").style.visibility="hidden";
+		} else {
+			document.getElementById("USBBoottext").style.display="inline";
+			document.getElementById("USBBoottext").style.visibility="visible";
+			document.getElementById("domain_usbboot").style.display="inline";
+			document.getElementById("domain_usbboot").style.visibility="visible";
+		}
+}
+
 function AutoportChange(autoport) {
 		if (autoport.value == "yes") {
 			document.getElementById("port").style.visibility="hidden";

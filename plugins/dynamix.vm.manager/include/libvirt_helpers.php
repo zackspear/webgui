@@ -1093,6 +1093,8 @@
 		  }
   	}
 
+		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
+
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1113,6 +1115,7 @@
 				'autostart' => ($lv->domain_get_autostart($res) ? 1 : 0),
 				'state' => $lv->domain_state_translate($dom['state']),
 				'ovmf' => $strOVMF,
+				'usbboot' => $osbootdev,
 				'usbmode' => $strUSBMode
 			],
 			'media' => [
@@ -1203,22 +1206,25 @@
 					'id' => $data['id'],
 					'name' => $data["name"],
 					'checked' => '',
-					'startupPolicy' => ''
+					'startupPolicy' => '',
+					'usbboot' => '' 
 					];
 		}
 		if ($strXML !="") { 
 			$VMxml = new SimpleXMLElement($strXML);
-			$VMUSB=$VMxml->xpath('//devices/hostdev[@type="usb"]/source') ;
+			$VMUSB=$VMxml->xpath('//devices/hostdev[@type="usb"]') ;
 			foreach($VMUSB as $USB){
-				$vendor=$USB->vendor->attributes()->id ;
-				$product=$USB->product->attributes()->id ;
-				$startupPolicy=$USB->attributes()->startupPolicy ;
+				$vendor=$USB->source->vendor->attributes()->id ;
+				$product=$USB->source->product->attributes()->id ;
+				$startupPolicy=$USB->source->attributes()->startupPolicy ;
+				$usbboot= $USB->boot->attributes()->order  ;
 				$id = str_replace('0x', '', $vendor . ':' . $product) ;
 				$found = false ;
 				foreach($arrValidUSBDevices as $key => $data) {
 					if ($data['id'] == $id) {
 						$array[$key]['checked'] = "checked" ;
 						$array[$key]['startupPolicy'] = $startupPolicy ;
+						$array[$key]['usbboot'] = $usbboot ;
 						$found = true ;
 						break ;
 					}
@@ -1228,7 +1234,8 @@
 						'id' => $id,
 						'name' => _("USB device is missing"),
 						'checked' => 'checked',
-						'startupPolicy' => $startupPolicy
+						'startupPolicy' => $startupPolicy,
+						'usbboot' => $usbboot 
 						];
 				}
 			}
