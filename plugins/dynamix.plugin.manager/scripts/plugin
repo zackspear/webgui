@@ -234,7 +234,8 @@ function download($url, $name, &$error, $write=true) {
   if ($url) {
     $plg = basename($url);
     $plg = str_replace('"', '', $plg);
-    if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --prefer-family=IPv4 --timeout=5 --tries=3 --waitretry=3 -O $name $url 2>&1", 'r')) {
+    $tries = (strpos($url, '.cdn') !== false) ? "1" : "3";
+    if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --prefer-family=IPv4 --timeout=10 --tries=$tries --waitretry=$tries -O $name $url 2>&1", 'r')) {
       if ($write) write("plugin: downloading: $plg ...\r");
       $level = -1;
       while (($line = fgets($file)) !== false) {
@@ -272,8 +273,12 @@ function download($url, $name, &$error, $write=true) {
 // Returns URL without '.cdn' if found.
 //
 function filter_url($url) {
-  $new_url = str_replace('"', '', $url);
-  $new_url = str_replace('.cdn', '', $new_url);
+  if (strpos($url, '.cdn') !== false) {
+    $new_url = str_replace('"', '', $url);
+    $new_url = str_replace('.cdn', '', $new_url);
+  }  else {
+    $new_url = "";
+  }
   return($new_url);
 }
 
