@@ -1033,9 +1033,9 @@ Allows direct communication between the host and containers using a custom **mac
 :end
 
 :docker_user_defined_network_help:
-Set to **No** to remove any preserved networks not defined in the GUI from Docker. This prevents a preserved network of the same name from overwriting an auto generated network.
+User created networks are networks created by the user outside of the GUI.  By default user created networks are removed from Docker. This is done to prevent potential conflicts with the automatic generation of custom networks.
 
-Set to **Yes** to preserve all networks so they are available to Docker.  Any preserved *networks* then become available in the *Network type* dropdown list of containers.  This may cause confilcts if the preferred network has the same name as an auto generated network.
+Change this setting to preserve user defined networks, but it is the responsibility of the user to ensure these entries work correctly and are conflict free.
 :end
 
 :docker_include_interface_vlan_ipv4_help:
@@ -1076,6 +1076,10 @@ This is the storage location for Docker containers.
 
 :docker_log_rotation_active_help:
 By default a single unlimited LOG file is created. Otherwise LOG file size and number of files are limited when LOG rotation is enabled.
+:end
+
+:docker_user_defined_network_active_help:
+Shows whether networks created outside of the GUI are removed or preserved for Docker. When preserved *user defined networks* become available in the *Network type* dropdown list of containers.
 :end
 
 :docker_scrub_help:
@@ -1316,7 +1320,8 @@ Please also refer to the [VFS_FRUIT MAN PAGE](https://www.mankier.com/8/vfs_frui
 :end
 
 :smb_enable_netbios_help:
-Select 'Yes' to enable NetBIOS.  If enabled, SMBv1 protocol will also be recognized.  If disabled, clients must use SMBv2 or higher.
+Select 'Yes' to enable NetBIOS.  If enabled, SMBv1 protocol will also be recognized.  If disabled,
+clients must use SMBv2 or higher.
 :end
 
 :smb_enable_wsd_help:
