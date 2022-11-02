@@ -672,7 +672,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 								
-				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?>>
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
 					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');
@@ -1014,7 +1014,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							?>
 							<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
 							/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp
-							<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
+							<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
 							<?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 							<?
 							}
@@ -1057,7 +1057,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								$intAvailableOtherPCIDevices++;
 						?>
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
-						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
@@ -1136,7 +1136,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
 	
-	function BIOSChange(bios) {
+function BIOSChange(bios) {
 		var value = bios.value;
 		if (value == "0") {
 			document.getElementById("USBBoottext").style.visibility="hidden";
@@ -1147,6 +1147,18 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			document.getElementById("domain_usbboot").style.display="inline";
 			document.getElementById("domain_usbboot").style.visibility="visible";
 		}
+}
+
+function USBBootChange(usbboot) {
+	// Remove all boot orders if changed to Yes
+	var value = usbboot.value ;
+	if (value == "Yes") {
+		var elements = document.getElementsByClassName("bootorder");
+		var names = '';
+		for(var i = 0; i < elements.length; i++) {
+    		elements[i].value = "";
+		}
+	}
 }
 
 function AutoportChange(autoport) {
