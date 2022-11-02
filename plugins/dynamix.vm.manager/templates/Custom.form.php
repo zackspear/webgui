@@ -1406,12 +1406,12 @@ function BIOSChange(bios) {
 function USBBootChange(usbboot) {
 	// Remove all boot orders if changed to Yes
 	var value = usbboot.value ;
-	if (value == "Yes") {
-		var elements = document.getElementsByClassName("bootorder");
-		var names = '';
-		for(var i = 0; i < elements.length; i++) {
-    		elements[i].value = "";
-		}
+	var elements = document.getElementsByClassName("bootorder");
+	for(var i = 0; i < elements.length; i++) {
+		if (value == "Yes") {
+		elements[i].value = "";
+		elements[i].setAttribute("disabled","disabled");
+		} else elements[i].removeAttribute("disabled");
 	}
 }
 
