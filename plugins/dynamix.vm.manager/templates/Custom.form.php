@@ -452,7 +452,7 @@
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 								
-				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?>>
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
 					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');
@@ -540,7 +540,7 @@
 				<?mk_dropdown_options($arrValidCdromBuses, $arrConfig['media']['cdrombus']);?>
 				</select>
 				_(Boot Order)_:
-				<input type="number" size="5" maxlength="5" id="cdboot" class="narrow" style="width: 50px;" name="media[cdromboot]"   title="_(Boot order)_"  value="<?=$arrConfig['media']['cdromboot']?>" >
+				<input type="number" size="5" maxlength="5" id="cdboot" class="narrow bootorder" style="width: 50px;" name="media[cdromboot]"   title="_(Boot order)_"  value="<?=$arrConfig['media']['cdromboot']?>" >
 				</td>
 			</td>
 		</tr>
@@ -690,7 +690,7 @@
 					<?mk_dropdown_options($arrValidDiskBuses, $arrDisk['bus']);?>
 					</select>
 				_(Boot Order)_:
-				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
+				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
 				</td>
 			</tr>
 		</table>
@@ -819,7 +819,7 @@
 					</select>
 				
 				_(Boot Order)_:
-				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
+				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
 			</tr>
 		</table>
@@ -1247,7 +1247,7 @@
 						?>
 						<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
 						/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp 
-						<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
+						<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
 						<?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 						<?
 						}
@@ -1290,7 +1290,7 @@
 							$intAvailableOtherPCIDevices++;
 					?>
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
-						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
@@ -1401,6 +1401,18 @@ function BIOSChange(bios) {
 			document.getElementById("domain_usbboot").style.display="inline";
 			document.getElementById("domain_usbboot").style.visibility="visible";
 		}
+}
+
+function USBBootChange(usbboot) {
+	// Remove all boot orders if changed to Yes
+	var value = usbboot.value ;
+	var elements = document.getElementsByClassName("bootorder");
+	for(var i = 0; i < elements.length; i++) {
+		if (value == "Yes") {
+		elements[i].value = "";
+		elements[i].setAttribute("disabled","disabled");
+		} else elements[i].removeAttribute("disabled");
+	}
 }
 
 function AutoportChange(autoport) {
