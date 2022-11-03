@@ -39,6 +39,13 @@ if ($name == "") {
   return;
 }
 
+/* Check for non existent pool device. */
+if ($share['cachePool']) {
+  if (! in_array($share['cachePool'], $pools)) {
+    $share['useCache'] = "no";
+  }
+}
+
 /* check for empty share */
 function shareEmpty($name) {
   return (($files = @scandir("/mnt/user/$name")) && (count($files) <= 2));
