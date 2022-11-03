@@ -262,7 +262,6 @@ function download($url, $name, &$error, $write=true) {
       return false;
     }
   } else {
-    $error = "empty URL";
     // The url is empty
     return false;
   }
