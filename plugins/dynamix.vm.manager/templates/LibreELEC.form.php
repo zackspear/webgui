@@ -452,7 +452,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <input type="hidden" name="disk[0][image]" id="disk_0" value="<?=htmlspecialchars($arrConfig['disk'][0]['image'])?>">
 <input type="hidden" name="disk[0][dev]" value="<?=htmlspecialchars($arrConfig['disk'][0]['dev'])?>">
 <input type="hidden" name="disk[0][readonly]" value="1">
-<input type="hidden" name="disk[0][boot]" value="1">
+<input type="hidden" class="bootorder" name="disk[0][boot]" value="1">
 
 	<div class="installed">
 		<table>
@@ -1007,7 +1007,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(USB Devices)_:</td>
 				<td>
-					<div class="textarea" style="width:640px">
+					<div class="textarea" style="width:850px">
 					<?
 						if (!empty($arrVMUSBs)) {
 							foreach($arrVMUSBs as $i => $arrDev) {
@@ -1038,7 +1038,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(Other PCI Devices)_:</td>
 				<td>
-				<div class="textarea" style="width: 740px">
+				<div class="textarea" style="width: 850px">
 				<?
 					$intAvailableOtherPCIDevices = 0;
 
@@ -1158,18 +1158,24 @@ function SetBootorderfields(usbbootvalue) {
 		} else bootelements[i].removeAttribute("disabled");
 	}
 	var bootelements = document.getElementsByClassName("pcibootorder");
-	const pcidevs = <? echo json_encode($arrValidOtherDevices) ;?>  ;
-		
+	const bootpcidevs = <? 	
+		$devlist = [] ;
+		foreach($arrValidOtherDevices as $i => $arrDev) {
+			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+		}
+		echo json_encode($devlist) ;
+		?>  
+
 	for(var i = 0; i < bootelements.length; i++) {
-		let pciid = bootelements[i].name.split('[') ;
-		pciidnum = pciid[1].replace(']', '') ;
+		let bootpciid = bootelements[i].name.split('[') ;
+		bootpciid= bootpciid[1].replace(']', '') ;
 		
 		if (usbbootvalue == "Yes") {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
 		} else {
 			// Put check for PCI Type 0108 and only remove disable if 0108.
-			bootelements[i].removeAttribute("disabled");
+			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
 		}
 	}
 }

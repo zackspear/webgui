@@ -842,7 +842,12 @@
 				</select>
 				_(Unraid Share)_:
 				<select name="shares[<?=$i?>][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
-					<?mk_dropdown_options($arrUnraidShares, '');?>
+				    <?	$UnraidShareDisabled = ' disabled="disabled"' ; 
+					    $arrUnraidIndex = array_search("User:".$arrShare['target'],$arrUnraidShares) ;
+					    if ($arrUnraidIndex != false && substr($arrShare['source'],0,10) != '/mnt/user/') $arrUnraidIndex = false ;
+					    if ($arrUnraidIndex == false) $arrUnraidIndex = array_search("Disk:".$arrShare['target'],$arrUnraidShares) ;
+						if ($arrUnraidIndex == false) { $arrUnraidIndex = '' ; $UnraidShareDisabled = "" ;}
+						mk_dropdown_options($arrUnraidShares, $arrUnraidIndex);?>
 				</select>
 				</td>
 				</tr>	
@@ -852,14 +857,14 @@
 					<text id="shares[<?=$i?>]sourcetext" > _(Unraid Source Path)_: </text> 
 				</td>
 				<td>
-					<input type="text" id="shares[<?=$i?>][source]" name="shares[<?=$i?>][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
+					<input type="text" <?=$UnraidShareDisabled?> id="shares[<?=$i?>][source]" name="shares[<?=$i?>][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
 				</td>
 			</tr>
 
 			<tr  class="advanced">
 				<td><span id="shares[<?=$i?>][targettext]" >_(Unraid Mount Tag)_:</span></td>
 				<td>
-					<input type="text" name="shares[<?=$i?>][target]" id="shares[<?=$i?>][target]" value="<?=htmlspecialchars($arrShare['target'])?>" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
+					<input type="text" <?=$UnraidShareDisabled?> name="shares[<?=$i?>][target]" id="shares[<?=$i?>][target]" value="<?=htmlspecialchars($arrShare['target'])?>" placeholder="_(e.g.)_ _(shares)_ (_(name of mount tag inside vm)_)" title="_(mount tag inside vm)_" />
 				</td>
 			</tr>
 		</table>
@@ -1240,7 +1245,7 @@
 		<tr>
 			<td>_(USB Devices)_:</td>
 			<td>
-				<div class="textarea" style="width: 740px">
+				<div class="textarea" style="width: 850px">
 				<?
 					if (!empty($arrVMUSBs)) {
 						foreach($arrVMUSBs as $i => $arrDev) {
@@ -1271,7 +1276,7 @@
 		<tr>
 			<td>_(Other PCI Devices)_:</td>
 			<td>
-				<div class="textarea" style="width: 740px">
+				<div class="textarea" style="width: 850px">
 				<?
 					$intAvailableOtherPCIDevices = 0;
 
@@ -1412,18 +1417,24 @@ function SetBootorderfields(usbbootvalue) {
 		} else bootelements[i].removeAttribute("disabled");
 	}
 	var bootelements = document.getElementsByClassName("pcibootorder");
-	const pcidevs = <? echo json_encode($arrValidOtherDevices) ;?>  ;
-		
+	const bootpcidevs = <? 	
+		$devlist = [] ;
+		foreach($arrValidOtherDevices as $i => $arrDev) {
+			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+		}
+		echo json_encode($devlist) ;
+		?>  
+
 	for(var i = 0; i < bootelements.length; i++) {
-		let pciid = bootelements[i].name.split('[') ;
-		pciidnum = pciid[1].replace(']', '') ;
+		let bootpciid = bootelements[i].name.split('[') ;
+		bootpciid= bootpciid[1].replace(']', '') ;
 		
 		if (usbbootvalue == "Yes") {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
 		} else {
 			// Put check for PCI Type 0108 and only remove disable if 0108.
-			bootelements[i].removeAttribute("disabled");
+			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
 		}
 	}
 }
