@@ -451,7 +451,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <input type="hidden" name="disk[0][image]" id="disk_0" value="<?=htmlspecialchars($arrConfig['disk'][0]['image'])?>">
 <input type="hidden" name="disk[0][dev]" value="<?=htmlspecialchars($arrConfig['disk'][0]['dev'])?>">
 <input type="hidden" name="disk[0][readonly]" value="1">
-<input type="hidden" name="disk[0][boot]" value="1">
+<input type="hidden" class="bootorder" name="disk[0][boot]" value="1">
 
 	<div class="installed">
 		<table>
@@ -1001,7 +1001,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(USB Devices)_:</td>
 				<td>
-					<div class="textarea" style="width:640px">
+					<div class="textarea" style="width:850px">
 					<?
 						if (!empty($arrVMUSBs)) {
 							foreach($arrVMUSBs as $i => $arrDev) {
@@ -1032,7 +1032,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			<tr>
 				<td>_(Other PCI Devices)_:</td>
 				<td>
-				<div class="textarea" style="width: 740px">
+				<div class="textarea" style="width: 850px">
 				<?
 					$intAvailableOtherPCIDevices = 0;
 
@@ -1051,7 +1051,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 								$intAvailableOtherPCIDevices++;
 						?>
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
-						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
+						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow pcibootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
 						}
@@ -1143,16 +1143,41 @@ function BIOSChange(bios) {
 		}
 }
 
+function SetBootorderfields(usbbootvalue) {
+	var bootelements = document.getElementsByClassName("bootorder");
+	for(var i = 0; i < bootelements.length; i++) {
+		if (usbbootvalue == "Yes") {
+		bootelements[i].value = "";
+		bootelements[i].setAttribute("disabled","disabled");
+		} else bootelements[i].removeAttribute("disabled");
+	}
+	var bootelements = document.getElementsByClassName("pcibootorder");
+	const bootpcidevs = <? 	
+		$devlist = [] ;
+		foreach($arrValidOtherDevices as $i => $arrDev) {
+			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+		}
+		echo json_encode($devlist) ;
+		?>  
+
+	for(var i = 0; i < bootelements.length; i++) {
+		let bootpciid = bootelements[i].name.split('[') ;
+		bootpciid= bootpciid[1].replace(']', '') ;
+		
+		if (usbbootvalue == "Yes") {
+		bootelements[i].value = "";
+		bootelements[i].setAttribute("disabled","disabled");
+		} else {
+			// Put check for PCI Type 0108 and only remove disable if 0108.
+			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
+		}
+	}
+}
+
 function USBBootChange(usbboot) {
 	// Remove all boot orders if changed to Yes
 	var value = usbboot.value ;
-	var elements = document.getElementsByClassName("bootorder");
-	for(var i = 0; i < elements.length; i++) {
-		if (value == "Yes") {
-		elements[i].value = "";
-		elements[i].setAttribute("disabled","disabled");
-		} else elements[i].removeAttribute("disabled");
-	}
+	SetBootorderfields(value) ;
 }
 
 function AutoportChange(autoport) {
@@ -1243,6 +1268,8 @@ $(function() {
 		hintOptions: {schemaInfo: getLibvirtSchema()}
 	});
 
+	SetBootorderfields("<?=$arrConfig['domain']['usbboot']?>") ;
+	
 	function resetForm() {
 		$("#vmform .domain_vcpu").change(); // restore the cpu checkbox disabled states
 		<?if ($boolRunning):?>
