@@ -65,8 +65,10 @@ if ($cert1Present) {
   $cert1URL = $var['NAME'].".".$var['LOCAL_TLD'];
   // if user replaced cert without reloading nginx, the cert on the flash could be invalid
   $cert1URLvalid = acceptableCert($cert1File, $var['NAME'], $cert1URL);
+  $cert1Subject = exec("/usr/bin/openssl x509 -in $cert1File -noout -text | sed -n 's/^.*Subject: //p'");
   $cert1Issuer  = exec("/usr/bin/openssl x509 -in $cert1File -noout -text | sed -n -e 's/^.*Issuer: //p'");
   $cert1Expires = exec("/usr/bin/openssl x509 -in $cert1File -noout -text | sed -n -e 's/^.*Not After : //p'");
+  $cert1SelfSigned = ($cert1Subject == $cert1Issuer);
 }
 
 // unraid.net, myunraid.net LE cert. could potentially be user provided as well
@@ -128,28 +130,28 @@ $urls = array();
 //   2 - the certificate file used, or null
 switch($var['USE_SSL']) {
   case 'no':
-    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, null, null];
-    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, null, null];
-    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, null, null];
-    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
-    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, null, null, false];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, null, null, false];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, null, null, false];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem", false];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem", false];
     break;
   case 'yes':
-    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_ip_url, null];
-    if ($nginx['NGINX_LANIP'])    $urls[] = [$https_ip_url, null, "{$var['NAME']}_unraid_bundle.pem"];
-    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_ip6_url, null];
-    if ($nginx['NGINX_LANIP6'])   $urls[] = [$https_ip6_url, null, "{$var['NAME']}_unraid_bundle.pem"];
-    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_mdns_url, null];
-    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$https_mdns_url, null, "{$var['NAME']}_unraid_bundle.pem"];
-    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
-    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_ip_url, null, false];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$https_ip_url, null, "{$var['NAME']}_unraid_bundle.pem", $cert1SelfSigned];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_ip6_url, null, false];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$https_ip6_url, null, "{$var['NAME']}_unraid_bundle.pem", $cert1SelfSigned];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_mdns_url, null, false];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$https_mdns_url, null, "{$var['NAME']}_unraid_bundle.pem", $cert1SelfSigned];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem", false];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem", false];
     break;
   case 'auto': // aka strict
-    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_fqdn_url, null];
-    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_fqdn6_url, null];
-    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_fqdn_url, null];
-    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem"];
-    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem"];
+    if ($nginx['NGINX_LANIP'])    $urls[] = [$http_ip_url, $https_fqdn_url, null, false];
+    if ($nginx['NGINX_LANIP6'])   $urls[] = [$http_ip6_url, $https_fqdn6_url, null, false];
+    if ($nginx['NGINX_LANMDNS'])  $urls[] = [$http_mdns_url, $https_fqdn_url, null, false];
+    if ($nginx['NGINX_LANFQDN'])  $urls[] = [$https_fqdn_url, null, "certificate_bundle.pem", false];
+    if ($nginx['NGINX_LANFQDN6']) $urls[] = [$https_fqdn6_url, null, "certificate_bundle.pem", false];
     break;
 }
 
@@ -319,7 +321,7 @@ _(Use SSL/TLS)_:
   <?=mk_option($var['USE_SSL'], "yes", _('Yes'))?>
   <?=mk_option($var['USE_SSL'], "auto", _('Strict'), $disabled_auto)?>
   </select>
-
+  <span><i class="fa fa-warning icon warning"></i></span> _(If you have trouble logging in, close all other tabs pointed to this server and clear your browser's cache.)_
 :mgmt_use_ssl_tls_help:
 
 _(HTTP port)_:
@@ -348,9 +350,14 @@ _(Local TLD)_:
 <?
 echo "<dl><dt>"._("Local Access URLs").":</dt>\n";
 echo "<dd><br><ul>\n";
+// url[0] = url
+// url[1] = redirect url or null
+// url[2] = certificate used or null
+// url[3] = is certificate self-signed T/F
 foreach($urls as $url) {
   if ($url[1]) $msg = " ("._("redirects to")." <a href='{$url[1]}'>{$url[1]}</a>)";
-  if ($url[2]) $msg = " ("._("uses certificate")." {$url[2]} )";
+  if ($url[3]) $msg = " (<span title=\""._("Your browser will complain that it is not secure, in order to use this certificate you need to ignore the browser's warnings.")."\"> <i class=\"fa fa-warning icon warning\"></i> uses self-signed certificate</span> {$url[2]})";
+  else if ($url[2]) $msg = " ("._("uses ")." {$url[2]})";
   echo "<li><a href='{$url[0]}'>{$url[0]}</a>{$msg}</li>\n";
 }
 echo "</ul></dd></dl>\n";
@@ -379,6 +386,9 @@ _(Certificate URL)_:
 
 _(Certificate issuer)_:
 : <?=$cert1Issuer?>
+<?if ($cert1SelfSigned):?>
+&nbsp;<span title="_(Your browser will complain that it is not secure, in order to use this certificate you need to ignore the browser's warnings.)_"> <i class="fa fa-warning icon warning"></i>_(This is a self-signed certificate)_.</span>
+<?endif;?>
 
 _(Certificate expiration)_:
 : <?=_(strftime($cert_time_format, strtotime($cert1Expires)),0)?>
