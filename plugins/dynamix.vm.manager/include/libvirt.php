@@ -648,19 +648,22 @@
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
 					exec("brctl show | cut -f1| awk NF | sed -n '1!p'", $br);
-
+					
+					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
 					if($net_res) {
 						$netstr .= "<interface type='network'>
 										<mac address='{$nic['mac']}'/>
 										<source network='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
-									</interface>";
+										$nicboot 
+									</interface>" ;
 					} elseif(in_array($nic['network'], $br)) {
 						$netstr .= "<interface type='bridge'>
 										<mac address='{$nic['mac']}'/>
 										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
-									</interface>";
+										$nicboot 
+									</interface>";				
 					} else {
 						continue;
 					}
@@ -2206,12 +2209,14 @@
 
 		function get_nic_info($domain) {
 			$macs = $this->get_xpath($domain, "//domain/devices/interface/mac/@address", false);
+
 			if (!$macs)
 				return $this->_set_last_error();
 			$ret = [];
 			for ($i = 0; $i < $macs['num']; $i++) {
 				$net = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../source/@*", false);
 				$model = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../model/@type", false);
+				$boot = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../boot/@order", false);
 
 				if(empty(macs[$i]) && empty($net[0])) {
 					$this->_set_last_error();
@@ -2220,7 +2225,8 @@
 				$ret[] = [
 					'mac' => $macs[$i],
 					'network' => $net[0],
-					'model' => $model[0]
+					'model' => $model[0],
+					'boot' => $boot[0]
 				];
 			}
 
