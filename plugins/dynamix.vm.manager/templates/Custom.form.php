@@ -1174,6 +1174,12 @@
 					</select>
 				</td>
 			</tr>
+			<tr class="advanced">
+				<td>_(Boot Order)_:</td>
+				<td>
+				<input type="number" size="5" maxlength="5" id="nic[<?=$i?>][boot]" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="nic[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrNic['boot']?>" >
+				</td>
+			</tr>
 		</table>
 		<?if ($i == 0) {?>
 		<div class="advanced">
@@ -1192,6 +1198,8 @@
 					<b>Network Model</b><br>
 					Default and recommended is 'virtio-net', which gives improved stability. To improve performance 'virtio' can be selected, but this may lead to stability issues.
 				</p>
+
+				<p>Use boot order to set device as bootable and boot sequence.</p>
 
 				<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
 			</blockquote>
@@ -1236,6 +1244,12 @@
 					</select>
 				</td>
 			</tr>
+			<tr class="advanced">
+				<td>_(Boot Order)_:</td>
+				<td>
+				<input type="number" size="5" maxlength="5" id="nic[{{INDEX}}][boot]" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="nic[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
+				</td>
+			</tr>
 		</table>
 	</script>
 
@@ -1266,6 +1280,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any USB devices to your guest, you can select them from this list.</p>
+		<p>Use boot order to set device as bootable and boot sequence.</p>
 		<p>Select optional if you want device to be ignored when VM starts if not present.</p>
 	</blockquote>
 
