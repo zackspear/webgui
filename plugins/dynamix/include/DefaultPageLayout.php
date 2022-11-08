@@ -347,33 +347,18 @@ function abortOperation(pid) {
     });
   });
 }
-function startStopNchan(cmd, name='changes') {
-  const channel = {nchan_changes,nchan_phistory,nchan_feedback,nchan_sysinfo,nchan_selectcase};
-  switch (cmd) {
-  case 'start':
-    channel['nchan_'+name].start();
-    break;
-  case 'stop':
-    channel['nchan_'+name].stop();
-    break;
-  }
-}
 function openChanges(cmd,title,nchan,button=0) {
   // button = 0 : hide CLOSE button (default)
   // button = 1 : show CLOSE button
-  startStopNchan('start',nchan);
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) {
-      startStopNchan('stop',nchan);
-      $('div.spinner.fixed').hide();
-      return;
-    }
+  // nchan argument is not used, exists for backward compatibility
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:2},function(data) {
+    $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(close){
-      startStopNchan('stop',nchan);
-      $('div.spinner.fixed').hide();
       $('.sweet-alert').hide('fast').removeClass('nchan');
     });
     $('.sweet-alert').addClass('nchan');
+    $('pre#swalbody').html(data);
+    $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
   });
 }
 function openAlert(cmd,title,func) {
@@ -868,36 +853,6 @@ nchan_plugins.on('message', function(data) {
     text.push(data.slice(0,-1));
   }
   box.html(text.join('<br>')).scrollTop(box[0].scrollHeight);
-});
-
-var nchan_changes = new NchanSubscriber('/sub/changes',{subscriber:'websocket'});
-nchan_changes.on('message', function(data) {
-  if (!data || openDone(data)) return;
-  $('pre#swalbody').html(data);
-});
-
-var nchan_phistory = new NchanSubscriber('/sub/phistory',{subscriber:'websocket'});
-nchan_phistory.on('message', function(data) {
-  if (!data || openDone(data)) return;
-  $('pre#swalbody').html(data);
-});
-
-var nchan_feedback = new NchanSubscriber('/sub/feedback',{subscriber:'websocket'});
-nchan_feedback.on('message', function(data) {
-  if (!data || openDone(data)) return;
-  $('pre#swalbody').html(data);
-});
-
-var nchan_sysinfo = new NchanSubscriber('/sub/sysinfo',{subscriber:'websocket'});
-nchan_sysinfo.on('message', function(data) {
-  if (!data || openDone(data)) return;
-  $('pre#swalbody').html(data);
-});
-
-var nchan_selectcase = new NchanSubscriber('/sub/selectcase',{subscriber:'websocket'});
-nchan_selectcase.on('message', function(data) {
-  if (!data || openDone(data)) return;
-  $('pre#swalbody').html(data);
 });
 
 var nchan_docker = new NchanSubscriber('/sub/docker',{subscriber:'websocket'});
