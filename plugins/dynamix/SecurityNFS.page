@@ -76,7 +76,7 @@ _(Security)_:
 <form markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 _(Rule)_:
-: <textarea name="shareHostListNFS" spellcheck="false" cols="80" rows="5" maxlength="2048" style="resize:none;width:65.5%"><?=htmlspecialchars($sec_nfs[$name]['hostList'])?></textarea>
+: <input type="text" name="shareHostListNFS" maxlength="256" value="<?=htmlspecialchars($sec_nfs[$name]['hostList'])?>">
 
 &nbsp;
 : <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
