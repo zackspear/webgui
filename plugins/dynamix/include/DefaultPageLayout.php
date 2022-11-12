@@ -694,7 +694,7 @@ foreach ($pages as $page) {
   if ($close) echo "</div></div>";
 }
 if (count($pages)) {
-  $running = file_exists($nchan_pid) ? explode("\n",file_get_contents($nchan_pid)) : [];
+  $running = file_exists($nchan_pid) ? file($nchan_pid,FILE_IGNORE_NEW_LINES) : [];
   $start   = array_diff($nchan, $running);  // returns any new scripts to be started
   $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
   $running = array_merge($start, $running); // update list of current running nchan scripts
