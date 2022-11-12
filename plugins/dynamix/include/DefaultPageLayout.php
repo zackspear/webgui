@@ -694,7 +694,7 @@ foreach ($pages as $page) {
   if ($close) echo "</div></div>";
 }
 if (count($pages)) {
-  $running = file_exists($nchan_pid) ? explode("\n",file_get_contents($nchan_pid)) : [];
+  $running = file_exists($nchan_pid) ? file($nchan_pid,FILE_IGNORE_NEW_LINES) : [];
   $start   = array_diff($nchan, $running);  // returns any new scripts to be started
   $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
   $running = array_merge($start, $running); // update list of current running nchan scripts
@@ -711,7 +711,7 @@ if (count($pages)) {
       array_splice($running,array_search($row,$running),1);
     }
   }
-  if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)); else @unlink($nchan_pid);
+  if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)."\n"); else @unlink($nchan_pid);
 }
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt,$nchan_run);
 ?>
@@ -945,8 +945,10 @@ $(function() {
     form.find('input[value="<?=_("Done")?>"],input[value="Done"]').not('input.lock').val("<?=_('Reset')?>").prop('onclick',null).off('click').click(function(){formHasUnsavedChanges=false;refresh(form.offset().top);});
   });});
   // add leave confirmation when form has changed without applying (opt-in function)
-  $('form.js-confirm-leave').on('change',function(e){formHasUnsavedChanges=true;}).on('submit',function(e){formHasUnsavedChanges=false;});
-  $(window).on('beforeunload',function(e){if (formHasUnsavedChanges) return '';}); // note: the browser creates its own popup window and warning message
+  if ($('form.js-confirm-leave').length>0) {
+    $('form.js-confirm-leave').on('change',function(e){formHasUnsavedChanges=true;}).on('submit',function(e){formHasUnsavedChanges=false;});
+    $(window).on('beforeunload',function(e){if (formHasUnsavedChanges) return '';}); // note: the browser creates its own popup window and warning message
+  }
   // form parser: add escapeQuotes protection
   $('form').each(function(){
     var action = $(this).prop('action').actionName();

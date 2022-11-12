@@ -251,10 +251,10 @@ function download($url, $name, &$error, $write=true) {
         $error = "$plg download failure: ".error_desc($perror);
         return false;
       } elseif (filesize($name) == 0) {
-        if ($write) write("plugin: download failure: zero-length file\n");
+        if ($write) write("plugin: download failure: zero-length file\r","\n");
         return false;
       } else {
-        if ($write) write("plugin: downloading: $plg ... done\n");
+        if ($write) write("plugin: downloading: $plg ... done\r","\n");
         return true;
       }
     } else {
