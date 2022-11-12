@@ -711,7 +711,7 @@ if (count($pages)) {
       array_splice($running,array_search($row,$running),1);
     }
   }
-  if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)); else @unlink($nchan_pid);
+  if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)."\n"); else @unlink($nchan_pid);
 }
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt,$nchan_run);
 ?>
