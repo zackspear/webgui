@@ -1298,7 +1298,7 @@
 					if (!empty($arrValidOtherDevices)) {
 						foreach($arrValidOtherDevices as $i => $arrDev) {
 							$bootdisable = $extra = $pciboot = '';
-							if ($arrDev["typeid"] != "0108") $bootdisable = ' disabled="disabled"' ;
+							if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $bootdisable = ' disabled="disabled"' ;
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
 								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
@@ -1326,7 +1326,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
-		<p>Use boot order to set device as bootable and boot sequence. Only NVMe devices (PCI types 0108) supported for boot order.</p>
+		<p>Use boot order to set device as bootable and boot sequence. Only NVMe and Network devices (PCI types 0108 and 02xx) supported for boot order.</p>
 	</blockquote>
 
 	<table>
@@ -1435,7 +1435,7 @@ function SetBootorderfields(usbbootvalue) {
 	const bootpcidevs = <? 	
 		$devlist = [] ;
 		foreach($arrValidOtherDevices as $i => $arrDev) {
-			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+			if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
 		}
 		echo json_encode($devlist) ;
 		?>  
@@ -1448,7 +1448,7 @@ function SetBootorderfields(usbbootvalue) {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
 		} else {
-			// Put check for PCI Type 0108 and only remove disable if 0108.
+			// Put check for PCI Type 0108 & 02xx and only remove disable if 0108 or 02xx.
 			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
 		}
 	}
