@@ -381,6 +381,8 @@ foreach ($folders as $folder) {
 // copy configuration files (suppress errors)
 run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev/null");
 run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
+
+// anonymize go file
 if (!$all)
   run("sed -i -e '/password/c ***line removed***' -e '/user/c ***line removed***' -e '/pass/c ***line removed***' ".escapeshellarg("/$diag/config/go.txt"));
 
@@ -397,18 +399,18 @@ foreach ($files as $file) {
   if (!in_array($share,$showshares)) $dest = anonymize($dest,2);
   @copy($file, $dest);
   if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
-  $location = [];
+  $home = [];
   foreach (explode(",",shareDisks($share)) as $name) {
     if ($all || preg_match('/disk[0-9]+/',$name) || in_array($name,$pools)) {
-      $location[] = $name;
+      $home[] = $name;
     } else {
       $len = strlen($name);
-      $location[] = $len>2 ? substr($name,0,1).str_repeat('-',$len-2).substr($name,-1) : $name;
+      $home[] = $len>2 ? substr($name,0,1).str_repeat('-',$len-2).substr($name,-1) : $name;
     }
   }
-  $location = implode(", ",$location);
-  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($location ? "Exists on $location\r\n" : "Does not exist\r\n");
-  file_put_contents($dest,$location ? "# Share exists on $location\r\n" : "# Share does not exist\r\n",FILE_APPEND);
+  $home = implode(", ",$home);
+  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($home ? "Exists on $home\r\n" : "Does not exist\r\n");
+  file_put_contents($dest,$home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n",FILE_APPEND);
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
