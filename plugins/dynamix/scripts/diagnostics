@@ -54,7 +54,6 @@ function anonymize($text,$select) {
   case 1:
     // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
     $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
-
     $rows = explode("\n", $text);
     $pool = implode('|',$pools) ?: 'cache';
     $regex = "/\b((disk|$pool|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|$pool|parity|cpu{$customShares})\b/";
