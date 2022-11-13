@@ -266,8 +266,7 @@ function geturls() {
     $dirlisting[1] = "Directory not found";
   }
   $urls .= "\n\n".implode("\n", $dirlisting)."\n";
-  $urls = str_replace("\n", "\r\n", $urls);
-  return $urls;
+  return str_replace("\n", "\r\n", $urls);
 }
 
 // diagnostics start
