@@ -403,7 +403,7 @@ foreach ($files as $file) {
     }
   }
   $location = implode(", ",$location);
-  $shareDisk[] = str_pad(pathinfo($dest,PATHINFO_FILENAME),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($location ? "Exists on $location\r\n" : "Does not exist\r\n");
+  $shareDisk[] = str_pad($share,34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($location ? "Exists on $location\r\n" : "Does not exist\r\n");
   file_put_contents($dest,$location ? "# Share exists on $location\r\n" : "# Share does not exist\r\n",FILE_APPEND);
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
