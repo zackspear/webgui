@@ -76,22 +76,23 @@ _(Security)_:
 <form markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 _(Rule)_:
-: <input type="text" name="shareHostListNFS" maxlength="256" value="<?=htmlspecialchars($sec_nfs[$name]['hostList'])?>">
+: <textarea name="shareHostListNFS" spellcheck="false" cols="80" rows="5" maxlength="2048" style="resize:none;width:65.5%"><?=htmlspecialchars($sec_nfs[$name]['hostList'])?></textarea>
 
 &nbsp;
-: <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" onclick="combine()" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 <?endif;?>
 
 <script>
 $(function() {
   initDropdownNFS(false);
-  if ($.cookie('hostList')!=null) {
-    var host = $('input[name="shareHostListNFS"]');
-    host.val($.cookie('hostList'));
-    setTimeout(function(){host.trigger('change');},100);
-    $.removeCookie('hostList');
+  var rule = $('textarea[name=shareHostListNFS]');
+  if ($.cookie('ruleList')!=null) {
+    rule.val($.cookie('ruleList'));
+    setTimeout(function(){rule.trigger('change');},100);
+    $.removeCookie('ruleList');
   }
+  rule.val(rule.val.replace(/ /g,'\n'));
 <?if ($tabbed):?>
 <?$path=='Shares/Share' ? $t=2 : $t=1;?>
   $('#tab<?=$t?>').bind({click:function(){initDropdownNFS(true);}});
@@ -110,7 +111,7 @@ function readNFS() {
     var data = $.parseJSON(json);
     form.shareExportNFS.value = data.export;
     form.shareSecurityNFS.value = data.security;
-    if (data.hostList != '') $.cookie('hostList',data.hostList);
+    if (data.hostList != '') $.cookie('ruleList',data.hostList);
     $(form).find('select').trigger('change');
   });
 }
@@ -138,5 +139,9 @@ function writeNFS(data,n,i) {
     $('div.spinner.fixed').show('slow');
     writeNFS(data,0,i);
   }
+}
+function combine() {
+  var rule = $('textarea[name=shareHostListNFS]');
+  rule.val(rule.val.replace(/\n/g,' ').replace(/ +$/,''));
 }
 </script>
