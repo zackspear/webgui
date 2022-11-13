@@ -91,7 +91,7 @@ foreach ($rows as $row) echo $row;
 <input type="hidden" name="shareNameOrig" value="<?=htmlspecialchars($share['nameOrig'])?>">
 
 _(Share name)_:
-: <input type="text" name="shareName" maxlength="40" value="<?=htmlspecialchars($name)?>">
+: <input type="text" name="shareName" maxlength="40" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.]+">
 
 :share_edit_name_help:
 
