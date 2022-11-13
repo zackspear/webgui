@@ -400,14 +400,7 @@ foreach ($files as $file) {
   @copy($file, $dest);
   if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
   $home = [];
-  foreach (explode(",",shareDisks($share)) as $name) {
-    if ($all || preg_match('/disk[0-9]+/',$name) || in_array($name,$pools)) {
-      $home[] = $name;
-    } else {
-      $len = strlen($name);
-      $home[] = $len>2 ? substr($name,0,1).str_repeat('-',$len-2).substr($name,-1) : $name;
-    }
-  }
+  foreach (explode(",",shareDisks($share)) as $name) $home[] = $name;
   $home = implode(", ",$home);
   $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($home ? "Exists on $home\r\n" : "Does not exist\r\n");
   file_put_contents($dest,($home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n").file_get_contents($dest));
