@@ -48,7 +48,7 @@ function shareDisks($share) {
   return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$share")." 2>/dev/null") ?: "";
 }
 function anonymize($text,$select) {
-  global $all,$customShares,$unraid_vars;
+  global $all,$pools,$customShares,$unraid_vars;
   if ($all) return $text;
   switch ($select) {
   case 1:
@@ -56,7 +56,8 @@ function anonymize($text,$select) {
     $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
 
     $rows = explode("\n", $text);
-    $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu{$customShares})\b/";
+    $pool = implode('|',$pools) ?: 'cache';
+    $regex = "/\b((disk|$pool|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|$pool|parity|cpu{$customShares})\b/";
     foreach ($rows as &$row) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
@@ -65,8 +66,9 @@ function anonymize($text,$select) {
     }
     return implode("\n", $rows);
   case 2:
+    // anonymize share configuration name - make it unique
     $name = basename($text,'.cfg');
-    if ($name !== "cache") {
+    if (!in_array($name,$pools)) {
       $len = strlen($name);
       if ($len>2) {
         $dash = str_repeat('-',$len-2);
@@ -286,18 +288,22 @@ if ($cli) {
   $date = "{$split[2]}-{$split[3]}";
 }
 
+// global variables
+$disks = (array)@parse_ini_file("$get/disks.ini",true);
+$pools = pools_filter($disks);
+
 // don't anonymize system share names
-$vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
-$vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
-$showshares   = [];
+$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
+$showshares = [];
 $customShares = '';
-$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']), 3, 1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']), 3, 1));
+$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']),3,1));
+$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']),3,1));
 
 foreach ($showshares as $showme) if ($showme) $customShares .= "|$showme";
 
@@ -325,8 +331,6 @@ foreach (glob("$get/*.ini") as $file) {
 // Create loads.txt
 $cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
 $diskload = (array)@file("$get/diskload.ini");
-$disks = (array)@parse_ini_file("$get/disks.ini",true);
-$pools = pools_filter($disks);
 $loadTxt = [];
 foreach ($diskload as $loadLine) {
   $load = explode('=',$loadLine);
