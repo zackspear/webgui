@@ -56,7 +56,7 @@ function anonymize($text,$select) {
     $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
 
     $rows = explode("\n", $text);
-    $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu|$customShares)\b/";
+    $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu{$customShares})\b/";
     foreach ($rows as &$row) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
@@ -289,7 +289,8 @@ if ($cli) {
 // don't anonymize system share names
 $vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
 $vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
-$showshares   = $customShares = [];
+$showshares   = [];
+$customShares = '';
 $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1));
 $showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1));
 $showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']), 3, 1));
@@ -298,8 +299,7 @@ $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE'])
 $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']), 3, 1));
 $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']), 3, 1));
 
-foreach ($showshares as $showme) if ($showme) $customShares[] = $showme;
-$customShares = implode('|',$customShares);
+foreach ($showshares as $showme) if ($showme) $customShares .= "|$showme";
 
 // create folder structure
 run("mkdir -p ".escapeshellarg("/$diag/system")." ".escapeshellarg("/$diag/config")." ".escapeshellarg("/$diag/logs")." ".escapeshellarg("/$diag/shares")." ".escapeshellarg("/$diag/smart")." ".escapeshellarg("/$diag/qemu")." ".escapeshellarg("/$diag/xml"));
@@ -403,7 +403,7 @@ foreach ($files as $file) {
     }
   }
   $location = implode(", ",$location);
-  $shareDisk[] = str_pad($share,34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($location ? "Exists on $location\r\n" : "Does not exist\r\n");
+  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($location ? "Exists on $location\r\n" : "Does not exist\r\n");
   file_put_contents($dest,$location ? "# Share exists on $location\r\n" : "# Share does not exist\r\n",FILE_APPEND);
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
