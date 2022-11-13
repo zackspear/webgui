@@ -402,8 +402,9 @@ foreach ($files as $file) {
   $home = [];
   foreach (explode(",",shareDisks($share)) as $name) $home[] = $name;
   $home = implode(", ",$home);
-  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($home ? "Exists on $home\r\n" : "Does not exist\r\n");
-  file_put_contents($dest,($home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n").file_get_contents($dest));
+  $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
+  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).$home;
+  file_put_contents($dest,$home.file_get_contents($dest));
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
