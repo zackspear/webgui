@@ -410,7 +410,7 @@ foreach ($files as $file) {
   }
   $home = implode(", ",$home);
   $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).($home ? "Exists on $home\r\n" : "Does not exist\r\n");
-  file_put_contents($dest,$home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n",FILE_APPEND);
+  file_put_contents($dest,($home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n").file_get_contents($dest));
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
