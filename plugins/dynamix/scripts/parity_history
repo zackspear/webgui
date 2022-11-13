@@ -52,6 +52,7 @@ if (file_exists($log)) {
       default     : $action = '-'; break;
     }
     $date = str_replace(' ',', ',strtr(str_replace('  ',' 0',$date),$month));
+    $date .= ' ('._(date('l',strtotime($date)),0).')';
     $size = $size ? my_scale($size*1024,$unit,-1)." $unit" : '-';
     $duration = this_duration($duration);
     // handle both old and new speed notation
