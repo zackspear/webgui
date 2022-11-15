@@ -199,7 +199,7 @@
 			$oldName = $lv->domain_get_name($dom);
 			$newName = $_POST['domain']['name'];
 			$oldDir = $domain_cfg['DOMAINDIR'].$oldName;
-			$newDir = $domain_cfg['DOMAINDIR'].$newdName;
+			$newDir = $domain_cfg['DOMAINDIR'].$newName;
 			if ($oldName && $newName && is_dir($oldDir) && !is_dir($newDir)) {
 				// mv domain/vmname folder
 				if (rename($oldDir, $newDir)) {
