@@ -399,7 +399,7 @@ foreach ($files as $file) {
   if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
   $home = shareDisks($share);
   $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
-  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("cat ".escapeshellarg($file)."|grep shareUseCache"),24).$home;
+  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("grep -m1 'shareUseCache' ".escapeshellarg($file)),24).$home;
   file_put_contents($dest,$home.file_get_contents($dest));
 }
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
