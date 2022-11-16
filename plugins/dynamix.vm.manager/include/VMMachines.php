@@ -192,20 +192,18 @@ foreach ($vms as $vm) {
   echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
   $gastate = getgastate($res) ;
   if ($gastate == "connected") {
-    $ip = $lv->domain_qemu_agent_command($res, '{"execute":"guest-network-get-interfaces"}', 10, 0) ;
+    $ip  = $lv->domain_interface_addresses($res, 1) ;
     if ($ip != false) {
-      $ip = json_decode($ip,true) ;
-      $ip = $ip["return"] ;
       $duplicates = []; // hide duplicate interface names
       foreach ($ip as $arrIP) {
         $ipname = $arrIP["name"] ;
         if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
-        $iphdwadr = $arrIP["hardware-address"] == "" ?  _("N/A") : $arrIP["hardware-address"] ;
-        $iplist = $arrIP["ip-addresses"] ;
+        $iphdwadr = $arrIP["hwaddr"] == "" ?  _("N/A") : $arrIP["hwaddr"] ;
+        $iplist = $arrIP["addrs"] ;
         foreach ($iplist as $arraddr) {
-          $ipaddrval = $arraddr["ip-address"] ;
+          $ipaddrval = $arraddr["addr"] ;
           if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
-          $iptype = $arraddr["ip-address-type"] ;
+          $iptype = $arraddr["type"] ? "ipv6" : "ipv4" ;
           $ipprefix = $arraddr["prefix"] ;
           $ipnamemac = "$ipname ($iphdwadr)";
           if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
