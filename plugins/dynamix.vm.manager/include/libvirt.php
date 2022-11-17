@@ -1571,6 +1571,11 @@
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
+		function domain_interface_addresses($domain,$flag) {
+			$tmp =  libvirt_domain_interface_addresses($domain,$flag);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
 		function domain_get_memory_stats($domain) {
 			$dom = $this->get_domain_object($domain);
 			if (!$dom)
