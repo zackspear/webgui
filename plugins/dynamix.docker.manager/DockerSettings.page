@@ -245,7 +245,7 @@ _(Template Authoring Mode)_:
 
 _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '0', _('macvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
   <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
   </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
 
@@ -450,7 +450,7 @@ _(Docker LOG rotation)_:
 :docker_log_rotation_active_help:
 
 _(Docker custom network type)_:
-: <?=$dockercfg['DOCKER_NETWORK_TYPE']=='1' ? _('ipvlan') : _('macvlan')?>
+: <?=$dockercfg['DOCKER_NETWORK_TYPE']=='' ? _('macvlan') : _('ipvlan')?>
 
 :docker_custom_network_type_help:
 
