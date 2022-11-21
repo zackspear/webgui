@@ -1018,11 +1018,11 @@ If set to **Yes**, when creating/editing containers the interface will be presen
 :end
 
 :docker_custom_network_type_help:
-The **macvlan** type of network allows direct connection to the physical network.
-Please read <u><a style="color:blue" href='https://docs.docker.com/network/macvlan/', target='_blank'>this</a></u> on implementing a macvlan network.<br>
-
 The **ipvlan** type is best when connection to the physical network is not needed.
 Please read <u><a style="color:blue" href='https://docs.docker.com/network/ipvlan/', target='_blank'>this</a></u> on implementing an ipvlan network.<br>
+
+The **macvlan** type of network allows direct connection to the physical network.
+Please read <u><a style="color:blue" href='https://docs.docker.com/network/macvlan/', target='_blank'>this</a></u> on implementing a macvlan network.<br>
 
 **Note:** Docker uses its own dhcp service, which is the **DHCP Pool** setting.
 When you use multiple Unraid servers, then each server must have a different Docker **DHCP Pool** range configured.

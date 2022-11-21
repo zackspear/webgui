@@ -245,8 +245,8 @@ _(Template Authoring Mode)_:
 
 _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
   <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
   </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
 
 :docker_custom_network_type_help:
