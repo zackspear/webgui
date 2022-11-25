@@ -618,6 +618,8 @@
 
 						$strDevType = @filetype(realpath($disk['image']));
 
+						if ($disk["serial"] != "") $serial = "<serial>".$disk["serial"]."</serial>" ; else $serial = "" ;
+
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
@@ -627,6 +629,7 @@
 											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "'/>
 											$bootorder
 											$readonly
+											$serial
 										</disk>";
 						}
 					}
@@ -1142,7 +1145,7 @@
 			return $ret;
 		}
 
-		function get_disk_stats($domain, $sort=true) {
+		function get_disk_stats_old($domain, $sort=true) {
 			$dom = $this->get_domain_object($domain);
 
 			$buses =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@bus', false);
@@ -1201,6 +1204,72 @@
 			unset($disks);
 			unset($files);
 
+			return $ret;
+		}
+
+		function get_disk_stats($domain, $sort=true) {
+			$dom = $this->get_domain_object($domain);
+
+			$domainXML = $this->domain_get_xml($dom) ;
+			$arrDomain = new SimpleXMLElement($domainXML);
+			$arrDomain = $arrDomain->devices->disk;
+
+			$ret = [];
+			foreach ($arrDomain as $disk) {
+				if ($disk->attributes()->device != "disk") continue ;
+				$tmp = libvirt_domain_get_block_info($dom, $disk->target->attributes()->dev);
+		 
+				if ($tmp) {
+					$tmp['bus'] = $disk->target->attributes()->bus;
+					$tmp["boot order"] = $disk->boot->attributes()->order ;
+					$tmp['serial'] = $disk->serial ;
+					
+					// Libvirt reports 0 bytes for raw disk images that haven't been
+					// written to yet so we just report the raw disk size for now
+					if ( !empty($tmp['file']) &&
+						 $tmp['type'] == 'raw' &&
+						 empty($tmp['physical']) &&
+						 is_file($tmp['file']) ) {
+
+						$intSize = filesize($tmp['file']);
+						$tmp['physical'] = $intSize;
+						$tmp['capacity'] = $intSize;
+					} 
+
+					$ret[] = $tmp;
+				}
+				else {
+					$this->_set_last_error();
+
+					$ret[] = [
+						'device' => $disk->target->attributes()->dev,
+						'file'   => $disk->source->attributes()->file,
+						'type'   => '-',
+						'capacity' => '-',
+						'allocation' => '-',
+						'physical' => '-',
+						'bus' =>  $disk->target->attributes()->bus,
+						'boot order' => $disk->boot->attributes()->order ,
+						'serial' => $disk->serial 
+					];
+				}
+			}
+
+			if ($sort) {
+				for ($i = 0; $i < sizeof($ret); $i++) {
+					for ($ii = 0; $ii < sizeof($ret); $ii++) {
+						if (strcmp($ret[$i]['device'], $ret[$ii]['device']) < 0) {
+							$tmp = $ret[$i];
+							$ret[$i] = $ret[$ii];
+							$ret[$ii] = $tmp;
+						}
+					}
+				}
+			}
+
+			unset($domainXML);
+			unset($arrDomain) ;
+			unset($disk) ;
 			return $ret;
 		}
 

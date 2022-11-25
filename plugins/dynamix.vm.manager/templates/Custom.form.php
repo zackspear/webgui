@@ -693,6 +693,12 @@
 				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
 				</td>
 			</tr>
+			<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[<?=$i?>][serial]" class="narrow" style="width: 200px;" name="disk[<?=$i?>][serial]"   title="_(Serial)_"  value="<?=$arrDisk['serial']?>" >
+				</td>
+			</tr>
 		</table>
 		<?if ($i == 0) {?>
 		<blockquote class="inline_help">
@@ -725,6 +731,16 @@
 			<p class="advanced">
 				<b>vDisk Bus</b><br>
 				Select virtio for best performance.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Boot Order</b><br>
+				Specify the order the devices are used for booting.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Serial</b><br>
+				Set the device serial number presented to the VM.
 			</p>
 
 			<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -821,6 +837,12 @@
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
+				<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="narrow" style="width: 200px;" name="disk[{{INDEX}}][serial]"   title="_(Serial)_"  value="" >
+				</td>
+			</tr>
 			</tr>
 		</table>
 	</script>
