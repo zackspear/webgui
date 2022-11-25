@@ -1148,68 +1148,6 @@
 			return $ret;
 		}
 
-		function get_disk_stats_old($domain, $sort=true) {
-			$dom = $this->get_domain_object($domain);
-
-			$buses =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@bus', false);
-			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@dev', false);
-			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/source/@*', false);
-			$boot  =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/boot/@*', false);
-
-			$ret = [];
-			for ($i = 0; $i < $disks['num']; $i++) {
-				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
-				if ($tmp) {
-					$tmp['bus'] = $buses[$i];
-					$tmp["boot order"] = $boot[$i] ;
-					// Libvirt reports 0 bytes for raw disk images that haven't been
-					// written to yet so we just report the raw disk size for now
-					if ( !empty($tmp['file']) &&
-						 $tmp['type'] == 'raw' &&
-						 empty($tmp['physical']) &&
-						 is_file($tmp['file']) ) {
-
-						$intSize = filesize($tmp['file']);
-						$tmp['physical'] = $intSize;
-						$tmp['capacity'] = $intSize;
-					}
-
-					$ret[] = $tmp;
-				}
-				else {
-					$this->_set_last_error();
-
-					$ret[] = [
-						'device' => $disks[$i],
-						'file'   => $files[$i],
-						'type'   => '-',
-						'capacity' => '-',
-						'allocation' => '-',
-						'physical' => '-',
-						'bus' => $buses[$i]
-					];
-				}
-			}
-
-			if ($sort) {
-				for ($i = 0; $i < sizeof($ret); $i++) {
-					for ($ii = 0; $ii < sizeof($ret); $ii++) {
-						if (strcmp($ret[$i]['device'], $ret[$ii]['device']) < 0) {
-							$tmp = $ret[$i];
-							$ret[$i] = $ret[$ii];
-							$ret[$ii] = $tmp;
-						}
-					}
-				}
-			}
-
-			unset($buses);
-			unset($disks);
-			unset($files);
-
-			return $ret;
-		}
-
 		function get_disk_stats($domain, $sort=true) {
 			$dom = $this->get_domain_object($domain);
 
