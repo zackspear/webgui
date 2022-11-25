@@ -248,6 +248,9 @@
 					if (!empty($disk['boot'])) {
 						$arrReturn['boot'] = $disk['boot'];
 					}
+					if (!empty($disk['serial'])) {
+						$arrReturn['serial'] = $disk['serial'];
+					}
 
 				}
 			}
