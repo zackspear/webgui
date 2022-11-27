@@ -892,7 +892,7 @@
 			</tr>
 		</table>
 		<?if ($i == 0) {?>
-		<div class="domain_os other">
+		<div>
 			<div class="advanced">
 				<blockquote class="inline_help">
 					<p>
@@ -914,6 +914,9 @@
 					<p>
 						<b>Unraid Mount tag</b><br>
 						Specify the mount tag that you will use for mounting the VirtFS share inside the VM.  See this page for how to do this on a Linux-based guest: <a href="http://wiki.qemu.org/Documentation/9psetup" target="_blank">http://wiki.qemu.org/Documentation/9psetup</a>
+					</p>
+					<p>	
+						For Windows additional software needs to be installed: <a href="https://virtio-fs.gitlab.io/howto-windows.html" target="_blank">https://virtio-fs.gitlab.io/howto-windows.html</a>	
 					</p>
 
 					<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
