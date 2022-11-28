@@ -1056,6 +1056,7 @@
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
 				'boot' => $disk['boot order'],
+				'serial' => $disk['serial'],
 				'select' => $default_option
 			];
 		}
