@@ -90,7 +90,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
       $wsport = $lv->domain_get_ws_port($res);
       $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
       $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-      if ($vmrcprotocol == "spice") $vmrcurl .= '&port=/wsproxy/'.$vmrcport.'/' ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+      if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) . '&port=/wsproxy/'.$vmrcport.'/' ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
     } elseif ($vmrcport == -1 || $autoport) {
       $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
       if ($autoport == "yes") $auto = "auto" ; else $auto="manual" ;
