@@ -11,6 +11,8 @@
  */
 ?>
 <?
+require_once "$docroot/webGui/include/MarkdownExtra.inc.php";
+
 // start new session as required
 if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
   session_start();
@@ -21,7 +23,6 @@ $session = '/var/lib/php/sess_'.session_id();
 if (file_exists($session)) {
   if (filesize($session)===0 || (count($_SESSION??[])==1 && isset($_SESSION['locale']))) unlink($session);
 }
-require_once "$docroot/webGui/include/Markdown.php";
 
 function _($text, $do=-1) {
   // PHP translation function _
