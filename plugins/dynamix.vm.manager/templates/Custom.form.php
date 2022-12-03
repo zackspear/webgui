@@ -74,7 +74,8 @@
 				'dev' => 'hda',
 				'select' => $domain_cfg['VMSTORAGEMODE'],
 				'bus' => 'virtio' ,
-				'boot' => 1
+				'boot' => 1,
+				'serial' => 'vdisk1'
 			]
 		],
 		'gpu' => [
@@ -693,6 +694,12 @@
 				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
 				</td>
 			</tr>
+			<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[<?=$i?>][serial]" class="narrow disk_serial" style="width: 200px;" name="disk[<?=$i?>][serial]"   title="_(Serial)_"  value="<?=$arrDisk['serial']?>" >
+				</td>
+			</tr>
 		</table>
 		<?if ($i == 0) {?>
 		<blockquote class="inline_help">
@@ -725,6 +732,16 @@
 			<p class="advanced">
 				<b>vDisk Bus</b><br>
 				Select virtio for best performance.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Boot Order</b><br>
+				Specify the order the devices are used for booting.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Serial</b><br>
+				Set the device serial number presented to the VM.
 			</p>
 
 			<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -821,6 +838,12 @@
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
+				<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="narrow disk_serial" style="width: 200px;" name="disk[{{INDEX}}][serial]"   title="_(Serial)_"  value="" >
+				</td>
+			</tr>
 			</tr>
 		</table>
 	</script>
@@ -869,7 +892,7 @@
 			</tr>
 		</table>
 		<?if ($i == 0) {?>
-		<div class="domain_os other">
+		<div>
 			<div class="advanced">
 				<blockquote class="inline_help">
 					<p>
@@ -891,6 +914,9 @@
 					<p>
 						<b>Unraid Mount tag</b><br>
 						Specify the mount tag that you will use for mounting the VirtFS share inside the VM.  See this page for how to do this on a Linux-based guest: <a href="http://wiki.qemu.org/Documentation/9psetup" target="_blank">http://wiki.qemu.org/Documentation/9psetup</a>
+					</p>
+					<p>	
+						For Windows additional software needs to be installed: <a href="https://virtio-fs.gitlab.io/howto-windows.html" target="_blank">https://virtio-fs.gitlab.io/howto-windows.html</a>	
 					</p>
 
 					<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -1592,6 +1618,7 @@ $(function() {
 			var $disk_bus_sections = $table.find('.disk_bus_options');
 			var $disk_input = $table.find('.disk');
 			var $disk_preview = $table.find('.disk_preview');
+			var $disk_serial = $table.find('.disk_serial');
 
 			if (disk_select == 'manual') {
 
@@ -1655,6 +1682,31 @@ $(function() {
 		});
 	};
 
+	var setDiskserial = function (disk_index) {
+		var domaindir = '<?=$domain_cfg['DOMAINDIR']?>' + $('#domain_oldname').val();
+		var tl_args = arguments.length;
+
+		$("#vmform .disk").closest('table').each(function (index) {
+			var $table = $(this);
+
+			if (tl_args && disk_index != $table.data('index')) {
+				return;
+			}
+
+			var disk_select = $table.find(".disk_select option:selected").val();
+			var $disk_serial = $table.find('.disk_serial');
+
+			 if (disk_select !== '') {
+
+				// Auto disk serial
+				var auto_serial = 'vdisk' + (index+1) ;
+				$disk_serial.val(auto_serial);
+
+			} 
+
+		});
+	};
+
 	<?if ($boolNew):?>
 	$("#vmform #domain_name").on("input change", function changeNameEvent() {
 		$('#vmform #domain_oldname').val($(this).val());
@@ -1702,6 +1754,7 @@ $(function() {
 	$("#vmform").on("spawn_section", function spawnSectionEvent(evt, section, sectiondata) {
 		if (sectiondata.category == 'vDisk') {
 			regenerateDiskPreview(sectiondata.index);
+			setDiskserial(sectiondata.index) ;
 		}
 		if (sectiondata.category == 'Graphics_Card') {
 			$(section).find(".gpu").change();

@@ -26,6 +26,14 @@
 			}
 		}
 
+		function __construct($uri = false, $login = false, $pwd = false, $debug=false) {
+			if ($debug)
+				$this->set_logfile($debug);
+			if ($uri != false) {
+				$this->enabled = $this->connect($uri, $login, $pwd);
+			}
+		}
+
 		function _set_last_error() {
 			$this->last_error = libvirt_get_last_error();
 			return false;
@@ -36,7 +44,7 @@
 		}
 
 		function set_logfile($filename) {
-			if (!libvirt_logfile_set($filename,'10M'))
+			if (!libvirt_logfile_set($filename,10000))
 				return $this->_set_last_error();
 
 			return true;
@@ -247,6 +255,9 @@
 					}
 					if (!empty($disk['boot'])) {
 						$arrReturn['boot'] = $disk['boot'];
+					}
+					if (!empty($disk['serial'])) {
+						$arrReturn['serial'] = $disk['serial'];
 					}
 
 				}
@@ -618,6 +629,8 @@
 
 						$strDevType = @filetype(realpath($disk['image']));
 
+						if ($disk["serial"] != "") $serial = "<serial>".$disk["serial"]."</serial>" ; else $serial = "" ;
+
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
@@ -627,6 +640,7 @@
 											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "'/>
 											$bootorder
 											$readonly
+											$serial
 										</disk>";
 						}
 					}
@@ -1145,17 +1159,20 @@
 		function get_disk_stats($domain, $sort=true) {
 			$dom = $this->get_domain_object($domain);
 
-			$buses =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@bus', false);
-			$disks =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/target/@dev', false);
-			$files =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/source/@*', false);
-			$boot  =  $this->get_xpath($dom, '//domain/devices/disk[@device="disk"]/boot/@*', false);
+			$domainXML = $this->domain_get_xml($dom) ;
+			$arrDomain = new SimpleXMLElement($domainXML);
+			$arrDomain = $arrDomain->devices->disk;
 
 			$ret = [];
-			for ($i = 0; $i < $disks['num']; $i++) {
-				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
+			foreach ($arrDomain as $disk) {
+				if ($disk->attributes()->device != "disk") continue ;
+				$tmp = libvirt_domain_get_block_info($dom, $disk->target->attributes()->dev);
+		 
 				if ($tmp) {
-					$tmp['bus'] = $buses[$i];
-					$tmp["boot order"] = $boot[$i] ;
+					$tmp['bus'] = $disk->target->attributes()->bus;
+					$tmp["boot order"] = $disk->boot->attributes()->order ;
+					$tmp['serial'] = $disk->serial ;
+					
 					// Libvirt reports 0 bytes for raw disk images that haven't been
 					// written to yet so we just report the raw disk size for now
 					if ( !empty($tmp['file']) &&
@@ -1166,7 +1183,7 @@
 						$intSize = filesize($tmp['file']);
 						$tmp['physical'] = $intSize;
 						$tmp['capacity'] = $intSize;
-					}
+					} 
 
 					$ret[] = $tmp;
 				}
@@ -1174,13 +1191,15 @@
 					$this->_set_last_error();
 
 					$ret[] = [
-						'device' => $disks[$i],
-						'file'   => $files[$i],
+						'device' => $disk->target->attributes()->dev,
+						'file'   => $disk->source->attributes()->file,
 						'type'   => '-',
 						'capacity' => '-',
 						'allocation' => '-',
 						'physical' => '-',
-						'bus' => $buses[$i]
+						'bus' =>  $disk->target->attributes()->bus,
+						'boot order' => $disk->boot->attributes()->order ,
+						'serial' => $disk->serial 
 					];
 				}
 			}
@@ -1197,10 +1216,9 @@
 				}
 			}
 
-			unset($buses);
-			unset($disks);
-			unset($files);
-
+			unset($domainXML);
+			unset($arrDomain) ;
+			unset($disk) ;
 			return $ret;
 		}
 
@@ -2223,7 +2241,7 @@
 				$model = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../model/@type", false);
 				$boot = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../boot/@order", false);
 
-				if(empty(macs[$i]) && empty($net[0])) {
+				if(empty($macs[$i]) && empty($net[0])) {
 					$this->_set_last_error();
 					continue;
 				}

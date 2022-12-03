@@ -101,7 +101,7 @@ case 'domain-start':
 		$protocol = $lv->domain_get_vmrc_protocol($dom);
 		if ($vmrcport > 0) {
 			$vmrcurl  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-			if ($protocol == "spice") $vmrcurl  .= '&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
+			if ($protocol == "spice") $vmrcurl  .= '&vmname='. urlencode($domName) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
 		}
 		$arrResponse['vmrcurl'] = $vmrcurl ;
 		break;
