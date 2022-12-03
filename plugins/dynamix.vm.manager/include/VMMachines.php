@@ -144,7 +144,7 @@ foreach ($vms as $vm) {
     $allocation = $lv->format_size($arrDisk['allocation'], 0);
     $disk = $arrDisk['file'] ?? $arrDisk['partition'];
     $dev = $arrDisk['device'];
-    $bus = $arrValidDiskBuses[$arrDisk['bus']] ?? 'VirtIO';
+    #$bus = $arrValidDiskBuses[$arrDisk['bus']] ?? 'VirtIO';
     $boot= $arrDisk["boot order"] ;
     $serial = $arrDisk["serial"] ;
     if ($boot < 1) $boot="Not set" ;
@@ -172,7 +172,7 @@ foreach ($vms as $vm) {
     $allocation = $lv->format_size($arrCD['allocation'], 0);
     $disk = $arrCD['file'] ?? $arrCD['partition'];
     $dev = $arrCD['device'];
-    $bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
+    #$bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
     $boot= $arrCD["boot order"] ;
     if ($boot < 1) $boot="Not set" ;
     if ($disk != "" ) {
