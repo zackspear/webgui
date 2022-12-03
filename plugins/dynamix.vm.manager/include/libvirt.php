@@ -1169,7 +1169,7 @@
 				$tmp = libvirt_domain_get_block_info($dom, $disk->target->attributes()->dev);
 		 
 				if ($tmp) {
-					$tmp['bus'] = $disk->target->attributes()->bus;
+					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ;
 					$tmp['serial'] = $disk->serial ;
 					
