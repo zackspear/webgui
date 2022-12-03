@@ -26,6 +26,14 @@
 			}
 		}
 
+		function __construct($uri = false, $login = false, $pwd = false, $debug=false) {
+			if ($debug)
+				$this->set_logfile($debug);
+			if ($uri != false) {
+				$this->enabled = $this->connect($uri, $login, $pwd);
+			}
+		}
+
 		function _set_last_error() {
 			$this->last_error = libvirt_get_last_error();
 			return false;
@@ -36,7 +44,7 @@
 		}
 
 		function set_logfile($filename) {
-			if (!libvirt_logfile_set($filename,'10M'))
+			if (!libvirt_logfile_set($filename,10000))
 				return $this->_set_last_error();
 
 			return true;
@@ -2233,7 +2241,7 @@
 				$model = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../model/@type", false);
 				$boot = $this->get_xpath($domain, "//domain/devices/interface/mac[@address='$macs[$i]']/../boot/@order", false);
 
-				if(empty(macs[$i]) && empty($net[0])) {
+				if(empty($macs[$i]) && empty($net[0])) {
 					$this->_set_last_error();
 					continue;
 				}
