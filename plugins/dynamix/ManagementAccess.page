@@ -53,9 +53,11 @@ function acceptableCert($certFile, $hostname, $expectedURL) {
 }
 $tasks       = find_tasks();
 $ethX        = 'eth0';
-#$addr        = ipaddr($ethX);
-$addr        = $_SERVER['SERVER_ADDR'];
+#$addr       = ipaddr($ethX);
+$addr        = $_SERVER['SERVER_ADDR']??'';
 $keyfile     = @file_get_contents($var['regFILE']);
+$cert2Issuer = '';
+$isLEcert    = false;
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
 
 // self-signed or user-provided cert
@@ -357,8 +359,8 @@ _(Local access URLs)_:
 $n = 0;
 foreach($urls as $url) {
   $msg  = "";
-  $url0 = substr_count($url[0],':')>3 ? preg_replace('#(://)(.+)(/$)#','$1[$2]$3',$url[0]) : $url[0]; // IPv6 - IPv4 notation
-  $url1 = substr_count($url[1],':')>3 ? preg_replace('#(://)(.+)(/$)#','$1[$2]$3',$url[1]) : $url[1]; // IPv6 - IPv4 notation
+  $url0 = substr_count($url[0]??'',':')>3 ? preg_replace('#(://)(.+)(/$)#','$1[$2]$3',$url[0]) : $url[0]; // IPv6 - IPv4 notation
+  $url1 = substr_count($url[1]??'',':')>3 ? preg_replace('#(://)(.+)(/$)#','$1[$2]$3',$url[1]) : $url[1]; // IPv6 - IPv4 notation
   if ($url[1]) $msg .= " "._("redirects to")." <a href='$url1'>$url1</a>";
   if ($url[2]) $msg .= " "._("uses")." ".$url[2];
   if ($url[3]) $msg .= "<span class='warning'> <i class='fa fa-warning fa-fw'></i> "._("is a self-signed certificate, ignore the browser's warning and proceed to the GUI")."</span>";
@@ -389,7 +391,7 @@ _(Certificate issuer)_:
 <?endif;?>
 
 _(Certificate expiration)_:
-: <?=_(strftime($cert_time_format, strtotime($cert1Expires)),0)?>
+: <?=_(my_date($cert_time_format, strtotime($cert1Expires)),0)?>
 
 <?else:?>
 _(Self-signed certificate file)_:
@@ -410,7 +412,7 @@ _(Certificate issuer)_:
 : <?=$cert2Issuer?>
 
 _(Certificate expiration)_:
-: <?=_(strftime($cert_time_format, strtotime($cert2Expires)),0)?>
+: <?=_(my_date($cert_time_format, strtotime($cert2Expires)),0)?>
 
 <?if ($dnsRebindingProtection):?>
 &nbsp;
