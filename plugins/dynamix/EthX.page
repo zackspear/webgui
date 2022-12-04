@@ -3,8 +3,8 @@ Title="_(Interface)_ ethX"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -72,7 +72,7 @@ $(function() {
     if ($(this).text().indexOf('Interface ethX')==0) $(this).find('span.left').append(ctrl);
   });
 <?endif;?>
-<?if ($master_ethX):?>
+<?if (isset($master_ethX)):?>
   $('div.slave-ethX').hide();
   disableForm(form);
 <?elseif ($service):?>
@@ -98,7 +98,7 @@ $(function() {
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-ethX" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('ethX')"></i></span>
 <?if (!$more):?>
-  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:0"])?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:0"]??'')?>" onchange="exitCode(this.form,true)">
 <?else:?>
   <span class="<?=$class?>"><?=$reason?></span>
 <?endif;?>
@@ -187,7 +187,7 @@ _(IPv4 address assignment)_:
 
 <div markdown="1" class="more-ipv4-ethX-0" style="display:none">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:0" maxlength="15" value="<?=$ethX["IPADDR:0"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
+: <input type="text" name="IPADDR:0" maxlength="15" value="<?=$ethX["IPADDR:0"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:0" class="slim">
   <?=mk_option($ethX["NETMASK:0"], "255.0.0.0", "8")?>
   <?=mk_option($ethX["NETMASK:0"], "255.255.0.0", "16")?>
   <?=mk_option($ethX["NETMASK:0"], "255.255.128.0", "17")?>
@@ -209,8 +209,8 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:0" maxlength="15" value="<?=$ethX["GATEWAY:0"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="0" max="9999" value="<?=$ethX["METRIC:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:0" maxlength="15" value="<?=$ethX["GATEWAY:0"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:0" min="0" max="9999" value="<?=$ethX["METRIC:0"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
@@ -228,13 +228,13 @@ _(IPv6 address assignment)_:
 
 <div markdown="1" class="more-ipv6-ethX-0" style="display:none">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:0" maxlength="39" value="<?=$ethX["IPADDR6:0"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" value="<?=$ethX["NETMASK6:0"]?>" class="slim">
+: <input type="text" name="IPADDR6:0" maxlength="39" value="<?=$ethX["IPADDR6:0"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" value="<?=$ethX["NETMASK6:0"]??''?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:0" maxlength="39" value="<?=$ethX["GATEWAY6:0"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="0" max="9999" value="<?=$ethX["METRIC6:0"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:0" maxlength="39" value="<?=$ethX["GATEWAY6:0"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:0" min="0" max="9999" value="<?=$ethX["METRIC6:0"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
@@ -249,7 +249,7 @@ _(IPv6 privacy extensions)_:
 </div>
 </div>
 _(Desired MTU)_:
-: <input type="number" name="MTU" min="68" max="9198" value="<?=$locked?$ethX['MTU']:$ethX['MTU']?>" class="narrow" placeholder="1500">
+: <input type="number" name="MTU" min="68" max="9198" value="<?=$ethX['MTU']??''?>" class="narrow" placeholder="1500">
 
 :eth_desired_mtu_help:
 
@@ -268,13 +268,13 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?>" style="display:none">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-ethX-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('ethX','<?=$i?>')"></i></span>
-  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"])?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:$i"]??'')?>" onchange="exitCode(this.form,true)">
 
 :eth_interface_description_help:
 
 <div markdown="1" id="view-ethX-<?=$i?>" style="display:none">
 _(VLAN number)_:
-: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=$ethX["VLANID:$i"]?>" class="narrow gap" required>
+: <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" value="<?=$ethX["VLANID:$i"]??''?>" class="narrow gap" required>
   <?if (!$service):?><input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-ethX-<?=$i?>'))"><?endif;?>
 
 :eth_vlan_number_help:
@@ -300,7 +300,7 @@ _(IPv4 address assignment)_:
 
 <div markdown="1" class="more-ipv4-ethX-<?=$i?>" style="display:none">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$ethX["IPADDR:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
+: <input type="text" name="IPADDR:<?=$i?>" maxlength="15" value="<?=$ethX["IPADDR:$i"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:<?=$i?>" class="slim">
   <?=mk_option($ethX["NETMASK:$i"], "255.0.0.0", "8")?>
   <?=mk_option($ethX["NETMASK:$i"], "255.255.0.0", "16")?>
   <?=mk_option($ethX["NETMASK:$i"], "255.255.128.0", "17")?>
@@ -322,8 +322,8 @@ _(IPv4 address)_:
 :eth_ipv4_address_help:
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" value="<?=$ethX["METRIC:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" value="<?=$ethX["GATEWAY:$i"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" value="<?=$ethX["METRIC:$i"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv4_default_gateway_help:
 
@@ -341,13 +341,13 @@ _(IPv6 address assignment)_:
 
 <div markdown="1" class="more-ipv6-ethX-<?=$i?>" style="display:none">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$ethX["IPADDR6:$i"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]?>" class="slim">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" value="<?=$ethX["IPADDR6:$i"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" value="<?=$ethX["NETMASK6:$i"]??''?>" class="slim">
 
 :eth_ipv6_address_help:
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" value="<?=$ethX["METRIC6:$i"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" value="<?=$ethX["GATEWAY6:$i"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" value="<?=$ethX["METRIC6:$i"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 :eth_ipv6_default_gateway_help:
 
@@ -377,11 +377,11 @@ _(IPv6 privacy extensions)_:
 <div markdown="1" id="index-ethX-INDEX" class="access-ethX shade-<?=$display['theme']?>">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-ethX-INDEX" class="fa fa-fw fa-chevron-up" style="cursor:pointer" onclick="viewToggle('ethX','INDEX')"></i></span>
-  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:INDEX"])?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars($ethX["DESCRIPTION:INDEX"]??'')?>" onchange="exitCode(this.form,true)">
 
 <div markdown="1" id="view-ethX-INDEX">
 _(VLAN number)_:
-: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=$ethX["VLANID:INDEX"]?>" class="narrow gap" required>
+: <input type="number" name="VLANID:INDEX" min="1" max="4095" value="<?=$ethX["VLANID:INDEX"]??''?>" class="narrow gap" required>
   <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-ethX-INDEX'))">
 
 _(Network protocol)_:
@@ -401,7 +401,7 @@ _(IPv4 address assignment)_:
 
 <div markdown="1" class="more-ipv4-ethX-INDEX" style="display:none">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=$ethX["IPADDR:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
+: <input type="text" name="IPADDR:INDEX" maxlength="15" value="<?=$ethX["IPADDR:INDEX"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
   <?=mk_option($ethX["NETMASK:INDEX"], "255.0.0.0", "8")?>
   <?=mk_option($ethX["NETMASK:INDEX"], "255.255.0.0", "16")?>
   <?=mk_option($ethX["NETMASK:INDEX"], "255.255.128.0", "17")?>
@@ -421,8 +421,8 @@ _(IPv4 address)_:
   </select>
 
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$ethX["GATEWAY:INDEX"]?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$ethX["METRIC:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" value="<?=$ethX["GATEWAY:INDEX"]??''?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" value="<?=$ethX["METRIC:INDEX"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 </div>
 </div>
@@ -436,11 +436,11 @@ _(IPv6 address assignment)_:
 
 <div markdown="1" class="more-ipv6-ethX-INDEX" style="display:none">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=$ethX["IPADDR6:INDEX"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=$ethX["NETMASK6:INDEX"]?>" class="slim">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" value="<?=$ethX["IPADDR6:INDEX"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" value="<?=$ethX["NETMASK6:INDEX"]??''?>" class="slim">
 
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$ethX["GATEWAY6:INDEX"]?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$ethX["METRIC6:INDEX"]?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" value="<?=$ethX["GATEWAY6:INDEX"]??''?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" value="<?=$ethX["METRIC6:INDEX"]??''?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:INDEX">

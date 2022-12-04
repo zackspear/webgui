@@ -4,8 +4,8 @@ Icon="icon-eula"
 Tag="file-text-o"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2022, Lime Technology
+ * Copyright 2012-2022, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -52,7 +52,7 @@ $(function(){
 });
 function validatePort(form) {
   var portsInUse = JSON.parse('<?=json_encode($portsInUse)?>');
-  var currentPort = "<?=($syslog['local_server'] && $syslog['server_protocol'] != "udp") ? $syslog['server_port'] : "0"?>";
+  var currentPort = "<?=(isset($syslog['local_server']) && $syslog['server_protocol']??''!='udp') ? $syslog['server_port']??'0' : '0'?>";
   var port = $(form).find('input[name="server_port"]');
   var remotePort = $(form).find('input[name="remote_port"]');
   var protocol = $(form).find('select[name="server_protocol"]').val();
@@ -98,7 +98,7 @@ _(Local syslog server)_:
   <?=mk_option($syslog['server_protocol'], "tcp", _("TCP"))?>
   <?=mk_option($syslog['server_protocol'], "both", _("Both"))?>
   </select>
-  <input type="text" name="server_port" class="trim" value="<?=$syslog['server_port']?>" maxlength="5" placeholder="514">
+  <input type="text" name="server_port" class="trim" value="<?=$syslog['server_port']??''?>" maxlength="5" placeholder="514">
 
 :syslog_local_server_help:
 
@@ -149,12 +149,12 @@ _(Local syslog number of files)_:
 </div>
 
 _(Remote syslog server)_:
-: <span class="span"><input type="text" name="remote_server" class="narrow" value="<?=$syslog['remote_server']?>" maxlength="23" placeholder="_(name or ip address)_"></span>
+: <span class="span"><input type="text" name="remote_server" class="narrow" value="<?=$syslog['remote_server']??''?>" maxlength="23" placeholder="_(name or ip address)_"></span>
   <select name="remote_protocol" class="narrow" size="1">
   <?=mk_option($syslog['remote_protocol'], "udp", _("UDP"))?>
   <?=mk_option($syslog['remote_protocol'], "tcp", _("TCP"))?>
   </select>
-  <input type="number" name="remote_port" class="trim" value="<?=$syslog['remote_port']?>" maxlength="5" placeholder="514" pattern="([0-9]{1,5})">
+  <input type="number" name="remote_port" class="trim" value="<?=$syslog['remote_port']??''?>" maxlength="5" placeholder="514" pattern="([0-9]{1,5})">
 
 :syslog_remote_server_help:
 
