@@ -464,10 +464,10 @@ function plugin($method, $plugin_file, &$error) {
     if ($file->attributes()->Run) {
       $command = $file->attributes()->Run;
       if ($name) {
-        logger("plugin: running: $name");
+        logger(escapeshellarg("plugin: running: $command $name"));
         $retval = run("$command $name");
       } elseif ($file->LOCAL) {
-        logger("plugin: running: $file->LOCAL");
+        logger(escapeshellarg("plugin: running: $command $file->LOCAL"));
         $retval = run("$command $file->LOCAL");
       } elseif ($file->INLINE) {
         logger("plugin: running: 'anonymous'");
