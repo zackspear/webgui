@@ -86,7 +86,8 @@
 				'model' => 'qxl',
 				'keymap' => 'en-us',
 				'port' => -1 ,
-				'wsport' => -1
+				'wsport' => -1,
+				'copypaste' => 'no'
 			]
 		],
 		'audio' => [
@@ -1000,6 +1001,16 @@
 					</select>
 				</td>
 				</tr>
+				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced ">
+					<td>_(VM Console enable Copy/paste)_:</td>
+				<td>
+					<select id="copypaste" name="gpu[<?=$i?>][copypaste]" class="narrow" >
+						<?
+						echo mk_option($arrGPU['copypaste'], 'no', _('No'));
+						echo mk_option($arrGPU['copypaste'], 'yes', _('Yes'));
+						?>
+					</select>
+			</tr>
 				<tr  id="autoportline" name="autoportline" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced autoportline">
 					<td>_(VM Console AutoPort)_:</td>
 				<td>
@@ -1059,6 +1070,11 @@
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<b>Virtual video protocol VNC/SPICE</b><br>
 				If you wish to assign a protocol type, specify one here. 
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>Virtual enable copy paste for VNC/SPICE</b><br>
+				If you enable copy paste you need to install additional software on the client in addition to the QEMU agent if that has been installed. <a href="https://www.spice-space.org/download.html"  target="_blank">https://www.spice-space.org/download.html </a>is the location for spice-vdagent for both window and linux. Note copy paste function will not work with web spice viewer you need to use virt-viewer.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">

@@ -723,6 +723,7 @@
 			$pcidevs='';
 			$gpudevs_used=[];
 			$vmrc='';
+			$channelscopypaste = '';
 			if (!empty($gpus)) {
 				foreach ($gpus as $i => $gpu) {
 					// Skip duplicate video devices
@@ -779,6 +780,22 @@
 								<video>
 									<model type='$strModelType'/>
 								</video>";
+
+						if ($gpu['copypaste'] == "yes") {
+							if ($strProtocol == "spice") {
+								$channelscopypaste = 	"<channel type='spicevmc'>
+															<target type='virtio' name='com.redhat.spice.0'/>
+														</channel>" ;
+							} else {
+								$channelscopypaste = 	"<channel type='qemu-vdagent'>
+														<source>
+								  								<clipboard copypaste='yes'/>
+																<mouse mode='client'/>
+															</source>
+															<target type='virtio' name='com.redhat.spice.0'/>
+														</channel>" ;
+							}
+						} else $channelcopypaste = ""; 
 
 						continue;
 					}
@@ -907,6 +924,7 @@
 							<channel type='unix'>
 								<target type='virtio' name='org.qemu.guest_agent.0'/>
 							</channel>
+							$channelscopypaste
 							$swtpm
 							$memballoon
 						</devices>
