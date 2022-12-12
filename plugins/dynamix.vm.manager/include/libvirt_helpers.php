@@ -965,6 +965,7 @@
 		$arrNICs = $lv->get_nic_info($res);
 		$arrHostDevs = $lv->domain_get_host_devices_pci($res);
 		$arrUSBDevs = $lv->domain_get_host_devices_usb($res);
+		$getcopypaste=getcopypaste($res) ;
 
 		// Metadata Parsing
 		// libvirt xpath parser sucks, use php's xpath parser instead
@@ -1002,6 +1003,7 @@
 				'port' => $vmrcport,
 				'wsport' => $lv->domain_get_ws_port($res),
 				'autoport' => $autoport,
+				'copypaste' => $getcopypaste,
 			];
 		}
 
@@ -1194,7 +1196,7 @@
 		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['devices']['filesystem'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
 		// Remove old CPU cache and features
 		unset($old['cpu']['cache'], $old['cpu']['feature']) ;
-		unset($old['features']['hyperv']) ;
+		unset($old['features']['hyperv'],$old['devices']['channel']) ;
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
 	}
@@ -1270,5 +1272,28 @@
         $data = $xml->xpath('//channel/target[@name="org.qemu.guest_agent.0"]/@state') ;
         $data = $data[0]->state ;
         return $data ;
+	}
+
+	function getchannels($res) {
+		global $lv ;
+        $xml = $lv->domain_get_xml($res) ;
+		$x = strpos($xml,"<channel", 0) ;
+		$y = strpos($xml,"</channel>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"</channel>", $z +10)  ;
+			if ($y != false) $z =$y  ;
+		}
+		$channels = substr($xml,$x, ($z + 10) -$x) ;
+		return $channels ;
+	}
+
+	function getcopypaste($res) {
+		$channels = getchannels($res) ;
+		$spicevmc = $qemuvdaagent = $copypaste = false ;
+		if (strpos($channels,"spicevmc",0)) $spicevmc = true ;
+		if (strpos($channels,"qemu-vdagent",0)) $qemuvdaagent = true ;
+		if ($spicevmc || $qemuvdaagent) $copypaste = true ; else $copypaste = false ;
+		return $copypaste ;
 	}
 ?>
