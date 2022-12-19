@@ -1215,7 +1215,7 @@
 						'capacity' => '-',
 						'allocation' => '-',
 						'physical' => '-',
-						'bus' =>  $disk->target->attributes()->bus,
+						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
 						'serial' => $disk->serial 
 					];
@@ -1273,10 +1273,13 @@
 			$ret = 0;
 			for ($i = 0; $i < sizeof($tmp); $i++) {
 				if (($disk == '*') || ($tmp[$i]['device'] == $disk))
-					if ($physical)
+					if ($physical) {
+					    if($tmp[$i]['physical'] == "-") $tmp[$i]['physical'] = "0" ;
 						$ret += $tmp[$i]['physical'];
-					else
+					} else {
+					    if($tmp[$i]['capacity'] == "-") $tmp[$i]['capacity'] = "0" ;
 						$ret += $tmp[$i]['capacity'];
+					}
 			}
 			unset($tmp);
 
