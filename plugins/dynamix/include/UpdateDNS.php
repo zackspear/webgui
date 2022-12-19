@@ -163,7 +163,8 @@ function verbose_output($httpcode, $result) {
   }
   if ($result) {
     echo "Response (HTTP $httpcode):".PHP_EOL;
-    echo @json_encode(@json_decode($result, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
+    $mutatedResult = is_array($result) ? json_encode($result) : $result;
+    echo @json_encode(@json_decode($mutatedResult, true), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
   }
 }
 /**
@@ -293,7 +294,7 @@ $plgversion = file_exists("/var/log/plugins/dynamix.unraid.net.plg") ? trim(@exe
 
 // only proceed when when signed in or when legacy unraid.net SSL certificate exists
 if (!$isRegistered && !$isLegacyCert) {
-    response_complete(406, array('error' => _('Nothing to do')));
+  response_complete(406, array('error' => _('Nothing to do')));
 }
 
 // keyfile

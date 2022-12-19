@@ -60,6 +60,8 @@ $arr['protocol'] = $_SERVER['REQUEST_SCHEME'];
 $arr['locale'] = $_SESSION['locale'] ?? 'en_US';
 $arr['expiretime']=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0);
 $arr['uptime']=1000*(time() - round(strtok(exec("cat /proc/uptime"),' ')));
+$arr['hasRemoteApikey'] = empty($remote['apikey']) ? 0 : 1;
+$arr['hideMyServers'] = (file_exists('/usr/local/sbin/unraid-api')) ? '' : 'yes';
 $arr['config'] = [
   'valid' => $var['configValid'] === 'yes',
   'error' => $var['configValid'] !== 'yes'
