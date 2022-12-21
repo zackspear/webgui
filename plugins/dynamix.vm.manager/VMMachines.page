@@ -273,7 +273,7 @@ function loadlist() {
 $(function() {
 <?if ($msg):?>
   <?$color = strpos($msg, "rror:")!==false ? 'red-text':'green-text'?>
-  $('#countdown').html("<span class='<?-$color?>'><?=_($msg)?></span>");
+  $('#countdown').html("<span class='<?=$color?>'><?=_($msg)?></span>");
 <?endif;?>
   $('#btnAddVM').click(function AddVMEvent(){$('.tab>input#tab2').click();});
   loadlist();
