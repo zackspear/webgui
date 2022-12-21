@@ -375,10 +375,12 @@ _(Self-signed or user-provided certificate)_:
 
 <?if ($cert1URLvalid && $var['USE_SSL']=='yes'):?>
 _(Certificate URL)_:
-: [<?=$cert1URL?>](https://<?=$cert1URL?><?=$https_port?>)
+: <?="<a href='https://$cert1URL$https_port'>$cert1URL</a>"?>
+
 <?elseif ($cert1URLvalid):?>
 _(Certificate URL)_:
 : <?=$cert1URL?>
+
 <?else:?>
 _(Certificate URL)_:
 : _(Certificate not valid for)_ <?=$cert1URL?>
@@ -406,7 +408,7 @@ _(Unraid Let's Encrypt certificate)_:
 : <?=$cert2File?>
 
 _(Certificate URL)_:
-: [<?=$cert2Subject?>](https://<?=$subject2URL?><?=$https_port?>)
+: <?="<a href='https://$subject2URL$https_port'>$cert2Subject</a>"?>
 
 _(Certificate issuer)_:
 : <?=$cert2Issuer?>
