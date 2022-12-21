@@ -57,7 +57,8 @@
 			'vcpu' => [0],
 			'hyperv' => 1,
 			'ovmf' => 1,
-			'usbmode' => 'usb2'
+			'usbmode' => 'usb2',
+			'memoryBacking' => '{"nosharepages":{}}'
 		],
 		'media' => [
 			'cdrom' => '',
@@ -287,6 +288,7 @@
 <input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
+<input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 	<table>
 		<tr>
