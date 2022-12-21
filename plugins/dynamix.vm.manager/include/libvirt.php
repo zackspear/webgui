@@ -685,9 +685,7 @@
 			}
 
 			$sharestr = '';
-			$memorybacking ="<memoryBacking>
-								<nosharepages/>
-							</memoryBacking>" ;
+			$memorybacking = json_decode($domain['memoryBacking'],true);
 
 			if (!empty($shares)) {
 				foreach ($shares as $i => $share) {
@@ -696,10 +694,8 @@
 					}
 
 					if ($share['mode'] == "virtiofs") {
-						$memorybacking = "<memoryBacking>
-											<source type='memfd'/>
-											<access mode='shared'/>
-											</memoryBacking>" ;
+					if (!isset($memorybacking['source'])) 	$memorybacking['source']["@attributes"]["type"] = "memfd" ;	
+					if (!isset($memorybacking['access'])) 	$memorybacking['access']["@attributes"]["mode"] = "shared" ;									
 
 						$sharestr .=	"<filesystem type='mount' accessmode='passthrough'>
 											<driver type='virtiofs' queue='1024' />
@@ -884,6 +880,8 @@
 						</memballoon>";
 			}
 			#$osbootdev = "" ;
+			$memorybackingXML = Array2XML::createXML('memoryBacking', $memorybacking);
+			$memoryBackingXML = $memorybackingXML->saveXML($memorybackingXML->documentElement);
 			return "<domain type='$type' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
 						<uuid>$uuid</uuid>
 						<name>$name</name>
@@ -892,7 +890,7 @@
 						<currentMemory unit='KiB'>$mem</currentMemory>
 						<memory unit='KiB'>$maxmem</memory>
 						$cpustr
-						$memorybacking
+						$memoryBackingXML
 						<os>
 							$loader
 							<type arch='$arch' machine='$machine'>hvm</type>
