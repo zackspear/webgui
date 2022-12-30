@@ -1213,6 +1213,7 @@
 					echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
 					echo mk_option($arrNic['model'], 'virtio', 'virtio');
 					echo mk_option($arrNic['model'], 'e1000', 'e1000');
+					echo mk_option($arrNic['model'], 'rtl8139', 'rtl8139');
 					echo mk_option($arrNic['model'], 'vmxnet3', 'vmxnet3');
 					?>
 					</select>
