@@ -101,7 +101,7 @@ if ($subaction) {
   }
   echo "<script>clearHistory();</script>";
 }
-if ($libvirt_running=='yes') $vms = $lv->get_domains();
+if ($libvirt_running=='yes') $vms = $lv->get_domains() ?: [];
 if (empty($vms)) {
   $msg = $libvirt_running=='yes'
   ? 'No VMs defined. Create from template or add XML.'
