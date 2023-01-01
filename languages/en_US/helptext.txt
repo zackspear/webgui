@@ -962,7 +962,8 @@ Once started, Docker will always automatically start after the array has been st
 :docker_readmore_help:
 Some systems with a lot of docker containers may experience lag using the main Docker page.
 
-Setting this to "No" may help speed up page loads.
+Setting this to "No" may help speed up general page usage by disabling the use of readmore-js.
+Instead of chevrons indicating more data for Port and Volume mapping, all data is displayed.
 :end
 
 :docker_timeout_help:
