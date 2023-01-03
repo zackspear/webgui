@@ -195,11 +195,10 @@ span.wg2{font-size:1.1rem}
 span[id^=cpu],span[id^=sys]{width:0}
 span[class^="fa "]{font-size:1.6rem;margin-right:18px}
 span.fan{width:36%;display:inline-block}
-span.w14{width:14%;display:inline-block;float:left}
 span.w18{width:18%;display:inline-block;float:left}
 span.w26{width:26%;display:inline-block;float:left}
 span.w36{width:36%;display:inline-block;float:left}
-span.w40{width:40%;display:inline-block;float:left}
+span.w44{width:44%;display:inline-block;float:left}
 span.w72{width:72%;display:inline-block;float:left}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 select[name=enter_share]{margin-top:0}
@@ -470,7 +469,7 @@ echo "</td></tr>";
 </select>
 <?endif;?>
 </td></tr>
-<tr class='header'><td><span class='w26'>_(Name)_</span><span class='w40'>_(Description)_</span><span class='w18'>_(Security)_</span><span class='w14'>_(Streams)_</span></td></tr>
+<tr class='header'><td><span class='w26'>_(Name)_</span><span class='w44'>_(Description)_</span><span class='w18'>_(Security)_</span><span>_(Streams)_</span></td></tr>
 <?
 if ($var['shareSMBEnabled']=='yes') {
   $i = 0;
@@ -482,7 +481,7 @@ if ($var['shareSMBEnabled']=='yes') {
     $comment = compress($share['comment'],40) ?: '&nbsp;';
     $security = export_settings($var['shareSMBEnabled'], $sec[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
-    echo "<tr class='smb share share1{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w40'>$comment</span><span class='w18'>$security</span><span class='w14' id='share{$i}'>0</span></td></tr>";
+    echo "<tr class='smb share share1{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span id='share{$i}'>0</span></td></tr>";
   }
   if (!count($shares)) echo "<tr class='smb share share1'><td class='none'>"._("No shares present")."</td></tr>";
 }
@@ -494,7 +493,7 @@ if ($var['shareNFSEnabled']=='yes') {
     $comment = compress($share['comment'],40) ?: '&nbsp;';
     $security = export_settings($var['shareNFSEnabled'], $sec_nfs[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
-    echo "<tr class='nfs share share3{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w40'>$comment</span><span class='w18'>$security</span><span class='w14'>-</span></td></tr>";
+    echo "<tr class='nfs share share3{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span>-</span></td></tr>";
   }
   if (!count($shares)) echo "<tr class='nfs share share3'><td class='none'>"._("No shares present")."</td></tr>";
 }
@@ -504,7 +503,7 @@ if (!$group) {
     if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
     elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = compress($share['comment'],40) ?: '&nbsp;';
-    echo "<tr class='share'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w40'>$comment</span><span class='w18'>-</span><span class='w14'>-</span></td></tr>";
+    echo "<tr class='share'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>-</span><span>-</span></td></tr>";
   }
   if (!count($shares)) echo "<tr class='share'><td class='none'>"._("No shares present")."</td></tr>";
 }
@@ -516,7 +515,7 @@ if (!$group) {
 <a href='/Users' title="_(Go to User settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 <span class='info'><?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?></span>
 </td></tr>
-<tr class='header'><td><span class='w26'>_(Name)_</span><span class='w40'>_(Description)_</span><span class='w18'>_(Write)_</span><span class='w14'>_(Read)_</span></td></tr>
+<tr class='header'><td><span class='w26'>_(Name)_</span><span class='w44'>_(Description)_</span><span class='w18'>_(Write)_</span><span>_(Read)_</span></td></tr>
 <?
 if ($var['shareSMBEnabled']=='yes') {
   foreach ($users as $user) {
@@ -546,7 +545,7 @@ if ($var['shareSMBEnabled']=='yes') {
     }
     if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
     $last = $name==array_key_last($users) ? ' last' : '';
-    echo "<tr class='smb user user1{$last}'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w40'>$desc</span><span class='w18'>$write</span><span class='w14'>$read</span></td></tr>";
+    echo "<tr class='smb user user1{$last}'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w44'>$desc</span><span class='w18'>$write</span><span>$read</span></td></tr>";
   }
 }
 if ($var['shareNFSEnabled']=='yes') {
@@ -557,7 +556,7 @@ if ($var['shareNFSEnabled']=='yes') {
     $write = '-'; $read = '-';
     if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
     $last = $name==array_key_last($users) ? ' last' : '';
-    echo "<tr class='nfs user user3{$last}'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w40'>$desc</span><span class='w18'>$write</span><span class='w14'>$read</span></td></tr>";
+    echo "<tr class='nfs user user3{$last}'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w44'>$desc</span><span class='w18'>$write</span><span>$read</span></td></tr>";
   }
 }
 if (!$group) {
@@ -566,7 +565,7 @@ if (!$group) {
     $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
     $desc = compress($user['desc'],40) ?: '&nbsp;';
     if ($user['passwd']!='yes') $list = str_replace('blue-text','orange-text',$list);
-    echo "<tr class='user'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w40'>$desc</span><span class='w18'>-</span><span class='w14'>-</span></td></tr>";
+    echo "<tr class='user'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w44'>$desc</span><span class='w18'>-</span><span>-</span></td></tr>";
   }
 }
 ?>
