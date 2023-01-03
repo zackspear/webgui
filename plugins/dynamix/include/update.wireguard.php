@@ -227,7 +227,7 @@ function parseInput($vtun,&$input,&$x) {
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
-    [$id,$i] = my_explode(':',$key);
+    [$id,$i] = array_pad(explode(':',$key),2,0);
     if ($i != $section) {
       if ($section==0) {
         // add WG routing for docker containers. Only IPv4 supported
