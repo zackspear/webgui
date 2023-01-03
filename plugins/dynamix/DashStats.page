@@ -1045,24 +1045,31 @@ function SleepNow() {
   $.get('/plugins/dynamix.s3.sleep/include/SleepMode.php',function(){refresh();});
 }
 <?endif;?>
-function sortTable(table,index) {
-  if (!index) return;
-  index = index.split(';');
-  for (var i=0,name; name=index[i]; i++) {
-    var tbody = table.find('tbody[sort="'+name+'"]');
-    if (tbody.length==0) {
-      // search other tables to find the element
-      $('table.dashboard').not(table).each(function(){
-        var other = $(this).find('tbody[sort="'+name+'"]');
-        if (other.length) tbody = other;
-      });
+function sortTable() {
+  $('table.dashboard').each(function(){
+    var table = $(this);
+    var index = $.cookie(table.prop('id'));
+    // sorting list exists
+    if (index != null) {
+      index = index.split(';');
+      for (var i=0,n; n=index[i]; i++) {
+        var tbody = table.find('tbody[sort="'+n+'"]');
+        // element not in this table?
+        if (tbody.length==0) {
+          // search the other tables to find the element
+          $('table.dashboard').not(table).each(function(){
+            var other = $(this).find('tbody[sort="'+n+'"]');
+            if (other.length) tbody = other;
+          });
+        }
+        tbody.appendTo(table);
+      }
     }
-    tbody.appendTo(table);
-  }
+  });
 }
 function addProperties() {
-  var n = 1;
-  $('tbody.system').addClass('sortable').attr('sort',0);
+  var n = 0;
+  $('tbody.system').addClass('sortable').attr('sort',n++);
   $('tbody').not('.system').each(function(){
     $(this).addClass('sortable').attr('sort',n++);
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
@@ -1311,9 +1318,7 @@ $(function() {
   portMenu();
   loadlist(true);
   addProperties();
-  sortTable($('#box1'),$.cookie('box1'));
-  sortTable($('#box2'),$.cookie('box2'));
-  sortTable($('#box3'),$.cookie('box3'));
+  sortTable();
   showContent();
   $('#cpuline').val(cpuline);
   $('#netline').val(netline);
