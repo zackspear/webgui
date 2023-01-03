@@ -424,7 +424,6 @@ echo "</td></tr>";
 ?>
 </tbody>
 <?endif;?>
-<?if (isset($custom['column1'])) echo $custom['column1'];?>
 </table>
 </div>
 
@@ -565,7 +564,6 @@ if (!$group) {
 }
 ?>
 </tbody>
-<?if (isset($custom['column2'])) echo $custom['column2'];?>
 </table>
 </div>
 
@@ -604,7 +602,6 @@ if (!$group) {
 <tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 <?endif;?>
-<?if (isset($custom['column3'])) echo $custom['column3'];?>
 </table>
 </div>
 </div>
