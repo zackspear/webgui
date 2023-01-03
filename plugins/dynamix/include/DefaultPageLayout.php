@@ -425,7 +425,7 @@ function addBannerWarning(text, warning=true, noDismiss=false, forced=false) {
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true");
+  $.cookie(cookieText,"true",{expires:30}); // reset after 1 month
   removeBannerWarning(entry);
 }
 
