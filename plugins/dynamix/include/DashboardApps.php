@@ -33,7 +33,7 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
     array_multisort($sort,SORT_NUMERIC,$containers);
   }
-  echo "<tr class='updated'><td></td><td>";
+  echo "<tr class='updated'><td>";
   foreach ($containers as $ct) {
     $name = $ct['Name'];
     $id = $ct['Id'];
@@ -61,7 +61,7 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
   }
   $none = count($containers) ? _('No running docker containers') : _('No docker containers defined');
   echo "<span id='no_apps' style='display:none'>$none<br><br></span>";
-  echo "</td><td></td></tr>";
+  echo "</td></tr>";
 }
 echo "\0";
 if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
@@ -74,7 +74,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   } else {
     natcasesort($vms);
   }
-  echo "<tr class='updated'><td></td><td>";
+  echo "<tr class='updated'><td>";
   foreach ($vms as $vm) {
     $res = $lv->get_domain_by_name($vm);
     $uuid = libvirt_domain_get_uuid_string($res);
@@ -135,5 +135,5 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   }
   $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
   echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
-  echo "</td><td></td></tr>";
+  echo "</td></tr>";
 }
