@@ -185,7 +185,6 @@ span.inner{width:143px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:120px;display:inline-block}
-span#load{width:120px;display:inline-block}
 span#util{margin-left:20px}
 span#ups_model{margin-right:30px}
 span#chart-toggle{float:right}
@@ -278,11 +277,12 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 
 <tbody title="_(Processor Information)_">
 <tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br>
-<span id='load'><i class='ups fa fa-bars'></i>_(Load)_: <span class='cpu'>0%</span></span><span id='cpu-temp'></span><br><br></div>
+<span id='cpu-temp'></span><br><br></div>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
-<tr id='cpu_main'><td><?=$cpumodel?><br>
-<a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle'>
+<tr><td><?=$cpumodel?></td></tr>
+<tr><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
+<tr id='cpu_main'><td><a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle'>
 <span><select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
 <?=mk_option("","30", _("30 s"));?>
@@ -290,8 +290,6 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <?=mk_option("","120", _("2 m"));?>
 <?=mk_option("","300", _("5 m"));?>
 </select></span><a onclick='toggleChart()' title="_(Click to toggle CPU chart)_"><span class="fa fa-fw fa-bar-chart hand"></span></a></span></td></tr>
-<tr id='cpu_chart'><td><div id='cpuchart'></div></td></tr>
-<tr class='cpu_open'><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
 <?
 foreach ($cpus as $pair) {
   [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
@@ -303,6 +301,7 @@ foreach ($cpus as $pair) {
   echo "</tr>";
 }
 ?>
+<tr id='cpu_chart'><td><div id='cpuchart'></div></td></tr>
 </tbody>
 
 <tbody title="_(Memory Utilization)_">
@@ -960,14 +959,14 @@ function toggleCPU(init) {
   if (!init) {if ($.cookie('cpu')==null) $.cookie('cpu','close',{expires:3650}); else $.removeCookie('cpu');}
   if ($.cookie('cpu_view')==null) {
     if ($.cookie('cpu')==null) {
-      $('#cpu_main').removeClass('last');
       $('.cpu_open').show();
       $('.cpu_close').text("_(Hide details)_");
+      $('#cpu_main').removeClass('last');
       toggleChart(true);
     } else {
-      if ($('#cpu_chart').is(':visible')) $('#cpu_chart').removeClass('last').addClass('last'); else $('#cpu_main').removeClass('last').addClass('last');
       $('.cpu_open').hide();
       $('.cpu_close').text("_(Show details)_");
+      if ($('#cpu_chart').is(':visible')) $('#cpu_main').removeClass('last'); else $('#cpu_main').addClass('last');
     }
   } else {
     $('.cpu_open').hide();
@@ -975,16 +974,16 @@ function toggleCPU(init) {
 }
 function toggleChart(init) {
   if (!init) {if ($.cookie('cpu-chart')==null) $.cookie('cpu-chart','close',{expires:3650}); else $.removeCookie('cpu-chart');}
-    if ($.cookie('cpu-chart')==null) {
-      $('#cpu_main').removeClass('last');
-      $('#cpu_chart').removeClass('last').show();
-      if (!$('.cpu_open').is(':visible')) $('#cpu_chart').addClass('last');
-      $('#cpuline').show();
-    } else {
-      $('#cpu_chart').removeClass('last').hide();
-      $('#cpuline').hide();
-      if (!$('.cpu_open').is(':visible')) $('#cpu_main').removeClass('last').addClass('last');
-    }
+  if ($.cookie('cpu-chart')==null) {
+    $('#cpu_chart').show();
+    $('#cpuline').show();
+    $('#cpu_main').removeClass('last');
+    $('.cpu_open:last').removeClass('last');
+  } else {
+    $('#cpu_chart').hide();
+    $('#cpuline').hide();
+    if ($('.cpu_open').is(':visible')) $('.cpu_open:last').addClass('last'); else $('#cpu_main').addClass('last');
+  }
 }
 function StopArray() {
 <?if ($confirm['stop']):?>
