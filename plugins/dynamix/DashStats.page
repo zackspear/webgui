@@ -44,6 +44,11 @@ function vpn_peers($file) {
   }
   return $peers;
 }
+function customTiles($column) {
+  global $mytiles;
+  if (isset($mytiles)) foreach ($mytiles as $tile) if (!empty($tile[$column])) echo $tile[$column];
+}
+
 // adjust the text color in log window
 $fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
 exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
@@ -177,7 +182,6 @@ span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
 span.outer{float:left}
 span.inner{width:143px}
-span.ups{width:200px;display:inline-block;margin-bottom:4px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:120px;display:inline-block}
@@ -190,7 +194,7 @@ span.wg1{font-size:1.1rem;text-indent:24px}
 span.wg2{font-size:1.1rem}
 span[id^=cpu],span[id^=sys]{width:0}
 span[class^="fa "]{font-size:1.6rem;margin-right:18px}
-span.fan{width:32%;display:inline-block}
+span.fan{width:36%;display:inline-block}
 span.w14{width:14%;display:inline-block;float:left}
 span.w18{width:18%;display:inline-block;float:left}
 span.w26{width:26%;display:inline-block;float:left}
@@ -384,11 +388,11 @@ foreach ($ports as $port) {
 <i class='fa fa-fw fa-close control' onclick='dismiss($(this))' title="_(Close Tile)_"></i><a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td>
-<span class='ups'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span><br>
-<span class='ups'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
-<span class='ups'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
-<span class='ups'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
-<span class='ups'><i class='ups fa fa-fw fa-ellipsis-h'></i>_(Output voltage)_:</span><span id='ups_outputv'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-ellipsis-h'></i>_(Output voltage)_:</span><span id='ups_outputv'></span><br>
 </td></tr>
 </tbody>
 <?endif;?>
@@ -406,12 +410,14 @@ $label = $value = [];
 $i = 0;
 for ($fan=0; $fan<$fans; $fan++) {
   if ($fan > 0 && $fan % 3 == 0) $i++;
-  $label[$i][] = "<span class='fan'>"._('FAN')." ".($fan+1)."</span>";
+  $class = $fan % 3 == 2 ? "" : " class='fan'";
+  $label[$i][] = "<span{$class}>"._('FAN')." ".($fan+1)."</span>";
 }
 $i = 0;
 for ($fan=0; $fan<$fans; $fan++) {
   if ($fan > 0 && $fan % 3 == 0) $i++;
-  $value[$i][] = "<span class='fan' id='fan$fan'></span>";
+  $class = $fan % 3 == 2 ? "" : " class='fan'";
+  $value[$i][] = "<span{$class} id='fan$fan'>--</span>";
 }
 echo "<tr><td>";
 for ($i = 0; $i < count($label); $i++) {
@@ -419,11 +425,13 @@ for ($i = 0; $i < count($label); $i++) {
   echo "<br>";
   foreach ($value[$i] as $data) echo $data;
   echo "<br>";
+  if ($i < count($value)-1) echo "<br>";
 }
 echo "</td></tr>";
 ?>
 </tbody>
 <?endif;?>
+<?customTiles('column1');?>
 </table>
 </div>
 
@@ -564,6 +572,7 @@ if (!$group) {
 }
 ?>
 </tbody>
+<?customTiles('column2');?>
 </table>
 </div>
 
@@ -602,6 +611,7 @@ if (!$group) {
 <tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 <?endif;?>
+<?customTiles('column3');?>
 </table>
 </div>
 </div>
