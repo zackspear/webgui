@@ -185,6 +185,7 @@ span.inner{width:143px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span#inbound{width:120px;display:inline-block}
+span#vpn-active{width:120px;display:inline-block}
 span#ups_model{margin-right:30px}
 span#chart-toggle{float:right}
 span.header,tr.header{font-size:1.1rem!important;text-transform:uppercase;letter-spacing:1px}
@@ -364,7 +365,7 @@ foreach ($ports as $port) {
 
 <?if ($wireguard):?>
 <tbody title="_(VPN Connections)_">
-<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span class='ups'>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><span class='ups'>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
+<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
 <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <?foreach ($conf as $wg):?>
