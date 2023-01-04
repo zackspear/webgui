@@ -232,7 +232,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <table id='db-box1' class='share_status dashboard'>
 <tbody class='system'>
 <tr><td><?=$var['NAME']?>
-<i class='fa fa-fw fa-wrench control' onclick='contentMgmt()' title="_(Content Management)_"></i><a href='/Dashboard/Settings/Identification' title="_(Go to identification settings)_"><i class='fa fa-fw fa-cog control' title="_(Close Tile)_"></i></a>
+<i class='fa fa-fw fa-wrench control' onclick='contentMgmt()' title="_(Content Management)_"></i><a href='/Dashboard/Settings/Identification' title="_(Go to identification settings)_"><i class='fa fa-fw fa-cog control' title="_(Identification)_"></i></a>
 <span class='ctrl'>
 <?if ($parity||$mover||$btrfs):?>
 <span class='fa fa-fw fa-<?=$started?'stop':'play'?>-circle busy' title="<?=$started?_("Stop the array"):_("Start the array")?>"></span>
