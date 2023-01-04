@@ -379,12 +379,12 @@ foreach ($ports as $port) {
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
 <tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<br>
-<span><i class='ups fa fa-shield'></i>_(UPS Model)_: </span><span id='ups_model'></span>
-<span><i class='ups fa fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span><br><br></div>
+<span><i class='ups fa fa-shield'></i>_(UPS Model)_: </span><span id='ups_model'></span><br><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td>
 <span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span><br>
+<span class='w36'><i class='ups fa fa-fw fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span><br>
 <span class='w36'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
 <span class='w36'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
 <span class='w36'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
