@@ -276,8 +276,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </tbody>
 
 <tbody title="_(Processor Information)_">
-<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br>
-<span id='cpu-temp'></span><br><br></div>
+<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br><span id='cpu-temp'></span><br><br></div>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><?=$cpumodel?></td></tr>
