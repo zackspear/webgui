@@ -145,7 +145,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($port->ContainerPort))) continue;
         $portNum += 1;
         $out['Config'][] = [
-          'Name'        => "Host Port ${portNum}",
+          'Name'        => "Host Port {$portNum}",
           'Target'      => xml_decode($port->ContainerPort),
           'Default'     => xml_decode($port->HostPort),
           'Value'       => xml_decode($port->HostPort),
@@ -164,7 +164,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($vol->ContainerDir))) continue;
         $volNum += 1;
         $out['Config'][] = [
-          'Name'        => "Host Path ${volNum}",
+          'Name'        => "Host Path {$volNum}",
           'Target'      => xml_decode($vol->ContainerDir),
           'Default'     => xml_decode($vol->HostDir),
           'Value'       => xml_decode($vol->HostDir),
@@ -183,7 +183,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($varitem->Name))) continue;
         $varNum += 1;
         $out['Config'][] = [
-          'Name'        => "Key ${varNum}",
+          'Name'        => "Key {$varNum}",
           'Target'      => xml_decode($varitem->Name),
           'Default'     => xml_decode($varitem->Value),
           'Value'       => xml_decode($varitem->Value),
@@ -202,7 +202,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($varitem->Name))) continue;
         $varNum += 1;
         $out['Config'][] = [
-          'Name'        => "Label ${varNum}",
+          'Name'        => "Label {$varNum}",
           'Target'      => xml_decode($varitem->Name),
           'Default'     => xml_decode($varitem->Value),
           'Value'       => xml_decode($varitem->Value),
