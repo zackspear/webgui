@@ -71,7 +71,7 @@ function status_indicator() {
 function missing_cache() {
   global $disks;
   $missing = false;
-  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
+  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status']??'','_MISSING')!==false);
   return $missing;
 }
 function resync($d) {
@@ -402,8 +402,8 @@ function formatWarning(val) {
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
-      foreach ($disks as $disk) if (substr($disk['fsStatus'],0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
-        if ($disk['id']) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
+      foreach ($disks as $disk) if (substr($disk['fsStatus']??'',0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
+        if (isset($disk['id'])) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
         if (in_array($disk['name'],$pools)) $cache[] = $disk['name'];
       }
 ?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
