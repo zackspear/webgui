@@ -1,7 +1,7 @@
 Menu="Device New"
 Title="Identity"
 Tag="user"
-Cond="strpos($disks[$name]['status'],'_NP')===false"
+Cond="strpos($disks[$name]['status']??'','_NP')===false"
 ---
 <?PHP
 /* Copyright 2005-2022, Lime Technology
