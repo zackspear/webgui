@@ -184,7 +184,7 @@ span.outer{float:left}
 span.inner{width:143px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
-span.fixed{width:170px;display:inline-block}
+span.dense{width:170px;display:inline-block}
 span#ups_model{margin-right:30px}
 span#chart-toggle{float:right}
 span.header,tr.header{font-size:1.1rem!important;text-transform:uppercase;letter-spacing:1px}
@@ -317,7 +317,7 @@ foreach ($cpus as $pair) {
 
 <tbody title="_(Interface Information)_">
 <tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_<br>
-<span><span class='fixed'>_(Inbound)_: <span id='inbound'>---</span></span><span class='fixed'>_(Outbound)_: <span id='outbound'>---</span></span>
+<span><span class='dense'>_(Inbound)_: <span id='inbound'>---</span></span><span class='dense'>_(Outbound)_: <span id='outbound'>---</span></span>
 <select name="port_select" onchange="portSelect(this.value)">
 <?foreach ($ports as $port):?>
 <?=mk_option("",$port,_($port))?>
@@ -365,7 +365,7 @@ foreach ($ports as $port) {
 
 <?if ($wireguard):?>
 <tbody title="_(VPN Connections)_">
-<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='fixed'>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
+<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='dense'>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
 <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <?foreach ($conf as $wg):?>
