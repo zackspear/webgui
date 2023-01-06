@@ -171,7 +171,7 @@ switch ($display['theme']) {
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 <style>
 div.frame{padding-top:14px;padding-bottom:160px}
-div.grid{display:grid;grid-template-columns:repeat(auto-fit,<?=$themes1?'620px':'580px'?>);column-gap:15px}
+div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(<?=$themes1?'620px':'580px'?>,1fr));column-gap:15px}
 div.tile{display:none}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
@@ -1283,6 +1283,7 @@ $(function() {
   initCharts();
   cpuchart.render();
   netchart.render();
+  addProperties();
   $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
   $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
   receive:function(e,ui){
@@ -1310,7 +1311,6 @@ $(function() {
   toggleCPU(true);
   portMenu();
   loadlist(true);
-  addProperties();
   sortTables();
   showContent();
   $('#cpuline').val(cpuline);

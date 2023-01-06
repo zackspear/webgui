@@ -164,6 +164,7 @@ table.share_status.dashboard tbody{border:1px solid #606e7f}
 table.share_status.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
 table.share_status.dashboard tr:last-child>td{padding-bottom:20px}
 table.share_status.dashboard tr.last>td{padding-bottom:20px}
+table.share_status.dashboard tr.header td{padding-bottom:10px;color:#9794a0}
 table.share_status.dashboard tr{border:none}
 table.share_status.dashboard td{line-height:normal;padding:3px 10px}
 table.share_status.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
@@ -174,6 +175,7 @@ table.share_status.dashboard td span.info.title{font-weight:bold}
 table.share_status.dashboard td span.load{display:inline-block;width:38px;text-align:right}
 table.share_status.dashboard td span.finish{float:right;margin-right:24px}
 table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;background-color:rgba(0,0,0,0.1);padding:2px}
+table.share_status.dashboard .usage-disk.sys{height:auto}
 tr.alert{color:#f0000c;background-color:#ff9e9e}
 tr.warn{color:#e68a00;background-color:#feefb3}
 tr.past{color:#d63301;background-color:#ffddd1}
