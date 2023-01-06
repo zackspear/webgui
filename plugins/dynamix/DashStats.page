@@ -211,7 +211,7 @@ i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
 i#mycase[class^="fa "]{font-size:96px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
-tr#cpu_chart{display:none}
+tr#cpu_chart,.cpu_open{display:none}
 td.none{text-align:center;padding-top:12px}
 input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .share1,.share3,.user1,.user3,.view1,.view2,.view3,.view4{display:none}
@@ -919,7 +919,7 @@ function moreInfo(data,table) {
 }
 function autoscale(value,text,size,kilo) {
   if (kilo==null) kilo = 1000;
-  var unit = kilo==1024 ? ['','ki','Mi','Gi','Ti','Pi','Ei'] :['','k','M','G','T','P','E'];
+  var unit = kilo==1024 ? ['','ki','Mi','Gi','Ti','Pi','Ei'] : ['','k','M','G','T','P','E'];
   var base = value>1?Math.floor(Math.log(value)/Math.log(kilo)):0;
   var data = base<unit.length?value/Math.pow(kilo, base):0;
   var scale = (data<100?100:10)/size;
@@ -959,28 +959,22 @@ function dropdown(menu) {
 }
 function toggleCPU(init) {
   if (!init) {if ($.cookie('cpu')==null) $.cookie('cpu','close',{expires:3650}); else $.removeCookie('cpu');}
-  if ($.cookie('cpu_view')==null) {
-    if ($.cookie('cpu')==null) {
-      $('.cpu_open').show();
-      $('.cpu_close').text("_(Hide details)_");
-      $('#cpu_main').removeClass('last');
-      toggleChart(true);
-    } else {
-      $('.cpu_open').hide();
-      $('.cpu_close').text("_(Show details)_");
-      if ($('#cpu_chart').is(':visible')) $('#cpu_main').removeClass('last'); else $('#cpu_main').addClass('last');
-    }
+  if ($.cookie('cpu')==null) {
+    $('.cpu_open').show();
+    $('.cpu_close').text("_(Hide details)_");
   } else {
     $('.cpu_open').hide();
+    $('.cpu_close').text("_(Show details)_");
   }
+  setTimeout(function(){toggleChart(true);});
 }
 function toggleChart(init) {
   if (!init) {if ($.cookie('cpu-chart')==null) $.cookie('cpu-chart','close',{expires:3650}); else $.removeCookie('cpu-chart');}
+  $('#cpu_main').removeClass('last');
+  $('.cpu_open:last').removeClass('last');
   if ($.cookie('cpu-chart')==null) {
     $('#cpu_chart').show();
     $('#cpuline').show();
-    $('#cpu_main').removeClass('last');
-    $('.cpu_open:last').removeClass('last');
   } else {
     $('#cpu_chart').hide();
     $('#cpuline').hide();
@@ -1044,7 +1038,7 @@ function SleepNow() {
   $.get('/plugins/dynamix.s3.sleep/include/SleepMode.php',function(){refresh();});
 }
 <?endif;?>
-function sortTable() {
+function sortTables() {
   $('table.dashboard').each(function(){
     var table = $(this);
     var index = $.cookie(table.prop('id'));
@@ -1096,8 +1090,8 @@ function setColor(l, t1, t2) {
   case (t2 > 0 && l >= t2): return 'orangebar';
   default: return '';}
 }
-function dismiss(tile) {
-  var tbody = tile.closest('tbody');
+function dismiss(close) {
+  var tbody = close.closest('tbody');
   var table = tbody.parent();
   var tile = table.parent();
   var inactive = $.cookie('inactive_content');
@@ -1317,7 +1311,7 @@ $(function() {
   portMenu();
   loadlist(true);
   addProperties();
-  sortTable();
+  sortTables();
   showContent();
   $('#cpuline').val(cpuline);
   $('#netline').val(netline);
