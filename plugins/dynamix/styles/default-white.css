@@ -121,7 +121,7 @@ table.disk_status{white-space:nowrap}
 table.disk_status td span{margin-left:10px}
 table.disk_status thead tr:first-child td{font-size:1.1rem;text-transform:uppercase;letter-spacing:1px;background-color:#e8e8e8}
 table.disk_status thead tr:last-child{border-bottom:1px solid #e3e3e3}
-table.disk_status tr>td{width:9%;padding-left:12px;padding-right:0;white-space:nowrap}
+table.disk_status tr>td{width:10%;padding-left:12px;padding-right:0;white-space:nowrap}
 table.disk_status tr>td+td{width:auto}
 table.disk_status tr>td+td+td{width:6.5%;text-align:center;padding-left:4px;padding-right:8px}
 table.disk_status tr>td+td+td+td{text-align:right;padding-left:0;padding-right:12px}
