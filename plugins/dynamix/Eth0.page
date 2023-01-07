@@ -3,8 +3,8 @@ Title="_(Interface)_ eth0"
 Tag="icon-ethernet"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -431,7 +431,7 @@ $(function() {
 <?if ($tabbed):?>
   $('.tabs').append(ctrl.replace('vshift',''));
 <?else:?>
-  $('div#title').eq(0).find('span.left').append(ctrl);
+  $('div.title').eq(0).find('span.left').append(ctrl);
 <?endif;?>
   portcheck_eth0();
   watchDHCP.start();

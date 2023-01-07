@@ -4,8 +4,8 @@ Tag="icon-vpn"
 Nchan="wg_poller"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -227,7 +227,7 @@ div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-div#title{margin-bottom:10px!important}
+div.title{margin-bottom:10px!important}
 div[id^=block-wg]{margin-bottom:30px}
 div.preset{margin:8px 0;float:right}
 input.wide{width:360px}
@@ -1104,7 +1104,7 @@ $(function(){
   statistics.start();
   getPublicIP($('#endpoint-wg0').val(),'wg0',$('#protocol-wg0').val());
   $('div.content').prepend('<div class="preset"><input type="button" value="_(Import Tunnel)_" onclick="$(&apos;input#file&apos;).trigger(&apos;click&apos;);"><input type="button" value="_(Add Tunnel)_" onclick="addTunnel()";<?=$this_wg0?"":" disabled"?>></div>');
-  $('div#title').eq(0).find('span.left').append(ctrl);
+  $('div.title').eq(0).find('span.left').append(ctrl);
   $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnp','#gw':"<?=$$ethX['GATEWAY:0']?>",'#link':"<?=$link?>"},function(url){
     if (url) {
       $('div.upnp').show();

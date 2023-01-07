@@ -3,8 +3,8 @@ Title="Tunnel wgX"
 Tag="icon-vpn"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -41,7 +41,7 @@ $(function(){
   ctrl += "<span class='even'><span class='status vhshift'><input type='checkbox' id='toggle-wgX' style='display:none'></span></span>";
   var form = $(document.wgX);
   getPublicIP($('#endpoint-wgX').val(),'wgX',$('#protocol-wgX').val());
-  $('div#title').each(function(){if ($(this).html().indexOf('status vhshift')==-1) {$(this).find('span.left').append(ctrl);return false;}});
+  $('div.title').each(function(){if ($(this).html().indexOf('status vhshift')==-1) {$(this).find('span.left').append(ctrl);return false;}});
   $('#start-wgX').switchButton({labels_placement:'left',off_label:"_(Off)_",on_label:"_(On)_"});
   $('#start-wgX').change(function(){
     var start = $('#start-wgX').is(':checked') ? 'on' : 'off';
