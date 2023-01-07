@@ -61,8 +61,8 @@ div.title span.left{font-size:1.4rem}
 div.title span.right{font-size:1.4rem;padding-top:2px;padding-right:10px;float:right}
 div.title span img{padding-right:4px}
 div.title.shift{margin-top:-30px}
-#menu{position:absolute;top:90px;left:0;right:0;display:grid;grid-template-columns:auto minmax(400px,auto)}
-.nav-tile{height:4rem;line-height:4rem;padding:0;margin:0;font-size:1.2rem;letter-spacing:1.8px;background-color:#1c1b1b;z-index:101;white-space:nowrap;overflow-x:scroll;overflow-y:hidden;}
+#menu{position:absolute;top:90px;left:0;right:0;display:grid;grid-template-columns:auto minmax(400px,auto);z-index:99999}
+.nav-tile{height:4rem;line-height:4rem;padding:0;margin:0;font-size:1.2rem;letter-spacing:1.8px;background-color:#1c1b1b;white-space:nowrap;overflow-x:scroll;overflow-y:hidden;}
 .nav-tile::-webkit-scrollbar{height:8px}
 .nav-tile.right{text-align:right}
 .nav-item,.nav-user{display:inline-block;text-align:center;margin:0}
