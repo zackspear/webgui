@@ -4,8 +4,8 @@ Icon="icon-disks"
 Tag="icon-disk"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -189,7 +189,7 @@ _(Default critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
-<div id="title"><span class="left"><i class="title fa fa-plus-square"></i>_(Global SMART Settings)_</span></div>
+<div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(Global SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDiskSettings(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-all.cfg">

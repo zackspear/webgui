@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -108,9 +108,9 @@ case "capabilities":
     if (!$line) {echo "<tr></tr>" ;continue;}
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
-    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div id='title'><span>${line}</span></div>"; $row = ['','',''] ; continue ;}
+    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div class='title'><span>${line}</span></div>"; $row = ['','',''] ; continue ;}
     if ($nvme && $info[0]=="Supported LBA Sizes" ) {  
-      echo "</body></table><div id='title'>${info[0]} ${info[1]} ${info[2]}</span></div>";
+      echo "</body></table><div class='title'>${info[0]} ${info[1]} ${info[2]}</span></div>";
       $row = ['','',''];
       $nvme_section="lbaheading" ; 
       continue ;

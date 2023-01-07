@@ -3,8 +3,8 @@ Title="$name _(Settings)_"
 Tag="hdd-o"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -590,7 +590,7 @@ _(Critical disk utilization threshold)_ (%):
 </form>
 
 <?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
@@ -707,7 +707,7 @@ _(Block group usage)_ (%):
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/$tag", $scrub_status, $retval)?>
@@ -799,7 +799,7 @@ _(Time of the day)_:
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
@@ -845,7 +845,7 @@ _(btrfs check status)_:
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"zfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
 <?if ($disk['fsStatus']=="Mounted"):?>
 _(zpool status)_:
 : <?echo "<pre>".shell_exec("/usr/sbin/zpool status -P $tag")."</pre>"?>
@@ -853,7 +853,7 @@ _(zpool status)_:
 <?endif;?>
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"reiserfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
@@ -893,7 +893,7 @@ _(reiserfsck status)_:
 </form>
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"xfs")!==false):?>
-<div id="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
+<div class="title" class="nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
 <?if (maintenance_mode()):?>
 <?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
@@ -933,7 +933,7 @@ _(xfs_repair status)_:
 <?endif;?>
 
 <?if (strpos($disk['status']??'','_NP')===false):?>
-<div id="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
+<div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
 <input type="hidden" name="#file"    value="/boot/config/smart-one.cfg">
