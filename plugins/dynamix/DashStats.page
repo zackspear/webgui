@@ -2,8 +2,8 @@ Menu="Dashboard"
 Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -171,12 +171,12 @@ switch ($display['theme']) {
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 <style>
 div.frame{padding-top:14px;padding-bottom:160px}
-div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(<?=$themes1?'620px':'580px'?>,1fr));column-gap:15px}
+div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(<?=$themes1?'610px':'570px'?>,1fr));column-gap:30px}
 div.tile{display:none}
 div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
 div.last{padding-bottom:12px}
-div.left{float:left;width:66%}
-div.right{float:right;margin:0;text-align:center}
+div.leftside{float:left;width:66%}
+div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -243,14 +243,14 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <span class='fa fa-fw fa-power-off hand' title="_(Shutdown the system)_" onclick='Shutdown()'></span></span>
 </td></tr>
 <tr><td>
-<div class='left'>
+<div class='leftside'>
 <span class='header'>_(Description)_</span><span class='text'><br>
 <?=$var['COMMENT']?><br>
 <?=$var['SYS_MODEL']?><br><br></span>
 <span class='header'>_(Registration)_</span><br>Unraid OS <b><em><?=$var['regTy']?></em></b><br><br>
 <span class='header'>_(Uptime)_</span><br><span class='uptime'></span>
 </div>
-<div class='right'>
+<div class='rightside'>
 <span id='casing'>
 <?if ($mycase):?>
 <?if (substr($mycase,-4)!='.png'):?>
