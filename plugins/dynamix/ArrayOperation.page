@@ -244,7 +244,7 @@ $('.tabs').append(ctrl);
 if ($.cookie('tab')=='tab0') $('i.toggle').hide();
 $('#tab'+$('input[name$="tabs"]').length).click(function(){tab0(); $('i.toggle').hide('slow');});
 <?else:?>
-$('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
+$('div[class=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
