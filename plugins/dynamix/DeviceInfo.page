@@ -460,7 +460,7 @@ _(Comments)_:
 
 <?endif;?>
 _(Partition size)_:
-: <?=my_number($disk['sizesb'])?> KB (K=1024)
+: <?=my_number($disk['sizeSb'])?> KB (K=1024)
 
 _(Partition format)_:
 : <?=_($disk['format'])?>
