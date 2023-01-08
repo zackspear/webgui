@@ -81,6 +81,7 @@ echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
 if ($themes2) {
   foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
+  echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
 $notes = '/var/tmp/unRAIDServer.txt';
@@ -608,10 +609,12 @@ foreach ($tasks as $button) {
 unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
+if ($task == 'Dashboard' or $task == 'Docker') {
+  $title = $themes2 ?  "" : _('Unlock sortable items');
+  echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
+}
 if ($display['usage']) my_usage();
 foreach ($buttons as $button) {
-  annotate($button['file']);
-  eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
     if (substr($icon,-4)=='.png') {
@@ -630,7 +633,6 @@ foreach ($buttons as $button) {
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
-unset($buttons,$button);
 if ($notify['display']) {
   echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
   echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
@@ -638,6 +640,11 @@ if ($notify['display']) {
 }
 if ($themes2) echo "</div>";
 echo "</div></div>";
+foreach ($buttons as $button) {
+  annotate($button['file']);
+  eval('?>'.parse_text($button['text']));
+}
+unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?

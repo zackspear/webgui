@@ -1142,6 +1142,43 @@ function contentMgmt() {
   $('.ui-button-text').css({'padding':'0px 5px'});
 }
 
+var sortableHelper = function(e,ui){
+  ui.find('tr:first').children().each(function(){$(this).width($(this).width());});
+  return ui;
+};
+
+function LockButton() {
+  if ($.cookie('lockbutton') == null) {
+    $.cookie('lockbutton','lockbutton');
+<?if ($themes1):?>
+    $('div.nav-item.LockButton').find('a').prop('title',"_(Lock sortable items)_");
+    $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
+<?endif;?>
+    $('div.nav-item.LockButton').find('span').text("_(Lock sortable items)_");
+    $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
+    $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
+    receive:function(e,ui){
+      var table = ui.sender, index = [];
+      var tile = table.parent();
+      if (table.find('tbody:visible').length > 0) tile.show(); else tile.hide();
+      table.find('tbody').each(function(){index.push($(this).attr('sort'));});
+      $.cookie(table.prop('id'),index.join(';'),{expires:3650});
+    },
+    stop:function(e,ui){
+      var table = ui.item.parent(), index = [];
+      table.find('tbody').each(function(){index.push($(this).attr('sort'));});
+      $.cookie(table.prop('id'),index.join(';'),{expires:3650});
+    }});
+  } else {
+    $.removeCookie('lockbutton');
+<?if ($themes1):?>
+    $('div.nav-item.LockButton').find('a').prop('title',"_(Unlock sortable items)_");
+    $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
+<?endif;?>
+    $('div.nav-item.LockButton').find('span').text("_(Unlock sortable items)_");
+    $('table.dashboard').sortable('destroy');
+  }
+}
 var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket'});
 dashboard.on('message',function(msg,meta) {
   switch (meta.id.channel()) {
@@ -1275,29 +1312,11 @@ apcups.on('message',function(data) {
 });
 <?endif;?>
 
-var sortableHelper = function(e,ui){
-  ui.find('tr:first').children().each(function(){$(this).width($(this).width());});
-  return ui;
-};
 $(function() {
   initCharts();
   cpuchart.render();
   netchart.render();
   addProperties();
-  $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
-  $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
-  receive:function(e,ui){
-    var table = ui.sender, index = [];
-    var tile = table.parent();
-    if (table.find('tbody:visible').length > 0) tile.show(); else tile.hide();
-    table.find('tbody').each(function(){index.push($(this).attr('sort'));});
-    $.cookie(table.prop('id'),index.join(';'),{expires:3650});
-  },
-  stop:function(e,ui){
-    var table = ui.item.parent(), index = [];
-    table.find('tbody').each(function(){index.push($(this).attr('sort'));});
-    $.cookie(table.prop('id'),index.join(';'),{expires:3650});
-  }});
 <?if ($group):?>
   dropdown('enter_share');
 <?endif;?>
@@ -1315,6 +1334,7 @@ $(function() {
   showContent();
   $('#cpuline').val(cpuline);
   $('#netline').val(netline);
+  $.removeCookie('lockbutton');
   // remember latest graph values
   $(window).on('beforeunload',function(e){
     var data = {};

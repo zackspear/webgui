@@ -142,8 +142,7 @@ foreach ($containers as $ct) {
   echo "<br><span class='mem-$id'>0 / 0</span></td>";
   echo "<td><input type='checkbox' id='$id-auto' class='autostart' container='".htmlspecialchars($name)."'".($info['autostart'] ? ' checked':'').">";
   echo "<span id='$id-wait' style='float:right;display:none'>"._('wait')."<input class='wait' container='".htmlspecialchars($name)."' type='number' value='$wait' placeholder='0' title=\""._('seconds')."\"></span></td>";
-  echo "<td><div style='white-space:nowrap'>".htmlspecialchars(str_replace('Up',_('Uptime').':',my_lang_log($ct['Status'])))."<div style='margin-top:4px'>"._('Created').": ".htmlspecialchars(my_lang_time($ct['Created']))."</div></div></td>";
-  echo "<td><span class='dockerhandle'><i class='fa fa-arrows-v'></i></span></td></tr>";
+  echo "<td><div style='white-space:nowrap'>".htmlspecialchars(str_replace('Up',_('Uptime').':',my_lang_log($ct['Status'])))."<div style='margin-top:4px'>"._('Created').": ".htmlspecialchars(my_lang_time($ct['Created']))."</div></div></td></tr>";
 }
 foreach ($images as $image) {
   if (count($image['usedBy'])) continue;
@@ -151,7 +150,7 @@ foreach ($images as $image) {
   $menu = sprintf("onclick=\"addDockerImageContext('%s','%s')\"", $id, implode(',',$image['Tags']));
   echo "<tr class='advanced'><td style='width:220px;padding:8px'>";
   echo "<span class='outer apps'><span id='$id' $menu class='hand'><img src='/webGui/images/disk.png' class='img'></span><span class='inner'>("._('orphan image').")<br><i class='fa fa-square stopped grey-text'></i><span class='state'>"._('stopped')."</span></span></span>";
-  echo "</td><td colspan='6'>"._('Image ID').": $id<br>";
+  echo "</td><td colspan='5'>"._('Image ID').": $id<br>";
   echo implode(', ',$image['Tags']);
   echo "</td><td>"._('Created')." ".htmlspecialchars(_($image['Created'],0))."</td></tr>";
 }
