@@ -111,7 +111,7 @@ _(Security)_:
 </form>
 
 <?if ($sec[$name]['security']=='secure'):?>
-<div class="title" class="nocontrol"><dt>_(SMB)_ _(User Access)_</dt><i>_(Guests have **read-only** access)_.</i></div>
+<div class="title nocontrol"><dt>_(SMB)_ _(User Access)_</dt><i>_(Guests have **read-only** access)_.</i></div>
 
 :smb_secure_access_help:
 
@@ -153,7 +153,7 @@ foreach ($rows as $row) echo $row;
 </form>
 
 <?elseif ($sec[$name]['security']=='private'):?>
-<div class="title" class="nocontrol"><dt>_(SMB)_ _(User Access)_</dt><i>_(Guests have **no** access)_.</i></div>
+<div class="title nocontrol"><dt>_(SMB)_ _(User Access)_</dt><i>_(Guests have **no** access)_.</i></div>
 
 :smb_private_access_help:
 
