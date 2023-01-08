@@ -4,9 +4,9 @@ Icon="icon-docker"
 Tag="icon-docker"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -548,7 +548,7 @@ _(IPv6 custom network on interface)_ <?=$network?>:
 
 <?if (!$DockerStopped && exec("findmnt --output FSTYPE --noheadings /var/lib/docker")=='btrfs'):?>
 <div markdown="1" class="advanced">
-<div id="title"><span class="left"><i class="title fa fa-address-card-o"></i>_(Docker volume info)_</span></div>
+<div class="title"><span class="left"><i class="title fa fa-address-card-o"></i>_(Docker volume info)_</span></div>
 _(btrfs filesystem show)_:
 : <?="<pre>".shell_exec("btrfs filesystem show /var/lib/docker")."</pre>"?>
 

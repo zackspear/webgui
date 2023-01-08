@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -35,7 +35,7 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
@@ -57,9 +57,9 @@ html{font-size:<?=$display['font']?>%}
 <?if ($backgnd):?>
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
-#menu{background-color:#<?=$backgnd?>}
-#nav-block #nav-item a{color:#<?=$header?>}
-#nav-block #nav-item.active:after{background-color:#<?=$header?>}
+.nav-tile{background-color:#<?=$backgnd?>}
+.nav-item a{color:#<?=$header?>}
+.nav-item.active:after{background-color:#<?=$header?>}
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
@@ -80,8 +80,9 @@ echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
 if ($themes2) {
-  foreach ($tasks as $button) if ($button['Code']) echo "#nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
-  foreach ($buttons as $button) if ($button['Code']) echo "#nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
+  foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
+  echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
+  foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
@@ -425,7 +426,7 @@ function addBannerWarning(text, warning=true, noDismiss=false, forced=false) {
 }
 
 function dismissBannerWarning(entry,cookieText) {
-  $.cookie(cookieText,"true");
+  $.cookie(cookieText,"true",{expires:30}); // reset after 1 month
   removeBannerWarning(entry);
 }
 
@@ -547,7 +548,7 @@ function flashReport() {
 $(function() {
   var tab = $.cookie('one')||$.cookie('tab')||'tab1';
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
-  if ($.cookie('help')=='help') {$('.inline_help').show(); $('#nav-item.HelpButton').addClass('active');}
+  if ($.cookie('help')=='help') {$('.inline_help').show(); $('.nav-item.HelpButton').addClass('active');}
   $('#'+tab).attr('checked', true);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
@@ -594,47 +595,56 @@ $.ajaxPrefilter(function(s, orig, xhr){
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
 // Build page menus
-echo "<div id='menu'><div id='nav-block'><div id='nav-left'>";
+echo "<div id='menu'>";
+if ($themes2) echo "<div id='nav-block'>";
+echo "<div class='nav-tile'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
-  echo "<div id='nav-item'";
-  echo $task==$page ? " class='active'>" : ">";
+  $play = $task==$page ? " active" : "";
+  echo "<div class='nav-item{$play}'>";
   echo "<a href=\"/$page\" onclick=\"initab('/$page')\">"._($button['Name'] ?? $page)."</a></div>";
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 unset($tasks);
-if ($display['usage']) my_usage();
 echo "</div>";
-echo "<div id='nav-right'>";
+echo "<div class='nav-tile right'>";
+if ($task == 'Dashboard' or $task == 'Docker') {
+  $title = $themes2 ?  "" : _('Unlock sortable items');
+  echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
+}
+if ($display['usage']) my_usage();
 foreach ($buttons as $button) {
-  annotate($button['file']);
-  eval('?>'.parse_text($button['text']));
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
     if (substr($icon,-4)=='.png') {
       $icon = "<img src='/{$button['root']}/icons/$icon' class='system'>";
     } elseif (substr($icon,0,5)=='icon-') {
-      $icon = "<i class='$icon system'></i>";
+      $icon = "<b class='$icon system'></b>";
     } else {
       if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
-      $icon = "<i class='fa $icon system'></i>";
+      $icon = "<b class='fa $icon system'></b>";
     }
     $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
-    echo "<div id='nav-item' class='{$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
+    echo "<div class='nav-item {$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
-    echo "<div id='{$button['Link']}'></div>";
+    echo "<div class='{$button['Link']}'></div>";
   }
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
-unset($buttons,$button);
 if ($notify['display']) {
-  echo "<span id='nav-tub1' class='tub'><i id='box-tub1' class='fa fa-square grey-text'></i><span id='txt-tub1' class='score one'>0</span></span>";
-  echo "<span id='nav-tub2' class='tub'><i id='box-tub2' class='fa fa-square grey-text'></i><span id='txt-tub2' class='score one'>0</span></span>";
-  echo "<span id='nav-tub3' class='tub'><i id='box-tub3' class='fa fa-square grey-text'></i><span id='txt-tub3' class='score one'>0</span></span>";
+  echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
+  echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
+  echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
 }
-echo "</div></div></div>";
+if ($themes2) echo "</div>";
+echo "</div></div>";
+foreach ($buttons as $button) {
+  annotate($button['file']);
+  eval('?>'.parse_text($button['text']));
+}
+unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
@@ -658,7 +668,7 @@ foreach ($pages as $page) {
       $close = true;
     } else {
       if ($tab==1) echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
-      echo "<div id='title'><span class='left'>";
+      echo "<div class='title'><span class='left'>";
       echo tab_title($title,$page['root'],$page['Tag']??false);
       echo "</span></div>";
     }
@@ -831,12 +841,12 @@ defaultPage.on('message', function(msg,meta) {
 <?endif;?>
     });
 <?if ($notify['display']):?>
-    $('#txt-tub1').removeClass('one two three').addClass(digits(tub1)).text(tub1);
-    $('#txt-tub2').removeClass('one two three').addClass(digits(tub2)).text(tub2);
-    $('#txt-tub3').removeClass('one two three').addClass(digits(tub3)).text(tub3);
-    if (tub1) $('#box-tub1').removeClass('grey-text').addClass('red-text'); else $('#box-tub1').removeClass('red-text').addClass('grey-text');
-    if (tub2) $('#box-tub2').removeClass('grey-text').addClass('orange-text'); else $('#box-tub2').removeClass('orange-text').addClass('grey-text');
-    if (tub3) $('#box-tub3').removeClass('grey-text').addClass('green-text'); else $('#box-tub3').removeClass('green-text').addClass('grey-text');
+    $('#box-tub1').text(tub1);
+    $('#box-tub2').text(tub2);
+    $('#box-tub3').text(tub3);
+    if (tub1) $('#box-tub1').removeClass('graybar').addClass('redbar'); else $('#box-tub1').removeClass('redbar').addClass('graybar');
+    if (tub2) $('#box-tub2').removeClass('graybar').addClass('orangebar'); else $('#box-tub2').removeClass('orangebar').addClass('graybar');
+    if (tub3) $('#box-tub3').removeClass('graybar').addClass('greenbar'); else $('#box-tub3').removeClass('greenbar').addClass('graybar');
 <?endif;?>
     break;
   }

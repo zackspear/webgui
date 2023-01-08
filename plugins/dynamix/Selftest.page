@@ -1,11 +1,11 @@
 Menu="Device:2 New:2"
 Title="Self-Test"
 Tag="wrench"
-Cond="strpos($disks[$name]['status'],'_NP')===false"
+Cond="strpos($disks[$name]['status']??'','_NP')===false"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,7 +19,7 @@ Cond="strpos($disks[$name]['status'],'_NP')===false"
 $date = date('Ymd-Hi');
 $file = $disk['id']."-$date.txt";
 $zip  = str_replace(' ','_',strtolower($var['NAME']))."-smart-$date.zip";
-$long = $disks[$name]['spindownDelay']==0 || ($disks[$name]['spindownDelay']==-1 && $var['spindownDelay']==0);
+$long = isset($disks[$name]['spindownDelay']) && ($disks[$name]['spindownDelay']==0 || ($disks[$name]['spindownDelay']==-1 && $var['spindownDelay']==0));
 ?>
 _(Download SMART report)_:
 : <input type='button' value="_(Download)_" onclick='saveSMART()'>

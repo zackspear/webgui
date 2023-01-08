@@ -456,7 +456,7 @@
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 								
-				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?> onchange="USBBootChange(this)">
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options)_" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
 					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');

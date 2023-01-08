@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,7 +16,6 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'dashboard';
 require_once "$docroot/webGui/include/Translations.php";
-
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/Helpers.php";
@@ -27,14 +26,14 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
   $user_prefs = $dockerManPaths['user-prefs'];
   $DockerClient = new DockerClient();
   $DockerTemplates = new DockerTemplates();
-  $containers = $DockerClient->getDockerContainers();
+  $containers = $DockerClient->getDockerContainers() ?: [];
   $allInfo = $DockerTemplates->getAllInfo();
   if (file_exists($user_prefs)) {
     $prefs = parse_ini_file($user_prefs); $sort = [];
     foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
     array_multisort($sort,SORT_NUMERIC,$containers);
   }
-  echo "<tr><td></td><td colspan='4'>";
+  echo "<tr class='updated'><td>";
   foreach ($containers as $ct) {
     $name = $ct['Name'];
     $id = $ct['Id'];
@@ -62,12 +61,12 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
   }
   $none = count($containers) ? _('No running docker containers') : _('No docker containers defined');
   echo "<span id='no_apps' style='display:none'>$none<br><br></span>";
-  echo "</td><td></td></tr>";
+  echo "</td></tr>";
 }
 echo "\0";
 if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   $user_prefs = '/boot/config/plugins/dynamix.vm.manager/userprefs.cfg';
-  $vms = $lv->get_domains();
+  $vms = $lv->get_domains() ?: [];
   if (file_exists($user_prefs)) {
     $prefs = parse_ini_file($user_prefs); $sort = [];
     foreach ($vms as $vm) $sort[] = array_search($vm,$prefs) ?? 999;
@@ -75,7 +74,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   } else {
     natcasesort($vms);
   }
-  echo "<tr><td></td><td colspan='4'>";
+  echo "<tr class='updated'><td>";
   foreach ($vms as $vm) {
     $res = $lv->get_domain_by_name($vm);
     $uuid = libvirt_domain_get_uuid_string($res);
@@ -136,5 +135,5 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   }
   $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
   echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
-  echo "</td><td></td></tr>";
+  echo "</td></tr>";
 }

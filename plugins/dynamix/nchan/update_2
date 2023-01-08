@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -135,7 +135,7 @@ function device_name(&$disk) {
   $name = my_disk($disk['name']);
   [$p1,$p2] = explode(' ',$name);
   $name = _($p1).($p2?" $p2":"");
-  return "<i class='icon-$type'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
+  return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
 }
 function device_status(&$disk, &$error, &$warning) {
   global $var;
@@ -225,13 +225,13 @@ function array_group($type,$pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
   $echo = [];
   foreach ($disks as $disk) if ($disk['type']==$type && strpos($disk['status'],'DISK_NP')===false && (!$pool||$pool==prefix($disk['name']))) {
-    $echo[] = "<tr><td></td>";
-    $echo[] = "<td>".device_name($disk)."</td>";
-    $echo[] = "<td>".device_status($disk,$error,$warning)."</td>";
-    $echo[] = "<td>".device_temp($disk,$red,$orange)."</td>";
-    $echo[] = "<td>".device_smart($disk,$fail,$smart)."</td>";
-    $echo[] = "<td>".device_usage($disk,$full,$high)."</td>";
-    $echo[] = "<td></td></tr>";
+    $echo[] = "<tr class='updated'><td>";
+    $echo[] = "<span class='w26'>".device_name($disk)."</span>";
+    $echo[] = "<span class='w18'>".device_status($disk,$error,$warning)."</span>";
+    $echo[] = "<span class='w18'>".device_temp($disk,$red,$orange)."</span>";
+    $echo[] = "<span class='w18'>".device_smart($disk,$fail,$smart)."</span>";
+    $echo[] = "<span class='w18'>".device_usage($disk,$full,$high)."</span>";
+    $echo[] = "</td></tr>";
   }
   return implode('',$echo);
 }
@@ -242,13 +242,13 @@ function extra_group() {
     $name = $disk['name'];
     $disk['type'] = "Extra";
     $disk['color'] = $disk['spundown']=="0" ? 'blue-on' : 'blue-blink';
-    $echo[] = "<tr><td></td>";
-    $echo[] = "<td>".device_name($disk)."</td>";
-    $echo[] = "<td>".device_status($disk,$error,$warning)."</td>";
-    $echo[] = "<td>".device_temp($disk,$red,$orange)."</td>";
-    $echo[] = "<td>".device_smart($disk,$fail,$smart)."</td>";
-    $echo[] = "<td>".device_usage($disk,$full,$high)."</td>";
-    $echo[] = "<td></td></tr>";
+    $echo[] = "<tr class='updated'><td>";
+    $echo[] = "<span class='w26'>".device_name($disk)."</span>";
+    $echo[] = "<span class='w18'>".device_status($disk,$error,$warning)."</span>";
+    $echo[] = "<span class='w18'>".device_temp($disk,$red,$orange)."</span>";
+    $echo[] = "<span class='w18'>".device_smart($disk,$fail,$smart)."</span>";
+    $echo[] = "<span class='w18'>".device_usage($disk,$full,$high)."</span>";
+    $echo[] = "</td></tr>";
   }
   return implode('',$echo);
 }
