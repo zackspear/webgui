@@ -672,7 +672,7 @@ $(function() {
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
-  $('div[id=title]').append(ctrl);
+  $('div[class=title]').append(ctrl);
 <?endif;?>
   $('.advancedview').switchButton({labels_placement:'left', on_label: "_(Advanced View)_", off_label: "_(Basic View)_"});
   $('.advancedview').change(function() {
