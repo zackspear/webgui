@@ -38,11 +38,11 @@ function model($id) {
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto;
-  if ($disk['type'] != 'Parity') {
+  if ($disk['type']=='Parity' || ($disk['type']=='Cache' && !in_array($disk['name'],$pools))) {
+    $view = "<a class='view'></a>";
+  } else {
     $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
     $view = "<a class='view' href=\"/Main/Browse?dir=".htmlspecialchars($dir)."\"><i class=\"icon-u-tab\" title=\""._('Browse')." $dir\"></i></a>";
-  } else {
-    $view = "<a class='view'></a>";
   }
   $name = $disk['name'];
   $fancyname = compress(_(my_disk($name),3),16,5);
