@@ -38,7 +38,7 @@ function model($id) {
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto;
-  if ($disk['type']=='Parity' || ($disk['type']=='Cache' && !in_array($disk['name'],$pools))) {
+  if (!$online || ($disk['type']=='Parity' || ($disk['type']=='Cache' && !in_array($disk['name'],$pools)))) {
     $view = "<a class='view'></a>";
   } else {
     $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
