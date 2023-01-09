@@ -499,11 +499,15 @@ _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", _('auto'))?>
   <?=mk_option($disk['fsType'], "xfs", _('xfs'))?>
+  <?if ($disk['type']=='Cache'):?>
   <?=mk_option($disk['fsType'], "zfs", _('zfs'))?>
+  <?endif;?>
   <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
   <?=mk_option($disk['fsType'], "reiserfs", _('reiserfs'))?>
   <?=mk_option($disk['fsType'], "luks:xfs", _('xfs')." - "._('encrypted'))?>
+  <?if ($disk['type']=='Cache'):?>
   <?=mk_option($disk['fsType'], "luks:zfs", _('zfs')." - "._('encrypted'))?>
+  <?endif;?>
   <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   <?=mk_option($disk['fsType'], "luks:reiserfs", _('reiserfs')." - "._('encrypted'))?>
   </select>
