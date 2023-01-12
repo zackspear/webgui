@@ -1177,7 +1177,15 @@
 		</table>
 	</script>
 
-	<?foreach ($arrConfig['nic'] as $i => $arrNic) {
+	<?	if ( $arrConfig['nic'] == false) {
+	  		$arrConfig['nic']['0'] = 
+			[
+				'network' => $domain_bridge,
+				'mac' => "",
+				'model' => 'virtio-net'
+			] ;
+		}	
+	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 		?>
