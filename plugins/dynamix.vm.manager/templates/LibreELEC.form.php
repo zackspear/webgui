@@ -898,8 +898,17 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			</table>
 		</script>
 
-		<?foreach ($arrConfig['nic'] as $i => $arrNic) {
-			$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
+		<?	
+		if ( $arrConfig['nic'] == false) {
+			$arrConfig['nic']['0'] = 
+		  	[
+			  'network' => $domain_bridge,
+			  'mac' => "",
+			  'model' => 'virtio-net'
+		  	] ;
+	  	}	
+	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
+		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 			?>
 			<table data-category="Network" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
