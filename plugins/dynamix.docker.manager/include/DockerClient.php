@@ -52,7 +52,7 @@ $defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg
 $dockercfg = array_replace_recursive($defaults, parse_ini_file($docker_cfgfile));
 
 function var_split($item, $i=0) {
-	return explode(' ',$item)[$i];
+	return array_pad(explode(' ',$item),$i+1,'')[$i];
 }
 
 #######################################
