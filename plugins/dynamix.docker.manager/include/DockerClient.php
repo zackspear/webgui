@@ -251,7 +251,7 @@ class DockerTemplates {
 				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name)
 					continue;
 			if ($Repository == $TemplateRepository) {
-				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue;
+				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
 				return trim($TemplateField);
 			}
 		}
@@ -299,11 +299,12 @@ class DockerTemplates {
 			$tmp['paused'] = $ct['Paused'];
 			$tmp['autostart'] = in_array($name, $autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
+			$tmp['url'] = $tmp['url'] ?? '';
 			// read docker label for WebUI & Icon
-			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
-			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
-			if ($ct['Shell']) $tmp['shell'] = $ct['Shell'];
-			if ( ! $communityApplications ) {
+			if (isset($ct['Url']) && !$tmp['url']) $tmp['url'] = $ct['Url'];
+			if (isset($ct['Icon'])) $tmp['icon'] = $ct['Icon'];
+			if (isset($ct['Shell'])) $tmp['shell'] = $ct['Shell'];
+			if (!$communityApplications) {
 				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$tmp['icon']);
 			}
 			if ($ct['Running']) {
@@ -323,12 +324,12 @@ class DockerTemplates {
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			$tmp['DonateLink'] = $tmp['DonateLink'] ?? $this->getTemplateValue($image, 'DonateLink');
 			$tmp['ReadMe'] = $tmp['ReadMe'] ?? $this->getTemplateValue($image, 'ReadMe');
-			if (!$tmp['updated'] || $reload) {
+			if (empty($tmp['updated']) || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$com) $tmp['updated'] = 'undef';
-			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
+			if (empty($tmp['template']) || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
 			//$this->debug("\n$name");
 			//foreach ($tmp as $c => $d) $this->debug(sprintf('   %-10s: %s', $c, $d));

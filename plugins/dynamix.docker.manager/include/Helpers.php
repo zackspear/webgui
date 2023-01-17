@@ -43,7 +43,7 @@ function postToXML($post, $setOwnership=false) {
   $xml->Network            = xml_encode($post['contNetwork']);
   $xml->MyIP               = xml_encode($post['contMyIP']);
   $xml->Shell              = xml_encode($post['contShell']);
-  $xml->Privileged         = strtolower($post['contPrivileged'])=='on' ? 'true' : 'false';
+  $xml->Privileged         = strtolower($post['contPrivileged']??'')=='on' ? 'true' : 'false';
   $xml->Support            = xml_encode($post['contSupport']);
   $xml->Project            = xml_encode($post['contProject']);
   $xml->Overview           = xml_encode($post['contOverview']);
