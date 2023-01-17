@@ -69,6 +69,8 @@ table{box-shadow:1px 2px 3px rgba(0,0,0,0.2);width:90%}
 .center th{text-align:center!important}
 td,th{border:1px solid #505153;vertical-align:baseline;padding:4px 5px!important;color:#f2f2f2}
 th{position:sticky;top:0;background:inherit}
+img{float:right;border:0}
+hr{width:90%;background-color:#505153;border:0;height:1px}
 h1{font-size:150%}
 h2{font-size:125%}
 h2 a:link,h2 a:visited{color:inherit;background:inherit}
@@ -77,9 +79,7 @@ h2 a:link,h2 a:visited{color:inherit;background:inherit}
 .h{background-color:#4F5B93}
 .v{background-color:#333;max-width:300px;overflow-x:auto;word-wrap:break-word}
 .v i{color:#999}
-img{float:right;border:0}
-hr{width:90%;background-color:#505153;border:0;height:1px}
-.h td,td.e,th{border-color: #606A90}
+.h td,td.e,th{border-color:#606A90}
 </style>
 
 <body>
