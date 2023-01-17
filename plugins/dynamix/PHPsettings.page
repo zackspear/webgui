@@ -103,7 +103,7 @@ function viewLog() {
 }
 function clearLog() {
   $.post('/webGui/include/PHPsettings.php',{cmd:'clear'},function(){
-    swal({title:"_(PHP Log File)_",text:"_(Log file cleared)_<br>_(You must reopen an existing LOG window)_",type:'success',html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:"_(PHP Log File)_",text:"_(Log file cleared)_",type:'success',html:true,confirmButtonText:"_(Ok)_"},function(){if (tty_window!=null && !tty_window.closed) viewLog();});
   });
 }
 function PHPinfo() {

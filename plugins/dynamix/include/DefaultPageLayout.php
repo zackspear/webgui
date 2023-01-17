@@ -111,6 +111,9 @@ var before = new Date();
 const timers = {};
 timers.bannerWarning = null;
 
+// tty window
+var tty_window = null;
+
 const addAlert = {};
 addAlert.text = $.cookie('addAlert-text');
 addAlert.cmd = $.cookie('addAlert-cmd');
@@ -400,7 +403,6 @@ function escapeQuotes(form) {
 }
 
 // Banner warning system
-
 var bannerWarnings = [];
 var currentBannerWarning = 0;
 var osUpgradeWarning = false;
