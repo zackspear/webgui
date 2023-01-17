@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,7 +17,7 @@ libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 // add translations
-if ($_SERVER['REQUEST_URI'] != 'docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+if ($_SERVER['REQUEST_URI'] != 'docker' && substr($_SERVER['REQUEST_URI']??'',0,7) != '/Docker') {
   $_SERVER['REQUEST_URI'] = 'docker';
   require_once "$docroot/webGui/include/Translations.php";
 }
