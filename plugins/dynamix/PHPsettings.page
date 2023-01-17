@@ -37,7 +37,7 @@ div#templateWindow,div#dialogWindow{display:none}
 _(Error reporting level)_:
 : <select name="error_reporting">
   <?=mk_option($conf['error_reporting']??'', "", "_(Default)_");?>
-  <?=mk_option($conf['error_reporting']??'', "32767", "_(All Errors)_");?>
+  <?=mk_option($conf['error_reporting']??'', "32767", "_(All Categories)_");?>
   <?=mk_option($conf['error_reporting']??'', "1", "_(Errors Only)_");?>
   <?=mk_option($conf['error_reporting']??'', "2", "_(Warnings Only)_");?>
   <?=mk_option($conf['error_reporting']??'', "8", "_(Notices Only)_");?>
