@@ -98,7 +98,7 @@ function check_smart(&$disk,$port,$text,$info) {
       }
       break;
     case 1:
-      $attr = "$name.${id}n";
+      $attr = "$name.{$id}n";
       $last = $saved[$item][$attr] ?? 255;
       if (($thres>0 && $value<=$thres*$level) || $fail) {
         if ($value*($value>$thres?$level:1)<$last) {
@@ -128,7 +128,7 @@ function check_usage(&$disk,$used,$text,$info) {
   $last = $saved[$item][$name] ?? 0;
   if ($warn) {
     if ($used>$last) {
-      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text disk utilization")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text is ".($warn=='alert'?'low on space':'high on usage')." (${used}%)")." -d ".escapeshellarg("$info")." -i \"$warn\" 2>/dev/null");
+      exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text disk utilization")." -s ".escapeshellarg(ucfirst($warn)." [$server] - $text is ".($warn=='alert'?'low on space':'high on usage')." ({$used}%)")." -d ".escapeshellarg("$info")." -i \"$warn\" 2>/dev/null");
       $saved[$item][$name] = max($critical,$used);
     }
   } else {
@@ -294,12 +294,12 @@ if ($retval===0 && exec("df /var/lib/docker|grep -Po '^/dev/\Kloop'")) {
   $warn = exec("df /var/lib/docker|awk '/^\//{print $5*1}'");
   if ($warn>=$high1 && $high1>0) {
     if ($warn>$last) {
-      exec("$notify -l '/Docker' -e \"Docker critical image disk utilization\" -s ".escapeshellarg("Alert [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
+      exec("$notify -l '/Docker' -e \"Docker critical image disk utilization\" -s ".escapeshellarg("Alert [$server] - Docker image disk utilization of {$warn}%")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
       $saved[$item][$name] = $warn;
     }
   } elseif ($warn>=$high2 && $high2>0) {
     if ($warn>$last) {
-      exec("$notify -l '/Docker' -e \"Docker high image disk utilization\" -s ".escapeshellarg("Warning [$server] - Docker image disk utilization of ${warn}%")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
+      exec("$notify -l '/Docker' -e \"Docker high image disk utilization\" -s ".escapeshellarg("Warning [$server] - Docker image disk utilization of {$warn}%")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
       $saved[$item][$name] = $warn;
     }
   } else {
