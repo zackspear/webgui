@@ -609,7 +609,7 @@ foreach ($tasks as $button) {
 unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
-if ($task == 'Dashboard' or $task == 'Docker') {
+if (in_array($task,['Dashboard','Docker','VMs'])) {
   $title = $themes2 ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
