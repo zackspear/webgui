@@ -28,7 +28,7 @@ if (!file_exists($log)) touch($log);
 div#templateWindow,div#dialogWindow{display:none}
 </style>
 
-<div markdown="1" style="width:43%;margin-bottom:40px;padding:10px;border:solid 1px">
+<div markdown="1" style="width:43%;margin-bottom:40px;padding:5px 15px;border:solid 1px">
 :php_settings_plug:
 This utility is used for development purposes only and allows Plugin Authors to verify their PHP code by enabling different levels of PHP error reporting.
 
