@@ -39,7 +39,7 @@ function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
 }
 function my_number($value) {
   global $display;
-  $number = $display['number']??'';
+  $number = $display['number'] ?? '.,';
   return number_format($value, 0, $number[0], ($value>=10000 ? $number[1] : ''));
 }
 function my_time($time, $fmt=NULL) {

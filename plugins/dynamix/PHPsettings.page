@@ -100,10 +100,9 @@ h2 a{color:#f2f2f2!important}
 <?
 ob_start();
 phpinfo();
-echo str_replace('</body></html>','',preg_replace('/^<!DOCTYPE html .*<body>/s','',ob_get_clean()));
+echo preg_replace('/^<!DOCTYPE html .*<body>/s','',ob_get_clean());
 ?>
-</body>
-</html>
+
 !-->
 </div>
 

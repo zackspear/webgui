@@ -72,7 +72,7 @@ function cpu_pinning() {
 
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
-  $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true' ? true : false;
+  $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true';
   $existing = $_POST['existingContainer'] ?? false;
   $create_paths = $dry_run ? false : true;
   // Get the command line
