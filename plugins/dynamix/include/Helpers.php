@@ -87,7 +87,7 @@ function cache_filter($disks) {
 function pools_filter($disks) {
   return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
 }
-function my_id($id) {
+function my_id($id='') {
   global $display;
   $len = strlen($id);
   $wwn = substr($id,-18);
