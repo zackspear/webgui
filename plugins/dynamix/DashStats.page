@@ -192,6 +192,7 @@ span.wg1{font-size:1.1rem;text-indent:24px}
 span.wg2{font-size:1.1rem}
 span[id^=cpu],span[id^=sys]{width:0}
 span[class^="fa "]{font-size:1.6rem;margin-right:18px}
+span.load{font-size:85%}
 span.fan{width:36%;display:inline-block}
 span.w18{width:18%;display:inline-block;float:left}
 span.w26{width:26%;display:inline-block;float:left}
