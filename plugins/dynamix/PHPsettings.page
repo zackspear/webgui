@@ -1,7 +1,7 @@
 Menu="WebGui"
 Title="PHP Settings"
 Icon="icon-template"
-Tag="cogs"
+Tag="edit"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
