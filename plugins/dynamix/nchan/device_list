@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -38,7 +38,7 @@ function model($id) {
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto;
-  if (!$online || ($disk['type']=='Parity' || ($disk['type']=='Cache' && !in_array($disk['name'],$pools)))) {
+  if (!$online || (in_array($disk['type'],['Parity','Cache']) && !in_array($disk['name'],$pools))) {
     $view = "<a class='view'></a>";
   } else {
     $dir = $disk['name']=='flash' ? "/boot" : "/mnt/{$disk['name']}";
