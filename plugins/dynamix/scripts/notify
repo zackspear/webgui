@@ -171,7 +171,8 @@ case 'add':
   $ticket = $timestamp;
   $mailtest = false;
   $overrule = false;
-  
+  $noBrowser = false;
+
   $options = getopt("l:e:s:d:i:m:r:xtb");
   foreach ($options as $option => $value) {
     switch ($option) {
@@ -235,7 +236,7 @@ case 'get':
       if (!$field) continue;
       list($key,$val) = explode('=', $field);
       if ($time) {$val = date($notify['date'].' '.$notify['time'], $val); $time = false;}
-      $output[$i][trim($key)] = trim($val);  
+      $output[$i][trim($key)] = trim($val);
     }
     $output[$i++]["file"] = basename($file);
     chmod($file,0000);
