@@ -303,22 +303,22 @@ foreach ($cpus as $pair) {
 </tbody>
 
 <tbody title="_(Memory Utilization)_">
-<tr><td><i class='icon-ram f32'></i><div class='section'>_(Memory)_<br><span><?="$memory_installed $unit $memory_type $ecc"?></span><br><br></div>
+<tr><td><i class='icon-ram f32'></i><div class='section'>_(Memory)_<br><span><i class='ups fa fa-line-chart'></i><?="$memory_installed $unit $memory_type $ecc"?></span><br><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
-<tr><td>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?>&nbsp;&nbsp;---&nbsp;&nbsp;_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
-<tr><td><span class='w26'>_(RAM)_</span><span class='w72'><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
-<tr><td><span class='w26'>_(Flash)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
-<tr><td><span class='w26'>_(Log)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
 <?if (exec("df /var/lib/docker|grep -om1 '^/'")):?>
-<tr><td><span class='w26'>_(Docker)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
 <?endif;?>
 </tbody>
 
 <tbody title="_(Interface Information)_">
 <tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_<br>
-<span><span class='dense'>_(Inbound)_: <span id='inbound'>---</span></span><span class='dense'>_(Outbound)_: <span id='outbound'>---</span></span>
-<select name="port_select" onchange="portSelect(this.value)">
+<span><span class='dense'><i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span></span><span class='dense'><i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span></span>
+<i class='ups fa fa-angle-right'></i><select name="port_select" onchange="portSelect(this.value)">
 <?foreach ($ports as $port):?>
 <?=mk_option("",$port,_($port))?>
 <?endforeach;?>
@@ -365,7 +365,7 @@ foreach ($ports as $port) {
 
 <?if ($wireguard):?>
 <tbody title="_(VPN Connections)_">
-<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='dense'>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
+<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='dense'><i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br><br></div>
 <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <?foreach ($conf as $wg):?>
@@ -398,7 +398,7 @@ foreach ($ports as $port) {
 
 <?if ($fans):?>
 <tbody title="_(Fan Information)_">
-<tr><td><i class='icon-fan f32'></i><div class='section'>_(Airflow)_<br><span>_(Fan count)_: <?=$fans?></span><br><br></div>
+<tr><td><i class='icon-fan f32'></i><div class='section'>_(Airflow)_<br><span><i class='ups fa fa-dot-circle-o'></i>_(Fan count)_: <?=$fans?></span><br><br></div>
 
 <?if ($autofan):?>
 <a href='/Dashboard/Settings/FanSettings' title="_(Go to fan settings)_"><i class='fa fa-fw fa-cog control'></i></a>
@@ -629,7 +629,7 @@ if (!$group) {
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=1600">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
