@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2015-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2015-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -72,7 +72,7 @@ function cpu_pinning() {
 
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
-  $dry_run = $_POST['dryRun']=='true' ? true : false;
+  $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true' ? true : false;
   $existing = $_POST['existingContainer'] ?? false;
   $create_paths = $dry_run ? false : true;
   // Get the command line

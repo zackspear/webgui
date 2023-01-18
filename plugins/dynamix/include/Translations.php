@@ -112,7 +112,7 @@ function escapeQuotes($text) {
 }
 function translate($key) {
   // replaces multi-line sections
-  global $language;
+  global $language,$netpool,$netpool6,$netport,$nginx;
   if ($plug = isset($language[$key])) eval('?>'.Markdown($language[$key]));
   return !$plug;
 }

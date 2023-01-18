@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,7 +17,7 @@ libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 // add translations
-if ($_SERVER['REQUEST_URI'] != 'docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI']!='docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
   $_SERVER['REQUEST_URI'] = 'docker';
   require_once "$docroot/webGui/include/Translations.php";
 }
@@ -52,7 +52,7 @@ $defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg
 $dockercfg = array_replace_recursive($defaults, parse_ini_file($docker_cfgfile));
 
 function var_split($item, $i=0) {
-	return explode(' ',$item)[$i];
+	return array_pad(explode(' ',$item),$i+1,'')[$i];
 }
 
 #######################################
@@ -251,7 +251,7 @@ class DockerTemplates {
 				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name)
 					continue;
 			if ($Repository == $TemplateRepository) {
-				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue;
+				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
 				return trim($TemplateField);
 			}
 		}
@@ -299,11 +299,12 @@ class DockerTemplates {
 			$tmp['paused'] = $ct['Paused'];
 			$tmp['autostart'] = in_array($name, $autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
+			$tmp['url'] = $tmp['url'] ?? '';
 			// read docker label for WebUI & Icon
-			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
-			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
-			if ($ct['Shell']) $tmp['shell'] = $ct['Shell'];
-			if ( ! $communityApplications ) {
+			if (isset($ct['Url']) && !$tmp['url']) $tmp['url'] = $ct['Url'];
+			if (isset($ct['Icon'])) $tmp['icon'] = $ct['Icon'];
+			if (isset($ct['Shell'])) $tmp['shell'] = $ct['Shell'];
+			if (!$communityApplications) {
 				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$tmp['icon']);
 			}
 			if ($ct['Running']) {
@@ -323,12 +324,12 @@ class DockerTemplates {
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			$tmp['DonateLink'] = $tmp['DonateLink'] ?? $this->getTemplateValue($image, 'DonateLink');
 			$tmp['ReadMe'] = $tmp['ReadMe'] ?? $this->getTemplateValue($image, 'ReadMe');
-			if (!$tmp['updated'] || $reload) {
+			if (empty($tmp['updated']) || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$com) $tmp['updated'] = 'undef';
-			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
+			if (empty($tmp['template']) || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
 			//$this->debug("\n$name");
 			//foreach ($tmp as $c => $d) $this->debug(sprintf('   %-10s: %s', $c, $d));

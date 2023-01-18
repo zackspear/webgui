@@ -133,7 +133,7 @@ function device_name(&$disk) {
     case 'Cache' : $type = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme'; break;
   }
   $name = my_disk($disk['name']);
-  [$p1,$p2] = explode(' ',$name);
+  [$p1,$p2] = my_explode(' ',$name);
   $name = _($p1).($p2?" $p2":"");
   return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name={$disk['name']}")."\" title=\"$name settings\">$name</a>";
 }
@@ -204,7 +204,7 @@ function device_smart(&$disk, &$fail, &$smart) {
 function device_usage(&$disk, &$full, &$high) {
   global $display;
   $text = $display['text'];
-  $used = ($disk['type']!='Parity' && $disk['type']!='Extra' && $disk['fsStatus']=='Mounted') ? (($disk['fsSize'] ? round((1-$disk['fsFree']/$disk['fsSize'])*100):0).'%') : false;
+  $used = ($disk['type']!='Parity' && $disk['type']!='Extra' && isset($disk['fsStatus']) && $disk['fsStatus']=='Mounted') ? ((isset($disk['fsSize']) ? round((1-$disk['fsFree']/$disk['fsSize'])*100):0).'%') : false;
   if ($used) {
     if ($text==2 || $text==21) {
       $load = substr($used,0,-1);

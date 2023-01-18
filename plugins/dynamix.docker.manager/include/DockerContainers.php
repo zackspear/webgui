@@ -69,13 +69,13 @@ foreach ($containers as $ct) {
   $paused = $info['paused'] ? 1 : 0;
   $is_autostart = $info['autostart'] ? 'true':'false';
   $updateStatus = substr($ct['NetworkMode'],-4)==':???' ? 2 : ($info['updated']=='true' ? 0 : ($info['updated']=='false' ? 1 : 3));
-  $template = $info['template'];
-  $shell = $info['shell'];
-  $webGui = html_entity_decode($info['url']);
-  $support = html_entity_decode($info['Support']);
-  $project = html_entity_decode($info['Project']);
-  $registry = html_entity_decode($info['registry']);
-  $donateLink = html_entity_decode($info['DonateLink']);  
+  $template = $info['template']??'';
+  $shell = $info['shell']??'';
+  $webGui = html_entity_decode($info['url']??'');
+  $support = html_entity_decode($info['Support']??'');
+  $project = html_entity_decode($info['Project']??'');
+  $registry = html_entity_decode($info['registry']??'');
+  $donateLink = html_entity_decode($info['DonateLink']??'');  
   $readme = html_entity_decode($info['ReadMe']);
   $menu = sprintf("onclick=\"addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s', '%s','%s')\"", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project),addslashes($registry),addslashes($donateLink),addslashes($readme));
   $docker[] = "docker.push({name:'$name',id:'$id',state:$running,pause:$paused,update:$updateStatus});";
@@ -85,7 +85,7 @@ foreach ($containers as $ct) {
   $update = $updateStatus==1 ? 'blue-text' : '';
   $icon = $info['icon'] ?: '/plugins/dynamix.docker.manager/images/question.png';
   $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img' onerror=this.src='/plugins/dynamix.docker.manager/images/question.png';>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-  $wait = var_split($autostart[array_search($name,$names)],1);
+  $wait = var_split($autostart[array_search($name,$names)]??'',1);
   $ports = [];
   foreach ($ct['Ports'] as $port) {
     $intern = $running ? ($ct['NetworkMode']=='host' ? $host : $port['IP']) : $null;
