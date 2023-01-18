@@ -747,7 +747,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> "._('Array Started')."</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>Unraid&reg; webGui &copy;2022, Lime Technology, Inc.";
+echo "<span id='copyright'>Unraid&reg; webGui &copy;2023, Lime Technology, Inc.";
 echo " <a href='https://wiki.unraid.net/Manual' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
 ?>
