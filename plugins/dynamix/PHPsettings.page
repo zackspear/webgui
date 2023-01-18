@@ -44,7 +44,7 @@ _(Error reporting level)_:
   <?=mk_option($conf['error_reporting']??'', "8192", "_(Deprecated Only)_");?>
   </select>
 
-<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled><input type="button" id="clearlog" value="_(Clear Log)_" onclick="clearLog()" disabled>
+<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" value="_(Clear Log)_" onclick="clearLog()"><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>
 : <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
@@ -140,14 +140,10 @@ function preset(form) {
   }
   $.cookie('reload_php',1);
 }
-function enableLOG() {
+$(function(){
   if (document.php_settings.error_reporting.selectedIndex > 0) {
     $('#viewlog').prop('disabled',false);
-    $('#clearlog').prop('disabled',false);
   }
-}
-$(function(){
-  enableLOG();
   if ($.cookie('reload_php')==1) {
     $.removeCookie('reload_php');
     $.post('/webGui/include/PHPsettings.php',{cmd:'reload'});
