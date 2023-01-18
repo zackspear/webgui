@@ -48,7 +48,7 @@ function shareInclude($name) {
 }
 
 function sharesOnly($disk) {
-  return in_array($disk['type'],['Data','Cache']) && $disk['exportable']??''=='yes';
+  return in_array($disk['type'],['Data','Cache']) && ($disk['exportable']??'')=='yes';
 }
 
 // filter disk shares
