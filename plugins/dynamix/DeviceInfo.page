@@ -39,11 +39,11 @@ function maintenance_mode() {
   global $var, $disk;
   return ($var['fsState']=="Started" && $var['startMode']=="Maintenance" && $disk['luksState']<=1);
 }
-$sheets = []; $n = 0;
+$sheets = []; $i = $n = 0;
 foreach ($disks as $sheet) {
   if ((isset($sheet['type']) && $sheet['type']=='Flash') || (isset($sheet['color']) && $sheet['color']=='grey-off')) continue;
   $sheets[] = $sheet['name'];
-  if ($sheet['name']==$name) { $i = $n; }
+  if ($sheet['name']==$name) {$i = $n;}
   $n++;
 }
 $tag  = $disk['name'];
