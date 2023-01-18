@@ -102,15 +102,15 @@ case "capabilities":
   exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
   $row = ['','',''];
   $empty = true;
-  if (substr($port,0,4)=="nvme") $nvme=true ;
+  $nvme = substr($port,0,4)=="nvme";
   $nvme_section="info" ;
   foreach ($output as $line) {
     if (!$line) {echo "<tr></tr>" ;continue;}
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
-    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div class='title'><span>${line}</span></div>"; $row = ['','',''] ; continue ;}
+    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div class='title'><span>{$line}</span></div>"; $row = ['','',''] ; continue ;}
     if ($nvme && $info[0]=="Supported LBA Sizes" ) {  
-      echo "</body></table><div class='title'>${info[0]} ${info[1]} ${info[2]}</span></div>";
+      echo "</body></table><div class='title'>{$info[0]} {$info[1]} {$info[2]}</span></div>";
       $row = ['','',''];
       $nvme_section="lbaheading" ; 
       continue ;
@@ -120,7 +120,7 @@ case "capabilities":
     append($row[2],$info[2]);
     
     if (substr($row[2],-1)=='.' || ($nvme && $nvme_section=="info")) {
-      echo "<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>";
+      echo "<tr><td>{$row[0]}</td><td>{$row[1]}</td><td>{$row[2]}</td></tr>";
       $row = ['','',''];
       $empty = false;
     }
@@ -194,10 +194,10 @@ case "identify":
     $disk = $disks[$name]['id'];
     $info = &$extra[$disk];
     $periods = ['6','12','18','24','36','48','60'];
-    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='{$info['date']}' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
-    echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='{$info['purchase']}' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='".($info['date']??'')."' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='".($info['purchase']??'')."' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
     echo "<tr><td>"._('Warranty period').":</td><td><select class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>"._('unknown')."</option>";
-    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']==$period?" selected":"").">$period "._('months')."</option>";
+    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']??''==$period?" selected":"").">$period "._('months')."</option>";
     echo "</select></td></tr>";
   }
   break;
