@@ -382,7 +382,7 @@ foreach ($ports as $port) {
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
 <tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<br>
-<span><i class='ups fa fa-shield'></i>_(UPS Model)_: </span><span id='ups_model'></span><br><br></div>
+<span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span><br><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td>
