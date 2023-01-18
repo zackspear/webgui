@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -48,7 +48,7 @@ function shareInclude($name) {
 }
 
 function sharesOnly($disk) {
-  return strpos('Data,Cache',$disk['type'])!==false && $disk['exportable']=='yes';
+  return in_array($disk['type'],['Data','Cache']) && $disk['exportable']??''=='yes';
 }
 
 // filter disk shares
@@ -58,7 +58,7 @@ $disks = array_filter($disks,'sharesOnly');
 $crypto = false;
 foreach ($disks as $name => $disk) {
   if ($compute=='yes') exec("webGui/scripts/disk_size ".escapeshellarg($name)." ssz2");
-  $crypto |= strpos($disk['fsType'],'luks:')!==false;
+  $crypto |= strpos($disk['fsType']??'','luks:')!==false;
 }
 
 // global shares include/exclude
