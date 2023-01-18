@@ -452,7 +452,7 @@ _(Identification)_:
 
 <?endif;?>
 <?if (!$unassigned):?>
-<?if ((isset($disk['type']) && ($disk['type']=='Data' || $disk['type']=='Cache')) && in_array($disk['name'],$pools)):?>
+<?if ($disk['type']??''=='Data' || (($disk['type']??'')=='Cache' && in_array($disk['name'],$pools))):?>
 _(Comments)_:
 : <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
@@ -472,20 +472,20 @@ _(Spinup group(s))_:
 <?endif;?>
 _(Spin down delay)_:
 : <select name="diskSpindownDelay.<?=$disk['idx']?>">
-  <?=mk_option($disk['spindownDelay']??'-1', "-1", _('Use default'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "0",  _('Never'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "15", "15 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "30", "30 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "45", "45 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "1",  "1 "._('hour'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "2",  "2 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "3",  "3 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "4",  "4 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "5",  "5 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "6",  "6 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "7",  "7 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "8",  "8 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'-1', "9",  "9 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "-1", _('Use default'))?>
+  <?=mk_option($disk['spindownDelay']??'', "0",  _('Never'))?>
+  <?=mk_option($disk['spindownDelay']??'', "15", "15 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay']??'', "30", "30 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay']??'', "45", "45 "._('minutes'))?>
+  <?=mk_option($disk['spindownDelay']??'', "1",  "1 "._('hour'))?>
+  <?=mk_option($disk['spindownDelay']??'', "2",  "2 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "3",  "3 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "4",  "4 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "5",  "5 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "6",  "6 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "7",  "7 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "8",  "8 "._('hours'))?>
+  <?=mk_option($disk['spindownDelay']??'', "9",  "9 "._('hours'))?>
   </select><span id="smart_selftest" class='orange-text'></span>
 <?endif;?>
 
