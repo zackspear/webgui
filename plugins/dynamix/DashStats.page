@@ -386,14 +386,12 @@ foreach ($ports as $port) {
 <span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span><br><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
-<tr><td>
-<span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span><br>
-<span class='w36'><i class='ups fa fa-fw fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span><br>
-<span class='w36'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span><br>
-<span class='w36'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span><br>
-<span class='w36'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span><br>
-<span class='w36'><i class='ups fa fa-fw fa-ellipsis-h'></i>_(Output voltage)_:</span><span id='ups_outputv'></span><br>
-</td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-bars'></i>_(UPS Load)_: </span><span id='ups_loadpct'></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-battery'></i>_(Battery charge)_:</span><span id='ups_bcharge'></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-clock-o'></i>_(Runtime left)_:</span><span id='ups_timeleft'></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-bolt'></i>_(Nominal power)_:</span><span id='ups_nompower'></span></td></tr>
+<tr><td><span class='w36'><i class='ups fa fa-fw fa-ellipsis-h'></i>_(Output voltage)_:</span><span id='ups_outputv'></span></td></tr>
 </tbody>
 <?endif;?>
 
