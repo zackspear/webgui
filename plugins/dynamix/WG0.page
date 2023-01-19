@@ -1207,7 +1207,7 @@ $(function(){
   if (xml) {
     $('div.upnp.wg0').show();
 <?if (empty($wg0['UPNP:0'])):?>
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wg0','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':$.cookie('my-wg0')},function(data){$('span.upnp.wg0').text(data);});
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wg0','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':$.cookie('my-wg0')||''},function(data){$('span.upnp.wg0').text(data);});
 <?endif;?>
   } else {
     form.find('select[name="UPNP:0"]').val('no');
