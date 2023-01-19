@@ -1058,7 +1058,7 @@ function getPublicIP(ip,wg,protocol) {
 
 // keep tunnel states in global variable
 var tstate = [];
-tstate['wg0'] = "<?=$check_wg0 ? 'active' : ''?>";
+tstate['wg0'] = "<?=$check_wg0 ? 'active' : 'passive'?>";
 
 var statistics = new NchanSubscriber('/sub/wireguard',{subscriber:'websocket'});
 statistics.on('message', function(data) {

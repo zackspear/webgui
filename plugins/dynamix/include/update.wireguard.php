@@ -540,7 +540,7 @@ case 'upnpc':
   $ip = $_POST['#ip'];
   if ($_POST['#wg']=='active') {
     exec("timeout $t1 stdbuf -o0 upnpc -u $xml -m $link -l 2>/dev/null|grep -Po \"^(ExternalIPAddress = \K.+|.+\KUDP.+>$ip:[0-9]+ 'WireGuard-$vtun')\"",$upnp);
-    [$addr,$upnp] = $upnp;
+    [$addr,$upnp] = array_pad($upnp,2,'');
     [$type,$rule] = my_explode(' ',$upnp);
     echo $rule ? "UPnP: $addr:$rule/$type" : _("UPnP: forwarding not set");
   } else {
