@@ -522,7 +522,7 @@ if ($var['shareSMBEnabled']=='yes') {
     $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
     $desc = compress($user['desc'],40) ?: '&nbsp;';
     if ($name=='root') {
-      $write = '-'; $read = '-';
+      $write = $read = '-';
     } else {
       $write = $read = 0;
       foreach ($shares as $share) {
