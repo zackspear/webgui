@@ -31,6 +31,7 @@ if (file_exists($cfgfile)) {
     }
 }
 if (isset($cfg_new)) {
+    $tmp = '';
     foreach ($cfg_new as $key => $value) $tmp .= "$key=\"$value\"\n";
     file_put_contents($cfgfile, $tmp);
 }
