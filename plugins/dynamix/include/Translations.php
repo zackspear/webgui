@@ -147,7 +147,7 @@ if ($locale) {
       $script = ['function _(t){var l=[];'];
       foreach ($source as $key => $value) $script[] = "l[\"$key\"]=\"$value\";";
       $script[] = "return l[t.replace(/\&amp;|[\?\{\}\|\&\~\!\[\]\(\)\/\\:\*^\.\"']|<.+?\/?>/g,'').replace(/  +/g,' ')]||t;}";
-      file_put_contents($jscript,implode('',$script));
+      file_put_contents($jscript,implode($script));
     } else {
       file_put_contents($jscript,$return);
     }
