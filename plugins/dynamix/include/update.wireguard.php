@@ -143,22 +143,22 @@ function delPeer($vtun,$id='') {
 }
 function addPeer(&$x) {
   global $peers,$var;
-  $peers[$x] = ['[Interface]'];                                  // [Interface]
-  if ($var['client']) $peers[$x][] = $var['client'];             // #name
-  if ($var['privateKey']) $peers[$x][] = $var['privateKey'];     // PrivateKey
-  $peers[$x][] = $var['address'];                                // Address
-  if ($var['listenport']) $peers[$x][] = $var['listenport'];     // ListenPort
-  if ($var['dns']) $peers[$x][] = $var['dns'];                   // DNS server
-  if ($var['mtu']) $peers[$x][] = $var['mtu'];                   // MTU
+  $peers[$x] = ['[Interface]'];                                         // [Interface]
+  if (isset($var['client'])) $peers[$x][] = $var['client'];             // #name
+  if (isset($var['privateKey'])) $peers[$x][] = $var['privateKey'];     // PrivateKey
+  $peers[$x][] = $var['address']??'';                                   // Address
+  if (isset($var['listenport'])) $peers[$x][] = $var['listenport'];     // ListenPort
+  if (isset($var['dns'])) $peers[$x][] = $var['dns'];                   // DNS server
+  if (isset($var['mtu'])) $peers[$x][] = $var['mtu'];                   // MTU
   $peers[$x][] = '';
-  $peers[$x][] = "[Peer]";                                       // [Peer]
-  if ($var['server']) $peers[$x][] = $var['server'];             // #name
-  if ($var['handshake']) $peers[$x][] = $var['handshake'];       // PersistentKeepalive
-  if ($var['presharedKey']) $peers[$x][] = $var['presharedKey']; // PresharedKey
-  $peers[$x][] = $var['publicKey'];                              // PublicKey
-  if ($var['tunnel']) $peers[$x][] = $var['tunnel'];             // Tunnel address
-  $peers[$x][] = $var['endpoint'] ?: $var['internet'];           // Endpoint
-  $peers[$x][] = $var['allowedIPs'];                             // AllowedIPs
+  $peers[$x][] = "[Peer]";                                              // [Peer]
+  if (isset($var['server'])) $peers[$x][] = $var['server'];             // #name
+  if (isset($var['handshake'])) $peers[$x][] = $var['handshake'];       // PersistentKeepalive
+  if (isset($var['presharedKey'])) $peers[$x][] = $var['presharedKey']; // PresharedKey
+  $peers[$x][] = $var['publicKey']??'';                                 // PublicKey
+  if (isset($var['tunnel'])) $peers[$x][] = $var['tunnel'];             // Tunnel address
+  $peers[$x][] = $var['endpoint'] ?: $var['internet'] ?: '';            // Endpoint
+  $peers[$x][] = $var['allowedIPs']??'';                                // AllowedIPs
   $x++;
 }
 function autostart($vtun,$cmd) {
