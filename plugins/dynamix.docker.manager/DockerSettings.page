@@ -136,15 +136,15 @@ span.disabled{color:#404040}
 <input type="hidden" name="#arg[1]" value="cmdStatus=Apply">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="DOCKER_CUSTOM_NETWORKS" value="<?=implode(' ',$unset)?> ">
-<input type="hidden" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']?>">
+<input type="hidden" name="DOCKER_IMAGE_FILE" value="<?=$dockercfg['DOCKER_IMAGE_FILE']??''?>">
 _(Enable Docker)_:
 : <select id="DOCKER_ENABLED" name="DOCKER_ENABLED">
-  <?=mk_option($dockercfg['DOCKER_ENABLED'], 'no', _('No'))?>
-  <?=mk_option($dockercfg['DOCKER_ENABLED'], 'yes', _('Yes'))?>
+  <?=mk_option($dockercfg['DOCKER_ENABLED']??'', 'no', _('No'))?>
+  <?=mk_option($dockercfg['DOCKER_ENABLED']??'', 'yes', _('Yes'))?>
   </select>
   <?if ($var['fsState'] != "Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($dockercfg['DOCKER_ENABLED']=='yes') ? '_(Docker will be available after Array is Started)_' : '_(Apply to activate Docker after Array is Started)_'?></span>
-  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE'])) || !is_dir($dockercfg['DOCKER_APP_CONFIG_PATH'])):?>
+  <?elseif (!is_dir(dirname($dockercfg['DOCKER_IMAGE_FILE']??'')) || !is_dir($dockercfg['DOCKER_APP_CONFIG_PATH']??'')):?>
   <span class="basic"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
   <?endif;?>
 
@@ -159,9 +159,9 @@ _(Docker Stop Timeout)_:
 
 _(Docker data-root)_:
 : <select id="DOCKER_IMAGE_TYPE" name="DOCKER_IMAGE_TYPE" onchange="updateLocation(this.value)">
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], '', _('btrfs vDisk'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'xfs', _('xfs vDisk'))?>
-  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE'], 'folder', _('directory'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE']??'', '', _('btrfs vDisk'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE']??'', 'xfs', _('xfs vDisk'))?>
+  <?=mk_option($dockercfg['DOCKER_IMAGE_TYPE']??'', 'folder', _('directory'))?>
   </select>
 
 :docker_vdisk_type_help:
@@ -206,8 +206,8 @@ _(Default appdata storage location)_:
 <div markdown="1" class="advanced">
 _(Docker LOG rotation)_:
 : <select name="DOCKER_LOG_ROTATION" onchange="showLogOptions(this.value)">
-  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION'], 'no', _('Disabled'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION'], 'yes', _('Enabled'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION']??'', 'no', _('Disabled'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_ROTATION']??'', 'yes', _('Enabled'))?>
   </select>
 
 :docker_log_rotation_help:
@@ -215,21 +215,21 @@ _(Docker LOG rotation)_:
 <div markdown="1" id="DOCKER_LOG_OPTIONS" style="display:none">
 _(Docker LOG maximum file size)_:
 : <select name="DOCKER_LOG_SIZE">
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '10m', '10 '._('MB'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '20m', '20 '._('MB'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '50m', '50 '._('MB'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '100m', '100 '._('MB'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '500m', '500 '._('MB'))?>
-  <?=mk_option($dockercfg['DOCKER_LOG_SIZE'], '1g', '1000 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '10m', '10 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '20m', '20 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '50m', '50 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '100m', '100 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '500m', '500 '._('MB'))?>
+  <?=mk_option($dockercfg['DOCKER_LOG_SIZE']??'', '1g', '1000 '._('MB'))?>
   </select>
 
 :docker_log_file_size_help:
 
 _(Docker LOG number of files)_:
 : <select name="DOCKER_LOG_FILES">
-  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '1', '1')?>
-  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '2', '2')?>
-  <?=mk_option($dockercfg['DOCKER_LOG_FILES'], '3', '3')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES']??'', '1', '1')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES']??'', '2', '2')?>
+  <?=mk_option($dockercfg['DOCKER_LOG_FILES']??'', '3', '3')?>
   </select>
 
 :docker_log_file_number_help:
@@ -237,32 +237,32 @@ _(Docker LOG number of files)_:
 </div>
 _(Template Authoring Mode)_:
 : <select id="DOCKER_AUTHORING_MODE" name="DOCKER_AUTHORING_MODE">
-  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'no', _('No'))?>
-  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE'], 'yes', _('Yes'))?>
+  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE']??'', 'no', _('No'))?>
+  <?=mk_option($dockercfg['DOCKER_AUTHORING_MODE']??'', 'yes', _('Yes'))?>
   </select>
 
 :docker_authoring_mode_help:
 
 _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '1', _('ipvlan'))?>
-  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE'], '', _('macvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE']??'', '1', _('ipvlan'))?>
+  <?=mk_option($dockercfg['DOCKER_NETWORK_TYPE']??'', '', _('macvlan'))?>
   </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
 
 :docker_custom_network_type_help:
 
 _(Host access to custom networks)_:
 : <select name="DOCKER_ALLOW_ACCESS">
-  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], '', _('Disabled'))?>
-  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS'], 'yes', _('Enabled'))?>
+  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS']??'', '', _('Disabled'))?>
+  <?=mk_option($dockercfg['DOCKER_ALLOW_ACCESS']??'', 'yes', _('Enabled'))?>
   </select>&nbsp;_(Make sure you understand what you are doing before enabling)_.
 
 :docker_custom_network_access_help:
 
 _(Preserve user defined networks)_:
 : <select name="DOCKER_USER_NETWORKS">
-  <?=mk_option($dockercfg['DOCKER_USER_NETWORKS'], 'remove', _('No'))?>
-  <?=mk_option($dockercfg['DOCKER_USER_NETWORKS'], 'preserve', _('Yes'))?>
+  <?=mk_option($dockercfg['DOCKER_USER_NETWORKS']??'', 'remove', _('No'))?>
+  <?=mk_option($dockercfg['DOCKER_USER_NETWORKS']??'', 'preserve', _('Yes'))?>
   </select>
 
 :docker_user_defined_network_help:
@@ -473,7 +473,7 @@ $docker_dhcp = "DOCKER_DHCP_$net";
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
-  **_(DHCP pool)_:** <?=$dockercfg[$docker_dhcp] ?? "_(not set)_"?><?if ($dockercfg[$docker_dhcp]):?>&nbsp;&nbsp;(<?=pow(2,32-explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
+  **_(DHCP pool)_:** <?=$dockercfg[$docker_dhcp] ?? "_(not set)_"?><?if (isset($dockercfg[$docker_dhcp])):?>&nbsp;&nbsp;(<?=pow(2,32-explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
 
 <?endif;?>
 <?endforeach;?>
