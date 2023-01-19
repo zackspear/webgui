@@ -166,7 +166,7 @@ $(function(){
 _(Local name)_:
 : <span class="input"><input type="text" name="Name:0" class="wide" maxlength="99" value="<?=$wgX["Name:0"]??''?>" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <span class="pin"><i class="fa fa-fw fa-eye eye0<?=$this_wgX?'':' key-off'?>" style="cursor:pointer" onclick="WGconfig(this,'wgX','')" title="_(View Local Config)_"></i>
-  <i class="fa fa-fw fa-key zone0<?=$wgX['PublicKey:0']?'':' key-off'?>" style="cursor:pointer" onclick="openClose($(document.wgX),null,'div.key0')" title="_(Toggle keys)_"></i>
+  <i class="fa fa-fw fa-key zone0<?=isset($wgX['PublicKey:0'])?'':' key-off'?>" style="cursor:pointer" onclick="openClose($(document.wgX),null,'div.key0')" title="_(Toggle keys)_"></i>
   <i id="chevron-wgX-0" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="openClose($(document.wgX),this,'div.zone0')" title="_(Toggle view)_"></i></span>
 
 :wg_local_name_help:
@@ -196,7 +196,7 @@ _(Network protocol)_:
 _(Local tunnel network pool)_:
 <input type="hidden" name="Network:0" value="">
 : <span class="input"><input type="text" name="gui:Network:0" class="subnet" maxlength="15" value="<?=explode('/',$wgX['Network:0']??'')[0]?>" onchange="setPool($(document.wgX),'wgX')" pattern="<?=$validIP4?>" title="_(IPv4 network)_" placeholder="<?=$netpool['wgX']??''?>">/
- <input type="number" name="gui:Mask:0" class="mask" min="1" max="32" value="<?=my_explode('/',$wgX['Network:0'])[1]?>" onchange="if(quickValidate(this)) {setPool($(document.wgX),'wgX')}" placeholder="24"></span>
+ <input type="number" name="gui:Mask:0" class="mask" min="1" max="32" value="<?=my_explode('/',$wgX['Network:0']??'')[1]?>" onchange="if(quickValidate(this)) {setPool($(document.wgX),'wgX')}" placeholder="24"></span>
 
 </div>
 <div markdown="1" class="ipv6 wgX" style="display:none">
@@ -237,7 +237,7 @@ _(Local server uses NAT)_:
   <?=mk_option($wgX['NAT:0']??'', "", _("Yes"))?>
   <?=mk_option($wgX['NAT:0']??'', "no", _("No"))?>
   </select></span>
-  <span id="my-static1-wgX" class="block" style="display:none">_(Remark)_: _(configure your router with a static route of)_ **<?=$wgX['Network:0']?>** _(to)_ **<?=$server?>**</span><span id="my-static2-wgX" class="block" style="display:none">_(Remark)_: _(docker containers on custom networks need static routing)_ **<?=$wgX['Network:0']?>** _(to)_ **<?=$server?>**</span>
+  <span id="my-static1-wgX" class="block" style="display:none">_(Remark)_: _(configure your router with a static route of)_ **<?=$wgX['Network:0']??''?>** _(to)_ **<?=$server?>**</span><span id="my-static2-wgX" class="block" style="display:none">_(Remark)_: _(docker containers on custom networks need static routing)_ **<?=$wgX['Network:0']??''?>** _(to)_ **<?=$server?>**</span>
 
 :wg_local_server_uses_nat_help:
 
