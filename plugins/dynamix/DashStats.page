@@ -205,6 +205,7 @@ img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
 i.heat{margin-left:8px}
 i.ups{margin-right:8px;font-size:1.4rem!important}
 i.vpn{font-size:1.4rem!important;cursor:pointer}
+i.indent{display:inline-block;width:18px}
 i.f32{font-size:32px!important}
 i.f14{font-size:1.4rem!important}
 i[class^="icon-"]{font-size:1.6rem;margin-right:8px}
@@ -245,11 +246,9 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </td></tr>
 <tr><td>
 <div class='leftside'>
-<span class='header'>_(Description)_</span><span class='text'><br>
-<?=$var['COMMENT']?><br>
-<?=$var['SYS_MODEL']?><br><br></span>
-<span class='header'>_(Registration)_</span><br>Unraid OS <b><em><?=$var['regTy']?></em></b><br><br>
-<span class='header'>_(Uptime)_</span><br><span class='uptime'></span>
+<span class='header'><i class='indent fa fa-file-text-o'></i>_(Description)_</span><br><i class='indent'></i><?=$var['COMMENT']?><br><i class='indent'></i><?=$var['SYS_MODEL']?><br><br>
+<span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=$var['regTy']?></em></b><br><br>
+<span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
 </div>
 <div class='rightside'>
 <span id='casing'>
@@ -397,7 +396,7 @@ foreach ($ports as $port) {
 
 <?if ($fans):?>
 <tbody title="_(Fan Information)_">
-<tr><td><i class='icon-fan f32'></i><div class='section'>_(Airflow)_<br><span><i class='ups fa fa-dot-circle-o'></i>_(Fan count)_: <?=$fans?></span><br><br></div>
+<tr><td><i class='icon-fan f32'></i><div class='section'>_(Airflow)_<br><span><i class='ups fa fa-sort-amount-asc'></i>_(Fan count)_: <?=$fans?></span><br><br></div>
 
 <?if ($autofan):?>
 <a href='/Dashboard/Settings/FanSettings' title="_(Go to fan settings)_"><i class='fa fa-fw fa-cog control'></i></a>
