@@ -445,8 +445,8 @@ class DockerUpdate{
 		/*
 		 * Step 2: Get www-authenticate header from manifest url to generate token or basic auth
 		 */
-		$digest_ch = getCurlHandle($manifestURL, 'HEAD', $header);
 		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json'];
+		$digest_ch = getCurlHandle($manifestURL, 'HEAD', $header);
 		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $reply, $matches);
 		if (!empty($matches[1])) {
 			$strArgs = explode(',', $matches[1]);
@@ -953,7 +953,7 @@ class DockerClient {
 
 	public function getImageName($id) {
 		foreach ($this->getDockerImages() as $img) {
-			if ($img['Id']==$id) return $img['Tags'][0];
+			if ($img['Id']==$id) return $img['Tags'][0]??'';
 		}
 		return null;
 	}
@@ -970,7 +970,7 @@ class DockerClient {
 			$c['Size']        = $this->formatBytes($ct['Size']);
 			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize']);
 			$c['Tags']        = array_map('htmlspecialchars', $ct['RepoTags'] ?? []);
-			$c['Repository']  = vsprintf('%1$s/%2$s', preg_split("#[:\/]#", DockerUtil::ensureImageTag($ct['RepoTags'][0])));
+			$c['Repository']  = vsprintf('%1$s/%2$s', preg_split("#[:\/]#", DockerUtil::ensureImageTag($ct['RepoTags'][0]??'')));
 			$c['usedBy']      = $this->usedBy($c['Id']);
 			$this::$imagesCache[$c['Id']] = $c;
 		}

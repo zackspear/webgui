@@ -406,7 +406,7 @@ case 'toggle':
       exec("ip -4 rule add from $network table $index");
       exec("ip -4 route add unreachable default table $index");
     }
-    wgState($vtun,'up',$_POST['#type']);
+    wgState($vtun,'up',$_POST['#type']??'');
     echo status($vtun) ? 0 : 1;
     break;
   }
