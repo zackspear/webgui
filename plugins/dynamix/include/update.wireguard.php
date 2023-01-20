@@ -143,22 +143,22 @@ function delPeer($vtun,$id='') {
 }
 function addPeer(&$x) {
   global $peers,$var;
-  $peers[$x] = ['[Interface]'];                                  // [Interface]
-  if ($var['client']) $peers[$x][] = $var['client'];             // #name
-  if ($var['privateKey']) $peers[$x][] = $var['privateKey'];     // PrivateKey
-  $peers[$x][] = $var['address'];                                // Address
-  if ($var['listenport']) $peers[$x][] = $var['listenport'];     // ListenPort
-  if ($var['dns']) $peers[$x][] = $var['dns'];                   // DNS server
-  if ($var['mtu']) $peers[$x][] = $var['mtu'];                   // MTU
+  $peers[$x] = ['[Interface]'];                                         // [Interface]
+  if (isset($var['client'])) $peers[$x][] = $var['client'];             // #name
+  if (isset($var['privateKey'])) $peers[$x][] = $var['privateKey'];     // PrivateKey
+  $peers[$x][] = $var['address']??'';                                   // Address
+  if (isset($var['listenport'])) $peers[$x][] = $var['listenport'];     // ListenPort
+  if (isset($var['dns'])) $peers[$x][] = $var['dns'];                   // DNS server
+  if (isset($var['mtu'])) $peers[$x][] = $var['mtu'];                   // MTU
   $peers[$x][] = '';
-  $peers[$x][] = "[Peer]";                                       // [Peer]
-  if ($var['server']) $peers[$x][] = $var['server'];             // #name
-  if ($var['handshake']) $peers[$x][] = $var['handshake'];       // PersistentKeepalive
-  if ($var['presharedKey']) $peers[$x][] = $var['presharedKey']; // PresharedKey
-  $peers[$x][] = $var['publicKey'];                              // PublicKey
-  if ($var['tunnel']) $peers[$x][] = $var['tunnel'];             // Tunnel address
-  $peers[$x][] = $var['endpoint'] ?: $var['internet'];           // Endpoint
-  $peers[$x][] = $var['allowedIPs'];                             // AllowedIPs
+  $peers[$x][] = "[Peer]";                                              // [Peer]
+  if (isset($var['server'])) $peers[$x][] = $var['server'];             // #name
+  if (isset($var['handshake'])) $peers[$x][] = $var['handshake'];       // PersistentKeepalive
+  if (isset($var['presharedKey'])) $peers[$x][] = $var['presharedKey']; // PresharedKey
+  $peers[$x][] = $var['publicKey']??'';                                 // PublicKey
+  if (isset($var['tunnel'])) $peers[$x][] = $var['tunnel'];             // Tunnel address
+  $peers[$x][] = $var['endpoint'] ?: $var['internet'] ?: '';            // Endpoint
+  $peers[$x][] = $var['allowedIPs']??'';                                // AllowedIPs
   $x++;
 }
 function autostart($vtun,$cmd) {
@@ -406,7 +406,7 @@ case 'toggle':
       exec("ip -4 rule add from $network table $index");
       exec("ip -4 route add unreachable default table $index");
     }
-    wgState($vtun,'up',$_POST['#type']);
+    wgState($vtun,'up',$_POST['#type']??'');
     echo status($vtun) ? 0 : 1;
     break;
   }
@@ -540,7 +540,7 @@ case 'upnpc':
   $ip = $_POST['#ip'];
   if ($_POST['#wg']=='active') {
     exec("timeout $t1 stdbuf -o0 upnpc -u $xml -m $link -l 2>/dev/null|grep -Po \"^(ExternalIPAddress = \K.+|.+\KUDP.+>$ip:[0-9]+ 'WireGuard-$vtun')\"",$upnp);
-    [$addr,$upnp] = $upnp;
+    [$addr,$upnp] = array_pad($upnp,2,'');
     [$type,$rule] = my_explode(' ',$upnp);
     echo $rule ? "UPnP: $addr:$rule/$type" : _("UPnP: forwarding not set");
   } else {

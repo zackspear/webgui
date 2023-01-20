@@ -14,7 +14,7 @@
 <?
 function addRoute($ct) {
   // add static route(s) for remote WireGuard access
-  [$pid,$net] = explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct"));
+  [$pid,$net] = array_pad(explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct")),2,'');
   $net = substr($net,4,strpos($net,':')-4);
   if (!$pid || $net != 'br0') return;
   $thisip  = ipaddr();

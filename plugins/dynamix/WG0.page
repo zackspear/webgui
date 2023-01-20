@@ -1058,7 +1058,7 @@ function getPublicIP(ip,wg,protocol) {
 
 // keep tunnel states in global variable
 var tstate = [];
-tstate['wg0'] = "<?=$check_wg0 ? 'active' : ''?>";
+tstate['wg0'] = "<?=$check_wg0 ? 'active' : 'passive'?>";
 
 var statistics = new NchanSubscriber('/sub/wireguard',{subscriber:'websocket'});
 statistics.on('message', function(data) {
@@ -1207,7 +1207,7 @@ $(function(){
   if (xml) {
     $('div.upnp.wg0').show();
 <?if (empty($wg0['UPNP:0'])):?>
-    $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wg0','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':$.cookie('my-wg0')},function(data){$('span.upnp.wg0').text(data);});
+    $.post('/webGui/include/update.wireguard.php',{'#cmd':'upnpc','#xml':xml,'#vtun':'wg0','#link':'<?=$link?>','#ip':'<?=$server?>','#wg':$.cookie('my-wg0')||''},function(data){$('span.upnp.wg0').text(data);});
 <?endif;?>
   } else {
     form.find('select[name="UPNP:0"]').val('no');
