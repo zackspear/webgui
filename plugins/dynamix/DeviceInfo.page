@@ -18,9 +18,9 @@ Tag="hdd-o"
 require_once "$docroot/webGui/include/Preselect.php";
 $unassigned = array_key_exists($name, $devs);
 $disks = array_merge_recursive($disks, $devs);
-$disk = &$disks[$name];
-$dev  = $disk['device']??'';
-$id   = $disk['id']??'';
+$disk = &$disks[$name]??[];
+$dev = $disk['device']??'';
+$disk['id'] = $disk['id']??'';
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
 $yes = _('Yes');
@@ -41,12 +41,12 @@ function maintenance_mode() {
 }
 $sheets = []; $i = $n = 0;
 foreach ($disks as $sheet) {
-  if ((isset($sheet['type']) && $sheet['type']=='Flash') || (isset($sheet['color']) && $sheet['color']=='grey-off')) continue;
+  if ((isset($sheet['type']) && $sheet['type']=='Flash') || (isset($sheet['color']) && $sheet['color']=='grey-off') || empty($sheet['name'])) continue;
   $sheets[] = $sheet['name'];
   if ($sheet['name']==$name) {$i = $n;}
   $n++;
 }
-$tag  = $disk['name'];
+$tag  = $disk['name']??'';
 $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
@@ -365,7 +365,7 @@ function deletePool() {
   $.cookie('deletepool','deletepool');
   document.deletepool.submit();
 }
-function eraseDisk(id) {
+function eraseDisk(name) {
   swal({
     title:"_(Erase Device Content)_?",
     text:"<?=$text?><p style='font-weight:bold;color:red;margin:8px 0'>_(Existing content is permanently lost)_</p>",
@@ -376,7 +376,7 @@ function eraseDisk(id) {
     confirmButtonText:"_(Proceed)_",
     cancelButtonText:"_(Cancel)_"},
     function(confirm) {
-      if (confirm === "<?=$yes?>") {$.get("/update.htm",{cmdWipefs:id,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});}
+      if (confirm === "<?=$yes?>") {$.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});}
     });
 }
 function freeSpace(val) {
@@ -448,11 +448,11 @@ _(Identification)_:
 
 <?else:?>
 _(Identification)_:
-: <?=my_id($id)?>&nbsp;(<?=$dev?>)
+: <?=my_id($disk['id'])?>&nbsp;(<?=$dev?>)
 
 <?endif;?>
 <?if (!$unassigned):?>
-<?if ($disk['type']??''=='Data' || (($disk['type']??'')=='Cache' && in_array($disk['name'],$pools))):?>
+<?if (($disk['type']??'')=='Data' || (($disk['type']??'')=='Cache' && in_array($disk['name'],$pools))):?>
 _(Comments)_:
 : <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
 
@@ -471,7 +471,7 @@ _(Spinup group(s))_:
 
 <?endif;?>
 _(Spin down delay)_:
-: <select name="diskSpindownDelay.<?=$disk['idx']?>">
+: <select name="diskSpindownDelay.<?=$disk['idx']??''?>">
   <?=mk_option($disk['spindownDelay']??'', "-1", _('Use default'))?>
   <?=mk_option($disk['spindownDelay']??'', "0",  _('Never'))?>
   <?=mk_option($disk['spindownDelay']??'', "15", "15 "._('minutes'))?>
@@ -800,9 +800,9 @@ _(Time of the day)_:
 </form>
 
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
 _(btrfs check status)_:
 : <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -811,7 +811,7 @@ _(btrfs check status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$id?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> _(Options (see Help))_
@@ -822,7 +822,7 @@ _(btrfs check status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$id?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -854,9 +854,9 @@ _(zpool status)_:
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"reiserfs")!==false):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
 _(reiserfsck status)_:
 : <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -865,7 +865,7 @@ _(reiserfsck status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$id?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> _(Options (see Help))_
@@ -876,7 +876,7 @@ _(reiserfsck status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$id?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -894,9 +894,9 @@ _(reiserfsck status)_:
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"xfs")!==false):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$id?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$id}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
 
 _(xfs_repair status)_:
 : <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -905,7 +905,7 @@ _(xfs_repair status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$id?>">
+<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> _(Options (see Help))_
@@ -938,7 +938,7 @@ _(xfs_repair status)_:
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
 <input type="hidden" name="#file"    value="/boot/config/smart-one.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
-<input type="hidden" name="#section" value="<?=$id?>">
+<input type="hidden" name="#section" value="<?=$disk['id']?>">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smGlue"   value="<?=$var['smGlue']??''?>">
