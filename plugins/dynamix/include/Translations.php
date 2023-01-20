@@ -14,7 +14,7 @@
 require_once "$docroot/webGui/include/MarkdownExtra.inc.php";
 
 // start new session as required
-if (session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
+if (!headers_sent() && session_status()==PHP_SESSION_NONE && !isset($login_locale)) {
   session_start();
   session_write_close();
 }
@@ -56,7 +56,8 @@ function parse_lang_file($file) {
 }
 function parse_help_file($file) {
   // parser for help text files, includes some trickery to handle PHP quirks.
-  return array_help(array_tags((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help(_\d{8})?):$/m','/^:end$/m'],['>','>$1','_$1="','"'],escapeQuotes(file_get_contents($file))))));
+  $text = array_tags((array)parse_ini_string(preg_replace(['/^$/m','/^([^:;].+)$/m','/^:(.+_help(_\d{8})?):$/m','/^:end$/m'],['>','>$1','_$1="','"'],escapeQuotes(file_get_contents($file)))));
+  return array_help($text);
 }
 function parse_text($text) {
   // inline text parser
@@ -92,7 +93,8 @@ function array_safe($array) {
 function array_tags($array) {
   // filter outdated help tags
   return array_filter($array,function($v,$k){
-    $tag = end(explode('_',$k));
+    $tag = explode('_',$k);
+    $tag = end($tag);
     return ($tag=='help' ? true : $tag <= $_SESSION['buildDate']) && strlen($v);
   },ARRAY_FILTER_USE_BOTH);
 }
