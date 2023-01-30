@@ -604,11 +604,50 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
   run("unraid-api report | todos >".escapeshellarg($log));
 }
 
-// generate thrid party system diagnostics
+// BEGIN - third party plugins diagnostics
+// list third party packages in /boot/config/plugins/*/packages/
 run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));
+
+// list va-api compatible devices
 if (is_dir("/dev/dri/")) run("ls -lA /sys/class/drm/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/drm.txt")); else null;
+
+// list dvb adapters
 if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/dvb.txt")); else null;
+
+// generate nvidia diagnostics
 if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
+
+// generate lxc diagnostics
+if (is_dir("/boot/config/plugins/lxc")) {
+  run("mkdir -p ".escapeshellarg("/$diag/lxc"));
+  $lxc_path = run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null| cut -d '=' -f2");
+  run("tail -n +1 $lxc_path/*/config 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/container_configurations.txt"));
+  run("cat /boot/config/plugins/lxc/plugin.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/plugin.cfg"));
+  run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/lxc.conf"));
+  run("cat /boot/config/plugins/lxc/default.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/default.conf"));
+  run("lxc-checkconfig 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/checkconfig.txt"));
+} else {
+    null;
+}
+
+// generate iscsi target diagnostics
+if (is_file("/boot/config/plugins/iSCSIgui.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("targetcli ls 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsi-target.txt"));
+} else {
+  null;
+}
+
+// generate iscsi initiator diagnostics
+if (is_file("/boot/config/plugins/iscsi-initiator.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("cat /boot/config/plugins/iscsi-initiator/initiatorname.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/initiatorname.cfg"));
+  run("cat /boot/config/plugins/iscsi-initiator/iscsid.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsid.conf"));
+  run("cat /boot/config/plugins/iscsi-initiator/targets.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/targets.cfg"));
+} else {
+  null;
+}
+// END - third party plugins diagnostics
 
 // create resulting zip file and remove temp folder
 run("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
