@@ -428,7 +428,10 @@ $(function() {
       }
     });
   }
-  selectDiskFsProfile(<?=$disk['devices']??0?>,<?=$disk['fsWidth']??0?>);
+  var groups = <?=$disk['fsGroups']?>;
+  var width = <?=$disk['fsWidth']?>;
+  var devices = (groups==0 || width==0) ? <?=$disk['devices']??0?> : groups * width;
+  selectDiskFsProfile(devices,width);
 });
 </script>
 
@@ -536,6 +539,28 @@ _(File system type)_:
   <?if ($disk['devices']>=5) echo mk_option($disk['fsProfile'],"raidz3", _('raidz3'))?>
   </select><select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" <?=$disabled?>>
   </select>
+
+<?endif;?>
+<?if (isset($disk['fsType']) && (str_contains($disk['fsType'], "btrfs") || str_contains($disk['fsType'], "zfs"))):?>
+<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
+_(Compression)_:
+: <select id="diskCompression" name="diskCompression.<?=$disk['idx']?>" <?=$disabled?>>
+  <?=mk_option($disk['compression'], "off", _('Off'))?>
+  <?=mk_option($disk['compression'], "on", _('On'))?>
+  </select>
+
+:info_compression_help:
+
+<?endif;?>
+<?if (isset($disk['type']) && $disk['type']=="Cache" && (str_contains($disk['fsType'], "btrfs") || str_contains($disk['fsType'], "zfs") || str_contains($disk['fsType'], "xfs"))):?>
+<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
+_(Autotrim)_:
+: <select id="diskAutotrim" name="diskAutotrim.<?=$disk['idx']?>" <?=$disabled?>>
+  <?=mk_option($disk['autotrim'], "on", _('On'))?>
+  <?=mk_option($disk['autotrim'], "off", _('Off'))?>
+  </select>
+
+:info_autotrim_help:
 
 <?endif;?>
 <?if (in_array($name,$pools)):?>
