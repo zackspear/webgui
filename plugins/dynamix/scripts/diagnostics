@@ -12,9 +12,15 @@
  */
 ?>
 <?
+// if called from webgui:
+//   anonymous: diagnostics  '/usr/local/emhttp/tower-diagnostics-20230130-1546.zip'
+//   all data:  diagnostics -a '/usr/local/emhttp/tower-diagnostics-20230130-1546.zip'
+// if called from cli:
+//   anonymous: diagnostics
+//   all data:  diagnostics -a
 $opt = getopt('a',['all']);
 $all = isset($opt['a']) || isset($opt['all']);
-$zip = $all ? $argv[2] : $argv[1];
+$zip = $all ? $argv[2]??"" : $argv[1]??"";
 $cli = empty($zip);
 $get = "/var/local/emhttp";
 $var = (array)@parse_ini_file("$get/var.ini");
@@ -53,7 +59,8 @@ function anonymize($text,$select) {
   switch ($select) {
   case 1:
     // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
-    $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
+    $guid = explode("-",$unraid_vars['regGUID']);
+    $text = str_replace(end($guid),"...",$text);
     $rows = explode("\n", $text);
     $pool = implode('|',$pools) ?: 'cache';
     $regex = "/\b((disk|$pool|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|$pool|parity|cpu{$customShares})\b/";
@@ -295,13 +302,13 @@ $vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
 $vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
 $showshares = [];
 $customShares = '';
-$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']),3,1));
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']),3,1));
+if (!empty($vardomain['IMAGE_FILE']))             $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
+if (!empty($vardomain['DOMAINDIR']))              $showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']),3,1));
+if (!empty($vardomain['MEDIADIR']))               $showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']),3,1));
+if (!empty($vardomain['DISKDIR']))                $showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']),3,1));
+if (!empty($vardocker['DOCKER_IMAGE_FILE']))      $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']),3,1));
+if (!empty($vardocker['DOCKER_APP_CONFIG_PATH'])) $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']),3,1));
+if (!empty($vardocker['DOCKER_HOME']))            $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']),3,1));
 
 foreach ($showshares as $showme) if ($showme) $customShares .= "|$showme";
 
@@ -479,25 +486,26 @@ foreach ($pools as $pool) {
 
 // create installed plugin information
 $pluginList = json_decode(download_url("https://raw.githubusercontent.com/Squidly271/AppFeed/master/pluginList.json"),true);
+$installedPlugins = "";
 if (!$pluginList) $installedPlugins = "Could not download current plugin versions\r\n\r\n";
 $plugins = glob("/var/log/plugins/*.plg");
 foreach ($plugins as $plugin) {
   $plgVer = run("plugin version ".escapeshellarg($plugin));
   $plgURL = run("plugin pluginURL ".escapeshellarg($plugin));
   $installedPlugins .= basename($plugin)." - $plgVer";
-  if ($pluginList && ! $pluginList[$plgURL] && basename($plugin) !== "unRAIDServer.plg")
+  if ($pluginList && empty($pluginList[$plgURL]) && basename($plugin) !== "unRAIDServer.plg")
     $installedPlugins .= "  (Unknown to Community Applications)";
-  if ($pluginList[$plgURL]['blacklist'])
+  if (!empty($pluginList[$plgURL]['blacklist']))
     $installedPlugins .= "  (Blacklisted)";
-  if ($pluginList[$plgURL]['deprecated'] || ($pluginList[$plgURL]['dmax'] && version_compare($pluginList[$plgURL]['dmax'],$unraid['version'],"<")))
+  if (!empty($pluginList[$plgURL]['deprecated']) || (!empty($pluginList[$plgURL]['dmax']) && version_compare($pluginList[$plgURL]['dmax'],$unraid['version'],"<")))
     $installedPlugins .= "  (Deprecated)";
-  if ($pluginList[$plgURL]['version'] > $plgVer)
+  if (!empty($pluginList[$plgURL]['version']) && $pluginList[$plgURL]['version'] > $plgVer)
     $installedPlugins .= "  (Update available: {$pluginList[$plgURL]['version']})";
-  elseif ($pluginList[$plgURL])
+  elseif (!empty($pluginList[$plgURL]))
     $installedPlugins .= "  (Up to date)";
-  if ($pluginList[$plgURL]['max'] && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<"))
+  if (!empty($pluginList[$plgURL]['max']) && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<"))
     $installedPlugins .= "  (Incompatible)";
-  if ($pluginList[$plgURL]['min'] && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">"))
+  if (!empty($pluginList[$plgURL]['min']) && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">"))
     $installedPlugins .= "  (Incompatible)";
   $installedPlugins .= "\r\n";
 }
@@ -604,11 +612,50 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
   run("unraid-api report | todos >".escapeshellarg($log));
 }
 
-// generate thrid party system diagnostics
+// BEGIN - third party plugins diagnostics
+// list third party packages in /boot/config/plugins/*/packages/
 run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));
+
+// list va-api compatible devices
 if (is_dir("/dev/dri/")) run("ls -lA /sys/class/drm/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/drm.txt")); else null;
+
+// list dvb adapters
 if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/dvb.txt")); else null;
+
+// generate nvidia diagnostics
 if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
+
+// generate lxc diagnostics
+if (is_dir("/boot/config/plugins/lxc")) {
+  run("mkdir -p ".escapeshellarg("/$diag/lxc"));
+  $lxc_path = run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null| cut -d '=' -f2");
+  run("tail -n +1 $lxc_path/*/config 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/container_configurations.txt"));
+  run("cat /boot/config/plugins/lxc/plugin.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/plugin.cfg"));
+  run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/lxc.conf"));
+  run("cat /boot/config/plugins/lxc/default.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/default.conf"));
+  run("lxc-checkconfig 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/checkconfig.txt"));
+} else {
+    null;
+}
+
+// generate iscsi target diagnostics
+if (is_file("/boot/config/plugins/iSCSIgui.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("targetcli ls 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsi-target.txt"));
+} else {
+  null;
+}
+
+// generate iscsi initiator diagnostics
+if (is_file("/boot/config/plugins/iscsi-initiator.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("cat /boot/config/plugins/iscsi-initiator/initiatorname.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/initiatorname.cfg"));
+  run("cat /boot/config/plugins/iscsi-initiator/iscsid.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsid.conf"));
+  run("cat /boot/config/plugins/iscsi-initiator/targets.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/targets.cfg"));
+} else {
+  null;
+}
+// END - third party plugins diagnostics
 
 // create resulting zip file and remove temp folder
 run("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));
