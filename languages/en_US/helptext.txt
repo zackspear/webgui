@@ -1018,11 +1018,11 @@ If set to **Yes**, when creating/editing containers the interface will be presen
 :end
 
 :docker_custom_network_type_help:
-The **macvlan** type of network allows direct connection to the physical network.
-Please read <u><a style="color:blue" href='https://docs.docker.com/network/macvlan/', target='_blank'>this</a></u> on implementing a macvlan network.<br>
-
 The **ipvlan** type is best when connection to the physical network is not needed.
 Please read <u><a style="color:blue" href='https://docs.docker.com/network/ipvlan/', target='_blank'>this</a></u> on implementing an ipvlan network.<br>
+
+The **macvlan** type of network allows direct connection to the physical network.
+Please read <u><a style="color:blue" href='https://docs.docker.com/network/macvlan/', target='_blank'>this</a></u> on implementing a macvlan network.<br>
 
 **Note:** Docker uses its own dhcp service, which is the **DHCP Pool** setting.
 When you use multiple Unraid servers, then each server must have a different Docker **DHCP Pool** range configured.
@@ -1076,6 +1076,11 @@ This is the storage location for Docker containers.
 
 :docker_log_rotation_active_help:
 By default a single unlimited LOG file is created. Otherwise LOG file size and number of files are limited when LOG rotation is enabled.
+:end
+
+:docker_custom_network_active_help:
+Allows direct communication between the host and containers using a custom (macvlan) network.<br>
+By default this is prohibited.
 :end
 
 :docker_user_defined_network_active_help:
@@ -2245,8 +2250,8 @@ The *tunnel network pool* must be a unique network not already existing on the s
 :end
 
 :wg_local_tunnel_network_pool_X_help:
-WireGuard tunnels need an internal IP address. Assign a network pool using the default IPv4 network <?=$netpool['wgX']?>/24 or
-the default IPv6 network <?=$netpool6['wgX']?>/64 or assign your own network pool from which automatic assignment can be done for both this server and any peers.
+WireGuard tunnels need an internal IP address. Assign a network pool using the default IPv4 network, 
+the default IPv6 network, or assign your own network pool from which automatic assignment can be done for both this server and any peers.
 
 The *tunnel network pool* must be a unique network not already existing on the server or any of the peers.
 :end
@@ -2260,7 +2265,7 @@ This field is auto filled-in when a local tunnel network pool is created. It is 
 :end
 
 :wg_local_endpoint_help:
-This field is automatically filled in with the public management domain name *www.&lt;hash&gt;.myunraid.net* or the public address of the server.<br>
+This field is automatically filled in with the public management domain name *&lt;wan-ip&gt;.&lt;hash&gt;.myunraid.net* or the public address of the server.<br>
 This allows VPN tunnels to be established from external peers to the server.<br>
 Configure the correct port forwarding on your router (default port is <?=$netport['wg0']?> but this may be changed) to allow any incoming connections to reach the server.
 
@@ -2271,9 +2276,9 @@ Note to Cloudflare users: the Cloudflare proxy is designed for http traffic, it 
 :end
 
 :wg_local_endpoint_X_help:
-This field is automatically filled in with the public management domain name *www.&lt;hash&gt;.myunraid.net* or the public address of the server.<br>
+This field is automatically filled in with the public management domain name *&lt;wan-ip&gt;.&lt;hash&gt;.myunraid.net* or the public address of the server.<br>
 This allows VPN tunnels to be established from external peers to the server.<br>
-Configure the correct port forwarding on your router (default port is <?=$netport['wgX']?> but this may be changed) to allow any incoming connections to reach the server.
+Configure the correct port forwarding on your router to allow any incoming connections to reach the server.
 
 Users with a registered domain name can use this field to specify how their server is known on the Internet. E.g. www.myserver.mydomain.<br>
 Again make sure your router is properly set up.

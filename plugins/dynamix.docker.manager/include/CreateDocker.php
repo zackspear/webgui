@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2015-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2015-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -72,7 +72,7 @@ function cpu_pinning() {
 
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
-  $dry_run = $_POST['dryRun']=='true' ? true : false;
+  $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true';
   $existing = $_POST['existingContainer'] ?? false;
   $create_paths = $dry_run ? false : true;
   // Get the command line
@@ -182,9 +182,9 @@ if (isset($_GET['updateContainer'])){
       $cmd = str_replace('/docker create ', '/docker run -d ', $cmd);
       $startContainer = true;
       // attempt graceful stop of container first
-      stopContainer($Name, $echo);
+      stopContainer($Name, false, $echo);
     }
-    // force kill container if still running after 10 seconds
+    // force kill container if still running after time-out
     if (empty($_GET['communityApplications'])) removeContainer($Name, $echo);
     execCommand($cmd, $echo);
     if ($startContainer) addRoute($Name); // add route for remote WireGuard access
@@ -209,6 +209,7 @@ if (isset($_POST['rmTemplate'])) {
 ##    LOAD TEMPLATE    ##
 #########################
 
+$xmlType = $xmlTemplate = '';
 if (isset($_GET['xmlTemplate'])) {
   [$xmlType, $xmlTemplate] = my_explode(':', unscript(urldecode($_GET['xmlTemplate'])));
   if (is_file($xmlTemplate)) {
@@ -672,7 +673,7 @@ $(function() {
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
-  $('div[id=title]').append(ctrl);
+  $('div[class=title]').append(ctrl);
 <?endif;?>
   $('.advancedview').switchButton({labels_placement:'left', on_label: "_(Advanced View)_", off_label: "_(Basic View)_"});
   $('.advancedview').change(function() {
@@ -827,7 +828,7 @@ _(Read Me First)_:
 
 </div>
 <div markdown="1" class="advanced">
-_(Docker Hub URL)_:
+_(Registry URL)_:
 : <input type="text" name="contRegistry"></td>
 
 :docker_client_hub_url_help:
@@ -951,7 +952,7 @@ _(Privileged)_:
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 </head>

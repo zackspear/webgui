@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -114,7 +114,7 @@ case 't1':
     foreach ($groups as $line) {
       if (!$line) continue;
       if ($line[0]=='I') {
-        if ($spacer) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
+        if (isset($spacer)) echo "<tr><td colspan='2' class='thin'></td>"; else $spacer = true;
         echo "</tr><tr><td>$line:</td><td>";
         $iommu = substr($line, 12);
         $append = true;
@@ -146,7 +146,7 @@ case 't1':
         unset($outputvfio);
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
-            if ($isbound) {
+            if (isset($isbound)) {
               echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected USB devices are not visible').'.</td></tr>';
             } else {
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:|sort;fi;done',$getusb);
@@ -166,7 +166,7 @@ case 't1':
           case (strpos($line, 'IDE interface') !== false):
           case (strpos($line, 'Mass storage controller') !== false):
           case (strpos($line, 'Non-Volatile memory controller') !== false):
-            if ($isbound) {
+            if (isset($isbound)) {
               echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected drives are not visible').'.</td></tr>';
             } else {
               exec('ls -al /sys/block/sd* /sys/block/hd* /sys/block/sr* /sys/block/nvme* 2>/dev/null | grep -i "'.$pciaddress.'"',$getsata);
@@ -190,7 +190,7 @@ case 't1':
     if (file_exists("/var/log/vfio-pci") && filesize("/var/log/vfio-pci")) {
       echo '<input id="viewlog" type="button" value="'._('View VFIO-PCI Log').'" onclick="openTerminal(\'log\',\'vfio-pci\',\'vfio-pci\')">';
     }
-    echo '<input id="applycfg" type="submit" disabled value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.($noiommu ? "style=\"display:none\"" : "").'>';
+    echo '<input id="applycfg" type="submit" disabled value="'._('Bind selected to VFIO at Boot').'" onclick="applyCfg();" '.(isset($noiommu) ? "style=\"display:none\"" : "").'>';
     echo '<span id="warning"></span>';
     echo '</td></tr>';
     echo <<<EOT

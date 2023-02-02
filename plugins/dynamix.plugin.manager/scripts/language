@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-// Copyright 2005-2022, Lime Technology
+// Copyright 2005-2023, Lime Technology
 // License: GPLv2 only
 //
 // Program updates made by Bergware International (April 2020)
@@ -96,7 +96,7 @@ function run($command) {
 //
 function pre_hooks() {
   global $method, $name;
-  $language = pathinfo($name)['extension'] == 'xml' ? $name : "lang-$name.xml";
+  $language = (pathinfo($name)['extension']??'')=='xml' ? $name : "lang-$name.xml";
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/pre-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");
@@ -110,7 +110,7 @@ function pre_hooks() {
 //
 function post_hooks($error='') {
   global $method, $name;
-  $language = pathinfo($name)['extension'] == 'xml' ? $name : "lang-$name.xml";
+  $language = (pathinfo($name)['extension']??'')=='xml' ? $name : "lang-$name.xml";
   $hooks = "/usr/local/emhttp/plugins/dynamix.plugin.manager/post-hooks";
   foreach (glob("$hooks/*") as $hook) if (is_executable($hook)) {
     write("Executing hook script: ".basename($hook)."\n");

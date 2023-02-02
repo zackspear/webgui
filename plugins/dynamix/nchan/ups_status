@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2015, Dan Landon.
  *
  * This program is free software; you can redistribute it and/or
@@ -118,7 +118,7 @@ while (true) {
         break;
       }
     }
-    if ($power && isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
+    if ($power && isset($load)) $status[5] = ($load<90 ? "<span $green>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
     elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
     $status[6] = $output ? ((!$volt || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</span>") : $status[6];
   }

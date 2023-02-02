@@ -671,7 +671,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 								
-				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?> onchange="USBBootChange(this)">
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options)_" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
 					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');
@@ -892,8 +892,16 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			</table>
 		</script>
 
-		<?foreach ($arrConfig['nic'] as $i => $arrNic) {
-			$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
+		<?if ( $arrConfig['nic'] == false) {
+	  		$arrConfig['nic']['0'] = 
+			[
+				'network' => $domain_bridge,
+				'mac' => "",
+				'model' => 'virtio-net'
+			] ;
+		}
+		foreach ($arrConfig['nic'] as $i => $arrNic) {
+		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 			?>
 			<table data-category="Network" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">

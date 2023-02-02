@@ -180,9 +180,9 @@ $remote_addr = $_SERVER['REMOTE_ADDR'] ?? "unknown";
 $failFile = "/var/log/pwfail/{$remote_addr}";
 
 // Get the credentials
-$username = $_POST['username'];
-$password = $_POST['password'];
-$token = $_REQUEST['token'];
+$username = $_POST['username']??'';
+$password = $_POST['password']??'';
+$token = $_REQUEST['token']??'';
 
 // Check if we need 2fa
 $twoFactorRequired = (isLocalAccess() && isLocalTwoFactorEnabled()) || (isRemoteAccess() && isRemoteTwoFactorEnabled());

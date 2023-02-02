@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -14,7 +14,7 @@
 <?
 function addRoute($ct) {
   // add static route(s) for remote WireGuard access
-  [$pid,$net] = explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct"));
+  [$pid,$net] = array_pad(explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct")),2,'');
   $net = substr($net,4,strpos($net,':')-4);
   if (!$pid || $net != 'br0') return;
   $thisip  = ipaddr();
@@ -43,7 +43,7 @@ function postToXML($post, $setOwnership=false) {
   $xml->Network            = xml_encode($post['contNetwork']);
   $xml->MyIP               = xml_encode($post['contMyIP']);
   $xml->Shell              = xml_encode($post['contShell']);
-  $xml->Privileged         = strtolower($post['contPrivileged'])=='on' ? 'true' : 'false';
+  $xml->Privileged         = strtolower($post['contPrivileged']??'')=='on' ? 'true' : 'false';
   $xml->Support            = xml_encode($post['contSupport']);
   $xml->Project            = xml_encode($post['contProject']);
   $xml->Overview           = xml_encode($post['contOverview']);
@@ -145,7 +145,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($port->ContainerPort))) continue;
         $portNum += 1;
         $out['Config'][] = [
-          'Name'        => "Host Port ${portNum}",
+          'Name'        => "Host Port {$portNum}",
           'Target'      => xml_decode($port->ContainerPort),
           'Default'     => xml_decode($port->HostPort),
           'Value'       => xml_decode($port->HostPort),
@@ -164,7 +164,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($vol->ContainerDir))) continue;
         $volNum += 1;
         $out['Config'][] = [
-          'Name'        => "Host Path ${volNum}",
+          'Name'        => "Host Path {$volNum}",
           'Target'      => xml_decode($vol->ContainerDir),
           'Default'     => xml_decode($vol->HostDir),
           'Value'       => xml_decode($vol->HostDir),
@@ -183,7 +183,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($varitem->Name))) continue;
         $varNum += 1;
         $out['Config'][] = [
-          'Name'        => "Key ${varNum}",
+          'Name'        => "Key {$varNum}",
           'Target'      => xml_decode($varitem->Name),
           'Default'     => xml_decode($varitem->Value),
           'Value'       => xml_decode($varitem->Value),
@@ -202,7 +202,7 @@ function xmlToVar($xml) {
         if (empty(xml_decode($varitem->Name))) continue;
         $varNum += 1;
         $out['Config'][] = [
-          'Name'        => "Label ${varNum}",
+          'Name'        => "Label {$varNum}",
           'Target'      => xml_decode($varitem->Name),
           'Default'     => xml_decode($varitem->Value),
           'Value'       => xml_decode($varitem->Value),
@@ -311,7 +311,7 @@ function xmlToCommand($xml, $create_paths=false) {
          $cmdName, $cmdNetwork, $cmdMyIP, $cmdCPUset, $logSize, $logFile, $cmdPrivileged, implode(' -e ', $Variables), implode(' -l ', $Labels), implode(' -p ', $Ports), implode(' -v ', $Volumes), implode(' --device=', $Devices), $xml['ExtraParams'], escapeshellarg($xml['Repository']), $xml['PostArgs']);
   return [preg_replace('/\s\s+/', ' ', $cmd), $xml['Name'], $xml['Repository']];
 }
-function stopContainer($name, $t=10, $echo=true) {
+function stopContainer($name, $t=false, $echo=true) {
   global $DockerClient;
   $waitID = mt_rand();
   if ($echo) {

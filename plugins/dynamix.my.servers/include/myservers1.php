@@ -26,9 +26,8 @@ unraid-promo {
 }
 </style>
 <?
-if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) { // context needed for the UPC ENV local check for signed out users
-  @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
-}
+$myservers_flash_cfg_path='/boot/config/plugins/dynamix.my.servers/myservers.cfg';
+$myservers = file_exists($myservers_flash_cfg_path) ? @parse_ini_file($myservers_flash_cfg_path,true) : [];
 $ALLOWED_UPC_ENV_VALS = [
   'production',
   'staging',
@@ -36,14 +35,14 @@ $ALLOWED_UPC_ENV_VALS = [
   'development',
   'local',
 ];
-$UPC_ENV_CK = in_array($_COOKIE['UPC_ENV'], $ALLOWED_UPC_ENV_VALS)
+$UPC_ENV_CK = in_array($_COOKIE['UPC_ENV']??'', $ALLOWED_UPC_ENV_VALS)
   ? $_COOKIE['UPC_ENV']
   : null;
 // Determine what source we should use for web components
 if (!file_exists('/usr/local/sbin/unraid-api')) { // When NOT using the plugin we should load the UPC from the file system unless $UPC_ENV_CK exists.
   $UPC_ENV = $UPC_ENV_CK ?? 'local';
 } else { // When PLG exists load from local when not signed in but when signed in load UPC from production.
-  $UPC_ENV = $UPC_ENV_CK ?? ((empty($remote['username']) || empty($var['regFILE'])) ? 'local' : 'production');
+  $UPC_ENV = $UPC_ENV_CK ?? ((empty($myservers['remote']['username']) || empty($var['regFILE'])) ? 'local' : 'production');
 }
 $upcLocalSrc = autov('/plugins/dynamix.my.servers/webComps/unraid.min.js', true);
 switch ($UPC_ENV) {

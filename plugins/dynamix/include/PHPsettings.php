@@ -1,8 +1,3 @@
-Menu="Buttons:7"
-Title="Help"
-Icon="icon-u-help"
-Code="e934"
----
 <?PHP
 /* Copyright 2005-2023, Lime Technology
  * Copyright 2012-2023, Bergware International.
@@ -15,14 +10,19 @@ Code="e934"
  * all copies or substantial portions of the Software.
  */
 ?>
-<script>
-function HelpButton() {
-  if ($('.nav-item.HelpButton').toggleClass('active').hasClass('active')) {
-    $('.inline_help').show('slow');
-    $.cookie('help','help');
-  } else {
-    $('.inline_help').hide('slow');
-    $.removeCookie('help');
-  }
+<?
+switch ($_POST['cmd']) {
+case 'clear':
+  $log = "/var/log/phplog";
+  // delete existing file and recreate an empty file
+  if (file_exists($log)) unlink($log);
+  touch($log);
+  break;
+case 'reload':
+  $ini = "/etc/php.d/errors-php.ini";
+  if (file_exists($ini) && filesize($ini)==0) unlink($ini);
+  exec("/etc/rc.d/rc.php-fpm reload 1>/dev/null 2>&1");
+  break;
 }
-</script>
+?>
+

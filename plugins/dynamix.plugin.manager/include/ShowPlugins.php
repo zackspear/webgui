@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -97,13 +97,13 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
     //support
     $support = plugin('support',$plugin_file) ?: "";
     $support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
-    //category
-    $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
     //author
     $author = plugin('author',$plugin_file) ?: _('anonymous');
     //version
     $version = plugin('version',$plugin_file) ?: _('unknown');
     $date = str_replace('.','',$version);
+    //category
+    $category = plugin('category',$plugin_file) ?: (strpos($version,'-')!==false ? 'next' : 'stable');
     //status
     $status = $check ? _('unknown') : _('checking').'...';
     $id = str_replace('.','-',$name);
@@ -138,7 +138,8 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
       copy($plugin_file,$tmp_file);
       exec("sed -ri 's|^(<!ENTITY category).*|\\1 \"{$branch}\">|' $tmp_file");
       symlink($tmp_file,"/var/log/plugins/$tmp_plg");
-      $next = end(array_filter(explode("\n",check_plugin($tmp_plg,$ncsi)),function($row){return is_numeric($row[0]);}));
+      $next = array_filter(explode("\n",check_plugin($tmp_plg,$ncsi)),function($row){return is_numeric($row[0]);});
+      $next = end($next);
       if (version_compare($next,$past,'>')) {
         copy("/tmp/plugins/$tmp_plg",$tmp_file);
         $plugin_file = $tmp_file;
