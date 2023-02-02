@@ -23,7 +23,7 @@ $login_locale = $display['locale'];
 require_once "$docroot/webGui/include/Translations.php";
 
 function dmidecode($key, $n, $all=true) {
-  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")));
+  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")??""));
   $properties = [];
   foreach ($entries as $entry) {
     $property = [];
@@ -33,7 +33,7 @@ function dmidecode($key, $n, $all=true) {
     }
     $properties[] = $property;
   }
-  return $all ? $properties : $properties[0];
+  return $all ? $properties : $properties[0]??null;
 }
 
 $var      = parse_ini_file('state/var.ini');
@@ -44,6 +44,15 @@ $cpu      = dmidecode('Processor Information',4,0);
 $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version'] ?? exec("grep -Pom1 'model name\s+:\s*\K.+' /proc/cpuinfo"));
 $kernel   = exec("uname -srm");
 $openssl  = exec("openssl version|cut -d' ' -f2");
+
+$board['Manufacturer']  = (empty($board['Manufacturer']))  ? _('Unknown') : $board['Manufacturer'];
+$board['Product Name']  = (empty($board['Product Name']))  ? "" : $board['Product Name'];
+$board['Version']       = (empty($board['Version']))       ? "" : _('Version')." ".$board['Version'];
+$board['Serial Number'] = (empty($board['Serial Number'])) ? "" : _('s/n')." ".$board['Serial Number'];
+$bios['Vendor']         = (empty($bios['Vendor']))         ? "" : $bios['Vendor'];
+$bios['Version']        = (empty($bios['Version']))        ? "" : _('Version')." ".$bios['Version'];
+$bios['Release Date']   = (empty($bios['Release Date']))   ? "" : _('Dated')." ".$bios['Release Date'];
+$cpu['Current Speed']   = (strpos($cpumodel,'@')===false && !empty($cpu['Current Speed'])) ? " @ {$cpu['Current Speed']}" : "";
 
 // Check for Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support
 // If either kvm_intel or kvm_amd are loaded then Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support was found
@@ -133,9 +142,9 @@ $style = "<style>table.info{margin-top:10px;background-color:inherit} table.info
 
 $list = [];
 $list[] = "<table class='info'><tr><td>"._('Model').":</td><td>$model</td></tr>";
-$list[] = "<tr><td>".('M/B').":</td><td>{$board['Manufacturer']} {$board['Product Name']} "._('Version')." {$board['Version']} - "._('s/n').": {$board['Serial Number']}</td></tr>";
-$list[] = "<tr><td>"._('BIOS').":</td><td>{$bios['Vendor']} Version {$bios['Version']}. Dated: {$bios['Release Date']}</td></tr>";
-$list[] = "<tr><td>"._('CPU').":</td><td>$cpumodel".(strpos($cpumodel,'@')===false && !empty($cpu['Current Speed']) ? " @ {$cpu['Current Speed']}" : "")."</td></tr>";
+$list[] = "<tr><td>".('M/B').":</td><td>{$board['Manufacturer']} {$board['Product Name']} {$board['Version']} {$board['Serial Number']}</td></tr>";
+$list[] = "<tr><td>"._('BIOS').":</td><td>{$bios['Vendor']} {$bios['Version']} {$bios['Release Date']}</td></tr>";
+$list[] = "<tr><td>"._('CPU').":</td><td>$cpumodel {$cpu['Current Speed']}</td></tr>";
 $list[] = "<tr><td>"._('HVM').":</td><td>$hvm</td></tr>";
 $list[] = "<tr><td>"._('IOMMU').":</td><td>$iommu</td></tr>";
 $list[] = "<tr><td>"._('Cache').":</td><td>".implode(', ',$cache_installed)."</td></tr>";

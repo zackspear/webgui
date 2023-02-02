@@ -403,7 +403,7 @@ function formatWarning(val) {
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
       foreach ($disks as $disk) if (substr($disk['fsStatus']??'',0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
-        if (isset($disk['id'])) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
+        if (strlen($disk['id'])) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
         if (in_array($disk['name'],$pools)) $cache[] = $disk['name'];
       }
 ?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
