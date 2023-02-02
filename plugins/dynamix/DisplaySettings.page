@@ -294,7 +294,7 @@ _(Header custom text color)_:
 :display_custom_text_color_help:
 
 _(Header custom secondary text color)_:
-: <input type="text" class="narrow" name="headermetacolor" value="<?=$display['headermetacolor']?>" maxlength="6" pattern="([0-9a-fA-F]{3}){1,2}" title="HTML color code of 3 or 6 hexadecimal digits">
+: <input type="text" class="narrow" name="headermetacolor" value="<?=$display['headermetacolor']?>" maxlength="6" pattern="([0-9a-fA-F]{3}){1,2}" title="_(HTML color code of 3 or 6 hexadecimal digits)_">
 
 _(Header custom background color)_:
 : <input type="text" class="narrow" name="background" value="<?=$display['background']?>" maxlength="6" pattern="([0-9a-fA-F]{3}){1,2}" title="_(HTML color code of 3 or 6 hexadecimal digits)_">
