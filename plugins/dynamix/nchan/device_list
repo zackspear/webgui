@@ -61,14 +61,15 @@ function device_info(&$disk,$online) {
     case 'grey-off':     $orb = 'square';  $color = 'grey';   $help = _('Device not present'); break;
   }
   $ctrl = '';
-  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk['status'],'_NP')===false) {
+  $disk_status = $disk['status'] ?? '';
+  if ($var['fsState']=='Started' && $type!='Flash' && strpos($disk_status,'_NP')===false) {
     $ctrl = " style='cursor:pointer' onclick=\"toggle_state('$type','$name','$action')\"";
     $help .= "<br>"._("Click to spin $action device");
   }
   $status = "<a class='info'><i ".($ctrl?"id='dev-$name' ":"")."class='fa fa-$orb orb $color-orb'$ctrl></i><span>$help</span></a>";
-  $link   = ($disk['type']=='Parity' && strpos($disk['status'],'_NP')===false) ||
-            ($disk['type']=='Data' && $disk['status']!='DISK_NP') ||
-            ($disk['type']=='Cache' && $disk['status']!='DISK_NP') ||
+  $link   = ($disk['type']=='Parity' && strpos($disk_status,'_NP')===false) ||
+            ($disk['type']=='Data' && $disk_status!='DISK_NP') ||
+            ($disk['type']=='Cache' && $disk_status!='DISK_NP') ||
             ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
              $disk['type']=='New' ? "<a href=\"".htmlspecialchars("/Main/Settings/$type?name=$name")."\">$fancyname</a>" : $fancyname;
   if ($crypto) switch ($disk['luksState']) {
