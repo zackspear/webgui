@@ -95,22 +95,26 @@ function prepareBTRFS(form) {
 
 function selectDiskFsWidth(num_devices,selected_width) {
   $('#diskFsWidthZFS').empty();
-  if ($('#diskFsProfileZFS').val() == '') {
-    var plural = (num_devices == 1) ? "" : "s";
+  if (num_devices == 0) {
+    $('#diskFsWidthZFS').prop('disabled',true).append($('<option>', {
+      value: 0,
+      text: "<?=_('no devices')?>"
+    }));
+  } else if ($('#diskFsProfileZFS').val() == '') {
+    var label = (num_devices == 1) ? "<?=_('device')?>" : "<?=_('devices')?>";
     $('#diskFsWidthZFS').append($('<option>', {
       value: 1,
-      text: num_devices+' device'+plural
+      text: num_devices+' '+label
     }));
-  }
-  else if ($('#diskFsProfileZFS').val() == 'mirror') {
+  } else if ($('#diskFsProfileZFS').val() == 'mirror') {
     var width;
     for (width=2; width<=Math.min(num_devices,4); width++) {
       if ((num_devices % width) == 0) {
         var groups = num_devices / width;
-        var plural = (groups == 1) ? "" : "s";
+        var label = (groups == 1) ? "<?=_('group')?>" : "<?=_('groups')?>";
         $('#diskFsWidthZFS').append($('<option>', {
           value: width,
-          text: groups+' group'+plural+' of '+width+' devices',
+          text: _(sprintf('%s '+label+' of %s devices',groups,width)),
           selected: (width == selected_width)
         }));
       }
@@ -123,41 +127,51 @@ function selectDiskFsWidth(num_devices,selected_width) {
     for (width=min_width; width<=num_devices; width++) {
       if ((num_devices % width) == 0) {
         var groups = num_devices / width;
-        var plural = (groups == 1) ? "" : "s";
+        var label = (groups == 1) ? "<?=_('group')?>" : "<?=_('groups')?>";
         $('#diskFsWidthZFS').append($('<option>', {
           value: width,
-          text: groups+' group'+plural+' of '+width+' devices',
+          text: _(sprintf('%s '+label+' of %s devices',groups,width)),
           selected: (width == selected_width)
         }));
       }
     }
   }
 }
-function selectDiskFsProfile(num_devices, width) {
-  var disabled = $('#diskFsType').prop('disabled');
+function selectDiskFsProfile(num_devices, width, init) {
+  var t = init ? null : 'slow';
   if (($('#diskFsType').val()||'').indexOf('auto') != -1) {
-    $('#diskFsProfileBTRFS').css('display','none');
-    $('#diskFsProfileBTRFS').prop('disabled',true);
-    $('#diskFsProfileZFS').css('display','none');
-    $('#diskFsProfileZFS').prop('disabled',true);
-    $('#diskFsWidthZFS').css('display','none');
-    $('#diskFsWidthZFS').prop('disabled',true);
+    $('#diskFsProfileBTRFS').prop('disabled',true).hide();
+    $('#diskFsProfileZFS').prop('disabled',true).hide();
+    $('#diskFsWidthZFS').prop('disabled',true).hide();;
+    $('#compression').hide(t);
+    $('#autotrim').hide(t);
   } else if (($('#diskFsType').val()||'').indexOf('btrfs') != -1) {
-    $('#diskFsProfileBTRFS').css('display','inline');
-    $('#diskFsProfileBTRFS').prop('disabled',disabled);
-    $('#diskFsProfileZFS').css('display','none');
-    $('#diskFsProfileZFS').prop('disabled',true);
-    $('#diskFsWidthZFS').css('display','none');
-    $('#diskFsWidthZFS').prop('disabled',true);
+    $('#diskFsProfileBTRFS').prop('disabled',false).show();
+    $('#diskFsProfileZFS').prop('disabled',true).hide();
+    $('#diskFsWidthZFS').prop('disabled',true).hide();
+    $('#compression').show(t);
+<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+    $('#autotrim').show(t);
+<?endif;?>
   } else if (($('#diskFsType').val()||'').indexOf('zfs') != -1) {
-    $('#diskFsProfileBTRFS').css('display','none');
-    $('#diskFsProfileBTRFS').prop('disabled',true);
-    $('#diskFsProfileZFS').css('display','inline');
-    $('#diskFsProfileZFS').prop('disabled',disabled);
-    $('#diskFsWidthZFS').css('display','inline');
-    $('#diskFsWidthZFS').prop('disabled',disabled);
+    $('#diskFsProfileBTRFS').prop('disabled',true).hide();
+    $('#diskFsProfileZFS').prop('disabled',false).show();
+    $('#diskFsWidthZFS').prop('disabled',false).show();
     selectDiskFsWidth(num_devices, width);
+    $('#compression').show(t);
+<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+    $('#autotrim').show(t);
+  } else if (($('#diskFsType').val()||'').indexOf('xfs') != -1) {
+    $('#autotrim').show(t);
+<?endif;?>
   }
+}
+function changeFsType() {
+  var fstype = ($('#diskFsType').val()||'').replace('luks:','');
+  if (['btrfs', 'zfs'].includes(fstype)) $('#compression').show('slow'); else $('#compression').hide('slow');
+<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+  if (['xfs', 'btrfs', 'zfs'].includes(fstype)) $('#autotrim').show('slow'); else $('#autotrim').hide('slow');
+<?endif;?>
 }
 function prepareDeviceInfo(form) {
   var events = [];
@@ -431,7 +445,7 @@ $(function() {
   var groups = <?=$disk['fsGroups']?>;
   var width = <?=$disk['fsWidth']?>;
   var devices = (groups==0 || width==0) ? <?=$disk['devices']??0?> : groups * width;
-  selectDiskFsProfile(devices,width);
+  selectDiskFsProfile(devices,width,true);
 });
 </script>
 
@@ -499,7 +513,7 @@ _(File system status)_:
 <?$disabled = (($var['fsState']=="Stopped" && $var['mdState']=="SWAP_DSBL") || $disk['fsStatus']=='Mounted') || !empty($disk['uuid']) ? "disabled" : ""?>
 <?if ((isset($disk['type']) && $disk['type']=="Data") || (isset($disk['slots']) && $disk['slots']==1)):?>
 _(File system type)_:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?>>
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" onchange="changeFsType()" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", _('auto'))?>
   <?=mk_option($disk['fsType'], "xfs", _('xfs'))?>
   <?=mk_option($disk['fsType'], "zfs", _('zfs'))?>
@@ -515,13 +529,14 @@ _(File system type)_:
 
 <?elseif (isset($disk['slots']) && $disk['slots']>1):?>
 _(File system type)_:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" <?=$disabled?> onchange="selectDiskFsProfile(<?=$disk['devices']??''?>,0)">
+: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" onchange="selectDiskFsProfile(<?=$disk['devices']??0?>,0)" <?=$disabled?>>
   <?=mk_option($disk['fsType'], "auto", _('auto'))?>
   <?=mk_option($disk['fsType'], "zfs", _('zfs'))?>
   <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
   <?=mk_option($disk['fsType'], "luks:zfs", _('zfs')." - "._('encrypted'))?>
   <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
-  </select><select id="diskFsProfileBTRFS" name="diskFsProfile.<?=$disk['idx']?>" <?=$disabled?>>
+  </select>
+  <select id="diskFsProfileBTRFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" disabled>
   <?=mk_option($disk['fsProfile'],"single", _('single'))?>
   <?=mk_option($disk['fsProfile'],"raid0", _('raid0'))?>
   <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"raid1", _('raid1'))?>
@@ -530,42 +545,43 @@ _(File system type)_:
   <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid10", _('raid10'))?>
   <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raid5", _('raid5'))?>
   <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid6", _('raid6'))?>
-  </select><select id="diskFsProfileZFS" name="diskFsProfile.<?=$disk['idx']?>" <?=$disabled?> onchange="selectDiskFsWidth(<?=$disk['devices']??''?>,0)">
+  </select>
+  <select id="diskFsProfileZFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" onchange="selectDiskFsWidth(<?=$disk['devices']??0?>,0)" disabled>
   <?if ($disk['devices']==1) echo mk_option($disk['fsProfile'],"", _('single'))?>
   <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"", _('raid0'))?>
   <?if (($disk['devices']%2)==0 || ($disk['devices']%3)==0 || ($disk['devices']%4)==0) echo mk_option($disk['fsProfile'],"mirror", _('mirror'))?>
   <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raidz1", _('raidz'))?>
   <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raidz2", _('raidz2'))?>
   <?if ($disk['devices']>=5) echo mk_option($disk['fsProfile'],"raidz3", _('raidz3'))?>
-  </select><select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" <?=$disabled?>>
   </select>
-
+  <select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" style="display:none" disabled>
+  </select>
 <?endif;?>
-<?if (isset($disk['fsType']) && (str_contains($disk['fsType'], "btrfs") || str_contains($disk['fsType'], "zfs"))):?>
-<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
+
+<div markdown="1" id="compression" style="display:none">
 _(Compression)_:
+<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
 : <select id="diskCompression" name="diskCompression.<?=$disk['idx']?>" <?=$disabled?>>
   <?=mk_option($disk['compression'], "off", _('Off'))?>
   <?=mk_option($disk['compression'], "on", _('On'))?>
   </select>
 
 :info_compression_help:
+</div>
 
-<?endif;?>
-<?if (isset($disk['type']) && $disk['type']=="Cache" && (str_contains($disk['fsType'], "btrfs") || str_contains($disk['fsType'], "zfs") || str_contains($disk['fsType'], "xfs"))):?>
-<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
+<div markdown="1" id="autotrim" style="display:none">
 _(Autotrim)_:
+<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
 : <select id="diskAutotrim" name="diskAutotrim.<?=$disk['idx']?>" <?=$disabled?>>
   <?=mk_option($disk['autotrim'], "on", _('On'))?>
   <?=mk_option($disk['autotrim'], "off", _('Off'))?>
   </select>
 
 :info_autotrim_help:
-
-<?endif;?>
+</div>
 <?if (in_array($name,$pools)):?>
-<?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
 _(Enable user share assignment)_:
+<?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
 : <select id="shareEnabled" name="diskShareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
   <?=mk_option($disk['shareEnabled'], "yes", _('Yes'))?>
   <?=mk_option($disk['shareEnabled'], "no", _('No'))?>
