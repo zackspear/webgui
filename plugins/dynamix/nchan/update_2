@@ -32,7 +32,7 @@ $locale_init = $locale;
 function my_clock($time) {
   if (!$time) return _('less than a minute');
   $days = floor($time/1440);
-  $hour = $time/60%24;
+  $hour = floor($time/60)%24;
   $mins = $time%60;
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
