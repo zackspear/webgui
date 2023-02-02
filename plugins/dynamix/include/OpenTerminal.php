@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -58,7 +58,7 @@ case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   $sock = "/var/run/syslog.sock";
-  exec("ttyd-exec -i '$sock' ".command($path,$file));
+  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
   break;
 case 'disklog':
   // read disk log info (main page)
@@ -66,7 +66,7 @@ case 'disklog':
   $sock = "/var/tmp/$name.sock";
   $ata  = exec("ls -n '/sys/block/$name'|grep -Pom1 'ata\d+'");
   $dev  = $ata ? $name.'|'.$ata.'[.:]' : $name;
-  exec("ttyd-exec -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
+  exec("ttyd-exec -o -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
   break;
 case 'log':
   // read vm log file
@@ -74,7 +74,7 @@ case 'log':
   $name = unbundle($_GET['name']);
   $file = realpath($path.$_GET['more']);
   $sock = "/var/tmp/$name.sock";
-  exec("ttyd-exec -i '$sock' ".command($path,$file));
+  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
@@ -86,11 +86,11 @@ case 'docker':
       $docker = wait($name,"docker logs -n $rows '$name'"); // container stopped
     else
       $docker = "$run docker logs -f -n $rows '$name'"; // container started
-    exec("ttyd-exec -i '$sock' $docker");
+    exec("ttyd-exec -o -i '$sock' $docker");
   } else {
     // docker console command
     $sock = "/var/tmp/$name.sock";
-    exec("ttyd-exec -i '$sock' docker exec -it '$name' $more");
+    exec("ttyd-exec -o -i '$sock' docker exec -it '$name' $more");
   }
   break;
 case 'lxc':
