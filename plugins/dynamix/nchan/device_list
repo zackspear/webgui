@@ -98,8 +98,8 @@ function device_info(&$disk,$online) {
 }
 function device_desc(&$disk) {
   global $var;
-  $size = my_scale($disk['size'] ? $disk['size']*1024 : $disk['sectors']*$disk['sector_size'],$unit,-1);
-  switch ($disk['type']) {
+  $size = my_scale(isset($disk['size']) ? $disk['size']*1024 : $disk['sectors']*$disk['sector_size'],$unit,-1);
+  switch ($disk['type']??'') {
     case 'Flash':  $type = 'usb'; break;
     case 'Parity': $type = $disk['rotational'] ? 'disk' : 'nvme'; break;
     case 'Data':
@@ -454,9 +454,9 @@ while (true) {
     $echo[$n] .= "<td>".device_info($disk,true)."</td>";
     $echo[$n] .= "<td>".device_desc($disk)."</td>";
     $echo[$n] .= "<td>".my_temp($disk['temp'])."</td>";
-    $echo[$n] .= "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
-    $echo[$n] .= "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number($disk['numWrites'])."</span></td>";
-    $echo[$n] .= "<td>".my_number($disk['numErrors'])."</td>";
+    $echo[$n] .= "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($disk['numReads']??0)."</span></td>";
+    $echo[$n] .= "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number($disk['numWrites']??0)."</span></td>";
+    $echo[$n] .= "<td>".my_number($disk['numErrors']??0)."</td>";
     if (file_exists("/tmp/preclear_stat_$dev")) {
       $text = exec("cut -d'|' -f3 /tmp/preclear_stat_$dev|sed 's:\^n:\<br\>:g'");
       if (strpos($text,'Total time')===false) $text = _('Preclear in progress').'... '.$text;
