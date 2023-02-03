@@ -160,13 +160,13 @@ function isRemoteAccess(): bool {
 // Check if 2fa is enabled for local (requires USE_SSL to be "auto" so no alternate urls can access the server)
 function isLocalTwoFactorEnabled(): bool {
     global $nginx, $my_servers;
-    return $nginx['NGINX_USESSL'] === "auto" && $my_servers['local']['2Fa'] === 'yes';
+    return $nginx['NGINX_USESSL'] === "auto" && ($my_servers['local']['2Fa']??'') === 'yes';
 }
 
 // Check if 2fa is enabled for remote
 function isRemoteTwoFactorEnabled(): bool {
     global $my_servers;
-    return $my_servers['remote']['2Fa'] === 'yes';
+    return ($my_servers['remote']['2Fa']??'') === 'yes';
 }
 
 // Load configs into memory
