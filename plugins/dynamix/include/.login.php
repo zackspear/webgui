@@ -5,7 +5,7 @@
 $server_name = strtok($_SERVER['HTTP_HOST'],":");
 if (!empty($_COOKIE['unraid_'.md5($server_name)])) {
     // Start the session so we can check if $_SESSION has data
-    session_start();
+    if (session_status()==PHP_SESSION_NONE) session_start();
 
     // Check if the user is already logged in
     if ($_SESSION && !empty($_SESSION['unraid_user'])) {
