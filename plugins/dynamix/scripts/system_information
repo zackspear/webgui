@@ -162,7 +162,7 @@ $network = count($sPorts) > 1 ? "<span class='link blue-text' onclick=\"$('tr.po
 foreach ($sPorts as $port) {
   $int = "/sys/class/net/$port";
   $mtu = file_get_contents("$int/mtu");
-  $link = file_get_contents("$int/carrier")==1;
+  $link = @file_get_contents("$int/carrier")==1;
   $name = $i ? "" : $network;
   $more = $i++ ? "port" : "";
   if (substr($port,0,4)=='bond') {
