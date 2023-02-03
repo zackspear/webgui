@@ -156,7 +156,7 @@ foreach ($memory_devices as $device) {
   $list[] = "<tr class='ram'><td></td><td>".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
 }
 
-exec("ls /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
+exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
 $i = 0;
 $network = count($sPorts) > 1 ? "<span class='link blue-text' onclick=\"$('tr.port').toggle()\">"._('Network').":</span>" : _('Network').':';
 foreach ($sPorts as $port) {
