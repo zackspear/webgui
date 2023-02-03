@@ -211,7 +211,7 @@ if (!empty($username) && !empty($password)) {
 
         // Successful login, start session
         @unlink($failFile);
-        session_start();
+        if (session_status()==PHP_SESSION_NONE) session_start();
         $_SESSION['unraid_login'] = time();
         $_SESSION['unraid_user'] = $username;
         session_regenerate_id(true);
