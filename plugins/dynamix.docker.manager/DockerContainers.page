@@ -19,6 +19,8 @@ Nchan="docker_load:stop"
  */
 ?>
 <?
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 $width   = in_array($theme,['white','black']) ? -58: -44;
 $top     = in_array($theme,['white','black']) ? 40 : 20;
 $busy    = "<i class='fa fa-spin fa-circle-o-notch'></i> "._('Please wait')."... "._('starting up containers');
@@ -79,7 +81,9 @@ function resetSorting() {
 }
 function listview() {
   var more = $.cookie('docker_listview_mode')=='advanced';
+  <?if(($dockercfg['DOCKER_READMORE']??'yes') === 'yes'):?>
   $('.docker_readmore').readmore({maxHeight:32,moreLink:"<a href='#' style='text-align:center'><i class='fa fa-chevron-down'></i></a>",lessLink:"<a href='#' style='text-align:center'><i class='fa fa-chevron-up'></i></a>"});
+  <?endif;?>
   $('input.autostart').each(function(){
     var wait = $('#'+$(this).prop('id').replace('auto','wait'));
     var auto = $(this).prop('checked');
