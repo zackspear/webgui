@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -95,7 +95,7 @@ if (!empty($iommu_groups)) {
 }
 
 $cache_installed = [];
-$cache_devices = dmidecode('Cache Information','7');
+$cache_devices = dmidecode('Cache Information',7);
 foreach ($cache_devices as $device) $cache_installed[] = str_replace('kB','KiB',$device['Installed Size']);
 
 /*
@@ -110,10 +110,10 @@ foreach ($cache_devices as $device) $cache_installed[] = str_replace('kB','KiB',
 $sizes = ['MB','GB','TB'];
 $memory_type = $ecc = '';
 $memory_installed = $memory_maximum = 0;
-$memory_devices = dmidecode('Memory Device','17');
+$memory_devices = dmidecode('Memory Device',17);
 $modules = 0;
 foreach ($memory_devices as $device) {
-  if ($device['Type']=='Unknown') continue;
+  if (empty($device['Type']) || $device['Type']=='Unknown') continue;
   [$size, $unit] = my_explode(' ',$device['Size']);
   $base = array_search($unit,$sizes);
   if ($base!==false) $memory_installed += $size*pow(1024,$base);
@@ -121,12 +121,12 @@ foreach ($memory_devices as $device) {
   $modules++;
 }
 $memory = $modules > 1 ? "<span class='link blue-text' onclick=\"$('tr.ram').toggle()\">"._('Memory').":</span>" : _('Memory').':';
-$memory_array = dmidecode('Physical Memory Array','16');
+$memory_array = dmidecode('Physical Memory Array',16);
 foreach ($memory_array as $device) {
   [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
-  if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
+  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = ($device['Error Correction Type']??'')." ";
 }
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);
@@ -151,18 +151,18 @@ $list[] = "<tr><td>"._('Cache').":</td><td>".implode(', ',$cache_installed)."</t
 $list[] = "<tr><td>$memory</td><td>$memory_installed $unit $memory_type $ecc("._('max. installable capacity')." $memory_maximum $unit".($low?'*':'').")</td></tr>";
 
 foreach ($memory_devices as $device) {
-  if ($device['Type']=='Unknown') continue;
-  $size = preg_replace('/( .)B$/','$1iB',$device['Size']);
-  $list[] = "<tr class='ram'><td></td><td>{$device['Manufacturer']} {$device['Part Number']}, {$size} {$device['Type']} @ {$device['Configured Memory Speed']}</td></tr>";
+  if (empty($device['Type']) || $device['Type']=='Unknown') continue;
+  $size = preg_replace('/( .)B$/','$1iB',$device['Size']??'0');
+  $list[] = "<tr class='ram'><td></td><td>".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
 }
 
-exec("ls /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
+exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
 $i = 0;
 $network = count($sPorts) > 1 ? "<span class='link blue-text' onclick=\"$('tr.port').toggle()\">"._('Network').":</span>" : _('Network').':';
 foreach ($sPorts as $port) {
   $int = "/sys/class/net/$port";
   $mtu = file_get_contents("$int/mtu");
-  $link = file_get_contents("$int/carrier")==1;
+  $link = @file_get_contents("$int/carrier")==1;
   $name = $i ? "" : $network;
   $more = $i++ ? "port" : "";
   if (substr($port,0,4)=='bond') {

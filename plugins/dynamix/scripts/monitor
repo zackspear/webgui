@@ -18,10 +18,12 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 if (!function_exists('_')) {
   function _($text) {return $text;}
 }
+// Exit when settings are not yet initialized
+if (!file_exists("/var/local/emhttp/var.ini")) exit;
 
-$var   = parse_ini_file("/var/local/emhttp/var.ini");
-$devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
-$disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
+$var   = (array)parse_ini_file("/var/local/emhttp/var.ini");
+$devs  = (array)parse_ini_file("/var/local/emhttp/devs.ini",true);
+$disks = (array)parse_ini_file("/var/local/emhttp/disks.ini",true);
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Preselect.php";

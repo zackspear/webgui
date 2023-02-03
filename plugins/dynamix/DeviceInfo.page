@@ -101,17 +101,17 @@ function selectDiskFsWidth(num_devices,selected_width) {
       text: "<?=_('no devices')?>"
     }));
   } else if ($('#diskFsProfileZFS').val() == '') {
-    var label = (num_devices == 1) ? "<?=_('device')?>" : "<?=_('devices')?>";
+    var label = (num_devices == 1) ? "device" : "devices";
     $('#diskFsWidthZFS').append($('<option>', {
       value: 1,
-      text: num_devices+' '+label
+      text: _(sprintf('%s '+label,num_devices))
     }));
   } else if ($('#diskFsProfileZFS').val() == 'mirror') {
     var width;
     for (width=2; width<=Math.min(num_devices,4); width++) {
       if ((num_devices % width) == 0) {
         var groups = num_devices / width;
-        var label = (groups == 1) ? "<?=_('group')?>" : "<?=_('groups')?>";
+        var label = (groups == 1) ? "group" : "groups";
         $('#diskFsWidthZFS').append($('<option>', {
           value: width,
           text: _(sprintf('%s '+label+' of %s devices',groups,width)),
@@ -127,7 +127,7 @@ function selectDiskFsWidth(num_devices,selected_width) {
     for (width=min_width; width<=num_devices; width++) {
       if ((num_devices % width) == 0) {
         var groups = num_devices / width;
-        var label = (groups == 1) ? "<?=_('group')?>" : "<?=_('groups')?>";
+        var label = (groups == 1) ? "group" : "groups";
         $('#diskFsWidthZFS').append($('<option>', {
           value: width,
           text: _(sprintf('%s '+label+' of %s devices',groups,width)),
