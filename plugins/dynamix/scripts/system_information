@@ -96,7 +96,7 @@ if (!empty($iommu_groups)) {
 
 $cache_installed = [];
 $cache_devices = dmidecode('Cache Information',7);
-foreach ($cache_devices as $device) $cache_installed[] = str_replace('kB','KiB',$device['Installed Size']);
+foreach ($cache_devices as $device) $cache_installed[] = $device['Socket Designation'].": ".str_replace(['kB','B'],['KB','iB'],$device['Installed Size']);
 
 /*
  Memory Device (16) will get us each ram chip. By matching on MB it'll filter out Flash/Bios chips
