@@ -25,7 +25,7 @@ function dmidecode($key,$n,$all=true) {
     }
     $properties[] = $property;
   }
-  return $all ? $properties : $properties[0];
+  return $all ? $properties : $properties[0]??null;
 }
 function export_settings($protocol,$share) {
   if ($protocol!='yes' || $share['export']=='-') return "-";
