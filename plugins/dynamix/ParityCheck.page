@@ -3,8 +3,8 @@ Title="Parity Check"
 Tag="calendar"
 ---
 <?PHP
-/* Copyright 2012-2020, Bergware International.
- * Copyright 2005-2020, Lime Technology
+/* Copyright 2012-2023, Bergware International.
+ * Copyright 2005-2023, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -199,8 +199,8 @@ _(Write corrections to parity disk)_:
 
 _(Cumulative parity check)_:
 : <select name="cumulative" onchange="showCumulative(this.value,'slow')" <?=$parity['mode']>1?'':'disabled'?>>
-  <?=mk_option($parity['cumulative'], "", _("No"))?>
-  <?=mk_option($parity['cumulative'], "1", _("Yes"))?>
+  <?=mk_option($parity['cumulative']??'', "", _("No"))?>
+  <?=mk_option($parity['cumulative']??'', "1", _("Yes"))?>
   </select>
 
 :parity_cumulative_check_help:
@@ -208,8 +208,8 @@ _(Cumulative parity check)_:
 <div markdown="1" id="cumulative" style="display:none">
 _(Accumulation frequency)_:
 : <select name="frequency">
-  <?=mk_option($parity['frequency'], "1", _("Daily"))?>
-  <?=mk_option($parity['frequency'], "7", _("Weekly"),$parity['mode']==2 ? 'disabled' : '')?>
+  <?=mk_option($parity['frequency']??'', "1", _("Daily"))?>
+  <?=mk_option($parity['frequency']??'', "7", _("Weekly"),$parity['mode']==2 ? 'disabled' : '')?>
   </select>
 
 :parity_accumulation_frequency_help:
@@ -217,7 +217,7 @@ _(Accumulation frequency)_:
 _(Accumulation duration)_:
 : <select name="duration">
   <?for ($h=1; $h<24; $h++):?>
-  <?=mk_option($parity['duration'], $h, $h.' '._('hour'.($h==1?'':'s')))?>
+  <?=mk_option($parity['duration']??'', $h, $h.' '._('hour'.($h==1?'':'s')))?>
   <?endfor;?>
   </select>
 

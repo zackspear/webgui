@@ -46,6 +46,7 @@ foreach ($other as $network) {
   }
 }
 $include = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $protocol = [];
+$wide = false;
 foreach ($custom as $network) {
   if (in_array($network,$slaves)) continue;
   $ip4    = exec("ip -4 addr show $network|awk '/inet /{print $2;exit}'");
