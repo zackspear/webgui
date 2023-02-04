@@ -96,7 +96,7 @@ if (!empty($iommu_groups)) {
 
 $cache_installed = [];
 $cache_devices = dmidecode('Cache Information',7);
-foreach ($cache_devices as $device) $cache_installed[] = str_replace('kB','KiB',$device['Installed Size']);
+foreach ($cache_devices as $device) $cache_installed[] = $device['Socket Designation'].": ".str_replace(['kB','B'],['KB','iB'],$device['Installed Size']);
 
 /*
  Memory Device (16) will get us each ram chip. By matching on MB it'll filter out Flash/Bios chips
@@ -153,7 +153,7 @@ $list[] = "<tr><td>$memory</td><td>$memory_installed $unit $memory_type $ecc("._
 foreach ($memory_devices as $device) {
   if (empty($device['Type']) || $device['Type']=='Unknown') continue;
   $size = preg_replace('/( .)B$/','$1iB',$device['Size']??'0');
-  $list[] = "<tr class='ram'><td></td><td>".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
+  $list[] = "<tr class='ram'><td></td><td>".$device['Bank Locator'].": ".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
 }
 
 exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);

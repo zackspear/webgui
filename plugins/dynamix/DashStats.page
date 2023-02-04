@@ -25,7 +25,7 @@ function dmidecode($key,$n,$all=true) {
     }
     $properties[] = $property;
   }
-  return $all ? $properties : $properties[0];
+  return $all ? $properties : $properties[0]??null;
 }
 function export_settings($protocol,$share) {
   if ($protocol!='yes' || $share['export']=='-') return "-";
@@ -136,17 +136,17 @@ $memory_installed = $memory_maximum = 0;
 $memory_devices = dmidecode('Memory Device','17');
 foreach ($memory_devices as $device) {
   if (!is_numeric($device['Size'][0])) continue;
-  [$size, $unit] = my_explode(' ',$device['Size']);
+  [$size, $unit] = my_explode(' ',$device['Size']??'');
   $base = array_search($unit,$sizes);
   if ($base!==false) $memory_installed += $size*pow(1024,$base);
-  if (!$memory_type && $device['Type']!='Unknown') $memory_type = $device['Type'];
+  if (!$memory_type && isset($device['Type']) && $device['Type']!='Unknown') $memory_type = $device['Type'];
 }
 $memory_array = dmidecode('Physical Memory Array','16');
 foreach ($memory_array as $device) {
-  [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
+  [$size, $unit] = my_explode(' ',$device['Maximum Capacity']??'');
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
-  if (!$ecc && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
+  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = "{$device['Error Correction Type']} ";
 }
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);
