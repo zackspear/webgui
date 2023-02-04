@@ -50,7 +50,7 @@ case 'plugin':
       // update incorrect or missing support links
       if (plugin('support', $plugin) != $support) {
         $xml = @simplexml_load_file($plugin);
-        if ($xml->xpath('//PLUGIN/@support')[0]) {
+        if ($xml->xpath('//PLUGIN/@support')[0]??false) {
           // support link exists, update it
           $xml->xpath('//PLUGIN/@support')[0] = $support;
         } else {
