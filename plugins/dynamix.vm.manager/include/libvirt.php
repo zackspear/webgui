@@ -766,12 +766,14 @@
 						} else $strPort = "-1" ;
 
 						if ($strAutoport == "yes") $strPort = $strWSport = "-1" ;
+						if (($gpu['copypaste'] == "yes") && ($strProtocol == "spice")) $vmrcmousemode = "<mouse mode='server'/>" ; else $vmrcmousemode = ""  ;
 
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
 								<graphics type='$strProtocol' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
+									$vmrcmousemode
 								</graphics>
 								<video>
 									<model type='$strModelType'/>
