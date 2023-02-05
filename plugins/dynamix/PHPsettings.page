@@ -187,7 +187,7 @@ $(function(){
   }
   if ($.cookie('reload_php')==1) {
     $.removeCookie('reload_php');
-    $.post('/webGui/include/PHPsettings.php',{cmd:'reload'});
+    $.post('/webGui/include/PHPsettings.php',{cmd:'reload'},function(){refresh();});
   }
   logSize();
 });
