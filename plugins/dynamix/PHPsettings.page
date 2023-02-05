@@ -179,6 +179,7 @@ function toggleScreen(index) {
   }
 }
 $(function(){
+  logSize();
   if (document.php_settings.error_reporting.selectedIndex > 0) {
     $('#viewlog').prop('disabled',false);
     $('#screenlog').prop('disabled',false);
@@ -187,8 +188,6 @@ $(function(){
   if ($.cookie('reload_php')==1) {
     $.removeCookie('reload_php');
     $.post('/webGui/include/PHPsettings.php',{cmd:'reload'});
-    setTimeout(refresh);
   }
-  logSize();
 });
 </script>
