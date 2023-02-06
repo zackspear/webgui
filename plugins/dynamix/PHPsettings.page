@@ -63,7 +63,7 @@ _(Error reporting level)_:
 &nbsp;
 : <input type="checkbox" id="screenlog" onclick="screenLog()" <?=($conf['display_errors']??0)?'checked':''?> disabled><span id="screentext" class="dim">_(Show errors on screen)_</span>
 
-<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" id="clearlog" value="_(Clear Log)_" onclick="clearLog()"<?=filesize($log)>0?'':' disabled'?>><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>
+<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" id="clearlog" value="_(Clear Log)_" onclick="clearLog()"<?=filesize($log)>0?'':' disabled'?>><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>_(LOG size)_:&nbsp;<span id="logsize"></span>
 : <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
@@ -131,6 +131,13 @@ function clearLog() {
     });
   });
 }
+function logSize() {
+  $.post('/webGui/include/PHPsettings.php',{cmd:'logsize'},function(size){
+    $('#logsize').text(size);
+    if (size.split(' ')[0]!=0) $('#clearlog').prop('disabled',false);
+    setTimeout(logSize,3000);
+  });
+}
 function PHPinfo() {
   box = $("#dialogWindow");
   box.html($("#templateWindow").html().build());
@@ -172,6 +179,7 @@ function toggleScreen(index) {
   }
 }
 $(function(){
+  logSize();
   if (document.php_settings.error_reporting.selectedIndex > 0) {
     $('#viewlog').prop('disabled',false);
     $('#screenlog').prop('disabled',false);

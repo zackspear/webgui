@@ -11,7 +11,9 @@
  */
 ?>
 <?
-switch ($_POST['cmd']) {
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+switch ($_POST['cmd']??'') {
 case 'clear':
   $log = "/var/log/phplog";
   // delete existing file and recreate an empty file
@@ -23,6 +25,12 @@ case 'reload':
   if (file_exists($ini) && filesize($ini)==0) unlink($ini);
   exec("/etc/rc.d/rc.php-fpm reload 1>/dev/null 2>&1");
   break;
+case 'logsize':
+  $_SERVER['REQUEST_URI'] = '';
+  require_once "$docroot/webGui/include/Translations.php";
+  require_once "$docroot/webGui/include/Helpers.php";
+  extract(parse_plugin_cfg('dynamix',true));
+  echo my_scale(filesize("/var/log/phplog"), $unit)," $unit";
+  break;
 }
 ?>
-
