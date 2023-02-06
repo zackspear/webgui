@@ -23,7 +23,6 @@ $dev = $disk['device']??'';
 $disk['id'] = $disk['id']??'';
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
-$yes = _('Yes');
 
 $mode = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -385,12 +384,18 @@ function eraseDisk(name) {
     text:"<?=$text?><p style='font-weight:bold;color:red;margin:8px 0'>_(Existing content is permanently lost)_</p>",
     html:true,
     type:'input',
-    inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$yes)?>",
+    inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$name)?>",
     showCancelButton:true,
+    closeOnConfirm:false,
     confirmButtonText:"_(Proceed)_",
     cancelButtonText:"_(Cancel)_"},
     function(confirm) {
-      if (confirm === "<?=$yes?>") {$.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});}
+      if (confirm == "<?=$name?>") {
+        swal.close();
+        $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});
+      } else {
+        if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+      }
     });
 }
 function freeSpace(val) {
