@@ -15,7 +15,7 @@ Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop"
 ?>
 <?
 function dmidecode($key,$n,$all=true) {
-  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")));
+  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")??""));
   $properties = [];
   foreach ($entries as $entry) {
     $property = [];
