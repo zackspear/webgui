@@ -447,9 +447,9 @@ $(function() {
       }
     });
   }
-  var groups = <?=$disk['fsGroups']?>;
-  var width = <?=$disk['fsWidth']?>;
-  var devices = (groups==0 || width==0) ? <?=$disk['devices']??0?> : groups * width;
+  var groups = <?=$disk['fsGroups']?:0?>;
+  var width = <?=$disk['fsWidth']?:0?>;
+  var devices = (groups==0 || width==0) ? <?=$disk['devices']?:0?> : groups * width;
   selectDiskFsProfile(devices,width,true);
 });
 </script>
