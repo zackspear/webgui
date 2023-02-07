@@ -23,7 +23,6 @@ $dev = $disk['device']??'';
 $disk['id'] = $disk['id']??'';
 $events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $bgcolor = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
-$yes = _('Yes');
 
 $mode = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -146,7 +145,8 @@ function selectDiskFsProfile(num_devices, width, init) {
     $('#compression').hide(t);
     $('#autotrim').hide(t);
   } else if (($('#diskFsType').val()||'').indexOf('btrfs') != -1) {
-    $('#diskFsProfileBTRFS').prop('disabled',false).show();
+    if (!init) $('#diskFsProfileBTRFS').prop('disabled',false);
+    $('#diskFsProfileBTRFS').show();
     $('#diskFsProfileZFS').prop('disabled',true).hide();
     $('#diskFsWidthZFS').prop('disabled',true).hide();
     $('#compression').show(t);
@@ -155,8 +155,12 @@ function selectDiskFsProfile(num_devices, width, init) {
 <?endif;?>
   } else if (($('#diskFsType').val()||'').indexOf('zfs') != -1) {
     $('#diskFsProfileBTRFS').prop('disabled',true).hide();
-    $('#diskFsProfileZFS').prop('disabled',false).show();
-    $('#diskFsWidthZFS').prop('disabled',false).show();
+    if (!init) {
+      $('#diskFsProfileZFS').prop('disabled',false);
+      $('#diskFsWidthZFS').prop('disabled',false);
+    }
+    $('#diskFsProfileZFS').show();
+    $('#diskFsWidthZFS').show();
     selectDiskFsWidth(num_devices, width);
     $('#compression').show(t);
 <?if (isset($disk['type']) && $disk['type']=="Cache"):?>
@@ -385,13 +389,26 @@ function eraseDisk(name) {
     text:"<?=$text?><p style='font-weight:bold;color:red;margin:8px 0'>_(Existing content is permanently lost)_</p>",
     html:true,
     type:'input',
-    inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$yes)?>",
+    inputPlaceholder:"<?=sprintf(_('To confirm your action type: %s'),$name)?>",
     showCancelButton:true,
+    closeOnConfirm:false,
     confirmButtonText:"_(Proceed)_",
-    cancelButtonText:"_(Cancel)_"},
-    function(confirm) {
-      if (confirm === "<?=$yes?>") {$.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});}
-    });
+    cancelButtonText:"_(Cancel)_"
+  },
+  function(confirm){
+    if (confirm == "<?=$name?>") {
+      swal.close();
+      $('#doneButton').prop('disabled',true);
+      $('#eraseButton').prop('disabled',true);
+      $('div.spinner.fixed').show();
+      $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){
+        $('div.spinner.fixed').hide();
+        refresh();
+      });
+    } else {
+      if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    }
+  });
 }
 function freeSpace(val) {
   $('#shareFloor').prop('disabled',val=='no');
@@ -442,9 +459,9 @@ $(function() {
       }
     });
   }
-  var groups = <?=$disk['fsGroups']?>;
-  var width = <?=$disk['fsWidth']?>;
-  var devices = (groups==0 || width==0) ? <?=$disk['devices']??0?> : groups * width;
+  var groups = <?=isset($disk['fsGroups']) ? ($disk['fsGroups']?:0) : 0?>;
+  var width = <?=isset($disk['fsWidth']) ? ($disk['fsWidth']?:0) : 0?>;
+  var devices = (groups==0 || width==0) ? <?=isset($disk['devices']) ? ($disk['devices']?:0) : 0?> : groups * width;
   selectDiskFsProfile(devices,width,true);
 });
 </script>
@@ -510,7 +527,7 @@ _(Spin down delay)_:
 _(File system status)_:
 : <?=_($disk['fsStatus'])?>&nbsp;
 
-<?$disabled = (($var['fsState']=="Stopped" && $var['mdState']=="SWAP_DSBL") || $disk['fsStatus']=='Mounted') || !empty($disk['uuid']) ? "disabled" : ""?>
+<?$disabled = (($var['fsState']=="Stopped" && $var['mdState']=="SWAP_DSBL") || $var['fsState']=="Started" || $disk['fsStatus']=='Mounted') || !empty($disk['uuid']) ? "disabled" : ""?>
 <?if ((isset($disk['type']) && $disk['type']=="Data") || (isset($disk['slots']) && $disk['slots']==1)):?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" onchange="changeFsType()" <?=$disabled?>>
@@ -536,7 +553,7 @@ _(File system type)_:
   <?=mk_option($disk['fsType'], "luks:zfs", _('zfs')." - "._('encrypted'))?>
   <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   </select>
-  <select id="diskFsProfileBTRFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" disabled>
+  <select id="diskFsProfileBTRFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" <?=$disabled?>>
   <?=mk_option($disk['fsProfile'],"single", _('single'))?>
   <?=mk_option($disk['fsProfile'],"raid0", _('raid0'))?>
   <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"raid1", _('raid1'))?>
@@ -546,7 +563,7 @@ _(File system type)_:
   <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raid5", _('raid5'))?>
   <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid6", _('raid6'))?>
   </select>
-  <select id="diskFsProfileZFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" onchange="selectDiskFsWidth(<?=$disk['devices']??0?>,0)" disabled>
+  <select id="diskFsProfileZFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" onchange="selectDiskFsWidth(<?=$disk['devices']??0?>,0)" <?=$disabled?>>
   <?if ($disk['devices']==1) echo mk_option($disk['fsProfile'],"", _('single'))?>
   <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"", _('raid0'))?>
   <?if (($disk['devices']%2)==0 || ($disk['devices']%3)==0 || ($disk['devices']%4)==0) echo mk_option($disk['fsProfile'],"mirror", _('mirror'))?>
@@ -554,7 +571,7 @@ _(File system type)_:
   <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raidz2", _('raidz2'))?>
   <?if ($disk['devices']>=5) echo mk_option($disk['fsProfile'],"raidz3", _('raidz3'))?>
   </select>
-  <select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" style="display:none" disabled>
+  <select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" style="display:none" <?=$disabled?>>
   </select>
 <?endif;?>
 
@@ -607,7 +624,7 @@ _(Critical disk utilization threshold)_ (%):
 
 <?endif;?>
 &nbsp;
-: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" id="doneButton" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
   <?if (isset($disk['type']) && ($disk['type']=='Data' || $disk['type']=='Parity')):?>
     <?if ($var['fsState']=="Stopped" && strpos($disk['status']??'','_NEW')!==false):?>
@@ -616,13 +633,13 @@ _(Critical disk utilization threshold)_ (%):
     <?if ($var['fsState']=="Started" && $var['startMode']!="Normal" && (isset($disk['type']) && $disk['type']=='Data')):?>
       <?$erasable=true?>
     <?endif;?>
-    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if (in_array($name,$pools)):?>
     <?if ($var['fsState']=="Stopped" || ($var['fsState']=="Started" && $var['startMode']!="Normal")):?>
       <?$erasable=true?>
     <?endif;?>
-    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
     <?$empty = $disk['devices']==0?>

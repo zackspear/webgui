@@ -58,7 +58,7 @@ case "attributes":
   $top = $_POST['top'] ?? 120;
   $empty = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
-  if (stripos($output[0], 'SMART Attributes Data Structure')!==false) {
+  if (stripos($output[0]??'', 'SMART Attributes Data Structure')!==false) {
     $output = array_slice($output, 3);
     foreach ($output as $line) {
       if (!$line) continue;
