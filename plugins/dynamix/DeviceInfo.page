@@ -397,7 +397,13 @@ function eraseDisk(name) {
     function(confirm) {
       if (confirm == "<?=$name?>") {
         swal.close();
-        $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){refresh();});
+        $('#doneButton').prop('disabled',true);
+        $('#eraseButton').prop('disabled',true);
+        $('div.spinner.fixed').show();
+        $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){
+          $('div.spinner.fixed').hide();
+          refresh();
+        });
       } else {
         if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
       }
@@ -617,7 +623,7 @@ _(Critical disk utilization threshold)_ (%):
 
 <?endif;?>
 &nbsp;
-: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" id="doneButton" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
   <?if (isset($disk['type']) && ($disk['type']=='Data' || $disk['type']=='Parity')):?>
     <?if ($var['fsState']=="Stopped" && strpos($disk['status']??'','_NEW')!==false):?>
@@ -626,13 +632,13 @@ _(Critical disk utilization threshold)_ (%):
     <?if ($var['fsState']=="Started" && $var['startMode']!="Normal" && (isset($disk['type']) && $disk['type']=='Data')):?>
       <?$erasable=true?>
     <?endif;?>
-    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if (in_array($name,$pools)):?>
     <?if ($var['fsState']=="Stopped" || ($var['fsState']=="Started" && $var['startMode']!="Normal")):?>
       <?$erasable=true?>
     <?endif;?>
-    <input type="button" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
   <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
     <?$empty = $disk['devices']==0?>
