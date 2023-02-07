@@ -393,21 +393,22 @@ function eraseDisk(name) {
     showCancelButton:true,
     closeOnConfirm:false,
     confirmButtonText:"_(Proceed)_",
-    cancelButtonText:"_(Cancel)_"},
-    function(confirm) {
-      if (confirm == "<?=$name?>") {
-        swal.close();
-        $('#doneButton').prop('disabled',true);
-        $('#eraseButton').prop('disabled',true);
-        $('div.spinner.fixed').show();
-        $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){
-          $('div.spinner.fixed').hide();
-          refresh();
-        });
-      } else {
-        if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
-      }
-    });
+    cancelButtonText:"_(Cancel)_"
+  },
+  function(confirm){
+    if (confirm == "<?=$name?>") {
+      swal.close();
+      $('#doneButton').prop('disabled',true);
+      $('#eraseButton').prop('disabled',true);
+      $('div.spinner.fixed').show();
+      $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){
+        $('div.spinner.fixed').hide();
+        refresh();
+      });
+    } else {
+      if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    }
+  });
 }
 function freeSpace(val) {
   $('#shareFloor').prop('disabled',val=='no');
