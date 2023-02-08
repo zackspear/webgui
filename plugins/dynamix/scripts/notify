@@ -166,7 +166,7 @@ case 'add':
   $subject = 'Notification';
   $description = 'No description';
   $importance = 'normal';
-  $message = '';
+  $message = $link = '';
   $timestamp = time();
   $ticket = $timestamp;
   $mailtest = false;
