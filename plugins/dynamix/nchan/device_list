@@ -448,7 +448,7 @@ while (true) {
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'>".cache_slots($off,$pool,$cache[$pool]['devicesSb'],$cache[$pool]['slots'])."</td><td></td></tr>";
     } else {
       foreach ($cache as $disk) if (prefix($disk['name'])==$pool) {
-        if (isset($disk['fsType'])) $fstype = str_replace('luks:','',$disk['fsType']);
+        if (isset($disk['fsType'])) $fstype = vfs_type($disk['fsType']);
         if (substr($cache[$pool]['fsStatus'],0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = $cache[$pool]['fsStatus'];
         $echo[$n] .= array_online($disk,$fstype);
       }
