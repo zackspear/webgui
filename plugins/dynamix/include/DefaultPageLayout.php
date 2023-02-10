@@ -523,8 +523,9 @@ function openNotifier(filter) {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
+          sticky: true,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
     });
@@ -555,7 +556,6 @@ $(function() {
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div class="bottom">':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';
-  $.jGrowl.defaults.sticky = true;
   $.jGrowl.defaults.check = 100;
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
   $.jGrowl.defaults.themeState = '';
@@ -635,11 +635,11 @@ foreach ($buttons as $button) {
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
-if ($notify['display']) {
-  echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
-  echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
-  echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
-}
+
+echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
+echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
+echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
+
 if ($themes2) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
@@ -824,32 +824,29 @@ defaultPage.on('message', function(msg,meta) {
     var tub1 = 0, tub2 = 0, tub3 = 0;
     var data = $.parseJSON(msg);
     $.each(data, function(i, notify) {
-<?if ($notify['display']):?>
       switch (notify.importance) {
         case 'alert'  : tub1++; break;
         case 'warning': tub2++; break;
         case 'normal' : tub3++; break;
       }
-<?else:?>
-      $.jGrowl(notify.subject+'<br>'+notify.description, {
-        group: notify.importance,
-        header: notify.event+': '+notify.timestamp,
-        theme: notify.file,
-        click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
-        beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
-        afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
-      });
-<?endif;?>
+      if (notify.show) {
+        $.jGrowl(notify.subject+'<br>'+notify.description, {
+          group: notify.importance,
+          header: notify.event+': '+notify.timestamp,
+          theme: notify.file,
+          click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
+          beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");},
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
+        });
+      }
     });
-<?if ($notify['display']):?>
     $('#box-tub1').text(tub1);
     $('#box-tub2').text(tub2);
     $('#box-tub3').text(tub3);
     if (tub1) $('#box-tub1').removeClass('graybar').addClass('redbar'); else $('#box-tub1').removeClass('redbar').addClass('graybar');
     if (tub2) $('#box-tub2').removeClass('graybar').addClass('orangebar'); else $('#box-tub2').removeClass('orangebar').addClass('graybar');
     if (tub3) $('#box-tub3').removeClass('graybar').addClass('greenbar'); else $('#box-tub3').removeClass('greenbar').addClass('graybar');
-<?endif;?>
     break;
   }
 });
@@ -988,7 +985,6 @@ $(function() {
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
 <?endif;?>
-<?if ($notify['display']):?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
   opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
@@ -1015,7 +1011,7 @@ $(function() {
   opts.push({divider:true});
   opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
   context.attach('#nav-tub3',opts);
-<?endif;?>
+
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
       $(this).attr('id','helpinfo'+i);

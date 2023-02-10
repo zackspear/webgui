@@ -229,19 +229,19 @@ case 'get':
   usort($files, function($a,$b){return filemtime($a)-filemtime($b);});
   $i = 0;
   foreach ($files as $file) {
-    if (!is_readable($file)) continue;
     $fields = preg_split('/\n/', file_get_contents($file));
     $time = true;
+    $output[$i]['file'] = basename($file);
+    $output[$i]['show'] = fileperms($file)==32768 ? 0 : 1;
     foreach ($fields as $field) {
       if (!$field) continue;
-      list($key,$val) = explode('=', $field);
+      [$key,$val] = array_pad(explode('=', $field),2,'');
       if ($time) {$val = date($notify['date'].' '.$notify['time'], $val); $time = false;}
       $output[$i][trim($key)] = trim($val);
     }
-    $output[$i++]["file"] = basename($file);
-    chmod($file,0000);
+    $i++;
   }
-  echo json_encode($output, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  echo json_encode($output, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
   break;
 
 case 'archive':
