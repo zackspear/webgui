@@ -33,7 +33,7 @@ case 'add':
     case 'd':
     case 'i':
     case 'm':
-      $notify .= " -{$option} \"{$value}\"";
+      $notify .= " -{$option} ".escapeshellarg($value);
       break;
     case 'x':
     case 't':
@@ -47,11 +47,12 @@ case 'get':
   echo shell_exec("$notify get");
   break;
 case 'hide':
-  $file = $_POST['file'];
-  if (file_exists($file) && pathinfo($file)['extension']=='notify') chmod($file,0000);
+  $file = realpath($_POST['file']??'');
+  if (file_exists($file) && strpos($file,'/tmp/')===0 && pathinfo($file)['extension']=='notify') chmod($file,0000);
   break;
 case 'archive':
-  shell_exec("$notify archive ".escapeshellarg($_POST['file']));
+  $file = $_POST['file']??'';
+  if (strlen($file) && strpos($file,'/')===false) shell_exec("$notify archive ".escapeshellarg($file));
   break;
 }
 ?>
