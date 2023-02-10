@@ -70,6 +70,7 @@ html{font-size:<?=$display['font']?>%}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
 i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
+pre#swalbody p{margin-block-end:1em}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = $var['safeMode']=='yes';
