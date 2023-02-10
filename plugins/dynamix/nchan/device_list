@@ -405,11 +405,12 @@ while (true) {
   $echo[1] = "boot_device\n";
   $disk = &$disks['flash'];
   $data = explode(' ',$diskio[$disk['device']] ?? '0 0');
-  $flash = &$sec['flash']; $share = "";
-  if ($var['shareSMBEnabled']=='yes' && $flash['export']=='e' && $flash['security']=='public')
-    $share = "<a class='info'><i class='fa fa-warning fa-fw orange-text'></i><span>"._('Flash device is set as public share')."<br>"._('Please change share SMB security')."<br>"._('Click on **FLASH** above this message')."</span></a>";
+  $flash = &$sec['flash'];
+  $share = ($var['shareSMBEnabled']=='yes' && $flash['export']=='e' && $flash['security']=='public')
+           ? "&nbsp;<a class='info'><i class='fa fa-warning fa-fw orange-text'></i><span>"._('Flash device is set as public share')."<br>"._('Please change share SMB security')."<br>"._('Click on **FLASH** above this message')."</span></a>"
+           : "";
   $echo[1] .= "<tr>";
-  $echo[1] .= "<td>".$share.device_info($disk,true)."</td>";
+  $echo[1] .= "<td>".device_info($disk,true).$share."</td>";
   $echo[1] .= "<td>".device_desc($disk)."</td>";
   $echo[1] .= "<td>*</td>";
   $echo[1] .= "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number($disk['numReads'])."</span></td>";
