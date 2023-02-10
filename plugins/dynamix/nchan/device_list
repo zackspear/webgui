@@ -164,7 +164,7 @@ function fs_info(&$disk) {
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
 }
-function array_offline(&$disk,$pool='') {
+function array_offline(&$disk, $pool='') {
   global $var, $disks;
   $echo = []; $warning = '';
   if (strpos($var['mdState'],'ERROR:')===false) {
@@ -200,13 +200,25 @@ function array_offline(&$disk,$pool='') {
     $echo[] = "<td>".device_info($disk,false)."</td>";
     $echo[] = "<td>".assignment($disk)."</td>";
     $echo[] = "<td>".my_temp($disk['temp'])."</td>";
-    $echo[] = "<td colspan='7'>$warning</td>";
+    if ($warning) {
+      $echo[] = "<td colspan='7'>$warning</td>";
+    } else {
+      $echo[] = "<td colspan='3'></td>";
+      $echo[] = "<td>".vfs_type($disk['fsType']??'')."</td>";
+      $echo[] = "<td colspan='3'></td>";
+    }
     break;
   case 'DISK_WRONG':
     $echo[] = "<td>".device_info($disk,false)."<br><span class='diskinfo'><em>"._('Wrong')."</em></span></td>";
     $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale($disk['sizeSb']*1024,$unit)." $unit</em></td>";
     $echo[] = "<td>".my_temp($disk['temp'])."</td>";
-    $echo[] = "<td colspan='7'>$warning</td>";
+    if ($warning) {
+      $echo[] = "<td colspan='7'>$warning</td>";
+    } else {
+      $echo[] = "<td colspan='3'></td>";
+      $echo[] = "<td>".vfs_type($disk['fsType']??'')."</td>";
+      $echo[] = "<td colspan='3'></td>";
+    }
     break;
   }
   $echo[] = "</tr>";
