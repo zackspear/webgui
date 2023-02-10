@@ -48,7 +48,7 @@ case 'get':
   break;
 case 'hide':
   $file = $_POST['file'];
-  if (file_exists($file)) chmod($file,0000);
+  if (file_exists($file) && pathinfo($file)['extension']=='notify') chmod($file,0000);
   break;
 case 'archive':
   shell_exec("$notify archive ".escapeshellarg($_POST['file']));
