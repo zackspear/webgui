@@ -74,10 +74,8 @@ textarea{resize:none}
 .nav-item.HelpButton.active:hover,.nav-item.HelpButton.active a:hover{background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f);font-size:18px}
 .nav-item.HelpButton.active,.nav-item.HelpButton.active a{font-size:18px}
 .nav-item a b{display:none}
-.nav-user{display:block;float:left;text-align:center;border:none}
-#nav-tub1{position:fixed;top:98px;right:250px}
-#nav-tub2{position:fixed;top:98px;right:220px}
-#nav-tub3{position:fixed;top:98px;right:190px}
+.nav-user{position:fixed;top:85px;right:0}
+.nav-user .orb{font-size:1.6rem;cursor:pointer}
 .LanguageButton{font-size:12px !important;} /* Fix Switch Language Being Cut-Off */
 div.title{color:#39587f;margin:20px 0 10px 0;padding:10px 0;clear:both;background-color:#1b1d1b;border-bottom:1px solid #606e7f;letter-spacing:1.8px}
 div.title span.left{font-size:1.6rem;text-transform:uppercase}
@@ -104,7 +102,8 @@ div.title.shift{margin-top:-12px}
 .blue-orb{color:#0099ff}
 .yellow-orb{color:#ff9900}
 .red-orb{color:#ff3300}
-.usage-bar{position:fixed;top:97px;right:300px;height:2.2rem;line-height:2.2rem;width:11rem;background-color:#606060}
+.ring-orb{color:#606e7f}
+.usage-bar{position:fixed;top:64px;left:300px;height:2.2rem;line-height:2.2rem;width:11rem;background-color:#606060}
 .usage-bar>span{display:block;height:3px;color:#ffffff;background-color:#606e7f}
 .usage-disk{position:relative;height:2.2rem;line-height:2.2rem;background-color:#232523;margin:0}
 .usage-disk>span:first-child{position:absolute;left:0;margin:0!important;height:3px;background-color:#606e7f}
@@ -205,7 +204,6 @@ span.outer.stopped>img,span.outer.stopped>i.img{opacity:0.3}
 span.outer.paused>img,span.outer.paused>i.img{opacity:0.6}
 span.inner{display:inline-block;vertical-align:top}
 span.state{font-size:1.1rem;margin-left:7px}
-b[id^="box-tub"]{color:white;padding:2px 6px;margin:0 10px 0 0;cursor:pointer}
 i.padlock{margin-right:8px;cursor:default;vertical-align:middle}
 i.nolock{visibility:hidden;margin-right:8px;vertical-align:middle}
 i.lock{margin-left:8px;cursor:default;vertical-align:middle}

@@ -53,13 +53,18 @@ html{font-size:<?=$display['font']?>%}
 <?if ($header):?>
 #header,#header .logo,#header .text-right a{color:#<?=$header?>}
 #header .block{background-color:transparent}
+<?if ($themes1):?>
+.ring-orb{color:#<?=$header?>}
+<?endif;?>
 <?endif;?>
 <?if ($backgnd):?>
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
 .nav-tile{background-color:#<?=$backgnd?>}
+<?if ($header):?>
 .nav-item a{color:#<?=$header?>}
 .nav-item.active:after{background-color:#<?=$header?>}
+<?endif;?>
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
@@ -637,9 +642,11 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
-echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
-echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
+echo "<div class='nav-user'>";
+echo "<span id='bag1' class='fa-stack fa-lg orb' title=\""._('Alerts')."\"><b id='orb1' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "<span id='bag2' class='fa-stack fa-lg orb' title=\""._('Warnings')."\"><b id='orb2' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "<span id='bag3' class='fa-stack fa-lg orb' title=\""._('Notices')."\"><b id='orb3' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "</div>";
 
 if ($themes2) echo "</div>";
 echo "</div></div>";
@@ -822,13 +829,13 @@ defaultPage.on('message', function(msg,meta) {
     break;
   case 2:
     // notifications
-    var tub1 = 0, tub2 = 0, tub3 = 0;
+    var orb1 = 0, orb2 = 0, orb3 = 0;
     var data = $.parseJSON(msg);
     $.each(data, function(i, notify) {
       switch (notify.importance) {
-        case 'alert'  : tub1++; break;
-        case 'warning': tub2++; break;
-        case 'normal' : tub3++; break;
+        case 'alert'  : orb1++; break;
+        case 'warning': orb2++; break;
+        case 'normal' : orb3++; break;
       }
       if (notify.show) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
@@ -842,12 +849,9 @@ defaultPage.on('message', function(msg,meta) {
         });
       }
     });
-    $('#box-tub1').text(tub1);
-    $('#box-tub2').text(tub2);
-    $('#box-tub3').text(tub3);
-    if (tub1) $('#box-tub1').removeClass('graybar').addClass('redbar'); else $('#box-tub1').removeClass('redbar').addClass('graybar');
-    if (tub2) $('#box-tub2').removeClass('graybar').addClass('orangebar'); else $('#box-tub2').removeClass('orangebar').addClass('graybar');
-    if (tub3) $('#box-tub3').removeClass('graybar').addClass('greenbar'); else $('#box-tub3').removeClass('greenbar').addClass('graybar');
+    if (orb1) $('#orb1').removeClass('grey-orb').addClass('red-orb'); else $('#orb1').removeClass('red-orb').addClass('grey-orb');
+    if (orb2) $('#orb2').removeClass('grey-orb').addClass('yellow-orb'); else $('#orb2').removeClass('yellow-orb').addClass('grey-orb');
+    if (orb3) $('#orb3').removeClass('grey-orb').addClass('green-orb'); else $('#orb3').removeClass('green-orb').addClass('grey-orb');
     break;
   }
 });
@@ -988,30 +992,33 @@ $(function() {
 <?endif;?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
+  opts.push({header:"<?=_('Alerts')?>"});
   opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
-  context.attach('#nav-tub1',opts);
+  context.attach('#bag1',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
+  opts.push({header:"<?=_('Warnings')?>"});
   opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
-  context.attach('#nav-tub2',opts);
+  context.attach('#bag2',opts);
 
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
+  opts.push({header:"<?=_('Notices')?>"});
   opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
   opts.push({divider:true});
   opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
-  context.attach('#nav-tub3',opts);
+  context.attach('#bag3',opts);
 
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
