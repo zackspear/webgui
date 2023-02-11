@@ -645,9 +645,9 @@ foreach ($buttons as $button) {
 }
 
 echo "<div class='nav-user'>";
-echo "<span id='bag1' class='fa-stack fa-lg orb' title=\""._('Alerts')."\"><b id='orb1' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
-echo "<span id='bag2' class='fa-stack fa-lg orb' title=\""._('Warnings')."\"><b id='orb2' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
-echo "<span id='bag3' class='fa-stack fa-lg orb' title=\""._('Notices')."\"><b id='orb3' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "<span id='bag1' class='fa-stack fa-lg orb' title=\""._('Alerts')." [0]\"><b id='orb1' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "<span id='bag2' class='fa-stack fa-lg orb' title=\""._('Warnings')." [0]\"><b id='orb2' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
+echo "<span id='bag3' class='fa-stack fa-lg orb' title=\""._('Notices')." [0]\"><b id='orb3' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
 echo "</div>";
 
 if ($themes2) echo "</div>";
@@ -855,6 +855,9 @@ defaultPage.on('message', function(msg,meta) {
     if (orb1) $('#orb1').removeClass('grey-orb').addClass('red-orb'); else $('#orb1').removeClass('red-orb').addClass('grey-orb');
     if (orb2) $('#orb2').removeClass('grey-orb').addClass('yellow-orb'); else $('#orb2').removeClass('yellow-orb').addClass('grey-orb');
     if (orb3) $('#orb3').removeClass('grey-orb').addClass('green-orb'); else $('#orb3').removeClass('green-orb').addClass('grey-orb');
+    $('#bag1').prop('title',"<?=_('Alerts')?> ["+orb1+']');
+    $('#bag2').prop('title',"<?=_('Warnings')?> ["+orb2+']');
+    $('#bag3').prop('title',"<?=_('Notices')?> ["+orb3+']');
     break;
   }
 });
