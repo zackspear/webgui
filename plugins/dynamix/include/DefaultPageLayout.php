@@ -521,16 +521,17 @@ function digits(number) {
   return 'three';
 }
 function openNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
           sticky: true,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
           close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
@@ -538,10 +539,9 @@ function openNotifier(filter) {
   });
 }
 function closeNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
   });
@@ -562,9 +562,11 @@ $(function() {
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div class="bottom">':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';
-  $.jGrowl.defaults.check = 100;
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
+  $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
+  $.jGrowl.defaults.pool = 10;
+  $.jGrowl.defaults.life = 3000;
   Shadowbox.setup('a.sb-enable', {modal:true});
 // add any pre-existing reboot notices
   $.post('/webGui/include/Report.php',{cmd:'notice'},function(notices){
@@ -830,24 +832,25 @@ defaultPage.on('message', function(msg,meta) {
   case 2:
     // notifications
     var orb1 = 0, orb2 = 0, orb3 = 0;
-    var data = $.parseJSON(msg);
-    $.each(data, function(i, notify) {
+    $.each($.parseJSON(msg), function(i, notify) {
       switch (notify.importance) {
         case 'alert'  : orb1++; break;
         case 'warning': orb2++; break;
         case 'normal' : orb3++; break;
       }
+<?if ($notify['display']==0):?>
       if (notify.show) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
-          click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
           close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
         });
       }
+<?endif;?>
     });
     if (orb1) $('#orb1').removeClass('grey-orb').addClass('red-orb'); else $('#orb1').removeClass('red-orb').addClass('grey-orb');
     if (orb2) $('#orb2').removeClass('grey-orb').addClass('yellow-orb'); else $('#orb2').removeClass('yellow-orb').addClass('grey-orb');
