@@ -72,9 +72,9 @@ function device_info(&$disk,$online) {
             ($disk['type']=='Cache' && $disk_status!='DISK_NP') ||
             ($disk['name']=='flash') || in_array($disk['name'],$pools) ||
              $disk['type']=='New' ? "<a href=\"".htmlspecialchars("/Main/Settings/$type?name=$name")."\">$fancyname</a>" : $fancyname;
-  if ($crypto) switch ($disk['luksState']) {
+  if ($crypto) switch ($disk['luksState']??0) {
     case 0:
-      if (!vfs_luks($disk['fsType']))
+      if (!vfs_luks($disk['fsType']??''))
         $luks = "<i class='nolock fa fa-lock'></i>";
       else
         $luks = "<a class='info'><i class='padlock fa fa-unlock orange-text'></i><span>"._('Device to be encrypted')."</span></a>";
