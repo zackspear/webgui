@@ -74,7 +74,8 @@ div.title.shift{margin-top:-30px}
 .nav-item:after{border-radius:4px;display:block;background-color:transparent;content:"";width:32px;height:2px;bottom:7px;position:absolute;left:50%;margin-left:-16px;-webkit-transition:all .25s ease-in-out;transition:all .25s ease-in-out;pointer-events:none}
 .nav-item:focus:after,.nav-item:hover:after{background-color:#f15a2c}
 .nav-item.active:after{background-color:#1c1b1b}
-.nav-user .orb{padding-bottom:2px;font-size:1.6rem;cursor:pointer}
+.nav-user a{color:#1c1b1b;background-color:transparent;display:block;padding:0 10px}
+.nav-user .system{vertical-align:middle;padding-bottom:2px}
 #clear{clear:both}
 #footer{position:fixed;bottom:0;left:0;color:#d4d5d6;background-color:#2b2a29;padding:5px 0;width:100%;height:1.6rem;line-height:1.6rem;text-align:center;z-index:10000}
 #statusraid{float:left;padding-left:10px}
@@ -94,7 +95,6 @@ div.title.shift{margin-top:-30px}
 .blue-orb{color:#0099ff}
 .yellow-orb{color:#ff9900}
 .red-orb{color:#ff3300}
-.ring-orb{color:#1c1b1b}
 .usage-bar{float:left;height:2rem;line-height:2rem;width:14rem;padding:1px 1px 1px 2px;margin:8px 12px;border-radius:3px;background-color:#585858;box-shadow:0 1px 0 #989898,inset 0 1px 0 #202020}
 .usage-bar>span{display:block;height:100%;text-align:right;border-radius:2px;color:#f2f2f2;background-color:#808080;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
 .usage-disk{position:relative;height:1.8rem;background-color:#444444;margin:0}

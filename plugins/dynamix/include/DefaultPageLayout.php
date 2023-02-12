@@ -53,16 +53,13 @@ html{font-size:<?=$display['font']?>%}
 <?if ($header):?>
 #header,#header .logo,#header .text-right a{color:#<?=$header?>}
 #header .block{background-color:transparent}
-<?if ($themes1):?>
-.ring-orb{color:#<?=$header?>}
-<?endif;?>
 <?endif;?>
 <?if ($backgnd):?>
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
 .nav-tile{background-color:#<?=$backgnd?>}
 <?if ($header):?>
-.nav-item a{color:#<?=$header?>}
+.nav-item a,.nav-user a{color:#<?=$header?>}
 .nav-item.active:after{background-color:#<?=$header?>}
 <?endif;?>
 <?endif;?>
@@ -624,6 +621,7 @@ if (in_array($task,['Dashboard','Docker','VMs'])) {
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
+
 foreach ($buttons as $button) {
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -644,12 +642,7 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div class='nav-user'>";
-echo "<span id='bag1' class='fa-stack fa-lg orb' title=\""._('Alerts')." [0]\"><b id='orb1' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
-echo "<span id='bag2' class='fa-stack fa-lg orb' title=\""._('Warnings')." [0]\"><b id='orb2' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
-echo "<span id='bag3' class='fa-stack fa-lg orb' title=\""._('Notices')." [0]\"><b id='orb3' class='fa fa-circle fa-stack-1x grey-orb'></b><b class='fa fa-circle-thin fa-stack-1x ring-orb'></b></span>";
-echo "</div>";
-
+echo "<div class='nav-user'><a id='buzz' href='#'><b id='bell'></b></a></div>";
 if ($themes2) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
@@ -831,12 +824,12 @@ defaultPage.on('message', function(msg,meta) {
     break;
   case 2:
     // notifications
-    var orb1 = 0, orb2 = 0, orb3 = 0;
+    var bell1 = 0, bell2 = 0, bell3 = 0;
     $.each($.parseJSON(msg), function(i, notify) {
       switch (notify.importance) {
-        case 'alert'  : orb1++; break;
-        case 'warning': orb2++; break;
-        case 'normal' : orb3++; break;
+        case 'alert'  : bell1++; break;
+        case 'warning': bell2++; break;
+        case 'normal' : bell3++; break;
       }
 <?if ($notify['display']==0):?>
       if (notify.show) {
@@ -852,12 +845,11 @@ defaultPage.on('message', function(msg,meta) {
       }
 <?endif;?>
     });
-    if (orb1) $('#orb1').removeClass('grey-orb').addClass('red-orb'); else $('#orb1').removeClass('red-orb').addClass('grey-orb');
-    if (orb2) $('#orb2').removeClass('grey-orb').addClass('yellow-orb'); else $('#orb2').removeClass('yellow-orb').addClass('grey-orb');
-    if (orb3) $('#orb3').removeClass('grey-orb').addClass('green-orb'); else $('#orb3').removeClass('green-orb').addClass('grey-orb');
-    $('#bag1').prop('title',"<?=_('Alerts')?> ["+orb1+']');
-    $('#bag2').prop('title',"<?=_('Warnings')?> ["+orb2+']');
-    $('#bag3').prop('title',"<?=_('Notices')?> ["+orb3+']');
+    $('#bell').removeClass().addClass('icon-u-bell system');
+    if (bell1) $('#bell').addClass('red-orb'); else
+    if (bell2) $('#bell').addClass('yellow-orb'); else
+    if (bell3) $('#bell').addClass('green-orb');
+    $('#bell').prop('title',"<?=_('Alerts')?> ["+bell1+']\n'+"<?=_('Warnings')?> ["+bell2+']\n'+"<?=_('Notices')?> ["+bell3+']');
     break;
   }
 });
@@ -998,33 +990,11 @@ $(function() {
 <?endif;?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({header:"<?=_('Alerts')?>"});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
-  context.attach('#bag1',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({header:"<?=_('Warnings')?>"});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
-  context.attach('#bag2',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({header:"<?=_('Notices')?>"});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
-  context.attach('#bag3',opts);
+  opts.push({header:"<?=_('Notifications')?>"});
+  opts.push({text:"<?=_('Alerts')?>",icon:'fa-bell-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}}]});
+  opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});
+  opts.push({text:"<?=_('Notices')?>",icon:'fa-sun-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}}]});
+  context.attach('#buzz',opts);
 
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
