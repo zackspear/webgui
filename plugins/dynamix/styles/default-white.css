@@ -71,7 +71,7 @@ div.title.shift{margin-top:-30px}
 .nav-item .system{vertical-align:middle;padding-bottom:2px}
 .nav-item a{color:#f2f2f2;background-color:transparent;text-transform:uppercase;font-weight:bold;display:block;padding:0 10px}
 .nav-item a{text-decoration:none;text-decoration-skip-ink:auto;-webkit-text-decoration-skip:objects;-webkit-transition:all .25s ease-out;transition:all .25s ease-out}
-.nav-item:after{border-radius:4px;display:block;background-color:transparent;content:"";width:32px;height:2px;bottom:7px;position:absolute;left:50%;margin-left:-16px;-webkit-transition:all .25s ease-in-out;transition:all .25s ease-in-out;pointer-events:none}
+.nav-item:after{border-radius:4px;display:block;background-color:transparent;content:"";width:32px;height:2px;bottom:8px;position:absolute;left:50%;margin-left:-16px;-webkit-transition:all .25s ease-in-out;transition:all .25s ease-in-out;pointer-events:none}
 .nav-item:focus:after,.nav-item:hover:after{background-color:#f15a2c}
 .nav-item.active:after{background-color:#f2f2f2}
 .nav-user a{color:#f2f2f2;background-color:transparent;display:block;padding:0 10px}
