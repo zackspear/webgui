@@ -638,8 +638,8 @@ foreach ($buttons as $button) {
 }
 
 echo "<div class='nav-user show'>";
-echo "<a id='bell' href='#'><b class='icon-u-bell system'></b></a>";
-echo "<span class='panel'><b id='dot1' class='fa fa-circle fa-fw dot'></b><b id='dot2' class='fa fa-circle fa-fw dot'></b><b id='dot3' class='fa fa-circle fa-fw dot'></b></span>";
+echo "<a id='nav' href='#'><b id='bell' class='icon-u-bell system'></b></a>";
+echo "<span class='panel'><b id='dot1' class='fa fa-circle fa-fw dot grey-orb'></b><b id='dot2' class='fa fa-circle fa-fw dot grey-orb'></b><b id='dot3' class='fa fa-circle fa-fw dot grey-orb'></b></span>";
 echo "</div>";
 
 if ($themes2) echo "</div>";
@@ -847,7 +847,13 @@ defaultPage.on('message', function(msg,meta) {
     if (bell1) $('#dot1').removeClass('grey-orb').addClass('red-orb');    else $('#dot1').removeClass('red-orb').addClass('grey-orb');
     if (bell2) $('#dot2').removeClass('grey-orb').addClass('yellow-orb'); else $('#dot2').removeClass('yellow-orb').addClass('grey-orb');
     if (bell3) $('#dot3').removeClass('grey-orb').addClass('green-orb');  else $('#dot3').removeClass('green-orb').addClass('grey-orb');
-    $('#bell').prop('title',"<?=_('Alerts')?> ["+bell1+']\n'+"<?=_('Warnings')?> ["+bell2+']\n'+"<?=_('Notices')?> ["+bell3+']');
+
+    $('#bell').removeClass('red-orb yellow-orb green-orb');
+    if (bell1) $('#bell').addClass('red-orb'); else
+    if (bell2) $('#bell').addClass('yellow-orb'); else
+    if (bell3) $('#bell').addClass('green-orb');
+
+    $('#nav').prop('title',"<?=_('Alerts')?> ["+bell1+']\n'+"<?=_('Warnings')?> ["+bell2+']\n'+"<?=_('Notices')?> ["+bell3+']');
     break;
   }
 });
@@ -992,7 +998,7 @@ $(function() {
   opts.push({text:"<?=_('Alerts')?>",icon:'fa-bell-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}}]});
   opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});
   opts.push({text:"<?=_('Notices')?>",icon:'fa-sun-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}}]});
-  context.attach('#bell',opts);
+  context.attach('#nav',opts);
 
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
