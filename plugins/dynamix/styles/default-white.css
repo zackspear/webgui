@@ -71,12 +71,12 @@ div.title.shift{margin-top:-30px}
 .nav-item .system{vertical-align:middle;padding-bottom:2px}
 .nav-item a{color:#f2f2f2;background-color:transparent;text-transform:uppercase;font-weight:bold;display:block;padding:0 10px}
 .nav-item a{text-decoration:none;text-decoration-skip-ink:auto;-webkit-text-decoration-skip:objects;-webkit-transition:all .25s ease-out;transition:all .25s ease-out}
-.nav-item:after{border-radius:4px;display:block;background-color:transparent;content:"";width:32px;height:2px;bottom:7px;position:absolute;left:50%;margin-left:-16px;-webkit-transition:all .25s ease-in-out;transition:all .25s ease-in-out;pointer-events:none}
-.nav-item:focus:after,.nav-item:hover:after{background-color:#f15a2c}
+.nav-item:after,.nav-user.show:after{border-radius:4px;display:block;background-color:transparent;content:"";width:32px;height:2px;bottom:8px;position:absolute;left:50%;margin-left:-16px;-webkit-transition:all .25s ease-in-out;transition:all .25s ease-in-out;pointer-events:none}
+.nav-item:focus:after,.nav-item:hover:after,.nav-user.show:hover:after{background-color:#f15a2c}
 .nav-item.active:after{background-color:#f2f2f2}
 .nav-user a{color:#f2f2f2;background-color:transparent;display:block;padding:0 10px}
 .nav-user .system{vertical-align:middle;padding-bottom:2px}
-.nav-user .panel{position:absolute;top:-15px;left:1px}
+.nav-user .panel{position:absolute;top:-15px;left:1px;height:8px}
 .nav-user .dot{font-size:8px}
 #clear{clear:both}
 #footer{position:fixed;bottom:0;left:0;color:#2b2a29;background-color:#d4d5d6;padding:5px 0;width:100%;height:1.6rem;line-height:1.6rem;text-align:center;z-index:10000}
