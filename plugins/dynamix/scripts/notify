@@ -229,7 +229,7 @@ case 'get':
   usort($files, function($a,$b){return filemtime($a)-filemtime($b);});
   $i = 0;
   foreach ($files as $file) {
-    $fields = preg_split('/\n/', file_get_contents($file));
+    $fields = file($file,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
     $time = true;
     $output[$i]['file'] = basename($file);
     $output[$i]['show'] = fileperms($file)==32768 ? 0 : 1;

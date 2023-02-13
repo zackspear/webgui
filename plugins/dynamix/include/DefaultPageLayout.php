@@ -58,8 +58,10 @@ html{font-size:<?=$display['font']?>%}
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
 .nav-tile{background-color:#<?=$backgnd?>}
-.nav-item a{color:#<?=$header?>}
+<?if ($header):?>
+.nav-item a,.nav-user a{color:#<?=$header?>}
 .nav-item.active:after{background-color:#<?=$header?>}
+<?endif;?>
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
@@ -367,18 +369,13 @@ function openChanges(cmd,title,nchan,button=0) {
   });
 }
 function openAlert(cmd,title,func) {
-  nchan_changes.start();
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) {
-      nchan_changes.stop();
-      $('div.spinner.fixed').hide();
-      return;
-    }
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:2},function(data) {
+    $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
-      nchan_changes.stop();
       if (proceed) setTimeout(func+'()');
     });
     $('.sweet-alert').addClass('nchan');
+    $('pre#swalbody').html(data);
   });
 }
 function openDone(data) {
@@ -516,16 +513,17 @@ function digits(number) {
   return 'three';
 }
 function openNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
           sticky: true,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
           close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
@@ -533,10 +531,9 @@ function openNotifier(filter) {
   });
 }
 function closeNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
   });
@@ -557,9 +554,11 @@ $(function() {
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div class="bottom">':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';
-  $.jGrowl.defaults.check = 100;
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
+  $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
+  $.jGrowl.defaults.pool = 10;
+  $.jGrowl.defaults.life = 3000;
   Shadowbox.setup('a.sb-enable', {modal:true});
 // add any pre-existing reboot notices
   $.post('/webGui/include/Report.php',{cmd:'notice'},function(notices){
@@ -617,6 +616,7 @@ if (in_array($task,['Dashboard','Docker','VMs'])) {
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
+
 foreach ($buttons as $button) {
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -637,9 +637,10 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
-echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
-echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
+echo "<div class='nav-user'>";
+echo "<a id='bell' href='#'><b class='icon-u-bell system'></b></a>";
+echo "<span class='panel'><b id='dot1' class='fa fa-circle fa-fw dot'></b><b id='dot2' class='fa fa-circle fa-fw dot'></b><b id='dot3' class='fa fa-circle fa-fw dot'></b></span>";
+echo "</div>";
 
 if ($themes2) echo "</div>";
 echo "</div></div>";
@@ -822,32 +823,31 @@ defaultPage.on('message', function(msg,meta) {
     break;
   case 2:
     // notifications
-    var tub1 = 0, tub2 = 0, tub3 = 0;
-    var data = $.parseJSON(msg);
-    $.each(data, function(i, notify) {
+    var bell1 = 0, bell2 = 0, bell3 = 0;
+    $.each($.parseJSON(msg), function(i, notify) {
       switch (notify.importance) {
-        case 'alert'  : tub1++; break;
-        case 'warning': tub2++; break;
-        case 'normal' : tub3++; break;
+        case 'alert'  : bell1++; break;
+        case 'warning': bell2++; break;
+        case 'normal' : bell3++; break;
       }
+<?if ($notify['display']==0):?>
       if (notify.show) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
-          click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
           close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
         });
       }
+<?endif;?>
     });
-    $('#box-tub1').text(tub1);
-    $('#box-tub2').text(tub2);
-    $('#box-tub3').text(tub3);
-    if (tub1) $('#box-tub1').removeClass('graybar').addClass('redbar'); else $('#box-tub1').removeClass('redbar').addClass('graybar');
-    if (tub2) $('#box-tub2').removeClass('graybar').addClass('orangebar'); else $('#box-tub2').removeClass('orangebar').addClass('graybar');
-    if (tub3) $('#box-tub3').removeClass('graybar').addClass('greenbar'); else $('#box-tub3').removeClass('greenbar').addClass('graybar');
+    if (bell1) $('#dot1').removeClass('grey-orb').addClass('red-orb');    else $('#dot1').removeClass('red-orb').addClass('grey-orb');
+    if (bell2) $('#dot2').removeClass('grey-orb').addClass('yellow-orb'); else $('#dot2').removeClass('yellow-orb').addClass('grey-orb');
+    if (bell3) $('#dot3').removeClass('grey-orb').addClass('green-orb');  else $('#dot3').removeClass('green-orb').addClass('grey-orb');
+    $('#bell').prop('title',"<?=_('Alerts')?> ["+bell1+']\n'+"<?=_('Warnings')?> ["+bell2+']\n'+"<?=_('Notices')?> ["+bell3+']');
     break;
   }
 });
@@ -988,30 +988,11 @@ $(function() {
 <?endif;?>
   var opts = [];
   context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
-  context.attach('#nav-tub1',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
-  context.attach('#nav-tub2',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
-  context.attach('#nav-tub3',opts);
+  opts.push({header:"<?=_('Notifications')?>"});
+  opts.push({text:"<?=_('Alerts')?>",icon:'fa-bell-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}}]});
+  opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});
+  opts.push({text:"<?=_('Notices')?>",icon:'fa-sun-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}}]});
+  context.attach('#bell',opts);
 
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
