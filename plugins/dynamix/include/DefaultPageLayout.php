@@ -637,7 +637,7 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div class='nav-user'>";
+echo "<div class='nav-user show'>";
 echo "<a id='bell' href='#'><b class='icon-u-bell system'></b></a>";
 echo "<span class='panel'><b id='dot1' class='fa fa-circle fa-fw dot'></b><b id='dot2' class='fa fa-circle fa-fw dot'></b><b id='dot3' class='fa fa-circle fa-fw dot'></b></span>";
 echo "</div>";
