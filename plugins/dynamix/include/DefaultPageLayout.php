@@ -369,18 +369,13 @@ function openChanges(cmd,title,nchan,button=0) {
   });
 }
 function openAlert(cmd,title,func) {
-  nchan_changes.start();
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) {
-      nchan_changes.stop();
-      $('div.spinner.fixed').hide();
-      return;
-    }
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:2},function(data) {
+    $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
-      nchan_changes.stop();
       if (proceed) setTimeout(func+'()');
     });
     $('.sweet-alert').addClass('nchan');
+    $('pre#swalbody').html(data);
   });
 }
 function openDone(data) {
