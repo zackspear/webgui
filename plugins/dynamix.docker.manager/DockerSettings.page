@@ -289,7 +289,7 @@ $docker_dhcp = "DOCKER_DHCP_$net";
 
 _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
-  $auto = $dockercfg[$docker_auto]??''!='no';
+  $auto = ($dockercfg[$docker_auto]??'')!='no';
   $autoDisabled = $auto ? '':'disabled';
   $dhcp = $dockercfg[$docker_dhcp] ?? false;
   $dhcpDisabled = ($auto && $dhcp) ? '':'disabled';
@@ -377,7 +377,7 @@ $docker_dhcp6 = "DOCKER_DHCP6_$net";
 
 _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
-  $auto6 = $dockercfg[$docker_auto]??''!='no';
+  $auto6 = ($dockercfg[$docker_auto]??'')!='no';
   $auto6Disabled = $auto6 ? '':'disabled';
   $dhcp6 = $dockercfg[$docker_dhcp6] ?? false;
   $dhcp6Disabled = ($auto6 && $dhcp6) ? '':'disabled';
