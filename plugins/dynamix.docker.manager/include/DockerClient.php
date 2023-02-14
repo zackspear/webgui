@@ -246,11 +246,11 @@ class DockerTemplates {
 		foreach ($this->getTemplates($scope) as $file) {
 			$doc = new DOMDocument();
 			$doc->load($file['path']);
-			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue);
-			if ( $name )
-				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name)
-					continue;
-			if ($Repository == $TemplateRepository) {
+			if ($name) {
+				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name) continue;
+			}
+			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue ?: '');
+			if ($TemplateRepository && $TemplateRepository==$Repository) {
 				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
 				return trim($TemplateField);
 			}
@@ -314,7 +314,7 @@ class DockerTemplates {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
 				} else {
-					$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
+					$ip = ($ct['NetworkMode']=='host'||($port['NAT']??false) ? $host : ($port['IP']??''));
 					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip, $tmp['url'])) : $tmp['url'];
 				}
 				$tmp['shell'] = $tmp['shell'] ?? $this->getTemplateValue($image, 'Shell');
@@ -915,15 +915,17 @@ class DockerClient {
 			$c['Shell']         = $info['Config']['Labels']['net.unraid.docker.shell'] ?? false;
 			$c['Ports']       = [];
 			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
-			if ($driver[$c['NetworkMode']]=='bridge') {
-				$ports = &$info['HostConfig']['PortBindings'];
-				$nat = true;
-			} else {
-				$ports = &$info['Config']['ExposedPorts'];
-				$nat = false;
+			if (isset($driver[$c['NetworkMode']])) {
+				if ($driver[$c['NetworkMode']]=='bridge') {
+					$ports = &$info['HostConfig']['PortBindings'];
+					$nat = true;
+				} else {
+					$ports = &$info['Config']['ExposedPorts'];
+					$nat = false;
+				}
+				$ip = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
 			}
-			$ip = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
-			$ports = is_array($ports) ? $ports : array();
+			$ports = (isset($ports) && is_array($ports)) ? $ports : [];
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
 				$c['Ports'][] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort']:$PrivatePort, 'NAT' => $nat, 'Type' => $Type ];
@@ -984,6 +986,7 @@ class DockerClient {
 
 class DockerUtil {
 	public static function ensureImageTag($image) {
+		if (!$image) return "";
 		[$strRepo, $strTag] = array_map('trim', array_pad(explode(':', $image.':'),2,''));
 		if (strpos($strRepo, 'sha256:') === 0) {
 			// sha256 was provided instead of actual repo name so truncate it for display:
@@ -998,7 +1001,7 @@ class DockerUtil {
 	}
 
 	public static function loadJSON($path) {
-		$objContent = (file_exists($path)) ? json_decode(file_get_contents($path), true) : [];
+		$objContent = (file_exists($path)) ? json_decode(@file_get_contents($path), true) : [];
 		if (empty($objContent)) $objContent = [];
 		return $objContent;
 	}
