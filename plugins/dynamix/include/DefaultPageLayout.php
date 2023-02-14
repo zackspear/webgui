@@ -257,7 +257,7 @@ function openTerminal(tag,name,more) {
   name = name.replace(/[ #]/g,"_");
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.min(screen.availHeight,800),Math.min(screen.availWidth,1200));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
-  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},100);});
+  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},200);});
 }
 function bannerAlert(text,cmd,plg,func,start) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
@@ -846,9 +846,9 @@ defaultPage.on('message', function(msg,meta) {
     if (bell2) $('#bell').addClass('yellow-orb'); else
     if (bell3) $('#bell').addClass('green-orb');
 
-    if (bell1) $('#dropdown-board li.dropdown-submenu:eq(0)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(0)').addClass('disabled').find('.dropdown-menu').hide();
-    if (bell2) $('#dropdown-board li.dropdown-submenu:eq(1)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(1)').addClass('disabled').find('.dropdown-menu').hide();
-    if (bell3) $('#dropdown-board li.dropdown-submenu:eq(2)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(2)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell1) $('#dropdown-board li.dropdown-submenu:eq(0)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(0)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell2) $('#dropdown-board li.dropdown-submenu:eq(1)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(1)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell3) $('#dropdown-board li.dropdown-submenu:eq(2)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(2)').addClass('disabled').find('.dropdown-menu').hide();
     break;
   }
 });
@@ -988,7 +988,7 @@ $(function() {
 <?endif;?>
 <?endif;?>
   var opts = [];
-  context.init({above:false});
+  context.init({above:false,right:true});
   opts.push({header:"<?=_('Notifications')?>"});
   opts.push({text:"<?=_('Alerts')?>",icon:'fa-bell-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}}]});
   opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});

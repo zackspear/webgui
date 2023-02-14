@@ -92,6 +92,32 @@ function prepareBTRFS(form) {
 }
 <?endif;?>
 
+<?if (strpos($disk['fsType']??'',"zfs")!==false):?>
+function presetZFS(form,hour) {
+  var mode = form.mode.value;
+  form.min.disabled = mode==0;
+  form.day.disabled = mode==0 || mode!=3;
+  form.dotm.disabled = mode==0 || mode!=4;
+  form.hour1.disabled = mode==0;
+  form.hour2.disabled = mode==0;
+  form.day.value = form.day.disabled ? '*' : (form.day.value=='*' ? 0 : form.day.value);
+  form.dotm.value = form.dotm.disabled ? '*' : (form.dotm.value=='*' ? 1 : form.dotm.value);
+  if (mode==1) {$(hour+'1').hide(); $(hour+'2').show();} else {$(hour+'2').hide(); $(hour+'1').show();}
+}
+function prepareZFS(form) {
+  var include = '';
+  var mode = form.mode.value;
+  form.hour.value = mode!=1 ? form.hour1.value : form.hour2.value;
+  form.min.value = mode!=1 ? form.min.value : 0;
+  form.hour1.disabled = true;
+  form.hour2.disabled = true;
+  if (form.usage.value != '') {
+    var job = $(form).find('input[name="#job"]');
+    job.val(job.val().replace('=50','='+form.usage.value));
+  }
+}
+<?endif;?>
+
 function selectDiskFsWidth(num_devices,selected_width) {
   $('#diskFsWidthZFS').empty();
   if (num_devices == 0) {
@@ -264,7 +290,7 @@ function prepareFS(form,cookie,value) {
   if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
 }
 function btrfsBalance(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'balance',path:path},function(data) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs-balance',path:path},function(data) {
     if (data.indexOf('running')>0) {
       $('#btrfs-balance').text(data);
       setTimeout(function(){btrfsBalance(path);},1000);
@@ -276,7 +302,7 @@ function btrfsBalance(path) {
   return false;
 }
 function btrfsScrub(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'scrub',path:path},function(data) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs-scrub',path:path},function(data) {
     if (data.indexOf('running')>0) {
       $('#btrfs-scrub').text(data);
       setTimeout(function(){btrfsScrub(path);},1000);
@@ -288,7 +314,7 @@ function btrfsScrub(path) {
   return false;
 }
 function btrfsCheck(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs',path:path},function(data) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'btrfs-check',path:path},function(data) {
     $('#btrfs-check').text(data);
     if (data.slice(-1)!='\0') {
       setTimeout(function(){btrfsCheck(path);},1000);
@@ -299,8 +325,20 @@ function btrfsCheck(path) {
   });
   return false;
 }
+function zfsScrub(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'zfs-scrub',path:path},function(data) {
+    if (data.indexOf('scrub in progress')>0) {
+      $('#zfs-scrub').text(data);
+      setTimeout(function(){zfsScrub(path);},1000);
+    } else {
+      $.removeCookie('zfs-scrub-<?=$tag?>');
+      refresh();
+    }
+  });
+  return false;
+}
 function rfsCheck(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs',path:path},function(data) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'rfs-check',path:path},function(data) {
     $('#rfs-check').text(data);
     if (data.slice(-1)!='\0') {
       setTimeout(function(){rfsCheck(path);},1000);
@@ -312,7 +350,7 @@ function rfsCheck(path) {
   return false;
 }
 function xfsCheck(path) {
-  $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs',path:path},function(data) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'xfs-check',path:path},function(data) {
     $('#xfs-check').text(data);
     if (data.slice(-1)!='\0') {
       setTimeout(function(){xfsCheck(path);},1000);
@@ -436,6 +474,7 @@ $(function() {
   if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
   if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
   if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
   if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
   if (status) {
@@ -443,17 +482,21 @@ $(function() {
       var action = a.split(',');
       for (var i=0,busy; busy=action[i]; i++) {
         switch (busy) {
-        case 'balance':
+        case 'btrfs-balance':
           $.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');
           btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
           break;
-        case 'scrub':
+        case 'btrfs-scrub':
           $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
           btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
           break;
-        case 'check':
+        case 'btrfs-check':
           $.cookie('btrfs-check-<?=$tag?>','/mnt/<?=$tag?>');
           btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+          break;
+        case 'zfs-scrub':
+          $.cookie('zfs-scrub-<?=$tag?>','<?=$tag?>');
+          zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
           break;
         }
       }
@@ -904,11 +947,94 @@ _(btrfs check status)_:
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"zfs")!==false):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
-_(zpool status)_:
-: <?echo "<pre>".shell_exec("/usr/sbin/zpool status -P $tag")."</pre>"?>
+<?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $scrub_status, $retval)?>
+_(zfs scrub status)_:
+: <?echo "<pre id='zfs-scrub'>".implode("\n", $scrub_status)."</pre>"?>
+
+<?if ($retval != 0):?>
+<input type="hidden" name="#command" value="/webGui/scripts/zfs_scrub">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="<?=$tag?>">
+
+&nbsp;
+: <input type="submit" value="_(Scrub)_">
+
+:info_zfs_scrub_help:
+
+<?else:?>
+<input type="hidden" name="#command" value="/webGui/scripts/zfs_scrub">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="<?=$tag?>">
+
+&nbsp;
+: <input type="submit" value="_(Cancel)_">
+
+:info_scrub_cancel_help:
 
 <?endif;?>
+<?else:?>
+
+&nbsp;
+: <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
+
+<?endif;?>
+</form>
+<hr>
+<?$scrub = str_replace('-','_',"scrub_$tag")?>
+<form markdown="1" name="scrub_schedule" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareZFS(this)">
+<input type="hidden" name="#file" value="dynamix/dynamix.cfg">
+<input type="hidden" name="#section" value="<?=$scrub?>">
+<input type="hidden" name="#include" value="/webGui/include/update.zfs.php">
+<input type="hidden" name="#job" value="scrub_<?=$tag?>;<?=$docroot?>/plugins/dynamix/scripts/zfs_scrub start <?=$tag?>">
+<input type="hidden" name="hour" value="">
+_(Scrub schedule)_:
+: <select name="mode" onchange="presetZFS(this.form,'#scrub-hour')">
+  <?for ($m=0; $m<count($mode); $m++):?>
+  <?=mk_option($$scrub['mode']??'', strval($m), _($mode[$m]))?>
+  <?endfor;?>
+  </select>
+
+_(Day of the week)_:
+: <select name="day">
+  <?for ($d=0; $d<count($days); $d++):?>
+  <?=mk_option($$scrub['day']??'', strval($d), _($days[$d]),0)?>
+  <?endfor;?>
+  <?=mk_option($$scrub['day']??'', "*", "--------", _("disabled"))?>
+  </select>
+
+_(Day of the month)_:
+: <select name="dotm">
+  <?for ($d=1; $d<=31; $d++):?>
+  <?=mk_option($$scrub['dotm']??'', strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  <?=mk_option($$scrub['dotm']??'', "*", "--------", _("disabled"))?>
+  </select>
+
+_(Time of the day)_:
+: <span id="scrub-hour1" style="display:none"><select name="hour1" class="narrow">
+  <?for ($d=0; $d<=23; $d++):?>
+  <?=mk_option($$scrub['hour']??'', strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>
+  <select name="min" class="narrow">
+  <?for ($d=0; $d<=55; $d+=5):?>
+  <?=mk_option($$scrub['min']??'', strval($d), sprintf("%02d", $d))?>
+  <?endfor;?>
+  </select>&nbsp;&nbsp;_(HH:MM)_</span>
+: <span id="scrub-hour2" style="display:none"><select name="hour2">
+  <?=mk_option($$scrub['hour']??'', "*/1", _("Every hour"))?>
+  <?=mk_option($$scrub['hour']??'', "*/2", _("Every 2 hours"))?>
+  <?=mk_option($$scrub['hour']??'', "*/3", _("Every 3 hours"))?>
+  <?=mk_option($$scrub['hour']??'', "*/4", _("Every 4 hours"))?>
+  <?=mk_option($$scrub['hour']??'', "*/6", _("Every 6 hours"))?>
+  <?=mk_option($$scrub['hour']??'', "*/8", _("Every 8 hours"))?>
+  </select></span>
+
+&nbsp;
+: <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
+</form>
 <?endif;?>
 <?if (strpos($disk['fsType']??'',"reiserfs")!==false):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
@@ -1090,11 +1216,13 @@ _(Name)_:
 <input type='hidden' name='csrf_token' value='<?=$var['csrf_token']?>'>
 </form>
 
-<?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
 <script>
 $(function(){
+<?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
   presetBTRFS(document.balance_schedule,'#balance-hour');
   presetBTRFS(document.scrub_schedule,'#scrub-hour');
+<?elseif (strpos($disk['fsType']??'',"zfs")!==false):?>
+  presetZFS(document.scrub_schedule,'#scrub-hour');
+<?endif;?>
 });
 </script>
-<?endif;?>
