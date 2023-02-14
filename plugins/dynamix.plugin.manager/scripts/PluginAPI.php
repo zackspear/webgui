@@ -41,7 +41,7 @@ switch ($_POST['action']) {
 		$plugin = $options['plugin'] ?? '';
 
 		$name = unbundle($options['name'] ?? $plugin);
-		$file = "/var/log/plugins/$plugin";
+		$file = "/boot/config/plugins/$plugin";
 		$file = realpath($file)==$file ? $file : "";
 
 		if ( ! $plugin || ! file_exists($file) ) {
