@@ -846,9 +846,9 @@ defaultPage.on('message', function(msg,meta) {
     if (bell2) $('#bell').addClass('yellow-orb'); else
     if (bell3) $('#bell').addClass('green-orb');
 
-    if (bell1) $('#dropdown-board li.dropdown-submenu:eq(0)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(0)').addClass('disabled').find('.dropdown-menu').hide();
-    if (bell2) $('#dropdown-board li.dropdown-submenu:eq(1)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(1)').addClass('disabled').find('.dropdown-menu').hide();
-    if (bell3) $('#dropdown-board li.dropdown-submenu:eq(2)').removeClass('disabled').find('.dropdown-menu'); else $('#dropdown-board li.dropdown-submenu:eq(2)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell1) $('#dropdown-board li.dropdown-submenu:eq(0)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(0)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell2) $('#dropdown-board li.dropdown-submenu:eq(1)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(1)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell3) $('#dropdown-board li.dropdown-submenu:eq(2)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(2)').addClass('disabled').find('.dropdown-menu').hide();
     break;
   }
 });
