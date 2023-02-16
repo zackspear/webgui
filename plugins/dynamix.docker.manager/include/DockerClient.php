@@ -986,7 +986,6 @@ class DockerClient {
 
 class DockerUtil {
 	public static function ensureImageTag($image) {
-		if (!$image) return "";
 		[$strRepo, $strTag] = array_map('trim', array_pad(explode(':', $image.':'),2,''));
 		if (strpos($strRepo, 'sha256:') === 0) {
 			// sha256 was provided instead of actual repo name so truncate it for display:
