@@ -461,7 +461,7 @@ _(Docker LOG rotation)_:
 :docker_log_rotation_active_help:
 
 _(Docker custom network type)_:
-: <?=$dockercfg['DOCKER_NETWORK_TYPE']??''=='' ? _('macvlan') : _('ipvlan')?>
+: <?=$dockercfg['DOCKER_NETWORK_TYPE']??''=='1' ? _('ipvlan') : _('macvlan')?>
 
 :docker_custom_network_type_help:
 
