@@ -21,7 +21,7 @@ if (!empty($_POST['password']) && !empty($_POST['confirmPassword'])) {
     $userName = 'root';
     $userPassword = base64_encode($_POST['password']);
 
-    $result = exec("/usr/local/sbin/emcmd 'cmdUserEdit=Change&userName=$userName&userPassword=$userPassword'");
+    exec("/usr/local/sbin/emcmd 'cmdUserEdit=Change&userName=$userName&userPassword=$userPassword'", $output, $result);
     if ($result == 0) {
         // PAM service will log to syslog: "password changed for root"
         if (session_status()==PHP_SESSION_NONE) session_start();
