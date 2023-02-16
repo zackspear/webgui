@@ -67,9 +67,9 @@ case "attributes":
   $start = 0;
   // find start of attributes list (if existing)
   foreach ($output as $row) if (stripos($row,'smart attributes data structure')===false) $start++; else break;
-  if ($start < count($output)-1) {
+  if ($start < count($output)-3) {
     // remove header part
-    $output = array_slice($output, $start+1);
+    $output = array_slice($output, $start+3);
     foreach ($output as $row) {
       $info = explode(' ', trim(preg_replace('/\s+/',' ',$row)), 10);
       if (count($info)<10) continue;
