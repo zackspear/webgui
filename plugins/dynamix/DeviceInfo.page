@@ -950,6 +950,7 @@ _(btrfs check status)_:
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
 <?if ($disk['fsStatus']=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $scrub_status, $retval)?>
+
 _(zfs scrub status)_:
 : <?echo "<pre id='zfs-scrub'>".implode("\n", $scrub_status)."</pre>"?>
 
