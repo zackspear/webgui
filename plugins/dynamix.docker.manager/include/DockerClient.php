@@ -249,7 +249,7 @@ class DockerTemplates {
 			if ($name) {
 				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name) continue;
 			}
-			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue ?: '');
+			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue??'');
 			if ($TemplateRepository && $TemplateRepository==$Repository) {
 				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
 				return trim($TemplateField);
