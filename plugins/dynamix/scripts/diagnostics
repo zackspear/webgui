@@ -335,14 +335,16 @@ foreach (glob("$get/*.ini") as $file) {
 
 // Create loads.txt
 $cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
-$diskload = (array)@file("$get/diskload.ini");
 $loadTxt = [];
-foreach ($diskload as $loadLine) {
-  $load = explode('=',$loadLine);
-  foreach ($disks as $disk) {
-    if ($load[0]==$disk['device']) {
-      $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
-      break;
+if (file_exists("$get/diskload.ini")){
+  $diskload = (array)@file("$get/diskload.ini");
+  foreach ($diskload as $loadLine) {
+    $load = explode('=',$loadLine);
+    foreach ($disks as $disk) {
+      if ($load[0]==$disk['device']) {
+        $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
+        break;
+      }
     }
   }
 }
@@ -558,7 +560,7 @@ foreach (glob("/var/log/syslog*") as $file) {
   run("todos <".escapeshellarg($file)." >".escapeshellarg("$log.txt"));
   if (!$all) {
     unset($titles,$rows);
-    run("grep -Po 'file: \K[^\"]+' ".escapeshellarg("$log.txt")." 2>/dev/null|sort|uniq", $titles);
+    run("grep -Po 'file: \K[^\"\\x27]+' ".escapeshellarg("$log.txt")." 2>/dev/null|sort|uniq", $titles);
     run("sed -ri 's|\b\S+@\S+\.\S+\b|email@removed.com|;s|\b(username\|password)([=:])\S+\b|\\1\\2xxx|;s|(GUID: \S)\S+(\S) |\\1..\\2 |;s|(moving \"\S\|\"/mnt/user/\S).*(\S)\"|\\1..\\2\"|' ".escapeshellarg("$log.txt"));
     run("sed -ri 's|(server: ).+(\.(my)?unraid\.net(:[0-9]+)?,)|\\1hash\\2|;s|(host: \").+(\.(my)?unraid\.net(:[0-9]+)?\")|\\1hash\\2|;s|(referrer: \"https?://).+(\.(my)?unraid\.net)|\\1hash\\2|' ".escapeshellarg("$log.txt"));
     foreach ($titles as $mover) {
