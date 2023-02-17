@@ -4,8 +4,8 @@ Icon="icon-archive"
 Tag="archive"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,12 @@ Tag="archive"
 ?>
 <?
 $files = count(glob("{$notify['path']}/archive/*.notify", GLOB_NOSORT));
+$filters = mk_option(0,'',_('No filter')).mk_option(0,'alert',_('Alerts')).mk_option(0,'warning',_('Warnings')).mk_option(0,'normal',_('Notices'));
 ?>
+<style>
+select.filter{margin:0}
+span.right{margin-top:-6px;font-size:1.3rem!important;padding:0!important}
+</style>
 <script>
 var rows = [];
 Array.prototype.remove = function() {
@@ -42,9 +47,9 @@ function resize(bind) {
   }
 }
 <?endif;?>
-function archiveList(init) {
+function archiveList(init=false,filter='') {
   timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/webGui/include/NotificationsArchive.php',{filter:"<?=unscript($_GET['filter']??'')?>"},function(data) {
+  $.get('/webGui/include/NotificationsArchive.php',{filter:"<?=unscript($_GET['filter']??'')?>"||filter},function(data) {
     clearTimeout(timers.archive);
     if (data) $('#archive_list').html(data);
     if (init) {
@@ -75,6 +80,7 @@ function openClose(row) {
   }
 }
 $(function(){
+  $('span.left').append("<span class='right'><select class='filter narrow' onchange='archiveList(false,this.value)'><?=$filters?></select></span>");
   archiveList(true);
 <?if ($display['resize']):?>
   $(window).bind('resize',function(){resize(true);});

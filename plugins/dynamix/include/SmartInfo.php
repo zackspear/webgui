@@ -26,10 +26,14 @@ function normalize($text, $glue='_') {
   foreach ($words as &$word) $word = $word==strtoupper($word) ? $word : preg_replace(['/^(ct|cnt)$/','/^blk$/'],['count','block'],strtolower($word));
   return "<td>".ucfirst(implode(' ',$words))."</td>";
 }
+function size($val) {
+  return str_replace(',','',$val);
+}
 function duration(&$hrs) {
   $time = ceil(time()/3600)*3600;
+  $run = size($hrs);
   $now = new DateTime("@$time");
-  $poh = new DateTime("@".($time-$hrs*3600));
+  $poh = new DateTime("@".($time-$run*3600));
   $age = date_diff($poh,$now);
   $hrs = "$hrs (".($age->y?"{$age->y}y, ":"").($age->m?"{$age->m}m, ":"").($age->d?"{$age->d}d, ":"")."{$age->h}h)";
 }
@@ -57,12 +61,18 @@ case "attributes":
   $hot = $disk['hotTemp'] ?? $unraid['display']['hot'];
   $top = $_POST['top'] ?? 120;
   $empty = true;
-  exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
-  if (stripos($output[0]??'', 'SMART Attributes Data Structure')!==false) {
-    $output = array_slice($output, 3);
-    foreach ($output as $line) {
-      if (!$line) continue;
-      $info = explode(' ', trim(preg_replace('/\s+/',' ',$line)), 10);
+  exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
+  // remove empty rows
+  $output = array_filter($output);
+  $start = 0;
+  // find start of attributes list (if existing)
+  foreach ($output as $row) if (stripos($row,'smart attributes data structure')===false) $start++; else break;
+  if ($start < count($output)-3) {
+    // remove header part
+    $output = array_slice($output, $start+3);
+    foreach ($output as $row) {
+      $info = explode(' ', trim(preg_replace('/\s+/',' ',$row)), 10);
+      if (count($info)<10) continue;
       $color = "";
       $highlight = strpos($info[8],'FAILING_NOW')!==false || ($select ? $info[5]>0 && $info[3]<=$info[5]*$level : $info[9]>0);
       if (in_array($info[0], $events) && $highlight) $color = " class='warn'";
@@ -70,17 +80,16 @@ case "attributes":
         if (exceed($info[9],$max,$top)) $color = " class='alert'"; elseif (exceed($info[9],$hot,$top)) $color = " class='warn'";
       }
       if ($info[8]=='-') $info[8] = 'Never';
-      if ($info[0]==9 && is_numeric($info[9])) duration($info[9]);
+      if ($info[0]==9 && is_numeric(size($info[9]))) duration($info[9]);
       echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
       $empty = false;
     }
   } else {
-    // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
-    foreach ($output as $line) {
-      if (strpos($line,':')===false) continue;
-      [$name,$value] = explode(':', $line);
+    // probably a NVMe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
+    foreach ($output as $row) {
+      if (strpos($row,':')===false) continue;
+      [$name,$value] = array_map('trim',explode(':', $row));
       $name = ucfirst(strtolower($name));
-      $value = trim($value);
       $color = '';
       switch ($name) {
       case 'Temperature':
@@ -88,7 +97,7 @@ case "attributes":
         if (exceed($temp,$max)) $color = " class='alert'"; elseif (exceed($temp,$hot)) $color = " class='warn'";
         break;
       case 'Power on hours':
-        if (is_numeric($value)) duration($value);
+        if (is_numeric(size($value))) duration($value);
         break;
       }
       echo "<tr{$color}><td>-</td><td>$name</td><td colspan='8'>$value</td></tr>";

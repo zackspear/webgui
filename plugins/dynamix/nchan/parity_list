@@ -108,7 +108,7 @@ while (true) {
   else $fsState = '';
 
   if ($var['fsState']!='Started') $process = -1;
-  elseif ($spot>0) $process = 1;
+  elseif ($spot>0 && $bytes>0) $process = 1;
   elseif (file_exists('/var/run/mover.pid')) $process = 2;
   elseif (exec('ps -C btrfs -o cmd=|grep -cv show')>0) $process = 3;
   else $process = 0;
