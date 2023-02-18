@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,15 +19,16 @@ require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
-$filter = unscript($_GET['filter']??'');
-$files = glob("{$dynamix['notify']['path']}/archive/*.notify", GLOB_NOSORT);
+$filter  = unscript($_GET['filter']??false);
+$files   = glob("{$dynamix['notify']['path']}/archive/*.notify",GLOB_NOSORT);
+
 usort($files, function($a,$b){return filemtime($b)-filemtime($a);});
 
-$row = 1; $empty = true;
+$row = 1; $rows = 0;
 foreach ($files as $file) {
-  $fields = explode(PHP_EOL, file_get_contents($file));
+  $fields = file($file,FILE_IGNORE_NEW_LINES);
   if ($filter && $filter != substr($fields[4],11)) continue;
-  $empty = false;
+  $rows++;
   $archive = basename($file);
   if ($extra = count($fields)>6) {
     $td_ = "<td data='*' rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "</a></td>";
@@ -48,5 +49,6 @@ foreach ($files as $file) {
     $row++;
   }
 }
-if ($empty) echo "<tr><td></td><td colspan='4' style='text-align:center;padding-top:12px'><em>"._("No notifications present")."</em></td><td></td></tr>";
+if ($rows==0) echo "<tr><td></td><td colspan='4' style='text-align:center;padding-top:12px'><em>"._("No notifications present")."</em></td><td></td></tr>";
+echo "\0$rows";
 ?>
