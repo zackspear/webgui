@@ -49,6 +49,6 @@ foreach ($files as $file) {
     $row++;
   }
 }
-if ($rows==0) echo "<tr><td></td><td colspan='4' style='text-align:center;padding-top:12px'><em>"._("No notifications present")."</em></td><td></td></tr>";
+if ($rows==0) echo "<tr><td colspan='6' style='padding-top:12px'><center><em>"._("No notifications present")."</em></center></td></tr>";
 echo "\0$rows";
 ?>

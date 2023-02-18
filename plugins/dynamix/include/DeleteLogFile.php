@@ -15,20 +15,26 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
+$unread  = $dynamix['notify']['path']."/unread/";
 $archive = $dynamix['notify']['path']."/archive";
 $log     = $_POST['log']??'';
 $filter  = $_POST['filter']??false;
 $files   = strpos($log,'*')===false ? [realpath("$archive/$log")] : glob("$archive/$log",GLOB_NOSORT);
 
+function delete_file(...$file) {
+  array_map('unlink',array_filter($file,'file_exists'));
+}
+
 foreach ($files as $file) {
   // check file path
   if (strncmp($file,$archive,strlen($archive))!==0) continue;
+  $list = $unread.basename($file);
   if (!$filter) {
     // delete all files
-    @unlink($file);
+    delete_file($file,$list);
   } else {
     // delete selective files
-    if (exec("grep -om1 'importance=$filter' ".escapeshellarg($file))) @unlink($file);
+    if (exec("grep -om1 'importance=$filter' ".escapeshellarg($file))) delete_file($file,$list);
   }
 }
 ?>
