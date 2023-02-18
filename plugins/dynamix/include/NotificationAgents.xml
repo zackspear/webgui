@@ -536,10 +536,10 @@ done
       # Markdown newline style for message content
       TITLE=$(echo -e "$TITLE")
       MESSAGE=$(echo -e "$MESSAGE")
-	    [[ -n "${GROUP}" && "${GROUP}" == "none" ]] && GROUP=""
+      [[ -n "${GROUP}" && "${GROUP}" == "none" ]] && GROUP=""
       [[ -n "${SOUND}" && "${SOUND}" == "none" ]] && SOUND=""
-	  
-	    curl -X "POST" "$PUSHURL" \
+
+      curl -X "POST" "$PUSHURL" \
       -H 'Content-Type: application/json; charset=utf-8' \
       -d "{\"body\": \"$MESSAGE\", \"title\": \"$TITLE\", \"sound\": \"$SOUND\", \"group\": \"$GROUP\"}" 2>&1
       ]]>
