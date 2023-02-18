@@ -28,7 +28,7 @@ span.right{margin-top:-6px;font-size:1.3rem!important;padding:0!important}
 <script>
 var rows = [];
 var filter = "<?=unscript($_GET['filter']??'')?>";
-var rows = 0;
+var files = 0;
 
 Array.prototype.remove = function() {
   var val, a = arguments, L = a.length, ax;
@@ -56,8 +56,8 @@ function archiveList(init) {
   $.get('/webGui/include/NotificationsArchive.php',{filter:filter},function(data) {
     clearTimeout(timers.archive);
     data = data.split('\0');
-    if (rows != data[1]) {
-      rows = data[1];
+    if (files != data[1]) {
+      files = data[1];
       $('#archive_list').html(data[0]);
       if (init) {
   <?if ($display['resize']):?>
