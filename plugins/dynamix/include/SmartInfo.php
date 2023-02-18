@@ -206,7 +206,7 @@ case "identify":
     echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='".($info['date']??'')."' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
     echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='".($info['purchase']??'')."' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
     echo "<tr><td>"._('Warranty period').":</td><td><select class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>"._('unknown')."</option>";
-    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']??''==$period?" selected":"").">$period "._('months')."</option>";
+    foreach ($periods as $period) echo "<option value='$period'".(($info['warranty']??'')==$period?" selected":"").">$period "._('months')."</option>";
     echo "</select></td></tr>";
   }
   break;
