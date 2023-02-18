@@ -90,7 +90,7 @@ function askConfirmation() {
     confirmButtonText:"_(Proceed)_",
     cancelButtonText:"_(Cancel)_"
   },
-  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){reloadList();});});
+  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){$('#deleteAll').hide();reloadList();});});
 }
 function openClose(row) {
   var extra = '#archive_list .tablesorter-childRow.row'+row+' td';
