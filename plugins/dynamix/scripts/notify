@@ -232,7 +232,7 @@ case 'get':
     $fields = file($file,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
     $time = true;
     $output[$i]['file'] = basename($file);
-    $output[$i]['show'] = fileperms($file)==32768 ? 0 : 1;
+    $output[$i]['show'] = (fileperms($file) & 0x0FFF)==0400 ? 0 : 1;
     foreach ($fields as $field) {
       if (!$field) continue;
       [$key,$val] = array_pad(explode('=', $field),2,'');

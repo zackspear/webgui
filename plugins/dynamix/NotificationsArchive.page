@@ -24,8 +24,11 @@ $filters = mk_option(0,'',_('No filter')).mk_option(0,'alert',_('Alerts')).mk_op
 select.filter{margin:0}
 span.right{margin-top:-6px;font-size:1.3rem!important;padding:0!important}
 </style>
+
 <script>
 var rows = [];
+var filter = "<?=unscript($_GET['filter']??'')?>";
+
 Array.prototype.remove = function() {
   var val, a = arguments, L = a.length, ax;
   while (L && this.length) {
@@ -47,9 +50,9 @@ function resize(bind) {
   }
 }
 <?endif;?>
-function archiveList(init=false,filter='') {
+function archiveList(init) {
   timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.get('/webGui/include/NotificationsArchive.php',{filter:"<?=unscript($_GET['filter']??'')?>"||filter},function(data) {
+  $.get('/webGui/include/NotificationsArchive.php',{filter:filter},function(data) {
     clearTimeout(timers.archive);
     if (data) $('#archive_list').html(data);
     if (init) {
@@ -63,11 +66,19 @@ function archiveList(init=false,filter='') {
     $('#archive_list .tablesorter-childRow td').hide();
     for (var i = 0; i < rows.length; i++) $('#archive_list .tablesorter-childRow.row'+rows[i]+' td').show();
     $('div.spinner.fixed').hide('slow');
-    setTimeout(archiveList,30000);
   });
 }
 function askConfirmation() {
-  swal({title:"_(Are you sure)_?",text:"_(This will delete all notification files)_!",type:"warning",html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify'},function(){archiveList();});});
+  swal({
+    title:"_(Are you sure)_?",
+    text: filter=='' ? "_(This will delete all notification files)_!" : "_(This will delete the selected notification files)_!",
+    type:"warning",
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"
+  },
+  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){archiveList();});});
 }
 function openClose(row) {
   var extra = '#archive_list .tablesorter-childRow.row'+row+' td';
@@ -80,7 +91,8 @@ function openClose(row) {
   }
 }
 $(function(){
-  $('span.left').append("<span class='right'><select class='filter narrow' onchange='archiveList(false,this.value)'><?=$filters?></select></span>");
+  $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;archiveList()'><?=$filters?></select></span>");
+  $('select.filter').val(filter);
   archiveList(true);
 <?if ($display['resize']):?>
   $(window).bind('resize',function(){resize(true);});
