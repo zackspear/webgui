@@ -30,7 +30,7 @@ foreach ($files as $file) {
   if ($filter && $filter != substr($fields[4],11)) continue;
   $rows++;
   $archive = basename($file);
-  if ($extra = count($fields)>6) {
+  if ($extra = count($fields)>5) {
     $td_ = "<td data='*' rowspan='3'><a href='#' onclick='openClose($row)'>"; $_td = "</a></td>";
   } else {
     $td_ = "<td data='*' style='white-space:nowrap'>"; $_td = "</td>";
