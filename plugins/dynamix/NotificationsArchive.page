@@ -29,7 +29,7 @@ i.red-text{font-size:1.6rem}
 <script>
 var rows = [];
 var filter = "<?=unscript($_GET['filter']??'')?>";
-var files = -1	;
+var files = -1;
 
 Array.prototype.remove = function() {
   var val, a = arguments, L = a.length, ax;
