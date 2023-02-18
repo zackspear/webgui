@@ -53,7 +53,9 @@ function resize(bind) {
 }
 <?endif;?>
 function archiveList(init) {
+  timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/webGui/include/NotificationsArchive.php',{filter:filter},function(data) {
+    clearTimeout(timers.archive);
     data = data.split('\0');
     if (data[1]>0) $('#deleteAll').show(); else $('#deleteAll').hide();
     if (files != data[1]) {
@@ -70,6 +72,7 @@ function archiveList(init) {
       $('#archive_list .tablesorter-childRow td').hide();
       for (var i=0; i<rows.length; i++) $('#archive_list .tablesorter-childRow.row'+rows[i]+' td').show();
     }
+    $('div.spinner.fixed').hide('slow');
     timers.archivelist = setTimeout(archiveList,3000);
   });
 }
@@ -112,6 +115,6 @@ $(function(){
 </script>
 <table class="tablesorter left shift" id="archive_table">
 <thead><tr><th>_(Time)_</th><th>_(Event)_</th><th>_(Subject)_</th><th>_(Description)_</th><th>_(Importance)_</th><th><a id="deleteAll" href="#" onclick="askConfirmation();return false" title="_(Delete all notifications)_" style="display:none"><i class="fa fa-trash-o red-text"></i></a></th></tr></thead>
-<tbody id="archive_list"><tr><td colspan="6" style="padding-top:12px"><center>_(Wait)_</center></td></tr></tbody>
+<tbody id="archive_list"><tr><td colspan="6"></td></tr></tbody>
 </table>
 <input type="button" value="_(Done)_" onclick="done()">
