@@ -70,8 +70,12 @@ function archiveList(init) {
       $('#archive_list .tablesorter-childRow td').hide();
       for (var i=0; i<rows.length; i++) $('#archive_list .tablesorter-childRow.row'+rows[i]+' td').show();
     }
-    setTimeout(archiveList,3000);
+    timers.archivelist = setTimeout(archiveList,3000);
   });
+}
+function reloadList() {
+  clearTimeout(timers.archivelist);
+  archiveList();
 }
 function askConfirmation() {
   swal({
@@ -83,7 +87,7 @@ function askConfirmation() {
     confirmButtonText:"_(Proceed)_",
     cancelButtonText:"_(Cancel)_"
   },
-  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){archiveList();});});
+  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){reloadList();});});
 }
 function openClose(row) {
   var extra = '#archive_list .tablesorter-childRow.row'+row+' td';
@@ -96,7 +100,7 @@ function openClose(row) {
   }
 }
 $(function(){
-  $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;archiveList()'><?=$filters?></select></span>");
+  $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;reloadList()'><?=$filters?></select></span>");
   $('select.filter').val(filter);
   archiveList(true);
 <?if ($display['resize']):?>
