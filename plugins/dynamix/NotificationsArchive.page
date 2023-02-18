@@ -53,6 +53,7 @@ function resize(bind) {
 }
 <?endif;?>
 function archiveList(init) {
+  if (!init) clearTimeout(timers.archivelist);
   timers.archive = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.get('/webGui/include/NotificationsArchive.php',{filter:filter},function(data) {
     clearTimeout(timers.archive);
@@ -76,10 +77,6 @@ function archiveList(init) {
     timers.archivelist = setTimeout(archiveList,3000);
   });
 }
-function reloadList() {
-  clearTimeout(timers.archivelist);
-  archiveList();
-}
 function askConfirmation() {
   swal({
     title:"_(Are you sure)_?",
@@ -90,7 +87,7 @@ function askConfirmation() {
     confirmButtonText:"_(Proceed)_",
     cancelButtonText:"_(Cancel)_"
   },
-  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){$('#deleteAll').hide();reloadList();});});
+  function(){$.post('/webGui/include/DeleteLogFile.php',{log:'*.notify',filter:filter},function(){$('#deleteAll').hide();archiveList();});});
 }
 function openClose(row) {
   var extra = '#archive_list .tablesorter-childRow.row'+row+' td';
@@ -103,7 +100,7 @@ function openClose(row) {
   }
 }
 $(function(){
-  $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;reloadList()'><?=$filters?></select></span>");
+  $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;archiveList()'><?=$filters?></select></span>");
   $('select.filter').val(filter);
   archiveList(true);
 <?if ($display['resize']):?>
