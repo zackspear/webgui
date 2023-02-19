@@ -4,8 +4,8 @@ Tag="sitemap"
 Cond="($var['shareSMBEnabled']=='yes')"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2012-2020, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -21,7 +21,7 @@ _(Workgroup)_:
 
 :smb_workgroup_help:
 
-<?if ($var['USE_NETBIOS']=="yes" or $var['USE_WSD']=="yes"):?>
+<?if ($var['USE_NETBIOS']=="yes"):?>
 _(Local master)_:
 : <select name="localMaster" <?if ($var['fsState']=="Started"):?>disabled<?endif;?>>
   <?=mk_option($var['localMaster'], "no", _('No'))?>
