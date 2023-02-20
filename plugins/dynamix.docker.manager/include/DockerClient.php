@@ -273,7 +273,7 @@ class DockerTemplates {
 		$port = &$ct['Ports'][0];
 		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'], 'MyIP') ?: ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : ($port['IP'] ?: DockerUtil::myIP($ct['Name'])));
 		// Get the WebUI address from the templates as a fallback
-		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?: $this->getTemplateValue($ct['Image'], 'WebUI'));
+		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?? $this->getTemplateValue($ct['Image'], 'WebUI'));
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];
 			foreach ($ct['Ports'] as $port) {
@@ -309,7 +309,7 @@ class DockerTemplates {
 			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
-				$webui = $tmp['url'] ?: $this->getTemplateValue($ct['Image'], 'WebUI');
+				$webui = $tmp['url'] ?? $this->getTemplateValue($ct['Image'], 'WebUI');
 				if (strlen($webui) > 0 && !preg_match("%\[(IP|PORT:(\d+))\]%", $webui)) {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
