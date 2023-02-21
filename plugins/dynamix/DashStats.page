@@ -69,6 +69,7 @@ $parity = $var['mdResync'];
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = $display['number'][0];
+$zfs = false;
 
 foreach ($disks as $disk) {
   switch ($disk['type']) {
@@ -86,6 +87,7 @@ foreach ($disks as $disk) {
       $cache_type[$name] = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
       $cache_rate[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
       if (!$disks[$name]['devices']) unset($pools[array_search($name,$pools)]);
+      if (isset($disks[$name]['fsType']) && strpos($disks[$name]['fsType'],'zfs')!==false) $zfs = true;
     }
     break;
   }
@@ -214,7 +216,7 @@ i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
 i#mycase[class^="fa "]{font-size:96px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
-tr#cpu_chart,.cpu_open{display:none}
+tr#zfs,tr#cpu_chart,.cpu_open{display:none}
 td.none{text-align:center;padding-top:12px}
 input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .share1,.share3,.user1,.user3,.view1,.view2,.view3,.view4{display:none}
@@ -309,10 +311,11 @@ foreach ($cpus as $pair) {
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
 <tr><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
-<tr><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
-<tr><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
+<tr id='zfs'><td><span class='w26'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
 <?if (exec("df /var/lib/docker|grep -om1 '^/'")):?>
-<tr><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys4 load'>0%</span><div class='usage-disk sys'><span id='sys4'></span><span></span></div></span></td></tr>
 <?endif;?>
 </tbody>
 
@@ -1317,6 +1320,9 @@ $(function() {
   cpuchart.render();
   netchart.render();
   addProperties();
+<?if ($zfs):?>
+  $('tr#zfs').show();
+<?endif;?>
 <?if ($group):?>
   dropdown('enter_share');
 <?endif;?>
