@@ -23,7 +23,7 @@ while (true) {
   exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$rpms);
   [$total,$free] = $memory;
   $used = $total-$free;
-  $zfs = (exec("awk '/^size/{print \$3}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0)/1024;
+  $zfs = (exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0)/1024;
   $info = max(round(100*(1-$free/$total)),0)."%\0".round(100*$zfs/$used)."%\0".implode("\0",$sys);
   $rpms = count($rpms) ? implode(" RPM\0",$rpms).' RPM' : '';
 
