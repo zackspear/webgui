@@ -41,7 +41,7 @@ case 'state':
   $pools = explode(',',$_POST['pools']);
   $disks = parse_ini_file('state/disks.ini',true);
   $error = [];
-  foreach ($pools as $pool) if (stripos($disks[$pool]['state'],'ERROR')===0) $error[] = $pool.' - '.$disks[$pool]['state'];
+  foreach ($pools as $pool) if (stripos($disks[$pool]['state'],'ERROR:')===0) $error[] = $pool.' - '.str_ireplace('ERROR:','',$disks[$pool]['state']);
   echo implode('<br>',$error);
   break;
 }
