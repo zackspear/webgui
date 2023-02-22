@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -21,7 +21,10 @@ while (true) {
   exec("grep -Po '^Mem(Total|Available):\s+\K\d+' /proc/meminfo",$memory);
   exec("df /boot /var/log /var/lib/docker|grep -Po '\d+%'",$sys);
   exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$rpms);
-  $info = max(round((1-$memory[1]/$memory[0])*100),0)."%\0".implode("\0",$sys);
+  [$total,$free] = $memory;
+  $used = $total-$free;
+  $zfs = (exec("awk '/^size/{print \$3}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0)/1024;
+  $info = max(round(100*(1-$free/$total)),0)."%\0".round(100*$zfs/$used)."%\0".implode("\0",$sys);
   $rpms = count($rpms) ? implode(" RPM\0",$rpms).' RPM' : '';
 
   $names = array_keys((array)parse_ini_file("$varroot/shares.ini"));

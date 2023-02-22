@@ -4,8 +4,8 @@ Icon="icon-permissions"
 Tag="folder-o"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,24 +18,40 @@ Tag="folder-o"
 <?
 $width = [166,300];
 function data_disks($disk) {
-  return ( ($disk['type']=='Data' || $disk['type'] == "Cache") && $disk['status']=='DISK_OK');
+  global $pools;
+  return ((isset($disk['type']) && $disk['type']=='Data' || (isset($disk['type']) && $disk['type']=="Cache" && in_array($disk['name'],$pools))) && ($disk['status']??'')=='DISK_OK');
 }
 ?>
 <style>
-.block{display:inline-block;width:300px;margin-top:24px;margin-bottom:24px}
-div.div{font-weight:bold;margin-bottom:12px}
+span.block{display:inline-block;width:300px;margin:24px 0}
 pre.pre{margin:30px 0;padding:20px}
 pre>p{margin:0;padding:0}
 </style>
 
 <script>
+function selection(select,remove) {
+  if (remove) {
+    $('#s1').dropdownchecklist('destroy');
+    $('#s2').dropdownchecklist('destroy');
+  }
+  if (select==0) {$('#disks').show(); $('#shares').hide();} else {$('#shares').show(); $('#disks').hide();}
+  $('#s1').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:"..._(close)_"});
+  $('#s2').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:"..._(close)_"});
+<?if ($var['fsState']!="Started"):?>
+  $('#s1').dropdownchecklist('disable');
+  $('#s2').dropdownchecklist('disable');
+<?endif;?>
+}
 function setNewPerms(form) {
   var dirs = [];
-  for (var i=1,item; item=form.includeDisk.options[i]; i++) {
-    if (item.selected) dirs.push(item.value);
-  }
-  for (var i=1,item; item=form.includeShare.options[i]; i++) {
-    if (item.selected) dirs.push(item.value);
+  if (form.select.value==0) {
+    for (var i=1,item; item=form.disks.options[i]; i++) {
+      if (item.selected) dirs.push(item.value);
+    }
+  } else {
+    for (var i=1,item; item=form.shares.options[i]; i++) {
+      if (item.selected) dirs.push(item.value);
+    }
   }
   dirs = dirs.join('*');
   if (dirs) {
@@ -45,12 +61,7 @@ function setNewPerms(form) {
   }
 }
 $(function() {
-  $('#s1').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:"..._(close)_"});
-  $('#s2').dropdownchecklist({emptyText:"_(None)_", width:<?=$width[0]?>, firstItemChecksAll:true, explicitClose:"..._(close)_"});
-<?if ($var['fsState']!="Started"):?>
-  $('#s1').dropdownchecklist('disable');
-  $('#s2').dropdownchecklist('disable');
-<?endif;?>
+  selection(0,false);
 });
 </script>
 
@@ -84,20 +95,28 @@ Clicking **Start** will open another window and start the background process.
 
 Closing the window before completion will terminate the background process - so don't do that. This process can take a long time if you have many files.
 
-Note that this tool may negatively affect any docker containers if you allow your appdata share to be included.
+Note that this tool may negatively affect any docker containers if you allow your **appdata** share to be included.
 :end
 
 <form method="POST" action="/update.htm" target="progressFrame">
-<span class="block"><div class="div">_(Disks)_</div>
-<select id="s1" name="includeDisk" size="1" multiple="multiple" style="display:none">
+<span class="block">
+<select name="select" onchange="selection(this.value,true)">
+<?=mk_option(0,"0","_(Disks)_")?>
+<?=mk_option(0,"1","_(Shares)_")?>
+</select>
+</span>
+
+<span id="disks" class="block">
+<select id="s1" name="disks" style="display:none" multiple>
 <option value=''>_(All)_</option>
 <?foreach (array_filter($disks,'data_disks') as $disk):?>
 <?=mk_option(1,"/mnt/{$disk['name']}",_(my_disk($disk['name'])),3)?>
 <?endforeach;?>
 </select>
 </span>
-<span class="block"><div class="div">_(User Shares)_</div>
-<select id="s2" name="includeShare" size="1" multiple="multiple" style="display:none">
+
+<span id="shares" class="block" style="display:none">
+<select id="s2" name="shares" style="display:none" multiple>
 <option value=''>_(All)_</option>
 <?uksort($shares,'strnatcasecmp');?>
 <?foreach ($shares as $share):?>
