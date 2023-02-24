@@ -62,13 +62,13 @@ if (isset($_POST['#file'])) {
   if ($save) {
     $text = "";
     if ($section) {
-      foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$section][$key] = isset($default[$section][$key]) ? $default[$section][$key] : $value;
+      foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$section][$key] = $default[$section][$key] ?? $value;
       foreach ($keys as $section => $block) {
         $text .= "[$section]\n";
         foreach ($block as $key => $value) if (strlen($value) || !$cleanup) $text .= "$key=\"$value\"\n";
       }
     } else {
-      foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$key] = isset($default[$key]) ? $default[$key] : $value;
+      foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$key] = $default[$key] ?? $value;
       foreach ($keys as $key => $value) if (strlen($value) || !$cleanup) $text .= "$key=\"$value\"\n";
     }
     @mkdir(dirname($file));
