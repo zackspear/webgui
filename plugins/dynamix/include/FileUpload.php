@@ -25,17 +25,33 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 switch ($_POST['cmd'] ?? 'load') {
 case 'load':
+  // uploaded file to temp directory and verify is a png
   if (isset($_POST['filedata'])) {
-    exec("rm -f $temp/*.png");
-    $result = file_put_contents("$temp/".basename($file),base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
+    $initialUpload = "$temp/".basename($file).".tmp";
+    $verifiedPNG   = "$temp/".basename($file);
+    if (file_exists($initialUpload)) unlink($initialUpload);
+    if (file_exists($verifiedPNG)) unlink($verifiedPNG);
+    $result = file_put_contents($initialUpload,base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
+    if ($result) {
+      $img = @imagecreatefrompng($initialUpload);
+      if ($img) {
+        $result = imagepng($img,$verifiedPNG);
+        imagedestroy($img);
+      } else {
+        $result = false;
+      }
+    }
+    if (file_exists($initialUpload)) unlink($initialUpload);
   }
   break;
 case 'save':
+  // move uploaded file ($verifiedPNG) to final destination
+  $verifiedPNG = "$temp/".basename($file);
   $path = $_POST['path'];
   foreach ($safepaths as $safepath) {
     if (strpos(dirname("$path/{$_POST['output']}"),$safepath)===0 && in_array(substr(basename($_POST['output']),-4),$safeexts)) {
       exec("mkdir -p ".escapeshellarg(realpath($path)));
-      $result = @rename("$temp/".basename($file), "$path/{$_POST['output']}");
+      $result = @rename($verifiedPNG, "$path/{$_POST['output']}");
       break;
     }
   }
