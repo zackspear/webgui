@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2016, Lime Technology
- * Copyright 2012-2016, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -44,12 +44,12 @@ $docroot = $_SERVER['DOCUMENT_ROOT'];
 if (isset($_POST['#file'])) {
   $file = $_POST['#file'];
   // prepend with boot (flash) if path is relative
-  if ($file[0]!='/') $file = "/boot/config/plugins/$file";
-  $section = isset($_POST['#section']) ? $_POST['#section'] : false;
+  if ($file && $file[0]!='/') $file = "/boot/config/plugins/$file";
+  $section = $_POST['#section'] ?? false;
   $cleanup = isset($_POST['#cleanup']);
-  $default = isset($_POST['#default']) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : array();
+  $default = ($file && isset($_POST['#default'])) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : [];
 
-  $keys = @parse_ini_file($file, $section);
+  $keys = @parse_ini_file($file, $section) ?: [];
   // the 'save' switch can be reset by the include file to disallow settings saving
   $save = true;
   if (isset($_POST['#include'])) {
