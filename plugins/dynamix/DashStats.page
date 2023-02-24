@@ -69,7 +69,7 @@ $parity = $var['mdResync'];
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = $display['number'][0];
-$zfs = false;
+$zfs = file_exists('/proc/spl/kstat/zfs/arcstats');
 
 foreach ($disks as $disk) {
   switch ($disk['type']) {
@@ -87,7 +87,6 @@ foreach ($disks as $disk) {
       $cache_type[$name] = $disk['rotational'] ? ($disk['luksState'] ? 'disk-encrypted' : 'disk') : 'nvme';
       $cache_rate[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
       if (!$disks[$name]['devices']) unset($pools[array_search($name,$pools)]);
-      if (isset($disks[$name]['fsType']) && strpos($disks[$name]['fsType'],'zfs')!==false) $zfs = true;
     }
     break;
   }
