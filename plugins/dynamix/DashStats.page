@@ -58,33 +58,33 @@ $libvirtd = pgrep('libvirtd');
 $apcupsd = file_exists('/var/run/apcupsd.pid');
 $conf  = glob('/etc/wireguard/wg*.conf');
 $wireguard = is_executable('/usr/bin/wg') && count($conf);
-$started = get_var($var,'fsState')=='Started';
+$started = _var($var,'fsState')=='Started';
 $sleep = isset($display['sleep']);
 $array_size = $array_used = 0;
 $extra_size = $extra_used = 0;
 $cache_size = $cache_used = [];
 $cache_type = $cache_rate = [];
 
-$parity = get_var($var,'mdResync');
+$parity = _var($var,'mdResync');
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = $display['number'][0];
 $zfs = file_exists('/proc/spl/kstat/zfs/arcstats');
 
 foreach ($disks as $disk) {
-  switch (get_var($disk,'type')) {
+  switch (_var($disk,'type')) {
   case 'Data':
     if (isset($disk['fsFree'])) {
-      $array_size += get_var($disk,'fsSize',0);
-      $array_used += get_var($disk,'fsSize',0)-get_var($disk,'fsFree',0);
+      $array_size += _var($disk,'fsSize',0);
+      $array_used += _var($disk,'fsSize',0)-_var($disk,'fsFree',0);
     }
     break;
   case 'Cache':
-    $name = get_var($disk,'name');
+    $name = _var($disk,'name');
     if (in_array($name,$pools)) {
-      $cache_size[$name] = get_var($disk,'fsSize',0);
-      $cache_used[$name] = get_var($disk,'fsSize',0)-get_var($disk,'fsFree',0);
-      $cache_type[$name] = get_var($disk,'rotational') ? (get_var($disk,'luksState') ? 'disk-encrypted' : 'disk') : 'nvme';
+      $cache_size[$name] = _var($disk,'fsSize',0);
+      $cache_used[$name] = _var($disk,'fsSize',0)-_var($disk,'fsFree',0);
+      $cache_type[$name] = _var($disk,'rotational') ? (_var($disk,'luksState') ? 'disk-encrypted' : 'disk') : 'nvme';
       $cache_rate[$name] = number_format(100*$cache_used[$name]/($cache_size[$name] ?: 1),1,$dot,'');
       if (empty($disks[$name]['devices'])) unset($pools[array_search($name,$pools)]);
     }
@@ -92,7 +92,7 @@ foreach ($disks as $disk) {
   }
 }
 foreach ($devs as $disk) {
-  $extra_size += get_var($disk,'sectors',0)*get_var($disk,'sector_size',0);
+  $extra_size += _var($disk,'sectors',0)*_var($disk,'sector_size',0);
 }
 $array_percent = number_format(100*$array_used/($array_size ?: 1),1,$dot,'');
 exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
@@ -102,7 +102,7 @@ $up    = count($wg_up);
 $down  = max(count($conf)-$up,0);
 $fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
 $autofan = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
-$group = get_var($var,'shareSMBEnabled')=='yes' | get_var($var,'shareNFSEnabled')=='yes';
+$group = _var($var,'shareSMBEnabled')=='yes' | _var($var,'shareNFSEnabled')=='yes';
 $names = [];
 $cache_only = $encrypted = 0;
 foreach ($shares as $share) {
@@ -234,7 +234,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <div class='tile' id='tile1'>
 <table id='db-box1' class='share_status dashboard'>
 <tbody class='system'>
-<tr><td><?=get_var($var,'NAME')?>
+<tr><td><?=_var($var,'NAME')?>
 <i class='fa fa-fw fa-wrench control' onclick='contentMgmt()' title="_(Content Management)_"></i><a href='/Dashboard/Settings/Identification'><i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i></a>
 <span class='ctrl'>
 <?if ($parity||$mover||$btrfs):?>
@@ -248,8 +248,8 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </td></tr>
 <tr><td>
 <div class='leftside'>
-<span class='header'><i class='indent fa fa-file-text-o'></i>_(Description)_</span><br><i class='indent'></i><?=get_var($var,'COMMENT')?><br><i class='indent'></i><?=get_var($var,'SYS_MODEL')?><br><br>
-<span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=get_var($var,'regTy')?></em></b><br><br>
+<span class='header'><i class='indent fa fa-file-text-o'></i>_(Description)_</span><br><i class='indent'></i><?=_var($var,'COMMENT')?><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?><br><br>
+<span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
 </div>
 <div class='rightside'>
@@ -462,10 +462,10 @@ echo "</td></tr>";
 <span class='info'><?=sprintf(_("Share count: %s with %s cache only and %s encrypted"),count($shares),$cache_only,$encrypted)?></span>
 <?if ($group):?>
 <select name="enter_share" onchange="changeMode(this.value)">
-<?if (get_var($var,'shareSMBEnabled')=='yes'):?>
+<?if (_var($var,'shareSMBEnabled')=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
-<?if (get_var($var,'shareNFSEnabled')=='yes'):?>
+<?if (_var($var,'shareNFSEnabled')=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
 </select>
@@ -473,7 +473,7 @@ echo "</td></tr>";
 </td></tr>
 <tr class='header'><td><span class='w26'>_(Name)_</span><span class='w44'>_(Description)_</span><span class='w18'>_(Security)_</span><span>_(Streams)_</span></td></tr>
 <?
-if (get_var($var,'shareSMBEnabled')=='yes') {
+if (_var($var,'shareSMBEnabled')=='yes') {
   $i = 0;
   foreach ($shares as $name => $share) {
     $i++;
@@ -481,19 +481,19 @@ if (get_var($var,'shareSMBEnabled')=='yes') {
     if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
     elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = compress($share['comment'],40) ?: '&nbsp;';
-    $security = export_settings(get_var($var,'shareSMBEnabled'), $sec[$name]);
+    $security = export_settings(_var($var,'shareSMBEnabled'), $sec[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
     echo "<tr class='smb share share1{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span id='share{$i}'>0</span></td></tr>";
   }
   if (!count($shares)) echo "<tr class='smb share share1'><td class='none'>"._("No shares present")."</td></tr>";
 }
-if (get_var($var,'shareNFSEnabled')=='yes') {
+if (_var($var,'shareNFSEnabled')=='yes') {
   foreach ($shares as $name => $share) {
     $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
     if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
     elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = compress($share['comment'],40) ?: '&nbsp;';
-    $security = export_settings(get_var($var,'shareNFSEnabled'), $sec_nfs[$name]);
+    $security = export_settings(_var($var,'shareNFSEnabled'), $sec_nfs[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
     echo "<tr class='nfs share share3{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span>-</span></td></tr>";
   }
@@ -519,7 +519,7 @@ if (!$group) {
 </td></tr>
 <tr class='header'><td><span class='w26'>_(Name)_</span><span class='w44'>_(Description)_</span><span class='w18'>_(Write)_</span><span>_(Read)_</span></td></tr>
 <?
-if (get_var($var,'shareSMBEnabled')=='yes') {
+if (_var($var,'shareSMBEnabled')=='yes') {
   foreach ($users as $user) {
     $name = $user['name'];
     $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
@@ -551,7 +551,7 @@ if (get_var($var,'shareSMBEnabled')=='yes') {
     echo "<tr class='smb user user1{$last}'><td><span class='w26'><i class='icon-user f14'></i>$list</span><span class='w44'>$desc</span><span class='w18'>$write</span><span>$read</span></td></tr>";
   }
 }
-if (get_var($var,'shareNFSEnabled')=='yes') {
+if (_var($var,'shareNFSEnabled')=='yes') {
   foreach ($users as $user) {
     $name = $user['name'];
     $list = "<a href=\"/Dashboard/Users/UserEdit?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">".compress($name,20)."</a>";
@@ -619,7 +619,7 @@ if (!$group) {
 </div>
 
 <form name='boot' method='POST' action='/webGui/include/Boot.php'>
-<input type='hidden' name='csrf_token' value='<?=get_var($var,'csrf_token')?>'>
+<input type='hidden' name='csrf_token' value='<?=_var($var,'csrf_token')?>'>
 <input type='hidden' name='cmd' value=''>
 </form>
 <div id="iframe-popup"></div>
@@ -853,11 +853,11 @@ function getCase() {
 }
 function changeMode(item) {
   if (item==0) $.removeCookie('enter_share'); else $.cookie('enter_share',item,{expires:3650});
-<?if (get_var($var,'shareSMBEnabled')=='yes'):?>
+<?if (_var($var,'shareSMBEnabled')=='yes'):?>
   if (item==0) $('.smb.user1').show(); else $('.smb.user1').hide();
   if (item==0) $('.smb.share1').show(); else $('.smb.share1').hide();
 <?endif;?>
-<?if (get_var($var,'shareNFSEnabled')=='yes'):?>
+<?if (_var($var,'shareNFSEnabled')=='yes'):?>
   if (item==2) $('.nfs.user3').show(); else $('.nfs.user3').hide();
   if (item==2) $('.nfs.share3').show(); else $('.nfs.share3').hide();
 <?endif;?>
@@ -992,7 +992,7 @@ function StopArray() {
 }
 function StopArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css('cursor','default');
-  $.post('/update.htm',{startState:'<?=get_var($var,'mdState')?>',cmdStop:'Stop',csrf_token:'<?=get_var($var,'csrf_token')?>'},function(){refresh();});
+  $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStop:'Stop',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
 }
 function StartArray() {
 <?if ($confirm['stop']):?>
@@ -1003,7 +1003,7 @@ function StartArray() {
 }
 function StartArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css('cursor','default');
-  $.post('/update.htm',{startState:'<?=get_var($var,'mdState')?>',cmdStart:'Start',csrf_token:'<?=get_var($var,'csrf_token')?>'},function(){refresh();});
+  $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStart:'Start',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
 }
 function Reboot() {
 <?if ($confirm['down']):?>
@@ -1211,7 +1211,7 @@ dashboard.on('message',function(msg,meta) {
     // fans rpm
     $.each(part[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
 <?endif;?>
-<?if (get_var($var,'fsState')=='Started' && $group):?>
+<?if (_var($var,'fsState')=='Started' && $group):?>
     // stream counters (smb only)
     var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
     if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});

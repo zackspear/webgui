@@ -48,7 +48,7 @@ function plugin_update_available($plugin, $os=false) {
     if (version_compare($server, $unraid, '>=')) return $remote;
   }
 }
-function get_var(&$name, $key, $default='') {
+function _var(&$name, $key, $default='') {
   return $name[$key] ?? $default;
 }
 function get_value(&$name, $key, $default) {
