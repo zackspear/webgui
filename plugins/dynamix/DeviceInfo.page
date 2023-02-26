@@ -16,41 +16,59 @@ Tag="hdd-o"
 ?>
 <?
 require_once "$docroot/webGui/include/Preselect.php";
+
 $unassigned = array_key_exists($name, $devs);
-$disks = array_merge_recursive($disks, $devs);
-$disk = &$disks[$name]??[];
-$dev = $disk['device']??'';
-$disk['id'] = $disk['id']??'';
-$events = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
-$bgcolor = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
+$disks      = array_merge_recursive($disks, $devs);
+$disk       = &$disks[$name] ?? [];
+$dev        = get_var($disk,'device');
+$disk['id'] = get_var($disk,'id');
+$events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
+$bgcolor    = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
+$mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
+$days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-$mode = ['Disabled','Hourly','Daily','Weekly','Monthly'];
-$days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
+function fsType($type) {
+  global $disk;
+  return strpos(get_var($disk,'fsType'),$type)!==false;
+}
+function diskStatus($status) {
+  global $disk;
+  return strpos(get_var($disk,'status'),$status)!==false;
+}
+function diskType(...$types) {
+  global $disk;
+  $pass = false;
+  foreach ($types as $type) $pass |= get_var($disk,'type')==$type;
+  return $pass;
+}
 function sharename($share) {
   return substr($share,0,-4);
 }
 function displayTemp($temp) {
   global $display;
-  return $display['unit']=='F' ? round($temp*9/5)+32 : $temp;
+  return get_var($display,'unit')=='F' ? round($temp*9/5)+32 : $temp;
 }
 function maintenance_mode() {
-  global $var, $disk;
-  return ($var['fsState']=="Started" && $var['startMode']=="Maintenance" && $disk['luksState']<=1);
+  global $var;
+  return get_var($var,'fsState')=="Started" && get_var($var,'startMode')=="Maintenance" && get_var($disk,'luksState',0)<=1;
+}
+function isPool($name) {
+  global $pools;
+  return in_array($name,$pools);
 }
 $sheets = []; $i = $n = 0;
 foreach ($disks as $sheet) {
-  if ((isset($sheet['type']) && $sheet['type']=='Flash') || (isset($sheet['color']) && $sheet['color']=='grey-off') || empty($sheet['name'])) continue;
+  if (get_var($sheet,'type')=="Flash" || get_var($sheet,'color')=="grey-off" || empty($sheet['name'])) continue;
   $sheets[] = $sheet['name'];
   if ($sheet['name']==$name) {$i = $n;}
   $n++;
 }
-$tag  = $disk['name']??'';
+$tag  = get_var($disk,'name');
 $end  = count($sheets)-1;
 $prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
 $next = $i<$end ? $sheets[$i+1] : $sheets[0];
 
-$text = in_array($name,$pools) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
+$text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
@@ -66,7 +84,7 @@ if ($.cookie('deletepool')!=null) {
   $.removeCookie('deletepool');
   done();
 }
-<?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
+<?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
   var mode = form.mode.value;
   form.min.disabled = mode==0;
@@ -92,7 +110,7 @@ function prepareBTRFS(form) {
 }
 <?endif;?>
 
-<?if (strpos($disk['fsType']??'',"zfs")!==false):?>
+<?if (fsType('zfs')):?>
 function presetZFS(form,hour) {
   var mode = form.mode.value;
   form.min.disabled = mode==0;
@@ -176,7 +194,7 @@ function selectDiskFsProfile(num_devices, width, init) {
     $('#diskFsProfileZFS').prop('disabled',true).hide();
     $('#diskFsWidthZFS').prop('disabled',true).hide();
     $('#compression').show(t);
-<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+<?if (diskType('Cache')):?>
     $('#autotrim').show(t);
 <?endif;?>
   } else if (($('#diskFsType').val()||'').indexOf('zfs') != -1) {
@@ -189,7 +207,7 @@ function selectDiskFsProfile(num_devices, width, init) {
     $('#diskFsWidthZFS').show();
     selectDiskFsWidth(num_devices, width);
     $('#compression').show(t);
-<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+<?if (diskType('Cache')):?>
     $('#autotrim').show(t);
   } else if (($('#diskFsType').val()||'').indexOf('xfs') != -1) {
     $('#autotrim').show(t);
@@ -199,7 +217,7 @@ function selectDiskFsProfile(num_devices, width, init) {
 function changeFsType() {
   var fstype = ($('#diskFsType').val()||'').replace('luks:','');
   if (['btrfs', 'zfs'].includes(fstype)) $('#compression').show('slow'); else $('#compression').hide('slow');
-<?if (isset($disk['type']) && $disk['type']=="Cache"):?>
+<?if (diskType('Cache')):?>
   if (['xfs', 'btrfs', 'zfs'].includes(fstype)) $('#autotrim').show('slow'); else $('#autotrim').hide('slow');
 <?endif;?>
 }
@@ -215,7 +233,7 @@ function prepareDeviceInfo(form) {
   form.smEvents.value = events.join('|');
   if (form.smEvents.value == '<?=$numbers?>') form.smEvents.value = '';
   if (form.smLevel.value == 1.00) form.smLevel.value = '';
-<?if ($display['unit']=='F'):?>
+<?if (get_var($display,'unit')=='F'):?>
   if (form.hotTemp.value>0) form.hotTemp.value = Math.round((form.hotTemp.value-32)*5/9);
   if (form.maxTemp.value>0) form.maxTemp.value = Math.round((form.maxTemp.value-32)*5/9);
 <?endif;?>
@@ -235,7 +253,7 @@ function setGlue(form,reset) {
    {glue:'' ,more:0,dev:0,type:''},                                                        // marvell
    {glue:',',more:1,dev:1,type:'',min1:0,max1:127}                                         // megaraid
   ];
-  var n = form.smType.selectedIndex>0 ? form.smType.selectedIndex-1 : <?=$var['smIndex']??0?>;
+  var n = form.smType.selectedIndex>0 ? form.smType.selectedIndex-1 : <?=get_var($var,'smIndex',0)?>;
   var x = data[n]['more'];
   var t = data[n]['type'];
   for (var i=1; i <= x; i++) {
@@ -284,7 +302,7 @@ function setGlue(form,reset) {
     $('input[name="smDevice"]').val('').hide();
     $('#helptext').hide();
   }
-  form.smGlue.value = form.smType.selectedIndex>0 ? data[n]['glue'] : "<?=$var['smGlue']??''?>";
+  form.smGlue.value = form.smType.selectedIndex>0 ? data[n]['glue'] : "<?=get_var($var,'smGlue')?>";
 }
 function prepareFS(form,cookie,value) {
   if ($(form).find('input[type="submit"]').val()=='Cancel') $.removeCookie(cookie); else $.cookie(cookie,value);
@@ -366,7 +384,7 @@ function updateMode(form,mode) {
 }
 function validate(poolname) {
   var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
-  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
+  var reserved = [<?=implode(',',array_map('escapestring',explode(',',get_var($var,'reservedNames'))))?>];
   var shares = [<?=implode(',',array_map('escapestring',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
   var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
   if (!poolname.trim()) return false;
@@ -439,7 +457,7 @@ function eraseDisk(name) {
       $('#doneButton').prop('disabled',true);
       $('#eraseButton').prop('disabled',true);
       $('div.spinner.fixed').show();
-      $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=$var['csrf_token']?>"},function(){
+      $.get("/update.htm",{cmdWipefs:name,csrf_token:"<?=get_var($var,'csrf_token')?>"},function(){
         $('div.spinner.fixed').hide();
         refresh();
       });
@@ -462,7 +480,7 @@ $(function() {
   $('div[class=title]:first').append(ctrl);
 <?endif;?>
 <?endif;?>
-<?if (strpos($disk['status']??'','_NP')===false):?>
+<?if (!diskStatus('_NP')):?>
   var form = document.smart_settings;
 <?if (!isset($disk['smType'])):?>
   form.smType.selectedIndex = 0;
@@ -502,15 +520,15 @@ $(function() {
       }
     });
   }
-  var groups = <?=isset($disk['fsGroups']) ? ($disk['fsGroups']?:0) : 0?>;
-  var width = <?=isset($disk['fsWidth']) ? ($disk['fsWidth']?:0) : 0?>;
-  var devices = (groups==0 || width==0) ? <?=isset($disk['devices']) ? ($disk['devices']?:0) : 0?> : groups * width;
+  var groups = <?=get_var($disk,'fsGroups',0)?:0?>;
+  var width = <?=get_var($disk,'fsWidth',0)?:0?>;
+  var devices = (groups==0 || width==0) ? <?=get_var($disk,'devices',0)?:0?> : groups * width;
   selectDiskFsProfile(devices,width,true);
 });
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
-<?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
+<?if (get_var($var,'fsState')=="Stopped" && isPool($name)):?>
 _(Name)_:
 : <a onclick="renamePoolPopup()" style="cursor:pointer" title="_(Rename Pool)_"><?=$name?></a>
 
@@ -519,111 +537,111 @@ _(Name)_:
 : <?=_(my_disk($name),3)?>
 
 <?endif;?>
-<?if (strpos($disk['status']??'','_NP')!==false):?>
+<?if (diskStatus('_NP')):?>
 _(Identification)_:
 : _(No device)_
 
 <?else:?>
 _(Identification)_:
-: <?=my_id($disk['id'])?>&nbsp;(<?=$dev?>)
+: <?=my_id(get_var($disk,'id'))?>&nbsp;(<?=$dev?>)
 
 <?endif;?>
 <?if (!$unassigned):?>
-<?if (($disk['type']??'')=='Data' || (($disk['type']??'')=='Cache' && in_array($disk['name'],$pools))):?>
+<?if (diskType('Data') || (diskType('Cache') && isPool(get_var($disk,'name')))):?>
 _(Comments)_:
-: <input type="text" name="diskComment.<?=$disk['idx']?>" maxlength="256" value="<?=htmlspecialchars($disk['comment'])?>">
+: <input type="text" name="diskComment.<?=get_var($disk,'idx',0)?>" maxlength="256" value="<?=htmlspecialchars(get_var($disk,'comment'))?>">
 
 :info_comments_help:
 
 <?endif;?>
 _(Partition size)_:
-: <?=my_number($disk['sizeSb']??0)?> KB (K=1024)
+: <?=my_number(get_var($disk,'sizeSb',0))?> KB (K=1024)
 
 _(Partition format)_:
-: <?=_($disk['format']??'')?>
+: <?=_(get_var($disk,'format'))?>
 
-<?if ($var['spinupGroups']=="yes" && in_array($disk['type']??'',['Data','Parity'])):?>
+<?if (get_var($var,'spinupGroups')=="yes" && diskType('Data','Parity')):?>
 _(Spinup group(s))_:
-: <input type="text" name="diskSpinupGroup.<?=$disk['idx']?>" maxlength="256" value="<?=$disk['spinupGroup']?>">
+: <input type="text" name="diskSpinupGroup.<?=get_var($disk,'idx',0)?>" maxlength="256" value="<?=get_var($disk,'spinupGroup')?>">
 
 <?endif;?>
 _(Spin down delay)_:
-: <select name="diskSpindownDelay.<?=$disk['idx']??''?>">
-  <?=mk_option($disk['spindownDelay']??'', "-1", _('Use default'))?>
-  <?=mk_option($disk['spindownDelay']??'', "0",  _('Never'))?>
-  <?=mk_option($disk['spindownDelay']??'', "15", "15 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'', "30", "30 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'', "45", "45 "._('minutes'))?>
-  <?=mk_option($disk['spindownDelay']??'', "1",  "1 "._('hour'))?>
-  <?=mk_option($disk['spindownDelay']??'', "2",  "2 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "3",  "3 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "4",  "4 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "5",  "5 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "6",  "6 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "7",  "7 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "8",  "8 "._('hours'))?>
-  <?=mk_option($disk['spindownDelay']??'', "9",  "9 "._('hours'))?>
+: <select name="diskSpindownDelay.<?=get_var($disk,'idx',0)?>">
+  <?=mk_option(get_var($disk,'spindownDelay'), "-1", _('Use default'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "0",  _('Never'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "15", "15 "._('minutes'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "30", "30 "._('minutes'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "45", "45 "._('minutes'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "1",  "1 "._('hour'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "2",  "2 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "3",  "3 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "4",  "4 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "5",  "5 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "6",  "6 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "7",  "7 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "8",  "8 "._('hours'))?>
+  <?=mk_option(get_var($disk,'spindownDelay'), "9",  "9 "._('hours'))?>
   </select><span id="smart_selftest" class='orange-text'></span>
 <?endif;?>
 
-<?if ((isset($disk['type']) && $disk['type']=="Data") || in_array($tag,$pools)):?>
+<?if (diskType('Data') || isPool($tag)):?>
 _(File system status)_:
-: <?=_($disk['fsStatus'])?>&nbsp;
+: <?=_(get_var($disk,'fsStatus'))?>&nbsp;
 
-<?$disabled = (($var['fsState']=="Stopped" && $var['mdState']=="SWAP_DSBL") || $var['fsState']=="Started" || $disk['fsStatus']=='Mounted') || !empty($disk['uuid']) ? "disabled" : ""?>
-<?if ((isset($disk['type']) && $disk['type']=="Data") || (isset($disk['slots']) && $disk['slots']==1)):?>
+<?$disabled = ((get_var($var,'fsState')=="Stopped" && get_var($var,'mdState')=="SWAP_DSBL") || get_var($var,'fsState')=="Started" || get_var($disk,'fsStatus')=='Mounted') || get_var($disk,'uuid') ? "disabled" : ""?>
+<?if (diskType('Data') || get_var($disk,'slots',0)==1):?>
 _(File system type)_:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" onchange="changeFsType()" <?=$disabled?>>
-  <?=mk_option($disk['fsType'], "auto", _('auto'))?>
-  <?=mk_option($disk['fsType'], "xfs", _('xfs'))?>
-  <?=mk_option($disk['fsType'], "zfs", _('zfs'))?>
-  <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
-  <?=mk_option($disk['fsType'], "reiserfs", _('reiserfs'))?>
-  <?=mk_option($disk['fsType'], "luks:xfs", _('xfs')." - "._('encrypted'))?>
-  <?=mk_option($disk['fsType'], "luks:zfs", _('zfs')." - "._('encrypted'))?>
-  <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
-  <?=mk_option($disk['fsType'], "luks:reiserfs", _('reiserfs')." - "._('encrypted'))?>
+: <select id="diskFsType" name="diskFsType.<?=get_var($disk,'idx',0)?>" onchange="changeFsType()" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'fsType'), "auto", _('auto'))?>
+  <?=mk_option(get_var($disk,'fsType'), "xfs", _('xfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "zfs", _('zfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "btrfs", _('btrfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "reiserfs", _('reiserfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:xfs", _('xfs')." - "._('encrypted'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted'))?>
   </select>
 
 :info_file_system_help:
 
-<?elseif (isset($disk['slots']) && $disk['slots']>1):?>
+<?elseif (get_var($disk,'slots',0)>1):?>
 _(File system type)_:
-: <select id="diskFsType" name="diskFsType.<?=$disk['idx']?>" onchange="selectDiskFsProfile(<?=$disk['devices']??0?>,0)" <?=$disabled?>>
-  <?=mk_option($disk['fsType'], "auto", _('auto'))?>
-  <?=mk_option($disk['fsType'], "zfs", _('zfs'))?>
-  <?=mk_option($disk['fsType'], "btrfs", _('btrfs'))?>
-  <?=mk_option($disk['fsType'], "luks:zfs", _('zfs')." - "._('encrypted'))?>
-  <?=mk_option($disk['fsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
+: <select id="diskFsType" name="diskFsType.<?=get_var($disk,'idx',0)?>" onchange="selectDiskFsProfile(<?=get_var($disk,'devices',0)?>,0)" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'fsType'), "auto", _('auto'))?>
+  <?=mk_option(get_var($disk,'fsType'), "zfs", _('zfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "btrfs", _('btrfs'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
+  <?=mk_option(get_var($disk,'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
   </select>
-  <select id="diskFsProfileBTRFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" <?=$disabled?>>
-  <?=mk_option($disk['fsProfile'],"single", _('single'))?>
-  <?=mk_option($disk['fsProfile'],"raid0", _('raid0'))?>
-  <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"raid1", _('raid1'))?>
-  <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raid1c3", _('raid1c3'))?>
-  <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid1c4", _('raid1c4'))?>
-  <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid10", _('raid10'))?>
-  <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raid5", _('raid5'))?>
-  <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raid6", _('raid6'))?>
+  <select id="diskFsProfileBTRFS" name="diskFsProfile.<?=get_var($disk,'idx',0)?>" style="display:none" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'fsProfile'),"single", _('single'))?>
+  <?=mk_option(get_var($disk,'fsProfile'),"raid0", _('raid0'))?>
+  <?if (get_var($disk,'devices',0)>=2) echo mk_option(get_var($disk,'fsProfile'),"raid1", _('raid1'))?>
+  <?if (get_var($disk,'devices',0)>=3) echo mk_option(get_var($disk,'fsProfile'),"raid1c3", _('raid1c3'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(get_var($disk,'fsProfile'),"raid1c4", _('raid1c4'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(get_var($disk,'fsProfile'),"raid10", _('raid10'))?>
+  <?if (get_var($disk,'devices',0)>=3) echo mk_option(get_var($disk,'fsProfile'),"raid5", _('raid5'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(get_var($disk,'fsProfile'),"raid6", _('raid6'))?>
   </select>
-  <select id="diskFsProfileZFS" name="diskFsProfile.<?=$disk['idx']?>" style="display:none" onchange="selectDiskFsWidth(<?=$disk['devices']??0?>,0)" <?=$disabled?>>
-  <?if ($disk['devices']==1) echo mk_option($disk['fsProfile'],"", _('single'))?>
-  <?if ($disk['devices']>=2) echo mk_option($disk['fsProfile'],"", _('raid0'))?>
-  <?if (($disk['devices']%2)==0 || ($disk['devices']%3)==0 || ($disk['devices']%4)==0) echo mk_option($disk['fsProfile'],"mirror", _('mirror'))?>
-  <?if ($disk['devices']>=3) echo mk_option($disk['fsProfile'],"raidz1", _('raidz'))?>
-  <?if ($disk['devices']>=4) echo mk_option($disk['fsProfile'],"raidz2", _('raidz2'))?>
-  <?if ($disk['devices']>=5) echo mk_option($disk['fsProfile'],"raidz3", _('raidz3'))?>
+  <select id="diskFsProfileZFS" name="diskFsProfile.<?=get_var($disk,'idx',0)?>" style="display:none" onchange="selectDiskFsWidth(<?=get_var($disk,'devices',0)?>,0)" <?=$disabled?>>
+  <?if (get_var($disk,'devices',0)==1) echo mk_option(get_var($disk,'fsProfile'),"", _('single'))?>
+  <?if (get_var($disk,'devices',0)>=2) echo mk_option(get_var($disk,'fsProfile'),"", _('raid0'))?>
+  <?if ((get_var($disk,'devices',0)%2)==0 || (get_var($disk,'devices',0)%3)==0 || (get_var($disk,'devices',0)%4)==0) echo mk_option(get_var($disk,'fsProfile'),"mirror", _('mirror'))?>
+  <?if (get_var($disk,'devices',0)>=3) echo mk_option(get_var($disk,'fsProfile'),"raidz1", _('raidz'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(get_var($disk,'fsProfile'),"raidz2", _('raidz2'))?>
+  <?if (get_var($disk,'devices',0)>=5) echo mk_option(get_var($disk,'fsProfile'),"raidz3", _('raidz3'))?>
   </select>
-  <select id="diskFsWidthZFS" name="diskFsWidth.<?=$disk['idx']?>" style="display:none" <?=$disabled?>>
+  <select id="diskFsWidthZFS" name="diskFsWidth.<?=get_var($disk,'idx',0)?>" style="display:none" <?=$disabled?>>
   </select>
 <?endif;?>
 
 <div markdown="1" id="compression" style="display:none">
 _(Compression)_:
-<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
-: <select id="diskCompression" name="diskCompression.<?=$disk['idx']?>" <?=$disabled?>>
-  <?=mk_option($disk['compression'], "off", _('Off'))?>
-  <?=mk_option($disk['compression'], "on", _('On'))?>
+<?$disabled = get_var($disk,'fsStatus')=='Mounted' ? "disabled" : ""?>
+: <select id="diskCompression" name="diskCompression.<?=get_var($disk,'idx',0)?>" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'compression'), "off", _('Off'))?>
+  <?=mk_option(get_var($disk,'compression'), "on", _('On'))?>
   </select>
 
 :info_compression_help:
@@ -631,37 +649,37 @@ _(Compression)_:
 
 <div markdown="1" id="autotrim" style="display:none">
 _(Autotrim)_:
-<?$disabled = $disk['fsStatus']=='Mounted' ? "disabled" : ""?>
-: <select id="diskAutotrim" name="diskAutotrim.<?=$disk['idx']?>" <?=$disabled?>>
-  <?=mk_option($disk['autotrim'], "on", _('On'))?>
-  <?=mk_option($disk['autotrim'], "off", _('Off'))?>
+<?$disabled = get_var($disk,'fsStatus')=='Mounted' ? "disabled" : ""?>
+: <select id="diskAutotrim" name="diskAutotrim.<?=get_var($disk,'idx',0)?>" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'autotrim'), "on", _('On'))?>
+  <?=mk_option(get_var($disk,'autotrim'), "off", _('Off'))?>
   </select>
 
 :info_autotrim_help:
 </div>
-<?if (in_array($name,$pools)):?>
+<?if (isPool($name)):?>
 _(Enable user share assignment)_:
-<?$disabled = $var['fsState']!="Stopped" ? "disabled" : ""?>
-: <select id="shareEnabled" name="diskShareEnabled.<?=$disk['idx']?>" onchange="freeSpace(this.value)" <?=$disabled?>>
-  <?=mk_option($disk['shareEnabled'], "yes", _('Yes'))?>
-  <?=mk_option($disk['shareEnabled'], "no", _('No'))?>
+<?$disabled = get_var($var,'fsState')!="Stopped" ? "disabled" : ""?>
+: <select id="shareEnabled" name="diskShareEnabled.<?=get_var($disk,'idx',0)?>" onchange="freeSpace(this.value)" <?=$disabled?>>
+  <?=mk_option(get_var($disk,'shareEnabled'), "yes", _('Yes'))?>
+  <?=mk_option(get_var($disk,'shareEnabled'), "no", _('No'))?>
   </select>
 
 :info_share_assignment_help:
 
 _(Minimum free space)_:
-: <input type="text" id="shareFloor" name="diskShareFloor.<?=$disk['idx']?>" maxlength="16" value="<?=$disk['shareFloor']?>" class="narrow" <?=$disabled?> placeholder="0">
+: <input type="text" id="shareFloor" name="diskShareFloor.<?=get_var($disk,'idx',0)?>" maxlength="16" value="<?=get_var($disk,'shareFloor')?>" class="narrow" <?=$disabled?> placeholder="0">
 
 :info_free_space_help:
 
 <?endif;?>
 _(Warning disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="diskWarning.<?=$disk['idx']?>" class="narrow" value="<?=$disk['warning']??''?>" placeholder="<?=$display['warning']?>">
+: <input type="number" min="0" max="100" name="diskWarning.<?=get_var($disk,'idx',0)?>" class="narrow" value="<?=get_var($disk,'warning')?>" placeholder="<?=get_var($display,'warning')?>">
 
 :info_warning_utilization_help:
 
 _(Critical disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="diskCritical.<?=$disk['idx']?>" class="narrow" value="<?=$disk['critical']??''?>" placeholder="<?=$display['critical']?>")>
+: <input type="number" min="0" max="100" name="diskCritical.<?=get_var($disk,'idx',0)?>" class="narrow" value="<?=get_var($disk,'critical')?>" placeholder="<?=get_var($display,'critical')?>")>
 
 :info_critical_utilization_help:
 
@@ -669,31 +687,31 @@ _(Critical disk utilization threshold)_ (%):
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" id="doneButton" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
-  <?if (isset($disk['type']) && ($disk['type']=='Data' || $disk['type']=='Parity')):?>
-    <?if ($var['fsState']=="Stopped" && strpos($disk['status']??'','_NEW')!==false):?>
+  <?if (diskType('Parity','Data')):?>
+    <?if (get_var($var,'fsState')=="Stopped" && diskStatus('_NEW')):?>
       <?$erasable=true?>
     <?endif;?>
-    <?if ($var['fsState']=="Started" && $var['startMode']!="Normal" && (isset($disk['type']) && $disk['type']=='Data')):?>
-      <?$erasable=true?>
-    <?endif;?>
-    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
-  <?endif;?>
-  <?if (in_array($name,$pools)):?>
-    <?if ($var['fsState']=="Stopped" || ($var['fsState']=="Started" && $var['startMode']!="Normal")):?>
+    <?if (get_var($var,'fsState')=="Started" && get_var($var,'startMode')!="Normal" && diskType('Data')):?>
       <?$erasable=true?>
     <?endif;?>
     <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
   <?endif;?>
-  <?if ($var['fsState']=="Stopped" && in_array($name,$pools)):?>
-    <?$empty = $disk['devices']==0?>
+  <?if (isPool($name)):?>
+    <?if (get_var($var,'fsState')=="Stopped" || (get_var($var,'fsState')=="Started" && get_var($var,'startMode')!="Normal")):?>
+      <?$erasable=true?>
+    <?endif;?>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+  <?endif;?>
+  <?if (get_var($var,'fsState')=="Stopped" && isPool($name)):?>
+    <?$empty = get_var($disk,'devices',0)==0?>
     <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
   <?endif;?>
 </form>
 
-<?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
+<?if (fsType('btrfs')):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
-<?if ($disk['fsStatus']=="Mounted"):?>
+<?if (get_var($disk,'fsStatus')=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
 <?$usage = exec("/sbin/btrfs fi usage /mnt/$tag|grep -Pom1 '^Data,.+ \\(\\K[^%]+'");?>
 
@@ -714,17 +732,17 @@ _(btrfs balance status)_:
 
 &nbsp;
 : <input type="submit" value="_(Balance)_">
-<?if (isset($disk['devices']) && $disk['devices']>1):?>
+<?if (get_var($disk,'devices',0)>1):?>
   <select onchange="updateMode(this.form,this.value)">
   <?=mk_option(1,'',_('Perform full balance'))?>
-  <?if ($disk['devices']>=1) echo mk_option(1,'-dconvert=single,soft -mconvert=dup,soft',_('Convert to single mode'))?>
-  <?if ($disk['devices']>=2) echo mk_option(1,'-dconvert=raid0,soft -mconvert=raid1,soft',_('Convert to raid0 mode'))?>
-  <?if ($disk['devices']>=2) echo mk_option(1,'-dconvert=raid1,soft -mconvert=raid1,soft',_('Convert to raid1 mode'))?>
-  <?if ($disk['devices']>=3) echo mk_option(1,'-dconvert=raid1c3,soft -mconvert=raid1c3,soft',_('Convert to raid1c3 mode'))?>
-  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid1c4,soft -mconvert=raid1c4,soft',_('Convert to raid1c4 mode'))?>
-  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid10,soft -mconvert=raid10,soft',_('Convert to raid10 mode'))?>
-  <?if ($disk['devices']>=3) echo mk_option(1,'-dconvert=raid5,soft -mconvert=raid1,soft',_('Convert to raid5 mode *see help'))?>
-  <?if ($disk['devices']>=4) echo mk_option(1,'-dconvert=raid6,soft -mconvert=raid1c3,soft',_('Convert to raid6 mode *see help'))?>
+  <?if (get_var($disk,'devices',0)>=1) echo mk_option(1,'-dconvert=single,soft -mconvert=dup,soft',_('Convert to single mode'))?>
+  <?if (get_var($disk,'devices',0)>=2) echo mk_option(1,'-dconvert=raid0,soft -mconvert=raid1,soft',_('Convert to raid0 mode'))?>
+  <?if (get_var($disk,'devices',0)>=2) echo mk_option(1,'-dconvert=raid1,soft -mconvert=raid1,soft',_('Convert to raid1 mode'))?>
+  <?if (get_var($disk,'devices',0)>=3) echo mk_option(1,'-dconvert=raid1c3,soft -mconvert=raid1c3,soft',_('Convert to raid1c3 mode'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(1,'-dconvert=raid1c4,soft -mconvert=raid1c4,soft',_('Convert to raid1c4 mode'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(1,'-dconvert=raid10,soft -mconvert=raid10,soft',_('Convert to raid10 mode'))?>
+  <?if (get_var($disk,'devices',0)>=3) echo mk_option(1,'-dconvert=raid5,soft -mconvert=raid1,soft',_('Convert to raid5 mode *see help'))?>
+  <?if (get_var($disk,'devices',0)>=4) echo mk_option(1,'-dconvert=raid6,soft -mconvert=raid1c3,soft',_('Convert to raid6 mode *see help'))?>
   </select>
 <?else:?>
   *_(Perform full balance)_*
@@ -761,48 +779,48 @@ _(btrfs balance status)_:
 _(Balance schedule)_:
 : <select name="mode" onchange="presetBTRFS(this.form,'#balance-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
-  <?=mk_option($$balance['mode']??'', strval($m), _($mode[$m]).($m<4 ? '': ' ('._('recommended').')'))?>
+  <?=mk_option(get_var($$balance,'mode'), strval($m), _($mode[$m]).($m<4 ? '': ' ('._('recommended').')'))?>
   <?endfor;?>
   </select>
 
 _(Day of the week)_:
 : <select name="day">
   <?for ($d=0; $d<count($days); $d++):?>
-  <?=mk_option($$balance['day']??'', strval($d), _($days[$d]),0)?>
+  <?=mk_option(get_var($$balance,'day'), strval($d), _($days[$d]),0)?>
   <?endfor;?>
-  <?=mk_option($$balance['day']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$balance,'day'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Day of the month)_:
 : <select name="dotm">
   <?for ($d=1; $d<=31; $d++):?>
-  <?=mk_option($$balance['dotm']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$balance,'dotm'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
-  <?=mk_option($$balance['dotm']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$balance,'dotm'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Time of the day)_:
 : <span id="balance-hour1" style="display:none"><select name="hour1" class="narrow">
   <?for ($d=0; $d<=23; $d++):?>
-  <?=mk_option($$balance['hour']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$balance,'hour'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>
   <select name="min" class="narrow">
   <?for ($d=0; $d<=55; $d+=5):?>
-  <?=mk_option($$balance['min']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$balance,'min'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>&nbsp;&nbsp;_(HH:MM)_</span>
 : <span id="balance-hour2" style="display:none"><select name="hour2">
-  <?=mk_option($$balance['hour']??'', "*/1", _("Every hour"))?>
-  <?=mk_option($$balance['hour']??'', "*/2", _("Every 2 hours"))?>
-  <?=mk_option($$balance['hour']??'', "*/3", _("Every 3 hours"))?>
-  <?=mk_option($$balance['hour']??'', "*/4", _("Every 4 hours"))?>
-  <?=mk_option($$balance['hour']??'', "*/6", _("Every 6 hours"))?>
-  <?=mk_option($$balance['hour']??'', "*/8", _("Every 8 hours"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/1", _("Every hour"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/2", _("Every 2 hours"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/3", _("Every 3 hours"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/4", _("Every 4 hours"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/6", _("Every 6 hours"))?>
+  <?=mk_option(get_var($$balance,'hour'), "*/8", _("Every 8 hours"))?>
   </select></span>
 
 _(Block group usage)_ (%):
-: <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=$$balance['usage']??''?>" placeholder="50">
+: <input type="number" name="usage" class="narrow" min="0" max="100" value="<?=get_var($$balance,'usage')?>" placeholder="50">
 
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
@@ -810,7 +828,7 @@ _(Block group usage)_ (%):
 
 <div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>')">
-<?if ($disk['fsStatus']=="Mounted"):?>
+<?if (get_var($disk,'fsStatus')=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /mnt/$tag", $scrub_status, $retval)?>
 
 _(btrfs scrub status)_:
@@ -856,44 +874,44 @@ _(btrfs scrub status)_:
 _(Scrub schedule)_:
 : <select name="mode" onchange="presetBTRFS(this.form,'#scrub-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
-  <?=mk_option($$scrub['mode']??'', strval($m), _($mode[$m]))?>
+  <?=mk_option(get_var($$scrub,'mode'), strval($m), _($mode[$m]))?>
   <?endfor;?>
   </select>
 
 _(Day of the week)_:
 : <select name="day">
   <?for ($d=0; $d<count($days); $d++):?>
-  <?=mk_option($$scrub['day']??'', strval($d), _($days[$d]),0)?>
+  <?=mk_option(get_var($$scrub,'day'), strval($d), _($days[$d]),0)?>
   <?endfor;?>
-  <?=mk_option($$scrub['day']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$scrub,'day'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Day of the month)_:
 : <select name="dotm">
   <?for ($d=1; $d<=31; $d++):?>
-  <?=mk_option($$scrub['dotm']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'dotm'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
-  <?=mk_option($$scrub['dotm']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$scrub,'dotm'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Time of the day)_:
 : <span id="scrub-hour1" style="display:none"><select name="hour1" class="narrow">
   <?for ($d=0; $d<=23; $d++):?>
-  <?=mk_option($$scrub['hour']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'hour'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>
   <select name="min" class="narrow">
   <?for ($d=0; $d<=55; $d+=5):?>
-  <?=mk_option($$scrub['min']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'min'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>&nbsp;&nbsp;_(HH:MM)_</span>
 : <span id="scrub-hour2" style="display:none"><select name="hour2">
-  <?=mk_option($$scrub['hour']??'', "*/1", _("Every hour"))?>
-  <?=mk_option($$scrub['hour']??'', "*/2", _("Every 2 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/3", _("Every 3 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/4", _("Every 4 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/6", _("Every 6 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/8", _("Every 8 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/1", _("Every hour"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/2", _("Every 2 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/3", _("Every 3 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/4", _("Every 4 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/6", _("Every 6 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/8", _("Every 8 hours"))?>
   </select></span>
 
 &nbsp;
@@ -901,9 +919,9 @@ _(Time of the day)_:
 </form>
 
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-check-<?=$tag?>','/dev/<?=get_var($disk,'deviceSb')?> <?=get_var($disk,'id')?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/btrfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/btrfs_check status /dev/".get_var($disk,'deviceSb')." ".get_var($disk,'id'), $check_status, $retval)?>
 
 _(btrfs check status)_:
 : <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -911,8 +929,8 @@ _(btrfs check status)_:
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=get_var($disk,'id')?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="--readonly"> _(Options (see Help))_
@@ -922,8 +940,8 @@ _(btrfs check status)_:
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=get_var($disk,'id')?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -945,10 +963,10 @@ _(btrfs check status)_:
 <?endif;?>
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType']??'',"zfs")!==false):?>
+<?if (fsType('zfs')):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
-<?if ($disk['fsStatus']=="Mounted"):?>
+<?if (get_var($disk,'fsStatus')=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $scrub_status, $retval)?>
 
 _(zfs scrub status)_:
@@ -993,55 +1011,55 @@ _(zfs scrub status)_:
 _(Scrub schedule)_:
 : <select name="mode" onchange="presetZFS(this.form,'#scrub-hour')">
   <?for ($m=0; $m<count($mode); $m++):?>
-  <?=mk_option($$scrub['mode']??'', strval($m), _($mode[$m]))?>
+  <?=mk_option(get_var($$scrub,'mode'), strval($m), _($mode[$m]))?>
   <?endfor;?>
   </select>
 
 _(Day of the week)_:
 : <select name="day">
   <?for ($d=0; $d<count($days); $d++):?>
-  <?=mk_option($$scrub['day']??'', strval($d), _($days[$d]),0)?>
+  <?=mk_option(get_var($$scrub,'day'), strval($d), _($days[$d]),0)?>
   <?endfor;?>
-  <?=mk_option($$scrub['day']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$scrub,'day'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Day of the month)_:
 : <select name="dotm">
   <?for ($d=1; $d<=31; $d++):?>
-  <?=mk_option($$scrub['dotm']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'dotm'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
-  <?=mk_option($$scrub['dotm']??'', "*", "--------", _("disabled"))?>
+  <?=mk_option(get_var($$scrub,'dotm'), "*", "--------", _("disabled"))?>
   </select>
 
 _(Time of the day)_:
 : <span id="scrub-hour1" style="display:none"><select name="hour1" class="narrow">
   <?for ($d=0; $d<=23; $d++):?>
-  <?=mk_option($$scrub['hour']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'hour'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>
   <select name="min" class="narrow">
   <?for ($d=0; $d<=55; $d+=5):?>
-  <?=mk_option($$scrub['min']??'', strval($d), sprintf("%02d", $d))?>
+  <?=mk_option(get_var($$scrub,'min'), strval($d), sprintf("%02d", $d))?>
   <?endfor;?>
   </select>&nbsp;&nbsp;_(HH:MM)_</span>
 : <span id="scrub-hour2" style="display:none"><select name="hour2">
-  <?=mk_option($$scrub['hour']??'', "*/1", _("Every hour"))?>
-  <?=mk_option($$scrub['hour']??'', "*/2", _("Every 2 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/3", _("Every 3 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/4", _("Every 4 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/6", _("Every 6 hours"))?>
-  <?=mk_option($$scrub['hour']??'', "*/8", _("Every 8 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/1", _("Every hour"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/2", _("Every 2 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/3", _("Every 3 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/4", _("Every 4 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/6", _("Every 6 hours"))?>
+  <?=mk_option(get_var($$scrub,'hour'), "*/8", _("Every 8 hours"))?>
   </select></span>
 
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_"><input type="button" value="_(Done)_" onclick="done()">
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType']??'',"reiserfs")!==false):?>
+<?if (fsType('reiserfs')):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'rfs-check-<?=$tag?>','/dev/<?=get_var($disk,'deviceSb')?> <?=get_var($disk,'id')?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/reiserfs_check status /dev/".get_var($disk,'deviceSb')." ".get_var($disk,'id'), $check_status, $retval)?>
 
 _(reiserfsck status)_:
 : <?echo "<pre id='rfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -1049,8 +1067,8 @@ _(reiserfsck status)_:
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=get_var($disk,'id')?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> _(Options (see Help))_
@@ -1060,8 +1078,8 @@ _(reiserfsck status)_:
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/reiserfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=get_var($disk,'id')?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -1077,11 +1095,11 @@ _(reiserfsck status)_:
 <?endif;?>
 </form>
 <?endif;?>
-<?if (strpos($disk['fsType']??'',"xfs")!==false):?>
+<?if (fsType('xfs')):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-shield"></i>_(Check Filesystem Status)_</span></div>
-<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=$disk['deviceSb']?> <?=$disk['id']?>')">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'xfs-check-<?=$tag?>','/dev/<?=get_var($disk,'deviceSb')?> <?=get_var($disk,'id')?>')">
 <?if (maintenance_mode()):?>
-<?exec("$docroot/webGui/scripts/xfs_check status /dev/{$disk['deviceSb']} {$disk['id']}", $check_status, $retval)?>
+<?exec("$docroot/webGui/scripts/xfs_check status /dev/".get_var($disk,'deviceSb')." ".get_var($disk,'id'), $check_status, $retval)?>
 
 _(xfs_repair status)_:
 : <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>"?>
@@ -1089,8 +1107,8 @@ _(xfs_repair status)_:
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="start">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
-<input type="hidden" name="#arg[3]" value="<?=$disk['id']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=get_var($disk,'id')?>">
 
 &nbsp;
 : <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> _(Options (see Help))_
@@ -1100,7 +1118,7 @@ _(xfs_repair status)_:
 <?else:?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
-<input type="hidden" name="#arg[2]" value="/dev/<?=$disk['deviceSb']?>">
+<input type="hidden" name="#arg[2]" value="/dev/<?=get_var($disk,'deviceSb')?>">
 
 &nbsp;
 : <input type="submit" value="_(Cancel)_"> *_(Running)_*
@@ -1117,78 +1135,78 @@ _(xfs_repair status)_:
 </form>
 <?endif;?>
 
-<?if (strpos($disk['status']??'','_NP')===false):?>
+<?if (!diskStatus('_NP')):?>
 <div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDeviceInfo(this)">
 <input type="hidden" name="#file"    value="/boot/config/smart-one.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
-<input type="hidden" name="#section" value="<?=$disk['id']?>">
+<input type="hidden" name="#section" value="<?=get_var($disk,'id')?>">
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="smEvents" value="">
-<input type="hidden" name="smGlue"   value="<?=$var['smGlue']??''?>">
-_(Warning disk temperature threshold)_ (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp($disk['hotTemp']??'')?>" placeholder="<?=displayTemp($display['hot'])?>">
+<input type="hidden" name="smGlue"   value="<?=get_var($var,'smGlue')?>">
+_(Warning disk temperature threshold)_ (&deg;<?=get_var($display,'unit','C')?>):
+: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(get_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(get_var($display,'hot'))?>">
 
 :info_warning_temp_help:
 
-_(Critical disk temperature threshold)_ (&deg;<?=$display['unit']?>):
-: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp($disk['maxTemp']??'')?>" placeholder="<?=displayTemp($display['max'])?>">
+_(Critical disk temperature threshold)_ (&deg;<?=get_var($display,'unit','C')?>):
+: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(get_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(get_var($display,'max'))?>">
 
 :info_critical_temp_help:
 
 _(SMART notification value)_:
 : <select name="smSelect">
-  <?=mk_option($disk['smSelect']??'', "-1", _('Use default'))?>
-  <?=mk_option($disk['smSelect']??'', "0", _('Raw'))?>
-  <?=mk_option($disk['smSelect']??'', "1", _('Normalized'))?>
+  <?=mk_option(get_var($disk,'smSelect'), "-1", _('Use default'))?>
+  <?=mk_option(get_var($disk,'smSelect'), "0", _('Raw'))?>
+  <?=mk_option(get_var($disk,'smSelect'), "1", _('Normalized'))?>
   </select>
 
 :info_smart_notifications_help:
 
 _(SMART notification tolerance level)_:
 : <select name="smLevel">
-  <?=mk_option($disk['smLevel']??'', "-1", _('Use default'))?>
-  <?=mk_option($disk['smLevel']??'', "1.00", _('Absolute'))?>
-  <?=mk_option($disk['smLevel']??'', "1.05", "5%")?>
-  <?=mk_option($disk['smLevel']??'', "1.10", "10%")?>
-  <?=mk_option($disk['smLevel']??'', "1.15", "15%")?>
-  <?=mk_option($disk['smLevel']??'', "1.20", "20%")?>
-  <?=mk_option($disk['smLevel']??'', "1.25", "25%")?>
-  <?=mk_option($disk['smLevel']??'', "1.50", "50%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "-1", _('Use default'))?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.00", _('Absolute'))?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.05", "5%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.10", "10%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.15", "15%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.20", "20%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.25", "25%")?>
+  <?=mk_option(get_var($disk,'smLevel'), "1.50", "50%")?>
   </select>
 
 :info_tolerance_level_help:
 
 _(SMART controller type)_:
 : <select name="smType" onchange="setGlue(this.form,true)">
-  <?=mk_option($disk['smType']??'', "-1", _('Use default'))?>
-  <?=mk_option($disk['smType']??'', " ", _('Automatic'))?>
-  <?=mk_option($disk['smType']??'', "-d ata", "ATA")?>
-  <?=mk_option($disk['smType']??'', "-d nvme", "NVMe")?>
-  <?=mk_option($disk['smType']??'', "-d sat", "SAT")?>
-  <?=mk_option($disk['smType']??'', "-d scsi", "SCSI")?>
-  <?=mk_option($disk['smType']??'', "-d 3ware", "3Ware")?>
-  <?=mk_option($disk['smType']??'', "-d aacraid", "Adaptec")?>
-  <?=mk_option($disk['smType']??'', "-d areca", "Areca")?>
-  <?=mk_option($disk['smType']??'', "-d hpt", "HighPoint")?>
-  <?=mk_option($disk['smType']??'', "-d cciss", "HP cciss")?>
-  <?=mk_option($disk['smType']??'', "-d marvell", "Marvell")?>
-  <?=mk_option($disk['smType']??'', "-d megaraid", "MegaRAID")?>
+  <?=mk_option(get_var($disk,'smType'), "-1", _('Use default'))?>
+  <?=mk_option(get_var($disk,'smType'), " ", _('Automatic'))?>
+  <?=mk_option(get_var($disk,'smType'), "-d ata", "ATA")?>
+  <?=mk_option(get_var($disk,'smType'), "-d nvme", "NVMe")?>
+  <?=mk_option(get_var($disk,'smType'), "-d sat", "SAT")?>
+  <?=mk_option(get_var($disk,'smType'), "-d scsi", "SCSI")?>
+  <?=mk_option(get_var($disk,'smType'), "-d 3ware", "3Ware")?>
+  <?=mk_option(get_var($disk,'smType'), "-d aacraid", "Adaptec")?>
+  <?=mk_option(get_var($disk,'smType'), "-d areca", "Areca")?>
+  <?=mk_option(get_var($disk,'smType'), "-d hpt", "HighPoint")?>
+  <?=mk_option(get_var($disk,'smType'), "-d cciss", "HP cciss")?>
+  <?=mk_option(get_var($disk,'smType'), "-d marvell", "Marvell")?>
+  <?=mk_option(get_var($disk,'smType'), "-d megaraid", "MegaRAID")?>
   </select>
-  <input type="text" name="smPort1" value="<?=$disk['smPort1']??''?>" class="option"><select name="smPort1" class="narrow option" disabled></select>
-  <input type="text" name="smPort2" value="<?=$disk['smPort2']??''?>" class="option"><select name="smPort2" class="narrow option" disabled></select>
-  <input type="text" name="smPort3" value="<?=$disk['smPort3']??''?>" class="option"><select name="smPort3" class="narrow option" disabled></select><span id="devtext">/dev/</span>
-  <input type="text" name="smDevice" value="<?=$disk['smDevice']??''?>" class="option" placeholder="<?=$dev?>"><span id="helptext">_(enter disk index and device name as applicable to your controller)_</span>
+  <input type="text" name="smPort1" value="<?=get_var($disk,'smPort1')?>" class="option"><select name="smPort1" class="narrow option" disabled></select>
+  <input type="text" name="smPort2" value="<?=get_var($disk,'smPort2')?>" class="option"><select name="smPort2" class="narrow option" disabled></select>
+  <input type="text" name="smPort3" value="<?=get_var($disk,'smPort3')?>" class="option"><select name="smPort3" class="narrow option" disabled></select><span id="devtext">/dev/</span>
+  <input type="text" name="smDevice" value="<?=get_var($disk,'smDevice')?>" class="option" placeholder="<?=$dev?>"><span id="helptext">_(enter disk index and device name as applicable to your controller)_</span>
 
 :info_controller_type_help:
 
 _(SMART attribute notifications)_:
 : <input type="text" name="smCustom" value="<?=$disk['smCustom']??$var['smCustom']??''?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
 
-<?for ($x=0; $x < count($preselect); $x++):?>
+<?for ($x=0; $x<count($preselect); $x++):?>
 &nbsp;
-: <input type="checkbox" name="at<?=$x?>" value="<?=$preselect[$x]['code']??''?>"<?=in_array($preselect[$x]['code']??'',$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=$preselect[$x]['code']?></span><?=$preselect[$x]['text']?>
+: <input type="checkbox" name="at<?=$x?>" value="<?=get_var($preselect[$x],'code')?>"<?=in_array(get_var($preselect[$x],'code'),$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=get_var($preselect[$x],'code')?></span><?=get_var($preselect[$x],'text')?>
 <?endfor;?>
 
 :info_attribute_notifications_help:
@@ -1214,15 +1232,15 @@ _(Name)_:
 <input type="hidden" name="changeSlots" value="apply">
 <input type="hidden" name="poolName" value="<?=$name?>">
 <input type="hidden" name="poolSlots" value="0">
-<input type='hidden' name='csrf_token' value='<?=$var['csrf_token']?>'>
+<input type='hidden' name='csrf_token' value='<?=get_var($var,'csrf_token')?>'>
 </form>
 
 <script>
 $(function(){
-<?if (strpos($disk['fsType']??'',"btrfs")!==false):?>
+<?if (fsType('btrfs')):?>
   presetBTRFS(document.balance_schedule,'#balance-hour');
   presetBTRFS(document.scrub_schedule,'#scrub-hour');
-<?elseif (strpos($disk['fsType']??'',"zfs")!==false):?>
+<?elseif (fsType('zfs')):?>
   presetZFS(document.scrub_schedule,'#scrub-hour');
 <?endif;?>
 });
