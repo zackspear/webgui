@@ -1441,6 +1441,11 @@
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
+		function get_interface_addresses($domain,$flag) {
+			$tmp =  libvirt_domain_interface_addresses($domain,$flag);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
 		function get_node_device_res($res) {
 			if ($res == false)
 				return false;

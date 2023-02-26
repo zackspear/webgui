@@ -1,0 +1,111 @@
+Title="Clone VM"
+Tag="clipboard"
+Cond="(pgrep('libvirtd')!==false)"
+Markdown="false"
+---
+<?PHP
+/* Copyright 2005-2020, Lime Technology
+ * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2020, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+// add vm translations (if needed)
+if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
+  $vms = "$docroot/languages/$locale/vms.dot";
+  if (file_exists($vms)) $language = array_merge($language,unserialize(file_get_contents($vms)));
+}
+
+?>
+<style>
+div.template,div#dialogWindow,input#upload{display:none}
+.fileTree{background:<?=$bgcolor?>;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
+.dropdown-menu{z-index:10001;
+</style>
+
+<script>
+function getCloneName(name){
+  var root = "" ;
+  var match= ".iso" ;
+  var box = $("#dialogWindow");
+  box.html($("#templateClone").html());
+
+  box.find('#VMBeingCloned').html(name).change() ;
+
+    var height = 100;
+  box.dialog({
+    title: "Enter Clone Name",
+    resizable: false,
+    width: 600,
+    height: 300,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      "_(Insert)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          if (!target ) {errorTarget(); return;}
+        } else target = '';
+        box.find('#target').prop('disabled',true);
+        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist"); ;
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title',"_(Close)_").prop('onclick',null).off('click').click(function(){box.dialog('close');});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
+
+getCloneName("Test") ;
+
+</script>
+
+<div id="dialogWindow"></div>
+<div markdown="1" id="templateClone" class="template">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1600">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
+</head>
+<body>
+_(VM Being Cloned)_:
+<span id="VMBeingCloned"></span><br>
+
+_(New VM)_:
+<input type="text" id="target" autocomplete="off" spellcheck="false" value="" ><br>
+<tabel>
+<tr><td>_(Overwrite)_:</td>
+<td><input type="checkbox" id="Overwrite" value="" ></td></tr><br>
+
+<tr><td>_(Start Cloned VM)_:</td>
+<td><input type="checkbox" id="Start" value="" ></td></tr><br>
+
+_(Edit VM after clone)_:
+<input type="checkbox" id="Edit" value="" ><br>
+</table>
+</body>
+</html>
+</div>

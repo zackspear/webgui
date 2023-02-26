@@ -2,6 +2,42 @@ function displayconsole(url) {
   window.open(url, '_blank', 'scrollbars=yes,resizable=yes');
 }
 
+function getCloneName(name){
+  var root = "" ;
+  var match= ".iso" ;
+  var box = $("#dialogWindow");
+  box.html($("#templateClone").html());
+
+  box.find('#VMBeingCloned').html(name).change() ;
+
+    var height = 100;
+  box.dialog({
+    title: "Enter Clone Name",
+    resizable: false,
+    width: 600,
+    height: 300,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      "_(Insert)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          if (!target ) {errorTarget(); return;}
+        } else target = '';
+        box.find('#target').prop('disabled',true);
+        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist"); ;
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+
 function ajaxVMDispatch(params, spin){
   if (spin) $('#vm-'+params['uuid']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", params, function(data) {
@@ -103,7 +139,27 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
     opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
   }
   opts.push({text:_("Edit"), icon:"fa-pencil", href:path+'/UpdateVM?uuid='+uuid});
+  opts.push({text:_("Clone2"), icon:"fa-clone", href:path+'/CloneVM?uuid='+uuid});
+
   if (state == "shutoff") {
+
+    opts.push({text:_("Clone"), icon:"fa-clone", action:function(e) {
+      e.preventDefault();
+      var clonename = getCloneName(name) ;
+      /*swal({
+        title:_("Enter"),
+        text:_("From VM:")+name,
+        type:"warning",
+        showCancelButton:true,
+        confirmButtonText:_('Proceed'),
+        cancelButtonText:_('Cancel')
+      },function(){
+        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+        ajaxVMDispatch({action:"domain-clone", uuid:uuid }, "loadlist");
+      }) ;*/
+
+    }});
+
     opts.push({divider:true});
     opts.push({text:_("Remove VM"), icon:"fa-minus", action:function(e) {
       e.preventDefault();
