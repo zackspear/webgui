@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -20,13 +20,14 @@
 //   all data:  diagnostics -a
 $opt = getopt('a',['all']);
 $all = isset($opt['a']) || isset($opt['all']);
-$zip = $all ? $argv[2]??"" : $argv[1]??"";
+$zip = $all ? ($argv[2]??'') : ($argv[1]??'');
 $cli = empty($zip);
-$get = "/var/local/emhttp";
-$var = (array)@parse_ini_file("$get/var.ini");
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
+
+require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
   $com = curl_init();
@@ -56,13 +57,13 @@ function newline($file) {
 function shareDisks($share) {
   return str_replace(',',', ',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$share")." 2>/dev/null") ?: "");
 }
-function anonymize($text,$select) {
-  global $all,$pools,$customShares,$unraid_vars;
+function anonymize($text, $select) {
+  global $all,$var,$pools,$customShares;
   if ($all) return $text;
   switch ($select) {
   case 1:
     // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
-    $guid = explode("-",$unraid_vars['regGUID']);
+    $guid = explode('-',_var($var,'regGUID'));
     $text = str_replace(end($guid),"...",$text);
     $rows = explode("\n", $text);
     $pool = implode('|',$pools) ?: 'cache';
@@ -93,7 +94,7 @@ function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }
 function cache_only($disk) {
-  return $disk['type']=='Cache';
+  return _var($disk,'type')=='Cache';
 }
 function cache_filter($disks) {
   return array_filter($disks,'cache_only');
@@ -169,17 +170,17 @@ function geturls_checkhost($host, $hostpriv, $expectedip, $dnsserver) {
   return '';
 }
 function geturls() {
-  $var = parse_ini_file('/var/local/emhttp/var.ini');
-  extract(parse_ini_file('/var/local/emhttp/network.ini',true));
-  $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
-  $internalip = $internalip_priv = $internalip_msg = $eth0['IPADDR:0'];
-  $dnsserver = $eth0['DNS_SERVER1'];
+  global $var,$path;
+  extract(@parse_ini_file("$path/network.ini",true));
+  $nginx = @parse_ini_file("$path/nginx.ini");
+  $internalip = $internalip_priv = $internalip_msg = _var($eth0,'IPADDR:0');
+  $dnsserver = _var($eth0,'DNS_SERVER1');
   if (filter_var($internalip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
     $internalip_priv = "ipaddress";
     $internalip_msg = "redacted (FYI - this system has a routable IP address, ensure it is behind a firewall)";
   }
-  $host_tld_msg = $var['LOCAL_TLD'] ? '': '[blank] (FYI - a blank TLD can cause issues for Mac and Linux clients)';
-  $isLegacyCert = preg_match('/.*\.unraid\.net$/', $nginx['NGINX_CERTNAME']);
+  $host_tld_msg = _var($var,'LOCAL_TLD') ? '' : '[blank] (FYI - a blank TLD can cause issues for Mac and Linux clients)';
+  $isLegacyCert = preg_match('/.*\.unraid\.net$/',_var($nginx,'NGINX_CERTNAME'));
   $rebindtesturl = $isLegacyCert ? "rebindtest.unraid.net" : "rebindtest.myunraid.net";
   $rebindtestdomain = $isLegacyCert ? "unraid.net" : "myunraid.net";
   $rebindip = "192.168.42.42";
@@ -187,26 +188,27 @@ function geturls() {
   $rebind_msg = ($rebindtest_ip != $rebindip) ? "is enabled, $rebindtestdomain urls will not work" : "is disabled, $rebindtestdomain urls will work";
   // show raw data from config files
   $urls = '';
-  $urls .= "Server Name: {$var['NAME']}\n";
-  $urls .= "Local TLD:   {$var['LOCAL_TLD']}{$host_tld_msg}\n";
-  $urls .= "HTTP port:   {$var['PORT']}\n";
-  $urls .= "HTTPS port:  {$var['PORTSSL']}\n";
+  $urls .= "Server Name: "._var($var,'NAME','tower')."\n";
+  $urls .= "Local TLD:   "._var($var,'LOCAL_TLD').$host_tld_msg."\n";
+  $urls .= "HTTP port:   "._var($var,'PORT',80)."\n";
+  $urls .= "HTTPS port:  "._var($var,'PORTSSL',443)."\n";
   $urls .= "Internal IP: {$internalip_msg}\n";
   $urls .= "DNS 1:       {$dnsserver}\n";
-  $urls .= "USE SSL:     {$var['USE_SSL']}\n";
+  $urls .= "USE SSL:     "._var($var,'USE_SSL','no')."\n";
   $urls .= "DNS Rebinding Protection {$rebind_msg} on this network\n\n";
   $urls .= "Available URLs:\n  (the URL marked with an asterisk is the primary url for this server)\n";
   // calculate variables
-  $cert_path = "/boot/config/ssl/certs/";
-  $host_name = $var['NAME'];
-  $host_tld = $var['LOCAL_TLD'] ? ".{$var['LOCAL_TLD']}" : '';
+  $cert_path     = "/boot/config/ssl/certs/";
+  $host_name     = _var($var,'NAME','tower');
+  $host_tld      = _var($var,'LOCAL_TLD') ? ".{$var['LOCAL_TLD']}" : '';
+  $use_ssl       = _var($var,'USE_SSL','no');
+  $http_port     = _var($var,'PORT',80)!=80 ? ":{$var['PORT']}" : '';
+  $https_port    = _var($var,'PORTSSL',443)!=443 ? ":{$var['PORTSSL']}" : '';
+  $https_1_cert  = "{$host_name}_unraid_bundle.pem";
+  $https_2_cert  = 'certificate_bundle.pem';
+  $http_primary  = $https_1_primary = $https_2_primary = $http_msg = $https_1_msg = $https_2_msg = '';
   $expected_host = "{$host_name}{$host_tld}";
-  $http_port = $var['PORT'] != 80 ? ":{$var['PORT']}" : '';
-  $https_port = $var['PORTSSL'] != 443 ? ":{$var['PORTSSL']}" : '';
-  $https_1_cert = "{$var['NAME']}_unraid_bundle.pem";
-  $https_2_cert = 'certificate_bundle.pem';
-  $http_primary = $https_1_primary = $https_2_primary = $http_msg = $https_1_msg = $https_2_msg = '';
-  switch($var['USE_SSL']) {
+  switch ($use_ssl) {
   case "no":
     $http_primary = '*';
     break;
@@ -229,8 +231,8 @@ function geturls() {
   $urls .= geturls_checkhost($expected_host, $expected_host, $internalip, $dnsserver);
   // calculate https url - self-signed or user-provided in tower_unraid_bundle.pem
   // this is available when USE_SSL != no, and the certificate file exists
-  if ($var['USE_SSL'] != "no" && file_exists("{$cert_path}{$https_1_cert}")) {
-    [$https_1_host, $https_1_hostpriv, $https_1_type] = geturls_certdetails("{$cert_path}{$https_1_cert}", $var['NAME']);
+  if ($use_ssl != "no" && file_exists("{$cert_path}{$https_1_cert}")) {
+    [$https_1_host, $https_1_hostpriv, $https_1_type] = geturls_certdetails("{$cert_path}{$https_1_cert}", $host_name);
     $https_1_url = "https://{$https_1_hostpriv}{$https_port}";
     $urls .= "{$https_1_primary}HTTPS url 1 ($https_1_type): {$https_1_url}{$https_1_msg}\n";
     $urls .= geturls_checkhost($https_1_host, $https_1_hostpriv, $internalip, $dnsserver);
@@ -246,7 +248,7 @@ function geturls() {
   // this is available if the certificate file exists, regardless of the USE_SSL setting
   // this is usually a (my)unraid.net LE cert, but it can also be a user-provided cert
   if (file_exists("{$cert_path}{$https_2_cert}")) {
-    [$https_2_host, $https_2_hostpriv, $https_2_type] = geturls_certdetails("{$cert_path}{$https_2_cert}", $var['NAME'], $internalip);
+    [$https_2_host, $https_2_hostpriv, $https_2_type] = geturls_certdetails("{$cert_path}{$https_2_cert}", $host_name, $internalip);
     $https_2_url = "https://{$https_2_hostpriv}{$https_port}";
     $urls .= "{$https_2_primary}HTTPS url 2 ({$https_2_type}): {$https_2_url}{$https_2_msg}\n";
     $urls .= geturls_checkhost($https_2_host, $https_2_hostpriv, $internalip, $dnsserver);
@@ -254,19 +256,19 @@ function geturls() {
       $urls .= "  ERROR: the certificate Subject CN in {$https_2_cert} should be {$expected_host}\n";
     }
   }
-  if ($var['USE_SSL'] != "no") {
-    $telnet_disabled = ($var['USE_TELNET'] == "no") ? " (disabled)" : "";
-    $ssh_disabled = ($var['USE_SSH'] == "no") ? " (disabled)" : "";
+  if ($use_ssl != "no") {
+    $telnet_disabled = _var($var,'USE_TELNET')=="no" ? " (disabled)" : "";
+    $ssh_disabled = _var($var,'USE_SSH')=="no" ? " (disabled)" : "";
     $urls .= "\nTip: if DNS goes down and you lose access to the webgui, use telnet{$telnet_disabled}, ";
     $urls .= "ssh{$ssh_disabled}, or a local keyboard/monitor to run:\n";
     $urls .= "  use_ssl no\n";
     $urls .= "to enable 'HTTP IP url' and make 'HTTP url' the primary url for the system. ";
-    if ($var['USE_SSL'] == "auto") {
+    if ($use_ssl == "auto") {
       $urls .= "Or:\n";
       $urls .= "  use_ssl yes\n";
       $urls .= "to make 'HTTPS url 1' the primary.";
     }
-    $urls .= "\nOnce DNS has been restored, navigate to Settings -> Management Access and set 'Use SSL' back to '{$var['USE_SSL']}'\n";
+    $urls .= "\nOnce DNS has been restored, navigate to Settings -> Management Access and set 'Use SSL' back to '$use_ssl'\n";
   }
   // get a list of the certificate files on the flash drive
   $dirlisting[0] = "{$cert_path}";
@@ -297,13 +299,15 @@ if ($cli) {
 }
 
 // global variables
-$disks = (array)@parse_ini_file("$get/disks.ini",true);
+$path  = "/var/local/emhttp";
+$var   = @parse_ini_file("$path/var.ini") ?: [];
+$disks = @parse_ini_file("$path/disks.ini",true) ?: [];
 $pools = pools_filter($disks);
 
 // don't anonymize system share names
-$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
-$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
-$showshares = [];
+$vardomain    = @parse_ini_file('/boot/config/domain.cfg') ?: [];
+$vardocker    = @parse_ini_file('/boot/config/docker.cfg') ?: [];
+$showshares   = [];
 $customShares = '';
 if (!empty($vardomain['IMAGE_FILE']))             $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
 if (!empty($vardomain['DOMAINDIR']))              $showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']),3,1));
@@ -323,29 +327,28 @@ run("top -bn1 -o%CPU 2>/dev/null|todos >".escapeshellarg("/$diag/system/top.txt"
 
 // make Unraid version reference
 $unraid = parse_ini_file('/etc/unraid-version');
-$unraid_vars = parse_ini_file('/var/local/emhttp/var.ini');
 file_put_contents("/$diag/unraid-".$unraid['version'].".txt",$unraid['version']."\r\n");
 
 // add bz*.sha256 values
 run("tail /boot/bz*.sha256 >> ".escapeshellarg("/$diag/unraid-".$unraid['version'].".txt"));
 
 // copy ini variables
-foreach (glob("$get/*.ini") as $file) {
+foreach (glob("$path/*.ini") as $file) {
   $ini = basename($file,".ini");
   // skip users file in anonymized mode
   if ($all || $ini != "users") file_put_contents("/$diag/system/vars.txt",preg_replace(["/\n/","/^Array/"],["\r\n",$ini],anonymize(print_r(parse_ini_file($file,true),true),1)),FILE_APPEND);
 }
 
 // Create loads.txt
-$cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
+$cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$path/cpuload.ini")."\r\n";
 $loadTxt = [];
-if (file_exists("$get/diskload.ini")){
-  $diskload = (array)@file("$get/diskload.ini");
+if (file_exists("$path/diskload.ini")){
+  $diskload = file("$path/diskload.ini");
   foreach ($diskload as $loadLine) {
     $load = explode('=',$loadLine);
     foreach ($disks as $disk) {
-      if ($load[0]==$disk['device']) {
-        $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
+      if ($load[0]==_var($disk,'device')) {
+        $loadTxt[] = _var($disk,'device')." ("._var($disk,'name').")=".trim($load[1]);
         break;
       }
     }
@@ -417,10 +420,10 @@ foreach ($files as $file) {
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
 // create default user shares information
-$shares = (array)@parse_ini_file("$get/shares.ini", true);
+$shares = @parse_ini_file("$path/shares.ini", true) ?: [];
 foreach ($shares as $share) {
-  $name = $share['name'];
-  if (!in_array("/boot/config/shares/$name.cfg",$files)) {
+  $name = _var($share,'name');
+  if ($name && !in_array("/boot/config/shares/$name.cfg",$files)) {
     $home = shareDisks($name);
     $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
     $file = anonymize("/$diag/shares/$name.cfg",2);
@@ -460,31 +463,28 @@ if (file_exists($docker)) {
 }
 
 // create SMART reports (suppress errors)
-$disks = (array)@parse_ini_file("$get/disks.ini", true);
-include_once "$docroot/webGui/include/CustomMerge.php";
-include_once "$docroot/webGui/include/Wrappers.php";
 run("ls -l /dev/disk/by-id/[asun]* 2>/dev/null|sed '/-part/d;s|^.*/by-id/[^-]*-||;s|-> ../../||;s|:|-|'", $devices);
 foreach ($devices as $device) {
-  list($name,$port) = explode(' ',$device);
-  $diskName = ''; $type = '';
+  [$name,$port] = array_pad(explode(' ',$device),2,'');
+  $diskName = $type = '';
   foreach ($disks as $find) {
-    if ($find['device']==$port) {
-      $diskName = $find['name'];
+    if (_var($find,'device')==$port) {
+      $diskName = _var($find,'name');
       $type = get_value($find,'smType','');
       get_ctlr_options($type, $find);
-      $port = $find['smDevice'] ?? $port;
+      $port = _var($find,'smDevice',$port);
       break;
     }
   }
   $port = port_name($port);
-  $status = $find['status'] == "DISK_OK" ? "" : " - {$find['status']}";
+  $status = _var($find,'status')=="DISK_OK" ? "" : " - "._var($find,'status');
   run("smartctl -x $type ".escapeshellarg("/dev/$port")." 2>/dev/null|todos >".escapeshellarg("/$diag/smart/$name-$date $diskName ($port)$status.txt"));
 }
 
 // create btrfs pool information
 foreach ($pools as $pool) {
-  if (strpos($disks[$pool]['fsType']??'','btrfs')!==false) {
-    $dev = $disks[$pool]['device'];
+  if (strpos(_var($disks[$pool],'fsType'),'btrfs')!==false) {
+    $dev = _var($disks[$pool],'device');
     run("echo 'Pool: $pool'|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
     run("/sbin/btrfs filesystem usage -T /mnt/$pool 2>/dev/null|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
     newline("/$diag/system/btrfs-usage.txt");
