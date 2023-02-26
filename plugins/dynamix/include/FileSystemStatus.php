@@ -17,12 +17,12 @@ $cmd  = $_POST['cmd'];
 $path = $_POST['path'];
 
 function btrfs($data) {return "btrfs-$data";}
-function zfs($data) {return "zfs-$data";}
+function zfs($data) {return "zfs-".strtok($data,' ');}
 
 switch ($cmd) {
 case 'status':
   exec("ps -C btrfs -o cmd=|awk '/$path\$/{print $2}'",$btrfs);
-  exec("/usr/sbin/zpool status|grep -om1 'scrub in progress'|grep -o scrub",$zfs);
+  exec("/usr/sbin/zpool status $path|grep -om1 'scrub in progress'",$zfs);
   echo implode(',',array_merge(array_map('btrfs',$btrfs),array_map('zfs',$zfs)));
   break;
 case 'btrfs-balance':
