@@ -16,21 +16,21 @@ Nchan="device_list,disk_load,parity_list"
  */
 ?>
 <?
-$keyfile = file_exists($var['luksKeyfile']);
+$keyfile = file_exists(get_var($var,'luksKeyfile'));
 $missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
-$spot    = $var['mdResyncPos']>0;
+$spot    = get_var($var,'mdResyncPos',0)>0;
 
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
 foreach ($disks as $disk) {
   if (!isset($disk['fsType'])) continue;
-  if (strpos($disk['fsType'],'luks:')!==false || ($disk['fsType']=='auto' && (strpos($var['defaultFsType'],'luks:')!==false || $disk['luksState']==2 || $disk['luksState']==3))) {
+  if (strpos(get_var($disk,'fsType'),'luks:')!==false || (get_var($disk,'fsType')=='auto' && (strpos(get_var($var,'defaultFsType'),'luks:')!==false || get_var($disk,'luksState',0)==2 || get_var($disk,'luksState',0)==3))) {
     $encrypt = true;
-    if ($disk['luksState']==0) $forced = true;
-    if ($disk['luksState']==1) $present = true;
-    if ($disk['luksState']==2) $missing = true;
-    if ($disk['luksState']==3) $wrong = true;
+    if (get_var($disk,'luksState',0)==0) $forced = true;
+    if (get_var($disk,'luksState',0)==1) $present = true;
+    if (get_var($disk,'luksState',0)==2) $missing = true;
+    if (get_var($disk,'luksState',0)==3) $wrong = true;
   }
 }
 if ($forced && ($present || $missing || $wrong)) $forced = false;
@@ -60,7 +60,7 @@ function maintenance_mode() {
 }
 function status_indicator() {
   global $var;
-  switch ($var['mdColor']) {
+  switch (get_var($var,'mdColor')) {
    case 'green-on': $orb = 'circle'; $color = 'green'; $help =_('Started, array protected'); break;
    case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = _('Stopped'); break;
    case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = _('Started, array unprotected'); break;
@@ -71,7 +71,7 @@ function status_indicator() {
 function missing_cache() {
   global $disks;
   $missing = false;
-  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status']??'','_MISSING')!==false);
+  foreach (cache_filter($disks) as $disk) $missing |= (strpos(get_var($disk,'status'),'_MISSING')!==false);
   return $missing;
 }
 function resync($d) {
@@ -183,7 +183,7 @@ function prepareInput(form) {
 }
 function parityWarning(form) {
   if (form.md_invalidslot.checked) {
-<?if (strpos($disks['parity2']['status'],'_NP')===false):?>
+<?if (strpos(get_var($disks['parity2'],'status'),'_NP')===false):?>
     var text = "_(*Dual parity* valid requires **ALL** disks in their original slots)_";
 <?else:?>
     var text = "_(*Parity valid* requires **ALL** disks to have their original content)_";
@@ -255,18 +255,18 @@ $('div[class=title]:not(":last, .disable_diskio")').each(function(){$(this).appe
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
 
-<?if ($var['fsState']=='Started'):?>
+<?if (get_var($var,'fsState')=='Started'):?>
 var mymonitor = new NchanSubscriber('/sub/mymonitor',{subscriber:'websocket'});
 mymonitor.on('message', function(state) {
   switch (state) {
   case '0': // normal operation
     $('#stop-button').prop('disabled',false);
     $('#stop-text').html("");
-<?if ($var['fsState']!="Stopped"):?>
+<?if (get_var($var,'fsState')!="Stopped"):?>
     $('#spinup-button').prop('disabled',false);
     $('#spindown-button').prop('disabled',false);
 <?endif;?>
-<?if ($var['shareUser']=='e' && $pool_devices):?>
+<?if (get_var($var,'shareUser')=='e' && $pool_devices):?>
     $('#mover-button').prop('disabled',false);
     $('#mover-text').html("<b>_(Move)_</b> _(will immediately invoke the Mover)_.&nbsp;<a href=\"/Main/Settings/Scheduler\"<?if($tabbed):?> onclick=\"$.cookie('one','tab2')\"<?endif;?>>(_(Schedule)_)</a>");
 <?endif;?>
@@ -274,11 +274,11 @@ mymonitor.on('message', function(state) {
   case '1': // parity running
     $('#stop-button').prop('disabled',true);
     $('#stop-text').html("<br><small>_(Disabled)_ -- _(Parity operation is running)_</small>");
-<?if ($var['fsState']!="Stopped" && $var['mdResync']>0):?>
+<?if (get_var($var,'fsState')!="Stopped" && get_var($var,'mdResync',0)>0):?>
     $('#spinup-button').prop('disabled',true);
     $('#spindown-button').prop('disabled',true);
 <?endif;?>
-<?if ($var['shareUser']=='e' && $pool_devices):?>
+<?if (get_var($var,'shareUser')=='e' && $pool_devices):?>
     $('#mover-button').prop('disabled',true);
     $('#mover-text').html("_(Disabled)_ -- _(Parity operation is running)_");
 <?endif;?>
@@ -286,7 +286,7 @@ mymonitor.on('message', function(state) {
   case '2': // mover running
     $('#stop-button').prop('disabled',true);
     $('#stop-text').html("<br><small>_(Disabled)_ -- _(Mover is running)_</small>");
-<?if ($var['shareUser']=='e' && $pool_devices):?>
+<?if (get_var($var,'shareUser')=='e' && $pool_devices):?>
     $('#mover-button').prop('disabled',true);
     $('#mover-text').html("_(Disabled)_ - _(Mover is running)_.");
 <?endif;?>
@@ -294,7 +294,7 @@ mymonitor.on('message', function(state) {
   case '3': // btrfs running
     $('#stop-button').prop('disabled',true);
     $('#stop-text').html("<br><small>_(Disabled)_ -- _(BTRFS operation is running)_</small>");
-<?if ($var['shareUser']=='e' && $pool_devices):?>
+<?if (get_var($var,'shareUser')=='e' && $pool_devices):?>
     $('#mover-button').prop('disabled',true);
     $('#mover-text').html("_(Disabled)_ -- _(BTRFS operation is running)_");
 <?endif;?>
@@ -325,7 +325,7 @@ devices.on('message', function(msg,meta) {
     display_diskio();
     // stop updating when array is stopped
     if (stopped==1) {
-<?if ($var['fsState']=='Started'):?>
+<?if (get_var($var,'fsState')=='Started'):?>
       setTimeout(refresh,0);
 <?else:?>
       if (!timers.stopped) timers.stopped = setTimeout(function(){devices.stop(); arraymonitor.start();},1000);
@@ -356,7 +356,7 @@ devices.on('message', function(msg,meta) {
 });
 devices.start();
 
-<?if (substr($var['fsState'],-3)=='ing'):?>
+<?if (substr(get_var($var,'fsState'),-3)=='ing'):?>
 var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket'});
 fsState.on('message', function(msg) {
   switch (msg) {
@@ -397,28 +397,28 @@ function formatWarning(val) {
 }
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="startState" value="<?=htmlspecialchars($var['mdState'])?>">
+<input type="hidden" name="startState" value="<?=htmlspecialchars(get_var($var,'mdState'))?>">
 <input type="hidden" name="file" value="">
 <table markdown="1" class="array_status">
-<?switch ($var['fsState']):
+<?switch (get_var($var,'fsState')):
   case "Started":?>
-    <tr><td><?status_indicator()?>**_(Started)_<?=(($var['startMode']=='Maintenance')?' - _(Maintenance Mode)_':'')?>**</td>
+    <tr><td><?status_indicator()?>**_(Started)_<?=((get_var($var,'startMode')=='Maintenance')?' - _(Maintenance Mode)_':'')?>**</td>
     <td><input type="button" id="stop-button" value="_(Stop)_" onclick="stopArray(this.form)"></td>
     <td>**_(Stop)_** _(will take the array off-line)_.<span id="stop-text"></span></td></tr>
-<?  if ($var['fsNumUnmountable']>0):?>
-      <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
+<?  if (get_var($var,'fsNumUnmountable',0)>0):?>
+      <tr><td>**<?=_('Unmountable disk'.(get_var($var,'fsNumUnmountable',0)==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
-      foreach ($disks as $disk) if (substr($disk['fsStatus']??'',0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
-        if (strlen($disk['id'])) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
-        if (in_array($disk['name'],$pools)) $cache[] = $disk['name'];
+      foreach ($disks as $disk) if (substr(get_var($disk,'fsStatus'),0,11)=='Unmountable' || in_array(prefix(get_var($disk,'name')),$cache)) {
+        if (strlen(get_var($disk,'id'))) echo "<span class='blue-text'>".my_disk(get_var($disk,'name'))."</span> &bullet; ".my_id(get_var($disk,'id'))." (".get_var($disk,'device').")<br>";
+        if (in_array(get_var($disk,'name'),$pools)) $cache[] = $disk['name'];
       }
-?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>
+?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=get_var($var,'fsUnmountableMask')?>"></td>
       <td>**_(Format)_** _(will create a file system in all **Unmountable** disks)_.<br>
       <a class="info none img nohand"><input type="checkbox" name="confirmFormat" value="OFF" onclick="formatWarning(this.checked),$('#btnFormat').prop('disabled',!arrayOps.confirmFormat.checked)">
      <small>_(Yes, I want to do this)_</small></a>
       </td></tr>
 <?  endif;
-    $action = preg_split('/\s+/',$var['mdResyncAction']);
+    $action = preg_split('/\s+/',get_var($var,'mdResyncAction'));
     if (!$spot):
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
@@ -434,11 +434,11 @@ function formatWarning(val) {
 <?      endif;?>
         <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
 <?      [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();
-        if ($var['sbSyncExit']!=0):?>
-          <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0))?><?if ($var['sbSynced2']):?>
-          <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error($var['sbSyncExit'])?>
-          <br><i class="fa fa-fw fa-search"></i> <?=print_error($var['sbSyncErrs'])?><?endif;?></td></tr>
-<?      elseif ($var['sbSynced']==0):
+        if (get_var($var,'sbSyncExit',0)!=0):?>
+          <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),_(my_time(get_var($var,'sbSynced2',0)).day_count(get_var($var,'sbSynced2',0)),0))?><?if (get_var($var,'sbSynced2')):?>
+          <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error(get_var($var,'sbSyncExit'))?>
+          <br><i class="fa fa-fw fa-search"></i> <?=print_error(get_var($var,'sbSyncErrs',0))?><?endif;?></td></tr>
+<?      elseif (get_var($var,'sbSynced',0)==0):
           if ($status==0):?>
             <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time($date).day_count($date),0))?>
             <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
@@ -448,52 +448,52 @@ function formatWarning(val) {
             <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error($status)?>
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
 <?        endif;
-        elseif ($var['sbSynced2']==0):
+        elseif (get_var($var,'sbSynced2',0)==0):
           if ($status==0):?>
-            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0))?>
+            <td class="wrap"><?=sprintf(_('Last checked on **%s**'),_(my_time(get_var($var,'sbSynced',0)).day_count(get_var($var,'sbSynced',0)),0))?>
             <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
 <?        else:?>
-            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),_(my_time($var['sbSynced']).day_count($var['sbSynced']),0))?>
+            <td class="wrap"><?=sprintf(_('Last check incomplete on **%s**'),_(my_time(get_var($var,'sbSynced',0)).day_count(get_var($var,'sbSynced',0)),0))?>
             <br><i class="fa fa-fw fa-dot-circle-o"></i> _(Error code)_: <?=my_error($status)?>
             <br><i class="fa fa-fw fa-search"></i> <?=print_error($error)?></td></tr>
 <?        endif;
         else:?>
-          <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),_(my_time($var['sbSynced2']).day_count($var['sbSynced2']),0))?>
+          <td class="wrap"><?=sprintf(_('Last check completed on **%s**'),_(my_time(get_var($var,'sbSynced2',0)).day_count(get_var($var,'sbSynced2',0)),0))?>
           <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
-          <br><i class="fa fa-fw fa-search"></i> <?=print_error($var['sbSyncErrs'])?></td></tr>
+          <br><i class="fa fa-fw fa-search"></i> <?=print_error(get_var($var,'sbSyncErrs',0))?></td></tr>
 <?      endif;
       endif;
     else:
       if ($action[0]=="recon"):
         $resync = resync($action[1]);
 ?>      <tr><td><?=_("$resync in progress")?>.</td><td>
-        <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
+        <input type="button" id="pauseButton"<?if (get_var($var,'mdResync')):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'<?=$resync?>')" disabled></td>
-        <td id="cancelText"><?if ($var['mdResync']):?>**<?=_('Pause')?>** <?=_("will pause $resync")?>.<?else:?>**<?=_('Resume')?>** <?=_("will resume $resync")?>.<?endif;?><br>**<?=_('Cancel')?>** <?=_("will stop $resync")?>.
+        <td id="cancelText"><?if (get_var($var,'mdResync')):?>**<?=_('Pause')?>** <?=_("will pause $resync")?>.<?else:?>**<?=_('Resume')?>** <?=_("will resume $resync")?>.<?endif;?><br>**<?=_('Cancel')?>** <?=_("will stop $resync")?>.
         <br>_(WARNING: canceling may leave the array unprotected)_!</td></tr>
 <?    elseif ($action[0]=="clear"):?>
         <tr><td>_(Disk-Clear in progress)_.</td><td>
-        <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
+        <input type="button" id="pauseButton"<?if (get_var($var,'mdResync')):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'Disk-Clear')" disabled></td>
-        <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause Disk-Clear)_.<?else:?>**_(Resume)_** _(will resume Disk-Clear)_.<?endif;?><br>**_(Cancel)_** _(will stop Disk-Clear)_.</td></tr>
+        <td id="cancelText"><?if (get_var($var,'mdResync')):?>**_(Pause)_** _(will pause Disk-Clear)_.<?else:?>**_(Resume)_** _(will resume Disk-Clear)_.<?endif;?><br>**_(Cancel)_** _(will stop Disk-Clear)_.</td></tr>
 <?    elseif ($action[0]=="check" && count($action)>1):?>
         <tr><td>_(Parity-Check in progress)_.</td><td>
-        <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
+        <input type="button" id="pauseButton"<?if (get_var($var,'mdResync')):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'Parity-Check')" disabled></td>
-        <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause Parity-Check)_.<?else:?>**_(Resume)_** _(will resume Parity-Check)_.<?endif;?><br>**_(Cancel)_** _(will stop Parity-Check)_.</td></tr>
+        <td id="cancelText"><?if (get_var($var,'mdResync')):?>**_(Pause)_** _(will pause Parity-Check)_.<?else:?>**_(Resume)_** _(will resume Parity-Check)_.<?endif;?><br>**_(Cancel)_** _(will stop Parity-Check)_.</td></tr>
 <?    elseif ($action[0]=="check"):?>
         <tr><td>_(Read-Check in progress)_.</td><td>
-        <input type="button" id="pauseButton"<?if ($var['mdResync']):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
+        <input type="button" id="pauseButton"<?if (get_var($var,'mdResync')):?> value="_(Pause)_" onclick="pauseParity(this.form)"<?else:?> value="_(Resume)_" onclick="resumeParity(this.form)"<?endif;?> disabled>
         <input type="button" id="cancelButton" value="_(Cancel)_" onclick="stopParity(this.form,'Read-Check')" disabled></td>
-        <td id="cancelText"><?if ($var['mdResync']):?>**_(Pause)_** _(will pause Read-Check)_.<?else:?>**_(Resume)_** _(will resume Read-Check)_.<?endif;?><br>**_(Cancel)_** _(will stop Read-Check)_.</td></tr>
+        <td id="cancelText"><?if (get_var($var,'mdResync')):?>**_(Pause)_** _(will pause Read-Check)_.<?else:?>**_(Resume)_** _(will resume Read-Check)_.<?endif;?><br>**_(Cancel)_** _(will stop Read-Check)_.</td></tr>
 <?    endif;
       $stamps = '/var/tmp/stamps.ini';
       $synced = file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
-      $sbSynced = array_shift($synced) ?: $var['sbSynced'];
-      $sbUpdate = $var['mdResyncDt'] ? $sbSynced : $var['sbUpdated'];?>
+      $sbSynced = array_shift($synced) ?: get_var($var,'sbSynced');
+      $sbUpdate = get_var($var,'mdResyncDt') ? $sbSynced : get_var($var,'sbUpdated');?>
       <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-      <td><?=sprintf(_('Current operation %s on **%s**'),($var['mdResyncDt']?_('started'):_('paused')),_(my_time($sbUpdate).day_count($sbUpdate),0))?></td></tr>
+      <td><?=sprintf(_('Current operation %s on **%s**'),(get_var($var,'mdResyncDt')?_('started'):_('paused')),_(my_time($sbUpdate).day_count($sbUpdate),0))?></td></tr>
       <tr><td>_(Total size)_:</td><td id="line0"></td><td></td></tr>
       <tr><td>_(Elapsed time)_:</td><td id="line1"></td><td></td></tr>
       <tr><td>_(Current position)_:</td><td id="line2"></td><td></td></tr>
@@ -501,9 +501,9 @@ function formatWarning(val) {
       <tr><td>_(Estimated finish)_:</td><td id="line4"></td><td></td></tr>
 <?    if ($action[0]=="check"):?>
 <?    if (count($action)>1):?>
-      <tr><td><?=$var['mdResyncCorr']==0 ? _('Sync errors detected') : _('Sync errors corrected')?>:</td><td id="line5"></td><td></td></tr>
+      <tr><td><?=get_var($var,'mdResyncCorr')==0 ? _('Sync errors detected') : _('Sync errors corrected')?>:</td><td id="line5"></td><td></td></tr>
 <?    else:?>
-      <tr><td><?=$var['mdResyncCorr']==0 ? _('Read errors detected') : _('Read errors corrected')?>:</td><td id="line5"></td><td></td></tr>
+      <tr><td><?=get_var($var,'mdResyncCorr')==0 ? _('Read errors detected') : _('Read errors corrected')?>:</td><td id="line5"></td><td></td></tr>
 <?    endif;
       endif;
     endif;
@@ -519,33 +519,33 @@ function formatWarning(val) {
   case "Copying":?>
     <tr><td><?status_indicator()?>**_(Starting, copying)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoCopy" value="_(Cancel)_"></td><td></td></tr>
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
+    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time(get_var($var,'sbUpdated',0)).day_count(get_var($var,'sbSynced',0)),0))?></td></tr>
 <?  break;
   case "Clearing":?>
     <tr><td><?status_indicator()?>**_(Started, clearing)_... <span id="fsState"></span>**</td><td><input type="submit" name="cmdNoClear" value="_(Cancel)_"></td><td></td></tr>
     <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
-    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time($var['sbUpdated']).day_count($var['sbSynced']),0))?></td></tr>
+    <td><?=sprintf(_('Current operation %s on **%s**'),_('started'),_(my_time(get_var($var,'sbUpdated',0)).day_count(get_var($var,'sbSynced',0)),0))?></td></tr>
 <?  break;
   case "Stopping":?>
     <tr><td><?status_indicator()?>**_(Stopping)_...**</td><td><input type="submit" name="cmdStop" value="_(Stop)_" disabled></td><td></td></tr>
 <?  break;
   case "Stopped":
-    if ($var['configValid']=="error"):?>
+    if (get_var($var,'configValid')=="error"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(Invalid, missing or expired)_ <a href="/Tools/Registration">_(registration key)_</a>.</td></tr>
-<?  elseif ($var['configValid']=="invalid"):?>
+<?  elseif (get_var($var,'configValid')=="invalid"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(Too many attached devices. Please consider upgrading your)_ <a href="/Tools/Registration">_(registration key)_</a>.</td></tr>
-<?  elseif ($var['configValid']=="nokeyserver"):?>
+<?  elseif (get_var($var,'configValid')=="nokeyserver"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(Cannot contact key-server. Please check your)_ <a href="/Settings/NetworkSettings">_(network settings)_</a>.</td></tr>
-<?  elseif ($var['configValid']=="withdrawn"):?>
+<?  elseif (get_var($var,'configValid')=="withdrawn"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(This Unraid OS release has been withdrawn and may no longer be used. Please)_ <a href="/Plugins">_(update)_</a> _(your server)_.</td></tr>
 <?  else:
-      switch ($var['mdState']):
+      switch (get_var($var,'mdState')):
       case "STOPPED":
-        $action = explode(' ',$var['mdResyncAction']);
+        $action = explode(' ',get_var($var,'mdResyncAction'));
         if ($action[0]=="recon"):
           $resync = resync($action[1]);
 ?>        <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
@@ -553,11 +553,11 @@ function formatWarning(val) {
 <?      elseif ($action[0]=="clear"):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(New data disk(s) detected)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line and start **Disk-Clear** of new data disk(s))_.</td></tr>
-<?      elseif ($var['sbClean']!="yes" && $action[0]=="check" && count($action)>1):?>
+<?      elseif (get_var($var,'sbClean')!="yes" && $action[0]=="check" && count($action)>1):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Unclean shutdown detected)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line and start **Parity-Check**)_.
           <br><input type="checkbox" name="optionCorrect" value="correct" checked><small>_(Write corrections to parity)_</small></td></tr>
-<?      elseif ($var['sbClean']!="yes" && $action[0]=="check"):?>
+<?      elseif (get_var($var,'sbClean')!="yes" && $action[0]=="check"):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Unclean shutdown detected)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will bring the array on-line)_.</td></tr>
 <?      elseif (missing_cache()):?>
@@ -572,7 +572,7 @@ function formatWarning(val) {
         check_encryption();
         break;
       case "NEW_ARRAY":
-        if (strpos($disks['parity']['status'],"DISK_NP")===0 && strpos($disks['parity2']['status'],"DISK_NP")===0):?>
+        if (strpos(get_var($disks['parity'],'status'),"DISK_NP")===0 && strpos(get_var($disks['parity2'],'status'),"DISK_NP")===0):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will record all disk information and bring the array on-line)_.
           <br>_(The array will be immediately available, but **unprotected** since *parity* has not been assigned)_.</td></tr>
@@ -599,7 +599,7 @@ function formatWarning(val) {
         check_encryption();
         break;
       case "SWAP_DSBL":
-        if ($var['fsCopyPrcnt']=="100"):?>
+        if (get_var($var,'fsCopyPrcnt')=="100"):?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Upgrading disk/swapping parity)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
           <td>**_(Start)_** _(will expand the file system of the data disk (if possible); then bring the array on-line and start Data-Rebuild)_.</td></tr>
 <?        maintenance_mode();
@@ -638,7 +638,7 @@ function formatWarning(val) {
   <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
 </form>
-<?if ($var['fsState']!="Stopped"):?>
+<?if (get_var($var,'fsState')!="Stopped"):?>
 <?if ($keyfile):?>
 <form name="delete_keyfile" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="unused">
@@ -656,7 +656,7 @@ function formatWarning(val) {
  <tr><td></td><td><input type="button" value="_(Clear Stats)_" onclick="toggle_state('Clear')"></td><td>**_(Clear Stats)_** _(will immediately clear all disk statistics)_.</td></tr>
  <tr><td></td><td class="line" colspan="2"></td></tr>
 </table>
-<?if ($var['shareUser']=='e' && $pool_devices):?>
+<?if (get_var($var,'shareUser')=='e' && $pool_devices):?>
 <form name="mover_schedule" method="POST" action="/update.htm" target="progressFrame">
 <table markdown="1" class="array_status noshift">
 <tr><td></td><td><input type="submit" id="mover-button" name="cmdStartMover" value="_(Move)_"></td><td id="mover-text"></td></tr>
@@ -683,7 +683,7 @@ function formatWarning(val) {
 <!-- markdown fix --></p><?if (isset($display['sleep'])) eval('?>'.parse_file($display['sleep']))?>
 
 :array_status_help:
-<?if ($var['fsState']=="Stopped"):?>
+<?if (get_var($var,'fsState')=="Stopped"):?>
 :array_devices_help:
 
 <?if ($encrypt):?>
