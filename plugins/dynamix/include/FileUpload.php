@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,22 +19,39 @@ $plugins   = '/var/log/plugins';
 $boot      = "/boot/config/plugins";
 $safepaths = ["$boot/dynamix"];
 $safeexts  = ['.png'];
+$result    = false;
 
 require_once "$docroot/webGui/include/Helpers.php";
 
 switch ($_POST['cmd'] ?? 'load') {
 case 'load':
+  // uploaded file to temp directory and verify is a png
   if (isset($_POST['filedata'])) {
-    exec("rm -f $temp/*.png");
-    $result = file_put_contents("$temp/".basename($file),base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
+    $initialUpload = "$temp/".basename($file).".tmp";
+    $verifiedPNG   = "$temp/".basename($file);
+    if (file_exists($initialUpload)) unlink($initialUpload);
+    if (file_exists($verifiedPNG)) unlink($verifiedPNG);
+    $result = file_put_contents($initialUpload,base64_decode(str_replace(['data:image/png;base64,',' '],['','+'],$_POST['filedata'])));
+    if ($result) {
+      $img = @imagecreatefrompng($initialUpload);
+      if ($img) {
+        $result = imagepng($img,$verifiedPNG);
+        imagedestroy($img);
+      } else {
+        $result = false;
+      }
+    }
+    if (file_exists($initialUpload)) unlink($initialUpload);
   }
   break;
 case 'save':
+  // move uploaded file ($verifiedPNG) to final destination
+  $verifiedPNG = "$temp/".basename($file);
   $path = $_POST['path'];
   foreach ($safepaths as $safepath) {
     if (strpos(dirname("$path/{$_POST['output']}"),$safepath)===0 && in_array(substr(basename($_POST['output']),-4),$safeexts)) {
       exec("mkdir -p ".escapeshellarg(realpath($path)));
-      $result = @rename("$temp/".basename($file), "$path/{$_POST['output']}");
+      $result = @rename($verifiedPNG, "$path/{$_POST['output']}");
       break;
     }
   }

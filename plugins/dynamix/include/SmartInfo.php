@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,10 +26,14 @@ function normalize($text, $glue='_') {
   foreach ($words as &$word) $word = $word==strtoupper($word) ? $word : preg_replace(['/^(ct|cnt)$/','/^blk$/'],['count','block'],strtolower($word));
   return "<td>".ucfirst(implode(' ',$words))."</td>";
 }
+function size($val) {
+  return str_replace(',','',$val);
+}
 function duration(&$hrs) {
   $time = ceil(time()/3600)*3600;
+  $run = size($hrs);
   $now = new DateTime("@$time");
-  $poh = new DateTime("@".($time-$hrs*3600));
+  $poh = new DateTime("@".($time-$run*3600));
   $age = date_diff($poh,$now);
   $hrs = "$hrs (".($age->y?"{$age->y}y, ":"").($age->m?"{$age->m}m, ":"").($age->d?"{$age->d}d, ":"")."{$age->h}h)";
 }
@@ -57,12 +61,18 @@ case "attributes":
   $hot = $disk['hotTemp'] ?? $unraid['display']['hot'];
   $top = $_POST['top'] ?? 120;
   $empty = true;
-  exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port")."|awk 'NR>4'",$output);
-  if (stripos($output[0], 'SMART Attributes Data Structure')!==false) {
-    $output = array_slice($output, 3);
-    foreach ($output as $line) {
-      if (!$line) continue;
-      $info = explode(' ', trim(preg_replace('/\s+/',' ',$line)), 10);
+  exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
+  // remove empty rows
+  $output = array_filter($output);
+  $start = 0;
+  // find start of attributes list (if existing)
+  foreach ($output as $row) if (stripos($row,'smart attributes data structure')===false) $start++; else break;
+  if ($start < count($output)-3) {
+    // remove header part
+    $output = array_slice($output, $start+3);
+    foreach ($output as $row) {
+      $info = explode(' ', trim(preg_replace('/\s+/',' ',$row)), 10);
+      if (count($info)<10) continue;
       $color = "";
       $highlight = strpos($info[8],'FAILING_NOW')!==false || ($select ? $info[5]>0 && $info[3]<=$info[5]*$level : $info[9]>0);
       if (in_array($info[0], $events) && $highlight) $color = " class='warn'";
@@ -70,17 +80,16 @@ case "attributes":
         if (exceed($info[9],$max,$top)) $color = " class='alert'"; elseif (exceed($info[9],$hot,$top)) $color = " class='warn'";
       }
       if ($info[8]=='-') $info[8] = 'Never';
-      if ($info[0]==9 && is_numeric($info[9])) duration($info[9]);
+      if ($info[0]==9 && is_numeric(size($info[9]))) duration($info[9]);
       echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
       $empty = false;
     }
   } else {
-    // probably a NMVe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
-    foreach ($output as $line) {
-      if (strpos($line,':')===false) continue;
-      [$name,$value] = explode(':', $line);
+    // probably a NVMe or SAS device that smartmontools doesn't know how to parse in to a SMART Attributes Data Structure
+    foreach ($output as $row) {
+      if (strpos($row,':')===false) continue;
+      [$name,$value] = array_map('trim',explode(':', $row));
       $name = ucfirst(strtolower($name));
-      $value = trim($value);
       $color = '';
       switch ($name) {
       case 'Temperature':
@@ -88,7 +97,7 @@ case "attributes":
         if (exceed($temp,$max)) $color = " class='alert'"; elseif (exceed($temp,$hot)) $color = " class='warn'";
         break;
       case 'Power on hours':
-        if (is_numeric($value)) duration($value);
+        if (is_numeric(size($value))) duration($value);
         break;
       }
       echo "<tr{$color}><td>-</td><td>$name</td><td colspan='8'>$value</td></tr>";
@@ -102,15 +111,15 @@ case "capabilities":
   exec("smartctl -n standby -c $type ".escapeshellarg("/dev/$port")."|awk 'NR>5'",$output);
   $row = ['','',''];
   $empty = true;
-  if (substr($port,0,4)=="nvme") $nvme=true ;
+  $nvme = substr($port,0,4)=="nvme";
   $nvme_section="info" ;
   foreach ($output as $line) {
     if (!$line) {echo "<tr></tr>" ;continue;}
     $line = preg_replace('/^_/','__',preg_replace(['/__+/','/_ +_/'],'_',str_replace([chr(9),')','('],'_',$line)));
     $info = array_map('trim', explode('_', preg_replace('/_( +)_ /','__',$line), 3));
-    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div id='title'><span>${line}</span></div>"; $row = ['','',''] ; continue ;}
+    if ($nvme && $info[0]=="Supported Power States" ) { $nvme_section="psheading" ;echo "</body></table><div class='title'><span>{$line}</span></div>"; $row = ['','',''] ; continue ;}
     if ($nvme && $info[0]=="Supported LBA Sizes" ) {  
-      echo "</body></table><div id='title'>${info[0]} ${info[1]} ${info[2]}</span></div>";
+      echo "</body></table><div class='title'>{$info[0]} {$info[1]} {$info[2]}</span></div>";
       $row = ['','',''];
       $nvme_section="lbaheading" ; 
       continue ;
@@ -120,7 +129,7 @@ case "capabilities":
     append($row[2],$info[2]);
     
     if (substr($row[2],-1)=='.' || ($nvme && $nvme_section=="info")) {
-      echo "<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>";
+      echo "<tr><td>{$row[0]}</td><td>{$row[1]}</td><td>{$row[2]}</td></tr>";
       $row = ['','',''];
       $empty = false;
     }
@@ -130,7 +139,7 @@ case "capabilities":
       $nvme_section = "psdetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psheadings);
       for ($i = 1; $i <= 11; $i++) {   
-      echo "<td>".$psheadings['data'.$i]."</td>" ;
+      echo "<td>".($psheadings['data'.$i]??'')."</td>" ;
       }
       $row = ['','',''];
       echo '</tr></thead><tbody>' ;
@@ -140,7 +149,7 @@ case "capabilities":
       echo '<tr>' ;
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psdetails);
       for ($i = 1; $i <= 11; $i++) {   
-      echo "<td>".$psdetails['data'.$i]."</td>" ;
+      echo "<td>".($psdetails['data'.$i]??'')."</td>" ;
       }
       $row = ['','',''];
       echo '</tr>' ;
@@ -150,7 +159,7 @@ case "capabilities":
       $nvme_section = "lbadetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)$/',$line, $lbaheadings);
       for ($i = 1; $i <= 5; $i++) {   
-        echo "<td>".$lbaheadings['data'.$i]."</td>" ;
+        echo "<td>".($lbaheadings['data'.$i]??'')."</td>" ;
         }
         $row = ['','',''];
       echo '</thead><tbody>' ;
@@ -160,7 +169,7 @@ case "capabilities":
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)$/',$line, $lbadetails);
       echo '<tr>' ;
       for ($i = 1; $i <= 5; $i++) {   
-        echo "<td>".$lbadetails['data'.$i]."</td>" ;
+        echo "<td>".($lbadetails['data'.$i]??'')."</td>" ;
         }
         $row = ['','',''];
       echo '</tr>' ;
@@ -194,10 +203,10 @@ case "identify":
     $disk = $disks[$name]['id'];
     $info = &$extra[$disk];
     $periods = ['6','12','18','24','36','48','60'];
-    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='{$info['date']}' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
-    echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='{$info['purchase']}' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='".($info['date']??'')."' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='".($info['purchase']??'')."' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
     echo "<tr><td>"._('Warranty period').":</td><td><select class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>"._('unknown')."</option>";
-    foreach ($periods as $period) echo "<option value='$period'".($info['warranty']==$period?" selected":"").">$period "._('months')."</option>";
+    foreach ($periods as $period) echo "<option value='$period'".(($info['warranty']??'')==$period?" selected":"").">$period "._('months')."</option>";
     echo "</select></td></tr>";
   }
   break;

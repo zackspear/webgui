@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,7 +17,7 @@ libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 // add translations
-if ($_SERVER['REQUEST_URI'] != 'docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
+if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI']!='docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
   $_SERVER['REQUEST_URI'] = 'docker';
   require_once "$docroot/webGui/include/Translations.php";
 }
@@ -52,7 +52,7 @@ $defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg
 $dockercfg = array_replace_recursive($defaults, parse_ini_file($docker_cfgfile));
 
 function var_split($item, $i=0) {
-	return explode(' ',$item)[$i];
+	return array_pad(explode(' ',$item),$i+1,'')[$i];
 }
 
 #######################################
@@ -246,12 +246,12 @@ class DockerTemplates {
 		foreach ($this->getTemplates($scope) as $file) {
 			$doc = new DOMDocument();
 			$doc->load($file['path']);
-			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue);
-			if ( $name )
-				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name)
-					continue;
-			if ($Repository == $TemplateRepository) {
-				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue;
+			if ($name) {
+				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name) continue;
+			}
+			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue??'');
+			if ($TemplateRepository && $TemplateRepository==$Repository) {
+				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
 				return trim($TemplateField);
 			}
 		}
@@ -273,7 +273,7 @@ class DockerTemplates {
 		$port = &$ct['Ports'][0];
 		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'], 'MyIP') ?: ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : ($port['IP'] ?: DockerUtil::myIP($ct['Name'])));
 		// Get the WebUI address from the templates as a fallback
-		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?: $this->getTemplateValue($ct['Image'], 'WebUI'));
+		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?? $this->getTemplateValue($ct['Image'], 'WebUI'));
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 			$ConfigPort = $matches[1];
 			foreach ($ct['Ports'] as $port) {
@@ -299,21 +299,22 @@ class DockerTemplates {
 			$tmp['paused'] = $ct['Paused'];
 			$tmp['autostart'] = in_array($name, $autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
+			$tmp['url'] = $tmp['url'] ?? '';
 			// read docker label for WebUI & Icon
-			if ($ct['Url'] && !$tmp['url']) $tmp['url'] = $ct['Url'];
-			if ($ct['Icon']) $tmp['icon'] = $ct['Icon'];
-			if ($ct['Shell']) $tmp['shell'] = $ct['Shell'];
-			if ( ! $communityApplications ) {
+			if (isset($ct['Url']) && !$tmp['url']) $tmp['url'] = $ct['Url'];
+			if (isset($ct['Icon'])) $tmp['icon'] = $ct['Icon'];
+			if (isset($ct['Shell'])) $tmp['shell'] = $ct['Shell'];
+			if (!$communityApplications) {
 				if (!is_file($tmp['icon']) || $reload) $tmp['icon'] = $this->getIcon($image,$name,$tmp['icon']);
 			}
 			if ($ct['Running']) {
 				$port = &$ct['Ports'][0];
-				$webui = $tmp['url'] ?: $this->getTemplateValue($ct['Image'], 'WebUI');
+				$webui = $tmp['url'] ?? $this->getTemplateValue($ct['Image'], 'WebUI');
 				if (strlen($webui) > 0 && !preg_match("%\[(IP|PORT:(\d+))\]%", $webui)) {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
 				} else {
-					$ip = ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : $port['IP']);
+					$ip = ($ct['NetworkMode']=='host'||($port['NAT']??false) ? $host : ($port['IP']??''));
 					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip, $tmp['url'])) : $tmp['url'];
 				}
 				$tmp['shell'] = $tmp['shell'] ?? $this->getTemplateValue($image, 'Shell');
@@ -323,12 +324,12 @@ class DockerTemplates {
 			$tmp['Project'] = $tmp['Project'] ?? $this->getTemplateValue($image, 'Project');
 			$tmp['DonateLink'] = $tmp['DonateLink'] ?? $this->getTemplateValue($image, 'DonateLink');
 			$tmp['ReadMe'] = $tmp['ReadMe'] ?? $this->getTemplateValue($image, 'ReadMe');
-			if (!$tmp['updated'] || $reload) {
+			if (empty($tmp['updated']) || $reload) {
 				if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$com) $tmp['updated'] = 'undef';
-			if (!$tmp['template'] || $reload) $tmp['template'] = $this->getUserTemplate($name);
+			if (empty($tmp['template']) || $reload) $tmp['template'] = $this->getUserTemplate($name);
 			if ($reload) $DockerUpdate->updateUserTemplate($name);
 			//$this->debug("\n$name");
 			//foreach ($tmp as $c => $d) $this->debug(sprintf('   %-10s: %s', $c, $d));
@@ -444,8 +445,8 @@ class DockerUpdate{
 		/*
 		 * Step 2: Get www-authenticate header from manifest url to generate token or basic auth
 		 */
+		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.index.v1+json'];
 		$digest_ch = getCurlHandle($manifestURL, 'HEAD', $header);
-		$header = ['Accept: application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json'];
 		preg_match('@www-authenticate:\s*Bearer\s*(.*)@i', $reply, $matches);
 		if (!empty($matches[1])) {
 			$strArgs = explode(',', $matches[1]);
@@ -780,10 +781,7 @@ class DockerClient {
 
 	public function stopContainer($id, $t=false) {
 		global $dockercfg;
-
-		if ( ! $t )
-			$t = intval($dockercfg['DOCKER_TIMEOUT']) ?: 10;
-		$this->getDockerJSON("/containers/$id/stop?t=$t", 'POST', $code);
+		$this->getDockerJSON("/containers/$id/stop?t=".($t?:$dockercfg['DOCKER_TIMEOUT']??10), 'POST', $code);
 		$this->flushCache($this::$containersCache);
 		return $code;
 	}
@@ -917,15 +915,17 @@ class DockerClient {
 			$c['Shell']         = $info['Config']['Labels']['net.unraid.docker.shell'] ?? false;
 			$c['Ports']       = [];
 			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
-			if ($driver[$c['NetworkMode']]=='bridge') {
-				$ports = &$info['HostConfig']['PortBindings'];
-				$nat = true;
-			} else {
-				$ports = &$info['Config']['ExposedPorts'];
-				$nat = false;
+			if (isset($driver[$c['NetworkMode']])) {
+				if ($driver[$c['NetworkMode']]=='bridge') {
+					$ports = &$info['HostConfig']['PortBindings'];
+					$nat = true;
+				} else {
+					$ports = &$info['Config']['ExposedPorts'];
+					$nat = false;
+				}
+				$ip = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
 			}
-			$ip = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
-			$ports = is_array($ports) ? $ports : array();
+			$ports = (isset($ports) && is_array($ports)) ? $ports : [];
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
 				$c['Ports'][] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort']:$PrivatePort, 'NAT' => $nat, 'Type' => $Type ];
@@ -955,7 +955,7 @@ class DockerClient {
 
 	public function getImageName($id) {
 		foreach ($this->getDockerImages() as $img) {
-			if ($img['Id']==$id) return $img['Tags'][0];
+			if ($img['Id']==$id) return $img['Tags'][0]??'';
 		}
 		return null;
 	}
@@ -972,7 +972,7 @@ class DockerClient {
 			$c['Size']        = $this->formatBytes($ct['Size']);
 			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize']);
 			$c['Tags']        = array_map('htmlspecialchars', $ct['RepoTags'] ?? []);
-			$c['Repository']  = vsprintf('%1$s/%2$s', preg_split("#[:\/]#", DockerUtil::ensureImageTag($ct['RepoTags'][0])));
+			$c['Repository']  = vsprintf('%1$s/%2$s', preg_split("#[:\/]#", DockerUtil::ensureImageTag($ct['RepoTags'][0]??'')));
 			$c['usedBy']      = $this->usedBy($c['Id']);
 			$this::$imagesCache[$c['Id']] = $c;
 		}
@@ -1000,7 +1000,7 @@ class DockerUtil {
 	}
 
 	public static function loadJSON($path) {
-		$objContent = (file_exists($path)) ? json_decode(file_get_contents($path), true) : [];
+		$objContent = (file_exists($path)) ? json_decode(@file_get_contents($path), true) : [];
 		if (empty($objContent)) $objContent = [];
 		return $objContent;
 	}

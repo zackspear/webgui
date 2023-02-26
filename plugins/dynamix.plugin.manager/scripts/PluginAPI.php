@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2019-2022, Andrew Zawadzki.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2019-2023, Andrew Zawadzki.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,6 +15,7 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $_SERVER['REQUEST_URI'] = "plugins";
 require_once "$docroot/plugins/dynamix/include/Translations.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
+require_once "$docroot/plugins/dynamix/include/Secure.php";
 
 function download_url($url, $path = "") {
 	$ch = curl_init();
@@ -36,12 +37,14 @@ function download_url($url, $path = "") {
 
 switch ($_POST['action']) {
 	case 'checkPlugin':
-		$options = $_POST['options'];
-		$plugin = $options['plugin'];
+		$options = $_POST['options'] ?? '';
+		$plugin = $options['plugin'] ?? '';
 
-		$name = $options['name'] ?? $plugin;
+		$name = unbundle($options['name'] ?? $plugin);
+		$file = "/boot/config/plugins/$plugin";
+		$file = realpath($file)==$file ? $file : "";
 
-		if ( ! $plugin || ! file_exists("/var/log/plugins/$plugin") ) {
+		if ( ! $plugin || ! file_exists($file) ) {
 			echo json_encode(["updateAvailable"=>false]);
 			break;
 		}

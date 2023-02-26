@@ -5,7 +5,7 @@
 $server_name = strtok($_SERVER['HTTP_HOST'],":");
 if (!empty($_COOKIE['unraid_'.md5($server_name)])) {
     // Start the session so we can check if $_SESSION has data
-    session_start();
+    if (session_status()==PHP_SESSION_NONE) session_start();
 
     // Check if the user is already logged in
     if ($_SESSION && !empty($_SESSION['unraid_user'])) {
@@ -160,13 +160,13 @@ function isRemoteAccess(): bool {
 // Check if 2fa is enabled for local (requires USE_SSL to be "auto" so no alternate urls can access the server)
 function isLocalTwoFactorEnabled(): bool {
     global $nginx, $my_servers;
-    return $nginx['NGINX_USESSL'] === "auto" && $my_servers['local']['2Fa'] === 'yes';
+    return $nginx['NGINX_USESSL'] === "auto" && ($my_servers['local']['2Fa']??'') === 'yes';
 }
 
 // Check if 2fa is enabled for remote
 function isRemoteTwoFactorEnabled(): bool {
     global $my_servers;
-    return $my_servers['remote']['2Fa'] === 'yes';
+    return ($my_servers['remote']['2Fa']??'') === 'yes';
 }
 
 // Load configs into memory
@@ -180,9 +180,9 @@ $remote_addr = $_SERVER['REMOTE_ADDR'] ?? "unknown";
 $failFile = "/var/log/pwfail/{$remote_addr}";
 
 // Get the credentials
-$username = $_POST['username'];
-$password = $_POST['password'];
-$token = $_REQUEST['token'];
+$username = $_POST['username']??'';
+$password = $_POST['password']??'';
+$token = $_REQUEST['token']??'';
 
 // Check if we need 2fa
 $twoFactorRequired = (isLocalAccess() && isLocalTwoFactorEnabled()) || (isRemoteAccess() && isRemoteTwoFactorEnabled());
@@ -211,7 +211,7 @@ if (!empty($username) && !empty($password)) {
 
         // Successful login, start session
         @unlink($failFile);
-        session_start();
+        if (session_status()==PHP_SESSION_NONE) session_start();
         $_SESSION['unraid_login'] = time();
         $_SESSION['unraid_user'] = $username;
         session_regenerate_id(true);

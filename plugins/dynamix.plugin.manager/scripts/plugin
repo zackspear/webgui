@@ -251,10 +251,10 @@ function download($url, $name, &$error, $write=true) {
         $error = "$plg download failure: ".error_desc($perror);
         return false;
       } elseif (filesize($name) == 0) {
-        if ($write) write("plugin: download failure: zero-length file\n");
+        if ($write) write("plugin: download failure: zero-length file\r","\n");
         return false;
       } else {
-        if ($write) write("plugin: downloading: $plg ... done\n");
+        if ($write) write("plugin: downloading: $plg ... done\r","\n");
         return true;
       }
     } else {
@@ -464,10 +464,10 @@ function plugin($method, $plugin_file, &$error) {
     if ($file->attributes()->Run) {
       $command = $file->attributes()->Run;
       if ($name) {
-        logger("plugin: running: $name");
+        logger(escapeshellarg("plugin: running: $command $name"));
         $retval = run("$command $name");
       } elseif ($file->LOCAL) {
-        logger("plugin: running: $file->LOCAL");
+        logger(escapeshellarg("plugin: running: $command $file->LOCAL"));
         $retval = run("$command $file->LOCAL");
       } elseif ($file->INLINE) {
         logger("plugin: running: 'anonymous'");

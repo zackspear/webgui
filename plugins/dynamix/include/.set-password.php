@@ -21,10 +21,10 @@ if (!empty($_POST['password']) && !empty($_POST['confirmPassword'])) {
     $userName = 'root';
     $userPassword = base64_encode($_POST['password']);
 
-    $result = exec("/usr/local/sbin/emcmd 'cmdUserEdit=Change&userName=$userName&userPassword=$userPassword'");
+    exec("/usr/local/sbin/emcmd 'cmdUserEdit=Change&userName=$userName&userPassword=$userPassword'", $output, $result);
     if ($result == 0) {
         // PAM service will log to syslog: "password changed for root"
-        session_start();
+        if (session_status()==PHP_SESSION_NONE) session_start();
         $_SESSION['unraid_login'] = time();
         $_SESSION['unraid_user'] = 'root';
         session_regenerate_id(true);

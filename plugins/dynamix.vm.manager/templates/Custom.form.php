@@ -57,7 +57,8 @@
 			'vcpu' => [0],
 			'hyperv' => 1,
 			'ovmf' => 1,
-			'usbmode' => 'usb2'
+			'usbmode' => 'usb2',
+			'memoryBacking' => '{"nosharepages":{}}'
 		],
 		'media' => [
 			'cdrom' => '',
@@ -74,7 +75,8 @@
 				'dev' => 'hda',
 				'select' => $domain_cfg['VMSTORAGEMODE'],
 				'bus' => 'virtio' ,
-				'boot' => 1
+				'boot' => 1,
+				'serial' => 'vdisk1'
 			]
 		],
 		'gpu' => [
@@ -85,7 +87,8 @@
 				'model' => 'qxl',
 				'keymap' => 'en-us',
 				'port' => -1 ,
-				'wsport' => -1
+				'wsport' => -1,
+				'copypaste' => 'no'
 			]
 		],
 		'audio' => [
@@ -285,6 +288,7 @@
 <input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
+<input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 	<table>
 		<tr>
@@ -452,7 +456,7 @@
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
 								
-				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options" <?=$usbboothidden?> onchange="USBBootChange(this)">
+				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options)_" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
 					echo mk_option($arrConfig['domain']['usbboot'], 'Yes', 'Yes');
@@ -693,6 +697,12 @@
 				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
 				</td>
 			</tr>
+			<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[<?=$i?>][serial]" class="narrow disk_serial" style="width: 200px;" name="disk[<?=$i?>][serial]"   title="_(Serial)_"  value="<?=$arrDisk['serial']?>" >
+				</td>
+			</tr>
 		</table>
 		<?if ($i == 0) {?>
 		<blockquote class="inline_help">
@@ -725,6 +735,16 @@
 			<p class="advanced">
 				<b>vDisk Bus</b><br>
 				Select virtio for best performance.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Boot Order</b><br>
+				Specify the order the devices are used for booting.
+			</p>
+			
+			<p class="advanced">
+				<b>vDisk Serial</b><br>
+				Set the device serial number presented to the VM.
 			</p>
 
 			<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -821,6 +841,12 @@
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
+				<tr class="advanced disk_bus_options">
+				<td>_(Serial)_:</td>
+				<td>
+				<input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="narrow disk_serial" style="width: 200px;" name="disk[{{INDEX}}][serial]"   title="_(Serial)_"  value="" >
+				</td>
+			</tr>
 			</tr>
 		</table>
 	</script>
@@ -869,7 +895,7 @@
 			</tr>
 		</table>
 		<?if ($i == 0) {?>
-		<div class="domain_os other">
+		<div>
 			<div class="advanced">
 				<blockquote class="inline_help">
 					<p>
@@ -891,6 +917,9 @@
 					<p>
 						<b>Unraid Mount tag</b><br>
 						Specify the mount tag that you will use for mounting the VirtFS share inside the VM.  See this page for how to do this on a Linux-based guest: <a href="http://wiki.qemu.org/Documentation/9psetup" target="_blank">http://wiki.qemu.org/Documentation/9psetup</a>
+					</p>
+					<p>	
+						For Windows additional software needs to be installed: <a href="https://virtio-fs.gitlab.io/howto-windows.html" target="_blank">https://virtio-fs.gitlab.io/howto-windows.html</a>	
 					</p>
 
 					<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -974,6 +1003,16 @@
 					</select>
 				</td>
 				</tr>
+				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced ">
+					<td>_(VM Console enable Copy/paste)_:</td>
+				<td>
+					<select id="copypaste" name="gpu[<?=$i?>][copypaste]" class="narrow" >
+						<?
+						echo mk_option($arrGPU['copypaste'], 'no', _('No'));
+						echo mk_option($arrGPU['copypaste'], 'yes', _('Yes'));
+						?>
+					</select>
+			</tr>
 				<tr  id="autoportline" name="autoportline" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced autoportline">
 					<td>_(VM Console AutoPort)_:</td>
 				<td>
@@ -1033,6 +1072,11 @@
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<b>Virtual video protocol VNC/SPICE</b><br>
 				If you wish to assign a protocol type, specify one here. 
+			</p>
+
+			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
+				<b>Virtual enable copy paste for VNC/SPICE</b><br>
+				If you enable copy paste you need to install additional software on the client in addition to the QEMU agent if that has been installed. <a href="https://www.spice-space.org/download.html"  target="_blank">https://www.spice-space.org/download.html </a>is the location for spice-vdagent for both window and linux. Note copy paste function will not work with web spice viewer you need to use virt-viewer.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
@@ -1133,7 +1177,15 @@
 		</table>
 	</script>
 
-	<?foreach ($arrConfig['nic'] as $i => $arrNic) {
+	<?	if ( $arrConfig['nic'] == false) {
+	  		$arrConfig['nic']['0'] = 
+			[
+				'network' => $domain_bridge,
+				'mac' => "",
+				'model' => 'virtio-net'
+			] ;
+		}	
+	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
 		?>
@@ -1169,6 +1221,7 @@
 					echo mk_option($arrNic['model'], 'virtio-net', 'virtio-net');
 					echo mk_option($arrNic['model'], 'virtio', 'virtio');
 					echo mk_option($arrNic['model'], 'e1000', 'e1000');
+					echo mk_option($arrNic['model'], 'rtl8139', 'rtl8139');
 					echo mk_option($arrNic['model'], 'vmxnet3', 'vmxnet3');
 					?>
 					</select>
@@ -1298,7 +1351,7 @@
 					if (!empty($arrValidOtherDevices)) {
 						foreach($arrValidOtherDevices as $i => $arrDev) {
 							$bootdisable = $extra = $pciboot = '';
-							if ($arrDev["typeid"] != "0108") $bootdisable = ' disabled="disabled"' ;
+							if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $bootdisable = ' disabled="disabled"' ;
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
 								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
@@ -1326,7 +1379,7 @@
 	</table>
 	<blockquote class="inline_help">
 		<p>If you wish to assign any other PCI devices to your guest, you can select them from this list.</p>
-		<p>Use boot order to set device as bootable and boot sequence. Only NVMe devices (PCI types 0108) supported for boot order.</p>
+		<p>Use boot order to set device as bootable and boot sequence. Only NVMe and Network devices (PCI types 0108 and 02xx) supported for boot order.</p>
 	</blockquote>
 
 	<table>
@@ -1435,7 +1488,7 @@ function SetBootorderfields(usbbootvalue) {
 	const bootpcidevs = <? 	
 		$devlist = [] ;
 		foreach($arrValidOtherDevices as $i => $arrDev) {
-			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
+			if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
 		}
 		echo json_encode($devlist) ;
 		?>  
@@ -1448,7 +1501,7 @@ function SetBootorderfields(usbbootvalue) {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
 		} else {
-			// Put check for PCI Type 0108 and only remove disable if 0108.
+			// Put check for PCI Type 0108 & 02xx and only remove disable if 0108 or 02xx.
 			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
 		}
 	}
@@ -1592,6 +1645,7 @@ $(function() {
 			var $disk_bus_sections = $table.find('.disk_bus_options');
 			var $disk_input = $table.find('.disk');
 			var $disk_preview = $table.find('.disk_preview');
+			var $disk_serial = $table.find('.disk_serial');
 
 			if (disk_select == 'manual') {
 
@@ -1655,6 +1709,31 @@ $(function() {
 		});
 	};
 
+	var setDiskserial = function (disk_index) {
+		var domaindir = '<?=$domain_cfg['DOMAINDIR']?>' + $('#domain_oldname').val();
+		var tl_args = arguments.length;
+
+		$("#vmform .disk").closest('table').each(function (index) {
+			var $table = $(this);
+
+			if (tl_args && disk_index != $table.data('index')) {
+				return;
+			}
+
+			var disk_select = $table.find(".disk_select option:selected").val();
+			var $disk_serial = $table.find('.disk_serial');
+
+			 if (disk_select !== '') {
+
+				// Auto disk serial
+				var auto_serial = 'vdisk' + (index+1) ;
+				$disk_serial.val(auto_serial);
+
+			} 
+
+		});
+	};
+
 	<?if ($boolNew):?>
 	$("#vmform #domain_name").on("input change", function changeNameEvent() {
 		$('#vmform #domain_oldname').val($(this).val());
@@ -1702,6 +1781,7 @@ $(function() {
 	$("#vmform").on("spawn_section", function spawnSectionEvent(evt, section, sectiondata) {
 		if (sectiondata.category == 'vDisk') {
 			regenerateDiskPreview(sectiondata.index);
+			setDiskserial(sectiondata.index) ;
 		}
 		if (sectiondata.category == 'Graphics_Card') {
 			$(section).find(".gpu").change();

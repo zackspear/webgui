@@ -19,9 +19,7 @@
         }
       }
     }
-    if (file_exists('/boot/config/plugins/dynamix.my.servers/myservers.cfg')) {
-      @extract(parse_ini_file('/boot/config/plugins/dynamix.my.servers/myservers.cfg',true));
-    }
+    // note: $myservers variable defined in myservers1.php, by parsing myservers.cfg
     // upc translations
     $upc_translations = [
       ($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US' => [
@@ -549,10 +547,11 @@
     }
 
     // read flashbackup ini file
-    $flashBackup = @parse_ini_file('/usr/local/emhttp/state/flashbackup.ini');
+    $flashbackup_ini = '/var/local/emhttp/flashbackup.ini';
+    $flashbackup_status = (file_exists($flashbackup_ini)) ? @parse_ini_file($flashbackup_ini) : [];
 
     $serverstate = [ // feeds server vars to Vuex store in a slightly different array than state.php
-      "avatar" => (!empty($remote['avatar']) && $plgInstalled) ? $remote['avatar'] : '',
+      "avatar" => (!empty($myservers['remote']['avatar']) && $plgInstalled) ? $myservers['remote']['avatar'] : '',
       "config" => [
         'valid' => $var['configValid'] === 'yes',
         'error' => $var['configValid'] !== 'yes'
@@ -560,16 +559,16 @@
           : null,
       ],
       "deviceCount" => $var['deviceCount'],
-      "email" => $remote['email'] ?? '',
-      "extraOrigins" => $api['extraOrigins'] ? explode(',', $api['extraOrigins']) : [],
+      "email" => $myservers['remote']['email'] ?? '',
+      "extraOrigins" => explode(',', $myservers['api']['extraOrigins']??''),
       "flashproduct" => $var['flashProduct'],
       "flashvendor" => $var['flashVendor'],
-      "flashBackupActivated" => $flashBackup['activated'] ? 'true' : '',
+      "flashBackupActivated" => empty($flashbackup_status['activated']) ? '' : 'true',
       "guid" => $var['flashGUID'],
-      "hasRemoteApikey" => !empty($remote['apikey']),
+      "hasRemoteApikey" => !empty($myservers['remote']['apikey']),
       "internalip" => ipaddr(),
       "internalport" => $_SERVER['SERVER_PORT'],
-      "keyfile" => str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
+      "keyfile" => empty($var['regFILE'])? "" : str_replace(['+','/','='], ['-','_',''], trim(base64_encode(@file_get_contents($var['regFILE'])))),
       "osVersion" => $var['version'],
       "plgVersion" => $plgversion = file_exists('/var/log/plugins/dynamix.unraid.net.plg')
         ? trim(@exec('/usr/local/sbin/plugin version /var/log/plugins/dynamix.unraid.net.plg 2>/dev/null'))
@@ -580,12 +579,12 @@
       "protocol" => $_SERVER['REQUEST_SCHEME'],
       "reggen" => (int)$var['regGen'],
       "regGuid" => $var['regGUID'],
-      "registered" => (!empty($remote['username']) && $plgInstalled),
+      "registered" => (!empty($myservers['remote']['username']) && $plgInstalled),
       "servername" => $var['NAME'],
       "site" => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'],
       "state" => strtoupper(empty($var['regCheck']) ? $var['regTy'] : $var['regCheck']),
       "ts" => time(),
-      "username" => (!empty($remote['username']) && $plgInstalled) ? $remote['username'] : '',
+      "username" => (!empty($myservers['remote']['username']) && $plgInstalled) ? $myservers['remote']['username'] : '',
       "wanFQDN" => $nginx['NGINX_WANFQDN'] ?? '',
     ];
     /** @TODO - prop refactor needed. The issue is because the prop names share the same name as the vuex store variables
@@ -606,19 +605,19 @@
     */
     ?>
     <unraid-user-profile
-      apikey="<?=$upc['apikey'] ?? ''?>"
-      api-version="<?=$api['version'] ?? ''?>"
+      apikey="<?=$myservers['upc']['apikey'] ?? ''?>"
+      api-version="<?=$myservers['api']['version'] ?? ''?>"
       banner="<?=$display['banner'] ?? ''?>"
       bgcolor="<?=($backgnd) ? '#'.$backgnd : ''?>"
       csrf="<?=$var['csrf_token']?>"
-      displaydesc="<?=($display['headerdescription']!='no') ? 'true' : ''?>"
+      displaydesc="<?=($display['headerdescription']??''!='no') ? 'true' : ''?>"
       expiretime="<?=1000*($var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0)?>"
       hide-my-servers="<?=$plgInstalled ? '' : 'yes' ?>"
       locale="<?=($_SESSION['locale']) ? $_SESSION['locale'] : 'en_US'?>"
       locale-messages="<?=rawurlencode(json_encode($upc_translations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE))?>"
-      metacolor="<?=($display['headermetacolor']) ? '#'.$display['headermetacolor'] : ''?>"
+      metacolor="<?=($display['headermetacolor']??'') ? '#'.$display['headermetacolor'] : ''?>"
       plg-path="dynamix.my.servers"
-      reg-wiz-time="<?=$remote['regWizTime'] ?? ''?>"
+      reg-wiz-time="<?=$myservers['remote']['regWizTime'] ?? ''?>"
       serverdesc="<?=$var['COMMENT']?>"
       servermodel="<?=$var['SYS_MODEL']?>"
       serverstate="<?=rawurlencode(json_encode($serverstate, JSON_UNESCAPED_SLASHES))?>"

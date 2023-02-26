@@ -1,4 +1,4 @@
-.jGrowl{position:fixed;z-index:9999;font-size:1.3rem}
+.jGrowl{position:fixed;font-size:1.3rem}
 .jGrowl.top-left{left:10px;top:90px}
 .jGrowl.top-right{right:10px;top:90px}
 .jGrowl.bottom-left{left:10px;bottom:24px}
@@ -11,17 +11,17 @@
 .jGrowl-notification.default{color:#42453e;background-color:#808080;opacity:0.96;border:1px solid #42453e;box-shadow:2px 2px 1px #888888}
 .jGrowl-notification{min-height:4rem;width:380px;padding:10px;margin:5px 0;text-align:left;border-radius:6px}
 .jGrowl-notification .jGrowl-header{font-weight:bold}
-.jGrowl-notification .jGrowl-close{float:right;text-align:right;margin:0;padding:0;background:none;color:inherit;border:none;cursor:pointer;font-size:1.7rem;min-width:auto;margin-left:2rem;line-height:1}
+.jGrowl-notification .jGrowl-close{float:right;text-align:right;margin:0;padding:0;background:none;color:inherit;border:none;cursor:pointer;font-size:1.8rem;min-width:auto;margin-left:2rem;line-height:1}
 .jGrowl-notification .jGrowl-close:hover{color:inherit;background:none}
 .jGrowl-closer{width:400px;color:#808080;background-color:#121510;opacity:0.96;border:2px solid #b0b0b0;margin:5px 0;padding:4px 0;cursor:pointer;font-weight:bold;text-align:center;border-radius:6px}
 .jGrowl-closer.top{position:fixed;top:130px}
-#jGrowl {pointer-events: none !important;}
-.jGrowl-notification:first-of-type {pointer-events: none !important;}
-.jGrowl-notification {pointer-events:all !important;}
-.jGrowl-closer.top {pointer-events:all !important;}
-.jGrowl-closer.bottom {pointer-events:all !important;}
+#jGrowl{pointer-events:none!important}
+.jGrowl-notification:first-of-type{pointer-events:none!important}
+.jGrowl-notification{pointer-events:all!important}
+.jGrowl-closer.top{pointer-events:all!important}
+.jGrowl-closer.bottom{pointer-events:all!important}
 @media print{.jGrowl{display:none}}
-.ui-dropdownchecklist{background-color:transparent;background-image:linear-gradient(66.6deg, transparent 60%, #606e7f 40%),linear-gradient(113.4deg, #606e7f 40%, transparent 60%);background-position:calc(100% - 8px),calc(100% - 4px);background-size:4px 6px,4px 6px;background-repeat:no-repeat;border:none;box-shadow:0 1px 0 #606e7f;outline:none;height:3rem;line-height:3rem;cursor:pointer}
+.ui-dropdownchecklist{background-color:transparent;background-image:linear-gradient(66.6deg,transparent 60%,#606e7f 40%),linear-gradient(113.4deg,#606e7f 40%,transparent 60%);background-position:calc(100% - 8px),calc(100% - 4px);background-size:4px 6px,4px 6px;background-repeat:no-repeat;border:none;box-shadow:0 1px 0 #606e7f;outline:none;height:3rem;line-height:3rem;cursor:pointer}
 .ui-dropdownchecklist-selector{border:1px solid #606E7F;display:inline-block;cursor:pointer;padding:1px 14px 1px 6px}
 .ui-dropdownchecklist-group{font-weight:normal;font-style:italic;padding:1px 14px 1px 6px}
 .ui-dropdownchecklist-selector-wrapper{vertical-align:middle;font-size:0}
@@ -63,7 +63,7 @@ table.tablesorter thead tr th{text-transform:uppercase;font-weight:normal;letter
 table.tablesorter thead tr .tablesorter-header{background-repeat:no-repeat;background-position:center right;cursor:pointer}
 table.tablesorter thead tr .tablesorter-headerAsc{background-image:url(../images/sort-asc.png)}
 table.tablesorter thead tr .tablesorter-headerDesc{background-image:url(../images/sort-desc.png)}
-table.tablesorter thead tr .tablesorter-headerAsc, table.tablesorter thead tr .tablesorter-headerDesc{background-color:#1b1d1b}
+table.tablesorter thead tr .tablesorter-headerAsc,table.tablesorter thead tr .tablesorter-headerDesc{background-color:#1b1d1b}
 table.tablesorter tbody tr{border-bottom:#121510 1px solid}
 table.tablesorter tbody tr.tablesorter-childRow{border-bottom:none}
 table.tablesorter tbody tr.tr_last{border-bottom:1px solid #606e7f}

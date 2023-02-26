@@ -12,9 +12,15 @@
  */
 ?>
 <?
+// if called from webgui:
+//   anonymous: diagnostics  '/usr/local/emhttp/tower-diagnostics-20230130-1546.zip'
+//   all data:  diagnostics -a '/usr/local/emhttp/tower-diagnostics-20230130-1546.zip'
+// if called from cli:
+//   anonymous: diagnostics
+//   all data:  diagnostics -a
 $opt = getopt('a',['all']);
 $all = isset($opt['a']) || isset($opt['all']);
-$zip = $all ? $argv[2] : $argv[1];
+$zip = $all ? $argv[2]??"" : $argv[1]??"";
 $cli = empty($zip);
 $get = "/var/local/emhttp";
 $var = (array)@parse_ini_file("$get/var.ini");
@@ -44,19 +50,23 @@ function run($cmd, &$save=null) {
   exec("timeout -s9 30 $cmd", $save);
   return implode("\n",$save);
 }
+function newline($file) {
+  exec("echo|todos >>".escapeshellarg($file));
+}
 function shareDisks($share) {
-  return exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/usr/local/emhttp/mnt/user/$share")." 2>/dev/null") ?: "";
+  return str_replace(',',', ',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$share")." 2>/dev/null") ?: "");
 }
 function anonymize($text,$select) {
-  global $all, $customShares,$unraid_vars;
+  global $all,$pools,$customShares,$unraid_vars;
   if ($all) return $text;
   switch ($select) {
   case 1:
     // remove any stray references to the GUID that may wind up in .ini files (notably Unassigned Devices)
-    $text = str_replace(end(explode("-",$unraid_vars['regGUID'])),"...",$text);
-
+    $guid = explode("-",$unraid_vars['regGUID']);
+    $text = str_replace(end($guid),"...",$text);
     $rows = explode("\n", $text);
-    $regex = "/\b((disk|cache|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|cache|parity|cpu$customShares)\b/";
+    $pool = implode('|',$pools) ?: 'cache';
+    $regex = "/\b((disk|$pool|parity|cpu|eth|dev)[0-9]+)|(smart|flash|flashbackup|$pool|parity|cpu{$customShares})\b/";
     foreach ($rows as &$row) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
@@ -65,8 +75,9 @@ function anonymize($text,$select) {
     }
     return implode("\n", $rows);
   case 2:
+    // anonymize share configuration name - make it unique
     $name = basename($text,'.cfg');
-    if ($name !== "cache") {
+    if (!in_array($name,$pools)) {
       $len = strlen($name);
       if ($len>2) {
         $dash = str_repeat('-',$len-2);
@@ -117,7 +128,7 @@ function geturls_certdetails($file, $hostname, $ip="") {
   $data = implode("\n", $data);
   // determine cn
   preg_match('/ *commonName *= (.*)/', $data, $matches);
-  $cn = trim($matches[1]);
+  $cn = trim($matches[1]??'');
   if (strpos($cn, ".myunraid.net") !== false) {
     $type = 'myunraid.net';
     $iphost = str_replace('.','-',$ip);
@@ -135,7 +146,7 @@ function geturls_certdetails($file, $hostname, $ip="") {
     // replace wildcard with hostname
     $cn = str_replace('*', $hostname, $cn);
     $cn_priv = $cn;
-    if (strpos($data, "Self-signed") !== false){
+    if (strpos($data??'', "Self-signed") !== false){
       $type = 'self-signed';
     } else {
       $type = 'user-provided';
@@ -265,8 +276,7 @@ function geturls() {
     $dirlisting[1] = "Directory not found";
   }
   $urls .= "\n\n".implode("\n", $dirlisting)."\n";
-  $urls = str_replace("\n", "\r\n", $urls);
-  return $urls;
+  return str_replace("\n", "\r\n", $urls);
 }
 
 // diagnostics start
@@ -286,21 +296,24 @@ if ($cli) {
   $date = "{$split[2]}-{$split[3]}";
 }
 
+// global variables
+$disks = (array)@parse_ini_file("$get/disks.ini",true);
+$pools = pools_filter($disks);
+
 // don't anonymize system share names
-$vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
-$vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
-$showshares   = [];
-$showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']), 3, 1)).'.cfg';
-$showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']), 3, 1)).'.cfg';
-foreach ($showshares as $show) {
-  $showme = str_replace(".cfg","",$show);
-  if ($showme) $customShares .= "|$showme";
-}
+$vardomain = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker = (array)@parse_ini_file('/boot/config/docker.cfg');
+$showshares = [];
+$customShares = '';
+if (!empty($vardomain['IMAGE_FILE']))             $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
+if (!empty($vardomain['DOMAINDIR']))              $showshares[] = current(array_slice(explode('/',$vardomain['DOMAINDIR']),3,1));
+if (!empty($vardomain['MEDIADIR']))               $showshares[] = current(array_slice(explode('/',$vardomain['MEDIADIR']),3,1));
+if (!empty($vardomain['DISKDIR']))                $showshares[] = current(array_slice(explode('/',$vardomain['DISKDIR']),3,1));
+if (!empty($vardocker['DOCKER_IMAGE_FILE']))      $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_IMAGE_FILE']),3,1));
+if (!empty($vardocker['DOCKER_APP_CONFIG_PATH'])) $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_APP_CONFIG_PATH']),3,1));
+if (!empty($vardocker['DOCKER_HOME']))            $showshares[] = current(array_slice(explode('/',$vardocker['DOCKER_HOME']),3,1));
+
+foreach ($showshares as $showme) if ($showme) $customShares .= "|$showme";
 
 // create folder structure
 run("mkdir -p ".escapeshellarg("/$diag/system")." ".escapeshellarg("/$diag/config")." ".escapeshellarg("/$diag/logs")." ".escapeshellarg("/$diag/shares")." ".escapeshellarg("/$diag/smart")." ".escapeshellarg("/$diag/qemu")." ".escapeshellarg("/$diag/xml"));
@@ -325,15 +338,16 @@ foreach (glob("$get/*.ini") as $file) {
 
 // Create loads.txt
 $cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$get/cpuload.ini")."\r\n";
-$diskload = (array)@file("$get/diskload.ini");
-$disks = (array)@parse_ini_file("$get/disks.ini",true);
 $loadTxt = [];
-foreach ($diskload as $loadLine) {
-  $load = explode('=',$loadLine);
-  foreach ($disks as $disk) {
-    if ($load[0]==$disk['device']) {
-      $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
-      break;
+if (file_exists("$get/diskload.ini")){
+  $diskload = (array)@file("$get/diskload.ini");
+  foreach ($diskload as $loadLine) {
+    $load = explode('=',$loadLine);
+    foreach ($disks as $disk) {
+      if ($load[0]==$disk['device']) {
+        $loadTxt[] = "{$disk['device']} ({$disk['name']})=".trim($load[1]);
+        break;
+      }
     }
   }
 }
@@ -377,6 +391,8 @@ foreach ($folders as $folder) {
 // copy configuration files (suppress errors)
 run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev/null");
 run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
+
+// anonymize go file
 if (!$all)
   run("sed -i -e '/password/c ***line removed***' -e '/user/c ***line removed***' -e '/pass/c ***line removed***' ".escapeshellarg("/$diag/config/go.txt"));
 
@@ -386,40 +402,31 @@ if (!$all)
 
 // copy share information (anonymize if applicable)
 $files = glob("/boot/config/shares/*.cfg");
+$shareDisk = [];
 foreach ($files as $file) {
   $dest = "/$diag/shares/".basename($file);
-  if (!in_array(basename($file),$showshares)) {
-    $dest = anonymize($dest,2);
-  }
+  $share = basename($file,'.cfg');
+  if (!in_array($share,$showshares)) $dest = anonymize($dest,2);
   @copy($file, $dest);
   if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
-  $share = pathinfo(basename($file),PATHINFO_FILENAME);
-  $shareExists = explode(",",shareDisks($share));
-  unset($exists);
-  foreach ($shareExists as $anon) {
-    if (!$all) {
-      if (!preg_match("/\b((disk)[0-9]+)|(cache)\b/", $anon)) {
-        $len = strlen($anon);
-        if ($len>2) {
-          $dash = str_repeat('-',$len-2);
-          $exists[] = substr($anon,0,1).$dash.substr($anon,-1);
-        }
-      }
-    } else {
-      $exists[] = $anon;
-    }
-  }
-  $shareDisk .= $exists ? str_pad(pathinfo($dest,PATHINFO_FILENAME),34).str_pad(exec("cat ".escapeshellarg($file)." | grep shareUseCache"),22)."  Exists on ".implode(", ",$exists)."\r\n" : "";
-  $exists = $exists ?: ["no drives"];
-  file_put_contents($dest,"# Share exists on ".implode(", ",$exists)."\r\n",FILE_APPEND);
+  $home = shareDisks($share);
+  $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
+  $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("grep -m1 'shareUseCache' ".escapeshellarg($file)),24).$home;
+  file_put_contents($dest,$home.file_get_contents($dest));
 }
-file_put_contents("/$diag/shares/shareDisks.txt",$shareDisk);
+file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
 // create default user shares information
 $shares = (array)@parse_ini_file("$get/shares.ini", true);
 foreach ($shares as $share) {
   $name = $share['name'];
-  if (!in_array("/boot/config/shares/$name.cfg",$files)) file_put_contents(anonymize("/$diag/shares/$name.cfg",2),"# This share has default settings.\r\n# Share exists on ".shareDisks($name)."\r\n");
+  if (!in_array("/boot/config/shares/$name.cfg",$files)) {
+    $home = shareDisks($name);
+    $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
+    $file = anonymize("/$diag/shares/$name.cfg",2);
+    file_put_contents($file,"# This share has default settings.\r\n".$home);
+    file_put_contents("/$diag/shares/shareDisks.txt",str_pad(basename($file,'.cfg'),34).str_pad('shareUseCache="no"',24).$home,FILE_APPEND);
+  }
 }
 
 // copy pools information (anonymize)
@@ -474,35 +481,45 @@ foreach ($devices as $device) {
   run("smartctl -x $type ".escapeshellarg("/dev/$port")." 2>/dev/null|todos >".escapeshellarg("/$diag/smart/$name-$date $diskName ($port)$status.txt"));
 }
 
-// create pool btrfs information
-foreach (pools_filter($disks) as $pool) {
-  if (strpos($disks[$pool]['fsType'],'btrfs')!==false) {
+// create btrfs pool information
+foreach ($pools as $pool) {
+  if (strpos($disks[$pool]['fsType']??'','btrfs')!==false) {
+    $dev = $disks[$pool]['device'];
     run("echo 'Pool: $pool'|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
     run("/sbin/btrfs filesystem usage -T /mnt/$pool 2>/dev/null|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
+    newline("/$diag/system/btrfs-usage.txt");
+    run("/sbin/btrfs filesystem show /dev/{$dev}p1 2>/dev/null|todos >>".escapeshellarg("/$diag/system/btrfs-usage.txt"));
+    newline("/$diag/system/btrfs-usage.txt");
   }
 }
 
+// create zfs pool information
+run("/usr/sbin/zpool status 2>/dev/null|todos >>".escapeshellarg("/$diag/system/zfs-info.txt"));
+newline("/$diag/system/zfs-info.txt");
+run("/usr/sbin/zpool import 2>/dev/null|todos >>".escapeshellarg("/$diag/system/zfs-info.txt"));
+
 // create installed plugin information
 $pluginList = json_decode(download_url("https://raw.githubusercontent.com/Squidly271/AppFeed/master/pluginList.json"),true);
+$installedPlugins = "";
 if (!$pluginList) $installedPlugins = "Could not download current plugin versions\r\n\r\n";
 $plugins = glob("/var/log/plugins/*.plg");
 foreach ($plugins as $plugin) {
   $plgVer = run("plugin version ".escapeshellarg($plugin));
   $plgURL = run("plugin pluginURL ".escapeshellarg($plugin));
   $installedPlugins .= basename($plugin)." - $plgVer";
-  if ($pluginList && ! $pluginList[$plgURL] && basename($plugin) !== "unRAIDServer.plg")
+  if ($pluginList && empty($pluginList[$plgURL]) && basename($plugin) !== "unRAIDServer.plg")
     $installedPlugins .= "  (Unknown to Community Applications)";
-  if ($pluginList[$plgURL]['blacklist'])
+  if (!empty($pluginList[$plgURL]['blacklist']))
     $installedPlugins .= "  (Blacklisted)";
-  if ($pluginList[$plgURL]['deprecated'] || ($pluginList[$plgURL]['dmax'] && version_compare($pluginList[$plgURL]['dmax'],$unraid['version'],"<")))
+  if (!empty($pluginList[$plgURL]['deprecated']) || (!empty($pluginList[$plgURL]['dmax']) && version_compare($pluginList[$plgURL]['dmax'],$unraid['version'],"<")))
     $installedPlugins .= "  (Deprecated)";
-  if ($pluginList[$plgURL]['version'] > $plgVer)
+  if (!empty($pluginList[$plgURL]['version']) && $pluginList[$plgURL]['version'] > $plgVer)
     $installedPlugins .= "  (Update available: {$pluginList[$plgURL]['version']})";
-  elseif ($pluginList[$plgURL])
+  elseif (!empty($pluginList[$plgURL]))
     $installedPlugins .= "  (Up to date)";
-  if ($pluginList[$plgURL]['max'] && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<"))
+  if (!empty($pluginList[$plgURL]['max']) && version_compare($pluginList[$plgURL]['max'],$unraid['version'],"<"))
     $installedPlugins .= "  (Incompatible)";
-  if ($pluginList[$plgURL]['min'] && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">"))
+  if (!empty($pluginList[$plgURL]['min']) && version_compare($pluginList[$plgURL]['min'],$unraid['version'],">"))
     $installedPlugins .= "  (Incompatible)";
   $installedPlugins .= "\r\n";
 }
@@ -555,7 +572,7 @@ foreach (glob("/var/log/syslog*") as $file) {
   run("todos <".escapeshellarg($file)." >".escapeshellarg("$log.txt"));
   if (!$all) {
     unset($titles,$rows);
-    run("grep -Po 'file: \K[^\"]+' ".escapeshellarg("$log.txt")." 2>/dev/null|sort|uniq", $titles);
+    run("grep -Po 'file: \K[^\"\\x27]+' ".escapeshellarg("$log.txt")." 2>/dev/null|sort|uniq", $titles);
     run("sed -ri 's|\b\S+@\S+\.\S+\b|email@removed.com|;s|\b(username\|password)([=:])\S+\b|\\1\\2xxx|;s|(GUID: \S)\S+(\S) |\\1..\\2 |;s|(moving \"\S\|\"/mnt/user/\S).*(\S)\"|\\1..\\2\"|' ".escapeshellarg("$log.txt"));
     run("sed -ri 's|(server: ).+(\.(my)?unraid\.net(:[0-9]+)?,)|\\1hash\\2|;s|(host: \").+(\.(my)?unraid\.net(:[0-9]+)?\")|\\1hash\\2|;s|(referrer: \"https?://).+(\.(my)?unraid\.net)|\\1hash\\2|' ".escapeshellarg("$log.txt"));
     foreach ($titles as $mover) {
@@ -609,11 +626,50 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
   run("unraid-api report | todos >".escapeshellarg($log));
 }
 
-// generate thrid party system diagnostics
+// BEGIN - third party plugins diagnostics
+// list third party packages in /boot/config/plugins/*/packages/
 run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));
+
+// list va-api compatible devices
 if (is_dir("/dev/dri/")) run("ls -lA /sys/class/drm/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/drm.txt")); else null;
+
+// list dvb adapters
 if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|todos >>".escapeshellarg("/$diag/system/dvb.txt")); else null;
+
+// generate nvidia diagnostics
 if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
+
+// generate lxc diagnostics
+if (is_dir("/boot/config/plugins/lxc")) {
+  run("mkdir -p ".escapeshellarg("/$diag/lxc"));
+  $lxc_path = run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null| cut -d '=' -f2");
+  run("tail -n +1 $lxc_path/*/config 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/container_configurations.txt"));
+  run("cat /boot/config/plugins/lxc/plugin.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/plugin.cfg"));
+  run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/lxc.conf"));
+  run("cat /boot/config/plugins/lxc/default.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/default.conf"));
+  run("lxc-checkconfig 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/checkconfig.txt"));
+} else {
+    null;
+}
+
+// generate iscsi target diagnostics
+if (is_file("/boot/config/plugins/iSCSIgui.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("targetcli ls 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsi-target.txt"));
+} else {
+  null;
+}
+
+// generate iscsi initiator diagnostics
+if (is_file("/boot/config/plugins/iscsi-initiator.plg")) {
+  run("mkdir -p ".escapeshellarg("/$diag/iscsi"));
+  run("cat /boot/config/plugins/iscsi-initiator/initiatorname.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/initiatorname.cfg"));
+  run("cat /boot/config/plugins/iscsi-initiator/iscsid.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/iscsid.conf"));
+  run("cat /boot/config/plugins/iscsi-initiator/targets.cfg 2>/dev/null|todos >>".escapeshellarg("/$diag/iscsi/targets.cfg"));
+} else {
+  null;
+}
+// END - third party plugins diagnostics
 
 // create resulting zip file and remove temp folder
 run("zip -qmr ".escapeshellarg($zip)." ".escapeshellarg("/$diag"));

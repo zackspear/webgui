@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -25,7 +25,7 @@ if (isset($_POST['kill']) && $_POST['kill'] > 1) {
 }
 
 $start = $_POST['start'] ?? 0;
-[$command,$args] = explode(' ',unscript($_POST['cmd']??''),2);
+[$command,$args] = array_pad(explode(' ',unscript($_POST['cmd']??''),2),2,'');
 
 // find absolute path of command
 foreach (glob("$docroot/plugins/*/scripts",GLOB_NOSORT) as $path) {

@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -39,7 +39,7 @@ function new_parity_log($timestamp) {
 function my_clock($time) {
   if (!$time) return _('less than a minute');
   $days = floor($time/1440);
-  $hour = $time/60%24;
+  $hour = floor($time/60)%24;
   $mins = $time%60;
   return plus($days,'day',($hour|$mins)==0).plus($hour,'hour',$mins==0).plus($mins,'minute',true);
 }
@@ -108,9 +108,9 @@ while (true) {
   else $fsState = '';
 
   if ($var['fsState']!='Started') $process = -1;
-  elseif ($spot>0) $process = 1;
+  elseif ($spot>0 && $bytes>0) $process = 1;
   elseif (file_exists('/var/run/mover.pid')) $process = 2;
-  elseif (exec('pgrep -cf /sbin/btrfs')>0) $process = 3;
+  elseif (exec('ps -C btrfs -o cmd=|grep -cv show')>0) $process = 3;
   else $process = 0;
 
   publish('parity', implode(';',$data));

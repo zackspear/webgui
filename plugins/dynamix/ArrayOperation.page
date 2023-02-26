@@ -4,8 +4,8 @@ Tag="snowflake-o"
 Nchan="device_list,disk_load,parity_list"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -71,7 +71,7 @@ function status_indicator() {
 function missing_cache() {
   global $disks;
   $missing = false;
-  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status'],'_MISSING')!==false);
+  foreach (cache_filter($disks) as $disk) $missing |= (strpos($disk['status']??'','_MISSING')!==false);
   return $missing;
 }
 function resync($d) {
@@ -144,36 +144,42 @@ function getFileContent(event,form) {
   reader.readAsDataURL(input.files[0]);
 }
 function prepareInput(form) {
-  $(form).append('<input type="hidden" name="cmdStart" value="Start">');
-  if (form.input === undefined) {
-    form.submit();
-    return;
-  }
-  form.input.disabled = true;
-  form.local.disabled = true;
-  form.file.disabled = true;
-  form.text.disabled = true;
-  form.copy.disabled = true;
-  if (form.text.value) {
-    var valid = new RegExp('^[ -~]+$');
-    if (valid.test(form.text.value)) {
-      $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
-      form.submit();
+  $.post('/webGui/include/Report.php',{cmd:'state',pools:'<?=implode(',',$pools)?>'},function(state) {
+    if (state.length==0) {
+      $(form).append('<input type="hidden" name="cmdStart" value="Start">');
+      if (form.input === undefined) {
+        form.submit();
+        return;
+      }
+      form.input.disabled = true;
+      form.local.disabled = true;
+      form.file.disabled = true;
+      form.text.disabled = true;
+      form.copy.disabled = true;
+      if (form.text.value) {
+        var valid = new RegExp('^[ -~]+$');
+        if (valid.test(form.text.value)) {
+          $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
+          form.submit();
+        } else {
+          form.input.disabled = false;
+          form.local.disabled = false;
+          form.file.disabled = false;
+          form.text.disabled = false;
+          form.copy.disabled = false;
+          swal({title:"_(Printable Characters Only)_",text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+        }
+        return;
+      }
+      var data = {};
+      data['#file'] = 'unused';
+      data['#include'] = 'webGui/include/KeyUpload.php';
+      data['file'] = form.file.value;
+      $.post('/update.php',data,function(){form.submit();});
     } else {
-      form.input.disabled = false;
-      form.local.disabled = false;
-      form.file.disabled = false;
-      form.text.disabled = false;
-      form.copy.disabled = false;
-      swal({title:"_(Printable Characters Only)_",text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+      swal({title:"_(Wrong Pool State)_",text:state,type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
-    return;
-  }
-  var data = {};
-  data['#file'] = 'unused';
-  data['#include'] = 'webGui/include/KeyUpload.php';
-  data['file'] = form.file.value;
-  $.post('/update.php',data,function(){form.submit();});
+  });
 }
 function parityWarning(form) {
   if (form.md_invalidslot.checked) {
@@ -244,7 +250,7 @@ $('.tabs').append(ctrl);
 if ($.cookie('tab')=='tab0') $('i.toggle').hide();
 $('#tab'+$('input[name$="tabs"]').length).click(function(){tab0(); $('i.toggle').hide('slow');});
 <?else:?>
-$('div[id=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
+$('div[class=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 toggle_diskio(true);
@@ -402,8 +408,8 @@ function formatWarning(val) {
 <?  if ($var['fsNumUnmountable']>0):?>
       <tr><td>**<?=_('Unmountable disk'.($var['fsNumUnmountable']==1?'':'s').' present')?>:**<br>
 <?    $cache = [];
-      foreach ($disks as $disk) if (substr($disk['fsStatus'],0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
-        if ($disk['id']) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
+      foreach ($disks as $disk) if (substr($disk['fsStatus']??'',0,11)=='Unmountable' || in_array(prefix($disk['name']),$cache)) {
+        if (strlen($disk['id'])) echo "<span class='blue-text'>".my_disk($disk['name'])."</span> &bullet; ".my_id($disk['id'])." (".$disk['device'].")<br>";
         if (in_array($disk['name'],$pools)) $cache[] = $disk['name'];
       }
 ?>    </td><td><input type="submit" id="btnFormat" name="cmdFormat" value="_(Format)_" disabled><input type="hidden" name="unmountable_mask" value="<?=$var['fsUnmountableMask']?>"></td>

@@ -4,8 +4,8 @@ Icon="icon-log"
 Tag="list"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,7 +23,7 @@ $max    = 5000;
 $select = [];
 if (file_exists($cfg)) {
   $syslog = parse_ini_file($cfg);
-  if ($syslog['local_server'] && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
+  if (isset($syslog['local_server']) && isset($syslog['server_folder']) && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
     natsort($logs);
     $select[] = "<select onchange='showLog(this.value)'>";
     $select[] = mk_option(1,$log,'syslog');
