@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/Secure.php";
 function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
   global $display,$language;
   $scale = $scale ?? $display['scale'];
-  $number = $display['number'] ?? '.,';
+  $number = _var($display,'number','.,');
   $units = explode(' ', ' '.($kilo==1000 ? ($language['prefix_SI'] ?? 'K M G T P E Z Y') : ($language['prefix_IEC'] ?? 'Ki Mi Gi Ti Pi Ei Zi Yi')));
   $size = count($units);
   if ($scale==0 && ($decimals===NULL || $decimals<0)) {
@@ -39,41 +39,41 @@ function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
 }
 function my_number($value) {
   global $display;
-  $number = $display['number'] ?? '.,';
+  $number = _var($display,'number','.,');
   return number_format($value, 0, $number[0], ($value>=10000 ? $number[1] : ''));
 }
 function my_time($time, $fmt=NULL) {
   global $display;
-  if (!$fmt) $fmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
+  if (!$fmt) $fmt = _var($display,'date').(_var($display,'date')!='%c' ? ", "._var($display,'time') : "");
   return $time ? my_date($fmt, $time) : _('unknown');
 }
 function my_temp($value) {
   global $display;
-  $unit = $display['unit'];
-  $number = $display['number'];
+  $unit = _var($display,'unit','C');
+  $number = _var($display,'number','.,');
   return is_numeric($value) ? (($unit=='F' ? round(9/5*$value+32) : str_replace('.', $number[0], $value))." $unit") : $value;
 }
-function my_disk($name,$raw=false) {
+function my_disk($name, $raw=false) {
   global $display;
-  return $display['raw']||$raw ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
+  return _var($display,'raw')||$raw ? $name : ucfirst(preg_replace('/(\d+)$/',' $1',$name));
 }
 function my_disks($disk) {
-  return strpos($disk['status'],'_NP')===false;
+  return strpos(_var($disk,'status'),'_NP')===false;
 }
-function my_hyperlink($text,$link) {
+function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }
 function parity_only($disk) {
-  return $disk['type']=='Parity';
+  return _var($disk,'type')=='Parity';
 }
 function data_only($disk) {
-  return $disk['type']=='Data';
+  return _var($disk,'type')=='Data';
 }
 function cache_only($disk) {
-  return $disk['type']=='Cache';
+  return _var($disk,'type')=='Cache';
 }
 function parity_filter($disks) {
   return array_filter($disks,'parity_only');
@@ -91,7 +91,7 @@ function my_id($id) {
   global $display;
   $len = strlen($id);
   $wwn = substr($id,-18);
-  return ($display['wwn'] || substr($wwn,0,2)!='_3' || preg_match('/.[_-]/',$wwn)) ? $id : substr($id,0,$len-18);
+  return (_var($display,'wwn') || substr($wwn,0,2)!='_3' || preg_match('/.[_-]/',$wwn)) ? $id : substr($id,0,$len-18);
 }
 function my_word($num) {
   $words = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty','twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty'];
@@ -102,12 +102,12 @@ function my_usage() {
   $arraysize=0;
   $arrayfree=0;
   foreach ($disks as $disk) {
-    if (strpos($disk['name'],'disk')!==false) {
-      $arraysize += $disk['sizeSb'];
-      $arrayfree += $disk['fsFree'];
+    if (strpos(_var($disk,'name'),'disk')!==false) {
+      $arraysize += _var($disk,'sizeSb',0);
+      $arrayfree += _var($disk,'fsFree',0);
     }
   }
-  if ($var['fsNumMounted']>0) {
+  if (_var($var,'fsNumMounted',0)>0) {
     $used = $arraysize ? 100-round(100*$arrayfree/$arraysize) : 0;
     echo "<div class='usage-bar'><span style='width:{$used}%' class='".usage_color($display,$used,false)."'>{$used}%</span></div>";
   } else {
@@ -116,9 +116,9 @@ function my_usage() {
 }
 function usage_color(&$disk, $limit, $free) {
   global $display;
-  if ($display['text']==1 || intval($display['text']/10)==1) return '';
-  $critical = !empty($disk['critical']) ? $disk['critical'] : $display['critical'];
-  $warning = !empty($disk['warning']) ? $disk['warning'] : $display['warning'];
+  if (_var($display,'text',0)==1 || intval(_var($display,'text',0)/10)==1) return '';
+  $critical = $disk['critical'] ?? $display['critical'] ?? 0;
+  $warning = $disk['warning'] ?? $display['warning'] ?? 0;
   if (!$free) {
     if ($limit>=$critical && $critical>0) return 'redbar';
     if ($limit>=$warning && $warning>0) return 'orangebar';
@@ -154,13 +154,13 @@ function mk_option_check($name, $value, $text="") {
     $checked = in_array($value,explode(',',$name)) ? " selected" : "";
     return "<option value='$value'$checked>$text</option>";
   }
-  if (strpos($name, 'disk')!==false) {
+  if (strpos($name,'disk')!==false) {
     $checked = in_array($name,explode(',',$value)) ? " selected" : "";
     return "<option value='$name'$checked>".my_disk($name)."</option>";
   }
 }
 function mk_option_luks($name, $value, $luks) {
-  if (strpos($name, 'disk')!==false) {
+  if (strpos($name,'disk')!==false) {
     $checked = in_array($name,explode(',',$value)) ? " selected" : "";
     return "<option luks='$luks' value='$name'$checked>".my_disk($name)."</option>";
   }
@@ -192,7 +192,7 @@ function day_count($time) {
 function plus($val, $word, $last) {
   return $val>0 ? (($val || $last) ? ($val.' '._($word.($val!=1?'s':'')).($last ?'':', ')) : '') : '';
 }
-function compress($name,$size=18,$end=6) {
+function compress($name, $size=18, $end=6) {
   return mb_strlen($name)<=$size ? $name : mb_substr($name,0,$size-($end?$end+3:0)).'...'.($end?mb_substr($name,-$end):'');
 }
 function escapestring($name) {
@@ -223,7 +223,7 @@ function urlencode_path($path) {
 }
 function pgrep($process_name, $escape_arg=true) {
   $pid = exec("pgrep ".($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
-  return $retval == 0 ? $pid : false;
+  return $retval==0 ? $pid : false;
 }
 function is_block($path) {
   return (@filetype(realpath($path))=='block');
@@ -240,7 +240,7 @@ function autov($file,$ret=false) {
     echo $newFile;
 }
 function transpose_user_path($path) {
-  if (strpos($path, '/mnt/user/') === 0 && file_exists($path)) {
+  if (strpos($path,'/mnt/user/')===0 && file_exists($path)) {
     $realdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($path)." 2>/dev/null"));
     if (!empty($realdisk))
       $path = str_replace('/mnt/user/', "/mnt/$realdisk/", $path);
@@ -258,10 +258,10 @@ function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
 }
-function my_explode($split,$text,$count=2) {
+function my_explode($split, $text, $count=2) {
   return array_pad(explode($split,$text,$count),$count,'');
 }
-function my_preg_split($split,$text,$count=2) {
+function my_preg_split($split, $text, $count=2) {
   return array_pad(preg_split($split,$text,$count),$count,'');
 }
 function delete_file(...$file) {

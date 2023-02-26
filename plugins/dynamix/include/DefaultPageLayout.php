@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = filter_var($_COOKIE['fontSize']??$display['font'], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'', FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -30,7 +30,7 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
-<title><?=$var['NAME']?>/<?=$myPage['name']?></title>
+<title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
@@ -38,7 +38,7 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
-<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
+<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
@@ -75,7 +75,7 @@ i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:po
 pre#swalbody p{margin-block-end:1em}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
-$safemode = $var['safeMode']=='yes';
+$safemode = _var($var,'safeMode')=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
 $banner = "$config/plugins/dynamix/banner.png";
@@ -107,7 +107,7 @@ Shadowbox.init({skipSetup:true});
 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
-var expiretime = <?=$var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0?>;
+var expiretime = <?=_var($var,'regTy')=='Trial'||strstr(_var($var,'regTy'),'expired')?_var($var,'regTm2'):0?>;
 var before = new Date();
 
 // page timer events
@@ -124,7 +124,7 @@ addAlert.plg = $.cookie('addAlert-plg');
 addAlert.func = $.cookie('addAlert-func');
 
 // current csrf_token
-var csrf_token = "<?=$var['csrf_token']?>";
+var csrf_token = "<?=_var($var,'csrf_token')?>";
 
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
@@ -194,7 +194,7 @@ function settab(tab) {
 <?switch ($myPage['name']):?>
 <?case'Main':?>
   $.cookie('tab',tab);
-<?if ($var['fsState']=='Started'):?>
+<?if (_var($var,'fsState')=='Started'):?>
   $.cookie('one','tab1');
 <?endif;?>
 <?break;?>
@@ -590,7 +590,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   <?=_('Version')?>: <?=$var['version']?><?=$notes?>
+   <?=_('Version')?>: <?=_var($var,'version','?')?><?=$notes?>
    </div>
    <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
@@ -734,8 +734,8 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 // Build footer
 annotate('Footer');
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
-$progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
-switch ($var['fsState']) {
+$progress = (_var($var,'fsProgress')!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
+switch (_var($var,'fsState')) {
 case 'Stopped':
   echo "<span class='red strong'><i class='fa fa-stop-circle'></i> "._('Array Stopped')."</span>$progress"; break;
 case 'Starting':
@@ -811,7 +811,7 @@ defaultPage.on('message', function(msg,meta) {
         default     : var action = '';
       }
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
+      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=_var($display,'number','.,')[0]?>');
       if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
       status += "</span>";
     }
@@ -944,9 +944,9 @@ $(function() {
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
-<?if ($var['regTy']=='unregistered'):?>
+<?if (_var($var,'regTy')=='unregistered'):?>
   $('#licensetype').addClass('orange-text');
-<?elseif (!in_array($var['regTy'],['Trial','Basic','Plus','Pro'])):?>
+<?elseif (!in_array(_var($var,'regTy'),['Trial','Basic','Plus','Pro'])):?>
   $('#licensetype').addClass('red-text');
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
@@ -975,7 +975,7 @@ $(function() {
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
-<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)??'';?>
+<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)?:''?>
 <?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
   showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to upgrade Unraid OS')?>",true);
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
@@ -983,7 +983,7 @@ $(function() {
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
   showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <?if (is_file('/tmp/plugins/unRAIDServer.txt')):?><span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' title=\"<?=_('Release Notes')?>\"></span> <?endif;?><a><?=_('Update Now')?></a>");
 <?endif;?>
-<?if (!$notify['system']):?>
+<?if (!_var($notify,'system')):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
 <?endif;?>

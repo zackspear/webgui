@@ -49,8 +49,8 @@ while (true) {
     $rx = (float)port_get_contents("$net/$port/statistics/rx_bytes");
     $tx = (float)port_get_contents("$net/$port/statistics/tx_bytes");
     if ($ts > 0) {
-      $rxd = ($rx-$data[$port]['rx']??0)/$ts*8;
-      $txd = ($tx-$data[$port]['tx']??0)/$ts*8;
+      $rxd = ($rx-_var($data[$port],'rx',0))/$ts*8;
+      $txd = ($tx-_var($data[$port],'tx',0))/$ts*8;
       $rx_speed = my_scale($rxd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
       $tx_speed = my_scale($txd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
     } else {
