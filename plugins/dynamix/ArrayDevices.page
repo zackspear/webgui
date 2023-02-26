@@ -3,8 +3,8 @@ Title="Array Devices"
 Tag="database"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -55,7 +55,7 @@ function toggle_diskio(init) {
   display_diskio();
 }
 
-<?if ($var['fsState']=='Started'):?>
+<?if (_var($var,'fsState')=="Started"):?>
 $('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 </script>
@@ -65,17 +65,17 @@ $('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <tbody id="array_devices">
 <?
 foreach ($disks as $disk):
-  if ($disk['type']=='Parity' or $disk['type']=='Data')
+  if (_var($disk,'type')=='Parity' or _var($disk,'type')=='Data')
     echo "<tr><td colspan='11'>&nbsp;</td></tr>";
 endforeach;
-if ($display['total']) echo "<tr class='tr_last'><td colspan='11'>&nbsp;</td></tr>";
+if (_var($display,'total')) echo "<tr class='tr_last'><td colspan='11'>&nbsp;</td></tr>";
 ?>
 </tbody>
 </table>
 
 :main_array_devices_help:
 
-<?if ($var['fsState'] == "Stopped"):?>
+<?if (_var($var,'fsState')=="Stopped"):?>
 <div></div>
 :main_slots_help:
 <?endif;?>
