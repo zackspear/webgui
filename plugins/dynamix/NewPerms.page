@@ -19,7 +19,7 @@ Tag="folder-o"
 $width = [166,300];
 function data_disks($disk) {
   global $pools;
-  return ((isset($disk['type']) && $disk['type']=='Data' || (isset($disk['type']) && $disk['type']=="Cache" && in_array($disk['name'],$pools))) && ($disk['status']??'')=='DISK_OK');
+  return (_var($disk,'type')=="Data" || (_var($disk,'type')=="Cache" && in_array(_var($disk,'name'),$pools))) && _var($disk,'status')=='DISK_OK';
 }
 ?>
 <style>
@@ -125,7 +125,7 @@ Note that this tool may negatively affect any docker containers if you allow you
 </select>
 </span>
 
-<?if ($var['fsState']=="Started"):?>
+<?if (_var($var,'fsState')=="Started"):?>
 <div><input type="button" value="_(Start)_" onclick="setNewPerms(this.form)"><input type="button" value="_(Done)_" class="lock" onclick="done()"></div>
 <?else:?>
 <div><input type="button" value="_(Start)_" disabled><input type="button" value="_(Done)_" class="lock" onclick="done()">_(Array must be **Started** to change permissions)_.</div>
