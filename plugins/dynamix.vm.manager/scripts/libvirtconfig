@@ -14,28 +14,27 @@
 <?
 $cfgfile = "/boot/config/domain.cfg";
 $cfg_defaults = [
-    "SERVICE" => "disable",
-    "IMAGE_FILE" => "/mnt/user/system/libvirt/libvirt.img",
-    "IMAGE_SIZE" => "1",
-    "DEBUG" => "no",
-    "DOMAINDIR" => "/mnt/user/domains/",
-    "MEDIADIR" => "/mnt/user/isos/",
-    "VIRTIOISO" => "",
-    "BRNAME" => "br0",
-    "VMSTORAGEMODE" => "auto"
+  "SERVICE" => "disable",
+  "IMAGE_FILE" => "/mnt/user/system/libvirt/libvirt.img",
+  "IMAGE_SIZE" => "1",
+  "DEBUG" => "no",
+  "DOMAINDIR" => "/mnt/user/domains/",
+  "MEDIADIR" => "/mnt/user/isos/",
+  "VIRTIOISO" => "",
+  "BRNAME" => "br0",
+  "VMSTORAGEMODE" => "auto"
 ];
 
 $cfg_new = $cfg_defaults;
 if (file_exists($cfgfile)) {
-    $cfg_old = parse_ini_file($cfgfile);
-    if (!empty($cfg_old)) {
-        $cfg_new = array_merge($cfg_defaults, $cfg_old);
-        if (empty(array_diff($cfg_new, $cfg_old)))
-            unset($cfg_new);
-    }
+  $cfg_old = parse_ini_file($cfgfile);
+  if (!empty($cfg_old)) {
+    $cfg_new = array_merge($cfg_defaults, $cfg_old);
+    if (empty(array_diff($cfg_new, $cfg_old))) unset($cfg_new);
+  }
 }
 if (isset($cfg_new)) {
-    foreach ($cfg_new as $key => $value) $tmp .= "$key=\"$value\"\n";
-    file_put_contents($cfgfile, $tmp);
+  foreach ($cfg_new as $key => $value) $tmp .= "$key=\"$value\"\n";
+  file_put_contents($cfgfile, $tmp);
 }
 ?>
