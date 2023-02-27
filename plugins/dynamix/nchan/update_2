@@ -159,8 +159,8 @@ function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
   $temp = _var($disk,'temp','*');
-  $hot = $disk['hotTemp'] ?? $display['hot'] ?? 0;
-  $max = $disk['maxTemp'] ?? $display['max'] ?? 0;
+  $max = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
+  $hot = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
   $top = $display['top'] ?? 120;
   $heat = false; $color = 'green';
   if (exceed($temp,$max,$top)) {
@@ -168,7 +168,7 @@ function device_temp(&$disk, &$red, &$orange) {
   } elseif (exceed($temp,$hot,$top)) {
     $heat = 'fire'; $color = 'orange'; $orange++;
   }
-  return ($spin && $temp>0) ? "<span class='$color-text'>".my_unit($temp,_var($display,'unit'))."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*";
+  return ($spin && $temp>0) ? "<span class='$color-text'>".my_unit($temp,_var($display,'unit','C'))."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*";
 }
 function device_smart(&$disk, &$fail, &$smart) {
   global $numbers,$saved;
@@ -289,7 +289,7 @@ while (true) {
   require "$docroot/webGui/include/Preselect.php";
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
-  if (_var($display,'locale')!=$locale_init) {
+  if (_var($display,'locale') != $locale_init) {
     $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
@@ -456,7 +456,7 @@ while (true) {
     }
     $echo[4] .= "\0";
     if ($check) {
-      $frmt = $display['date'].($display['date']!='%c' ? ", {$display['time']}" : "");
+      $frmt = _var($display,'date').(_var($display,'date')!='%c' ? ", "._var($display,'time') : "");
       $echo[4] .= sprintf(_('Next check scheduled on **%s**'),_(my_date($frmt,$time+$t),0));
       $echo[4] .= "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
     } else {

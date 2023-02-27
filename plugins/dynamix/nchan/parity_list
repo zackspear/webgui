@@ -72,7 +72,7 @@ while (true) {
   $var = @parse_ini_file("$varroot/var.ini") ?: [];
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
-  if (_var($display,'locale')!=$locale_init) {
+  if (_var($display,'locale') != $locale_init) {
     $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
