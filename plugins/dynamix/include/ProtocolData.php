@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,11 +12,14 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Secure.php";
 
-switch ($_GET['protocol']??'') {
-  case 'smb': $data = parse_ini_file('state/sec.ini',true); break;
-  case 'nfs': $data = parse_ini_file('state/sec_nfs.ini',true); break;
+require_once "$docroot/webGui/include/Secure.php";
+require_once "$docroot/webGui/include/Wrappers.php";
+
+switch (_var($_GET,'protocol')) {
+  case 'smb': $data = @parse_ini_file('state/sec.ini',true) ?: []; break;
+  case 'nfs': $data = @parse_ini_file('state/sec_nfs.ini',true) ?: []; break;
 }
-echo json_encode($data[unscript($_GET['name']??'')]);
+$name = unscript(_var($_GET,'name'));
+echo json_encode(_var($data,$name));
 ?>

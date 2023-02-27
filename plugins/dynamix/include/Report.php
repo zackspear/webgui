@@ -11,6 +11,11 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Secure.php";
+require_once "$docroot/webGui/include/Wrappers.php";
+
 switch ($_POST['cmd']??'') {
 case 'config':
   $config = "/boot/config";
@@ -26,22 +31,20 @@ case 'config':
         break;
       }
     }
-    if ( $flag ) break;
+    if ($flag) break;
   }
   echo $flag;
   break;
 case 'notice':
-  $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-  require_once "$docroot/webGui/include/Secure.php";
   $tmp = "/tmp/reboot_notifications";
   $notices = file_exists($tmp) ? file($tmp,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES) : [];
   echo implode("\n",array_map('unbundle',$notices));
   break;
 case 'state':
-  $pools = explode(',',$_POST['pools']);
-  $disks = parse_ini_file('state/disks.ini',true);
+  $pools = explode(',',_var($_POST,'pools'));
+  $disks = @parse_ini_file('state/disks.ini',true) ?: [];
   $error = [];
-  foreach ($pools as $pool) if (stripos($disks[$pool]['state'],'ERROR:')===0) $error[] = $pool.' - '.str_ireplace('ERROR:','',$disks[$pool]['state']);
+  foreach ($pools as $pool) if (stripos(_var($disks[$pool],'state'),'ERROR:')===0) $error[] = $pool.' - '.str_ireplace('ERROR:','',$disks[$pool]['state']);
   echo implode('<br>',$error);
   break;
 }

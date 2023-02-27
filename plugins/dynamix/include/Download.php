@@ -22,9 +22,9 @@ function validpath($file) {
 switch ($_POST['cmd']) {
 case 'save':
   if (!validpath($file)) break;
-  $source = $_POST['source'];
+  $source = $_POST['source']??'';
   $opts = $_POST['opts'] ?? 'qlj';
-  if (in_array(pathinfo($source, PATHINFO_EXTENSION),['txt','conf','png'])) {
+  if ($source && in_array(pathinfo($source,PATHINFO_EXTENSION),['txt','conf','png'])) {
     exec("zip -$opts ".escapeshellarg("$docroot/$file")." ".escapeshellarg($source));
   } else {
     $tmp = "/var/tmp/".basename($source).".txt";

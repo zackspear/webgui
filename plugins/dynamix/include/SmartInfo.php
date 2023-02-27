@@ -12,11 +12,12 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'main';
 require_once "$docroot/webGui/include/Translations.php";
 
-$disks = array_merge_recursive((array)parse_ini_file('state/disks.ini',true), (array)parse_ini_file('state/devs.ini',true));
+$disks = array_merge_recursive(@parse_ini_file('state/disks.ini',true)?:[], @parse_ini_file('state/devs.ini',true)?:[]);
 require_once "$docroot/webGui/include/CustomMerge.php";
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Preselect.php";
@@ -40,8 +41,8 @@ function duration(&$hrs) {
 function append(&$ref, &$info) {
   if ($info) $ref .= ($ref ? " " : "").$info;
 }
-$name = $_POST['name'] ?? '';
-$port = $_POST['port'] ?? '';
+$name = $_POST['name']??'';
+$port = $_POST['port']??'';
 if ($name) {
   $disk = &$disks[$name];
   $type = get_value($disk,'smType','');
@@ -51,14 +52,14 @@ if ($name) {
   $type = '';
 }
 $port = port_name($disk['smDevice'] ?? $port);
-switch ($_POST['cmd']) {
+switch ($_POST['cmd']??'') {
 case "attributes":
   $select = get_value($disk,'smSelect',0);
   $level  = get_value($disk,'smLevel',1);
   $events = explode('|',get_value($disk,'smEvents',$numbers));
-  $unraid = parse_plugin_cfg('dynamix',true);
-  $max = $disk['maxTemp'] ?? $unraid['display']['max'];
-  $hot = $disk['hotTemp'] ?? $unraid['display']['hot'];
+  extract(parse_plugin_cfg('dynamix',true));
+  $max = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
+  $hot = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
   $top = $_POST['top'] ?? 120;
   $empty = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
@@ -139,7 +140,7 @@ case "capabilities":
       $nvme_section = "psdetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psheadings);
       for ($i = 1; $i <= 11; $i++) {   
-      echo "<td>".($psheadings['data'.$i]??'')."</td>" ;
+      echo "<td>"._var($psheadings,'data'.$i)."</td>" ;
       }
       $row = ['','',''];
       echo '</tr></thead><tbody>' ;
@@ -149,7 +150,7 @@ case "capabilities":
       echo '<tr>' ;
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psdetails);
       for ($i = 1; $i <= 11; $i++) {   
-      echo "<td>".($psdetails['data'.$i]??'')."</td>" ;
+      echo "<td>"._var($psdetails,'data'.$i])."</td>" ;
       }
       $row = ['','',''];
       echo '</tr>' ;
@@ -159,7 +160,7 @@ case "capabilities":
       $nvme_section = "lbadetail";
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S+)\s+(?P<data3>\S+)\s+(?P<data4>\S+)\s+(?P<data5>\S+)$/',$line, $lbaheadings);
       for ($i = 1; $i <= 5; $i++) {   
-        echo "<td>".($lbaheadings['data'.$i]??'')."</td>" ;
+        echo "<td>"._var($lbaheadings,'data'.$i)."</td>" ;
         }
         $row = ['','',''];
       echo '</thead><tbody>' ;
@@ -169,7 +170,7 @@ case "capabilities":
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)$/',$line, $lbadetails);
       echo '<tr>' ;
       for ($i = 1; $i <= 5; $i++) {   
-        echo "<td>".($lbadetails['data'.$i]??'')."</td>" ;
+        echo "<td>"._var($lbadetails,'data'.$i)."</td>" ;
         }
         $row = ['','',''];
       echo '</tr>' ;
@@ -203,10 +204,10 @@ case "identify":
     $disk = $disks[$name]['id'];
     $info = &$extra[$disk];
     $periods = ['6','12','18','24','36','48','60'];
-    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='".($info['date']??'')."' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
+    echo "<tr><td>"._('Manufacturing date').":</td><td><input type='date' class='narrow' value='"._var($info,'date')."' onchange='disklog(\"$disk\",\"date\",this.value)'></td></tr>";
     echo "<tr><td>"._('Date of purchase').":</td><td><input type='date' class='narrow' value='".($info['purchase']??'')."' onchange='disklog(\"$disk\",\"purchase\",this.value)'></td></tr>";
     echo "<tr><td>"._('Warranty period').":</td><td><select class='noframe' onchange='disklog(\"$disk\",\"warranty\",this.value)'><option value=''>"._('unknown')."</option>";
-    foreach ($periods as $period) echo "<option value='$period'".(($info['warranty']??'')==$period?" selected":"").">$period "._('months')."</option>";
+    foreach ($periods as $period) echo "<option value='$period'".(_var($info,'warranty')==$period?" selected":"").">$period "._('months')."</option>";
     echo "</select></td></tr>";
   }
   break;
