@@ -14,12 +14,13 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
-// add translations
-$_SERVER['REQUEST_URI'] = 'docker';
-require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
+// add translations
+$_SERVER['REQUEST_URI'] = 'docker';
+require_once "$docroot/webGui/include/Translations.php";
 
 $DockerClient = new DockerClient();
 $action       = unscript(_var($_REQUEST,'action'));

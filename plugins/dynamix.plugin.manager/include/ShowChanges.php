@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,18 +12,19 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Wrappers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'plugins';
 require_once "$docroot/webGui/include/Translations.php";
-
-require_once "$docroot/webGui/include/Helpers.php";
-extract(parse_plugin_cfg('dynamix',true));
 
 $valid = ['/var/tmp/','/tmp/plugins/'];
 $good  = false;
 ?>
 <!DOCTYPE HTML>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<html <?=_var($display,'rtl')?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,9 +38,9 @@ $good  = false;
 </head>
 <body style="margin:14px 10px">
 <?
-if ($file = realpath(unscript($_GET['file']??''))) {
+if ($file = realpath(unscript(_var($_GET,'file')))) {
   foreach ($valid as $check) if (strncmp($file,$check,strlen($check))===0) $good = true;
-  if ($good && pathinfo($file)['extension']=='txt') echo Markdown(file_get_contents($file));
+  if ($good && pathinfo($file,PATHINFO_EXTENSION)=='txt') echo Markdown(file_get_contents($file));
 } else {
   echo Markdown("*"._('No release notes available')."!*");
 }

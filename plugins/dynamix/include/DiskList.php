@@ -13,10 +13,11 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $shares  = parse_ini_file('state/shares.ini',true);
 $disks   = parse_ini_file('state/disks.ini',true);

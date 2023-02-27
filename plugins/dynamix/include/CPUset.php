@@ -13,10 +13,11 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $cpus = explode(';',$_POST['cpus']??'');
 

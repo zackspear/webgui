@@ -22,13 +22,13 @@ $timer   = time();
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
 extract(parse_plugin_cfg('dynamix',true));
-$dot = _var($display,'number','.,')[0];
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'main';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
+$dot = _var($display,'number','.,')[0];
 // remember current language
 $locale_init = $locale;
 

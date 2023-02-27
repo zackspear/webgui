@@ -12,19 +12,20 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-// add translations
-$_SERVER['REQUEST_URI'] = 'plugins';
-require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$system  = unscript($_GET['system']??'');
-$branch  = unscript($_GET['branch']??'');
-$audit   = unscript($_GET['audit']??'');
-$check   = unscript($_GET['check']??'');
-$cmd     = unscript($_GET['cmd']??'');
-$init    = unscript($_GET['init']??'');
+// add translations
+$_SERVER['REQUEST_URI'] = 'plugins';
+require_once "$docroot/webGui/include/Translations.php";
+
+$system  = unscript(_var($_GET,'system'));
+$branch  = unscript(_var($_GET,'branch'));
+$audit   = unscript(_var($_GET,'audit'));
+$check   = unscript(_var($_GET,'check'));
+$cmd     = unscript(_var($_GET,'cmd'));
+$init    = unscript(_var($_GET,'init'));
 $empty   = true;
 $install = false;
 $updates = 0;
@@ -41,7 +42,7 @@ if ($cmd=='alert') {
 
 if ($cmd=='pending') {
   // prepare pending status for multi operations
-  foreach (explode('*',$_GET['plugin']) as $plugin) file_put_contents("/tmp/plugins/pluginPending/$plugin",'multi');
+  foreach (explode('*',_var($_GET,'plugin')) as $plugin) file_put_contents("/tmp/plugins/pluginPending/$plugin",'multi');
   die();
 }
 

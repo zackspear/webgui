@@ -13,9 +13,8 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Wrappers.php";
 
-// Get the webGui configuration preferences
+require_once "$docroot/webGui/include/Wrappers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
