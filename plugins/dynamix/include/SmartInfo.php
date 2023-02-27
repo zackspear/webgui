@@ -150,7 +150,7 @@ case "capabilities":
       echo '<tr>' ;
       preg_match('/^(?P<data1>.\S+)\s+(?P<data2>\S\s+)\s+(?P<data3>\S+)\s+(?P<data4>\S\s+)\s+(?P<data5>\S+)\s+(?P<data6>\S+)\s+(?P<data7>\S+)\s+(?P<data8>\S+)\s+(?P<data9>\S+)\s+(?P<data10>\S+)\s+(?P<data11>\S+)$/',$line, $psdetails);
       for ($i = 1; $i <= 11; $i++) {   
-      echo "<td>"._var($psdetails,'data'.$i])."</td>" ;
+      echo "<td>"._var($psdetails,'data'.$i)."</td>" ;
       }
       $row = ['','',''];
       echo '</tr>' ;
