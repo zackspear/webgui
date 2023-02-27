@@ -19,7 +19,7 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = '';
-$login_locale = $display['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 function dmidecode($key, $n, $all=true) {
@@ -36,8 +36,8 @@ function dmidecode($key, $n, $all=true) {
   return $all ? $properties : $properties[0]??null;
 }
 
-$var      = parse_ini_file('state/var.ini');
-$model    = empty($var['SYS_MODEL']) ? _('N/A') : $var['SYS_MODEL'];
+$var      = @parse_ini_file('state/var.ini') ?: [];
+$model    = _var($var,'SYS_MODEL',_('N/A'));
 $board    = dmidecode('Base Board Information',2,0);
 $bios     = dmidecode('BIOS Information',0,0);
 $cpu      = dmidecode('Processor Information',4,0);
@@ -126,7 +126,7 @@ foreach ($memory_array as $device) {
   [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
-  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = ($device['Error Correction Type']??'')." ";
+  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = $device['Error Correction Type']." ";
 }
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);

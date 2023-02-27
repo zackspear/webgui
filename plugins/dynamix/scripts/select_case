@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,13 +19,12 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'dashboard';
-$login_locale = $display['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 $boot   = "/boot/config/plugins/dynamix";
 $file   = $argv[1];
-$exist  = is_file("$boot/$file");
-$cmodel = $exist ? file_get_contents("$boot/$file") : '';
+$cmodel = is_file("$boot/$file") ? file_get_contents("$boot/$file") : '';
 
 $style = ["<style>"];
 $style[] = "div.case-list{float:left;padding:10px;margin:0 45px 64px 0;height:128px;width:128px;text-align:center;cursor:pointer}";
@@ -54,7 +53,7 @@ $script[] = "}";
 $script[] = "</script>";
 
 $html = ["<div>"];
-$cases = explode("\n",file_get_contents("$docroot/webGui/styles/default-cases.css"));
+$cases = file("$docroot/webGui/styles/default-cases.css",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
 foreach ($cases as $case) if (substr($case,0,6)=='.case-') $models[] = substr($case,1,strpos($case,':')-1);
 natsort($models);
 for ($i=0; $i < count($models); $i++) {

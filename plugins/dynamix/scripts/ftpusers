@@ -6,12 +6,12 @@
 // if no user(s) specified, deletes the config file
 
 $config_file = "/boot/config/vsftpd.user_list";
-if (trim($argv[2]))
+if (isset($argv[2]))
   file_put_contents($config_file, implode("\n", explode(' ', trim($argv[2])))."\n");
 else
   @unlink($config_file);
 
-$state = $argv[1] ? "'s/^#\(ftp.*vsftpd\)\$/\\1/'" : "'s/^\(ftp.*vsftpd\)\$/#\\1/'";
+$state = !empty($argv[1]) ? "'s/^#\(ftp.*vsftpd\)\$/\\1/'" : "'s/^\(ftp.*vsftpd\)\$/#\\1/'";
 exec("sed -i $state /etc/inetd.conf");
 exec("killall -HUP inetd");
 ?>

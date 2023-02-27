@@ -208,10 +208,10 @@ function device_usage(&$disk, &$full, &$high) {
   if ($used) {
     if ($text==2 || $text==21) {
       $load = substr($used,0,-1);
-      $critical = $disk['critical'] ?? $display['critical'] ?? 0;
-      $warning = $disk['warning'] ?? $display['warning'] ?? 0;
-      if ($critical > 0 && $load >= $critical) {$class = 'redbar'; $full++;}
-      elseif ($warning > 0 && $load >= $warning) {$class = 'orangebar'; $high++;}
+      $critical = ($disk['critical'] ?? $display['critical'] ?? 0) ?: 0;
+      $warning = ($disk['warning'] ?? $display['warning'] ?? 0) ?: 0;
+      if ($critical>0 && $load>=$critical) {$class = 'redbar'; $full++;}
+      elseif ($warning>0 && $load>=$warning) {$class = 'orangebar'; $high++;}
       else $class = 'greenbar';
     }
     else
@@ -322,7 +322,7 @@ while (true) {
   }
   if ($spot) {
     $number = _var($display,'number','.,');
-    $action = preg_split('/\s+/',$var['mdResyncAction']);
+    $action = preg_split('/\s+/',_var($var,'mdResyncAction'));
     switch ($action[0]) {
       case "recon": $mode = $action[1]=='P' ? 'Parity-Sync' : 'Data-Rebuild'; break;
       case "check": $mode = count($action)>1 ? 'Parity-Check' : 'Read-Check'; break;

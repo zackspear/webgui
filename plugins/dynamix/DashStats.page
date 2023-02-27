@@ -1203,7 +1203,7 @@ dashboard.on('message',function(msg,meta) {
     // memory & disk load
     $.each(part[0].split('\0'),function(k,v) {
       var load = v.slice(0,-1);
-      var color = setColor(load, <?=$display['critical']?>, <?=$display['warning']?>);
+      var color = setColor(load,<?=_var($display,'critical',0)?>,<?=_var($display,'warning',0)?>);
       $('.sys'+k).text(v);
       $('#sys'+k).finish().animate({width:v},{step:function(){$('#sys'+k).css('overflow','visible').removeClass().addClass(color);}});
     });
