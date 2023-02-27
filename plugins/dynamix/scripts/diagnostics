@@ -27,6 +27,13 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 require_once "$docroot/webGui/include/Wrappers.php";
+
+// global variables
+$path  = "/var/local/emhttp";
+$var   = @parse_ini_file("$path/var.ini") ?: [];
+$disks = @parse_ini_file("$path/disks.ini",true) ?: [];
+$pools = pools_filter($disks);
+
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
@@ -297,12 +304,6 @@ if ($cli) {
   $split = explode('-', $diag);
   $date = "{$split[2]}-{$split[3]}";
 }
-
-// global variables
-$path  = "/var/local/emhttp";
-$var   = @parse_ini_file("$path/var.ini") ?: [];
-$disks = @parse_ini_file("$path/disks.ini",true) ?: [];
-$pools = pools_filter($disks);
 
 // don't anonymize system share names
 $vardomain    = @parse_ini_file('/boot/config/domain.cfg') ?: [];
