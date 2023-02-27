@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2015-2020, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,10 +13,10 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'vms';
 require_once "$docroot/webGui/include/Translations.php";
-
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
@@ -62,8 +62,8 @@ function embed(&$syslinux, $key, $value) {
 }
 
 $arrSizePrefix = [0 => '', 1 => 'K', 2 => 'M', 3 => 'G', 4 => 'T', 5 => 'P'];
-$action        = unscript($_REQUEST['action']??'');
-$uuid          = unscript($_REQUEST['uuid']??'');
+$action        = unscript(_var($_REQUEST,'action'));
+$uuid          = unscript(_var($_REQUEST,'uuid'));
 $arrResponse   = [];
 
 if ($uuid) {
@@ -90,22 +90,22 @@ case 'domain-start':
 	: ['error' => $lv->get_last_error()];
 	break;
 
-	case 'domain-start-console':
-		requireLibvirt();
-		$arrResponse = $lv->domain_start($domName)
-		? ['success' => true, 'state' => $lv->domain_get_state($domName)]
-		: ['error' => $lv->get_last_error()];
-		$dom = $lv->get_domain_by_name($domName) ;
-		$vmrcport = $lv->domain_get_vnc_port($dom);
-		$wsport = $lv->domain_get_ws_port($dom);
-		$protocol = $lv->domain_get_vmrc_protocol($dom);
-		if ($vmrcport > 0) {
-			$vmrcurl  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
-			if ($protocol == "spice") $vmrcurl  .= '&vmname='. urlencode($domName) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
-		}
-		$arrResponse['vmrcurl'] = $vmrcurl ;
-		break;
-	
+case 'domain-start-console':
+	requireLibvirt();
+	$arrResponse = $lv->domain_start($domName)
+	? ['success' => true, 'state' => $lv->domain_get_state($domName)]
+	: ['error' => $lv->get_last_error()];
+	$dom = $lv->get_domain_by_name($domName);
+	$vmrcport = $lv->domain_get_vnc_port($dom);
+	$wsport = $lv->domain_get_ws_port($dom);
+	$protocol = $lv->domain_get_vmrc_protocol($dom);
+	if ($vmrcport > 0) {
+		$vmrcurl  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
+		if ($protocol == "spice") $vmrcurl  .= '&vmname='. urlencode($domName) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/'.$wsport.'/';
+	}
+	$arrResponse['vmrcurl'] = $vmrcurl;
+	break;
+
 case 'domain-pause':
 	requireLibvirt();
 	$arrResponse = $lv->domain_suspend($domName)
@@ -216,13 +216,13 @@ case 'cdrom-change':
 
 case 'change-media':
 	requireLibvirt();
-	$dev= $_REQUEST['dev'] ;
-	$file= $_REQUEST['file'] ;
-	$cmdstr = "virsh change-media '$domName' $dev $file" ;
+	$dev= $_REQUEST['dev'];
+	$file= $_REQUEST['file'];
+	$cmdstr = "virsh change-media '$domName' $dev $file";
 	$rtn=shell_exec($cmdstr)
 		? ['success' => true]
 		: ['error' => "Change Media Failed"];
-		break;
+	break;
 
 case 'memory-change':
 	requireLibvirt();
@@ -616,6 +616,7 @@ case 'virtio-win-iso-remove':
 		$arrResponse = ['success' => true];
 	}
 	break;
+
 default:
 	$arrResponse = ['error' => _('Unknown action')." '$action'"];
 	break;

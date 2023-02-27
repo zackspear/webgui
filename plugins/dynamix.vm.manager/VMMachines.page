@@ -5,9 +5,9 @@ Cond="is_file('/var/run/libvirt/libvirtd.pid')"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,6 +19,7 @@ Markdown="false"
 ?>
 <?
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 $cpus = cpu_list();
 $hover   = in_array($theme,['white','azure']) ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
 $bgcolor = in_array($theme,['white','azure']) ? '#f2f2f2' : '#1c1c1c';
@@ -56,10 +57,10 @@ function vsize($size,$expand=true) {
   }
 }
 
-$uuid = unscript($_GET['uuid']??'');
-$subaction = $_GET['subaction'] ?? false;
+$uuid = unscript(_var($_GET,'uuid'));
+$subaction = _var($_GET,'subaction');
 if (isset($_GET['refresh'])) {
-  $vm = unscript($_GET['name']);
+  $vm = unscript(_var($_GET,'name'));
   if ($lv->domain_is_active($vm)) {
     echo "<meta http-equiv='refresh' content='5; url=/VMs?name=$vm&amp;refresh=true'>";
     $msg = "Waiting for $vm to shutdown...";
@@ -78,7 +79,7 @@ if ($subaction) {
       $msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";
     }
   } elseif ($subaction == 'disk-remove') {
-    $msg = $lv->domain_disk_remove($vm, $_GET['dev'])
+    $msg = $lv->domain_disk_remove($vm,_var($_GET,'dev'))
     ? "$vm disk has been removed"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-create') {
@@ -86,15 +87,15 @@ if ($subaction) {
     ? "Snapshot for $vm has been created"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-delete') {
-    $msg = $lv->domain_snapshot_delete($vm, $_GET['snap'])
+    $msg = $lv->domain_snapshot_delete($vm,_var($_GET,'snap'))
     ? "Snapshot for $vm has been deleted"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-revert') {
-    $msg = $lv->domain_snapshot_revert($vm, $_GET['snap'])
+    $msg = $lv->domain_snapshot_revert($vm,_var($_GET,'snap'))
     ? "$vm has been reverted"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-desc') {
-    $msg = $lv->snapshot_set_metadata($vm, $_GET['snap'], $_POST['snapdesc'])
+    $msg = $lv->snapshot_set_metadata($vm,_var($_GET,'snap'),_var($_POST,'snapdesc'))
     ? "Snapshot description for $vm has been saved"
     : "Error: ".$lv->get_last_error();
   }
@@ -146,7 +147,7 @@ div.template,div#dialogWindow,input#upload{display:none}
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
 <script src="<?autov("/webGui/javascript/jquery.filetree.js")?>"></script>
 <script>
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 function resize(bind) {
   var width = [];
   var h = $('#kvm_list').height();
@@ -164,13 +165,13 @@ function resetSorting() {
   $.post('/plugins/dynamix.vm.manager/include/UserPrefs.php',{reset:true},function(){loadlist();});
 }
 function changemedia(uuid,dev,bus,file) {
-  if (file === "--select") getisoimage(uuid,dev,bus,file) ; 
+  if (file === "--select") getisoimage(uuid,dev,bus,file);
   if (file === "--eject") ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:file}, "loadlist");
-  
+
 }
 function getisoimage(uuid,dev,bus,file){
-  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?> ;
-  var match= ".iso" ;
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
   var box = $("#dialogWindow");
   box.html($("#templateISO").html());
 
@@ -196,7 +197,7 @@ function getisoimage(uuid,dev,bus,file){
           if (!target ) {errorTarget(); return;}
         } else target = '';
         box.find('#target').prop('disabled',true);
-        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist"); ;
+        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -248,7 +249,7 @@ function loadlist() {
     var data = d.split(/\0/);
     $('#kvm_list').html(data[0]);
     $('head').append('<script>'+data[1]+'<\/script>');
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
     resize();
     $(window).bind('resize',function(){resize(true);});
 <?endif;?>
@@ -292,7 +293,7 @@ $(function() {
 
 <div id="dialogWindow"></div>
 <div markdown="1" id="templateISO" class="template">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<html <?=_var($display,'rtl')?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
