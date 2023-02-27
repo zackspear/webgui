@@ -12,6 +12,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
@@ -47,7 +48,7 @@ function create($id, $name, $vcpu) {
   echo implode(array_map(function($t){return "<td>$t</td>";},$text));
 }
 
-switch ($_POST['id']) {
+switch ($_POST['id']??'') {
 case 'vm':
   // create the current vm assignments
   require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
