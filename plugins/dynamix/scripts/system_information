@@ -23,7 +23,7 @@ $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 function dmidecode($key, $n, $all=true) {
-  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")??""));
+  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")?:''));
   $properties = [];
   foreach ($entries as $entry) {
     $property = [];
@@ -152,8 +152,8 @@ $list[] = "<tr><td>$memory</td><td>$memory_installed $unit $memory_type $ecc("._
 
 foreach ($memory_devices as $device) {
   if (empty($device['Type']) || $device['Type']=='Unknown') continue;
-  $size = preg_replace('/( .)B$/','$1iB',$device['Size']??'0');
-  $list[] = "<tr class='ram'><td></td><td>".$device['Locator'].": ".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
+  $size = preg_replace('/( .)B$/','$1iB',_var($device,'Size',0));
+  $list[] = "<tr class='ram'><td></td><td>".$device['Locator'].": "._var($device,'Manufacturer')." "._var($device,'Part Number').", $size "._var($device,'Type')." @ "._var($device,'Configured Memory Speed')."</td></tr>";
 }
 
 exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);

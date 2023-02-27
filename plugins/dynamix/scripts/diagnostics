@@ -154,7 +154,7 @@ function geturls_certdetails($file, $hostname, $ip="") {
     // replace wildcard with hostname
     $cn = str_replace('*', $hostname, $cn);
     $cn_priv = $cn;
-    if (strpos($data??'', "Self-signed") !== false){
+    if (strpos($data, "Self-signed") !== false){
       $type = 'self-signed';
     } else {
       $type = 'user-provided';
