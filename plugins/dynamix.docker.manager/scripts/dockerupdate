@@ -1,7 +1,8 @@
-#!/usr/bin/php
+#!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2014-2022, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,17 +16,17 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 require_once "$docroot/webGui/include/Wrappers.php";
-$unraid = parse_plugin_cfg('dynamix', true);
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
+extract(parse_plugin_cfg('dynamix', true));
 
 // Multi-language support
 $_SERVER['REQUEST_URI'] = "scripts";
-$login_locale = $unraid['display']['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 exec("pgrep docker", $pid);
 if (count($pid) == 1) exit(0);
-
-require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $DockerClient = new DockerClient();
 $DockerTemplates = new DockerTemplates();
@@ -44,19 +45,16 @@ if (!isset($check)) {
   $DockerTemplates->getAllInfo(true);
   echo " Done.";
 } else {
-  require_once "$docroot/webGui/include/Wrappers.php";
   $notify = "$docroot/webGui/scripts/notify";
-  $unraid = parse_plugin_cfg("dynamix",true);
-  $var = parse_ini_file("/var/local/emhttp/var.ini");
-  $server = strtoupper($var['NAME']);
-  $output = $unraid['notify']['docker_notify'];
-
-  $info = $DockerTemplates->getAllInfo(true);
+  $var    = @parse_ini_file("/var/local/emhttp/var.ini") ?: [];
+  $server = strtoupper(_var($var,'NAME','tower'));
+  $output = _var($notify,'docker_notify');
+  $info   = $DockerTemplates->getAllInfo(true);
   foreach ($DockerClient->getDockerContainers() as $ct) {
-    $name = $ct['Name'];
+    $name  = $ct['Name'];
     $image = $ct['Image'];
     if ($info[$name]['updated'] == "false") {
-      $updateStatus = (is_file($dockerManPaths['update-status'])) ? json_decode(file_get_contents($dockerManPaths['update-status']), TRUE) : [];
+      $updateStatus = is_file($dockerManPaths['update-status']) ? json_decode(file_get_contents($dockerManPaths['update-status']),true) : [];
       $new = str_replace('sha256:', '', $updateStatus[$image]['remote']);
       $new = substr($new, 0, 4).'..'.substr($new, -4, 4);
       if ( ! isset($nonotify) ) {
