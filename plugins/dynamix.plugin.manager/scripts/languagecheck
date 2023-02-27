@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,17 +17,23 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$var    = parse_ini_file('/var/local/emhttp/var.ini');
-$unraid = parse_plugin_cfg('dynamix', true);
+extract(parse_plugin_cfg('dynamix', true));
+
+$var = @parse_ini_file('/var/local/emhttp/var.ini') ?: [];
 
 // Multi-language support
 $_SERVER['REQUEST_URI'] = "scripts";
-$login_locale = $unraid['display']['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
+function apos($text) {
+  // So that "&apos;" doesn't show up in email
+  return str_replace("&apos;","'",$text);
+}
+
 $server  = strtoupper($var['NAME']);
-$output  = $unraid['notify']['language_notify'];
-$notify  = "$docroot/webGui/scripts/notify";
+$output  = _var($notify,'language_notify');
+$script  = "$docroot/webGui/scripts/notify";
 $tmp     = '/tmp/plugins';
 $plugins = '/var/log/plugins';
 
@@ -37,13 +43,13 @@ foreach (glob("/$tmp/lang-*.xml", GLOB_NOSORT) as $file) {
   $lang = language('LanguageLocal', $file);
   $new  = language('Version', $file);
   $old  = language('Version', "$plugins/$name");
+
   // silently suppress bad download of XML file
   if (strcmp($new, $old) > 0) {
-    // So that "&apos;" doesn't show up in email
-    $event = str_replace("&apos;","'",_("Language")." - $lang [$new]");
-    $subject = str_replace("&apos;","'",sprintf(_("Notice [%s] - Version update %s"),$server,$new));
-    $description = str_replace("&apos;","'",sprintf(_("A new version of %s is available"),$lang));
-    exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Apps' -x");
+    $event = apos(_("Language")." - $lang [$new]");
+    $subject = apos(sprintf(_("Notice [%s] - Version update %s"),$server,$new));
+    $description = apos(sprintf(_("A new version of %s is available"),$lang));
+    exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Apps' -x");
   }
 }
 exit(0);

@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,8 +12,8 @@
  */
 ?>
 <?
-$method  = $argv[1];
-$plugins = explode('*',$argv[2]);
+$method  = $argv[1]??'';
+$plugins = explode('*',$argv[2]??'');
 $nchan   = $argv[$argc-1] == 'nchan'; // console or nchan output
 $call    = ['plg' => 'plugin', 'xml' => 'language', '' => 'language'];
 
@@ -38,7 +38,7 @@ function write(...$messages){
 }
 
 foreach ($plugins as $plugin) {
-  if (!$plugin || (!$cmd = $call[pathinfo($plugin)['extension']])) continue;
+  if (!$plugin || (!$cmd = $call[pathinfo($plugin,PATHINFO_EXTENSION)])) continue;
   $line = '';
   $pluginArg = $method == "update" ? basename($plugin) : $plugin;
   $run = popen("$cmd $method $pluginArg",'r');
