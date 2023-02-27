@@ -28,7 +28,7 @@ i.red-text{font-size:1.6rem}
 
 <script>
 var rows = [];
-var filter = "<?=unscript($_GET['filter']??'')?>";
+var filter = "<?=unscript(_var($_GET,'filter'))?>";
 var files = -1;
 
 Array.prototype.remove = function() {
@@ -39,7 +39,7 @@ Array.prototype.remove = function() {
   }
   return this;
 };
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 function resize(bind) {
   var width = [];
   var h = $('#archive_list').height();
@@ -63,7 +63,7 @@ function archiveList(init) {
       files = data[1];
       $('#archive_list').html(data[0]);
       if (init) {
-  <?if ($display['resize']):?>
+  <?if (_var($display,'resize')):?>
         resize();
   <?endif;?>
         $('#archive_table').tablesorter({headers:{5:{sorter:false}},textAttribute:'data'});
@@ -103,7 +103,7 @@ $(function(){
   $('span.left').append("<span class='right'><select class='filter narrow' onchange='filter=this.value;archiveList()'><?=$filters?></select></span>");
   $('select.filter').val(filter);
   archiveList(true);
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
   $(window).bind('resize',function(){resize(true);});
 <?endif;?>
 });
