@@ -826,7 +826,6 @@ function loadlist(init) {
       $('span.outer.vms.stopped').finish().toggle('fast',function(){noVMs();});
       $('#vms').is(':checked') ? $.cookie('my_vms','startedOnly',{expires:3650}) : $.removeCookie('my_vms');
     });
-    context.init({preventDoubleContext:false,left:true,above:false});
   }
   $.post('/webGui/include/DashboardApps.php',{display:'<?=$display['dashapps']?>',docker:'<?=$dockerd?>',vms:'<?=$libvirtd?>'},function(d) {
     var data = d.split('\0');
@@ -836,7 +835,6 @@ function loadlist(init) {
     $('#vm_view').append(data[1]);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,noApps());
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,noVMs());
-    context.init({preventDoubleContext:false,left:true,above:false});
   });
 }
 function getCase() {

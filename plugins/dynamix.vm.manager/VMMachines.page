@@ -273,7 +273,6 @@ function loadlist() {
         $(this).prop('checked', data.autostart);
       },'json');
     });
-    context.init({preventDoubleContext:false,left:true,above:false});
     $('div.spinner.fixed').hide('slow');
     $('input[type=button]').prop('disabled',false).show('slow');
     $('.text').click(showInput);
