@@ -22,7 +22,7 @@ function zfs($data) {return "zfs-".strtok($data,' ');}
 switch ($cmd) {
 case 'status':
   exec("ps -C btrfs -o cmd=|awk '/$path\$/{print $2}'",$btrfs);
-  exec("/usr/sbin/zpool status $path|grep -om1 'scrub in progress'",$zfs);
+  exec("/usr/sbin/zpool status $path|grep -Pom1 '(scrub|resilver) in progress'",$zfs);
   echo implode(',',array_merge(array_map('btrfs',$btrfs),array_map('zfs',$zfs)));
   break;
 case 'btrfs-balance':
@@ -31,6 +31,7 @@ case 'btrfs-scrub':
   echo shell_exec("/sbin/btrfs $cmd status $path");
   break;
 case 'zfs-scrub':
+case 'zfs-resilver':
   echo shell_exec("/usr/sbin/zpool status -P $path");
   break;
 default:
