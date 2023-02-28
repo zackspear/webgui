@@ -347,9 +347,26 @@ function zfsScrub(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'zfs-scrub',path:path},function(data) {
     if (data.indexOf('scrub in progress')>0) {
       $('#zfs-scrub').text(data);
+      $('#zfs-scrub-div').show();
+      $('#zfs-resilver-div').hide();
       setTimeout(function(){zfsScrub(path);},1000);
     } else {
       $.removeCookie('zfs-scrub-<?=$tag?>');
+      refresh();
+    }
+  });
+  return false;
+}
+function zfsResilver(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'zfs-resilver',path:path},function(data) {
+    if (data.indexOf('resilver in progress')>0) {
+      $('#zfs-scrub-div').hide();
+      $('#zfs-resilver-div').show();
+      $('#scrub-button').prop('disabled',true);
+      $('#zfs-resilver').text(data);
+      setTimeout(function(){zfsResilver(path);},1000);
+    } else {
+      $.removeCookie('zfs-resilver-<?=$tag?>');
       refresh();
     }
   });
@@ -493,6 +510,7 @@ $(function() {
   if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
   if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
   if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
+  if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
   if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
   if (status) {
@@ -515,6 +533,10 @@ $(function() {
         case 'zfs-scrub':
           $.cookie('zfs-scrub-<?=$tag?>','<?=$tag?>');
           zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
+          break;
+        case 'zfs-resilver':
+          $.cookie('zfs-resilver-<?=$tag?>','<?=$tag?>');
+          zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
           break;
         }
       }
@@ -967,18 +989,26 @@ _(btrfs check status)_:
 <div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
 <?if (_var($disk,'fsStatus')=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $scrub_status, $retval)?>
+<?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $zfs_status, $retval)?>
+<?$zfs_status = implode("\n",$zfs_status)?>
 
-_(zfs scrub status)_:
-: <?echo "<pre id='zfs-scrub'>".implode("\n", $scrub_status)."</pre>"?>
+<div markdown="1" id="zfs-scrub-div">
+_(zfs pool status)_:
+: <pre id='zfs-scrub'><?=$zfs_status?></pre>
 
+</div>
+<div markdown="1" id="zfs-resilver-div" style="display:none">
+_(zfs pool status)_:
+: <pre id='zfs-resilver'><?=$zfs_status?></pre>
+
+</div>
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/zfs_scrub">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_">
+: <input type="submit" id="scrub-button" value="_(Scrub)_">
 
 :info_zfs_scrub_help:
 
