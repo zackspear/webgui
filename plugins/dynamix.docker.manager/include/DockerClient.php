@@ -709,7 +709,7 @@ class DockerClient {
 	}
 
 	public function getDockerJSON($url, $method='GET', &$code=null, $callback=null, $unchunk=false, $headers=null) {
-		$api = '/v1.37'; // used to force an API version. See https://docs.docker.com/develop/sdk/#api-version-matrix
+		$api = ''; // latest API version. See https://docs.docker.com/develop/sdk/#api-version-matrix
 		$fp = stream_socket_client('unix:///var/run/docker.sock', $errno, $errstr);
 		if ($fp === false) {
 			echo "Couldn't create socket: [$errno] $errstr";
