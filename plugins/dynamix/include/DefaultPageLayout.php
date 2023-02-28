@@ -995,6 +995,7 @@ $(function() {
   opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});
   opts.push({text:"<?=_('Notices')?>",icon:'fa-sun-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}}]});
   context.attach('#board',opts);
+  // simulate a click to set first context menu
   $('#board').click();
   $('#header').click();
 
