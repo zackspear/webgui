@@ -48,7 +48,7 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
     }});
     opts.push({divider:true});
   }
-  context.settings({right:false});
+  context.settings({right:false,above:false});
   if (state == "running") {
     opts.push({text:_("Stop"), icon:"fa-stop", action:function(e) {
       e.preventDefault();
