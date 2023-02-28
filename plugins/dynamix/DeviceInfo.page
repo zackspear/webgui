@@ -986,7 +986,7 @@ _(btrfs check status)_:
 </form>
 <?endif;?>
 <?if (fsType('zfs')):?>
-<div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Scrub Status)_</span></div>
+<div class="title nocontrol"><span class="left"><i class="title fa fa-paint-brush"></i>_(Pool Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
 <?if (_var($disk,'fsStatus')=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $zfs_status, $retval)?>
