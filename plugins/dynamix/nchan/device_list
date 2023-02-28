@@ -227,6 +227,7 @@ function array_offline(&$disk, $pool='') {
 function array_online(&$disk, $fstype='') {
   global $pools, $sum, $diskio;
   $echo = [];
+  $data = [0,0];
   if (_var($disk,'device')) {
     $dev = $disk['device'];
     $data = explode(' ',$diskio[$dev] ?? '0 0');
