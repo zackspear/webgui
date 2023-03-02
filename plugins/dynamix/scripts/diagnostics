@@ -626,6 +626,12 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
   run("unraid-api report | todos >".escapeshellarg($log));
 }
 
+// generate testparm.txt
+$testparm = run("testparm -s 2>/dev/null");
+if (!$all)
+	$testparm = preg_replace("/(?<=\[.)(.*)(?=.\])|(?<=(write list = .)|(comment = .)|(valid users = .)|(path = \/mnt\/user\/)).*(?=.)/","...",$testparm);
+file_put_contents("/$diag/system/testparm.txt",$testparm);
+
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/
 run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));
