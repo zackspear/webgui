@@ -495,6 +495,8 @@ function setXmlVal(&$xml, $value, $el, $attr=null, $pos=0) {
 
 function getAllocations() {
   global $DockerClient, $host;
+  
+  $ports = [];
   foreach ($DockerClient->getDockerContainers() as $ct) {
     $list = $port = [];
     $nat = $ip = false;
@@ -509,7 +511,7 @@ function getAllocations() {
     $list['Port'] = "<span class='net'>{$ct['NetworkMode']}</span><span class='ip'>$ip</span>".(implode(', ',array_unique($port)) ?: '???');
     $ports[] = $list;
   }
-  return $ports ?? [];
+  return $ports;
 }
 
 function getCurlHandle($url, $method='GET') {
