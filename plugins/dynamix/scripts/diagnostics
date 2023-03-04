@@ -630,7 +630,7 @@ if (file_exists("/usr/local/sbin/unraid-api")) {
 $testparm = run("testparm -s 2>/dev/null");
 if (!$all)
   $testparm = preg_replace("/(?<=\[.)(.*)(?=.\])|(?<=(write list = .)|(comment = .)|(valid users = .)|(path = \/mnt\/addons\/.)|((path = \/mnt\/remotes\/.)|(path = \/mnt\/disks\/.)|(path = \/mnt\/user\/.)).*(?=.)/","...",$testparm);
-file_put_contents("/$diag/system/testparm.txt",$testparm);
+file_put_contents("/$diag/system/testparm.txt",str_replace("\n","\r\n",$testparm));
 
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/
