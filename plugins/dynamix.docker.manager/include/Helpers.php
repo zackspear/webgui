@@ -509,7 +509,7 @@ function getAllocations() {
     $list['Port'] = "<span class='net'>{$ct['NetworkMode']}</span><span class='ip'>$ip</span>".(implode(', ',array_unique($port)) ?: '???');
     $ports[] = $list;
   }
-  return $ports;
+  return $ports ?? [];
 }
 
 function getCurlHandle($url, $method='GET') {
