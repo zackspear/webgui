@@ -16,14 +16,14 @@ libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
-// add translations
-if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI']!='docker' && substr($_SERVER['REQUEST_URI'],0,7) != '/Docker') {
-  $_SERVER['REQUEST_URI'] = 'docker';
-  require_once "$docroot/webGui/include/Translations.php";
-}
-
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
+
+// add translations
+if (_var($_SERVER,'REQUEST_URI')!='docker' && substr(_var($_SERVER,'REQUEST_URI'),0,7)!='/Docker') {
+	$_SERVER['REQUEST_URI'] = 'docker';
+	require_once "$docroot/webGui/include/Translations.php";
+}
 
 $dockerManPaths = [
 	'autostart-file' => "/var/lib/docker/unraid-autostart",
@@ -49,7 +49,7 @@ $driver = DockerUtil::driver();
 // Docker configuration file - guaranteed to exist
 $docker_cfgfile = '/boot/config/docker.cfg';
 $defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg") ?: [];
-$dockercfg = array_replace_recursive($defaults, parse_ini_file($docker_cfgfile));
+$dockercfg = array_replace_recursive($defaults, @parse_ini_file($docker_cfgfile) ?: []);
 
 function var_split($item, $i=0) {
 	return array_pad(explode(' ',$item),$i+1,'')[$i];
@@ -251,18 +251,18 @@ class DockerTemplates {
 			}
 			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue??'');
 			if ($TemplateRepository && $TemplateRepository==$Repository) {
-				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue ?? '';
+				$TemplateField = $doc->getElementsByTagName($field)->item(0)->nodeValue??'';
 				return trim($TemplateField);
 			}
 		}
 		return null;
 	}
-	
+
 	public function getUserTemplate($Container) {
 		foreach ($this->getTemplates('user') as $file) {
 			$doc = new DOMDocument('1.0', 'utf-8');
 			$doc->load($file['path']);
-			$Name = $doc->getElementsByTagName('Name')->item(0)->nodeValue;
+			$Name = $doc->getElementsByTagName('Name')->item(0)->nodeValue??'';
 			if ($Name==$Container) return $file['path'];
 		}
 		return false;
@@ -271,13 +271,13 @@ class DockerTemplates {
 	private function getControlURL(&$ct, $myIP, $WebUI) {
 		global $host;
 		$port = &$ct['Ports'][0];
-		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'], 'MyIP') ?: ($ct['NetworkMode']=='host'||$port['NAT'] ? $host : ($port['IP'] ?: DockerUtil::myIP($ct['Name'])));
+		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'],'MyIP') ?: (_var($ct,'NetworkMode')=='host'||_var($port,'NAT') ? $host : (_var($port,'IP') ?: DockerUtil::myIP($ct['Name'])));
 		// Get the WebUI address from the templates as a fallback
 		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?? $this->getTemplateValue($ct['Image'], 'WebUI'));
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
-			$ConfigPort = $matches[1];
+			$ConfigPort = $matches[1] ?? '';
 			foreach ($ct['Ports'] as $port) {
-				if ($port['NAT'] && $port['PrivatePort']==$ConfigPort) {$ConfigPort = $port['PublicPort']; break;}
+				if (_var($port,'NAT') && _var($port,'PrivatePort')==$ConfigPort) {$ConfigPort = _var($port,'PublicPort'); break;}
 			}
 			$WebUI = preg_replace("%\[PORT:\d+\]%", $ConfigPort, $WebUI);
 		}
@@ -290,14 +290,14 @@ class DockerTemplates {
 		$DockerUpdate = new DockerUpdate();
 		//$DockerUpdate->verbose = $this->verbose;
 		$info = DockerUtil::loadJSON($dockerManPaths['webui-info']);
-		$autoStart = array_map('var_split', @file($dockerManPaths['autostart-file'], FILE_IGNORE_NEW_LINES) ?: []);
+		$autoStart = array_map('var_split', @file($dockerManPaths['autostart-file'],FILE_IGNORE_NEW_LINES) ?: []);
 		foreach ($DockerClient->getDockerContainers() as $ct) {
 			$name = $ct['Name'];
 			$image = $ct['Image'];
 			$tmp = &$info[$name] ?? [];
 			$tmp['running'] = $ct['Running'];
 			$tmp['paused'] = $ct['Paused'];
-			$tmp['autostart'] = in_array($name, $autoStart);
+			$tmp['autostart'] = in_array($name,$autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
 			$tmp['url'] = $tmp['url'] ?? '';
 			// read docker label for WebUI & Icon
@@ -314,7 +314,7 @@ class DockerTemplates {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
 				} else {
-					$ip = ($ct['NetworkMode']=='host'||($port['NAT']??false) ? $host : ($port['IP']??''));
+					$ip = ($ct['NetworkMode']=='host'||_var($port,'NAT')) ? $host : _var($port,'IP');
 					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip, $tmp['url'])) : $tmp['url'];
 				}
 				$tmp['shell'] = $tmp['shell'] ?? $this->getTemplateValue($image, 'Shell');
@@ -347,7 +347,7 @@ class DockerTemplates {
 		$imageName = $contName ?: $name;
 		$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
 		$icon    = sprintf('%s/%s-%s.png', $dockerManPaths['images'], $contName, 'icon');
-		
+
 		if (!is_dir(dirname($iconRAM))) mkdir(dirname($iconRAM), 0755, true);
 		if (!is_dir(dirname($icon))) mkdir(dirname($icon), 0755, true);
 
@@ -522,7 +522,7 @@ class DockerUpdate{
 		global $dockerManPaths;
 		$DockerClient = new DockerClient();
 		$updateStatus = DockerUtil::loadJSON($dockerManPaths['update-status']);
-		$images = $image ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0];}, $DockerClient->getDockerImages());
+		$images = $image ? [DockerUtil::ensureImageTag($image)] : array_map(function($ar){return $ar['Tags'][0]??'';}, $DockerClient->getDockerImages());
 		foreach ($images as $img) {
 			$localVersion = null;
 			if (!empty($updateStatus[$img]) && array_key_exists('local', $updateStatus[$img])) {
@@ -562,7 +562,7 @@ class DockerUpdate{
 	public function updateUserTemplate($Container) {
 		// Don't update templates, but leave code in place for future reference
 		return;
-				
+
 		$changed = false;
 		$DockerTemplates = new DockerTemplates();
 		$validElements = ['Support', 'Overview', 'Category', 'Project', 'Icon', 'ReadMe'];
@@ -709,7 +709,7 @@ class DockerClient {
 	}
 
 	public function getDockerJSON($url, $method='GET', &$code=null, $callback=null, $unchunk=false, $headers=null) {
-		$api = '/v1.37'; // used to force an API version. See https://docs.docker.com/develop/sdk/#api-version-matrix
+		$api = ''; // latest API version. See https://docs.docker.com/develop/sdk/#api-version-matrix
 		$fp = stream_socket_client('unix:///var/run/docker.sock', $errno, $errstr);
 		if ($fp === false) {
 			echo "Couldn't create socket: [$errno] $errstr";
@@ -747,7 +747,7 @@ class DockerClient {
 
 	public function doesImageExist($image) {
 		foreach ($this->getDockerImages() as $img) {
-			if (strpos($img['Tags'][0], $image)!==false) return true;
+			if (strpos($img['Tags'][0]??'', $image)!==false) return true;
 		}
 		return false;
 	}
@@ -781,7 +781,7 @@ class DockerClient {
 
 	public function stopContainer($id, $t=false) {
 		global $dockercfg;
-		$this->getDockerJSON("/containers/$id/stop?t=".($t?:$dockercfg['DOCKER_TIMEOUT']??10), 'POST', $code);
+		$this->getDockerJSON("/containers/$id/stop?t=".($t ?: _var($dockercfg,'DOCKER_TIMEOUT',10)), 'POST', $code);
 		$this->flushCache($this::$containersCache);
 		return $code;
 	}
@@ -867,7 +867,7 @@ class DockerClient {
 		}
 		[$ret['username'], $ret['password']] = array_pad(explode(':', base64_decode($dockerConfig['auths'][ $configKey ]['auth'])),2,'');
 
-		return $ret; 
+		return $ret;
 	}
 
 	public function removeImage($id) {
@@ -928,7 +928,7 @@ class DockerClient {
 			$ports = (isset($ports) && is_array($ports)) ? $ports : [];
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
-				$c['Ports'][] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort']:$PrivatePort, 'NAT' => $nat, 'Type' => $Type ];
+				$c['Ports'][] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort'] : $PrivatePort, 'NAT' => $nat, 'Type' => $Type];
 			}
 			$this::$containersCache[] = $c;
 		}

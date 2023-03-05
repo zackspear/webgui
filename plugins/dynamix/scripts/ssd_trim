@@ -13,14 +13,13 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/webGui/include/Wrappers.php";
 
-// Get the webGui configuration preferences
+require_once "$docroot/webGui/include/Wrappers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
-$login_locale = $display['locale']??'';
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 function write(...$messages){

@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -16,19 +16,20 @@ $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-$index = unscript($_GET['index']??'');
-$tests = explode(',',unscript($_GET['test']??''));
+$index = unscript(_var($_GET,'index'));
+$tests = explode(',',unscript(_var($_GET,'test')));
+
 if ($index < count($tests)) {
   $test = $tests[$index];
   [$name,$size] = my_explode(':',$test);
   if (!$size) {
-    $default = ($test==($_GET['hash']??''));
+    $default = ($test==_var($_GET,'hash']));
     if ($index>0) $test .= '|tail -1';
     if ($default) echo "<b>";
     echo preg_replace(['/^(# Tests.*\n)/','/\n$/'],["$1\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -h $test"));
     echo $default ? " (default)</b>\n" : "\n";
   } else {
-    $default = ($test==($_GET['luks']??''));
+    $default = ($test==_var($_GET,'luks'));
     if ($index>5) $size .= '|tail -1';
     if ($default) echo "<b>";
     echo preg_replace(['/^# Tests.*\n/','/\n$/'],["\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -c $name -s $size"));

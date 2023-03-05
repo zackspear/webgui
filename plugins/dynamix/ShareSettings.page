@@ -5,8 +5,8 @@ Icon="icon-share"
 Tag="share-alt"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,7 +17,7 @@ Tag="share-alt"
  */
 ?>
 <?
-$disabled = $var['fsState']!='Stopped' ? 'disabled' : '';
+$disabled = _var($var,'fsState')!='Stopped' ? 'disabled' : '';
 $disks    = array_filter($disks,'my_disks');
 $width    = [166,300];
 ?>
@@ -83,7 +83,7 @@ _(Enable user shares)_:
 _(Included disk(s))_:
 : <select id="s1" name="shareUserInclude" multiple="multiple" style="display:none">
   <?foreach ($disks as $disk):?>
-  <?=mk_option_luks($disk['name'], $var['shareUserInclude'], strstr($disk['fsType']??'',':',true))?>
+  <?=mk_option_luks(_var($disk,'name'),_var($var,'shareUserInclude'),strstr(_var($disk,'fsType'),':',true))?>
   <?endforeach;?>
   </select>
 
@@ -92,7 +92,7 @@ _(Included disk(s))_:
 _(Excluded disk(s))_:
 : <select id="s2" name="shareUserExclude" multiple="multiple" style="display:none">
   <?foreach ($disks as $disk):?>
-  <?=mk_option_luks($disk['name'], $var['shareUserExclude'], strstr($disk['fsType']??'',':',true))?>
+  <?=mk_option_luks(_var($disk,'name'),_var($var,'shareUserExclude'),strstr(_var($disk,'fsType'),':',true))?>
   <?endforeach;?>
   </select>
 

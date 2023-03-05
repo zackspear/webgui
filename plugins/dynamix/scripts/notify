@@ -51,16 +51,13 @@ EOT;
 
 function generate_email($event, $subject, $description, $importance, $message, $recipients, $fqdnlink) {
   global $ssmtp;
-
   $rcpt = $ssmtp['RcptTo'];
   if (!$recipients)
     $to = implode(',', explode(' ', trim($rcpt)));
   else
     $to = $recipients;
   if (empty($to)) return;
-
   $subj = "{$ssmtp['Subject']}$subject";
-
   $headers   = [];
   $headers[] = "MIME-Version: 1.0";
   $headers[] = "X-Mailer: PHP/".phpversion();
@@ -72,7 +69,6 @@ function generate_email($event, $subject, $description, $importance, $message, $
     $headers[] = "X-Mms-Priority: High";
   }
   $headers[] = "";
-
   $body      = [];
   if (!empty($fqdnlink)) {
     $body[]  = "Link: $fqdnlink";
@@ -88,7 +84,6 @@ function generate_email($event, $subject, $description, $importance, $message, $
     $body[]  = $line;
   }
   $body[]    = "";
-
   return mail($to, $subj, implode("\n", $body), implode("\n", $headers));
 }
 
@@ -104,8 +99,10 @@ function safe_filename($string) {
 if ($argc == 1) exit(usage());
 
 extract(parse_plugin_cfg("dynamix",true));
-$unread  = "{$notify['path']}/unread";
-$archive = "{$notify['path']}/archive";
+
+$path    = _var($notify,'path','/tmp/notifications');
+$unread  = "$path/unread";
+$archive = "$path/archive";
 $agents_dir = "/boot/config/plugins/dynamix/notifications/agents";
 if (is_dir($agents_dir)) {
   $agents = [];

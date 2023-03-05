@@ -66,7 +66,7 @@ if (is_low($rootdir) && is_dir($rootdir)) {
   foreach ($files as $name) {
     $htmlRel  = htmlspecialchars($rootdir.$name);
     $htmlName = htmlspecialchars($name);
-    $ext      = mb_strtolower(pathinfo($name)['extension']??'');
+    $ext      = mb_strtolower(pathinfo($name,PATHINFO_EXTENSION));
     foreach ($filters as $filter) if (empty($filter)||$ext==$filter) {
       if (empty($match)||preg_match("/$match/",$name)) echo "<li class='file ext_$ext'>$checkbox<a href='#' rel=\"$htmlRel\">$htmlName</a></li>";
     }

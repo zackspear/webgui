@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,17 +11,20 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
-require_once "$docroot/webGui/include/Helpers.php";
 /**
  * @name response_complete
  * @param {HTTP Response Status Code} $httpcode https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
  * @param {String|Array} $result - strings are assumed to be encoded JSON. Arrays will be encoded to JSON.
  * @param {String} $cli_success_msg
  */
+
 function response_complete($httpcode, $result, $cli_success_msg='') {
   global $cli;
   $mutatedResult = is_array($result) ? json_encode($result) : $result;
@@ -38,15 +41,16 @@ function response_complete($httpcode, $result, $cli_success_msg='') {
   exit((string)$mutatedResult);
 }
 
-$cli = php_sapi_name()=='cli';
-$url = unscript($_GET['url']??'');
-$host = parse_url($url)['host'];
+$cli  = php_sapi_name()=='cli';
+$url  = unscript(_var($_GET,'url'));
+$host = parse_url($url)['host']??'';
 
-if (in_array($host,['keys.lime-technology.com','lime-technology.com'])) {
+if ($host && in_array($host,['keys.lime-technology.com','lime-technology.com'])) {
   $key_file = basename($url);
   exec("/usr/bin/wget -q -O ".escapeshellarg("/boot/config/$key_file")." ".escapeshellarg($url), $output, $return_var);
   if ($return_var === 0) {
-    if (parse_ini_file('/var/local/emhttp/var.ini')['mdState'] == "STARTED") {
+    $var = @parse_ini_file('/var/local/emhttp/var.ini') ?: [];
+    if (_var($var,'mdState')=="STARTED") {
       response_complete(200, array('status' => _('Please Stop array to complete key installation')), _('success').', '._('Please Stop array to complete key installation'));
     } else {
       response_complete(200, array('status' => ''), _('success'));

@@ -15,7 +15,7 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $notify  = "$docroot/webGui/scripts/notify";
 
-switch ($_POST['cmd']) {
+switch ($_POST['cmd']??'') {
 case 'init':
   shell_exec("$notify init");
   break;
@@ -48,11 +48,11 @@ case 'get':
   break;
 case 'hide':
   $file = $_POST['file']??'';
-  if (file_exists($file) && $file==realpath($file) && pathinfo($file)['extension']=='notify') chmod($file,0400);
+  if (file_exists($file) && $file==realpath($file) && pathinfo($file,PATHINFO_EXTENSION)=='notify') chmod($file,0400);
   break;
 case 'archive':
   $file = $_POST['file']??'';
-  if (strlen($file) && strpos($file,'/')===false) shell_exec("$notify archive ".escapeshellarg($file));
+  if ($file && strpos($file,'/')===false) shell_exec("$notify archive ".escapeshellarg($file));
   break;
 }
 ?>

@@ -14,9 +14,11 @@
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 
-$dynamix = parse_plugin_cfg('dynamix',true);
-$unread  = $dynamix['notify']['path']."/unread/";
-$archive = $dynamix['notify']['path']."/archive";
+extract(parse_plugin_cfg('dynamix',true));
+
+$path    = _var($notify,'path','/tmp/notifications');
+$unread  = "$path/unread/";
+$archive = "$path/archive";
 $log     = $_POST['log']??'';
 $filter  = $_POST['filter']??false;
 $files   = strpos($log,'*')===false ? [realpath("$archive/$log")] : glob("$archive/$log",GLOB_NOSORT);

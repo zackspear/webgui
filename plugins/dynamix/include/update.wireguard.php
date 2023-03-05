@@ -12,17 +12,20 @@
 ?>
 <?
 $docroot  = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 // special case when script is called on form-submit and processed by update.php
-if (!isset($_SESSION['locale'])) $_SESSION['locale'] = $_POST['#locale']??'';
+if (!isset($_SESSION['locale'])) $_SESSION['locale'] = _var($_POST,'#locale');
+
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $dockerd   = is_file('/var/run/dockerd.pid') && is_dir('/proc/'.file_get_contents('/var/run/dockerd.pid'));
 $etc       = '/etc/wireguard';
-$validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
-$validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
+$validIP4  = "(?:(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})";
+$validIP6  = "(?:([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $normalize = ['address'=>'Address', 'dns'=>'DNS', 'privatekey'=>'PrivateKey', 'publickey'=>'PublicKey', 'allowedips'=>'AllowedIPs', 'endpoint'=>'Endpoint','listenport'=>'ListenPort','mtu'=>'MTU','persistentkeepalive'=>'PersistentKeepalive'];
 $dockernet = "172.31";
 
@@ -36,8 +39,8 @@ function mask2cidr($mask) {
 }
 function thisNet($ethX='eth0') {
   extract(parse_ini_file('state/network.ini',true));
-  $net = long2ip(ip2long($$ethX['IPADDR:0']) & ip2long($$ethX['NETMASK:0'])).'/'.mask2cidr($$ethX['NETMASK:0']);
-  $dev = $$ethX['BRIDGING']=='yes' ? $$ethX['BRNAME'] : ($$ethX['BONDING']=='yes' ? $$ethX['BONDNAME'] : $ethX);
+  $net = long2ip(ip2long(_var($$ethX,'IPADDR:0')) & ip2long(_var($$ethX,'NETMASK:0'))).'/'.mask2cidr(_var($$ethX,'NETMASK:0'));
+  $dev = _var($$ethX,'BRIDGING')=='yes' ? _var($$ethX,'BRNAME') : (_var($$ethX,'BONDING')=='yes' ? _var($$ethX,'BONDNAME') : $ethX);
   return [$dev,$net,$$ethX['GATEWAY:0']];
 }
 function ipv4($ip) {
@@ -146,7 +149,7 @@ function addPeer(&$x) {
   $peers[$x] = ['[Interface]'];                                         // [Interface]
   if (isset($var['client'])) $peers[$x][] = $var['client'];             // #name
   if (isset($var['privateKey'])) $peers[$x][] = $var['privateKey'];     // PrivateKey
-  $peers[$x][] = $var['address']??'';                                   // Address
+  $peers[$x][] = _var($var,'address');                                  // Address
   if (isset($var['listenport'])) $peers[$x][] = $var['listenport'];     // ListenPort
   if (isset($var['dns'])) $peers[$x][] = $var['dns'];                   // DNS server
   if (isset($var['mtu'])) $peers[$x][] = $var['mtu'];                   // MTU
@@ -155,10 +158,10 @@ function addPeer(&$x) {
   if (isset($var['server'])) $peers[$x][] = $var['server'];             // #name
   if (isset($var['handshake'])) $peers[$x][] = $var['handshake'];       // PersistentKeepalive
   if (isset($var['presharedKey'])) $peers[$x][] = $var['presharedKey']; // PresharedKey
-  $peers[$x][] = $var['publicKey']??'';                                 // PublicKey
+  $peers[$x][] = _var($var,'publicKey');                                // PublicKey
   if (isset($var['tunnel'])) $peers[$x][] = $var['tunnel'];             // Tunnel address
-  $peers[$x][] = $var['endpoint'] ?: $var['internet'] ?: '';            // Endpoint
-  $peers[$x][] = $var['allowedIPs']??'';                                // AllowedIPs
+  $peers[$x][] = _var($var,'endpoint') ?: _var($var,'internet');        // Endpoint
+  $peers[$x][] = _var($var,'allowedIPs');                               // AllowedIPs
   $x++;
 }
 function autostart($vtun,$cmd) {
@@ -223,7 +226,7 @@ function createIPs($list) {
   return implode(', ',array_map('host',array_filter(array_map('trim',explode(',',$list)))));
 }
 function parseInput($vtun,&$input,&$x) {
-  global $conf,$user,$var,$default,$default6,$vpn,$tunip;
+  global $conf,$user,$var,$default4,$default6,$vpn,$tunip;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
     if ($key[0]=='#') continue;
@@ -280,13 +283,13 @@ function parseInput($vtun,&$input,&$x) {
       $protocol = $value;
       $user[] = "$id:0=\"$value\"";
       switch ($protocol) {
-        case '46': $var['default']  = "AllowedIPs=$default, $default6"; break;
+        case '46': $var['default']  = "AllowedIPs=$default4, $default6"; break;
         case '6' : $var['default']  = "AllowedIPs=$default6"; break;
-        default  : $var['default']  = "AllowedIPs=$default"; break;
+        default  : $var['default']  = "AllowedIPs=$default4"; break;
       }
       break;
     case 'TYPE':
-      $list = $value<4 ? ($value%2==1 ? $var['subnets1'] : $var['subnets2']) : ($value<6 ? ($value%2==1 ? $var['shared1'] : $var['shared2']) : $var['default']);
+      $list = $value<4 ? ($value%2==1 ? _var($var,'subnets1') : _var($var,'subnets2')) : ($value<6 ? ($value%2==1 ? _var($var,'shared1') : _var($var,'shared2')) : _var($var,'default'));
       $var['allowedIPs'] = createIPs($list);
       $var['tunnel'] = ($value==2||$value==3) ? $tunnel : false;
       $user[] = "$id:$x=\"$value\"";
@@ -321,8 +324,8 @@ function parseInput($vtun,&$input,&$x) {
         $var['endpoint'] = $value ? "Endpoint=".ipset($value) : false;
       } else {
         if ($value) $conf[] = "$id=$value";
-        $var['listenport'] = $value ? "ListenPort=".explode(ipsplit($value),$value)[1] : false;
-        if ($var['endpoint'] && strpos($var['endpoint'],ipsplit($var['endpoint']))===false) $var['endpoint'] .= ":".explode(ipsplit($var['internet']),$var['internet'])[1];
+        $var['listenport'] = $value ? "ListenPort=".(explode(ipsplit($value),$value)[1]??'') : false;
+        if ($var['endpoint'] && strpos(_var($var,'endpoint'),ipsplit(_var($var,'endpoint')))===false) $var['endpoint'] .= ":".(explode(ipsplit(_var($var,'internet')),_var($var,'internet'))[1]??'');
       }
       break;
     case 'PersistentKeepalive':
@@ -342,9 +345,10 @@ function parseInput($vtun,&$input,&$x) {
     }
   }
 }
-$default = '0.0.0.0/0';
+$default4 = '0.0.0.0/0';
 $default6 = '::/0';
-switch ($_POST['#cmd']) {
+
+switch (_var($_POST,'#cmd')) {
 case 'keypair':
   $private = exec("wg genkey");
   $public = exec("wg pubkey <<<'$private'");
@@ -360,19 +364,19 @@ case 'update':
   if (!exec("ip6tables -S|grep -om1 'WIREGUARD$'")) {
     exec("ip6tables -N WIREGUARD;ip6tables -A FORWARD -j WIREGUARD");
   }
-  $cfg  = $_POST['#cfg'];
-  $wg   = $_POST['#wg'];
-  $name = $_POST['#name'];
-  $vtun = $_POST['#vtun'];
-  $gone = explode(',',$_POST['#deleted']);
+  $cfg  = _var($_POST,'#cfg');
+  $wg   = _var($_POST,'#wg');
+  $name = _var($_POST,'#name');
+  $vtun = _var($_POST,'#vtun');
+  $gone = explode(',',_var($_POST,'#deleted'));
   $conf = ['[Interface]'];
   $user = $peers = $var = [];
   $tunip = "";
-  $var['subnets1'] = "AllowedIPs=".createList($_POST['#subnets1']);
-  $var['subnets2'] = "AllowedIPs=".createList($_POST['#subnets2']);
-  $var['shared1']  = "AllowedIPs=".createList($_POST['#shared1']);
-  $var['shared2']  = "AllowedIPs=".createList($_POST['#shared2']);
-  $var['internet'] = "Endpoint=".createList($_POST['#internet']);
+  $var['subnets1'] = "AllowedIPs=".createList(_var($_POST,'#subnets1'));
+  $var['subnets2'] = "AllowedIPs=".createList(_var($_POST,'#subnets2'));
+  $var['shared1']  = "AllowedIPs=".createList(_var($_POST,'#shared1'));
+  $var['shared2']  = "AllowedIPs=".createList(_var($_POST,'#shared2'));
+  $var['internet'] = "Endpoint=".createList(_var($_POST,'#internet'));
   $x = 1; $vpn = 0;
   parseInput($vtun,$_POST,$x);
   addPeer($x);
@@ -382,7 +386,7 @@ case 'update':
   file_put_contents($file,implode("\n",$conf)."\n");
   file_put_contents($cfg,implode("\n",$user)."\n");
   createPeerFiles($vtun);
-  if ($upstate) wgState($vtun,'up',$_POST['#type']);
+  if ($upstate) wgState($vtun,'up',_var($_POST,'#type'));
   // if $tunip (with dots to slashes) not found in nginx config, then reload nginx to add it
   $nginx = parse_ini_file('/var/local/emhttp/nginx.ini');
   if (stripos($nginx['NGINX_CERTNAME'],'.myunraid.net')!==false) {
@@ -394,8 +398,8 @@ case 'update':
   $save = false;
   break;
 case 'toggle':
-  $vtun = $_POST['#vtun'];
-  switch ($_POST['#wg']) {
+  $vtun = _var($_POST,'#vtun');
+  switch (_var($_POST,'#wg')) {
   case 'stop':
     wgState($vtun,'down');
     echo status($vtun) ? 1 : 0;
@@ -406,7 +410,7 @@ case 'toggle':
       exec("ip -4 rule add from $network table $index");
       exec("ip -4 route add unreachable default table $index");
     }
-    wgState($vtun,'up',$_POST['#type']??'');
+    wgState($vtun,'up',_var($_POST,'#type'));
     echo status($vtun) ? 0 : 1;
     break;
   }
@@ -416,9 +420,9 @@ case 'ping':
   echo exec("ping -qc1 -W4 $addr|grep -Pom1 '1 received'");
   break;
 case 'public':
-  $ip = $_POST['#ip'];
-  $v4 = $_POST['#prot']!='6';
-  $v6 = $_POST['#prot']!='';
+  $ip = _var($_POST,'#ip');
+  $v4 = _var($_POST,'#prot')!='6';
+  $v6 = _var($_POST,'#prot')!='';
   $context = stream_context_create(['https'=>['timeout'=>12]]);
   $int_ipv4 = $v4 ? (preg_match("/^$validIP4$/",$ip) ? $ip : (@dns_get_record($ip,DNS_A)[0]['ip'] ?: '')) : '';
   $ext_ipv4 = $v4 ? (@file_get_contents('https://wanip4.unraid.net',false,$context) ?: '') : '';
@@ -428,7 +432,7 @@ case 'public':
   break;
 case 'addtunnel':
   $vtun = vtun();
-  $name = $_POST['#name'];
+  $name = _var($_POST,'#name');
   touch("$etc/$vtun.conf");
   wgState($vtun,'down');
   delete_file("$etc/$vtun.cfg");
@@ -436,8 +440,8 @@ case 'addtunnel':
   autostart($vtun,'off');
   break;
 case 'deltunnel':
-  $vtun = $_POST['#vtun'];
-  $name = $_POST['#name'];
+  $vtun = _var($_POST,'#vtun');
+  $name = _var($_POST,'#name');
   $error = delDocker($vtun);
   if (!$error) {
     wgState($vtun,'down');
@@ -454,9 +458,9 @@ case 'deltunnel':
   echo $error ? 1 : 0;
   break;
 case 'import':
-  $name = $_POST['#name'];
+  $name = _var($_POST,'#name');
   $user = $peers = $var = $import = $sort = [];
-  $entries = array_filter(array_map('trim',preg_split('/\[(Interface|Peer)\]/',$_POST['#data'])));
+  $entries = array_filter(array_map('trim',preg_split('/\[(Interface|Peer)\]/',_var($_POST,'#data'))));
   foreach($entries as $key => $entry) {
     $i = $key-1;
     foreach (explode("\n",$entry) as $row) {
@@ -469,12 +473,12 @@ case 'import':
       }
     }
   }
-  if ($import['PrivateKey:0'] && !$import['PublicKey:0']) $import['PublicKey:0'] = exec("wg pubkey <<<'{$import['PrivateKey:0']}'");
+  if (_var($import,'PrivateKey:0') && !_var($import,'PublicKey:0')) $import['PublicKey:0'] = exec("wg pubkey <<<'"._var($import,'PrivateKey:0')."'");
   // delete ListenPort and let WG generate a random local port
   unset($import['ListenPort:0']);
   $import['UPNP:0'] = 'no';
   $import['NAT:0'] = 'no';
-  [$subnet,$mask] = my_explode('/',$import['Address:0']);
+  [$subnet,$mask] = my_explode('/',_var($import,'Address:0'));
   if (ipv4($subnet)) {
     $mask = ($mask > 0 && $mask < 32) ? $mask : 24;
     $import['Network:0'] = long2ip(ip2long($subnet) & (0x100000000-2**(32-$mask))).'/'.$mask;
@@ -488,18 +492,18 @@ case 'import':
   }
   $import['Endpoint:0'] = '';
   for ($n = 1; $n <= $i; $n++) {
-    $vpn = array_map('trim',explode(',',$import["AllowedIPs:$n"]));
-    $vpn = (in_array($default,$vpn) || in_array($default6,$vpn)) ? 8 : 0;
+    $vpn = array_map('trim',explode(',',_var($import,"AllowedIPs:$n")));
+    $vpn = (in_array($default4,$vpn) || in_array($default6,$vpn)) ? 8 : 0;
     if ($vpn==8) $import["Address:$n"] = '';
     $import["TYPE:$n"] = $vpn;
-    ipfilter($import["AllowedIPs:$n"]);
-    if ($import["TYPE:$n"]==0) $var['subnets1'] = "AllowedIPs=".$import["AllowedIPs:$n"];
+    ipfilter(_var($import,"AllowedIPs:$n"));
+    if (_var($import,"TYPE:$n")==0) $var['subnets1'] = "AllowedIPs="._var($import,"AllowedIPs:$n");
   }
   foreach ($import as $key => $val) $sort[] = explode(':',$key)[1];
   array_multisort($sort,$import);
   $x = 1;
   $conf = ['[Interface]'];
-  $var['default'] = $import['PROT:0']=='' ? "AllowedIPs=$default" : "AllowedIPs=$default6";
+  $var['default'] = _var($import,'PROT:0')=='' ? "AllowedIPs=$default4" : "AllowedIPs=$default6";
   $var['internet'] = "Endpoint=unknown";
   $vtun = vtun();
   parseInput($vtun,$import,$x);
@@ -512,13 +516,13 @@ case 'import':
   echo $vtun;
   break;
 case 'autostart':
-  autostart($_POST['#vtun'],$_POST['#start']);
+  autostart(_var($_POST,'#vtun'),_var($_POST,'#start'));
   break;
 case 'upnp':
   $upnp = '/var/tmp/upnp';
   if (is_executable('/usr/bin/upnpc')) {
-    $gw = $_POST['#gw'].':';
-    $link = $_POST['#link'];
+    $gw = _var($_POST,'#gw').':';
+    $link = _var($_POST,'#link');
     $xml = @file_get_contents($upnp) ?: '';
     if ($xml) {
       exec("timeout $t1 stdbuf -o0 upnpc -u $xml -m $link -l 2>&1|grep -qm1 'refused'",$output,$code);
@@ -534,11 +538,11 @@ case 'upnp':
   break;
 case 'upnpc':
   if (!is_executable('/usr/bin/upnpc')) break;
-  $xml = $_POST['#xml'];
-  $vtun = $_POST['#vtun'];
-  $link = $_POST['#link'];
-  $ip = $_POST['#ip'];
-  if ($_POST['#wg']=='active') {
+  $xml  = _var($_POST,'#xml');
+  $vtun = _var($_POST,'#vtun');
+  $link = _var($_POST,'#link');
+  $ip   = _var($_POST,'#ip');
+  if (_var($_POST,'#wg')=='active') {
     exec("timeout $t1 stdbuf -o0 upnpc -u $xml -m $link -l 2>/dev/null|grep -Po \"^(ExternalIPAddress = \K.+|.+\KUDP.+>$ip:[0-9]+ 'WireGuard-$vtun')\"",$upnp);
     [$addr,$upnp] = array_pad($upnp,2,'');
     [$type,$rule] = my_explode(' ',$upnp);

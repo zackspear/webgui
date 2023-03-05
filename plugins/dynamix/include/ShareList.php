@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,6 +12,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";
@@ -22,14 +23,14 @@ $disks   = parse_ini_file('state/disks.ini',true);
 $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
-$compute = unscript($_GET['compute']??'');
-$path    = unscript($_GET['path']??'');
-$fill    = unscript($_GET['fill']??'');
+$compute = unscript(_var($_GET,'compute'));
+$path    = unscript(_var($_GET,'path'));
+$fill    = unscript(_var($_GET,'fill'));
 
 $display = [];
-$display['scale'] = unscript($_GET['scale']??'');
-$display['number'] = unscript($_GET['number']??'');
-$display['raw'] = unscript($_GET['raw']??'');
+$display['scale'] = unscript(_var($_GET,'scale'));
+$display['number'] = unscript(_var($_GET,'number','.,'));
+$display['raw'] = unscript(_var($_GET,'raw'));
 
 $pools_check = pools_filter(cache_filter($disks));
 $pools = implode(',', $pools_check);

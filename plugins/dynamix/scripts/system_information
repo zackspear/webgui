@@ -19,11 +19,11 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = '';
-$login_locale = $display['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 function dmidecode($key, $n, $all=true) {
-  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")??""));
+  $entries = array_filter(explode($key,shell_exec("dmidecode -qt$n")?:''));
   $properties = [];
   foreach ($entries as $entry) {
     $property = [];
@@ -36,8 +36,8 @@ function dmidecode($key, $n, $all=true) {
   return $all ? $properties : $properties[0]??null;
 }
 
-$var      = parse_ini_file('state/var.ini');
-$model    = empty($var['SYS_MODEL']) ? _('N/A') : $var['SYS_MODEL'];
+$var      = @parse_ini_file('state/var.ini') ?: [];
+$model    = _var($var,'SYS_MODEL',_('N/A'));
 $board    = dmidecode('Base Board Information',2,0);
 $bios     = dmidecode('BIOS Information',0,0);
 $cpu      = dmidecode('Processor Information',4,0);
@@ -126,7 +126,7 @@ foreach ($memory_array as $device) {
   [$size, $unit] = my_explode(' ',$device['Maximum Capacity']);
   $base = array_search($unit,$sizes);
   if ($base>=1) $memory_maximum += $size*pow(1024,$base);
-  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = ($device['Error Correction Type']??'')." ";
+  if (!$ecc && isset($device['Error Correction Type']) && $device['Error Correction Type']!='None') $ecc = $device['Error Correction Type']." ";
 }
 if ($memory_installed >= 1024) {
   $memory_installed = round($memory_installed/1024);
@@ -152,8 +152,8 @@ $list[] = "<tr><td>$memory</td><td>$memory_installed $unit $memory_type $ecc("._
 
 foreach ($memory_devices as $device) {
   if (empty($device['Type']) || $device['Type']=='Unknown') continue;
-  $size = preg_replace('/( .)B$/','$1iB',$device['Size']??'0');
-  $list[] = "<tr class='ram'><td></td><td>".$device['Locator'].": ".($device['Manufacturer']??'')." ".($device['Part Number']??'').", $size ".($device['Type']??'')." @ ".($device['Configured Memory Speed']??'')."</td></tr>";
+  $size = preg_replace('/( .)B$/','$1iB',_var($device,'Size',0));
+  $list[] = "<tr class='ram'><td></td><td>".$device['Locator'].": "._var($device,'Manufacturer')." "._var($device,'Part Number').", $size "._var($device,'Type')." @ "._var($device,'Configured Memory Speed')."</td></tr>";
 }
 
 exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth)\d+$'",$sPorts);
