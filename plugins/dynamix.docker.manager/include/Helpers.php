@@ -494,6 +494,8 @@ function setXmlVal(&$xml, $value, $el, $attr=null, $pos=0) {
 
 function getAllocations() {
   global $DockerClient, $host;
+  
+  $ports = [];
   foreach ($DockerClient->getDockerContainers() as $ct) {
     $list = $port = [];
     $nat = $ip = false;

@@ -228,9 +228,9 @@ if (isset($_GET['xmlTemplate'])) {
               $arrConfig['Name'] = 'AppData Config Path';
             }
           }
-          $arrConfig['Name'] = strip_tags($arrConfig['Name']);
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']);
-          $arrConfig['Requires'] = strip_tags($arrConfig['Requires']);
+          $arrConfig['Name'] = strip_tags($arrConfig['Name']??"");
+          $arrConfig['Description'] = strip_tags($arrConfig['Description']??"");
+          $arrConfig['Requires'] = strip_tags($arrConfig['Requires']??"");
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
