@@ -18,11 +18,12 @@ require_once "$docroot/webGui/include/Wrappers.php";
 
 $vfio = '/boot/config/vfio-pci.cfg';
 $old  = is_file($vfio) ? rtrim(file_get_contents($vfio)) : '';
-$new  = unscript(_var($_GET,'cfg'));
+$new  = _var($_GET,'cfg');
 
-if ($old !== $new) {
-  exec("cp -f $vfio $vfio.bak");
-  exec("echo \"$new\" >$vfio", $output, $myreturn);
-  if ($myreturn != 0) {echo "1";}
+$reply = 0;
+if ($new && $new != $old) {
+  rename($vfio, "$vfio.bak");
+  $reply = file_put_contents($vfio, $new)!==false ? 1 : 0;
 }
+echo $reply;
 ?>
