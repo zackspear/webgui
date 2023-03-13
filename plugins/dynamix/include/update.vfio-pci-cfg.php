@@ -21,7 +21,7 @@ $old  = is_file($vfio) ? rtrim(file_get_contents($vfio)) : '';
 $new  = _var($_GET,'cfg');
 
 $reply = 0;
-if ($new && $new != $old) {
+if ($new != $old) {
   copy($vfio, "$vfio.bak");
   $reply = file_put_contents($vfio, $new)!==false ? 1 : 0;
 }
