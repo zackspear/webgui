@@ -22,7 +22,7 @@ $new  = _var($_GET,'cfg');
 
 $reply = 0;
 if ($new && $new != $old) {
-  rename($vfio, "$vfio.bak");
+  copy($vfio, "$vfio.bak");
   $reply = file_put_contents($vfio, $new)!==false ? 1 : 0;
 }
 echo $reply;
