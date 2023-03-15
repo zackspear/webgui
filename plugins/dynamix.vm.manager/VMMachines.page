@@ -147,8 +147,6 @@ div.template,div#dialogWindow,input#upload{display:none}
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
 <script src="<?autov("/webGui/javascript/jquery.filetree.js")?>"></script>
 <script>
-String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');}
-
 <?if (_var($display,'resize')):?>
 function resize(bind) {
   var width = [];
