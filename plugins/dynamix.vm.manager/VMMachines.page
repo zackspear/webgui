@@ -173,7 +173,8 @@ function getisoimage(uuid,dev,bus,file){
   var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
   var match= ".iso";
   var box = $("#dialogWindow");
-  box.html($("#templateISO").html().build());
+  box.html($("#templateISO").html());
+
   box.find('#target').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).fileTreeAttach(null,null,function(path){
       var bits = path.substr(1).split('/');
       var auto = bits.length>3 ? '' : share;
@@ -291,7 +292,6 @@ $(function() {
 
 <div id="dialogWindow"></div>
 <div markdown="1" id="templateISO" class="template">
-<!--!
 <html <?=_var($display,'rtl')?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -308,5 +308,4 @@ _(ISO Image)_:
 
 </body>
 </html>
-!-->
 </div>
