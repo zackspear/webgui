@@ -34,8 +34,9 @@ if (!$containers && !$images) {
 }
 
 if (file_exists($user_prefs)) {
-  $prefs = parse_ini_file($user_prefs); $sort = [];
-  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
+  $prefs = @parse_ini_file($user_prefs) ?: [];
+  $sort = [];
+  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs);
   array_multisort($sort,SORT_NUMERIC,$containers);
   unset($sort);
 }
