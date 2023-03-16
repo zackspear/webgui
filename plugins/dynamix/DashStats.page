@@ -626,16 +626,6 @@ if (!$group) {
 
 <div id="templateContentMgmt" class="template">
 <!--!
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1300">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-</head>
 <style>
 .item{display:inline-block;width:210px;float:left;height:4rem}
 </style>
@@ -676,10 +666,7 @@ function hideShow() {
   }
 }
 </script>
-<body>
 <div id="list"></div>
-</body>
-</html>
 !-->
 </div>
 

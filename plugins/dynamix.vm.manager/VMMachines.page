@@ -292,20 +292,7 @@ $(function() {
 
 <div id="dialogWindow"></div>
 <div markdown="1" id="templateISO" class="template">
-<html <?=_var($display,'rtl')?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1300">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-</head>
-<body>
 _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
-</body>
-</html>
 </div>

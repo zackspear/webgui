@@ -943,16 +943,6 @@ _(Privileged)_:
 #    ╚════╝ ╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
 ?>
 <div markdown="1" id="templatePopupConfig" style="display:none">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1300">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-<body>
 _(Config Type)_:
 : <select name="Type" onchange="toggleMode(this,false)">
   <option value="Path">_(Path)_</option>
@@ -1006,8 +996,6 @@ _(Password Mask)_:
   <option value="true">_(Yes)_</option>
   </select>
 </div>
-</body>
-</html>
 </div>
 
 <div markdown="1" id="templateDisplayConfig" style="display:none">
