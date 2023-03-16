@@ -46,7 +46,7 @@ function sharename($share) {
 }
 function displayTemp($temp) {
   global $display;
-  return _var($display,'unit')=='F' ? round($temp*9/5)+32 : $temp;
+  return (_var($display,'unit')=='F' && is_numeric($temp)) ? round($temp*9/5)+32 : $temp;
 }
 function maintenance_mode() {
   global $var;
