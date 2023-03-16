@@ -1142,6 +1142,7 @@ function LockButton() {
     $('div.nav-item.LockButton b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
 <?endif;?>
     $('i.tile').show();
+    $('tbody.sortable').css({'cursor':'move'});
     $('div.nav-item.LockButton span').text("_(Lock sortable items)_");
     $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
     $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
@@ -1164,6 +1165,7 @@ function LockButton() {
     $('div.nav-item.LockButton b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
 <?endif;?>
     $('i.tile').hide();
+    $('tbody.sortable').css({'cursor':'default'});
     $('div.nav-item.LockButton span').text("_(Unlock sortable items)_");
     $('table.dashboard').sortable('destroy');
   }
