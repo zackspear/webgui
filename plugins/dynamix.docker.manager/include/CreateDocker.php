@@ -39,7 +39,7 @@ $cpus   = DockerUtil::cpus();
 
 function cpu_pinning() {
   global $xml,$cpus;
-  $vcpu = explode(',',$xml['CPUset'] ?? '');
+  $vcpu = explode(',',_var($xml,'CPUset'));
   $total = count($cpus);
   $loop = floor(($total-1)/16)+1;
   for ($c = 0; $c < $loop; $c++) {
@@ -73,7 +73,7 @@ function cpu_pinning() {
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
   $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true';
-  $existing = $_POST['existingContainer'] ?? false;
+  $existing = _var($_POST,'existingContainer',false);
   $create_paths = $dry_run ? false : true;
   // Get the command line
   [$cmd, $Name, $Repository] = xmlToCommand($postXML, $create_paths);
@@ -228,9 +228,9 @@ if (isset($_GET['xmlTemplate'])) {
               $arrConfig['Name'] = 'AppData Config Path';
             }
           }
-          $arrConfig['Name'] = strip_tags($arrConfig['Name']??"");
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']??"");
-          $arrConfig['Requires'] = strip_tags($arrConfig['Requires']??"");
+          $arrConfig['Name'] = strip_tags(_var($arrConfig,'Name'));
+          $arrConfig['Description'] = strip_tags(_var($arrConfig,'Description'));
+          $arrConfig['Requires'] = strip_tags(_var($arrConfig,'Requires'));
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
