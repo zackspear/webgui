@@ -132,7 +132,8 @@ table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
 div.template,div#dialogWindow,input#upload{display:none}
 .fileTree{background:<?=$bgcolor?>;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
-.dropdown-menu{z-index:10001;
+.dropdown-menu{z-index:10001}
+i.mover{margin-right:8px;display:none} 
 </style>
 <table id="kvm_table" class="tablesorter four shift">
 <thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
@@ -220,6 +221,7 @@ var sortableHelper = function(e,ui){
 function LockButton() {
   if ($.cookie('lockbutton') == null) {
     $.cookie('lockbutton','lockbutton');
+    $('i.mover').show();
 <?if ($themes1):?>
     $('div.nav-item.LockButton').find('a').prop('title',"_(Lock sortable items)_");
     $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
@@ -234,6 +236,7 @@ function LockButton() {
     }});
   } else {
     $.removeCookie('lockbutton');
+    $('i.mover').hide();
 <?if ($themes1):?>
     $('div.nav-item.LockButton').find('a').prop('title',"_(Unlock sortable items)_");
     $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
