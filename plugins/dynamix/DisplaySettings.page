@@ -32,7 +32,6 @@ select.fixed{max-width:166px}
 <script>
 var path = '/boot/config/plugins/dynamix';
 var filename = '';
-var dashapps = "<?=$display['dashapps']?>";
 
 function restore() {
   // restore original image and activate APPLY button
@@ -47,8 +46,6 @@ function upload() {
   } else if (filename) {
     $.post("/webGui/include/FileUpload.php",{cmd:'save',path:path,filename:filename,output:'banner.png'});
   }
-  // reset dashboard tiles list when Docker/VM selection is changed
-  if (dashapps != document.display_settings.dashapps.value) $.removeCookie('inactive_content');
 }
 function presetTime(form) {
   var system = form.date.selectedIndex==0;
@@ -70,6 +67,7 @@ function updateDirection(lang) {
   var rtl = "";
   $('input[name="rtl"]').val(rtl);
 }
+
 $(function() {
   var dropbox = $('#dropbox');
   // attach the drag-n-drop feature to the 'dropbox' element
