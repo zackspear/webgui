@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'', FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -605,14 +605,14 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   $play = $task==$page ? " active" : "";
   echo "<div class='nav-item{$play}'>";
-  echo "<a href=\"/$page\" onclick=\"initab('/$page')\">"._($button['Name'] ?? $page)."</a></div>";
+  echo "<a href=\"/$page\" onclick=\"initab('/$page')\">"._(_var($button,'Name',$page))."</a></div>";
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
-if (in_array($task,['Dashboard','Docker','VMs'])) {
+if (isset($myPage['Lock'])) {
   $title = $themes2 ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
@@ -630,7 +630,7 @@ foreach ($buttons as $button) {
       $icon = "<b class='fa $icon system'></b>";
     }
     $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
-    echo "<div class='nav-item {$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
+    echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
     echo "<div class='{$button['Link']}'></div>";
   }
@@ -655,7 +655,7 @@ echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
-if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
+if (_var($myPage,'Type')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
@@ -665,13 +665,13 @@ foreach ($pages as $page) {
     eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
     if ($tabbed) {
       echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
-      echo tab_title($title,$page['root'],$page['Tag']??false);
+      echo tab_title($title,$page['root'],_var($page,'Tag',false));
       echo "</label><div class='content'>";
       $close = true;
     } else {
       if ($tab==1) echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
       echo "<div class='title'><span class='left'>";
-      echo tab_title($title,$page['root'],$page['Tag']??false);
+      echo tab_title($title,$page['root'],_var($page,'Tag',false));
       echo "</span></div>";
     }
     $tab++;
@@ -680,7 +680,7 @@ foreach ($pages as $page) {
     $pgs = find_pages($page['name']);
     foreach ($pgs as $pg) {
       @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
-      $icon = $pg['Icon'] ?? "<i class='icon-app PanelIcon'></i>";
+      $icon = _var($pg,'Icon',"<i class='icon-app PanelIcon'></i>");
       if (substr($icon,-4)=='.png') {
         $root = $pg['root'];
         if (file_exists("$docroot/$root/images/$icon")) {
