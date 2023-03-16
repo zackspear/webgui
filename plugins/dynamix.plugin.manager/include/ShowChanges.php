@@ -23,19 +23,6 @@ require_once "$docroot/webGui/include/Translations.php";
 $valid = ['/var/tmp/','/tmp/plugins/'];
 $good  = false;
 ?>
-<!DOCTYPE HTML>
-<html <?=_var($display,'rtl')?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
-</head>
 <body style="margin:14px 10px">
 <?
 if ($file = realpath(unscript(_var($_GET,'file')))) {
@@ -47,4 +34,3 @@ if ($file = realpath(unscript(_var($_GET,'file')))) {
 ?>
 <br><div style="text-align:center"><input type="button" value="<?=_('Done')?>" onclick="top.Shadowbox.close()"></div>
 </body>
-</html>

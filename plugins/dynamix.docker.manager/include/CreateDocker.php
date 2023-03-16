@@ -39,7 +39,7 @@ $cpus   = DockerUtil::cpus();
 
 function cpu_pinning() {
   global $xml,$cpus;
-  $vcpu = explode(',',$xml['CPUset'] ?? '');
+  $vcpu = explode(',',_var($xml,'CPUset'));
   $total = count($cpus);
   $loop = floor(($total-1)/16)+1;
   for ($c = 0; $c < $loop; $c++) {
@@ -73,7 +73,7 @@ function cpu_pinning() {
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
   $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true';
-  $existing = $_POST['existingContainer'] ?? false;
+  $existing = _var($_POST,'existingContainer',false);
   $create_paths = $dry_run ? false : true;
   // Get the command line
   [$cmd, $Name, $Repository] = xmlToCommand($postXML, $create_paths);
@@ -228,9 +228,9 @@ if (isset($_GET['xmlTemplate'])) {
               $arrConfig['Name'] = 'AppData Config Path';
             }
           }
-          $arrConfig['Name'] = strip_tags($arrConfig['Name']??"");
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']??"");
-          $arrConfig['Requires'] = strip_tags($arrConfig['Requires']??"");
+          $arrConfig['Name'] = strip_tags(_var($arrConfig,'Name'));
+          $arrConfig['Description'] = strip_tags(_var($arrConfig,'Description'));
+          $arrConfig['Requires'] = strip_tags(_var($arrConfig,'Requires'));
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
@@ -943,16 +943,6 @@ _(Privileged)_:
 #    ╚════╝ ╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
 ?>
 <div markdown="1" id="templatePopupConfig" style="display:none">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-<body>
 _(Config Type)_:
 : <select name="Type" onchange="toggleMode(this,false)">
   <option value="Path">_(Path)_</option>
@@ -1006,8 +996,6 @@ _(Password Mask)_:
   <option value="true">_(Yes)_</option>
   </select>
 </div>
-</body>
-</html>
 </div>
 
 <div markdown="1" id="templateDisplayConfig" style="display:none">

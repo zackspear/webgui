@@ -72,15 +72,6 @@ _(Error reporting level)_:
 <div markdown="1" id="templateWindow">
 <!--!
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-
 <style>
 table{box-shadow:1px 2px 3px rgba(0,0,0,0.2);width:90%}
 .center{text-align:center;color:#f2f2f2!important;background-color:#1c1b1b}
@@ -100,7 +91,6 @@ h2 a{color:#f2f2f2!important}
 .v i{color:#999}
 .h td,td.e,th{border-color:#606A90}
 </style>
-
 <body>
 <?
 ob_start();

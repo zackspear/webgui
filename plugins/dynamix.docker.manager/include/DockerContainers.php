@@ -34,8 +34,9 @@ if (!$containers && !$images) {
 }
 
 if (file_exists($user_prefs)) {
-  $prefs = parse_ini_file($user_prefs); $sort = [];
-  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
+  $prefs = @parse_ini_file($user_prefs) ?: [];
+  $sort = [];
+  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs);
   array_multisort($sort,SORT_NUMERIC,$containers);
   unset($sort);
 }
@@ -99,7 +100,7 @@ foreach ($containers as $ct) {
     [$host_path,$container_path,$access_mode] = my_explode(':',$mount,3);
     $paths[] = sprintf('%s<i class="fa fa-%s" style="margin:0 6px"></i>%s', htmlspecialchars($container_path), $access_mode=='ro'?'long-arrow-left':'arrows-h', htmlspecialchars($host_path));
   }
-  echo "<tr class='sortable'><td class='ct-name' style='width:220px;padding:8px'>";
+  echo "<tr class='sortable'><td class='ct-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   if ($template) {
     $appname = "<a class='exec' onclick=\"editContainer('".addslashes(htmlspecialchars($name))."','".addslashes(htmlspecialchars($template))."')\">".htmlspecialchars($name)."</a>";
   } else {
