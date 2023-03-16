@@ -29,8 +29,9 @@ if (empty($vms)) {
 if (file_exists($user_prefs)) {
   $prefs = @parse_ini_file($user_prefs) ?: [];
   $sort = [];
-  foreach ($vms as $vm) $sort[] = array_search($vm,$prefs) ?: 999;
+  foreach ($vms as $vm) $sort[] = array_search($vm,$prefs);
   array_multisort($sort,SORT_NUMERIC,$vms);
+  unset($sort);
 } else {
   natcasesort($vms);
 }
@@ -134,9 +135,9 @@ foreach ($vms as $vm) {
   /* Disk device information */
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
   echo "<td colspan='8' style='margin:0;padding:0'>";
-  echo "<table class='tablesorter domdisk' id='domdisk_table'>";
+  echo "<table class='tablesorter domdisk'>";
   echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Serial')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th><th>Boot Order</th</tr></thead>";
-  echo "<tbody id='domdisk_list'>";
+  echo "<tbody>";
 
   /* Display VM disks */
   foreach ($lv->get_disk_stats($res) as $arrDisk) {
