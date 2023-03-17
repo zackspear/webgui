@@ -358,7 +358,7 @@ function zfsScrub(path) {
 function zfsResilver(path) {
   $.post('/webGui/include/FileSystemStatus.php',{cmd:'zfs-resilver',path:path},function(data) {
     if (data.indexOf('resilver in progress')>0) {
-      $('#scrub-button').prop('disabled',true);
+      $('#zfs-button').prop('disabled',true);
       $('#zfs-pool').text(data);
       setTimeout(function(){zfsResilver(path);},1000);
     } else {
@@ -985,18 +985,19 @@ _(btrfs check status)_:
 <div class="title nocontrol"><span class="left"><i class="title fa fa-info"></i>_(Pool Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'zfs-scrub-<?=$tag?>','<?=$tag?>')">
 <?if (_var($disk,'fsStatus')=="Mounted"):?>
-<?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $zfs_status, $retval)?>
+<?exec("$docroot/webGui/scripts/zfs_scrub status $tag", $zfs_status, $retval); $zfs_status = implode("\n",$zfs_status)?>
+<?$zfs_cmd = strpos($zfs_status,"'zpool clear'")===false ? 'start' : 'clear'?>
 
 _(zfs pool status)_:
-: <pre id='zfs-pool'><?=implode("\n",$zfs_status)?></pre>
+: <pre id='zfs-pool'><?=$zfs_status?></pre>
 
 <?if ($retval != 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/zfs_scrub">
-<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[1]" value="<?=$zfs_cmd?>">
 <input type="hidden" name="#arg[2]" value="<?=$tag?>">
 
 &nbsp;
-: <input type="submit" id="scrub-button" value="_(Scrub)_">
+: <input type="submit" id="zfs-button" value="<?=$zfs_cmd=='start' ? _('Scrub') : _('Clear')?>">
 
 :info_zfs_scrub_help:
 
