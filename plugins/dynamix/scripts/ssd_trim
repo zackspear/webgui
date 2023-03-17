@@ -38,8 +38,16 @@ function write(...$messages){
 }
 
 write(_("SSD Trim started").". "._("Please wait")." ...\n");
+// trim btrfs pools
 $trim = popen('fstrim -a -v','r');
 while (!feof($trim)) write(fgets($trim));
 pclose($trim);
+
+// trim zfs pools
+exec("/usr/sbin/zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
+foreach ($zfs_pools as $pool) if ($pool) {
+  exec("/usr/sbin/zpool trim $pool");
+  write("ZFS pool: $pool trimmed\n");
+}
 write('_DONE_','');
 ?>
