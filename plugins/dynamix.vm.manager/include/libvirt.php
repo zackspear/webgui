@@ -1522,7 +1522,7 @@
 		function get_node_device_information($dev) {
 			$dev = $this->get_node_device_res($dev);
 
-			$tmp = libvirt_nodedev_get_information($dev);
+			if ($dev) $tmp = libvirt_nodedev_get_information($dev); else $tmp = $dev ;
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
