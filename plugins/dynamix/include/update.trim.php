@@ -21,7 +21,7 @@ if ($_POST['mode']>0) {
   $day  = isset($_POST['day'])  ? $_POST['day']  : '*';
   $cron = "# Generated ssd trim schedule:\n$min $hour $dotm * $day /sbin/fstrim -a -v | logger &> /dev/null\n";
   exec("/usr/sbin/zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
-  foreach ($zfs_pools as $pool) if ($pool) $cron .= "$min $hour $dotm * $day /usr/sbin/zpool trim $pool\n";
+  foreach ($zfs_pools as $pool) if ($pool) $cron .= "$min $hour $dotm * $day /usr/sbin/zpool trim $pool 2> /dev/null\n";
 } else {
   $cron = "";
 }
