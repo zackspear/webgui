@@ -124,7 +124,7 @@ function clearLog() {
 function logSize() {
   $.post('/webGui/include/PHPsettings.php',{cmd:'logsize'},function(size){
     $('#logsize').text(size);
-    if (size.split(' ')[0]!=0) $('#clearlog').prop('disabled',false);
+    if (size.split(' ')[0]!=0) {$('#clearlog').prop('disabled',false);$('#viewlog').prop('disabled',false);}
     setTimeout(logSize,3000);
   });
 }
