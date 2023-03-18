@@ -31,24 +31,6 @@ $_SERVER['REQUEST_URI'] = 'settings';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
-function zfs_trim($write) {
-  exec("zfs list -Ho name,mounted",$zfs_pools);
-  foreach ($zfs_pools as $pool) {
-    [$name,$mounted] = preg_split('/\s+/',$pool);
-    if ($mounted != 'yes') continue;
-    if ($write) write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-    exec("zpool trim -w $name 2>/dev/null");
-    if ($write) write(zfs_info($name)."\r","\n"); else echo zfs_info($name)."\n";
-  }
-}
-
-function zfs_info($name) {
-  $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $name"))."iB";
-  $bytes = exec("zfs list -Hpo used $name");
-  exec("zpool list -vHP $name|grep -Po '^\s+\K/\S+'",$devs);
-  return "/mnt/$name: $trim ($bytes bytes) trimmed on ".implode(', ',$devs);
-}
-
 function write(...$messages){
   $com = curl_init();
   curl_setopt_array($com,[
@@ -62,6 +44,24 @@ function write(...$messages){
     curl_exec($com);
   }
   curl_close($com);
+}
+
+function zfs_info($name) {
+  $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $name"))."iB";
+  $bytes = exec("zfs list -Hpo used $name");
+  exec("zpool list -vHP $name|grep -Po '^\s+\K/\S+'",$devs);
+  return "/mnt/$name: $trim ($bytes bytes) trimmed on ".implode(', ',$devs);
+}
+
+function zfs_trim($write) {
+  exec("zfs list -Ho name,mounted",$pools);
+  foreach ($pools as $pool) {
+    [$name,$mounted] = preg_split('/\s+/',$pool);
+    if ($mounted != 'yes') continue;
+    if ($write) write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
+    exec("zpool trim -w $name 2>/dev/null");
+    if ($write) write(zfs_info($name)."\r","\n"); else echo zfs_info($name)."\n";
+  }
 }
 
 write(_("TRIM operation started").".\n","\n","\n");
