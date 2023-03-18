@@ -71,13 +71,8 @@ foreach ($mounts as $mount) {
 // trim zfs file system
 exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
 foreach ($zfs_pools as $pool) if ($pool) {
-  exec("zpool trim $pool");
-  while (true) {
-    sleep(1);
-    $trim = exec("zpool status -t $pool|grep -Pom1 '\d+% trimmed'");
-    write("/mnt/$pool: $trim\r");
-    if (substr($trim,0,3)==100) break;
-  }
+  write("/mnt/$pool: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
+  exec("zpool trim -w $pool");
   write(zfs_info($pool)."\r","\n");
 }
 write(_("Finished")."\n",'_DONE_','');
