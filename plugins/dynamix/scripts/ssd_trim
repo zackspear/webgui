@@ -72,7 +72,6 @@ foreach ($mounts as $mount) {
   write("$target: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
   write(exec("fstrim -v $target 2>/dev/null")." on $source\r","\n");
 }
-
 // trim zfs
 zfs_trim(true);
 write(_("Finished")."\n",'_DONE_','');
