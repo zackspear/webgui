@@ -22,13 +22,7 @@ if ($argc==2 && $argv[1]=='cron') {
   // trim btrfs
   echo shell_exec("fstrim -va 2>/dev/null");
   // trim zfs
-  exec("zfs list -Ho name,mounted",$zfs_pools);
-  foreach ($zfs_pools as $pool) {
-    [$name,$mounted] = preg_split('/\s+/',$pool);
-    if ($mounted != 'yes') continue;
-    exec("zpool trim -w $name 2>/dev/null");
-    echo zfs_info($name)."\n";
-  }
+  zfs_trim(true);
   exit(0);
 }
 
@@ -36,6 +30,16 @@ if ($argc==2 && $argv[1]=='cron') {
 $_SERVER['REQUEST_URI'] = 'settings';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
+
+function zfs_trim($echo) {
+  exec("zfs list -Ho name,mounted",$pools);
+  foreach ($pools as $pool) {
+    [$name,$mounted] = preg_split('/\s+/',$pool);
+    if ($mounted != 'yes') continue;
+    exec("zpool trim -w $name 2>/dev/null");
+    if ($echo) echo zfs_info($name)."\n"; else write(zfs_info($name)."\r","\n");
+  }
+}
 
 function zfs_info($name) {
   $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $name"))."iB";
@@ -70,13 +74,6 @@ foreach ($mounts as $mount) {
 }
 
 // trim zfs
-exec("zfs list -Ho name,mounted",$zfs_pools);
-foreach ($zfs_pools as $pool) {
-  [$name,$mounted] = preg_split('/\s+/',$pool);
-  if ($mounted != 'yes') continue;
-  write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-  exec("zpool trim -w $name 2>/dev/null");
-  write(zfs_info($name)."\r","\n");
-}
+zfs_trim();
 write(_("Finished")."\n",'_DONE_','');
 ?>
