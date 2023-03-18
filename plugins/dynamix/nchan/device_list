@@ -138,7 +138,7 @@ function vfs_luks($fs) {
 }
 function vfs_info($fs) {
   $fs = vfs_type($fs);
-  return ($fs!='reiserfs') ? $fs : "<a class='info hand orange-text'><i class='fa fa-info-circle' style='vertical-align:super;font-size:.9rem;margin-right:4px'></i>$fs<span>"._('ReiserFS is deprecated, please use another file system')."</span></a>";
+  return $fs; // no special action on reiserfs (may come in future)
 }
 function fs_info(&$disk) {
   global $display, $pools;
