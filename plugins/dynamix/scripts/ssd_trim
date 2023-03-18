@@ -65,14 +65,14 @@ exec("findmnt -lnt btrfs|sort -rk2|awk '$1!~\"btrfs\"{print $1,$2}'",$mounts);
 foreach ($mounts as $mount) {
   [$target,$source] = explode(' ',$mount);
   write("$target: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-  write(exec("fstrim -v $target")." on $source\r","\n");
+  write(exec("fstrim -v $target 2>/dev/null")." on $source\r","\n");
 }
 
 // trim zfs file system
 exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
 foreach ($zfs_pools as $pool) if ($pool) {
   write("/mnt/$pool: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-  exec("zpool trim -w $pool");
+  exec("zpool trim -w $pool 2>/dev/null");
   write(zfs_info($pool)."\r","\n");
 }
 write(_("Finished")."\n",'_DONE_','');
