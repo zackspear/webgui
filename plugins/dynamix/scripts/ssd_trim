@@ -37,17 +37,24 @@ function write(...$messages){
   curl_close($com);
 }
 
-write(_("SSD Trim started").". "._("Please wait")." ...\n");
+write(_("SSD Trim started").". "._("Please wait")."...\n");
 // trim btrfs pools
 $trim = popen('fstrim -a -v','r');
 while (!feof($trim)) write(fgets($trim));
 pclose($trim);
+write("\n","\n");
 
 // trim zfs pools
 exec("/usr/sbin/zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
 foreach ($zfs_pools as $pool) if ($pool) {
   exec("/usr/sbin/zpool trim $pool");
-  write("ZFS pool: $pool trimmed\n");
+  while (true) {
+    sleep(1);
+    $trim = exec("/usr/sbin/zpool status -t $pool|grep -Pom1 '\d+% trimmed'");
+    write("ZFS pool $pool $trim\r");
+    if (substr($trim,0,3)==100) break;
+  }
+  write("\n");
 }
-write('_DONE_','');
+write(_("Finished")."\n",'_DONE_','');
 ?>
