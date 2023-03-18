@@ -19,9 +19,7 @@ if ($_POST['mode']>0) {
   $min  = isset($_POST['min'])  ? $_POST['min']  : '*';
   $dotm = isset($_POST['dotm']) ? $_POST['dotm'] : '*';
   $day  = isset($_POST['day'])  ? $_POST['day']  : '*';
-  $cron = "# Generated ssd trim schedule:\n$min $hour $dotm * $day /sbin/fstrim -a -v | logger &> /dev/null\n";
-  exec("/usr/sbin/zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
-  foreach ($zfs_pools as $pool) if ($pool) $cron .= "$min $hour $dotm * $day /usr/sbin/zpool trim $pool 2> /dev/null\n";
+  $cron = "# Generated TRIM schedule:\n$min $hour $dotm * $day /usr/local/emhttp/plugins/dynamix/scripts/ssd_trim cron|logger &> /dev/null\n";
 } else {
   $cron = "";
 }
