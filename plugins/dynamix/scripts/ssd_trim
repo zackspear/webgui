@@ -17,10 +17,31 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Wrappers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
+// cron operation
+if ($argc==2 && $argv[1]=='cron') {
+  // trim btrfs
+  echo shell_exec("fstrim -va 2>/dev/null");
+  // trim zfs
+  exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
+  foreach ($zfs_pools as $pool) if ($pool) {
+    exec("zpool trim -w $pool 2>/dev/null");
+    echo zfs_info($pool)."\n";
+  }
+  exit(0);
+}
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
+
+function zfs_info($pool) {
+  $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $pool"))."iB";
+  $bytes = exec("zfs list -Hpo used $pool");
+  exec("zpool status -tP $pool|grep -Po '^\s+\K.+% trimmed'",$devs);
+  $devs = implode(', ',array_map(function($d){return strtok($d,' ');},$devs));
+  return "/mnt/$pool: $trim ($bytes bytes) trimmed on $devs";
+}
 
 function write(...$messages){
   $com = curl_init();
@@ -39,7 +60,7 @@ function write(...$messages){
 
 write(_("TRIM operation started").".\n","\n","\n");
 
-// trim btrfs pools
+// trim btrfs file system
 exec("findmnt -lnt btrfs|sort -rk2|awk '$1!~\"btrfs\"{print $1,$2}'",$mounts);
 foreach ($mounts as $mount) {
   [$target,$source] = explode(' ',$mount);
@@ -47,10 +68,9 @@ foreach ($mounts as $mount) {
   write(exec("fstrim -v $target")." on $source\r","\n");
 }
 
-// trim zfs pools
+// trim zfs file system
 exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
 foreach ($zfs_pools as $pool) if ($pool) {
-  unset($devs);
   exec("zpool trim $pool");
   while (true) {
     sleep(1);
@@ -58,11 +78,7 @@ foreach ($zfs_pools as $pool) if ($pool) {
     write("/mnt/$pool: $trim\r");
     if (substr($trim,0,3)==100) break;
   }
-  $trim = preg_replace('/(.$)/',' $1',exec("zfs list $pool|grep -Pom1 '^$pool\s+\K\S+'"))."iB";
-  $bytes = exec("zfs list -p $pool|grep -Pom1 '^$pool\s+\K\d+'");
-  exec("zpool status -t $pool|grep -Po '^\s+\K.+100%'",$devs);
-  $devs = implode(', ',array_map(function($dev){return "/dev/".strtok($dev,' ');},$devs));
-  write("/mnt/$pool: $trim ($bytes bytes) trimmed on $devs\r","\n");
+  write(zfs_info($pool)."\r","\n");
 }
 write(_("Finished")."\n",'_DONE_','');
 ?>
