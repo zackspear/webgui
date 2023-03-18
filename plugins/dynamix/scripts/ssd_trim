@@ -37,12 +37,11 @@ $_SERVER['REQUEST_URI'] = 'settings';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
-function zfs_info($pool) {
-  $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $pool"))."iB";
-  $bytes = exec("zfs list -Hpo used $pool");
-  exec("zpool status -tP $pool|grep -Po '^\s+\K.+% trimmed'",$devs);
-  $devs = implode(', ',array_map(function($d){return strtok($d,' ');},$devs));
-  return "/mnt/$pool: $trim ($bytes bytes) trimmed on $devs";
+function zfs_info($name) {
+  $trim = preg_replace('/(.$)/',' $1',exec("zfs list -Ho used $name"))."iB";
+  $bytes = exec("zfs list -Hpo used $name");
+  exec("zpool list -vHP $name|grep -Po '^\s+\K/\S+'",$devs);
+  return "/mnt/$name: $trim ($bytes bytes) trimmed on ".implode(', ',$devs);
 }
 
 function write(...$messages){
