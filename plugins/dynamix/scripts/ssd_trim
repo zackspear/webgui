@@ -64,8 +64,7 @@ function zfs_trim($write) {
   }
 }
 
-write(_("TRIM operation started").".\n","\n","\n");
-
+write(_("TRIM operation started")."\n","\n","\n");
 // trim btrfs
 exec("findmnt -lnt btrfs|sort -rk2|awk '$1!~\"btrfs\"{print $1,$2}'",$mounts);
 foreach ($mounts as $mount) {
