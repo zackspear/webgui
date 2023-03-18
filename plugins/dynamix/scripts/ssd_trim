@@ -22,8 +22,8 @@ if ($argc==2 && $argv[1]=='cron') {
   // trim btrfs
   echo shell_exec("fstrim -va 2>/dev/null");
   // trim zfs
-  exec("zfs list -H|grep -Po '^\S+'",$zfs_pools);
-  foreach ($zfs_pools as $pool) if ($pool) {
+  exec("zfs list -Ho name",$zfs_pools);
+  foreach ($zfs_pools as $pool) {
     exec("zpool trim -w $pool 2>/dev/null");
     echo zfs_info($pool)."\n";
   }
@@ -60,7 +60,7 @@ function write(...$messages){
 
 write(_("TRIM operation started").".\n","\n","\n");
 
-// trim btrfs file system
+// trim btrfs
 exec("findmnt -lnt btrfs|sort -rk2|awk '$1!~\"btrfs\"{print $1,$2}'",$mounts);
 foreach ($mounts as $mount) {
   [$target,$source] = explode(' ',$mount);
@@ -68,9 +68,9 @@ foreach ($mounts as $mount) {
   write(exec("fstrim -v $target 2>/dev/null")." on $source\r","\n");
 }
 
-// trim zfs file system
-exec("zfs list -H|grep -Po '^\S+'",$zfs_pools);
-foreach ($zfs_pools as $pool) if ($pool) {
+// trim zfs
+exec("zfs list -Ho name",$zfs_pools);
+foreach ($zfs_pools as $pool) {
   write("/mnt/$pool: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
   exec("zpool trim -w $pool 2>/dev/null");
   write(zfs_info($pool)."\r","\n");
