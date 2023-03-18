@@ -22,7 +22,7 @@ if ($argc==2 && $argv[1]=='cron') {
   // trim btrfs
   echo shell_exec("fstrim -va 2>/dev/null");
   // trim zfs
-  exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
+  exec("zfs list -H|grep -Po '^\S+'",$zfs_pools);
   foreach ($zfs_pools as $pool) if ($pool) {
     exec("zpool trim -w $pool 2>/dev/null");
     echo zfs_info($pool)."\n";
@@ -69,7 +69,7 @@ foreach ($mounts as $mount) {
 }
 
 // trim zfs file system
-exec("zpool status|grep -Po 'pool: \K.+'",$zfs_pools);
+exec("zfs list -H|grep -Po '^\S+'",$zfs_pools);
 foreach ($zfs_pools as $pool) if ($pool) {
   write("/mnt/$pool: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
   exec("zpool trim -w $pool 2>/dev/null");
