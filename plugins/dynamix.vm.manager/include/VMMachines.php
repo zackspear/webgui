@@ -136,8 +136,8 @@ foreach ($vms as $vm) {
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
   echo "<td colspan='8' style='margin:0;padding:0'>";
   echo "<table class='tablesorter domdisk'>";
-  echo "<thead><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Serial')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th><th>Boot Order</th</tr></thead>";
-  echo "<tbody>";
+  echo "<thead class='child'><tr><th><i class='fa fa-hdd-o'></i> <b>"._('Disk devices')."</b></th><th>"._('Serial')."</b></th><th>"._('Bus')."</th><th>"._('Capacity')."</th><th>"._('Allocation')."</th><th>Boot Order</th</tr></thead>";
+  echo "<tbody class='child'>";
 
   /* Display VM disks */
   foreach ($lv->get_disk_stats($res) as $arrDisk) {
@@ -189,9 +189,10 @@ foreach ($vms as $vm) {
     }
 
   }
-
+  echo "</tbody>";
   /* Display VM  IP Addresses "execute":"guest-network-get-interfaces" --pretty */
-  echo "<thead><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th></th><th></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
+  echo "<thead class='child'><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th></th><th></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
+  echo "<tbody class='child'>";
   $gastate = getgastate($res);
   if ($gastate == "connected") {
     $ip  = $lv->domain_interface_addresses($res, 1);
@@ -216,7 +217,7 @@ foreach ($vms as $vm) {
   } else {
     if ($gastate == "disconnected") echo "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>";
     else echo "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>";
-    }
+  }
   echo "</tbody></table>";
   echo "</td></tr>";
 }
