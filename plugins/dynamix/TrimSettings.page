@@ -1,5 +1,5 @@
 Menu="Scheduler"
-Title="SSD TRIM Settings"
+Title="TRIM Settings"
 Tag="superpowers"
 ---
 <?PHP
@@ -20,7 +20,7 @@ $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 ?>
 <script>
 function trimNow() {
-  openPlugin("ssd_trim", "_(Perform SSD Trim)_");
+  openPlugin("ssd_trim", "_(Perform TRIM Operation)_");
 }
 function presetTrim(form) {
   var mode = form.mode.value;
@@ -59,7 +59,7 @@ $(function() {
 <input type="hidden" name="#section" value="ssd">
 <input type="hidden" name="#include" value="/webGui/include/update.trim.php">
 <input type="hidden" name="hour" value="">
-_(SSD TRIM schedule)_:
+_(TRIM schedule)_:
 : <select name="mode" onchange="presetTrim(this.form)">
   <?for ($m=0; $m<count($mode); $m++):?>
   <?=mk_option(_var($ssd,'mode'), strval($m), _($mode[$m]))?>
