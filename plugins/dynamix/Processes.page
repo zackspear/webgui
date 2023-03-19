@@ -18,7 +18,7 @@ Tag="cogs"
 <?if (_var($display,'resize')):?>
 <script>
 function resize() {
-  $('pre.up').height(Math.max(window.innerHeight-320,330)).show();
+  $('pre.up').height(Math.max(window.innerHeight-320,330));
 }
 $(function() {
   resize();
@@ -27,6 +27,6 @@ $(function() {
 </script>
 <?endif;?>
 <?
-echo ($display['resize'] ? "<pre class='up' style='display:none'>" : "<pre class='up'>").shell_exec('ps -aux')."</pre>";
+echo "<pre class='up'>",shell_exec('ps -aux'),"</pre>";
 ?>
 <input type="button" value="_(Done)_" onclick="done()">
