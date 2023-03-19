@@ -4,8 +4,8 @@ Icon="icon-pagemap"
 Tag="map-o"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,7 @@ Tag="map-o"
  * all copies or substantial portions of the Software.
  */
 ?>
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 <script>
 function resize() {
   $('div.up').height(Math.max(window.innerHeight-320,330)).show();

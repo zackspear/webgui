@@ -15,7 +15,7 @@ Tag="code"
  * all copies or substantial portions of the Software.
  */
 ?>
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 <script>
 function resize() {
   $('pre.up').height(Math.max(window.innerHeight-320,330)).show();
