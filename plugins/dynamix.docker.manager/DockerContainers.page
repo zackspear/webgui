@@ -65,7 +65,7 @@ $('.title').append("<span id='busy' class='red-text strong' style='display:none;
 <?else:?>
 $('.tabs').append("<span id='busy' class='red-text strong' style='display:none;position:relative;top:<?=$top?>px;left:40px;font-size:1.4rem;letter-spacing:2px'><?=$busy?></span>");
 <?endif;?>
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 function resize() {
   $('#docker_list').height(Math.max(window.innerHeight-340,330));
   $('#docker_containers thead,#docker_containers tbody').removeClass('fixed');
@@ -125,7 +125,7 @@ function loadlist(init) {
     var data = d.split(/\0/);
     $('#docker_list').html(data[0]);
     $('head').append('<script>'+data[1]+'<\/script>');
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
     resize();
     if (init) $(window).bind('resize',function(){resize();});
 <?endif;?>
