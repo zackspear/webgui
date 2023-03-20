@@ -54,13 +54,16 @@ function zfs_info($name) {
 }
 
 function zfs_trim($write) {
-  exec("zfs list -Ho name,mounted",$pools);
-  foreach ($pools as $pool) {
-    [$name,$mounted] = preg_split('/\s+/',$pool);
-    if ($mounted != 'yes') continue;
+  exec("zfs list -Ho name",$pools);
+  foreach ($pools as $name) {
     if ($write) write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-    exec("zpool trim -w $name 2>/dev/null");
-    if ($write) write(zfs_info($name)."\r","\n"); else echo zfs_info($name)."\n";
+    if (exec("zpool trim -w $name 2>&1")) {
+      // trim not supported
+      if ($write) write("\r");
+    } else {
+      // device trimmed
+      if ($write) write(zfs_info($name)."\r","\n"); else echo zfs_info($name)."\n";
+    }
   }
 }
 
