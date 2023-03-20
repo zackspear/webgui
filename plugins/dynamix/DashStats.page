@@ -210,6 +210,7 @@ i.indent{display:inline-block;width:18px}
 i.f32{font-size:32px!important}
 i.f14{font-size:1.4rem!important}
 i.fa.orb{margin-left:0}
+i.fa-wrench{color:#0099ff!important;background-color:rgba(0,153,255,0.1)!important}
 i[class^="icon-"]{font-size:1.6rem;margin-right:8px}
 i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
