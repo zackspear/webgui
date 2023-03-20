@@ -58,7 +58,7 @@ function zfs_trim($write) {
   foreach ($pools as $name) {
     if ($write) {
       write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
-      if (exec("zpool trim -w $name 2>&1")=='') write(zfs_info($name)."\r","\n"); else write("\r");
+      if (exec("zpool trim -w $name 2>&1")=='') write(zfs_info($name)."\r","\n");
     } else {
       if (exec("zpool trim -w $name 2>&1")=='') echo zfs_info($name)."\n";
     }
