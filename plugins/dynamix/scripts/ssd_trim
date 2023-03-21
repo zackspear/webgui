@@ -19,7 +19,7 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // cron operation
 if ($argc==2 && $argv[1]=='cron') {
-  // trim btrfs
+  // trim btrfs, xfs
   echo shell_exec("fstrim -va 2>/dev/null");
   // trim zfs
   zfs_trim(false);
@@ -72,7 +72,7 @@ function zfs_trim($write) {
 }
 
 write(_("TRIM operation started")."\n","\n","\n");
-// trim btrfs
+// trim btrfs, xfs
 exec("findmnt -lnt btrfs,xfs -o target,source|awk '\$2!~\"\\\\[\"{print \$1,\$2}'",$mounts);
 foreach ($mounts as $mount) {
   [$target,$source] = explode(' ',$mount);
