@@ -45,6 +45,7 @@ function write(...$messages){
   }
   curl_close($com);
 }
+
 function is_hdd($disk) {
   $disk = explode('/',$disk)[-1];
   return file_get_contents("/sys/block/$disk/queue/rotational")==1;
