@@ -47,7 +47,8 @@ function write(...$messages){
 }
 
 function is_hdd($disk) {
-  $disk = explode('/',$disk)[-1];
+  $disk = explode('/',$disk);
+  $disk = preg_replace('/^(sd[a-z]+|nvme[0-9]+n1)p?1$/','$1',end($disk));
   return file_get_contents("/sys/block/$disk/queue/rotational")==1;
 }
 
