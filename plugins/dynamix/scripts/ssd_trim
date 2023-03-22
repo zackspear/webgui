@@ -79,7 +79,7 @@ foreach ($mounts as $mount) {
   if (is_hdd($source)) continue;
   write("$target: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
   $trim = exec("fstrim -v $target 2>/dev/null");
-  if ($trim) write("$trim on $source\r","\n");
+  if ($trim) write("$trim on $source\r","\n"); else write("\r");
 }
 // trim zfs
 zfs_trim(true);
