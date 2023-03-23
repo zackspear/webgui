@@ -597,11 +597,11 @@ if (!$group) {
 
 <?$i=0?>
 <?foreach ($pools as $pool):?>
-<tbody id='pool_list<?=$i++?>' title="_(<?=ucfirst($pool)?> Information)_">
+<tbody id='pool_list<?=$i?>' title="_(<?=ucfirst($pool)?> Information)_">
 <tr><td><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 <?if ($started):?><span class='info'><?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?></span><?endif;?>
 </td></tr>
-<tr><td id='pool_info<?=$i?>'></td></tr>
+<tr><td id='pool_info<?=$i++?>'></td></tr>
 <tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 <?endforeach;?>
@@ -1222,7 +1222,7 @@ dashboard.on('message',function(msg,meta) {
     var text = part[1].split('\r');
     for (var i=0,t; t=text[i]; i++) {
       var data = t.split('\0');
-      var info = moreInfo(data,"_(Cache)_");
+      var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
       $('#pool_list'+i).append(t);
       $('#pool_info'+i).parent().css('display',info?'':'none');
