@@ -61,7 +61,7 @@ function zfs_info($name) {
 }
 
 function zfs_trim($write) {
-  exec("zfs list -Ho name",$pools);
+  exec("zfs list -d0 -Ho name",$pools);
   foreach ($pools as $name) {
     if ($write) {
       write("/mnt/$name: ... <i class='fa fa-spin fa-circle-o-notch'></i>\r");
