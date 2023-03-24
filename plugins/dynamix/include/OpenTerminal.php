@@ -58,7 +58,7 @@ case 'syslog':
   $path = '/var/log/';
   $file = realpath($path.$_GET['name']);
   $sock = "/var/run/syslog.sock";
-  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
+  exec("ttyd-exec -om1 -i '$sock' ".command($path,$file));
   break;
 case 'disklog':
   // read disk log info (main page)
@@ -66,7 +66,7 @@ case 'disklog':
   $sock = "/var/tmp/$name.sock";
   $ata  = exec("ls -n '/sys/block/$name'|grep -Pom1 'ata\d+'");
   $dev  = $ata ? $name.'|'.$ata.'[.:]' : $name;
-  exec("ttyd-exec -o -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
+  exec("ttyd-exec -om1 -i '$sock' ".wait($name,"grep -P \"'$dev'\" '/var/log/syslog*'"));
   break;
 case 'log':
   // read vm log file
@@ -74,7 +74,7 @@ case 'log':
   $name = unbundle($_GET['name']);
   $file = realpath($path.$_GET['more']);
   $sock = "/var/tmp/$name.sock";
-  exec("ttyd-exec -o -i '$sock' ".command($path,$file));
+  exec("ttyd-exec -om1 -i '$sock' ".command($path,$file));
   break;
 case 'docker':
   $name = unbundle($_GET['name']);
@@ -86,18 +86,18 @@ case 'docker':
       $docker = wait($name,"docker logs -n $rows '$name'"); // container stopped
     else
       $docker = "$run docker logs -f -n $rows '$name'"; // container started
-    exec("ttyd-exec -o -i '$sock' $docker");
+    exec("ttyd-exec -om1 -i '$sock' $docker");
   } else {
     // docker console command
     $sock = "/var/tmp/$name.sock";
-    exec("ttyd-exec -o -i '$sock' docker exec -it '$name' $more");
+    exec("ttyd-exec -om1 -i '$sock' docker exec -it '$name' $more");
   }
   break;
 case 'lxc':
   $name = unbundle($_GET['name']);
   $more = unbundle($_GET['more']);
   $sock = "/var/tmp/$name.sock";
-  exec("ttyd-exec -i '$sock' lxc-attach '$name' $more");
+  exec("ttyd-exec -om1 -i '$sock' lxc-attach '$name' $more");
   break;
 }
 ?>
