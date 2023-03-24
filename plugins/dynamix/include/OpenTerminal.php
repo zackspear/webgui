@@ -74,6 +74,9 @@ case 'log':
   $name = unbundle($_GET['name']);
   $file = realpath($path.$_GET['more']);
   $sock = "/var/tmp/$name.sock";
+  exec("pgrep -f '$sock'", $pids);
+  // kill stalled instances
+  foreach ($pids as $pid) exec("kill $pid");
   exec("ttyd-exec -o -i '$sock' ".command($path,$file));
   break;
 case 'docker':
