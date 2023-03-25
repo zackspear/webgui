@@ -40,10 +40,11 @@ th.nine{width:9%}
 th.load{width:140px}
 input.wait{width:24px;margin:0 4px;padding:0 5px;border:none;box-shadow:none;background-color:transparent}
 table tbody td{line-height:normal}
-i.mover{margin-right:8px;display:none} 
+i.mover{margin-right:8px;display:none}
+#resetsort{margin-left:12px;display:inline-block;width:32px}
 </style>
 <table id="docker_containers" class="tablesorter shift">
-<thead><tr><th><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Uptime)_</th></tr></thead>
+<thead><tr><th><a id="resetsort" class="nohand" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Uptime)_</th></tr></thead>
 <tbody id="docker_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addContainer()" value="_(Add Container)_" style="display:none">
@@ -75,6 +76,7 @@ function resize() {
 }
 <?endif;?>
 function resetSorting() {
+  if ($.cookie('lockbutton')==null) return;
   $('input[type=button]').prop('disabled',true);
   $.post('/plugins/dynamix.docker.manager/include/UserPrefs.php',{reset:true},function(){loadlist();});
 }
@@ -90,8 +92,9 @@ function listview() {
   });
 }
 function LockButton() {
-  if ($.cookie('lockbutton') == null) {
+  if ($.cookie('lockbutton')==null) {
     $.cookie('lockbutton','lockbutton');
+    $('#resetsort').removeClass('nohand').addClass('hand');
     $('i.mover').show();
     $('#docker_list .sortable').css({'cursor':'move'});
 <?if ($themes1):?>
@@ -108,6 +111,7 @@ function LockButton() {
     }});
   } else {
     $.removeCookie('lockbutton');
+    $('#resetsort').removeClass('hand').addClass('nohand');
     $('i.mover').hide();
     $('#docker_list .sortable').css({'cursor':'default'});
 <?if ($themes1):?>
