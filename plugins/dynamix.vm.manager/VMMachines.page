@@ -127,13 +127,14 @@ table.domdisk thead tr th:nth-child(1){padding-left:72px}
 table.domdisk tbody tr td:nth-child(1){padding-left:72px}
 table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
 table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
-i.mover{margin-right:8px;display:none} 
+i.mover{margin-right:8px;display:none}
+#resetsort{margin-left:12px;display:inline-block;width:32px}
 .fileTree{background:<?=$bgcolor?>;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
 .dropdown-menu{z-index:10001}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
+<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="_(Add VM)_" style="display:none">
@@ -155,6 +156,7 @@ function resize() {
 }
 <?endif;?>
 function resetSorting() {
+  if ($.cookie('lockbutton')==null) return;
   $('input[type=button]').prop('disabled',true);
   $.post('/plugins/dynamix.vm.manager/include/UserPrefs.php',{reset:true},function(){loadlist();});
 }
@@ -214,8 +216,9 @@ var sortableHelper = function(e,ui){
   return ui;
 };
 function LockButton() {
-  if ($.cookie('lockbutton') == null) {
+  if ($.cookie('lockbutton')==null) {
     $.cookie('lockbutton','lockbutton');
+    $('#resetsort').removeClass('nohand').addClass('hand');
     $('i.mover').show();
     $('#kvm_list .sortable').css({'cursor':'move'});
 <?if ($themes1):?>
@@ -238,6 +241,7 @@ function LockButton() {
     }});
   } else {
     $.removeCookie('lockbutton');
+    $('#resetsort').removeClass('hand').addClass('nohand');
     $('i.mover').hide();
     $('#kvm_list .sortable').css({'cursor':'default'});
 <?if ($themes1):?>
