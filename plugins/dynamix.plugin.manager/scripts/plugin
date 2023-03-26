@@ -477,7 +477,7 @@ function plugin($method, $plugin_file, &$error) {
         unlink($name);
       }
       if ($retval != 0) {
-        $error = "run failed: $command";
+        $error = "run failed: '$command' returned $retval";
         return false;
       }
     }
