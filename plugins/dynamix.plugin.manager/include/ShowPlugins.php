@@ -33,6 +33,7 @@ $alerts  = '/tmp/plugins/my_alerts.txt';
 $builtin = ['unRAIDServer'];
 $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
+$Unraid  = parse_ini_file("/etc/unraid-version");
 
 if ($cmd=='alert') {
   // signal alert message yer or no
@@ -163,7 +164,11 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
           $latest = plugin('version',$filename);
           if ($os ? version_compare($latest,$version,'>') : strcmp($latest,$version) > 0) {
             $version .= "<br><span class='red-text'>$latest</span>";
-            $status = make_link("update",basename($plugin_file));
+            if ( ! $os && (version_compare(plugin("min",$filename,$error) ?: "1.0",$Unraid['version'],">") || version_compare(plugin("max",$filename,$error) ?: "999.9.9",$Unraid['version'],"<") )  ) {
+              $status = "<span class='warning'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> "._("Update Incompatible")."</span>";
+            } else {
+              $status = make_link("update",basename($plugin_file));
+            }
             $changes_file = $filename;
             if (!$os) $updates++;
           } else {
