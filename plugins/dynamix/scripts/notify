@@ -163,7 +163,7 @@ case 'add':
   $subject = 'Notification';
   $description = 'No description';
   $importance = 'normal';
-  $message = $link = '';
+  $message = $recipients = $link = $fqdnlink = '';
   $timestamp = time();
   $ticket = $timestamp;
   $mailtest = false;

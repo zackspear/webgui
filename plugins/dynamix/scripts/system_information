@@ -41,7 +41,7 @@ $model    = _var($var,'SYS_MODEL',_('N/A'));
 $board    = dmidecode('Base Board Information',2,0);
 $bios     = dmidecode('BIOS Information',0,0);
 $cpu      = dmidecode('Processor Information',4,0);
-$cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],$cpu['Version'] ?? exec("grep -Pom1 'model name\s+:\s*\K.+' /proc/cpuinfo"));
+$cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],exec("grep -Pom1 '^model name\s+:\s*\K.+' /proc/cpuinfo") ?: $cpu['Version']);
 $kernel   = exec("uname -srm");
 $openssl  = exec("openssl version|cut -d' ' -f2");
 

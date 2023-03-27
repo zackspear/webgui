@@ -15,10 +15,10 @@ Tag="code"
  * all copies or substantial portions of the Software.
  */
 ?>
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
 <script>
 function resize() {
-  $('pre.up').height(Math.max(window.innerHeight-320,330)).show();
+  $('pre.up').height(Math.max(window.innerHeight-320,330));
 }
 $(function() {
   resize();
@@ -31,6 +31,6 @@ $myPage['text'] = $page['text'] = $pages['Vars']['text'] = $language = $text = $
 $globals = $GLOBALS;
 ksort($globals);
 if (isset($globals['_SERVER']['PHP_AUTH_PW'])) $globals['_SERVER']['PHP_AUTH_PW'] = "***";
-echo ($display['resize'] ? "<pre class='up' style='display:none'>" : "<pre class='up'>").htmlspecialchars(print_r($globals,true))."</pre>";
+echo "<pre class='up'>",htmlspecialchars(print_r($globals,true)),"</pre>";
 ?>
 <input type="button" value="_(Done)_" onclick="done()">

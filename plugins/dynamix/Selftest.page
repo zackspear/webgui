@@ -19,7 +19,7 @@ Cond="strpos(_var($disks[$name],'status'),'_NP')===false"
 $date = date('Ymd-Hi');
 $file = _var($disk,'id','no-id')."-$date.txt";
 $zip  = str_replace(' ','_',strtolower(_var($var,'NAME','tower')))."-smart-$date.zip";
-$long = _var($disks[$name],'spindownDelay')==0 || (_var($disks[$name],'spindownDelay')==-1 && _var($var,'spindownDelay')==0);
+$long = !isset($disks[$name]['spindownDelay']) || _var($disks[$name],'spindownDelay')==0 || (_var($disks[$name],'spindownDelay')==-1 && _var($var,'spindownDelay')==0);
 ?>
 _(Download SMART report)_:
 : <input type='button' value="_(Download)_" onclick='saveSMART()'>
