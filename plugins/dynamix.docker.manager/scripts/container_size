@@ -69,12 +69,12 @@ foreach ($container as $ct) {
 $sum = ['total' => 0, 'writable' => 0, 'log' => 0];
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
 $i = 0;
-write(align(_('Name'),50).align(_('Container')).align(_('Writable'))._('Log')."\n");
+write(align(_('Name'),48).align(_('Container')).align(_('Writable'))._('Log')."\n");
 foreach ($list as $ct) {
-  write(($i++==0 ? '<hr>':'').align($ct['name'],50).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
+  write(($i++==0 ? '<hr>':'').align($ct['name'],48).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
   $sum['total'] += $ct['total'];
   $sum['writable'] += $ct['writable'];
   $sum['log'] += $ct['log'];
 }
-write("<hr>".align(_('Total size'),50).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n",'_DONE_','');
+write("<hr>".align(_('Total size'),48).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n",'_DONE_','');
 ?>

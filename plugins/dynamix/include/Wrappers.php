@@ -72,7 +72,7 @@ function exceed($value, $limit, $top=100) {
 }
 function ipaddr($ethX='eth0', $prot=4) {
   global $$ethX;
-  switch ($$ethX['PROTOCOL:0']) {
+  switch (_var($$ethX,'PROTOCOL:0')) {
   case 'ipv4':
     return $$ethX['IPADDR:0'];
   case 'ipv6':
@@ -83,7 +83,7 @@ function ipaddr($ethX='eth0', $prot=4) {
     case 6: return $$ethX['IPADDR6:0'];
     default:return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];}
   default:
-    return $$ethX['IPADDR:0'];
+    return _var($$ethX,'IPADDR:0');
   }
 }
 // convert strftime to date format
