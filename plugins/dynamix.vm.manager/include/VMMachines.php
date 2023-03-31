@@ -46,7 +46,7 @@ foreach ($vms as $vm) {
   $uuid = $lv->domain_get_uuid($res);
   $dom = $lv->domain_get_info($res);
   $id = $lv->domain_get_id($res) ?: '-';
-  $is_autostart = $lv->domain_get_autostart($res);
+  $autostart = $lv->domain_get_autostart($res) ? 'checked' : '';
   $state = $lv->domain_state_translate($dom['state']);
   $icon = $lv->domain_get_icon_url($res);
   $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
@@ -58,7 +58,6 @@ foreach ($vms as $vm) {
   }
   $mem = round($mem).'M';
   $vcpu = $dom['nrVirtCpu'];
-  $auto = $is_autostart ? 'checked':'';
   $template = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@name');
   if (empty($template)) $template = 'Custom';
   $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
@@ -130,7 +129,7 @@ foreach ($vms as $vm) {
   echo "<td>$mem</td>";
   echo "<td title='$diskdesc'>$disks</td>";
   echo "<td>$graphics</td>";
-  echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $auto></td></tr>";
+  echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $autostart></td></tr>";
 
   /* Disk device information */
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
