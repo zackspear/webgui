@@ -544,6 +544,12 @@ function formatWarning(val) {
       <td>_(This Unraid OS release has been withdrawn and may no longer be used. Please)_ <a href="/Plugins">_(update)_</a> _(your server)_.</td></tr>
 <?  else:
       switch (_var($var,'mdState')):
+      case "STARTED":
+?>      <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form)"></td>
+        <td>**_(Start)_** _(will bring the array on-line)_.</td></tr>
+<?      maintenance_mode();
+        check_encryption();
+        break;
       case "STOPPED":
         $action = explode(' ',_var($var,'mdResyncAction'));
         if ($action[0]=="recon"):
