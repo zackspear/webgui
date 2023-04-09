@@ -104,20 +104,7 @@ foreach ($shares as $name => $share) {
       $share['useCache'] = "no";
     }
   }
-  switch ($share['useCache']) {
-  case 'no':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-database'></i><span>"._('Array')."</span></a>";
-    break;
-  case 'yes':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye'></i> ".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-share-square-o fa-fw'></i><i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-database fa-fw'></i><span>"._('Pool, overflow or move to Array')."</span></a>";
-    break;
-  case 'prefer':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye'></i> <i class='fa fa-database fa-fw'></i><i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))."<span>"._('Pool else Array, move to Pool')."</span></a>";
-    break;
-  case 'only':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye'></i> ".compress(my_disk($share['cachePool'],$display['raw']))."<span>"._('Pool')."</span></a>";
-    break;
-  }
+  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.compress(my_disk($share['cachePool'],$display['raw'])):'');
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
     echo "<td>",my_scale($ssz1[$name]['disk.total'], $unit)," $unit</td>";

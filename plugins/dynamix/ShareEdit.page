@@ -100,17 +100,17 @@ _(Comments)_:
 
 :share_edit_comments_help:
 
-_(Placement of new files/folders)_:
-: <span class="input"><select name="shareUseCache" style="width:<?=$themes1?'300':'314'?>px" onchange="updateScreen(this.value)"<?=$pool_devices?'':' disabled'?>>
-  <?=mk_option($share['useCache'], "no", _('On array only'))?>
-  <?=mk_option($share['useCache'], "yes", _('On pool, overflow or move to array'))?>
-  <?=mk_option($share['useCache'], "prefer", _('On pool if present else on array, move to pool'))?>
-  <?=mk_option($share['useCache'], "only", _('On pool only'))?>
+_(Use cache pool (for new files/directories))_:
+: <span class="input"><select name="shareUseCache" onchange="updateScreen(this.value)"<?=$pool_devices?'':' disabled'?>>
+  <?=mk_option($share['useCache'], "no", _('No'))?>
+  <?=mk_option($share['useCache'], "yes", _('Yes'))?>
+  <?=mk_option($share['useCache'], "prefer", _('Prefer'))?>
+  <?=mk_option($share['useCache'], "only", _('Only'))?>
   </select></span><span id="moverAction"></span>
 
 :share_edit_cache_pool_help:
 
-_(Select pool)_:
+_(Select cache pool)_:
 : <select name="shareCachePool">
   <?foreach ($pools as $pool):?>
 <?if ($disks[$pool]['devices']) echo mk_option($share['cachePool'],$pool,ucfirst($pool),$disks[$pool]['shareEnabled']=='yes'?"":"disabled")?>
@@ -140,7 +140,7 @@ _(Minimum free space)_:
 :share_edit_free_space_help:
 
 _(Split level)_:
-: <select name="shareSplitLevel" style="max-width:<?=$themes1?'300':'321'?>px">
+: <select name="shareSplitLevel">
   <?=mk_option($share['splitLevel'], "", _('Automatically split any directory as required'))?>
   <?=mk_option($share['splitLevel'], "1", _('Automatically split only the top level directory as required'))?>
   <?=mk_option($share['splitLevel'], "2", _('Automatically split only the top two directory levels as required'))?>
@@ -219,10 +219,10 @@ function initDropdown(remove,create) {
 function updateScreen(cache) {
   switch (cache) {
   case 'yes':
-    var textAction = "_(Mover transfers files from pool to array)_";
+    var textAction = "_(Mover transfers files from cache to array)_";
     break;
   case 'prefer':
-    var textAction = "_(Mover transfers files from array to pool)_";
+    var textAction = "_(Mover transfers files from array to cache)_";
     break;
   default:
     var textAction = "_(Mover takes no action)_";

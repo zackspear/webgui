@@ -578,32 +578,6 @@ disks are not selected here, then the share may expand into *all* array disks.
 Specify the disks which can *not* be used by the share. By default no disks are excluded.
 :end
 
-:share_edit_cache_pool_help_20230401:
-Specify whether new files and folders written on the share can be written onto the pool if present.
-This setting also affects *mover* behavior.
-
-**On array only** prohibits new files and folders from being written onto the pool.
-*Mover* will take no action so any existing files for this share that are on the pool are left there.
-
-**On pool, overflow or move to array** indicates that all new files and folders should be written to the pool, provided
-enough free space exists on the pool.
-If there is insufficient space on the pool, then new files and folders are created on the array.
-When the *mover* is invoked, files and folders are transferred off the pool and onto the array.
-
-**On pool only** indicates that all new files and folders must be written to the pool.
-If there is insufficient free space on the pool, *create* operations will fail with *out of space* status.
-*Mover* will take no action so any existing files for this share that are on the array are left there.
-
-**On pool if present else on array, move to pool** indicates that all new files and folders should be written to the pool, provided
-enough free space exists on the pool.
-If there is insufficient space on the pool, then new files and folders are created on the array.
-When the *mover* is invoked, files and folders are transferred off the array and onto the pool.
-
-**NOTE:** Mover will never move any files that are currently in use.
-This means if you want to move files associated with system services such as Docker or VMs then you need to
-disable these services while mover is running.
-:end
-
 :share_edit_cache_pool_help:
 Specify whether new files and directories written on the share can be written onto the Cache disk/pool if present.
 This setting also affects *mover* behavior.
