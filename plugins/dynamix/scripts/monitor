@@ -189,7 +189,7 @@ foreach ($disks as $disk) {
   if (_var($disk,'numErrors',0)>0) $errors[] = "$text - $info (errors {$disk['numErrors']})";
 // check file system of cache pool
   $item = 'pool';
-  if (in_array($name,$pools) && strpos(_var($disk,'fsType'),'btrfs')!==false) {
+  if (in_array($name,$pools) && strpos(_var($disk,'fsType'),'btrfs')!==false && _var($disk,'uuid')!=="") {
     $attr = 'missing';
     if (exec("/sbin/btrfs filesystem show "._var($disk,'uuid')." 2>/dev/null|grep -c 'missing'")>0) {
       if (empty($saved[$item][$attr])) {
