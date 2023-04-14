@@ -187,7 +187,7 @@ span.outer{float:left}
 span.inner{width:143px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
-span.dense{width:170px;display:inline-block}
+span.dense{width:190px;display:inline-block}
 span#ups_model{margin-right:30px}
 span#chart-toggle{float:right}
 span.header,tr.header{font-size:1.1rem!important;text-transform:uppercase;letter-spacing:1px}
