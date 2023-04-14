@@ -18,7 +18,7 @@ function clone_list($disk) {
   return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || in_array($disk['name'],$pools));
 }
 if ($name) {
-  $refs = []; $n = 0;
+  $refs = []; $n = $i = 0;
   // Natural sorting of share names
   uksort($shares,'strnatcasecmp');
   foreach ($shares as $ref) {
@@ -28,8 +28,12 @@ if ($name) {
     $n++;
   }
   $end  = count($refs)-1;
-  $prev = urlencode($i>0 ? $refs[$i-1] : $refs[$end]);
-  $next = urlencode($i<$end ? $refs[$i+1] : $refs[0]);
+  if ($end >= 0) {
+    $prev = urlencode($i>0 ? $refs[$i-1] : $refs[$end]);
+    $next = urlencode($i<$end ? $refs[$i+1] : $refs[0]);
+  } else {
+    $prev = $next = '';
+  }
 } else {
   $tabbed = false;
 }

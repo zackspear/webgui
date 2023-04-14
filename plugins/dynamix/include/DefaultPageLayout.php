@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = filter_var($_COOKIE['fontSize']??$display['font'], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -30,15 +30,15 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
 <head>
-<title><?=$var['NAME']?>/<?=$myPage['name']?></title>
+<title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=1300">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
-<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=$var['mdColor']?>.png">
+<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
@@ -58,8 +58,10 @@ html{font-size:<?=$display['font']?>%}
 #header{background-color:#<?=$backgnd?>}
 <?if ($themes1):?>
 .nav-tile{background-color:#<?=$backgnd?>}
-.nav-item a{color:#<?=$header?>}
+<?if ($header):?>
+.nav-item a,.nav-user a{color:#<?=$header?>}
 .nav-item.active:after{background-color:#<?=$header?>}
+<?endif;?>
 <?endif;?>
 <?endif;?>
 .inline_help{display:none}
@@ -70,9 +72,10 @@ html{font-size:<?=$display['font']?>%}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
 i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
+pre#swalbody p{margin-block-end:1em}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
-$safemode = $var['safeMode']=='yes';
+$safemode = _var($var,'safeMode')=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
 $banner = "$config/plugins/dynamix/banner.png";
@@ -86,7 +89,7 @@ if ($themes2) {
 }
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<span class='fa fa-info-circle fa-fw big blue-text' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
+$notes = "&nbsp;<span class='big blue-text fa fa-info-circle fa-fw' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
 ?>
 </style>
 
@@ -101,10 +104,11 @@ String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
 String.prototype.channel = function(){return this.split(':')[1].split(',').findIndex((e)=>/\[\d\]/.test(e));}
 
 Shadowbox.init({skipSetup:true});
+context.init();
 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
-var expiretime = <?=$var['regTy']=='Trial'||strstr($var['regTy'],'expired')?$var['regTm2']:0?>;
+var expiretime = <?=_var($var,'regTy')=='Trial'||strstr(_var($var,'regTy'),'expired')?_var($var,'regTm2'):0?>;
 var before = new Date();
 
 // page timer events
@@ -121,7 +125,7 @@ addAlert.plg = $.cookie('addAlert-plg');
 addAlert.func = $.cookie('addAlert-func');
 
 // current csrf_token
-var csrf_token = "<?=$var['csrf_token']?>";
+var csrf_token = "<?=_var($var,'csrf_token')?>";
 
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
@@ -191,7 +195,7 @@ function settab(tab) {
 <?switch ($myPage['name']):?>
 <?case'Main':?>
   $.cookie('tab',tab);
-<?if ($var['fsState']=='Started'):?>
+<?if (_var($var,'fsState')=='Started'):?>
   $.cookie('one','tab1');
 <?endif;?>
 <?break;?>
@@ -254,7 +258,7 @@ function openTerminal(tag,name,more) {
   name = name.replace(/[ #]/g,"_");
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.min(screen.availHeight,800),Math.min(screen.availWidth,1200));
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
-  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){tty_window.location=socket; tty_window.focus();});
+  $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},200);});
 }
 function bannerAlert(text,cmd,plg,func,start) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
@@ -366,18 +370,13 @@ function openChanges(cmd,title,nchan,button=0) {
   });
 }
 function openAlert(cmd,title,func) {
-  nchan_changes.start();
-  $.post('/webGui/include/StartCommand.php',{cmd:cmd+' nchan'},function(pid) {
-    if (pid==0) {
-      nchan_changes.stop();
-      $('div.spinner.fixed').hide();
-      return;
-    }
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:2},function(data) {
+    $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(proceed){
-      nchan_changes.stop();
       if (proceed) setTimeout(func+'()');
     });
     $('.sweet-alert').addClass('nchan');
+    $('pre#swalbody').html(data);
   });
 }
 function openDone(data) {
@@ -515,26 +514,27 @@ function digits(number) {
   return 'three';
 }
 function openNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) {
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) {
         $.jGrowl(notify.subject+'<br>'+notify.description, {
           group: notify.importance,
           header: notify.event+': '+notify.timestamp,
           theme: notify.file,
+          sticky: true,
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-          beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}
         });
       }
     });
   });
 }
 function closeNotifier(filter) {
-  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(json) {
-    var data = $.parseJSON(json);
-    $.each(data, function(i, notify) {
-      if (notify.importance == filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
+  $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
+    $.each($.parseJSON(msg), function(i, notify) {
+      if (notify.importance==filter) $.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});
     });
     $('div.jGrowl').find('.'+filter).find('div.jGrowl-close').trigger('click');
   });
@@ -555,10 +555,11 @@ $(function() {
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div class="bottom">':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';
-  $.jGrowl.defaults.sticky = true;
-  $.jGrowl.defaults.check = 100;
   $.jGrowl.defaults.position = '<?=$notify['position']?>';
+  $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
+  $.jGrowl.defaults.pool = 10;
+  $.jGrowl.defaults.life = 3000;
   Shadowbox.setup('a.sb-enable', {modal:true});
 // add any pre-existing reboot notices
   $.post('/webGui/include/Report.php',{cmd:'notice'},function(notices){
@@ -590,7 +591,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   <?=_('Version')?>: <?=$var['version']?><?=$notes?>
+   <?=_('Version')?>: <?=_var($var,'version','?')?><?=$notes?>
    </div>
    <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
@@ -604,18 +605,19 @@ foreach ($tasks as $button) {
   $page = $button['name'];
   $play = $task==$page ? " active" : "";
   echo "<div class='nav-item{$play}'>";
-  echo "<a href=\"/$page\" onclick=\"initab('/$page')\">"._($button['Name'] ?? $page)."</a></div>";
+  echo "<a href=\"/$page\" onclick=\"initab('/$page')\">"._(_var($button,'Name',$page))."</a></div>";
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
-if (in_array($task,['Dashboard','Docker','VMs'])) {
+if (isset($myPage['Lock'])) {
   $title = $themes2 ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system red-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
+
 foreach ($buttons as $button) {
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -628,18 +630,16 @@ foreach ($buttons as $button) {
       $icon = "<b class='fa $icon system'></b>";
     }
     $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
-    echo "<div class='nav-item {$button['name']} util'><a href='".($button['Href'] ?? '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
+    echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
     echo "<div class='{$button['Link']}'></div>";
   }
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
-if ($notify['display']) {
-  echo "<div id='nav-tub1' class='nav-user'><b id='box-tub1' class='system graybar'>0</b></div>";
-  echo "<div id='nav-tub2' class='nav-user'><b id='box-tub2' class='system graybar'>0</b></div>";
-  echo "<div id='nav-tub3' class='nav-user'><b id='box-tub3' class='system graybar'>0</b></div>";
-}
+
+echo "<div class='nav-user show'><a id='board' href='#'><b id='bell' class='icon-u-bell system'></b></a></div>";
+
 if ($themes2) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
@@ -655,7 +655,7 @@ echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
-if (($myPage['Type'] ?? '')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
+if (_var($myPage,'Type')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
 if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='true' ? 0 : 1;
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
@@ -665,13 +665,13 @@ foreach ($pages as $page) {
     eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
     if ($tabbed) {
       echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
-      echo tab_title($title,$page['root'],$page['Tag']??false);
+      echo tab_title($title,$page['root'],_var($page,'Tag',false));
       echo "</label><div class='content'>";
       $close = true;
     } else {
       if ($tab==1) echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
       echo "<div class='title'><span class='left'>";
-      echo tab_title($title,$page['root'],$page['Tag']??false);
+      echo tab_title($title,$page['root'],_var($page,'Tag',false));
       echo "</span></div>";
     }
     $tab++;
@@ -680,7 +680,7 @@ foreach ($pages as $page) {
     $pgs = find_pages($page['name']);
     foreach ($pgs as $pg) {
       @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
-      $icon = $pg['Icon'] ?? "<i class='icon-app PanelIcon'></i>";
+      $icon = _var($pg,'Icon',"<i class='icon-app PanelIcon'></i>");
       if (substr($icon,-4)=='.png') {
         $root = $pg['root'];
         if (file_exists("$docroot/$root/images/$icon")) {
@@ -735,8 +735,8 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 // Build footer
 annotate('Footer');
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
-$progress = ($var['fsProgress']!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
-switch ($var['fsState']) {
+$progress = (_var($var,'fsProgress')!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
+switch (_var($var,'fsState')) {
 case 'Stopped':
   echo "<span class='red strong'><i class='fa fa-stop-circle'></i> "._('Array Stopped')."</span>$progress"; break;
 case 'Starting':
@@ -812,7 +812,7 @@ defaultPage.on('message', function(msg,meta) {
         default     : var action = '';
       }
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=$display['number'][0]?>');
+      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=_var($display,'number','.,')[0]?>');
       if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
       status += "</span>";
     }
@@ -821,35 +821,35 @@ defaultPage.on('message', function(msg,meta) {
     break;
   case 2:
     // notifications
-    var tub1 = 0, tub2 = 0, tub3 = 0;
-    var data = $.parseJSON(msg);
-    $.each(data, function(i, notify) {
-<?if ($notify['display']):?>
+    var bell1 = 0, bell2 = 0, bell3 = 0;
+    $.each($.parseJSON(msg), function(i, notify) {
       switch (notify.importance) {
-        case 'alert'  : tub1++; break;
-        case 'warning': tub2++; break;
-        case 'normal' : tub3++; break;
+        case 'alert'  : bell1++; break;
+        case 'warning': bell2++; break;
+        case 'normal' : bell3++; break;
       }
-<?else:?>
-      $.jGrowl(notify.subject+'<br>'+notify.description, {
-        group: notify.importance,
-        header: notify.event+': '+notify.timestamp,
-        theme: notify.file,
-        click: function(e,m,o) {if (notify.link) location.replace(notify.link);},
-        beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
-        beforeClose: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});},
-        afterOpen: function(e,m,o){if (notify.link) $(e).css("cursor","pointer");}
-      });
+<?if ($notify['display']==0):?>
+      if (notify.show) {
+        $.jGrowl(notify.subject+'<br>'+notify.description, {
+          group: notify.importance,
+          header: notify.event+': '+notify.timestamp,
+          theme: notify.file,
+          beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
+          afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
+          click: function(e,m,o){if (notify.link) location.replace(notify.link);},
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
+        });
+      }
 <?endif;?>
     });
-<?if ($notify['display']):?>
-    $('#box-tub1').text(tub1);
-    $('#box-tub2').text(tub2);
-    $('#box-tub3').text(tub3);
-    if (tub1) $('#box-tub1').removeClass('graybar').addClass('redbar'); else $('#box-tub1').removeClass('redbar').addClass('graybar');
-    if (tub2) $('#box-tub2').removeClass('graybar').addClass('orangebar'); else $('#box-tub2').removeClass('orangebar').addClass('graybar');
-    if (tub3) $('#box-tub3').removeClass('graybar').addClass('greenbar'); else $('#box-tub3').removeClass('greenbar').addClass('graybar');
-<?endif;?>
+    $('#bell').removeClass('red-orb yellow-orb green-orb').prop('title',"<?=_('Alerts')?> ["+bell1+']\n'+"<?=_('Warnings')?> ["+bell2+']\n'+"<?=_('Notices')?> ["+bell3+']');;
+    if (bell1) $('#bell').addClass('red-orb'); else
+    if (bell2) $('#bell').addClass('yellow-orb'); else
+    if (bell3) $('#bell').addClass('green-orb');
+
+    if (bell1) $('#dropdown-board li.dropdown-submenu:eq(0)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(0)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell2) $('#dropdown-board li.dropdown-submenu:eq(1)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(1)').addClass('disabled').find('.dropdown-menu').hide();
+    if (bell3) $('#dropdown-board li.dropdown-submenu:eq(2)').removeClass('disabled'); else $('#dropdown-board li.dropdown-submenu:eq(2)').addClass('disabled').find('.dropdown-menu').hide();
     break;
   }
 });
@@ -945,9 +945,9 @@ $(function() {
   $('div.spinner.fixed').html(unraid_logo);
   setTimeout(function(){$('div.spinner').not('.fixed').each(function(){$(this).html(unraid_logo);});},500); // display animation if page loading takes longer than 0.5s
   shortcut.add('F1',function(){HelpButton();});
-<?if ($var['regTy']=='unregistered'):?>
+<?if (_var($var,'regTy')=='unregistered'):?>
   $('#licensetype').addClass('orange-text');
-<?elseif (!in_array($var['regTy'],['Trial','Basic','Plus','Pro'])):?>
+<?elseif (!in_array(_var($var,'regTy'),['Trial','Basic','Plus','Pro'])):?>
   $('#licensetype').addClass('red-text');
 <?endif;?>
   $('input[value="<?=_("Apply")?>"],input[value="Apply"],input[name="cmdEditShare"],input[name="cmdUserEdit"]').prop('disabled',true);
@@ -976,7 +976,7 @@ $(function() {
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
-<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)??'';?>
+<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)?:''?>
 <?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
   showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to upgrade Unraid OS')?>",true);
 <?elseif (strpos($readme,'DOWNGRADE')!==false):?>
@@ -984,38 +984,17 @@ $(function() {
 <?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
   showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <?if (is_file('/tmp/plugins/unRAIDServer.txt')):?><span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' title=\"<?=_('Release Notes')?>\"></span> <?endif;?><a><?=_('Update Now')?></a>");
 <?endif;?>
-<?if (!$notify['system']):?>
+<?if (!_var($notify,'system')):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
 <?endif;?>
-<?if ($notify['display']):?>
   var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}});
-  context.attach('#nav-tub1',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}});
-  context.attach('#nav-tub2',opts);
-
-  var opts = [];
-  context.init({preventDoubleContext:false,left:true,above:false});
-  opts.push({text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}});
-  opts.push({divider:true});
-  opts.push({text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}});
-  context.attach('#nav-tub3',opts);
-<?endif;?>
+  context.settings({above:false});
+  opts.push({header:"<?=_('Notifications')?>"});
+  opts.push({text:"<?=_('Alerts')?>",icon:'fa-bell-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('alert');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('alert');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('alert');}}]});
+  opts.push({text:"<?=_('Warnings')?>",icon:'fa-star-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('warning');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('warning');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('warning');}}]});
+  opts.push({text:"<?=_('Notices')?>",icon:'fa-sun-o',subMenu:[{text:"<?=_('View')?>",icon:'fa-folder-open-o',action:function(e){e.preventDefault();openNotifier('normal');}},{text:"<?=_('History')?>",icon:'fa-file-text-o',action:function(e){e.preventDefault();viewHistory('normal');}},{text:"<?=_('Acknowledge')?>",icon:'fa-check-square-o',action:function(e){e.preventDefault();closeNotifier('normal');}}]});
+  context.attach('#board',opts);
   if (location.pathname.search(/\/(AddVM|UpdateVM|AddContainer|UpdateContainer)/)==-1) {
     $('blockquote.inline_help').each(function(i) {
       $(this).attr('id','helpinfo'+i);

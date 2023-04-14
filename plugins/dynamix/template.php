@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -30,13 +30,13 @@ require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 // Read emhttp status
-$var     = (array)parse_ini_file('state/var.ini');
-$sec     = (array)parse_ini_file('state/sec.ini',true);
-$devs    = (array)parse_ini_file('state/devs.ini',true);
-$disks   = (array)parse_ini_file('state/disks.ini',true);
-$users   = (array)parse_ini_file('state/users.ini',true);
-$shares  = (array)parse_ini_file('state/shares.ini',true);
-$sec_nfs = (array)parse_ini_file('state/sec_nfs.ini',true);
+$var     = (array)@parse_ini_file('state/var.ini');
+$sec     = (array)@parse_ini_file('state/sec.ini',true);
+$devs    = (array)@parse_ini_file('state/devs.ini',true);
+$disks   = (array)@parse_ini_file('state/disks.ini',true);
+$users   = (array)@parse_ini_file('state/users.ini',true);
+$shares  = (array)@parse_ini_file('state/shares.ini',true);
+$sec_nfs = (array)@parse_ini_file('state/sec_nfs.ini',true);
 
 // Merge SMART settings
 require_once "$docroot/webGui/include/CustomMerge.php";
@@ -44,14 +44,14 @@ require_once "$docroot/webGui/include/CustomMerge.php";
 // Pool devices
 $pool_devices = false;
 $pools = pools_filter($disks);
-foreach ($pools as $pool) $pool_devices |= $disks[$pool]['devices'];
+foreach ($pools as $pool) $pool_devices |= _var($disks[$pool],'devices')!='';
 
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));
 
 // Language translations
-$_SESSION['locale'] = $display['locale'];
-$_SESSION['buildDate'] = date('Ymd',$var['regBuildTime']);
+$_SESSION['locale'] = _var($display,'locale');
+$_SESSION['buildDate'] = date('Ymd',_var($var,'regBuildTime'));
 require_once "$docroot/webGui/include/Translations.php";
 
 // Build webGui pages first, then plugins pages
@@ -63,16 +63,16 @@ foreach (glob('plugins/*', GLOB_ONLYDIR) as $plugin) {
 }
 
 // Get general variables
-$name = untangle($_GET['name']??'');
-$dir  = rawurldecode($_GET['dir']??'');
-$path = substr(strtok($_SERVER['REQUEST_URI'],'?'),1);
+$name = untangle(_var($_GET,'name'));
+$dir  = rawurldecode(_var($_GET,'dir'));
+$path = substr(strtok(_var($_SERVER,'REQUEST_URI'),'?'),1);
 
 // The current "task" is the first element of the path
 $task = strtok($path,'/');
 
 // Here's the page we're rendering
 $myPage   = $site[basename($path)];
-$pageroot = $docroot.'/'.$myPage['root'];
+$pageroot = $docroot.'/'._var($myPage,'root');
 
 // Nchan script start/stop tracking
 $nchan_pid = "/var/run/nchan.pid";

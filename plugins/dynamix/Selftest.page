@@ -1,7 +1,7 @@
 Menu="Device:2 New:2"
 Title="Self-Test"
 Tag="wrench"
-Cond="strpos($disks[$name]['status']??'','_NP')===false"
+Cond="strpos(_var($disks[$name],'status'),'_NP')===false"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
@@ -17,9 +17,9 @@ Cond="strpos($disks[$name]['status']??'','_NP')===false"
 ?>
 <?
 $date = date('Ymd-Hi');
-$file = $disk['id']."-$date.txt";
-$zip  = str_replace(' ','_',strtolower($var['NAME']))."-smart-$date.zip";
-$long = isset($disks[$name]['spindownDelay']) && ($disks[$name]['spindownDelay']==0 || ($disks[$name]['spindownDelay']==-1 && $var['spindownDelay']==0));
+$file = _var($disk,'id','no-id')."-$date.txt";
+$zip  = str_replace(' ','_',strtolower(_var($var,'NAME','tower')))."-smart-$date.zip";
+$long = !isset($disks[$name]['spindownDelay']) || _var($disks[$name],'spindownDelay')==0 || (_var($disks[$name],'spindownDelay')==-1 && _var($var,'spindownDelay')==0);
 ?>
 _(Download SMART report)_:
 : <input type='button' value="_(Download)_" onclick='saveSMART()'>
@@ -79,7 +79,7 @@ function testUpdate(init) {
       if ($('#smart_selftest').length) {
         $('#smart_selftest').html('<i class="fa fa-camera"></i> _(SMART self-test in progress)_...');
       }
-      if (!init) timers.testUpdate = setTimeout(testUpdate, 3000);
+      if (!init) timers.testUpdate = setTimeout(testUpdate,3000);
     } else {
       if ($('#smart_selftest').length) $('#smart_selftest').html('');
       $('#short_test').val("_(Start)_");

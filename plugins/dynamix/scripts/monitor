@@ -18,10 +18,12 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 if (!function_exists('_')) {
   function _($text) {return $text;}
 }
+// Exit when settings are not yet initialized
+if (!file_exists("/var/local/emhttp/var.ini")) exit;
 
-$var   = parse_ini_file("/var/local/emhttp/var.ini");
-$devs  = parse_ini_file("/var/local/emhttp/devs.ini",true);
-$disks = parse_ini_file("/var/local/emhttp/disks.ini",true);
+$var   = @parse_ini_file("/var/local/emhttp/var.ini") ?: [];
+$devs  = @parse_ini_file("/var/local/emhttp/devs.ini",true) ?: [];
+$disks = @parse_ini_file("/var/local/emhttp/disks.ini",true) ?: [];
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Preselect.php";
@@ -33,19 +35,19 @@ $notify = "$docroot/webGui/scripts/notify";
 $ram    = "/var/local/emhttp/monitor.ini";
 $rom    = "/boot/config/plugins/dynamix/monitor.ini";
 $saved  = @parse_ini_file($ram,true);
-$high1  = $display['critical'];
-$high2  = $display['warning'];
-$server = strtoupper($var['NAME']);
+$high1  = _var($display,'critical',0);
+$high2  = _var($display,'warning',0);
+$server = strtoupper(_var($var,'NAME','tower'));
 $pools  = pools_filter($disks);
 $errors = [];
 $top    = 120;
 
 function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
-  $name = $disk['name'];
-  $temp = $disk['temp'];
-  $hot  = $disk['hotTemp'] ?? $display['hot'] ?? 0;
-  $max  = $disk['maxTemp'] ?? $display['max'] ?? 0;
+  $name = _var($disk,'name');
+  $temp = _var($disk,'temp','*');
+  $max  = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
+  $hot  = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
   $warn = exceed($temp,$max,$top) ? 'alert' : (exceed($temp,$hot,$top) ? 'warning' : false);
   $item = 'temp';
   $last = $saved[$item][$name] ?? 0;
@@ -63,7 +65,7 @@ function check_temp(&$disk,$text,$info) {
 }
 function check_smart(&$disk,$port,$text,$info) {
   global $notify,$saved,$server,$numbers;
-  $name   = $disk['name'];
+  $name   = _var($disk,'name');
   $select = get_value($disk,'smSelect',0);
   $level  = get_value($disk,'smLevel',1);
   $events = explode('|',get_value($disk,'smEvents',$numbers));
@@ -120,9 +122,9 @@ function check_smart(&$disk,$port,$text,$info) {
 function check_usage(&$disk,$used,$text,$info) {
   global $notify,$saved,$server,$display;
   if ($used == -1) return;
-  $name = $disk['name'];
-  $warning = is_numeric($disk['warning']) ? $disk['warning'] : $display['warning'];
-  $critical = is_numeric($disk['critical']) ? $disk['critical'] : $display['critical'];
+  $name = _var($disk,'name');
+  $critical = ($disk['critical'] ?? $display['critical'] ?? 0) ?: 0;
+  $warning = ($disk['warning'] ?? $display['warning'] ?? 0) ?: 0;
   $warn = exceed($used,$critical) ? 'alert' : (exceed($used,$warning) ? 'warning' : false);
   $item = 'used';
   $last = $saved[$item][$name] ?? 0;
@@ -141,25 +143,26 @@ function check_usage(&$disk,$used,$text,$info) {
 
 // check array devices
 foreach ($disks as $disk) {
-  $name = $disk['name'];
-  if ($name=='flash' || substr($disk['status'],-3)=='_NP') continue;
+  $name = _var($disk,'name');
+  if ($name=='flash' || substr(_var($disk,'status'),-3)=='_NP') continue;
   $text = my_disk($name).(in_array($name,$pools)||$name=='parity'?' disk':'');
-  $info = !empty($disk['id']) ? "{$disk['id']} ({$disk['device']})" : "No device identification ({$disk['device']})";
+  $device = _var($disk,'device');
+  $info = !empty($disk['id']) ? "{$disk['id']} ($device)" : "No device identification ($device)";
 // process disk temperature notifications
   check_temp($disk,$text,$info);
 // process disk SMART notifications
-  check_smart($disk,port_name($disk['smDevice'] ?? $disk['device']),$text,$info);
+  check_smart($disk,port_name($disk['smDevice'] ?? $device),$text,$info);
 // process disk usage notifications
-  check_usage($disk,isset($disk['fsSize'])&&$disk['fsSize']>0?100-round(100*$disk['fsFree']/$disk['fsSize']):-1,$text,$info);
+  check_usage($disk,_var($disk,'fsSize',0)>0?100-round(100*_var($disk,'fsFree',0)/$disk['fsSize']):-1,$text,$info);
 // process disk operation notifications
-  $warn = strtok($disk['color'],'-');
+  $warn = strtok(_var($disk,'color'),'-');
   $item = 'disk';
   $last = $saved[$item][$name] ?? '';
   switch ($warn) {
   case 'red':
     if ($warn!=$last) {
-      if ($var['fsState']!='Stopped') {
-        $status = strtolower(str_replace(['NP_','_'],['',' '],$disk['status']));
+      if (_var($var,'fsState')!='Stopped') {
+        $status = strtolower(str_replace(['NP_','_'],['',' '],_var($disk,'status')));
         exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text error")." -s ".escapeshellarg("Alert [$server] - $text in error state ($status)")." -d ".escapeshellarg("$info")." -i \"alert\" 2>/dev/null");
       }
       $saved[$item][$name] = $warn;
@@ -167,7 +170,7 @@ foreach ($disks as $disk) {
   break;
   case 'yellow':
     if ($warn!=$last) {
-      if ($var['fsState']!='Stopped') {
+      if (_var($var,'fsState')!='Stopped') {
         $status = $name=='parity' ? "parity-sync in progress" : " is being reconstructed and is available for normal operation";
         exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text, $status")." -d ".escapeshellarg("$info")." 2>/dev/null");
       }
@@ -176,19 +179,19 @@ foreach ($disks as $disk) {
   break;
   default:
     if ($last) {
-      if ($var['fsState']!='Stopped') {
+      if (_var($var,'fsState')!='Stopped') {
         exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Notice [$server] - $text returned to normal operation")." -d ".escapeshellarg("$info")." 2>/dev/null");
       }
       unset($saved[$item][$name]);
     }
   break;}
 // count disk errors
-  if ($disk['numErrors']>0) $errors[] = "$text - $info (errors {$disk['numErrors']})";
+  if (_var($disk,'numErrors',0)>0) $errors[] = "$text - $info (errors {$disk['numErrors']})";
 // check file system of cache pool
   $item = 'pool';
-  if (in_array($name,$pools) && strpos($disk['fsType']??'','btrfs')!==false) {
+  if (in_array($name,$pools) && strpos(_var($disk,'fsType'),'btrfs')!==false && _var($disk,'uuid')!=="") {
     $attr = 'missing';
-    if (exec("/sbin/btrfs filesystem show {$disk['uuid']} 2>/dev/null|grep -c 'missing'")>0) {
+    if (exec("/sbin/btrfs filesystem show "._var($disk,'uuid')." 2>/dev/null|grep -c 'missing'")>0) {
       if (empty($saved[$item][$attr])) {
         exec("$notify -l '/Main' -e ".escapeshellarg("Unraid $text message")." -s ".escapeshellarg("Warning [$server] - Cache pool BTRFS missing device(s)")." -d ".escapeshellarg("$info")." -i \"warning\" 2>/dev/null");
         $saved[$item][$attr] = 1;
@@ -206,8 +209,8 @@ foreach ($disks as $disk) {
 
 // check unassigned devices
 foreach ($devs as $dev) {
-  $name = $dev['name'];
-  $id   = $dev['id'];
+  $name = _var($dev,'name','no name');
+  $id   = _var($dev,'id');
   $port = port_name($name);
   $text = "device $name";
   $info = !empty($id) ? "$id ($name)": "No device identification ($name)";

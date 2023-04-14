@@ -39,7 +39,7 @@ $cpus   = DockerUtil::cpus();
 
 function cpu_pinning() {
   global $xml,$cpus;
-  $vcpu = explode(',',$xml['CPUset'] ?? '');
+  $vcpu = explode(',',_var($xml,'CPUset'));
   $total = count($cpus);
   $loop = floor(($total-1)/16)+1;
   for ($c = 0; $c < $loop; $c++) {
@@ -73,7 +73,7 @@ function cpu_pinning() {
 if (isset($_POST['contName'])) {
   $postXML = postToXML($_POST, true);
   $dry_run = isset($_POST['dryRun']) && $_POST['dryRun']=='true';
-  $existing = $_POST['existingContainer'] ?? false;
+  $existing = _var($_POST,'existingContainer',false);
   $create_paths = $dry_run ? false : true;
   // Get the command line
   [$cmd, $Name, $Repository] = xmlToCommand($postXML, $create_paths);
@@ -228,9 +228,9 @@ if (isset($_GET['xmlTemplate'])) {
               $arrConfig['Name'] = 'AppData Config Path';
             }
           }
-          $arrConfig['Name'] = strip_tags($arrConfig['Name']);
-          $arrConfig['Description'] = strip_tags($arrConfig['Description']);
-          $arrConfig['Requires'] = strip_tags($arrConfig['Requires']);
+          $arrConfig['Name'] = strip_tags(_var($arrConfig,'Name'));
+          $arrConfig['Description'] = strip_tags(_var($arrConfig,'Description'));
+          $arrConfig['Requires'] = strip_tags(_var($arrConfig,'Requires'));
         }
       }
       if (!empty($dockercfg['DOCKER_APP_UNRAID_PATH']) && file_exists($dockercfg['DOCKER_APP_UNRAID_PATH'])) {
@@ -341,7 +341,7 @@ function makeConfig(opts) {
   if (opts.Type == "Path") {
     value.attr("onclick", "openFileBrowser(this,$(this).val(),$(this).val(),'',true,false);");
   } else if (opts.Type == "Device") {
-    value.attr("onclick", "openFileBrowser(this,'/dev','/dev','',false,true);")
+    value.attr("onclick", "openFileBrowser(this,'/dev','/dev','',true,true);")
   } else if (opts.Type == "Variable" && opts.Default.split("|").length > 1) {
     var valueOpts = opts.Default.split("|");
     var newValue = "<select name='confValue[]' class='selectVariable' default='"+valueOpts[0]+"'>";
@@ -571,7 +571,7 @@ function toggleMode(el,disabled) {
   switch ($(el)[0].selectedIndex) {
   case 0: // Path
     mode.html("<dl><dt>_(Access Mode)_:</dt><dd><select name='Mode'><option value='rw'>_(Read/Write)_</option><option value='rw,slave'>_(Read/Write - Slave)_</option><option value='rw,shared'>_(Read/Write - Shared)_</option><option value='ro'>_(Read Only)_</option><option value='ro,slave'>_(Read Only - Slave)_</option><option value='ro,shared'>_(Read Only - Shared)_</option></select></dd></dl>");
-    value.bind("click", function(){openFileBrowser(this, $(this).val(), $(this).val(), 'sh', true, false);});
+    value.bind("click", function(){openFileBrowser(this,$(this).val(),$(this).val(),'',true,false);});
     targetDiv.find('#dt1').text("_(Container Path)_");
     valueDiv.find('#dt2').text("_(Host Path)_");
     break;
@@ -605,7 +605,7 @@ function toggleMode(el,disabled) {
     targetDiv.hide();
     defaultDiv.hide();
     valueDiv.find('#dt2').text("_(Value)_");
-    value.bind("click", function(){openFileBrowser(this, '/dev', '/dev', '', true, true);});
+    value.bind("click", function(){openFileBrowser(this,'/dev','/dev','',true,true);});
     break;
   }
   reloadTriggers();
@@ -630,21 +630,17 @@ function openFileBrowser(el, top, root, filter, on_folders, on_files, close_on_s
   if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
   if (!root.trim()) {root = "/mnt/user/"; top = "/mnt/";}
   p = $(el);
-  // Skip is fileTree is already open
+  // Skip if fileTree is already open
   if (p.next().hasClass('fileTree')) return null;
   // create a random id
-  var r = Math.floor((Math.random()*1000)+1);
+  var r = Math.floor((Math.random()*10000)+1);
   // Add a new span and load fileTree
   p.after("<span id='fileTree"+r+"' class='textarea fileTree'></span>");
   var ft = $('#fileTree'+r);
-  ft.fileTree({
-    top: top,
-    root: root,
-    filter: filter,
-    allowBrowsing: true
-  },
-  function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-  function(folder){if(on_folders){p.val(folder.replace(/\/\/+/g,'/'));p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
+  ft.fileTree({top:top, root:root, filter:filter, allowBrowsing:true},
+    function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
+    function(folder){if(on_folders){p.val(folder.replace(/\/\/+/g,'/'));p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}}
+  );
   // Format fileTree according to parent position, height and width
   ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.width())});
   // close if click elsewhere
@@ -947,16 +943,6 @@ _(Privileged)_:
 #    ╚════╝ ╚══════╝       ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝
 ?>
 <div markdown="1" id="templatePopupConfig" style="display:none">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-<body>
 _(Config Type)_:
 : <select name="Type" onchange="toggleMode(this,false)">
   <option value="Path">_(Path)_</option>
@@ -1010,8 +996,6 @@ _(Password Mask)_:
   <option value="true">_(Yes)_</option>
   </select>
 </div>
-</body>
-</html>
 </div>
 
 <div markdown="1" id="templateDisplayConfig" style="display:none">

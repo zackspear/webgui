@@ -12,19 +12,20 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-// add translations
-$_SERVER['REQUEST_URI'] = 'plugins';
-require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
-$system  = unscript($_GET['system']??'');
-$branch  = unscript($_GET['branch']??'');
-$audit   = unscript($_GET['audit']??'');
-$check   = unscript($_GET['check']??'');
-$cmd     = unscript($_GET['cmd']??'');
-$init    = unscript($_GET['init']??'');
+// add translations
+$_SERVER['REQUEST_URI'] = 'plugins';
+require_once "$docroot/webGui/include/Translations.php";
+
+$system  = unscript(_var($_GET,'system'));
+$branch  = unscript(_var($_GET,'branch'));
+$audit   = unscript(_var($_GET,'audit'));
+$check   = unscript(_var($_GET,'check'));
+$cmd     = unscript(_var($_GET,'cmd'));
+$init    = unscript(_var($_GET,'init'));
 $empty   = true;
 $install = false;
 $updates = 0;
@@ -32,6 +33,7 @@ $alerts  = '/tmp/plugins/my_alerts.txt';
 $builtin = ['unRAIDServer'];
 $plugins = "/var/log/plugins/*.plg";
 $ncsi    = null; // network connection status indicator
+$Unraid  = parse_ini_file("/etc/unraid-version");
 
 if ($cmd=='alert') {
   // signal alert message yer or no
@@ -41,7 +43,7 @@ if ($cmd=='alert') {
 
 if ($cmd=='pending') {
   // prepare pending status for multi operations
-  foreach (explode('*',$_GET['plugin']) as $plugin) file_put_contents("/tmp/plugins/pluginPending/$plugin",'multi');
+  foreach (explode('*',_var($_GET,'plugin')) as $plugin) file_put_contents("/tmp/plugins/pluginPending/$plugin",'multi');
   die();
 }
 
@@ -162,7 +164,12 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
           $latest = plugin('version',$filename);
           if ($os ? version_compare($latest,$version,'>') : strcmp($latest,$version) > 0) {
             $version .= "<br><span class='red-text'>$latest</span>";
-            $status = make_link("update",basename($plugin_file));
+            $error = null;
+            if ( ! $os && (version_compare(plugin("min",$filename,$error) ?: "1.0",$Unraid['version'],">") || version_compare(plugin("max",$filename,$error) ?: "999.9.9",$Unraid['version'],"<") )  ) {
+              $status = "<span class='warning'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> "._("Update Incompatible")."</span>";
+            } else {
+              $status = make_link("update",basename($plugin_file));
+            }
             $changes_file = $filename;
             if (!$os) $updates++;
           } else {

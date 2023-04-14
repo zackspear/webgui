@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,7 +19,7 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
-$login_locale = $display['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 $unit = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
@@ -69,12 +69,12 @@ foreach ($container as $ct) {
 $sum = ['total' => 0, 'writable' => 0, 'log' => 0];
 array_multisort(array_column($list,'total'),SORT_DESC,$list); // sort on container size
 $i = 0;
-write(align(_('Name'),50).align(_('Container')).align(_('Writable'))._('Log')."\n");
+write(align(_('Name'),48).align(_('Container')).align(_('Writable'))._('Log')."\n");
 foreach ($list as $ct) {
-  write(($i++==0 ? '<hr>':'').align($ct['name'],50).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
+  write(($i++==0 ? '<hr>':'').align($ct['name'],48).align(autoscale($ct['total'])).align(autoscale($ct['writable'])).autoscale($ct['log'])."\n");
   $sum['total'] += $ct['total'];
   $sum['writable'] += $ct['writable'];
   $sum['log'] += $ct['log'];
 }
-write("<hr>".align(_('Total size'),50).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n",'_DONE_','');
+write("<hr>".align(_('Total size'),48).align(autoscale($sum['total'])).align(autoscale($sum['writable'])).autoscale($sum['log'])."\n",'_DONE_','');
 ?>

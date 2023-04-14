@@ -238,9 +238,9 @@ function download($url, $name, &$error, $write=true) {
     if ($file = popen("wget --compression=auto --no-cache --progress=dot --retry-connrefused --prefer-family=IPv4 --timeout=10 --tries=$tries --waitretry=$tries -O $name $url 2>&1", 'r')) {
       if ($write) write("plugin: downloading: $plg ...\r");
       $level = -1;
-      while (($line = fgets($file)) !== false) {
-        if (preg_match('/\d+%/', $line, $matches)) {
-          $percentage = substr($matches[0],0,-1);
+        while (($line = fgets($file)) !== false) {
+            if (preg_match('/ \d+% /', $line, $matches)) {
+                $percentage = substr(trim($matches[0]),0,-1);
           if ($percentage > $level) {
             if ($write) write("plugin: downloading: $plg ... $percentage%\r");
             $level = $percentage;
@@ -464,10 +464,10 @@ function plugin($method, $plugin_file, &$error) {
     if ($file->attributes()->Run) {
       $command = $file->attributes()->Run;
       if ($name) {
-        logger("plugin: running: $name");
+        logger(escapeshellarg("plugin: running: $command $name"));
         $retval = run("$command $name");
       } elseif ($file->LOCAL) {
-        logger("plugin: running: $file->LOCAL");
+        logger(escapeshellarg("plugin: running: $command $file->LOCAL"));
         $retval = run("$command $file->LOCAL");
       } elseif ($file->INLINE) {
         logger("plugin: running: 'anonymous'");
@@ -477,7 +477,7 @@ function plugin($method, $plugin_file, &$error) {
         unlink($name);
       }
       if ($retval != 0) {
-        $error = "run failed: $command";
+        $error = "run failed: '$command' returned $retval";
         return false;
       }
     }

@@ -1,7 +1,7 @@
 Menu="Device New"
 Title="Attributes"
 Tag="address-card-o"
-Cond="strpos($disks[$name]['status']??'','_NP')===false"
+Cond="strpos(_var($disks[$name],'status'),'_NP')===false"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology

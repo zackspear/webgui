@@ -17,7 +17,7 @@ $root  = "/boot/config/plugins/dynamix";
 $name  = "$root/$file";
 
 if (realpath(dirname($name)) == $root) {
-  switch ($_POST['mode']) {
+  switch ($_POST['mode']??'') {
   case 'set':
     if ($model) file_put_contents($name,$model);
     break;
@@ -27,7 +27,7 @@ if (realpath(dirname($name)) == $root) {
   case 'file':
     $case = 'case-model.png';
     file_put_contents($name,$case);
-    file_put_contents("$root/$case",base64_decode(str_replace('data:image/png;base64,','',$_POST['data'])));
+    file_put_contents("$root/$case",base64_decode(str_replace('data:image/png;base64,','',$_POST['data']??'')));
     break;
   }
 }

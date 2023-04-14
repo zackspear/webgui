@@ -4,8 +4,8 @@ Icon="icon-log"
 Tag="list"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -23,7 +23,7 @@ $max    = 5000;
 $select = [];
 if (file_exists($cfg)) {
   $syslog = parse_ini_file($cfg);
-  if ($syslog['local_server'] && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
+  if (isset($syslog['local_server']) && isset($syslog['server_folder']) && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
     natsort($logs);
     $select[] = "<select onchange='showLog(this.value)'>";
     $select[] = mk_option(1,$log,'syslog');
@@ -79,10 +79,12 @@ function toggle(checked) {
   highlight(checked,'L');
   $('span.label input[type=checkbox]').not('.ctrl').prop('checked',checked);
 }
+<?if (_var($display,'resize')):?>
 function resize() {
   $('pre.up').height(Math.max(window.innerHeight-320,330));
 }
-function showLog(log,init) {
+<?endif;?>
+function showLog(log) {
   logfile = log;
   $('span.label input[type=checkbox]').prop('checked',true);
   $('span.label').each(function(){
@@ -93,10 +95,6 @@ function showLog(log,init) {
   $.post('/webGui/include/Syslog.php',{log:log,max:$('#max').val()||<?=$max?>},function(data){
     clearTimeout(timers.syslog);
     $('pre.up').html(data);
-<?if ($display['resize']):?>
-    resize();
-    if (init) $(window).bind('resize',function(){resize();});
-<?endif;?>
     $('div.spinner.fixed').hide('slow');
   });
 }
@@ -108,7 +106,11 @@ $(function() {
       showLog(logfile);
     }
   });
-  showLog(logfile,true);
+<?if (_var($display,'resize')):?>
+  resize();
+  $(window).bind('resize',function(){resize();});
+<?endif;?>
+  showLog(logfile);
 });
 $('.tabs').append("<span class='status'><span class='lite label'>_(Log size)_:&nbsp;&nbsp;<input type='number' id='max' value='' placeholder='<?=$max?>'></span><?=$select?><span class='lite label'><label>_(Text)_<input type='checkbox' class='ctrl' onclick='highlight(!this.checked,\"N\")' checked></label></span><span class='error label'><label>_(Error)_<input type='checkbox' onclick='highlight(this.checked,\"E\")' checked></label></span><span class='warn label'><label>_(Warning)_<input type='checkbox' onclick='highlight(this.checked,\"W\")' checked></label></span><span class='system label'><label>_(System)_<input type='checkbox' onclick='highlight(this.checked,\"S\")' checked></label></span><span class='array label'><label>_(Array)_<input type='checkbox' onclick='highlight(this.checked,\"A\")' checked></label></span><span class='login label'><label>_(Login)_<input type='checkbox' onclick='highlight(this.checked,\"L\")' checked></label></span><span class='lite label'><input type='checkbox' class='ctrl' onclick='toggle(this.checked)' checked></span></span>");
 </script>

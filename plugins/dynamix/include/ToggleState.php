@@ -11,6 +11,10 @@
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Wrappers.php";
+
 $device = $_POST['device']??'';
 $name   = $_POST['name']??'';
 $action = $_POST['action']??'';
@@ -23,9 +27,7 @@ function prefix($key) {
 function emhttpd($cmd) {
   global $state, $csrf;
   $ch = curl_init("http://127.0.0.1/update");
-  $options = array(CURLOPT_UNIX_SOCKET_PATH => '/var/run/emhttpd.socket',
-                   CURLOPT_POST => 1,
-                   CURLOPT_POSTFIELDS => "$cmd&startState=$state&csrf_token=$csrf");
+  $options = [CURLOPT_UNIX_SOCKET_PATH => '/var/run/emhttpd.socket', CURLOPT_POST => 1, CURLOPT_POSTFIELDS => "$cmd&startState=$state&csrf_token=$csrf"];
   curl_setopt_array($ch, $options);
   curl_exec($ch);
   curl_close($ch);
@@ -33,7 +35,7 @@ function emhttpd($cmd) {
 
 switch ($device) {
 case 'New':
-  emhttpd("cmdSpin$action=$name");
+  emhttpd("cmdSpin{$action}={$name}");
   break;
 case 'Clear':
   emhttpd("clearStatistics=true");
@@ -46,16 +48,17 @@ default:
   }
   if (substr($name,-1) != '*') {
     // spin up/down single device
-    emhttpd("cmdSpin$action=$name");
+    emhttpd("cmdSpin{$action}={$name}");
     break;
   }
   // spin up/down group of devices
-  $disks = (array)parse_ini_file('state/disks.ini',true);
+  $disks = @parse_ini_file('state/disks.ini',true) ?: [];
+  // remove '*' from name
   $name = substr($name,0,-1);
   foreach ($disks as $disk) {
-    if ($disk['status'] != 'DISK_OK') continue;
-    $array = ($name=='array' && in_array($disk['type'],['Parity','Data']));
-    if ($array || prefix($disk['name'])==$name) emhttpd("cmdSpin$action={$disk['name']}");
+    if (_var($disk,'status') != 'DISK_OK') continue;
+    $array = ($name=='array' && in_array(_var($disk,'type'),['Parity','Data']));
+    if ($array || prefix(_var($disk,'name'))==$name) emhttpd("cmdSpin{$action}="._var($disk,'name'));
   }
   break;
 }

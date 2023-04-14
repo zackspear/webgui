@@ -127,10 +127,17 @@ function loadlist(id,check) {
       var cmd = id.split(':');
       var tr = 'tr#'+cmd[0].replace(/[\. _]/g,'');
       switch (cmd[1]) {
-        case 'update' :
-        case 'return' : updateInfo(data[0]); break;
-        case 'remove' : list.find(tr).remove(); break;
-        case 'install': if (!list.find(tr).length) list.append(data[0]); loadlist(null,1); break;
+      case 'update':
+      case 'return':
+        updateInfo(data[0]);
+        if (data[1] > 1) $('#updateall').show(); else $('#updateall').hide();
+        break;
+      case 'remove':
+        list.find(tr).remove();
+        break;
+      case 'install':
+        if (!list.find(tr).length) list.append(data[0]); loadlist(null,1);
+        break;
       }
     } else {
       updateInfo(data[0]);

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2014-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -13,12 +13,13 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
 require_once "$docroot/webGui/include/Translations.php";
-
-require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $DockerClient    = new DockerClient();
 $DockerTemplates = new DockerTemplates();
@@ -33,8 +34,9 @@ if (!$containers && !$images) {
 }
 
 if (file_exists($user_prefs)) {
-  $prefs = parse_ini_file($user_prefs); $sort = [];
-  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
+  $prefs = @parse_ini_file($user_prefs) ?: [];
+  $sort = [];
+  foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs);
   array_multisort($sort,SORT_NUMERIC,$containers);
   unset($sort);
 }
@@ -44,8 +46,8 @@ $allInfo = $DockerTemplates->getAllInfo();
 $docker = [];
 $null = '0.0.0.0';
 
-$autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
-$names = array_map('var_split', $autostart);
+$autostart = @file($autostart_file,FILE_IGNORE_NEW_LINES) ?: [];
+$names = array_map('var_split',$autostart);
 
 function my_lang_time($text) {
   [$number, $text] = my_explode(' ',$text,2);
@@ -75,8 +77,8 @@ foreach ($containers as $ct) {
   $support = html_entity_decode($info['Support']??'');
   $project = html_entity_decode($info['Project']??'');
   $registry = html_entity_decode($info['registry']??'');
-  $donateLink = html_entity_decode($info['DonateLink']??'');  
-  $readme = html_entity_decode($info['ReadMe']);
+  $donateLink = html_entity_decode($info['DonateLink']??'');
+  $readme = html_entity_decode($info['ReadMe']??'');
   $menu = sprintf("onclick=\"addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s', '%s','%s')\"", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project),addslashes($registry),addslashes($donateLink),addslashes($readme));
   $docker[] = "docker.push({name:'$name',id:'$id',state:$running,pause:$paused,update:$updateStatus});";
   $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
@@ -88,9 +90,9 @@ foreach ($containers as $ct) {
   $wait = var_split($autostart[array_search($name,$names)]??'',1);
   $ports = [];
   foreach ($ct['Ports'] as $port) {
-    $intern = $running ? ($ct['NetworkMode']=='host' ? $host : $port['IP']) : $null;
-    $extern = $running ? ($port['NAT'] ? $host : $intern) : $null;
-    $ports[] = sprintf('%s:%s/%s<i class="fa fa-arrows-h" style="margin:0 6px"></i>%s:%s', $intern, $port['PrivatePort'], strtoupper($port['Type']), $extern, $port['PublicPort']);
+    $intern = $running ? ($ct['NetworkMode']=='host' ? $host : _var($port,'IP')) : $null;
+    $extern = $running ? (_var($port,'NAT') ? $host : $intern) : $null;
+    $ports[] = sprintf('%s:%s/%s<i class="fa fa-arrows-h" style="margin:0 6px"></i>%s:%s', $intern, _var($port,'PrivatePort'), strtoupper(_var($port,'Type')), $extern, _var($port,'PublicPort'));
   }
   $paths = [];
   $ct['Volumes'] = is_array($ct['Volumes']) ? $ct['Volumes'] : [];
@@ -98,7 +100,7 @@ foreach ($containers as $ct) {
     [$host_path,$container_path,$access_mode] = my_explode(':',$mount,3);
     $paths[] = sprintf('%s<i class="fa fa-%s" style="margin:0 6px"></i>%s', htmlspecialchars($container_path), $access_mode=='ro'?'long-arrow-left':'arrows-h', htmlspecialchars($host_path));
   }
-  echo "<tr class='sortable'><td class='ct-name' style='width:220px;padding:8px'>";
+  echo "<tr class='sortable'><td class='ct-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   if ($template) {
     $appname = "<a class='exec' onclick=\"editContainer('".addslashes(htmlspecialchars($name))."','".addslashes(htmlspecialchars($template))."')\">".htmlspecialchars($name)."</a>";
   } else {
@@ -150,7 +152,7 @@ foreach ($images as $image) {
   $menu = sprintf("onclick=\"addDockerImageContext('%s','%s')\"", $id, implode(',',$image['Tags']));
   echo "<tr class='advanced'><td style='width:220px;padding:8px'>";
   echo "<span class='outer apps'><span id='$id' $menu class='hand'><img src='/webGui/images/disk.png' class='img'></span><span class='inner'>("._('orphan image').")<br><i class='fa fa-square stopped grey-text'></i><span class='state'>"._('stopped')."</span></span></span>";
-  echo "</td><td colspan='5'>"._('Image ID').": $id<br>";
+  echo "</td><td colspan='6'>"._('Image ID').": $id<br>";
   echo implode(', ',$image['Tags']);
   echo "</td><td>"._('Created')." ".htmlspecialchars(_($image['Created'],0))."</td></tr>";
 }

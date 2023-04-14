@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,7 +26,7 @@ if (!function_exists('_')) {
 }
 function ports() {
   global $net;
-  exec("ls $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
+  exec("ls --indicator-style=none $net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
   return $ports;
 }
 
@@ -49,8 +49,8 @@ while (true) {
     $rx = (float)port_get_contents("$net/$port/statistics/rx_bytes");
     $tx = (float)port_get_contents("$net/$port/statistics/tx_bytes");
     if ($ts > 0) {
-      $rxd = ($rx-$data[$port]['rx']??0)/$ts*8;
-      $txd = ($tx-$data[$port]['tx']??0)/$ts*8;
+      $rxd = ($rx-_var($data[$port],'rx',0))/$ts*8;
+      $txd = ($tx-_var($data[$port],'tx',0))/$ts*8;
       $rx_speed = my_scale($rxd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
       $tx_speed = my_scale($txd,$unit,1,-1).' '.str_replace('B','b',$unit).'ps';
     } else {

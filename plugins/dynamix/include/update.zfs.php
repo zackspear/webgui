@@ -12,19 +12,18 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
-require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
-$vfio = '/boot/config/vfio-pci.cfg';
-$old  = is_file($vfio) ? rtrim(file_get_contents($vfio)) : '';
-$new  = _var($_GET,'cfg');
-
-$reply = 0;
-if ($new != $old) {
-  if ($old) copy($vfio,"$vfio.bak");
-  if ($new) file_put_contents($vfio,$new); else @unlink($vfio);
-  $reply = 1;
+[$job, $cmd] = explode(';',$_POST['#job']);
+$valid = "$docroot/plugins/dynamix/scripts/";
+if ($_POST['mode']>0 && substr($cmd,0,strlen($valid))==$valid) {
+  $hour = isset($_POST['hour']) ? $_POST['hour'] : '*';
+  $min  = isset($_POST['min'])  ? $_POST['min']  : '*';
+  $dotm = isset($_POST['dotm']) ? $_POST['dotm'] : '*';
+  $day  = isset($_POST['day'])  ? $_POST['day']  : '*';
+  $cron = "# Generated zfs ".str_replace('_',' ',$job)." schedule:\n$min $hour $dotm * $day $cmd &> /dev/null\n\n";
+} else {
+  $cron = "";
 }
-echo $reply;
+parse_cron_cfg('dynamix', $job, $cron);
 ?>

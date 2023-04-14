@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,12 +12,13 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-// add translations
-$_SERVER['REQUEST_URI'] = '';
-require_once "$docroot/webGui/include/Translations.php";
 
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
+
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+require_once "$docroot/webGui/include/Translations.php";
 
 $var = parse_ini_file("/var/local/emhttp/var.ini");
 ?>
@@ -28,7 +29,7 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
 <meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=1300">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/default-fonts.css')?>">
@@ -80,21 +81,21 @@ function power_on() {
 $(document).ajaxSend(function(elm, xhr, s){
   if (s.type == "POST") {
     s.data += s.data?"&":"";
-    s.data += "csrf_token=<?=$var['csrf_token']?>";
+    s.data += "csrf_token=<?=_var($var,'csrf_token')?>";
   }
 });
 /**
  * If we have a sessionStorage item for hiding the UPC's 'lets unleash your hardware' overlay for ENOKEYFILE state users
  * this will remove the item so that if the user reboots their server the overlay will display again once the server comes back up.
  */
-const serverName = '<?= $var['NAME'] ?>';
-const guid = '<?= $var['flashGUID'] ?>';
+const serverName = '<?=_var($var,'NAME')?>';
+const guid = '<?=_var($var,'flashGUID')?>';
 sessionStorage.removeItem(`${serverName}_${guid ? guid.slice(-12) : 'NO_GUID'}`);
 </script>
 </head>
 <?
 $safemode = '/boot/unraidsafemode';
-switch ($_POST['cmd']) {
+switch (_var($_POST,'cmd')) {
   case 'reboot':
     if (isset($_POST['safemode'])) touch($safemode); else @unlink($safemode);
     exec('/sbin/reboot -n');?>

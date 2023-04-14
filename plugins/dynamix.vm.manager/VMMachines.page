@@ -5,9 +5,9 @@ Cond="is_file('/var/run/libvirt/libvirtd.pid')"
 Markdown="false"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -19,6 +19,7 @@ Markdown="false"
 ?>
 <?
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 $cpus = cpu_list();
 $hover   = in_array($theme,['white','azure']) ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
 $bgcolor = in_array($theme,['white','azure']) ? '#f2f2f2' : '#1c1c1c';
@@ -56,10 +57,10 @@ function vsize($size,$expand=true) {
   }
 }
 
-$uuid = unscript($_GET['uuid']??'');
-$subaction = $_GET['subaction'] ?? false;
+$uuid = unscript(_var($_GET,'uuid'));
+$subaction = _var($_GET,'subaction');
 if (isset($_GET['refresh'])) {
-  $vm = unscript($_GET['name']);
+  $vm = unscript(_var($_GET,'name'));
   if ($lv->domain_is_active($vm)) {
     echo "<meta http-equiv='refresh' content='5; url=/VMs?name=$vm&amp;refresh=true'>";
     $msg = "Waiting for $vm to shutdown...";
@@ -78,7 +79,7 @@ if ($subaction) {
       $msg = "Error: disk capacity has to be greater than {$_GET['oldcap']}";
     }
   } elseif ($subaction == 'disk-remove') {
-    $msg = $lv->domain_disk_remove($vm, $_GET['dev'])
+    $msg = $lv->domain_disk_remove($vm,_var($_GET,'dev'))
     ? "$vm disk has been removed"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-create') {
@@ -86,15 +87,15 @@ if ($subaction) {
     ? "Snapshot for $vm has been created"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-delete') {
-    $msg = $lv->domain_snapshot_delete($vm, $_GET['snap'])
+    $msg = $lv->domain_snapshot_delete($vm,_var($_GET,'snap'))
     ? "Snapshot for $vm has been deleted"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-revert') {
-    $msg = $lv->domain_snapshot_revert($vm, $_GET['snap'])
+    $msg = $lv->domain_snapshot_revert($vm,_var($_GET,'snap'))
     ? "$vm has been reverted"
     : "Error: ".$lv->get_last_error();
   } elseif ($subaction == 'snap-desc') {
-    $msg = $lv->snapshot_set_metadata($vm, $_GET['snap'], $_POST['snapdesc'])
+    $msg = $lv->snapshot_set_metadata($vm,_var($_GET,'snap'),_var($_POST,'snapdesc'))
     ? "Snapshot description for $vm has been saved"
     : "Error: ".$lv->get_last_error();
   }
@@ -119,22 +120,21 @@ div.four label{float:left;display:table-cell;width:25%}
 div.four label:nth-child(4n+4){float:none;clear:both}
 div.four label.cpu1{width:32%}
 div.four label.cpu2{width:26%}
-table.domdisk thead th:nth-child(1){width:76%;}
-table.domdisk thead th:nth-child(2){width:8%;}
-table.domdisk thead th:nth-child(3){width:8%;}
-table.domdisk thead th:nth-child(3){width:8%;}
+div.template,div#dialogWindow,input#upload{display:none}
+table.domdisk thead tr th:nth-child(1){width:56%!important}
+table.domdisk thead tr th:nth-child(n+2){width:8%!important}
 table.domdisk thead tr th:nth-child(1){padding-left:72px}
 table.domdisk tbody tr td:nth-child(1){padding-left:72px}
 table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
 table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
-.fileTree{background:<?=$bgcolor?>;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
-div.template,div#dialogWindow,input#upload{display:none}
+i.mover{margin-right:8px;display:none}
+#resetsort{margin-left:12px;display:inline-block;width:32px}
 .fileTree{background:<?=$bgcolor?>;width:500px;max-height:320px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
-.dropdown-menu{z-index:10001;
+.dropdown-menu{z-index:10001}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a href="#" style="cursor:hand;margin-left:12px;display:inline-block;width:32px" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
+<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="_(Add VM)_" style="display:none">
@@ -146,31 +146,28 @@ div.template,div#dialogWindow,input#upload{display:none}
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
 <script src="<?autov("/webGui/javascript/jquery.filetree.js")?>"></script>
 <script>
-<?if ($display['resize']):?>
-function resize(bind) {
-  var width = [];
-  var h = $('#kvm_list').height();
-  var s = Math.max(window.innerHeight-340,330);
-  if (h>s || bind) {
-    $('#kvm_list').height(s);
-    $('#kvm_table tbody tr:first-child td').each(function(){width.push($(this).width());});
-    $('#kvm_table thead tr th').each(function(i){$(this).width(width[i]);});
-    if (!bind) $('#kvm_table thead,#kvm_table tbody').addClass('fixed');
-  }
+<?if (_var($display,'resize')):?>
+function resize() {
+  $('#kvm_list').height(Math.max(window.innerHeight-340,330));
+  $('#kvm_table thead,#kvm_table tbody').removeClass('fixed');
+  $('#kvm_table thead tr th').each(function(){$(this).width($(this).width());});
+  $('#kvm_table tbody tr td').each(function(){$(this).width($(this).width());});
+  $('#kvm_table thead,#kvm_table tbody').not('.child').addClass('fixed');
 }
 <?endif;?>
 function resetSorting() {
+  if ($.cookie('lockbutton')==null) return;
   $('input[type=button]').prop('disabled',true);
   $.post('/plugins/dynamix.vm.manager/include/UserPrefs.php',{reset:true},function(){loadlist();});
 }
 function changemedia(uuid,dev,bus,file) {
-  if (file === "--select") getisoimage(uuid,dev,bus,file) ; 
+  if (file === "--select") getisoimage(uuid,dev,bus,file);
   if (file === "--eject") ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:file}, "loadlist");
-  
+
 }
 function getisoimage(uuid,dev,bus,file){
-  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?> ;
-  var match= ".iso" ;
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
   var box = $("#dialogWindow");
   box.html($("#templateISO").html());
 
@@ -196,7 +193,7 @@ function getisoimage(uuid,dev,bus,file){
           if (!target ) {errorTarget(); return;}
         } else target = '';
         box.find('#target').prop('disabled',true);
-        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist"); ;
+        ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target}, "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -213,31 +210,45 @@ function dialogStyle() {
   $('.ui-button-text').css({'padding':'0px 5px'});
 }
 var sortableHelper = function(e,ui){
+  var child = ui.next();
+  if (child.is(':visible')) child.addClass('unhide').hide();
   ui.children().each(function(){$(this).width($(this).width());});
   return ui;
 };
 function LockButton() {
-  if ($.cookie('lockbutton') == null) {
+  if ($.cookie('lockbutton')==null) {
     $.cookie('lockbutton','lockbutton');
+    $('#resetsort').removeClass('nohand').addClass('hand');
+    $('i.mover').show();
+    $('#kvm_list .sortable').css({'cursor':'move'});
 <?if ($themes1):?>
-    $('div.nav-item.LockButton').find('a').prop('title',"_(Lock sortable items)_");
-    $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
+    $('div.nav-item.LockButton a').prop('title',"_(Lock sortable items)_");
+    $('div.nav-item.LockButton b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
 <?endif;?>
-    $('div.nav-item.LockButton').find('span').text("_(Lock sortable items)_");
-    $('#kvm_list').sortable({helper:sortableHelper,items:'tr.sortable',cursor:'move',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
+    $('div.nav-item.LockButton span').text("_(Lock sortable items)_");
+    $('#kvm_list').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',axis:'y',containment:'parent',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
     update:function(e,ui){
-      var row = $('#kvm_list').find('tr:first');
-      var names = ''; var index = '';
+      $('#kvm_list .sortable').each(function(){
+        var parent = $(this).attr('parent-id');
+        var child = $('tr[child-id="'+parent+'"]');
+        child.detach().insertAfter($(this));
+        if (child.hasClass('unhide')) child.removeClass('unhide').show();
+      });
+      var row = $('#kvm_list tr:first');
+      var names = '', index = '';
       row.parent().children().find('td.vm-name').each(function(){names+=$(this).find('a').text()+';';index+=$(this).parent().parent().children().index($(this).parent())+';';});
       $.post('/plugins/dynamix.vm.manager/include/UserPrefs.php',{names:names,index:index});
     }});
   } else {
     $.removeCookie('lockbutton');
+    $('#resetsort').removeClass('hand').addClass('nohand');
+    $('i.mover').hide();
+    $('#kvm_list .sortable').css({'cursor':'default'});
 <?if ($themes1):?>
-    $('div.nav-item.LockButton').find('a').prop('title',"_(Unlock sortable items)_");
-    $('div.nav-item.LockButton').find('b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
+    $('div.nav-item.LockButton a').prop('title',"_(Unlock sortable items)_");
+    $('div.nav-item.LockButton b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
 <?endif;?>
-    $('div.nav-item.LockButton').find('span').text("_(Unlock sortable items)_");
+    $('div.nav-item.LockButton span').text("_(Unlock sortable items)_");
     $('#kvm_list').sortable('destroy');
   }
 }
@@ -248,9 +259,9 @@ function loadlist() {
     var data = d.split(/\0/);
     $('#kvm_list').html(data[0]);
     $('head').append('<script>'+data[1]+'<\/script>');
-<?if ($display['resize']):?>
+<?if (_var($display,'resize')):?>
     resize();
-    $(window).bind('resize',function(){resize(true);});
+    $(window).bind('resize',function(){resize();});
 <?endif;?>
 <?foreach ($vms as $vm) {
   $res = $lv->get_domain_by_name($vm);
@@ -272,7 +283,6 @@ function loadlist() {
         $(this).prop('checked', data.autostart);
       },'json');
     });
-    context.init({preventDoubleContext:false,left:true,above:false});
     $('div.spinner.fixed').hide('slow');
     $('input[type=button]').prop('disabled',false).show('slow');
     $('.text').click(showInput);
@@ -292,20 +302,7 @@ $(function() {
 
 <div id="dialogWindow"></div>
 <div markdown="1" id="templateISO" class="template">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-</head>
-<body>
 _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
-</body>
-</html>
 </div>

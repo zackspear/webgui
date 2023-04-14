@@ -4,8 +4,8 @@ Tag="bullseye"
 Cond="($pool_devices || $var['fsState']=='Stopped')"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -81,14 +81,14 @@ function addPoolPopup() {
   $(".ui-button-text").css({'padding':'0px 5px'});
 }
 
-<?if ($var['fsState']=='Started'):?>
+<?if (_var($var,'fsState')=="Started"):?>
 $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 </script>
 
 <?$i = 0?>
 <?foreach ($pools as $pool):?>
-<?if (isset($disks[$pool]['devices']) || $var['fsState']=='Stopped'):?>
+<?if (isset($disks[$pool]['devices']) or _var($var,'fsState')=="Stopped"):?>
 <table class="disk_status wide<?=$i?' divider':''?>">
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
 <tbody id="pool_device<?=$i++?>">
@@ -97,7 +97,7 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 </table>
 <?endif;?>
 <?endforeach;?>
-<?if ($var['fsState']=='Stopped'):?>
+<?if (_var($var,'fsState')=="Stopped"):?>
 <input type="button" value="_(Add Pool)_" style="margin:0" onclick="addPoolPopup()">
 
 <div id="dialogAddPool" style="display:none"></div>
@@ -109,7 +109,7 @@ _(Name)_:
 
 _(Slots)_:
 : <select name="poolSlots">
-  <?for ($n=1; $n<=$var['MAX_CACHESZ']; $n++):?>
+  <?for ($n=1; $n<=_var($var,'MAX_CACHESZ',0); $n++):?>
   <?=mk_option(1,$n,$n)?>
   <?endfor;?>
   </select>
@@ -120,7 +120,7 @@ _(Slots)_:
 
 :cache_devices_help:
 
-<?if ($var['fsState'] == "Stopped"):?>
+<?if (_var($var,'fsState')=="Stopped"):?>
 <div></div>
 :cache_slots_help:
 <?endif;?>

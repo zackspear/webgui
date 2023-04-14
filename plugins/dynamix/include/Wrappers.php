@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -48,10 +48,13 @@ function plugin_update_available($plugin, $os=false) {
     if (version_compare($server, $unraid, '>=')) return $remote;
   }
 }
-function get_value(&$object, $name, $default) {
+function _var(&$name, $key, $default='') {
+  return $name[$key] ?? $default;
+}
+function get_value(&$name, $key, $default) {
   global $var;
-  $value = $object[$name] ?? -1;
-  return $value!==-1 ? $value : ($var[$name] ?? $default);
+  $value = $name[$key] ?? -1;
+  return $value!==-1 ? $value : ($var[$key] ?? $default);
 }
 function get_ctlr_options(&$type, &$disk) {
   if (!$type) return;
@@ -69,7 +72,7 @@ function exceed($value, $limit, $top=100) {
 }
 function ipaddr($ethX='eth0', $prot=4) {
   global $$ethX;
-  switch ($$ethX['PROTOCOL:0']) {
+  switch (_var($$ethX,'PROTOCOL:0')) {
   case 'ipv4':
     return $$ethX['IPADDR:0'];
   case 'ipv6':
@@ -80,7 +83,7 @@ function ipaddr($ethX='eth0', $prot=4) {
     case 6: return $$ethX['IPADDR6:0'];
     default:return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];}
   default:
-    return $$ethX['IPADDR:0'];
+    return _var($$ethX,'IPADDR:0');
   }
 }
 // convert strftime to date format

@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2022, Lime Technology
+/* Copyright 2005-2023, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -26,7 +26,7 @@ function write(...$messages){
   curl_close($com);
 }
 
-$url = rawurldecode($argv[1]);
+$url = rawurldecode($argv[1]??'');
 $host = parse_url($url)['host'];
 
 if (in_array($host,['keys.lime-technology.com','lime-technology.com'])) {

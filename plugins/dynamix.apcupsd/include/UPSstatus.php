@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2015, Dan Landon.
  *
  * This program is free software; you can redistribute it and/or
@@ -89,7 +89,7 @@ if (file_exists("/var/run/apcupsd.pid")) {
   elseif (isset($load)) $status[5] = ($load<90 ? "<td $green>" : "<td $red>").$status[5]."</td>";
   $status[6] = $output ? ((!$volt || ($minv<$output && $output<$maxv) ? "<td $green>" : "<td $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</td>") : $status[6];
 }
-if (!$rows) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
+if (empty($rows)) $result[] = "<tr><td colspan='4' style='text-align:center'>"._('No information available')."</td></tr>";
 
 echo "<tr class='ups'>",implode($status),"</tr>\n",implode($result);
 ?>

@@ -26,6 +26,8 @@ if (!file_exists($log)) touch($log);
 
 <style>
 div#templateWindow,div#dialogWindow{display:none}
+span.dim{opacity:0.2}
+#screenlog{margin-left:0}
 </style>
 
 <div markdown="1" style="width:43%;margin-bottom:40px;padding:5px 15px;border:solid 1px">
@@ -46,19 +48,22 @@ under normal running conditions.
 <input type="hidden" name="#file" value="<?=$ini?>">
 <input type="hidden" name="error_log" value="<?=$log?>">
 <input type="hidden" name="display_startup_errors" value="0">
-<input type="hidden" name="display_errors" value="0">
+<input type="hidden" name="display_errors" value="<?=_var($conf,'display_errors',0)?>">
 <input type="hidden" name="log_errors" value="1">
 _(Error reporting level)_:
-: <select name="error_reporting">
-  <?=mk_option($conf['error_reporting']??'', "", "_(Default)_");?>
-  <?=mk_option($conf['error_reporting']??'', "32767", "_(All Categories)_");?>
-  <?=mk_option($conf['error_reporting']??'', "1", "_(Errors Only)_");?>
-  <?=mk_option($conf['error_reporting']??'', "2", "_(Warnings Only)_");?>
-  <?=mk_option($conf['error_reporting']??'', "8", "_(Notices Only)_");?>
-  <?=mk_option($conf['error_reporting']??'', "8192", "_(Deprecated Only)_");?>
+: <select name="error_reporting" onchange="toggleScreen(this.selectedIndex)">
+  <?=mk_option(_var($conf,'error_reporting'), "", "_(Default)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), "32767", "_(All Categories)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), "1", "_(Errors Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), "2", "_(Warnings Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), "8", "_(Notices Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), "8192", "_(Deprecated Only)_");?>
   </select>
 
-<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" value="_(Clear Log)_" onclick="clearLog()"><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>
+&nbsp;
+: <input type="checkbox" id="screenlog" onclick="screenLog()" <?=_var($conf,'display_errors',0)?'checked':''?> disabled><span id="screentext" class="dim">_(Show errors on screen)_</span>
+
+<input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" id="clearlog" value="_(Clear Log)_" onclick="clearLog()"<?=filesize($log)>0?'':' disabled'?>><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>_(LOG size)_:&nbsp;<span id="logsize"></span>
 : <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
@@ -67,15 +72,6 @@ _(Error reporting level)_:
 <div markdown="1" id="templateWindow">
 <!--!
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-</head>
-
 <style>
 table{box-shadow:1px 2px 3px rgba(0,0,0,0.2);width:90%}
 .center{text-align:center;color:#f2f2f2!important;background-color:#1c1b1b}
@@ -95,7 +91,6 @@ h2 a{color:#f2f2f2!important}
 .v i{color:#999}
 .h td,td.e,th{border-color:#606A90}
 </style>
-
 <body>
 <?
 ob_start();
@@ -111,6 +106,9 @@ String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');
 
 var box = null;
 
+function screenLog() {
+  $('input[name="display_errors"]').val($('#screenlog').prop('checked')?1:0);
+}
 function viewLog() {
   openTerminal('log','PHP Error Log','phplog');
 }
@@ -119,7 +117,15 @@ function clearLog() {
     swal({title:"_(PHP Log File)_",text:"_(Log file cleared)_",type:'success',html:true,confirmButtonText:"_(Ok)_"},function(){
       if (tty_window==null) viewLog();
       tty_window.close();
+      $('#clearlog').prop('disabled',true);
     });
+  });
+}
+function logSize() {
+  $.post('/webGui/include/PHPsettings.php',{cmd:'logsize'},function(size){
+    $('#logsize').text(size);
+    if (size.split(' ')[0]!=0) {$('#clearlog').prop('disabled',false);$('#viewlog').prop('disabled',false);}
+    setTimeout(logSize,3000);
   });
 }
 function PHPinfo() {
@@ -153,9 +159,21 @@ function preset(form) {
   }
   $.cookie('reload_php',1);
 }
+function toggleScreen(index) {
+  if (index > 0) {
+    $('#screenlog').prop('disabled',false);
+    $('#screentext').removeClass('dim');
+  } else {
+    $('#screenlog').prop('disabled',true);
+    $('#screentext').addClass('dim');
+  }
+}
 $(function(){
+  logSize();
   if (document.php_settings.error_reporting.selectedIndex > 0) {
     $('#viewlog').prop('disabled',false);
+    $('#screenlog').prop('disabled',false);
+    $('#screentext').removeClass('dim');
   }
   if ($.cookie('reload_php')==1) {
     $.removeCookie('reload_php');

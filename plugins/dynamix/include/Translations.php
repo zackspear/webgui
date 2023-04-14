@@ -121,7 +121,7 @@ function translate($key) {
 
 // main
 $language = [];
-$locale   = $_SESSION['locale'] ?? ($login_locale??'');
+$locale   = $_SESSION['locale'] ?? $login_locale ?? '';
 $return   = "function _(t){return t;}";
 $jscript  = "$docroot/webGui/javascript/translate.en_US.js";
 $root     = "$docroot/languages/en_US/helptext.txt";
@@ -167,7 +167,7 @@ foreach($uri as $more) {
   }
 }
 // help text
-if ($_SERVER['REQUEST_URI'][0]??''=='/') {
+if (($_SERVER['REQUEST_URI'][0]??'')=='/') {
   if (!file_exists($help)) file_put_contents($help,serialize(parse_help_file($root)));
   $language = array_merge($language,unserialize(file_get_contents($help)));
 }

@@ -21,7 +21,7 @@ extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
-$login_locale = $display['locale'];
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 // remember current language
@@ -65,8 +65,8 @@ function update_translation($locale) {
 while (true) {
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
-  if ($display['locale'] != $locale_init) {
-    $locale_init = $display['locale'];
+  if (_var($display,'locale') != $locale_init) {
+    $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
   unset($status,$rows,$power,$load,$freq,$output,$volt);
@@ -120,7 +120,7 @@ while (true) {
     }
     if ($power && isset($load)) $status[5] = ($load<90 ? "<span $green>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
     elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
-    $status[6] = $output ? ((!$volt || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</span>") : $status[6];
+    $status[6] = isset($output) ? ((!$volt || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$status[6].($freq ? " ~ $freq Hz" : "")."</span>") : $status[6];
   }
   publish('apcups',implode(';', $status));
   sleep(3);

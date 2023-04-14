@@ -111,14 +111,13 @@ function xmlToVar($xml) {
       $c['Value'] = strlen(xml_decode($config)) ? xml_decode($config) : xml_decode($config['Default']);
       foreach ($config->attributes() as $key => $value) {
         $value = xml_decode($value);
-        $val = strtolower($value);
         if ($key == 'Mode') {
           switch (xml_decode($config['Type'])) {
           case 'Path':
-            $value = ($val=='rw'||$val=='rw,slave'||$val=='rw,shared'||$val=='ro'||$val=='ro,slave'||$val=='ro,shared') ? $value : "rw";
+            $value = in_array(strtolower($value),['rw','rw,slave','rw,shared','ro','ro,slave','ro,shared']) ? $value : "rw";
             break;
           case 'Port':
-            $value = ($val=='tcp'||$val=='udp') ? $value : "tcp";
+            $value = in_array(strtolower($value),['tcp','udp']) ? $value : "tcp";
             break;
           }
         }
@@ -495,6 +494,8 @@ function setXmlVal(&$xml, $value, $el, $attr=null, $pos=0) {
 
 function getAllocations() {
   global $DockerClient, $host;
+  
+  $ports = [];
   foreach ($DockerClient->getDockerContainers() as $ct) {
     $list = $port = [];
     $nat = $ip = false;

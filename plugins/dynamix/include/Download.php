@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,7 +12,7 @@
 ?>
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$file = $_POST['file'];
+$file = $_POST['file']??'';
 
 function validpath($file) {
   global $docroot;
@@ -22,9 +22,9 @@ function validpath($file) {
 switch ($_POST['cmd']) {
 case 'save':
   if (!validpath($file)) break;
-  $source = $_POST['source'];
+  $source = $_POST['source']??'';
   $opts = $_POST['opts'] ?? 'qlj';
-  if (in_array(pathinfo($source, PATHINFO_EXTENSION),['txt','conf','png'])) {
+  if ($source && in_array(pathinfo($source,PATHINFO_EXTENSION),['txt','conf','png'])) {
     exec("zip -$opts ".escapeshellarg("$docroot/$file")." ".escapeshellarg($source));
   } else {
     $tmp = "/var/tmp/".basename($source).".txt";
@@ -46,7 +46,7 @@ case 'diag':
 case 'unlink':
   if (!validpath($file)) break;
   if ($backup = readlink("$docroot/$file")) unlink($backup);
-  if (is_file("$docroot/$file")) unlink("$docroot/$file");
+  @unlink("$docroot/$file");
   break;
 case 'backup':
   echo exec("$docroot/webGui/scripts/flash_backup");
