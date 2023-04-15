@@ -202,5 +202,5 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
   }
 }
 if ($empty) echo "<tr><td colspan='6' style='text-align:center;padding-top:12px'><i class='fa fa-check-square-o icon'></i> "._('No plugins installed')."</td><tr>";
-if (!$init && !$os) echo "\0".$updates;
+if (!$init && !($os??false)) echo "\0".$updates;
 ?>
