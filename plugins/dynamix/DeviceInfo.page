@@ -84,6 +84,14 @@ if ($.cookie('deletepool')!=null) {
   $.removeCookie('deletepool');
   done();
 }
+function presetSpace(shareFloor) {
+  var unit = ['KB','MB','GB','TB','PB'];
+  var scale = shareFloor.val();
+  if (scale.replace(/[0-9.,\s]/g,'').length>0) return;
+  var base = scale>0 ? Math.floor(Math.log(scale)/Math.log(1000)):0;
+  if (base>=unit.length) base = unit.length-1;
+  shareFloor.val((scale/Math.pow(1000, base))+unit[base]);
+}
 <?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
   var mode = form.mode.value;
@@ -543,6 +551,7 @@ $(function() {
   var width = <?=_var($disk,'fsWidth',0)?:0?>;
   var devices = (groups==0 || width==0) ? <?=_var($disk,'devices',0)?:0?> : groups * width;
   selectDiskFsProfile(devices,width,true);
+  presetSpace($('#shareFloor'));
 });
 </script>
 
