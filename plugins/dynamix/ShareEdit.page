@@ -168,7 +168,7 @@ _(Enable Copy-on-write)_:
 : <span class="input"><select name="shareCOW"<?if ($name):?> disabled<?endif;?>>
   <?=mk_option($share['cow'], "no", _('No'))?>
   <?=mk_option($share['cow'], "auto", _('Auto'))?>
-  </select></span><?if ($name):?>_(Set when adding new share only)_<?endif;?>
+  </select></span><?if ($name):?><i class='fa fa-info'></i> _(Set when adding new share only)_<?endif;?>
 
 :share_edit_copy_on_write_help:
 
@@ -386,7 +386,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s1').dropdownchecklist('enable');
     $('#s2').dropdownchecklist('enable');
-    $('#moverAction2').html("_(Mover takes no action)_");
+    $('#moverAction2').html("<i class='fa fa-info'></i> _(Mover takes no action)_");
     break;
   case 'yes':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -404,7 +404,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s3').dropdownchecklist('enable');
     $('#s4').dropdownchecklist('enable');
-    $('#moverAction1').html("_(Mover transfers files from Primary storage to Secondary storage)_");
+    $('#moverAction1').html("<i class='fa fa-info'></i> _(Mover transfers files from Primary storage to Secondary storage)_");
     break;
   case 'only':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -420,7 +420,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = true;
     $('#s1').dropdownchecklist('disable');
     $('#s2').dropdownchecklist('disable');
-    $('#moverAction2').html("_(Mover takes no action)_");
+    $('#moverAction2').html("<i class='fa fa-info'></i> _(Mover takes no action)_");
     break;
   case 'prefer':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -438,7 +438,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s3').dropdownchecklist('enable');
     $('#s4').dropdownchecklist('enable');
-    $('#moverAction1').html("_(Mover transfers files from Secondary storage to Primary storage)_");
+    $('#moverAction1').html("<i class='fa fa-info'></i> _(Mover transfers files from Secondary storage to Primary storage)_");
     break;
   }
 }
