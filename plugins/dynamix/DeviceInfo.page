@@ -27,6 +27,19 @@ $bgcolor    = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+function presetSpace($val) {
+  if (!$val) return;
+  $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
+  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
+  $base = $val>0 ? floor(log($val,1000)) : 0;
+  return ($val/pow(1000,$base)).' '._var($units,$base);
+}
+function fsSize() {
+  global $disks,$pools;
+  $fsSize = [];
+  foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsSize',0).'"';
+  return implode(',',$fsSize);
+}
 function fsType($type) {
   global $disk;
   return strpos(_var($disk,'fsType'),$type)!==false;
@@ -74,15 +87,35 @@ $text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') 
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 <style>
 input.option{display:none;width:40px}
-select.option{display:none}
+select.option,#autosize{display:none}
 span#devtext{display:none;font-weight:bold}
 span#helptext{display:none;font-style:italic}
 span.code{display:inline-block;width:186px}
+i.fa-info.i{margin-right:10px}
 </style>
 <script>
-if ($.cookie('deletepool')!=null) {
+if ($.cookie('deletepool')) {
   $.removeCookie('deletepool');
   done();
+}
+function setFloor() {
+  const fsSize = {<?=fsSize()?>};
+  const units = ['K','M','G','T','P','E','Z','Y'];
+  if ($('#shareFloor').length) {
+    var val  = $('#shareFloor').val();
+    var size = fsSize['<?=$tag?>'] * 0.1; // 10% of available size
+    var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
+    if (val.replace(/[A-Z.,\s]/gi,'')==0) {
+      size = (Math.floor(size/base) * base).toString();
+      $.cookie('autosize-<?=$tag?>','1',{expires:365});
+    } else {
+      size = val;
+      $.removeCookie('autosize-<?=$tag?>');
+    }
+    var unit = size.replace(/[0-9.,\s]/g,'');
+    base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    $('#shareFloor').val(base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size);
+  }
 }
 <?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
@@ -480,9 +513,6 @@ function eraseDisk(name) {
     }
   });
 }
-function freeSpace(val) {
-  $('#shareFloor').prop('disabled',val=='no');
-}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
@@ -501,8 +531,8 @@ $(function() {
 <?endif;?>
   setGlue(form,false);
 <?endif;?>
-  if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
   var status = true;
+  if ($.cookie('autosize-<?=$tag?>')) $('#autosize').show();
   if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
   if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
   if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
@@ -546,7 +576,7 @@ $(function() {
 });
 </script>
 
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="setFloor()">
 <?if (_var($var,'fsState')=="Stopped" && isPool($name)):?>
 _(Name)_:
 : <a onclick="renamePoolPopup()" style="cursor:pointer" title="_(Rename Pool)_"><?=$name?></a>
@@ -687,18 +717,19 @@ _(Enable user share assignment)_:
 :info_share_assignment_help:
 
 _(Minimum free space)_:
-: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" value="<?=_var($disk,'shareFloor')?>" class="narrow" <?=$disabled?> placeholder="0">
+: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" autocomplete="off" spellcheck="false" value="<?=presetSpace(_var($disk,'shareFloor',0))?>" class="narrow" placeholder="0">
+  <span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :info_free_space_help:
 
 <?endif;?>
 _(Warning disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="diskWarning.<?=_var($disk,'idx',0)?>" class="narrow" value="<?=_var($disk,'warning')?>" placeholder="<?=_var($display,'warning')?>">
+: <input type="number" min="0" max="100" name="diskWarning.<?=_var($disk,'idx',0)?>" autocomplete="off" spellcheck="false" class="narrow" value="<?=_var($disk,'warning')?>" placeholder="<?=_var($display,'warning')?>">
 
 :info_warning_utilization_help:
 
 _(Critical disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="diskCritical.<?=_var($disk,'idx',0)?>" class="narrow" value="<?=_var($disk,'critical')?>" placeholder="<?=_var($display,'critical')?>")>
+: <input type="number" min="0" max="100" name="diskCritical.<?=_var($disk,'idx',0)?>" autocomplete="off" spellcheck="false" class="narrow" value="<?=_var($disk,'critical')?>" placeholder="<?=_var($display,'critical')?>")>
 
 :info_critical_utilization_help:
 
