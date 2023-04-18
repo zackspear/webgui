@@ -454,7 +454,7 @@ function setFloor(val) {
   var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
   if (val.replace(/[A-Z.,\s]/gi,'')==0) {
     size = (Math.floor(size/base) * base).toString();
-    $.cookie('autosize-'+$('#shareName').val(),'1');
+    $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
     size = val;
     $.removeCookie('autosize-'+$('#shareName').val());
