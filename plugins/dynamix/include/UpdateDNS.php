@@ -319,7 +319,7 @@ if ($isRegistered) {
 }
 
 // if remoteaccess is enabled in 6.10.0-rc3+ and WANIP has changed since nginx started, reload nginx
-if ($post['_wanip'] != _var($nginx,'NGINX_WANIP') && version_compare(_var($var,'version'),"6.10.0-rc2",">")) $reloadNginx = true;
+if (_var($post,'_wanip') != _var($nginx,'NGINX_WANIP') && version_compare(_var($var,'version'),"6.10.0-rc2",">")) $reloadNginx = true;
 // if remoteaccess is currently disabled (perhaps because a wanip was not available when nginx was started)
 //    BUT the system is configured to have it enabled AND a wanip is now available
 //    then reload nginx
