@@ -60,7 +60,7 @@ function presetSpace($val) {
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
   $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
   $base = $val>0 ? floor(log($val,1000)) : 0;
-  return ($val/pow(1000,$base)).' '.$units[$base];
+  return ($val/pow(1000,$base)).' '._var($units,$base);
 }
 function fsSize() {
   global $disks,$pools;
@@ -454,7 +454,7 @@ function setFloor(val) {
   size = val.replace(/[A-Z.,\s]/gi,'')==0 ? (Math.floor(size/base) * base).toString() : val;
   var unit = size.replace(/[0-9.,\s]/g,'');
   base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-  return base>0 ? size.replace(unit,'') * Math.pow(base,units.indexOf(unit.toUpperCase().replace('B',''))) : size;
+  return base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
 }
 // Compose input fields
 function prepareEdit() {
