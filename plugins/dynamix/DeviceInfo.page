@@ -27,6 +27,19 @@ $bgcolor    = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+function presetSpace($val) {
+  if (!$val) return;
+  $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
+  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
+  $base = $val>0 ? floor(log($val,1000)) : 0;
+  return ($val/pow(1000,$base)).' '.$units[$base];
+}
+function fsSize() {
+  global $disks,$pools;
+  $fsSize = [];
+  foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsSize',0).'"';
+  return implode(',',$fsSize);
+}
 function fsType($type) {
   global $disk;
   return strpos(_var($disk,'fsType'),$type)!==false;
@@ -84,13 +97,18 @@ if ($.cookie('deletepool')!=null) {
   $.removeCookie('deletepool');
   done();
 }
-function presetSpace(shareFloor) {
-  var unit = ['KB','MB','GB','TB','PB'];
-  var scale = shareFloor.val();
-  if (scale.replace(/[0-9.,\s]/g,'').length>0) return;
-  var base = scale>0 ? Math.floor(Math.log(scale)/Math.log(1000)):0;
-  if (base>=unit.length) base = unit.length-1;
-  shareFloor.val((scale/Math.pow(1000, base))+unit[base]);
+function setFloor() {
+  const fsSize = {<?=fsSize()?>};
+  const units = ['K','M','G','T','P','E','Z','Y'];
+  if ($('#shareFloor').length) {
+    var val  = $('#shareFloor').val();
+    var size = fsSize['<?=$name?>'] * 0.1; // 10% of available size
+    var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
+    size = val.replace(/[A-Z.,\s]/gi,'')==0 ? (Math.floor(size/base) * base).toString() : val;
+    var unit = size.replace(/[0-9.,\s]/g,'');
+    base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    $('#shareFloor').val(base>0 ? size.replace(unit,'') * Math.pow(base,units.indexOf(unit.toUpperCase().replace('B',''))) : size);
+  }
 }
 <?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
@@ -488,9 +506,6 @@ function eraseDisk(name) {
     }
   });
 }
-function freeSpace(val) {
-  $('#shareFloor').prop('disabled',val=='no');
-}
 $(function() {
 <?if (count($sheets)>1):?>
   var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
@@ -509,7 +524,6 @@ $(function() {
 <?endif;?>
   setGlue(form,false);
 <?endif;?>
-  if (!$('#shareEnabled').prop('disabled')) freeSpace($('#shareEnabled').val());
   var status = true;
   if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
   if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
@@ -551,11 +565,10 @@ $(function() {
   var width = <?=_var($disk,'fsWidth',0)?:0?>;
   var devices = (groups==0 || width==0) ? <?=_var($disk,'devices',0)?:0?> : groups * width;
   selectDiskFsProfile(devices,width,true);
-  presetSpace($('#shareFloor'));
 });
 </script>
 
-<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="setFloor()">
 <?if (_var($var,'fsState')=="Stopped" && isPool($name)):?>
 _(Name)_:
 : <a onclick="renamePoolPopup()" style="cursor:pointer" title="_(Rename Pool)_"><?=$name?></a>
@@ -696,7 +709,7 @@ _(Enable user share assignment)_:
 :info_share_assignment_help:
 
 _(Minimum free space)_:
-: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" value="<?=_var($disk,'shareFloor')?>" class="narrow" <?=$disabled?> placeholder="0">
+: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" value="<?=presetSpace(_var($disk,'shareFloor',0))?>" class="narrow" placeholder="0">
 
 :info_free_space_help:
 
