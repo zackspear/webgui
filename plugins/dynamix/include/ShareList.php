@@ -104,7 +104,20 @@ foreach ($shares as $name => $share) {
       $share['useCache'] = "no";
     }
   }
-  $cache = _(ucfirst($share['useCache'])).($share['useCache']!='no'?' : '.compress(my_disk($share['cachePool'],$display['raw'])):'');
+  switch ($share['useCache']) {
+  case 'no':
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-database fa-fw'></i>"._('Array')."<span>".sprintf(_('Primary storage %s'),_('Array'))."</span></a>";
+    break;
+  case 'yes':
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Primary stoage to Secondary storage')."</span></a>";
+    break;
+  case 'prefer':
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary stoage to Primary storage')."</span></a>";
+    break;
+  case 'only':
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))."<span>".sprintf(_('Primary storage %s'),$share['cachePool'])."</span></a>";
+    break;
+  }
   if (array_key_exists($name, $ssz1)) {
     echo "<td>$cache</td>";
     echo "<td>",my_scale($ssz1[$name]['disk.total'], $unit)," $unit</td>";
