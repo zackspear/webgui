@@ -101,7 +101,7 @@ div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5{display:none}
+#s1,#s2,#s3,#s4,#s5,#autosize{display:none}
 </style>
 
 <div id="" class="clone1">
@@ -137,7 +137,7 @@ foreach ($rows as $row) echo $row;
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Share name)_:
-: <input type="text" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+">
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+">
 
 :share_edit_name_help:
 
@@ -147,7 +147,7 @@ _(Comments)_:
 :share_edit_comments_help:
 
 _(Minimum free space)_:
-: <input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0">
+: <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info"></i> _(Free space automatically calculated)_</span>
 
 :share_edit_free_space_help:
 
@@ -335,6 +335,7 @@ $(function() {
   $('#tab1').bind({click:function(){initDropdown(true,true);}});
 <?endif;?>
   updateScreen(form.shareUseCache.value);
+  if ($.cookie('autosize-'+$('#shareName').val())) $('#autosize').show();
 });
 function initDropdown(remove,create) {
   if (remove) {
@@ -451,7 +452,13 @@ function setFloor(val) {
   const units = ['K','M','G','T','P','E','Z','Y'];
   var size = fsSize[$('#primary').val()] * 0.1; // 10% of available size
   var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
-  size = val.replace(/[A-Z.,\s]/gi,'')==0 ? (Math.floor(size/base) * base).toString() : val;
+  if (val.replace(/[A-Z.,\s]/gi,'')==0) {
+    size = (Math.floor(size/base) * base).toString();
+    $.cookie('autosize-'+$('#shareName').val(),'1');
+  } else {
+    size = val;
+    $.removeCookie('autosize-'+$('#shareName').val());
+  }
   var unit = size.replace(/[0-9.,\s]/g,'');
   base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
   return base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
