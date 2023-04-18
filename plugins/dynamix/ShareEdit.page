@@ -102,6 +102,7 @@ div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
 #s1,#s2,#s3,#s4,#s5,#autosize{display:none}
+i.fa-info.i{margin-right:10px}
 </style>
 
 <div id="" class="clone1">
@@ -147,7 +148,7 @@ _(Comments)_:
 :share_edit_comments_help:
 
 _(Minimum free space)_:
-: <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info"></i> _(Calculated free space value)_</span>
+: <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :share_edit_free_space_help:
 
@@ -168,7 +169,7 @@ _(Enable Copy-on-write)_:
 : <span class="input"><select name="shareCOW"<?if ($name):?> disabled<?endif;?>>
   <?=mk_option($share['cow'], "no", _('No'))?>
   <?=mk_option($share['cow'], "auto", _('Auto'))?>
-  </select></span><?if ($name):?><i class='fa fa-info'></i> _(Set when adding new share only)_<?endif;?>
+  </select></span><?if ($name):?><i class='fa fa-info i'></i>_(Set when adding new share only)_<?endif;?>
 
 :share_edit_copy_on_write_help:
 
@@ -386,7 +387,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s1').dropdownchecklist('enable');
     $('#s2').dropdownchecklist('enable');
-    $('#moverAction2').html("<i class='fa fa-info'></i> _(Mover takes no action)_");
+    $('#moverAction2').html("<i class='fa fa-info i'></i>_(Mover takes no action)_");
     break;
   case 'yes':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -404,7 +405,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s3').dropdownchecklist('enable');
     $('#s4').dropdownchecklist('enable');
-    $('#moverAction1').html("<i class='fa fa-info'></i> _(Mover transfers files from Primary storage to Secondary storage)_");
+    $('#moverAction1').html("<i class='fa fa-info i'></i>_(Mover transfers files from Primary storage to Secondary storage)_");
     break;
   case 'only':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -420,7 +421,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = true;
     $('#s1').dropdownchecklist('disable');
     $('#s2').dropdownchecklist('disable');
-    $('#moverAction2').html("<i class='fa fa-info'></i> _(Mover takes no action)_");
+    $('#moverAction2').html("<i class='fa fa-info i'></i>_(Mover takes no action)_");
     break;
   case 'prefer':
     $('#primary option:eq('+z(0)+')').prop('selected',true);
@@ -438,7 +439,7 @@ function updateScreen(cache,slow) {
     form.shareSplitLevel.disabled = false;
     $('#s3').dropdownchecklist('enable');
     $('#s4').dropdownchecklist('enable');
-    $('#moverAction1').html("<i class='fa fa-info'></i> _(Mover transfers files from Secondary storage to Primary storage)_");
+    $('#moverAction1').html("<i class='fa fa-info i'></i>_(Mover transfers files from Secondary storage to Primary storage)_");
     break;
   }
 }

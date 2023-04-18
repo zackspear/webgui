@@ -91,6 +91,7 @@ select.option,#autosize{display:none}
 span#devtext{display:none;font-weight:bold}
 span#helptext{display:none;font-style:italic}
 span.code{display:inline-block;width:186px}
+i.fa-info.i{margin-right:10px}
 </style>
 <script>
 if ($.cookie('deletepool')) {
@@ -717,7 +718,7 @@ _(Enable user share assignment)_:
 
 _(Minimum free space)_:
 : <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" autocomplete="off" spellcheck="false" value="<?=presetSpace(_var($disk,'shareFloor',0))?>" class="narrow" placeholder="0">
-  <span id="autosize"><i class="fa fa-info"></i> _(Calculated free space value)_</span>
+  <span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :info_free_space_help:
 
