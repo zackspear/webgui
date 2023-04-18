@@ -147,7 +147,7 @@ _(Comments)_:
 :share_edit_comments_help:
 
 _(Minimum free space)_:
-: <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info"></i> _(Free space was automatically calculated)_</span>
+: <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info"></i> _(Calculated free space value)_</span>
 
 :share_edit_free_space_help:
 
