@@ -106,6 +106,45 @@ case 'domain-start-console':
 	$arrResponse['vmrcurl'] = $vmrcurl;
 	break;
 
+case 'domain-start-consoleRV':
+	requireLibvirt();
+	$arrResponse = $lv->domain_start($domName)
+	? ['success' => true, 'state' => $lv->domain_get_state($domName)]
+	: ['error' => $lv->get_last_error()];
+	$dom = $lv->get_domain_by_name($domName);
+	$vmrcport = $lv->domain_get_vnc_port($dom);
+	$wsport = $lv->domain_get_ws_port($dom);
+	$protocol = $lv->domain_get_vmrc_protocol($dom);
+	if ($protocol == "spice") $port= $vmrcport ; else $port=$vmrcport ;
+	$vvarray = array() ;
+	$vvarray[] = "[virt-viewer]\n";
+	$vvarray[] = "type=$protocol\n";
+	$vvarray[] = "host="._var($_SERVER,'HTTP_HOST')."\n" ;
+	$vvarray[] = "port=$port\n" ;
+	if (!is_dir("/mnt/user/system/remoteviewer")) mkdir("/mnt/user/system/remoteviewer") ;
+	$vvfile = "/mnt/user/system/remoteviewer/rv"._var($_SERVER,'HTTP_HOST').".$port.vv" ;
+	file_put_contents($vvfile,$vvarray) ;
+	$arrResponse['vvfile'] = $vvfile;
+	break;
+
+case 'domain-consoleRV':
+	requireLibvirt();
+	$dom = $lv->get_domain_by_name($domName);
+	$vmrcport = $lv->domain_get_vnc_port($dom);
+	$wsport = $lv->domain_get_ws_port($dom);
+	$protocol = $lv->domain_get_vmrc_protocol($dom);
+	if ($protocol == "spice") $port= $vmrcport ; else $port=$vmrcport ;
+	$vvarray = array() ;
+	$vvarray[] = "[virt-viewer]\n";
+	$vvarray[] = "type=$protocol\n";
+	$vvarray[] = "host="._var($_SERVER,'HTTP_HOST')."\n" ;
+	$vvarray[] = "port=$port\n" ;
+	if (!is_dir("/mnt/user/system/remoteviewer")) mkdir("/mnt/user/system/remoteviewer") ;
+	$vvfile = "/mnt/user/system/remoteviewer/rv"._var($_SERVER,'HTTP_HOST').".$port.vv" ;
+	file_put_contents($vvfile,$vvarray) ;
+	$arrResponse['vvfile'] = $vvfile;
+	break;
+	
 case 'domain-pause':
 	requireLibvirt();
 	$arrResponse = $lv->domain_suspend($domName)

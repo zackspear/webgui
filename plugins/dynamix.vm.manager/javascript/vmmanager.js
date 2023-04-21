@@ -2,6 +2,16 @@ function displayconsole(url) {
   window.open(url, '_blank', 'scrollbars=yes,resizable=yes');
 }
 
+function downloadFile(source) {
+  var a = document.createElement('a');
+  a.setAttribute('href',source);
+  a.setAttribute('download',source.split('/').pop());
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 function ajaxVMDispatch(params, spin){
   if (spin) $('#vm-'+params['uuid']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
   $.post("/plugins/dynamix.vm.manager/include/VMajax.php", params, function(data) {
@@ -35,6 +45,23 @@ function ajaxVMDispatchconsole(params, spin){
     }
   },'json');
 }
+function ajaxVMDispatchconsoleRV(params, spin){
+  if (spin) $('#vm-'+params['uuid']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+  $.post("/plugins/dynamix.vm.manager/include/VMajax.php", params, function(data) {
+    if (data.error) {
+      swal({
+        title:_("Execution error"), html:true,
+        text:data.error, type:"error",
+        confirmButtonText:_('Ok')
+      },function(){
+        if (spin) setTimeout(spin+'()',500); else location=window.location.href;
+      });
+    } else {
+      if (spin) setTimeout(spin+'()',500); else location=window.location.href;
+      downloadFile(data.vvfile) ;
+    }
+  },'json');
+}
 function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
   var opts = [];
   var path = location.pathname;
@@ -46,6 +73,12 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
       e.preventDefault();
       window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
     }});
+    if (vmrcurl !== "" && state == "running") {
+      opts.push({text:_("VM remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-desktop", action:function(e) {
+        e.preventDefault();
+         ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+      }});
+    }
     opts.push({divider:true});
   }
   context.settings({right:false,above:false});
@@ -98,6 +131,12 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
       e.preventDefault();
        ajaxVMDispatchconsole({action:"domain-start-console", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
     }});
+    if (vmrcprotocol == "VNC" || vmrcprotocol == "SPICE")  {
+      opts.push({text:_("Start with remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
+        e.preventDefault();
+         ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+      }});
+    }
   }}
   opts.push({divider:true});
   if (log !== "") {
