@@ -704,7 +704,6 @@
 											<binary path='/usr/libexec/virtiofsd'  xattr='on'>
 												<sandbox mode='chroot'/>
 												<cache mode='always'/>
-												<lock posix='on' flock='on'/>
 											</binary>
 										</filesystem>" ;
 					} else { 
