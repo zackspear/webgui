@@ -31,13 +31,9 @@ if ($name == "") {
             "cachePool"  => "",
             "cow"        => "auto"
            ];
-  $loc = 0;
 } elseif (array_key_exists($name, $shares)) {
   // edit existing share
   $share = $shares[$name];
-  // find current location(s) of share
-  $tag = implode('|',array_merge(['disk'],pools_filter($disks)));
-  $loc = count(array_filter(explode(',',preg_replace("/($tag)/",',$1',exec("getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$name")." 2>/dev/null")))));
 } else {
   // handle share deleted case
   echo "<p class='notice'>"._('Share')." '".htmlspecialchars($name)."' "._('has been deleted').".</p><input type='button' value=\""._('Done')."\" onclick='done()'>";
@@ -55,7 +51,7 @@ function globalInclude($name) {
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || in_array($name,explode(',',$var['shareUserInclude'])));
 }
 function presetSpace($val) {
-  if (!$val) return;
+  if (!$val or $val=='NaN') return;
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
   $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
   $base = $val>0 ? floor(log($val,1000)) : 0;
@@ -451,7 +447,7 @@ function setFloor(val) {
   const units = ['K','M','G','T','P','E','Z','Y'];
   var size = fsSize[$('#primary').val()] * 0.1; // 10% of available size
   var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
-  if (val.replace(/[A-Z.,\s]/gi,'')==0) {
+  if (val.replace(/[A-Z.,\s]/gi,'')==0 && size>0) {
     size = (Math.floor(size/base) * base).toString();
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
