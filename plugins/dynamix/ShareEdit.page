@@ -29,7 +29,6 @@ if ($name == "") {
             "exclude"    => "",
             "useCache"   => "no",
             "cachePool"  => "",
-            "exclusive"  => "no",
             "cow"        => "auto"
            ];
   $loc = 0;
@@ -152,13 +151,41 @@ _(Minimum free space)_:
 
 :share_edit_free_space_help:
 
+<?if ($name):?>
+<?if (shareEmpty($name)):?>
+_(Share status)_:
+: _(Share is empty)_
+
+:share_edit_status_help:
+
+<?else:?>
+_(Share status)_:
+: _(Share contains data)_
+
+:share_edit_delete_help:
+
+<?endif;?>
+<?if ($share['exclusive']=="yes"):?>
+_(Exclusive access)_:
+: _(Yes)_
+
+:share_edit_exclusive_access_help:
+
+<?else:?>
+_(Exclusive access)_:
+: _(No)_
+
+:share_edit_exclusive_access_help:
+
+<?endif;?>
+<?endif;?>
 </div>
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Primary storage (for new files and folders))_:
 : <select id="primary" name="shareCachePool" onchange="updateScreen(z(4),'slow')">
   <?=mk_option(primary(),'',_('Array'))?>
   <?foreach ($pools as $pool):?>
-  <?if ($disks[$pool]['devices']) echo mk_option(primary(),$pool,ucfirst($pool),$disks[$pool]['shareEnabled']=='yes'?"":"disabled")?>
+  <?if ($disks[$pool]['devices']) echo mk_option(primary(),$pool,my_disk($pool),$disks[$pool]['shareEnabled']=='yes'?"":"disabled")?>
   <?endforeach;?>
   </select>
 
@@ -172,16 +199,6 @@ _(Enable Copy-on-write)_:
   </select></span><?if ($name):?><i class='fa fa-info i'></i>_(Set when adding new share only)_<?endif;?>
 
 :share_edit_copy_on_write_help:
-
-</div>
-<div markdown="1" id="exclusive">
-_(Exclusive access)_:
-: <select name="shareExclusive">
-  <?=mk_option(_var($share,'exclusive','no'),'no',_('No'));?>
-  <?=mk_option(_var($share,'exclusive','no'),'yes',_('Yes'),$loc>1?'disabled':'');?>
-  </select>
-
-:share_edit_exclusive_access_help:
 
 </div>
 <div markdown="1" id="moreSettings1">
@@ -300,21 +317,6 @@ _(Mover action)_:
 :share_edit_mover_action_help:
 
 </div>
-<?if ($name):?>
-<?if (shareEmpty($name)):?>
-_(Share status)_:
-: _(Share is empty)_
-
-:share_edit_status_help:
-
-<?else:?>
-_(Share status)_:
-: _(Share contains data)_
-
-:share_edit_delete_help:
-
-<?endif;?>
-<?endif;?>
 </div>
 <?if (!$name):?>
 &nbsp;
@@ -379,7 +381,6 @@ function updateScreen(cache,slow) {
     $('#secondary option:eq(1)').prop('disabled',true);
     $('#moverDirection1').hide();
     $('#moverDirection2').show();
-    $('#exclusive').hide(slow);
     $('#moreSettings1').show(slow);
     $('#moreSettings2').hide(slow);
     $('#cow-setting').hide(slow);
@@ -397,7 +398,6 @@ function updateScreen(cache,slow) {
     $('#moverDirection1 option:eq(1)').text($('#secondary option:eq('+z(1)+')').text()+' → '+$('#primary option:eq('+z(0)+')').text());
     $('#moverDirection1').val('0').show();
     $('#moverDirection2').hide();
-    $('#exclusive').hide(slow);
     $('#moreSettings1').hide(slow);
     $('#moreSettings2').show(slow);
     updateCOW(form.shareCachePool.value,slow);
@@ -413,7 +413,6 @@ function updateScreen(cache,slow) {
     $('#secondary option:eq(1)').prop('disabled',false);
     $('#moverDirection1').hide();
     $('#moverDirection2').show();
-    $('#exclusive').show(slow);
     $('#moreSettings1').hide(slow);
     $('#moreSettings2').hide(slow);
     updateCOW(form.shareCachePool.value,slow);
@@ -431,7 +430,6 @@ function updateScreen(cache,slow) {
     $('#moverDirection1 option:eq(1)').text($('#secondary option:eq('+z(1)+')').text()+' → '+$('#primary option:eq('+z(0)+')').text());
     $('#moverDirection1').val('1').show();
     $('#moverDirection2').hide();
-    $('#exclusive').hide(slow);
     $('#moreSettings1').hide(slow);
     $('#moreSettings2').show(slow);
     updateCOW(form.shareCachePool.value,slow);
