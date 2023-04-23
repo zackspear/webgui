@@ -188,8 +188,8 @@ _(VM shutdown time-out)_:
 _(Console Options)_:
 : <select id="vmsconsole" name="CONSOLE">
   <?=mk_option($domain_cfg['CONSOLE'], 'web', _('Web interface'))?>
-  <?=mk_option($domain_cfg['CONSOLE'], 'remote', _('Virt-Manager Remove Viewer'))?>
-  <?=mk_option($domain_cfg['CONSOLE'], 'both', _('Both Web & Virt-Manager Remove Viewer'))?>
+  <?=mk_option($domain_cfg['CONSOLE'], 'remote', _('Virt-Manager Remote Viewer'))?>
+  <?=mk_option($domain_cfg['CONSOLE'], 'both', _('Both Web & Virt-Manager Remote Viewer'))?>
   </select>
 
 :vms_console_help:
