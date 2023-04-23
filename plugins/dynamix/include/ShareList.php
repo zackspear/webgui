@@ -115,7 +115,7 @@ foreach ($shares as $name => $share) {
     $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary stoage to Primary storage')."</span></a>";
     break;
   case 'only':
-    $exclusive = isset($share['exclusive']) && $share['exclusive']=='yes' ? "<i class='fa fa-exclamation fa-fw'></i>" : "";
+    $exclusive = isset($share['exclusive']) && $share['exclusive']=='yes' ? "<i class='fa fa-caret-right '></i> " : "";
     $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>$exclusive".compress(my_disk($share['cachePool'],$display['raw']))."<span>".sprintf(_('Primary storage %s'),$share['cachePool']).($exclusive ? ", "._('Exclusive access') : "")."</span></a>";
     break;
   }
