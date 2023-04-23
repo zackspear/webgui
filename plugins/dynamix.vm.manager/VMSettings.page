@@ -185,6 +185,15 @@ _(VM shutdown time-out)_:
 
 :vms_shutdown_timeout_help:
 
+_(Console Options)_:
+: <select id="vmsconsole" name="CONSOLE">
+  <?=mk_option($domain_cfg['CONSOLE'], 'web', _('Web interface'))?>
+  <?=mk_option($domain_cfg['CONSOLE'], 'remote', _('Virt-Manager Remove Viewer'))?>
+  <?=mk_option($domain_cfg['CONSOLE'], 'both', _('Both Web & Virt-Manager Remove Viewer'))?>
+  </select>
+
+:vms_console_help:
+
 _(PCIe ACS override)_:
 : <select id="pcie_acs_override"<?=$safemode?' disabled':''?>>
   <?= mk_option($pcie_acs_override, '', _('Disabled'))?>

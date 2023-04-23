@@ -62,23 +62,26 @@ function ajaxVMDispatchconsoleRV(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, console="web"){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
   if (x!=-1) path = path.substring(0,x);
-  if (vmrcurl !== "" && state == "running") {
-    var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
-    opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
-      e.preventDefault();
-      window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
-    }});
-    if (vmrcurl !== "" && state == "running") {
-      opts.push({text:_("VM remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-desktop", action:function(e) {
+  if (vmrcurl !== "" && state == "running")  {
+    if (console == "web" || console == "both") {
+      var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
+      opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
         e.preventDefault();
-         ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+        window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
       }});
     }
+    if (console == "remote" || console == "both") {
+      opts.push({text:_("VM remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-desktop", action:function(e) {
+        e.preventDefault();
+        ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+      }});
+    }
+  
     opts.push({divider:true});
   }
   context.settings({right:false,above:false});
@@ -126,17 +129,18 @@ function addVMContext(name, uuid, template, state, vmrcurl,vmrcprotocol , log){
       e.preventDefault();
       ajaxVMDispatch({action:"domain-start", uuid:uuid}, "loadlist");
     }});
-    if (vmrcprotocol == "VNC" || vmrcprotocol == "SPICE")  {
-    opts.push({text:_("Start with console")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
-      e.preventDefault();
-       ajaxVMDispatchconsole({action:"domain-start-console", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
-    }});
-    if (vmrcprotocol == "VNC" || vmrcprotocol == "SPICE")  {
-      opts.push({text:_("Start with remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
-        e.preventDefault();
-         ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
-      }});
-    }
+    if (vmrcprotocol == "VNC" || vmrcprotocol == "SPICE") { 
+      if (console == "web" || console == "both")  {
+        opts.push({text:_("Start with console")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
+          e.preventDefault();
+          ajaxVMDispatchconsole({action:"domain-start-console", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+        }});}
+      if (console == "remote" || console == "both")  {
+        opts.push({text:_("Start with remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
+          e.preventDefault();
+          ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
+        }});
+      }
   }}
   opts.push({divider:true});
   if (log !== "") {
