@@ -13,17 +13,6 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
-if (isset($_POST['open'])) {
-  $name = $_POST['name'];
-  exec("find ".escapeshellarg("/mnt/user/$name")." -type d ! -empty -maxdepth 0 2>/dev/null",$folders);
-  foreach ($folders as $folder) {
-    unset($names);
-    exec("find ".escapeshellarg($folder)." -type d ! -empty 2>/dev/null",$names);
-    foreach ($names as $name) if (exec("lsof -t +d ".escapeshellarg($name)." 2>/dev/null|wc -l")>0) die('1');
-  }
-  die('0');
-}
-
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";

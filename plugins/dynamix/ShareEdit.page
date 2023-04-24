@@ -96,7 +96,7 @@ div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5,#autosize,#openfiles{display:none}
+#s1,#s2,#s3,#s4,#s5,#autosize{display:none}
 i.fa-info.i{margin-right:10px}
 </style>
 
@@ -133,7 +133,7 @@ foreach ($rows as $row) echo $row;
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Share name)_:
-: <span class="input"><input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+"></span><span id="openfiles"><i class='fa fa-info i'></i>_(Share contains open files, editing disabled)_</span>
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+">
 
 :share_edit_name_help:
 
@@ -337,14 +337,6 @@ $(function() {
 <?endif;?>
   updateScreen(form.shareUseCache.value);
   if ($.cookie('autosize-'+$('#shareName').val())) $('#autosize').show();
-<?if (_var($share,'exclusive')=="yes"):?>
-  $.post('/webGui/include/ShareList.php',{open:1,name:"<?=$name?>"},function(open) {
-    if (open==1) {
-      $(form).find('input,select').not('[type=button]').prop('disabled',true);
-      $('#openfiles').show();
-    }
-  });
-<?endif;?>
 });
 function initDropdown(remove,create) {
   if (remove) {
