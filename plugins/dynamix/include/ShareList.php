@@ -13,14 +13,18 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+function hasOpenFile($name) {
+  if (exec("lsof -t +d ".escapeshellarg($name)." 2>/dev/null|wc -l")>0) die('1');
+}
+
 if (isset($_POST['open'])) {
-  $name = $_POST['name'];
-  if (exec("lsof -t +d ".escapeshellarg("/mnt/user/$name")." 2>/dev/null|wc -l")>0) die('1');
-  exec("find ".escapeshellarg("/mnt/user/$name")." -type d ! -empty -maxdepth 0 2>/dev/null",$folders);
+  $name = "/mnt/user/{$_POST['name']}";
+  hasOpenFile($name);
+  exec("find ".escapeshellarg($name)." -type d ! -empty -maxdepth 0 2>/dev/null",$folders);
   foreach ($folders as $folder) {
     unset($names);
     exec("find ".escapeshellarg($folder)." -type d ! -empty 2>/dev/null",$names);
-    foreach ($names as $name) if (exec("lsof -t +d ".escapeshellarg($name)." 2>/dev/null|wc -l")>0) die('1');
+    foreach ($names as $name) hasOpenFile($name);
   }
   die('0');
 }
