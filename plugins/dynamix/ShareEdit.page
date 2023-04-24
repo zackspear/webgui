@@ -53,7 +53,7 @@ function globalInclude($name) {
 function presetSpace($val) {
   if (!$val or $val=='NaN') return;
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
+  $val = @filter_var($val,FILTER_SANITIZE_NUMBER_INT) ?: 0;
   $base = $val>0 ? floor(log($val,1000)) : 0;
   return ($val/pow(1000,$base)).' '._var($units,$base);
 }
@@ -142,11 +142,13 @@ _(Comments)_:
 
 :share_edit_comments_help:
 
+<?if (_var($share,'exclusive')=="no"):?>
 _(Minimum free space)_:
 : <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :share_edit_free_space_help:
 
+<?endif;?>
 <?if ($name):?>
 <?if (shareEmpty($name)):?>
 _(Share status)_:
@@ -161,7 +163,7 @@ _(Share status)_:
 :share_edit_delete_help:
 
 <?endif;?>
-<?if ($share['exclusive']=="yes"):?>
+<?if (_var($share,'exclusive')=="yes"):?>
 _(Exclusive access)_:
 : _(Yes)_
 
@@ -446,7 +448,7 @@ function setFloor(val) {
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
   var size = fsSize[$('#primary').val()] * 0.1; // 10% of available size
-  var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
+  var base = size>0 ? Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000))) : 0;
   if (val.replace(/[A-Z.,\s]/gi,'')==0 && size>0) {
     size = (Math.floor(size/base) * base).toString();
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
