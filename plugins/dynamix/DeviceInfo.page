@@ -30,7 +30,7 @@ $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satu
 function presetSpace($val) {
   if (!$val or $val=='NaN') return;
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
+  $val = @filter_var($val,FILTER_SANITIZE_NUMBER_INT) ?: 0;
   $base = $val>0 ? floor(log($val,1000)) : 0;
   return ($val/pow(1000,$base)).' '._var($units,$base);
 }
@@ -104,7 +104,7 @@ function setFloor() {
   if ($('#shareFloor').length) {
     var val  = $('#shareFloor').val();
     var size = fsSize['<?=$tag?>'] * 0.1; // 10% of available size
-    var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
+    var base = size>0 ? Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000))) : 0;
     if (val.replace(/[A-Z.,\s]/gi,'')==0 && size>0) {
       size = (Math.floor(size/base) * base).toString();
       $.cookie('autosize-<?=$tag?>','1',{expires:365});
