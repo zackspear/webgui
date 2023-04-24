@@ -50,12 +50,37 @@ function globalInclude($name) {
   global $var;
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || in_array($name,explode(',',$var['shareUserInclude'])));
 }
+function sanitize(&$val) {
+  $val = str_replace(' ','',$val);
+  $a = strpos($val,',');
+  $b = strpos($val,'.');
+  switch ($display['number'][0]) {
+  case ',':
+    if ($a !== false) $val = substr_replace($val,'.',$a,1);
+    if ($b !== false) $val = substr_replace($val,'',$b,1);
+    break;
+  default:
+    if ($a !== false) $val = substr_replace($val,'',$a,1);
+    break;
+  }
+}
 function presetSpace($val) {
-  if (!$val or $val=='NaN') return;
+  global $disks,$shares,$name,$pools,$display;
+  if (!$val or strcasecmp($val,'NaN')==0) return;
+  sanitize($val);
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $val = @filter_var($val,FILTER_SANITIZE_NUMBER_INT) ?: 0;
-  $base = $val>0 ? floor(log($val,1000)) : 0;
-  return ($val/pow(1000,$base)).' '._var($units,$base);
+  $small = [];
+  foreach ($pools as $pool) $small[$pool] = _var($disks[$pool],'fsSize',0);
+  $pool = _var($shares[$name],'cachePool');
+  $size = _var($small,$pool,0);
+  $size = $size>0 ? (100*$val/$size) : 0;
+  if ($size < 1) {
+    $base = $val>0 ? floor(log($val,1000)) : 0;
+    return number_format($val/pow(1000,$base),1,$display['number'][0],$display['number'][1]).' '._var($units,$base);
+  } else {
+    $decs = $size < 10 ? 1 : 0;
+    return $size>0 ? number_format($size,$decs,$display['number'][0],$display['number'][1]).' %' : '';
+  }
 }
 function fsSize() {
   global $disks,$pools;
@@ -447,18 +472,26 @@ function unite(field) {
 function setFloor(val) {
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
-  var size = fsSize[$('#primary').val()] * 0.1; // 10% of available size
-  var base = size>0 ? Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000))) : 0;
-  if (val.replace(/[A-Z.,\s]/gi,'')==0 && size>0) {
-    size = (Math.floor(size/base) * base).toString();
+  var full = fsSize[$('#primary').val()];
+  var size = parseInt(full * 0.1); // 10% of available size
+  var number = val.replace(/[A-Z%\s]/gi,'');
+  if (number.replace(/[.,]/g,'')==0 && size>0) {
+    size = size.toString()
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
     size = val;
     $.removeCookie('autosize-'+$('#shareName').val());
   }
   var unit = size.replace(/[0-9.,\s]/g,'');
-  base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-  return base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+  if (unit=='%') {
+    number = number.replace(',','.');
+    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
+    return isNaN(number) ? '' : number;
+  } else {
+    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    number = base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+    return isNaN(number) ? '' : number;
+  }
 }
 // Compose input fields
 function prepareEdit() {
