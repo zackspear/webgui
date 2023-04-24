@@ -485,7 +485,9 @@ function prepareEdit() {
 // Update settings
   form.shareName.value = share;
   form.shareUseCache.value = z(4);
+<?if (_var($share,'exclusive')=="no"):?>
   form.shareFloor.value = setFloor(form.shareFloor.value);
+<?endif;?>
   switch (form.shareUseCache.value) {
   case 'no':
     form.shareAllocator.value = form.shareAllocator1.value;
