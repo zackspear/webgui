@@ -15,7 +15,6 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 if (isset($_POST['open'])) {
   $name = $_POST['name'];
-  if (exec("lsof -t +d ".escapeshellarg("/mnt/user/$name")." 2>/dev/null|wc -l")>0) die('1');
   exec("find ".escapeshellarg("/mnt/user/$name")." -type d ! -empty -maxdepth 0 2>/dev/null",$folders);
   foreach ($folders as $folder) {
     unset($names);
