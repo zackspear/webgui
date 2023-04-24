@@ -32,8 +32,8 @@ $prev = urlencode($i>0 ? $refs[$i-1] : $refs[$end]);
 $next = urlencode($i<$end ? $refs[$i+1] : $refs[0]);
 ?>
 <style>
-div.clone1{position:absolute;right:0;margin-top:0}
-div.clone2{position:absolute;right:0;margin-top:48px}
+div.clone1{position:absolute;right:0;margin-top:30px}
+div.clone2{position:absolute;right:0;margin-top:78px}
 <?if ($themes1):?>
 span.wrap{display:inline-block;width:128px}
 select.clone{min-width:123px;margin-right:0}
