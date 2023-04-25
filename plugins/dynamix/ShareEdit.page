@@ -59,7 +59,6 @@ function presetSpace($val) {
   global $disks,$shares,$name,$pools,$display;
   if (!$val or strcasecmp($val,'NaN')==0) return;
   sanitize($val);
-  [$dot,$comma] = str_split(_var($display,'number','.,'));
   $small = [];
   foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
   $fsSize[""] = min(array_filter($small));
@@ -74,6 +73,7 @@ function presetSpace($val) {
     $size = round($val/pow(1000,$base),1);
     $unit = _var($units,$base);
   }
+  [$dot,$comma] = str_split(_var($display,'number','.,'));
   return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
 }
 function fsSize() {

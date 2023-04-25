@@ -36,7 +36,6 @@ function presetSpace($val) {
   global $disk,$display;
   if (!$val or strcasecmp($val,'NaN')==0) return;
   sanitize($val);
-  [$dot,$comma] = str_split(_var($display,'number','.,'));
   $size = _var($disk,'fsSize',0);
   $size = $size>0 ? round(100*$val/$size,1) : 0;
   $unit = '%';
@@ -46,6 +45,7 @@ function presetSpace($val) {
     $size = round($val/pow(1000,$base),1);
     $unit = _var($units,$base);
   }
+  [$dot,$comma] = str_split(_var($display,'number','.,'));
   return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
 }
 function fsSize() {
