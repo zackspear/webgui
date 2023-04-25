@@ -1631,6 +1631,11 @@ When shutting down the server, this defines how long to wait in seconds for *gra
 NOTE: It's recommended to shut down guest VMs from within the VM.
 :end
 
+:vms_console_help:
+For setting the console options to show on context menus. Web will show only inbuild web clients(VNC and SPICE), 
+Virtual Manager Remote Viewer will only show the Remote Viewer option. Both will show both Web and Remote Viewer.
+:end
+
 :vms_acs_override_help:
 *PCIe ACS override* allows various hardware components to expose themselves as isolated devices.
 Typically it is sufficient to isolate *Downstream* ports.
