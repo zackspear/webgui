@@ -71,7 +71,7 @@ function presetSpace($val) {
     $base = $val>0 ? floor(log($val,1000)) : 0;
     return number_format($val/pow(1000,$base),1,$display['number'][0],$display['number'][1]).' '._var($units,$base);
   } else {
-    $decs = $size < 10 ? 1 : 0;
+    $decs = $size < 9.9 ? 1 : 0;
     return $size>0 ? number_format($size,$decs,$display['number'][0],$display['number'][1]).' %' : '';
   }
 }
