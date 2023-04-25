@@ -71,7 +71,7 @@ $stat = popen("shopt -s dotglob; stat -L -c'%F|%s|%Y|%n' ".escapeshellarg($dir).
 while (($row = fgets($stat))!==false) {
   [$type,$size,$time,$name] = explode('|',rtrim($row,"\n"),4);
   $dev  = explode('/',$name,5);
-  $devs = $user ? explode(',',$set[basename($name)]??$shares[$dev[3]]['cachePool']??'') : $lock;
+  $devs = explode(',',$user ? $set[basename($name)]??$shares[$dev[3]]['cachePool']??'' : $lock);
   $objs++;
   $text = [];
   if ($type[0]=='d') {
