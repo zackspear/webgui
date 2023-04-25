@@ -467,8 +467,10 @@ function setFloor(val) {
   const units = ['K','M','G','T','P','E','Z','Y'];
   var full = fsSize[$('#primary').val()];
   var size = parseInt(full * 0.1); // 10% of available size
-  var number = val.replace(/[A-Z%\s]/gi,'');
-  if (number.replace(/[.,]/g,'')==0 && size>0) {
+  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
+  var last = number.pop();
+  number = number.length ? number.join('')+'.'+last : last;
+  if (number==0 && size>0) {
     size = size.toString()
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
@@ -477,7 +479,6 @@ function setFloor(val) {
   }
   var unit = size.replace(/[0-9.,\s]/g,'');
   if (unit=='%') {
-    number = number.replace(',','.');
     number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
     return isNaN(number) ? '' : number;
   } else {
