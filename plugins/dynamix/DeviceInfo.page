@@ -113,9 +113,9 @@ if ($.cookie('deletepool')) {
   done();
 }
 function setFloor() {
+  if ($('#shareFloor').length==0) return;
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
-  if ($('#shareFloor').length==0) return;
   var val  = $('#shareFloor').val();
   var full = fsSize["<?=$tag?>"];
   var size = parseInt(full * 0.1); // 10% of available size
