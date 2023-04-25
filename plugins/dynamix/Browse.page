@@ -40,9 +40,11 @@ $(function(){
   $.get('/webGui/include/Browse.php',{dir:encodeURIComponent("<?=$dir?>"),path:"<?=$path?>"},function(data){
     clearTimeout(timers.browse);
     var table = $('table.indexer');
+    var thead = table.find('thead');
     var col = $.cookie('col')||1;
     var dir = $.cookie('dir')||0;
-    table.html(data);
+    table.find('tbody,tfoot').remove();
+    thead.after(data);
     table.bind('sortEnd',function(e,t){
       var sort = e.target.config.sortList.toString().split(',');
       $.cookie('col',sort[0]);
@@ -55,6 +57,5 @@ $(function(){
 </script>
 <table class="indexer tablesorter shift">
  <thead><tr><th>_(Type)_</th><th class='sorter-text'>_(Name)_</th><th>_(Size)_</th><th>_(Last Modified)_</th><th style="width:200px">_(Location)_</th></tr></thead>
- <tbody><tr><td colspan="5">&nbsp;</td></tr></tbody>
 </table>
 <input type="button" value="_(Done)_" onclick="done('Browse')">
