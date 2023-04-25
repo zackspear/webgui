@@ -27,12 +27,26 @@ $bgcolor    = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+function sanitize(&$val) {
+  $data = explode('.',str_replace([' ',','],['','.'],$val));
+  $last = array_pop($data);
+  $val = count($data) ? implode($data).".$last" : $last;
+}
 function presetSpace($val) {
-  if (!$val) return;
-  $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
-  $base = $val>0 ? floor(log($val,1000)) : 0;
-  return ($val/pow(1000,$base)).' '._var($units,$base);
+  global $disk,$display;
+  if (!$val or strcasecmp($val,'NaN')==0) return;
+  sanitize($val);
+  $size = _var($disk,'fsSize',0);
+  $size = $size>0 ? round(100*$val/$size,1) : 0;
+  $unit = '%';
+  if ($size < 1) {
+    $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
+    $base = $val>0 ? floor(log($val,1000)) : 0;
+    $size = round($val/pow(1000,$base),1);
+    $unit = _var($units,$base);
+  }
+  [$dot,$comma] = str_split(_var($display,'number','.,'));
+  return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
 }
 function fsSize() {
   global $disks,$pools;
@@ -99,23 +113,30 @@ if ($.cookie('deletepool')) {
   done();
 }
 function setFloor() {
+  if ($('#shareFloor').length==0) return;
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
-  if ($('#shareFloor').length) {
-    var val  = $('#shareFloor').val();
-    var size = fsSize['<?=$tag?>'] * 0.1; // 10% of available size
-    var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
-    if (val.replace(/[A-Z.,\s]/gi,'')==0) {
-      size = (Math.floor(size/base) * base).toString();
-      $.cookie('autosize-<?=$tag?>','1',{expires:365});
-    } else {
-      size = val;
-      $.removeCookie('autosize-<?=$tag?>');
-    }
-    var unit = size.replace(/[0-9.,\s]/g,'');
-    base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-    $('#shareFloor').val(base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size);
+  var val  = $('#shareFloor').val();
+  var full = fsSize["<?=$tag?>"];
+  var size = parseInt(full * 0.1); // 10% of available size
+  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
+  var last = number.pop();
+  number = number.length ? number.join('')+'.'+last : last;
+  if (number==0 && size>0) {
+    size = size.toString();
+    $.cookie('autosize-<?=$tag?>','1',{expires:365});
+  } else {
+    size = val;
+    $.removeCookie('autosize-<?=$tag?>');
   }
+  var unit = size.replace(/[0-9.,\s]/g,'');
+  if (unit=='%') {
+    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
+  } else {
+    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+  }
+  $('#shareFloor').val(isNaN(number) ? '' : number);
 }
 <?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
@@ -513,67 +534,6 @@ function eraseDisk(name) {
     }
   });
 }
-$(function() {
-<?if (count($sheets)>1):?>
-  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
-      ctrl += "<button type='button' style='margin-right:4px' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-left fa-fw'></i></button></a>";
-      ctrl += "<a href='/<?=$path?>?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
-<?if ($tabbed):?>
-  $('.tabs').append(ctrl);
-<?else:?>
-  $('div[class=title]:first').append(ctrl);
-<?endif;?>
-<?endif;?>
-<?if (!diskStatus('_NP')):?>
-  var form = document.smart_settings;
-<?if (!isset($disk['smType'])):?>
-  form.smType.selectedIndex = 0;
-<?endif;?>
-  setGlue(form,false);
-<?endif;?>
-  var status = true;
-  if ($.cookie('autosize-<?=$tag?>')) $('#autosize').show();
-  if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
-  if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
-  if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
-  if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
-  if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
-  if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
-  if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
-  if (status) {
-    $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
-      var action = a.split(',');
-      for (var i=0,busy; busy=action[i]; i++) {
-        switch (busy) {
-        case 'btrfs-balance':
-          $.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');
-          btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
-          break;
-        case 'btrfs-scrub':
-          $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
-          btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
-          break;
-        case 'btrfs-check':
-          $.cookie('btrfs-check-<?=$tag?>','/mnt/<?=$tag?>');
-          btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
-          break;
-        case 'zfs-scrub':
-          $.cookie('zfs-scrub-<?=$tag?>','<?=$tag?>');
-          zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
-          break;
-        case 'zfs-resilver':
-          $.cookie('zfs-resilver-<?=$tag?>','<?=$tag?>');
-          zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
-          break;
-        }
-      }
-    });
-  }
-  var groups = <?=_var($disk,'fsGroups',0)?:0?>;
-  var width = <?=_var($disk,'fsWidth',0)?:0?>;
-  var devices = (groups==0 || width==0) ? <?=_var($disk,'devices',0)?:0?> : groups * width;
-  selectDiskFsProfile(devices,width,true);
-});
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="setFloor()">
@@ -1287,7 +1247,66 @@ _(Name)_:
 </form>
 
 <script>
-$(function(){
+$(function() {
+<?if (count($sheets)>1):?>
+  var ctrl  = "<span class='status <?=$tabbed?'vhshift':'vshift'?>'><span class='waitmsg fa fa-circle-o-notch fa-span fa-fw' style='display:none;margin-right:8px'></span><a href='/<?=$path?>?name=<?=$prev?>' title='_(previous device)_'>";
+      ctrl += "<button type='button' style='margin-right:4px' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-left fa-fw'></i></button></a>";
+      ctrl += "<a href='/<?=$path?>?name=<?=$next?>' title='_(next device)_'><button type='button' onclick='this.disabled=true;$(\".waitmsg\").show();'><i class='fa fa-chevron-right fa-fw'></i></button></a></span>";
+<?if ($tabbed):?>
+  $('.tabs').append(ctrl);
+<?else:?>
+  $('div[class=title]:first').append(ctrl);
+<?endif;?>
+<?endif;?>
+<?if (!diskStatus('_NP')):?>
+  var form = document.smart_settings;
+<?if (!isset($disk['smType'])):?>
+  form.smType.selectedIndex = 0;
+<?endif;?>
+  setGlue(form,false);
+<?endif;?>
+  var status = true;
+  if ($.cookie('autosize-<?=$tag?>')) $('#autosize').show();
+  if ($.cookie('btrfs-balance-<?=$tag?>')) status = btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+  if ($.cookie('btrfs-scrub-<?=$tag?>')) status = btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+  if ($.cookie('btrfs-check-<?=$tag?>')) status = btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+  if ($.cookie('zfs-scrub-<?=$tag?>')) status = zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
+  if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
+  if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
+  if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if (status) {
+    $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
+      var action = a.split(',');
+      for (var i=0,busy; busy=action[i]; i++) {
+        switch (busy) {
+        case 'btrfs-balance':
+          $.cookie('btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsBalance($.cookie('btrfs-balance-<?=$tag?>'));
+          break;
+        case 'btrfs-scrub':
+          $.cookie('btrfs-scrub-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsScrub($.cookie('btrfs-scrub-<?=$tag?>'));
+          break;
+        case 'btrfs-check':
+          $.cookie('btrfs-check-<?=$tag?>','/mnt/<?=$tag?>');
+          btrfsCheck($.cookie('btrfs-check-<?=$tag?>'));
+          break;
+        case 'zfs-scrub':
+          $.cookie('zfs-scrub-<?=$tag?>','<?=$tag?>');
+          zfsScrub($.cookie('zfs-scrub-<?=$tag?>'));
+          break;
+        case 'zfs-resilver':
+          $.cookie('zfs-resilver-<?=$tag?>','<?=$tag?>');
+          zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
+          break;
+        }
+      }
+    });
+  }
+  var groups = <?=_var($disk,'fsGroups',0)?:0?>;
+  var width = <?=_var($disk,'fsWidth',0)?:0?>;
+  var devices = (groups==0 || width==0) ? <?=_var($disk,'devices',0)?:0?> : groups * width;
+  selectDiskFsProfile(devices,width,true);
 <?if (fsType('btrfs')):?>
   presetBTRFS(document.balance_schedule,'#balance-hour');
   presetBTRFS(document.scrub_schedule,'#scrub-hour');

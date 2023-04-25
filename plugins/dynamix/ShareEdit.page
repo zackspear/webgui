@@ -31,13 +31,9 @@ if ($name == "") {
             "cachePool"  => "",
             "cow"        => "auto"
            ];
-  $loc = 0;
 } elseif (array_key_exists($name, $shares)) {
   // edit existing share
   $share = $shares[$name];
-  // find current location(s) of share
-  $tag = implode('|',array_merge(['disk'],pools_filter($disks)));
-  $loc = count(array_filter(explode(',',preg_replace("/($tag)/",',$1',exec("getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$name")." 2>/dev/null")))));
 } else {
   // handle share deleted case
   echo "<p class='notice'>"._('Share')." '".htmlspecialchars($name)."' "._('has been deleted').".</p><input type='button' value=\""._('Done')."\" onclick='done()'>";
@@ -46,20 +42,35 @@ if ($name == "") {
 // Check for non existent pool device
 if ($share['cachePool'] && !in_array($share['cachePool'],$pools)) $share['useCache'] = "no";
 
-// check for empty share
-function shareEmpty($name) {
-  return is_dir("/mnt/user/$name") ? count(scandir("/mnt/user/$name",SCANDIR_SORT_NONE))<=2 : true;
-}
 function globalInclude($name) {
   global $var;
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || in_array($name,explode(',',$var['shareUserInclude'])));
 }
+function sanitize(&$val) {
+  $data = explode('.',str_replace([' ',','],['','.'],$val));
+  $last = array_pop($data);
+  $val = count($data) ? implode($data).".$last" : $last;
+}
 function presetSpace($val) {
-  if (!$val) return;
-  $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $val = filter_var($val,FILTER_SANITIZE_NUMBER_INT);
-  $base = $val>0 ? floor(log($val,1000)) : 0;
-  return ($val/pow(1000,$base)).' '._var($units,$base);
+  global $disks,$shares,$name,$pools,$display;
+  if (!$val or strcasecmp($val,'NaN')==0) return;
+  sanitize($val);
+  $small = [];
+  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
+  $fsSize[""] = min(array_filter($small));
+  foreach ($pools as $pool) $fsSize[$pool] = _var($disks[$pool],'fsSize',0);
+  $pool = _var($shares[$name],'cachePool');
+  $size = _var($fsSize,$pool,0);
+  $size = $size>0 ? round(100*$val/$size,1) : 0;
+  $unit = '%';
+  if ($size < 1) {
+    $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
+    $base = $val>0 ? floor(log($val,1000)) : 0;
+    $size = round($val/pow(1000,$base),1);
+    $unit = _var($units,$base);
+  }
+  [$dot,$comma] = str_split(_var($display,'number','.,'));
+  return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
 }
 function fsSize() {
   global $disks,$pools;
@@ -90,19 +101,22 @@ function direction() {
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), explode(',',$var['shareUserExclude'])), 'globalInclude');
 ?>
-:share_edit_global1_help:
-<?if ($name):?>
-:share_edit_global2_help:
-<?endif;?>
-
 <style>
 div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5,#autosize{display:none}
+#s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2{display:none}
 i.fa-info.i{margin-right:10px}
+<?if ($themes1):?>
+form[name=share_edit]{margin-top:-20px}
+<?endif;?>
 </style>
+
+:share_edit_global1_help:
+<?if ($name):?>
+:share_edit_global2_help:
+<?endif;?>
 
 <div id="" class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
@@ -146,26 +160,31 @@ _(Comments)_:
 
 :share_edit_comments_help:
 
+<?if (_var($share,'exclusive')=="no"):?>
+<div markdown="1">
 _(Minimum free space)_:
 : <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :share_edit_free_space_help:
 
+</div>
+<?endif;?>
 <?if ($name):?>
-<?if (shareEmpty($name)):?>
+<div markdown="1" class="empty">
 _(Share status)_:
 : _(Share is empty)_
 
 :share_edit_status_help:
 
-<?else:?>
+</div>
+<div markdown="1" class="full">
 _(Share status)_:
-: _(Share contains data)_
+: <span class="full1">&nbsp;</span><span class="full2">_(Share contains data)_</span>
 
 :share_edit_delete_help:
 
-<?endif;?>
-<?if ($share['exclusive']=="yes"):?>
+</div>
+<?if (_var($share,'exclusive')=="yes"):?>
 _(Exclusive access)_:
 : _(Yes)_
 
@@ -321,18 +340,26 @@ _(Mover action)_:
 <?if (!$name):?>
 &nbsp;
 : <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'"><input type="button" value="_(Done)_" onclick="done()">
-<?elseif (shareEmpty($name)):?>
+<?else:?>
+<div markdown="1" class="empty">
 _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
 : <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
-<?else:?>
+</div>
+<div markdown="1" class="full">
 &nbsp;
 : <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
+</div>
 <?endif;?>
 </form>
 <script>
 var form = document.share_edit;
 
 $(function() {
+<?if ($name):?>
+  $.post('/webGui/include/ShareList.php',{scan:"<?=$name?>"},function(e){
+    if (e==1) {$('.empty').show(); $('.full').hide();} else {$('.full1').hide(); $('.full2').show();}
+  });
+<?endif;?>
   initDropdown(false,true);
 <?if ($tabbed):?>
   $('#tab1').bind({click:function(){initDropdown(true,true);}});
@@ -449,18 +476,26 @@ function unite(field) {
 function setFloor(val) {
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
-  var size = fsSize[$('#primary').val()] * 0.1; // 10% of available size
-  var base = Math.pow(1000,Math.floor(Math.log(size)/Math.log(1000)));
-  if (val.replace(/[A-Z.,\s]/gi,'')==0) {
-    size = (Math.floor(size/base) * base).toString();
+  var full = fsSize[$('#primary').val()];
+  var size = parseInt(full * 0.1); // 10% of available size
+  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
+  var last = number.pop();
+  number = number.length ? number.join('')+'.'+last : last;
+  if (number==0 && size>0) {
+    size = size.toString()
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
     size = val;
     $.removeCookie('autosize-'+$('#shareName').val());
   }
   var unit = size.replace(/[0-9.,\s]/g,'');
-  base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-  return base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+  if (unit=='%') {
+    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
+  } else {
+    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+  }
+  return isNaN(number) ? '' : number;
 }
 // Compose input fields
 function prepareEdit() {
@@ -487,7 +522,9 @@ function prepareEdit() {
 // Update settings
   form.shareName.value = share;
   form.shareUseCache.value = z(4);
+<?if (_var($share,'exclusive')=="no"):?>
   form.shareFloor.value = setFloor(form.shareFloor.value);
+<?endif;?>
   switch (form.shareUseCache.value) {
   case 'no':
     form.shareAllocator.value = form.shareAllocator1.value;

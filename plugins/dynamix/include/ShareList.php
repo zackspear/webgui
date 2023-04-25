@@ -13,6 +13,11 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+if (isset($_POST['scan'])) {
+  $scan = $_POST['scan'];
+  die(is_dir("/mnt/user/$scan") ? (count(scandir("/mnt/user/$scan",SCANDIR_SORT_NONE))<=2 ? '1' : '0') : '1');
+}
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";
@@ -115,7 +120,8 @@ foreach ($shares as $name => $share) {
     $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary stoage to Primary storage')."</span></a>";
     break;
   case 'only':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))."<span>".sprintf(_('Primary storage %s'),$share['cachePool'])."</span></a>";
+    $exclusive = isset($share['exclusive']) && $share['exclusive']=='yes' ? "<i class='fa fa-caret-right '></i> " : "";
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>$exclusive".compress(my_disk($share['cachePool'],$display['raw']))."<span>".sprintf(_('Primary storage %s'),$share['cachePool']).($exclusive ? ", "._('Exclusive access') : "")."</span></a>";
     break;
   }
   if (array_key_exists($name, $ssz1)) {
