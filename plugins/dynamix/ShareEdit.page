@@ -483,7 +483,7 @@ function setFloor(val) {
     return isNaN(number) ? '' : number;
   } else {
     var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-    number = base>0 ? size.replace(unit,'') * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
     return isNaN(number) ? '' : number;
   }
 }
