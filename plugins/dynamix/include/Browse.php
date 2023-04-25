@@ -63,19 +63,15 @@ $user   = $root=='mnt' && in_array($main,['user','user0']);
 $lock   = $root=='mnt' ? ($main ?: '---') : ($root=='boot' ? _('flash') : '---');
 
 if ($user) {
-  $set = [];
   exec("shopt -s dotglob; getfattr --no-dereference --absolute-names -n system.LOCATIONS ".escapeshellarg($dir)."/* 2>/dev/null",$tmp);
-  for ($i = 0; $i < count($tmp); $i+=3) {
-    $tag = explode('/',$tmp[$i]);
-    $set[end($tag)] = explode('"',$tmp[$i+1])[1];
-  }
+  for ($i = 0; $i < count($tmp); $i+=3) $set[basename($tmp[$i])] = explode('"',$tmp[$i+1])[1];
   unset($tmp);
 }
 $stat = popen("shopt -s dotglob; stat -L -c'%F|%s|%Y|%n' ".escapeshellarg($dir)."/* 2>/dev/null",'r');
 while (($row = fgets($stat))!==false) {
   [$type,$size,$time,$name] = explode('|',rtrim($row,"\n"),4);
-  $dev  = explode('/',$name);
-  $devs = explode(',',$user ? ($set[end($dev)]??$shares[$dev[3]]['cachePool']??'') : $lock);
+  $dev  = explode('/',$name,5);
+  $devs = $user ? explode(',',$set[basename($name)]??$shares[$dev[3]]['cachePool']??'') : $lock;
   $objs++;
   $text = [];
   if ($type[0]=='d') {
