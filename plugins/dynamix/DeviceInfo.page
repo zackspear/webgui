@@ -132,12 +132,11 @@ function setFloor() {
     var unit = size.replace(/[0-9.,\s]/g,'');
     if (unit=='%') {
       number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
-      $('#shareFloor').val(isNaN(number) ? '' : number);
     } else {
       var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
       number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
-      $('#shareFloor').val(isNaN(number) ? '' : number);
     }
+    $('#shareFloor').val(isNaN(number) ? '' : number);
   }
 }
 <?if (fsType('btrfs')):?>
