@@ -176,7 +176,7 @@ _(Share status)_:
 </div>
 <div markdown="1" class="full">
 _(Share status)_:
-: <span class="full2">_(Share contains data)_</span>
+: <span class="full1">&nbsp;</span><span class="full2">_(Share contains data)_</span>
 
 :share_edit_delete_help:
 
@@ -354,7 +354,7 @@ var form = document.share_edit;
 $(function() {
 <?if ($name):?>
   $.post('/webGui/include/ShareList.php',{scan:"<?=$name?>"},function(e){
-    if (e==1) {$('.empty').show(); $('.full').hide();} else $('.full2').show();
+    if (e==1) {$('.empty').show(); $('.full').hide();} else {$('.full1').hide(); $('.full2').show();}
   });
 <?endif;?>
   initDropdown(false,true);
