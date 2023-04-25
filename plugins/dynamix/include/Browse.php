@@ -73,11 +73,9 @@ if ($user) {
 }
 $stat = popen("shopt -s dotglob; stat -L -c'%F|%s|%Y|%n' ".escapeshellarg($dir)."/* 2>/dev/null",'r');
 while (($row = fgets($stat))!==false) {
-  [$type,$size,$time,$name] = explode('|',$row,4);
-  $name = rtrim($name,"\n");
+  [$type,$size,$time,$name] = explode('|',rtrim($row,"\n"),4);
   $dev  = explode('/',$name);
-  $loc  = $user ? ($set[end($dev)]??$shares[$dev[3]]['cachePool']??'') : $lock;
-  $devs = explode(',',$loc);
+  $devs = explode(',',$user ? ($set[end($dev)]??$shares[$dev[3]]['cachePool']??'') : $lock);
   $objs++;
   $text = [];
   if ($type[0]=='d') {
