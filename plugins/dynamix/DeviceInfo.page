@@ -115,29 +115,28 @@ if ($.cookie('deletepool')) {
 function setFloor() {
   const fsSize = {<?=fsSize()?>};
   const units = ['K','M','G','T','P','E','Z','Y'];
-  if ($('#shareFloor').length) {
-    var val  = $('#shareFloor').val();
-    var full = fsSize["<?=$tag?>"];
-    var size = parseInt(full * 0.1); // 10% of available size
-    var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
-    var last = number.pop();
-    number = number.length ? number.join('')+'.'+last : last;
-    if (number==0 && size>0) {
-      size = size.toString();
-      $.cookie('autosize-<?=$tag?>','1',{expires:365});
-    } else {
-      size = val;
-      $.removeCookie('autosize-<?=$tag?>');
-    }
-    var unit = size.replace(/[0-9.,\s]/g,'');
-    if (unit=='%') {
-      number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
-    } else {
-      var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-      number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
-    }
-    $('#shareFloor').val(isNaN(number) ? '' : number);
+  if ($('#shareFloor').length==0) return;
+  var val  = $('#shareFloor').val();
+  var full = fsSize["<?=$tag?>"];
+  var size = parseInt(full * 0.1); // 10% of available size
+  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
+  var last = number.pop();
+  number = number.length ? number.join('')+'.'+last : last;
+  if (number==0 && size>0) {
+    size = size.toString();
+    $.cookie('autosize-<?=$tag?>','1',{expires:365});
+  } else {
+    size = val;
+    $.removeCookie('autosize-<?=$tag?>');
   }
+  var unit = size.replace(/[0-9.,\s]/g,'');
+  if (unit=='%') {
+    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
+  } else {
+    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
+    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
+  }
+  $('#shareFloor').val(isNaN(number) ? '' : number);
 }
 <?if (fsType('btrfs')):?>
 function presetBTRFS(form,hour) {
