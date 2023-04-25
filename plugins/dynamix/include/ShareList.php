@@ -13,6 +13,11 @@
 <?
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
+if (isset($_POST['scan'])) {
+  $scan = $_POST['scan'];
+  die(is_dir("/mnt/user/$scan") ? (count(scandir("/mnt/user/$scan",SCANDIR_SORT_NONE))<=2 ? '1' : '0') : '1');
+}
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";

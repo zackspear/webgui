@@ -42,10 +42,6 @@ if ($name == "") {
 // Check for non existent pool device
 if ($share['cachePool'] && !in_array($share['cachePool'],$pools)) $share['useCache'] = "no";
 
-// check for empty share
-function shareEmpty($name) {
-  return is_dir("/mnt/user/$name") ? count(scandir("/mnt/user/$name",SCANDIR_SORT_NONE))<=2 : true;
-}
 function globalInclude($name) {
   global $var;
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || in_array($name,explode(',',$var['shareUserInclude'])));
@@ -115,7 +111,7 @@ div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5,#autosize{display:none}
+#s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2{display:none}
 i.fa-info.i{margin-right:10px}
 </style>
 
@@ -162,26 +158,29 @@ _(Comments)_:
 :share_edit_comments_help:
 
 <?if (_var($share,'exclusive')=="no"):?>
+<div markdown="1">
 _(Minimum free space)_:
 : <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :share_edit_free_space_help:
 
+</div>
 <?endif;?>
 <?if ($name):?>
-<?if (shareEmpty($name)):?>
+<div markdown="1" class="empty">
 _(Share status)_:
 : _(Share is empty)_
 
 :share_edit_status_help:
 
-<?else:?>
+</div>
+<div markdown="1" class="full">
 _(Share status)_:
-: _(Share contains data)_
+: <span class="full2">_(Share contains data)_</span>
 
 :share_edit_delete_help:
 
-<?endif;?>
+</div>
 <?if (_var($share,'exclusive')=="yes"):?>
 _(Exclusive access)_:
 : _(Yes)_
@@ -338,18 +337,26 @@ _(Mover action)_:
 <?if (!$name):?>
 &nbsp;
 : <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'"><input type="button" value="_(Done)_" onclick="done()">
-<?elseif (shareEmpty($name)):?>
+<?else:?>
+<div markdown="1" class="empty">
 _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
 : <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
-<?else:?>
+</div>
+<div markdown="1" class="full">
 &nbsp;
 : <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
+</div>
 <?endif;?>
 </form>
 <script>
 var form = document.share_edit;
 
 $(function() {
+<?if ($name):?>
+  $.post('/webGui/include/ShareList.php',{scan:"<?=$name?>"},function(e){
+    if (e==1) {$('.empty').show(); $('.full').hide();} else $('.full2').show();
+  });
+<?endif;?>
   initDropdown(false,true);
 <?if ($tabbed):?>
   $('#tab1').bind({click:function(){initDropdown(true,true);}});
