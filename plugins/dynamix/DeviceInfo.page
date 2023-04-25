@@ -38,13 +38,15 @@ function presetSpace($val) {
   sanitize($val);
   $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
   $size = _var($disk,'fsSize',0);
-  $size = $size>0 ? (100*$val/$size) : 0;
+  $size = $size>0 ? round(100*$val/$size,1) : 0;
   if ($size < 1) {
     $base = $val>0 ? floor(log($val,1000)) : 0;
-    return number_format($val/pow(1000,$base),1,$display['number'][0],$display['number'][1]).' '._var($units,$base);
+    $size = round($val/pow(1000,$base),1);
+    $d = $size-floor($size)==0 ? 0 : 1;
+    return number_format($size,$d,$display['number'][0],$display['number'][1]).' '._var($units,$base);
   } else {
-    $decs = $size < 9.9 ? 1 : 0;
-    return $size>0 ? number_format($size,$decs,$display['number'][0],$display['number'][1]).' %' : '';
+    $d = $size-floor($size)==0 ? 0 : 1;
+    return $size>0 ? number_format($size,$d,$display['number'][0],$display['number'][1]).' %' : '';
   }
 }
 function fsSize() {
