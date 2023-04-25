@@ -28,9 +28,9 @@ $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 function sanitize(&$val) {
-  $val = explode('.',str_replace([' ',','],['','.'],$val));
-  $last = array_pop($val);
-  $val = count($val) ? implode($val).".$last" : $last;
+  $data = explode('.',str_replace([' ',','],['','.'],$val));
+  $last = array_pop($data);
+  $val = count($data) ? implode($data).".$last" : $last;
 }
 function presetSpace($val) {
   global $disk,$display;
