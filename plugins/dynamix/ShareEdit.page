@@ -59,6 +59,7 @@ function presetSpace($val) {
   global $disks,$shares,$name,$pools,$display;
   if (!$val or strcasecmp($val,'NaN')==0) return;
   sanitize($val);
+  [$dot,$comma] = str_split(_var($display,'number','.,'));
   $small = [];
   foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
   $fsSize[""] = min(array_filter($small));
@@ -70,11 +71,9 @@ function presetSpace($val) {
     $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
     $base = $val>0 ? floor(log($val,1000)) : 0;
     $size = round($val/pow(1000,$base),1);
-    $d = $size-floor($size)==0 ? 0 : 1;
-    return number_format($size,$d,$display['number'][0],$display['number'][1]).' '._var($units,$base);
+    return number_format($size,$size-floor($size)==0?0:1,$dot,$comma).' '._var($units,$base);
   } else {
-    $d = $size-floor($size)==0 ? 0 : 1;
-    return $size>0 ? number_format($size,$d,$display['number'][0],$display['number'][1]).' %' : '';
+    return $size>0 ? number_format($size,$size-floor($size)==0?0:1,$dot,$comma).' %' : '';
   }
 }
 function fsSize() {
