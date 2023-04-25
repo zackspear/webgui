@@ -118,7 +118,7 @@ form[name=share_edit]{margin-top:-20px}
 :share_edit_global2_help:
 <?endif;?>
 
-<div id="" class="clone1">
+<div class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
 <span class="wrap"><select name="readshare" class="clone" onchange="toggleButton('readshare',false)">
 <option disabled selected>_(select)_...</option>
@@ -128,7 +128,7 @@ foreach ($shares as $list) if ($list['name']!=$name || !$name) echo mk_option(""
 </select></span><input type="button" id="readshare" value="_(Read)_" class="clone" onclick="readShare()" disabled>
 </div>
 <?if ($name):?>
-<div id="" class="clone2">
+<div class="clone2">
 <span class="clone">_(Write settings to)_</span><i class="fa fa-arrow-right fa-fw"></i>
 <span class="wrap"><select id="s5" name="writeshare" multiple onchange="toggleButton('writeshare',this.id)">
 <?
@@ -148,6 +148,9 @@ foreach ($rows as $row) echo $row;
 <input type="hidden" name="shareSplitLevel" value="">
 <input type="hidden" name="shareInclude" value="">
 <input type="hidden" name="shareExclude" value="">
+<?if (_var($share,'exclusive')!="no"):?>
+<input type="hidden" name="shareFloor" value="">
+<?endif;?>
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Share name)_:
@@ -201,7 +204,7 @@ _(Exclusive access)_:
 </div>
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Primary storage (for new files and folders))_:
-: <select id="primary" name="shareCachePool" onchange="updateScreen(z(4),'slow')">
+: <select id="primary" name="shareCachePool" onchange="form.shareFloor.value='';updateScreen(z(4),'slow')">
   <?=mk_option(primary(),'',_('Array'))?>
   <?foreach ($pools as $pool):?>
   <?if ($disks[$pool]['devices']) echo mk_option(primary(),$pool,my_disk($pool),$disks[$pool]['shareEnabled']=='yes'?"":"disabled")?>
@@ -342,8 +345,8 @@ _(Mover action)_:
 : <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'"><input type="button" value="_(Done)_" onclick="done()">
 <?else:?>
 <div markdown="1" class="empty">
-_(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, this.form.cmdEditShare);">
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
+_(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));">
+: <input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 </div>
 <div markdown="1" class="full">
 &nbsp;
@@ -522,9 +525,7 @@ function prepareEdit() {
 // Update settings
   form.shareName.value = share;
   form.shareUseCache.value = z(4);
-<?if (_var($share,'exclusive')=="no"):?>
   form.shareFloor.value = setFloor(form.shareFloor.value);
-<?endif;?>
   switch (form.shareUseCache.value) {
   case 'no':
     form.shareAllocator.value = form.shareAllocator1.value;
