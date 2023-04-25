@@ -39,14 +39,14 @@ function presetSpace($val) {
   [$dot,$comma] = str_split(_var($display,'number','.,'));
   $size = _var($disk,'fsSize',0);
   $size = $size>0 ? round(100*$val/$size,1) : 0;
+  $unit = '%';
   if ($size < 1) {
     $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
     $base = $val>0 ? floor(log($val,1000)) : 0;
     $size = round($val/pow(1000,$base),1);
-    return number_format($size,$size-floor($size)?1:0,$dot,$comma).' '._var($units,$base);
-  } else {
-    return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' %' : '';
+    $unit = ._var($units,$base);
   }
+  return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
 }
 function fsSize() {
   global $disks,$pools;
