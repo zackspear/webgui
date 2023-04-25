@@ -101,11 +101,6 @@ function direction() {
 // global shares include/exclude
 $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), explode(',',$var['shareUserExclude'])), 'globalInclude');
 ?>
-:share_edit_global1_help:
-<?if ($name):?>
-:share_edit_global2_help:
-<?endif;?>
-
 <style>
 div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
@@ -113,7 +108,15 @@ div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
 #s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2{display:none}
 i.fa-info.i{margin-right:10px}
+<?if ($themes1):?>
+form[name=share_edit]{margin-top:-20px}
+<?endif;?>
 </style>
+
+:share_edit_global1_help:
+<?if ($name):?>
+:share_edit_global2_help:
+<?endif;?>
 
 <div id="" class="clone1">
 <span class="clone">_(Read settings from)_</span><i class="fa fa-arrow-left fa-fw"></i>
