@@ -26,6 +26,7 @@ $upc_translations = [
     'signIn' => _('Sign In'),
     'signUp' => _('Sign Up'),
     'signInUp' => _('Sign In / Up'),
+    'signInUnraidNetAccount' => _('Sign In with Unraid.net Account'),
     'signOut' => _('Sign Out'),
     'error' => _('Error'),
     'fixError' => _('Fix Error'),
@@ -91,6 +92,8 @@ $upc_translations = [
       'enhanceYourExperienceWithMyServers' => _('Enhance your experience with Connect'),
       'lanIpCopied' => _('LAN IP Copied'),
       'installingMyServers' => _('Installing Connect (beta)'),
+      "updatePlugin" => _('Update Plugin'),
+      "updatingMyServers" => _('Updating Connect (beta)'),
       'thankYouForInstallingMyServers' => _('Thank you installing Connect') . '!',
       'connectYourUnraidnetAccountToGetStarted' => _('Connect your Unraid.net account to get started'),
       'noRemoteApikeyRegisteredWithPlg' => [
@@ -148,8 +151,8 @@ $upc_translations = [
         'loading' => _('Loading Connect data'),
         'displayingLastKnown' => _('Displaying last known server data'),
         'mothership' => [
-          'connected' => _('Connected to Mothership'),
-          'notConnected' => _('Not Connected to Mothership'),
+          'connected' => _('Connected'),
+          'notConnected' => _('Disconnected'),
         ],
         'accessLabels' => [
           'current' => _('Current server'),
@@ -536,6 +539,9 @@ $upc_translations = [
       'heading' => _('Connect plugin install failed'),
       'message' => _('The Connect plugin install is incomplete').'. '._('Please uninstall and reinstall the Connect plugin').'. '._('Be sure to let the install complete before you close the window').'.',
     ],
+    "downloadUnraidApiLogs" => _('Download unraid-api Logs'),
+    "download" => _('Download'),
+    "pleaseWait" => _('Please wait…')
   ],
 ];
 // note: $myservers variable defined in myservers1.php, by parsing myservers.cfg
