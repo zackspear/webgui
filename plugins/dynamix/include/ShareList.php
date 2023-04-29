@@ -113,10 +113,10 @@ foreach ($shares as $name => $share) {
     $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-database fa-fw'></i>"._('Array')."<span>".sprintf(_('Primary storage %s'),_('Array'))."</span></a>";
     break;
   case 'yes':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Primary stoage to Secondary storage')."</span></a>";
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Primary storage to Secondary storage')."</span></a>";
     break;
   case 'prefer':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary stoage to Primary storage')."</span></a>";
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary storage to Primary storage')."</span></a>";
     break;
   case 'only':
     $exclusive = isset($share['exclusive']) && $share['exclusive']=='yes' ? "<i class='fa fa-caret-right '></i> " : "";
