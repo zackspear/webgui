@@ -15,28 +15,11 @@ Cond="_var($var,'fsState')!='Stopped' && _var($var,'shareUser')=='e'"
  * all copies or substantial portions of the Software.
  */
 ?>
-<script>
-function displayShares(all) {
-  if (all == 'yes') {
-    $.cookie('ssz','ssz');
-    $('#shareslist').html("<tr><td colspan='8'><div class='spinner'></div></td></tr>");
-    $('div.spinner').html(unraid_logo);
-  }
-  $.get('/webGui/include/ShareList.php',{compute:all,path:'<?=addslashes(htmlspecialchars($path))?>',scale:'<?=_var($display,'scale')?>',number:'<?=_var($display,'number','.,')?>',raw:'<?=_var($display,'raw')?>',fill:$.cookie('ssz')},function(data){
-    $.removeCookie('ssz')
-    $('#shareslist').html(data);
-    $('#compute-shares').prop('disabled',!data || data.indexOf('colspan=')!=-1);
-  });
-}
-$(function() {
-  displayShares('no');
-});
-</script>
-
 <style>
 table.share_status thead tr td:first-child{width:15%}
 table.share_status thead tr td:nth-child(n+3){width:9%!important}
 table.share_status thead tr td:nth-child(5){width:13%!important}
+td.empty{text-align:center;padding-top:12px}
 i.fa-fw{margin-right:2px}
 </style>
 
@@ -44,13 +27,42 @@ i.fa-fw{margin-right:2px}
 <thead><tr><td>_(Name)_</td><td>_(Comment)_</td><td>_(SMB)_</td><td>_(NFS)_</td><td>_(Storage)_</td><td>_(Size)_</td><td>_(Free)_</td></tr></thead>
 <tbody id="shareslist"></tbody>
 </table>
-<p><form name="share_form" method="POST" action="<?=htmlspecialchars($path)?>/Share?name=">
-<input id="compute-shares" type="button" value="_(Compute All)_" onclick="$(this).prop('disabled',true);displayShares('yes')">
-<?if (_var($var,'startMode')=='Normal'):?>
-<input type="submit" value="_(Add Share)_"<?=_var($var,'shareUser')=='e'?'>':' disabled>User shares must be <strong>enabled</strong> to add shares.'?>
-<?else:?>
-<input type="submit" value="_(Add Share)_" disabled>
-<?endif;?>
-</form></p>
+
+<form name="share_form" method="POST" action="<?=htmlspecialchars($path)?>/Share?name=">
+<input type="button" id="compute-shares" value="_(Compute All)_" onclick="$(this).prop('disabled',true);shareList('',-1)">
+<input type="submit" value="_(Add Share)_">
+<input type="button" value="_(Clean Up)_" onclick="cleanup()">
+</form>
 
 :share_list_help:
+
+<script>
+function shareList(name,all) {
+  timers.shareList = setTimeout(function(){$('div.spinner.fixed').show();},500);
+  $.post('/webGui/include/ShareList.php',{compute:name,path:"<?=rawurlencode($path)?>",all:all},function(data){
+    clearTimeout(timers.shareList);
+    $('div.spinner.fixed').hide();
+    $('#shareslist').html(data);
+    if (all!=1) $('#compute-shares').prop('disabled',!data||data.indexOf('colspan=')!=-1);
+  });
+}
+function computeShare(name,status) {
+  status.html("<i class='fa fa-circle-o-notch fa-spin'></i> _(Please wait)_...");
+  shareList(name,1);
+}
+function cleanup() {
+  swal({title:"_(CLEAN UP)_",text:"_(Remove unused share configurations)_",type:'info',html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(cleanup){
+    if (!cleanup) return;
+    $.post('/webGui/include/ShareList.php',{cleanup:1},function(data){
+      let text = "_(No unused share configurations present)_";
+      let type = "info";
+      if (data > 0) {
+        text = "_(Removed share configurations)_: "+data;
+        type = "success";
+      }
+      swal({title:"_(CLEAN UP)_",text:text,type:type,html:true,confirmButtonText:"_(Ok)_"});
+    });
+  });
+}
+$(shareList('',0));
+</script>

@@ -16,8 +16,11 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  */
 ?>
 <?
+function makeList($list) {
+  return implode(',',array_map('escapestring',$list));
+}
 function sharename($share) {
-  return substr($share,0,-4);
+  return basename($share,'.cfg');
 }
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
@@ -29,9 +32,9 @@ table.divider{margin-top:20px}
 <script>
 function validate(poolname) {
   var valid = /^[a-z]([a-z0-9_-]*[a-z_-])*$/;
-  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
-  var shares = [<?=implode(',',array_map('escapestring',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
-  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
+  var reserved = [<?=makeList(explode(',',_var($var,'reservedNames')))?>];
+  var shares = [<?=makeList(array_map('sharename',glob('boot/config/shares/*.cfg',GLOB_NOSORT)))?>];
+  var pools = [<?=makeList($pools)?>];
   if (!poolname.trim()) return false;
   if (reserved.includes(poolname)) {
     swal({title:"_(Invalid pool name)_",text:"_(Do not use reserved names)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
@@ -45,9 +48,8 @@ function validate(poolname) {
   } else if (!valid.test(poolname)) {
     swal({title:"_(Invalid pool name)_",text:"_(Use only lowercase with no special characters or leading/trailing digits)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
-  } else {
-    return true;
   }
+  return true;
 }
 function addPoolPopup() {
   var popup = $('#dialogAddPool');
