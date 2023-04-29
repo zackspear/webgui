@@ -15,24 +15,6 @@ Cond="_var($var,'fsState')!='Stopped' && _var($var,'shareDisk')!='no'"
  * all copies or substantial portions of the Software.
  */
 ?>
-<script>
-function displayDisks(all) {
-  if (all == 'yes') {
-    $.cookie('ssz','ssz');
-    $('#disk_list').html("<tr><td colspan='8'><div class='spinner'></div></td></tr>");
-    $('div.spinner').html(unraid_logo);
-  }
-  $.get('/webGui/include/DiskList.php',{compute:all,path:'<?=$path?>',scale:'<?=_var($display,'scale')?>',number:'<?=_var($display,'number','.,')?>',fill:$.cookie('ssz')||''},function(data){
-    $.removeCookie('ssz')
-    $('#disk_list').html(data);
-    $('#compute-disks').prop('disabled',!data || data.indexOf('colspan=')!=-1);
-  });
-}
-$(function() {
-  displayDisks('no');
-});
-</script>
-
 <style>
 table.share_status thead tr td:first-child{width:15%}
 table.share_status thead tr td:nth-child(n+3){width:10%}
@@ -42,6 +24,24 @@ table.share_status thead tr td:nth-child(n+3){width:10%}
 <thead><tr><td>_(Name)_</td><td>_(Comment)_</td><td>_(SMB)_</td><td>_(NFS)_</td><td>_(Type)_</td><td>_(Size)_</td><td>_(Free)_</td></tr></thead>
 <tbody id="disk_list"></tbody>
 </table>
-<p><input id="compute-disks" type="button" value="_(Compute All)_" onclick="$(this).prop('disabled',true);displayDisks('yes')"></p>
+
+<input id="compute-disks" type="button" value="_(Compute All)_" onclick="$(this).prop('disabled',true);diskList('',-1)">
 
 :disk_list_help:
+
+<script>
+function diskList(name,all) {
+  timers.diskList = setTimeout(function(){$('div.spinner.fixed').show();},500);
+  $.post('/webGui/include/DiskList.php',{compute:name,path:"<?=rawurlencode($path)?>",all:all},function(data){
+    clearTimeout(timers.diskList);
+    $('div.spinner.fixed').hide();
+    $('#disk_list').html(data);
+    if (all!=1) $('#compute-disks').prop('disabled',!data||data.indexOf('colspan=')!=-1);
+  });
+}
+function computeDisk(name,status) {
+  status.html("<i class='fa fa-circle-o-notch fa-spin'></i> _(Please wait)_...");
+  diskList(name,1);
+}
+$(diskList('',0));
+</script>

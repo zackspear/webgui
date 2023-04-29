@@ -68,8 +68,11 @@ function diskType(...$types) {
   foreach ($types as $type) $pass |= _var($disk,'type')==$type;
   return $pass;
 }
+function makeList($list) {
+  return implode(',',array_map('escapestring',$list));
+}
 function sharename($share) {
-  return substr($share,0,-4);
+  return basename($share,'.cfg');
 }
 function displayTemp($temp) {
   global $display;
@@ -452,9 +455,9 @@ function updateMode(form,mode) {
 }
 function validate(poolname) {
   var valid = /^[a-z_]([a-z0-9_-]*[a-z_])*$/;
-  var reserved = [<?=implode(',',array_map('escapestring',explode(',',_var($var,'reservedNames'))))?>];
-  var shares = [<?=implode(',',array_map('escapestring',array_filter(array_map('sharename',scandir('boot/config/shares')))))?>];
-  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
+  var reserved = [<?=makeList(explode(',',_var($var,'reservedNames')))?>];
+  var shares = [<?=makeList(array_map('sharename',glob('boot/config/shares/*.cfg',GLOB_NOSORT)))?>];
+  var pools = [<?=makeList($pools)?>];
   if (!poolname.trim()) return false;
   if (reserved.includes(poolname)) {
     swal({title:"_(Invalid pool name)_",text:"_(Do not use reserved names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
@@ -468,9 +471,8 @@ function validate(poolname) {
   } else if (!valid.test(poolname)) {
     swal({title:"_(Invalid pool name)_",text:"_(Use only lowercase with no special characters or leading/trailing digits)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
-  } else {
-    return true;
   }
+  return true;
 }
 function renamePoolPopup() {
   var popup = $('#dialogRenamePool');
