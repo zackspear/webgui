@@ -22,7 +22,10 @@ if (isset($_POST['cleanup'])) {
   $shares = array_keys(parse_ini_file('state/shares.ini',true));
   // stored shares
   foreach (glob("/boot/config/shares/*.cfg",GLOB_NOSORT) as $name) {
-    if (!in_array(basename($name,'.cfg'),$shares)) {$n++; unlink($name);}
+    if (!in_array(basename($name,'.cfg'),$shares)) {
+      $n++;
+      if ($_POST['cleanup']==1) unlink($name);
+    }
   }
   // return number of deleted files
   die((string)$n);
