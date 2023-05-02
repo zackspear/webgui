@@ -19,10 +19,10 @@ if (isset($_POST['scan'])) {
 if (isset($_POST['cleanup'])) {
   $n = 0;
   // active shares
-  $shares = array_keys(parse_ini_file('state/shares.ini',true));
+  $shares = array_map('strtolower',array_keys(parse_ini_file('state/shares.ini',true)));
   // stored shares
   foreach (glob("/boot/config/shares/*.cfg",GLOB_NOSORT) as $name) {
-    if (!in_array(basename($name,'.cfg'),$shares)) {
+    if (!in_array(strtolower(basename($name,'.cfg')),$shares)) {
       $n++;
       if ($_POST['cleanup']==1) unlink($name);
     }
