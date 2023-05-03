@@ -31,5 +31,5 @@ fi
 if [ -s /var/log/vfio-pci-errors ]; then
   mkdir -p /run/libvirt/qemu
   echo "vfio-pci bind error" > /run/libvirt/qemu/autostarted
-  /usr/local/emhttp/webGui/scripts/notify -e "VM Autostart disabled" -s "vfio-bind-error" -d "VM Autostart disabled due to vfio-bind error" -m "Please review /var/log/vfio-pci-error" -i "alert" -l "/VMs"
+  /usr/local/emhttp/webGui/scripts/notify -e "VM Autostart disabled" -s "/var/log/vfio-pci-errors " -d "VM Autostart disabled due to vfio-bind error" -m "Please review /var/log/vfio-pci-error" -i "alert" -l "/VMs"
 fi
