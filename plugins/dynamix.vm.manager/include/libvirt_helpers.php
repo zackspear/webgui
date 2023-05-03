@@ -678,7 +678,7 @@ private static $encoding = 'UTF-8';
 		$lv = new Libvirt('qemu:///system', null, null, false);
 		$arrHostInfo = $lv->host_get_node_info();
 		$maxcpu = (int)$arrHostInfo['cpus'];
-		$maxmem = number_format(($arrHostInfo['memory'] / 1048576), 1, '.', ' ');
+		$maxmem = number_format(($arrHostInfo['memory'] / 1048576), 1, '.', '');
 	}
 
 	function mk_dropdown_options($arrOptions, $strSelected) {
