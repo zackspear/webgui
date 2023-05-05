@@ -577,6 +577,7 @@ foreach (glob("/var/log/syslog*") as $file) {
     run("sed -ri 's|\b\S+@\S+\.\S+\b|email@removed.com|;s|\b(username\|password)([=:])\S+\b|\\1\\2xxx|;s|(GUID: \S)\S+(\S) |\\1..\\2 |;s|(moving \"\S\|\"/mnt/user/\S).*(\S)\"|\\1..\\2\"|' ".escapeshellarg("$log.txt"));
     run("sed -ri 's|(server: ).+(\.(my)?unraid\.net(:[0-9]+)?,)|\\1hash\\2|;s|(host: \").+(\.(my)?unraid\.net(:[0-9]+)?\")|\\1hash\\2|;s|(referrer: \"https?://).+(\.(my)?unraid\.net)|\\1hash\\2|' ".escapeshellarg("$log.txt"));
     foreach ($titles as $mover) {
+      if (!$mover) continue;
       $title = "/{$mover[0]}..".substr($mover,-1)."/...";
       run("sed -i 's/".str_replace("/","\/",$mover)."/".str_replace("/","\/",$title)."/g' ".escapeshellarg("$log.txt")." 2>/dev/null");
       //run("sed -ri 's|(file: [.>cr].*)[ /]$mover/.*$|\\1 file: $title|' ".escapeshellarg("$log.txt")." 2>/dev/null");
