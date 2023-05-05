@@ -300,6 +300,11 @@ case 'snap-create':
 	: ['error' => $lv->get_last_error()];
 	break;
 
+case 'snap-create-external':
+	requireLibvirt();
+	$arrResponse = vm_snapshot($domName) ;
+	break;
+
 case 'snap-delete':
 	requireLibvirt();
 	$arrResponse = $lv->domain_snapshot_delete($domName, $_REQUEST['snap'])

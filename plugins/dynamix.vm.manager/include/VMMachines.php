@@ -51,6 +51,7 @@ foreach ($vms as $vm) {
   $icon = $lv->domain_get_icon_url($res);
   $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
   $arrConfig = domain_to_config($uuid);
+  $snapshots = getvmsnapshots($vm) ;
   if ($state == 'running') {
     $mem = $dom['memory']/1024;
   } else {
@@ -123,12 +124,13 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
+  if ($snapshots != null)  $snapshotstr = _("(Snapshots :").count($snapshots).')' ; else $snapshotstr = _("(Snapshots :None)") ;
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
-  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span></td>";
+  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
-  echo "<td title='$diskdesc'>$disks</td>";
+  echo "<td title='$diskdesc'><span class='state' >$disks<br>$snapshotstr</span></td>";
   echo "<td>$graphics</td>";
   echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $autostart></td></tr>";
 
@@ -218,7 +220,22 @@ foreach ($vms as $vm) {
     if ($gastate == "disconnected") echo "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>";
     else echo "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>";
   }
-  echo "</tbody></table>";
+  echo "</tbody>";
+  /* Display VM  Snapshots */
+  if ($snapshots != null) {
+  $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log), $vmrcconsole);
+  echo "<thead class='child'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
+  echo "<tbody class='child'>";
+  foreach($snapshots as $snapshotname => $snapshot) {
+    $snapshotstate = $snapshot["state"] ;
+    $snapshotmemory = $snapshot["memory"]["@attributes"]["snapshot"] ;
+    $snapshotparent = $snapshot["parent"]["name"] ? $snapshot["parent"]["name"] : "None";
+    $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s") ;
+    echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='vmsnap-$uuid' $snapmenu class='hand'><i class='fa fa-clone'></i></span> ".$snapshot["name"]."</td><td></td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
+  }
+  echo "</tbody>";
+} 
+  echo "</table>";
   echo "</td></tr>";
 }
 echo "\0".implode($kvm);
