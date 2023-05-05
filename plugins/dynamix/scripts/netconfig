@@ -82,7 +82,7 @@ foreach ($ini as $name => $port) {
     if (preg_match('/^(TYPE|BONDING$|BRIDGING)/',$key)) continue;
     if (!$bonding && preg_match('/^(BONDING_MODE|BONDING_MIIMON|BONDNICS|BONDNAME)/',$key)) continue;
     if (!$bridging && preg_match('/^(BRSTP|BRFD|BRNICS|BRNAME)/',$key)) continue;
-    list($item,$x) = explode(':',$key,2);
+    [$item,$x] = array_pad(explode(':',$key,2),2,0);
     if ($trunk && $x>0 && preg_match('/^(VLANID|USE_DHCP6?|IPADDR6?|NETMASK6?|GATEWAY6?|METRIC|PRIVACY6|DESCRIPTION|PROTOCOL)/',$key)) {
       if ($x0 != $x) {$x0 = $x; $j++;}
       $vlan = ",$j]";
@@ -95,8 +95,8 @@ foreach ($ini as $name => $port) {
     if ($item=='USE_DHCP6') $USE_DHCP6 = $val;
     if (in_array($item,['IPADDR','NETMASK','GATEWAY']) && $USE_DHCP!='no') continue;
     if (in_array($item,['IPADDR6','NETMASK6','GATEWAY6']) && $USE_DHCP6!='no') continue;
-    if (preg_match('/^DNS_SERVER/',$key) && $DHCP_KEEPRESOLV=='no') continue;
-    if (preg_match('/^DNS6_SERVER/',$key) && $DHCP6_KEEPRESOLV=='no') continue;
+    if (preg_match('/^DNS_SERVER/',$key) && (empty($DHCP_KEEPRESOLV) || $DHCP_KEEPRESOLV=='no')) continue;
+    if (preg_match('/^DNS6_SERVER/',$key) && (empty($DHCP6_KEEPRESOLV) || $DHCP6_KEEPRESOLV=='no')) continue;
     if ($item=='PRIVACY6' && $PROTOCOL=='ipv4') continue;
     if ($item=='METRIC' && $PROTOCOL=='ipv6') continue;
     if ($item=='METRIC6' && $PROTOCOL=='ipv4') continue;
