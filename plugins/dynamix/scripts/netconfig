@@ -46,7 +46,7 @@ if ($run) {
       $ifname = ifname($set);
     } else {
       // legacy syntax
-      if ($set=='eth0') $ifname = $old['BRIDGING']=='yes' ? ($old['BRNAME'] ?: 'br0') : ($old['BONDING']=='yes' ? ($old['BONDNAME'] ?: 'bond0') : $set);
+      if ($set=='eth0') $ifname = $old['BRIDGING']=='yes' ? ($old['BRNAME'] ?? 'br0') : ($old['BONDING']=='yes' ? ($old['BONDNAME'] ?? 'bond0') : $set);
     }
   }
   exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
