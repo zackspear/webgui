@@ -21,7 +21,7 @@ function ifname($name) {
   global $old;
   if (!$name) return;
   for ($i=0; $i<$old['SYSNICS']; $i++) {
-    $nics = $old['BONDNICS'][$i] ?: $old['BRNICS'][$i];
+    $nics = $old['BONDNICS'][$i] ?? $old['BRNICS'][$i] ?? '';
     if (strpos("$nics ","$name ")!==false) return $old['IFNAME'][$i];
   }
   return $name;
@@ -40,7 +40,7 @@ function bridge_nics(&$bridge,$nic) {
 if ($run) {
   $old = [];
   if (file_exists($cfg)) {
-    $old = parse_ini_string(preg_replace('/^#/m',';',file_get_contents($cfg)));
+    $old = parse_ini_string(preg_replace(['/^#/m',"/\r/m"],[';',''],file_get_contents($cfg)));
     if (isset($old['SYSNICS'])) {
       // new syntax
       $ifname = ifname($set);
@@ -95,8 +95,8 @@ foreach ($ini as $name => $port) {
     if ($item=='USE_DHCP6') $USE_DHCP6 = $val;
     if (in_array($item,['IPADDR','NETMASK','GATEWAY']) && $USE_DHCP!='no') continue;
     if (in_array($item,['IPADDR6','NETMASK6','GATEWAY6']) && $USE_DHCP6!='no') continue;
-    if (preg_match('/^DNS_SERVER/',$key) && (empty($DHCP_KEEPRESOLV) || $DHCP_KEEPRESOLV=='no')) continue;
-    if (preg_match('/^DNS6_SERVER/',$key) && (empty($DHCP6_KEEPRESOLV) || $DHCP6_KEEPRESOLV=='no')) continue;
+    if (preg_match('/^DNS_SERVER/',$key) && isset($DHCP_KEEPRESOLV) && $DHCP_KEEPRESOLV=='no') continue;
+    if (preg_match('/^DNS6_SERVER/',$key) && isset($DHCP6_KEEPRESOLV) && $DHCP6_KEEPRESOLV=='no') continue;
     if ($item=='PRIVACY6' && $PROTOCOL=='ipv4') continue;
     if ($item=='METRIC' && $PROTOCOL=='ipv6') continue;
     if ($item=='METRIC6' && $PROTOCOL=='ipv4') continue;
