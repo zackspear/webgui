@@ -450,7 +450,7 @@ $(function() {
 <input type="hidden" name="BRFD" value="0">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0')"></i></span>
-  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>" oninput="exitCode(this.form,true)">
 
 :eth_interface_description_help:
 
