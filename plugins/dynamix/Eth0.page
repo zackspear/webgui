@@ -669,7 +669,7 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?>" style="display:none">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0','<?=$i?>')"></i></span>
-  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>" onchange="noRun(this.form)">
+  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>" oninput="noRun(this.form)">
 
 :eth_interface_description_help:
 
@@ -781,7 +781,7 @@ _(IPv6 privacy extensions)_:
 <div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0-INDEX" class="fa fa-fw fa-chevron-up" style="cursor:pointer" onclick="viewToggle('eth0','INDEX')"></i></span>
-  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>" onchange="noRun(this.form)">
+  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>" oninput="noRun(this.form)">
 
 <div markdown="1" id="view-eth0-INDEX">
 _(VLAN number)_:
