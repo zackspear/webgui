@@ -607,9 +607,7 @@ disable these services while mover is running.
 :share_edit_copy_on_write_help:
 Set to **No** to cause the *btrfs* NOCOW (No Copy-on-Write) attribute to be set on the share directory
 when created on a device formatted with *btrfs* file system.  Once set, newly created files and
-subdirectories on the device will inherit the NOCOW attribute.  We recommend this setting for shares
-used to store vdisk images, including the Docker loopback image file.  This setting has no effect
-on non-btrfs file systems.
+subdirectories on the device will inherit the NOCOW attribute. This setting has no effect on non-btrfs file systems.
 
 Set to **Auto** for normal operation, meaning COW **will** be in effect on devices formatted with *btrfs*.
 :end
