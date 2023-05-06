@@ -94,6 +94,7 @@ Array.prototype.same = function(){return this.sort().filter(function(v,i,o){retu
 function prepareSettings(form) {
   var metrics = [];
   var metrics6 = [];
+  if ($(form).find('input[name="#arg[1]"]').val()=='none') return true;
   $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
