@@ -350,15 +350,15 @@ function disableForm(form) {
   $(form).find('input[name^="DESCRIPTION"],input[name^="#"]').prop('disabled',false);
 }
 var stopEvent = false;
-function exitCode(form,key) {
+function noRun(form) {
+  var arg1 = $(form).find('input[name="#arg[1]"]');
+  if (arg1.val()=='') arg1.val('none');
+  stopEvent = true;
+}
+function doRun(form) {
   if (stopEvent) {stopEvent = false; return;}
   var arg1 = $(form).find('input[name="#arg[1]"]');
-  if (!key) {
-    arg1.val($(form).find('input[name="#section"]').val());
-  } else {
-    if (arg1.val()=='') arg1.val('none');
-    stopEvent = true;
-  }
+  arg1.val($(form).find('input[name="#section"]').val());
 }
 function portcheck_eth0() {
   $.post('/webGui/include/CheckPort.php',{port:'eth0'},function(text) {
@@ -437,7 +437,7 @@ $(function() {
   watchDHCP.start();
 });
 </script>
-<form markdown="1" name="eth0_settings" method="POST" action="/update.php" target="progressFrame" onchange="exitCode(this,false)" onsubmit="return prepareSettings(this)">
+<form markdown="1" name="eth0_settings" method="POST" action="/update.php" target="progressFrame" onchange="doRun(this)" onsubmit="return prepareSettings(this)">
 <input type="hidden" name="#file" value="<?=$ini?>">
 <input type="hidden" name="#include" value="/webGui/include/update.ethernet.php">
 <input type="hidden" name="#section" value="eth0">
@@ -450,7 +450,7 @@ $(function() {
 <input type="hidden" name="BRFD" value="0">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0')"></i></span>
-  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>" oninput="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:0" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>" oninput="noRun(this.form)">
 
 :eth_interface_description_help:
 
@@ -669,7 +669,7 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?>" style="display:none">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0-<?=$i?>" class="fa fa-fw fa-chevron-down" style="cursor:pointer" onclick="viewToggle('eth0','<?=$i?>')"></i></span>
-  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>" oninput="noRun(this.form)">
 
 :eth_interface_description_help:
 
@@ -781,7 +781,7 @@ _(IPv6 privacy extensions)_:
 <div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
 _(Interface description)_:
 : <span class="status vshift"><i id="tag-eth0-INDEX" class="fa fa-fw fa-chevron-up" style="cursor:pointer" onclick="viewToggle('eth0','INDEX')"></i></span>
-  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>" onchange="exitCode(this.form,true)">
+  <input type="text" name="DESCRIPTION:INDEX" maxlength="80" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>" oninput="noRun(this.form)">
 
 <div markdown="1" id="view-eth0-INDEX">
 _(VLAN number)_:
