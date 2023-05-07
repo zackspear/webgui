@@ -305,6 +305,11 @@ case 'snap-create-external':
 	$arrResponse = vm_snapshot($domName) ;
 	break;
 
+case 'snap-revert-external':
+	requireLibvirt();
+	$arrResponse = vm_revert($domName,$_REQUEST['snapshotname'],$_REQUEST['remove']) ;
+	break;
+
 case 'snap-delete':
 	requireLibvirt();
 	$arrResponse = $lv->domain_snapshot_delete($domName, $_REQUEST['snap'])

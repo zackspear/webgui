@@ -163,6 +163,7 @@ private static $encoding = 'UTF-8';
 
 	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
+	require_once "$docroot/webGui/include/Custom.php";
 
 	// Load emhttp variables if needed.
 	if (!isset($var)){
@@ -1203,6 +1204,7 @@ private static $encoding = 'UTF-8';
 			$arrDisks[] = [
 				'new' => $strPath,
 				'size' => '',
+				'driver' => $disk['type'],
 				'driver' => 'raw',
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
@@ -1454,4 +1456,240 @@ private static $encoding = 'UTF-8';
 		if ($spicevmc || $qemuvdaagent) $copypaste = true ; else $copypaste = false ;
 		return $copypaste ;
 	}
+
+	function compare_creationtime($a, $b) 	{
+	  	return strnatcmp($a['creationtime'], $b['creationtime']);
+	}	
+
+	function compare_creationtimelt($a, $b) 	{
+		return $a['creationtime'] < $b['creationtime'];
+  }	
+
+	function getvmsnapshots($vm) {
+		global $lv ;
+		$vmsnaps = $lv->domain_snapshots_list($lv->get_domain_object($vm)) ;
+		$snaps=array() ;
+		foreach($vmsnaps as $vmsnap) {	
+			$snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$vmsnap) ;
+			$snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
+			$a = simplexml_load_string($snapshot_xml) ;
+			if($a == false) continue ;
+			$a = json_encode($a) ;
+			$b= json_decode($a, TRUE);
+			$vmsnap = $b["name"] ;
+			$snaps[$vmsnap]["name"]= $b["name"];
+			if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
+			$snaps[$vmsnap]["state"]= $b["state"];
+			$snaps[$vmsnap]["memory"]= $b["memory"];
+			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
+			$snaps[$vmsnap]["disks"]= $b["disks"];
+		}
+		
+		if (is_array($snaps)) uasort($snaps,'compare_creationtime') ;
+		return $snaps ;
+	}
+
+	function vm_snapshot($vm,$memorysnap = "yes") {
+		global $lv ;
+		
+		#Get State
+		$res = $lv->get_domain_by_name($vm);
+		$dom = $lv->domain_get_info($res);
+		$state = $lv->domain_state_translate($dom['state']);
+	
+		#Get disks for --diskspec 
+		$disks =$lv->get_disk_stats($vm) ;
+		$diskspec = "" ;
+		$capacity = 0 ;
+		$name= "S" . date("YmdHis") ;
+		$cmdstr = "virsh snapshot-create-as $vm --name $name  --atomic " ;
+	
+		foreach($disks as $disk)   {
+			$file = $disk["file"] ;
+			$pathinfo =  pathinfo($file) ;
+			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+			$capacity = $capacity + $disk["capacity"] ;
+		}
+	
+		#get memory
+		$mem = $lv->domain_get_memory_stats($vm) ;
+		$memory = $mem[6] ;
+	
+		if ($memorysnap = "yes") $memspec = " --memspec ".$pathinfo["dirname"].'/memory'.$name.".mem,snapshot=external" ; else $memspec = "" ;
+		$cmdstr = "virsh snapshot-create-as $vm --name $name --atomic" ;
+		
+	  
+		if ($state == "running") {
+			$cmdstr .= " --live ".$memspec.$diskspec ;
+			$capacity = $capacity + $memory ;
+			
+		} else {
+			$cmdstr .= "  --disk-only ".$diskspec ;    
+		}
+	
+		#Check free space.
+		$dirfree = disk_free_space($pathinfo["dirname"]) ;
+	
+		$capacity *=  1 ;
+	
+		#if ($dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Snapshot")]; return $arrResponse ;} 
+		
+		#Copy nvram
+		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_snapshot($lv->domain_get_uuid($vm),$name) ;
+			
+		$test = false ;
+		if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
+
+		if (strpos(" ".$output[0],"error") ) { 
+			$arrResponse =  ['error' => substr($output[0],6) ] ;
+		} else {
+			# Remove nvram snapshot
+			$arrResponse = ['success' => true] ;
+		}
+
+		return $arrResponse ;
+
+	}
+
+	function vm_revert($vm, $snap="--current",$action="no") {
+		global $lv ;
+		$snapslist= getvmsnapshots($vm) ;
+
+		#echo "Revert Vm: $vm snap: $snap\n" ;
+	
+		$disks =$lv->get_disk_stats($vm) ;
+
+		foreach($disks as $disk)   {
+			$file = $disk["file"] ;
+			$output = "" ;
+			exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+			foreach($output as $key => $line) {
+				$line=str_replace("image: ","",$line) ;
+				$output[$key] = $line ;  
+			}
+
+			$snaps[$vm][$disk["device"]] = $output ; 
+			$rev = "r".$disk["device"] ;
+			$reversed = array_reverse($output) ;
+			$snaps[$vm][$rev] = $reversed ;
+			$pathinfo =  pathinfo($file) ;
+			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+			$capacity = $capacity + $disk["capacity"] ;
+		}
+
+		switch ($snapslist[$snap]['state']) {
+			case "shutoff":
+			case "running":
+				#VM must be shutdown.
+				$res = $lv->get_domain_by_name($vm);
+				$dom = $lv->domain_get_info($res);
+				$state = $lv->domain_state_translate($dom['state']);
+				# if VM running shutdown. Record was running.
+				if ($state != 'shutdown') $arrResponse = $lv->domain_destroy($vm) ;
+				# Wait for shutdown?
+				# GetXML
+				$strXML= $lv->domain_get_xml($res) ;
+				$xmlobj = custom::createArray('domain',$strXML) ;
+
+				# Process disks and update path.
+				$disks=($snapslist[$snap]['disks']["disk"]) ;			
+				foreach ($disks as $disk) {
+					$diskname = $disk["@attributes"]["name"] ;
+					if ($diskname == "hda" || $diskname == "hdb") continue ;
+					$path = $disk["source"]["@attributes"]["file"] ;
+					$item = array_search($path,$snaps[$vm][$diskname]) ;
+					$newpath =  $snaps[$vm][$diskname][$item + 1];
+					$json_info = getDiskImageInfo($newpath) ;
+					#echo "Newpath: $newpath image type ".$json_info["format"]."\n" ;
+					foreach($xmlobj['devices']['disk'] as $ddk => $dd){
+						if ($dd['target']["@attributes"]['dev'] == $diskname) {
+							$xmlobj['devices']['disk'][$ddk]['source']["@attributes"]['file'] = $newpath ;
+							$xmlobj['devices']['disk'][$ddk]['driver']["@attributes"]['type'] = $json_info["format"] ;
+							}
+						}
+					}
+				$xml = custom::createXML('domain',$xmlobj)->saveXML();
+				$new = $lv->domain_define($xml);
+				if ($new)
+					$arrResponse  = ['success' => true] ; else
+					$arrResponse = ['error' => $lv->get_last_error()] ;
+				
+				#echo "update xml \n" ;
+		
+		
+				# remove snapshot meta data and images for all snpahots.
+
+				foreach ($disks as $disk) {
+					$diskname = $disk["@attributes"]["name"] ;
+					if ($diskname == "hda" || $diskname == "hdb") continue ;
+					$path = $disk["source"]["@attributes"]["file"] ;
+					#echo "rm $path\n" ;
+					if (is_file($path) && $action == "yes") unlink($path) ;
+					$item = array_search($path,$snaps[$vm]["r".$diskname]) ;
+					$item++ ;
+					while($item > 0)
+					{
+					if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
+					$newpath =  $snaps[$vm]["r".$diskname][$item] ;
+						# rm $newpath
+						if (is_file($path) && $action == "yes") unlink($newpath) ;
+						#echo "rm $newpath\n" ;
+						
+					$item++ ;
+
+					}
+				}
+		
+					uasort($snapslist,'compare_creationtimelt') ;
+					foreach($snapslist as $s) {
+						#var_dump($s['name']) ;
+						$name = $s['name'] ;
+						#echo "delete snapshot --metadata ".$s["name"]."\n" ;
+						#Delete Metadata only.
+						if ($action == "yes") { 
+							$ret = $lv->domain_snapshot_delete($vm, $name ,2) ;
+							#echo "Error: $ret\n" ; 
+						 } #else echo "Run domain_snapshot_delete($vm, $name ,2\n" ;
+						if ($s['name'] == $snap) break ;
+					}
+					#if VM was started restart.
+					if ($state == 'running') {
+						#echo "Restart VM\n" ;
+						$arrResponse = $lv->domain_start($vm) ;
+					} #else echo "VM Shutdown\n" ;
+		
+		
+					break ;
+		
+		
+				case "other":
+					break ;
+			#VM must be shutdown.
+				# if VM running shutdown. Record was running.
+				# Replace disk paths
+				# remove snapshot meta data and images for all snpahots.
+				# if VM was started restart.
+		
+		
+			#type running
+				#Non Live restores
+				#VM must be shutdown.
+				# if VM running shutdown. Record was running.
+				# Replace disk paths
+				# remove snapshot meta data and images for all snpahots.
+				# if VM was started restart.
+		
+				#Live restore(currently not supported.)
+				# Freeze VM
+				# Replace disk paths
+				# Replace Mem
+				# remove snapshot meta data and images for all snpahots.
+				# Unfreeze VM
+			}
+		$arrResponse  = ['success' => true] ;
+		return($arrResponse) ;
+		}
+		
 ?>

@@ -223,14 +223,15 @@ foreach ($vms as $vm) {
   echo "</tbody>";
   /* Display VM  Snapshots */
   if ($snapshots != null) {
-  $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log), $vmrcconsole);
+
   echo "<thead class='child'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
   echo "<tbody class='child'>";
   foreach($snapshots as $snapshotname => $snapshot) {
-    $snapshotstate = $snapshot["state"] ;
-    $snapshotmemory = $snapshot["memory"]["@attributes"]["snapshot"] ;
+    $snapshotstate = _(ucfirst($snapshot["state"])) ;
+    $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"])) ;
     $snapshotparent = $snapshot["parent"]["name"] ? $snapshot["parent"]["name"] : "None";
     $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s") ;
+    $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"]);
     echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='vmsnap-$uuid' $snapmenu class='hand'><i class='fa fa-clone'></i></span> ".$snapshot["name"]."</td><td></td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
   }
   echo "</tbody>";

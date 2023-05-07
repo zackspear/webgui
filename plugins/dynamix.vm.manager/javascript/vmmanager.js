@@ -143,6 +143,21 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       }
   }}
   opts.push({divider:true});
+  opts.push({text:_("Snapshot"), icon:"fa-clone", action:function(e) {
+    e.preventDefault();
+    swal({
+      title:_("Are you sure?"),
+      text:_("Create snapshot for VM: ")+name,
+      type:"warning",
+      showCancelButton:true,
+      confirmButtonText:_('Proceed'),
+      cancelButtonText:_('Cancel')
+    },function(){
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-clone fa-spin');
+    ajaxVMDispatch({action:"snap-create-external", uuid:uuid}, "loadlist");
+    });
+  }});
+  opts.push({divider:true});
   if (log !== "") {
     opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
   }
@@ -181,6 +196,71 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
     }
   }
   context.attach('#vm-'+uuid, opts);
+}
+function addVMSnapContext(name, uuid, template, state, snapshotname){  
+  var opts = [];
+  var path = location.pathname;
+  var x = path.indexOf("?");
+  if (x!=-1) path = path.substring(0,x);
+
+  context.settings({right:false,above:false});
+  if (state == "running") {
+//    opts.push({text:_("Revert snapshot"), icon:"fa-stop", action:function(e) {
+//      e.preventDefault();
+//      ajaxVMDispatch({action:"snapshot-revert-externa", uuid:uuid, snapshotname:snapshotname}, "loadlist");
+//    }});
+//    opts.push({text:_("Block Commit"), icon:"fa-stop", action:function(e) {
+//      e.preventDefault();
+//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+//    }});
+//    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
+//      e.preventDefault();
+//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+//    }});
+  } else {
+    opts.push({text:_("Revert snapshot"), icon:"fa-stop", action:function(e) {
+      e.preventDefault();
+      swal({
+        title:_("Are you sure?"),
+        text:_("Revert Snapshot ") + snapshotname + _("\nfor VM: ") + name +"\n Note all snapshots taken after will be removed.",
+        type:"warning",
+        showCancelButton:true,
+        confirmButtonText:_('Proceed'),
+        cancelButtonText:_('Cancel')
+      },function(){   
+        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      ajaxVMDispatch({action:"snap-revert-external", uuid:uuid , snapshotname:snapshotname , remove:'yes'}, "loadlist");
+    });
+    }});
+//    opts.push({text:_("Block Commit"), icon:"fa-stop", action:function(e) {
+//      e.preventDefault();
+//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+//    }});
+//    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
+//      e.preventDefault();
+//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+//    }});
+}
+  
+  if (state == "shutoff") {
+    opts.push({divider:true});
+//    opts.push({text:_("Remove Snapshot"), icon:"fa-minus", action:function(e) {
+//      e.preventDefault();
+//      snapname = "test" ;
+//      swal({
+//        title:_("Are you sure?"),
+//        text:_("Remove Snapshot:") + snapname + _("\nfor VM: ") + name +"\n Note all snapshots taken after will be become invalid.",
+//        type:"warning",
+//        showCancelButton:true,
+//        confirmButtonText:_('Proceed'),
+//        cancelButtonText:_('Cancel')
+//      },function(){   
+//        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+//      ajaxVMDispatch({action:"snap-remove-external", uuid:uuid,snapshotname:snapshotname}, "loadlist");
+//    });
+//    }});
+  }
+  context.attach('#vmsnap-'+uuid, opts);
 }
 function startAll() {
   $('input[type=button]').prop('disabled',true);
