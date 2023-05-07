@@ -61,6 +61,7 @@ function zfs_info($name) {
 }
 
 function zfs_trim($write) {
+  if (!file_exists('/proc/spl/kstat/zfs/arcstats')) return;
   exec("zfs list -d0 -Ho name",$pools);
   foreach ($pools as $name) {
     if ($write) {
