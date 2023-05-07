@@ -143,27 +143,26 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       }
   }}
   opts.push({divider:true});
-  opts.push({text:_("Snapshot"), icon:"fa-clone", action:function(e) {
-    e.preventDefault();
-    swal({
-      title:_("Are you sure?"),
-      text:_("Create snapshot for VM: ")+name,
-      type:"warning",
-      showCancelButton:true,
-      confirmButtonText:_('Proceed'),
-      cancelButtonText:_('Cancel')
-    },function(){
-      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-clone fa-spin');
-    ajaxVMDispatch({action:"snap-create-external", uuid:uuid}, "loadlist");
-    });
-  }});
-  opts.push({divider:true});
   if (log !== "") {
     opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
   }
   opts.push({text:_("Edit"), icon:"fa-pencil", href:path+'/UpdateVM?uuid='+uuid});
   if (state == "shutoff") {
     opts.push({divider:true});
+    opts.push({text:_("Snapshot"), icon:"fa-clone", action:function(e) {
+      e.preventDefault();
+      swal({
+        title:_("Are you sure?"),
+        text:_("Create snapshot for VM: ")+name,
+        type:"warning",
+        showCancelButton:true,
+        confirmButtonText:_('Proceed'),
+        cancelButtonText:_('Cancel')
+      },function(){
+        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-clone fa-spin');
+      ajaxVMDispatch({action:"snap-create-external", uuid:uuid}, "loadlist");
+      });
+    }});
     opts.push({text:_("Remove VM"), icon:"fa-minus", action:function(e) {
       e.preventDefault();
       swal({
