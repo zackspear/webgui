@@ -149,19 +149,9 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
   opts.push({text:_("Edit"), icon:"fa-pencil", href:path+'/UpdateVM?uuid='+uuid});
   if (state == "shutoff") {
     opts.push({divider:true});
-    opts.push({text:_("Snapshot"), icon:"fa-clone", action:function(e) {
+    opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
       e.preventDefault();
-      swal({
-        title:_("Are you sure?"),
-        text:_("Create snapshot for VM: ")+name,
-        type:"warning",
-        showCancelButton:true,
-        confirmButtonText:_('Proceed'),
-        cancelButtonText:_('Cancel')
-      },function(){
-        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-clone fa-spin');
-      ajaxVMDispatch({action:"snap-create-external", uuid:uuid}, "loadlist");
-      });
+      selectsnapshot(uuid , name, "--generate" , "create",false) ;
     }});
     opts.push({text:_("Remove VM"), icon:"fa-minus", action:function(e) {
       e.preventDefault();
@@ -217,19 +207,15 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
 //      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
 //    }});
   } else {
-    opts.push({text:_("Revert snapshot"), icon:"fa-stop", action:function(e) {
+    opts.push({text:_("Revert snapshot"), icon:"fa-fast-backward", action:function(e) {
       e.preventDefault();
-      swal({
-        title:_("Are you sure?"),
-        text:_("Revert Snapshot ") + snapshotname + _("\nfor VM: ") + name +"\n Note all snapshots taken after will be removed.",
-        type:"warning",
-        showCancelButton:true,
-        confirmButtonText:_('Proceed'),
-        cancelButtonText:_('Cancel')
-      },function(){   
-        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
-      ajaxVMDispatch({action:"snap-revert-external", uuid:uuid , snapshotname:snapshotname , remove:'yes'}, "loadlist");
-    });
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      selectsnapshot(uuid, name, snapshotname, "revert",true) ;
+    }});
+    opts.push({text:_("Remove snapshot(Delete Disabled)"), icon:"fa-trash", action:function(e) {
+      e.preventDefault();
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      selectsnapshot(uuid, name, snapshotname, "remove",true) ;
     }});
 //    opts.push({text:_("Block Commit"), icon:"fa-stop", action:function(e) {
 //      e.preventDefault();

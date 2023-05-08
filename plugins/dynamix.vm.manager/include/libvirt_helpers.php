@@ -1489,7 +1489,7 @@ private static $encoding = 'UTF-8';
 		return $snaps ;
 	}
 
-	function vm_snapshot($vm,$memorysnap = "yes") {
+	function vm_snapshot($vm,$snapshotname,$memorysnap = "yes") {
 		global $lv ;
 		
 		#Get State
@@ -1501,7 +1501,7 @@ private static $encoding = 'UTF-8';
 		$disks =$lv->get_disk_stats($vm) ;
 		$diskspec = "" ;
 		$capacity = 0 ;
-		$name= "S" . date("YmdHis") ;
+		if ($snapshotname == "--generate") $name= "S" . date("YmdHis") ; else $name=$snapshotname ;
 		$cmdstr = "virsh snapshot-create-as $vm --name $name  --atomic " ;
 	
 		foreach($disks as $disk)   {
@@ -1691,5 +1691,127 @@ private static $encoding = 'UTF-8';
 		$arrResponse  = ['success' => true] ;
 		return($arrResponse) ;
 		}
-		
+
+	function vm_snapimages($vm, $snap, $only) {
+		global $lv ;
+		$snapslist= getvmsnapshots($vm) ;
+		$data = "<br><br>Images and metadata to remove if tickbox checked.<br>" ;
+
+		#echo "Revert Vm: $vm snap: $snap\n" ;
+	
+		$disks =$lv->get_disk_stats($vm) ;
+		foreach($disks as $disk)   {
+			$file = $disk["file"] ;
+			$output = "" ;
+			exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+			foreach($output as $key => $line) {
+				$line=str_replace("image: ","",$line) ;
+				$output[$key] = $line ;  
+			}
+
+			$snaps[$vm][$disk["device"]] = $output ; 
+			$rev = "r".$disk["device"] ;
+			$reversed = array_reverse($output) ;
+			$snaps[$vm][$rev] = $reversed ;
+			$pathinfo =  pathinfo($file) ;
+			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+			$capacity = $capacity + $disk["capacity"] ;
+		}
+		#var_dump($snaps) ;
+		$disks=($snapslist[$snap]['disks']["disk"]) ;
+		foreach ($disks as $disk) {
+			$diskname = $disk["@attributes"]["name"] ;
+			if ($diskname == "hda" || $diskname == "hdb") continue ;
+			$path = $disk["source"]["@attributes"]["file"] ;
+		#echo "rm $path\n" ;
+			if (is_file($path)) $data .= "$path<br>" ;
+			$item = array_search($path,$snaps[$vm]["r".$diskname]) ;
+			$item++ ;
+			if ($only == 0) $item = 0 ;
+			while($item > 0)
+			{
+			if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
+			$newpath =  $snaps[$vm]["r".$diskname][$item] ;
+				# rm $newpath
+				if (is_file($path)) $data .= "$path<br>" ;
+				#echo "rm $newpath\n" ;
+				
+			$item++ ;
+
+			}
+		}
+		$data .= "<br>Snapshots metadata to remove." ;
+		if ($only == 0) {
+			$data .= "<br>$snap";
+		} else {
+		uasort($snapslist,'compare_creationtimelt') ;
+		foreach($snapslist as $s) {
+			$name = $s['name'] ;
+			$data .= "<br>$name";
+			if ($s['name'] == $snap) break ;
+			}
+		}
+		return($data) ;
+	}
+	
+
+	function vm_snapremove($vm, $snap) {
+		global $lv ;
+		$snapslist= getvmsnapshots($vm) ;
+		$res = $lv->get_domain_by_name($vm);
+		$dom = $lv->domain_get_info($res);
+
+		$disks =$lv->get_disk_stats($vm) ;
+		foreach($disks as $disk)   {
+			$file = $disk["file"] ;
+			$output = "" ;
+			exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+			foreach($output as $key => $line) {
+				$line=str_replace("image: ","",$line) ;
+				$output[$key] = $line ;  
+			}
+
+			$snaps[$vm][$disk["device"]] = $output ; 
+			$rev = "r".$disk["device"] ;
+			$reversed = array_reverse($output) ;
+			$snaps[$vm][$rev] = $reversed ;
+			$pathinfo =  pathinfo($file) ;
+			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+			$capacity = $capacity + $disk["capacity"] ;
+		}
+
+		# GetXML
+		$strXML= $lv->domain_get_xml($res) ;
+		$xmlobj = custom::createArray('domain',$strXML) ;
+
+		# Process disks and update path.
+		$disks=($snapslist[$snap]['disks']["disk"]) ;			
+		foreach ($disks as $disk) {
+			$diskname = $disk["@attributes"]["name"] ;
+			if ($diskname == "hda" || $diskname == "hdb") continue ;
+			$path = $disk["source"]["@attributes"]["file"] ;
+			$item = array_search($path,$snaps[$vm][$diskname]) ;
+			if (!$item) {
+				#if currently attached to VM error.
+				$data = ["error" => "Image currently active for this domain."] ;
+				return ($data) ;
+			}
+			#echo "Newpath: $newpath image type ".$json_info["format"]."\n" ;
+			}
+	
+		$disks=($snapslist[$snap]['disks']["disk"]) ;
+		foreach ($disks as $disk) {
+			$diskname = $disk["@attributes"]["name"] ;
+			if ($diskname == "hda" || $diskname == "hdb") continue ;
+			$path = $disk["source"]["@attributes"]["file"] ;
+			#if (is_file($path)) unlink($path)  ;
+		}
+
+		#$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
+		$data = ["success => 'true"] ;
+		return($data) ;
+	}
+	
 ?>

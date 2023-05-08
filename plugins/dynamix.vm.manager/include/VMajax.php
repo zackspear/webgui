@@ -302,12 +302,23 @@ case 'snap-create':
 
 case 'snap-create-external':
 	requireLibvirt();
-	$arrResponse = vm_snapshot($domName) ;
+	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname']) ;
+	break;
+
+case 'snap-images':
+	requireLibvirt();
+	$html = vm_snapimages($domName,$_REQUEST['snapshotname'],$_REQUEST['only']) ;
+	$arrResponse = ['html' => $html , 'success' => true] ;
 	break;
 
 case 'snap-revert-external':
 	requireLibvirt();
 	$arrResponse = vm_revert($domName,$_REQUEST['snapshotname'],$_REQUEST['remove']) ;
+	break;
+
+case 'snap-remove-external':
+	requireLibvirt();
+	$arrResponse = vm_snapremove($domName,$_REQUEST['snapshotname']) ;
 	break;
 
 case 'snap-delete':
