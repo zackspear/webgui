@@ -121,6 +121,7 @@ div.four label:nth-child(4n+4){float:none;clear:both}
 div.four label.cpu1{width:32%}
 div.four label.cpu2{width:26%}
 div.template,div#dialogWindow,input#upload{display:none}
+div.template,div#dialogWindow2,input#upload{display:none}
 table.domdisk thead tr th:nth-child(1){width:56%!important}
 table.domdisk thead tr th:nth-child(n+2){width:8%!important}
 table.domdisk thead tr th:nth-child(1){padding-left:72px}
@@ -200,7 +201,6 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
         var target2 = box.find('#target2');
         if (target2.length) {
           target2 = target2.val();
-          
         } else target2 = '';
         box.find('#target').prop('disabled',true);
         box.find('#target2').prop('disabled',true);
@@ -301,7 +301,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
           const x = box.find('#targetsnaprmv').prop('checked') ;
           if (x) remove = 'yes' ; else remove = 'no' ;
         }
-                if (opt == "create") {
+          if (opt == "create") {
           const x = box.find('#targetsnapfspc').prop('checked') ;
           if (x) free = 'yes' ; else free = 'no' ;
         }
