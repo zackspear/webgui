@@ -248,7 +248,7 @@ $theme_dark = in_array($display['theme'], ['black', 'gray']);
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=1300">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
     <meta name="referrer" content="same-origin">
