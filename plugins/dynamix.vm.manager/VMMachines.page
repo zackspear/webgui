@@ -134,7 +134,7 @@ i.mover{margin-right:8px;display:none}
 .dropdown-menu{z-index:10001}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
+<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks/vCDs)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="_(Add VM)_" style="display:none">
@@ -163,7 +163,56 @@ function resetSorting() {
 function changemedia(uuid,dev,bus,file) {
   if (file === "--select") getisoimage(uuid,dev,bus,file);
   if (file === "--eject") ajaxVMDispatch({action:"change-media", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:file}, "loadlist");
+}
+function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
+  var box = $("#dialogWindow");
+  box.html($("#templateISOboth").html());
 
+  box.find('#target').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).attr('value', file).fileTreeAttach(null,null,function(path){
+      var bits = path.substr(1).split('/');
+      var auto = bits.length>3 ? '' : share;
+      box.find('#target').val(path+auto).change();
+    });
+      box.find('#target2').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).attr('value', file2).fileTreeAttach(null,null,function(path){
+      var bits = path.substr(1).split('/');
+      var auto = bits.length>3 ? '' : share;
+      box.find('#target2').val(path+auto).change();
+    });
+    var height = 100;
+
+  box.dialog({
+    title: "Select ISOs for CDROMs",
+    resizable: false,
+    width: 600,
+    height: 300,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      "_(Insert)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          
+        } else target = '';
+        var target2 = box.find('#target2');
+        if (target2.length) {
+          target2 = target2.val();
+          
+        } else target2 = '';
+        box.find('#target').prop('disabled',true);
+        box.find('#target2').prop('disabled',true);
+        ajaxVMDispatch({action:"change-media-both", uuid:uuid , cdrom:"" , dev:dev , bus:bus , file:target, dev2:dev2 , bus2:bus2 , file2:target2}, "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
 }
 function getisoimage(uuid,dev,bus,file){
   var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
@@ -227,6 +276,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
   }
 
  document.getElementById("targetsnaprmv").checked = true ;
+ document.getElementById("targetsnapfspc").checked = true ;
  
   box.dialog({
     title: "_("+optiontext+ ")_",
@@ -244,12 +294,18 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
           target = target.val();
           if (!target ) {errorTarget(); return;}
         } else target = '';
+        var remove  = 'yes' 
+        var free = 'yes'
         box.find('#targetsnap').prop('disabled',true);
         if (opt == "revert") {
-          const x = document.querySelector('#targetsnaprmv') ;
-          if (x.checked) remove = 'yes' ; else remove = 'no' ;
+          const x = box.find('#targetsnaprmv').prop('checked') ;
+          if (x) remove = 'yes' ; else remove = 'no' ;
         }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:"yes" } , "loadlist");
+                if (opt == "create") {
+          const x = box.find('#targetsnapfspc').prop('checked') ;
+          if (x) free = 'yes' ; else free = 'no' ;
+        }
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free } , "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -365,6 +421,12 @@ $(function() {
 _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 </div>
+<div markdown="1" id="templateISOboth" class="template">
+_(CD1 ISO Image)_:
+: <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop=""><br>
+_(CD2 ISO Image)_:
+: <input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
+</div>
 
 <div id="dialogWindow2"></div>
 <div markdown="1" id="templatesnapshotcreate" class="template">
@@ -373,6 +435,8 @@ _(VM Name)_:
 <br>
 _(Snapshot Name)_:
  <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+ _(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" checked> <br>
 </div>
 
 <div markdown="1" id="templatesnapshotrevert" class="template" post>
@@ -383,7 +447,7 @@ _(Snapshot Name)_:
   <input type="text" id="targetsnap" hidden>
  <label id="targetsnapl"></label><br>
 _(Remove Images)_:
-<input type="checkbox" id="targetsnaprmv" disabled> <br>
+<input type="checkbox" id="targetsnaprmv" checked <br>
 
 <label id="targetsnapimages"></label><br>
 

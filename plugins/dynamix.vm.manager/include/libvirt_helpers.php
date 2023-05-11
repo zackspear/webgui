@@ -1482,14 +1482,14 @@ private static $encoding = 'UTF-8';
 			$snaps[$vmsnap]["state"]= $b["state"];
 			$snaps[$vmsnap]["memory"]= $b["memory"];
 			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
-			$snaps[$vmsnap]["disks"]= $b["disks"];
+			if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
 		}
 		
 		if (is_array($snaps)) uasort($snaps,'compare_creationtime') ;
 		return $snaps ;
 	}
 
-	function vm_snapshot($vm,$snapshotname,$memorysnap = "yes") {
+	function vm_snapshot($vm,$snapshotname,$free = "yes", $memorysnap = "yes") {
 		global $lv ;
 		
 		#Get State
@@ -1502,13 +1502,13 @@ private static $encoding = 'UTF-8';
 		$diskspec = "" ;
 		$capacity = 0 ;
 		if ($snapshotname == "--generate") $name= "S" . date("YmdHis") ; else $name=$snapshotname ;
-		$cmdstr = "virsh snapshot-create-as $vm --name $name  --atomic " ;
+		$cmdstr = "virsh snapshot-create-as '$vm' --name '$name'  --atomic " ;
 	
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
 			$pathinfo =  pathinfo($file) ;
 			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+			$diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
 			$capacity = $capacity + $disk["capacity"] ;
 		}
 	
@@ -1516,8 +1516,8 @@ private static $encoding = 'UTF-8';
 		$mem = $lv->domain_get_memory_stats($vm) ;
 		$memory = $mem[6] ;
 	
-		if ($memorysnap = "yes") $memspec = " --memspec ".$pathinfo["dirname"].'/memory'.$name.".mem,snapshot=external" ; else $memspec = "" ;
-		$cmdstr = "virsh snapshot-create-as $vm --name $name --atomic" ;
+		if ($memorysnap = "yes") $memspec = " --memspec ".$pathinfo["dirname"].'/memory"'.$name.'".mem,snapshot=external' ; else $memspec = "" ;
+		$cmdstr = "virsh snapshot-create-as '$vm' --name '$name' --atomic" ;
 		
 	  
 		if ($state == "running") {
@@ -1533,10 +1533,10 @@ private static $encoding = 'UTF-8';
 	
 		$capacity *=  1 ;
 	
-		#if ($dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Snapshot")]; return $arrResponse ;} 
+		if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Snapshot")]; return $arrResponse ;} 
 		
 		#Copy nvram
-		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_snapshot($lv->domain_get_uuid($vm),$name) ;
+		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
 			
 		$test = false ;
 		if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
@@ -1563,7 +1563,7 @@ private static $encoding = 'UTF-8';
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
 			$output = "" ;
-			exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+			exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 			foreach($output as $key => $line) {
 				$line=str_replace("image: ","",$line) ;
 				$output[$key] = $line ;  
@@ -1581,7 +1581,6 @@ private static $encoding = 'UTF-8';
 
 		switch ($snapslist[$snap]['state']) {
 			case "shutoff":
-			case "running":
 				#VM must be shutdown.
 				$res = $lv->get_domain_by_name($vm);
 				$dom = $lv->domain_get_info($res);
@@ -1594,7 +1593,7 @@ private static $encoding = 'UTF-8';
 				$xmlobj = custom::createArray('domain',$strXML) ;
 
 				# Process disks and update path.
-				$disks=($snapslist[$snap]['disks']["disk"]) ;			
+				$disks=($snapslist[$snap]['disks']) ;			
 				foreach ($disks as $disk) {
 					$diskname = $disk["@attributes"]["name"] ;
 					if ($diskname == "hda" || $diskname == "hdb") continue ;
@@ -1602,10 +1601,9 @@ private static $encoding = 'UTF-8';
 					$item = array_search($path,$snaps[$vm][$diskname]) ;
 					$newpath =  $snaps[$vm][$diskname][$item + 1];
 					$json_info = getDiskImageInfo($newpath) ;
-					#echo "Newpath: $newpath image type ".$json_info["format"]."\n" ;
 					foreach($xmlobj['devices']['disk'] as $ddk => $dd){
 						if ($dd['target']["@attributes"]['dev'] == $diskname) {
-							$xmlobj['devices']['disk'][$ddk]['source']["@attributes"]['file'] = $newpath ;
+							$xmlobj['devices']['disk'][$ddk]['source']["@attributes"]['file'] = "$newpath" ;
 							$xmlobj['devices']['disk'][$ddk]['driver']["@attributes"]['type'] = $json_info["format"] ;
 							}
 						}
@@ -1615,27 +1613,21 @@ private static $encoding = 'UTF-8';
 				if ($new)
 					$arrResponse  = ['success' => true] ; else
 					$arrResponse = ['error' => $lv->get_last_error()] ;
-				
-				#echo "update xml \n" ;
-		
-		
+
 				# remove snapshot meta data and images for all snpahots.
 
 				foreach ($disks as $disk) {
 					$diskname = $disk["@attributes"]["name"] ;
 					if ($diskname == "hda" || $diskname == "hdb") continue ;
 					$path = $disk["source"]["@attributes"]["file"] ;
-					#echo "rm $path\n" ;
-					if (is_file($path) && $action == "yes") unlink($path) ;
+					if (is_file($path) && $action == "yes") unlink("$path") ;
 					$item = array_search($path,$snaps[$vm]["r".$diskname]) ;
 					$item++ ;
 					while($item > 0)
 					{
 					if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
 					$newpath =  $snaps[$vm]["r".$diskname][$item] ;
-						# rm $newpath
-						if (is_file($path) && $action == "yes") unlink($newpath) ;
-						#echo "rm $newpath\n" ;
+						if (is_file($path) && $action == "yes") unlink("$newpath") ;
 						
 					$item++ ;
 
@@ -1644,23 +1636,20 @@ private static $encoding = 'UTF-8';
 		
 					uasort($snapslist,'compare_creationtimelt') ;
 					foreach($snapslist as $s) {
-						#var_dump($s['name']) ;
 						$name = $s['name'] ;
-						#echo "delete snapshot --metadata ".$s["name"]."\n" ;
 						#Delete Metadata only.
 						if ($action == "yes") { 
-							$ret = $lv->domain_snapshot_delete($vm, $name ,2) ;
-							#echo "Error: $ret\n" ; 
-						 } #else echo "Run domain_snapshot_delete($vm, $name ,2\n" ;
+							$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
+						 } 
 						if ($s['name'] == $snap) break ;
 					}
 					#if VM was started restart.
 					if ($state == 'running') {
 						#echo "Restart VM\n" ;
 						$arrResponse = $lv->domain_start($vm) ;
-					} #else echo "VM Shutdown\n" ;
+					} 
 		
-		
+					if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
 					break ;
 		
 		
@@ -1708,8 +1697,7 @@ private static $encoding = 'UTF-8';
 				$line=str_replace("image: ","",$line) ;
 				$output[$key] = $line ;  
 			}
-
-			$snaps[$vm][$disk["device"]] = $output ; 
+			$snaps[$vm][$disk["device"]] = $output  ; 
 			$rev = "r".$disk["device"] ;
 			$reversed = array_reverse($output) ;
 			$snaps[$vm][$rev] = $reversed ;
@@ -1718,13 +1706,12 @@ private static $encoding = 'UTF-8';
 			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
 			$capacity = $capacity + $disk["capacity"] ;
 		}
-		#var_dump($snaps) ;
-		$disks=($snapslist[$snap]['disks']["disk"]) ;
-		foreach ($disks as $disk) {
-			$diskname = $disk["@attributes"]["name"] ;
+
+		$snapdisks= $snapslist[$snap]['disks'] ;
+		foreach ($snapdisks as $diskkey => $snapdisk) {
+			$diskname = $snapdisk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
-			$path = $disk["source"]["@attributes"]["file"] ;
-		#echo "rm $path\n" ;
+			$path = $snapdisk["source"]["@attributes"]["file"] ;
 			if (is_file($path)) $data .= "$path<br>" ;
 			$item = array_search($path,$snaps[$vm]["r".$diskname]) ;
 			$item++ ;
@@ -1733,10 +1720,7 @@ private static $encoding = 'UTF-8';
 			{
 			if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
 			$newpath =  $snaps[$vm]["r".$diskname][$item] ;
-				# rm $newpath
-				if (is_file($path)) $data .= "$path<br>" ;
-				#echo "rm $newpath\n" ;
-				
+				if (is_file($path)) $data .= "$newpath<br>" ;				
 			$item++ ;
 
 			}
@@ -1787,26 +1771,24 @@ private static $encoding = 'UTF-8';
 		$xmlobj = custom::createArray('domain',$strXML) ;
 
 		# Process disks and update path.
-		$disks=($snapslist[$snap]['disks']["disk"]) ;			
+		$disks=($snapslist[$snap]['disks']) ;			
 		foreach ($disks as $disk) {
 			$diskname = $disk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
 			$item = array_search($path,$snaps[$vm][$diskname]) ;
 			if (!$item) {
-				#if currently attached to VM error.
 				$data = ["error" => "Image currently active for this domain."] ;
 				return ($data) ;
-			}
-			#echo "Newpath: $newpath image type ".$json_info["format"]."\n" ;
+				}
 			}
 	
-		$disks=($snapslist[$snap]['disks']["disk"]) ;
+		$disks=($snapslist[$snap]['disks']) ;
 		foreach ($disks as $disk) {
 			$diskname = $disk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
-			#if (is_file($path)) unlink($path)  ;
+			#if (is_file($path)) unlink("$path")  ;
 		}
 
 		#$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;

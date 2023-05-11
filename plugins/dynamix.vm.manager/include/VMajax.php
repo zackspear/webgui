@@ -263,6 +263,40 @@ case 'change-media':
 		: ['error' => "Change Media Failed"];
 	break;
 
+case 'change-media-both':
+	requireLibvirt();
+	$res = $lv->get_domain_by_name($domName);
+	$cdroms = $lv->get_cdrom_stats($res) ;
+	$hda = $hdb = false ;
+	foreach ($lv->get_cdrom_stats($res) as $cd){
+		if ($cd['device'] == 'hda') $hda = true ;
+		if ($cd['device'] == 'hdb') $hdb = true ;
+	}
+	$file= $_REQUEST['file'];
+	if ($file != "" && $hda == false) {
+		$cmdstr = "virsh attach-disk '$domName' '$file' hda --type cdrom --targetbus sata --config" ;
+	} else {
+		if ($file == "") $cmdstr = "virsh change-media '$domName' hda --eject --current";
+		else $cmdstr = "virsh change-media '$domName' hda '$file'";
+	}
+	$rtn=shell_exec($cmdstr)
+		? ['success' => true]
+		: ['error' => "Change Media Failed"];
+
+	if (isset($rtn['error'])) return ;
+
+	$file2 = $_REQUEST['file2'];
+	if ($file2 != "" && $hdb == false) {
+		$cmdstr = "virsh attach-disk '$domName' '$file2' hdb --type cdrom --targetbus sata --config" ;
+	} else  {
+		if ($file2 == "") $cmdstr = "virsh change-media '$domName' hdb --eject --current";
+		else $cmdstr = "virsh change-media '$domName' hdb '$file2' ";
+	}
+	$rtn=shell_exec($cmdstr)
+		? ['success' => true]
+		: ['error' => "Change Media Failed"];
+	break;
+
 case 'memory-change':
 	requireLibvirt();
 	$arrResponse = $lv->domain_set_memory($domName, $_REQUEST['memory']*1024)
@@ -302,7 +336,7 @@ case 'snap-create':
 
 case 'snap-create-external':
 	requireLibvirt();
-	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname']) ;
+	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['free']) ;
 	break;
 
 case 'snap-images':
