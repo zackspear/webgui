@@ -52,6 +52,7 @@ foreach ($vms as $vm) {
   $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
   $arrConfig = domain_to_config($uuid);
   $snapshots = getvmsnapshots($vm) ;
+  $cdroms = $lv->get_cdrom_stats($res) ;
   if ($state == 'running') {
     $mem = $dom['memory']/1024;
   } else {
@@ -124,13 +125,33 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
+  
   if ($snapshots != null)  $snapshotstr = _("(Snapshots :").count($snapshots).')' ; else $snapshotstr = _("(Snapshots :None)") ;
+  $cdbus = $cdbus2 = $cdfile = $cdfile2 = "" ;
+  $cdromcount = 0 ;
+    foreach ($cdroms as $arrCD) {
+    $disk = $arrCD['file'] ?? $arrCD['partition'];
+    $dev = $arrCD['device'];
+    $bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
+    if ($dev == "hda") {
+      $cdbus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
+      $cdfile = $arrCD['file'] ?? $arrCD['partition'];
+      if ($cdfile != "") $cdromcount++ ;
+    }
+    if ($dev == "hdb") {
+      $cdbus2 = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
+      $cdfile2 = $arrCD['file'] ?? $arrCD['partition'];
+      if ($cdfile2 != "") $cdromcount++ ;
+    }
+  }
+  $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
+  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-bullseye' ></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
-  echo "<td title='$diskdesc'><span class='state' >$disks<br>$snapshotstr</span></td>";
+  echo "<td title='$diskdesc'><span class='state' >$disks&nbsp;&nbsp;&nbsp;&nbsp;$cdstr<br>$snapshotstr</span></td>";
   echo "<td>$graphics</td>";
   echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $autostart></td></tr>";
 
@@ -170,7 +191,7 @@ foreach ($vms as $vm) {
   }
 
   /* Display VM cdroms */
-  foreach ($lv->get_cdrom_stats($res) as $arrCD) {
+  foreach ($cdroms as $arrCD) {
     $capacity = $lv->format_size($arrCD['capacity'], 0);
     $allocation = $lv->format_size($arrCD['allocation'], 0);
     $disk = $arrCD['file'] ?? $arrCD['partition'];
@@ -226,13 +247,15 @@ foreach ($vms as $vm) {
 
   echo "<thead class='child'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
   echo "<tbody class='child'>";
+  $tab = "&nbsp;&nbsp;&nbsp;&nbsp;" ;
   foreach($snapshots as $snapshotname => $snapshot) {
     $snapshotstate = _(ucfirst($snapshot["state"])) ;
     $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"])) ;
     $snapshotparent = $snapshot["parent"]["name"] ? $snapshot["parent"]["name"] : "None";
     $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s") ;
     $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"]);
-    echo "<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='vmsnap-$uuid' $snapmenu class='hand'><i class='fa fa-clone'></i></span> ".$snapshot["name"]."</td><td></td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
+    echo "<tr><td><span id='vmsnap-$uuid' $snapmenu class='hand'>$tab|__&nbsp;&nbsp;<i class='fa fa-clone'></i></span>&nbsp;".$snapshot["name"]."</td><td></td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
+    $tab .="&nbsp;&nbsp;&nbsp;&nbsp;" ;
   }
   echo "</tbody>";
 } 
