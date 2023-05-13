@@ -766,17 +766,25 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
           if (!target ) {errorTarget(); return;}
         } else target = '';
         var remove  = 'yes' 
+        var keep  = 'yes' 
+        var removemeta  = 'yes' 
         var free = 'yes'
+        var desc = ''
         box.find('#targetsnap').prop('disabled',true);
         if (opt == "revert") {
           const x = box.find('#targetsnaprmv').prop('checked') ;
           if (x) remove = 'yes' ; else remove = 'no' ;
+            x = box.find('#targetsnaprmvmeta').prop('checked') ;
+          if (x) removemeta = 'yes' ; else removemeta = 'no' ;
+           x = box.find('#targetsnapkeep').prop('checked') ;
+          if (x) keep = 'yes' ; else keep = 'no' ;
         }
           if (opt == "create") {
           const x = box.find('#targetsnapfspc').prop('checked') ;
           if (x) free = 'yes' ; else free = 'no' ;
+          var desc = box.find("#targetsnapdesc").prop('value') ;
         }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free } , "loadlist");
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free, desc:desc } , "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -1416,6 +1424,7 @@ $(function() {
 
 <div id="dialogWindow2"></div>
 <div markdown="1" id="templatesnapshotcreate" class="template">
+<table id='snapshot'>
 _(VM Name)_:
  <label id="VMName"></label>
 <br>
@@ -1423,4 +1432,9 @@ _(Snapshot Name)_:
  <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
  _(Check free space)_:
 <input type="checkbox" id="targetsnapfspc" checked> <br>
+_(Description  )_:
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()">
+</table>
 </div>
+
+

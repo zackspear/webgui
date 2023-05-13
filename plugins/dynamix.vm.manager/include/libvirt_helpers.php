@@ -1480,6 +1480,7 @@ private static $encoding = 'UTF-8';
 			$snaps[$vmsnap]["name"]= $b["name"];
 			if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
 			$snaps[$vmsnap]["state"]= $b["state"];
+			$snaps[$vmsnap]["desc"]= $b["description"];
 			$snaps[$vmsnap]["memory"]= $b["memory"];
 			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
 			if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
@@ -1489,7 +1490,7 @@ private static $encoding = 'UTF-8';
 		return $snaps ;
 	}
 
-	function vm_snapshot($vm,$snapshotname,$free = "yes", $memorysnap = "yes") {
+	function vm_snapshot($vm,$snapshotname, $snapshotdesc, $free = "yes",  $memorysnap = "yes") {
 		global $lv ;
 		
 		#Get State
@@ -1502,8 +1503,8 @@ private static $encoding = 'UTF-8';
 		$diskspec = "" ;
 		$capacity = 0 ;
 		if ($snapshotname == "--generate") $name= "S" . date("YmdHis") ; else $name=$snapshotname ;
-		$cmdstr = "virsh snapshot-create-as '$vm' --name '$name'  --atomic " ;
-	
+		if ($snapshotdesc != "") $snapshotdesc = " --description '$snapshotdesc'" ;
+			
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
 			$pathinfo =  pathinfo($file) ;
@@ -1517,7 +1518,7 @@ private static $encoding = 'UTF-8';
 		$memory = $mem[6] ;
 	
 		if ($memorysnap = "yes") $memspec = " --memspec ".$pathinfo["dirname"].'/memory"'.$name.'".mem,snapshot=external' ; else $memspec = "" ;
-		$cmdstr = "virsh snapshot-create-as '$vm' --name '$name' --atomic" ;
+		$cmdstr = "virsh snapshot-create-as '$vm' --name '$name' $snapshotdesc  --atomic" ;
 		
 	  
 		if ($state == "running") {
@@ -1552,12 +1553,9 @@ private static $encoding = 'UTF-8';
 
 	}
 
-	function vm_revert($vm, $snap="--current",$action="no") {
+	function vm_revert($vm, $snap="--current",$action="no",$actionmeta = 'yes') {
 		global $lv ;
 		$snapslist= getvmsnapshots($vm) ;
-
-		#echo "Revert Vm: $vm snap: $snap\n" ;
-	
 		$disks =$lv->get_disk_stats($vm) ;
 
 		foreach($disks as $disk)   {
@@ -1627,7 +1625,7 @@ private static $encoding = 'UTF-8';
 					{
 					if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
 					$newpath =  $snaps[$vm]["r".$diskname][$item] ;
-						if (is_file($path) && $action == "yes") unlink("$newpath") ;
+						if (is_file($newpath) && $action == "yes") unlink("$newpath") ;
 						
 					$item++ ;
 
@@ -1638,14 +1636,13 @@ private static $encoding = 'UTF-8';
 					foreach($snapslist as $s) {
 						$name = $s['name'] ;
 						#Delete Metadata only.
-						if ($action == "yes") { 
+						if ($actionmeta == "yes") { 
 							$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
 						 } 
 						if ($s['name'] == $snap) break ;
 					}
 					#if VM was started restart.
 					if ($state == 'running') {
-						#echo "Restart VM\n" ;
 						$arrResponse = $lv->domain_start($vm) ;
 					} 
 		
@@ -1686,8 +1683,6 @@ private static $encoding = 'UTF-8';
 		$snapslist= getvmsnapshots($vm) ;
 		$data = "<br><br>Images and metadata to remove if tickbox checked.<br>" ;
 
-		#echo "Revert Vm: $vm snap: $snap\n" ;
-	
 		$disks =$lv->get_disk_stats($vm) ;
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
@@ -1761,16 +1756,13 @@ private static $encoding = 'UTF-8';
 			$reversed = array_reverse($output) ;
 			$snaps[$vm][$rev] = $reversed ;
 			$pathinfo =  pathinfo($file) ;
-			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
-			$capacity = $capacity + $disk["capacity"] ;
 		}
 
 		# GetXML
 		$strXML= $lv->domain_get_xml($res) ;
 		$xmlobj = custom::createArray('domain',$strXML) ;
 
-		# Process disks and update path.
+		# Process disks.
 		$disks=($snapslist[$snap]['disks']) ;			
 		foreach ($disks as $disk) {
 			$diskname = $disk["@attributes"]["name"] ;
@@ -1788,12 +1780,115 @@ private static $encoding = 'UTF-8';
 			$diskname = $disk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
-			#if (is_file($path)) unlink("$path")  ;
+			if (is_file($path)) {
+				if(!unlink("$path")) {				
+					$data = ["error" => "Unable to remove image file $path"] ;
+					return ($data) ;
+				}  
+			}
 		}
 
-		#$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
-		$data = ["success => 'true"] ;
+		$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
+		if($ret)
+			$data = ["error" => "Unable to remove snap metadata $snap"] ;
+		else
+			$data = ["success => 'true"] ;
+		
 		return($data) ;
 	}
+
+function vm_blockcommit($vm,$path,$base,$top,$pivot,$action) {
+	/*
+  NAME
+    blockcommit - Start a block commit operation.
+
+  SYNOPSIS
+    blockcommit <domain> <path> [--bandwidth <number>] [--base <string>] [--shallow] [--top <string>] [--active] [--delete] [--wait] [--verbose] [--timeout <number>] [--pivot] [--keep-overlay] [--async] [--keep-relative] [--bytes]
+
+  DESCRIPTION
+    Commit changes from a snapshot down to its backing image.
+
+  OPTIONS
+    [--domain] <string>  domain name, id or uuid
+    [--path] <string>  fully-qualified path of disk
+    --bandwidth <number>  bandwidth limit in MiB/s
+    --base <string>  path of base file to commit into (default bottom of chain)
+    --shallow        use backing file of top as base
+    --top <string>   path of top file to commit from (default top of chain)
+    --active         trigger two-stage active commit of top file
+    --delete         delete files that were successfully committed
+    --wait           wait for job to complete (with --active, wait for job to sync)
+    --verbose        with --wait, display the progress
+    --timeout <number>  implies --wait, abort if copy exceeds timeout (in seconds)
+    --pivot          implies --active --wait, pivot when commit is synced
+    --keep-overlay   implies --active --wait, quit when commit is synced
+    --async          with --wait, don't wait for cancel to finish
+    --keep-relative  keep the backing chain relatively referenced
+    --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+	*/
+}
+
+function vm_blockcopy($vm,$path,$base,$top,$pivot,$action) {
+	/*
+  NAME
+    blockcopy - Start a block copy operation.
+
+  SYNOPSIS
+    blockcopy <domain> <path> [--dest <string>] [--bandwidth <number>] [--shallow] [--reuse-external] [--blockdev] [--wait] [--verbose] [--timeout <number>] [--pivot] [--finish] [--async] [--xml <string>] [--format <string>] [--granularity <number>] [--buf-size <number>] [--bytes] [--transient-job] [--synchronous-writes] [--print-xml]
+
+  DESCRIPTION
+    Copy a disk backing image chain to dest.
+
+  OPTIONS
+    [--domain] <string>  domain name, id or uuid
+    [--path] <string>  fully-qualified path of source disk
+    --dest <string>  path of the copy to create
+    --bandwidth <number>  bandwidth limit in MiB/s
+    --shallow        make the copy share a backing chain
+    --reuse-external  reuse existing destination
+    --blockdev       copy destination is block device instead of regular file
+    --wait           wait for job to reach mirroring phase
+    --verbose        with --wait, display the progress
+    --timeout <number>  implies --wait, abort if copy exceeds timeout (in seconds)
+    --pivot          implies --wait, pivot when mirroring starts
+    --finish         implies --wait, quit when mirroring starts
+    --async          with --wait, don't wait for cancel to finish
+    --xml <string>   filename containing XML description of the copy destination
+    --format <string>  format of the destination file
+    --granularity <number>  power-of-two granularity to use during the copy
+    --buf-size <number>  maximum amount of in-flight data during the copy
+    --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+    --transient-job  the copy job is not persisted if VM is turned off
+    --synchronous-writes  the copy job forces guest writes to be synchronously written to the destination
+    --print-xml      print the XML used to start the copy job instead of starting the job
+	*/
+}
+
+function vm_blockpull($vm,$path,$base,$top,$pivot,$action) {
+	/*
+  NAME
+    blockpull - Populate a disk from its backing image.
+
+  SYNOPSIS
+    blockpull <domain> <path> [--bandwidth <number>] [--base <string>] [--wait] [--verbose] [--timeout <number>] [--async] [--keep-relative] [--bytes]
+
+  DESCRIPTION
+    Populate a disk from its backing image.
+
+  OPTIONS
+    [--domain] <string>  domain name, id or uuid
+    [--path] <string>  fully-qualified path of disk
+    --bandwidth <number>  bandwidth limit in MiB/s
+    --base <string>  path of backing file in chain for a partial pull
+    --wait           wait for job to finish
+    --verbose        with --wait, display the progress
+    --timeout <number>  with --wait, abort if pull exceeds timeout (in seconds)
+    --async          with --wait, don't wait for cancel to finish
+    --keep-relative  keep the backing chain relatively referenced
+    --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+
+
+	*/
+}
 	
 ?>

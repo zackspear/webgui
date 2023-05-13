@@ -135,7 +135,7 @@ i.mover{margin-right:8px;display:none}
 .dropdown-menu{z-index:10001}
 </style>
 <table id="kvm_table" class="tablesorter four shift">
-<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks/vCDs)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
+<thead><tr><th class="th1"><a id="resetsort" class="nohand" onclick="resetSorting()" title="Reset sorting"><i class="fa fa-th-list"></i></a>_(Name)_</th><th class="th2">_(Description)_</th><th>_(CPUs)_</th><th>_(Memory)_</th><th>_(vDisks / vCDs)_</th><th>_(Graphics)_</th><th class="th3">_(Autostart)_</th></tr></thead>
 <tbody id="kvm_list"><tr><td colspan='8'></td></tr></tbody>
 </table>
 <input type="button" onclick="addVM()" id="btnAddVM" value="_(Add VM)_" style="display:none">
@@ -192,7 +192,7 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
     show: {effect:'fade', duration:250},
     hide: {effect:'fade', duration:250},
     buttons: {
-      "_(Insert)_": function(){
+      "_(Update)_": function(){
         var target = box.find('#target');
         if (target.length) {
           target = target.val();
@@ -253,7 +253,7 @@ function getisoimage(uuid,dev,bus,file){
   dialogStyle();
 }
 
-function selectsnapshot(uuid, name ,snaps, opt, getlist){
+function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
  
   var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
   var match= ".iso";
@@ -276,6 +276,8 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
   }
 
  document.getElementById("targetsnaprmv").checked = true ;
+ document.getElementById("targetsnaprmvmeta").checked = true ;
+ document.getElementById("targetsnapkeep").checked = true ;
  document.getElementById("targetsnapfspc").checked = true ;
  
   box.dialog({
@@ -295,17 +297,25 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
           if (!target ) {errorTarget(); return;}
         } else target = '';
         var remove  = 'yes' 
+        var keep  = 'yes' 
+        var removemeta  = 'yes' 
         var free = 'yes'
+        var desc = ''
         box.find('#targetsnap').prop('disabled',true);
         if (opt == "revert") {
-          const x = box.find('#targetsnaprmv').prop('checked') ;
+          var x = box.find('#targetsnaprmv').prop('checked') ;
           if (x) remove = 'yes' ; else remove = 'no' ;
+           x = box.find('#targetsnaprmvmeta').prop('checked') ;
+          if (x) removemeta = 'yes' ; else removemeta = 'no' ;
+           x = box.find('#targetsnapkeep').prop('checked') ;
+          if (x) keep = 'yes' ; else keep = 'no' ;
         }
           if (opt == "create") {
-          const x = box.find('#targetsnapfspc').prop('checked') ;
+          var x = box.find('#targetsnapfspc').prop('checked') ;
           if (x) free = 'yes' ; else free = 'no' ;
+          var desc = box.find("#targetsnapdesc").prop('value') ;
         }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free } , "loadlist");
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc} , "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -430,16 +440,21 @@ _(CD2 ISO Image)_:
 
 <div id="dialogWindow2"></div>
 <div markdown="1" id="templatesnapshotcreate" class="template">
-_(VM Name)_:
- <label id="VMName"></label>
-<br>
-_(Snapshot Name)_:
+<table id='snapshot'>
+<br><br>
+<tr><td> _(VM Name)_: </td><td>
+ <label id="VMName"></label></td></tr>
+
+<tr><td>_(Snapshot Name)_:</td><td>
  <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
  _(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked> <br>
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description  )_:</td><td>
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
 </div>
 
-<div markdown="1" id="templatesnapshotrevert" class="template" post>
+<div markdown="1" id="templatesnapshotrevert" class="template">
 _(VM Name)_:
  <label id="VMName"></label>
 <br>
@@ -447,7 +462,11 @@ _(Snapshot Name)_:
   <input type="text" id="targetsnap" hidden>
  <label id="targetsnapl"></label><br>
 _(Remove Images)_:
-<input type="checkbox" id="targetsnaprmv" checked <br>
+<input type="checkbox" id="targetsnaprmv" checked >
+_(Remove Meta)_:
+<input type="checkbox" id="targetsnaprmvmeta" checked>
+<!--_(Keep snapshot)_:-->
+<input type="checkbox" id="targetsnapkeep" hidden><br>
 
 <label id="targetsnapimages"></label><br>
 

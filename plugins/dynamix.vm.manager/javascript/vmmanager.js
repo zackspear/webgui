@@ -151,7 +151,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
     opts.push({divider:true});
     opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
       e.preventDefault();
-      selectsnapshot(uuid , name, "--generate" , "create",false) ;
+      selectsnapshot(uuid , name, "--generate" , "create",false,state) ;
     }});
     opts.push({text:_("Remove VM"), icon:"fa-minus", action:function(e) {
       e.preventDefault();
