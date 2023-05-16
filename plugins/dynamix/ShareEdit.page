@@ -106,7 +106,7 @@ div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
 div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
 div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
 div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-#s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2{display:none}
+#s1,#s2,#s3,#s4,#s5,#autosize,.empty,.full2,#zfs-name{display:none}
 i.fa-info.i{margin-right:10px}
 <?if ($themes1):?>
 form[name=share_edit]{margin-top:-20px}
@@ -154,7 +154,7 @@ foreach ($rows as $row) echo $row;
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Share name)_:
-: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+">
+: <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].+"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains invalid characters for ZFS use)_</span>
 
 :share_edit_name_help:
 
@@ -369,6 +369,7 @@ $(function() {
 <?endif;?>
   updateScreen(form.shareUseCache.value);
   if ($.cookie('autosize-'+$('#shareName').val())) $('#autosize').show();
+  checkName($('#shareName').val());
 });
 function initDropdown(remove,create) {
   if (remove) {
@@ -519,7 +520,7 @@ function prepareEdit() {
     return false;
   }
   if (share.match('[:\\\/*<>|"?]')) {
-    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+' : \\ / * < > | " ?',type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+'<b> \\ / : * < > | " ?</b>',type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
 // Update settings
@@ -590,5 +591,8 @@ function writeShare(data,n,i) {
     $('div.spinner.fixed').show('slow');
     writeShare(data,0,i);
   }
+}
+function checkName(name) {
+  if (/^[A-Za-z0-9-_.: ]*$/.test(name)) $('#zfs-name').hide(); else $('#zfs-name').show();
 }
 </script>
