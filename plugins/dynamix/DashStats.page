@@ -1142,7 +1142,7 @@ function LockButton() {
     $.cookie('lockbutton','lockbutton');
 <?if ($themes1):?>
     $('div.nav-item.LockButton a').prop('title',"_(Lock sortable items)_");
-    $('div.nav-item.LockButton b').removeClass('icon-u-lock red-text').addClass('icon-u-lock-open green-text');
+    $('div.nav-item.LockButton b').removeClass('icon-u-lock green-text').addClass('icon-u-lock-open red-text');
 <?endif;?>
     $('i.tile').show();
     $('tbody.sortable').css({'cursor':'move'});
@@ -1165,7 +1165,7 @@ function LockButton() {
     $.removeCookie('lockbutton');
 <?if ($themes1):?>
     $('div.nav-item.LockButton a').prop('title',"_(Unlock sortable items)_");
-    $('div.nav-item.LockButton b').removeClass('icon-u-lock-open green-text').addClass('icon-u-lock red-text');
+    $('div.nav-item.LockButton b').removeClass('icon-u-lock-open red-text').addClass('icon-u-lock green-text');
 <?endif;?>
     $('i.tile').hide();
     $('tbody.sortable').css({'cursor':'default'});
