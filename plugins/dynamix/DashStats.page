@@ -1124,8 +1124,8 @@ function sortTables() {
   });
 }
 function addProperties() {
-  $('tbody.system').addClass('sortable').attr('sort','_system_information_');
-  $('tbody').not('.system').each(function(){
+  $('div.frame').find('tbody.system').addClass('sortable').attr('sort','_system_information_');
+  $('div.frame').find('tbody').not('.system').each(function(){
     $(this).addClass('sortable').attr('sort',$(this).attr('title').marker());
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control tile' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
   });
@@ -1425,16 +1425,17 @@ $(function() {
 <div id="dialogWindow2"></div>
 <div markdown="1" id="templatesnapshotcreate" class="template">
 <table id='snapshot'>
-_(VM Name)_:
- <label id="VMName"></label>
-<br>
-_(Snapshot Name)_:
- <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
- _(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked> <br>
-_(Description  )_:
-<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()">
+<br><br>
+<tr><td> _(VM Name)_:</td><td>
+<label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td>
+<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+_(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description  )_:</td><td>
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
 </table>
 </div>
+
 
 

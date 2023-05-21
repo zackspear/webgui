@@ -106,6 +106,11 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       e.preventDefault();
       ajaxVMDispatch( {action:"domain-destroy", uuid:uuid}, "loadlist");
     }});
+    opts.push({divider:true});
+    opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
+      e.preventDefault();
+      selectsnapshot(uuid , name, "--generate" , "create",false,state) ;
+    }}); 
   } else if (state == "pmsuspended") {
     opts.push({text:_("Resume"), icon:"fa-play", action:function(e) {
       e.preventDefault();
@@ -141,7 +146,8 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
           ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
         }});
       }
-  }}
+    }
+  }
   opts.push({divider:true});
   if (log !== "") {
     opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
@@ -198,10 +204,11 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
 //      e.preventDefault();
 //      ajaxVMDispatch({action:"snapshot-revert-externa", uuid:uuid, snapshotname:snapshotname}, "loadlist");
 //    }});
-//    opts.push({text:_("Block Commit"), icon:"fa-stop", action:function(e) {
-//      e.preventDefault();
-//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
-//    }});
+    opts.push({text:_("Block Commit"), icon:"fa-hdd-o", action:function(e) {
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      e.preventDefault();
+      selectblock(uuid, name, snapshotname, "commit",true) ;
+    }});
 //    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
 //      e.preventDefault();
 //      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
@@ -212,7 +219,7 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       selectsnapshot(uuid, name, snapshotname, "revert",true) ;
     }});
-    opts.push({text:_("Remove snapshot(Delete Disabled)"), icon:"fa-trash", action:function(e) {
+    opts.push({text:_("Remove snapshot"), icon:"fa-trash", action:function(e) {
       e.preventDefault();
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       selectsnapshot(uuid, name, snapshotname, "remove",true) ;

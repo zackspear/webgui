@@ -18,6 +18,7 @@ Markdown="false"
  */
 ?>
 <?
+$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 $cpus = cpu_list();
@@ -278,7 +279,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
  document.getElementById("targetsnaprmv").checked = true ;
  document.getElementById("targetsnaprmvmeta").checked = true ;
  document.getElementById("targetsnapkeep").checked = true ;
- document.getElementById("targetsnapfspc").checked = true ;
+ document.getElementById("targetsnapfspc").checked = false ;
  
   box.dialog({
     title: "_("+optiontext+ ")_",
@@ -316,6 +317,80 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
           var desc = box.find("#targetsnapdesc").prop('value') ;
         }
         ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc} , "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+
+function selectblock(uuid, name ,snaps, opt, getlist,state){
+ 
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
+  var box = $("#dialogWindow2");
+  box.html($("#templateblock").html());
+  var height = 200;
+  const Capopt = opt.charAt(0).toUpperCase() + opt.slice(1) ;
+  var optiontext = Capopt + " Block Devices" ;
+  box.find('#VMName').html(name) ;
+  box.find('#targetsnap').val(snaps) ;
+  box.find('#targetsnapl').html(snaps) ;
+
+  getlist =  true ;
+  if (getlist) {
+    var only = 1 ;
+    if (opt == "remove") only = 0;
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-list", uuid:uuid }, function(data) {
+    if (data.html) {    
+    var targetbase = document.getElementById("targetblockbase")  ;
+    htmlstrbase = "<select class='targetblockbase' name='targetblockbase' id='targetblockbase'><option value='--base'>--base</option>" + data.html + "</select>"
+    htmlstrtop = "<select class='targetblocktop' name='targetblocktop' id='targetblocktop'><option value='--top'>--top</option>" + data.html + "</select>"
+    $("select.targetblockbase").replaceWith(htmlstrbase) ;
+    $("select.targetblocktop").replaceWith(htmlstrtop) ;
+    } 
+    },'json');
+  }
+
+ document.getElementById("targetsnaprmv").checked = true ;
+ document.getElementById("targetsnaprmvmeta").checked = true ;
+ document.getElementById("targetsnapkeep").checked = true ;
+ document.getElementById("targetsnapfspc").checked = true ;
+
+  box.dialog({
+    title: "_("+optiontext+ ")_",
+    resizable: false,
+    width: 600,
+    height: 500,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      _("Action")_: function(){
+        var target = box.find('#targetsnap');
+        if (target.length) {
+          target = target.val();
+          if (!target ) {errorTarget(); return;}
+        } else target = '';
+        var remove  = 'yes' 
+        var keep  = 'yes' 
+        var removemeta  = 'yes' 
+        var free = 'yes'
+        var desc = ''
+        box.find('#targetsnap').prop('disabled',true);
+          if (opt == "create") {
+          var x = box.find('#targetsnapfspc').prop('checked') ;
+          if (x) free = 'yes' ; else free = 'no' ;
+          var desc = box.find("#targetsnapdesc").prop('value') ;
+        }
+        var targetbase = $('#targetblockbase').val()
+        var targettop = $('#targetblocktop').val()
+        //ajaxVMDispatch({action:"snap-", uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc} , "loadlist");
+        Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:"snap-commit", name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep})) ;
+        openPlugin((Ajaxurl),"Block Commit", "dynamix.vm.manager", "loadlist") ;
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -442,13 +517,12 @@ _(CD2 ISO Image)_:
 <div markdown="1" id="templatesnapshotcreate" class="template">
 <table id='snapshot'>
 <br><br>
-<tr><td> _(VM Name)_: </td><td>
- <label id="VMName"></label></td></tr>
-
+<tr><td> _(VM Name)_:</td><td>
+<label id="VMName"></label></td></tr>
 <tr><td>_(Snapshot Name)_:</td><td>
- <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
- _(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+_(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" ></td></tr>
 <tr><td>_(Description  )_:</td><td>
 <input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
 </table>
@@ -485,5 +559,25 @@ _(Snapshot Name)_:
 
 <label id="targetsnapimages"></label><br>
 
+<div markdown="1" id="templateblock" class="template">
+_(VM Name)_:
+ <label id="VMName"></label>
+<br>
+_(Snapshot Name)_:
+  <input type="text" id="targetsnap" hidden>
+ <label id="targetsnapl"></label><br>
+<br><br><br><br>
+<table id='block'>
+<tr><td>_(Base Image)_:</td><td>
+<select class="targetblockbase" name="targetblockbase" id="targetblockbase">
+</select></td></tr>
+<tr><td>_(Top Image  )_:</td><td>
+<select class="targetblocktop" name="targetblocktop" id="targetblocktop">
+</select></td><td>
+</table>
+<!--_(Keep snapshot)_:-->
+<input type="checkbox" id="targetsnapkeep" hidden><br>
+<label id="targetsnapimages"></label><br>
+</div>
 
 </div>

@@ -339,10 +339,29 @@ case 'snap-create-external':
 	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free']) ;
 	break;
 
+case 'snap-blockcommit':
+	requireLibvirt();
+	echo "Hello" ;
+	#$arrResponse = vm_snapshot($domName,'',$_REQUEST['base'],$_REQUEST['top'],"","") ;
+	break;
+	
 case 'snap-images':
 	requireLibvirt();
 	$html = vm_snapimages($domName,$_REQUEST['snapshotname'],$_REQUEST['only']) ;
 	$arrResponse = ['html' => $html , 'success' => true] ;
+	break;
+
+case 'snap-list':
+	requireLibvirt();
+	$arrResponse = ($data = getvmsnapshots($domName)) 
+	? ['success' => true]
+	: ['error' => $lv->get_last_error()];
+	$datartn = "";
+	foreach($data as $snap=>$snapdetail) {
+		$snapshotdatetime = date("Y-m-d H:i:s",$snapdetail["creationtime"]) ;
+		$datartn  .= "<option value='$'>$snap  $snapshotdatetime</option>" ;
+	}
+	$arrResponse['html'] = $datartn ;
 	break;
 
 case 'snap-revert-external':

@@ -1538,6 +1538,9 @@ private static $encoding = 'UTF-8';
 		
 		#Copy nvram
 		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
+
+		$xmlfile = $pathinfo["dirname"].'/"'.$name.'".running' ;
+		if ($state == "running") exec("virsh dumpxml '$vm' > $xmlfile",$outxml,$rtnxml) ;
 			
 		$test = false ;
 		if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
@@ -1577,8 +1580,9 @@ private static $encoding = 'UTF-8';
 			$capacity = $capacity + $disk["capacity"] ;
 		}
 
-		switch ($snapslist[$snap]['state']) {
-			case "shutoff":
+	switch ($snapslist[$snap]['state']) {
+			case "shutoff":	
+				case "running":	
 				#VM must be shutdown.
 				$res = $lv->get_domain_by_name($vm);
 				$dom = $lv->domain_get_info($res);
@@ -1596,6 +1600,10 @@ private static $encoding = 'UTF-8';
 					$diskname = $disk["@attributes"]["name"] ;
 					if ($diskname == "hda" || $diskname == "hdb") continue ;
 					$path = $disk["source"]["@attributes"]["file"] ;
+					if ($diskname == "hdc") {
+						$primarypathinfo =  pathinfo($path) ;
+						$primarypath = $primarypathinfo['dirname'] ;
+					}
 					$item = array_search($path,$snaps[$vm][$diskname]) ;
 					$newpath =  $snaps[$vm][$diskname][$item + 1];
 					$json_info = getDiskImageInfo($newpath) ;
@@ -1638,7 +1646,13 @@ private static $encoding = 'UTF-8';
 						#Delete Metadata only.
 						if ($actionmeta == "yes") { 
 							$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
-						 } 
+						} 
+						# Remove running XML and memory.
+						$xmlfile = $primarypath."/$name.running" ;
+						$memoryfile = $primarypath."/memory$name.mem" ;
+						#var_dump(is_file($xmlfile), is_file($memoryfile)) ;
+						if (is_file($memoryfile) && $action == "yes") unlink($memoryfile) ;
+						if (is_file($xmlfile) && $action == "yes") unlink($xmlfile) ;
 						if ($s['name'] == $snap) break ;
 					}
 					#if VM was started restart.
@@ -1687,7 +1701,7 @@ private static $encoding = 'UTF-8';
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
 			$output = "" ;
-			exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+			exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 			foreach($output as $key => $line) {
 				$line=str_replace("image: ","",$line) ;
 				$output[$key] = $line ;  
@@ -1703,6 +1717,7 @@ private static $encoding = 'UTF-8';
 		}
 
 		$snapdisks= $snapslist[$snap]['disks'] ;
+		#var_dump($snaps) ;
 		foreach ($snapdisks as $diskkey => $snapdisk) {
 			$diskname = $snapdisk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
@@ -1763,7 +1778,8 @@ private static $encoding = 'UTF-8';
 		$xmlobj = custom::createArray('domain',$strXML) ;
 
 		# Process disks.
-		$disks=($snapslist[$snap]['disks']) ;			
+		$disks=($snapslist[$snap]['disks']) ;	
+		var_dump($disks,$snaps) ;		
 		foreach ($disks as $disk) {
 			$diskname = $disk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
@@ -1781,14 +1797,14 @@ private static $encoding = 'UTF-8';
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
 			if (is_file($path)) {
-				if(!unlink("$path")) {				
-					$data = ["error" => "Unable to remove image file $path"] ;
-					return ($data) ;
-				}  
+				#if(!unlink("$path")) {				
+				#	$data = ["error" => "Unable to remove image file $path"] ;
+				#	return ($data) ;
+				#}  
 			}
 		}
 
-		$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
+		#$ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
 		if($ret)
 			$data = ["error" => "Unable to remove snap metadata $snap"] ;
 		else
@@ -1797,7 +1813,8 @@ private static $encoding = 'UTF-8';
 		return($data) ;
 	}
 
-function vm_blockcommit($vm,$path,$base,$top,$pivot,$action) {
+function vm_blockcommit($vm, $snap ,$path,$base,$top,$pivot,$action) {
+	global $lv ;
 	/*
   NAME
     blockcommit - Start a block commit operation.
@@ -1825,7 +1842,65 @@ function vm_blockcommit($vm,$path,$base,$top,$pivot,$action) {
     --async          with --wait, don't wait for cancel to finish
     --keep-relative  keep the backing chain relatively referenced
     --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+
+	blockcommit Debian --path /mnt/user/domains/Debian/vdisk1.S20230513120410qcow2 --verbose --pivot --delete
 	*/
+		# Error if VM Not running.
+		
+		$snapslist= getvmsnapshots($vm) ;
+		$disks =$lv->get_disk_stats($vm) ;
+		#var_dump($disks) ;
+		foreach($disks as $disk)   {
+		$path = $disk['file'] ;
+		$cmdstr = "virsh blockcommit '$vm' --path '$path' --verbose --pivot --delete" ;
+		# Process disks and update path.
+		$snapdisks=($snapslist[$snap]['disks']) ;	
+		if ($base != "--base" && $base != "") {
+			#get file name from  snapshot.
+			$snapdisks=($snapslist[$base]['disks']) ;
+			$basepath = "" ;
+			foreach ($snapdisks as $snapdisk) {
+				$diskname = $snapdisk["@attributes"]["name"] ;
+				if ($diskname != $disk['device']) continue ;
+				$basepath = $snapdisk["source"]["@attributes"]["file"] ;
+				}
+			if ($basepath != "") $cmdstr .= " --base '$basepath' ";
+		}
+		if ($top != "--top" && $top !="")  {
+			#get file name from  snapshot.
+			$snapdisks=($snapslist[$top]['disks']) ;
+			$toppath = "" ;
+			foreach ($snapdisks as $snapdisk) {
+				$diskname = $snapdisk["@attributes"]["name"] ;
+				if ($diskname != $disk['device']) continue ;
+				$toppath = $snapdisk["source"]["@attributes"]["file"] ;
+				}
+			if ($toppath != "") $cmdstr .= " --top '$toppath' ";
+		}
+		if ($action) $cmdstr .= " $action ";
+
+
+		$test = false ;
+		if ($test) { $cmdstr .= " --print-xml " ; execCommand_nchan($cmdstr) ; } else  execCommand_nchan($cmdstr) ;
+		#var_dump($cmdstr,$output) ;
+		if (strpos(" ".$output[0],"error") ) { 
+			$arrResponse =  ['error' => substr($output[0],6) ] ;
+			#return($arrResponse) ;
+		} else {
+			# Remove nvram snapshot
+			$arrResponse = ['success' => true] ;
+		}
+		#Error Check
+			}
+		#If complete ok remove meta data for snapshots.
+		if (!$test) $ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
+		if($ret)
+			$data = ["error" => "Unable to remove snap metadata $snap"] ;
+		else
+			$data = ["success => 'true"] ;
+
+		return $data ;
+
 }
 
 function vm_blockcopy($vm,$path,$base,$top,$pivot,$action) {
