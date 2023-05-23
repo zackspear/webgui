@@ -111,8 +111,8 @@ file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_start")." >/dev/null");
-  exec("/usr/local/sbin/create_network_ini >/dev/null");
+  exec("/etc/rc.d/rc.inet1 {$ifname}_start >/dev/null 2>&1");
+  exec("/usr/local/sbin/create_network_ini $ifname >/dev/null 2>&1 &");
 }
 exit(0);
 ?>
