@@ -1846,6 +1846,18 @@ Select the gateway from the dropdown list or enter a valid IPv4/IPv6 address as 
 The metric value is optional, it defaults to 1. Use it to select the preferred gateway when more than one entry of the same route exists.
 :end
 
+:eth_network_extra_include_help:
+Enter one or more interface names or IP addresses which will be included in the list of listening interfaces for local system services.
+
+This is particular useful when the user has created custom interfaces (e.g. tailscale VPN tunnel) which are used to access local system services.
+:end
+
+:eth_network_extra_exclude_help:
+Enter one or more interface names or IP addresses which will be excluded from the list of listening interfaces for local system services.
+
+This can be used to exclude dedicated local interfaces (e.g. p-t-p connections) or exclude dynamic interfaces (WireGuard tunnels) from using local system services.
+:end
+
 :apc_ups_daemon_help:
 Set to 'Yes' to enable apcupsd and start the daemon, set to 'No' to disable apcupsd and stop the daemon.
 :end
