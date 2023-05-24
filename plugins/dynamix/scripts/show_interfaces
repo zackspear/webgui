@@ -72,7 +72,7 @@ if [[ -f $NETWORK_INI ]]; then
         for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
           net4=$(link IPADDR:$vlan)
           net6=$(link IPADDR6:$vlan)
-          [[ -n $net4 || -n $net6 ]] && bind+=($net)
+          [[ -n $net4 || -n $net6 ]] && bind+=($net.$vlan)
         done
       fi
     fi
