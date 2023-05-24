@@ -98,6 +98,14 @@ _(Excluded disk(s))_:
 
 :shares_excluded_disks_help:
 
+_(Permit exclusive shares)_:
+: <select name="shareUserExclusive" <?=$disabled?>>
+  <?=mk_option($var['shareUserExclusive'], "no", _('No'))?>
+  <?=mk_option($var['shareUserExclusive'], "yes", _('Yes'))?>
+  </select>
+
+:shares_exclusive_shares_help:
+
 _(Tunable (support Hard Links))_:
 : <select name="fuse_useino" <?=$disabled?>>
   <?=mk_option($var['fuse_useino'], "no", _('No'))?>
