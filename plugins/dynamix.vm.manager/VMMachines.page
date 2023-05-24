@@ -389,8 +389,8 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
         var targetbase = $('#targetblockbase').val()
         var targettop = $('#targetblocktop').val()
         //ajaxVMDispatch({action:"snap-", uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc} , "loadlist");
-        Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:"snap-commit", name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep})) ;
-        openPlugin((Ajaxurl),"Block Commit", "dynamix.vm.manager", "loadlist") ;
+        Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:opt , name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep})) ;
+        openVMAction((Ajaxurl),"Block Commit", "dynamix.vm.manager", "loadlist") ;
         box.dialog('close');
       },
       "_(Cancel)_": function(){

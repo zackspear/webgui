@@ -1939,7 +1939,8 @@ function vm_blockcopy($vm,$path,$base,$top,$pivot,$action) {
 	*/
 }
 
-function vm_blockpull($vm,$path,$base,$top,$pivot,$action) {
+function vm_blockpull($vm, $snap ,$path,$base,$top,$pivot,$action) {
+	global $lv ;
 	/*
   NAME
     blockpull - Populate a disk from its backing image.
@@ -1964,6 +1965,63 @@ function vm_blockpull($vm,$path,$base,$top,$pivot,$action) {
 
 
 	*/
+	$snapslist= getvmsnapshots($vm) ;
+	$disks =$lv->get_disk_stats($vm) ;
+	#var_dump($disks) ;
+	foreach($disks as $disk)   {
+	$path = $disk['file'] ;
+	$cmdstr = "virsh blockpull '$vm' --path '$path' --verbose --pivot --delete" ;
+	$cmdstr = "virsh blockpull '$vm' --path '$path' --verbose --wait" ;
+	# Process disks and update path.
+	$snapdisks=($snapslist[$snap]['disks']) ;	
+	if ($base != "--base" && $base != "") {
+		#get file name from  snapshot.
+		$snapdisks=($snapslist[$base]['disks']) ;
+		$basepath = "" ;
+		foreach ($snapdisks as $snapdisk) {
+			$diskname = $snapdisk["@attributes"]["name"] ;
+			if ($diskname != $disk['device']) continue ;
+			$basepath = $snapdisk["source"]["@attributes"]["file"] ;
+			}
+		if ($basepath != "") $cmdstr .= " --base '$basepath' ";
+	}
+	if ($top != "--top" && $top !="")  {
+		#get file name from  snapshot.
+		$snapdisks=($snapslist[$top]['disks']) ;
+		$toppath = "" ;
+		foreach ($snapdisks as $snapdisk) {
+			$diskname = $snapdisk["@attributes"]["name"] ;
+			if ($diskname != $disk['device']) continue ;
+			$toppath = $snapdisk["source"]["@attributes"]["file"] ;
+			}
+		if ($toppath != "") $cmdstr .= " --top '$toppath' ";
+	}
+	if ($action) $cmdstr .= " $action ";
+
+
+	$test = false ;
+	if ($test) { $cmdstr .= " --print-xml " ; execCommand_nchan($cmdstr) ; } else  execCommand_nchan($cmdstr) ;
+	#var_dump($cmdstr,$output) ;
+	if (strpos(" ".$output[0],"error") ) { 
+		$arrResponse =  ['error' => substr($output[0],6) ] ;
+		#return($arrResponse) ;
+	} else {
+		# Remove nvram snapshot
+		$arrResponse = ['success' => true] ;
+	}
+	#Error Check
+		}
+	#If complete ok remove meta data for snapshots.
+	#if (!$test) $ret = $lv->domain_snapshot_delete($vm, $snap ,2) ;
+	if($ret)
+		$data = ["error" => "Unable to remove snap metadata $snap"] ;
+	else
+		$data = ["success => 'true"] ;
+
+	return $data ;
+
 }
+
+
 	
 ?>

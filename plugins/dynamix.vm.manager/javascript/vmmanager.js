@@ -209,6 +209,11 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
       e.preventDefault();
       selectblock(uuid, name, snapshotname, "commit",true) ;
     }});
+    opts.push({text:_("Block Pull"), icon:"fa-hdd-o", action:function(e) {
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      e.preventDefault();
+      selectblock(uuid, name, snapshotname, "pull",true) ;
+    }});
 //    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
 //      e.preventDefault();
 //      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
