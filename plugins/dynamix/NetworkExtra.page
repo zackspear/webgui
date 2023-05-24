@@ -96,7 +96,7 @@ $(function(){
 <input type="hidden" name="exclude_interfaces" value="">
 
 _(Current listening interfaces)_:
-: <?=exec("$docroot/webGui/scripts/show_interfaces")?:_('None')?>
+: <?=exec("$docroot/webGui/scripts/show_interfaces")?:_('Any')?>
 <hr>
 
 _(Include listening interfaces)_:
