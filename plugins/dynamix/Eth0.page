@@ -206,6 +206,7 @@ function prepareSettings(form) {
     var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
     if (protocol != 'ipv4') $(form).find('input[name^="DNS6_SERVER"]').val('_(Obtaining DNSv6 server)_...');
   }
+  setTimeout(refresh,25000);
   return true;
 }
 function selectProtocol(form,port,index) {
@@ -391,8 +392,8 @@ watchDHCP.on('message', function(data) {
     var form = $('form[name="'+id[0]+'_settings"]');
     var key = id[2].split('=');
     switch (id[1]) {
-      case 'I': form.find('input[name="'+key[0]+'"]').val(key[1]); break;
-      case 'S': form.find('select[name="'+key[0]+'"]').val(key[1]); break;
+      case 'I': form.find('input[name="'+key[0].replace('-','_')+'"]').val(key[1]); break;
+      case 'S': form.find('select[name="'+key[0].replace('-','_')+'"]').val(key[1]); break;
     }
   }
 });
