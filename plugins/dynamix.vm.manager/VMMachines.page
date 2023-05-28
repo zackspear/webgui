@@ -196,8 +196,7 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
       "_(Update)_": function(){
         var target = box.find('#target');
         if (target.length) {
-          target = target.val();
-          
+          target = target.val();  
         } else target = '';
         var target2 = box.find('#target2');
         if (target2.length) {
@@ -359,6 +358,15 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
  document.getElementById("targetsnaprmvmeta").checked = true ;
  document.getElementById("targetsnapkeep").checked = true ;
  document.getElementById("targetsnapfspc").checked = true ;
+ if (opt== "pull") {
+  $('.toprow').hide(); 
+  $('.targetpivotrow').hide();
+  $('.targetdeleterow').hide();
+ } else {
+  $('.toprow').show();
+  $('.targetpivotrow').show();
+  $('.targetdeleterow').show();
+ }
 
   box.dialog({
     title: "_("+optiontext+ ")_",
@@ -379,6 +387,8 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
         var keep  = 'yes' 
         var removemeta  = 'yes' 
         var free = 'yes'
+        var delete_file = 'yes'
+        var pivot = 'yes'
         var desc = ''
         box.find('#targetsnap').prop('disabled',true);
           if (opt == "create") {
@@ -388,7 +398,10 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
         }
         var targetbase = $('#targetblockbase').val()
         var targettop = $('#targetblocktop').val()
-        //ajaxVMDispatch({action:"snap-", uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc} , "loadlist");
+        x = box.find('#targetpivot').prop('checked') ;
+        if (x) pivot = 'yes' ; else pivot = 'no' ;
+        x = box.find('#targetdelete').prop('checked') ;
+        if (x) delete_file = 'yes' ; else delete_file = 'no' ;
         Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:opt , name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep})) ;
         openVMAction((Ajaxurl),"Block Commit", "dynamix.vm.manager", "loadlist") ;
         box.dialog('close');
@@ -400,9 +413,6 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
   });
   dialogStyle();
 }
-
-//  ajaxVMDispatch({action:"snap-create-external", uuid:uuid}, "loadlist");
- // ajaxVMDispatch({action:"snap-revert-external", uuid:uuid , snapshotname:snapshotname , remove:'yes'}, "loadlist");
 
 function dialogStyle() {
   $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title');
@@ -571,13 +581,15 @@ _(Snapshot Name)_:
 <tr><td>_(Base Image)_:</td><td>
 <select class="targetblockbase" name="targetblockbase" id="targetblockbase">
 </select></td></tr>
-<tr><td>_(Top Image  )_:</td><td>
+<tr name="toprow" class="toprow" ><td>_(Top Image  )_:</td><td>
 <select class="targetblocktop" name="targetblocktop" id="targetblocktop">
 </select></td><td>
+<tr name="targetpivotrow" class="targetpivotrow" ><td>_(Pivot)_:</td><td>
+<input type="checkbox" id="targetpivot" checked></td></tr>
+<tr name="targetdeleterow" class="targetdeleterow" ><td>_(Delete)_:</td><td>
+<input type="checkbox" id="targetdelete" checked></td></tr>
 </table>
-<!--_(Keep snapshot)_:-->
 <input type="checkbox" id="targetsnapkeep" hidden><br>
 <label id="targetsnapimages"></label><br>
 </div>
-
 </div>

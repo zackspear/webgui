@@ -339,12 +339,6 @@ case 'snap-create-external':
 	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free']) ;
 	break;
 
-case 'snap-blockcommit':
-	requireLibvirt();
-	echo "Hello" ;
-	#$arrResponse = vm_snapshot($domName,'',$_REQUEST['base'],$_REQUEST['top'],"","") ;
-	break;
-	
 case 'snap-images':
 	requireLibvirt();
 	$html = vm_snapimages($domName,$_REQUEST['snapshotname'],$_REQUEST['only']) ;

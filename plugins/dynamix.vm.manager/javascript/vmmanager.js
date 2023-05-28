@@ -62,7 +62,7 @@ function ajaxVMDispatchconsoleRV(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, console="web"){  
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, console="web", preview=false){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
@@ -107,10 +107,11 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       ajaxVMDispatch( {action:"domain-destroy", uuid:uuid}, "loadlist");
     }});
     opts.push({divider:true});
+    if (preview) {
     opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
       e.preventDefault();
       selectsnapshot(uuid , name, "--generate" , "create",false,state) ;
-    }}); 
+    }}); }
   } else if (state == "pmsuspended") {
     opts.push({text:_("Resume"), icon:"fa-play", action:function(e) {
       e.preventDefault();
@@ -192,7 +193,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
   }
   context.attach('#vm-'+uuid, opts);
 }
-function addVMSnapContext(name, uuid, template, state, snapshotname){  
+function addVMSnapContext(name, uuid, template, state, snapshotname, preview=false){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
@@ -200,24 +201,28 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
 
   context.settings({right:false,above:false});
   if (state == "running") {
-//    opts.push({text:_("Revert snapshot"), icon:"fa-stop", action:function(e) {
-//      e.preventDefault();
-//      ajaxVMDispatch({action:"snapshot-revert-externa", uuid:uuid, snapshotname:snapshotname}, "loadlist");
-//    }});
+    if (preview) {
+    opts.push({text:_("Revert snapshot"), icon:"fa-stop", action:function(e) {
+      e.preventDefault();
+       ajaxVMDispatch({action:"snapshot-revert-externa", uuid:uuid, snapshotname:snapshotname}, "loadlist");
+     }});
+    }
     opts.push({text:_("Block Commit"), icon:"fa-hdd-o", action:function(e) {
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       e.preventDefault();
       selectblock(uuid, name, snapshotname, "commit",true) ;
     }});
+    if (preview) {
     opts.push({text:_("Block Pull"), icon:"fa-hdd-o", action:function(e) {
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       e.preventDefault();
       selectblock(uuid, name, snapshotname, "pull",true) ;
     }});
-//    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
-//      e.preventDefault();
-//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
-//    }});
+  
+    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
+      e.preventDefault();
+      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+    }}); }
   } else {
     opts.push({text:_("Revert snapshot"), icon:"fa-fast-backward", action:function(e) {
       e.preventDefault();
@@ -229,34 +234,7 @@ function addVMSnapContext(name, uuid, template, state, snapshotname){
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       selectsnapshot(uuid, name, snapshotname, "remove",true) ;
     }});
-//    opts.push({text:_("Block Commit"), icon:"fa-stop", action:function(e) {
-//      e.preventDefault();
-//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
-//    }});
-//    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
-//      e.preventDefault();
-//      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
-//    }});
 }
-  
-  if (state == "shutoff") {
-    opts.push({divider:true});
-//    opts.push({text:_("Remove Snapshot"), icon:"fa-minus", action:function(e) {
-//      e.preventDefault();
-//      snapname = "test" ;
-//      swal({
-//        title:_("Are you sure?"),
-//        text:_("Remove Snapshot:") + snapname + _("\nfor VM: ") + name +"\n Note all snapshots taken after will be become invalid.",
-//        type:"warning",
-//        showCancelButton:true,
-//        confirmButtonText:_('Proceed'),
-//        cancelButtonText:_('Cancel')
-//      },function(){   
-//        $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
-//      ajaxVMDispatch({action:"snap-remove-external", uuid:uuid,snapshotname:snapshotname}, "loadlist");
-//    });
-//    }});
-  }
   context.attach('#vmsnap-'+uuid, opts);
 }
 function startAll() {

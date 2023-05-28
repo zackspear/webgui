@@ -350,7 +350,7 @@ function openVMAction(cmd,title,plg,func,start=0,button=0) {
   nchan_vmaction.start();
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:start},function(pid) {
     if (pid==0) {
-      nchan_docker.stop();
+      nchan_vmaction.stop();
       $('div.spinner.fixed').hide();
       $(".upgrade_notice").addClass('alert');
       return;
@@ -963,7 +963,7 @@ nchan_vmaction.on('message', function(data) {
       rows = document.getElementsByClassName('logLine');
       if (rows.length) {
         var row = rows[rows.length-1];
-        row.innerHTML += '<span id="'+data[1]+'">VM ID ['+data[1]+']: <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
+        row.innerHTML += '<span id="'+data[1]+'">'+data[1]+': <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
       }
     } else {
       var rows_content = rows.getElementsByClassName('content');
