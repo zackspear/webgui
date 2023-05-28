@@ -46,8 +46,8 @@ function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
   $name = _var($disk,'name');
   $temp = _var($disk,'temp','*');
-  if (!empty($disk['maxTemp'])) $max = $disk['maxTemp']; elseif (!empty($display['maxTemp'])) $max = $display['maxTemp']; else $max = 0;
-  if (!empty($disk['hotTemp'])) $hot = $disk['hotTemp']; elseif (!empty($display['hotTemp'])) $hot = $display['hotTemp']; else $hot = 0;
+  if (!empty($disk['maxTemp'])) $max = $disk['maxTemp']; elseif (!empty($display['max'])) $max = $display['max']; else $max = 0;
+  if (!empty($disk['hotTemp'])) $hot = $disk['hotTemp']; elseif (!empty($display['hot'])) $hot = $display['hot']; else $hot = 0;
   $warn = exceed($temp,$max,$top) ? 'alert' : (exceed($temp,$hot,$top) ? 'warning' : false);
   $item = 'temp';
   $last = $saved[$item][$name] ?? 0;
