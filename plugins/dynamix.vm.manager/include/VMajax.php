@@ -121,6 +121,7 @@ case 'domain-start-consoleRV':
 	$vvarray[] = "type=$protocol\n";
 	$vvarray[] = "host="._var($_SERVER,'HTTP_HOST')."\n" ;
 	$vvarray[] = "port=$port\n" ;
+	$vvarray[] = "delete-this-file=1\n" ;
 	if (!is_dir("/mnt/user/system/remoteviewer")) mkdir("/mnt/user/system/remoteviewer") ;
 	$vvfile = "/mnt/user/system/remoteviewer/rv"._var($_SERVER,'HTTP_HOST').".$port.vv" ;
 	file_put_contents($vvfile,$vvarray) ;
@@ -139,6 +140,7 @@ case 'domain-consoleRV':
 	$vvarray[] = "type=$protocol\n";
 	$vvarray[] = "host="._var($_SERVER,'HTTP_HOST')."\n" ;
 	$vvarray[] = "port=$port\n" ;
+	$vvarray[] = "delete-this-file=1\n" ;
 	if (!is_dir("/mnt/user/system/remoteviewer")) mkdir("/mnt/user/system/remoteviewer") ;
 	$vvfile = "/mnt/user/system/remoteviewer/rv"._var($_SERVER,'HTTP_HOST').".$port.vv" ;
 	file_put_contents($vvfile,$vvarray) ;
@@ -353,7 +355,7 @@ case 'snap-list':
 	$datartn = "";
 	foreach($data as $snap=>$snapdetail) {
 		$snapshotdatetime = date("Y-m-d H:i:s",$snapdetail["creationtime"]) ;
-		$datartn  .= "<option value='$'>$snap  $snapshotdatetime</option>" ;
+		$datartn  .= "<option value='$snap'>$snap  $snapshotdatetime</option>" ;
 	}
 	$arrResponse['html'] = $datartn ;
 	break;

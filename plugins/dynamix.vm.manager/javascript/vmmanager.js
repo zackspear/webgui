@@ -229,12 +229,12 @@ function addVMSnapContext(name, uuid, template, state, snapshotname, preview=fal
       $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
       selectsnapshot(uuid, name, snapshotname, "revert",true) ;
     }});
-    opts.push({text:_("Remove snapshot"), icon:"fa-trash", action:function(e) {
-      e.preventDefault();
-      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
-      selectsnapshot(uuid, name, snapshotname, "remove",true) ;
-    }});
-}
+  }
+  opts.push({text:_("Remove snapshot"), icon:"fa-trash", action:function(e) {
+    e.preventDefault();
+    $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+    selectsnapshot(uuid, name, snapshotname, "remove",true) ;
+  }});
   context.attach('#vmsnap-'+uuid, opts);
 }
 function startAll() {

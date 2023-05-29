@@ -35,16 +35,18 @@ function write(...$messages){
 	}
 	curl_close($com);
   }
-function execCommand_nchan($command) {
+function execCommand_nchan($command,$idx) {
 	$waitID = mt_rand();
 	[$cmd,$args] = explode(' ',$command,2);
 	write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._('Command execution')."</legend>".basename($cmd).' '.str_replace(" -","<br>&nbsp;&nbsp;-",htmlspecialchars($args))."<br><span id='wait-$waitID'>"._('Please wait')." </span><p class='logLine'></p></fieldset>","show_Wait\0$waitID");
-	write("addToID\0 99\0 $action") ;
+	write("addLog\0<br>") ;
+	write("addToID\0$idx\0 $action") ;
 	$proc = popen("$command 2>&1",'r');
 	while ($out = fgets($proc)) {
-	  $out = preg_replace("%[\t\n\x0B\f\r]+%", '',$out);
-	  write("addToID\0 99\0".htmlspecialchars($out));
-	  sleep(5) ;
+		$out = preg_replace("%[\t\n\x0B\f\r]+%", '',$out);
+		if (substr($out,0,1) == "B") {  ; 
+			write("progress\0$idx\0".htmlspecialchars(substr($out,strrpos($out,"Block Pull")))) ;
+		} else echo write("addToID\0$idx\0 ".htmlspecialchars($out));
 	}
 	$retval = pclose($proc);
 	$out = $retval ? _('The command failed').'.' : _('The command finished successfully').'!';
@@ -53,6 +55,7 @@ function execCommand_nchan($command) {
   }
 
 #{action:"snap-", uuid:uuid , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep, desc:desc}
+#VM ID [ 99]: pull. .Block Pull: [ 0 %]Block Pull: [100 %].Pull complete.
 $url = rawurldecode($argv[1]??'');
 $waitID = mt_rand();
 $style = ["<style>"];
@@ -60,7 +63,7 @@ $style[] = ".logLine{font-family:bitstream!important;font-size:1.2rem!important;
 $style[] = "fieldset.docker{border:solid thin;margin-top:8px}";
 $style[] = "legend{font-size:1.1rem!important;font-weight:bold}";
 $style[] = "</style>";
-$path = "--current" ; $pivot = "yes" ; 
+
 foreach (explode('&', $url) as $chunk) {
     $param = explode("=", $chunk);
     if ($param) {
@@ -69,25 +72,23 @@ foreach (explode('&', $url) as $chunk) {
 }
 $id = 1 ;
 write(implode($style)."<p class='logLine'></p>");
+$process = " " ;
+write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for Block $action").": </legend><p class='logLine'></p><span id='wait-$waitID'>"._('Please wait')." </span></fieldset>");
 write("addLog\0".htmlspecialchars("VMName $name "));
 write("addLog\0".htmlspecialchars("SNAP $snapshotname "));
 write("addLog\0".htmlspecialchars("Base $targetbase "));
-write("addLog\0".htmlspecialchars("Top $targettop "));
-	sleep(3) ;
-	write("stop_Wait\0$waitID") ;
-write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Block $action").": ".htmlspecialchars($path)."</legend><p class='logLine'></p><span id='wait-$waitID'>"._('Please wait')." </span></fieldset>","show_Wait\0$waitID");
+if ($action == "commit") {
+	write("addLog\0".htmlspecialchars("Top $targettop "));
+	write("addLog\0".htmlspecialchars("Pivot $targetpivot "));
+	write("addLog\0".htmlspecialchars("Delete $targetdelete "));
+}
 
-
-	sleep(3) ;
-	write("stop_Wait\0$waitID") ;
-$path = "--current" ; $pivot = "yes" ; 
-write("addToID\0 99\0 $action") ;
 switch ($action) {
 	case "commit":	
-	#	vm_blockcommit($name,$snapshotname,$path,$targetbase,$targettop,$pivot,' ') ;
+		vm_blockcommit($name,$snapshotname,$path,$targetbase,$targettop,$targetpivot,$targetdelete) ;
 		break ;
 	case "copy":
-	#	vm_blockcopy($name,$snapshotname,$path,$targetbase,$targettop,$pivot,' ') ;
+		vm_blockcopy($name,$snapshotname,$path,$targetbase,$targettop,$pivot,' ') ;
 		break;
 	case "pull":
 		vm_blockpull($name,$snapshotname,$path,$targetbase,$targettop,$pivot,' ') ;

@@ -396,13 +396,14 @@ function selectblock(uuid, name ,snaps, opt, getlist,state){
           if (x) free = 'yes' ; else free = 'no' ;
           var desc = box.find("#targetsnapdesc").prop('value') ;
         }
-        var targetbase = $('#targetblockbase').val()
-        var targettop = $('#targetblocktop').val()
+        var targetbase = box.find("#targetblockbase").prop('value') ;
+        var targettop = box.find("#targetblocktop").prop('value') ;
+
         x = box.find('#targetpivot').prop('checked') ;
         if (x) pivot = 'yes' ; else pivot = 'no' ;
         x = box.find('#targetdelete').prop('checked') ;
         if (x) delete_file = 'yes' ; else delete_file = 'no' ;
-        Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:opt , name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, free:free ,removemeta:removemeta ,keep:keep})) ;
+        Ajaxurl =  "VMAjaxCall.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMajax.php&" + $.param({action:opt , name:name ,targetbase:targetbase, targettop:targettop , snapshotname:target , remove:remove, targetpivot:pivot ,removemeta:removemeta ,targetdelete:delete_file})) ;
         openVMAction((Ajaxurl),"Block Commit", "dynamix.vm.manager", "loadlist") ;
         box.dialog('close');
       },
@@ -579,7 +580,7 @@ _(Snapshot Name)_:
 <br><br><br><br>
 <table id='block'>
 <tr><td>_(Base Image)_:</td><td>
-<select class="targetblockbase" name="targetblockbase" id="targetblockbase">
+<select class="targetblockbase" s>
 </select></td></tr>
 <tr name="toprow" class="toprow" ><td>_(Top Image  )_:</td><td>
 <select class="targetblocktop" name="targetblocktop" id="targetblocktop">
