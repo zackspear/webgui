@@ -159,8 +159,8 @@ function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
   $temp = _var($disk,'temp','*');
-  $max = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
-  $hot = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
+  $max  = _var($disk,'maxTemp') ? $disk['maxTemp'] : (_var($display,'max') ? $display['max'] : 0);
+  $hot  = _var($disk,'hotTemp') ? $disk['hotTemp'] : (_var($display,'hot') ? $display['hot'] : 0);
   $top = $display['top'] ?? 120;
   $heat = false; $color = 'green';
   if (exceed($temp,$max,$top)) {
@@ -208,8 +208,8 @@ function device_usage(&$disk, &$full, &$high) {
   if ($used) {
     if ($text==2 || $text==21) {
       $load = substr($used,0,-1);
-      $critical = ($disk['critical'] ?? $display['critical'] ?? 0) ?: 0;
-      $warning = ($disk['warning'] ?? $display['warning'] ?? 0) ?: 0;
+      $critical = _var($disk,'critical') ? $disk['critical'] : (_var($display,'critical') ? $display['critical'] : 0);
+      $warning = _var($disk,'warning') ? $disk['warning'] : (_var($display,'warning') ? $display['warning'] : 0);
       if ($critical>0 && $load>=$critical) {$class = 'redbar'; $full++;}
       elseif ($warning>0 && $load>=$warning) {$class = 'orangebar'; $high++;}
       else $class = 'greenbar';
