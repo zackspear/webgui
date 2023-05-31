@@ -208,8 +208,8 @@ function device_usage(&$disk, &$full, &$high) {
   if ($used) {
     if ($text==2 || $text==21) {
       $load = substr($used,0,-1);
-      $critical = ($disk['critical'] ?? $display['critical'] ?? 0) ?: 0;
-      $warning = ($disk['warning'] ?? $display['warning'] ?? 0) ?: 0;
+      $critical = _var($disk,'critical') ? $disk['critical'] : (_var($display,'critical') ? $display['critical'] : 0);
+      $warning = _var($disk,'warning') ? $disk['warning'] : (_var($display,'warning') ? $display['warning'] : 0);
       if ($critical>0 && $load>=$critical) {$class = 'redbar'; $full++;}
       elseif ($warning>0 && $load>=$warning) {$class = 'orangebar'; $high++;}
       else $class = 'greenbar';
