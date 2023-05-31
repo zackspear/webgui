@@ -72,7 +72,7 @@ $html[] = "</div>";
 $html[] = "<div id='footer_panel'>";
 $html[] = "<a href='https://unraid.net' target='_blank'>"._('Website')."</a><span class='spacer blue-text'>|</span>";
 $html[] = "<a href='https://forums.unraid.net' target='_blank'>"._('Forum')."</a><span class='spacer blue-text'>|</span>";
-$html[] = "<a href='https://wiki.unraid.net/Documentation' target='_blank'>"._('Docs')."</a>";
+$html[] = "<a href='https://docs.unraid.net/' target='_blank'>"._('Docs')."</a>";
 $html[] = "</div>";
 $html[] = "</div>";
 
