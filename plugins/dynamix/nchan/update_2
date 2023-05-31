@@ -159,8 +159,8 @@ function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
   $temp = _var($disk,'temp','*');
-  $max = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
-  $hot = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
+  $max  = _var($disk,'maxTemp') ? $disk['maxTemp'] : (_var($display,'max') ? $display['max'] : 0);
+  $hot  = _var($disk,'hotTemp') ? $disk['hotTemp'] : (_var($display,'hot') ? $display['hot'] : 0);
   $top = $display['top'] ?? 120;
   $heat = false; $color = 'green';
   if (exceed($temp,$max,$top)) {
