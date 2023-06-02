@@ -57,7 +57,6 @@ info/
 lib64/
 man/
 share/
-src/
 
 # Auto-generated when emhttpd/webGUI start
 emhttp/languages/en_US/helptext.dot
