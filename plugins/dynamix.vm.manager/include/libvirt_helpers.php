@@ -1515,15 +1515,77 @@ private static $encoding = 'UTF-8';
 			$b= json_decode($a, TRUE);
 			$vmsnap = $b["name"] ;
 			$snaps[$vmsnap]["name"]= $b["name"];
-			if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
+			#if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
+			$snaps[$vmsnap]["parent"]= $b["parent"] ;
 			$snaps[$vmsnap]["state"]= $b["state"];
 			$snaps[$vmsnap]["desc"]= $b["description"];
 			$snaps[$vmsnap]["memory"]= $b["memory"];
 			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
+
+			$disks =$lv->get_disk_stats($vm) ;
+			foreach($disks as $disk)   {
+				$file = $disk["file"] ;
+				$output = "" ;
+				exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+				foreach($output as $key => $line) {
+					$line=str_replace("image: ","",$line) ;
+					$output[$key] = $line ;  
+				}
+
+				$snaps[$vmsnap]['backing'][$disk["device"]] = $output ; 
+				$rev = "r".$disk["device"] ;
+				$reversed = array_reverse($output) ;
+				$snaps[$vmsnap]['backing'][$rev] = $reversed ;
+			}
+			$parentfind = $snaps[$vmsnap]['backing'][$disk["device"]] ;
+			$parendfileinfo = pathinfo($parentfind[1]) ;
+			$snaps[$vmsnap]["parent"]= $parendfileinfo["extension"];
+			$snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
+			if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
+
 			if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
 		
 			$value = json_encode($snaps,JSON_PRETTY_PRINT) ;
 		#var_dump($value) ;
+		file_put_contents($dbpath."/snapshots.db",$value) ;
+	}
+
+	function refresh_snapshots_database($vm) {
+		global $lv ;
+		$dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
+		#var_dump($dbpath) ;
+		if (!is_dir($dbpath)) mkdir($dbpath) ;
+		$snaps_json = file_get_contents($dbpath."/snapshots.db") ;
+		$snaps = json_decode($snaps_json,true) ; 
+		foreach($snaps as $vmsnap=>$snap)
+		#var_dump($snaps_json) ;
+	
+	
+			$disks =$lv->get_disk_stats($vm) ;
+			foreach($disks as $disk)   {
+				$file = $disk["file"] ;
+				$output = "" ;
+				exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+				foreach($output as $key => $line) {
+					$line=str_replace("image: ","",$line) ;
+					$output[$key] = $line ;  
+				}
+	
+				$snaps[$vmsnap]['backing'][$disk["device"]] = $output ; 
+				$rev = "r".$disk["device"] ;
+				$reversed = array_reverse($output) ;
+				$snaps[$vmsnap]['backing'][$rev] = $reversed ;
+			}
+			$parentfind = $snaps[$vmsnap]['backing'][$disk["device"]] ;
+			$parendfileinfo = pathinfo($parentfind[1]) ;
+			$snaps[$vmsnap]["parent"]= $parendfileinfo["extension"];
+			$snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
+			if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
+	
+			#if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
+			var_dump($snaps) ;
+			$value = json_encode($snaps,JSON_PRETTY_PRINT) ;
+	   
 		file_put_contents($dbpath."/snapshots.db",$value) ;
 	}
 
@@ -1944,6 +2006,7 @@ function vm_blockcommit($vm, $snap ,$path,$base,$top,$pivot,$action) {
 		#Remove NVRAMs
 		#if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
 		#If complete ok remove meta data for snapshots.
+		refresh_snapshots_database($vm) ;
 		$ret = $ret = delete_snapshots_database("$vm","$snap") ; ;
 		if($ret)
 			$data = ["error" => "Unable to remove snap metadata $snap"] ;
@@ -2033,6 +2096,7 @@ function vm_blockpull($vm, $snap ,$path,$base,$top,$pivot,$action) {
 		}
 	#If complete ok remove meta data for snapshots.
 	#$ret = delete_snapshots_database("$vm","$snap")  ;
+	refresh_snapshots_database($vm) ;
 	if($ret)
 		$data = ["error" => "Unable to remove snap metadata $snap"] ;
 	else

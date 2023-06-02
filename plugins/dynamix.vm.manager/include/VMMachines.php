@@ -245,24 +245,34 @@ foreach ($vms as $vm) {
   echo "</tbody>";
   /* Display VM  Snapshots */
   if ($snapshots != null) {
-
+    $i=0 ;
+    foreach($snapshots as $snap) {
+      if ($snap['parent'] == "" || $snap['parent'] == "Base") $i++;
+      $steps[$i] .= $snap['name'].';' ;
+  }
   echo "<thead class='child'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
   echo "<tbody class='child'>";
-  $tab = "&nbsp;&nbsp;&nbsp;&nbsp;" ;
-  foreach($snapshots as $snapshotname => $snapshot) {
-    $snapshotstate = _(ucfirst($snapshot["state"])) ;
-    $snapshotdesc = $snapshot["desc"] ;
-    $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"])) ;
-    $snapshotparent = $snapshot["parent"]["name"] ? $snapshot["parent"]["name"] : "None";
-    $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s") ;
-    $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$vmpreview);
-    echo "<tr><td><span id='vmsnap-$uuid' $snapmenu class='hand'>$tab|__&nbsp;&nbsp;<i class='fa fa-clone'></i></span>&nbsp;".$snapshot["name"]."</td><td>$snapshotdesc</td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
-    $tab .="&nbsp;&nbsp;&nbsp;&nbsp;" ;
+  foreach($steps as $stepsline)
+  {
+    $snapshotlist = explode(";",$stepsline) ;
+    $tab = "&nbsp;&nbsp;&nbsp;&nbsp;" ;
+    foreach($snapshotlist as  $snapshotitem) {
+      if ($snapshotitem == "") continue ;
+      $snapshot = $snapshots[$snapshotitem]  ;
+      $snapshotstate = _(ucfirst($snapshot["state"])) ;
+      $snapshotdesc = $snapshot["desc"] ;
+      $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"])) ;
+      $snapshotparent = $snapshot["parent"] ? $snapshot["parent"]  : "None";
+      $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s") ;
+      $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$vmpreview);
+      echo "<tr><td><span id='vmsnap-$uuid' $snapmenu class='hand'>$tab|__&nbsp;&nbsp;<i class='fa fa-clone'></i></span>&nbsp;".$snapshot["name"]."</td><td>$snapshotdesc</td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
+      $tab .="&nbsp;&nbsp;&nbsp;&nbsp;" ;
+      }
+      echo "</tbody>";
+    } 
   }
-  echo "</tbody>";
-} 
   echo "</table>";
-  echo "</td></tr>";
 }
+
 echo "\0".implode($kvm);
 ?>
