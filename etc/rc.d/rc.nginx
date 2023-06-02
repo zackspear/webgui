@@ -81,7 +81,7 @@ this() {
 take() {
   data=;
   for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:3} == fe80 ]] && data=$1
+    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
   done
   echo $data
 }
@@ -112,7 +112,7 @@ fqdn() {
 extra() {
   source <(/usr/bin/fromdos <$EXTRA)
   for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, get IP addresses
       net4=$(show -4 dev $net)
       net6=$(show -6 dev $net)
@@ -125,7 +125,7 @@ extra() {
     [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
   done
   for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, get IP addresses
       remove $(show -4 dev $net)
       remove $(show -6 dev $net)
@@ -182,20 +182,27 @@ check() {
 
 # create listening ports
 listen() {
-  if check && [[ -n $bind ]]; then
+  t='    '
+  if [[ $1 == lo ]]; then
+    echo "${t}listen 127.0.0.1:$PORT; # lo"
+    [[ $USE_SSL != no ]] && echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
+    echo "${t}listen [::1]:$PORT; # lo"
+    [[ $USE_SSL != no ]] && echo "${t}listen [::1]:$PORTSSL; # lo"
+  elif check && [[ -n $bind ]]; then
     for addr in $bind; do
-      [[ $(IPv $addr) == 4 ]] && echo "    listen $addr:$*;"
-      [[ $(IPv $addr) == 6 ]] && echo "    listen [$addr]:$*;"
+      [[ $(IPv $addr) == 4 ]] && echo "${t}listen $addr:$*; # $(show $addr)"
+      [[ $(IPv $addr) == 6 ]] && echo "${t}listen [$addr]:$*; # $(show $addr)"
     done
   else
     # default listen on any interface and any protocol
-    echo "    listen $*;"
-    echo "    listen [::]:$*;"
+    echo "${t}listen $*;"
+    echo "${t}listen [::]:$*;"
   fi
 }
 
 # create redirect server blocks
 redirect() {
+  t='    '
   if check && [[ -n $bind ]]; then
     url=$1
     tag=$2
@@ -207,9 +214,9 @@ redirect() {
         host=
         [[ $(IPv $addr) == 4 ]] && host="$addr"
         [[ $(IPv $addr) == 6 ]] && host="[$addr]"
-        [[ -n $host ]] && echo "    listen $host:$*;"
+        [[ -n $host ]] && echo "${t}listen $host:$*; # $(show $addr)"
       done
-      echo "    return 302 https://\$host:$PORTSSL\$request_uri;"
+      echo "${t}return 302 https://\$host:$PORTSSL\$request_uri;"
       echo "}"
       ;;
     'fqdn')
@@ -219,8 +226,8 @@ redirect() {
         [[ $tag == 6 && $(IPv $addr) == 6 ]] && host="[$addr]"
         if [[ -n $host ]]; then
           echo "server {"
-          echo "    listen $host:$*;"
-          echo "    return 302 https://$(fqdn $addr):$PORTSSL\$request_uri;"
+          echo "${t}listen $host:$*; # $(show $addr)"
+          echo "${t}return 302 https://$(fqdn $addr):$PORTSSL\$request_uri;"
           echo "}"
         fi
       done
@@ -256,8 +263,7 @@ build_servers() {
 	# ex: http://[::1]
 	#
 	server {
-	    listen 127.0.0.1:$PORT;
-	    listen [::1]:$PORT;
+	$(listen lo)
 	    #
 	    include /etc/nginx/conf.d/locations.conf;
 	}

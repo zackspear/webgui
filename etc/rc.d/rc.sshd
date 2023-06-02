@@ -32,7 +32,7 @@ this() {
 take() {
   data=;
   for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:3} == fe80 ]] && data=$1
+    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
   done
   echo $data
 }
@@ -59,7 +59,7 @@ remove() {
 extra() {
   source <(/usr/bin/fromdos <$EXTRA)
   for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, get IP addresses
       net4=$(show -4 dev $net)
       net6=$(show -6 dev $net)
@@ -72,7 +72,7 @@ extra() {
     [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
   done
   for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, get IP addresses
       remove $(show -4 dev $net)
       remove $(show -6 dev $net)
