@@ -52,7 +52,7 @@ this() {
 take() {
   data=;
   for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:3} == fe80 ]] && data=$1
+    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
   done
   echo $data
 }
@@ -91,7 +91,7 @@ disable() {
 extra() {
   source <(/usr/bin/fromdos <$EXTRA)
   for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, validate
       [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
     else
@@ -101,7 +101,7 @@ extra() {
     fi
   done
   for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
       # net is an interface name, remove
       remove $net
     else

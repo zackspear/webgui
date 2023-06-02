@@ -89,4 +89,11 @@ if [[ -f $NETWORK_INI ]]; then
   rm -f $NETWORK_INI.eth
 fi
 bind=${bind[@]}
+if [[ $1 == ip ]]; then
+  ip=()
+  for net in $bind; do
+    ip+=("$net#[$(show -4 dev $net)#$(show -6 dev $net)]")
+  done
+  bind=${ip[@]}
+fi
 echo ${bind// /, }
