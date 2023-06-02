@@ -1,0 +1,81 @@
+#!/bin/bash
+# Start/stop wireguard interfaces
+
+log=/var/log/wg-quick.log
+
+start() {
+  if ! iptables -S | grep -qom1 "WIREGUARD$"; then
+    iptables -N WIREGUARD
+    iptables -A FORWARD -j WIREGUARD
+  fi
+  if ! ip6tables -S | grep -qom1 "WIREGUARD$"; then
+    ip6tables -N WIREGUARD
+    ip6tables -A FORWARD -j WIREGUARD
+  fi
+  if [[ ! -d /etc/wireguard ]]; then
+    mkdir -p /boot/config/wireguard
+    ln -s /boot/config/wireguard /etc
+  fi
+  tmp=/tmp/wg-quick.tmp
+  autostart=$(cat /etc/wireguard/autostart 2>/dev/null)
+  # Loop thru all configured WG tunnels
+  for WG in $(ls --indicator-style=none /etc/wireguard/*.conf 2>/dev/null); do
+    # remove path and extension
+    WG=${WG##*/}; WG=${WG%.*}
+    # create routing table for network used by docker containers
+    index=$((${WG:2}+200))
+    network="172.31.$index.0/24"
+    if [[ -z $(ip rule|grep -Pom1 "from $network") ]]; then
+      ip -4 rule add from $network table $index
+      ip -4 route add unreachable default table $index
+    fi
+    # autostart WG tunnel?
+    if [[ $autostart == *"$WG"* ]]; then
+      # Get gateway IP address
+      gw=$(grep -Pom1 '^PostUp=ip -4 route add [\d\.]+/\d+ via \K[\d\.]+' /etc/wireguard/$WG.conf)
+      if [[ -n $gw ]]; then
+        timer=10
+        # wait for gateway to become reachable (max 10 seconds)
+        while [[ -z $(ip -4 route show default|grep -Pom1 "$gw ") && $timer -gt 0 ]]; do
+          ((timer--))
+          sleep 1
+        done
+      fi
+      # start WG tunnel
+      wg-quick up "$WG" 2>$tmp
+      echo "wg-quick up $WG (autostart)" >>$log
+      cat $tmp >>$log
+      echo >>$log
+      # WG tunnel for docker container?
+      if grep -qm1 '^TYPE:1="8"' /etc/wireguard/$WG.cfg; then
+        # update routing table for WG tunnels used by containers
+        table=$(grep -Pom1 'fwmark \K[\d]+' $tmp)
+        route=$(grep -Pom1 '^Address=\K.+$' /etc/wireguard/$WG.conf)
+        sleep 1
+        ip -4 route flush table $table
+        ip -4 route add $route dev $WG table $table
+      fi
+    fi
+  done
+  rm -f $tmp
+}
+
+stop() {
+  for WG in $(wg show interfaces); do
+    echo "wg-quick down $WG (autostop)" >>$log
+    wg-quick down "$WG" 2>>$log
+    echo >>$log
+  done
+}
+
+case "$1" in
+'start')
+  start
+  ;;
+'stop')
+  stop
+  ;;
+*)
+  echo "usage $0 start|stop"
+  ;;
+esac
