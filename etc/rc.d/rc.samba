@@ -1,0 +1,307 @@
+#!/bin/sh
+#
+# /etc/rc.d/rc.samba
+#
+# Start/stop/restart the Samba SMB file/print server.
+#
+# To make Samba start automatically at boot, make this
+# file executable:  chmod 755 /etc/rc.d/rc.samba
+#
+# limetech - modified to initialize smb-names.conf file from config
+# bergware - added interface bind functionality
+
+SMBD="/usr/sbin/smbd"
+NMBD="/usr/sbin/nmbd"
+WINBINDD="/usr/sbin/winbindd"
+WSDD2="/usr/sbin/wsdd2"
+SMBCONF="/etc/samba/smb.conf"
+CONF="/etc/samba/smb-names.conf"
+BOOT="/boot/config"
+PRIVATE="/var/lib/samba/private"
+WIREGUARD="/etc/wireguard"
+NETWORK_INI="/var/local/emhttp/network.ini"
+SYSTEM="/sys/class/net"
+EXTRA="/boot/config/network-extra.cfg"
+
+IPv() {
+  type=${1//[^:]}
+  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
+}
+
+scan() {
+  grep -Pom1 "^$1=\"?\K[^\"]+" $2
+}
+
+link() {
+  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
+}
+
+this() {
+  grep -Pom1 "^$1 = \K.*" $CONF
+}
+
+take() {
+  data=;
+  for i in ${!bind[@]}; do
+    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:3} == fe80 ]] && data=$1
+  done
+  echo $data
+}
+
+good() {
+  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
+}
+
+show() {
+  case $# in
+    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
+    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
+    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
+  esac
+}
+
+remove() {
+  [[ $# -eq 0 ]] && return
+  for i in ${!bind[@]}; do
+    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
+  done
+}
+
+extra() {
+  source <(/usr/bin/fromdos <$EXTRA)
+  for net in $include_interfaces; do
+    if [[ -z ${net//[^.:]} ]]; then
+      # net is an interface name, get IP addresses
+      net4=$(show -4 dev $net)
+      net6=$(show -6 dev $net)
+    else
+      # net is an IP address, validate
+      net4=$(show -4 to $net)
+      net6=$(show -6 to $net)
+    fi
+    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
+    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
+  done
+  for net in $exclude_interfaces; do
+    if [[ -z ${net//[^.:]} ]]; then
+      # net is an interface name, get IP addresses
+      remove $(show -4 dev $net)
+      remove $(show -6 dev $net)
+    else
+      # net is an IP address
+      remove $(show to $net)
+    fi
+  done
+}
+
+check() {
+  # quick check
+  [[ -n $bind ]] && return 0;
+  # preset return values
+  reply=1; bind=(); ipv4=no; ipv6=no;
+  if [[ -f $NETWORK_INI ]]; then
+    # get interface and vlan configurations
+    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
+      # main interface
+      if [[ -e $SYSTEM/$eth ]]; then
+        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
+        net4=$(link IPADDR:0)
+        net6=$(link IPADDR6:0)
+        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+        [[ -n $(good $net6) && $USE_NETBIOS == no ]] && ipv6=yes bind+=($net6)
+        if [[ $(link TYPE) == trunk ]]; then
+          # vlan interface
+          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
+            net4=$(link IPADDR:$vlan)
+            net6=$(link IPADDR6:$vlan)
+            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+            [[ -n $(good $net6) && $USE_NETBIOS == no ]] && ipv6=yes bind+=($net6)
+          done
+        fi
+      fi
+    done
+    # add active WG tunnels
+    for wg in $(wg show interfaces); do
+      net4=$(show -4 dev $wg)
+      net6=$(show -6 dev $wg)
+      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+      [[ -n $(good $net6) && $USE_NETBIOS == no ]] && ipv6=yes bind+=($net6)
+    done
+    # add loopback interface
+    [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
+    #[[ $ipv6 == yes ]] && bind+=(::1)
+    # add user defined interfaces
+    [[ -f $EXTRA ]] && extra
+    # convert array to string
+    bind=${bind[@]}
+    reply=0
+    # remove temporary file
+    rm -f $NETWORK_INI.eth
+  fi
+  return $reply
+}
+
+samba_settings() {
+  # read Unraid settings
+  if [[ -e $BOOT/ident.cfg ]]; then
+    source <(/usr/bin/fromdos < $BOOT/ident.cfg)
+  fi
+  [[ -z $COMMENT ]] && COMMENT=""
+  [[ -z $SECURITY ]] && SECURITY="user"
+  [[ -z $WORKGROUP ]] && WORKGROUP="WORKGROUP"
+  [[ -z $USE_NETBIOS ]] && USE_NETBIOS="no"
+  [[ -z $USE_WSD ]] && USE_WSD="yes"
+  [[ -z $localMaster ]] && localMaster="no"
+  [[ -z $serverMultiChannel ]] && serverMultiChannel="no"
+  [[ -z $hideDotFiles ]] && hideDotFiles="No"
+
+  echo "# Generated names" >$CONF
+  echo "netbios name = $(hostname -s)" >>$CONF
+  echo "server string = $COMMENT" >>$CONF
+  echo "hide dot files = $hideDotFiles" >>$CONF
+  echo "server multi channel support = $serverMultiChannel" >>$CONF
+  echo "max open files = $(ulimit -n)" >>$CONF
+
+  # fixme: samba can now auto-register with avahi but conflicts with emhttp, so disable for now
+  echo "multicast dns register = No" >>$CONF
+
+  if [[ $USE_NETBIOS == yes ]]; then
+    echo "disable netbios = No" >>$CONF
+    echo "server min protocol = NT1" >>$CONF
+    if [[ $localMaster == yes ]]; then
+      echo "local master = yes" >>$CONF
+      echo "os level = 100" >>$CONF
+    else
+      echo "local master = No" >>$CONF
+    fi
+  else
+    echo "disable netbios = yes" >>$CONF
+    echo "server min protocol = SMB2" >>$CONF
+  fi
+
+  if [[ $SECURITY == ads ]]; then
+    echo "security = ADS" >>$CONF
+    if [[ -z $DOMAIN_SHORT ]]; then
+      echo "workgroup = ${DOMAIN%%.*}" >>$CONF
+    else
+      echo "workgroup = $DOMAIN_SHORT" >>$CONF
+    fi
+    echo "realm = $DOMAIN" >>$CONF
+    echo "null passwords = Yes" >>$CONF
+    echo "idmap config * : backend = hash" >>$CONF
+    echo "idmap config * : range = 10000-4000000000" >>$CONF
+    echo "winbind use default domain = Yes" >>$CONF
+    echo "ldap ssl = No" >>$CONF
+    echo "nt acl support = Yes" >>$CONF
+    echo "acl map full control = Yes" >>$CONF
+    echo "acl group control = Yes" >>$CONF
+    echo "inherit acls = Yes" >>$CONF
+    echo "inherit permissions = Yes" >>$CONF
+    echo "map acl inherit = Yes" >>$CONF
+    echo "dos filemode = Yes" >>$CONF
+  else
+    echo "security = USER" >>$CONF
+    echo "workgroup = $WORKGROUP" >>$CONF
+    echo "map to guest = Bad User" >>$CONF
+    echo "passdb backend = smbpasswd" >>$CONF
+    echo "null passwords = Yes" >>$CONF
+    echo "idmap config * : backend = tdb" >>$CONF
+    echo "idmap config * : range = 3000-7999" >>$CONF
+    echo "create mask = 0777" >>$CONF
+    echo "directory mask = 0777" >>$CONF
+  fi
+
+  # bind samba service
+  if check; then
+    if [[ -n $bind ]]; then
+      echo "bind interfaces only = yes" >>$CONF
+      echo "interfaces = $bind" >>$CONF
+    fi
+    # wsdd2: enable ipv4/ipv6
+    [[ $ipv4 == yes && "$WSD2_OPT" != *"-4"* ]] && WSD2_OPT="$WSD2_OPT -4"
+    [[ $ipv6 == yes && "$WSD2_OPT" != *"-6"* ]] && WSD2_OPT="$WSD2_OPT -6"
+  fi
+}
+
+samba_start() {
+  if [[ -x $SMBD && -x $NMBD && -x $WINBINDD && -r $SMBCONF ]]; then
+    mkdir -p /var/run/samba
+
+    # restore previously stored samba 'secrets' file (for better AD integration)
+    if [[ -e $BOOT/secrets.tdb ]]; then
+      mv $BOOT/secrets.tdb $PRIVATE
+    fi
+
+    # create settings
+    samba_settings
+
+    echo "Starting Samba:  $SMBD -D"
+    $SMBD -D 2>/dev/null
+    if [[ $USE_NETBIOS == yes ]]; then
+      echo "                 $NMBD -D"
+      $NMBD -D 2>/dev/null
+    fi
+    if [[ $USE_WSD == yes ]]; then
+      echo "                 $WSDD2 -d ${WSD2_OPT## }"
+      $WSDD2 -d ${WSD2_OPT## } 2>/dev/null
+    fi
+    echo "                 $WINBINDD -D"
+    $WINBINDD -D 2>/dev/null
+  fi
+}
+
+samba_stop() {
+  killall smbd nmbd wsdd2 winbindd >/dev/null 2>&1
+  # save samba 'secrets' file
+  if [[ -e $PRIVATE/secrets.tdb ]]; then
+    cp $PRIVATE/secrets.tdb $BOOT
+  fi
+}
+
+samba_restart() {
+  samba_stop
+  sleep 2
+  samba_start
+}
+
+samba_reload() {
+  # update settings
+  samba_settings
+  # restart services
+  /usr/bin/smbcontrol smbd reload-config
+  [[ $USE_NETBIOS == yes ]] && /usr/bin/smbcontrol nmbd reload-config
+  /usr/bin/smbcontrol winbindd reload-config
+}
+
+samba_update() {
+  [[ $(pgrep -cf $SMBD) -eq 0 ]] && exit 1 # not running
+  if check && [[ "$(this interfaces)" == "$bind" ]]; then
+    # no action required
+    exit 1
+  else
+    # service update required
+    exit 0
+  fi
+}
+
+case "$1" in
+'start')
+  samba_start
+  ;;
+'stop')
+  samba_stop
+  ;;
+'restart')
+  samba_restart
+  ;;
+'reload')
+  samba_reload
+  ;;
+'update')
+  samba_update
+  ;;
+*)
+  # Default is "start", for backwards compatibility with previous
+  # Slackware versions. This may change to a 'usage' error someday.
+  samba_start
+esac

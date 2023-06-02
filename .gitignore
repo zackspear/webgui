@@ -49,5 +49,15 @@ Temporary Items
 # Sublime text SFTP configuration file
 sftp-config.json
 
+# =========================
+# Exclude these dirs commonly found in /usr/local
+bin/
+games/
+info/
+lib64/
+man/
+share/
+src/
+
 # Auto-generated when emhttpd/webGUI start
-languages/en_US/helptext.dot
+emhttp/languages/en_US/helptext.dot

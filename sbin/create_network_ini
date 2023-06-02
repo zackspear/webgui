@@ -1,0 +1,263 @@
+#!/bin/sh
+# Copyright 2005-2023, Lime Technology
+# Copyright 2012-2023, Bergware International.
+#
+# create initial network.ini file on system start
+# create system welcome message
+# update files on DHCP events 'BOUND[6] IPV4LL ROUTERADVERT'
+# update services listening interfaces / addresses
+
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
+
+ini=/var/local/emhttp/network.ini.new
+cfg=/boot/config/network.cfg
+reload=/usr/local/emhttp/webGui/scripts/reload_services
+
+declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
+
+mask(){
+  # convert prefix to netmask
+  set -- $((5-(${1:-0}/8))) 255 255 255 255 $(((255<<(8-(${1:-0}%8)))&255)) 0 0 0
+  [[ $1 -gt 1 ]] && shift $1 || shift
+  echo $1.$2.$3.$4
+}
+
+dns() {
+  [[ $1 == 4 ]] && addr='(\d{1,3}\.){3}\d+' || addr='([0-9a-fA-F]{1,4}::?){1,7}[0-9a-fA-F]*'
+  grep -Po "^nameserver \K$addr" /etc/resolv.conf
+}
+
+if [[ -s $cfg ]]; then
+  # import existing settings
+  source <(/usr/bin/fromdos < $cfg)
+else
+  # import default settings
+  IPADDR=
+  NETMASK=
+  GATEWAY=
+  USE_DHCP=yes
+  DHCP_KEEPRESOLV=no
+  BONDING=yes
+  BRIDGING=yes
+fi
+# prepare empty file
+echo -n >$ini
+# clear update information
+data=
+dhcp=
+# get interface name
+if [[ -n $1 ]]; then
+  tag=$1
+else
+  tag=$interface
+fi
+
+# loop thru all defined interfaces (=1 in case of legacy)
+for ((i=0;i<${SYSNICS:-1};i++)); do
+  IFACE=${IFNAME[$i]:-eth$i}
+  ETH=${IFACE/#bond/eth}
+  ETH=${ETH/#br/eth}
+  echo "[$ETH]" >>$ini
+  if [[ $i -eq 0 ]]; then
+    # process legacy settings
+    [[ $BRIDGING == yes ]] && BRNICS=eth0
+    [[ $BONDING == yes ]] && BRNICS=bond0
+    [[ $BONDING == yes ]] && IFACE=bond0
+    [[ $BRIDGING == yes ]] && IFACE=br0
+    [[ $BONDING == yes ]] && BONDNICS=${BONDNICS:-eth0 eth1 eth2 eth3}
+    if [[ ${USE_DHCP:-yes} == yes ]]; then
+      # force DNS setting to automatic if not set
+      DHCP_KEEPRESOLV=${DHCP_KEEPRESOLV:-no}
+    else
+      # force DNS setting to static
+      DHCP_KEEPRESOLV=yes
+    fi
+    if [[ ${USE_DHCP6:-yes} == yes ]]; then
+      # force DNS6 setting to automatic if not set
+      DHCP6_KEEPRESOLV=${DHCP6_KEEPRESOLV:-no}
+    else
+      # force DNS6 setting to static
+      DHCP6_KEEPRESOLV=yes
+    fi
+    echo "DHCP_KEEPRESOLV=\"$DHCP_KEEPRESOLV\"" >>$ini
+    if [[ $DHCP_KEEPRESOLV == no ]]; then
+      # dhcp assigned DNSv4 servers
+      dns4=$(dns 4)
+      x=1
+      for SERVER in $dns4; do
+        echo "DNS_SERVER$x=\"$SERVER\"" >>$ini
+        ((x++))
+      done
+    else
+      # static assigned DNSv4 servers
+      echo "DNS_SERVER1=\"$DNS_SERVER1\"" >>$ini
+      echo "DNS_SERVER2=\"$DNS_SERVER2\"" >>$ini
+      echo "DNS_SERVER3=\"$DNS_SERVER3\"" >>$ini
+    fi
+    echo "DHCP6_KEEPRESOLV=\"$DHCP6_KEEPRESOLV\"" >>$ini
+    if [[ $DHCP6_KEEPRESOLV == no ]]; then
+      # dhcp assigned DNSv6 servers
+      dns6=$(dns 6)
+      x=1
+      for SERVER6 in $dns6; do
+        echo "DNS6_SERVER$x=\"$SERVER6\"" >>$ini
+        ((x++))
+      done
+    else
+      # static assigned DNSv6 servers
+      echo "DNS6_SERVER1=\"$DNS6_SERVER1\"" >>$ini
+      echo "DNS6_SERVER2=\"$DNS6_SERVER2\"" >>$ini
+      echo "DNS6_SERVER3=\"$DNS6_SERVER3\"" >>$ini
+    fi
+  fi
+  [[ -n ${BONDNICS[$i]} ]] && echo "BONDING=\"yes\"" >>$ini || echo "BONDING=\"no\"" >>$ini
+  echo "BONDNAME=\"${BONDNAME[$i]:-bond0}\"" >>$ini
+  echo "BONDNICS=\"${BONDNICS[$i]// /,}\"" >>$ini
+  echo "BONDING_MODE=\"${BONDING_MODE[$i]:-1}\"" >>$ini
+  echo "BONDING_MIIMON=\"${BONDING_MIIMON[$i]:-100}\"" >>$ini
+  [[ -n ${BRNICS[$i]} ]] && echo "BRIDGING=\"yes\"" >>$ini || echo "BRIDGING=\"no\"" >>$ini
+  echo "BRNAME=\"${BRNAME[$i]:-br0}\"" >>$ini
+  echo "BRNICS=\"${BRNICS[$i]// /,}\"" >>$ini
+  echo "BRSTP=\"${BRSTP[$i]:-0}\"" >>$ini
+  echo "BRFD=\"${BRFD[$i]:-0}\"" >>$ini
+  echo "DESCRIPTION:0=\"${DESCRIPTION[$i]}\"" >>$ini
+  echo "PROTOCOL:0=\"${PROTOCOL[$i]}\"" >>$ini
+  echo "USE_DHCP:0=\"${USE_DHCP[$i]}\"" >>$ini
+  flag=
+  if [[ ${USE_DHCP[$i]} == yes ]]; then
+    # get dhcp assigned ipv4 address & mask
+    NET=($(ip -4 addr show $IFACE|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+    GW=$(ip -4 route show default dev $IFACE|awk '{print $3;exit}')
+    echo "IPADDR:0=\"${NET[0]}\"" >>$ini
+    echo "NETMASK:0=\"$(mask ${NET[1]})\"" >>$ini
+    echo "GATEWAY:0=\"$GW\"" >>$ini
+    echo "METRIC:0=\"${METRIC[$i]}\"" >>$ini
+    data="${data}${ETH}_I_IPADDR:0=${NET[0]} ${ETH}_S_NETMASK:0=$(mask ${NET[1]}) ${ETH}_I_GATEWAY:0=$GW "
+    if [[ $i -eq 0 && -n $dns4 ]]; then
+      x=1
+      for SERVER in $dns4; do
+        data="${data}${ETH}_I_DNS-SERVER${x}=$SERVER "
+        ((x++))
+      done
+    fi
+    [[ "${PROTOCOL[$i]}" == *"ipv4"* ]] && flag=1
+  else
+    # get static assigned ipv4 address & mask
+    echo "IPADDR:0=\"${IPADDR[$i]}\"" >>$ini
+    echo "NETMASK:0=\"${NETMASK[$i]}\"" >>$ini
+    echo "GATEWAY:0=\"${GATEWAY[$i]}\"" >>$ini
+    echo "METRIC:0=\"${METRIC[$i]}\"" >>$ini
+  fi
+  echo "USE_DHCP6:0=\"${USE_DHCP6[$i]}\"" >>$ini
+  if [[ ${USE_DHCP6[$i]} == yes ]]; then
+    # get auto assigned ipv6 address & prefix
+    NET6=($(ip -6 addr show $IFACE noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+    GW6=$(ip -6 route show default dev $IFACE|awk '{print $3;exit}')
+    echo "IPADDR6:0=\"${NET6[0]}\"" >>$ini
+    echo "NETMASK6:0=\"${NET6[1]}\"" >>$ini
+    echo "GATEWAY6:0=\"$GW6\"" >>$ini
+    echo "METRIC6:0=\"${METRIC6[$i]}\"" >>$ini
+    echo "PRIVACY6:0=\"${PRIVACY6[$i]}\"" >>$ini
+    data="${data}${ETH}_I_IPADDR6:0=${NET6[0]} ${ETH}_I_NETMASK6:0=${NET6[1]} ${ETH}_I_GATEWAY6:0=$GW6 "
+    if [[ $i -eq 0 && -n $dns6 ]]; then
+      x=1
+      for SERVER6 in $dns6; do
+        data="${data}${ETH}_I_DNS6-SERVER${x}=$SERVER6 "
+        ((x++))
+      done
+    fi
+    [[ "${PROTOCOL[$i]}" == *"ipv6"* ]] && flag=1
+  else
+    # get static assigned ipv6 address & prefix
+    echo "IPADDR6:0=\"${IPADDR6[$i]}\"" >>$ini
+    echo "NETMASK6:0=\"${NETMASK6[$i]}\"" >>$ini
+    echo "GATEWAY6:0=\"${GATEWAY6[$i]}\"" >>$ini
+    echo "METRIC6:0=\"${METRIC6[$i]}\"" >>$ini
+    echo "PRIVACY6:0=\"\"" >>$ini
+  fi
+  [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
+  echo "MTU=\"${MTU[$i]}\"" >>$ini
+  if [[ -n ${VLANS[$i]} ]]; then
+    # process VLAN interfaces
+    echo "TYPE=\"trunk\"" >>$ini
+    for ((j=1;j<${VLANS[$i]};j++)); do
+      echo "VLANID:$j=\"${VLANID[$i,$j]}\"" >>$ini
+      echo "DESCRIPTION:$j=\"${DESCRIPTION[$i,$j]}\"" >>$ini
+      echo "PROTOCOL:$j=\"${PROTOCOL[$i,$j]}\"" >>$ini
+      echo "USE_DHCP:$j=\"${USE_DHCP[$i,$j]}\"" >>$ini
+      flag=
+      if [[ ${USE_DHCP[$i,$j]} == yes ]]; then
+        DEV=$IFACE.${VLANID[$i,$j]}
+        # get dhcp assigned ipv4 address & mask
+        NET=($(ip -4 addr show $DEV|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+        GW=$(ip -4 route show default dev $DEV|awk '{print $3;exit}')
+        echo "IPADDR:$j=\"${NET[0]}\"" >>$ini
+        echo "NETMASK:$j=\"$(mask ${NET[1]})\"" >>$ini
+        echo "GATEWAY:$j=\"$GW\"" >>$ini
+        echo "METRIC:$j=\"${METRIC[$i,$j]}\"" >>$ini
+        data="${data}${ETH}_I_IPADDR:$j=${NET[0]} ${ETH}_S_NETMASK:$j=$(mask ${NET[1]}) ${ETH}_I_GATEWAY:$j=$GW "
+        [[ "${PROTOCOL[$i,$j]}" == *"ipv4"* ]] && flag=1
+      else
+        # get static assigned ipv4 address & mask
+        echo "IPADDR:$j=\"${IPADDR[$i,$j]}\"" >>$ini
+        echo "NETMASK:$j=\"${NETMASK[$i,$j]}\"" >>$ini
+        echo "GATEWAY:$j=\"${GATEWAY[$i,$j]}\"" >>$ini
+        echo "METRIC:$j=\"${METRIC[$i,$j]}\"" >>$ini
+      fi
+      echo "USE_DHCP6:$j=\"${USE_DHCP6[$i,$j]}\"" >>$ini
+      if [[ ${USE_DHCP6[$i,$j]} == yes ]]; then
+        DEV=$IFACE.${VLANID[$i,$j]}
+        # get auto assigned ipv6 address & prefix
+        NET6=($(ip -6 addr show $DEV noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+        GW6=$(ip -6 route show default dev $DEV|awk '{print $3;exit}')
+        echo "IPADDR6:$j=\"${NET6[0]}\"" >>$ini
+        echo "NETMASK6:$j=\"${NET6[1]}\"" >>$ini
+        echo "GATEWAY6:$j=\"$GW6\"" >>$ini
+        echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
+        echo "PRIVACY6:$j=\"${PRIVACY6[$i,$j]}\"" >>$ini
+        data="${data}${ETH}_I_IPADDR6:$j=${NET6[0]} ${ETH}_I_NETMASK6:$j=${NET6[1]} ${ETH}_I_GATEWAY6:$j=$GW6 "
+        [[ "${PROTOCOL[$i,$j]}" == *"ipv6"* ]] && flag=1
+      else
+        # get static assigned ipv6 address & prefix
+        echo "IPADDR6:$j=\"${IPADDR6[$i,$j]}\"" >>$ini
+        echo "NETMASK6:$j=\"${NETMASK6[$i,$j]}\"" >>$ini
+        echo "GATEWAY6:$j=\"${GATEWAY6[$i,$j]}\"" >>$ini
+        echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
+        echo "PRIVACY6:$j=\"\"" >>$ini
+      fi
+      [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
+    done
+  else
+    # interface without VLANs
+    echo "TYPE=\"access\"" >>$ini
+  fi
+done
+# atomically update file
+/usr/bin/mv $ini ${ini%.*}
+
+# the following section is executed on static only or on dhcp hook
+if [[ (-n $1 && -z $dhcp) || (-z $1 && -n $dhcp) ]]; then
+  $reload >/dev/null 2>&1 &
+fi
+
+# send update information
+if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then
+  curl -sfd "$data" --unix-socket /var/run/nginx.socket http://localhost/pub/dhcp?buffer_length=0 >/dev/null 2>&1
+fi
+
+# generate our welcome text (management interface only)
+if [[ -z $interface || "eth0 br0 bond0" =~ $interface ]]; then
+  source /etc/unraid-version
+  echo -e "unRAID Server OS version: $version" >/etc/issue
+  # find management interface
+  ETH=eth0
+  [[ -e /sys/class/net/bond0 ]] && ETH=bond0
+  [[ -e /sys/class/net/br0 ]] && ETH=br0
+  IPv4=$(ip -4 addr show $ETH|awk '/inet /{print $2;exit}')
+  IPv6=$(ip -6 addr show $ETH noprefixroute|awk '/inet6 /{print $2;exit}')
+  [[ -z $IPv6 ]] && IPv6=$(ip -6 addr show $ETH scope global permanent|awk '/inet6 /{print $2;exit}')
+  [[ -n $IPv4 ]] && echo " IPv4 address: ${IPv4%%/*}">>/etc/issue || echo " IPv4 address: not set">>/etc/issue
+  [[ -n $IPv6 ]] && echo " IPv6 address: ${IPv6%%/*}">>/etc/issue || echo " IPv6 address: not set">>/etc/issue
+  echo >>/etc/issue
+fi
+exit 0
