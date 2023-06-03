@@ -1,0 +1,541 @@
+#!/bin/bash
+
+# Short-Description:  Create lightweight, portable, self-sufficient containers.
+# Description:
+#  Docker is an open-source project to easily create lightweight, portable,
+#  self-sufficient containers from any application. The same container that a
+#  developer builds and tests on a laptop can run at scale, in production, on
+#  VMs, bare metal, OpenStack clusters, public clouds and more.
+
+# modified for unRAID
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+UNSHARE=/usr/bin/unshare
+SYSTEM=/sys/class/net
+CONF6=/proc/sys/net/ipv6/conf
+ACTIVE=$(ls --indicator-style=none $SYSTEM|awk '/^(bond|br|eth)[0-9]/' ORS=' ')
+
+BASE=dockerd
+DOCKER=/usr/bin/$BASE
+DOCKER_PIDFILE=/var/run/$BASE.pid
+DOCKER_LOG=/var/log/docker.log
+DOCKER_ROOT=/var/lib/docker
+STOCK="eth br bond"
+
+# network file references
+INI=/var/local/emhttp/network.ini
+TMP=/var/tmp/network.tmp
+
+# Set defaults used by the docker daemon
+# Read unRAID docker configuration file
+[[ -f /boot/config/docker.cfg ]] && . /boot/config/docker.cfg
+
+# Set storage driver appropriate for backing filesystem, override user setting
+BACKINGFS=$(findmnt --output FSTYPE --noheadings $DOCKER_ROOT)
+if [[ $BACKINGFS == btrfs ]]; then
+  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=btrfs"
+elif [[ $BACKINGFS == xfs ]]; then
+  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=overlay2"
+elif [[ $BACKINGFS == zfs ]]; then
+  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=zfs"
+fi
+
+# Less verbose logging by default
+DOCKER_OPTS="--log-level=fatal $DOCKER_OPTS"
+
+# Enable global docker LOG rotation
+if [[ $DOCKER_LOG_ROTATION == yes ]]; then
+  [[ -z $DOCKER_LOG_SIZE ]] && DOCKER_LOG_SIZE=10m
+  [[ -z $DOCKER_LOG_FILES ]] && DOCKER_LOG_FILES=1
+  DOCKER_OPTS="--log-opt max-size=$DOCKER_LOG_SIZE --log-opt max-file=$DOCKER_LOG_FILES $DOCKER_OPTS"
+fi
+
+# determine port name
+if [[ -e $SYSTEM/br0 ]]; then
+  PORT=br0
+elif [[ -e $SYSTEM/bond0 ]]; then
+  PORT=bond0
+else
+  PORT=eth0
+fi
+# Adjust MTU size if non-default
+MTU=$(ip link show $PORT|grep -Po 'mtu \K\d+')
+[[ -n $MTU && $MTU -ne 1500 ]] && DOCKER_OPTS="--mtu=$MTU $DOCKER_OPTS"
+
+# Enable IPv6 for docker bridge network
+if [[ -n $(ip -6 route show dev $PORT default) ]]; then
+  DOCKER0='fd17::/64'
+  DOCKER_OPTS="--ipv6 --fixed-cidr-v6=$DOCKER0 $DOCKER_OPTS"
+  # create IPv6 NAT rule for docker0
+  [[ -z $(ip6tables -t nat -S|grep -o "$DOCKER0") ]] && ip6tables -t nat -A POSTROUTING -s $DOCKER0 ! -o docker0 -j MASQUERADE
+else
+  # ipv6 disabled
+  [[ -e $SYSTEM/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
+fi
+
+if [[ -z $DOCKER_NETWORK_TYPE ]]; then
+  DETACH='ipvlan'
+  ATTACH='macvlan'
+  MODE='bridge'
+else
+  DETACH='macvlan'
+  ATTACH='ipvlan'
+  MODE='l2 bridge'
+fi
+
+export DOCKER_RAMDISK=true
+
+# Verify if docker daemon running
+is_docker_running(){
+  [[ -S /var/run/docker.sock ]] || return 1
+  [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
+}
+
+# Wait max 15s to daemon start
+wait_daemon(){
+  for n in {1..15}; do
+    if is_docker_running; then return 0; else sleep 1; fi
+  done
+  return 1
+}
+
+# Containers Management
+# All existing containers
+all_containers(){
+  docker ps -a --format='{{.Names}}' 2>/dev/null
+}
+
+# Running containers
+running_containers(){
+  docker ps --format='{{.Names}}' 2>/dev/null
+}
+
+# Custom networks
+network(){
+  docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null|tr '\n' ' '
+}
+
+# Is container running?
+is_container_running(){
+  local CONTAINER
+  for CONTAINER in $(running_containers); do
+    [[ $CONTAINER == $1 ]] && return 0
+  done
+  return 1
+}
+
+# Does the container exist?
+container_exist(){
+  local CONTAINER
+  for CONTAINER in $(all_containers); do
+    [[ $CONTAINER == $1 ]] && return 0
+  done
+  return 1
+}
+
+container_paths_exist(){
+  local CONTAINER=$1
+  while IFS=| read -r HOSTPATH; do
+    # Make sure hostpath exists
+    if [[ ! -e "$HOSTPATH" ]]; then
+      echo "container \"$CONTAINER\" hostpath \"$HOSTPATH\" does not exist"
+      return 1
+    fi
+  done <<< $(docker inspect --format='{{range .Mounts}}{{.Source}}|{{end}}' $CONTAINER)
+  return 0
+}
+
+read_dom(){
+  local IFS=\>
+  read -d \< ENTITY CONTENT
+}
+
+add_route(){
+  local CT=($(docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $1))
+  local PID=${CT[0]}
+  local NET=${CT[1]#*[}
+  if [[ $PID -gt 0 && ${NET%%:*} == br0 ]]; then
+    local THISIP=$(sed -n '/^\[eth0\]$/,/^TYPE/p' $INI|grep -Pom1 '^IPADDR:0="\K[^"]+')
+    for CFG in /etc/wireguard/wg*.cfg ; do
+      local NETWORK=$(grep -Pom1 '^Network:0="\K[^"]+' $CFG)
+      [[ -n $NETWORK ]] && nsenter -n -t $PID ip -4 route add $NETWORK via $THISIP dev br0 2>/dev/null
+    done
+  fi
+}
+
+# Add custom networks
+start_network(){
+  # create list of possible custom networks
+  EXCLUDE=; INCLUDE=$(ls --indicator-style=none $SYSTEM|awk '/^br[0-9]/' ORS=' ')
+  while IFS=$'\n' read -r NETWORK; do
+    if [[ ${NETWORK:0:4} == bond ]]; then
+      if [[ $INCLUDE =~ "${NETWORK/bond/br} " ]]; then
+        EXCLUDE="${EXCLUDE}${NETWORK} ${NETWORK/bond/eth} "
+      else
+        INCLUDE="${INCLUDE}${NETWORK} "
+        EXCLUDE="${EXCLUDE}${NETWORK/bond/eth} "
+      fi
+    else
+      if [[ $INCLUDE =~ "${NETWORK/eth/br} " || $INCLUDE =~ "${NETWORK/eth/bond} " ]]; then
+        [[ $EXCLUDE =~ "$NETWORK " ]] || EXCLUDE="${EXCLUDE}${NETWORK} "
+      else
+        INCLUDE="${INCLUDE}${NETWORK} "
+      fi
+    fi
+  done <<< $(ls --indicator-style=none $SYSTEM|grep -P '^(bond|eth)[0-9]')
+  wait_daemon
+  if ! is_docker_running; then return 1; fi
+  # get container settings for custom networks to reconnect later
+  declare -A NETRESTORE
+  CONTAINERS=$(docker container ls -a --format='{{.Names}}'|tr '\n' ' ')
+  for CONTAINER in $CONTAINERS; do
+    # the file case (due to fat32) might be different so use find to match
+    XMLFILE=$(find /boot/config/plugins/dockerMan/templates-user -maxdepth 1 -iname my-${CONTAINER}.xml)
+    if [[ -n $XMLFILE ]]; then
+      THIS_NETWORK=
+      THIS_IP=
+      while read_dom; do
+        [[ $ENTITY == Network ]] && THIS_NETWORK=$CONTENT
+        [[ $ENTITY == MyIP ]] && THIS_IP=${CONTENT// /} && THIS_IP=${THIS_IP//,/;}
+      done <$XMLFILE
+      # only restore valid networks
+      if [[ -n $THIS_NETWORK ]]; then
+        THIS_ID=$(docker inspect --format='{{.ID}}' $CONTAINER)
+        NETRESTORE[$THIS_NETWORK]="$THIS_ID,$THIS_IP ${NETRESTORE[$THIS_NETWORK]}"
+      fi
+    fi
+    # restore user defined networks
+    USER_NETWORKS=$(docker inspect --format='{{range $key, $value := .NetworkSettings.Networks}}{{$key}};{{if $value.IPAMConfig}}{{if $value.IPAMConfig.IPv4Address}}{{$value.IPAMConfig.IPv4Address}}{{end}}{{if $value.IPAMConfig.IPv6Address}}{{$value.IPAMConfig.IPv6Address}}{{end}}{{end}} {{end}}' $CONTAINER)
+    for UN in $USER_NETWORKS; do
+      USER_NETWORK=${UN%;*}
+      USER_IP=${UN#*;}
+      if [[ -n $USER_NETWORK && $USER_NETWORK != $THIS_NETWORK ]]; then
+        logger -t $(basename $0) "container $CONTAINER has an additional network that will be restored: $UN"
+        USER_ID=$(docker inspect --format='{{.ID}}' $CONTAINER)
+        NETRESTORE[$USER_NETWORK]="$USER_ID,$USER_IP ${NETRESTORE[$USER_NETWORK]}"
+      fi
+    done
+  done
+  # detach custom networks
+  for NETWORK in $(network $DETACH); do
+    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+  done
+  # get existing custom networks
+  for NETWORK in $(network $ATTACH); do
+    if [[ $STOCK =~ ${NETWORK%%[0-9]*} ]]; then
+      [[ $EXCLUDE =~ "$NETWORK " || ! $ACTIVE =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
+    else
+      [[ $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+    fi
+  done
+  NETWORKS=$(network $ATTACH)
+  # add or remove custom network
+  for NETWORK in $INCLUDE; do
+    if [[ ! $DOCKER_CUSTOM_NETWORKS =~ "$NETWORK " ]]; then
+      # automatic assignment
+      AUTO=${NETWORK/./_}
+      AUTO=DOCKER_AUTO_${AUTO^^}
+      if [[ ${!AUTO} == no ]]; then
+        [[ $NETWORKS =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
+        continue
+      fi
+      # add auto defined networks
+      SUBNET=; GATEWAY=; SERVER=; RANGE=;
+      IPV4=$(ip -4 addr show $NETWORK|awk '/^ +inet /{print $2;exit}')
+      if [[ -z $IPV4 ]]; then
+        # wait for DHCP to assign IPv4 address
+        KEY=${NETWORK%.*}
+        KEY=${KEY/br/eth}
+        KEY=${KEY/bond/eth}
+        # get network configuration section
+        sed -n "/^\[$KEY\]$/,/^\[/p" $INI >$TMP
+        VLAN=${NETWORK#*.}
+        if [[ -z $VLAN ]]; then
+          USE_DHCP="USE_DHCP:0"
+        else
+          VLAN=$(grep -Pom1 "^VLANID:\d+=\"$VLAN\"$" $TMP)
+          VLAN=${VLAN%=*}
+          USE_DHCP=${VLAN/VLANID/USE_DHCP}
+        fi
+        # only wait when DHCP is used (max 10 seconds)
+        [[ $(grep -Pom1 "^$USE_DHCP=.\K[^\"]+" $TMP) == yes ]] && LOOP=10 || LOOP=0
+        while [[ -z $IPV4 && $LOOP -gt 0 ]]; do
+          sleep 1
+          IPV4=$(ip -4 addr show $NETWORK|awk '/^ +inet /{print $2;exit}')
+          ((LOOP--))
+        done
+      fi
+      if [[ -n $IPV4 ]]; then
+        SUBNET=$(ip -4 route show dev $NETWORK $IPV4|awk '{print $1;exit}')
+        SERVER=${IPV4%%/*}
+        DHCP=${NETWORK/./_}
+        DHCP=DOCKER_DHCP_${DHCP^^}
+        RANGE=${!DHCP}
+        GATEWAY=$(ip -4 route show dev $NETWORK default|awk '{print $3;exit}')
+      fi
+      SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
+      IPV6=$(ip -6 addr show $NETWORK mngtmpaddr|awk '/^ +inet6 /{print $2;exit}')
+      [[ -z $IPV6 ]] && IPV6=$(ip -6 addr show $NETWORK scope global permanent|awk '/^ +inet6 /{print $2;exit}')
+      if [[ -n $IPV6 ]]; then
+        SUBNET6=$(ip -6 route show dev $NETWORK $IPV6|awk '{print $1;exit}')
+        SERVER6=${IPV6%%/*}
+        DHCP6=${NETWORK/./_}
+        DHCP6=DOCKER_DHCP6_${DHCP6^^}
+        RANGE6=${!DHCP6}
+        GATEWAY6=$(ip -6 route show dev $NETWORK default|awk '{print $3;exit}')
+        # replace link local address for first address in subnet
+        [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%%/*}1
+      fi
+    else
+      # add user defined networks
+      IPV4=; IPV6=;
+      DEVICE=${NETWORK/./_}
+      DEVICE=${DEVICE^^}
+      SUBNET=DOCKER_SUBNET_$DEVICE
+      SUBNET=${!SUBNET}
+      GATEWAY=DOCKER_GATEWAY_$DEVICE
+      GATEWAY=${!GATEWAY}
+      SERVER=;
+      RANGE=DOCKER_RANGE_$DEVICE
+      RANGE=${!RANGE}
+      SUBNET6=DOCKER_SUBNET6_$DEVICE
+      SUBNET6=${!SUBNET6}
+      GATEWAY6=DOCKER_GATEWAY6_$DEVICE
+      GATEWAY6=${!GATEWAY6}
+      SERVER6=;
+      RANGE6=DOCKER_RANGE6_$DEVICE
+      RANGE6=${!RANGE6}
+    fi
+    # custom network already existing and changed?
+    if [[ $NETWORKS =~ "$NETWORK " ]]; then
+      UPDATE=;
+      SUBNETS=($(docker network inspect --format='{{range .IPAM.Config}}{{.Subnet}} {{end}}' $NETWORK 2>/dev/null))
+      RANGES=($(docker network inspect --format='{{range .IPAM.Config}}{{.IPRange}} {{end}}' $NETWORK 2>/dev/null))
+      GATEWAYS=($(docker network inspect --format='{{range .IPAM.Config}}{{.Gateway}} {{end}}' $NETWORK 2>/dev/null))
+      SERVERS=($(docker network inspect --format='{{range .IPAM.Config}}{{range $IPAddr := .AuxiliaryAddresses}}{{$IPAddr}}{{end}} {{end}}' $NETWORK 2>/dev/null))
+      # distribute ipv4 and ipv6 assignments
+      [[ ${SUBNETS[0]} =~ '.' ]] && SUBNET0=${SUBNETS[0]} || SUBNET1=${SUBNETS[0]}
+      [[ -n ${SUBNETS[1]} && ${SUBNETS[1]} =~ '.' ]] && SUBNET0=${SUBNETS[1]} || SUBNET1=${SUBNETS[1]}
+      [[ ${RANGES[0]} =~ '.' ]] && RANGE0=${RANGES[0]} || RANGE1=${RANGES[0]}
+      [[ -n ${RANGES[1]} && ${RANGES[1]} =~ '.' ]] && RANGE0=${RANGES[1]} || RANGE1=${RANGES[1]}
+      [[ ${GATEWAYS[0]} =~ '.' ]] && GATEWAY0=${GATEWAYS[0]} || GATEWAY1=${GATEWAYS[0]}
+      [[ -n ${GATEWAYS[1]} && ${GATEWAYS[1]} =~ '.' ]] && GATEWAY0=${GATEWAYS[1]} || GATEWAY1=${GATEWAYS[1]}
+      [[ ${SERVERS[0]} =~ '.' ]] && SERVER0=${SERVERS[0]} || SERVER1=${SERVERS[0]}
+      [[ -n ${SERVERS[1]} && ${SERVERS[1]} =~ '.' ]] && SERVER0=${SERVERS[1]} || SERVER1=${SERVERS[1]}
+      # check for changes
+      [[ $SUBNET != $SUBNET0 || $SUBNET6 != $SUBNET1 ]] && UPDATE=1
+      [[ $RANGE != $RANGE0 || $RANGE6 != $RANGE1 ]] && UPDATE=1
+      [[ (-n $GATEWAY && $GATEWAY != $GATEWAY0) || (-n $GATEWAY6 && $GATEWAY6 != $GATEWAY1) ]] && UPDATE=1
+      [[ (-n $SERVER && $SERVER != $SERVER0) || (-n $SERVER6 && $SERVER6 != $SERVER1) ]] && UPDATE=1
+      if [[ -z $UPDATE ]]; then
+        # no changes, ignore
+        SUBNET=; SUBNET6=;
+      else
+        # changed, remove first
+        docker network rm $NETWORK >/dev/null
+      fi
+    fi
+    # set parameters for custom network creation
+    N4=$SUBNET;  R4=$RANGE;
+    N6=$SUBNET6; R6=$RANGE6;
+    [[ -n $SUBNET && -n $GATEWAY ]] && GATEWAY="--gateway=$GATEWAY" || GATEWAY=;
+    [[ -n $SUBNET && -n $SERVER ]] && SERVER="--aux-address=server=$SERVER" || SERVER=;
+    [[ -n $SUBNET && -n $RANGE ]] && RANGE="--ip-range=$RANGE" || RANGE=;
+    [[ -n $SUBNET ]] && SUBNET="--subnet=$SUBNET"
+    [[ -n $SUBNET6 && -n $GATEWAY6 ]] && GATEWAY6="--gateway=$GATEWAY6" || GATEWAY6=;
+    [[ -n $SUBNET6 && -n $SERVER6 ]] && SERVER6="--aux-address=server6=$SERVER6" || SERVER6=;
+    [[ -n $SUBNET6 && -n $RANGE6 ]] && RANGE6="--ip-range=$RANGE6" || RANGE6=;
+    [[ -n $SUBNET6 ]] && SUBNET6="--ipv6 --subnet=$SUBNET6"
+    if [[ -n $SUBNET || -n $SUBNET6 ]]; then
+      SHIM_BASE=;
+      # hack to let containers talk to host
+      if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
+        BASE=${N4%/*}
+        MASK=${N4#*/}
+        IP=(${BASE//./ })
+        IP=$(((${IP[0]}<<24)+(${IP[1]}<<16)+(${IP[2]}<<8)+${IP[3]}+2**(31-MASK)))
+        SHIM_BASE=$BASE/$((MASK+1))
+        SHIM_HIGH=$((IP>>24)).$((IP>>16&255)).$((IP>>8&255)).$((IP&255))/$((MASK+1))
+        if [[ -z $SERVER ]]; then
+          [[ -n $RANGE ]] && SERVER="--aux-address=server=${R4%/*}" || SERVER="--aux-address=server=${SHIM_HIGH%/*}"
+        fi
+      fi
+      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$NETWORK $NETWORK | xargs docker network inspect -f 'created network {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}' 2>/dev/null | logger -t $(basename $0)
+      # connect containers to this new network
+      for CONNECT in ${NETRESTORE[$NETWORK]}; do
+        THIS_ID=${CONNECT%,*}
+        THIS_TT=${CONNECT#*,}
+        THIS_IP=
+        for IP in ${THIS_TT//;/ }; do
+          [[ $IP =~ '.' ]] && THIS_IP="$THIS_IP --ip $IP" || THIS_IP="$THIS_IP --ip6 $IP"
+        done
+        docker network connect $THIS_IP $NETWORK $THIS_ID >/dev/null
+      done
+      LINK=shim-$NETWORK
+      # hack to let containers talk to host
+      if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
+        if [[ ! -e $SYSTEM/$LINK && -n $SHIM_BASE ]]; then
+          # create shim network
+          ip link add $LINK link $NETWORK type $ATTACH mode $MODE
+          echo 1 > $CONF6/$LINK/disable_ipv6
+          ip link set $LINK up
+          logger -t $(basename $0) "created network $LINK for host access"
+        fi
+        [[ -n $SHIM_BASE ]] && shim_network ${SERVER##*=} $SHIM_BASE $SHIM_HIGH
+      elif [[ -e $SYSTEM/$LINK ]]; then
+        # remove shim network
+        ip -4 addr flush dev $LINK
+        ip -4 route flush dev $LINK
+        ip link set $LINK down
+        ip link del $LINK
+      fi
+    fi
+  done
+}
+
+# shim network creation
+shim_network(){
+  ip -4 addr flush dev $LINK
+  ip -4 addr add $1 dev $LINK
+  ip -4 route flush dev $LINK
+  ip -4 route add $2 src $1 dev $LINK
+  ip -4 route add $3 src $1 dev $LINK
+  DEFAULT=$(ip -4 route show dev $NETWORK default|awk '{print $3}')
+  [[ -n $DEFAULT ]] && ip -4 route add default via $DEFAULT dev $LINK metric 0
+}
+
+# Remove custom networks
+stop_network(){
+  for NETWORK in $(network $ATTACH); do
+    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+  done
+  for LINK in $(ls --indicator-style=none $SYSTEM|grep '^shim-'); do
+    ip -4 addr flush dev $LINK
+    ip -4 route flush dev $LINK
+    ip -6 addr flush dev $LINK
+    ip -6 route flush dev $LINK
+    ip link set $LINK down
+    ip link del $LINK
+  done
+}
+
+# Start containers
+start_containers(){
+  local CONTAINER
+  if ! is_docker_running; then return 1; fi
+  if [[ -f $DOCKER_ROOT/unraid-autostart ]]; then
+    while read -r CONTAINER; do
+      CONTAINER=($CONTAINER)
+      WAIT=${CONTAINER[1]}
+      if container_exist $CONTAINER && ! is_container_running $CONTAINER && container_paths_exist $CONTAINER; then
+        OUT=$(docker start $CONTAINER 2>&1)
+        if  [[ $OUT =~ "Error:" ]]; then
+          echo "$CONTAINER: $OUT" |& logger -t $(basename $0) &
+        else
+          add_route $CONTAINER
+          echo "$CONTAINER: started succesfully!" |& logger -t $(basename $0) &
+          if [[ $WAIT -gt 0 ]]; then
+            echo "$CONTAINER: wait $WAIT seconds" |& logger -t $(basename $0) &
+            sleep $WAIT
+          fi
+        fi
+      fi
+    done <$DOCKER_ROOT/unraid-autostart
+  fi
+}
+
+# Stop containers
+stop_containers(){
+  [[ ! -z $(running_containers) ]] && docker stop $(running_containers) >/dev/null
+}
+
+# Start docker
+start_docker(){
+  if is_docker_running; then
+    echo "$DOCKER is already running"
+    return 1
+  fi
+  if ! mountpoint $DOCKER_ROOT &>/dev/null; then
+    echo "no image mounted at $DOCKER_ROOT"
+    exit 1
+  fi
+  echo "starting $BASE ..."
+  if [[ -x $DOCKER ]]; then
+    # If there is an old PID file (no docker running), clean it up:
+    if [[ -r $DOCKER_PIDFILE ]]; then
+      if ! ps axc|grep docker 1>/dev/null 2>&1; then
+        echo "Cleaning up old $DOCKER_PIDFILE."
+        rm -f $DOCKER_PIDFILE
+      fi
+    fi
+    nohup $UNSHARE --propagation slave -- $DOCKER -p $DOCKER_PIDFILE $DOCKER_OPTS >>$DOCKER_LOG 2>&1 &
+  fi
+}
+
+# Stop docker
+stop_docker(){
+  echo "stopping $BASE ..."
+  # If there is no PID file, ignore this request...
+  if [[ -r $DOCKER_PIDFILE ]]; then
+    kill $(cat $DOCKER_PIDFILE)
+    # must ensure daemon has stopped before unmounting image volume
+    sleep 1
+    for n in {1..15}; do
+      if is_docker_running; then
+        echo "waiting for docker to die ..."
+        sleep 1
+      fi
+    done
+    if is_docker_running; then   
+      echo "docker will not die!"
+      exit 1
+    elif [[ -r $DOCKER_PIDFILE ]]; then
+      echo "Cleaning up old $DOCKER_PIDFILE."
+      rm -f $DOCKER_PIDFILE
+    fi
+  fi
+  # tear down the bridge
+  if ip link show docker0 >/dev/null 2>&1; then
+    ip link set docker0 down
+    ip link del docker0
+  fi
+}
+
+case "$1" in
+start)
+  start_docker
+  start_network
+  start_containers 1>/dev/null 2>&1 &
+  disown
+  ;;
+stop)
+  stop_containers
+  stop_network
+  stop_docker
+  ;;
+force_stop)
+  stop_docker
+  ;;
+restart)
+  stop_containers
+  stop_network
+  stop_docker
+  sleep 1
+  start_docker
+  start_network
+  start_containers 1>/dev/null 2>&1 &
+  disown
+  ;;
+status)
+  if [[ -f $DOCKER_PIDFILE ]] && ps -o cmd $(cat $DOCKER_PIDFILE)|grep -q $BASE; then
+    echo "status of $BASE: running"
+    echo "running containers:" $(running_containers)
+  else
+    echo "status of $BASE: stopped"
+    exit 1
+  fi
+  ;;
+*)
+  echo "usage $0 start|stop|force_stop|restart|status"
+esac
+exit 0
