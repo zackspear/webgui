@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 # /etc/rc.d/rc.inet1
 # This script is used to bring up the various network interfaces.
 #
@@ -45,13 +45,14 @@
 # Adapted by Bergware for use in unRAID - May 2023
 # - added iptables and ip6tables and arp-tables inclusion to bridge interfaces
 # - fixed ipv4 and ipv6 DNS assignment
+# - suppress errors
 
 ############################
 # READ NETWORK CONFIG FILE #
 ############################
 
 # get the configuration information from rc.inet1.conf
-source /etc/rc.d/rc.inet1.conf
+. /etc/rc.d/rc.inet1.conf
 
 # system network reference
 SYSTEM=/sys/class/net
@@ -69,7 +70,7 @@ alias log=run
 run(){
   # log command in /var/log/syslog and execute
   logger -t rc.inet1 "$*"
-  [[ -n $2 ]] && $*
+  [[ -n $2 ]] && $* 2>/dev/null
 }
 
 ############################
