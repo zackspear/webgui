@@ -2,7 +2,7 @@
 # Start/stop/restart the secure shell server:
 # bergware - added interface bind functionality
 
-CALLER="sshd"
+CALLER="ssh"
 SSHD="/usr/sbin/sshd"
 CONF="/etc/ssh/sshd_config"
 PID="/var/run/sshd.pid"

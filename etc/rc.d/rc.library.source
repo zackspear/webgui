@@ -14,10 +14,10 @@ this() {
   'samba')
     grep -Pom1 "^$1 = \K.*" $CONF
     ;;
-  'ntpd'|'sshd')
+  'ntp'|'ssh')
     grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
     ;;
-  'nfsd')
+  'nfs')
     grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
     ;;
   'rpc')
