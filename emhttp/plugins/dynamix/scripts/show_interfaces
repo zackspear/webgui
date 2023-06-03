@@ -1,9 +1,6 @@
 #!/bin/bash
 
 SCRIPT="show"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # library functions
 . /etc/rc.d/rc.library.source
