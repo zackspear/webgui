@@ -192,13 +192,13 @@ check() {
       fi
     done
     # add loopback interface
-    if [[ "nfsd ntpd rpc" =~ $CALLER ]]; then
+    if [[ "nfs ntp rpc" =~ $CALLER ]]; then
       [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
     # add user defined interfaces
     [[ -f $EXTRA ]] && extra
-    if [[ $CALLER == sshd ]]; then
+    if [[ $CALLER == ssh ]]; then
       # bind stays array
       bind=(${bind[@]})
       [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
