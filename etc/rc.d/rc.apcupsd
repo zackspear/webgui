@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 #
 # apcupsd      This shell script takes care of starting and stopping
 #	       the apcupsd UPS monitoring daemon.
