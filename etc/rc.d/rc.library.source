@@ -76,9 +76,13 @@ remove() {
   done
 }
 
+isname() {
+  [[ -z ${1//[^.:]} || ${1//[^.:]} == . ]] && return 0 || return 1
+}
+
 extra_name() {
   for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+    if $(isname $net); then
       # net is an interface name, validate
       [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
     else
@@ -88,7 +92,7 @@ extra_name() {
     fi
   done
   for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+    if $(isname $net); then
       # net is an interface name, remove
       remove $net
     else
@@ -100,7 +104,7 @@ extra_name() {
 
 extra_addr() {
   for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+    if $(isname $net); then
       # net is an interface name, get IP addresses
       net4=$(show -4 dev $net)
       net6=$(show -6 dev $net)
@@ -113,7 +117,7 @@ extra_addr() {
     [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
   done
   for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+    if $(isname $net); then
       # net is an interface name, get IP addresses
       remove $(show -4 dev $net)
       remove $(show -6 dev $net)
