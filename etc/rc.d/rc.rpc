@@ -14,6 +14,7 @@
 
 CALLER="rpc"
 RPCBIND="/sbin/rpcbind"
+STATD="/sbin/rpc.statd"
 RPC="/etc/default/rpc"
 
 # library functions
@@ -31,7 +32,7 @@ sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
 [[ -r $RPC ]] && . $RPC
 
 rpc_start() {
-  if [[ -x $RPCBIND && -x /sbin/rpc.statd ]]; then
+  if [[ -x $RPCBIND && -x $STATD ]]; then
     # Set up port for lockd:
     if [[ -n $LOCKD_TCP_PORT ]]; then
       /sbin/sysctl -w "fs.nfs.nlm_tcpport=$LOCKD_TCP_PORT" 2>/dev/null
@@ -47,15 +48,15 @@ rpc_start() {
       [[ -n $RPC_STATD_HOSTNAME ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -n $RPC_STATD_HOSTNAME"
       [[ -n $RPC_STATD_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -p $RPC_STATD_PORT"
       [[ -n $RPC_STATD_OUTGOING_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -o $RPC_STATD_OUTGOING_PORT"
-      echo "Starting RPC NSM (Network Status Monitor):  /sbin/rpc.statd $RPC_STATD_OPTS"
-      /sbin/rpc.statd $RPC_STATD_OPTS 2>/dev/null
+      echo "Starting RPC NSM (Network Status Monitor):  $STATD $RPC_STATD_OPTS"
+      $STATD $RPC_STATD_OPTS 2>/dev/null
     fi
   else
     echo "WARNING:  Cannot start RPC daemons needed for NFS.  One or more of"
     echo "          these required daemons is not executable or is not present"
     echo "          on your system:"
     echo
-    echo "          $RPCBIND or /sbin/rpc.statd"
+    echo "          $RPCBIND or $STATD"
     echo
   fi
 }
