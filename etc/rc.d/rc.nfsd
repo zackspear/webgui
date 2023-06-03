@@ -9,6 +9,7 @@
 #
 # bergware - added interface bind functionality
 
+CALLER="nfs"
 NFSD="/usr/sbin/rpc.nfsd"
 EXPORTFS="/usr/sbin/exportfs"
 RQUOTAD="/usr/sbin/rpc.rquotad"
@@ -16,128 +17,9 @@ MOUNTD="/usr/sbin/rpc.mountd"
 OPTIONS="-u -s"
 RPC="/etc/default/rpc"
 NFS="/etc/default/nfs"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=();
-  if [[ -f $NETWORK_INI ]]; then
-    # add interfaces and vlans
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add loopback interface
-    [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
-    [[ $ipv6 == yes ]] && bind+=(::1)
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string
-    bind=${bind[@]}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 # get bind addresses
 if check && [[ -n $bind ]]; then
@@ -162,14 +44,12 @@ nfsd_start() {
   if [[ ! -r /proc/1/net/rpc/nfsd ]]; then
     /sbin/modprobe nfsd 2>/dev/null
   fi
-
   # mount the nfsd filesystem:
   if awk '$NF == "nfsd"' /proc/filesystems | grep -q . ; then
     if ! awk '$3 == "nfsd" && $2 == "/proc/fs/nfs"' /proc/mounts | grep -q . ; then
       /sbin/mount -t nfsd nfsd /proc/fs/nfs 2>/dev/null
     fi
   fi
-
   # if basic RPC services are not running, start them:
   if ! ps axc | grep -q rpc.statd; then
     if [[ -r /etc/rc.d/rc.rpc ]]; then
@@ -181,27 +61,22 @@ nfsd_start() {
       exit 1
     fi
   fi
-
   echo "Starting NFS server daemons:"
-
   if [[ -x $EXPORTFS ]]; then
     echo "  $EXPORTFS -r"
     $EXPORTFS -r 2>/dev/null
   fi
-
   if [[ -x $RQUOTAD ]]; then
     [[ -n $RPC_RQUOTAD_PORT ]] && RPC_RQUOTAD_OPTS="$RPC_RQUOTAD_OPTS -p $RPC_RQUOTAD_PORT"
     echo "  $RQUOTAD $RPC_RQUOTAD_OPTS"
     $RQUOTAD $RPC_RQUOTAD_OPTS 2>/dev/null
   fi
-
   # start nfsd servers - 8 if not set extrawise (an old Sun standard):
   if [[ -x $NFSD ]]; then
     [[ -z $RPC_NFSD_COUNT ]] && RPC_NFSD_COUNT=8
     echo "  $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT"
     $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT 2>/dev/null
   fi
-
   if [[ -x $MOUNTD ]]; then
     [[ -n $RPC_MOUNTD_PORT ]] && RPC_MOUNTD_OPTS="$RPC_MOUNTD_OPTS -p $RPC_MOUNTD_PORT"
     echo "  $MOUNTD $RPC_MOUNTD_OPTS"

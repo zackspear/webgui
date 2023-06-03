@@ -15,6 +15,7 @@
 # WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
+CALLER="nginx"
 NGINX="/usr/sbin/nginx"
 PID="/var/run/nginx.pid"
 SSL="/boot/config/ssl"
@@ -22,21 +23,15 @@ CONF="/etc/nginx/nginx.conf"
 IDENT="/boot/config/ident.cfg"
 SERVERS="/etc/nginx/conf.d/servers.conf"
 LOCATIONS="/etc/nginx/conf.d/locations.conf"
-NEW="/var/local/emhttp/nginx.ini.new"
-WIREGUARD="/etc/wireguard"
+INI="/var/local/emhttp/nginx.ini.new"
 CERTPATH="$SSL/certs/certificate_bundle.pem"
 MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # hold server names
 SERVER_NAMES=()
 
-# read settings
-if [[ -a $IDENT ]]; then
-  source <(/usr/bin/fromdos <$IDENT)
-fi
+# read Unraid settings
+[[ -r $IDENT ]] && . <(/usr/bin/fromdos <$IDENT)
 
 # preset default values
 [[ -z $START_PAGE ]] && START_PAGE=Main
@@ -54,130 +49,11 @@ if ! find /boot/config/*.key &>/dev/null; then
   START_PAGE="Tools/Registration"
 fi
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  now=();
-  for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2;$/{print $2}' $SERVERS 2>/dev/null); do
-    # extract ipv4 / ipv6 address
-    [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
-    now+=($addr)
-  done
-  # return addresses
-  echo ${now[@]}
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 fqdn() {
   echo ${CERTNAME/'*'/${1//[.:]/-}}
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no;
-  if [[ -f $NETWORK_INI ]]; then
-    # add interfaces and vlans
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string
-    bind=${bind[@]}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
 }
 
 # create listening ports
@@ -185,9 +61,9 @@ listen() {
   t='    '
   if [[ $1 == lo ]]; then
     echo "${t}listen 127.0.0.1:$PORT; # lo"
-    [[ $USE_SSL != no ]] && echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
+    echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
     echo "${t}listen [::1]:$PORT; # lo"
-    [[ $USE_SSL != no ]] && echo "${t}listen [::1]:$PORTSSL; # lo"
+    echo "${t}listen [::1]:$PORTSSL; # lo"
   elif check && [[ -n $bind ]]; then
     for addr in $bind; do
       [[ $(IPv $addr) == 4 ]] && echo "${t}listen $addr:$*; # $(show $addr)"
@@ -665,36 +541,36 @@ build_ssl() {
     DEFAULTURL="http://$LANMDNS$PORT_URL"
   fi
 
-  mkdir -p $(dirname "$NEW")
+  mkdir -p $(dirname "$INI")
   # always defined:
-  echo "NGINX_LANIP=\"$LANIP\"" >$NEW
-  echo "NGINX_LANIP6=\"$LANIP6\"" >>$NEW
-  echo "NGINX_LANNAME=\"$LANNAME\"" >>$NEW
-  echo "NGINX_LANMDNS=\"$LANMDNS\"" >>$NEW
-  echo "NGINX_CERTPATH=\"$CERTPATH\"" >>$NEW
-  echo "NGINX_USESSL=\"$USE_SSL\"" >>$NEW
-  echo "NGINX_PORT=\"$PORT\"" >>$NEW
-  echo "NGINX_PORTSSL=\"$PORTSSL\"" >>$NEW
-  echo "NGINX_DEFAULTURL=\"$DEFAULTURL\"" >>$NEW
+  echo "NGINX_LANIP=\"$LANIP\"" >$INI
+  echo "NGINX_LANIP6=\"$LANIP6\"" >>$INI
+  echo "NGINX_LANNAME=\"$LANNAME\"" >>$INI
+  echo "NGINX_LANMDNS=\"$LANMDNS\"" >>$INI
+  echo "NGINX_CERTPATH=\"$CERTPATH\"" >>$INI
+  echo "NGINX_USESSL=\"$USE_SSL\"" >>$INI
+  echo "NGINX_PORT=\"$PORT\"" >>$INI
+  echo "NGINX_PORTSSL=\"$PORTSSL\"" >>$INI
+  echo "NGINX_DEFAULTURL=\"$DEFAULTURL\"" >>$INI
   # defined if certificate_bundle.pem present:
-  echo "NGINX_CERTNAME=\"$CERTNAME\"" >>$NEW
-  echo "NGINX_LANFQDN=\"$LANFQDN\"" >>$NEW
-  echo "NGINX_LANFQDN6=\"$LANFQDN6\"" >>$NEW
+  echo "NGINX_CERTNAME=\"$CERTNAME\"" >>$INI
+  echo "NGINX_LANFQDN=\"$LANFQDN\"" >>$INI
+  echo "NGINX_LANFQDN6=\"$LANFQDN6\"" >>$INI
   # defined if remote access enabled:
-  echo "NGINX_WANACCESS=\"$WANACCESS\"" >>$NEW
-  echo "NGINX_WANIP=\"$WANIP\"" >>$NEW
-  echo "NGINX_WANIP6=\"$WANIP6\"" >>$NEW
-  echo "NGINX_WANFQDN=\"$WANFQDN\"" >>$NEW
-  echo "NGINX_WANFQDN6=\"$WANFQDN6\"" >>$NEW
+  echo "NGINX_WANACCESS=\"$WANACCESS\"" >>$INI
+  echo "NGINX_WANIP=\"$WANIP\"" >>$INI
+  echo "NGINX_WANIP6=\"$WANIP6\"" >>$INI
+  echo "NGINX_WANFQDN=\"$WANFQDN\"" >>$INI
+  echo "NGINX_WANFQDN6=\"$WANFQDN6\"" >>$INI
   # add included interfaces
   for NET in ${!NET_FQDN[@]}; do
-    echo "NGINX_${NET^^}FQDN=\"${NET_FQDN[$NET]}\"" >>$NEW
+    echo "NGINX_${NET^^}FQDN=\"${NET_FQDN[$NET]}\"" >>$INI
   done
   for NET in ${!NET_FQDN6[@]}; do
-    echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$NEW
+    echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$INI
   done
   # atomically update file
-  /usr/bin/mv $NEW ${NEW%.*}
+  /usr/bin/mv $INI ${INI%.*}
 }
 
 nginx_status() {
