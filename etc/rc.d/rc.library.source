@@ -8,31 +8,31 @@ EXTRA="/boot/config/network-extra.cfg"
 
 this() {
   case $CALLER in
-'avahi')
-  grep -Pom1 "^$1=\K.*" $CONF
-  ;;
-'samba')
-  grep -Pom1 "^$1 = \K.*" $CONF
-  ;;
-'ntpd'|'sshd')
-  grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
-  ;;
-'nfsd')
-  grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
-  ;;
-'rpc')
-  grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC
-  ;;
-'nginx')
-  now=();
-  for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2; #.*$/{print $2}' $SERVERS 2>/dev/null); do
-    # extract ipv4 / ipv6 address
-    [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
-    now+=($addr)
-  done
-  # return addresses
-  echo ${now[@]}
-  ;;
+  'avahi')
+    grep -Pom1 "^$1=\K.*" $CONF
+    ;;
+  'samba')
+    grep -Pom1 "^$1 = \K.*" $CONF
+    ;;
+  'ntpd'|'sshd')
+    grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
+    ;;
+  'nfsd')
+    grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
+    ;;
+  'rpc')
+    grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC
+    ;;
+  'nginx')
+    now=();
+    for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2; #.*$/{print $2}' $SERVERS 2>/dev/null); do
+      # extract ipv4 / ipv6 address
+      [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
+      now+=($addr)
+    done
+    # return addresses
+    echo ${now[@]}
+    ;;
   esac
 }
 
