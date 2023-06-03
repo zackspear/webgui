@@ -126,11 +126,7 @@ extra_addr() {
 
 extra() {
   source <(/usr/bin/fromdos <$EXTRA)
-  if [[ "avahi show" =~ $CALLER ]]; then
-    extra_name
-  else
-    extra_addr
-  fi
+  [[ "avahi show" =~ $CALLER ]] && extra_name || extra_addr
 }
 
 check() {
