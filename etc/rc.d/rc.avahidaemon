@@ -47,7 +47,7 @@ avahid_start() {
   if [[ -f $NETWORK_INI ]]; then
     # bind avahi service
     if check; then
-      [[ -n $bind ]] && allow $bind
+      [[ -n $bind ]] && allow $bind || allow br0
       [[ $ipv4 == yes ]] && enable ipv4 || disable ipv4
       [[ $ipv6 == yes ]] && enable ipv6 || disable ipv6
     fi
