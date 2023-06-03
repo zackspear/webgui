@@ -1,99 +1,21 @@
 #!/bin/bash
 
+SCRIPT="show"
 NETWORK_INI="/var/local/emhttp/network.ini"
 SYSTEM="/sys/class/net"
 EXTRA="/boot/config/network-extra.cfg"
 
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
-zero() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && data=$1
-  done
-  echo $data
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
-      # net is an interface name, validate
-      [[ -n $(show dev $net) && -z $(zero $net) ]] && bind+=($net)
-    else
-      # net is an IP address, convert to name
-      net=$(show $net)
-      [[ -n $net && -z $(zero $net) ]] && bind+=($net)
-    fi
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} ]]; then
-      # net is an interface name, remove
-      remove $net
-    else
-      # net is an IP address, convert to name and remove
-      remove $(show $net)
-    fi
-  done
-}
-
-bind=();
-if [[ -f $NETWORK_INI ]]; then
-  # get interface and vlan configurations
-  for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-    # main interface
-    if [[ -e $SYSTEM/$eth ]]; then
-      sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-      net=$eth
-      [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
-      [[ $(link BRIDGING) == yes ]] && net=${eth/eth/br}
-      net4=$(link IPADDR:0)
-      net6=$(link IPADDR6:0)
-      [[ -n $net4 || -n $net6 ]] && bind+=($net)
-      if [[ $(link TYPE) == trunk ]]; then
-        # vlan interface
-        for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-          net4=$(link IPADDR:$vlan)
-          net6=$(link IPADDR6:$vlan)
-          [[ -n $net4 || -n $net6 ]] && bind+=($net.$vlan)
-        done
-      fi
-    fi
-  done
-  # add active WG tunnels
-  for wg in $(wg show interfaces); do
-    net4=$(show -4 dev $wg)
-    net6=$(show -6 dev $wg)
-    [[ -n $net4 || -n $net6 ]] && bind+=($wg)
-  done
-  # add user defined interfaces
-  [[ -f $EXTRA ]] && extra
-  # remove temporary file
-  rm -f $NETWORK_INI.eth
-fi
-bind=${bind[@]}
-if [[ $1 == ip ]]; then
+# include IP addresses?
+if check && [[ $1 == ip ]]; then
   ip=()
   for net in $bind; do
     ip+=("$net#[$(show -4 dev $net)#$(show -6 dev $net)]")
   done
   bind=${ip[@]}
 fi
+
+# return list
 echo ${bind// /, }

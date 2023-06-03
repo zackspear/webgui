@@ -15,6 +15,7 @@
 # WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
+SCRIPT="nginx"
 NGINX="/usr/sbin/nginx"
 PID="/var/run/nginx.pid"
 SSL="/boot/config/ssl"
@@ -33,10 +34,8 @@ EXTRA="/boot/config/network-extra.cfg"
 # hold server names
 SERVER_NAMES=()
 
-# read settings
-if [[ -a $IDENT ]]; then
-  source <(/usr/bin/fromdos <$IDENT)
-fi
+# read Unraid settings
+[[ -r $IDENT ]] && . <(/usr/bin/fromdos <$IDENT)
 
 # preset default values
 [[ -z $START_PAGE ]] && START_PAGE=Main
@@ -54,130 +53,11 @@ if ! find /boot/config/*.key &>/dev/null; then
   START_PAGE="Tools/Registration"
 fi
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  now=();
-  for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2;$/{print $2}' $SERVERS 2>/dev/null); do
-    # extract ipv4 / ipv6 address
-    [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
-    now+=($addr)
-  done
-  # return addresses
-  echo ${now[@]}
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 fqdn() {
   echo ${CERTNAME/'*'/${1//[.:]/-}}
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no;
-  if [[ -f $NETWORK_INI ]]; then
-    # add interfaces and vlans
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string
-    bind=${bind[@]}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
 }
 
 # create listening ports
