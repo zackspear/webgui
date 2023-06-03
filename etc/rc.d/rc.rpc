@@ -12,7 +12,7 @@
 # limetech - get rid of chatty '-l' rpcbind option
 # bergware - added interface bind functionality
 
-SCRIPT="rpc"
+CALLER="rpc"
 RPCBIND="/sbin/rpcbind"
 RPC="/etc/default/rpc"
 

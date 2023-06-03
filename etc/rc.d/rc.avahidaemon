@@ -22,7 +22,7 @@
 
 # Start/stop/restart the avahi daemon:
 
-SCRIPT="avahi"
+CALLER="avahi"
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi mDNS/DNS-SD Daemon"
 AVAHI="/usr/sbin/avahi-daemon"
@@ -87,7 +87,7 @@ avahid_reload() {
 
 avahid_update() {
   if ! avahid_status; then exit 1; fi # not running
-  if check && [[ "$(this allow-interfaces)" == "$bind" && $(this use-ipv4) == $ipv4 && $(this use-ipv6) == $ipv6 ]]; then
+  if check && [[ "$(this allow-interfaces)" == "$bind" ]]; then
     # no action required
     exit 1
   else

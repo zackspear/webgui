@@ -15,7 +15,7 @@
 # WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
-SCRIPT="nginx"
+CALLER="nginx"
 NGINX="/usr/sbin/nginx"
 PID="/var/run/nginx.pid"
 SSL="/boot/config/ssl"

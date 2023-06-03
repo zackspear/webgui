@@ -4,7 +4,7 @@
 # limetech - modified to initialize ntp.conf file from config
 # bergware - added interface bind functionality
 
-SCRIPT="ntpd"
+CALLER="ntpd"
 NTPD="/usr/sbin/ntpd"
 OPTIONS="-g -u ntp:ntp"
 CONF="/etc/ntp.conf"

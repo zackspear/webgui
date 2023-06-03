@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT="show"
+CALLER="show"
 
 # library functions
 . /etc/rc.d/rc.library.source

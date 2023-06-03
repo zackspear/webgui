@@ -7,7 +7,7 @@ SYSTEM="/sys/class/net"
 EXTRA="/boot/config/network-extra.cfg"
 
 this() {
-  case $SCRIPT in
+  case $CALLER in
 'avahi')
   grep -Pom1 "^$1=\K.*" $CONF
   ;;
@@ -76,63 +76,68 @@ remove() {
   done
 }
 
+extra_name() {
+  for net in $include_interfaces; do
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+      # net is an interface name, validate
+      [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
+    else
+      # net is an IP address, convert to name
+      net=$(show $net)
+      [[ -n $net && -z $(take $net) ]] && bind+=($net)
+    fi
+  done
+  for net in $exclude_interfaces; do
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+      # net is an interface name, remove
+      remove $net
+    else
+      # net is an IP address, convert to name and remove
+      remove $(show $net)
+    fi
+  done
+}
+
+extra_addr() {
+  for net in $include_interfaces; do
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+      # net is an interface name, get IP addresses
+      net4=$(show -4 dev $net)
+      net6=$(show -6 dev $net)
+    else
+      # net is an IP address, validate
+      net4=$(show -4 to $net)
+      net6=$(show -6 to $net)
+    fi
+    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
+    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
+  done
+  for net in $exclude_interfaces; do
+    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
+      # net is an interface name, get IP addresses
+      remove $(show -4 dev $net)
+      remove $(show -6 dev $net)
+    else
+      # net is an IP address
+      remove $(show to $net)
+    fi
+  done
+}
+
 extra() {
   source <(/usr/bin/fromdos <$EXTRA)
-  case $SCRIPT in
-  'avahi'|'show')
-    for net in $include_interfaces; do
-      if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-        # net is an interface name, validate
-        [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
-      else
-        # net is an IP address, convert to name
-        net=$(show $net)
-        [[ -n $net && -z $(take $net) ]] && bind+=($net)
-      fi
-    done
-    for net in $exclude_interfaces; do
-      if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-        # net is an interface name, remove
-        remove $net
-      else
-        # net is an IP address, convert to name and remove
-        remove $(show $net)
-      fi
-    done
-    ;;
-  *)
-    for net in $include_interfaces; do
-      if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-        # net is an interface name, get IP addresses
-        net4=$(show -4 dev $net)
-        net6=$(show -6 dev $net)
-      else
-        # net is an IP address, validate
-        net4=$(show -4 to $net)
-        net6=$(show -6 to $net)
-      fi
-      [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-      [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-    done
-    for net in $exclude_interfaces; do
-      if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-        # net is an interface name, get IP addresses
-        remove $(show -4 dev $net)
-        remove $(show -6 dev $net)
-      else
-        # net is an IP address
-        remove $(show to $net)
-      fi
-    done
-    ;;
-  esac
+  if [[ "avahi show" =~ $CALLER ]]; then
+    extra_name
+  else
+    extra_addr
+  fi
 }
 
 check() {
   # quick check
   [[ -n $bind ]] && return 0;
   # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no;
+  reply=1; bind=(); ipv4=no; ipv6=no; family=any;
   if [[ -f $NETWORK_INI ]]; then
     # add interfaces and vlans
     for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
@@ -141,7 +146,7 @@ check() {
         sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
         net4=$(link IPADDR:0)
         net6=$(link IPADDR6:0)
-        if [[ $SCRIPT == avahi || $SCRIPT == show ]]; then
+        if [[ "avahi show" =~ $CALLER ]]; then
           net=$eth
           [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
           [[ $(link BRIDGING) == yes ]] && net=${eth/eth/br}
@@ -157,7 +162,7 @@ check() {
           for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
             net4=$(link IPADDR:$vlan)
             net6=$(link IPADDR6:$vlan)
-            if [[ $SCRIPT == avahi || $SCRIPT == show ]]; then
+            if [[ "avahi show" =~ $CALLER ]]; then
               [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net.$(link VLANID:$vlan))
               [[ -n $(good $net4) ]] && ipv4=yes
               [[ -n $(good $net6) ]] && ipv6=yes
@@ -173,7 +178,7 @@ check() {
     for wg in $(wg show interfaces); do
       net4=$(show -4 dev $wg)
       net6=$(show -6 dev $wg)
-      if [[ $SCRIPT == avahi || $SCRIPT == show ]]; then
+      if [[ "avahi show" =~ $CALLER ]]; then
         [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($wg)
         [[ -n $(good $net4) ]] && ipv4=yes
         [[ -n $(good $net6) ]] && ipv6=yes
@@ -183,13 +188,13 @@ check() {
       fi
     done
     # add loopback interface
-    if [[ "nfsd ntpd rpc" =~ $SCRIPT ]]; then
+    if [[ "nfsd ntpd rpc" =~ $CALLER ]]; then
       [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
     # add user defined interfaces
     [[ -f $EXTRA ]] && extra
-    if [[ $SCRIPT == sshd ]]; then
+    if [[ $CALLER == sshd ]]; then
       # bind stays array
       bind=(${bind[@]})
       [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
@@ -197,7 +202,7 @@ check() {
     else
       # convert array to string
       bind=${bind[@]}
-      [[ $SCRIPT == avahi ]] && bind=${bind// /,}
+      [[ $CALLER == avahi ]] && bind=${bind// /,}
     fi
     reply=0
     # remove temporary file

@@ -2,7 +2,7 @@
 # Start/stop/restart the secure shell server:
 # bergware - added interface bind functionality
 
-SCRIPT="sshd"
+CALLER="sshd"
 SSHD="/usr/sbin/sshd"
 CONF="/etc/ssh/sshd_config"
 PID="/var/run/sshd.pid"
@@ -72,7 +72,7 @@ sshd_reload() {
 
 sshd_update() {
   [[ $(pgrep -cf $SSHD) -eq 0 ]] && exit 1 # not running
-  if check && [[ "$(this ListenAddress)" == "${bind[@]}" && $(this AddressFamily) == $family ]]; then
+  if check && [[ "$(this ListenAddress)" == "${bind[@]}" ]]; then
     # no action required
     exit 1
   else

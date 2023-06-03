@@ -9,7 +9,7 @@
 #
 # bergware - added interface bind functionality
 
-SCRIPT="nfsd"
+CALLER="nfsd"
 NFSD="/usr/sbin/rpc.nfsd"
 EXPORTFS="/usr/sbin/exportfs"
 RQUOTAD="/usr/sbin/rpc.rquotad"
