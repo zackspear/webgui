@@ -1,6 +1,11 @@
 # /etc/rc.d/rc.library
 # used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
 
+WIREGUARD="/etc/wireguard"
+NETWORK_INI="/var/local/emhttp/network.ini"
+SYSTEM="/sys/class/net"
+EXTRA="/boot/config/network-extra.cfg"
+
 this() {
   case $SCRIPT in
 'avahi')

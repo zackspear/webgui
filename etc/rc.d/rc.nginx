@@ -24,12 +24,8 @@ IDENT="/boot/config/ident.cfg"
 SERVERS="/etc/nginx/conf.d/servers.conf"
 LOCATIONS="/etc/nginx/conf.d/locations.conf"
 NEW="/var/local/emhttp/nginx.ini.new"
-WIREGUARD="/etc/wireguard"
 CERTPATH="$SSL/certs/certificate_bundle.pem"
 MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # hold server names
 SERVER_NAMES=()

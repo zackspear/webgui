@@ -27,10 +27,6 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi mDNS/DNS-SD Daemon"
 AVAHI="/usr/sbin/avahi-daemon"
 CONF="/etc/avahi/avahi-daemon.conf"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # library functions
 . /etc/rc.d/rc.library.source

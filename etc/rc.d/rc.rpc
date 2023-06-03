@@ -15,10 +15,6 @@
 SCRIPT="rpc"
 RPCBIND="/sbin/rpcbind"
 RPC="/etc/default/rpc"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # library functions
 . /etc/rc.d/rc.library.source

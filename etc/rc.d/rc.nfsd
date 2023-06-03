@@ -17,10 +17,6 @@ MOUNTD="/usr/sbin/rpc.mountd"
 OPTIONS="-u -s"
 RPC="/etc/default/rpc"
 NFS="/etc/default/nfs"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # library functions
 . /etc/rc.d/rc.library.source

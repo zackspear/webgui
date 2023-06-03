@@ -8,10 +8,6 @@ CONF="/etc/ssh/sshd_config"
 PID="/var/run/sshd.pid"
 SSH_BOOT="/boot/config/ssh"
 SSH_ETC="/etc/ssh"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
 # library functions
 . /etc/rc.d/rc.library.source
