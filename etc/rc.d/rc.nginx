@@ -23,7 +23,7 @@ CONF="/etc/nginx/nginx.conf"
 IDENT="/boot/config/ident.cfg"
 SERVERS="/etc/nginx/conf.d/servers.conf"
 LOCATIONS="/etc/nginx/conf.d/locations.conf"
-NEW="/var/local/emhttp/nginx.ini.new"
+INI="/var/local/emhttp/nginx.ini.new"
 CERTPATH="$SSL/certs/certificate_bundle.pem"
 MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
 
@@ -541,36 +541,36 @@ build_ssl() {
     DEFAULTURL="http://$LANMDNS$PORT_URL"
   fi
 
-  mkdir -p $(dirname "$NEW")
+  mkdir -p $(dirname "$INI")
   # always defined:
-  echo "NGINX_LANIP=\"$LANIP\"" >$NEW
-  echo "NGINX_LANIP6=\"$LANIP6\"" >>$NEW
-  echo "NGINX_LANNAME=\"$LANNAME\"" >>$NEW
-  echo "NGINX_LANMDNS=\"$LANMDNS\"" >>$NEW
-  echo "NGINX_CERTPATH=\"$CERTPATH\"" >>$NEW
-  echo "NGINX_USESSL=\"$USE_SSL\"" >>$NEW
-  echo "NGINX_PORT=\"$PORT\"" >>$NEW
-  echo "NGINX_PORTSSL=\"$PORTSSL\"" >>$NEW
-  echo "NGINX_DEFAULTURL=\"$DEFAULTURL\"" >>$NEW
+  echo "NGINX_LANIP=\"$LANIP\"" >$INI
+  echo "NGINX_LANIP6=\"$LANIP6\"" >>$INI
+  echo "NGINX_LANNAME=\"$LANNAME\"" >>$INI
+  echo "NGINX_LANMDNS=\"$LANMDNS\"" >>$INI
+  echo "NGINX_CERTPATH=\"$CERTPATH\"" >>$INI
+  echo "NGINX_USESSL=\"$USE_SSL\"" >>$INI
+  echo "NGINX_PORT=\"$PORT\"" >>$INI
+  echo "NGINX_PORTSSL=\"$PORTSSL\"" >>$INI
+  echo "NGINX_DEFAULTURL=\"$DEFAULTURL\"" >>$INI
   # defined if certificate_bundle.pem present:
-  echo "NGINX_CERTNAME=\"$CERTNAME\"" >>$NEW
-  echo "NGINX_LANFQDN=\"$LANFQDN\"" >>$NEW
-  echo "NGINX_LANFQDN6=\"$LANFQDN6\"" >>$NEW
+  echo "NGINX_CERTNAME=\"$CERTNAME\"" >>$INI
+  echo "NGINX_LANFQDN=\"$LANFQDN\"" >>$INI
+  echo "NGINX_LANFQDN6=\"$LANFQDN6\"" >>$INI
   # defined if remote access enabled:
-  echo "NGINX_WANACCESS=\"$WANACCESS\"" >>$NEW
-  echo "NGINX_WANIP=\"$WANIP\"" >>$NEW
-  echo "NGINX_WANIP6=\"$WANIP6\"" >>$NEW
-  echo "NGINX_WANFQDN=\"$WANFQDN\"" >>$NEW
-  echo "NGINX_WANFQDN6=\"$WANFQDN6\"" >>$NEW
+  echo "NGINX_WANACCESS=\"$WANACCESS\"" >>$INI
+  echo "NGINX_WANIP=\"$WANIP\"" >>$INI
+  echo "NGINX_WANIP6=\"$WANIP6\"" >>$INI
+  echo "NGINX_WANFQDN=\"$WANFQDN\"" >>$INI
+  echo "NGINX_WANFQDN6=\"$WANFQDN6\"" >>$INI
   # add included interfaces
   for NET in ${!NET_FQDN[@]}; do
-    echo "NGINX_${NET^^}FQDN=\"${NET_FQDN[$NET]}\"" >>$NEW
+    echo "NGINX_${NET^^}FQDN=\"${NET_FQDN[$NET]}\"" >>$INI
   done
   for NET in ${!NET_FQDN6[@]}; do
-    echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$NEW
+    echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$INI
   done
   # atomically update file
-  /usr/bin/mv $NEW ${NEW%.*}
+  /usr/bin/mv $INI ${INI%.*}
 }
 
 nginx_status() {
