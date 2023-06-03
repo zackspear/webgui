@@ -48,8 +48,8 @@ avahid_start() {
     # bind avahi service
     if check; then
       [[ -n $bind ]] && allow $bind || allow br0
-      [[ $ipv4 == yes ]] && enable ipv4 || disable ipv4
-      [[ $ipv6 == yes ]] && enable ipv6 || disable ipv6
+      [[ $ipv4 == no ]] && disable ipv4 || enable ipv4
+      [[ $ipv6 == no ]] && disable ipv6 || enable ipv6
     fi
   else
     # default interface with no configuration
