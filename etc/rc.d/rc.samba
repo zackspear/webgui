@@ -10,7 +10,7 @@
 # limetech - modified to initialize smb-names.conf file from config
 # bergware - added interface bind functionality
 
-CALLER="samba"
+CALLER="smb"
 SMBD="/usr/sbin/smbd"
 NMBD="/usr/sbin/nmbd"
 WINBINDD="/usr/sbin/winbindd"
