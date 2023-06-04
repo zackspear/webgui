@@ -39,8 +39,8 @@ function create($id, $name, $vcpu) {
     for ($n = 0; $n < $max; $n++) {
       unset($cpu1,$cpu2);
       [$cpu1, $cpu2] = my_preg_split('/[,-]/',$cpus[$c*32+$n]);
-      $check1 = in_array($cpu1, $vcpu) ? 'checked':'';
-      $check2 = $cpu2 ? (in_array($cpu2, $vcpu) ? 'checked':''):'';
+      $check1 = ($vcpu && in_array($cpu1, $vcpu)) ? 'checked':'';
+      $check2 = $cpu2 ? ($vcpu && (in_array($cpu2, $vcpu)) ? 'checked':''):'';
       if (empty($text[$n])) $text[$n] = '';
       $text[$n] .="<label class='checkbox'><input type='checkbox' name='$name:$cpu1' $check1><span class='checkmark'></span></label><br>";
       if ($cpu2) $text[$n] .= "<label class='checkbox'><input type='checkbox' name='$name:$cpu2' $check2><span class='checkmark'></span></label><br>";
