@@ -160,7 +160,6 @@ samba_update() {
     # no action required
     exit 1
   else
-    echo "$(this interfaces) == $bind"
     # service update required
     exit 0
   fi
