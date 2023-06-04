@@ -26,7 +26,7 @@ function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
     $decimals = 0;
     $unit = '';
   } else {
-    $base = $value ? floor(log($value, $kilo)) : 0;
+    $base = $value ? intval(floor(log($value, $kilo))) : 0;
     if ($scale>0 && $base>$scale) $base = $scale;
     if ($base>$size) $base = $size-1;
     $value /= pow($kilo, $base);
