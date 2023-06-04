@@ -1,0 +1,10 @@
+#!/bin/bash
+SERVICES="sshd avahidaemon samba rpc nfsd ntpd nginx"
+
+for cmd in $SERVICES; do
+  [[ $cmd == $1 ]] && option=renew || option=reload
+  if /etc/rc.d/rc.$cmd update; then
+    /etc/rc.d/rc.$cmd $option >/dev/null 2>&1
+  fi
+done
+exit 0

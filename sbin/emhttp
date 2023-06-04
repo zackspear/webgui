@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Start emhttpd.  The nginx components are started during emhttpd initialization.
+
+# Usage:
+#   emhttp [OPER]
+
+# OPER is start or stop.  Default is start.
+
+# The protocol schemes and ports recognized by nginx are defined by these variables
+# in the file /boot/config/ident.cfg:
+#  USE_SSL="no"|"yes"|"only"|"auto"        default: "auto"
+#  PORT=<http listening port number>       default: 80
+#  PORTSSL=<https listening port number>   default: 443
+# Refer to /etc/rc.d/rc.nginx
+
+# Backward-compatibility Usage:
+#   emhttp [-r] [-p port[,sslport]] [OPER]
+
+# The -r and -p options are deprecated and no longer function.  They are simply
+# accepted and dropped.
+
+while getopts ":p:r" opt; do
+  case $opt in
+    p ) ;;
+    r ) ;;
+    * ) echo "unknown option $opt"
+        exit 1
+  esac
+done
+shift $((OPTIND-1))
+
+[[ "$1" ]] && OPER=$1 || OPER="start"
+
+if [[ "$OPER" = "stop" ]]; then
+  /etc/rc.d/rc.nginx stop
+  /etc/rc.d/rc.php-fpm stop
+  echo "Stopping emhttpd"
+  pkill emhttpd
+  rmmod md-mod
+  exit
+elif [[ "$OPER" != "start" ]]; then
+  echo "unknown operation: $1"
+  exit 1
+fi
+
+# verify emhttpd not already started
+if [[ ! -z $(pgrep emhttpd) ]]; then
+  echo "emhttpd is already started"
+  exit 1
+fi
+
+# start emhttpd
+logger "Starting emhttpd"
+/usr/local/bin/emhttpd

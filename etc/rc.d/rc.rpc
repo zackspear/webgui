@@ -1,0 +1,119 @@
+#!/bin/sh
+# rc.rpc:  start/stop/restart RPC daemons needed to use NFS.
+#
+# You must run these daemons in order to mount NFS partitions
+# (unless you use the mount option '-o nolock', which can
+# corrupt files and is not generally recommended unless you
+# are mounting the partition(s) as read-only).
+#
+# To run an NFS server, starting these is mandatory.
+#
+
+# limetech - get rid of chatty '-l' rpcbind option
+# bergware - added interface bind functionality
+
+CALLER="rpc"
+RPCBIND="/sbin/rpcbind"
+STATD="/sbin/rpc.statd"
+RPC="/etc/default/rpc"
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+# get bind addresses
+if check && [[ -n $bind ]]; then
+  RPCBIND_OPTS="-h ${bind// / -h }"
+fi
+
+# update default settings
+sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
+
+# source default settings:
+[[ -r $RPC ]] && . $RPC
+
+rpc_start() {
+  if [[ -x $RPCBIND && -x $STATD ]]; then
+    # Set up port for lockd:
+    if [[ -n $LOCKD_TCP_PORT ]]; then
+      /sbin/sysctl -w "fs.nfs.nlm_tcpport=$LOCKD_TCP_PORT" 2>/dev/null
+    fi
+    if [[ -n $LOCKD_UDP_PORT ]]; then
+      /sbin/sysctl -w "fs.nfs.nlm_udpport=$LOCKD_UDP_PORT" 2>/dev/null
+    fi
+    if ! ps axc | grep -q rpcbind; then
+      echo "Starting RPC portmapper:  $RPCBIND $* $RPCBIND_OPTS"
+      $RPCBIND $* $RPCBIND_OPTS 2>/dev/null
+    fi
+    if ! ps axc | grep -q rpc.statd; then
+      [[ -n $RPC_STATD_HOSTNAME ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -n $RPC_STATD_HOSTNAME"
+      [[ -n $RPC_STATD_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -p $RPC_STATD_PORT"
+      [[ -n $RPC_STATD_OUTGOING_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -o $RPC_STATD_OUTGOING_PORT"
+      echo "Starting RPC NSM (Network Status Monitor):  $STATD $RPC_STATD_OPTS"
+      $STATD $RPC_STATD_OPTS 2>/dev/null
+    fi
+  else
+    echo "WARNING:  Cannot start RPC daemons needed for NFS.  One or more of"
+    echo "          these required daemons is not executable or is not present"
+    echo "          on your system:"
+    echo
+    echo "          $RPCBIND or $STATD"
+    echo
+  fi
+}
+
+rpc_stop() {
+  killall rpc.statd 2>/dev/null
+  sleep 1
+  killall rpcbind 2>/dev/null
+  sleep 1
+  killall -9 rpc.statd 2>/dev/null # make sure :)
+  sleep 1
+  killall -9 rpcbind 2>/dev/null # make sure :)
+}
+
+rpc_restart() {
+  rpc_stop
+  sleep 1
+  rpc_start
+}
+
+rpc_reload() {
+  killall -9 rpcbind 2>/dev/null
+  sleep 1
+  $RPCBIND -w $RPCBIND_OPTS 2>/dev/null
+}
+
+rpc_update() {
+  [[ $(pgrep -cf $RPCBIND) -eq 0 ]] && exit 1; # not running
+  if check && [[ "$(this)" == "-h ${bind// / -h }" ]]; then
+    # no action required
+    exit 1
+  else
+    # service update required
+    exit 0
+  fi
+}
+
+case "$1" in
+'start')
+  # warm restart by default (see "man rpcbind" for details about the -w option)
+  rpc_start -w
+  ;;
+'cold_start') # start without -w option
+  rpc_start
+  ;;
+'stop')
+  rpc_stop
+  ;;
+'restart')
+  rpc_restart
+  ;;
+'reload')
+  rpc_reload
+  ;;
+'update')
+  rpc_update
+  ;;
+*)
+  echo "usage $0 start|stop|restart|reload|update"
+esac

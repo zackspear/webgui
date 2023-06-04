@@ -1,0 +1,102 @@
+#!/bin/sh
+# Start/stop/restart the secure shell server:
+# bergware - added interface bind functionality
+
+CALLER="ssh"
+SSHD="/usr/sbin/sshd"
+CONF="/etc/ssh/sshd_config"
+PID="/var/run/sshd.pid"
+SSH_BOOT="/boot/config/ssh"
+SSH_ETC="/etc/ssh"
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+build_ssh() {
+  if check && [[ -n $bind ]]; then
+    # remove existing entries
+    sed -ri '/^#?(ListenAddress|AddressFamily) /d' $CONF
+    # create new entries (in reverse order)
+    for i in $(seq $((${#bind[@]}-1)) -1 0); do
+      sed -ri "/^#?Port /a ListenAddress ${bind[$i]}" $CONF
+    done
+    sed -ri "/^#?Port /a AddressFamily $family" $CONF
+  fi
+}
+
+sshd_start() {
+  # make sure ssh dir exists on flash
+  mkdir -p $SSH_BOOT
+  # restore saved keys, config file, etc. (but not subdirs)
+  cp $SSH_BOOT/* $SSH_ETC &>/dev/null
+  chmod 600 $SSH_ETC/* &>/dev/null
+  # create host keys if needed and copy any newly generated key(s) back to flash
+  ssh-keygen -A
+  cp -n $SSH_ETC/ssh_host*_key* $SSH_BOOT/
+  # build configuration
+  build_ssh
+  # start daemon
+  $SSHD 2>/dev/null
+}
+
+sshd_stop() {
+  killall sshd
+}
+
+sshd_restart() {
+  if [[ -r $PID ]]; then
+    echo "WARNING: killing listener process only.  To kill every sshd process, you must"
+    echo "         use 'rc.sshd stop'.  'rc.sshd restart' kills only the parent sshd to"
+    echo "         allow an admin logged in through sshd to use 'rc.sshd restart' without"
+    echo "         being cut off.  If sshd has been upgraded, new connections will now"
+    echo "         use the new version, which should be a safe enough approach."
+    kill $(cat $PID)
+  else
+    echo "WARNING: There does not appear to be a parent instance of sshd running."
+    echo "         If you really want to kill all running instances of sshd (including"
+    echo "         any sessions currently in use), run '/etc/rc.d/rc.sshd stop' instead."
+    exit 1
+  fi
+  sleep 1
+  sshd_start
+}
+
+sshd_reload() {
+  # kill listener
+  [[ -r $PID ]] && kill $(cat $PID)
+  # update settings
+  build_ssh
+  # restart daemon
+  $SSHD 2>/dev/null
+}
+
+sshd_update() {
+  [[ $(pgrep -cf $SSHD) -eq 0 ]] && exit 1 # not running
+  if check && [[ "$(this ListenAddress)" == "${bind[@]}" ]]; then
+    # no action required
+    exit 1
+  else
+    # service update required
+    exit 0
+  fi
+}
+
+case "$1" in
+'start')
+  sshd_start
+  ;;
+'stop')
+  sshd_stop
+  ;;
+'restart')
+  sshd_restart
+  ;;
+'reload')
+  sshd_reload
+  ;;
+'update')
+  sshd_update
+  ;;
+*)
+  echo "usage $0 start|stop|restart|reload|update"
+esac

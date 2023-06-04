@@ -1,0 +1,138 @@
+#!/bin/sh
+# Start/stop/restart the NFS server.
+#
+# This is an init script for the knfsd NFS daemons.
+# To use NFS, you must first set up /etc/exports.
+# See exports(5) for information on /etc/exports format.
+#
+# Written for Slackware Linux by Patrick J. Volkerding <volkerdi@slackware.com>.
+#
+# bergware - added interface bind functionality
+
+CALLER="nfs"
+NFSD="/usr/sbin/rpc.nfsd"
+EXPORTFS="/usr/sbin/exportfs"
+RQUOTAD="/usr/sbin/rpc.rquotad"
+MOUNTD="/usr/sbin/rpc.mountd"
+OPTIONS="-u -s"
+RPC="/etc/default/rpc"
+NFS="/etc/default/nfs"
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+# get bind addresses
+if check && [[ -n $bind ]]; then
+  RPC_NFSD_OPTS="$OPTIONS -H ${bind// / -H }"
+fi
+
+# update default settings
+sed -ri "s/^(RPC_NFSD_OPTS)=.*/\1=\"$RPC_NFSD_OPTS\"/" $NFS 2>/dev/null
+
+# source default settings:
+[[ -r $RPC ]] && . $RPC
+[[ -r $NFS ]] && . $NFS
+
+nfsd_start() {
+  # There used to be "sanity checks" here to exit without starting if various
+  # config files didn't exist, or didn't contain certain expected content.
+  # This behavior led to some bugs and has been removed. It's not our business
+  # to check your config files - that's for the binaries that use them.
+
+  # If we do not detect nfsd support built into the kernel (or previously
+  # loaded as a module), we will try to load the nfsd.ko kernel module:
+  if [[ ! -r /proc/1/net/rpc/nfsd ]]; then
+    /sbin/modprobe nfsd 2>/dev/null
+  fi
+  # mount the nfsd filesystem:
+  if awk '$NF == "nfsd"' /proc/filesystems | grep -q . ; then
+    if ! awk '$3 == "nfsd" && $2 == "/proc/fs/nfs"' /proc/mounts | grep -q . ; then
+      /sbin/mount -t nfsd nfsd /proc/fs/nfs 2>/dev/null
+    fi
+  fi
+  # if basic RPC services are not running, start them:
+  if ! ps axc | grep -q rpc.statd; then
+    if [[ -r /etc/rc.d/rc.rpc ]]; then
+      sh /etc/rc.d/rc.rpc start 2>/dev/null
+    else
+      # sure, we tested for rpc.statd, but this is the probable cause:
+      echo "FATAL:  Can't start NFS server without rpcbind package."
+      sleep 5
+      exit 1
+    fi
+  fi
+  echo "Starting NFS server daemons:"
+  if [[ -x $EXPORTFS ]]; then
+    echo "  $EXPORTFS -r"
+    $EXPORTFS -r 2>/dev/null
+  fi
+  if [[ -x $RQUOTAD ]]; then
+    [[ -n $RPC_RQUOTAD_PORT ]] && RPC_RQUOTAD_OPTS="$RPC_RQUOTAD_OPTS -p $RPC_RQUOTAD_PORT"
+    echo "  $RQUOTAD $RPC_RQUOTAD_OPTS"
+    $RQUOTAD $RPC_RQUOTAD_OPTS 2>/dev/null
+  fi
+  # start nfsd servers - 8 if not set extrawise (an old Sun standard):
+  if [[ -x $NFSD ]]; then
+    [[ -z $RPC_NFSD_COUNT ]] && RPC_NFSD_COUNT=8
+    echo "  $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT"
+    $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT 2>/dev/null
+  fi
+  if [[ -x $MOUNTD ]]; then
+    [[ -n $RPC_MOUNTD_PORT ]] && RPC_MOUNTD_OPTS="$RPC_MOUNTD_OPTS -p $RPC_MOUNTD_PORT"
+    echo "  $MOUNTD $RPC_MOUNTD_OPTS"
+    $MOUNTD $RPC_MOUNTD_OPTS 2>/dev/null
+  fi
+}
+
+nfsd_stop() {
+  killall rpc.mountd 2>/dev/null
+  killall nfsd 2>/dev/null
+  sleep 1
+  killall -9 nfsd 2>/dev/null # make sure :)
+  killall rpc.rquotad 2>/dev/null
+  $EXPORTFS -au 2>/dev/null
+}
+
+nfsd_restart() {
+  nfsd_stop
+  sleep 1
+  nfsd_start
+}
+
+nfsd_reload() {
+  killall -9 nfsd 2>/dev/null
+  sleep 1
+  [[ -z $RPC_NFSD_COUNT ]] && RPC_NFSD_COUNT=8
+  $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT 2>/dev/null
+}
+
+nfsd_update() {
+  [[ $(pgrep -c nfsd) -le 1 ]] && exit 1 # not running
+  if check && [[ "$(this)" == "-H ${bind// / -H }" ]]; then
+    # no action required
+    exit 1
+  else
+    # service update required
+    exit 0
+  fi
+}
+
+case "$1" in
+'start')
+  nfsd_start
+  ;;
+'stop')
+  nfsd_stop
+  ;;
+'restart')
+  nfsd_restart
+  ;;
+'reload')
+  nfsd_reload
+  ;;
+'update')
+  nfsd_update
+  ;;
+*)
+  echo "usage $0 start|stop|restart|reload|update"
+esac

@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# apcupsd      This shell script takes care of starting and stopping
+#	       the apcupsd UPS monitoring daemon.
+#
+# chkconfig: 2345 20 99
+# description: apcupsd monitors power and takes action if necessary
+#
+APCPID=/var/run/apcupsd.pid
+DISTVER="Slackware 14.2+"
+
+return=""
+
+
+case "$1" in
+    start)
+	rm -f /etc/apcupsd/powerfail
+	rm -f /etc/nologin
+	echo -n "Starting apcupsd power management:  /sbin/apcupsd"
+	if [ -f ${APCPID} ]; then
+		return="  Already running."
+	else
+		mkdir -p /var/lock
+		/sbin/apcupsd && touch /var/lock/apcupsd \
+		|| return="  Failed."
+	fi
+
+	echo -e "$return"
+    ;;
+    stop)
+	echo -n "Stopping apcupsd power management.."
+	if [ -f ${APCPID} ]; then
+		THEPID=$(cat ${APCPID})
+		kill ${THEPID} || return="  Failed."
+		sleep 2
+		rm -f ${APCPID}
+	else
+		return="  Nothing to stop."
+	fi
+	rm -f /var/lock/apcupsd
+	echo -e "$return"
+    ;;
+    restart)
+       $0 stop
+       $0 start
+    ;;
+    status)
+       /sbin/apcaccess status
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+esac
+
+exit 0

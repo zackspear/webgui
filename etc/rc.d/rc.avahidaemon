@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# This file is part of avahi.
+#
+# avahi is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# avahi is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with avahi; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+
+# limetech - 'status' modified to exit with correct status
+# limetech - 'start' modified to enable/disable ipv4/ipv6
+# bergware - added interface bind functionality
+
+# Start/stop/restart the avahi daemon:
+
+CALLER="avahi"
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Avahi mDNS/DNS-SD Daemon"
+AVAHI="/usr/sbin/avahi-daemon"
+CONF="/etc/avahi/avahi-daemon.conf"
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+allow() {
+  sed -ri "s/^#?(allow-interfaces)=.*/\1=$*/" $CONF
+}
+
+enable() {
+  sed -ri "s/^#?(use-$1)=.*/\1=yes/" $CONF
+}
+
+disable() {
+  sed -ri "s/^#?(use-$1)=.*/\1=no/" $CONF
+}
+
+avahid_start() {
+  if [[ -f $NETWORK_INI ]]; then
+    # bind avahi service
+    if check; then
+      [[ -n $bind ]] && allow $bind || allow br0
+      [[ $ipv4 == no ]] && disable ipv4 || enable ipv4
+      [[ $ipv6 == no ]] && disable ipv6 || enable ipv6
+    fi
+  else
+    # default interface with no configuration
+    allow br0
+    enable ipv4
+    disable ipv6
+  fi
+  # start daemon
+  echo "Starting $DESC: $AVAHI -D"
+  $AVAHI -D
+}
+
+avahid_stop() {
+  echo -en "Stopping $DESC: "
+  $AVAHI -c
+  [[ $? != 0 ]]
+  echo "stopped";
+  $AVAHI -k 2>/dev/null
+}
+
+avahid_status() {
+  $AVAHI -c
+  [[ $? = 0 ]]
+}
+
+avahid_restart() {
+  avahid_stop
+  avahid_start
+}
+
+avahid_reload() {
+  $AVAHI -k 2>/dev/null
+  avahid_start >/dev/null
+}
+
+avahid_update() {
+  if ! avahid_status; then exit 1; fi # not running
+  if check && [[ "$(this allow-interfaces)" == "$bind" ]]; then
+    # no action required
+    exit 1
+  else
+    # service update required
+    exit 0
+  fi
+}
+
+case "$1" in
+'start')
+  if ! avahid_status; then
+    avahid_start
+  else
+    echo "$DESC is already running (will not start it twice)."
+  fi
+  ;;
+'stop')
+  avahid_stop
+  ;;
+'status')
+  if avahid_status; then
+    echo "$DESC is currently running"
+    exit 0
+  else
+    echo "$DESC is not running."
+    exit 1
+  fi
+  ;;
+'restart')
+  avahid_restart
+  ;;
+'reload')
+  avahid_reload
+  ;;
+'update')
+  avahid_update
+  ;;
+*)
+  echo "usage $0 start|stop|status|restart|reload|update"
+esac

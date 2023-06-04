@@ -1,0 +1,216 @@
+# Library file: /etc/rc.d/rc.library.source
+# Used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
+
+WIREGUARD="/etc/wireguard"
+NETWORK_INI="/var/local/emhttp/network.ini"
+SYSTEM="/sys/class/net"
+EXTRA="/boot/config/network-extra.cfg"
+
+this() {
+  case $CALLER in
+  'avahi')
+    grep -Pom1 "^$1=\K.*" $CONF
+    ;;
+  'smb')
+    grep -Pom1 "^$1 = \K.*" $CONF
+    ;;
+  'ntp'|'ssh')
+    grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
+    ;;
+  'nfs')
+    grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
+    ;;
+  'rpc')
+    grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC
+    ;;
+  'nginx')
+    now=();
+    for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2; #.*$/{print $2}' $SERVERS 2>/dev/null); do
+      # extract ipv4 / ipv6 address
+      [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
+      now+=($addr)
+    done
+    # return addresses
+    echo ${now[@]}
+    ;;
+  esac
+}
+
+IPv() {
+  type=${1//[^:]}
+  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
+}
+
+scan() {
+  grep -Pom1 "^$1=\"?\K[^\"]+" $2
+}
+
+link() {
+  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
+}
+
+take() {
+  data=;
+  for i in ${!bind[@]}; do
+    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
+  done
+  echo $data
+}
+
+good() {
+  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
+}
+
+show() {
+  case $# in
+    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
+    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
+    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
+  esac
+}
+
+remove() {
+  [[ $# -eq 0 ]] && return
+  for i in ${!bind[@]}; do
+    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
+  done
+}
+
+isname() {
+  [[ -z ${1//[^.:]} || ${1//[^.:]} == . ]] && return 0 || return 1
+}
+
+extra_name() {
+  for net in $include_interfaces; do
+    if $(isname $net); then
+      # net is an interface name, validate
+      [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
+    else
+      # net is an IP address, convert to name
+      net=$(show $net)
+      [[ -n $net && -z $(take $net) ]] && bind+=($net)
+    fi
+  done
+  for net in $exclude_interfaces; do
+    if $(isname $net); then
+      # net is an interface name, remove
+      remove $net
+    else
+      # net is an IP address, convert to name and remove
+      remove $(show $net)
+    fi
+  done
+}
+
+extra_addr() {
+  for net in $include_interfaces; do
+    if $(isname $net); then
+      # net is an interface name, get IP addresses
+      net4=$(show -4 dev $net)
+      net6=$(show -6 dev $net)
+    else
+      # net is an IP address, validate
+      net4=$(show -4 to $net)
+      net6=$(show -6 to $net)
+    fi
+    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
+    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
+  done
+  for net in $exclude_interfaces; do
+    if $(isname $net); then
+      # net is an interface name, get IP addresses
+      remove $(show -4 dev $net)
+      remove $(show -6 dev $net)
+    else
+      # net is an IP address
+      remove $(show to $net)
+    fi
+  done
+}
+
+extra() {
+  . <(/usr/bin/fromdos <$EXTRA)
+  if [[ "avahi show" =~ $CALLER ]]; then
+    extra_name
+  else
+    extra_addr
+  fi
+}
+
+check() {
+  # quick check
+  [[ -n $bind ]] && return 0;
+  # preset return values
+  reply=1; bind=(); ipv4=no; ipv6=no; family=any;
+  if [[ -f $NETWORK_INI ]]; then
+    # add interfaces and vlans
+    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
+      if [[ -e $SYSTEM/$eth ]]; then
+        # main interface
+        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
+        net4=$(link IPADDR:0)
+        net6=$(link IPADDR6:0)
+        if [[ "avahi show" =~ $CALLER ]]; then
+          net=$eth
+          [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
+          [[ $(link BRIDGING) == yes ]] && net=${eth/eth/br}
+          [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net)
+          [[ -n $(good $net4) ]] && ipv4=yes
+          [[ -n $(good $net6) ]] && ipv6=yes
+        else
+          [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+        fi
+        if [[ $(link TYPE) == trunk ]]; then
+          # vlan interface
+          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
+            net4=$(link IPADDR:$vlan)
+            net6=$(link IPADDR6:$vlan)
+            if [[ "avahi show" =~ $CALLER ]]; then
+              [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net.$(link VLANID:$vlan))
+              [[ -n $(good $net4) ]] && ipv4=yes
+              [[ -n $(good $net6) ]] && ipv6=yes
+            else
+              [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+            fi
+          done
+        fi
+      fi
+    done
+    # add active WG tunnels
+    for wg in $(wg show interfaces); do
+      net4=$(show -4 dev $wg)
+      net6=$(show -6 dev $wg)
+      if [[ "avahi show" =~ $CALLER ]]; then
+        [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($wg)
+        [[ -n $(good $net4) ]] && ipv4=yes
+        [[ -n $(good $net6) ]] && ipv6=yes
+      else
+        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
+        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+      fi
+    done
+    # add loopback interface
+    if [[ "nfs ntp rpc" =~ $CALLER ]]; then
+      [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
+      [[ $ipv6 == yes ]] && bind+=(::1)
+    fi
+    # add user defined interfaces
+    [[ -f $EXTRA ]] && extra
+    if [[ $CALLER == ssh ]]; then
+      # bind stays array
+      bind=(${bind[@]})
+      [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
+      [[ $ipv6 == yes && $ipv4 == no ]] && family=inet6
+    else
+      # convert array to string
+      bind=${bind[@]}
+      [[ $CALLER == avahi ]] && bind=${bind// /,}
+    fi
+    reply=0
+    # remove temporary file
+    rm -f $NETWORK_INI.eth
+  fi
+  return $reply
+}
