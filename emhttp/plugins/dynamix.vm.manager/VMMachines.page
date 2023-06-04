@@ -278,7 +278,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
  document.getElementById("targetsnaprmv").checked = true ;
  document.getElementById("targetsnaprmvmeta").checked = true ;
  document.getElementById("targetsnapkeep").checked = true ;
- document.getElementById("targetsnapfspc").checked = false ;
+ document.getElementById("targetsnapfspc").checked = true ;
  
   box.dialog({
     title: "_("+optiontext+ ")_",
@@ -533,7 +533,7 @@ _(CD2 ISO Image)_:
 <tr><td>_(Snapshot Name)_:</td><td>
 <input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
 _(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" ></td></tr>
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
 <tr><td>_(Description  )_:</td><td>
 <input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
 </table>

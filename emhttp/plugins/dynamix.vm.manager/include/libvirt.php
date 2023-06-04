@@ -1446,7 +1446,7 @@
 		function domain_change_xml($domain, $xml) {
 			$dom = $this->get_domain_object($domain);
 
-			if (!($old_xml = domain_get_xml($dom)))
+			if (!($old_xml = $this->domain_get_xml($dom)))
 				return $this->_set_last_error();
 			if (!libvirt_domain_undefine($dom))
 				return $this->_set_last_error();
@@ -1873,6 +1873,20 @@
 			}
 			return false;
 		}
+
+		function nvram_delete_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd') ;
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd') ;
+				return true;
+			}
+			return false;
+		}
+
 
 		function is_dir_empty($dir) {
 			if (!is_readable($dir)) return NULL;

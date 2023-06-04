@@ -245,13 +245,14 @@ foreach ($vms as $vm) {
   echo "</tbody>";
   /* Display VM  Snapshots */
   if ($snapshots != null) {
-    $i=0 ;
+    $j=0 ;
+    $steps = array() ;
     foreach($snapshots as $snap) {
-      if ($snap['parent'] == "" || $snap['parent'] == "Base") $i++;
-      $steps[$i] .= $snap['name'].';' ;
+      if ($snap['parent'] == "" || $snap['parent'] == "Base") $j++;
+      $steps[$j] .= $snap['name'].';' ;
   }
-  echo "<thead class='child'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
-  echo "<tbody class='child'>";
+  echo "<thead class='child' child-id='$i'><tr><th><i class='fa fa-clone'></i> <b>"._('Snapshots')."</b></th><th></th><th>"._('Date/Time')."</th><th>"._('Type')."</th><th>"._('Parent')."</th><th>"._('Memory')."</th></tr></thead>";
+  echo "<tbody class='child'child-id='$i'>";
   foreach($steps as $stepsline)
   {
     $snapshotlist = explode(";",$stepsline) ;

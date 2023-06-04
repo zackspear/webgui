@@ -1463,66 +1463,37 @@ private static $encoding = 'UTF-8';
 
 	function compare_creationtimelt($a, $b) 	{
 		return $a['creationtime'] < $b['creationtime'];
-  }	
+  	}	
 
 	function getvmsnapshots($vm) {
 		$snaps=array() ;
-
 		$dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
 		$snaps_json = file_get_contents($dbpath."/snapshots.db") ;
 		$snaps = json_decode($snaps_json,true) ; 
 		if (is_array($snaps)) uasort($snaps,'compare_creationtime') ;
 		return $snaps ;
 	}
-	function getvmsnapshots2($vm) {
-		global $lv ;
-		$vmsnaps = $lv->domain_snapshots_list($lv->get_domain_object($vm)) ;
-		$snaps=array() ;
-		foreach($vmsnaps as $vmsnap) {	
-			$snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$vmsnap) ;
-			$snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
-			$a = simplexml_load_string($snapshot_xml) ;
-			if($a == false) continue ;
-			$a = json_encode($a) ;
-			$b= json_decode($a, TRUE);
-			$vmsnap = $b["name"] ;
-			$snaps[$vmsnap]["name"]= $b["name"];
-			if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
-			$snaps[$vmsnap]["state"]= $b["state"];
-			$snaps[$vmsnap]["desc"]= $b["description"];
-			$snaps[$vmsnap]["memory"]= $b["memory"];
-			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
-			if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
-		}
-		
-		if (is_array($snaps)) uasort($snaps,'compare_creationtime') ;
-		return $snaps ;
-	}
+
 	function write_snapshots_database($vm,$name) {
 		global $lv ;
 		$dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
-		#var_dump($dbpath) ;
 		if (!is_dir($dbpath)) mkdir($dbpath) ;
 		$snaps_json = file_get_contents($dbpath."/snapshots.db") ;
 		$snaps = json_decode($snaps_json,true) ; 
-		#var_dump($snaps_json) ;
-			$snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$name) ;
-			$snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
-			$a = simplexml_load_string($snapshot_xml) ;
-			#if($a == false) continue ;
-			$a = json_encode($a) ;
-			
-			$b= json_decode($a, TRUE);
-			$vmsnap = $b["name"] ;
-			$snaps[$vmsnap]["name"]= $b["name"];
-			#if(isset($b["parent"])) $snaps[$vmsnap]["parent"]= $b["parent"]; else $snaps[$vmsnap]["parent"]["name"] = "Base" ;
-			$snaps[$vmsnap]["parent"]= $b["parent"] ;
-			$snaps[$vmsnap]["state"]= $b["state"];
-			$snaps[$vmsnap]["desc"]= $b["description"];
-			$snaps[$vmsnap]["memory"]= $b["memory"];
-			$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
+		$snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$name) ;
+		$snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
+		$a = simplexml_load_string($snapshot_xml) ;
+		$a = json_encode($a) ;
+		$b= json_decode($a, TRUE);
+		$vmsnap = $b["name"] ;
+		$snaps[$vmsnap]["name"]= $b["name"];
+		$snaps[$vmsnap]["parent"]= $b["parent"] ;
+		$snaps[$vmsnap]["state"]= $b["state"];
+		$snaps[$vmsnap]["desc"]= $b["description"];
+		$snaps[$vmsnap]["memory"]= $b["memory"];
+		$snaps[$vmsnap]["creationtime"]= $b["creationTime"];
 
-			$disks =$lv->get_disk_stats($vm) ;
+		$disks =$lv->get_disk_stats($vm) ;
 			foreach($disks as $disk)   {
 				$file = $disk["file"] ;
 				$output = "" ;
@@ -1544,23 +1515,20 @@ private static $encoding = 'UTF-8';
 			if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
 
 			if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
-		
+
+			
 			$value = json_encode($snaps,JSON_PRETTY_PRINT) ;
-		#var_dump($value) ;
 		file_put_contents($dbpath."/snapshots.db",$value) ;
 	}
 
 	function refresh_snapshots_database($vm) {
 		global $lv ;
 		$dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
-		#var_dump($dbpath) ;
 		if (!is_dir($dbpath)) mkdir($dbpath) ;
 		$snaps_json = file_get_contents($dbpath."/snapshots.db") ;
 		$snaps = json_decode($snaps_json,true) ; 
 		foreach($snaps as $vmsnap=>$snap)
-		#var_dump($snaps_json) ;
-	
-	
+
 			$disks =$lv->get_disk_stats($vm) ;
 			foreach($disks as $disk)   {
 				$file = $disk["file"] ;
@@ -1582,9 +1550,29 @@ private static $encoding = 'UTF-8';
 			$snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
 			if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
 	
-			#if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
-			var_dump($snaps) ;
 			$value = json_encode($snaps,JSON_PRETTY_PRINT) ;
+			$res = $lv->get_domain_by_name($vm);
+			if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
+
+
+			#Remove any NVRAMs that are no longer valid.
+			# Get uuid
+			$vmuuid = $lv->domain_get_uuid($vm) ;
+			#Get list of files 
+			#$filepath = "/etc/libvirt/qemu/nvram/'.$uuid*" ; #$snapshotname" 
+            $filepath = "/etc/libvirt/qemu/nvram/$vmuuid*" ; #$snapshotname" 
+			$nvram_files=glob($filepath) ;
+            foreach($nvram_files as $key => $nvram_file)  {
+				if ($nvram_file == "/etc/libvirt/qemu/nvram/$vmuuid"."_VARS-pure-efi.fd" || $nvram_file == "/etc/libvirt/qemu/nvram/$vmuuid"."_VARS-pure-efi-tpm.fd" ) unset($nvram_files[$key]) ;              
+				foreach ($snaps as $snapshotname => $snap) {
+                	$tpmfilename = "/etc/libvirt/qemu/nvram/".$vmuuid.$snapshotname."_VARS-pure-efi-tpm.fd" ;
+                    $nontpmfilename = "/etc/libvirt/qemu/nvram/".$vmuuid.$snapshotname."_VARS-pure-efi.fd" ;
+                    if ($nvram_file == $tpmfilename || $nvram_file == $nontpmfilename ) {
+                        unset($nvram_files[$key]) ;}
+                }
+            }
+            foreach ($nvram_files  as $nvram_file) unlink($nvram_file) ;
+
 	   
 		file_put_contents($dbpath."/snapshots.db",$value) ;
 	}
@@ -1596,7 +1584,6 @@ private static $encoding = 'UTF-8';
 		$snaps = json_decode($snaps_json,true) ; 
 		unset($snaps[$name]) ;
 		$value = json_encode($snaps,JSON_PRETTY_PRINT) ;
-		#var_dump($value) ;
 		file_put_contents($dbpath."/snapshots.db",$value) ;
 		return true ;
 	}
@@ -1675,25 +1662,6 @@ private static $encoding = 'UTF-8';
 		$snapslist= getvmsnapshots($vm) ;
 		$disks =$lv->get_disk_stats($vm) ;
 
-		foreach($disks as $disk)   {
-			$file = $disk["file"] ;
-			$output = "" ;
-			exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
-			foreach($output as $key => $line) {
-				$line=str_replace("image: ","",$line) ;
-				$output[$key] = $line ;  
-			}
-
-			$snaps[$vm][$disk["device"]] = $output ; 
-			$rev = "r".$disk["device"] ;
-			$reversed = array_reverse($output) ;
-			$snaps[$vm][$rev] = $reversed ;
-			$pathinfo =  pathinfo($file) ;
-			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-			$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
-			$capacity = $capacity + $disk["capacity"] ;
-		}
-
 		switch ($snapslist[$snap]['state']) {
 			case "shutoff":	
 			case "running":	
@@ -1718,8 +1686,8 @@ private static $encoding = 'UTF-8';
 						$primarypathinfo =  pathinfo($path) ;
 						$primarypath = $primarypathinfo['dirname'] ;
 					}
-					$item = array_search($path,$snaps[$vm][$diskname]) ;
-					$newpath =  $snaps[$vm][$diskname][$item + 1];
+					$item = array_search($path,$snapslist[$snap]['backing'][$diskname]) ;
+					$newpath =  $snapslist[$snap]['backing'][$diskname][$item + 1];
 					$json_info = getDiskImageInfo($newpath) ;
 					foreach($xmlobj['devices']['disk'] as $ddk => $dd){
 						if ($dd['target']["@attributes"]['dev'] == $diskname) {
@@ -1741,66 +1709,53 @@ private static $encoding = 'UTF-8';
 					if ($diskname == "hda" || $diskname == "hdb") continue ;
 					$path = $disk["source"]["@attributes"]["file"] ;
 					if (is_file($path) && $action == "yes") unlink("$path") ;
-					$item = array_search($path,$snaps[$vm]["r".$diskname]) ;
+					$item = array_search($path,$snapslist[$snap]['backing']["r".$diskname]) ;
 					$item++ ;
 					while($item > 0)
 					{
-					if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
-					$newpath =  $snaps[$vm]["r".$diskname][$item] ;
+					if (!isset($snapslist[$snap]['backing']["r".$diskname][$item])) break ;
+					$newpath =  $snapslist[$snap]['backing']["r".$diskname][$item] ;
 						if (is_file($newpath) && $action == "yes") unlink("$newpath") ;
-						
 					$item++ ;
-
 					}
 				}
 		
 					uasort($snapslist,'compare_creationtimelt') ;
 					foreach($snapslist as $s) {
 						$name = $s['name'] ;
+
+						$xmlfile = $primarypath."/$name.running" ;
+						$memoryfile = $primarypath."/memory$name.mem" ;
+
+						if ($snapslist[$snap]['state'] == "running") {
+						# Set XML to saved XML
+						$xml = file_get_contents($xmlfile) ;
+						$xmlobj = custom::createArray('domain',$xml) ;
+						$xml = custom::createXML('domain',$xmlobj)->saveXML();
+						$rtn = $lv->domain_define($xml) ;
+
+						# Resotre Memeory.
+
+						$makerun = true ;
+						if ($makerun == true) exec("virsh restore $memoryfile") ;	
+						#exec("virsh restore $memoryfile") ;			
+						}	
 						#Delete Metadata only.
 						if ($actionmeta == "yes") { 
 							$ret = delete_snapshots_database("$vm","$name") ;
 						} 
-						# Remove running XML and memory.
-						$xmlfile = $primarypath."/$name.running" ;
-						$memoryfile = $primarypath."/memory$name.mem" ;
-
 						if (is_file($memoryfile) && $action == "yes") unlink($memoryfile) ;
 						if (is_file($xmlfile) && $action == "yes") unlink($xmlfile) ;
 						if ($s['name'] == $snap) break ;
 					}
 					#if VM was started restart.
-					if ($state == 'running') {
+					if ($state == 'running' && $snapslist[$snap]['state'] != "running") {
 						$arrResponse = $lv->domain_start($vm) ;
 					} 
 		
 					if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
 					break ;
 		
-		
-				case "other":
-					break ;
-			#VM must be shutdown.
-				# if VM running shutdown. Record was running.
-				# Replace disk paths
-				# remove snapshot meta data and images for all snpahots.
-				# if VM was started restart.
-		
-		
-			#type running
-				#Non Live restores
-				#VM must be shutdown.
-				# if VM running shutdown. Record was running.
-				# Replace disk paths
-				# remove snapshot meta data and images for all snpahots.
-				# if VM was started restart.
-		
-				#Live restore(currently not supported.)
-				# Freeze VM
-				# Replace disk paths
-				# Replace Mem
-				# remove snapshot meta data and images for all snpahots.
-				# Unfreeze VM
 			}
 		$arrResponse  = ['success' => true] ;
 		return($arrResponse) ;
@@ -1917,6 +1872,9 @@ private static $encoding = 'UTF-8';
 			}
 		}
 
+		# Delete NVRAM 
+		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_delete_snapshot($lv->domain_get_uuid($vm),$snap) ;
+
 		$ret = delete_snapshots_database("$vm","$snap")  ;
 	
 		if(!$ret)
@@ -2003,9 +1961,9 @@ function vm_blockcommit($vm, $snap ,$path,$base,$top,$pivot,$action) {
 			}
 			
 		}
-		#Remove NVRAMs
-		#if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
-		#If complete ok remove meta data for snapshots.
+		# Delete NVRAM 
+		#if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_delete_snapshot($lv->domain_get_uuid($vm),$snap) ;
+
 		refresh_snapshots_database($vm) ;
 		$ret = $ret = delete_snapshots_database("$vm","$snap") ; ;
 		if($ret)
@@ -2092,10 +2050,9 @@ function vm_blockpull($vm, $snap ,$path,$base,$top,$pivot,$action) {
 		# Remove nvram snapshot
 		$arrResponse = ['success' => true] ;
 	}
-	#Error Check
+
 		}
-	#If complete ok remove meta data for snapshots.
-	#$ret = delete_snapshots_database("$vm","$snap")  ;
+
 	refresh_snapshots_database($vm) ;
 	if($ret)
 		$data = ["error" => "Unable to remove snap metadata $snap"] ;
