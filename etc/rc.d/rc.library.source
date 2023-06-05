@@ -1,5 +1,7 @@
 # Library file: /etc/rc.d/rc.library.source
 # Used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
+#
+# bergware - updated for Unraid, June 2023
 
 WIREGUARD="/etc/wireguard"
 NETWORK_INI="/var/local/emhttp/network.ini"
@@ -192,7 +194,7 @@ check() {
       fi
     done
     # add loopback interface
-    if [[ "nfs ntp rpc" =~ $CALLER ]]; then
+    if [[ "smb nfs ntp rpc" =~ $CALLER ]]; then
       [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
