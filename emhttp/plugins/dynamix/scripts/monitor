@@ -46,8 +46,8 @@ function check_temp(&$disk,$text,$info) {
   global $notify,$saved,$server,$display,$top;
   $name = _var($disk,'name');
   $temp = _var($disk,'temp','*');
-  $max  = _var($disk,'maxTemp') ? $disk['maxTemp'] : (_var($display,'max') ? $display['max'] : 0);
-  $hot  = _var($disk,'hotTemp') ? $disk['hotTemp'] : (_var($display,'hot') ? $display['hot'] : 0);
+  $max  = _var($disk,'maxTemp')>=0 ? $disk['maxTemp'] : (_var($display,'max')>=0 ? $display['max'] : 0);
+  $hot  = _var($disk,'hotTemp')>=0 ? $disk['hotTemp'] : (_var($display,'hot')>=0 ? $display['hot'] : 0);
   $warn = exceed($temp,$max,$top) ? 'alert' : (exceed($temp,$hot,$top) ? 'warning' : false);
   $item = 'temp';
   $last = $saved[$item][$name] ?? 0;
@@ -123,8 +123,8 @@ function check_usage(&$disk,$used,$text,$info) {
   global $notify,$saved,$server,$display;
   if ($used == -1) return;
   $name = _var($disk,'name');
-  $critical = _var($disk,'critical') ? $disk['critical'] : (_var($display,'critical') ? $display['critical'] : 0);
-  $warning = _var($disk,'warning') ? $disk['warning'] : (_var($display,'warning') ? $display['warning'] : 0);
+  $critical = _var($disk,'critical')>=0 ? $disk['critical'] : (_var($display,'critical')>=0 ? $display['critical'] : 0);
+  $warning = _var($disk,'warning')>=0 ? $disk['warning'] : (_var($display,'warning')>=0 ? $display['warning'] : 0);
   $warn = exceed($used,$critical) ? 'alert' : (exceed($used,$warning) ? 'warning' : false);
   $item = 'used';
   $last = $saved[$item][$name] ?? 0;
