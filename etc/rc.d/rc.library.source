@@ -109,7 +109,7 @@ extra_name() {
       remove $net
     else
       # net is an IP address, convert to name and remove
-      remove $(show $net)
+      remove $(fuse $(show $net))
     fi
   done
 }
@@ -131,11 +131,11 @@ extra_addr() {
   for net in $exclude_interfaces; do
     if $(isname $net); then
       # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
+      remove $(fuse $(show -4 dev $net))
+      remove $(fuse $(show -6 dev $net))
     else
       # net is an IP address
-      remove $(show to $net)
+      remove $(fuse $(show to $net))
     fi
   done
 }
