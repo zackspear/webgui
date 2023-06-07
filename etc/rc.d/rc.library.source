@@ -39,8 +39,8 @@ this() {
 }
 
 IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
+  t=${1//[^:]}
+  [[ ${#t} -le 1 ]] && echo 4 || echo 6
 }
 
 scan() {
@@ -66,9 +66,19 @@ good() {
 show() {
   case $# in
     1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
+    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^ ]+';;
+    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^ ]+';;
   esac
+}
+
+fuse() {
+  if [[ $CALLER == smb && -z $deny6 ]]; then
+    # replace netmask
+    [[ $(IPv $1) == 4 ]] && echo ${1/\/32/\/24} || echo ${1/\/128/\/64}
+  else
+    # remove netmask
+    echo ${1/\/*}
+  fi
 }
 
 remove() {
@@ -115,8 +125,8 @@ extra_addr() {
       net4=$(show -4 to $net)
       net6=$(show -6 to $net)
     fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
+    [[ -n $net4 && -z $(take $net4) ]] && bind+=($(fuse $net4))
+    [[ -n $net6 && -z $(take $net6) ]] && bind+=($(fuse $net6))
   done
   for net in $exclude_interfaces; do
     if $(isname $net); then
@@ -130,15 +140,6 @@ extra_addr() {
   done
 }
 
-extra() {
-  . <(/usr/bin/fromdos <$EXTRA)
-  if [[ "avahi show" =~ $CALLER ]]; then
-    extra_name
-  else
-    extra_addr
-  fi
-}
-
 check() {
   # quick check
   [[ -n $bind ]] && return 0;
@@ -150,8 +151,8 @@ check() {
       if [[ -e $SYSTEM/$eth ]]; then
         # main interface
         sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
+        net4=$(show -4 to $(link IPADDR:0))
+        net6=$(show -6 to $(link IPADDR6:0))
         if [[ "avahi show" =~ $CALLER ]]; then
           net=$eth
           [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
@@ -160,21 +161,21 @@ check() {
           [[ -n $(good $net4) ]] && ipv4=yes
           [[ -n $(good $net6) ]] && ipv6=yes
         else
-          [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+          [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
+          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
         fi
         if [[ $(link TYPE) == trunk ]]; then
           # vlan interface
           for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
+            net4=$(show -4 to $(link IPADDR:$vlan))
+            net6=$(show -6 to $(link IPADDR6:$vlan))
             if [[ "avahi show" =~ $CALLER ]]; then
               [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net.$(link VLANID:$vlan))
               [[ -n $(good $net4) ]] && ipv4=yes
               [[ -n $(good $net6) ]] && ipv6=yes
             else
-              [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+              [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
+              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
             fi
           done
         fi
@@ -189,8 +190,8 @@ check() {
         [[ -n $(good $net4) ]] && ipv4=yes
         [[ -n $(good $net6) ]] && ipv6=yes
       else
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($net6)
+        [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
+        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
       fi
     done
     # add loopback interface
@@ -199,7 +200,14 @@ check() {
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
     # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
+    if [[ -f $EXTRA ]]; then
+      . <(/usr/bin/fromdos <$EXTRA)
+      if [[ "avahi show" =~ $CALLER ]]; then
+        extra_name
+      else
+        extra_addr
+      fi
+    fi
     if [[ $CALLER == ssh ]]; then
       # bind stays array
       bind=(${bind[@]})
