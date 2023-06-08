@@ -125,8 +125,8 @@ extra_addr() {
       net4=$(show -4 to $net)
       net6=$(show -6 to $net)
     fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($(fuse $net4))
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($(fuse $net6))
+    [[ -n $net4 && -z $(take $(fuse $net4)) ]] && bind+=($(fuse $net4))
+    [[ -n $net6 && -z $(take $(fuse $net6)) ]] && bind+=($(fuse $net6))
   done
   for net in $exclude_interfaces; do
     if $(isname $net); then
@@ -195,7 +195,7 @@ check() {
       fi
     done
     # add loopback interface
-    if [[ "smb nfs ntp" =~ $CALLER ]]; then
+    if [[ "smb nfs ntp rpc" =~ $CALLER ]]; then
       [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
