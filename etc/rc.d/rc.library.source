@@ -71,7 +71,7 @@ show() {
   esac
 }
 
-fuse() {
+sub() {
   if [[ $CALLER == smb && -z $deny6 ]]; then
     # replace netmask
     [[ $(IPv $1) == 4 ]] && echo ${1/\/32/\/24} || echo ${1/\/128/\/64}
@@ -109,7 +109,7 @@ extra_name() {
       remove $net
     else
       # net is an IP address, convert to name and remove
-      remove $(fuse $(show $net))
+      remove $(sub $(show $net))
     fi
   done
 }
@@ -125,17 +125,17 @@ extra_addr() {
       net4=$(show -4 to $net)
       net6=$(show -6 to $net)
     fi
-    [[ -n $net4 && -z $(take $(fuse $net4)) ]] && bind+=($(fuse $net4))
-    [[ -n $net6 && -z $(take $(fuse $net6)) ]] && bind+=($(fuse $net6))
+    [[ -n $net4 && -z $(take $(sub $net4)) ]] && bind+=($(sub $net4))
+    [[ -n $net6 && -z $(take $(sub $net6)) ]] && bind+=($(sub $net6))
   done
   for net in $exclude_interfaces; do
     if $(isname $net); then
       # net is an interface name, get IP addresses
-      remove $(fuse $(show -4 dev $net))
-      remove $(fuse $(show -6 dev $net))
+      remove $(sub $(show -4 dev $net))
+      remove $(sub $(show -6 dev $net))
     else
       # net is an IP address
-      remove $(fuse $(show to $net))
+      remove $(sub $(show to $net))
     fi
   done
 }
@@ -161,8 +161,8 @@ check() {
           [[ -n $(good $net4) ]] && ipv4=yes
           [[ -n $(good $net6) ]] && ipv6=yes
         else
-          [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
-          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
+          [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
+          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
         fi
         if [[ $(link TYPE) == trunk ]]; then
           # vlan interface
@@ -174,8 +174,8 @@ check() {
               [[ -n $(good $net4) ]] && ipv4=yes
               [[ -n $(good $net6) ]] && ipv6=yes
             else
-              [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
-              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
+              [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
+              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
             fi
           done
         fi
@@ -190,8 +190,8 @@ check() {
         [[ -n $(good $net4) ]] && ipv4=yes
         [[ -n $(good $net6) ]] && ipv6=yes
       else
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($(fuse $net4))
-        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(fuse $net6))
+        [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
+        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
       fi
     done
     # add loopback interface
