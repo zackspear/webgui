@@ -117,8 +117,8 @@ function my_usage() {
 function usage_color(&$disk, $limit, $free) {
   global $display;
   if (_var($display,'text',0)==1 || intval(_var($display,'text',0)/10)==1) return '';
-  $critical = _var($disk,'critical') ? $disk['critical'] : (_var($display,'critical') ? $display['critical'] : 0);
-  $warning = _var($disk,'warning') ? $disk['warning'] : (_var($display,'warning') ? $display['warning'] : 0);
+  $critical = _var($disk,'critical')>=0 ? $disk['critical'] : (_var($display,'critical')>=0 ? $display['critical'] : 0);
+  $warning = _var($disk,'warning')>=0 ? $disk['warning'] : (_var($display,'warning')>=0 ? $display['warning'] : 0);
   if (!$free) {
     if ($critical>0 && $limit>=$critical) return 'redbar';
     if ($warning>0 && $limit>=$warning) return 'orangebar';
