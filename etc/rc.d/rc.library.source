@@ -195,7 +195,7 @@ check() {
       fi
     done
     # add loopback interface
-    if [[ "smb nfs ntp rpc" =~ $CALLER ]]; then
+    if [[ "smb nfs ntp" =~ $CALLER ]]; then
       [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
       [[ $ipv6 == yes ]] && bind+=(::1)
     fi
