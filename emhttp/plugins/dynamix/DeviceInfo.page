@@ -31,6 +31,7 @@ function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
   $last = array_pop($data);
   $val = count($data) ? implode($data).".$last" : $last;
+  $val = preg_replace('/[^0-9.]/','',$val);
 }
 function presetSpace($val) {
   global $disk,$display;
