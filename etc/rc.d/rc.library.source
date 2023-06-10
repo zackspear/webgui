@@ -8,6 +8,11 @@ NETWORK_INI="/var/local/emhttp/network.ini"
 SYSTEM="/sys/class/net"
 EXTRA="/boot/config/network-extra.cfg"
 
+IPv() {
+  t=${1//[^:]}
+  [[ ${#t} -le 1 ]] && echo 4 || echo 6
+}
+
 this() {
   case $CALLER in
   'avahi')
@@ -29,18 +34,13 @@ this() {
     now=();
     for addr in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2; #.*$/{print $2}' $SERVERS 2>/dev/null); do
       # extract ipv4 / ipv6 address
-      [[ $(IPv $addr 1) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
+      [[ $(IPv $addr) == 4 ]] && addr=${addr%:*} || addr=${addr#*[} addr=${addr%]*}
       now+=($addr)
     done
     # return addresses
     echo ${now[@]}
     ;;
   esac
-}
-
-IPv() {
-  t=${1//[^:]}
-  [[ ${#t} -le 1 ]] && echo 4 || echo 6
 }
 
 scan() {
