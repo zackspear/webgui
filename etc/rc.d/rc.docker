@@ -91,9 +91,9 @@ is_docker_running(){
   [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
 }
 
-# Wait max 15s to daemon start
+# Wait max 30s to daemon start
 wait_daemon(){
-  for n in {1..15}; do
+  for n in {1..30}; do
     if is_docker_running; then return 0; else sleep 1; fi
   done
   return 1
