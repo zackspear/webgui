@@ -116,8 +116,8 @@ extra_addr() {
       net4=$(show -4 to $net)
       net6=$(show -6 to $net)
     fi
-    [[ -n $net4 && -z $(good $(sub $net4)) ]] && bind+=($(sub $net4))
-    [[ -n $net6 && -z $(good $(sub $net6)) ]] && bind+=($(sub $net6))
+    [[ -n $net4 && -z $(good $(sub $net4)) ]] && ipv4=yes bind+=($(sub $net4))
+    [[ -n $net6 && -z $(good $(sub $net6)) ]] && ipv6=yes bind+=($(sub $net6))
   done
   for net in $exclude_interfaces; do
     if $(isname $net); then
