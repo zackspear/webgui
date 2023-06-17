@@ -20,6 +20,17 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+if (isset($_POST['sys'])) {
+  extract(parse_plugin_cfg('dynamix',true));
+  switch ($_POST['sys']) {
+    case 0: die(my_scale(exec("awk '/^MemTotal/{t=$2}/^MemAvailable/{a=$2}END{print (t-a)*1024}' /proc/meminfo 2>/dev/null"),$unit,null,-1,1024)." $unit");
+    case 1: die(my_scale(exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0,$unit,null,-1,1024)." $unit");
+    case 2: die(my_scale(exec("df --output=used /boot 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
+    case 3: die(my_scale(exec("df --output=used /var/log 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
+    case 4: die(my_scale(exec("df --output=used /var/lib/docker 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
+  }
+}
+
 $display = $_POST['display'];
 
 if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
