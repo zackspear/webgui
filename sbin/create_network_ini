@@ -7,7 +7,7 @@
 # update files on DHCP events 'BOUND[6] IPV4LL ROUTERADVERT'
 # update services listening interfaces / addresses
 
-[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 REPLY6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
 
 ini=/var/local/emhttp/network.ini.new
 cfg=/boot/config/network.cfg
