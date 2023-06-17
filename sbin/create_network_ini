@@ -4,7 +4,7 @@
 #
 # create initial network.ini file on system start
 # create system welcome message
-# update files on DHCP events 'BOUND[6] IPV4LL ROUTERADVERT'
+# update files on DHCP events 'BOUND[6] REPLY[6] IPV4LL ROUTERADVERT'
 # update services listening interfaces / addresses
 
 [[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 REPLY6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
