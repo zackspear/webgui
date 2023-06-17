@@ -56,9 +56,9 @@ good() {
 
 show() {
   case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^ ]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^ ]+';;
+    1) ip -br addr show to $1 2>/dev/null|awk '{print $1;exit}';;
+    2) ip -br addr show $1 $2 2>/dev/null|awk '{print $3;exit}';;
+    3) ip -br $1 addr show $2 $3 2>/dev/null|awk '{print $3;exit}';;
   esac
 }
 
@@ -144,7 +144,7 @@ check() {
     else
       [[ -n ${net[1]} ]] && ipv4=yes bind+=($(sub ${net[1]}))
     fi
-  done <<< $(ip -4 addr|awk '/^ +inet/ && $2 !~ "169.254" {print $NF,$2}'|grep -P '^(br|bond|eth|wg)\d+(\.\d+)? ')
+  done <<< $(ip -br -4 addr|awk '/^(br|bond|eth|wg)[0-9]+(\.[0-9]+)?/ && $3 !~ "169.254" {print $1,$3}')
   # active ipv6 interfaces (including wireguard)
   while IFS='\n' read -r net; do
     net=($net)
@@ -153,7 +153,7 @@ check() {
     else
       [[ -n ${net[1]} ]] && ipv6=yes bind+=($(sub ${net[1]}))
     fi
-  done <<< $(ip -6 addr|awk '/^[0-9]+:|^ +inet6/ && $2 !~ "fe80" {print $2}'|sed ':a;N;$!ba;s/:\n/ /g'|awk '{print $(NF-1),$NF}'|grep -P '^(br|bond|eth|wg)\d+(\.\d+)? ')
+  done <<< $(ip -br -6 addr|awk '/^(br|bond|eth|wg)[0-9]+(\.[0-9]+)?/ && $3 !~ "fe80" {print $1,$3}')
   # add loopback interface
   if [[ "smb nfs ntp" =~ $CALLER ]]; then
     [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
