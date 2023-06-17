@@ -100,7 +100,7 @@ extra_name() {
       remove $net
     else
       # net is an IP address, convert to name and remove
-      remove $(sub $(show $net))
+      remove $(show $net)
     fi
   done
 }
