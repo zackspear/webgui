@@ -21,14 +21,16 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
 if (isset($_POST['sys'])) {
-  extract(parse_plugin_cfg('dynamix',true));
   switch ($_POST['sys']) {
-    case 0: die(my_scale(exec("awk '/^MemTotal/{t=$2}/^MemAvailable/{a=$2}END{print (t-a)*1024}' /proc/meminfo 2>/dev/null"),$unit,null,-1,1024)." $unit");
-    case 1: die(my_scale(exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0,$unit,null,-1,1024)." $unit");
-    case 2: die(my_scale(exec("df --output=used /boot 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
-    case 3: die(my_scale(exec("df --output=used /var/log 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
-    case 4: die(my_scale(exec("df --output=used /var/lib/docker 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"),$unit,null,-1,1024)." $unit");
+    case 0: $size = exec("awk '/^MemTotal/{t=$2}/^MemAvailable/{a=$2}END{print (t-a)*1024}' /proc/meminfo 2>/dev/null"); break;
+    case 1: $size = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0; break;
+    case 2: $size = exec("df --output=used /boot 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+    case 3: $size = exec("df --output=used /var/log 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+    case 4: $size = exec("df --output=used /var/lib/docker 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+   default: $size = 0;
   }
+  extract(parse_plugin_cfg('dynamix',true));
+  die(my_scale($size,$unit,null,-1,1024)." $unit");
 }
 
 $display = $_POST['display'];
