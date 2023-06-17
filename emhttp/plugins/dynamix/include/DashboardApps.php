@@ -23,7 +23,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 if (isset($_POST['sys'])) {
   switch ($_POST['sys']) {
     case 0: $size = exec("awk '/^MemTotal/{t=$2}/^MemAvailable/{a=$2}END{print (t-a)*1024}' /proc/meminfo 2>/dev/null"); break;
-    case 1: $size = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0; break;
+    case 1: $size = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null"); break;
     case 2: $size = exec("df --output=used /boot 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
     case 3: $size = exec("df --output=used /var/log 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
     case 4: $size = exec("df --output=used /var/lib/docker 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
