@@ -3,9 +3,6 @@
 #
 # bergware - updated for Unraid, June 2023
 
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
 EXTRA="/boot/config/network-extra.cfg"
 
 IPv() {
@@ -51,16 +48,12 @@ link() {
   grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
 }
 
-take() {
+good() {
   data=;
   for i in ${!bind[@]}; do
     [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
   done
   echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
 }
 
 show() {
@@ -96,11 +89,11 @@ extra_name() {
   for net in $include_interfaces; do
     if $(isname $net); then
       # net is an interface name, validate
-      [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
+      [[ -n $(show dev $net) && -z $(good $net) ]] && bind+=($net)
     else
       # net is an IP address, convert to name
       net=$(show $net)
-      [[ -n $net && -z $(take $net) ]] && bind+=($net)
+      [[ -n $net && -z $(good $net) ]] && bind+=($net)
     fi
   done
   for net in $exclude_interfaces; do
@@ -125,8 +118,8 @@ extra_addr() {
       net4=$(show -4 to $net)
       net6=$(show -6 to $net)
     fi
-    [[ -n $net4 && -z $(take $(sub $net4)) ]] && bind+=($(sub $net4))
-    [[ -n $net6 && -z $(take $(sub $net6)) ]] && bind+=($(sub $net6))
+    [[ -n $net4 && -z $(good $(sub $net4)) ]] && bind+=($(sub $net4))
+    [[ -n $net6 && -z $(good $(sub $net6)) ]] && bind+=($(sub $net6))
   done
   for net in $exclude_interfaces; do
     if $(isname $net); then
@@ -144,83 +137,48 @@ check() {
   # quick check
   [[ -n $bind ]] && return 0;
   # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no; family=any;
-  if [[ -f $NETWORK_INI ]]; then
-    # add interfaces and vlans
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(show -4 to $(link IPADDR:0))
-        net6=$(show -6 to $(link IPADDR6:0))
-        if [[ "avahi show" =~ $CALLER ]]; then
-          net=$eth
-          [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
-          [[ $(link BRIDGING) == yes ]] && net=${eth/eth/br}
-          [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net)
-          [[ -n $(good $net4) ]] && ipv4=yes
-          [[ -n $(good $net6) ]] && ipv6=yes
-        else
-          [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
-          [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
-        fi
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(show -4 to $(link IPADDR:$vlan))
-            net6=$(show -6 to $(link IPADDR6:$vlan))
-            if [[ "avahi show" =~ $CALLER ]]; then
-              [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net.$(link VLANID:$vlan))
-              [[ -n $(good $net4) ]] && ipv4=yes
-              [[ -n $(good $net6) ]] && ipv6=yes
-            else
-              [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
-              [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
-            fi
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      if [[ "avahi show" =~ $CALLER ]]; then
-        [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($wg)
-        [[ -n $(good $net4) ]] && ipv4=yes
-        [[ -n $(good $net6) ]] && ipv6=yes
-      else
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($(sub $net4))
-        [[ -n $(good $net6) && -z $deny6 ]] && ipv6=yes bind+=($(sub $net6))
-      fi
-    done
-    # add loopback interface
-    if [[ "smb nfs ntp" =~ $CALLER ]]; then
-      [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
-      [[ $ipv6 == yes ]] && bind+=(::1)
-    fi
-    # add user defined interfaces
-    if [[ -f $EXTRA ]]; then
-      . <(/usr/bin/fromdos <$EXTRA)
-      if [[ "avahi show" =~ $CALLER ]]; then
-        extra_name
-      else
-        extra_addr
-      fi
-    fi
-    if [[ $CALLER == ssh ]]; then
-      # bind stays array
-      bind=(${bind[@]})
-      [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
-      [[ $ipv6 == yes && $ipv4 == no ]] && family=inet6
+  bind=(); ipv4=no; ipv6=no; family=any;
+  # active ipv4 interfaces (including wireguard)
+  while IFS='\n' read -r net; do
+    net=($net)
+    if [[ "avahi show" =~ $CALLER ]]; then
+      [[ -n $net ]] && bind+=($net)
     else
-      # convert array to string
-      bind=${bind[@]}
-      [[ $CALLER == avahi ]] && bind=${bind// /,}
+      [[ -n ${net[1]} ]] && ipv4=yes bind+=($(sub ${net[1]}))
     fi
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
+  done <<< $(ip -4 addr|awk '/^ +inet/ && $2 !~ "169.254" {print $NF,$2}'|grep -P '^(br|bond|eth|wg)\d+(\.\d+)? ')
+  # active ipv6 interfaces (including wireguard)
+  while IFS='\n' read -r net; do
+    net=($net)
+    if [[ "avahi show" =~ $CALLER ]]; then
+      [[ -n $net && -z $(good $net) ]] && bind+=($net)
+    else
+      [[ -n ${net[1]} ]] && ipv6=yes bind+=($(sub ${net[1]}))
+    fi
+  done <<< $(ip -6 addr|awk '/^[0-9]+:|^ +inet6/ && $2 !~ "fe80" {print $2}'|sed ':a;N;$!ba;s/:\n/ /g'|awk '{print $(NF-1),$NF}'|grep -P '^(br|bond|eth|wg)\d+(\.\d+)? ')
+  # add loopback interface
+  if [[ "smb nfs ntp" =~ $CALLER ]]; then
+    [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
+    [[ $ipv6 == yes ]] && bind+=(::1)
   fi
-  return $reply
+  # add user defined interfaces
+  if [[ -f $EXTRA ]]; then
+    . <(/usr/bin/fromdos <$EXTRA)
+    if [[ "avahi show" =~ $CALLER ]]; then
+      extra_name
+    else
+      extra_addr
+    fi
+  fi
+  if [[ $CALLER == ssh ]]; then
+    # bind stays array
+    bind=(${bind[@]})
+    [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
+    [[ $ipv6 == yes && $ipv4 == no ]] && family=inet6
+  else
+    # convert array to string
+    bind=${bind[@]}
+    [[ $CALLER == avahi ]] && bind=${bind// /,}
+  fi
+  return 0
 }
