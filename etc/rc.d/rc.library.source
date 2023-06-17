@@ -3,6 +3,8 @@
 #
 # bergware - updated for Unraid, June 2023
 
+WIREGUARD="/etc/wireguard"
+NETWORK_INI="/var/local/emhttp/network.ini"
 EXTRA="/boot/config/network-extra.cfg"
 
 IPv() {
