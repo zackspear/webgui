@@ -141,6 +141,7 @@ check() {
     net=($net)
     if [[ "avahi show" =~ $CALLER ]]; then
       [[ -n $net ]] && bind+=($net)
+      [[ -n ${net[1]} ]] && ipv4=yes
     else
       [[ -n ${net[1]} ]] && ipv4=yes bind+=($(sub ${net[1]}))
     fi
@@ -150,6 +151,7 @@ check() {
     net=($net)
     if [[ "avahi show" =~ $CALLER ]]; then
       [[ -n $net && -z $(good $net) ]] && bind+=($net)
+      [[ -n ${net[1]} ]] && ipv6=yes
     else
       [[ -n ${net[1]} ]] && ipv6=yes bind+=($(sub ${net[1]}))
     fi
