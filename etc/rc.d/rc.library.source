@@ -57,8 +57,8 @@ good() {
 show() {
   case $# in
     1) ip -br addr show to $1 2>/dev/null|awk '{print $1;exit}';;
-    2) ip -br addr show $1 $2 2>/dev/null|awk '{print $3;exit}';;
-    3) ip -br $1 addr show $2 $3 2>/dev/null|awk '{print $3;exit}';;
+    2) ip -br addr show $1 $2 2>/dev/null|awk '$3 !~ "169.254" && $3 !~ "fe80" {print $3;exit}';;
+    3) ip -br $1 addr show $2 $3 2>/dev/null|awk '$3 !~ "169.254" && $3 !~ "fe80" {print $3;exit}';;
   esac
 }
 
