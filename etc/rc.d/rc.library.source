@@ -44,10 +44,6 @@ scan() {
   grep -Pom1 "^$1=\"?\K[^\"]+" $2
 }
 
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
 good() {
   data=;
   for i in ${!bind[@]}; do
