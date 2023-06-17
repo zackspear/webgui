@@ -1319,7 +1319,6 @@ $(function() {
   initCharts();
   cpuchart.render();
   netchart.render();
-  addProperties();
 <?if ($group):?>
   dropdown('enter_share');
 <?endif;?>
@@ -1346,5 +1345,6 @@ $(function() {
     data.txd = txd.tail(netline);
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
+  setTimeout(addProperties,100);
 });
 </script>
