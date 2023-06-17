@@ -110,7 +110,7 @@ samba_start() {
 
     # restore previously stored samba 'secrets' file (for better AD integration)
     if [[ -e $BOOT/secrets.tdb ]]; then
-      mv $BOOT/secrets.tdb $PRIVATE
+      cp -f $BOOT/secrets.tdb $PRIVATE
     fi
 
     # create settings
@@ -135,7 +135,7 @@ samba_stop() {
   killall smbd nmbd wsdd2 winbindd >/dev/null 2>&1
   # save samba 'secrets' file
   if [[ -e $PRIVATE/secrets.tdb ]]; then
-    cp $PRIVATE/secrets.tdb $BOOT
+    cp -f $PRIVATE/secrets.tdb $BOOT
   fi
 }
 
@@ -146,12 +146,14 @@ samba_restart() {
 }
 
 samba_reload() {
+  killall smbd nmbd wsdd2 winbindd >/dev/null 2>&1
   # update settings
   samba_settings
   # restart services
-  /usr/bin/smbcontrol smbd reload-config
-  [[ $USE_NETBIOS == yes ]] && /usr/bin/smbcontrol nmbd reload-config
-  /usr/bin/smbcontrol winbindd reload-config
+  $SMBD -D 2>/dev/null
+  [[ $USE_NETBIOS == yes ]] && $NMBD -D 2>/dev/null
+  [[ $USE_WSD == yes ]] && $WSDD2 -d ${WSD2_OPT## } 2>/dev/null
+  $WINBINDD -D 2>/dev/null
 }
 
 samba_update() {
