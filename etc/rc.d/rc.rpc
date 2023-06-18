@@ -25,14 +25,11 @@ if check && [[ -n $bind ]]; then
   RPCBIND_OPTS="-h ${bind// / -h }"
 fi
 
-# update default settings
-sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
-
-# source default settings:
-[[ -r $RPC ]] && . $RPC
-
 rpc_start() {
   if [[ -x $RPCBIND && -x $STATD ]]; then
+    # update default settings
+    sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
+    [[ -r $RPC ]] && . $RPC
     # Set up port for lockd:
     if [[ -n $LOCKD_TCP_PORT ]]; then
       /sbin/sysctl -w "fs.nfs.nlm_tcpport=$LOCKD_TCP_PORT" 2>/dev/null
@@ -80,6 +77,9 @@ rpc_restart() {
 rpc_reload() {
   killall -9 rpcbind 2>/dev/null
   sleep 1
+  # update default settings
+  sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
+  [[ -r $RPC ]] && . $RPC
   $RPCBIND -w $RPCBIND_OPTS 2>/dev/null
 }
 

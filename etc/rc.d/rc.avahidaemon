@@ -44,13 +44,11 @@ disable() {
 }
 
 avahid_start() {
-  if [[ -f $NETWORK_INI ]]; then
+  if check && [[ -n $bind ]]; then
     # bind avahi service
-    if check; then
-      [[ -n $bind ]] && allow $bind || allow br0
-      [[ $ipv4 == no ]] && disable ipv4 || enable ipv4
-      [[ $ipv6 == no ]] && disable ipv6 || enable ipv6
-    fi
+    [[ -n $bind ]] && allow $bind || allow br0
+    [[ $ipv4 == no ]] && disable ipv4 || enable ipv4
+    [[ $ipv6 == no ]] && disable ipv6 || enable ipv6
   else
     # default interface with no configuration
     allow br0

@@ -1,10 +1,12 @@
 #!/bin/bash
 SERVICES="sshd avahidaemon samba rpc nfsd ntpd nginx"
+job=/tmp/atjob.tmp
 
+[[ -n $1 && -e $job ]] && exit 0
+touch $job
 for cmd in $SERVICES; do
-  [[ $cmd == $1 ]] && option=renew || option=reload
   if /etc/rc.d/rc.$cmd update; then
-    /etc/rc.d/rc.$cmd $option >/dev/null 2>&1
+    /etc/rc.d/rc.$cmd reload >/dev/null 2>&1
   fi
 done
 exit 0

@@ -4,13 +4,14 @@
 #
 # create initial network.ini file on system start
 # create system welcome message
-# update files on DHCP events 'BOUND[6] IPV4LL ROUTERADVERT'
+# update files on DHCP events 'BOUND[6] REPLY[6] IPV4LL ROUTERADVERT'
 # update services listening interfaces / addresses
 
-[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 REPLY6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
 
 ini=/var/local/emhttp/network.ini.new
 cfg=/boot/config/network.cfg
+job=/tmp/atjob.tmp
 reload=/usr/local/emhttp/webGui/scripts/reload_services
 
 declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
@@ -44,13 +45,6 @@ fi
 echo -n >$ini
 # clear update information
 data=
-dhcp=
-# get interface name
-if [[ -n $1 ]]; then
-  tag=$1
-else
-  tag=$interface
-fi
 
 # loop thru all defined interfaces (=1 in case of legacy)
 for ((i=0;i<${SYSNICS:-1};i++)); do
@@ -123,7 +117,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
   echo "DESCRIPTION:0=\"${DESCRIPTION[$i]}\"" >>$ini
   echo "PROTOCOL:0=\"${PROTOCOL[$i]}\"" >>$ini
   echo "USE_DHCP:0=\"${USE_DHCP[$i]}\"" >>$ini
-  flag=
   if [[ ${USE_DHCP[$i]} == yes ]]; then
     # get dhcp assigned ipv4 address & mask
     NET=($(ip -4 addr show $IFACE|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
@@ -140,7 +133,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         ((x++))
       done
     fi
-    [[ "${PROTOCOL[$i]}" == *"ipv4"* ]] && flag=1
   else
     # get static assigned ipv4 address & mask
     echo "IPADDR:0=\"${IPADDR[$i]}\"" >>$ini
@@ -166,7 +158,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         ((x++))
       done
     fi
-    [[ "${PROTOCOL[$i]}" == *"ipv6"* ]] && flag=1
   else
     # get static assigned ipv6 address & prefix
     echo "IPADDR6:0=\"${IPADDR6[$i]}\"" >>$ini
@@ -175,7 +166,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
     echo "METRIC6:0=\"${METRIC6[$i]}\"" >>$ini
     echo "PRIVACY6:0=\"\"" >>$ini
   fi
-  [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
   echo "MTU=\"${MTU[$i]}\"" >>$ini
   if [[ -n ${VLANS[$i]} ]]; then
     # process VLAN interfaces
@@ -185,7 +175,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
       echo "DESCRIPTION:$j=\"${DESCRIPTION[$i,$j]}\"" >>$ini
       echo "PROTOCOL:$j=\"${PROTOCOL[$i,$j]}\"" >>$ini
       echo "USE_DHCP:$j=\"${USE_DHCP[$i,$j]}\"" >>$ini
-      flag=
       if [[ ${USE_DHCP[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get dhcp assigned ipv4 address & mask
@@ -196,7 +185,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         echo "GATEWAY:$j=\"$GW\"" >>$ini
         echo "METRIC:$j=\"${METRIC[$i,$j]}\"" >>$ini
         data="${data}${ETH}_I_IPADDR:$j=${NET[0]} ${ETH}_S_NETMASK:$j=$(mask ${NET[1]}) ${ETH}_I_GATEWAY:$j=$GW "
-        [[ "${PROTOCOL[$i,$j]}" == *"ipv4"* ]] && flag=1
       else
         # get static assigned ipv4 address & mask
         echo "IPADDR:$j=\"${IPADDR[$i,$j]}\"" >>$ini
@@ -216,7 +204,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
         echo "PRIVACY6:$j=\"${PRIVACY6[$i,$j]}\"" >>$ini
         data="${data}${ETH}_I_IPADDR6:$j=${NET6[0]} ${ETH}_I_NETMASK6:$j=${NET6[1]} ${ETH}_I_GATEWAY6:$j=$GW6 "
-        [[ "${PROTOCOL[$i,$j]}" == *"ipv6"* ]] && flag=1
       else
         # get static assigned ipv6 address & prefix
         echo "IPADDR6:$j=\"${IPADDR6[$i,$j]}\"" >>$ini
@@ -225,7 +212,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
         echo "PRIVACY6:$j=\"\"" >>$ini
       fi
-      [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
     done
   else
     # interface without VLANs
@@ -235,10 +221,9 @@ done
 # atomically update file
 /usr/bin/mv $ini ${ini%.*}
 
-# the following section is executed on static only or on dhcp hook
-if [[ (-n $1 && -z $dhcp) || (-z $1 && -n $dhcp) ]]; then
-  $reload >/dev/null 2>&1 &
-fi
+# delayed execution
+rm -f $job
+echo "sleep 35;$reload job"|at -M now 2>/dev/null
 
 # send update information
 if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then
