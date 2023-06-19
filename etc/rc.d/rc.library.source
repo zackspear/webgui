@@ -156,7 +156,6 @@ check() {
       [[ -n $net && -z $(good $net) ]] && bind+=($net)
       [[ -n ${net[1]} ]] && ipv6=yes
     else
-      name=$(show ${net[1]})
       # exclude wireguard tunnels for ntp
       [[ $CALLER == ntp ]] && name=$(show ${net[1]}) || name=
       [[ ${name:0:2} == wg ]] && wg=no || wg=yes
