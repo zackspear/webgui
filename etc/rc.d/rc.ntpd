@@ -23,7 +23,7 @@ build_ntp() {
     [[ $ipv6 == no ]] && echo "interface ignore ipv6" >>$CONF
     # add listen interfaces
     for net in $bind; do
-      echo "interface listen $net" >>$CONF
+      echo "interface listen $net # $(show $net)" >>$CONF
     done
   fi
   # add configured NTP servers
