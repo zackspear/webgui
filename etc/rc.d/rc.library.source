@@ -157,7 +157,7 @@ check() {
     fi
   done <<< $(ip -br -6 addr|awk '/^(br|bond|eth|wg)[0-9]+(\.[0-9]+)?/ && $3 !~ "^fe80" {print $1,$3}')
   # add loopback interface
-  if [[ "smb nfs ntp" =~ $CALLER ]]; then
+  if [[ "smb nfs" =~ $CALLER ]]; then
     [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
     [[ $ipv6 == yes ]] && bind+=(::1)
   fi

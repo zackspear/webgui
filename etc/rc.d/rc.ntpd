@@ -21,12 +21,10 @@ build_ntp() {
     # ignore unused protocol
     [[ $ipv4 == no ]] && echo "interface ignore ipv4" >>$CONF
     [[ $ipv6 == no ]] && echo "interface ignore ipv6" >>$CONF
-    # for now do not bind interfaces
-    # it is not clear why NTP is started several times and fails to bind on occasion
     # add listen interfaces
-    #for net in $bind; do
-    #  echo "interface listen $net" >>$CONF
-    #done
+    for net in $bind; do
+      echo "interface listen $net" >>$CONF
+    done
   fi
   # add configured NTP servers
   [[ -n $NTP_SERVER1 ]] && echo "server $NTP_SERVER1 iburst" >>$CONF
