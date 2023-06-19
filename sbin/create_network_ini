@@ -222,10 +222,8 @@ done
 /usr/bin/mv $ini ${ini%.*}
 
 # delayed execution
-if [[ ! -f $job ]]; then
-  echo "sleep 35;$reload"|at -M now 2>/dev/null
-  touch $job
-fi
+rm -f $job
+echo "sleep 35;$reload job"|at -M now 2>/dev/null
 
 # send update information
 if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then
