@@ -91,7 +91,7 @@ extra_name() {
     else
       # net is an IP address, convert to name
       net=$(show $net)
-      [[ -n $net && -z $(good $net) ]] && bind+=($net)
+      [[ $CALLER != ntp && -n $net && -z $(good $net) ]] && bind+=($net)
     fi
   done
   for net in $exclude_interfaces; do
