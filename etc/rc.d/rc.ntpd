@@ -92,7 +92,7 @@ ntpd_reload() {
 
 ntpd_update() {
   [[ $(pgrep -cf $NTPD) -eq 0 ]] && exit 1 # not running
-  if check && [[ -z "$(this 'interface listen')" || "$(this 'interface listen')" == "$bind" ]]; then
+  if check && [[ "$(this 'interface listen')" == "$bind" ]]; then
     # no action required
     exit 1
   else
