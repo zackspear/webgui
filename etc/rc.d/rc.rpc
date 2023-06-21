@@ -75,12 +75,8 @@ rpc_restart() {
 }
 
 rpc_reload() {
-  killall -9 rpcbind 2>/dev/null
-  sleep 1
-  # update default settings
-  sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
-  [[ -r $RPC ]] && . $RPC
-  $RPCBIND -w $RPCBIND_OPTS 2>/dev/null
+  # restart without info
+  rpc_restart 1>/dev/null 2>&1
 }
 
 rpc_update() {
