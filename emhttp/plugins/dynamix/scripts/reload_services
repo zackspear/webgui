@@ -1,9 +1,9 @@
 #!/bin/bash
 SERVICES="sshd avahidaemon samba rpc nfsd ntpd nginx"
-job=/tmp/atjob.tmp
 
-[[ -n $1 && -e $job ]] && exit 0
-touch $job
+if [[ -n $1 ]]; then
+  [[ ! -e $1 ]] && touch $1 || exit 0
+fi
 for cmd in $SERVICES; do
   if /etc/rc.d/rc.$cmd update; then
     /etc/rc.d/rc.$cmd reload >/dev/null 2>&1

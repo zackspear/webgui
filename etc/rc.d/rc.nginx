@@ -103,7 +103,7 @@ redirect() {
         if [[ -n $host ]]; then
           echo "server {"
           echo "${t}listen $host:$*; # $(show $addr)"
-          echo "${t}return 302 https://$(fqdn $addr):$PORTSSL\$request_uri;"
+          echo "${t}return 302 https://$(fqdn $addr)$PORTSSL_URL\$request_uri;"
           echo "}"
         fi
       done
