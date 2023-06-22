@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -36,6 +36,10 @@ function make_link($method, $arg, $extra='') {
   $id = str_replace(['.',' ','_'],'',$plg);
   $check = $method=='remove' ? "<input type='checkbox' data='$arg' class='remove' onClick='document.getElementById(\"$id\").disabled=!this.checked;multiRemove()'>" : "";
   $disabled = $check ? ' disabled' : '';
+  if ($method == 'update' && $extra) {
+    $disabled = 'disabled';
+    $id = $extra;
+  }
   if ($method == 'delete') {
     $cmd  = "plugin_rm $arg";
     $func = "refresh";
