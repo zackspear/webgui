@@ -750,8 +750,12 @@ jQuery.prototype.hideMe = function() {
   hidden = hidden==null ? [] : hidden.split(';');
   if (hidden.indexOf(this.attr('sort'))>=0) this.find('tr:gt(0)').hide();
 }
-jQuery.prototype.mixedView = function() {
-  this.find('tr:gt(0)').show()
+jQuery.prototype.mixedView = function(s) {
+  if (s==0) {
+    this.find('tr:gt(0)').hide();
+    return;
+  }
+  this.find('tr:gt(0)').show();
   if (this.attr('data')) {
     setTimeout(this.attr('data'));
   }
@@ -1214,11 +1218,11 @@ function openClose(button) {
     var tbody = button.closest('tbody');
     if (button.hasClass('fa-chevron-up')) {
       button.removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
-      tbody.find('tr:gt(0)').hide();
+      tbody.mixedView(0);
       hidden.push(tbody.attr('sort'));
     } else {
       button.removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-      tbody.mixedView();
+      tbody.mixedView(1);
       hidden.splice(hidden.indexOf(tbody.attr('sort')),1);
     }
     $.cookie('hidden_content',hidden.join(';'),{expires:3650});
@@ -1227,14 +1231,14 @@ function openClose(button) {
     if (hidden.length==0) {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
-        $(this).find('tr:gt(0)').hide();
+        $(this).mixedView(0);
         hidden.push($(this).attr('sort'));
       });
       $.cookie('hidden_content',hidden.join(';'),{expires:3650});
     } else {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-        $(this).mixedView();
+        $(this).mixedView(1);
       });
       $.removeCookie('hidden_content');
     }
