@@ -750,6 +750,20 @@ jQuery.prototype.hideMe = function() {
   hidden = hidden==null ? [] : hidden.split(';');
   if (hidden.indexOf(this.attr('sort'))>=0) this.find('tr:gt(0)').hide();
 }
+jQuery.prototype.mixedView = function() {
+  this.find('tr:gt(0)').show()
+  if (this.attr('data')) {
+    setTimeout(this.attr('data'));
+  }
+  if (this.hasClass('mixed')) {
+    var select = this.find('select[name^="enter"]');
+    select = parseInt(select.val())+1;
+    this.find('tr:gt(0)').each(function(){
+      var names = ($(this).attr('class')||'').split(' ');
+      for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide();
+    });
+  }
+}
 
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
@@ -1192,19 +1206,6 @@ function setColor(l, t1, t2) {
   case (t2 > 0 && l >= t2): return 'orangebar';
   default: return '';}
 }
-function mixed(tbody) {
-  if (tbody.attr('data')) {
-    setTimeout(tbody.attr('data'));
-  }
-  if (tbody.hasClass('mixed')) {
-    var select = tbody.find('select[name^="enter"]');
-    select = parseInt(select.val())+1;
-    tbody.find('tr:gt(0)').each(function(){
-      var names = ($(this).attr('class')||'').split(' ');
-      for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide(); 
-    });
-  }
-}
 function openClose(button) {
   var hidden = $.cookie('hidden_content');
   hidden = hidden==null ? [] : hidden.split(';');
@@ -1217,8 +1218,7 @@ function openClose(button) {
       hidden.push(tbody.attr('sort'));
     } else {
       button.removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-      tbody.find('tr:gt(0)').show();
-      mixed(tbody);
+      tbody.mixedView();
       hidden.splice(hidden.indexOf(tbody.attr('sort')),1);
     }
     $.cookie('hidden_content',hidden.join(';'),{expires:3650});
@@ -1234,8 +1234,7 @@ function openClose(button) {
     } else {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-        $(this).find('tr:gt(0)').show();
-        mixed($(this));
+        $(this).mixedView();
       });
       $.removeCookie('hidden_content');
     }
