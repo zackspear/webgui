@@ -1,0 +1,68 @@
+Menu="UNRAID-OS"
+Title="System Modules/Drivers"
+Icon="fa-sitemap"
+Tag="server"
+---
+<?PHP
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+
+ $select = [];
+
+
+    $select[] = mk_option(1,"conf",'Modprobe.d conf only');
+    $select[] = mk_option(0,"inuse",'Inuse');
+    $select[] = mk_option(0,"all",'All');
+#var_dump($select[]) ;
+?>
+<style>
+table.pre{margin-top:0;background:transparent}
+table.pre td:first-child{width:144px}
+table tr td{padding:0 0 3px 0;margin:0}
+table tr td.thin{line-height:8px;height:8px}
+</style>
+<script>
+$(function(){
+  $('#t1').load('/webGui/include/SysDrivers.php',{table:'t1',option:"inuse"});
+});
+function applyCfg() {
+  var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
+  var string = "BIND=";
+  var elements = document.getElementById("vfiopci").elements;
+  for (var i = 0, element; element = elements[i++];) {
+    if (element.type === "checkbox"  && element.checked === true)
+    string = string + element.value + " ";
+  }
+  string = string.trim();
+  if (string === "BIND=") {
+    string = "";
+  }
+  $.get( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
+  .done(function(d) {
+    if (d==1) {
+      addRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
+    } else {
+      removeRebootNotice(message);
+      document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
+    }
+    $("#applycfg").attr("disabled",true);
+  });
+}
+
+
+
+//$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select onchange='showLog(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select><? mk_option(1,"All",'syslog');?>");
+</script>
+
+<pre><form id="vfiopci" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+
+
