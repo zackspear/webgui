@@ -11,8 +11,6 @@
 
 ini=/var/local/emhttp/network.ini.new
 cfg=/boot/config/network.cfg
-job=/tmp/atjob.tmp
-reload=/usr/local/emhttp/webGui/scripts/reload_services
 
 declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
 
@@ -222,8 +220,7 @@ done
 /usr/bin/mv $ini ${ini%.*}
 
 # delayed execution
-rm -f $job
-echo "sleep 35;$reload $job"|at -M now 2>/dev/null
+/usr/local/emhttp/webGui/scripts/update_services 35
 
 # send update information
 if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then

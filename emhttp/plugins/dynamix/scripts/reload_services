@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICES="sshd avahidaemon samba rpc nfsd ntpd nginx"
+SERVICES="rpc nfsd ntpd nginx sshd avahidaemon samba"
 
 if [[ -n $1 ]]; then
   [[ ! -e $1 ]] && touch $1 || exit 0

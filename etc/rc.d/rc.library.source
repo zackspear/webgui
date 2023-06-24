@@ -140,12 +140,12 @@ check() {
   while IFS='\n' read -r net; do
     net=($net)
     if [[ "avahi show" =~ $CALLER ]]; then
-      [[ -n $net ]] && bind+=($net)
+      [[ -n $net && -z $(good $net) ]] && bind+=($net)
       [[ -n ${net[1]} ]] && ipv4=yes
     else
       # exclude wireguard tunnels for ntp
       [[ $CALLER == ntp ]] && name=$(show ${net[1]}) || name=
-      [[ ${name:0:2} != wg && -n ${net[1]} ]] && ipv4=yes bind+=($(sub ${net[1]}))
+      [[ ${name:0:2} != wg && -n ${net[1]} && -z $(good ${net[1]}) ]] && ipv4=yes bind+=($(sub ${net[1]}))
     fi
   done <<< $(ip -br -4 addr|awk '/^(br|bond|eth|wg)[0-9]+(\.[0-9]+)?/ {print $1,$3}')
   # active ipv6 interfaces (including wireguard)
@@ -157,7 +157,7 @@ check() {
     else
       # exclude wireguard tunnels for ntp
       [[ $CALLER == ntp ]] && name=$(show ${net[1]}) || name=
-      [[ ${name:0:2} != wg && -n ${net[1]} ]] && ipv6=yes bind+=($(sub ${net[1]}))
+      [[ ${name:0:2} != wg && -n ${net[1]} && -z $(good ${net[1]}) ]] && ipv6=yes bind+=($(sub ${net[1]}))
     fi
   done <<< $(ip -br -6 addr|awk '/^(br|bond|eth|wg)[0-9]+(\.[0-9]+)?/ && $3 !~ "^fe80" {print $1,$3}')
   # add loopback interface

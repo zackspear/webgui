@@ -256,7 +256,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </td></tr>
 <tr><td>
 <div class='leftside'>
-<span class='header'><i class='indent fa fa-file-text-o'></i>_(Description)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?><br><br>
+<span class='header'><i class='indent fa fa-file-text-o'></i>_(Model)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?:'---'?><br><br>
 <span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
 </div>
@@ -745,6 +745,29 @@ String.prototype.md5 = function() {
   }
   return rh(a)+rh(b)+rh(c)+rh(d);
 }
+jQuery.prototype.hideMe = function() {
+  var hidden = $.cookie('hidden_content');
+  hidden = hidden==null ? [] : hidden.split(';');
+  if (hidden.indexOf(this.attr('sort'))>=0) this.find('tr:gt(0)').hide();
+}
+jQuery.prototype.mixedView = function(s) {
+  if (s==0) {
+    this.find('tr:gt(0)').hide();
+    return;
+  }
+  this.find('tr:gt(0)').show();
+  if (this.attr('data')) {
+    setTimeout(this.attr('data'));
+  }
+  if (this.hasClass('mixed')) {
+    var select = this.find('select[name^="enter"]');
+    select = parseInt(select.val())+1;
+    this.find('tr:gt(0)').each(function(){
+      var names = ($(this).attr('class')||'').split(' ');
+      for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide();
+    });
+  }
+}
 
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
@@ -889,11 +912,9 @@ function loadlist(init) {
   $.post('/webGui/include/DashboardApps.php',{display:'<?=$display['dashapps']?>',docker:'<?=$dockerd?>',vms:'<?=$libvirtd?>'},function(d) {
     var data = d.split('\0');
     $('#docker_view tr.updated').remove();
-    $('#docker_view').append(data[0]);
-    hideMe($('#docker_view'));
+    $('#docker_view').append(data[0]).hideMe();
     $('#vm_view tr.updated').remove();
-    $('#vm_view').append(data[1]);
-    hideMe($('#vm_view'));
+    $('#vm_view').append(data[1]).hideMe();
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,noApps());
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,noVMs());
   });
@@ -1189,24 +1210,6 @@ function setColor(l, t1, t2) {
   case (t2 > 0 && l >= t2): return 'orangebar';
   default: return '';}
 }
-function hideMe(tbody) {
-  var hidden = $.cookie('hidden_content');
-  hidden = hidden==null ? [] : hidden.split(';');
-  if (hidden.indexOf(tbody.attr('sort'))>=0) tbody.find('tr:gt(0)').hide();
-}
-function mixed(tbody) {
-  if (tbody.attr('data')) {
-    setTimeout(tbody.attr('data'));
-  }
-  if (tbody.hasClass('mixed')) {
-    var select = tbody.find('select[name^="enter"]');
-    select = parseInt(select.val())+1;
-    tbody.find('tr:gt(0)').each(function(){
-      var names = ($(this).attr('class')||'').split(' ');
-      for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide(); 
-    });
-  }
-}
 function openClose(button) {
   var hidden = $.cookie('hidden_content');
   hidden = hidden==null ? [] : hidden.split(';');
@@ -1215,12 +1218,11 @@ function openClose(button) {
     var tbody = button.closest('tbody');
     if (button.hasClass('fa-chevron-up')) {
       button.removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
-      tbody.find('tr:gt(0)').hide();
+      tbody.mixedView(0);
       hidden.push(tbody.attr('sort'));
     } else {
       button.removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-      tbody.find('tr:gt(0)').show();
-      mixed(tbody);
+      tbody.mixedView(1);
       hidden.splice(hidden.indexOf(tbody.attr('sort')),1);
     }
     $.cookie('hidden_content',hidden.join(';'),{expires:3650});
@@ -1229,15 +1231,14 @@ function openClose(button) {
     if (hidden.length==0) {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
-        $(this).find('tr:gt(0)').hide();
+        $(this).mixedView(0);
         hidden.push($(this).attr('sort'));
       });
       $.cookie('hidden_content',hidden.join(';'),{expires:3650});
     } else {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
-        $(this).find('tr:gt(0)').show();
-        mixed($(this));
+        $(this).mixedView(1);
       });
       $.removeCookie('hidden_content');
     }
@@ -1380,8 +1381,7 @@ dashboard.on('message',function(msg,meta) {
     var info = moreInfo(data,"_(Array)_");
     // array devices
     $('#array_list tr.updated').remove();
-    $('#array_list').append(data[0]);
-    hideMe($('#array_list'));
+    $('#array_list').append(data[0]).hideMe();
     $('#array_info').parent().css('display',info?'':'none');
     $('#array_info').html(info);
     smartMenu('#array_list');
@@ -1391,8 +1391,7 @@ dashboard.on('message',function(msg,meta) {
       var data = t.split('\0');
       var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
-      $('#pool_list'+i).append(t);
-      hideMe($('#pool_list'+i));
+      $('#pool_list'+i).append(t).hideMe();
       $('#pool_info'+i).parent().css('display',info?'':'none');
       $('#pool_info'+i).html(info);
       smartMenu('#pool_list'+i);
@@ -1402,8 +1401,7 @@ dashboard.on('message',function(msg,meta) {
     var data = part[2].split('\0');
     var info = moreInfo(data,"_(Unassigned)_");
     $('#devs_list tr.updated').remove();
-    $('#devs_list').append(data[0]);
-    hideMe($('#devs_list'));
+    $('#devs_list').append(data[0]).hideMe();
     $('#devs_info').parent().css('display',info?'':'none');
     $('#devs_info').html(info);
     smartMenu('#devs_list');
