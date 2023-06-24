@@ -16,12 +16,10 @@ Tag="server"
  */
 
  $select = [];
+ $select[] = mk_option(1,"conf",'Modprobe.d conf only');
+ $select[] = mk_option(0,"inuse",'Inuse');
+ $select[] = mk_option(0,"all",'All');
 
-
-    $select[] = mk_option(1,"conf",'Modprobe.d conf only');
-    $select[] = mk_option(0,"inuse",'Inuse');
-    $select[] = mk_option(0,"all",'All');
-#var_dump($select[]) ;
 ?>
 <style>
 table.pre{margin-top:0;background:transparent}
