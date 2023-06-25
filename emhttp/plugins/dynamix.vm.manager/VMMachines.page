@@ -204,7 +204,7 @@ function getisoimage(uuid,dev,bus,file){
   dialogStyle();
 }
 function dialogStyle() {
-  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title',"_(Close)_").prop('onclick',null).off('click').click(function(){box.dialog('close');});
+  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title') ;
   $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
   $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
   $('.ui-button-text').css({'padding':'0px 5px'});

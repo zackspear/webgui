@@ -275,19 +275,16 @@ function VMClone(uuid, name){
   //var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
   var match= ".iso";
   var box = $("#dialogWindow");
-  box.html($("#templateblock").html());
   var height = 200;
   box.html($("#templateClone").html());
-
   box.find('#VMBeingCloned').html(name).change() ;
-
- //document.getElementById("targetsnaprmv").checked = true ;
- //document.getElementById("targetsnaprmvmeta").checked = true ;
+  document.getElementById("Free").checked = true ;
+  document.getElementById("Overwrite").checked = true ;
  //document.getElementById("targetsnapkeep").checked = true ;
  //document.getElementById("targetsnapfspc").checked = true ;
 
   box.dialog({
-    title: "_(VM Clone)_",
+    title: "VM Clone",
     resizable: false,
     width: 600,
     height: 500,
@@ -299,7 +296,7 @@ function VMClone(uuid, name){
         var target = box.find('#target');
         if (target.length) {
           target = target.val();
-          if (!target ) {errorTarget(); return;}
+          //if (!target ) {errorTarget(); return;}
         } else target = '';
 
         var clone = box.find("#target").prop('value') ;
@@ -317,7 +314,7 @@ function VMClone(uuid, name){
         openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist") ;
         box.dialog('close');
       },
-      "_(Cancel)_": function(){
+      "Cancel": function(){
         box.dialog('close');
       }
     }

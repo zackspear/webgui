@@ -1490,8 +1490,6 @@ private static $encoding = 'UTF-8';
 			if ($state != 'shutdown') $arrResponse = $lv->domain_destroy($vm) ;
 			# Wait for shutdown?
 
-
-
 			$disks =$lv->get_disk_stats($vm) ;
 
 			$capacity = 0 ;
@@ -1511,55 +1509,52 @@ private static $encoding = 'UTF-8';
 	
 			$capacity *=  1 ;
 	
-			#if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Clone")]; return $arrResponse ;} 
+			if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Clone")]; return $arrResponse ;} 
 
 			#Clone XML
-			$res = $lv->domain_get_domain_by_uuid($uuid);
-
-		   	$strXML = $lv->domain_get_xml($res);
 			$uuid = $lv->domain_get_uuid($vm) ;
-			var_dump($uuid) ;
 		   	$config=domain_to_config($uuid) ;
   
-   
-			#$config = array_replace_recursive($arrConfigDefaults, domain_to_config($uuid));
-			#$config = domain_to_config($uuid);
 			$config["domain"]["name"] = $clone ;
 			$config["domain"]["uuid"]  = $lv->domain_generate_uuid() ;
-			$config["nic"]["0"]["mac"] = $lv->generate_random_mac_addr() ;
+			foreach($config["nic"] as $index => $detail) {
+			$config["nic"][$index]["mac"] = $lv->generate_random_mac_addr() ;
+			}
 			$config["domain"]["type"] = "kvm";
-   
 
 			$files_exist = false ;
 			foreach ($config["disk"] as $diskid => $disk) {
-				$config["disk"][$diskid]["new"] = str_replace($name,$clonename,$config["disk"][$diskid]["new"]) ;
-				#var_dump(pathinfo($config["disk"][$diskid]["new"])) ;
+				$config["disk"][$diskid]["new"] = str_replace($vm,$clone,$config["disk"][$diskid]["new"]) ;
 				$pi = pathinfo($config["disk"][$diskid]["new"]) ;
 				$isdir = is_dir($pi['dirname']) ;
 				if (is_file($config["disk"][$diskid]["new"])) $file_exists = true ;
-				#var_dump($isdir,$pi['dirname']) ;
+
 				}
 
 		$clonedir = $domain_cfg['DOMAINDIR'].$clone ;
+		if (!is_dir($clonedir)) mkdir($clonedir) ;
 		#write("addLog\0".htmlspecialchars("Overwrite $overwrite Start $start Edit $edit Check Freespace $free"));
 		write("addLog\0".htmlspecialchars("Checking for image files"));
-		#if ($file_exists && $overwrite != "yes") { $arrResponse =  ['error' => _("New image file names exist and Overwrite is no")]; return $arrResponse ;} 
+		if ($file_exists && $overwrite != "yes") { $arrResponse =  ['error' => _("New image file names exist and Overwrite is no")]; return $arrResponse ;} 
 
+		#Create duplicate files.
+		foreach($config["disk"] as $diskid => $disk)  {
+			$cmdstr = "touch {$config['disk'][$diskid]['new']}" ;
+			$error = execCommand_nchan($cmdstr,$path) ;
+			if (!$error) { 
+				$arrResponse =  ['error' => substr($output[0],6) ] ;
+				return($arrResponse) ;
+			} else {
+				$arrResponse = ['success' => true] ;
+			}
+
+		}
+		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for Block $action").": </legend><p class='logLine'></p><span id='wait-$waitID'>"._('Please wait')." </span></fieldset>");
 		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
 		$xml = $lv->config_to_xml($config) ;
 		file_put_contents("/tmp/xml" ,$xml) ;
 	
-			foreach($disks as $disk)   {
-				$cmdstr = "ls" ;
-				$error = execCommand_nchan($cmdstr,$path) ;
-				if (!$error) { 
-					$arrResponse =  ['error' => substr($output[0],6) ] ;
-					return($arrResponse) ;
-				} else {
-					$arrResponse = ['success' => true] ;
-				}
-	
-			}
+
 			$arrResponse =  ['error' => _("Insufficent Storage for Clone")];
 			return$arrResponse ;
 	
