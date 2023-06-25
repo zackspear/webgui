@@ -342,6 +342,29 @@ function openDocker(cmd,title,plg,func,start=0,button=0) {
     $('button.confirm').prop('disabled',button==0);
   });
 }
+function openVMAction(cmd,title,plg,func,start=0,button=0) {
+  // start  = 0 : run command only when not already running (default)
+  // start  = 1 : run command unconditionally
+  // button = 0 : hide CLOSE button (default)
+  // button = 1 : show CLOSE button
+  nchan_vmaction.start();
+  $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:start},function(pid) {
+    if (pid==0) {
+      nchan_vmaction.stop();
+      $('div.spinner.fixed').hide();
+      $(".upgrade_notice").addClass('alert');
+      return;
+    }
+    swal({title:title,text:"<pre id='swaltext'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(close){
+      nchan_vmaction.stop();
+      $('div.spinner.fixed').hide();
+      $('.sweet-alert').hide('fast').removeClass('nchan');
+      setTimeout(function(){bannerAlert("<?=_('Attention - operation continues in background')?> ["+pid.toString().padStart(8,'0')+"]<i class='fa fa-bomb fa-fw abortOps' title=\"<?=_('Abort background process')?>\" onclick='abortOperation("+pid+")'></i>",cmd,plg,func,start);});
+    });
+    $('.sweet-alert').addClass('nchan');
+    $('button.confirm').prop('disabled',button==0);
+  });
+}
 function abortOperation(pid) {
   swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,animation:'none',type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
@@ -893,6 +916,54 @@ nchan_docker.on('message', function(data) {
       if (rows.length) {
         var row = rows[rows.length-1];
         row.innerHTML += '<span id="'+data[1]+'">IMAGE ID ['+data[1]+']: <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
+      }
+    } else {
+      var rows_content = rows.getElementsByClassName('content');
+      if (!rows_content.length || rows_content[rows_content.length-1].textContent != data[2]) {
+        rows.innerHTML += '<span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.';
+      }
+    }
+    break;
+  case 'show_Wait':
+    progress_span[data[1]] = document.getElementById('wait-'+data[1]);
+    progress_dots[data[1]] = setInterval(function(){if (((progress_span[data[1]].innerHTML += '.').match(/\./g)||[]).length > 9) progress_span[data[1]].innerHTML = progress_span[data[1]].innerHTML.replace(/\.+$/,'');},500);
+    break;
+  case 'stop_Wait':
+    clearInterval(progress_dots[data[1]]);
+    progress_span[data[1]].innerHTML = '';
+    break;
+  default:
+    box.html(box.html()+data[0]);
+    break;
+  }
+  box.scrollTop(box[0].scrollHeight);
+});
+var nchan_vmaction = new NchanSubscriber('/sub/vmaction',{subscriber:'websocket'});
+nchan_vmaction.on('message', function(data) {
+  if (!data || openDone(data)) return;
+  var box = $('pre#swaltext');
+  data = data.split('\0');
+  switch (data[0]) {
+  case 'addLog':
+    var rows = document.getElementsByClassName('logLine');
+    if (rows.length) {
+      var row = rows[rows.length-1];
+      row.innerHTML += data[1]+'<br>';
+    }
+    break;
+  case 'progress':
+    var rows = document.getElementsByClassName('progress-'+data[1]);
+    if (rows.length) {
+      rows[rows.length-1].textContent = data[2];
+    }
+    break;
+  case 'addToID':
+    var rows = document.getElementById(data[1]);
+    if (rows === null) {
+      rows = document.getElementsByClassName('logLine');
+      if (rows.length) {
+        var row = rows[rows.length-1];
+        row.innerHTML += '<span id="'+data[1]+'">'+data[1]+': <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
       }
     } else {
       var rows_content = rows.getElementsByClassName('content');

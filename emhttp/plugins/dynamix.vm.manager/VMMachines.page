@@ -306,3 +306,41 @@ _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 
 </div>
+
+<div id="dialogWindow"></div>
+<div markdown="1" id="templateClone" class="template">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1600">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
+</head>
+<body>
+<br>
+<table>
+<tr><td>_(VM Being Cloned)_:</td>
+<td><span id="VMBeingCloned"></span></td></tr>
+
+<tr><td>_(New VM)_:</td>
+<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" ></td></tr>
+
+<tr><td>_(Overwrite)_:</td>
+<td><input type="checkbox" id="Overwrite" value="" ></td></tr>
+
+<tr><td>_(Start Cloned VM)_:</td>
+<td><input type="checkbox" id="Start" value="" ></td></tr>
+
+<tr><td>_(Edit VM after clone)_:</td>
+<td><input type="checkbox" id="Edit" value="" ></td></tr>
+
+<tr><td>_(Check Free Space)_:</td>
+<td><input type="checkbox" id="Free" value="" ></td></tr>
+
+</table>
+</body>
+</html>
+</div>

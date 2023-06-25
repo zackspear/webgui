@@ -1454,4 +1454,115 @@ private static $encoding = 'UTF-8';
 		if ($spicevmc || $qemuvdaagent) $copypaste = true ; else $copypaste = false ;
 		return $copypaste ;
 	}
+
+	function vm_clone($vm, $clone ,$overwrite,$start,$edit, $free, $waitID) {
+		global $lv,$domain_cfg ;
+		/*
+			Clone.
+
+			Stopped only.
+
+			Get new VM Name
+			Extract XML for VM to be cloned.
+			Check if directory exists.
+			Check for disk space
+
+			Stop VM Starting until clone is finished or fails.
+
+			Create new directory for Clone.
+			Update paths with new directory
+
+			Create new UUID
+			Create new MAC Address for NICs
+
+			Create VM Disks from source. Options full or Sparce. Method of copy?
+
+			release orginal VM to start.
+
+			If option to edit, show VMUpdate
+		*/
+
+			#VM must be shutdown.
+			$res = $lv->get_domain_by_name($vm);
+			$dom = $lv->domain_get_info($res);
+			$state = $lv->domain_state_translate($dom['state']);
+			# if VM running shutdown. Record was running.
+			if ($state != 'shutdown') $arrResponse = $lv->domain_destroy($vm) ;
+			# Wait for shutdown?
+
+
+
+			$disks =$lv->get_disk_stats($vm) ;
+
+			$capacity = 0 ;
+	
+			foreach($disks as $disk)   {
+				$file = $disk["file"] ;
+				$pathinfo =  pathinfo($file) ;
+				$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+				$diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
+				$capacity = $capacity + $disk["capacity"] ;
+			}
+			$dirpath = $pathinfo["dirname"] ;
+	
+			#Check free space.
+			write("addLog\0".htmlspecialchars("Checking for free space"));
+			$dirfree = disk_free_space($pathinfo["dirname"]) ;
+	
+			$capacity *=  1 ;
+	
+			#if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Clone")]; return $arrResponse ;} 
+
+			#Clone XML
+			$res = $lv->domain_get_domain_by_uuid($uuid);
+
+		   	$strXML = $lv->domain_get_xml($res);
+			$uuid = $lv->domain_get_uuid($vm) ;
+			var_dump($uuid) ;
+		   	$config=domain_to_config($uuid) ;
+  
+   
+			#$config = array_replace_recursive($arrConfigDefaults, domain_to_config($uuid));
+			#$config = domain_to_config($uuid);
+			$config["domain"]["name"] = $clone ;
+			$config["domain"]["uuid"]  = $lv->domain_generate_uuid() ;
+			$config["nic"]["0"]["mac"] = $lv->generate_random_mac_addr() ;
+			$config["domain"]["type"] = "kvm";
+   
+
+			$files_exist = false ;
+			foreach ($config["disk"] as $diskid => $disk) {
+				$config["disk"][$diskid]["new"] = str_replace($name,$clonename,$config["disk"][$diskid]["new"]) ;
+				#var_dump(pathinfo($config["disk"][$diskid]["new"])) ;
+				$pi = pathinfo($config["disk"][$diskid]["new"]) ;
+				$isdir = is_dir($pi['dirname']) ;
+				if (is_file($config["disk"][$diskid]["new"])) $file_exists = true ;
+				#var_dump($isdir,$pi['dirname']) ;
+				}
+
+		$clonedir = $domain_cfg['DOMAINDIR'].$clone ;
+		#write("addLog\0".htmlspecialchars("Overwrite $overwrite Start $start Edit $edit Check Freespace $free"));
+		write("addLog\0".htmlspecialchars("Checking for image files"));
+		#if ($file_exists && $overwrite != "yes") { $arrResponse =  ['error' => _("New image file names exist and Overwrite is no")]; return $arrResponse ;} 
+
+		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
+		$xml = $lv->config_to_xml($config) ;
+		file_put_contents("/tmp/xml" ,$xml) ;
+	
+			foreach($disks as $disk)   {
+				$cmdstr = "ls" ;
+				$error = execCommand_nchan($cmdstr,$path) ;
+				if (!$error) { 
+					$arrResponse =  ['error' => substr($output[0],6) ] ;
+					return($arrResponse) ;
+				} else {
+					$arrResponse = ['success' => true] ;
+				}
+	
+			}
+			$arrResponse =  ['error' => _("Insufficent Storage for Clone")];
+			return$arrResponse ;
+	
+	}
+
 ?>
