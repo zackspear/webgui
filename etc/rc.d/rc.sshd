@@ -18,7 +18,7 @@ build_ssh() {
     sed -ri '/^#?(ListenAddress|AddressFamily) /d' $CONF
     # create new entries (in reverse order)
     for i in $(seq $((${#bind[@]}-1)) -1 0); do
-      sed -ri "/^#?Port /a ListenAddress ${bind[$i]}" $CONF
+      sed -ri "/^#?Port /a ListenAddress ${bind[$i]} # $(show ${bind[$i]})" $CONF
     done
     sed -ri "/^#?Port /a AddressFamily $family" $CONF
   fi

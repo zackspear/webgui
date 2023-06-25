@@ -26,12 +26,8 @@ if check && [[ -n $bind ]]; then
   RPC_NFSD_OPTS="$OPTIONS -H ${bind// / -H }"
 fi
 
-# update default settings
-sed -ri "s/^(RPC_NFSD_OPTS)=.*/\1=\"$RPC_NFSD_OPTS\"/" $NFS 2>/dev/null
-
 # source default settings:
 [[ -r $RPC ]] && . $RPC
-[[ -r $NFS ]] && . $NFS
 
 nfsd_start() {
   # There used to be "sanity checks" here to exit without starting if various
@@ -71,6 +67,9 @@ nfsd_start() {
     echo "  $RQUOTAD $RPC_RQUOTAD_OPTS"
     $RQUOTAD $RPC_RQUOTAD_OPTS 2>/dev/null
   fi
+  # update default settings
+  sed -ri "s/^(RPC_NFSD_OPTS)=.*/\1=\"$RPC_NFSD_OPTS\"/" $NFS 2>/dev/null
+  [[ -r $NFS ]] && . $NFS
   # start nfsd servers - 8 if not set extrawise (an old Sun standard):
   if [[ -x $NFSD ]]; then
     [[ -z $RPC_NFSD_COUNT ]] && RPC_NFSD_COUNT=8
@@ -100,10 +99,8 @@ nfsd_restart() {
 }
 
 nfsd_reload() {
-  killall -9 nfsd 2>/dev/null
-  sleep 1
-  [[ -z $RPC_NFSD_COUNT ]] && RPC_NFSD_COUNT=8
-  $NFSD $RPC_NFSD_OPTS $RPC_NFSD_COUNT 2>/dev/null
+  # restart without info
+  nfsd_restart 1>/dev/null 2>&1
 }
 
 nfsd_update() {

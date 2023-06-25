@@ -91,9 +91,9 @@ is_docker_running(){
   [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
 }
 
-# Wait max 15s to daemon start
+# Wait max 30s to daemon start
 wait_daemon(){
-  for n in {1..15}; do
+  for n in {1..30}; do
     if is_docker_running; then return 0; else sleep 1; fi
   done
   return 1
@@ -196,7 +196,7 @@ start_network(){
       THIS_IP=
       while read_dom; do
         [[ $ENTITY == Network ]] && THIS_NETWORK=$CONTENT
-        [[ $ENTITY == MyIP ]] && THIS_IP=${CONTENT// /} && THIS_IP=${THIS_IP//,/;}
+        [[ $ENTITY == MyIP ]] && THIS_IP=${CONTENT// /,} && THIS_IP=$(echo "${THIS_IP}" | tr -s "," ";")
       done <$XMLFILE
       # only restore valid networks
       if [[ -n $THIS_NETWORK ]]; then
@@ -367,7 +367,7 @@ start_network(){
         THIS_TT=${CONNECT#*,}
         THIS_IP=
         for IP in ${THIS_TT//;/ }; do
-          [[ $IP =~ '.' ]] && THIS_IP="$THIS_IP --ip $IP" || THIS_IP="$THIS_IP --ip6 $IP"
+          [[ $IP =~ ':' ]] && THIS_IP="$THIS_IP --ip6 $IP" || THIS_IP="$THIS_IP --ip $IP"
         done
         docker network connect $THIS_IP $NETWORK $THIS_ID >/dev/null
       done

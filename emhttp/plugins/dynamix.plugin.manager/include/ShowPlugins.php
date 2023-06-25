@@ -163,12 +163,16 @@ foreach (glob($plugins,GLOB_NOSORT) as $plugin_link) {
         } else {
           $latest = plugin('version',$filename);
           if ($os ? version_compare($latest,$version,'>') : strcmp($latest,$version) > 0) {
-            $version .= "<br><span class='red-text'>$latest</span>";
+            if ($os) {
+              $version = "<small>"._('I have read the release notes')."</small><input type='checkbox' onclick=\"$('#cmdUpdate').prop('disabled',!this.checked)\"><br><span class='red-text'>$latest</span>";
+            } else {
+              $version .= "<br><span class='red-text'>$latest</span>";
+            }
             $error = null;
-            if ( ! $os && (version_compare(plugin("min",$filename,$error) ?: "1.0",$Unraid['version'],">") || version_compare(plugin("max",$filename,$error) ?: "999.9.9",$Unraid['version'],"<") )  ) {
+            if (!$os && (version_compare(plugin("min",$filename,$error) ?: "1.0",$Unraid['version'],">") || version_compare(plugin("max",$filename,$error) ?: "999.9.9",$Unraid['version'],"<"))) {
               $status = "<span class='warning'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> "._("Update Incompatible")."</span>";
             } else {
-              $status = make_link("update",basename($plugin_file));
+              $status = make_link("update",basename($plugin_file),$os?'cmdUpdate':'');
             }
             $changes_file = $filename;
             if (!$os) $updates++;
