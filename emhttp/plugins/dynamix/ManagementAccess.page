@@ -54,7 +54,7 @@ function acceptableCert($certFile, $hostname, $expectedURL) {
 $tasks       = find_tasks();
 $nginx       = @parse_ini_file('/var/local/emhttp/nginx.ini') ?: [];
 $addr        = _var($nginx,'NGINX_LANIP') ?: _var($nginx,'NGINX_LANIP6');
-$keyfile     = @file_get_contents(_var($var,'regFILE'));
+$keyfile     = empty(_var($var,'regFILE')) ? false : @file_get_contents(_var($var,'regFILE'));
 $cert2Issuer = '';
 $isLEcert    = false;
 if ($keyfile !== false) $keyfile = base64_encode($keyfile);
