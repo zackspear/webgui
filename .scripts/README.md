@@ -1,5 +1,8 @@
 # Development scripts
 ## `deploy-dev.sh`
+
+Easily deploy your local repo's changes to an Unraid server on your network.
+
 ```
 Usage: .scripts/deploy-dev.sh [SSH_SERVER_NAME]
 
