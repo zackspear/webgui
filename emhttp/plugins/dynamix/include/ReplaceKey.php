@@ -74,7 +74,7 @@ function replaceKey(email, guid, keyfile) {
   <div id="status_panel"></div>
   <form markdown="1" id="input_form">
     Email address: <input type="text" name="email" maxlength="1024" value="" style="width:33%">
-    <input type="button" value="Replace Key" onclick="replaceKey(this.form.email.value.trim(), '<?=$var['flashGUID']?>', '<?=$keyfile?>')">
+    <input type="button" value="Replace Key" onclick="replaceKey(this.form.email.value.trim(), '<?=_var($var,'flashGUID')?>', '<?=$keyfile?>')">
     <p>A link to your replacement key will be delivered to this email address.
     <p><strong>Note:</strong>
     Once a replacement key is generated, your old USB Flash device will be <b>blacklisted</b>.
