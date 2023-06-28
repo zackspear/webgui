@@ -73,14 +73,16 @@ function replaceKey(email, guid, keyfile) {
 <? if ($keyfile): ?>
   <div id="status_panel"></div>
   <form markdown="1" id="input_form">
-    Email address: <input type="text" name="email" maxlength="1024" value="" style="width:33%">
+    <label for="email">
+      <?=_('Email Address')?>:
+      <input type="text" name="email" maxlength="1024" value="" style="width:33%">
+    </label>
     <input type="button" value="Replace Key" onclick="replaceKey(this.form.email.value.trim(), '<?=_var($var,'flashGUID')?>', '<?=$keyfile?>')">
-    <p>A link to your replacement key will be delivered to this email address.
-    <p><strong>Note:</strong>
-    Once a replacement key is generated, your old USB Flash device will be <b>blacklisted</b>.
+    <p><?=_('A link to your replacement key will be delivered to this email address')?>.</p>
+    <p><strong><?=_('Note') ?>:</strong> <?=_('Once a replacement key is generated, your old USB Flash device will be **blacklisted**')?>.</p>
   </form>
 <? else: ?>
-  <p><?=_('Replace Key is not available unless you have a mismatched License Key on your USB Flash device')?>.
+  <p><?=_('Replace Key is not available unless you have a mismatched License Key on your USB Flash device')?>.</p>
 <? endif; ?>
 </div>
 </body>
