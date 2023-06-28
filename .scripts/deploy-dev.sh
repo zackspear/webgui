@@ -7,7 +7,7 @@ state_file="$HOME/.webgui_deploy_state"
 show_help() {
   echo "Usage: $0 [SSH_SERVER_NAME]"
   echo ""
-  echo "Deploys the source directory to the specified SSH server using rsync."
+  echo "The SSH server name to deploy to. Required on first usage. Optional on subsequent use for the same server."
   echo ""
   echo "Positional Argument:"
   echo "  SSH_SERVER_NAME     The SSH server name to deploy to."
