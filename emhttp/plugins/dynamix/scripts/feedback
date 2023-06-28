@@ -24,7 +24,7 @@ require_once "$docroot/webGui/include/Translations.php";
 
 $var     = parse_ini_file('state/var.ini');
 $unraid  = parse_ini_file('/etc/unraid-version');
-$keyfile = trim(base64_encode(@file_get_contents($var['regFILE'])));
+$keyfile = empty(_var($var,'regFILE')) ? false : @trim(base64_encode(file_get_contents(_var($var,'regFILE'))));
 $width   = in_array($display['theme'],['azure','gray']) ? '98.4%' : '100%';
 
 $style = ["<style>"];
