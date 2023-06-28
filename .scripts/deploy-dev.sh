@@ -3,6 +3,23 @@
 # Path to store the last used server name
 state_file="$HOME/.webgui_deploy_state"
 
+# Function to display script usage and help information
+show_help() {
+  echo "Usage: $0 [SSH_SERVER_NAME]"
+  echo ""
+  echo "Deploys the source directory to the specified SSH server using rsync."
+  echo ""
+  echo "Positional Argument:"
+  echo "  SSH_SERVER_NAME     The SSH server name to deploy to."
+  echo ""
+}
+
+# Check if the help option is provided
+if [[ $1 == "--help" || $1 == "-h" ]]; then
+  show_help
+  exit 0
+fi
+
 # Read the last used server name from the state file
 if [[ -f "$state_file" ]]; then
   last_server_name=$(cat "$state_file")
@@ -16,6 +33,7 @@ server_name="${1:-$last_server_name}"
 # Check if the server name is provided
 if [[ -z "$server_name" ]]; then
   echo "Please provide the SSH server name."
+  echo "Use the --help option for more information."
   exit 1
 fi
 
@@ -38,18 +56,6 @@ echo "$rsync_command"
 # Execute the rsync command
 eval "$rsync_command"
 exit_code=$?
-
-# Play built-in sound based on the operating system
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  afplay /System/Library/Sounds/Submarine.aiff
-elif [[ "$OSTYPE" == "linux-gnu" ]]; then
-  # Linux
-  aplay /usr/share/sounds/freedesktop/stereo/complete.oga
-elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-  # Windows
-  powershell.exe -c "(New-Object Media.SoundPlayer 'C:\Windows\Media\Windows Default.wav').PlaySync()"
-fi
 
 # Exit with the rsync command's exit code
 exit $exit_code
