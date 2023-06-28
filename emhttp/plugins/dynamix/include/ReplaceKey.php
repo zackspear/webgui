@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
 $var = parse_ini_file('state/var.ini');
-$keyfile = base64_encode(file_get_contents($var['regFILE']));
+$keyfile = empty(_var($var,'regFILE')) ? false : @base64_encode(file_get_contents(_var($var,'regFILE')));
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
@@ -34,6 +34,7 @@ $keyfile = base64_encode(file_get_contents($var['regFILE']));
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-popup.css")?>">
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
+<? if ($keyfile) : ?>
 <script>
 function replaceKey(email, guid, keyfile) {
   if (email.length) {
@@ -65,21 +66,22 @@ function replaceKey(email, guid, keyfile) {
   }
 }
 </script>
+<? endif; ?>
 </head>
 <body>
 <div style="margin-top:20px;line-height:30px;margin-left:40px">
-<div id="status_panel"></div>
-<form markdown="1" id="input_form">
-
-Email address: <input type="text" name="email" maxlength="1024" value="" style="width:33%">
-
-<input type="button" value="Replace Key" onclick="replaceKey(this.form.email.value.trim(), '<?=$var['flashGUID']?>', '<?=$keyfile?>')">
-
-<p>A link to your replacement key will be delivered to this email address.
-
-<p><strong>Note:</strong>
-Once a replacement key is generated, your old USB Flash device will be <b>blacklisted</b>.
-</form>
+<? if ($keyfile): ?>
+  <div id="status_panel"></div>
+  <form markdown="1" id="input_form">
+    Email address: <input type="text" name="email" maxlength="1024" value="" style="width:33%">
+    <input type="button" value="Replace Key" onclick="replaceKey(this.form.email.value.trim(), '<?=$var['flashGUID']?>', '<?=$keyfile?>')">
+    <p>A link to your replacement key will be delivered to this email address.
+    <p><strong>Note:</strong>
+    Once a replacement key is generated, your old USB Flash device will be <b>blacklisted</b>.
+  </form>
+<? else: ?>
+  <p><?=_('Replace Key is not available unless you have a mismatched License Key on your USB Flash device')?>.
+<? endif; ?>
 </div>
 </body>
 </html>
