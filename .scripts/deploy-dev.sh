@@ -177,7 +177,7 @@ for path in "${additional_excludes[@]}"; do
 done
 
 # Rsync command
-rsync_command="rsync -amvz --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"$destination_directory\""
+rsync_command="rsync -amvz -og --chown=root:root --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"$destination_directory\""
 
 # Print the rsync command
 echo "Executing the following command:"
