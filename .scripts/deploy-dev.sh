@@ -2,16 +2,20 @@
 
 # Path to store the last used server host
 state_file="$HOME/.webgui_deploy_state"
+exclude_state_file="$HOME/.webgui_deploy_exclude_state"
 
 # Function to display script usage and help information
 show_help() {
-  echo "Usage: $0 [-host SSH_SERVER_HOST] [-exclude PATHS]"
+  echo "Usage: $0 [-host SSH_SERVER_HOST] [-exclude PATHS] [--clear-exclude-state] [--ignore-exclude-state] [--no-save-exclude-state]"
   echo ""
   echo "Deploys the source directory to the specified SSH server using rsync."
   echo ""
   echo "Options:"
-  echo "  -host SSH_SERVER_HOST    The SSH server host to deploy to."
-  echo "  -exclude PATHS           Paths to exclude (comma-separated)"
+  echo "  -host SSH_SERVER_HOST       The SSH server host to deploy to."
+  echo "  -exclude PATHS              Paths to exclude (comma-separated)"
+  echo "  --clear-exclude-state       Clear the exclude state file"
+  echo "  --ignore-exclude-state      Ignore the saved exclude state"
+  echo "  --no-save-exclude-state     Do not save the exclude state"
   echo ""
 }
 
@@ -24,6 +28,9 @@ fi
 # Default values
 server_host=""
 exclude_paths=""
+clear_exclude_state="no"
+ignore_exclude_state="no"
+save_exclude_state="yes"
 
 # Parse command-line options
 while [[ $# -gt 0 ]]; do
@@ -37,12 +44,30 @@ while [[ $# -gt 0 ]]; do
       exclude_paths="$2"
       shift 2
       ;;
+    --clear-exclude-state)
+      clear_exclude_state="yes"
+      shift
+      ;;
+    --ignore-exclude-state)
+      ignore_exclude_state="yes"
+      shift
+      ;;
+    --no-save-exclude-state)
+      save_exclude_state="no"
+      shift
+      ;;
     *)
       show_help
       exit 1
       ;;
   esac
 done
+
+# Check if both -exclude and --clear-exclude-state are provided
+if [[ -n "$exclude_paths" && "$clear_exclude_state" == "yes" ]]; then
+  echo "Error: Cannot use -exclude and --clear-exclude-state options together."
+  exit 1
+fi
 
 # Read the last used server host from the state file
 if [[ -f "$state_file" ]]; then
@@ -63,6 +88,24 @@ fi
 
 # Save the current server host to the state file
 echo "$server_host" > "$state_file"
+
+# Check if the exclude state file should be cleared
+if [[ "$clear_exclude_state" == "yes" ]]; then
+  rm -f "$exclude_state_file"
+fi
+
+# Save the current exclude option to the state file
+if [[ -n "$exclude_paths" && "$save_exclude_state" == "yes" ]]; then
+  echo "$exclude_paths" > "$exclude_state_file"
+fi
+
+# Read the exclude option from the state file
+if [[ -f "$exclude_state_file" && "$ignore_exclude_state" != "yes" ]]; then
+  saved_exclude_option=$(cat "$exclude_state_file")
+  if [[ -n "$saved_exclude_option" ]]; then
+    exclude_paths="$saved_exclude_option"
+  fi
+fi
 
 # Source directory path (current directory)
 source_directory="."
