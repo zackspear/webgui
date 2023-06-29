@@ -17,6 +17,8 @@ show_help() {
   echo "  --ignore-exclude-state      Ignore the saved exclude state"
   echo "  --no-save-exclude-state     Do not save the exclude state"
   echo ""
+  echo "Source Directory: $(pwd)"
+  echo "Destination Directory: root@$server_host:/usr/local/"
 }
 
 # Check if the help option is provided
@@ -111,7 +113,7 @@ fi
 source_directory="."
 
 # Destination directory path
-destination_directory="/usr/local"
+destination_directory="root@$server_host:/usr/local/"
 
 # Check if /usr/local/sbin/unraid-api exists on the remote server
 exclude_connect="no"
@@ -162,7 +164,7 @@ if [[ -n "$exclude_paths" ]]; then
 fi
 
 # Rsync command
-rsync_command="rsync -amvz --no-links --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"root@$server_host:$destination_directory/\""
+rsync_command="rsync -amvzog --chown=root:root --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"$destination_directory\""
 
 # Print the rsync command
 echo "Executing the following command:"
