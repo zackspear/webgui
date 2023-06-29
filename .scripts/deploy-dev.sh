@@ -5,12 +5,16 @@ state_file="$HOME/.webgui_deploy_state"
 
 # Function to display script usage and help information
 show_help() {
-  echo "Usage: $0 [SSH_SERVER_NAME]"
+  echo "Usage: $0 [SSH_SERVER_NAME] [-exclude-connect] [-exclude-dirs DIRS]"
   echo ""
-  echo "The SSH server name to deploy to. Required on first usage. Optional on subsequent use for the same server."
+  echo "Deploys the source directory to the specified SSH server using rsync."
   echo ""
-  echo "Positional Argument:"
+  echo "Positional Arguments:"
   echo "  SSH_SERVER_NAME     The SSH server name to deploy to."
+  echo ""
+  echo "Options:"
+  echo "  -exclude-connect    Exclude the directory 'emhttp/plugins/dynamix.my.servers'"
+  echo "  -exclude-dirs DIRS  Additional directories to exclude (comma-separated)"
   echo ""
 }
 
@@ -19,6 +23,27 @@ if [[ $1 == "--help" || $1 == "-h" ]]; then
   show_help
   exit 0
 fi
+
+# Parse command-line options
+exclude_dir="no"
+exclude_dirs=""
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    -exclude-connect)
+      exclude_dir="yes"
+      shift
+      ;;
+    -exclude-dirs)
+      exclude_dirs="$2"
+      shift 2
+      ;;
+    *)
+      show_help
+      exit 1
+      ;;
+  esac
+done
 
 # Read the last used server name from the state file
 if [[ -f "$state_file" ]]; then
@@ -46,8 +71,23 @@ source_directory="."
 # Destination directory path
 destination_directory="/usr/local"
 
-# Execute the rsync command to upload the source directory excluding directories starting with a period
-rsync_command="rsync -amvz --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' \"$source_directory/\" \"root@${server_name}.local:$destination_directory/\""
+# Exclude directory option
+if [[ "$exclude_dir" == "yes" ]]; then
+  exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers'"
+else
+  exclude_option=""
+fi
+
+# Additional directories to exclude
+if [[ -n "$exclude_dirs" ]]; then
+  IFS=',' read -ra dirs <<< "$exclude_dirs"
+  for dir in "${dirs[@]}"; do
+    exclude_option+=" --exclude '/$dir'"
+  done
+fi
+
+# Rsync command
+rsync_command="rsync -amvz --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"root@${server_name}.local:$destination_directory/\""
 
 # Print the rsync command
 echo "Executing the following command:"
