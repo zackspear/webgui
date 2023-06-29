@@ -5,7 +5,7 @@ state_file="$HOME/.webgui_deploy_state"
 
 # Function to display script usage and help information
 show_help() {
-  echo "Usage: $0 [SSH_SERVER_NAME] [-exclude-connect] [-exclude-dirs DIRS]"
+  echo "Usage: $0 [SSH_SERVER_NAME] [-exclude-connect] [-exclude PATHS]"
   echo ""
   echo "Deploys the source directory to the specified SSH server using rsync."
   echo ""
@@ -14,8 +14,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  -exclude-connect    Exclude the directory 'emhttp/plugins/dynamix.my.servers'"
-  echo "                      and 'emhttp/plugins/dynamix/include/UpdateDNS.php'"
-  echo "  -exclude-dirs DIRS  Additional directories to exclude (comma-separated)"
+  echo "  -exclude PATHS      Paths to exclude (comma-separated)"
   echo ""
 }
 
@@ -26,17 +25,17 @@ if [[ $1 == "--help" || $1 == "-h" ]]; then
 fi
 
 # Parse command-line options
-exclude_dir="no"
-exclude_dirs=""
+exclude_connect="no"
+exclude_paths=""
 while [[ $# -gt 0 ]]; do
   key="$1"
   case $key in
     -exclude-connect)
-      exclude_dir="yes"
+      exclude_connect="yes"
       shift
       ;;
-    -exclude-dirs)
-      exclude_dirs="$2"
+    -exclude)
+      exclude_paths="$2"
       shift 2
       ;;
     *)
@@ -73,17 +72,16 @@ source_directory="."
 destination_directory="/usr/local"
 
 # Exclude directory option
-if [[ "$exclude_dir" == "yes" ]]; then
+exclude_option=""
+if [[ "$exclude_connect" == "yes" ]]; then
   exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers' --exclude '/emhttp/plugins/dynamix/include/UpdateDNS.php'"
-else
-  exclude_option=""
 fi
 
-# Additional directories to exclude
-if [[ -n "$exclude_dirs" ]]; then
-  IFS=',' read -ra dirs <<< "$exclude_dirs"
-  for dir in "${dirs[@]}"; do
-    exclude_option+=" --exclude '/$dir'"
+# Additional paths to exclude
+if [[ -n "$exclude_paths" ]]; then
+  IFS=',' read -ra paths <<< "$exclude_paths"
+  for path in "${paths[@]}"; do
+    exclude_option+=" --exclude '/$path'"
   done
 fi
 
