@@ -18,7 +18,25 @@ show_help() {
   echo "  --no-save-exclude-state     Do not save the exclude state"
   echo ""
   echo "Source Directory: $(pwd)"
-  echo "Destination Directory: root@$server_host:/usr/local/"
+  echo "Destination Directory: root@tower:/usr/local/"
+  echo ""
+  echo "Examples:"
+  echo "  $0 -host 192.168.1.100"
+  echo "    - Deploy the current directory to the SSH server at 192.168.1.100"
+  echo ""
+  echo "  $0 -host tower -exclude sbin/emcmd,sbin/plugin"
+  echo "    - Deploy the current directory to the SSH server at tower, excluding the sbin/emcmd and sbin/plugin paths"
+  echo ""
+  echo "  $0  -exclude emhttp/plugins/dynamix/Dashboard.page,emhttp/plugins/dynamix/languages --no-save-exclude-state"
+  echo "    - Deploy the current directory to the SSH server without saving the exclude state for subsequent deployments"
+  echo ""
+  echo "  $0 --clear-exclude-state"
+  echo "    - Clear the exclude state file"
+  echo ""
+  echo "  $0 --ignore-exclude-state"
+  echo "    - Ignore the saved exclude state and deploy all files and directories"
+  echo ""
+  echo "Note: If the -host option is not provided, the previous host option used will be used."
 }
 
 # Check if the help option is provided
@@ -110,24 +128,25 @@ if [[ -f "$exclude_state_file" && "$ignore_exclude_state" != "yes" ]]; then
 fi
 
 # Source directory path (current directory)
-source_directory="."
+source_directory="$(pwd)"
 
 # Destination directory path
 destination_directory="root@$server_host:/usr/local/"
 
-# Check if /usr/local/sbin/unraid-api exists on the remote server
+# Check if the Connect plugin is installed on the remote server
 exclude_connect="no"
 if ssh "root@$server_host" "[ -f /usr/local/sbin/unraid-api ]"; then
   exclude_connect="yes"
 fi
 
-# Exclude directory option
+# Exclude Connect related files and directories
 exclude_option=""
 if [[ "$exclude_connect" == "yes" ]]; then
   exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers' --exclude '/emhttp/plugins/dynamix/include/UpdateDNS.php'"
 fi
 
 # Additional paths to exclude
+# Manual list of all symlinks as they are undetectable on Windows and unsafe to copy from Windows to Unraid
 additional_excludes=(
   "./sbin/emcmd"
   "./sbin/plugin"
@@ -144,17 +163,6 @@ additional_excludes=(
   "./emhttp/webGui"
 )
 
-# Find all symbolic links in the source directory
-symbolic_links=$(find "$source_directory" -type l)
-
-# Loop through symbolic links and add non-existing values to additional_excludes
-for link in $symbolic_links; do
-  target=$(readlink -f "$link")
-  if [[ ! " ${additional_excludes[@]} " =~ " ${target} " ]]; then
-    additional_excludes+=("$target")
-  fi
-done
-
 # Additional paths to exclude (if provided)
 if [[ -n "$exclude_paths" ]]; then
   IFS=',' read -ra paths <<< "$exclude_paths"
@@ -163,8 +171,13 @@ if [[ -n "$exclude_paths" ]]; then
   done
 fi
 
+# Add additional excludes to exclude_option
+for path in "${additional_excludes[@]}"; do
+  exclude_option+=" --exclude '$path'"
+done
+
 # Rsync command
-rsync_command="rsync -amvzog --chown=root:root --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"$destination_directory\""
+rsync_command="rsync -amvz --relative --no-implied-dirs --progress --stats --exclude '/.*' --exclude '*/.*' $exclude_option \"$source_directory/\" \"$destination_directory\""
 
 # Print the rsync command
 echo "Executing the following command:"
