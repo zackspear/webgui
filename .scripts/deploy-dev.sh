@@ -126,6 +126,34 @@ if [[ "$exclude_connect" == "yes" ]]; then
 fi
 
 # Additional paths to exclude
+additional_excludes=(
+  "./sbin/emcmd"
+  "./sbin/plugin"
+  "./sbin/language"
+  "./sbin/newperms"
+  "./sbin/inet"
+  "./sbin/samba"
+  "./sbin/diagnostics"
+  "./emhttp/boot"
+  "./emhttp/plugins/dynamix/images/case-model.png"
+  "./emhttp/state"
+  "./emhttp/mnt"
+  "./emhttp/log"
+  "./emhttp/webGui"
+)
+
+# Find all symbolic links in the source directory
+symbolic_links=$(find "$source_directory" -type l)
+
+# Loop through symbolic links and add non-existing values to additional_excludes
+for link in $symbolic_links; do
+  target=$(readlink -f "$link")
+  if [[ ! " ${additional_excludes[@]} " =~ " ${target} " ]]; then
+    additional_excludes+=("$target")
+  fi
+done
+
+# Additional paths to exclude (if provided)
 if [[ -n "$exclude_paths" ]]; then
   IFS=',' read -ra paths <<< "$exclude_paths"
   for path in "${paths[@]}"; do
