@@ -14,6 +14,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  -exclude-connect    Exclude the directory 'emhttp/plugins/dynamix.my.servers'"
+  echo "                      and 'emhttp/plugins/dynamix/include/UpdateDNS.php'"
   echo "  -exclude-dirs DIRS  Additional directories to exclude (comma-separated)"
   echo ""
 }
@@ -73,7 +74,7 @@ destination_directory="/usr/local"
 
 # Exclude directory option
 if [[ "$exclude_dir" == "yes" ]]; then
-  exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers'"
+  exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers' --exclude '/emhttp/plugins/dynamix/include/UpdateDNS.php'"
 else
   exclude_option=""
 fi
