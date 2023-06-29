@@ -86,7 +86,7 @@ fi
 if [[ -n "$exclude_paths" ]]; then
   IFS=',' read -ra paths <<< "$exclude_paths"
   for path in "${paths[@]}"; do
-    exclude_option+=" --exclude '/$path'"
+    exclude_option+=" --exclude '$path'"
   done
 fi
 
