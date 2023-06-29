@@ -133,15 +133,9 @@ source_directory="$(pwd)"
 # Destination directory path
 destination_directory="root@$server_host:/usr/local/"
 
-# Check if the Connect plugin is installed on the remote server
-exclude_connect="no"
-if ssh "root@$server_host" "[ -f /usr/local/sbin/unraid-api ]"; then
-  exclude_connect="yes"
-fi
-
-# Exclude Connect related files and directories
+# Exclude Connect related files and directories if the Connect plugin is installed on the remote server
 exclude_option=""
-if [[ "$exclude_connect" == "yes" ]]; then
+if ssh "root@$server_host" "[ -f /usr/local/sbin/unraid-api ]"; then
   exclude_option="--exclude '/emhttp/plugins/dynamix.my.servers' --exclude '/emhttp/plugins/dynamix/include/UpdateDNS.php'"
 fi
 
