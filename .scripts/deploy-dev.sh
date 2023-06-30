@@ -142,19 +142,19 @@ fi
 # Additional paths to exclude
 # Manual list of all symlinks as they are undetectable on Windows and unsafe to copy from Windows to Unraid
 additional_excludes=(
-  "./sbin/emcmd"
-  "./sbin/plugin"
-  "./sbin/language"
-  "./sbin/newperms"
-  "./sbin/inet"
-  "./sbin/samba"
-  "./sbin/diagnostics"
-  "./emhttp/boot"
-  "./emhttp/plugins/dynamix/images/case-model.png"
-  "./emhttp/state"
-  "./emhttp/mnt"
-  "./emhttp/log"
-  "./emhttp/webGui"
+  "/sbin/emcmd"
+  "/sbin/plugin"
+  "/sbin/language"
+  "/sbin/newperms"
+  "/sbin/inet"
+  "/sbin/samba"
+  "/sbin/diagnostics"
+  "/emhttp/boot"
+  "/emhttp/plugins/dynamix/images/case-model.png"
+  "/emhttp/state"
+  "/emhttp/mnt"
+  "/emhttp/log"
+  "/emhttp/webGui"
 )
 
 # Additional paths to exclude (if provided)
