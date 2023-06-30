@@ -128,7 +128,7 @@ if [[ -f "$exclude_state_file" && "$ignore_exclude_state" != "yes" ]]; then
 fi
 
 # Source directory path (current directory)
-source_directory="$(pwd)"
+source_directory="."
 
 # Destination directory path
 destination_directory="root@$server_host:/usr/local/"
