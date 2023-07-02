@@ -278,10 +278,9 @@ function VMClone(uuid, name){
   var height = 200;
   box.html($("#templateClone").html());
   box.find('#VMBeingCloned').html(name).change() ;
+  box.find('#target').val(name + "_clone") ;
   document.getElementById("Free").checked = true ;
   document.getElementById("Overwrite").checked = true ;
- //document.getElementById("targetsnapkeep").checked = true ;
- //document.getElementById("targetsnapfspc").checked = true ;
 
   box.dialog({
     title: "VM Clone",
@@ -300,8 +299,6 @@ function VMClone(uuid, name){
         } else target = '';
 
         var clone = box.find("#target").prop('value') ;
-       
-
         x = box.find('#Start').prop('checked') ;
         if (x) start = 'yes' ; else start = 'no' ;
         x = box.find('#Edit').prop('checked') ;

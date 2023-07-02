@@ -39,14 +39,15 @@ function execCommand_nchan($command,$idx) {
 	$waitID = mt_rand();
 	[$cmd,$args] = explode(' ',$command,2);
 	write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._('Command execution')."</legend>".basename($cmd).' '.str_replace(" -","<br>&nbsp;&nbsp;-",htmlspecialchars($args))."<br><span id='wait-$waitID'>"._('Please wait')." </span><p class='logLine'></p></fieldset>","show_Wait\0$waitID");
-	write("addLog\0<br>") ;
+
 	write("addToID\0$idx\0 $action") ;
-	$proc = popen("$command 2>&1",'r');
-	while ($out = fgets($proc)) {
+	$proc = popen("$command 2>&1 &",'r');
+	while ($out = fread($proc,100)) {
 		$out = preg_replace("%[\t\n\x0B\f\r]+%", '',$out);
-		if (substr($out,0,1) == "B") {  ; 
-			write("progress\0$idx\0".htmlspecialchars(substr($out,strrpos($out,"Block Pull")))) ;
-		} else echo write("addToID\0$idx\0 ".htmlspecialchars($out));
+        $out = trim($out) ;
+        $values = explode('  ',$out) ;
+        $string = "Data copied: ".$values[0]." Percentage: ".$values[1]." Transfer Rate: ".$values[2]." Time remaining: ".$values[3]." ".$values[4]." ".$values[5];
+		write("progress\0$idx\0".htmlspecialchars($string)) ;
 	}
 	$retval = pclose($proc);
 	$out = $retval ? _('The command failed').'.' : _('The command finished successfully').'!';
@@ -73,18 +74,15 @@ foreach (explode('&', $url) as $chunk) {
 $id = 1 ;
 write(implode($style)."<p class='logLine'></p>");
 $process = " " ;
-write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for Block $action").": </legend><p class='logLine'></p><span id='wait-$waitID'>"._('Please wait')." </span></fieldset>");
-write("addLog\0".htmlspecialchars("VMName $name "));
-write("addLog\0".htmlspecialchars("Clone $clone "));
-write("addLog\0".htmlspecialchars("Overwrite $overwrite Start $start Edit $edit Check Freespace $free"));
+$actiontxt = ucfirst($action) ;
+write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for $actiontxt").": </legend><p class='logLine'></p></fieldset>");
+write("addLog\0".htmlspecialchars("Cloning $name to $clone"));
 
 switch ($action) {
 	case "clone":	
-		vm_clone($name,$clone,$overwrite,$start,$edit,$free,$waitID) ;
-		break ;
+		$rtn = vm_clone($name,$clone,$overwrite,$start,$edit,$free,$waitID) ;
+        break ;
 	}	
-#execCommand_nchan("ls /") ;
 write("stop_Wait\0$waitID") ;
-write('_DONE_','');
-
+if ($rtn) write('_DONE_',''); else write('_ERROR_','');
 ?>

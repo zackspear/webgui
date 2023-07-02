@@ -181,6 +181,7 @@ div.last{padding-bottom:12px}
 div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
+div.template,div#dialogWindow,input#upload{display:none}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -1504,4 +1505,47 @@ $(function() {
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
+  function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title');
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 </script>
+
+<div id="dialogWindow"></div>
+<div markdown="1" id="templateClone" class="template">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1600">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
+</head>
+<body>
+<br>
+<table>
+<tr><td>_(VM Being Cloned)_:</td>
+<td><span id="VMBeingCloned"></span></td></tr>
+
+<tr><td>_(New VM)_:</td>
+<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+
+<tr><td>_(Overwrite)_:</td>
+<td><input type="checkbox" id="Overwrite" value="" ></td></tr>
+
+<tr hidden><td>_(Start Cloned VM)_:</td>
+<td><input type="checkbox" id="Start" value="" ></td></tr>
+
+<tr hidden><td>_(Edit VM after clone)_:</td>
+<td><input type="checkbox" id="Edit" value="" ></td></tr>
+
+<tr><td>_(Check Free Space)_:</td>
+<td><input type="checkbox" id="Free" value="" ></td></tr>
+</table>
+</body>
+</html>
+</div>

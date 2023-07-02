@@ -326,15 +326,15 @@ _(ISO Image)_:
 <td><span id="VMBeingCloned"></span></td></tr>
 
 <tr><td>_(New VM)_:</td>
-<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" ></td></tr>
+<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()" ></td></tr>
 
 <tr><td>_(Overwrite)_:</td>
 <td><input type="checkbox" id="Overwrite" value="" ></td></tr>
 
-<tr><td>_(Start Cloned VM)_:</td>
+<tr hidden><td>_(Start Cloned VM)_:</td>
 <td><input type="checkbox" id="Start" value="" ></td></tr>
 
-<tr><td>_(Edit VM after clone)_:</td>
+<tr hidden><td>_(Edit VM after clone)_:</td>
 <td><input type="checkbox" id="Edit" value="" ></td></tr>
 
 <tr><td>_(Check Free Space)_:</td>

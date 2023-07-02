@@ -410,6 +410,14 @@ function openDone(data) {
   }
   return false;
 }
+function openError(data) {
+  if (data == '_ERROR_') {
+    $('div.spinner.fixed').hide();
+    $('button.confirm').text("<?=_('Error')?>").prop('disabled',false).show();
+    return true;
+  }
+  return false;
+}
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
 }
@@ -940,7 +948,7 @@ nchan_docker.on('message', function(data) {
 });
 var nchan_vmaction = new NchanSubscriber('/sub/vmaction',{subscriber:'websocket'});
 nchan_vmaction.on('message', function(data) {
-  if (!data || openDone(data)) return;
+  if (!data || openDone(data) || openError(data)) return;
   var box = $('pre#swaltext');
   data = data.split('\0');
   switch (data[0]) {

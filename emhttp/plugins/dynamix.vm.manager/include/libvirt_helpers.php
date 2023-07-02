@@ -1481,13 +1481,16 @@ private static $encoding = 'UTF-8';
 
 			If option to edit, show VMUpdate
 		*/
-
+			$uuid = $lv->domain_get_uuid($clone) ;
+			write("addLog\0".htmlspecialchars("checking if Clone UUID exists $uuid"));
+			if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return $arrResponse ;} 
 			#VM must be shutdown.
 			$res = $lv->get_domain_by_name($vm);
 			$dom = $lv->domain_get_info($res);
 			$state = $lv->domain_state_translate($dom['state']);
+			file_put_contents("/tmp/cloningxml" ,$lv->domain_get_xml($res)) ;
 			# if VM running shutdown. Record was running.
-			if ($state != 'shutdown') $arrResponse = $lv->domain_destroy($vm) ;
+			if ($state != 'shutoff') {write("addLog\0".htmlspecialchars("Shuting down $vm current $state")); $arrResponse = $lv->domain_destroy($vm) ; }
 			# Wait for shutdown?
 
 			$disks =$lv->get_disk_stats($vm) ;
@@ -1498,7 +1501,6 @@ private static $encoding = 'UTF-8';
 				$file = $disk["file"] ;
 				$pathinfo =  pathinfo($file) ;
 				$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-				$diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
 				$capacity = $capacity + $disk["capacity"] ;
 			}
 			$dirpath = $pathinfo["dirname"] ;
@@ -1509,7 +1511,7 @@ private static $encoding = 'UTF-8';
 	
 			$capacity *=  1 ;
 	
-			if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Clone")]; return $arrResponse ;} 
+			if ($free == "yes" && $dirfree < $capacity) { write("addLog\0".htmlspecialchars("Insufficent Storage for Clone"));  return false ;} 
 
 			#Clone XML
 			$uuid = $lv->domain_get_uuid($vm) ;
@@ -1523,23 +1525,28 @@ private static $encoding = 'UTF-8';
 			$config["domain"]["type"] = "kvm";
 
 			$files_exist = false ;
+			$files_clone = array() ;
 			foreach ($config["disk"] as $diskid => $disk) {
+				$file_clone[$diskid]["source"] = $config["disk"][$diskid]["new"] ;
 				$config["disk"][$diskid]["new"] = str_replace($vm,$clone,$config["disk"][$diskid]["new"]) ;
 				$pi = pathinfo($config["disk"][$diskid]["new"]) ;
 				$isdir = is_dir($pi['dirname']) ;
 				if (is_file($config["disk"][$diskid]["new"])) $file_exists = true ;
-
+				$file_clone[$diskid]["target"] = $config["disk"][$diskid]["new"] ;
 				}
 
 		$clonedir = $domain_cfg['DOMAINDIR'].$clone ;
 		if (!is_dir($clonedir)) mkdir($clonedir) ;
-		#write("addLog\0".htmlspecialchars("Overwrite $overwrite Start $start Edit $edit Check Freespace $free"));
 		write("addLog\0".htmlspecialchars("Checking for image files"));
-		if ($file_exists && $overwrite != "yes") { $arrResponse =  ['error' => _("New image file names exist and Overwrite is no")]; return $arrResponse ;} 
+		if ($file_exists && $overwrite != "yes") { write("addLog\0".htmlspecialchars("New image file names exist and Overwrite is set to No"));  return( false) ; } 
 
 		#Create duplicate files.
-		foreach($config["disk"] as $diskid => $disk)  {
-			$cmdstr = "touch {$config['disk'][$diskid]['new']}" ;
+		foreach($file_clone as $diskid => $disk)  {
+			$cmdstr = "touch {$disk['target']}" ;
+			$sparse = "-S "; 
+			$target = $disk['target'] ;
+			$source = $disk['source'] ; 
+			$cmdstr = "rsync -ahPIX $sparse --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$source' '$target'" ;
 			$error = execCommand_nchan($cmdstr,$path) ;
 			if (!$error) { 
 				$arrResponse =  ['error' => substr($output[0],6) ] ;
@@ -1549,14 +1556,12 @@ private static $encoding = 'UTF-8';
 			}
 
 		}
-		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for Block $action").": </legend><p class='logLine'></p><span id='wait-$waitID'>"._('Please wait')." </span></fieldset>");
+		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Options for Block $action").": </legend><p class='logLine'></p><span id='wait-$waitID'></span></fieldset>");
 		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
 		$xml = $lv->config_to_xml($config) ;
-		file_put_contents("/tmp/xml" ,$xml) ;
-	
-
-			$arrResponse =  ['error' => _("Insufficent Storage for Clone")];
-			return$arrResponse ;
+		file_put_contents("/tmp/clonexml" ,$xml) ;
+		$rtn = $lv->domain_define($xml) ;
+		return($rtn) ;
 	
 	}
 
