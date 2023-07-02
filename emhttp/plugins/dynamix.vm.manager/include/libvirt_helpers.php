@@ -1544,7 +1544,11 @@ private static $encoding = 'UTF-8';
 			}
 
 		$clonedir = $domain_cfg['DOMAINDIR'].$clone ;
-		if (!is_dir($clonedir)) mkdir($clonedir) ;
+		if (!is_dir($clonedir)) {
+			mkdir($clonedir,0777,true) ;
+			chown($clonedir, 'nobody');
+			chgrp($clonedir, 'users');
+		}
 		write("addLog\0".htmlspecialchars("Checking for image files"));
 		if ($file_exists && $overwrite != "yes") { write("addLog\0".htmlspecialchars(_("New image file names exist and Overwrite is not allowed")));  return( false) ; } 
 
