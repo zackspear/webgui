@@ -21,6 +21,7 @@ $login_locale = _var($display,'locale');
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+require_once "$docroot/webGui/include/Helpers.php";
 function write(...$messages){
 	$com = curl_init();
 	curl_setopt_array($com,[
@@ -40,16 +41,18 @@ function execCommand_nchan($command,$idx) {
 	[$cmd,$args] = explode(' ',$command,2);
 	write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._('Command execution')."</legend>".basename($cmd).' '.str_replace(" -","<br>&nbsp;&nbsp;-",htmlspecialchars($args))."<br><span id='wait-$waitID'>"._('Please wait')." </span><p class='logLine'></p></fieldset>","show_Wait\0$waitID");
 
-	write("addToID\0$idx\0 $action") ;
+	write("addToID\0$idx\0Cloning VM: ") ;
 	$proc = popen("$command 2>&1 &",'r');
 	while ($out = fread($proc,100)) {
 		$out = preg_replace("%[\t\n\x0B\f\r]+%", '',$out);
         $out = trim($out) ;
         $values = explode('  ',$out) ;
-        $string = "Data copied: ".$values[0]." Percentage: ".$values[1]." Transfer Rate: ".$values[2]." Time remaining: ".$values[3]." ".$values[4]." ".$values[5];
+        $string = _("Data copied: ").$values[0]._(" Percentage: ").$values[1]._(" Transfer Rate: ").$values[2]._(" Time remaining: ").$values[3] ;
 		write("progress\0$idx\0".htmlspecialchars($string)) ;
+        if ($out) $stringsave=$string ;
 	}
 	$retval = pclose($proc);
+    write("progress\0$idx\0".htmlspecialchars($stringsave)) ;
 	$out = $retval ? _('The command failed').'.' : _('The command finished successfully').'!';
 	write("stop_Wait\0$waitID","addLog\0<br><b>$out</b>");
 	return $retval===0;

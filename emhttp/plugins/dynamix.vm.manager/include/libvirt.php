@@ -267,7 +267,7 @@
 		}
 
 
-		function config_to_xml($config) {
+		function config_to_xml($config,$vmclone = false) {
 			$domain = $config['domain'];
 			$media = $config['media'];
 			$nics = $config['nic'];
@@ -463,19 +463,27 @@
 			$usbstr = '';
 			if (!empty($usb)) {
 				foreach($usb as $i => $v){
-					$usbx = explode(':', $v);
+					if ($vmclone) $usbx = explode(':', $v['id']); else $usbx = explode(':', $v);
 					$startupPolicy = '' ;
-					if (isset($usbopt[$v])) {
+					if (isset($usbopt[$v]) && !$vmclone ) {
 						 if (strpos($usbopt[$v], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
-					}	 
+					}  
+					if ($vmclone ) {
+						if ($v["startupPolicy"] == "optional" ) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
+						#$startupPolicy = 'startupPolicy="optional"' ;
+				    } 
+
 					$usbstr .= "<hostdev mode='subsystem' type='usb'>
 									<source $startupPolicy>
 										<vendor id='0x".$usbx[0]."'/>
 										<product id='0x".$usbx[1]."'/>
 									</source>" ;
-					if (!empty($usbboot[$v])) {
+					if (!empty($usbboot[$v]) && !$vmclone ) {
 						$usbstr .= "<boot order='".$usbboot[$v]."'/>" ;
-						}					
+						} 	
+					if ($vmclone ) {
+						if ($v["usbboot"] != NULL) $usbstr .= "<boot order='".$v["usbboot"]."'/>" ;
+						} 			
 					$usbstr .= "</hostdev>";
 				}
 			}
@@ -857,20 +865,23 @@
 					if (empty($pci_id) || in_array($pci_id, $pcidevs_used)) {
 						continue;
 					}
-
-					[$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
+					if ($vmclone) [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id['id']), 3);
+					else [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
 									</source>" ;
-					if (!empty($pciboot[$pci_id])) {
+					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
+					}
+					if (!empty($pci_id["boot"]) && $vmclone) {
+						$pcidevs .= "<boot order='".$pci_id["boot"]."'/>" ;
 					}
 					$pcidevs .= "</hostdev>";
 
-					$pcidevs_used[] = $pci_id;
+					if ($vmclone) $pcidevs_used[] = $pci_id['d']; else $pcidevs_used[] = $pci_id ;
 				}
 			}
 
