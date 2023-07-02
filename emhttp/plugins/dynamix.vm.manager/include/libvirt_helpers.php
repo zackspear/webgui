@@ -1483,7 +1483,7 @@ private static $encoding = 'UTF-8';
 		*/
 		$uuid = $lv->domain_get_uuid($clone) ;
 		write("addLog\0".htmlspecialchars(_("Checking if clone exists")));
-		if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return $arrResponse ;} 
+		if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return false ;} 
 		#VM must be shutdown.
 		$res = $lv->get_domain_by_name($vm);
 		$dom = $lv->domain_get_info($res);
@@ -1530,7 +1530,7 @@ private static $encoding = 'UTF-8';
 			if ($usb["checked"] == "checked") continue ;
 			unset($usbs[$i]) ;
 		}
-		$config["domain"]["usb"] = $usbs ;
+		$config["usb"] = $usbs ;
 
 		$files_exist = false ;
 		$files_clone = array() ;

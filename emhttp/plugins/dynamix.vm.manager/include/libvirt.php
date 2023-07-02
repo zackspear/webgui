@@ -468,9 +468,8 @@
 					if (isset($usbopt[$v]) && !$vmclone ) {
 						 if (strpos($usbopt[$v], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
 					}  
-					if ($vmclone ) {
+					if (isset($v["startupPolicy"]) && $vmclone ) {
 						if ($v["startupPolicy"] == "optional" ) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
-						#$startupPolicy = 'startupPolicy="optional"' ;
 				    } 
 
 					$usbstr .= "<hostdev mode='subsystem' type='usb'>
@@ -481,7 +480,7 @@
 					if (!empty($usbboot[$v]) && !$vmclone ) {
 						$usbstr .= "<boot order='".$usbboot[$v]."'/>" ;
 						} 	
-					if ($vmclone ) {
+					if (isset($v["usbboot"]) && $vmclone ) {
 						if ($v["usbboot"] != NULL) $usbstr .= "<boot order='".$v["usbboot"]."'/>" ;
 						} 			
 					$usbstr .= "</hostdev>";
