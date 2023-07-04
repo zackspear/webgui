@@ -17,82 +17,109 @@ $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+function getmodules($kernel,$line) {
+    global $arrModules ;
+    $modprobe = "" ;
+    $name = $line ;
+    #echo $line ;
+    $modname = trim(shell_exec("modinfo  $name > /dev/null"),"\n") ;
+    $output=null ;
+    exec("modinfo $name",$output,$error) ;
+    $parms = array() ;
+    foreach($output as $outline) {
+    $data = explode(":",$outline) ;
+    switch ($data[0])
+    {
+        case "name":
+            $modname = trim($data[1]) ;
+            break ;
+        case "depends":
+            $depends = trim($data[1]) ;
+            break ;
+        case "filename":
+            $filename = trim($data[1]) ;
+            break ;
+        case "description":
+            $desc = trim($data[1]) ;
+            break ;            
+        case "parm":
+            $parms[] = trim(str_replace("parm:","",$outline)) ;
+            break ;
+        case "file":
+            $file = trim(str_replace("file:","",$outline)) ;
+            break ;
+        case "alias":
+        case "author":
+        case "firmware":
+        case "intree":
+        case "vermagic":
+        case "retpoline":
+        case "import_ns":
+        case "license":
+            break ;
+        default:
+            $parms[] = trim($outline) ;
+            break ;
+    }
+}
+$state = "Enabled" ;
+if (is_file("/boot/config/modprobe.d/$modname.conf")) {
+    $modprobe = explode(PHP_EOL,file_get_contents("/boot/config/modprobe.d/$modname.conf")) ;
+    $state = array_search("blacklist",$modprobe);
+    if($state) {$state = "Disabled" ;} 
+    else $state="Custom" ;
+    } else if($option == "conf") return ;
+
+if ($filename != "(builtin)") {
+    
+$type = pathinfo($filename) ;
+$dir =  $type['dirname'] ;
+$dir = str_replace("/lib/modules/$kernel/kernel/drivers/", "" ,$dir) ;
+$dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
+} else {
+    $dir = $file ;
+    $dir = str_replace("drivers/", "" ,$dir) ;
+    $state= "(builtin)";
+}
+$arrModules[$modname] = [
+            'modname' => $modname,
+            'dependacy' => $depends, 
+            'parms' => $parms,
+            'file' =>  $file,
+            'modprobe' => $modprobe,
+            'state' => $state,
+            'type' => $dir,
+            'description' => substr($desc , 0 ,60)  ,
+] ;
+}
+
 switch ($_POST['table']) {
 case 't1':
   $option = $_POST['option'] ;
   $select = $_POST['select'] ;
   #$procmodules = file_get_contents("/proc/modules") ;
-  #$procmodules = shell_exec('find /lib/modules/$(uname -r) -type f -not -path "/lib/modules/$(uname -r)/source/*" -not -path "/lib/modules/$(uname -r)/build/*" -name "*ko*" ') ;
-  $procmodules = shell_exec('find /lib/modules/$(uname -r)/kernel/drivers/ -type f -not -path "/lib/modules/$(uname -r)/source/*" -not -path "/lib/modules/$(uname -r)/build/*" -name "*ko*" ') ;
-  $procmodules = explode(PHP_EOL,$procmodules) ;
-  $option = $_POST['option'] ;
   
   $kernel = shell_exec("uname -r") ;
   $kernel = trim($kernel,"\n") ;
-  foreach($procmodules as $line) {
-      if ($line == "") continue ;
-      $modprobe = "" ;
-      $name = $line ;
-      $modname = trim(shell_exec("modinfo  $name"),"\n") ;
-      $output=null ;
-      exec("modinfo $name",$output,$error) ;
-      $parms = array() ;
-      foreach($output as $outline) {
-          $data = explode(":",$outline) ;
-          switch ($data[0])
-          {
-              case "name":
-                  $modname = trim($data[1]) ;
-                  break ;
-              case "depends":
-                  $depends = trim($data[1]) ;
-                  break ;
-              case "filename":
-                  $file = trim($data[1]) ;
-                  break ;
-              case "description":
-                  $desc = trim($data[1]) ;
-                  break ;            
-              case "parm":
-                  $parms[] = trim(str_replace("parm:","",$outline)) ;
-                  break ;
-              case "alias":
-              case "author":
-              case "firmware":
-              case "intree":
-              case "vermagic":
-              case "retpoline":
-              case "import_ns":
-              case "license":
-                  break ;
-              default:
-                  $parms[] = trim($outline) ;
-                  break ;
-          }
+  #$procmodules = shell_exec('find /lib/modules/$(uname -r) -type f -not -path "/lib/modules/$(uname -r)/source/*" -not -path "/lib/modules/$(uname -r)/build/*" -name "*ko*" ') ;
+  $procmodules = shell_exec('find /lib/modules/$(uname -r)/kernel/drivers/ -type f -not -path "/lib/modules/$(uname -r)/source/*" -not -path "/lib/modules/$(uname -r)/build/*" -name "*ko*" ') ;
+  $procmodules = explode(PHP_EOL,$procmodules) ;
+  $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
+  $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
+  $option = $_POST['option'] ;
+  $arrModules = array() ;
+
+  foreach($builtinmodules as $bultin)
+  {
+    getmodules($kernel,pathinfo($bultin)["filename"]) ;
   }
-  $state = "Enabled" ;
-  if (is_file("/boot/config/modprobe.d/$modname.conf")) {
-      $modprobe = explode(PHP_EOL,file_get_contents("/boot/config/modprobe.d/$modname.conf")) ;
-      $state = array_search("blacklist",$modprobe);
-      if($state) {$state = "Disabled" ;} 
-      else $state="Custom" ;
-      } else if($option == "conf") continue ;
-  
-  $type = pathinfo($file) ;
-  $dir =  $type['dirname'] ;
-  $dir = str_replace("/lib/modules/$kernel/kernel/drivers/", "" ,$dir) ;
-  $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
-  $arrModules[$modname] = [
-              'modname' => $modname,
-              'dependacy' => $depends, 
-              'parms' => $parms,
-              'file' =>  $file,
-              'modprobe' => $modprobe,
-              'state' => $state,
-              'type' => $dir,
-              'description' => substr($desc , 0 ,60) ,
-                ] ;
-  }
+
+foreach($procmodules as $line) {
+    if ($line == "") continue ;
+    getmodules($kernel,$line) ;
+}
+
+
   echo "<tr><td>"._("Module/Driver")."</td><td>"._("Description")."</td><td>"._("State")."</td><td>"._("Type")."</td><td>"._("Modeprobe.d config file")."</td></tr>";
 
   if (is_array($arrModules)) ksort($arrModules) ;
