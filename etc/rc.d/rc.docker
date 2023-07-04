@@ -274,8 +274,7 @@ start_network(){
         GATEWAY=$(ip -4 route show dev $NETWORK default|awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
-      IPV6=$(ip -6 addr show $NETWORK mngtmpaddr|awk '/^ +inet6 /{print $2;exit}')
-      [[ -z $IPV6 ]] && IPV6=$(ip -6 addr show $NETWORK scope global permanent|awk '/^ +inet6 /{print $2;exit}')
+      IPV6=$(ip -br -6 addr show $NETWORK scope global|awk '{print $3}')
       if [[ -n $IPV6 ]]; then
         SUBNET6=$(ip -6 route show dev $NETWORK $IPV6|awk '{print $1;exit}')
         SERVER6=${IPV6%%/*}
