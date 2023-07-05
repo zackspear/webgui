@@ -18,7 +18,7 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
 function getmodules($kernel,$line) {
-    global $arrModules ;
+    global $arrModules,$lsmod ;
     $modprobe = "" ;
     $name = $line ;
     #echo $line ;
@@ -62,7 +62,7 @@ function getmodules($kernel,$line) {
             break ;
     }
 }
-$state = "Enabled" ;
+if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
 if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = explode(PHP_EOL,file_get_contents("/boot/config/modprobe.d/$modname.conf")) ;
     $state = array_search("blacklist",$modprobe);
@@ -71,7 +71,6 @@ if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     } else if($option == "conf") return ;
 
 if ($filename != "(builtin)") {
-    
 $type = pathinfo($filename) ;
 $dir =  $type['dirname'] ;
 $dir = str_replace("/lib/modules/$kernel/kernel/drivers/", "" ,$dir) ;
@@ -79,7 +78,7 @@ $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
 } else {
     $dir = $file ;
     $dir = str_replace("drivers/", "" ,$dir) ;
-    $state= "(builtin)";
+    if ($state == "Inuse")  $state= "(builtin) - Inuse"; else $state="(builtin)" ;
 }
 $arrModules[$modname] = [
             'modname' => $modname,
@@ -98,7 +97,7 @@ case 't1':
   $option = $_POST['option'] ;
   $select = $_POST['select'] ;
   #$procmodules = file_get_contents("/proc/modules") ;
-  
+  $lsmod = shell_exec("lsmod") ;
   $kernel = shell_exec("uname -r") ;
   $kernel = trim($kernel,"\n") ;
   #$procmodules = shell_exec('find /lib/modules/$(uname -r) -type f -not -path "/lib/modules/$(uname -r)/source/*" -not -path "/lib/modules/$(uname -r)/build/*" -name "*ko*" ') ;
@@ -111,6 +110,7 @@ case 't1':
 
   foreach($builtinmodules as $bultin)
   {
+    if ($bultin == "") continue ;
     getmodules($kernel,pathinfo($bultin)["filename"]) ;
   }
 
@@ -125,6 +125,18 @@ foreach($procmodules as $line) {
   if (is_array($arrModules)) ksort($arrModules) ;
   foreach($arrModules as $modname => $module)
   {
+
+    switch ($_POST['option']){
+        case "inuse":
+        if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
+        break ;
+        case "confonly":
+         if ($module['modprobe'] == "" ) continue(2) ;  
+            break ;
+        case "all":
+            break ;
+    }
+  
   echo "<tr><td>$modname</td><td>{$module['description']}</td><td>{$module['state']}</td><td>{$module['type']}</td>";
   if (is_array($module["modprobe"])) {
     $i = 0 ;
