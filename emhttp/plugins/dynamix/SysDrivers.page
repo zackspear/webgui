@@ -21,15 +21,99 @@ Tag="server"
  $select[] = mk_option(0,"all",'All');
 
 ?>
+
 <style>
 table.pre{margin-top:0;background:transparent}
 table.pre td:first-child{width:144px}
 table tr td{padding:0 0 3px 0;margin:0}
 table tr td.thin{line-height:8px;height:8px}
+table.t1 tr>td+td{width:auto}
+table.t1 tr>td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+
 </style>
-<script>
+<script type="text/javascript">
+
+
+
+	if (typeof " ".formatUnicorn !== "function")
+	{
+	  String.prototype.formatUnicorn = String.prototype.formatUnicorn ||
+	  function () {
+	      "use strict";
+	      var str = this.toString();
+	      if (arguments.length) {
+	          var t = typeof arguments[0];
+	          var key;
+	          var args = ("string" === t || "number" === t) ?
+	              Array.prototype.slice.call(arguments)
+	              : arguments[0];
+
+	          for (key in args) {
+	              str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
+	          }
+	      }
+
+	      return str;
+	  };
+	}
+
+	(function ($) {
+		$.fn.getHiddenDimensions = function (includeMargin)
+		{
+			var $item = this,
+			props = { position: 'absolute', visibility: 'hidden', display: 'block' },
+			dim = { width: 0, height: 0, innerWidth: 0, innerHeight: 0, outerWidth: 0, outerHeight: 0 },
+			$hiddenParents = $item.parents().andSelf().not(':visible'),
+			includeMargin = (includeMargin == null) ? false : includeMargin;
+
+			var oldProps = [];
+			$hiddenParents.each(function ()
+			{
+				var old = {};
+
+				for (var name in props)
+				{
+					old[name] = this.style[name];
+					this.style[name] = props[name];
+				}
+
+				oldProps.push(old);
+			});
+
+			dim.width = $item.width();
+			dim.outerWidth = $item.outerWidth(includeMargin);
+			dim.innerWidth = $item.innerWidth();
+			dim.height = $item.height();
+			dim.innerHeight = $item.innerHeight();
+			dim.outerHeight = $item.outerHeight(includeMargin);
+
+			$hiddenParents.each(function (i)
+			{
+				var old = oldProps[i];
+				for (var name in props)
+				{
+					this.style[name] = old[name];
+				}
+			});
+
+			return dim;
+		}
+	}(jQuery));
+
+
 $(function(){
-    $('#t1').load('/webGui/include/SysDrivers.php',{table:'t1',option:"inuse"});
+   $('#t1').load('/webGui/include/SysDrivers.php',{table:'t1',option:"inuse"});
 });
 
 function showDrivers(options) {
@@ -57,7 +141,7 @@ function textsave(module) {
   $('#save'+module).attr('hidden', true);
   var x = document.getElementById("text" + module).value;
   $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
-formHasUnsavedChanges=false;
+    formHasUnsavedChanges=false;
     select  = document.getElementById("select").value;
     showDrivers(select) ;
     var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
@@ -65,9 +149,10 @@ formHasUnsavedChanges=false;
   }); 
 }
 
+
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
 </script>
 
-<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="disk_status wide t1 pre" ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 <input type="button" value="_(Done)_" onclick="done()">
 

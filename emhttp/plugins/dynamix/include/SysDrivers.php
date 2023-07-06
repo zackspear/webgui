@@ -119,35 +119,37 @@ foreach($procmodules as $line) {
     getmodules($kernel,$line) ;
 }
 
-
-  echo "<tr><td><b>"._("Module/Driver")."</td><td><b>"._("Description")."</td><td><b>"._("State")."</td><td><b>"._("Type")."</td><td><b>"._("Modeprobe.d config file")."</td></tr>";
- 
+  echo "<thead><tr><td><b>"._("Module/Driver")."</td><td><b>"._("Description")."</td><td><b>"._("State")."</td><td><b>"._("Type")."</td><td><b>"._("Modeprobe.d config file")."</td></tr></thead>";
+  echo "<tbody>" ;
   if (is_array($arrModules)) ksort($arrModules) ;
   foreach($arrModules as $modname => $module)
   {
 
     switch ($_POST['option']){
-        case "inuse":
-            
-        if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
-        break ;
-        case "confonly":
-         if ($module['modprobe'] == "" ) continue(2) ;  
+        case "inuse":  
+            if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
             break ;
+
+        case "confonly":
+            if ($module['modprobe'] == "" ) continue(2) ;  
+            break ;
+
         case "all":
             break ;
     }
-  if (substr($module['state'],0,9) == "(builtin)") $disable = "disabled" ; else $disable = "" ;
-  $disable = "disabled" ;
-  echo "<tr><td><span $disable onclick=\"textedit('".$modname."')\" ><a><i $disable title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td>{$module['state']}</td><td>{$module['type']}</td>";
-  $text = "" ;
-  if (is_array($module["modprobe"])) {
-          $text = implode("\n",$module["modprobe"]) ;
-    echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-  } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+    #echo "<div class='show-disks'><table class='disk_status >" ;
+    
+    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td>{$module['state']}</td><td>{$module['type']}</td>";
+    $text = "" ;
+    if (is_array($module["modprobe"])) {
+        $text = implode("\n",$module["modprobe"]) ;
+        echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+    } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
 
   }   
+  echo "</tbody>" ;
   break;
+
 case "update":
     $conf = $_POST['conf'] ;
     $module = $_POST['module'] ;
