@@ -61,13 +61,34 @@ function showDrivers(options) {
   $.post('/webGui/include/SysDrivers.php',{table:'t1',option:option},function(data){
     clearTimeout(timers.refresh);
     $('#t1').html(data);
+    
     $('div.spinner.fixed').hide('slow');
   });
 }
 
+function textedit(module) {
+  var i=module ;
+  $('#text'+module).prop('disabled', false);
+   $('#save'+module).attr('hidden', false);
+      $('#text'+module).attr('hidden', false);
 
+}
 
-$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select onchange='showDrivers(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
+function textsave(module) {
+  var i=module ;
+  $('#text'+module).prop('disabled', true);
+  $('#save'+module).attr('hidden', true);
+  var x = document.getElementById("text" + module).value;
+  $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
+
+    select  = document.getElementById("select").value;
+    showDrivers(select) ;
+    var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
+    addRebootNotice(message);
+  }); 
+}
+
+$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
 </script>
 
 <pre><form id="vfiopci" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>

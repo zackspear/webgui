@@ -120,14 +120,15 @@ foreach($procmodules as $line) {
 }
 
 
-  echo "<tr><td>"._("Module/Driver")."</td><td>"._("Description")."</td><td>"._("State")."</td><td>"._("Type")."</td><td>"._("Modeprobe.d config file")."</td></tr>";
-
+  echo "<tr><td><b>"._("Module/Driver")."</td><td><b>"._("Description")."</td><td><b>"._("State")."</td><td><b>"._("Type")."</td><td><b>"._("Modeprobe.d config file")."</td></tr>";
+ 
   if (is_array($arrModules)) ksort($arrModules) ;
   foreach($arrModules as $modname => $module)
   {
 
     switch ($_POST['option']){
         case "inuse":
+            
         if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
         break ;
         case "confonly":
@@ -136,18 +137,22 @@ foreach($procmodules as $line) {
         case "all":
             break ;
     }
-  
-  echo "<tr><td>$modname</td><td>{$module['description']}</td><td>{$module['state']}</td><td>{$module['type']}</td>";
+  if (substr($module['state'],0,9) == "(builtin)") $disable = "disabled" ; else $disable = "" ;
+  $disable = "disabled" ;
+  echo "<tr><td><span $disable onclick=\"textedit('".$modname."')\" ><a><i $disable title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td>{$module['state']}</td><td>{$module['type']}</td>";
+  $text = "" ;
   if (is_array($module["modprobe"])) {
-    $i = 0 ;
-      foreach($module["modprobe"] as $line) {
-        if ($i) echo "<tr><td></td><td></td><td></td><td></td><td>$line</td></tr>" ; else echo "<td>$line</td></tr>" ;
-        $i++ ;
-      }
-  }
+          $text = implode("\n",$module["modprobe"]) ;
+    echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+  } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
 
   }   
   break;
-
+case "update":
+    $conf = $_POST['conf'] ;
+    $module = $_POST['module'] ;
+    if ($conf == "") $error = unlink("/boot/config/modprobe.d/$module.conf") ;
+    else $error = file_put_contents("/boot/config/modprobe.d/$module.conf",$conf) ;
+    echo $error ;
 }
 ?>
