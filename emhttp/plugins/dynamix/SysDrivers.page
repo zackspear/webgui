@@ -31,30 +31,7 @@ table tr td.thin{line-height:8px;height:8px}
 $(function(){
     $('#t1').load('/webGui/include/SysDrivers.php',{table:'t1',option:"inuse"});
 });
-function applyCfg() {
-  var message = "_(System Devices)_: _(A reboot is required to apply changes)_";
-  var string = "BIND=";
-  var elements = document.getElementById("vfiopci").elements;
-  for (var i = 0, element; element = elements[i++];) {
-    if (element.type === "checkbox"  && element.checked === true)
-    string = string + element.value + " ";
-  }
-  string = string.trim();
-  if (string === "BIND=") {
-    string = "";
-  }
-  $.get( "/plugins/dynamix/include/update.vfio-pci-cfg.php", { cfg: string } )
-  .done(function(d) {
-    if (d==1) {
-      addRebootNotice(message);
-      document.getElementById("warning").innerHTML = "<b>_(ALERT)_: _(Changes saved)_. _(Reboot to take effect)_.</b>";
-    } else {
-      removeRebootNotice(message);
-      document.getElementById("warning").innerHTML = "<b>_(No changes)_.</b>";
-    }
-    $("#applycfg").attr("disabled",true);
-  });
-}
+
 function showDrivers(options) {
   option = options ;
   timers.refresh = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
@@ -80,7 +57,7 @@ function textsave(module) {
   $('#save'+module).attr('hidden', true);
   var x = document.getElementById("text" + module).value;
   $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
-
+formHasUnsavedChanges=false;
     select  = document.getElementById("select").value;
     showDrivers(select) ;
     var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
@@ -91,6 +68,6 @@ function textsave(module) {
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
 </script>
 
-<pre><form id="vfiopci" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
-
+<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class='pre'><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<input type="button" value="_(Done)_" onclick="done()">
 
