@@ -15,9 +15,9 @@ SYSTEM=/sys/class/net
 CONF6=/proc/sys/net/ipv6/conf
 ACTIVE=$(ls --indicator-style=none $SYSTEM|awk '/^(bond|br|eth)[0-9]/' ORS=' ')
 
-BASE=dockerd
-DOCKER=/usr/bin/$BASE
-DOCKER_PIDFILE=/var/run/$BASE.pid
+DOCKERD=dockerd
+DOCKER=/usr/bin/$DOCKERD
+DOCKER_PIDFILE=/var/run/$DOCKERD.pid
 DOCKER_LOG=/var/log/docker.log
 DOCKER_ROOT=/var/lib/docker
 STOCK="eth br bond"
@@ -85,10 +85,14 @@ fi
 
 export DOCKER_RAMDISK=true
 
+# Get docker daemon PID (if existing)
+docker_pid() {
+  cat $DOCKER_PIDFILE 2>/dev/null
+}
+
 # Verify if docker daemon running
 is_docker_running(){
-  [[ -S /var/run/docker.sock ]] || return 1
-  [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
+  [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) == $DOCKERD ]] && return 0 || return 1
 }
 
 # Wait max 30s to daemon start
@@ -274,8 +278,7 @@ start_network(){
         GATEWAY=$(ip -4 route show dev $NETWORK default|awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
-      IPV6=$(ip -6 addr show $NETWORK mngtmpaddr|awk '/^ +inet6 /{print $2;exit}')
-      [[ -z $IPV6 ]] && IPV6=$(ip -6 addr show $NETWORK scope global permanent|awk '/^ +inet6 /{print $2;exit}')
+      IPV6=$(ip -br -6 addr show $NETWORK scope global|awk '{print $3}')
       if [[ -n $IPV6 ]]; then
         SUBNET6=$(ip -6 route show dev $NETWORK $IPV6|awk '{print $1;exit}')
         SERVER6=${IPV6%%/*}
@@ -459,11 +462,11 @@ start_docker(){
     echo "no image mounted at $DOCKER_ROOT"
     exit 1
   fi
-  echo "starting $BASE ..."
+  echo "starting $DOCKERD ..."
   if [[ -x $DOCKER ]]; then
     # If there is an old PID file (no docker running), clean it up:
     if [[ -r $DOCKER_PIDFILE ]]; then
-      if ! ps axc|grep docker 1>/dev/null 2>&1; then
+      if ! is_docker_running; then
         echo "Cleaning up old $DOCKER_PIDFILE."
         rm -f $DOCKER_PIDFILE
       fi
@@ -474,10 +477,10 @@ start_docker(){
 
 # Stop docker
 stop_docker(){
-  echo "stopping $BASE ..."
+  echo "stopping $DOCKERD ..."
   # If there is no PID file, ignore this request...
   if [[ -r $DOCKER_PIDFILE ]]; then
-    kill $(cat $DOCKER_PIDFILE)
+    kill $(docker_pid) 2>/dev/null
     # must ensure daemon has stopped before unmounting image volume
     sleep 1
     for n in {1..15}; do
@@ -527,11 +530,11 @@ restart)
   disown
   ;;
 status)
-  if [[ -f $DOCKER_PIDFILE ]] && ps -o cmd $(cat $DOCKER_PIDFILE)|grep -q $BASE; then
-    echo "status of $BASE: running"
+  if is_docker_running; then   
+    echo "status of $DOCKERD: running"
     echo "running containers:" $(running_containers)
   else
-    echo "status of $BASE: stopped"
+    echo "status of $DOCKERD: stopped"
     exit 1
   fi
   ;;
