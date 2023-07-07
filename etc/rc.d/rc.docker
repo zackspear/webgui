@@ -92,8 +92,7 @@ docker_pid() {
 
 # Verify if docker daemon running
 is_docker_running(){
-  [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) == $DOCKERD ]] || return 1
-  [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
+  [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) == $DOCKERD ]] && return 0 || return 1
 }
 
 # Wait max 30s to daemon start
