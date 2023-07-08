@@ -92,7 +92,8 @@ docker_pid() {
 
 # Verify if docker daemon running
 is_docker_running(){
-  [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) == $DOCKERD ]] && return 0 || return 1
+  [[ -S /var/run/docker.sock ]] || return 1
+  [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
 }
 
 # Wait max 30s to daemon start
@@ -481,26 +482,22 @@ stop_docker(){
   # If there is no PID file, ignore this request...
   if [[ -r $DOCKER_PIDFILE ]]; then
     kill $(docker_pid) 2>/dev/null
-    # must ensure daemon has stopped before unmounting image volume
-    sleep 1
+    # must ensure daemon has exited
     for n in {1..15}; do
-      if is_docker_running; then
-        echo "waiting for docker to die ..."
-        sleep 1
+      sleep 1
+      if [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) != $DOCKERD ]]; then
+        rm -f $DOCKER_PIDFILE
+        # tear down the bridge
+        if ip link show docker0 >/dev/null 2>&1; then
+          ip link set docker0 down
+          ip link del docker0
+        fi
+	exit 0
       fi
+      echo "waiting for docker to die ..."
     done
-    if is_docker_running; then   
-      echo "docker will not die!"
-      exit 1
-    elif [[ -r $DOCKER_PIDFILE ]]; then
-      echo "Cleaning up old $DOCKER_PIDFILE."
-      rm -f $DOCKER_PIDFILE
-    fi
-  fi
-  # tear down the bridge
-  if ip link show docker0 >/dev/null 2>&1; then
-    ip link set docker0 down
-    ip link del docker0
+    echo "docker will not die!"
+    exit 1
   fi
 }
 
