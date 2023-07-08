@@ -99,26 +99,26 @@ $arrModules[$modname] = [
 
 switch ($_POST['table']) {
 case 't1':
-  $option = $_POST['option'] ;
-  $select = $_POST['select'] ;
-  $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
-  $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
-  $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
-  $procmodules = explode(PHP_EOL,$procmodules) ;
-  $option = $_POST['option'] ;
-  $arrModules = array() ;
+    $option = $_POST['option'] ;
+    $select = $_POST['select'] ;
+    $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
+    $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
+    $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
+    $procmodules = explode(PHP_EOL,$procmodules) ; 
+    $arrModules = array() ;
+  
+    foreach($builtinmodules as $bultin)
+    {
+      if ($bultin == "") continue ;
+      getmodules(pathinfo($bultin)["filename"]) ;
+    }
+  
+    foreach($procmodules as $line) {
+      if ($line == "") continue ;
+      getmodules(pathinfo($line)["filename"]) ;
+    } 
 
-  foreach($builtinmodules as $bultin)
-  {
-    if ($bultin == "") continue ;
-    getmodules(pathinfo($bultin)["filename"]) ;
-  }
-
-foreach($procmodules as $line) {
-    if ($line == "") continue ;
-    getmodules(pathinfo($line)["filename"]) ;
-}
-
+  
   echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
  # echo "<tr><td>Total Number of drivers the system:".count($arrModules)."</td></tr>"  ;
   echo "<tbody>" ;
@@ -139,8 +139,8 @@ foreach($procmodules as $line) {
             break ;
     }
     #echo "<div class='show-disks'><table class='disk_status >" ;
-    
-    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+    $status =  _('loading').'...';
+    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>";
     $text = "" ;
     if (is_array($module["modprobe"])) {
         $text = implode("\n",$module["modprobe"]) ;
@@ -151,6 +151,58 @@ foreach($procmodules as $line) {
   echo "</tbody>" ;
   break;
 
+  case 't1update':
+    $option = $_POST['option'] ;
+    $select = $_POST['select'] ;
+    $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
+    $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
+    $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
+    $procmodules = explode(PHP_EOL,$procmodules) ; 
+    $arrModules = array() ;
+  
+    foreach($builtinmodules as $bultin)
+    {
+      if ($bultin == "") continue ;
+      getmodules(pathinfo($bultin)["filename"]) ;
+    }
+  
+    foreach($procmodules as $line) {
+      if ($line == "") continue ;
+      getmodules(pathinfo($line)["filename"]) ;
+    } 
+  
+    echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+   # echo "<tr><td>Total Number of drivers the system:".count($arrModules)."</td></tr>"  ;
+    echo "<tbody>" ;
+    if (is_array($arrModules)) ksort($arrModules) ;
+    foreach($arrModules as $modname => $module)
+    {
+  
+      switch ($_POST['option']){
+          case "inuse":  
+              if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
+              break ;
+  
+          case "confonly":
+              if ($module['modprobe'] == "" ) continue(2) ;  
+              break ;
+  
+          case "all":
+              break ;
+      }
+      #echo "<div class='show-disks'><table class='disk_status >" ;
+      
+      echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+      $text = "" ;
+      if (is_array($module["modprobe"])) {
+          $text = implode("\n",$module["modprobe"]) ;
+          echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+      } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+  
+    }   
+    echo "</tbody>" ;
+    break;
+  
 case "update":
     $conf = $_POST['conf'] ;
     $module = $_POST['module'] ;
