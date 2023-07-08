@@ -70,6 +70,17 @@ if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
 if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf") ;
     $state = strpos($modprobe, "blacklist");
+    $supportpos = strpos($modprobe, "#Plugin:");
+    if ($supportpos !== false) { 
+        $support = true ; 
+        $supportendpos = strpos($modprobe,"\n",$supportpos) ;
+        $pluginfileget = substr($modprobe,$supportpos + 8,$supportendpos ) ;
+        $pluginfile = str_replace("\n","",$pluginfileget) ;
+        #$modprobe = str_replace($pluginfileget,"",$modprobe) ;
+    } else {
+        $support = false ;
+        $plugin = "" ;
+    }
     $modprobe = explode(PHP_EOL,$modprobe) ;
     if($state !== false) {$state = "Disabled" ;} 
     else $state="Custom" ;
@@ -91,14 +102,16 @@ $arrModules[$modname] = [
             'parms' => $parms,
             'file' =>  $file,
             'modprobe' => $modprobe,
+            'plugin' => $pluginfile ,
             'state' => $state,
             'type' => $dir,
+            'support' => $support,
             'description' => substr($desc , 0 ,60)  ,
 ] ;
 }
 
 switch ($_POST['table']) {
-case 't1':
+case 't1pre':
     $option = $_POST['option'] ;
     $select = $_POST['select'] ;
     $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
@@ -120,7 +133,6 @@ case 't1':
 
   
   echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
- # echo "<tr><td>Total Number of drivers the system:".count($arrModules)."</td></tr>"  ;
   echo "<tbody>" ;
   if (is_array($arrModules)) ksort($arrModules) ;
   foreach($arrModules as $modname => $module)
@@ -140,7 +152,12 @@ case 't1':
     }
     #echo "<div class='show-disks'><table class='disk_status >" ;
     $status =  _('loading').'...';
-    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>";
+    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a>" ;
+    if ($module['support'] == true) $disabled = "" ; else $disabled = " disabled " ;
+    $disabled = " disable " ;
+    echo "<span><a><i  title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-phone-square' $disabled></i></a></span> $modname</td>" ;
+    echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>" ;
+    echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>"; 
     $text = "" ;
     if (is_array($module["modprobe"])) {
         $text = implode("\n",$module["modprobe"]) ;
@@ -151,7 +168,7 @@ case 't1':
   echo "</tbody>" ;
   break;
 
-  case 't1update':
+  case 't1':
     $option = $_POST['option'] ;
     $select = $_POST['select'] ;
     $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
@@ -172,7 +189,6 @@ case 't1':
     } 
   
     echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
-   # echo "<tr><td>Total Number of drivers the system:".count($arrModules)."</td></tr>"  ;
     echo "<tbody>" ;
     if (is_array($arrModules)) ksort($arrModules) ;
     foreach($arrModules as $modname => $module)
@@ -190,9 +206,14 @@ case 't1':
           case "all":
               break ;
       }
-      #echo "<div class='show-disks'><table class='disk_status >" ;
-      
-      echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span> $modname</td><td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+     
+      echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span>" ;
+   
+      if ($module['support'] == true) $disabled = "" ; else $disabled = " disabled " ;
+      $disabled = " disable hidden " ;
+      echo "<span $disabled ><a $disabled><i  title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-phone-square' $disabled></i></a></span> $modname</td>" ;
+      echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+
       $text = "" ;
       if (is_array($module["modprobe"])) {
           $text = implode("\n",$module["modprobe"]) ;

@@ -23,8 +23,8 @@ Tag="server"
 ?>
 
 <style>
-table.pre{margin-top:0;background:transparent}
-table.pre td:first-child{width:144px}
+table.t1{margin-top:0;background:transparent}
+table.t1 td:first-child{width:144px}
 table tr td{padding:0 0 3px 0;margin:0}
 table tr td.thin{line-height:8px;height:8px}
 table.t1 tr>td+td{width:auto}
@@ -46,7 +46,7 @@ table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 
 
 $(function(){
- $('#t1').tablesorter();
+ $('#t1').tablesorter({sortList:[[1,0],[3,0]]});
 });
 
 
@@ -57,9 +57,8 @@ function showDrivers(options, init = false) {
   $.post('/webGui/include/SysDrivers.php',{table:'t1',option:option},function(data){
     clearTimeout(timers.refresh);
     $('#t1').html(data);
-    
     $('div.spinner.fixed').hide('slow');
-    showDriversupdate(options) ;
+    //showDriversupdate(options) ;
   });
 }
 
@@ -101,6 +100,6 @@ select  = document.getElementById("select").value;
 showDrivers("inuse",true) ;
 </script>
 
-<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="tablesorter disk_status wide t1 pre" ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 tablesorter disk_status" ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 <input type="button" value="_(Done)_" onclick="done()">
 
