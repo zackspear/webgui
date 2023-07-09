@@ -44,21 +44,16 @@ table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 </style>
 <script type="text/javascript">
 
-
-$(function(){
- $('#t1').tablesorter({sortList:[[1,0],[3,0]]});
-});
-
-
-
 function showDrivers(options, init = false) {
   option = options ;
   if (!init) timers.refresh = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
   $.post('/webGui/include/SysDrivers.php',{table:'t1',option:option},function(data){
     clearTimeout(timers.refresh);
+    $("#t1").trigger("destroy"); 
     $('#t1').html(data);
+    $('#t1').tablesorter({sortList:[[1,0],[3,0]]});  
     $('div.spinner.fixed').hide('slow');
-    //showDriversupdate(options) ;
+    //showDriversupdate(options) 
   });
 }
 
