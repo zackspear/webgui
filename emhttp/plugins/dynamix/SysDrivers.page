@@ -23,12 +23,13 @@ Tag="server"
 ?>
 
 <style>
-table.t1{margin-top:0;background:transparent}
-table.t1 td:first-child{width:144px}
+table.t1{margin-top:0;background:transparent; border-collapse: collapse; border-spacing: 0;}
+//table.t1 td:first-child{width:144px}
 table tr td{padding:0 0 3px 0;margin:0}
 table tr td.thin{line-height:8px;height:8px}
-table.t1 tr>td+td{width:auto}
-table.t1 tr>td+td+td{text-align:left;}
+table.t1 tr>td{width: 1%; white-space: nowrap;}
+table.t1 tr>td+td{width: 1%; white-space: nowrap; }
+table.t1 tr>td+td+td{width:auto ; text-align:left;}
 table.t1 tr>td+td+td+td{text-align:left;}
 table.t1 tr>td+td+td+td+td{text-align:left;}
 table.t1 tr>td+td+td+td+td+td{text-align:left;}
@@ -83,6 +84,11 @@ function textsave(module) {
       $('#text'+module).val(data.modprobe) ;
       $('#status'+module).html(data.state) ;
       if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3)
+      if (data.support == true) {
+        document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>" ;
+      } else {
+        document.getElementById("link" + module).innerHTML = "<i title='" + _("No support page avaialable")_ + "' class='fa fa-phone-square' ></i>" ;
+      }
     }
     var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
     addRebootNotice(message);

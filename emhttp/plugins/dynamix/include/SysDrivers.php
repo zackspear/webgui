@@ -16,10 +16,21 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php"; 
 
 $kernel = shell_exec("uname -r") ;
 $kernel = trim($kernel,"\n") ;
 $lsmod = shell_exec("lsmod") ;
+
+function getplugin($in) {
+
+    $plugins = "/var/log/plugins/";
+    $plugin_link = $plugins.$in ;
+    $plugin_file = @readlink($plugin_link);
+    $support = plugin('support',$plugin_file) ?: "";
+    #$support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
+    return($support) ;
+}
 
 function getmodules($line) {
     global $arrModules,$lsmod,$kernel ;
@@ -32,6 +43,7 @@ function getmodules($line) {
     $parms = array() ;
     foreach($output as $outline) {
     $data = explode(":",$outline) ;
+    $support = false ; $supporturl = null ;
     switch ($data[0])
     {
         case "name":
@@ -76,6 +88,7 @@ if (is_file("/boot/config/modprobe.d/$modname.conf")) {
         $supportendpos = strpos($modprobe,"\n",$supportpos) ;
         $pluginfileget = substr($modprobe,$supportpos + 8,$supportendpos ) ;
         $pluginfile = str_replace("\n","",$pluginfileget) ;
+        $supporturl = getplugin($pluginfile) ;
         #$modprobe = str_replace($pluginfileget,"",$modprobe) ;
     } else {
         $support = false ;
@@ -106,6 +119,7 @@ $arrModules[$modname] = [
             'state' => $state,
             'type' => $dir,
             'support' => $support,
+            'supporturl' => $supporturl,
             'description' => substr($desc , 0 ,60)  ,
 ] ;
 }
@@ -153,9 +167,13 @@ case 't1pre':
     #echo "<div class='show-disks'><table class='disk_status >" ;
     $status =  _('loading').'...';
     echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a>" ;
-    if ($module['support'] == true) $disabled = "" ; else $disabled = " disabled " ;
-    $disabled = " disable " ;
-    echo "<span><a><i  title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-phone-square' $disabled></i></a></span> $modname</td>" ;
+    if ($module['support'] == false) {
+        $supporthtml = "<a>title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-circle' disabled </i></a>" ;
+    } else {
+        $supporturl = $module['supporturl'] ;
+        $supporthtml =  "<a href='$supporturl' target='_blank'>"._('Support Thread')."</a>";
+    }
+    echo "$supporthtml</span> $modname</td>" ;
     echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>" ;
     echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>"; 
     $text = "" ;
@@ -188,39 +206,45 @@ case 't1pre':
       getmodules(pathinfo($line)["filename"]) ;
     } 
   
-    echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+    echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
     echo "<tbody>" ;
     if (is_array($arrModules)) ksort($arrModules) ;
     foreach($arrModules as $modname => $module)
     {
   
-      switch ($_POST['option']){
-          case "inuse":  
-              if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
-              break ;
-  
-          case "confonly":
-              if ($module['modprobe'] == "" ) continue(2) ;  
-              break ;
-  
-          case "all":
-              break ;
-      }
+        switch ($_POST['option']){
+            case "inuse":  
+                if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
+                break ;
+    
+            case "confonly":
+                if ($module['modprobe'] == "" ) continue(2) ;  
+                break ;
+    
+            case "all":
+                break ;
+        }
      
-      echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a></span>" ;
-   
-      if ($module['support'] == true) $disabled = "" ; else $disabled = " disabled " ;
-      $disabled = " disable hidden " ;
-      echo "<span $disabled ><a $disabled><i  title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-phone-square' $disabled></i></a></span> $modname</td>" ;
-      echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+        echo "<tr><td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span>" ;
+        $supportpage = true ;
+        if ($supportpage) {
+        if ($module['support'] == false) {
+            $supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
+        } else {
+            $supporturl = $module['supporturl'] ;
+            $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page")."' class='fa fa-phone-square'></i></a></span>" ;
+        } 
+        }  
+        echo "$supporthtml</td><td>$modname</td>" ;
+        echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
 
-      $text = "" ;
-      if (is_array($module["modprobe"])) {
-          $text = implode("\n",$module["modprobe"]) ;
-          echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-      } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
-  
-    }   
+        $text = "" ;
+        if (is_array($module["modprobe"])) {
+            $text = implode("\n",$module["modprobe"]) ;
+            echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+        } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+
+        }   
     echo "</tbody>" ;
     break;
   
