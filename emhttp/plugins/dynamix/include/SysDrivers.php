@@ -21,6 +21,7 @@ require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php"
 $kernel = shell_exec("uname -r") ;
 $kernel = trim($kernel,"\n") ;
 $lsmod = shell_exec("lsmod") ;
+$supportpage = true;
 
 function getplugin($in) {
 
@@ -226,7 +227,6 @@ case 't1pre':
         }
      
         echo "<tr><td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span>" ;
-        $supportpage = true ;
         if ($supportpage) {
         if ($module['support'] == false) {
             $supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
@@ -255,6 +255,7 @@ case "update":
     else $error = file_put_contents("/boot/config/modprobe.d/$module.conf",$conf) ;
     getmodules($module) ;
     $return = $arrModules[$module] ;
+    $return['supportpage'] = $supportpage ;
     if (is_array($return["modprobe"]))$return["modprobe"] = implode("\n",$return["modprobe"]) ;
     if ($error !== false) $return["error"] = false ; else $return["error"] = true ;
     echo json_encode($return) ;
