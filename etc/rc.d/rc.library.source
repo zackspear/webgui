@@ -72,7 +72,7 @@ min6() {
   # ipv6 address in short notation
   [[ -z $1 ]] && return
   read a m < <(IFS=/; echo $1)
-  a=:$(awk '{p="0";for(n=8-NF;n>0;n--){p=p":0"};for(n=2;n<=8;n++){if($n==""){$n=p;break}};$0=$0;d="";for(n=1;n<=8;n++){printf "%s%x",d,strtonum("0x"$n);d=":"}}' FS=":" OFS=":" <<< $a)
+  a=:$(awk '{p="0";for(n=8-NF;n>0;n--){p=p":0"};for(n=2;n<=8;n++){if($n==""){$n=p;break}};$0=$0;d="";for(n=1;n<=8;n++){printf "%s%n",d,strtonum("0x"$n);d=":"}}' FS=":" OFS=":" <<< $a)
   a=${a/$(grep -Po ':(0(:|$)){2,8}' <<< $a|sort|tail -1)/-}
   [[ ${a:0:1} == : ]] && a=${a:1}
   [[ -z $m ]] && echo ${a/-/::} || echo ${a/-/::}/$m
