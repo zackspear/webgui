@@ -64,7 +64,8 @@ max6() {
   for x in $*; do
     read a m < <(IFS=/; echo $x)
     c=${a//[^:]/}
-    [[ ${a:${#a}-1} == : ]] && s=9 || s=8
+    [[ ${a:0:1} == : ]] && s=9 || s=8
+    [[ ${a:${#a}-1} == : ]] && s=9
     a=${a/::/:$(for((i=1;i<=$((s-${#c}));i++)); do printf "0:"; done)}
     a=$(for q in ${a//:/ }; do printf "$d%04x" "0x$q"; d=:; done)
     [[ -z $m ]] && echo $a || echo $a/$m
@@ -74,7 +75,7 @@ max6() {
 min6() {
   # ipv6 address in short notation
   [[ -n $1 ]] && read a m < <(IFS=/; echo $1) || return
-  a=${a/$(grep -Po ':(0{1,4}(:|$)){1,8}' <<< $a|sort|tail -1)/:-:}
+  a=${a/$(grep -Po '(^|:)(0{1,4}(:|$)){1,8}' <<< $a|sort|tail -1)/:-:}
   a=$(for q in ${a//:/ }; do [[ $q != - ]] && printf "$d%x" "0x$q" || printf "$d"; d=:; done)
   [[ ${a:0:1} == : ]] && a=:$a
   [[ ${a:${#a}-1} == : ]] && a=$a:
