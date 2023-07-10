@@ -52,7 +52,13 @@ function showDrivers(options, init = false) {
     clearTimeout(timers.refresh);
     $("#t1").trigger("destroy"); 
     $('#t1').html(data);
-    $('#t1').tablesorter({sortList:[[1,0],[3,0]]});  
+    $('#t1').tablesorter({
+        sortList:[[1,0]],
+        sortAppend:[[1,0]],
+        headers:{
+          0:{sorter:false}
+        }
+    });
     $('div.spinner.fixed').hide('slow');
     //showDriversupdate(options) 
   });
