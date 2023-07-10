@@ -64,8 +64,8 @@ max6() {
   for x in $*; do
     read a m < <(IFS=/; echo $x)
     c=${a//[^:]/}
-    [[ ${a:0:2} == :: ]] && a=0${a}
-    [[ ${a:${#a}-2} == :: ]] && a=${a}0
+    [[ ${a:0:1} == : ]] && a=0${a}
+    [[ ${a:${#a}-1} == : ]] && a=${a}0
     a=${a/::/:$(for((i=1;i<=$((8-${#c}));i++)); do printf "0:"; done)}
     a=$(for q in ${a//:/ }; do printf "$d%04x" "0x$q"; d=:; done)
     [[ -z $m ]] && echo $a || echo $a/$m
