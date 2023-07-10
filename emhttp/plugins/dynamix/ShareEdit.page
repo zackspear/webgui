@@ -163,7 +163,6 @@ _(Comments)_:
 
 :share_edit_comments_help:
 
-<?if (_var($share,'exclusive')=="no"):?>
 <div markdown="1">
 _(Minimum free space)_:
 : <span class="input"><input type="text" name="shareFloor" maxlength="16" autocomplete="off" spellcheck="false" class="narrow" value="<?=presetSpace($share['floor'])?>" placeholder="0"></span><span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
@@ -171,7 +170,6 @@ _(Minimum free space)_:
 :share_edit_free_space_help:
 
 </div>
-<?endif;?>
 <?if ($name):?>
 <div markdown="1" class="empty">
 _(Share status)_:
