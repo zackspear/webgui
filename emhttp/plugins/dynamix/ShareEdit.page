@@ -148,9 +148,6 @@ foreach ($rows as $row) echo $row;
 <input type="hidden" name="shareSplitLevel" value="">
 <input type="hidden" name="shareInclude" value="">
 <input type="hidden" name="shareExclude" value="">
-<?if (_var($share,'exclusive')!="no"):?>
-<input type="hidden" name="shareFloor" value="">
-<?endif;?>
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Share name)_:
