@@ -70,7 +70,7 @@ max6() {
     [[ ${a:${#a}-1} == : ]] && a=${a}0
     a=${a/::/:$(for((i=1;i<=$((8-${#c}));i++)); do printf "0:"; done)}
     d=; a=$(for q in ${a//:/ }; do printf "$d%04x" "0x$q"; d=:; done)
-    [[ -n $b ]] && a=${a%$f*}$f$b
+    [[ -n $b ]] && d= a=${a%$f*}${f}$(for q in ${b//./ }; do printf "$d%03d" "$q"; d=.; done)
     [[ -z $m ]] && echo $a || echo $a/$m
   done
 }
@@ -83,7 +83,7 @@ min6() {
   d=; a=:$(for q in ${a//:/ }; do printf "$d%x" "0x$q"; d=:; done)
   a=${a/$(grep -Po ':(0(:|$)){2,8}' <<< $a|sort|tail -1)/::}
   [[ ${a:0:2} != :: ]] && a=${a:1}
-  [[ -n $b ]] && a=${a%$f*}:$b
+  [[ -n $b ]] && d= a=${a%$f*}:$(for q in ${b//./ }; do printf "$d%d" "$q"; d=.; done)
   [[ -z $m ]] && echo $a || echo $a/$m
 }
 
