@@ -76,7 +76,7 @@ min6() {
   # ipv6 address in short notation
   [[ -n $1 ]] && read a m < <(IFS=/; echo $1) || return
   a=$(for q in ${a//:/ }; do printf "$d%x" "0x$q"; d=:; done)
-  a=${a/$(grep -Po '(^|:)(0(:|$)){1,8}' <<< $a|sort|tail -1)/::}
+  a=${a/$(grep -Po '(^|:)(0(:|$)){2,8}' <<< $a|sort|tail -1)/::}
   [[ -z $m ]] && echo $a || echo $a/$m
 }
 
