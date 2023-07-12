@@ -41,8 +41,12 @@ table.t1 tr>td+td+td+td+td+td+td+td+td+td{text-align:left;}
 table.t1 tr>td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+.tablesorter .filtered {
+    display: none;
+}
 
 </style>
+<script type="text/javascript" src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
 <script type="text/javascript">
 
 function showDrivers(options, init = false) {
@@ -57,12 +61,19 @@ function showDrivers(options, init = false) {
         sortAppend:[[1,0]],
         headers:{
           0:{sorter:false}
+        },
+        widgets: ['stickyHeaders','filter'],
+        widgetOptions: {
+          // on black and white, offset is height of #menu
+          // on azure and gray, offset is height of #header
+          stickyHeaders_offset: ( $('#menu').height() < 50 ) ? $('#menu').height() : $('#header').height(),
+          filter_columnFilters: false,
         }
     });
     $('div.spinner.fixed').hide('slow');
     //showDriversupdate(options) 
   });
-}
+} 
 
 function showDriversupdate(options) {
   option = options ;
