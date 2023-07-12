@@ -19,6 +19,7 @@ Tag="server"
  $select[] = mk_option(1,"conf",'Modprobe.d conf only');
  $select[] = mk_option(0,"inuse",'Inuse');
  $select[] = mk_option(0,"all",'All');
+ $newmodel = version_compare($version['version'],'6.12.0-beta5', '>') ? "true" : "false" ;
 
 ?>
 
@@ -47,13 +48,16 @@ table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 
 </style>
 <script type="text/javascript" src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
+
 <script type="text/javascript">
 
 function showDrivers(options, init = false) {
   option = options ;
-  if (!init) timers.refresh = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.post('/webGui/include/SysDrivers.php',{table:'t1',option:option},function(data){
+  if (init) {
+  $.post('/webGui/include/SysDrivers.php',{table:'t1',option:"all"},function(data){
     clearTimeout(timers.refresh);
+    filter = [];
+    filter[3] = "Inuse|Custom|Disabled";
     $("#t1").trigger("destroy"); 
     $('#t1').html(data);
     $('#t1').tablesorter({
@@ -69,10 +73,20 @@ function showDrivers(options, init = false) {
           stickyHeaders_offset: ( $('#menu').height() < 50 ) ? $('#menu').height() : $('#header').height(),
           filter_columnFilters: false,
         }
+        
     });
     $('div.spinner.fixed').hide('slow');
+
+    $('#t1').trigger('search', [ filter ]);
     //showDriversupdate(options) 
   });
+  } else {
+    
+  filter = [];
+  if (option === "inuse") filter[3] = "Inuse|Custom|Disabled";
+  if (option === "all") filter[3] = "";
+     $('#t1').trigger('search', [ filter ]);
+  };
 } 
 
 function showDriversupdate(options) {
@@ -114,10 +128,10 @@ function textsave(module) {
   },"json"); 
 }
 
+$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' selected>All Drivers</option><option value='inuse' >Inuse Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
+//select  = document.getElementById("select").value;
+showDrivers("all",true),function() { sleep(1000);showDriver("inuse") ;} ;
 
-$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='inuse' selected>Inuse Drivers</option><option value='all' >All Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
-select  = document.getElementById("select").value;
-showDrivers("inuse",true) ;
 </script>
 
 <pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 tablesorter disk_status" ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
