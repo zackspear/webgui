@@ -233,7 +233,7 @@ _(VFIO allow unsafe interrupts)_:
 _(btrfs filesystem show)_:
 : <?="<pre id='btrfs-scrub'>".shell_exec("btrfs filesystem show /etc/libvirt")."</pre>"?>
 
-<form markdown="1" method="POST" action="/update.php" target="progressFrame"  onsubmit="prepareFS(this,'btrfs-scrub-vm','/etc/libvirt'>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame"  onsubmit="prepareFS(this,'btrfs-scrub-vm','/etc/libvirt'>">
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /etc/libvirt", $scrub_status, $retval);?>
 _(btrfs scrub status)_:
 : <?="<pre>".implode("\n", $scrub_status)."</pre>"?>
