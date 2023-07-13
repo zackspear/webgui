@@ -4,15 +4,11 @@
 Easily deploy your local repo's changes to an Unraid server on your network.
 
 ```
-Usage: .scripts/deploy-dev.sh [SSH_SERVER_NAME] [-exclude-connect] [-exclude-dirs DIRS]
+Usage: .scripts/deploy-dev.sh [-host SSH_SERVER_HOST] [-exclude PATHS]
 
 Deploys the source directory to the specified SSH server using rsync.
 
-Positional Arguments:
-  SSH_SERVER_NAME     The SSH server name to deploy to.
-
 Options:
-  -exclude-connect    Exclude the directory 'emhttp/plugins/dynamix.my.servers'
-                      and 'emhttp/plugins/dynamix/include/UpdateDNS.php'
-  -exclude-dirs DIRS  Additional directories to exclude (comma-separated)
+  -host SSH_SERVER_HOST    The SSH server host to deploy to.
+  -exclude PATHS           Paths to exclude (comma-separated)
 ```
