@@ -42,9 +42,9 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
     textarea.feedback { width: <?php echo $width; ?>; height: 530px; margin: 0; resize: none; }
     @media (max-width: 960px) { textarea.feedback { height: 330px; } }
     @media (max-height: 768px) { textarea.feedback { height: 330px; } }
-    input.submit[type=button] { margin-right: 0; float: right; }
-    input.submit[type=email] { margin-top: 10px; float: left; }
-    p.note, label.note { font-size: 1.1rem !important; display: block; }
+    input.submit[type=button] { margin-right: 0; float: right; position: relative; z-index: 1; }
+    input.submit[type=email] { margin-top: 10px; float: left; position: relative; z-index: 1; }
+    p.note, label.note { font-size: 1.1rem !important; display: block; position: relative; z-index: 0; }
     p.success { text-align: center !important; margin-top: 20px; }
     span.spacer { margin: 0 4px; }
   </style>
@@ -54,6 +54,7 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
     <div id="control_panel" class="divide">
       <label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featurerequest" checked="checked"/> <?php echo _('Product Suggestion'); ?></label>
       <label for="optBugReport"><input type="radio" name="mode" id="optBugReport" value="bugreport"/> <?php echo _('Bug Report'); ?></label>
+      <label for="optTroubleshoot"><input type="radio" name="mode" id="optTroubleshoot" value="troubleshoot"/> <?php echo _('Troubleshoot'); ?></label>
       <label for="optComment"><input type="radio" name="mode" id="optComment" value="comment"/> <?php echo _('Other Comment'); ?></label>
       <hr>
     </div>
@@ -66,8 +67,15 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
     <div id="bugreport_panel" class="allpanels">
       <textarea id="bugDescription" class="feedback"></textarea>
       <input type="email" id="bugEmail" class="submit" autocomplete="off" spellcheck="false" placeholder="<?php echo _('Contact Email Address'); ?>. (<?php echo _('optional'); ?>)"><input type="button" id="bugSubmit" class="submit" value="<?php echo _('Submit'); ?>"/>
-      <label class="note" for="anonymize"><input type="checkbox" id="anonymize" value="1" /> <?php echo _('Anonymize diagnostics (may make troubleshooting more difficult)'); ?></label>
+      <label class="note" for="anonymize_bugReport"><input type="checkbox" id="anonymize_bugReport" class="anonymize" value="1" /> <?php echo _('Anonymize diagnostics (may make troubleshooting more difficult)'); ?></label>
       <p class="note"><b><?php echo _('NOTE'); ?>:</b> <i><?php echo _('Submission of this bug report will automatically send your system diagnostics to Lime Technology'); ?>.</i></p>
+    </div>
+    <div id="troubleshoot_panel" class="allpanels">
+      <textarea id="troubleshootDescription" class="feedback"></textarea>
+      <textarea id="troubleshootDetails" style="display: none;"></textarea>
+      <input type="email" id="troubleshootEmail" class="submit" autocomplete="off" spellcheck="false" placeholder="<?php echo _('Contact Email Address'); ?>"><input type="button" id="troubleshootSubmit" class="submit" value="<?php echo _('Submit'); ?>"/>
+      <label class="note" for="anonymize_troubleshoot"><input type="checkbox" id="anonymize_troubleshoot" class="anonymize" value="1" /> <?php echo _('Anonymize diagnostics (may make troubleshooting more difficult)'); ?></label>
+      <p class="note"><b><?php echo _('NOTE'); ?>:</b> <i><?php echo _('Submission of this troulbeshooting request will automatically send your system diagnostics to Lime Technology'); ?>.</i></p>
     </div>
     <div id="comment_panel" class="allpanels">
       <textarea id="commentDescription" class="feedback" placeholder="<?php echo _('Type your question or comment to Lime Technology here'); ?>."></textarea>
@@ -94,6 +102,11 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
     function bugreport_reset() {
       $('#bugDescription').val("<?php echo _('Bug Description'); ?>: \n\n\n\n<?php echo _('How to reproduce'); ?>: \n\n\n\n<?php echo _('Expected results'); ?>: \n\n\n\n<?php echo _('Actual results'); ?>: \n\n\n\n<?php echo _('Other information'); ?>: \n");
       $('#bugEmail').val('');
+    }
+
+    function troubleshoot_reset() {
+      $('#troubleshootDescription').val("<?php echo _('Description'); ?>: \n\n\n\n<?php echo _('How to reproduce'); ?>: \n\n\n\n<?php echo _('Expected results'); ?>: \n\n\n\n<?php echo _('Actual results'); ?>: \n\n\n\n<?php echo _('Other information'); ?>: \n");
+      $('#troubleshootEmail').val('');
     }
 
     function comment_reset() {
@@ -171,6 +184,21 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
         form_submit('https://keys.lime-technology.com/feedback/bugreport', { description: $('#bugDescription').val(), email: $('#bugEmail').val() }, $('#bugreport_panel'), true);
       });
 
+      $('#troubleshootSubmit').click(function bugSubmitClick() {
+        if ($('#troubleshootDescription').val() === '') return;
+        if ($('#troubleshootEmail').val() === '') return alert('Email is required for troubleshooting requests');
+        // @todo - update this to use a new troubleshoot endpoint
+        form_submit(
+          'https://keys.lime-technology.com/feedback/bugreport',
+          {
+            description: $('#troubleshootDescription').val() + '\n\n' + $('#troubleshootDetails').val(),
+            email: $('#troubleshootEmail').val()
+          },
+          $('#troubleshoot_panel'),
+          true
+        );
+      });
+
       $('#commentSubmit').click(function commentSubmitClick() {
         if ($('#commentDescription').val() === '') return;
         form_submit('https://keys.lime-technology.com/feedback/comment', { description: $('#commentDescription').val(), email: $('#commentEmail').val() }, $('#comment_panel'));
@@ -178,6 +206,7 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
 
       featurerequest_reset();
       bugreport_reset();
+      troubleshoot_reset();
       comment_reset();
       $('#optFeatureRequest').click();
     });
