@@ -405,14 +405,16 @@ shim_network(){
   ip -4 route add $2 src $1 dev $LINK
   ip -4 route add $3 src $1 dev $LINK
   DEFAULT=($(ip -4 route show dev $NETWORK default|awk '{print $3,$5}'))
-  if [[ -z ${DEFAULT[1]} ]]; then
-    METRIC=1
-    METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
-    while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
-    ip -4 route del default via $DEFAULT dev $NETWORK
-    ip -4 route add default via $DEFAULT dev $NETWORK metric $METRIC
+  if [[ -n $DEFAULT ]]; then
+    if [[ -z ${DEFAULT[1]} ]]; then
+      METRIC=1
+      METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
+      while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
+      ip -4 route del default via $DEFAULT dev $NETWORK
+      ip -4 route add default via $DEFAULT dev $NETWORK metric $METRIC
+    fi
+    ip -4 route add default via $DEFAULT dev $LINK metric 0
   fi
-  [[ -n $DEFAULT ]] && ip -4 route add default via $DEFAULT dev $LINK metric 0
 }
 
 # Remove custom networks
