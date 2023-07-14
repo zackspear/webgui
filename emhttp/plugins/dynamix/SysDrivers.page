@@ -76,9 +76,6 @@ function showDrivers(options, init = false) {
         
     });
     $('div.spinner.fixed').hide('slow');
-
-    $('#t1').trigger('search', [ filter ]);
-    //showDriversupdate(options) 
   });
   } else {
     
@@ -86,14 +83,17 @@ function showDrivers(options, init = false) {
   if (option === "inuse") filter[3] = "Inuse|Custom|Disabled";
   if (option === "all") filter[3] = "";
      $('#t1').trigger('search', [ filter ]);
-  };
+  }
 } 
 
 function showDriversupdate(options) {
   option = options ;
-  $.post('/webGui/include/SysDrivers.php',{table:'t1update',option:option},function(data){
-    $('#t1').html(data);
-  });
+  filter = [];
+  if (option === "inuse") filter[3] = "Inuse|Custom|Disabled";
+  if (option === "all") filter[3] = "";
+
+     $('#t1').trigger('search', [ filter ]);
+  
 }
 
 function textedit(module) {
@@ -128,9 +128,9 @@ function textsave(module) {
   },"json"); 
 }
 
-$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' selected>All Drivers</option><option value='inuse' >Inuse Drivers</option><option value='confonly'>Modprode Configs Only</option></select>");
-//select  = document.getElementById("select").value;
-showDrivers("all",true),function() { sleep(1000);showDriver("inuse") ;} ;
+$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
+
+showDrivers("all",true) ;
 
 </script>
 

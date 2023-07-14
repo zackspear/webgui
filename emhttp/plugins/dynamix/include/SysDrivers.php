@@ -34,11 +34,13 @@ function getplugin($in) {
 }
 
 function getmodules($line) {
-    global $arrModules,$lsmod,$kernel ;
+    global $arrModules,$lsmod,$kernel,$list ;
     $modprobe = "" ;
+    $desc = $file = $pluginfile = $option = $filename = $depends = $supporturl = $dir = null ;
     $name = $line ;
     #echo $line ;
-    $modname = trim(shell_exec("modinfo  $name > /dev/null"),"\n") ;
+    $modname = shell_exec("modinfo  $name > /dev/null") ;
+    if ($modname != null) $modname = trim($modname,"\n") ;
     $output=null ;
     exec("modinfo $name",$output,$error) ;
     $parms = array() ;
@@ -79,11 +81,13 @@ function getmodules($line) {
             break ;
     }
 }
-if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
+if ($modname != null) if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
 if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf") ;
     $state = strpos($modprobe, "blacklist");
     $supportpos = strpos($modprobe, "#Plugin:");
+    if (isset($file[$modname])) { $supporturl = getplugin($file[$modname]) ; }
+    else {
     if ($supportpos !== false) { 
         $support = true ; 
         $supportendpos = strpos($modprobe,"\n",$supportpos) ;
@@ -95,21 +99,26 @@ if (is_file("/boot/config/modprobe.d/$modname.conf")) {
         $support = false ;
         $plugin = "" ;
     }
+}
     $modprobe = explode(PHP_EOL,$modprobe) ;
     if($state !== false) {$state = "Disabled" ;} 
     else $state="Custom" ;
     } else if($option == "conf") return ;
 
 if ($filename != "(builtin)") {
+if ($filename != null) {
 $type = pathinfo($filename) ;
 $dir =  $type['dirname'] ;
+
 $dir = str_replace("/lib/modules/$kernel/kernel/drivers/", "" ,$dir) ;
 $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
+}
 } else {
     $dir = $file ;
     $dir = str_replace("drivers/", "" ,$dir) ;
     if ($state == "Inuse")  $state= "(builtin) - Inuse"; else $state="(builtin)" ;
 }
+if ($desc != null) $description = substr($desc , 0 ,60) ; else  $description = null ;
 $arrModules[$modname] = [
             'modname' => $modname,
             'dependacy' => $depends, 
@@ -121,10 +130,46 @@ $arrModules[$modname] = [
             'type' => $dir,
             'support' => $support,
             'supporturl' => $supporturl,
-            'description' => substr($desc , 0 ,60)  ,
+            'description' => $description  ,
 ] ;
 }
 
+function modtoplg() {
+    global $list ;
+    $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('/boot/config/plugins'));
+    $files = array(); 
+
+    /** @var SplFileInfo $file */
+    foreach ($rii as $file) {
+        if ($file->isDir()){ 
+            continue;
+        }
+        if ($file->getExtension() != "tgz" && $file->getExtension() != "txz")     continue ;
+        $files[] = $file->getPathname();        
+    }
+
+    #$list = getDirContents("/boot/config/plugins/") ;
+    $list =array() ;
+    foreach ($files as $f)
+    {
+            $plugin = str_replace("/boot/config/plugins/", "", $f) ;
+            $plugin = substr($plugin,0,strpos($plugin,'/') ) ;
+            exec("tar -tf $f | grep -E '.ko.xz|.ko' ",$tar) ;
+
+            #var_dump($plugin) ;
+            foreach ($tar as $t) {
+                $p = pathinfo($t) ;
+                $filename = str_replace(".ko","",$p["filename"]) ;
+                $list[$filename] = $plugin ;
+            }
+
+    }
+
+    file_put_contents("/tmp/modulestoplg",json_encode($list)) ;
+   
+}
+
+#modtoplg() ;
 switch ($_POST['table']) {
 case 't1pre':
     $option = $_POST['option'] ;
@@ -189,7 +234,7 @@ case 't1pre':
 
   case 't1':
     $option = $_POST['option'] ;
-    $select = $_POST['select'] ;
+    
     $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
     $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
     $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
@@ -206,9 +251,18 @@ case 't1pre':
       if ($line == "") continue ;
       getmodules(pathinfo($line)["filename"]) ;
     } 
-  
-    echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+
+    $lsmod2 = explode(PHP_EOL,$lsmod) ; 
+    foreach($lsmod2 as $line) {
+            if ($line == "") continue ;
+            $line2 = explode(" ",$line) ;
+         getmodules($line2['0']) ;
+      } 
+
+    var_dump(count($arrModules)) ;
+    echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
     echo "<tbody>" ;
+ 
     if (is_array($arrModules)) ksort($arrModules) ;
     foreach($arrModules as $modname => $module)
     {
@@ -246,6 +300,7 @@ case 't1pre':
 
         }   
     echo "</tbody>" ;
+    
     break;
   
 case "update":
@@ -259,5 +314,6 @@ case "update":
     if (is_array($return["modprobe"]))$return["modprobe"] = implode("\n",$return["modprobe"]) ;
     if ($error !== false) $return["error"] = false ; else $return["error"] = true ;
     echo json_encode($return) ;
-}
+    break ;   
+}             
 ?>
