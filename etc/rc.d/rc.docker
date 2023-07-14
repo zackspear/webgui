@@ -405,9 +405,12 @@ shim_network(){
   ip -4 route add $2 src $1 dev $LINK
   ip -4 route add $3 src $1 dev $LINK
   DEFAULT=($(ip -4 route show dev $NETWORK default|awk '{print $3,$5}'))
-  if [[ ${DEFAULT[1]} -eq 0 ]]; then
-    ip -4 route del default via $DEFAULT dev $NETWORK metric 0
-    ip -4 route add default via $DEFAULT dev $NETWORK metric 1
+  if [[ -z ${DEFAULT[1]} ]]; then
+    METRIC=1
+    METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
+    while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
+    ip -4 route del default via $DEFAULT dev $NETWORK
+    ip -4 route add default via $DEFAULT dev $NETWORK metric $METRIC
   fi
   [[ -n $DEFAULT ]] && ip -4 route add default via $DEFAULT dev $LINK metric 0
 }
