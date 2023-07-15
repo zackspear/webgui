@@ -154,6 +154,8 @@ function modtoplg() {
 switch ($_POST['table']) {
   
     case 't1create':      
+        modtoplg() ;
+        $arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
         $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
         $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
         $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
@@ -182,9 +184,7 @@ switch ($_POST['table']) {
           } 
 
         unset($arrModules['null']);  
-        file_put_contents("/tmp/sysdrivers.json",json_encode($arrModules,JSON_PRETTY_PRINT)) ;
-        modtoplg() ;
-                
+        file_put_contents("/tmp/sysdrivers.json",json_encode($arrModules,JSON_PRETTY_PRINT)) ;               
         break;
 
     case 't1load':
