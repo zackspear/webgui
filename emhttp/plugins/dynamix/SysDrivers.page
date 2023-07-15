@@ -15,12 +15,6 @@ Tag="server"
  * all copies or substantial portions of the Software.
  */
 
- $select = [];
- $select[] = mk_option(1,"conf",'Modprobe.d conf only');
- $select[] = mk_option(0,"inuse",'Inuse');
- $select[] = mk_option(0,"all",'All');
- $newmodel = version_compare($version['version'],'6.12.0-beta5', '>') ? "true" : "false" ;
-
 ?>
 
 <style>
@@ -66,12 +60,13 @@ function showDrivers(options, init = false) {
         headers:{
           0:{sorter:false}
         },
-        widgets: ['stickyHeaders','filter'],
+        widgets: ['stickyHeaders','filter', 'zebra'],
         widgetOptions: {
           // on black and white, offset is height of #menu
           // on azure and gray, offset is height of #header
           stickyHeaders_offset: ( $('#menu').height() < 50 ) ? $('#menu').height() : $('#header').height(),
           filter_columnFilters: false,
+          zebra : [ "normal-row", "alt-row" ]          
         }
         
     });
@@ -130,6 +125,6 @@ showDriversupdate() ;
 
 </script>
 
-<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 tablesorter disk_status" ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 <input type="button" value="_(Done)_" onclick="done()">
 
