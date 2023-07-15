@@ -54,7 +54,7 @@ table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
 function showDrivers(options, init = false) {
   option = options ;
   if (init) {
-  $.post('/webGui/include/SysDrivers.php',{table:'t1',option:"all"},function(data){
+  $.post('/webGui/include/SysDrivers.php',{table:'t1load',option:"all"},function(data){
     clearTimeout(timers.refresh);
     filter = [];
     filter[3] = "Inuse|Custom|Disabled";
@@ -86,14 +86,8 @@ function showDrivers(options, init = false) {
   }
 } 
 
-function showDriversupdate(options) {
-  option = options ;
-  filter = [];
-  if (option === "inuse") filter[3] = "Inuse|Custom|Disabled";
-  if (option === "all") filter[3] = "";
-
-     $('#t1').trigger('search', [ filter ]);
-  
+function showDriversupdate() {
+  $.post('/webGui/include/SysDrivers.php',{table:'t1create',option:"all"}) ;
 }
 
 function textedit(module) {
@@ -123,6 +117,7 @@ function textsave(module) {
         }
       } 
     }
+    //showDriversupdate() ;
     var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
     addRebootNotice(message);
   },"json"); 
@@ -131,6 +126,7 @@ function textsave(module) {
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
 
 showDrivers("all",true) ;
+showDriversupdate() ;
 
 </script>
 

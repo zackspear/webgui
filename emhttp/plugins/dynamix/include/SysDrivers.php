@@ -22,19 +22,18 @@ $kernel = shell_exec("uname -r") ;
 $kernel = trim($kernel,"\n") ;
 $lsmod = shell_exec("lsmod") ;
 $supportpage = true;
+$arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
 
 function getplugin($in) {
-
     $plugins = "/var/log/plugins/";
     $plugin_link = $plugins.$in ;
     $plugin_file = @readlink($plugin_link);
     $support = plugin('support',$plugin_file) ?: "";
-    #$support = $support ? "<a href='$support' target='_blank'>"._('Support Thread')."</a>" : "";
     return($support) ;
 }
 
 function getmodules($line) {
-    global $arrModules,$lsmod,$kernel,$list ;
+    global $arrModules,$lsmod,$kernel,$arrModtoPlg,$modplugins ;
     $modprobe = "" ;
     $desc = $file = $pluginfile = $option = $filename = $depends = $supporturl = $dir = null ;
     $name = $line ;
@@ -81,29 +80,17 @@ function getmodules($line) {
             break ;
     }
 }
-if ($modname != null) if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
+if ($modname != null) {
+    if (strpos($lsmod, $modname,0)) $state = "Inuse" ; else $state = "Available";
+    if (isset($arrModtoPlg[$modname])) { $support = true ; $supporturl = plugin("support", $modplugins[$arrModtoPlg[$modname]]) ; $pluginfile = "Plugin name: {$arrModtoPlg[$modname]}" ; } else { $support = false ; $supporturl = null ; }
+    }
 if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf") ;
     $state = strpos($modprobe, "blacklist");
-    $supportpos = strpos($modprobe, "#Plugin:");
-    if (isset($file[$modname])) { $supporturl = getplugin($file[$modname]) ; }
-    else {
-    if ($supportpos !== false) { 
-        $support = true ; 
-        $supportendpos = strpos($modprobe,"\n",$supportpos) ;
-        $pluginfileget = substr($modprobe,$supportpos + 8,$supportendpos ) ;
-        $pluginfile = str_replace("\n","",$pluginfileget) ;
-        $supporturl = getplugin($pluginfile) ;
-        #$modprobe = str_replace($pluginfileget,"",$modprobe) ;
-    } else {
-        $support = false ;
-        $plugin = "" ;
-    }
-}
     $modprobe = explode(PHP_EOL,$modprobe) ;
     if($state !== false) {$state = "Disabled" ;} 
     else $state="Custom" ;
-    } else if($option == "conf") return ;
+    } 
 
 if ($filename != "(builtin)") {
 if ($filename != null) {
@@ -135,7 +122,6 @@ $arrModules[$modname] = [
 }
 
 function modtoplg() {
-    global $list ;
     $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('/boot/config/plugins'));
     $files = array(); 
 
@@ -148,166 +134,105 @@ function modtoplg() {
         $files[] = $file->getPathname();        
     }
 
-    #$list = getDirContents("/boot/config/plugins/") ;
-    $list =array() ;
-    foreach ($files as $f)
-    {
+    $list = array() ;
+    foreach ($files as $f) {
             $plugin = str_replace("/boot/config/plugins/", "", $f) ;
             $plugin = substr($plugin,0,strpos($plugin,'/') ) ;
+            $tar = [] ;
             exec("tar -tf $f | grep -E '.ko.xz|.ko' ",$tar) ;
-
-            #var_dump($plugin) ;
             foreach ($tar as $t) {
                 $p = pathinfo($t) ;
                 $filename = str_replace(".ko","",$p["filename"]) ;
                 $list[$filename] = $plugin ;
             }
+        }
 
-    }
-
-    file_put_contents("/tmp/modulestoplg",json_encode($list)) ;
+    file_put_contents("/tmp/modulestoplg.json",json_encode($list,JSON_PRETTY_PRINT)) ;
    
 }
 
-#modtoplg() ;
 switch ($_POST['table']) {
-case 't1pre':
-    $option = $_POST['option'] ;
-    $select = $_POST['select'] ;
-    $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
-    $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
-    $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
-    $procmodules = explode(PHP_EOL,$procmodules) ; 
-    $arrModules = array() ;
   
-    foreach($builtinmodules as $bultin)
-    {
-      if ($bultin == "") continue ;
-      getmodules(pathinfo($bultin)["filename"]) ;
-    }
-  
-    foreach($procmodules as $line) {
-      if ($line == "") continue ;
-      getmodules(pathinfo($line)["filename"]) ;
-    } 
+    case 't1create':      
+        $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
+        $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
+        $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
+        $procmodules = explode(PHP_EOL,$procmodules) ; 
+        $arrModules = array() ;
 
-  
-  echo "<thead><tr><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th><b>"._("State")."</hd><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
-  echo "<tbody>" ;
-  if (is_array($arrModules)) ksort($arrModules) ;
-  foreach($arrModules as $modname => $module)
-  {
-
-    switch ($_POST['option']){
-        case "inuse":  
-            if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
-            break ;
-
-        case "confonly":
-            if ($module['modprobe'] == "" ) continue(2) ;  
-            break ;
-
-        case "all":
-            break ;
-    }
-    #echo "<div class='show-disks'><table class='disk_status >" ;
-    $status =  _('loading').'...';
-    echo "<tr><td><span  onclick=\"textedit('".$modname."')\" ><a><i  title='"._("Edit Modprobe config")."' id=\"icon'.$modname.'\" class='fa fa-edit' ></i></a>" ;
-    if ($module['support'] == false) {
-        $supporthtml = "<a>title='"._("Support Page")."' id=\"support'.$modname.'\" class='fa fa-circle' disabled </i></a>" ;
-    } else {
-        $supporturl = $module['supporturl'] ;
-        $supporthtml =  "<a href='$supporturl' target='_blank'>"._('Support Thread')."</a>";
-    }
-    echo "$supporthtml</span> $modname</td>" ;
-    echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td><td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>" ;
-    echo "<td><span style='color:#267CA8'><i class='fa fa-refresh fa-spin fa-fw'></i>&nbsp;$status</span></td>"; 
-    $text = "" ;
-    if (is_array($module["modprobe"])) {
-        $text = implode("\n",$module["modprobe"]) ;
-        echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-    } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
-
-  }   
-  echo "</tbody>" ;
-  break;
-
-  case 't1':
-    $option = $_POST['option'] ;
-    
-    $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
-    $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
-    $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
-    $procmodules = explode(PHP_EOL,$procmodules) ; 
-    $arrModules = array() ;
-  
-    foreach($builtinmodules as $bultin)
-    {
-      if ($bultin == "") continue ;
-      getmodules(pathinfo($bultin)["filename"]) ;
-    }
-  
-    foreach($procmodules as $line) {
-      if ($line == "") continue ;
-      getmodules(pathinfo($line)["filename"]) ;
-    } 
-
-    $lsmod2 = explode(PHP_EOL,$lsmod) ; 
-    foreach($lsmod2 as $line) {
-            if ($line == "") continue ;
-            $line2 = explode(" ",$line) ;
-         getmodules($line2['0']) ;
-      } 
-
-    var_dump(count($arrModules)) ;
-    echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
-    echo "<tbody>" ;
- 
-    if (is_array($arrModules)) ksort($arrModules) ;
-    foreach($arrModules as $modname => $module)
-    {
-  
-        switch ($_POST['option']){
-            case "inuse":  
-                if ($module['state'] == "Available" || $module['state'] == "(builtin)") continue(2) ;  
-                break ;
-    
-            case "confonly":
-                if ($module['modprobe'] == "" ) continue(2) ;  
-                break ;
-    
-            case "all":
-                break ;
+        $list = scandir('/var/log/plugins/') ;
+        foreach($list as $f) $modplugins[plugin("name" , @readlink("/var/log/plugins/$f"))] = readlink("/var/log/plugins/$f") ;
+      
+        foreach($builtinmodules as $bultin)
+        {
+          if ($bultin == "") continue ;
+          getmodules(pathinfo($bultin)["filename"]) ;
         }
-     
-        echo "<tr><td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span>" ;
-        if ($supportpage) {
-        if ($module['support'] == false) {
-            $supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
-        } else {
-            $supporturl = $module['supporturl'] ;
-            $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page")."' class='fa fa-phone-square'></i></a></span>" ;
+      
+        foreach($procmodules as $line) {
+          if ($line == "") continue ;
+          getmodules(pathinfo($line)["filename"]) ;
         } 
-        }  
-        echo "$supporthtml</td><td>$modname</td>" ;
-        echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
-
-        $text = "" ;
-        if (is_array($module["modprobe"])) {
-            $text = implode("\n",$module["modprobe"]) ;
-            echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-        } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
-
-        }   
-    echo "</tbody>" ;
     
-    break;
+        $lsmod2 = explode(PHP_EOL,$lsmod) ; 
+        foreach($lsmod2 as $line) {
+                if ($line == "") continue ;
+                $line2 = explode(" ",$line) ;
+             getmodules($line2['0']) ;
+          } 
+
+        unset($arrModules['null']);  
+        file_put_contents("/tmp/sysdrivers.json",json_encode($arrModules,JSON_PRETTY_PRINT)) ;
+        modtoplg() ;
+                
+        break;
+
+    case 't1load':
+        $list = file_get_contents("/tmp/sysdrivers.json") ;
+        $arrModules = json_decode($list,TRUE) ; 
+        echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+        echo "<tbody>" ;
+     
+        if (is_array($arrModules)) ksort($arrModules) ;
+        foreach($arrModules as $modname => $module) {
+            if ($modname == "") continue ;
+
+            if (is_file("/boot/config/modprobe.d/$modname.conf")) {
+                $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf") ;
+                $state = strpos($modprobe, "blacklist");
+                $modprobe = explode(PHP_EOL,$modprobe) ;
+                if($state !== false) {$state = "Disabled" ;} else $state="Custom" ;
+                $module['state'] = $state ;
+                $module['modprobe'] = $modprobe ;
+                } 
+         
+            echo "<tr><td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span>" ;
+            if ($supportpage) {
+                if ($module['support'] == false) {
+                        $supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
+                    } else {
+                        $supporturl = $module['supporturl'] ;
+                        $pluginname = $module['plugin'] ;
+                        $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>" ;
+                    } 
+            }  
+            echo "$supporthtml</td><td>$modname</td>" ;
+            echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+    
+            $text = "" ;
+            if (is_array($module["modprobe"])) {
+                    $text = implode("\n",$module["modprobe"]) ;
+                    echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+                } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+    
+            } 
+        echo "</tbody>" ;
+        break;
   
 case "update":
     $conf = $_POST['conf'] ;
     $module = $_POST['module'] ;
-    if ($conf == "") $error = unlink("/boot/config/modprobe.d/$module.conf") ;
-    else $error = file_put_contents("/boot/config/modprobe.d/$module.conf",$conf) ;
+    if ($conf == "") $error = unlink("/boot/config/modprobe.d/$module.conf") ; else $error = file_put_contents("/boot/config/modprobe.d/$module.conf",$conf) ;
     getmodules($module) ;
     $return = $arrModules[$module] ;
     $return['supportpage'] = $supportpage ;
