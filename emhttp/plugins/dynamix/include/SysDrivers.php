@@ -35,7 +35,7 @@ function getplugin($in) {
 function getmodules($line) {
     global $arrModules,$lsmod,$kernel,$arrModtoPlg,$modplugins ;
     $modprobe = "" ;
-    $desc = $file = $pluginfile = $option = $filename = $depends = $supporturl = $dir = null ;
+    $desc = $file = $pluginfile = $option = $filename = $depends = $support = $supporturl = $dir = null ;
     $name = $line ;
     #echo $line ;
     $modname = shell_exec("modinfo  $name > /dev/null") ;
@@ -161,7 +161,7 @@ switch ($_POST['table']) {
         $arrModules = array() ;
 
         $list = scandir('/var/log/plugins/') ;
-        foreach($list as $f) $modplugins[plugin("name" , @readlink("/var/log/plugins/$f"))] = readlink("/var/log/plugins/$f") ;
+        foreach($list as $f) $modplugins[plugin("name" , @readlink("/var/log/plugins/$f"))] = @readlink("/var/log/plugins/$f") ;
       
         foreach($builtinmodules as $bultin)
         {
