@@ -156,7 +156,7 @@ function modtoplg() {
 }
 
 function createlist() {
-    global $modtoplgfile, $sysdrvfile, $lsmod, $kernel,$arrModules ;
+    global $modtoplgfile, $sysdrvfile, $lsmod, $kernel,$arrModules, $modplugins ;
     $arrModtoPlg = json_decode(file_get_contents($modtoplgfile) ,TRUE) ;
     $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
     $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
