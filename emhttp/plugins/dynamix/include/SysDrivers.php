@@ -22,6 +22,9 @@ $kernel = shell_exec("uname -r") ;
 $kernel = trim($kernel,"\n") ;
 $lsmod = shell_exec("lsmod") ;
 $supportpage = true;
+$modtoplgfile = "/tmp/modulestoplg.json" ;
+$sysdrvfile = "/tmp/sysdrivers.json" ;
+if (!is_file($modtoplgfile) || !is_file($sysdrvfile)) { modtoplg() ; createlist() ;}
 $arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
 
 function getplugin($in) {
@@ -35,7 +38,7 @@ function getplugin($in) {
 function getmodules($line) {
     global $arrModules,$lsmod,$kernel,$arrModtoPlg,$modplugins ;
     $modprobe = "" ;
-    $desc = $file = $pluginfile = $option = $filename = $depends = $support = $supporturl = $dir = null ;
+    $desc = $file = $pluginfile = $option = $filename = $depends = $support = $supporturl = $dir = $state =  null ;
     $name = $line ;
     #echo $line ;
     $modname = shell_exec("modinfo  $name > /dev/null") ;
@@ -122,6 +125,7 @@ $arrModules[$modname] = [
 }
 
 function modtoplg() {
+    global $modtoplgfile ;
     $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('/boot/config/plugins'));
     $files = array(); 
 
@@ -147,21 +151,56 @@ function modtoplg() {
             }
         }
 
-    file_put_contents("/tmp/modulestoplg.json",json_encode($list,JSON_PRETTY_PRINT)) ;
+    file_put_contents($modtoplgfile,json_encode($list,JSON_PRETTY_PRINT)) ;
    
+}
+
+function createlist() {
+    global $modtoplgfile, $sysdrvfile, $lsmod, $kernel,$arrModules ;
+    $arrModtoPlg = json_decode(file_get_contents($modtoplgfile) ,TRUE) ;
+    $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
+    $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
+    $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
+    $procmodules = explode(PHP_EOL,$procmodules) ; 
+    $arrModules = array() ;
+
+    $list = scandir('/var/log/plugins/') ;
+    foreach($list as $f) $modplugins[plugin("name" , @readlink("/var/log/plugins/$f"))] = @readlink("/var/log/plugins/$f") ;
+  
+    foreach($builtinmodules as $bultin)
+    {
+      if ($bultin == "") continue ;
+      getmodules(pathinfo($bultin)["filename"]) ;
+    }
+  
+    foreach($procmodules as $line) {
+      if ($line == "") continue ;
+      getmodules(pathinfo($line)["filename"]) ;
+    } 
+
+    $lsmod2 = explode(PHP_EOL,$lsmod) ; 
+    foreach($lsmod2 as $line) {
+            if ($line == "") continue ;
+            $line2 = explode(" ",$line) ;
+         getmodules($line2['0']) ;
+      } 
+
+    unset($arrModules['null']);  
+    file_put_contents($sysdrvfile,json_encode($arrModules,JSON_PRETTY_PRINT)) ;   
 }
 
 switch ($_POST['table']) {
   
     case 't1create':      
         modtoplg() ;
-        $arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
+        createlist() ;  
+        /*$arrModtoPlg = json_decode(file_get_contents($modtoplgfile) ,TRUE) ;
         $builtinmodules = file_get_contents("/lib/modules/$kernel/modules.builtin") ;
         $builtinmodules = explode(PHP_EOL,$builtinmodules) ;
         $procmodules =file_get_contents("/lib/modules/$kernel/modules.order") ;
         $procmodules = explode(PHP_EOL,$procmodules) ; 
         $arrModules = array() ;
-
+    
         $list = scandir('/var/log/plugins/') ;
         foreach($list as $f) $modplugins[plugin("name" , @readlink("/var/log/plugins/$f"))] = @readlink("/var/log/plugins/$f") ;
       
@@ -182,15 +221,17 @@ switch ($_POST['table']) {
                 $line2 = explode(" ",$line) ;
              getmodules($line2['0']) ;
           } 
-
+    
         unset($arrModules['null']);  
-        file_put_contents("/tmp/sysdrivers.json",json_encode($arrModules,JSON_PRETTY_PRINT)) ;               
+        file_put_contents($sysdrvfile,json_encode($arrModules,JSON_PRETTY_PRINT)) ;   */
+              
         break;
 
     case 't1load':
-        $list = file_get_contents("/tmp/sysdrivers.json") ;
+        $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
-        echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Module/Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+        #echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+        echo "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
         echo "<tbody>" ;
      
         if (is_array($arrModules)) ksort($arrModules) ;
@@ -206,24 +247,26 @@ switch ($_POST['table']) {
                 $module['modprobe'] = $modprobe ;
                 } 
          
-            echo "<tr><td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span>" ;
+            echo "<tr id='row$modname'>" ;
+            #echo "<td></td>" ;
             if ($supportpage) {
                 if ($module['support'] == false) {
-                        $supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
+                        #$supporthtml = "<span id='link$modname'><i title='"._("No support page avaialable")."' class='fa fa-phone-square'></i></span>" ;
+                        $supporthtml = "" ;
                     } else {
                         $supporturl = $module['supporturl'] ;
                         $pluginname = $module['plugin'] ;
                         $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>" ;
                     } 
             }  
-            echo "$supporthtml</td><td>$modname</td>" ;
+            echo "<td>$modname$supporthtml</td>" ;
             echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
     
             $text = "" ;
             if (is_array($module["modprobe"])) {
                     $text = implode("\n",$module["modprobe"]) ;
-                    echo "<td><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-                } else echo "<td><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+                    echo "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+                } else echo "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
     
             } 
         echo "</tbody>" ;
