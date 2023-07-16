@@ -108,7 +108,7 @@ $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
     $dir = str_replace("drivers/", "" ,$dir) ;
     if ($state == "Inuse")  $state= "(builtin) - Inuse"; else $state="(builtin)" ;
 }
-if ($desc != null) $description = substr($desc , 0 ,60) ; else  $description = null ;
+if ($desc != null) $description = substr($desc , 0 ,70) ; else  $description = null ;
 $arrModules[$modname] = [
             'modname' => $modname,
             'dependacy' => $depends, 

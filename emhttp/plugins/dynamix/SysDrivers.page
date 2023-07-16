@@ -74,8 +74,6 @@ function showDrivers(options, init = false) {
   if (init) {
   $.post('/webGui/include/SysDrivers.php',{table:'t1load',option:"all"},function(data){
     clearTimeout(timers.refresh);
-    filter = [];
-    filter[2] = "Inuse|Custom|Disabled";
     $("#t1").trigger("destroy"); 
     $('#t1').html(data);
     $('#t1').tablesorter({
@@ -148,11 +146,11 @@ function textsave(module) {
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
 
 showDrivers("all",true) ;
-showDriversupdate() ;
+
 
 </script>
 
 <form autocomplete="off" onsubmit="return false;"><span><input class="search" id="driversearch" type="search" placeholder="Search..." onchange="filterDrivers();"></span></form>
 <pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
-<input type="button" value="_(Done)_" onclick="done()">
+<input type="button" value="_(Done)_" onclick="done()"><input type="button" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
 
