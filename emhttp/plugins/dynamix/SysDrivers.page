@@ -72,6 +72,8 @@ div.tablesorter-header-inner {color:#606e7f;background-color:#e4e2e4;}
 function showDrivers(options, init = false) {
   option = options ;
   if (init) {
+  $('#driversearch').prop('disabled', true);
+  $('#select').prop('disabled', true);
   $.post('/webGui/include/SysDrivers.php',{table:'t1load',option:"all"},function(data){
     clearTimeout(timers.refresh);
     $("#t1").trigger("destroy"); 
@@ -90,6 +92,8 @@ function showDrivers(options, init = false) {
         
     });
     $('div.spinner.fixed').hide('slow');
+    $('#driversearch').prop('disabled', false);
+    $('#select').prop('disabled', false);
   });
   } else {
     
@@ -107,7 +111,16 @@ function filterDrivers() {
 }
 
 function showDriversupdate() {
-  $.post('/webGui/include/SysDrivers.php',{table:'t1create',option:"all"}) ;
+  $('#rebuild').prop('disabled', true);
+  $('#t1').html("");
+  $('#driversearch').prop('disabled', true);
+  $('#select').prop('disabled', true);
+  $('div.spinner.fixed').show('slow');
+  $.post('/webGui/include/SysDrivers.php',{table:'t1create',option:"all"},function(data){
+    $('#rebuild').prop('disabled', false);
+    showDrivers("all",true) ;
+    $('div.spinner.fixed').hide('slow');
+    }) ;
 }
 
 function textedit(module) {
@@ -152,5 +165,5 @@ showDrivers("all",true) ;
 
 <form autocomplete="off" onsubmit="return false;"><span><input class="search" id="driversearch" type="search" placeholder="Search..." onchange="filterDrivers();"></span></form>
 <pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
-<input type="button" value="_(Done)_" onclick="done()"><input type="button" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
+<input type="button" value="_(Done)_" onclick="done()"><input type="button" id="rebuild" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
 
