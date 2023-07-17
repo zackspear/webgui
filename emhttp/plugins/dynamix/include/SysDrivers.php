@@ -106,9 +106,9 @@ $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
 } else {
     $dir = $file ;
     $dir = str_replace("drivers/", "" ,$dir) ;
-    if ($state == "Inuse")  $state= "(builtin) - Inuse"; else $state="(builtin)" ;
+    if ($state == "Inuse")  $state= "Kernel - Inuse"; else $state="Kernel" ;
 }
-if ($desc != null) $description = substr($desc , 0 ,70) ; else  $description = null ;
+if ($desc != null) $description = substr($desc , 0 ,60) ; else  $description = null ;
 $arrModules[$modname] = [
             'modname' => $modname,
             'dependacy' => $depends, 
@@ -231,7 +231,7 @@ switch ($_POST['table']) {
         $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
         #echo "<thead><tr><th><b>"._("Actions")."</th><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
-        echo "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modeprobe.d config file")."</th></tr></thead>";
+        echo "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
         echo "<tbody>" ;
      
         if (is_array($arrModules)) ksort($arrModules) ;

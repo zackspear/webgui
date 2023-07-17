@@ -105,7 +105,7 @@ function showDrivers(options, init = false) {
 function filterDrivers() {
   var totalColumns = $('#t1')[0].config.columns;
   var filter = [];
-  filter[2] = ($('#select').val() === "inuse") ? "Inuse|Custom|Disabled" : "";
+  filter[2] = ($('#select').val() === "inuse") ? "Inuse|Custom|Disabled|'Kernel - Inuse'" : "";
   filter[totalColumns] = $('#driversearch').val(); // this searches all columns
   $('#t1').trigger('search', [ filter ]);
 }
