@@ -192,7 +192,7 @@ check() {
     net=($net)
     # exclude wireguard tunnels for ntp
     [[ ${net:0:2} == wg && $CALLER == ntp ]] && continue
-    # exclude wireguard VPN docker tunnels and ntp
+    # exclude wireguard VPN docker tunnels
     [[ ${net:0:2} == wg && $(grep -Pom1 '^TYPE:1="\K[^"]+' $WIREGUARD/$net.cfg) == 8 ]] && continue
     net1=$(sub ${net[1]})
     if [[ "avahi show" =~ $CALLER ]]; then
