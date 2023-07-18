@@ -4,10 +4,10 @@
 #
 # create initial network.ini file on system start
 # create system welcome message
-# update files on DHCP events 'BOUND[6] REPLY[6] IPV4LL ROUTERADVERT'
+# update files on DHCP events 'BOUND[6] IPV4LL'
 # update services listening interfaces / addresses
 
-[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 REPLY6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL" =~ $reason) ]] && exit 0
 
 ini=/var/local/emhttp/network.ini.new
 cfg=/boot/config/network.cfg
@@ -219,12 +219,13 @@ done
 # atomically update file
 /usr/bin/mv $ini ${ini%.*}
 
+logger -t network "hook services: interface=${interface:-$1}, reason=$reason, protocol=$protocol"
 # delayed execution
-/usr/local/emhttp/webGui/scripts/update_services 35
+/usr/local/emhttp/webGui/scripts/update_services 30
 
 # send update information
-if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then
-  curl -sfd "$data" --unix-socket /var/run/nginx.socket http://localhost/pub/dhcp?buffer_length=0 >/dev/null 2>&1
+if [[ -n $data && -e /var/run/nginx.socket ]]; then
+  curl -sfd "$data" --unix-socket /var/run/nginx.socket http://localhost/pub/dhcp?buffer_length=1 >/dev/null 2>&1
 fi
 
 # generate our welcome text (management interface only)
