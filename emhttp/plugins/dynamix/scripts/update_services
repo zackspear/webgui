@@ -1,6 +1,7 @@
 #!/bin/bash
 lock=/tmp/atlock.tmp
 
+logger -t network "update services: ${1:-1}s"
 rm -f $lock
 echo "sleep ${1:-1};/usr/local/emhttp/webGui/scripts/reload_services $lock"|at -M now 2>/dev/null
 exit 0
