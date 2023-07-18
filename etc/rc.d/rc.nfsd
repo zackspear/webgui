@@ -104,7 +104,7 @@ nfsd_reload() {
 }
 
 nfsd_update() {
-  [[ $(pgrep -c nfsd) -le 1 ]] && exit 1 # not running
+  [[ -z $(rpcinfo -s 2>/dev/null|grep -Pom1 'nfs') ]] && exit 1 # not running
   if check && [[ "$(this)" == "-H ${bind// / -H }" ]]; then
     # no action required
     exit 1
