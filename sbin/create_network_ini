@@ -117,7 +117,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
   echo "USE_DHCP:0=\"${USE_DHCP[$i]}\"" >>$ini
   if [[ ${USE_DHCP[$i]} == yes ]]; then
     # get dhcp assigned ipv4 address & mask
-    NET=($(ip -4 addr show $IFACE|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+    NET=($(ip -br -4 addr show $IFACE|awk '{sub("/"," ",$3);print $3;exit}'))
     GW=$(ip -4 route show default dev $IFACE|awk '{print $3;exit}')
     echo "IPADDR:0=\"${NET[0]}\"" >>$ini
     echo "NETMASK:0=\"$(mask ${NET[1]})\"" >>$ini
@@ -141,7 +141,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
   echo "USE_DHCP6:0=\"${USE_DHCP6[$i]}\"" >>$ini
   if [[ ${USE_DHCP6[$i]} == yes ]]; then
     # get auto assigned ipv6 address & prefix
-    NET6=($(ip -6 addr show $IFACE noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+    NET6=($(ip -br -6 addr show $IFACE scope global|awk '{sub("/"," ",$3);print $3;exit}'))
     GW6=$(ip -6 route show default dev $IFACE|awk '{print $3;exit}')
     echo "IPADDR6:0=\"${NET6[0]}\"" >>$ini
     echo "NETMASK6:0=\"${NET6[1]}\"" >>$ini
@@ -176,7 +176,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
       if [[ ${USE_DHCP[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get dhcp assigned ipv4 address & mask
-        NET=($(ip -4 addr show $DEV|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+        NET=($(ip -br -4 addr show $DEV|awk '{sub("/"," ",$3);print $3;exit}'))
         GW=$(ip -4 route show default dev $DEV|awk '{print $3;exit}')
         echo "IPADDR:$j=\"${NET[0]}\"" >>$ini
         echo "NETMASK:$j=\"$(mask ${NET[1]})\"" >>$ini
@@ -194,7 +194,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
       if [[ ${USE_DHCP6[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get auto assigned ipv6 address & prefix
-        NET6=($(ip -6 addr show $DEV noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+        NET6=($(ip -br -6 addr show $DEV scope global|awk '{sub("/"," ",$3);print $3;exit}'))
         GW6=$(ip -6 route show default dev $DEV|awk '{print $3;exit}')
         echo "IPADDR6:$j=\"${NET6[0]}\"" >>$ini
         echo "NETMASK6:$j=\"${NET6[1]}\"" >>$ini
