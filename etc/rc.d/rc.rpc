@@ -80,7 +80,7 @@ rpc_reload() {
 }
 
 rpc_update() {
-  [[ $(pgrep -cf $RPCBIND) -eq 0 ]] && exit 1; # not running
+  if ! ps axc | grep -q rpcbind; then exit 1; fi # not running
   if check && [[ "$(this)" == "-h ${bind// / -h }" ]]; then
     # no action required
     exit 1
