@@ -697,7 +697,7 @@ nginx_renew() {
 }
 
 nginx_update() {
-  [[ $(pgrep -cf $NGINX) -eq 0 ]] && exit 1 # not running
+  if ! nginx_status; then exit 1; fi # not running
   if check && [[ "$(this)" == "$bind" ]]; then
     # no action required
     exit 1
