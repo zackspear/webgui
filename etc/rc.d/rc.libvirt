@@ -142,6 +142,22 @@ test() {
   exit 1
 }
 
+waitstop() {
+  # wait for daemon to exit
+  PIDFILE=$1
+  PNAME=$2
+  for n in {1..15}; do
+    sleep 1
+    if [[ ! -f "$PIDFILE" || $(ps -p $(cat "$PIDFILE") -o comm= 2>/dev/null) != "$PNAME" ]]; then
+      rm -f "$PIDFILE"
+      return 0
+    fi
+    echo "waiting for $PNAME to die ..."
+  done
+  echo "$PNAME will not die!"
+  return 1
+}
+
 start_libvirtd() {
   if [ -f $LIBVIRTD_PIDFILE ];then
     echo "libvirt is already running..."
@@ -177,7 +193,7 @@ stop_libvirtd() {
     /usr/sbin/virsh net-destroy $network
   done
   kill -TERM $(cat $LIBVIRTD_PIDFILE)
-  sleep 3
+  waitstop $LIBVIRTD_PIDFILE "libvirtd"
   check_processor
   /sbin/modprobe -ra $MODULE $MODULES 2>/dev/null
 }
@@ -199,7 +215,7 @@ stop_virtlogd() {
   fi
   echo "Stopping virtlogd..."
   kill -TERM $(cat $VIRTLOGD_PIDFILE)
-  sleep 1
+  waitstop $VIRTLOGD_PIDFILE "virtlogd"
 }
 
 start_virtlockd() {
@@ -219,7 +235,7 @@ stop_virtlockd() {
   fi
   echo "Stopping virtlockd..."
   kill -TERM $(cat $VIRTLOCKD_PIDFILE)
-  sleep 1
+  waitstop $VIRTLOCKD_PIDFILE "virtlockd"
 }
 
 cleanup() {
