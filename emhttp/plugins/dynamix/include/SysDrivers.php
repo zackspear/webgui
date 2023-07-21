@@ -25,6 +25,7 @@ $lsmod = shell_exec("lsmod") ;
 $supportpage = true;
 $modtoplgfile = "/tmp/modulestoplg.json" ;
 $sysdrvfile = "/tmp/sysdrivers.json" ;
+$sysdrvinit = "/tmp/sysdrivers.init" ;
 if (!is_file($modtoplgfile) || !is_file($sysdrvfile)) { modtoplg() ; createlist() ;}
 $arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
 
@@ -39,8 +40,9 @@ switch ($_POST['table']) {
     case 't1load':
         $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
-        echo "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
-        echo "<tbody>" ;
+        $init = file_get_contents($sysdrvinit) ;
+        $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
+        $html .= "<tbody>" ;
      
         if (is_array($arrModules)) ksort($arrModules) ;
         foreach($arrModules as $modname => $module) {
@@ -55,7 +57,7 @@ switch ($_POST['table']) {
                 $module['modprobe'] = $modprobe ;
                 } 
          
-            echo "<tr id='row$modname'>" ;
+            $html .=  "<tr id='row$modname'>" ;
             if ($supportpage) {
                 if ($module['support'] == false) {
                         $supporthtml = "" ;
@@ -65,17 +67,23 @@ switch ($_POST['table']) {
                         $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>" ;
                     } 
             }  
-            echo "<td>$modname$supporthtml</td>" ;
-            echo "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
+            $html .= "<td>$modname$supporthtml</td>" ;
+            $html .= "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
     
             $text = "" ;
             if (is_array($module["modprobe"])) {
                     $text = implode("\n",$module["modprobe"]) ;
-                    echo "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-                } else echo "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+                    $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+                } else $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
     
             } 
-        echo "</tbody>" ;
+        $html .=  "</tbody>" ;
+        #if ($init) {unlink($sysdrvinit) ; $init = true ;}
+        $rtn = array() ;
+        $rtn['html'] = $html ;
+        if ($init !== false) {$init = true ; unlink($sysdrvinit) ;}
+        $rtn['init'] = $init ;
+        echo json_encode($rtn) ;
         break;
   
 case "update":

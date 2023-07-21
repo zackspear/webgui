@@ -74,10 +74,12 @@ function showDrivers(options, init = false) {
   if (init) {
   $('#driversearch').prop('disabled', true);
   $('#select').prop('disabled', true);
+  $('#rebuild').prop('disabled', true);
+
   $.post('/webGui/include/SysDrivers.php',{table:'t1load',option:"all"},function(data){
     clearTimeout(timers.refresh);
     $("#t1").trigger("destroy"); 
-    $('#t1').html(data);
+    $('#t1').html(data.html);
     $('#t1').tablesorter({
         sortList:[[0,0]],
         sortAppend:[[0,0]],
@@ -94,7 +96,9 @@ function showDrivers(options, init = false) {
     $('div.spinner.fixed').hide('slow');
     $('#driversearch').prop('disabled', false);
     $('#select').prop('disabled', false);
-  });
+    $('#rebuild').prop('disabled', data.init);
+    
+  },"json");
   } else {
     
   filter = [];
