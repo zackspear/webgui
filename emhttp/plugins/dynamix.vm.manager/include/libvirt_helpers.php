@@ -1149,6 +1149,7 @@ private static $encoding = 'UTF-8';
 				'protocol' => $lv->domain_get_vmrc_protocol($res),
 				'model' => $lv->domain_get_vnc_model($res),
 				'keymap' => $lv->domain_get_vnc_keymap($res),
+				'password' => $lv->domain_get_vnc_password($res),
 				'port' => $vmrcport,
 				'wsport' => $lv->domain_get_ws_port($res),
 				'autoport' => $autoport,
