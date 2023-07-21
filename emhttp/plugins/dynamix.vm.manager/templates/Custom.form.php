@@ -1044,7 +1044,7 @@
 
 			<tr class="vncpassword">
 				<td>_(VM Console Password)_:</td>
-				<td><input type="password" name="domain[password]" autocomplete='new-password' title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
+				<td><input type="password" name="domain[password]" autocomplete='new-password' value="<?=$arrGPU['password']?>" title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
 				<td>_(VM Console Keyboard)_:</td>
