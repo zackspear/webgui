@@ -107,7 +107,7 @@ show() {
   case $# in
     1) ip -br addr show scope global to $1 2>/dev/null|awk '{print $1;exit}';;
     2) ip -br addr show scope global $1 $2 2>/dev/null|awk '{print $3;exit}';;
-    3) [[ $1 == -6 ]] && main $(ip -br -6 addr show scope global $2 $3 2>/dev/null|awk '{$2="";print;exit}') || ip -br -4 addr show scope global $2 $3 2>/dev/null|awk '{print $3;exit}';;
+    3) if [[ $1 == -6 ]]; then main $(ip -br -6 addr show scope global $2 $3 2>/dev/null|awk '{$2="";print;exit}'); else ip -br -4 addr show scope global $2 $3 2>/dev/null|awk '{print $3;exit}'; fi;;
   esac
 }
 
