@@ -31,10 +31,12 @@ $arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
 
 switch ($_POST['table']) {
   
-    case 't1create':      
+    case 't1create':    
+        if (is_file("/tmp/sysdrvbuild.running")) break ;
+        touch("/tmp/sysdrvbuild.running")  ;
         modtoplg() ;
         createlist() ;  
-             
+        unlink("/tmp/sysdrvbuild.running") ;             
         break;
 
     case 't1load':
