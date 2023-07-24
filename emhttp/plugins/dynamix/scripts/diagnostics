@@ -345,9 +345,7 @@ if (file_exists($changes)) {
       break;
     }
   }
-  $branch = strpos($version,'rc')!==false ? 'Next' : (strpos($version,'beta')!==false ? 'Beta' : 'Stable');
-
-  $previous_version = "Previous Version: ".$version." ".$branch;
+  $previous_version = "Previous Version: ".$version;
   file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\n".$previous_version."\r\n", FILE_APPEND);
 
   $upgraded = "Upgraded on: ".date("F d Y", filemtime($changes));
