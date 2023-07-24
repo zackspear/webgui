@@ -333,6 +333,29 @@ file_put_contents("/$diag/unraid-".$unraid['version'].".txt",$unraid['version'].
 // add bz*.sha256 values
 run("tail /boot/bz*.sha256 >> ".escapeshellarg("/$diag/unraid-".$unraid['version'].".txt"));
 
+// Get the previous version of Unraid from the previous directory on flash
+$changes = '/boot/previous/changes.txt';
+
+if (file_exists($changes)) {
+  exec("head -n4 $changes",$rows);
+  foreach ($rows as $row) {
+    $i = stripos($row, 'version');
+    if ($i !== false) {
+      [$version,$date] = explode(' ', trim(substr($row,$i+7)));
+      break;
+    }
+  }
+  $branch = strpos($version,'rc')!==false ? 'Next' : (strpos($version,'beta')!==false ? 'Beta' : 'Stable');
+
+  $previous_version = "Previous Version: ".$version." ".$branch;
+  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\n".$previous_version."\r\n", FILE_APPEND);
+
+  $upgraded = "Upgraded on: ".date("F d Y", filemtime($changes));
+  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", $upgraded."\r\n", FILE_APPEND);
+} else {
+  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\nNo Previous Version Found\r\n", FILE_APPEND);
+}
+
 // copy ini variables
 foreach (glob("$path/*.ini") as $file) {
   $ini = basename($file,".ini");
