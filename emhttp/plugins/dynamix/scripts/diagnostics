@@ -100,9 +100,9 @@ function anonymize($text, $select) {
 function maskIP($file) {
   // anonymize public IPv4 addresses
   $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
-  run("sed -ri 's/([\"\[ ])${rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ]([0-9]{1,3}\.){3})[0-9]{1,3}([/\" .]|$)/\\1XXX\\3/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
+  run("sed -ri 's/([\"\[ ])${rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
   // anonymize full IPv6 addresses
-  run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)[0-9a-f]{1,4}([/\" .]|$)/\\1XXXX:XXXX:XXXX:XXXX\\5/g' ".escapeshellarg($file)." 2>/dev/null");
+  run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
