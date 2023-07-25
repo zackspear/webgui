@@ -71,7 +71,7 @@ $parity = _var($var,'mdResync');
 $mover = file_exists('/var/run/mover.pid');
 $btrfs = exec('pgrep -cf /sbin/btrfs');
 $dot = _var($display,'number','.,')[0];
-$zfs = file_exists('/proc/spl/kstat/zfs/arcstats');
+$zfs = count(array_filter(array_column($disks,'fsType'),function($fs){return str_replace('luks:','',$fs??'')=='zfs';}));
 
 foreach ($disks as $disk) {
   switch (_var($disk,'type')) {
