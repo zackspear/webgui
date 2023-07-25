@@ -100,7 +100,7 @@ function anonymize($text, $select) {
 function maskIP($file) {
   // anonymize public IPv4 addresses
   $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
-  run("sed -ri 's/([\"\[ ])${rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
+  run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
   // anonymize full IPv6 addresses
   run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
 }
@@ -672,6 +672,19 @@ $testparm = run("testparm -s 2>/dev/null");
 if (!$all)
   $testparm = preg_replace("/(?<=\[.)(.*)(?=.\])|(?<=(write list = .)|(comment = .)|(valid users = .)|(path = \/mnt\/addons\/.)|(path = \/mnt\/remotes\/.)|(path = \/mnt\/disks\/.)|(path = \/mnt\/user\/.)).*(?=.)/","...",$testparm);
 file_put_contents("/$diag/system/testparm.txt",str_replace("\n","\r\n",$testparm));
+maskIP("/$diag/system/testparm.txt");
+
+// copy ntp.conf
+copy("/etc/ntp.conf", "/$diag/system/ntp.txt");
+maskIP("/$diag/system/ntp.txt");
+
+// copy sshd_config
+copy("/etc/ssh/sshd_config", "/$diag/system/sshd.txt");
+maskIP("/$diag/system/sshd.txt");
+
+// copy servers.conf
+copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
+maskIP("/$diag/system/servers.conf.txt");
 
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/
