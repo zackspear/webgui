@@ -1,0 +1,173 @@
+Menu="UNRAID-OS"
+Title="System Drivers"
+Icon="fa-sitemap"
+Tag="server"
+---
+<?PHP
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+ global $var ;
+$theme = $display['theme'] ;
+?>
+
+<style>
+table.t1{margin-top:0; border-collapse: collapse; border-spacing: 0;}
+table tr td{padding:0 0 3px 0;margin:0}
+table tr td.thin{line-height:8px;height:8px}
+table.t1 tr>td{width: 1%; ; text-align:centre ;white-space: nowrap;}
+table.t1 tr>td+td{width: 1%; white-space: nowrap; }
+table.t1 tr>td+td+td{width:auto ; text-align:left;}
+table.t1 tr>td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+table.t1 tr>td+td+td+td+td+td+td+td+td+td+td+td+td{text-align:left;}
+.tablesorter .filtered {
+    display: none;
+}
+<?if ($theme == "black"):?>
+table.tablesorter tbody tr.alt-row {background-color:#212121;}
+table.tablesorter tbody tr.normal-row {background-color:#1c1b1b;}
+input.search {color:#f2f2f2;background-color:#1c1b1b;}
+<?endif;?>
+<?if ($theme == "white"):?>
+table.tablesorter tbody tr.alt-row {background-color:#ededed;}
+table.tablesorter tbody tr.normal-row {background-color:#f2f2f2;}
+input.search  {color:#1c1b1b;background-color:#f2f2f2;}
+<?endif;?>
+<?if ($theme == "gray"):?>
+table.tablesorter tbody tr.alt-row {solid #0c0f0b;}
+table.tablesorter tbody tr.normal-row {background-color:#1b1d1b;}
+input.search {color:#606e7f;background-color:#1b1d1b;}
+table.tablesorter thead th {color:#606e7f;background-color:#1b1d1b;}
+div.tablesorter-header-inner {color:#606e7f;background-color:#1b1d1b;}
+<?endif;?>
+<?if ($theme == "azure"):?>
+table.tablesorter tbody tr.alt-row {background-color:#e4e2e4; }
+table.tablesorter tbody tr.normal-row {solid #f3f0f4;}
+input.search {color:#606e7f;background-color:#e4e2e4;}
+table.tablesorter thead th {color:#606e7f;background-color:#e4e2e4;}
+div.tablesorter-header-inner {color:#606e7f;background-color:#e4e2e4;}
+<?endif;?>
+
+</style>
+<script type="text/javascript" src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
+
+<script type="text/javascript">
+
+function showDrivers(options, init = false) {
+  option = options ;
+  if (init) {
+  $('#driversearch').prop('disabled', true);
+  $('#select').prop('disabled', true);
+  $('#rebuild').prop('disabled', true);
+
+  $.post('/webGui/include/SysDrivers.php',{table:'t1load',option:"all"},function(data){
+    clearTimeout(timers.refresh);
+    $("#t1").trigger("destroy"); 
+    $('#t1').html(data.html);
+    $('#t1').tablesorter({
+        sortList:[[0,0]],
+        sortAppend:[[0,0]],
+        widgets: ['stickyHeaders','filter', 'zebra'],
+        widgetOptions: {
+          // on black and white, offset is height of #menu
+          // on azure and gray, offset is height of #header
+          stickyHeaders_offset: ( $('#menu').height() < 50 ) ? $('#menu').height() : $('#header').height(),
+          filter_columnFilters: false,
+          zebra : [ "normal-row", "alt-row" ]          
+        }
+        
+    });
+    $('div.spinner.fixed').hide('slow');
+    $('#driversearch').prop('disabled', false);
+    $('#select').prop('disabled', false);
+    $('#rebuild').prop('disabled', data.init);
+    
+  },"json");
+  } else {
+    
+  filter = [];
+     filterDrivers() ;
+  }
+} 
+
+function filterDrivers() {
+  var totalColumns = $('#t1')[0].config.columns;
+  var filter = [];
+  filter[2] = ($('#select').val() === "inuse") ? "Inuse|Custom|Disabled|'Kernel - Inuse'" : "";
+  filter[totalColumns] = $('#driversearch').val(); // this searches all columns
+  $('#t1').trigger('search', [ filter ]);
+}
+
+function showDriversupdate() {
+  $('#rebuild').prop('disabled', true);
+  $('#t1').html("");
+  $('#driversearch').prop('disabled', true);
+  $('#select').prop('disabled', true);
+  $('div.spinner.fixed').show('slow');
+  $.post('/webGui/include/SysDrivers.php',{table:'t1create',option:"all"},function(data){
+    $('#rebuild').prop('disabled', false);
+    showDrivers("all",true) ;
+    $('div.spinner.fixed').hide('slow');
+    }) ;
+}
+
+function textedit(module) {
+  var i=module ;
+  $('#text'+module).prop('disabled', false);
+   $('#save'+module).attr('hidden', false);
+      $('#text'+module).attr('hidden', false);
+
+}
+
+function textsave(module) {
+  var i=module ;
+  $('#text'+module).prop('disabled', true);
+  $('#save'+module).attr('hidden', true);
+  var x = document.getElementById("text" + module).value;
+  $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
+    if(data) {
+      formHasUnsavedChanges=false;
+      $('#text'+module).val(data.modprobe) ;
+      $('#status'+module).html(data.state) ;
+      if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3)
+      if (data.supportpage == true) {
+        if (data.support == true) {
+          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>" ;
+        } else {
+          document.getElementById("link" + module).innerHTML = "<i title='" + _("No support page avaialable")_ + "' class='fa fa-phone-square' ></i>" ;
+        }
+      } 
+    }
+    //showDriversupdate() ;
+    var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
+    addRebootNotice(message);
+  },"json"); 
+}
+
+$('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
+
+showDrivers("all",true) ;
+
+
+</script>
+
+<form autocomplete="off" onsubmit="return false;"><span><input class="search" id="driversearch" type="search" placeholder="Search..." onchange="filterDrivers();"></span></form>
+<pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<input type="button" value="_(Done)_" onclick="done()"><input type="button" id="rebuild" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
+
