@@ -83,6 +83,10 @@ $gw4class = $wide ? 'gw6' : 'gw4';
 
 $unset = array_unique($unset);
 
+/* See if the requirements are met for macvlan to work properly. */
+$flag = exec("/bin/netstat -i | /usr/bin/grep ".escapeshellarg($network)." | /usr/bin/grep -v vir* | /bin/awk '{print $11}'");
+$proniscuous = (strpos($flag, "P") !== false) ? true : false;
+
 function normalize($network) {
   return strtoupper(str_replace('.','_',$network));
 }
@@ -257,8 +261,12 @@ _(Template Authoring Mode)_:
 _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
   <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '1', _('ipvlan'))?>
+<?if ($promiscuous):?>
   <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '', _('macvlan'))?>
   </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
+<?else:?>
+  </select>&nbsp;_(Network does not support Promiscuous Mode)_.  _(Macvlan will not work)_.
+<?endif;?>
 
 :docker_custom_network_type_help:
 
