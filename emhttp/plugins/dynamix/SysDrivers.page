@@ -130,8 +130,8 @@ function showDriversupdate() {
 function textedit(module) {
   var i=module ;
   $('#text'+module).prop('disabled', false);
-   $('#save'+module).attr('hidden', false);
-      $('#text'+module).attr('hidden', false);
+  $('#save'+module).attr('hidden', false);
+  $('#text'+module).attr('hidden', false);
 
 }
 
