@@ -365,10 +365,6 @@ if (file_exists($changes)) {
   }
   $previous_version = "Previous Version: ".$version;
   file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\n".$previous_version."\r\n", FILE_APPEND);
-
-  $file_stat = stat("/$diag/unraid-".$unraid['version'].".txt");
-  $upgraded = "Upgraded on: ".date("F d Y", $file_stat[9]);
-  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", $upgraded."\r\n", FILE_APPEND);
 } else {
   file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\nNo Previous Version Found\r\n", FILE_APPEND);
 }
