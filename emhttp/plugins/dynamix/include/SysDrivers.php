@@ -43,7 +43,7 @@ switch ($_POST['table']) {
         $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
         $init = file_get_contents($sysdrvinit) ;
-        $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
+        $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
         $html .= "<tbody>" ;
      
         if (is_array($arrModules)) ksort($arrModules) ;
@@ -57,8 +57,17 @@ switch ($_POST['table']) {
                 if($state !== false) {$state = "Disabled" ;} else $state="Custom" ;
                 $module['state'] = $state ;
                 $module['modprobe'] = $modprobe ;
-                } 
-         
+                } else {
+                    if (is_file("/etc/modprobe.d/$modname.conf")) {
+                        $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf") ;
+                        $state = strpos($modprobe, "blacklist");
+                        $modprobe = explode(PHP_EOL,$modprobe) ;
+                        if($state !== false) {$state = "Disabled" ;} else $state="System" ;
+                        $module['state'] = $state ;
+                        $module['modprobe'] = $modprobe ;
+                    }
+                }
+
             $html .=  "<tr id='row$modname'>" ;
             if ($supportpage) {
                 if ($module['support'] == false) {
@@ -75,8 +84,8 @@ switch ($_POST['table']) {
             $text = "" ;
             if (is_array($module["modprobe"])) {
                     $text = implode("\n",$module["modprobe"]) ;
-                    $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-                } else $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."')\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."')\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+                    $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+                } else $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
     
             } 
         $html .=  "</tbody>" ;
