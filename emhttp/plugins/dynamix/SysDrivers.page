@@ -149,9 +149,7 @@ function textsave(module) {
       if (data.supportpage == true) {
         if (data.support == true) {
           document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>" ;
-        } else {
-          document.getElementById("link" + module).innerHTML = "<i title='" + _("No support page avaialable")_ + "' class='fa fa-phone-square' ></i>" ;
-        }
+        } 
       } 
     }
     //showDriversupdate() ;
