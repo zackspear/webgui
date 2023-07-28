@@ -47,6 +47,10 @@
 # - fixed ipv4 and ipv6 DNS assignment
 # - suppress errors
 
+# Adapted by Bergware for use in unRAID - July 2023
+# - reverted iptables and ip6tables and arp-tables inclusion to bridge interfaces
+# - removed promiscuous mode setting for bridge interfaces
+
 ############################
 # READ NETWORK CONFIG FILE #
 ############################
@@ -184,7 +188,7 @@ br_up(){
     # convert legacy no/yes
     BRSTP[$i]=${BRSTP[$i]/no/0}
     BRSTP[$i]=${BRSTP[$i]/yes/1}
-    run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]} nf_call_iptables 1 nf_call_ip6tables 1 nf_call_arptables 1
+    run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]}
     run ip link set $BRIDGE up
     # loop thru assigned interfaces in bridge
     for BRNIC in ${BRNICS[$i]}; do
@@ -196,7 +200,7 @@ br_up(){
         run ip link set $BRIF down
         [[ $IP != ipv6 ]] && run ip -4 addr flush dev $BRIF
         [[ $IP != ipv4 ]] && run ip -6 addr flush dev $BRIF
-        run ip link set $BRIF promisc on master $BRIDGE up
+        run ip link set $BRIF master $BRIDGE up
       else
         [[ $DEBUG_ETH_UP == yes ]] && log "interface $BRIF not present, can't add to $BRIDGE"
       fi
@@ -212,7 +216,7 @@ br_down(){
     if [[ -e $SYSTEM/$BRIDGE ]]; then
       # loop thru attached interfaces in bridge
       for BRIF in $(ls --indicator-style=none $SYSTEM/$BRIDGE/brif); do
-        run ip link set $BRIF promisc off nomaster
+        run ip link set $BRIF nomaster
       done
       run ip link set $BRIDGE down
       run ip link del $BRIDGE
