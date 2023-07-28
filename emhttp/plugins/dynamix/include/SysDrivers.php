@@ -43,7 +43,7 @@ switch ($_POST['table']) {
         $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
         $init = file_get_contents($sysdrvinit) ;
-        $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
+        $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
         $html .= "<tbody>" ;
      
         if (is_array($arrModules)) ksort($arrModules) ;
@@ -67,7 +67,7 @@ switch ($_POST['table']) {
                         $module['modprobe'] = $modprobe ;
                     }
                 }
-                
+
             $html .=  "<tr id='row$modname'>" ;
             if ($supportpage) {
                 if ($module['support'] == false) {
