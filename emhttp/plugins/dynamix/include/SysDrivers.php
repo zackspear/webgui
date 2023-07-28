@@ -57,8 +57,17 @@ switch ($_POST['table']) {
                 if($state !== false) {$state = "Disabled" ;} else $state="Custom" ;
                 $module['state'] = $state ;
                 $module['modprobe'] = $modprobe ;
-                } 
-         
+                } else {
+                    if (is_file("/etc/modprobe.d/$modname.conf")) {
+                        $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf") ;
+                        $state = strpos($modprobe, "blacklist");
+                        $modprobe = explode(PHP_EOL,$modprobe) ;
+                        if($state !== false) {$state = "Disabled" ;} else $state="System" ;
+                        $module['state'] = $state ;
+                        $module['modprobe'] = $modprobe ;
+                    }
+                }
+                
             $html .=  "<tr id='row$modname'>" ;
             if ($supportpage) {
                 if ($module['support'] == false) {

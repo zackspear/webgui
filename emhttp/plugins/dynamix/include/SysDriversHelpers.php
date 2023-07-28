@@ -77,7 +77,16 @@ if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = explode(PHP_EOL,$modprobe) ;
     if($state !== false) {$state = "Disabled" ;} 
     else $state="Custom" ;
-    } 
+    } else {
+        if (is_file("/etc/modprobe.d/$modname.conf")) {
+            $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf") ;
+            $state = strpos($modprobe, "blacklist");
+            $modprobe = explode(PHP_EOL,$modprobe) ;
+            if($state !== false) {$state = "Disabled" ;} else $state="System" ;
+            $module['state'] = $state ;
+            $module['modprobe'] = $modprobe ;
+            }
+        }
 
 if ($filename != "(builtin)") {
 if ($filename != null) {
