@@ -109,20 +109,14 @@ $arrModules[$modname] = [
 }
 
 function modtoplg() {
-    global $modtoplgfile ;
-    $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('/boot/config/plugins'));
-    $files = array(); 
+    global $modtoplgfile,$kernel ;
 
-    /** @var SplFileInfo $file */
-    foreach ($rii as $file) {
-        if ($file->isDir()){ 
-            continue;
-        }
-        if ($file->getExtension() != "tgz" && $file->getExtension() != "txz")     continue ;
-        $files[] = $file->getPathname();        
-    }
+    $files = array(); 
+    $kernelsplit = explode('-',$kernel) ;
+    $kernelvers = trim($kernelsplit[0],"\n") ;
 
     $list = array() ;
+    $files = glob('/boot/config/plugins/*/packages/' . $kernelvers . '/*.{txz,tgz}', GLOB_BRACE);
     foreach ($files as $f) {
             $plugin = str_replace("/boot/config/plugins/", "", $f) ;
             $plugin = substr($plugin,0,strpos($plugin,'/') ) ;
