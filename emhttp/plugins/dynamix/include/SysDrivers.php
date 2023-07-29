@@ -84,12 +84,19 @@ switch ($_POST['table']) {
             $text = "" ;
             if (is_array($module["modprobe"])) {
                     $text = implode("\n",$module["modprobe"]) ;
-                    $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
-                } else $html .=  "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a><span><textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>"; 
+                    $html .= "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>" ;
+                    $hidden = "" ;
+                    if ($module['state'] == "System") $hidden = "hidden" ;
+                    $html .= " <a class='info' href=\"#\" id=\"bin$modname\" $hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash'></i></a><span>" ;
+                    $html .= "<span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+                } else {
+                    $html .= "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>" ;
+                    $html .= " <a class='info' href=\"#\" id=\"bin$modnam\" hidden><i title='"._("Delete Modprobe config")."'  onclick=\"removecfg('".$modname."',true);return false;\"  class='fa fa-trash'></i></a><span>" ;
+                    $html .= "<textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";  
+                }
     
             } 
         $html .=  "</tbody>" ;
-        #if ($init) {unlink($sysdrvinit) ; $init = true ;}
         $rtn = array() ;
         $rtn['html'] = $html ;
         if ($init !== false) {$init = true ; unlink($sysdrvinit) ;}

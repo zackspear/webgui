@@ -135,37 +135,44 @@ function textedit(module) {
 
 }
 
-function textsave(module) {
+function removecfg(module)
+{
+  swal({title:"_(Proceed)_?",text:"_(Remove custom modprobe.d configuration?)_: "+module,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) textsave(module, true); else return false;});
+}
+
+function textsave(module,remove = false) {
   var i=module ;
   $('#text'+module).prop('disabled', true);
   $('#save'+module).attr('hidden', true);
-  var x = document.getElementById("text" + module).value;
+  if (remove)  x = "" ;  else  var x = document.getElementById("text" + module).value;
   $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
     if(data) {
       formHasUnsavedChanges=false;
       $('#text'+module).val(data.modprobe) ;
       $('#status'+module).html(data.state) ;
-      if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3)
+      if (data.state == "Custom") {
+        $('#bin'+module).show();
+      } else {
+        $('#bin'+module).hide();
+      }
+      if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3);
       if (data.supportpage == true) {
         if (data.support == true) {
           document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>" ;
         } 
       } 
     }
-    //showDriversupdate() ;
+    $('#t1').trigger("updateCell",[document.getElementById('text'+module), false, null]);
+    $('#t1').trigger("updateCell",[document.getElementById('status'+module), false, null]);
     var message = "_(System Drivers)_: _(A reboot is required to apply changes)_";
     addRebootNotice(message);
   },"json"); 
 }
 
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
-
 showDrivers("all",true) ;
-
-
 </script>
 
 <form autocomplete="off" onsubmit="return false;"><span><input class="search" id="driversearch" type="search" placeholder="Search..." onchange="filterDrivers();"></span></form>
 <pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 <input type="button" value="_(Done)_" onclick="done()"><input type="button" id="rebuild" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
-

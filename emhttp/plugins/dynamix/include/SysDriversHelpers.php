@@ -24,7 +24,6 @@ function getmodules($line) {
     $modprobe = "" ;
     $desc = $file = $pluginfile = $option = $filename = $depends = $support = $supporturl = $dir = $state =  null ;
     $name = $line ;
-    #echo $line ;
     $modname = shell_exec("modinfo  $name > /dev/null") ;
     if ($modname != null) $modname = trim($modname,"\n") ;
     $output=null ;
