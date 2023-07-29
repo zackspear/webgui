@@ -42,7 +42,7 @@ switch ($_POST['table']) {
     case 't1load':
         $list = file_get_contents($sysdrvfile) ;
         $arrModules = json_decode($list,TRUE) ; 
-        $init = file_get_contents($sysdrvinit) ;
+        if (is_file($sysdrvinit)) $init = file_get_contents($sysdrvinit) ; else $init = false ;
         $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
         $html .= "<tbody>" ;
      

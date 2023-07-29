@@ -144,7 +144,7 @@ function textsave(module,remove = false) {
   var i=module ;
   $('#text'+module).prop('disabled', true);
   $('#save'+module).attr('hidden', true);
-  if (remove)  x = "" ;  else  var x = document.getElementById("text" + module).value;
+  var x = (remove) ? "" : document.getElementById("text" + module).value;
   $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
     if(data) {
       formHasUnsavedChanges=false;
