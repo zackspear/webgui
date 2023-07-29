@@ -171,8 +171,11 @@ function textsave(module,remove = false) {
 
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
 showDrivers("all",true) ;
+
+
 </script>
 
 <form autocomplete="off" onsubmit="return false;"><span><input class="search" id="driversearch" type="search" placeholder="Search..." onchange="filterDrivers();"></span></form>
 <pre><form id="sysdrivers" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter " ><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
 <input type="button" value="_(Done)_" onclick="done()"><input type="button" id="rebuild" value="_(Rebuild Modules)_" onclick="showDriversupdate()">
+
