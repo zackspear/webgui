@@ -20,6 +20,19 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+if (isset($_POST['sys'])) {
+  switch ($_POST['sys']) {
+    case 0: $size = exec("awk '/^MemTotal/{t=$2}/^MemAvailable/{a=$2}END{print (t-a)*1024}' /proc/meminfo 2>/dev/null"); break;
+    case 1: $size = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null"); break;
+    case 2: $size = exec("df --output=used /boot 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+    case 3: $size = exec("df --output=used /var/log 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+    case 4: $size = exec("df --output=used /var/lib/docker 2>/dev/null|awk '$1!=\"Used\" {print $1*1024}'"); break;
+   default: $size = 0;
+  }
+  extract(parse_plugin_cfg('dynamix',true));
+  die(my_scale($size,$unit,null,-1,1024)." $unit");
+}
+
 $display = $_POST['display'];
 
 if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
@@ -33,7 +46,7 @@ if ($_POST['docker'] && ($display=='icons' || $display=='docker')) {
     foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs) ?? 999;
     array_multisort($sort,SORT_NUMERIC,$containers);
   }
-  echo "<tr class='updated'><td>";
+  echo "<tr title='' class='updated'><td>";
   foreach ($containers as $ct) {
     $name = $ct['Name'];
     $id = $ct['Id'];
@@ -74,7 +87,7 @@ if ($_POST['vms'] && ($display=='icons' || $display=='vms')) {
   } else {
     natcasesort($vms);
   }
-  echo "<tr class='updated'><td>";
+  echo "<tr title='' class='updated'><td>";
   foreach ($vms as $vm) {
     $res = $lv->get_domain_by_name($vm);
     $uuid = libvirt_domain_get_uuid_string($res);

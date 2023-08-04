@@ -225,7 +225,7 @@ function selectProtocol(form,port,index) {
       }
       if ($(form).find('select[name="USE_DHCP:'+i+'"]').val()) more4.show(); else more4.hide();
       if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()) more6.show(); else more6.hide();
-      checkNetworkSettings(form,i,true);
+      checkNetworkSettings(form,i);
     });
   } else {
     var protocol = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
@@ -241,16 +241,12 @@ function selectProtocol(form,port,index) {
     if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()) more4.show(); else more4.hide();
     if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()) more6.show(); else more6.hide();
     checkNetworkSettings(form,index);
-    if (index==0) {
-      checkDNSSettings(form);
-      checkDNSSettings6(form);
-    }
   }
 }
-function checkNetworkSettings(form,index,start) {
+function checkNetworkSettings(form,index) {
   var disabled4 = $(form).find('select[name="USE_DHCP:'+index+'"]').val()!='no';
   var disabled6 = $(form).find('select[name="USE_DHCP6:'+index+'"]').val()!='no';
-  var protocol = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
+  var protocol  = $(form).find('select[name="PROTOCOL:'+index+'"]').val() || 'ipv4';
   if (protocol != 'ipv6') {
     $(form).find('input[name="IPADDR:'+index+'"]').prop('disabled',disabled4).prop('required',!disabled4);
     $(form).find('select[name="NETMASK:'+index+'"]').prop('disabled',disabled4);
@@ -264,19 +260,17 @@ function checkNetworkSettings(form,index,start) {
     privacy.prop('disabled',!disabled6);
   }
   if (index==0) {
-    if (form.DHCP_KEEPRESOLV !== undefined) {
-      if (!start) form.DHCP_KEEPRESOLV.value = disabled4 ? 'no' : 'yes';
-      form.DHCP_KEEPRESOLV.disabled = !disabled4;
-      checkDNSSettings(form);
-    }
-    if (form.DHCP6_KEEPRESOLV !== undefined) {
-      if (!start) form.DHCP6_KEEPRESOLV.value = disabled6 ? 'no' : 'yes';
-      form.DHCP6_KEEPRESOLV.disabled = !disabled6;
-      checkDNSSettings6(form);
-    }
+    if (form.DHCP_KEEPRESOLV !== undefined) checkDNSSettings(form);
+    if (form.DHCP6_KEEPRESOLV !== undefined) checkDNSSettings6(form);
   }
 }
 function checkDNSSettings(form) {
+  if ($(form).find('select[name="USE_DHCP:0"]').val()=='no') {
+    form.DHCP_KEEPRESOLV.value = 'yes';
+    form.DHCP_KEEPRESOLV.disabled = true;
+  } else {
+    form.DHCP_KEEPRESOLV.disabled = false;
+  }
   var disabled = form.DHCP_KEEPRESOLV.value=='no';
   var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
   if (protocol != 'ipv6') {
@@ -289,6 +283,12 @@ function checkDNSSettings(form) {
   }
 }
 function checkDNSSettings6(form) {
+  if ($(form).find('select[name="USE_DHCP6:0"]').val()=='no') {
+    form.DHCP6_KEEPRESOLV.value = 'yes';
+    form.DHCP6_KEEPRESOLV.disabled = true;
+  } else {
+    form.DHCP6_KEEPRESOLV.disabled = false;
+  }
   var disabled = form.DHCP6_KEEPRESOLV.value=='no';
   var protocol = $(form).find('select[name="PROTOCOL:0"]').val() || 'ipv4';
   if (protocol != 'ipv4') {

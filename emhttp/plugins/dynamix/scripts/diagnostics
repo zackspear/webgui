@@ -58,9 +58,14 @@ function run($cmd, &$save=null) {
   exec("timeout -s9 30 $cmd", $save);
   return implode("\n",$save);
 }
+
 function newline($file) {
-  exec("echo|todos >>".escapeshellarg($file));
+  $tmp_file = "/tmp/".basename($file);
+  copy($file, $tmp_file);
+  exec("/usr/bin/todos < ".escapeshellarg($tmp_file)." > ".escapeshellarg($file));
+  unlink($tmp_file);
 }
+
 function shareDisks($share) {
   return str_replace(',',', ',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$share")." 2>/dev/null") ?: "");
 }
@@ -97,6 +102,19 @@ function anonymize($text, $select) {
     return dirname($text)."/$name.cfg";
   }
 }
+
+function maskIP($file) {
+  global $all;
+
+  if ($all) return;
+
+  // anonymize public IPv4 addresses
+  $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
+  run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
+  // anonymize full IPv6 addresses
+  run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
+}
+
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }
@@ -333,6 +351,24 @@ file_put_contents("/$diag/unraid-".$unraid['version'].".txt",$unraid['version'].
 // add bz*.sha256 values
 run("tail /boot/bz*.sha256 >> ".escapeshellarg("/$diag/unraid-".$unraid['version'].".txt"));
 
+// Get the previous version of Unraid from the previous directory on flash
+$changes = '/boot/previous/changes.txt';
+
+if (file_exists($changes)) {
+  exec("head -n4 $changes",$rows);
+  foreach ($rows as $row) {
+    $i = stripos($row, 'version');
+    if ($i !== false) {
+      [$version,$date] = explode(' ', trim(substr($row,$i+7)));
+      break;
+    }
+  }
+  $previous_version = "Previous Version: ".$version;
+  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\n".$previous_version."\r\n", FILE_APPEND);
+} else {
+  file_put_contents("/$diag/unraid-".$unraid['version'].".txt", "\r\nNo Previous Version Found\r\n", FILE_APPEND);
+}
+
 // copy ini variables
 foreach (glob("$path/*.ini") as $file) {
   $ini = basename($file,".ini");
@@ -367,7 +403,7 @@ run("ps -auxf --sort=-pcpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/ps
 run("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
 run("lsmod|sort 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsmod.txt"));
 run("df -h 2>/dev/null|todos >".escapeshellarg("/$diag/system/df.txt"));
-run("ifconfig -a -s 2>/dev/null|grep -Po '^(eth|bond)[0-9]+'", $ports);
+run("ip -br a|awk '/^(eth|bond)[0-9]+ /{print \$1}'|sort",$ports);
 run("dmidecode -qt2|awk -F: '/^\tManufacturer:/{m=\$2};/^\tProduct Name:/{p=\$2} END{print m\" -\"p}' 2>/dev/null|todos >".escapeshellarg("/$diag/system/motherboard.txt"));
 run("dmidecode -qt0 2>/dev/null|todos >>".escapeshellarg("/$diag/system/motherboard.txt"));
 run("cat /proc/meminfo 2>/dev/null|todos >".escapeshellarg("/$diag/system/meminfo.txt"));
@@ -380,7 +416,8 @@ foreach ($ports as $port) {
   run("ethtool -i ".escapeshellarg($port)." 2>/dev/null|todos >>".escapeshellarg("/$diag/system/ethtool.txt"));
   file_put_contents("/$diag/system/ethtool.txt", "--------------------------------\r\n", FILE_APPEND);
 }
-run("ifconfig -a 2>/dev/null|todos >".escapeshellarg("/$diag/system/ifconfig.txt"));
+run("ip -br a|todos >".escapeshellarg("/$diag/system/ifconfig.txt"));
+if (!$all) maskIP("/$diag/system/ifconfig.txt");
 
 // create system information (suppress errors)
 run("find /sys/kernel/iommu_groups/ -type l 2>/dev/null|sort -V|todos >".escapeshellarg("/$diag/system/iommu_groups.txt"));
@@ -397,15 +434,19 @@ run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev
 run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
 
 // anonymize go file
-if (!$all)
+if (!$all) {
   run("sed -i -e '/password/c ***line removed***' -e '/user/c ***line removed***' -e '/pass/c ***line removed***' ".escapeshellarg("/$diag/config/go.txt"));
-
+}
 // anonymize configuration files
-if (!$all)
+if (!$all) {
   run("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
-
+  // anonymize IP addresses
+  maskIP("/$diag/config/network.cfg");
+}
 // include listening interfaces
 run("$docroot/webGui/scripts/show_interfaces ip|tr -d ' '|tr '#' ' '|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
+run("$docroot/webGui/scripts/error_interfaces|sed 's/<i.*i>//' >>".escapeshellarg("/$diag/config/listen.txt"));
+if (!$all) maskIP("/$diag/config/listen.txt");
 
 // copy share information (anonymize if applicable)
 $files = glob("/boot/config/shares/*.cfg");
@@ -580,6 +621,7 @@ foreach (glob("/var/log/syslog*") as $file) {
     run("grep -Po 'file: \K[^\"\\x27]+' ".escapeshellarg("$log.txt")." 2>/dev/null|sort|uniq", $titles);
     run("sed -ri 's|\b\S+@\S+\.\S+\b|email@removed.com|;s|\b(username\|password)([=:])\S+\b|\\1\\2xxx|;s|(GUID: \S)\S+(\S) |\\1..\\2 |;s|(moving \"\S\|\"/mnt/user/\S).*(\S)\"|\\1..\\2\"|' ".escapeshellarg("$log.txt"));
     run("sed -ri 's|(server: ).+(\.(my)?unraid\.net(:[0-9]+)?,)|\\1hash\\2|;s|(host: \").+(\.(my)?unraid\.net(:[0-9]+)?\")|\\1hash\\2|;s|(referrer: \"https?://).+(\.(my)?unraid\.net)|\\1hash\\2|' ".escapeshellarg("$log.txt"));
+    maskIP("$log.txt");
     foreach ($titles as $mover) {
       if (!$mover) continue;
       $title = "/{$mover[0]}..".substr($mover,-1)."/...";
@@ -603,6 +645,7 @@ $dhcplog = "/var/log/dhcplog";
 if (file_exists($dhcplog)) {
   $log = "/$diag/logs/dhcplog.txt";
   run("todos <$dhcplog >".escapeshellarg($log));
+  if (!$all) maskIP($log);
 }
 
 // copy graphql-api.log
@@ -637,6 +680,23 @@ $testparm = run("testparm -s 2>/dev/null");
 if (!$all)
   $testparm = preg_replace("/(?<=\[.)(.*)(?=.\])|(?<=(write list = .)|(comment = .)|(valid users = .)|(path = \/mnt\/addons\/.)|(path = \/mnt\/remotes\/.)|(path = \/mnt\/disks\/.)|(path = \/mnt\/user\/.)).*(?=.)/","...",$testparm);
 file_put_contents("/$diag/system/testparm.txt",str_replace("\n","\r\n",$testparm));
+maskIP("/$diag/system/testparm.txt");
+
+// copy ntp.conf
+copy("/etc/ntp.conf", "/$diag/system/ntp.txt");
+maskIP("/$diag/system/ntp.txt");
+newline("/$diag/system/ntp.txt");
+
+// copy sshd_config
+copy("/etc/ssh/sshd_config", "/$diag/system/sshd.txt");
+maskIP("/$diag/system/sshd.txt");
+newline("/$diag/system/sshd.txt");
+
+// copy servers.conf
+copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
+maskIP("/$diag/system/servers.conf.txt");
+run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
+newline("/$diag/system/servers.conf.txt");
 
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/

@@ -4,132 +4,14 @@
 # limetech - modified to initialize ntp.conf file from config
 # bergware - added interface bind functionality
 
+CALLER="ntp"
 NTPD="/usr/sbin/ntpd"
 OPTIONS="-g -u ntp:ntp"
 CONF="/etc/ntp.conf"
 IDENT="/boot/config/ident.cfg"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no;
-  if [[ -f $NETWORK_INI ]]; then
-    # get interface and vlan configurations
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        # vlan interface
-        if [[ $(link TYPE) == trunk ]]; then
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add loopback interface
-    [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
-    [[ $ipv6 == yes ]] && bind+=(::1)
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string
-    bind=${bind[@]}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 build_ntp() {
   cp $CONF- $CONF
@@ -139,12 +21,10 @@ build_ntp() {
     # ignore unused protocol
     [[ $ipv4 == no ]] && echo "interface ignore ipv4" >>$CONF
     [[ $ipv6 == no ]] && echo "interface ignore ipv6" >>$CONF
-    # for now do not bind interfaces
-    # it is not clear why NTP is started several times and fails to bind on occasion
     # add listen interfaces
-    #for net in $bind; do
-    #  echo "interface listen $net" >>$CONF
-    #done
+    for net in $bind; do
+      echo "interface listen $net # $(show $net)" >>$CONF
+    done
   fi
   # add configured NTP servers
   [[ -n $NTP_SERVER1 ]] && echo "server $NTP_SERVER1 iburst" >>$CONF
@@ -159,12 +39,8 @@ ntpd_start() {
     echo "ntpd already running, not starting again"
     return
   fi
-  # if our config file not present, don't start ntp
-  if [[ ! -f $IDENT ]]; then
-    echo "Missing file: $IDENT"
-    return
-  fi
-  source <(/usr/bin/fromdos <$IDENT)
+  # read Unraid settings
+  [[ -r $IDENT ]] && . <(/usr/bin/fromdos <$IDENT)
   # if ntp not enabled, don't start ntp
   if [[ $USE_NTP != yes ]]; then
     echo "NTP not enabled"
@@ -209,14 +85,14 @@ ntpd_status() {
 
 ntpd_reload() {
   killall -HUP -q ntpd
-  source <(/usr/bin/fromdos <$IDENT)
+  . <(/usr/bin/fromdos <$IDENT)
   build_ntp
   $NTPD $OPTIONS 2>/dev/null
 }
 
 ntpd_update() {
   [[ $(pgrep -cf $NTPD) -eq 0 ]] && exit 1 # not running
-  if check && [[ -z "$(this 'interface listen')" || "$(this 'interface listen')" == "$bind" ]]; then
+  if check && [[ "$(this 'interface listen')" == "$bind" ]]; then
     # no action required
     exit 1
   else

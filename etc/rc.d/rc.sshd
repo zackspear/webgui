@@ -2,132 +2,15 @@
 # Start/stop/restart the secure shell server:
 # bergware - added interface bind functionality
 
+CALLER="ssh"
 SSHD="/usr/sbin/sshd"
 CONF="/etc/ssh/sshd_config"
 PID="/var/run/sshd.pid"
 SSH_BOOT="/boot/config/ssh"
 SSH_ETC="/etc/ssh"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  grep -Po "^$1 \K.*" $CONF|tr '\n' ' '|sed 's/ $//'
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no; family=any;
-  if [[ -f $NETWORK_INI ]]; then
-    # get interface and vlan configurations
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # bind stays array
-    bind=(${bind[@]})
-    [[ $ipv4 == yes && $ipv6 == no ]] && family=inet
-    [[ $ipv6 == yes && $ipv4 == no ]] && family=inet6
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 build_ssh() {
   if check && [[ -n $bind ]]; then
@@ -135,7 +18,7 @@ build_ssh() {
     sed -ri '/^#?(ListenAddress|AddressFamily) /d' $CONF
     # create new entries (in reverse order)
     for i in $(seq $((${#bind[@]}-1)) -1 0); do
-      sed -ri "/^#?Port /a ListenAddress ${bind[$i]}" $CONF
+      sed -ri "/^#?Port /a ListenAddress ${bind[$i]} # $(show ${bind[$i]})" $CONF
     done
     sed -ri "/^#?Port /a AddressFamily $family" $CONF
   fi
@@ -144,18 +27,14 @@ build_ssh() {
 sshd_start() {
   # make sure ssh dir exists on flash
   mkdir -p $SSH_BOOT
-
   # restore saved keys, config file, etc. (but not subdirs)
   cp $SSH_BOOT/* $SSH_ETC &>/dev/null
   chmod 600 $SSH_ETC/* &>/dev/null
-
   # create host keys if needed and copy any newly generated key(s) back to flash
   ssh-keygen -A
   cp -n $SSH_ETC/ssh_host*_key* $SSH_BOOT/
-
-  # bind ssh service
+  # build configuration
   build_ssh
-
   # start daemon
   $SSHD 2>/dev/null
 }
@@ -193,7 +72,7 @@ sshd_reload() {
 
 sshd_update() {
   [[ $(pgrep -cf $SSHD) -eq 0 ]] && exit 1 # not running
-  if check && [[ "$(this ListenAddress)" == "${bind[@]}" && $(this AddressFamily) == $family ]]; then
+  if check && [[ "$(this ListenAddress)" == "${bind[@]}" ]]; then
     # no action required
     exit 1
   else

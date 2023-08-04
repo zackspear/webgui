@@ -12,144 +12,24 @@
 # limetech - get rid of chatty '-l' rpcbind option
 # bergware - added interface bind functionality
 
+CALLER="rpc"
 RPCBIND="/sbin/rpcbind"
+STATD="/sbin/rpc.statd"
 RPC="/etc/default/rpc"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
-
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      net4=$(show -4 dev $net)
-      net6=$(show -6 dev $net)
-    else
-      # net is an IP address, validate
-      net4=$(show -4 to $net)
-      net6=$(show -6 to $net)
-    fi
-    [[ -n $net4 && -z $(take $net4) ]] && bind+=($net4)
-    [[ -n $net6 && -z $(take $net6) ]] && bind+=($net6)
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, get IP addresses
-      remove $(show -4 dev $net)
-      remove $(show -6 dev $net)
-    else
-      # net is an IP address
-      remove $(show to $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=();
-  if [[ -f $NETWORK_INI ]]; then
-    # add interfaces and vlans
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      if [[ -e $SYSTEM/$eth ]]; then
-        # main interface
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-        [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-            [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) ]] && ipv4=yes bind+=($net4)
-      [[ -n $(good $net6) ]] && ipv6=yes bind+=($net6)
-    done
-    # add loopback interface
-    [[ $ipv4 == yes ]] && bind+=(127.0.0.1)
-    [[ $ipv6 == yes ]] && bind+=(::1)
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string
-    bind=${bind[@]}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 # get bind addresses
 if check && [[ -n $bind ]]; then
   RPCBIND_OPTS="-h ${bind// / -h }"
 fi
 
-# update default settings
-sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
-
-# source default settings:
-[[ -r $RPC ]] && . $RPC
-
 rpc_start() {
-  if [[ -x $RPCBIND && -x /sbin/rpc.statd ]]; then
+  if [[ -x $RPCBIND && -x $STATD ]]; then
+    # update default settings
+    sed -ri "s/^#?(RPCBIND_OPTS)=.*/\1=\"$RPCBIND_OPTS\"/" $RPC 2>/dev/null
+    [[ -r $RPC ]] && . $RPC
     # Set up port for lockd:
     if [[ -n $LOCKD_TCP_PORT ]]; then
       /sbin/sysctl -w "fs.nfs.nlm_tcpport=$LOCKD_TCP_PORT" 2>/dev/null
@@ -165,15 +45,15 @@ rpc_start() {
       [[ -n $RPC_STATD_HOSTNAME ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -n $RPC_STATD_HOSTNAME"
       [[ -n $RPC_STATD_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -p $RPC_STATD_PORT"
       [[ -n $RPC_STATD_OUTGOING_PORT ]] && RPC_STATD_OPTS="$RPC_STATD_OPTS -o $RPC_STATD_OUTGOING_PORT"
-      echo "Starting RPC NSM (Network Status Monitor):  /sbin/rpc.statd $RPC_STATD_OPTS"
-      /sbin/rpc.statd $RPC_STATD_OPTS 2>/dev/null
+      echo "Starting RPC NSM (Network Status Monitor):  $STATD $RPC_STATD_OPTS"
+      $STATD $RPC_STATD_OPTS 2>/dev/null
     fi
   else
     echo "WARNING:  Cannot start RPC daemons needed for NFS.  One or more of"
     echo "          these required daemons is not executable or is not present"
     echo "          on your system:"
     echo
-    echo "          $RPCBIND or /sbin/rpc.statd"
+    echo "          $RPCBIND or $STATD"
     echo
   fi
 }
@@ -195,13 +75,12 @@ rpc_restart() {
 }
 
 rpc_reload() {
-  killall -9 rpcbind 2>/dev/null
-  sleep 1
-  $RPCBIND -w $RPCBIND_OPTS 2>/dev/null
+  # restart without info
+  rpc_restart 1>/dev/null 2>&1
 }
 
 rpc_update() {
-  [[ $(pgrep -cf $RPCBIND) -eq 0 ]] && exit 1; # not running
+  if ! ps axc | grep -q rpcbind; then exit 1; fi # not running
   if check && [[ "$(this)" == "-h ${bind// / -h }" ]]; then
     # no action required
     exit 1

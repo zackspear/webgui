@@ -4,14 +4,13 @@
 #
 # create initial network.ini file on system start
 # create system welcome message
-# update files on DHCP events 'BOUND[6] IPV4LL ROUTERADVERT'
+# update files on DHCP events 'BOUND[6] IPV4LL'
 # update services listening interfaces / addresses
 
-[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL ROUTERADVERT" =~ $reason) ]] && exit 0
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL" =~ $reason) ]] && exit 0
 
 ini=/var/local/emhttp/network.ini.new
 cfg=/boot/config/network.cfg
-reload=/usr/local/emhttp/webGui/scripts/reload_services
 
 declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
 
@@ -44,13 +43,6 @@ fi
 echo -n >$ini
 # clear update information
 data=
-dhcp=
-# get interface name
-if [[ -n $1 ]]; then
-  tag=$1
-else
-  tag=$interface
-fi
 
 # loop thru all defined interfaces (=1 in case of legacy)
 for ((i=0;i<${SYSNICS:-1};i++)); do
@@ -123,10 +115,9 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
   echo "DESCRIPTION:0=\"${DESCRIPTION[$i]}\"" >>$ini
   echo "PROTOCOL:0=\"${PROTOCOL[$i]}\"" >>$ini
   echo "USE_DHCP:0=\"${USE_DHCP[$i]}\"" >>$ini
-  flag=
   if [[ ${USE_DHCP[$i]} == yes ]]; then
     # get dhcp assigned ipv4 address & mask
-    NET=($(ip -4 addr show $IFACE|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+    NET=($(ip -br -4 addr show $IFACE|awk '{sub("/"," ",$3);print $3;exit}'))
     GW=$(ip -4 route show default dev $IFACE|awk '{print $3;exit}')
     echo "IPADDR:0=\"${NET[0]}\"" >>$ini
     echo "NETMASK:0=\"$(mask ${NET[1]})\"" >>$ini
@@ -140,7 +131,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         ((x++))
       done
     fi
-    [[ "${PROTOCOL[$i]}" == *"ipv4"* ]] && flag=1
   else
     # get static assigned ipv4 address & mask
     echo "IPADDR:0=\"${IPADDR[$i]}\"" >>$ini
@@ -151,7 +141,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
   echo "USE_DHCP6:0=\"${USE_DHCP6[$i]}\"" >>$ini
   if [[ ${USE_DHCP6[$i]} == yes ]]; then
     # get auto assigned ipv6 address & prefix
-    NET6=($(ip -6 addr show $IFACE noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+    NET6=($(ip -br -6 addr show $IFACE scope global|awk '{sub("/"," ",$3);print $3;exit}'))
     GW6=$(ip -6 route show default dev $IFACE|awk '{print $3;exit}')
     echo "IPADDR6:0=\"${NET6[0]}\"" >>$ini
     echo "NETMASK6:0=\"${NET6[1]}\"" >>$ini
@@ -166,7 +156,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         ((x++))
       done
     fi
-    [[ "${PROTOCOL[$i]}" == *"ipv6"* ]] && flag=1
   else
     # get static assigned ipv6 address & prefix
     echo "IPADDR6:0=\"${IPADDR6[$i]}\"" >>$ini
@@ -175,7 +164,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
     echo "METRIC6:0=\"${METRIC6[$i]}\"" >>$ini
     echo "PRIVACY6:0=\"\"" >>$ini
   fi
-  [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
   echo "MTU=\"${MTU[$i]}\"" >>$ini
   if [[ -n ${VLANS[$i]} ]]; then
     # process VLAN interfaces
@@ -185,18 +173,16 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
       echo "DESCRIPTION:$j=\"${DESCRIPTION[$i,$j]}\"" >>$ini
       echo "PROTOCOL:$j=\"${PROTOCOL[$i,$j]}\"" >>$ini
       echo "USE_DHCP:$j=\"${USE_DHCP[$i,$j]}\"" >>$ini
-      flag=
       if [[ ${USE_DHCP[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get dhcp assigned ipv4 address & mask
-        NET=($(ip -4 addr show $DEV|awk '/inet /{sub("/"," ",$2);print $2;exit}'))
+        NET=($(ip -br -4 addr show $DEV|awk '{sub("/"," ",$3);print $3;exit}'))
         GW=$(ip -4 route show default dev $DEV|awk '{print $3;exit}')
         echo "IPADDR:$j=\"${NET[0]}\"" >>$ini
         echo "NETMASK:$j=\"$(mask ${NET[1]})\"" >>$ini
         echo "GATEWAY:$j=\"$GW\"" >>$ini
         echo "METRIC:$j=\"${METRIC[$i,$j]}\"" >>$ini
         data="${data}${ETH}_I_IPADDR:$j=${NET[0]} ${ETH}_S_NETMASK:$j=$(mask ${NET[1]}) ${ETH}_I_GATEWAY:$j=$GW "
-        [[ "${PROTOCOL[$i,$j]}" == *"ipv4"* ]] && flag=1
       else
         # get static assigned ipv4 address & mask
         echo "IPADDR:$j=\"${IPADDR[$i,$j]}\"" >>$ini
@@ -208,7 +194,7 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
       if [[ ${USE_DHCP6[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get auto assigned ipv6 address & prefix
-        NET6=($(ip -6 addr show $DEV noprefixroute|awk '/inet6 /{sub("/"," ",$2);print $2;exit}'))
+        NET6=($(ip -br -6 addr show $DEV scope global|awk '{sub("/"," ",$3);print $3;exit}'))
         GW6=$(ip -6 route show default dev $DEV|awk '{print $3;exit}')
         echo "IPADDR6:$j=\"${NET6[0]}\"" >>$ini
         echo "NETMASK6:$j=\"${NET6[1]}\"" >>$ini
@@ -216,7 +202,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
         echo "PRIVACY6:$j=\"${PRIVACY6[$i,$j]}\"" >>$ini
         data="${data}${ETH}_I_IPADDR6:$j=${NET6[0]} ${ETH}_I_NETMASK6:$j=${NET6[1]} ${ETH}_I_GATEWAY6:$j=$GW6 "
-        [[ "${PROTOCOL[$i,$j]}" == *"ipv6"* ]] && flag=1
       else
         # get static assigned ipv6 address & prefix
         echo "IPADDR6:$j=\"${IPADDR6[$i,$j]}\"" >>$ini
@@ -225,7 +210,6 @@ for ((i=0;i<${SYSNICS:-1};i++)); do
         echo "METRIC6:$j=\"${METRIC6[$i,$j]}\"" >>$ini
         echo "PRIVACY6:$j=\"\"" >>$ini
       fi
-      [[ -n $flag && ($tag == $IFACE || $tag == init) ]] && dhcp=1
     done
   else
     # interface without VLANs
@@ -235,29 +219,26 @@ done
 # atomically update file
 /usr/bin/mv $ini ${ini%.*}
 
-# the following section is executed on static only or on dhcp hook
-if [[ (-n $1 && -z $dhcp) || (-z $1 && -n $dhcp) ]]; then
-  $reload >/dev/null 2>&1 &
-fi
+logger -t network "hook services: interface=${interface:-$1}, reason=$reason, protocol=$protocol"
+# delayed execution
+/usr/local/emhttp/webGui/scripts/update_services 30
 
 # send update information
-if [[ -n $interface && -n $data && -e /var/run/nginx.socket ]]; then
-  curl -sfd "$data" --unix-socket /var/run/nginx.socket http://localhost/pub/dhcp?buffer_length=0 >/dev/null 2>&1
+if [[ -n $data && -e /var/run/nginx.socket ]]; then
+  curl -sfd "$data" --unix-socket /var/run/nginx.socket http://localhost/pub/dhcp?buffer_length=1 >/dev/null 2>&1
 fi
 
 # generate our welcome text (management interface only)
 if [[ -z $interface || "eth0 br0 bond0" =~ $interface ]]; then
-  source /etc/unraid-version
+  . /etc/unraid-version
   echo -e "unRAID Server OS version: $version" >/etc/issue
   # find management interface
-  ETH=eth0
-  [[ -e /sys/class/net/bond0 ]] && ETH=bond0
-  [[ -e /sys/class/net/br0 ]] && ETH=br0
-  IPv4=$(ip -4 addr show $ETH|awk '/inet /{print $2;exit}')
-  IPv6=$(ip -6 addr show $ETH noprefixroute|awk '/inet6 /{print $2;exit}')
-  [[ -z $IPv6 ]] && IPv6=$(ip -6 addr show $ETH scope global permanent|awk '/inet6 /{print $2;exit}')
-  [[ -n $IPv4 ]] && echo " IPv4 address: ${IPv4%%/*}">>/etc/issue || echo " IPv4 address: not set">>/etc/issue
-  [[ -n $IPv6 ]] && echo " IPv6 address: ${IPv6%%/*}">>/etc/issue || echo " IPv6 address: not set">>/etc/issue
+  [[ -e /sys/class/net/bond0 ]] && dev=bond0 || dev=eth0
+  [[ -e /sys/class/net/br0 ]] && dev=br0
+  IPv4=$(ip -br -4 addr show $dev scope global|awk '{print $3}')
+  IPv6=$(ip -br -6 addr show $dev scope global|awk '{print $3}')
+  [[ -n $IPv4 ]] && echo " IPv4 address: ${IPv4%/*}">>/etc/issue || echo " IPv4 address: not set">>/etc/issue
+  [[ -n $IPv6 ]] && echo " IPv6 address: ${IPv6%/*}">>/etc/issue || echo " IPv6 address: not set">>/etc/issue
   echo >>/etc/issue
 fi
 exit 0

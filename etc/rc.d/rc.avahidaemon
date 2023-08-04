@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -14,8 +14,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with avahi; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
 # limetech - 'status' modified to exit with correct status
 # limetech - 'start' modified to enable/disable ipv4/ipv6
@@ -23,58 +22,14 @@
 
 # Start/stop/restart the avahi daemon:
 
+CALLER="avahi"
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DESC="Avahi mDNS/DNS-SD Daemon"
 AVAHI="/usr/sbin/avahi-daemon"
 CONF="/etc/avahi/avahi-daemon.conf"
-WIREGUARD="/etc/wireguard"
-NETWORK_INI="/var/local/emhttp/network.ini"
-SYSTEM="/sys/class/net"
-EXTRA="/boot/config/network-extra.cfg"
 
-IPv() {
-  type=${1//[^:]}
-  [[ ${#type} -le ${2:-0} ]] && echo 4 || echo 6
-}
-
-scan() {
-  grep -Pom1 "^$1=\"?\K[^\"]+" $2
-}
-
-link() {
-  grep -Pom1 "^$1=\"\K[^\"]+" $NETWORK_INI.eth
-}
-
-this() {
-  grep -Pom1 "^$1=\K.*" $CONF
-}
-
-take() {
-  data=;
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 || ${1:0:7} == 169.254 || ${1:0:4} == fe80 ]] && data=$1
-  done
-  echo $data
-}
-
-good() {
-  [[ -n $1 && ${1:0:7} != 169.254 && ${1:0:4} != fe80 ]] && echo $1
-}
-
-show() {
-  case $# in
-    1) ip addr show to $1 2>/dev/null|grep -Pom1 '^\d+: \K[^:]+';;
-    2) ip addr show $1 $2 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-    3) ip $1 addr show $2 $3 2>/dev/null|grep -Pom1 'inet6? \K[^\/]+';;
-  esac
-}
-
-remove() {
-  [[ $# -eq 0 ]] && return
-  for i in ${!bind[@]}; do
-    [[ ${bind[$i]} == $1 ]] && unset 'bind[i]'
-  done
-}
+# library functions
+. /etc/rc.d/rc.library.source
 
 allow() {
   sed -ri "s/^#?(allow-interfaces)=.*/\1=$*/" $CONF
@@ -88,88 +43,12 @@ disable() {
   sed -ri "s/^#?(use-$1)=.*/\1=no/" $CONF
 }
 
-extra() {
-  source <(/usr/bin/fromdos <$EXTRA)
-  for net in $include_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, validate
-      [[ -n $(show dev $net) && -z $(take $net) ]] && bind+=($net)
-    else
-      # net is an IP address, convert to name
-      net=$(show $net)
-      [[ -n $net && -z $(take $net) ]] && bind+=($net)
-    fi
-  done
-  for net in $exclude_interfaces; do
-    if [[ -z ${net//[^.:]} || ${net//[^.:]} == . ]]; then
-      # net is an interface name, remove
-      remove $net
-    else
-      # net is an IP address, convert to name and remove
-      remove $(show $net)
-    fi
-  done
-}
-
-check() {
-  # quick check
-  [[ -n $bind ]] && return 0;
-  # preset return values
-  reply=1; bind=(); ipv4=no; ipv6=no;
-  if [[ -f $NETWORK_INI ]]; then
-    # get interface and vlan configurations
-    for eth in $(grep -Po '^\[\K[^\]]+' $NETWORK_INI); do
-      # main interface
-      if [[ -e $SYSTEM/$eth ]]; then
-        sed -n "/^\[$eth\]/,/^\[eth/p" $NETWORK_INI >$NETWORK_INI.eth
-        net=$eth
-        [[ $(link BONDING) == yes ]] && net=${eth/eth/bond}
-        [[ $(link BRIDGING) == yes ]] && net=${eth/eth/br}
-        net4=$(link IPADDR:0)
-        net6=$(link IPADDR6:0)
-        [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net)
-        [[ -n $(good $net4) ]] && ipv4=yes
-        [[ -n $(good $net6) ]] && ipv6=yes
-        if [[ $(link TYPE) == trunk ]]; then
-          # vlan interface
-          for vlan in $(grep -Po '^VLANID:\K\d+' $NETWORK_INI.eth); do
-            net4=$(link IPADDR:$vlan)
-            net6=$(link IPADDR6:$vlan)
-            [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($net.$vlan)
-            [[ -n $(good $net4) ]] && ipv4=yes
-            [[ -n $(good $net6) ]] && ipv6=yes
-          done
-        fi
-      fi
-    done
-    # add active WG tunnels
-    for wg in $(wg show interfaces); do
-      net4=$(show -4 dev $wg)
-      net6=$(show -6 dev $wg)
-      [[ -n $(good $net4) || -n $(good $net6) ]] && bind+=($wg)
-      [[ -n $(good $net4) ]] && ipv4=yes
-      [[ -n $(good $net6) ]] && ipv6=yes
-    done
-    # add user defined interfaces
-    [[ -f $EXTRA ]] && extra
-    # convert array to string with commas
-    bind=${bind[@]}
-    bind=${bind// /,}
-    reply=0
-    # remove temporary file
-    rm -f $NETWORK_INI.eth
-  fi
-  return $reply
-}
-
 avahid_start() {
-  if [[ -f $NETWORK_INI ]]; then
+  if check && [[ -n $bind ]]; then
     # bind avahi service
-    if check; then
-      [[ -n $bind ]] && allow $bind
-      [[ $ipv4 == yes ]] && enable ipv4 || disable ipv4
-      [[ $ipv6 == yes ]] && enable ipv6 || disable ipv6
-    fi
+    [[ -n $bind ]] && allow $bind || allow br0
+    [[ $ipv4 == no ]] && disable ipv4 || enable ipv4
+    [[ $ipv6 == no ]] && disable ipv6 || enable ipv6
   else
     # default interface with no configuration
     allow br0
@@ -206,7 +85,7 @@ avahid_reload() {
 
 avahid_update() {
   if ! avahid_status; then exit 1; fi # not running
-  if check && [[ "$(this allow-interfaces)" == "$bind" && $(this use-ipv4) == $ipv4 && $(this use-ipv6) == $ipv6 ]]; then
+  if check && [[ "$(this allow-interfaces)" == "$bind" ]]; then
     # no action required
     exit 1
   else

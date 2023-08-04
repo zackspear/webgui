@@ -1986,6 +1986,20 @@
 			return $var;
 		}
 
+		function domain_get_vnc_password($domain) {
+			$domain_name = $this->domain_get_name($domain) ;
+			$password = shell_exec("cat /etc/libvirt/qemu/'{$domain_name}.xml' | grep 'passwd'") ;
+
+			if (!$password)
+				return '';
+			
+			$strpos = strpos($password, "passwd=") +8 ;
+			$endpos = strpos($password, "'",$strpos) ; 
+			$password = substr($password,$strpos, $endpos-$strpos) ;
+
+			return $password ;
+		}
+
 		function domain_get_ws_port($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@websocket', false);
 			$var = (int)$tmp[0];

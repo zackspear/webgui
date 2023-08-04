@@ -61,7 +61,7 @@ if ($certPresent) {
 }
 $endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildcard";
 
-$keyfile = @file_get_contents($var['regFILE']);
+$keyfile = empty($var['regFILE']) ? false : @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
   response_complete(406, '{"error":"'._('License key required').'"}');
 }

@@ -20,10 +20,10 @@ $etc = '/etc/wireguard';
 $tmp = '/tmp/list.tmp';
 
 unset($subnets,$hosts,$subnets6,$hosts6,$vtuns,$filter,$docker);
-exec("ip -4 route show scope link|awk '/^[^d].+ dev (eth|br|bond)[0-9]+/{print \$1}'",$subnets);
-exec("ip -4 addr show scope global|awk '/inet .+ (eth|br|bond)[0-9]+/{split(\$2,ip,\"/\");print ip[1]}'",$hosts);
-exec("ip -6 route show type unicast|grep -Pv 'expires|shim-'|awk '/^[^dfm:]/{print \$1}'",$subnets6);
-exec("ip -6 addr show scope global|grep -PA2 ': (eth|br|bond)\d+'|awk '/inet6 .+ (global|noprefixroute) \$/{split(\$2,ip,\"/\");print ip[1]}'",$hosts6);
+exec("ip -4 route show scope link|awk '/^[^d].+ dev (eth|br|bond)[0-9]+(\\.[0-9]+)?/{print \$1}'",$subnets);
+exec("ip -6 route show type unicast|awk '\$0 !~ \"expires\" && \$3 !~ \"^shim-\" && /^[^dfm:]/{print \$1}'",$subnets6);
+exec("ip -br -4 addr show scope global|awk '/^(br|bond|eth)[0-9]+(\\.[0-9]+)?/{split(\$3,ip,\"/\");print ip[1]}'",$hosts);
+exec("ip -br -6 addr show scope global|awk '/^(br|bond|eth)[0-9]+(\\.[0-9]+)?/{split(\$3,ip,\"/\");print ip[1]}'",$hosts6);
 exec("ls  --indicator-style=none $etc/wg*.conf*|grep -Po wg[0-9]+",$vtuns);
 exec("docker network ls --filter driver='macvlan' --filter driver='ipvlan' --format='{{.Name}}' 2>/dev/null",$filter);
 
@@ -130,7 +130,7 @@ $active    = explode(' ',exec('wg show interfaces'));
 $autostart = explode(' ',@file_get_contents("$etc/autostart")?:'');
 $build     = false;
 $script    = "$docroot/webGui/scripts/upnp_port";
-$services  = "$docroot/webGui/scripts/reload_services";
+$services  = "$docroot/webGui/scripts/update_services";
 $template  = "$docroot/webGui/WGX.page";
 $tower     = _var($var,'NAME');
 $ethX      = 'eth0';
@@ -160,7 +160,7 @@ $validDNS  = "([0-9a-z]([0-9a-z\-]{0,61}[0-9a-z])?\.)+($tld)";
 $validIP4  = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6  = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $maskIP4   = "([0-9]|[12][0-9]|3[0-2])?";
-$maskIP6   = "([0-9]|[1-9][[0-9]|1[01][0-9]|12[0-8])?";
+$maskIP6   = "([0-9]|[1-9][0-9]|1[01][0-9]|12[0-8])?";
 
 $validText = "^($validDNS|$validIP4|$validIP6)$";
 $validList = "^(($validIP4/?$maskIP4|$validIP6/?$maskIP6)(, *)?)+$";

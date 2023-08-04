@@ -2416,3 +2416,11 @@ A keepalive timer will hold the connection open, for most situations a timer val
 
 Note that for mobile devices this will use more data and drain your battery faster.
 :end
+
+:sysdrivers_intro_help:
+This page displays all the drivers available on this system. Filter the list according to whether the driver is Inuse or not, or search for a specific driver if desired.
+
+Any 3rd party driver installed by a plugin will have a support symbol next to it, click this to get support for the plugin.
+
+Click the edit button to add/modify/delete any modprobe.d config file in the config/modprobe.d directory on the flash drive.
+:end
