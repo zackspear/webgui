@@ -50,6 +50,8 @@
 # Adapted by Bergware for use in unRAID - July 2023
 # - reverted iptables and ip6tables and arp-tables inclusion to bridge interfaces
 # - removed promiscuous mode setting for bridge interfaces
+# - added persistent option to dhcpcd
+#
 
 ############################
 # READ NETWORK CONFIG FILE #
@@ -297,7 +299,7 @@ ipaddr_up(){
   if [[ $DHCP == yes ]]; then
     # bring up interface using DHCP/SLAAC
     ipv6_addr 1 1
-    DHCP_OPTIONS="-q -n -t ${DHCP_TIMEOUT[$i]:-10}"
+    DHCP_OPTIONS="-q -n -p -t ${DHCP_TIMEOUT[$i]:-10}"
     [[ -n $DHCP_HOSTNAME ]] && DHCP_OPTIONS="$DHCP_OPTIONS -h $DHCP_HOSTNAME"
     [[ $DHCP_KEEP_RESOLV == yes ]] && DHCP_OPTIONS="$DHCP_OPTIONS -C resolv.conf"
     [[ $DHCP_DEBUG == yes ]] && DHCP_OPTIONS="$DHCP_OPTIONS -d"
