@@ -541,7 +541,7 @@ stop_docker(){
           ip link set docker0 down
           ip link del docker0
         fi
-	exit 0
+        return
       fi
       echo "waiting for docker to die ..."
     done
