@@ -677,7 +677,7 @@ _(Enable user share assignment)_:
 :info_share_assignment_help:
 
 _(Minimum free space)_:
-: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" autocomplete="off" spellcheck="false" value="<?=presetSpace(_var($disk,'shareFloor',0))?>" class="narrow" placeholder="0">
+: <input type="text" id="shareFloor" name="diskShareFloor.<?=_var($disk,'idx',0)?>" maxlength="16" autocomplete="off" spellcheck="false" value="<?=presetSpace(_var($disk,'shareFloor',0))?>" class="narrow" placeholder="0" <?if ($var['mdState']=='STARTED'):?>disabled<?endif;?>>
   <span id="autosize"><i class="fa fa-info i"></i>_(Calculated free space value)_</span>
 
 :info_free_space_help:
