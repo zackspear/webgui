@@ -455,9 +455,10 @@ shim_network(){
 # Remove custom networks
 stop_network(){
   for NETWORK in $(network $ATTACH); do
-    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && echo "stopping $DOCKERD network $NETWORK ..." && docker network rm $NETWORK >/dev/null
   done
   for LINK in $(ls --indicator-style=none $SYSTEM|grep '^shim-'); do
+    echo "stopping $DOCKERD shim $LINK ..." 
     ip -4 addr flush dev $LINK
     ip -4 route flush dev $LINK
     ip -6 addr flush dev $LINK
@@ -494,7 +495,7 @@ start_containers(){
 
 # Stop containers
 stop_containers(){
-  [[ ! -z $(running_containers) ]] && docker stop $(running_containers) >/dev/null
+  [[ ! -z $(running_containers) ]] && echo "stopping $DOCKERD containers ..." && docker stop $(running_containers) >/dev/null
 }
 
 # Start docker
@@ -536,12 +537,15 @@ stop_docker(){
           ip link set docker0 down
           ip link del docker0
         fi
+        echo "$DOCKERD stopped"
         return
       fi
       echo "waiting for docker to die ..."
     done
     echo "docker will not die!"
     exit 1
+  else
+    echo "$DOCKER is not running ($DOCKER_PIDFILE does not exist)"
   fi
 }
 
