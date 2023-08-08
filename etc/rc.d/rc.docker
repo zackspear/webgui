@@ -73,9 +73,15 @@ else
   [[ -e $SYSTEM/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
 fi
 
-DETACH='ipvlan'
-ATTACH='macvlan'
-MODE='bridge'
+if [[ -z $DOCKER_NETWORK_TYPE ]]; then
+  DETACH='ipvlan'
+  ATTACH='macvlan'
+  MODE='bridge'
+else
+  DETACH='macvlan'
+  ATTACH='ipvlan'
+  MODE='l2 bridge'
+fi
 
 export DOCKER_RAMDISK=true
 
@@ -398,8 +404,7 @@ start_network(){
           [[ -n $RANGE ]] && SERVER="--aux-address=server=${R4%/*}" || SERVER="--aux-address=server=${SHIM_HIGH%/*}"
         fi
       fi
-      VHOST=vhost${NETWORK//[^0-9.]/}
-      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f 'created network {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}' 2>/dev/null | logger -t $(basename $0)
+      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$NETWORK $NETWORK | xargs docker network inspect -f 'created network {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}' 2>/dev/null | logger -t $(basename $0)
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
         THIS_ID=${CONNECT%,*}
