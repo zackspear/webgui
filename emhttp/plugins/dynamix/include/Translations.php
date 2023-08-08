@@ -52,7 +52,7 @@ function _($text, $do=-1) {
 }
 function parse_lang_file($file) {
   // parser for translation files, includes some trickery to handle PHP quirks.
-  return array_safe((array)parse_ini_string(preg_replace(['/^(null|yes|no|true|false|on|off|none)=/mi','/^([^>].*?)=(.*)$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1="','"'],escapeQuotes(file_get_contents($file)))));
+  return array_safe((array)parse_ini_string(preg_replace(['/^\s*?(null|yes|no|true|false|on|off|none)\s*?=/mi','/^\s*?([^>].*?)\s*?=\s*?(.*)\s*?$/m','/^:(.+_(help|plug)):$/m','/^:end$/m'],['$1.=','$1="$2"','_$1="','"'],escapeQuotes(file_get_contents($file)))));
 }
 function parse_help_file($file) {
   // parser for help text files, includes some trickery to handle PHP quirks.
