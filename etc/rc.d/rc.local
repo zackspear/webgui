@@ -15,9 +15,6 @@
 # reclaim 1.6M of microcode files that are no longer needed
 rm -rf /kernel
 
-# rc.samba now executable
-chmod +x /etc/rc.d/rc.samba
-
 # Start WireGuard
 if [ -x /etc/rc.d/rc.wireguard ]; then
   /etc/rc.d/rc.wireguard start
@@ -136,7 +133,7 @@ else
   # Install any extra packages
   if [ -d /boot/extra ]; then
     logger "Installing /boot/extra packages"
-    ( cd /boot/extra ; find -maxdepth 1 -type f -exec upgradepkg --install-new {} \; )
+    ( cd /boot/extra ; find -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | logger' -- {} \; )
   fi
   # Install plugins
   logger "Installing plugins"
