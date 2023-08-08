@@ -27,6 +27,7 @@ if (file_exists($session)) {
 function _($text, $do=-1) {
   // PHP translation function _
   global $language;
+  $text = trim($text);
   if (!$text) return '';
   switch ($do) {
   case 0: // date translation
