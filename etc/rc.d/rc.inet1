@@ -258,12 +258,12 @@ macvlan_up(){
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
   [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
   VHOST=vhost${PARENT//[^0-9]/}
-  run ip link add link $PARENT name $VHOST type macvlan mode bridge
+  run ip link add link $PARENT name $VHOST type macvtap mode bridge
   set_mtu $VHOST
   run ip link set $VHOST up 2>/dev/null
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
-    run ip link add link $PARENT.$VLAN name $VHOST.$VLAN type macvlan mode bridge
+    run ip link add link $PARENT.$VLAN name $VHOST.$VLAN type macvtap mode bridge
     set_mtu $VHOST.$VLAN
     run ip link set $VHOST.$VLAN up 2>/dev/null
   done
