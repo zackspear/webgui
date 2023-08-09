@@ -1066,8 +1066,11 @@ private static $encoding = 'UTF-8';
 	function getValidNetworks() {
 		global $lv;
 		$arrValidNetworks = [];
-		exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
-
+		if (file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\[0\]=\"\K[^\"]+' /boot/config/network.cfg")=='') {
+			exec("ip -br a|grep -Po '^(virbr|vhost)[0-9][^@ ]*'",$arrBridges);
+		} else {
+			exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
+		}
 		if (!is_array($arrBridges)) {
 			$arrBridges = [];
 		}
@@ -1082,7 +1085,7 @@ private static $encoding = 'UTF-8';
 		$arrValidNetworks['bridges'] = array_values($arrBridges);
 
 		// This breaks VMSettings.page if libvirt is not running
-		if ($libvirt_running == "yes") {
+			if ($libvirt_running == "yes") {
 			$arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
 
 			if (($key = array_search('default', $arrVirtual)) !== false) {

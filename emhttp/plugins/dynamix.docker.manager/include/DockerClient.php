@@ -46,8 +46,16 @@ $host = ipaddr($ethX);
 // get network drivers
 $driver = DockerUtil::driver();
 
+// determine active port name
+$port = file_exists('/sys/class/net/br0') ? 'BR' : (file_exists('/sys/class/net/bond0') ? 'BOND' : 'ETH');
+
 // Docker configuration file - guaranteed to exist
 $docker_cfgfile = '/boot/config/docker.cfg';
+if (file_exists($docker_cfgfile) && exec("grep -Pom1 '_{$port}[0-9]+(_[0-9]+)?=' $docker_cfgfile")=='') {
+  # interface has changed, update configuration
+  exec("sed -ri 's/_(BR|BOND|ETH)([0-9]+(_[0-9]+)?)=/_{$port}\\2=/' $docker_cfgfile");
+}
+
 $defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg") ?: [];
 $dockercfg = array_replace_recursive($defaults, @parse_ini_file($docker_cfgfile) ?: []);
 
