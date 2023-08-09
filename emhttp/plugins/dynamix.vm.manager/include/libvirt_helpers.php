@@ -1066,10 +1066,10 @@ private static $encoding = 'UTF-8';
 	function getValidNetworks() {
 		global $lv;
 		$arrValidNetworks = [];
-		if (file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\[0\]=\"\K[^\"]+' /boot/config/network.cfg")=='') {
+		if (file_exists("/boot/config/network.cfg") && exec("grep -Pom1 '^BRNICS\\[0\\]=\"\\K[^\"]+' /boot/config/network.cfg")=='') {
 			exec("ip -br a|grep -Po '^(virbr|vhost)[0-9][^@ ]*'",$arrBridges);
 		} else {
-			exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
+			exec("brctl show|grep -Po '^(vir)?br[0-9]+(\.[0-9]+)?'", $arrBridges);
 		}
 		if (!is_array($arrBridges)) {
 			$arrBridges = [];

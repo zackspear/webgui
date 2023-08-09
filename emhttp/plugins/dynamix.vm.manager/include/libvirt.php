@@ -661,11 +661,11 @@
 					$netmodel = $nic['model'] ?: 'virtio-net';
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
-					$vhost = file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\[0\]=\"\K[^\"]+' /boot/config/network.cfg")=='';
+					$vhost = file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\\[0\\]=\"\\K[^\"]+' /boot/config/network.cfg")=='';
 					if ($vhost) {
 						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
 					} else {
-						exec("brctl show | cut -f1| awk NF | sed -n '1!p'", $br);
+						exec("brctl show|grep -Po '^(vir)?br[0-9]+(\.[0-9]+)?'", $br);
 					}
 					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
 					if($net_res) {

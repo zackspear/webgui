@@ -53,7 +53,7 @@
 # - added persistent option to dhcpcd
 
 # Adapted by Bergware for use in unRAID - August 2023
-# - added macvlan network creation
+# - added macvtap network creation
 
 ############################
 # READ NETWORK CONFIG FILE #
@@ -252,8 +252,8 @@ vlan_down(){
   done
 }
 
-# function to create macvlan interfaces
-macvlan_up(){
+# function to create macvtap interfaces
+macvtap_up(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
   [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
@@ -269,8 +269,8 @@ macvlan_up(){
   done
 }
 
-# function to delete macvlan interfaces
-macvlan_down(){
+# function to delete macvtap interfaces
+macvtap_down(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
   [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
@@ -431,7 +431,7 @@ if_up(){
   [[ -n ${BONDNICS[$i]} ]] && bond_up  # create interface as bond
   [[ -n ${VLANS[$i]} ]] && vlan_up     # create interface VLANs
   [[ -n ${BRNICS[$i]} ]] && br_up      # create interface as bridge
-  macvlan_up                           # create macvlan interfaces
+  macvtap_up                           # create macvtap interfaces
   # if the interface isn't in the kernel yet
   # but there's an alias for it in modules.conf
   # then it should be loaded first
@@ -530,7 +530,7 @@ if_down(){
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE not present, can't take down"
     fi
   done
-  macvlan_down                           # delete macvlan interfaces
+  macvtap_down                           # delete macvtap interfaces
   [[ -n ${BRNICS[$i]} ]] && br_down      # delete interface as bridge
   [[ -n ${VLANS[$i]} ]] && vlan_down     # delete interface VLANs
   [[ -n ${BONDNICS[$i]} ]] && bond_down  # delete interface as bond
