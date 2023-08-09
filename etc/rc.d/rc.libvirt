@@ -168,9 +168,17 @@ start_libvirtd() {
     exit 1
   fi
   # convert libvirt 1.3.1 w/ eric's hyperv vendor id patch to how libvirt does it in libvirt 1.3.3+
-  sed -i -e "s/<vendor id='none'\/>/<vendor_id state='on' value='none'\/>/g" /etc/libvirt/qemu/*.xml &> /dev/null
+  sed -ri "s/<vendor id='none'\/>/<vendor_id state='on' value='none'\/>/g" /etc/libvirt/qemu/*.xml &> /dev/null
   # remove <locked/> from xml because libvirt + virlogd + virlockd has an issue with locked
-  sed -i -e "s/<locked\/>//g" /etc/libvirt/qemu/*.xml &> /dev/null
+  sed -ri "s/<locked\/>//g" /etc/libvirt/qemu/*.xml &> /dev/null
+  # update interface section of VM configuration files
+  if [[ -f /boot/config/network.cfg && -z $(grep -Po '^BRNICS\[0\]="\K[^"]+' /boot/config/network.cfg) ]]; then
+    # bridge interface to macvlan interface
+    sed -ri "s/<interface type='bridge'>/<interface type='direct'>/;s/<source bridge='br([0-9]+(.[0-9]+)?)'\/>/<source dev='vhost\1' mode='bridge'\/>/" /etc/libvirt/qemu/*.xml &> /dev/null
+  else
+    # macvlan interface to bridge interface
+    sed -ri "s/<interface type='direct'>/<interface type='bridge'>/;s/<source dev='vhost([0-9]+(.[0-9]+)?)' mode='bridge'\/>/<source bridge='br\1'\/>/" /etc/libvirt/qemu/*.xml &> /dev/null
+  fi
   # copy any new conf files we dont currently have
   cp -n /etc/libvirt-/*.conf /etc/libvirt &> /dev/null
   # ensure tpm-states path exists
