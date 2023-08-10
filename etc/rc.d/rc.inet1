@@ -431,7 +431,7 @@ if_up(){
   [[ -n ${BONDNICS[$i]} ]] && bond_up  # create interface as bond
   [[ -n ${VLANS[$i]} ]] && vlan_up     # create interface VLANs
   [[ -n ${BRNICS[$i]} ]] && br_up      # create interface as bridge
-  macvtap_up                           # create macvtap interfaces
+  [[ -z ${BRNICS[$i]} ]] && macvtap_up # create macvtap interfaces
   # if the interface isn't in the kernel yet
   # but there's an alias for it in modules.conf
   # then it should be loaded first
@@ -530,7 +530,7 @@ if_down(){
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE not present, can't take down"
     fi
   done
-  macvtap_down                           # delete macvtap interfaces
+  [[ -z ${BRNICS[$i]} ]] && macvtap_down # delete macvtap interfaces
   [[ -n ${BRNICS[$i]} ]] && br_down      # delete interface as bridge
   [[ -n ${VLANS[$i]} ]] && vlan_down     # delete interface VLANs
   [[ -n ${BONDNICS[$i]} ]] && bond_down  # delete interface as bond

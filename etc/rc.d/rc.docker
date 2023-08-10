@@ -77,9 +77,23 @@ else
   [[ -e $SYSTEM/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
 fi
 
-DETACH='ipvlan'
-ATTACH='macvlan'
-MODE='bridge'
+# user selection when bridge is enabled
+if [[ -z $DOCKER_NETWORK_TYPE ]]; then
+  DETACH='ipvlan'
+  ATTACH='macvlan'
+  MODE='bridge'
+else
+  DETACH='macvlan'
+  ATTACH='ipvlan'
+  MODE='l2 bridge'
+fi
+
+# fixed selection when bridge is disabled
+if [[ $PORT != br0 ]]; then
+  DETACH='ipvlan'
+  ATTACH='macvlan'
+  MODE='bridge'
+fi
 
 export DOCKER_RAMDISK=true
 
@@ -246,7 +260,7 @@ start_network(){
       MY_NETWORK= MY_IP=
       while read_dom; do
         [[ $ENTITY == Network ]] && MY_NETWORK=$CONTENT
-        [[ $ENTITY == MyIP ]] && MY_IP=${CONTENT// /,} && MY_IP=$(echo "$MY_IP" | tr -s "," ";")
+        [[ $ENTITY == MyIP ]] && MY_IP=${CONTENT// /,} && MY_IP=$(echo "$MY_IP"|tr -s "," ";")
       done <$XMLFILE
       # only restore valid networks
       if [[ -n $MY_NETWORK ]]; then
@@ -414,8 +428,8 @@ start_network(){
           [[ -n $RANGE ]] && SERVER="--aux-address=server=${R4%/*}" || SERVER="--aux-address=server=${SHIM_HIGH%/*}"
         fi
       fi
-      VHOST=vhost${NETWORK//[^0-9.]/}
-      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f 'created network {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}' 2>/dev/null | logger -t $(basename $0)
+      [[ ${NETWORK:0:2} == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
+      docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | logger -t $(basename $0)
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
         CONTAINER=${CONNECT%,*}

@@ -661,7 +661,7 @@
 					$netmodel = $nic['model'] ?: 'virtio-net';
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
-					$vhost = file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\\[0\\]=\"\\K[^\"]+' /boot/config/network.cfg")=='';
+					$vhost = !file_exists('/sys/class/net/br0');
 					if ($vhost) {
 						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
 					} else {
