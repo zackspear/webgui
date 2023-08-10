@@ -665,17 +665,17 @@
 					if ($bridge) {
 						exec("brctl show|grep -Po '^(vir)?br[0-9]+(\.[0-9]+)?'", $br);
 					} else {
-						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
+						exec("ip -br a|grep -Po '^(virbr|vhost)[0-9][^@ ]*'",$br);
 					}
 					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
-					if($net_res) {
+					if ($net_res) {
 							$netstr .= "<interface type='network'>
 										<mac address='{$nic['mac']}'/>
 										<source network='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
 										$nicboot
 									</interface>";
-					} elseif(in_array($nic['network'], $br)) {
+					} elseif (in_array($nic['network'], $br)) {
 						if ($bridge) {
 							$netstr .= "<interface type='bridge'>
 										<mac address='{$nic['mac']}'/>
