@@ -661,11 +661,11 @@
 					$netmodel = $nic['model'] ?: 'virtio-net';
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
-					$vhost = !file_exists('/sys/class/net/br0');
-					if ($vhost) {
-						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
-					} else {
+					$bridge = file_exists('/sys/class/net/br0');
+					if ($bridge) {
 						exec("brctl show|grep -Po '^(vir)?br[0-9]+(\.[0-9]+)?'", $br);
+					} else {
+						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
 					}
 					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
 					if($net_res) {
@@ -676,17 +676,17 @@
 										$nicboot
 									</interface>";
 					} elseif(in_array($nic['network'], $br)) {
-						if ($vhost) {
-							$netstr .= "<interface type='direct'>
+						if ($bridge) {
+							$netstr .= "<interface type='bridge'>
 										<mac address='{$nic['mac']}'/>
-										<source dev='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "' mode='bridge'/>
+										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
 										$nicboot
 									</interface>";
 						} else {
-							$netstr .= "<interface type='bridge'>
+							$netstr .= "<interface type='direct'>
 										<mac address='{$nic['mac']}'/>
-										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
+										<source dev='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "' mode='bridge'/>
 										<model type='$netmodel'/>
 										$nicboot
 									</interface>";
