@@ -23,7 +23,8 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 $DockerClient  = new DockerClient();
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$DockerStopped);
 
-$bridge = file_exists('/sys/class/net/br0');
+exec("ls --indicator-style=none /sys/class/net|awk '/^br[0-9]+$/'",$nics);
+$bridge = count($nics)>0;
 
 function strposX($s, $c, $n=1) {
   $p = 0;

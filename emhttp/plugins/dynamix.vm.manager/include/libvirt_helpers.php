@@ -1066,11 +1066,7 @@ private static $encoding = 'UTF-8';
 	function getValidNetworks() {
 		global $lv;
 		$arrValidNetworks = [];
-		if (file_exists('/sys/class/net/br0')) {
-			exec("brctl show|grep -Po '^(vir)?br[0-9]+(\.[0-9]+)?'", $arrBridges);
-		} else {
-			exec("ip -br a|grep -Po '^(virbr|vhost)[0-9][^@ ]*'",$arrBridges);
-		}
+		exec("ip -br a|grep -Po '^((vir)?br|vhost)[0-9]+(\.[0-9]+)?'",$arrBridges);
 		if (!is_array($arrBridges)) {
 			$arrBridges = [];
 		}

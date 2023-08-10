@@ -14,6 +14,7 @@ UNSHARE=/usr/bin/unshare
 SYSTEM=/sys/class/net
 CONF6=/proc/sys/net/ipv6/conf
 ACTIVE=$(ls --indicator-style=none $SYSTEM|awk '/^(bond|br|eth)[0-9]/' ORS=' ')
+NICS=$(ls --indicator-style=none $SYSTEM|awk '/^eth[0-9]+$/')
 
 DOCKERD=dockerd
 DOCKER=/usr/bin/$DOCKERD
@@ -33,11 +34,19 @@ TMP=/var/tmp/network.tmp
 
 # Set defaults used by the docker daemon
 if [[ -f $DOCKER_CFG ]]; then
-  if ! grep -qPm1 "_${PORT^^}(_[0-9]+)?=" $DOCKER_CFG; then
-    # interface has changed, update configuration
-    sed -ri "s/_(BR0|BOND0|ETH0)(_[0-9]+)?=/_${PORT^^}\2=/" $DOCKER_CFG
-    sed -ri "s/(br0|bond0|eth0)(\.[0-9]+ )/$PORT\2/g" $DOCKER_CFG
-  fi
+  for NIC in $NICS; do
+    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+      NIC=${NIC/eth/br}
+    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+      NIC=${NIC/eth/bond}
+    fi
+    if ! grep -qPm1 "_${NIC^^}(_[0-9]+)?=" $DOCKER_CFG; then
+      # interface has changed, update configuration
+      X=${NIC//[^0-9]/}
+      sed -ri "s/_(BR|BOND|ETH)$X(_[0-9]+)?=/_${NIC^^}\2=/" $DOCKER_CFG
+      sed -ri "s/(br|bond|eth)$X(\.[0-9]+)? /$NIC\2 /g" $DOCKER_CFG
+    fi
+  done
   # Read (updated) unRAID docker configuration file
   . $DOCKER_CFG
 fi
@@ -75,24 +84,6 @@ if [[ -n $(ip -6 route show dev $PORT default) ]]; then
 else
   # ipv6 disabled
   [[ -e $SYSTEM/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
-fi
-
-# user selection when bridge is enabled
-if [[ -z $DOCKER_NETWORK_TYPE ]]; then
-  DETACH='ipvlan'
-  ATTACH='macvlan'
-  MODE='bridge'
-else
-  DETACH='macvlan'
-  ATTACH='ipvlan'
-  MODE='l2 bridge'
-fi
-
-# fixed selection when bridge is disabled
-if [[ $PORT != br0 ]]; then
-  DETACH='ipvlan'
-  ATTACH='macvlan'
-  MODE='bridge'
 fi
 
 export DOCKER_RAMDISK=true
@@ -167,9 +158,29 @@ wipe() {
   echo ${wet[@]/$wet}
 }
 
+# Network driver
+driver() {
+  # user selection when bridge is enabled
+  if [[ -z $DOCKER_NETWORK_TYPE ]]; then
+    DETACH='ipvlan'
+    ATTACH='macvlan'
+    MODE='bridge'
+  else
+    DETACH='macvlan'
+    ATTACH='ipvlan'
+    MODE='l2 bridge'
+  fi
+  # fixed selection when bridge is disabled
+  if [[ $1 != br ]]; then
+    DETACH='ipvlan'
+    ATTACH='macvlan'
+    MODE='bridge'
+  fi
+}
+
 # Custom networks
 network(){
-  docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null|tr '\n' ' '
+  docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null|grep -P "^[a-z]+$2(\$|\.)"|tr '\n' ' '
 }
 
 # Is container running?
@@ -223,7 +234,7 @@ add_route(){
 # Add custom networks
 start_network(){
   # create list of possible custom networks
-  EXCLUDE=; INCLUDE=$(ls --indicator-style=none $SYSTEM|awk '/^br[0-9]/' ORS=' ')
+  EXCLUDE=; INCLUDE=$(ls --indicator-style=none $SYSTEM|awk '/^br[0-9]+/' ORS=' ')
   while IFS=$'\n' read -r NETWORK; do
     if [[ ${NETWORK:0:4} == bond ]]; then
       if [[ $INCLUDE =~ "${NETWORK/bond/br} " ]]; then
@@ -239,7 +250,7 @@ start_network(){
         INCLUDE="${INCLUDE}${NETWORK} "
       fi
     fi
-  done <<< $(ls --indicator-style=none $SYSTEM|grep -P '^(bond|eth)[0-9]')
+  done <<< $(ls --indicator-style=none $SYSTEM|grep -P '^(bond|eth)[0-9]+')
   wait_daemon
   if ! is_docker_running; then return 1; fi
   # get container settings for custom networks to reconnect later
@@ -286,18 +297,27 @@ start_network(){
     done
   done
   # detach custom networks
-  for NETWORK in $(network $DETACH); do
-    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
-  done
-  # get existing custom networks
-  for NETWORK in $(network $ATTACH); do
-    if [[ $STOCK =~ ${NETWORK%%[0-9]*} ]]; then
-      [[ $EXCLUDE =~ "$NETWORK " || ! $ACTIVE =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
-    else
-      [[ $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+  for NIC in $NICS; do
+    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+      NIC=${NIC/eth/br}
+    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+      NIC=${NIC/eth/bond}
     fi
+    X=${NIC//[^0-9]/}
+    driver ${NIC//[0-9]/}
+    for NETWORK in $(network $DETACH $X); do
+      [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+    done
+    # get existing custom networks
+    for NETWORK in $(network $ATTACH $X); do
+      if [[ $STOCK =~ ${NETWORK%%[0-9]*} ]]; then
+        [[ $EXCLUDE =~ "$NETWORK " || ! $ACTIVE =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
+      else
+        [[ $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+      fi
+    done
+    NETWORKS=$(network $ATTACH $X)
   done
-  NETWORKS=$(network $ATTACH)
   # add or remove custom network
   for NETWORK in $INCLUDE; do
     if [[ ! $DOCKER_CUSTOM_NETWORKS =~ "$NETWORK " ]]; then
@@ -428,7 +448,9 @@ start_network(){
           [[ -n $RANGE ]] && SERVER="--aux-address=server=${R4%/*}" || SERVER="--aux-address=server=${SHIM_HIGH%/*}"
         fi
       fi
-      [[ ${NETWORK:0:2} == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
+      TYPE=${NETWORK//[0-9.]/}
+      driver $TYPE
+      [[ $TYPE == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
       docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 $RANGE6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | logger -t $(basename $0)
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
@@ -490,16 +512,24 @@ shim_network(){
 
 # Remove custom networks
 stop_network(){
-  for NETWORK in $(network $ATTACH); do
-    [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
-  done
-  for LINK in $(ls --indicator-style=none $SYSTEM|grep '^shim-'); do
-    ip -4 addr flush dev $LINK
-    ip -4 route flush dev $LINK
-    ip -6 addr flush dev $LINK
-    ip -6 route flush dev $LINK
-    ip link set $LINK down
-    ip link del $LINK
+  for NIC in $NICS; do
+    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+      NIC=${NIC/eth/br}
+    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+      NIC=${NIC/eth/bond}
+    fi
+    X=${NIC//[^0-9]/}
+    driver ${NIC//[0-9]/}
+    for NETWORK in $(network $ATTACH $X); do
+      [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+      LINK=shim-$NETWORK
+      if [[ -e $SYSTEM/$LINK ]]; then
+        ip -4 addr flush dev $LINK
+        ip -4 route flush dev $LINK
+        ip link set $LINK down
+        ip link del $LINK
+      fi
+    done
   done
 }
 
