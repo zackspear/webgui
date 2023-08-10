@@ -179,7 +179,7 @@ start_libvirtd() {
     # get all source sections
     CAT=($(grep -nhP '<source (bridge|dev)=' "$XML"|awk '{print $1$3}'))
     for i in ${!ROW[@]}; do
-      SOURCE=$(echo ${CAT[$i]}|grep -Pom1 '^[0-9]+')
+      LINE=$(echo ${CAT[$i]}|grep -Pom1 '^[0-9]+')
       DEV=$(echo ${CAT[$i]}|grep -Pom1 "^.+='\K[^']+")
       logger -t $(basename $0) "checking for $DEV in $XML"
       if [[ ! -e $SYSTEM/$DEV ]]; then
@@ -188,12 +188,12 @@ start_libvirtd() {
           # change to macvtap
           logger -t $(basename $0) "change $DEV to macvtap"
           sed -ri "${ROW[$i]} s/<interface type='bridge'>/<interface type='direct'>/" "$XML"
-          sed -ri "$SOURCE s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/"
+          sed -ri "$LINE s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/" "$XML"
         else
           # change to bridge
           logger -t $(basename $0) "change $DEV to bridge"
           sed -ri "${ROW[$i]} s/<interface type='direct'>/<interface type='bridge'>/" "$XML"
-          sed -ri "$SOURCE s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
+          sed -ri "$LINE s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
         fi
       fi
     done
