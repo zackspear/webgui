@@ -676,7 +676,7 @@
 										$nicboot
 									</interface>";
 					} elseif (in_array($nic['network'], $br)) {
-						if ($bridge) {
+						if ($bridge || $nic['network']=='virbr0') {
 							$netstr .= "<interface type='bridge'>
 										<mac address='{$nic['mac']}'/>
 										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
