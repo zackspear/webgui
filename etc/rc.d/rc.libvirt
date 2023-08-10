@@ -172,7 +172,7 @@ start_libvirtd() {
   # remove <locked/> from xml because libvirt + virlogd + virlockd has an issue with locked
   sed -ri "s/<locked\/>//g" /etc/libvirt/qemu/*.xml &> /dev/null
   # update interface section of VM configuration files
-  if [[ -f /boot/config/network.cfg && -z $(grep -Po '^BRNICS\[0\]="\K[^"]+' /boot/config/network.cfg) ]]; then
+  if [[ -f /sys/class/net/br0 ]]; then
     # bridge interface to macvtap interface
     sed -ri "s/<interface type='bridge'>/<interface type='direct'>/;s/<source bridge='br([0-9]+(\.[0-9]+)?)'\/>/<source dev='vhost\1' mode='bridge'\/>/" /etc/libvirt/qemu/*.xml &> /dev/null
   else
