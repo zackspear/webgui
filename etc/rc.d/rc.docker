@@ -261,12 +261,20 @@ start_network(){
     if [[ -n $XMLFILE ]]; then
       REBUILD=
       # update custom network reference (if changed)
-      REF=$(grep -Pom1 '<Network>\K(br0|bond0|eth0)' $XMLFILE)
-      if [[ -n $REF && $REF != $PORT ]]; then
-        sed -ri "s/<Network>(br0|bond0|eth0)(\.[0-9]+)?<\/Network>/<Network>$PORT\2<\/Network>/" $XMLFILE
-        # flag container for later rebuild
-        REBUILD=1
-      fi
+      for NIC in $NICS; do
+        if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+          NIC=${NIC/eth/br}
+        elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+          NIC=${NIC/eth/bond}
+        fi
+        X=${NIC//[^0-9]/}
+        REF=$(grep -Pom1 "<Network>\K(br|bond|eth)$X" $XMLFILE)
+        if [[ -n $REF && $REF != $NIC ]]; then
+          sed -ri "s/<Network>(br|bond|eth)$X(\.[0-9]+)?<\/Network>/<Network>$NIC\2<\/Network>/" $XMLFILE
+          # flag container for later rebuild
+          REBUILD=1
+        fi
+      done
       MY_NETWORK= MY_IP=
       while read_dom; do
         [[ $ENTITY == Network ]] && MY_NETWORK=$CONTENT
