@@ -304,7 +304,7 @@ ipv6_conf(){
 # function to enable/disable ipv6 assignment per interface
 ipv6_addr(){
   ipv6_ra $IFACE $1 $2
-  [[ -z ${BRNICS[$i]} ]] && ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
+  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_conf bond br eth $1 $2
@@ -321,7 +321,7 @@ ipaddr_up(){
   # disable IPv6 per interface when IPv4 only
   [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
   echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
-  [[ -z ${BRNICS[$i]} ]] && echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
+  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_up bond br eth $DISABLE6
@@ -390,7 +390,7 @@ ipaddr_conf(){
 ipaddr_flush(){
   run ip -$1 addr flush dev $IFACE
   run ip -$1 route flush dev $IFACE
-  [[ -z ${BRNICS[$i]} ]] && run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
+  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
   if [[ ${IFACE:0:4} == bond ]]; then
     ipaddr_conf bond br eth $1
   elif [[ ${IFACE:0:2} == br ]]; then
