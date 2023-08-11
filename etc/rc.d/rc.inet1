@@ -256,16 +256,15 @@ vlan_down(){
 macvtap_up(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
-  [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
-  VHOST=vhost${PARENT//[^0-9]/}
-  run ip link add link $PARENT name $VHOST type macvtap mode bridge
-  set_mtu $VHOST
-  run ip link set $VHOST up 2>/dev/null
+  VTAP=vhost${PARENT//[^0-9]/}
+  run ip link add link $PARENT name $VTAP type macvtap mode bridge
+  set_mtu $VTAP
+  run ip link set $VTAP up 2>/dev/null
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
-    run ip link add link $PARENT.$VLAN name $VHOST.$VLAN type macvtap mode bridge
-    set_mtu $VHOST.$VLAN
-    run ip link set $VHOST.$VLAN up 2>/dev/null
+    run ip link add link $PARENT.$VLAN name $VTAP.$VLAN type macvtap mode bridge
+    set_mtu $VTAP.$VLAN
+    run ip link set $VTAP.$VLAN up 2>/dev/null
   done
 }
 
@@ -273,15 +272,14 @@ macvtap_up(){
 macvtap_down(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
-  [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
-  VHOST=vhost${PARENT//[^0-9]/}
+  VTAP=vhost${PARENT//[^0-9]/}
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
-    run ip link set $VHOST.$VLAN down 2>/dev/null
-    run ip link del $VHOST.$VLAN 2>/dev/null
+    run ip link set $VTAP.$VLAN down 2>/dev/null
+    run ip link del $VTAP.$VLAN 2>/dev/null
   done
-  run ip link set $VHOST down 2>/dev/null
-  run ip link del $VHOST 2>/dev/null
+  run ip link set $VTAP down 2>/dev/null
+  run ip link del $VTAP 2>/dev/null
 }
 
 # function to enable/disable ipv6 protocol per interface
@@ -306,7 +304,7 @@ ipv6_conf(){
 # function to enable/disable ipv6 assignment per interface
 ipv6_addr(){
   ipv6_ra $IFACE $1 $2
-  ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
+  [[ -z ${BRNICS[$i]} ]] && ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_conf bond br eth $1 $2
@@ -323,7 +321,7 @@ ipaddr_up(){
   # disable IPv6 per interface when IPv4 only
   [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
   echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
-  echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
+  [[ -z ${BRNICS[$i]} ]] && echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_up bond br eth $DISABLE6
@@ -392,7 +390,7 @@ ipaddr_conf(){
 ipaddr_flush(){
   run ip -$1 addr flush dev $IFACE
   run ip -$1 route flush dev $IFACE
-  run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
+  [[ -z ${BRNICS[$i]} ]] && run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
   if [[ ${IFACE:0:4} == bond ]]; then
     ipaddr_conf bond br eth $1
   elif [[ ${IFACE:0:2} == br ]]; then
