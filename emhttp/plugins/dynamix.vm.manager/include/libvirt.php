@@ -661,7 +661,7 @@
 					$netmodel = $nic['model'] ?: 'virtio-net';
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
-					exec("ip -br a|grep -Po '^((vir)?br|vhost)[0-9]+(\.[0-9]+)?'",$br);
+					exec("ls --indicator-style=none /sys/class/net|grep -Po '^((vir)?br|vhost)[0-9]+(\.[0-9]+)?'",$br);
 					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
 					if ($net_res) {
 							$netstr .= "<interface type='network'>
