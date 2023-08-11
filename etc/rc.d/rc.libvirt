@@ -181,7 +181,6 @@ start_libvirtd() {
     for i in ${!ROW[@]}; do
       ROW2=$(echo ${CAT[$i]}|grep -Pom1 '^[0-9]+')
       DEV=$(echo ${CAT[$i]}|grep -Pom1 "^.+='\K[^']+")
-      logger -t $(basename $0) "checking for $DEV in $XML"
       if [[ ! -e $SYSTEM/$DEV ]]; then
         NAME=${DEV//[0-9.]/}
         if [[ $NAME == br ]]; then
