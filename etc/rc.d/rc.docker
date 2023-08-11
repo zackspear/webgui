@@ -43,8 +43,7 @@ if [[ -f $DOCKER_CFG ]]; then
     if ! grep -qPm1 "_${NIC^^}(_[0-9]+)?=" $DOCKER_CFG; then
       # interface has changed, update configuration
       X=${NIC//[^0-9]/}
-      sed -ri "s/_(BR|BOND|ETH)$X(_[0-9]+)?=/_${NIC^^}\2=/" $DOCKER_CFG
-      sed -ri "s/(br|bond|eth)$X(\.[0-9]+)? /$NIC\2 /g" $DOCKER_CFG
+      sed -ri "s/_(BR|BOND|ETH)$X(_[0-9]+)?=/_${NIC^^}\2=/; s/(br|bond|eth)$X(\.[0-9]+)? /$NIC\2 /g" $DOCKER_CFG
     fi
   done
   # Read (updated) unRAID docker configuration file
