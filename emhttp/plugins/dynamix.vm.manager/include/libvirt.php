@@ -312,7 +312,7 @@
 
 				  $loader = "<loader readonly='yes' type='pflash'>/usr/share/qemu/ovmf-x64/OVMF_CODE-pure-efi.fd</loader>
 				  			<nvram>/etc/libvirt/qemu/nvram/".$uuid."_VARS-pure-efi.fd</nvram>";
-				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;			
+				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;
 			  }
 			  if ($domain['ovmf'] == 2) {
 				  if (!is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
@@ -331,7 +331,7 @@
 				$swtpm = "<tpm model='tpm-tis'>
   							<backend type='emulator' version='2.0' persistent_state='yes'/>
   						</tpm>";
-				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;  
+				if ($domain['usbboot'] == 'Yes') $osbootdev = "<boot dev='fd'/>" ;
 	  		}
 	  	}
 
@@ -375,7 +375,7 @@
 
 				// detect if the processor is hyperthreaded:
 				$intCPUThreadsPerCore = max(intval(shell_exec('/usr/bin/lscpu | grep \'Thread(s) per core\' | awk \'{print $4}\'')), 1);
-				
+
 				// detect if the processor is AMD + multithreaded, and if so, enable topoext cpu feature
 				if ($intCPUThreadsPerCore > 1) {
 					$strCPUInfo = file_get_contents('/proc/cpuinfo');
@@ -668,23 +668,36 @@
 					$netmodel = $nic['model'] ?: 'virtio-net';
 
 					$net_res =$this->libvirt_get_net_res($this->conn, $nic['network']);
-					exec("brctl show | cut -f1| awk NF | sed -n '1!p'", $br);
-					
+					$vhost = file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\[0\]=\"\K[^\"]+' /boot/config/network.cfg")=='';
+					if ($vhost) {
+						exec("ip -br a|grep -Po '^vhost[0-9][^@]*'",$br);
+					} else {
+						exec("brctl show | cut -f1| awk NF | sed -n '1!p'", $br);
+					}
 					if ($nic["boot"] != NULL) $nicboot = "<boot order='".$nic["boot"]."'/>" ; else $nicboot = "" ;
 					if($net_res) {
-						$netstr .= "<interface type='network'>
+							$netstr .= "<interface type='network'>
 										<mac address='{$nic['mac']}'/>
 										<source network='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
-										$nicboot 
-									</interface>" ;
+										$nicboot
+									</interface>";
 					} elseif(in_array($nic['network'], $br)) {
-						$netstr .= "<interface type='bridge'>
+						if ($vhost) {
+							$netstr .= "<interface type='direct'>
+										<mac address='{$nic['mac']}'/>
+										<source dev='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "' mode='bridge'/>
+										<model type='$netmodel'/>
+										$nicboot
+									</interface>";
+						} else {
+							$netstr .= "<interface type='bridge'>
 										<mac address='{$nic['mac']}'/>
 										<source bridge='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "'/>
 										<model type='$netmodel'/>
-										$nicboot 
-									</interface>";				
+										$nicboot
+									</interface>";
+						}
 					} else {
 						continue;
 					}
@@ -701,8 +714,8 @@
 					}
 
 					if ($share['mode'] == "virtiofs") {
-					if (!isset($memorybacking['source'])) 	$memorybacking['source']["@attributes"]["type"] = "memfd" ;	
-					if (!isset($memorybacking['access'])) 	$memorybacking['access']["@attributes"]["mode"] = "shared" ;									
+					if (!isset($memorybacking['source'])) 	$memorybacking['source']["@attributes"]["type"] = "memfd" ;
+					if (!isset($memorybacking['access'])) 	$memorybacking['access']["@attributes"]["mode"] = "shared" ;
 
 						$sharestr .=	"<filesystem type='mount' accessmode='passthrough'>
 											<driver type='virtiofs' queue='1024' />
@@ -713,7 +726,7 @@
 												<cache mode='always'/>
 											</binary>
 										</filesystem>" ;
-					} else { 
+					} else {
 							$sharestr .= "<filesystem type='mount' accessmode='passthrough'>
 												<source dir='" . htmlspecialchars($share['source'], ENT_QUOTES | ENT_XML1) . "'/>
 												<target dir='" . htmlspecialchars($share['target'], ENT_QUOTES | ENT_XML1) . "'/>
@@ -757,7 +770,7 @@
 							$strAutoport = $gpu['autoport'];
 						} else $strAutoport = "yes" ;
 
-						
+
 
 						if (!empty($gpu['protocol'])) {
 							$strProtocol = $gpu['protocol'];
@@ -799,7 +812,7 @@
 															<target type='virtio' name='com.redhat.spice.0'/>
 														</channel>" ;
 							}
-						} else $channelcopypaste = ""; 
+						} else $channelcopypaste = "";
 
 						continue;
 					}
@@ -1194,12 +1207,12 @@
 			foreach ($arrDomain as $disk) {
 				if ($disk->attributes()->device != "disk") continue ;
 				$tmp = libvirt_domain_get_block_info($dom, $disk->target->attributes()->dev);
-		 
+
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ;
 					$tmp['serial'] = $disk->serial ;
-					
+
 					// Libvirt reports 0 bytes for raw disk images that haven't been
 					// written to yet so we just report the raw disk size for now
 					if ( !empty($tmp['file']) &&
@@ -1210,7 +1223,7 @@
 						$intSize = filesize($tmp['file']);
 						$tmp['physical'] = $intSize;
 						$tmp['capacity'] = $intSize;
-					} 
+					}
 
 					$ret[] = $tmp;
 				}
@@ -1226,7 +1239,7 @@
 						'physical' => '-',
 						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
-						'serial' => $disk->serial 
+						'serial' => $disk->serial
 					];
 				}
 			}
@@ -1959,6 +1972,20 @@
 			return $var;
 		}
 
+		function domain_get_vnc_password($domain) {
+			$domain_name = $this->domain_get_name($domain) ;
+			$password = shell_exec("cat /etc/libvirt/qemu/'{$domain_name}.xml' | grep 'passwd'") ;
+
+			if (!$password)
+				return '';
+
+			$strpos = strpos($password, "passwd=") +8 ;
+			$endpos = strpos($password, "'",$strpos) ;
+			$password = substr($password,$strpos, $endpos-$strpos) ;
+
+			return $password ;
+		}
+
 		function domain_get_ws_port($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@websocket', false);
 			$var = (int)$tmp[0];
@@ -2078,7 +2105,7 @@
 					$ret[] = [
 						'source' => $source,
 						'target' => $target ,
-						'mode' => $mode 
+						'mode' => $mode
 						];
 			}
 			return $ret;

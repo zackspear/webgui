@@ -104,7 +104,7 @@ nfsd_reload() {
 }
 
 nfsd_update() {
-  [[ $(pgrep -c nfsd) -le 1 ]] && exit 1 # not running
+  if ! ps axc | grep -q rpc.mountd; then exit 1; fi # not running
   if check && [[ "$(this)" == "-H ${bind// / -H }" ]]; then
     # no action required
     exit 1

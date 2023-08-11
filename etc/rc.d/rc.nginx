@@ -59,20 +59,23 @@ fqdn() {
 # create listening ports
 listen() {
   t='    '
-  if [[ $1 == lo ]]; then
-    echo "${t}listen 127.0.0.1:$PORT; # lo"
-    echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
-    echo "${t}listen [::1]:$PORT; # lo"
-    echo "${t}listen [::1]:$PORTSSL; # lo"
-  elif check && [[ -n $bind ]]; then
+  if check && [[ $1 == lo ]]; then
+    if [[ $ipv4 == yes ]]; then
+      echo "${t}listen 127.0.0.1:$PORT; # lo"
+      echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
+    fi
+    if [[ $ipv6 == yes ]]; then
+      echo "${t}listen [::1]:$PORT; # lo"
+      echo "${t}listen [::1]:$PORTSSL; # lo"
+    fi
+  elif [[ -n $bind ]]; then
     for addr in $bind; do
       [[ $(IPv $addr) == 4 ]] && echo "${t}listen $addr:$*; # $(show $addr)"
       [[ $(IPv $addr) == 6 ]] && echo "${t}listen [$addr]:$*; # $(show $addr)"
     done
   else
-    # default listen on any interface and any protocol
+    # default listen on any interface with ipv4 protocol
     echo "${t}listen $*;"
-    echo "${t}listen [::]:$*;"
   fi
 }
 
@@ -694,7 +697,7 @@ nginx_renew() {
 }
 
 nginx_update() {
-  [[ $(pgrep -cf $NGINX) -eq 0 ]] && exit 1 # not running
+  if ! nginx_status; then exit 1; fi # not running
   if check && [[ "$(this)" == "$bind" ]]; then
     # no action required
     exit 1

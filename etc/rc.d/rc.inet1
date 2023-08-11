@@ -47,6 +47,14 @@
 # - fixed ipv4 and ipv6 DNS assignment
 # - suppress errors
 
+# Adapted by Bergware for use in unRAID - July 2023
+# - reverted iptables and ip6tables and arp-tables inclusion to bridge interfaces
+# - removed promiscuous mode setting for bridge interfaces
+# - added persistent option to dhcpcd
+
+# Adapted by Bergware for use in unRAID - August 2023
+# - added macvlan network creation
+
 ############################
 # READ NETWORK CONFIG FILE #
 ############################
@@ -184,7 +192,7 @@ br_up(){
     # convert legacy no/yes
     BRSTP[$i]=${BRSTP[$i]/no/0}
     BRSTP[$i]=${BRSTP[$i]/yes/1}
-    run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]} nf_call_iptables 1 nf_call_ip6tables 1 nf_call_arptables 1
+    run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]}
     run ip link set $BRIDGE up
     # loop thru assigned interfaces in bridge
     for BRNIC in ${BRNICS[$i]}; do
@@ -196,7 +204,7 @@ br_up(){
         run ip link set $BRIF down
         [[ $IP != ipv6 ]] && run ip -4 addr flush dev $BRIF
         [[ $IP != ipv4 ]] && run ip -6 addr flush dev $BRIF
-        run ip link set $BRIF promisc on master $BRIDGE up
+        run ip link set $BRIF master $BRIDGE up
       else
         [[ $DEBUG_ETH_UP == yes ]] && log "interface $BRIF not present, can't add to $BRIDGE"
       fi
@@ -212,7 +220,7 @@ br_down(){
     if [[ -e $SYSTEM/$BRIDGE ]]; then
       # loop thru attached interfaces in bridge
       for BRIF in $(ls --indicator-style=none $SYSTEM/$BRIDGE/brif); do
-        run ip link set $BRIF promisc off nomaster
+        run ip link set $BRIF nomaster
       done
       run ip link set $BRIDGE down
       run ip link del $BRIDGE
@@ -238,10 +246,42 @@ vlan_up(){
 vlan_down(){
   for PORT in ${BRNICS[$i]:-${IFNAME[$i]}}; do
     for VLAN in $(ls --indicator-style=none $SYSTEM|grep -Po "$PORT\.\d+"); do
-      run ip link set $VLAN down
-      run ip link del $VLAN
+      run ip link set $VLAN down 2>/dev/null
+      run ip link del $VLAN 2>/dev/null
     done
   done
+}
+
+# function to create macvlan interfaces
+macvlan_up(){
+  PARENT=${IFNAME[$i]}
+  [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
+  [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
+  VHOST=vhost${PARENT//[^0-9]/}
+  run ip link add link $PARENT name $VHOST type macvtap mode bridge
+  set_mtu $VHOST
+  run ip link set $VHOST up 2>/dev/null
+  for ((j=1;j<${VLANS[$i]:-0};j++)); do
+    VLAN=${VLANID[$i,$j]}
+    run ip link add link $PARENT.$VLAN name $VHOST.$VLAN type macvtap mode bridge
+    set_mtu $VHOST.$VLAN
+    run ip link set $VHOST.$VLAN up 2>/dev/null
+  done
+}
+
+# function to delete macvlan interfaces
+macvlan_down(){
+  PARENT=${IFNAME[$i]}
+  [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
+  [[ -n ${BRNICS[$i]} ]] && PARENT=${BRNAME[$i]}
+  VHOST=vhost${PARENT//[^0-9]/}
+  for ((j=1;j<${VLANS[$i]:-0};j++)); do
+    VLAN=${VLANID[$i,$j]}
+    run ip link set $VHOST.$VLAN down 2>/dev/null
+    run ip link del $VHOST.$VLAN 2>/dev/null
+  done
+  run ip link set $VHOST down 2>/dev/null
+  run ip link del $VHOST 2>/dev/null
 }
 
 # function to enable/disable ipv6 protocol per interface
@@ -266,6 +306,7 @@ ipv6_conf(){
 # function to enable/disable ipv6 assignment per interface
 ipv6_addr(){
   ipv6_ra $IFACE $1 $2
+  ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_conf bond br eth $1 $2
@@ -282,6 +323,7 @@ ipaddr_up(){
   # disable IPv6 per interface when IPv4 only
   [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
   echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
+  echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_up bond br eth $DISABLE6
@@ -293,7 +335,7 @@ ipaddr_up(){
   if [[ $DHCP == yes ]]; then
     # bring up interface using DHCP/SLAAC
     ipv6_addr 1 1
-    DHCP_OPTIONS="-q -n -t ${DHCP_TIMEOUT[$i]:-10}"
+    DHCP_OPTIONS="-q -n -p -t ${DHCP_TIMEOUT[$i]:-10}"
     [[ -n $DHCP_HOSTNAME ]] && DHCP_OPTIONS="$DHCP_OPTIONS -h $DHCP_HOSTNAME"
     [[ $DHCP_KEEP_RESOLV == yes ]] && DHCP_OPTIONS="$DHCP_OPTIONS -C resolv.conf"
     [[ $DHCP_DEBUG == yes ]] && DHCP_OPTIONS="$DHCP_OPTIONS -d"
@@ -350,6 +392,7 @@ ipaddr_conf(){
 ipaddr_flush(){
   run ip -$1 addr flush dev $IFACE
   run ip -$1 route flush dev $IFACE
+  run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
   if [[ ${IFACE:0:4} == bond ]]; then
     ipaddr_conf bond br eth $1
   elif [[ ${IFACE:0:2} == br ]]; then
@@ -388,6 +431,7 @@ if_up(){
   [[ -n ${BONDNICS[$i]} ]] && bond_up  # create interface as bond
   [[ -n ${VLANS[$i]} ]] && vlan_up     # create interface VLANs
   [[ -n ${BRNICS[$i]} ]] && br_up      # create interface as bridge
+  macvlan_up                           # create macvlan interfaces
   # if the interface isn't in the kernel yet
   # but there's an alias for it in modules.conf
   # then it should be loaded first
@@ -486,6 +530,7 @@ if_down(){
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE not present, can't take down"
     fi
   done
+  macvlan_down                           # delete macvlan interfaces
   [[ -n ${BRNICS[$i]} ]] && br_down      # delete interface as bridge
   [[ -n ${VLANS[$i]} ]] && vlan_down     # delete interface VLANs
   [[ -n ${BONDNICS[$i]} ]] && bond_down  # delete interface as bond

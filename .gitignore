@@ -49,6 +49,9 @@ Temporary Items
 # Sublime text SFTP configuration file
 sftp-config.json
 
+# VS Code SFTP configuration file
+.vscode/sftp.json
+
 # =========================
 # Exclude these dirs commonly found in /usr/local
 bin/

@@ -1066,8 +1066,11 @@ private static $encoding = 'UTF-8';
 	function getValidNetworks() {
 		global $lv;
 		$arrValidNetworks = [];
-		exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
-
+		if (file_exists("/boot/config/network.cfg") && exec("grep -Po '^BRNICS\[0\]=\"\K[^\"]+' /boot/config/network.cfg")=='') {
+			exec("ip -br a|grep -Po '^(virbr|vhost)[0-9][^@ ]*'",$arrBridges);
+		} else {
+			exec("brctl show|grep -Po '^(vir)?br\d\S*'", $arrBridges);
+		}
 		if (!is_array($arrBridges)) {
 			$arrBridges = [];
 		}
@@ -1082,15 +1085,15 @@ private static $encoding = 'UTF-8';
 		$arrValidNetworks['bridges'] = array_values($arrBridges);
 
 		// This breaks VMSettings.page if libvirt is not running
-        	if ($libvirt_running == "yes") {
+			if ($libvirt_running == "yes") {
 			$arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
-			
+
 			if (($key = array_search('default', $arrVirtual)) !== false) {
 				unset($arrVirtual[$key]);
 			}
-			
+
 			array_unshift($arrVirtual, 'default');
-			
+
 			$arrValidNetworks['libvirt'] = array_values($arrVirtual);
 		}
 
@@ -1149,6 +1152,7 @@ private static $encoding = 'UTF-8';
 				'protocol' => $lv->domain_get_vmrc_protocol($res),
 				'model' => $lv->domain_get_vnc_model($res),
 				'keymap' => $lv->domain_get_vnc_keymap($res),
+				'password' => $lv->domain_get_vnc_password($res),
 				'port' => $vmrcport,
 				'wsport' => $lv->domain_get_ws_port($res),
 				'autoport' => $autoport,
@@ -1269,7 +1273,7 @@ private static $encoding = 'UTF-8';
 				'ovmf' => $strOVMF,
 				'usbboot' => $osbootdev,
 				'usbmode' => $strUSBMode,
-				'memoryBacking' => getmemoryBacking($res) 
+				'memoryBacking' => getmemoryBacking($res)
 			],
 			'media' => [
 				'cdrom' => (!empty($medias) && !empty($medias[0]) && array_key_exists('file', $medias[0])) ? $medias[0]['file'] : '',
@@ -1333,7 +1337,7 @@ private static $encoding = 'UTF-8';
 			foreach ($old['devices']['disk'] as $k => $d) if ($source==$d['source']['@attributes']['file']) $new['devices']['disk'][$key]['driver']['@attributes'] = $d['driver']['@attributes'];
 		}
 		// settings not in the GUI, but maybe customized
-		unset($new['clock']); 
+		unset($new['clock']);
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
@@ -1360,10 +1364,10 @@ private static $encoding = 'UTF-8';
 					'name' => $data["name"],
 					'checked' => '',
 					'startupPolicy' => '',
-					'usbboot' => '' 
+					'usbboot' => ''
 					];
 		}
-		if ($strXML !="") { 
+		if ($strXML !="") {
 			$VMxml = new SimpleXMLElement($strXML);
 			$VMUSB=$VMxml->xpath('//devices/hostdev[@type="usb"]') ;
 			foreach($VMUSB as $USB){
@@ -1388,13 +1392,13 @@ private static $encoding = 'UTF-8';
 						'name' => _("USB device is missing"),
 						'checked' => 'checked',
 						'startupPolicy' => $startupPolicy,
-						'usbboot' => $usbboot 
+						'usbboot' => $usbboot
 						];
 				}
 			}
-		}	
+		}
 		return $array ;
-	} 
+	}
 
 	function sharesOnly($disk) {
 		return strpos('Data,Cache',$disk['type'])!==false && $disk['exportable']=='yes';
@@ -1431,7 +1435,7 @@ private static $encoding = 'UTF-8';
 		$memorybacking = $memoryBacking->memoryBacking ;
 		return json_encode($memorybacking); ;
 	}
-	
+
 	function getchannels($res) {
 		global $lv ;
         $xml = $lv->domain_get_xml($res) ;
