@@ -470,7 +470,7 @@ start_network(){
         logger -t $(basename $0) "connecting $CONTAINER to network $NETWORK"
         docker network connect $MY_IP $NETWORK $CONTAINER >/dev/null
         if [[ -n ${CTRESTORE[$NETWORK]} ]]; then
-          # rebuild the container before connecting to network
+          # rebuild the container to use changed network
           logger -t $(basename $0) "rebuild container $CONTAINER"
           /usr/local/emhttp/plugins/dynamix.docker.manager/scripts/rebuild_container $CONTAINER
         fi
@@ -481,6 +481,7 @@ start_network(){
         if [[ ! -e $SYSTEM/$LINK && -n $SHIM_BASE ]]; then
           # create shim network
           ip link add $LINK link $NETWORK type $ATTACH mode $MODE
+          # disable ipv6 on shim network
           echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
           logger -t $(basename $0) "created network $LINK for host access"
