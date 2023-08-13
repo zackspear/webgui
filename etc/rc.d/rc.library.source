@@ -92,7 +92,7 @@ wipe() {
   # remove temporary (privacy extensions) and host ipv6 addresses
   for tmp in $(ip -br -6 addr show scope global temporary dev $wet 2>/dev/null|awk '{$1=$2="";print}'); do
     for i in ${!wet[@]}; do
-      [[ ${wet[$i]} == $tmp || ${wet[$i]#*/} == 128 ]] && unset 'wet[i]'
+      [[ ${wet[$i]} == $tmp || (${wet[$i]} =~ '::' && ${wet[$i]#*/} == 128) ]] && unset 'wet[i]'
     done
   done
   # return cleaned-up list without interface name
