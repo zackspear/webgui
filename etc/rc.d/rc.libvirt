@@ -186,11 +186,11 @@ start_libvirtd() {
         if [[ $NAME == br ]]; then
           # change to macvtap
           logger -t $(basename $0) "change $DEV to macvtap in $XML"
-          sed -ri "${ROW[$i]} s/<interface type='bridge'>/<interface type='direct'>/; $ROW2 s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/" "$XML"
+          sed -ri "${ROW[$i]} s/<interface type='bridge'>/<interface type='direct' trustGuestRxFilters='yes'>/; $ROW2 s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/" "$XML"
         else
           # change to bridge
           logger -t $(basename $0) "change $DEV to bridge in $XML"
-          sed -ri "${ROW[$i]} s/<interface type='direct'>/<interface type='bridge'>/; $ROW2 s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
+          sed -ri "${ROW[$i]} s/<interface type='direct'( trustGuestRxFilters='yes')?>/<interface type='bridge'>/; $ROW2 s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
         fi
       fi
     done

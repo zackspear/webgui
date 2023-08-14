@@ -303,8 +303,8 @@ ipv6_conf(){
 
 # function to enable/disable ipv6 assignment per interface
 ipv6_addr(){
-  ipv6_ra $IFACE $1 $2
-  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && ipv6_ra vhost${IFACE//[^0-9.]} $1 $2
+  [[ -d $CONF6/$IFACE ]] && ipv6_ra $IFACE $1 $2
+  [[ -d $CONF6/$VHOST ]] && ipv6_ra $VHOST $1 $2
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_conf bond br eth $1 $2
@@ -320,8 +320,8 @@ ipv6_addr(){
 ipaddr_up(){
   # disable IPv6 per interface when IPv4 only
   [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
-  echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
-  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && echo $DISABLE6 >$CONF6/vhost${IFACE//[^0-9.]}/disable_ipv6
+  [[ -d $CONF6/$IFACE ]] && echo $DISABLE6 >$CONF6/$IFACE/disable_ipv6
+  [[ -d $CONF6/$VHOST ]] && echo $DISABLE6 >$CONF6/$VHOST/disable_ipv6
   # repeat action on related interfaces
   if [[ ${IFACE:0:4} == bond ]]; then
     ipv6_up bond br eth $DISABLE6
@@ -390,7 +390,7 @@ ipaddr_conf(){
 ipaddr_flush(){
   run ip -$1 addr flush dev $IFACE
   run ip -$1 route flush dev $IFACE
-  [[ -e $SYSTEM/vhost${IFACE//[^0-9.]} ]] && run ip -$1 addr flush dev vhost${IFACE//[^0-9.]}
+  [[ -e $SYSTEM/$VHOST ]] && run ip -$1 addr flush dev $VHOST
   if [[ ${IFACE:0:4} == bond ]]; then
     ipaddr_conf bond br eth $1
   elif [[ ${IFACE:0:2} == br ]]; then
@@ -449,6 +449,8 @@ if_up(){
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE does not exist (yet)"
       continue
     fi
+    # macvtap interface name
+    VHOST=vhost${IFACE//[^0-9.]}
     # set main interface
     if [[ $j -eq 0 ]]; then
       # set hardware address before interface goes up
@@ -502,6 +504,8 @@ if_down(){
   for ((j=0;j<${VLANS[$i]:-1};j++)); do
     [[ $j -eq 0 ]] && IFACE=$1 || IFACE=$1.${VLANID[$i,$j]}
     [[ $j -eq 0 ]] && IP=${PROTOCOL[$i]:-ipv4} || IP=${PROTOCOL[$i,$j]:-ipv4}
+    # macvtap interface name
+    VHOST=vhost${IFACE//[^0-9.]}
     if [[ -e $SYSTEM/$IFACE ]]; then
       # take down interface
       if [[ $IP == ipv4 ]]; then
