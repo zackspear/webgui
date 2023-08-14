@@ -679,7 +679,7 @@
 										$nicboot
 									</interface>";
 						} else {
-							$netstr .= "<interface type='direct'>
+							$netstr .= "<interface type='direct' trustGuestRxFilters='yes'>
 										<mac address='{$nic['mac']}'/>
 										<source dev='" . htmlspecialchars($nic['network'], ENT_QUOTES | ENT_XML1) . "' mode='bridge'/>
 										<model type='$netmodel'/>
