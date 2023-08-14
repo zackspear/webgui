@@ -159,6 +159,8 @@ waitstop() {
   return 1
 }
 
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+
 start_libvirtd() {
   if [[ -f $LIBVIRTD_PIDFILE ]]; then
     echo "libvirt is already running..."
@@ -172,6 +174,11 @@ start_libvirtd() {
   sed -ri "s/<vendor id='none'\/>/<vendor_id state='on' value='none'\/>/g" /etc/libvirt/qemu/*.xml &> /dev/null
   # remove <locked/> from xml because libvirt + virlogd + virlockd has an issue with locked
   sed -ri "s/<locked\/>//g" /etc/libvirt/qemu/*.xml &> /dev/null
+  # Remove "<watchdog model='itco' action='reset'/>" if rerting from later release.
+  VERSION=$(sed -n 's/.*version *= *\"\([^ ]*.*\)\"/\1/p' < /etc/unraid-version)
+  if [ $(version $VERSION) -le $(version "6.12.9") ]; then
+    sed -ri "/<watchdog model='itco' action='reset'\/>/d" /etc/libvirt/qemu/*.xml &> /dev/null
+  fi
   # update interface section((s) of VM configuration files
   for XML in /etc/libvirt/qemu/*.xml; do
     # get all interface sections
