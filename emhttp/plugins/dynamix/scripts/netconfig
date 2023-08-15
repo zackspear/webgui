@@ -20,7 +20,7 @@ $cfg = '/boot/config/network.cfg';
 function update_wireguard($ifname) {
   if (!in_array($ifname,['br0','bond0','eth0'])) return;
   $nic = file_exists('/sys/class/net/br0') ? 'br0' : (file_exists('/sys/class/net/bond0') ? 'bond0' : 'eth0');
-  exec("wg show interfaces",$active);
+  exec("wg show interfaces|tr ' ' '\n'",$active);
   foreach (glob("/etc/wireguard/*.conf",GLOB_NOSORT) as $wg) {
     $vtun = basename($wg,'.conf');
     // interface has changed?
