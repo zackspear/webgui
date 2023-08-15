@@ -257,12 +257,13 @@ macvtap_up(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
   VTAP=vhost${PARENT//[^0-9]/}
-  run ip link add link $PARENT name $VTAP type macvtap mode bridge
+  MAC=$(echo $VTAP|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+  run ip link add link $PARENT name $VTAP address $MAC type macvtap mode bridge
   set_mtu $VTAP
   run ip link set $VTAP up 2>/dev/null
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
-    run ip link add link $PARENT.$VLAN name $VTAP.$VLAN type macvtap mode bridge
+    run ip link add link $PARENT.$VLAN name $VTAP.$VLAN address $MAC type macvtap mode bridge
     set_mtu $VTAP.$VLAN
     run ip link set $VTAP.$VLAN up 2>/dev/null
   done
