@@ -257,7 +257,7 @@ macvtap_up(){
   PARENT=${IFNAME[$i]}
   [[ -n ${BONDNICS[$i]} ]] && PARENT=${BONDNAME[$i]}
   VTAP=vhost${PARENT//[^0-9]/}
-  MAC=$(echo $VTAP|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+  MAC=$(echo $(hostname -s)-$VTAP|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
   run ip link add link $PARENT name $VTAP address $MAC type macvtap mode bridge
   set_mtu $VTAP
   run ip link set $VTAP up 2>/dev/null
