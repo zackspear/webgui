@@ -480,7 +480,7 @@ start_network(){
       if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
         if [[ ! -e $SYSTEM/$LINK && -n $SHIM_BASE ]]; then
           # create shim network
-          MAC=$(echo $NETWORK|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+          MAC=$(echo $(hostname -s)-$NETWORK|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
           ip link add $LINK link $NETWORK address $MAC type $ATTACH mode $MODE
           # disable ipv6 on shim network
           echo 1 > $CONF6/$LINK/disable_ipv6
