@@ -160,7 +160,7 @@ waitstop() {
 }
 
 version() {
-  echo $1 | awk -F. '{printf("%d%03d%03d%03d", $1,$2,$3,$4);}'
+  echo $1 | awk -F. '{printf("%03d%03d", $1,$2);}'
 }
 
 start_libvirtd() {
@@ -178,7 +178,7 @@ start_libvirtd() {
   sed -ri "s/<locked\/>//g" /etc/libvirt/qemu/*.xml &> /dev/null
   # Remove "<watchdog model='itco' action='reset'/>" if reverting from later release.
   . /etc/unraid-version
-  if [[ $(version $version) -le $(version "6.12.9") ]]; then
+  if [[ $(version $version) -le $(version "6.12") ]]; then
     sed -ri "/<watchdog model='itco' action='reset'\/>/d" /etc/libvirt/qemu/*.xml &> /dev/null
   fi
   # update interface section((s) of VM configuration files
