@@ -57,6 +57,15 @@ start() {
       echo "wg-quick up $WG (autostart)" >>$LOG
       cat $TMP >>$LOG
       echo >>$LOG
+      # WG tunnel for docker container?
+      if grep -qm1 '^TYPE:1="8"' $WIREGUARD/$WG.cfg; then
+        # update routing table for WG tunnels used by containers
+        TABLE=$(grep -Pom1 'fwmark \K[\d]+' $TMP)
+        ROUTE=$(grep -Pom1 '^Address=\K.+$' $WIREGUARD/$WG.conf)
+        sleep 1
+        ip -4 route flush table $TABLE
+        ip -4 route add $ROUTE dev $WG table $TABLE
+      fi
     fi
   done
   rm -f $TMP
