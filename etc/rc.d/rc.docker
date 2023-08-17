@@ -448,7 +448,7 @@ start_network(){
           [[ -e $SYSTEM/$LINK ]] || ip link add $LINK link $NETWORK address $MAC type $ATTACH mode $MODE
           ip addr flush dev $LINK
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
-          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1
+          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1 || echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
           logger -t $(basename $0) "created network $LINK for host access"
         elif [[ -e $SYSTEM/$LINK ]]; then
