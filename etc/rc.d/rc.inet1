@@ -276,9 +276,11 @@ macvtap_down(){
   VTAP=vhost${PARENT//[^0-9]/}
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
+    run ip addr flush dev $VTAP.$VLAN
     run ip link set $VTAP.$VLAN down 2>/dev/null
     run ip link del $VTAP.$VLAN 2>/dev/null
   done
+  run ip addr flush dev $VTAP
   run ip link set $VTAP down 2>/dev/null
   run ip link del $VTAP 2>/dev/null
 }
@@ -357,14 +359,14 @@ ipaddr_up(){
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
-        [[ -n $MASK ]] && run ip -4 addr add $ADDR/$MASK dev $IFACE
+        [[ -n $MASK ]] && run ip -4 addr add $ADDR/$MASK dev $IFACE metric 1
       fi
     fi
     if [[ $IP != ipv4 ]]; then
       [[ $j -eq 0 ]] && ADDR6=${IPADDR6[$i]} || ADDR6=${IPADDR6[$i,$j]}
       if [[ -n $ADDR6 ]]; then
         [[ $j -eq 0 ]] && MASK6=${NETMASK6[$i]} || MASK6=${NETMASK6[$i,$j]}
-        [[ -n $MASK6 ]] && run ip -6 addr add $ADDR6/$MASK6 dev $IFACE
+        [[ -n $MASK6 ]] && run ip -6 addr add $ADDR6/$MASK6 dev $IFACE metric 1
         [[ -n $PRIV6 && -d $CONF6/$IFACE ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
       fi
     fi
