@@ -337,30 +337,7 @@ start_network(){
       fi
       # add auto defined networks
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
-      IPV4=$(ip -4 addr show $NETWORK|awk '/^ +inet /{print $2;exit}')
-      if [[ -z $IPV4 ]]; then
-        # wait for DHCP to assign IPv4 address
-        KEY=${NETWORK%.*}
-        KEY=${KEY/br/eth}
-        KEY=${KEY/bond/eth}
-        # get network configuration section
-        sed -n "/^\[$KEY\]$/,/^\[/p" $INI >$TMP
-        VLAN=${NETWORK#*.}
-        if [[ -z $VLAN ]]; then
-          USE_DHCP="USE_DHCP:0"
-        else
-          VLAN=$(grep -Pom1 "^VLANID:\d+=\"$VLAN\"$" $TMP)
-          VLAN=${VLAN%=*}
-          USE_DHCP=${VLAN/VLANID/USE_DHCP}
-        fi
-        # only wait when DHCP is used (max 10 seconds)
-        [[ $(grep -Pom1 "^$USE_DHCP=.\K[^\"]+" $TMP) == yes ]] && LOOP=10 || LOOP=0
-        while [[ -z $IPV4 && $LOOP -gt 0 ]]; do
-          sleep 1
-          IPV4=$(ip -4 addr show $NETWORK|awk '/^ +inet /{print $2;exit}')
-          ((LOOP--))
-        done
-      fi
+      IPV4=$(ip -br -4 addr show $NETWORK|awk '{print $3;exit}')
       if [[ -n $IPV4 ]]; then
         SUBNET=$(ip -4 route show dev $NETWORK $IPV4|awk '{print $1;exit}')
         SERVER=${IPV4%/*}
@@ -442,19 +419,6 @@ start_network(){
     [[ -n $SUBNET6 && -n $RANGE6 ]] && RANGE6="--ip-range=$RANGE6" || RANGE6=;
     [[ -n $SUBNET6 ]] && SUBNET6="--ipv6 --subnet=$SUBNET6"
     if [[ -n $SUBNET || -n $SUBNET6 ]]; then
-      SHIM_BASE=;
-      # hack to let containers talk to host
-      if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
-        BASE=${N4%/*}
-        MASK=${N4#*/}
-        IP=(${BASE//./ })
-        IP=$(((${IP[0]}<<24)+(${IP[1]}<<16)+(${IP[2]}<<8)+${IP[3]}+2**(31-MASK)))
-        SHIM_BASE=$BASE/$((MASK+1))
-        SHIM_HIGH=$((IP>>24)).$((IP>>16&255)).$((IP>>8&255)).$((IP&255))/$((MASK+1))
-        if [[ -z $SERVER ]]; then
-          [[ -n $RANGE ]] && SERVER="--aux-address=server=${R4%/*}" || SERVER="--aux-address=server=${SHIM_HIGH%/*}"
-        fi
-      fi
       TYPE=${NETWORK//[0-9.]/}
       driver $TYPE
       [[ $TYPE == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
@@ -475,48 +439,38 @@ start_network(){
           /usr/local/emhttp/plugins/dynamix.docker.manager/scripts/rebuild_container $CONTAINER
         fi
       done
-      LINK=shim-$NETWORK
       # hack to let containers talk to host
-      if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
-        if [[ ! -e $SYSTEM/$LINK && -n $SHIM_BASE ]]; then
-          # create shim network
-          MAC=$(echo $(hostname -s)-$NETWORK|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
-          ip link add $LINK link $NETWORK address $MAC type $ATTACH mode $MODE
-          # disable ipv6 on shim network
-          echo 1 > $CONF6/$LINK/disable_ipv6
+      if [[ $TYPE == br ]]; then
+        LINK=shim-$NETWORK
+        if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
+          # create shim interface with predefined MAC address and copy server IPv4/IPv6 addresses to shim interface
+          MAC=$(echo $(hostname)-$NETWORK|md5sum|sed -r 's/^(..)(..)(..)(..)(..).*$/02:\1:\2:\3:\4:\5/')
+          [[ -e $SYSTEM/$LINK ]] || ip link add $LINK link $NETWORK address $MAC type $ATTACH mode $MODE
+          ip addr flush dev $LINK
+          [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
+          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1
           ip link set $LINK up
           logger -t $(basename $0) "created network $LINK for host access"
+        elif [[ -e $SYSTEM/$LINK ]]; then
+          # remove shim interface
+          ip addr flush dev $LINK
+          ip link set $LINK down
+          ip link del $LINK
         fi
-        [[ -n $SHIM_BASE ]] && shim_network ${SERVER##*=} $SHIM_BASE $SHIM_HIGH
-      elif [[ -e $SYSTEM/$LINK ]]; then
-        # remove shim network
-        ip -4 addr flush dev $LINK
-        ip -4 route flush dev $LINK
-        ip link set $LINK down
-        ip link del $LINK
+      else
+        if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
+          ip addr flush dev $VHOST
+          # copy server IPv4/IPv6 address to vhost interface
+          [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $VHOST metric 0
+          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $VHOST metric 1
+          logger -t $(basename $0) "prepared network $VHOST for host access"
+        elif [[ -e $SYSTEM/$VHOST ]]; then
+          # remove IP addresses
+          ip addr flush dev $VHOST
+        fi
       fi
     fi
   done
-}
-
-# shim network creation
-shim_network(){
-  ip -4 addr flush dev $LINK
-  ip -4 addr add $1 dev $LINK
-  ip -4 route flush dev $LINK
-  ip -4 route add $2 src $1 dev $LINK
-  ip -4 route add $3 src $1 dev $LINK
-  DEFAULT=($(ip -4 route show dev $NETWORK default|awk '{print $3,$5}'))
-  if [[ -n $DEFAULT ]]; then
-    if [[ -z ${DEFAULT[1]} ]]; then
-      METRIC=1
-      METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
-      while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
-      ip -4 route del default via $DEFAULT dev $NETWORK
-      ip -4 route add default via $DEFAULT dev $NETWORK metric $METRIC
-    fi
-    ip -4 route add default via $DEFAULT dev $LINK metric 0
-  fi
 }
 
 # Remove custom networks
