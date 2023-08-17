@@ -343,7 +343,7 @@ ipaddr_up(){
     [[ -n $DHCP_METRIC && $DHCP_METRIC -gt 0 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -m $DHCP_METRIC"
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
-    [[ $IP != ipv4 && -n $PRIV6 ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
+    [[ $IP != ipv4 && -n $PRIV6 &&  -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
     log "polling up to 60 sec for DHCP server on interface $IFACE"
     if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
       log "can't obtain IP address, continue polling in background on interface $IFACE"
@@ -365,7 +365,7 @@ ipaddr_up(){
       if [[ -n $ADDR6 ]]; then
         [[ $j -eq 0 ]] && MASK6=${NETMASK6[$i]} || MASK6=${NETMASK6[$i,$j]}
         [[ -n $MASK6 ]] && run ip -6 addr add $ADDR6/$MASK6 dev $IFACE
-        [[ -n $PRIV6 ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
+        [[ -n $PRIV6 && -d $CONF6/$IFACE ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
       fi
     fi
   else
