@@ -34,7 +34,7 @@ default:
     $gateway = $cell[2];
     if ($route=='default')  $gateway .= " via {$cell[4]}";
     $metric = '0';
-    for ($i=5; $i<count($cell); $i++) if ($cell[$i]=='metric') {$metric = $cell[$i+1]; break;}
+    for ($i=3; $i<count($cell); $i++) if ($cell[$i]=='metric') {$metric = $cell[$i+1]; break;}
     echo "<tr><td>IPv4</td><td>$route</td><td>$gateway</td><td>$metric</td><td style='text-align:center'><a href='#' onclick='deleteRoute(\"$gateway\",\"$route\",\"$metric\");return false'><i class='fa fa-trash-o'></i></a></td></tr>";
   }
   if ($ipv6) echo "<tr class='tr_last'><td colspan='5'>&nbsp;</td></tr>";
@@ -44,7 +44,7 @@ default:
     $gateway = $route=='anycast' ? $cell[3] : $cell[2];
     if ($route=='default')  $gateway .= " via {$cell[4]}";
     $metric = '1';
-    for ($i=5; $i<count($cell); $i++) if ($cell[$i]=='metric') {$metric = $cell[$i+1]; break;}
+    for ($i=3; $i<count($cell); $i++) if ($cell[$i]=='metric') {$metric = $cell[$i+1]; break;}
     echo "<tr><td>IPv6</td><td>$route</td><td>$gateway</td><td>$metric</td><td style='text-align:center'><a href='#' onclick='deleteRoute(\"$gateway\",\"$route\",\"$metric\");return false'><i class='fa fa-trash-o'></i></a></td></tr>";
   }
   echo "<tr class='tr_last'><td colspan='5'>&nbsp;</td></tr>";

@@ -481,16 +481,20 @@ stop_network(){
     elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
       NIC=${NIC/eth/bond}
     fi
-    X=${NIC//[^0-9]/}
     driver ${NIC//[0-9]/}
-    for NETWORK in $(network $ATTACH $X); do
+    for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
-      LINK=shim-$NETWORK
-      if [[ -e $SYSTEM/$LINK ]]; then
-        ip -4 addr flush dev $LINK
-        ip -4 route flush dev $LINK
-        ip link set $LINK down
-        ip link del $LINK
+      TYPE=${NETWORK//[0-9.]/}
+      if [[ $TYPE == br ]]; then
+        LINK=shim-$NETWORK
+        if [[ -e $SYSTEM/$LINK ]]; then
+          ip addr flush dev $LINK
+          ip link set $LINK down
+          ip link del $LINK
+        fi
+      else
+        VHOST=vhost${NETWORK//[^0-9.]/}
+        [[ -e $SYSTEM/$VHOST ]] && ip addr flush dev $VHOST
       fi
     done
   done
