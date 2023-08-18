@@ -487,8 +487,7 @@ stop_network(){
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
       LINK=shim-$NETWORK
       if [[ -e $SYSTEM/$LINK ]]; then
-        ip -4 addr flush dev $LINK
-        ip -4 route flush dev $LINK
+        ip addr flush dev $LINK
         ip link set $LINK down
         ip link del $LINK
       fi
