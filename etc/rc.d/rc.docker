@@ -481,9 +481,8 @@ stop_network(){
     elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
       NIC=${NIC/eth/bond}
     fi
-    X=${NIC//[^0-9]/}
     driver ${NIC//[0-9]/}
-    for NETWORK in $(network $ATTACH $X); do
+    for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
       TYPE=${NETWORK//[0-9.]/}
       if [[ $TYPE == br ]]; then
