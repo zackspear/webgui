@@ -456,6 +456,7 @@ start_network(){
               METRIC=1
               METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
               while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
+              # change existing route to new route to avoid conflict with shim route
               ip -4 route del default via $GW dev $NETWORK
               ip -4 route add default via $GW dev $NETWORK metric $METRIC
             fi
