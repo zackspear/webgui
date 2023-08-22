@@ -501,7 +501,7 @@ stop_network(){
       if [[ $TYPE == br ]]; then
         LINK=shim-$NETWORK
         if [[ -e $SYSTEM/$LINK ]]; then
-          GW=$(ip -4 route show default dev $NETWORK|awk '{print $3;exit}')
+          GW=$(ip -4 route show default dev $LINK|awk '{print $3;exit}')
           [[ -n $GW ]] && ip -4 route del default via $GW dev $LINK
           ip addr flush dev $LINK
           ip link set $LINK down
