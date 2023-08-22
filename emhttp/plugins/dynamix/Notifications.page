@@ -23,6 +23,7 @@ $disabled = $notify['system'] ? '' : 'disabled';
 ?>
 <style>
 select.a{min-width:220px}
+input.a{width:220px}
 span.a{display:inline-block;width:220px;font-style:italic}
 </style>
 <script>
@@ -122,6 +123,9 @@ _(Notifications display)_:
   </select>
 
 :notifications_display_help:
+
+_(Notifications auto-closure time)_ (_(seconds)_):
+: <input type="number" name="closure" class="a" min="0" max="60" value="<?=$notify['closure']?>"> _(a value of zero means no auto-closure)_
 
 _(Date format)_:
 : <select name="date" class="a">
