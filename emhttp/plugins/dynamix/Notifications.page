@@ -124,8 +124,10 @@ _(Notifications display)_:
 
 :notifications_display_help:
 
-_(Notifications auto-closure time)_ (_(seconds)_):
-: <input type="number" name="closure" class="a" min="0" max="60" value="<?=$notify['closure']?>"> _(a value of zero means no auto-closure)_
+_(Notifications life time)_ (_(seconds)_):
+: <input type="number" name="life" class="a" min="0" max="60" value="<?=$notify['life']?>"> _(a value of zero means no automatic closure)_
+
+:notifications_life_time_help:
 
 _(Date format)_:
 : <select name="date" class="a">

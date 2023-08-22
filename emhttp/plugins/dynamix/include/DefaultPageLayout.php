@@ -559,8 +559,8 @@ $(function() {
   $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
   $.jGrowl.defaults.pool = 10;
-<?if ($notify['closure'] > 0):?>
-  $.jGrowl.defaults.life = <?=$notify['closure']*1000?>;
+<?if ($notify['life'] > 0):?>
+  $.jGrowl.defaults.life = <?=$notify['life']*1000?>;
 <?else:?>
   $.jGrowl.defaults.sticky = true;
 <?endif;?>
