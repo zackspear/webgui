@@ -452,7 +452,7 @@ start_network(){
           [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1 || echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
           if [[ -n $GW ]]; then
-            if [[ -z $GW[1] ]]; then
+            if [[ -z ${GW[1]} ]]; then
               METRIC=1
               METRICS=$(ip -4 route show default|grep -Po 'metric \K\d+')
               while [[ " $METRICS " =~ " $METRIC " ]]; do ((METRIC++)); done
