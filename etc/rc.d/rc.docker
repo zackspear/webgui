@@ -501,8 +501,10 @@ stop_network(){
         fi
       else
         VHOST=vhost${NETWORK//[^0-9.]/}
-        [[ -n $GW ]] && ip -4 route del default via $GW dev $VHOST
-        [[ -e $SYSTEM/$VHOST ]] && ip addr flush dev $VHOST
+        if [[ -e $SYSTEM/$VHOST ]]; then
+          [[ -n $GW ]] && ip -4 route del default via $GW dev $VHOST
+          ip addr flush dev $VHOST
+        fi
       fi
     done
   done
