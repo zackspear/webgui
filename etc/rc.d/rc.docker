@@ -440,9 +440,9 @@ start_network(){
         fi
       done
       # hack to let containers talk to host
+      GW=$(ip -4 route show default dev $NETWORK|awk '{print $3;exit}')
       if [[ $TYPE == br ]]; then
         LINK=shim-$NETWORK
-        GW=$(ip -4 route show default|awk '{print $3;exit}')
         if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
           # create shim interface with predefined MAC address and copy server IPv4/IPv6 addresses to shim interface
           MAC=$(echo $(hostname)-$NETWORK|md5sum|sed -r 's/^(..)(..)(..)(..)(..).*$/02:\1:\2:\3:\4:\5/')
@@ -451,11 +451,11 @@ start_network(){
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
           [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1 || echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
-          ip -4 route add default via $GW dev $LINK metric 0
+          [[ -n $GW ]] && ip -4 route add default via $GW dev $LINK metric 0
           logger -t $(basename $0) "created network $LINK for host access"
         elif [[ -e $SYSTEM/$LINK ]]; then
           # remove shim interface
-          ip -4 route del default via $GW dev $LINK
+          [[ -n $GW ]] && ip -4 route del default via $GW dev $LINK
           ip addr flush dev $LINK
           ip link set $LINK down
           ip link del $LINK
@@ -466,9 +466,11 @@ start_network(){
           # copy server IPv4/IPv6 address to vhost interface
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $VHOST metric 0
           [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $VHOST metric 1
+          [[ -n $GW ]] && ip -4 route add default via $GW dev $VHOST metric 0
           logger -t $(basename $0) "prepared network $VHOST for host access"
         elif [[ -e $SYSTEM/$VHOST ]]; then
           # remove IP addresses
+          [[ -n $GW ]] && ip -4 route del default via $GW dev $VHOST
           ip addr flush dev $VHOST
         fi
       fi
@@ -488,17 +490,18 @@ stop_network(){
     for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
       TYPE=${NETWORK//[0-9.]/}
+      GW=$(ip -4 route show default dev $NETWORK|awk '{print $3;exit}')
       if [[ $TYPE == br ]]; then
         LINK=shim-$NETWORK
-        GW=$(ip -4 route show default|awk '{print $3;exit}')
         if [[ -e $SYSTEM/$LINK ]]; then
-          ip -4 route del default via $GW dev $LINK
+          [[ -n $GW ]] && ip -4 route del default via $GW dev $LINK
           ip addr flush dev $LINK
           ip link set $LINK down
           ip link del $LINK
         fi
       else
         VHOST=vhost${NETWORK//[^0-9.]/}
+        [[ -n $GW ]] && ip -4 route del default via $GW dev $VHOST
         [[ -e $SYSTEM/$VHOST ]] && ip addr flush dev $VHOST
       fi
     done
