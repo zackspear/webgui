@@ -444,7 +444,7 @@ start_network(){
         LINK=shim-$NETWORK
         GW=($(ip -4 route show default dev $NETWORK|awk '{print $3,$5;exit}'))
         if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
-          # create shim interface and copy server IPv4/IPv6 addresses to shim interface
+          # create shim interface and copy parent IPv4/IPv6 addresses to shim interface
           [[ -e $SYSTEM/$LINK ]] || ip link add $LINK link $NETWORK type $ATTACH mode $MODE
           ip addr flush dev $LINK
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
