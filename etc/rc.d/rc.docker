@@ -75,14 +75,14 @@ MTU=$(ip link show $PORT|grep -Po 'mtu \K\d+')
 [[ -n $MTU && $MTU -ne 1500 ]] && DOCKER_OPTS="--mtu=$MTU $DOCKER_OPTS"
 
 # Enable IPv6 for docker bridge network
-if [[ -n $(ip -6 route show dev $PORT default) ]]; then
+if [[ -n $(ip -6 route show default dev $PORT) ]]; then
   DOCKER0='fd17::/64'
   DOCKER_OPTS="--ipv6 --fixed-cidr-v6=$DOCKER0 $DOCKER_OPTS"
   # create IPv6 NAT rule for docker0
   [[ -z $(ip6tables -t nat -S|grep -o "$DOCKER0") ]] && ip6tables -t nat -A POSTROUTING -s $DOCKER0 ! -o docker0 -j MASQUERADE
 else
   # ipv6 disabled
-  [[ -e $SYSTEM/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
+  [[ -d $CONF6/docker0 ]] && echo 1 > $CONF6/docker0/disable_ipv6
 fi
 
 export DOCKER_RAMDISK=true
@@ -339,22 +339,22 @@ start_network(){
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
       IPV4=$(ip -br -4 addr show $NETWORK|awk '{print $3;exit}')
       if [[ -n $IPV4 ]]; then
-        SUBNET=$(ip -4 route show dev $NETWORK $IPV4|awk '{print $1;exit}')
+        SUBNET=$(ip -4 route show $IPV4 dev $NETWORK|awk '{print $1;exit}')
         SERVER=${IPV4%/*}
         DHCP=${NETWORK/./_}
         DHCP=DOCKER_DHCP_${DHCP^^}
         RANGE=${!DHCP}
-        GATEWAY=$(ip -4 route show dev $NETWORK default|awk '{print $3;exit}')
+        GATEWAY=$(ip -4 route show default dev $NETWORK|awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
       IPV6=$(min6 $(max6 $(wipe $(ip -br -6 addr show $NETWORK scope global|awk '{$2="";print;exit}'))|sort|head -1))
       if [[ -n $IPV6 ]]; then
-        SUBNET6=$(ip -6 route show dev $NETWORK $IPV6|awk '{print $1;exit}')
+        SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK|awk '{print $1;exit}')
         SERVER6=${IPV6%/*}
         DHCP6=${NETWORK/./_}
         DHCP6=DOCKER_DHCP6_${DHCP6^^}
         RANGE6=${!DHCP6}
-        GATEWAY6=$(ip -6 route show dev $NETWORK default|awk '{print $3;exit}')
+        GATEWAY6=$(ip -6 route show default dev $NETWORK|awk '{print $3;exit}')
         # replace link local address for first address in subnet
         [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%%/*}1
       fi
