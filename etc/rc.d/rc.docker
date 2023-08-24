@@ -349,14 +349,15 @@ start_network(){
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
       IPV6=$(min6 $(max6 $(wipe $(ip -br -6 addr show $NETWORK scope global|awk '{$2="";print;exit}'))|sort|head -1))
       if [[ -n $IPV6 ]]; then
-        SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK|awk '{print $1;exit}')
+        # get IPV6 subnet, preset to /64 if single host address is given
+        [[ ${IPV6#*/} == 128 ]] && SUBNET6=$(echo $IPV6|sed -r 's/^([^:]+):([^:]+):([^:]+):([^:]+).*$/\1:\2:\3:\4::\/64/') || SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK|awk '{print $1;exit}')
         SERVER6=${IPV6%/*}
         DHCP6=${NETWORK/./_}
         DHCP6=DOCKER_DHCP6_${DHCP6^^}
         RANGE6=${!DHCP6}
         GATEWAY6=$(ip -6 route show default dev $NETWORK|awk '{print $3;exit}')
         # replace link local address for first address in subnet
-        [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%%/*}1
+        [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%/*}1
       fi
     else
       # add user defined networks
