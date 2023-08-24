@@ -443,12 +443,13 @@ start_network(){
       if [[ $TYPE == br ]]; then
         LINK=shim-$NETWORK
         GW=($(ip -4 route show default dev $NETWORK|awk '{print $3,$5;exit}'))
-        if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
-          # create shim interface and copy parent IPv4/IPv6 addresses to shim interface
+        if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
+          # create shim interface and copy parent IPv4 address to shim interface
           [[ -e $SYSTEM/$LINK ]] || ip link add $LINK link $NETWORK type $ATTACH mode $MODE
           ip addr flush dev $LINK
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
-          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $LINK metric 1 || echo 1 > $CONF6/$LINK/disable_ipv6
+          # disable IPv6 on shim interface
+          [[ -d $CONF6/$LINK ]] && echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
           if [[ -n $GW ]]; then
             if [[ -z ${GW[1]} ]]; then
@@ -465,20 +466,19 @@ start_network(){
         elif [[ -e $SYSTEM/$LINK ]]; then
           # remove shim interface
           [[ -n $GW ]] && ip -4 route del default via $GW dev $LINK
-          ip addr flush dev $LINK
+          ip -4 addr flush dev $LINK
           ip link set $LINK down
           ip link del $LINK
         fi
       else
-        if [[ $DOCKER_ALLOW_ACCESS == yes && (-n $IPV4 || -n $IPV6) ]]; then
+        if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
           ip addr flush dev $VHOST
-          # copy server IPv4/IPv6 address to vhost interface
+          # copy parent IPv4 address to vhost interface
           [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $VHOST metric 0
-          [[ -n $IPV6 ]] && ip -6 addr add $IPV6 dev $VHOST metric 1
           logger -t $(basename $0) "prepared network $VHOST for host access"
         elif [[ -e $SYSTEM/$VHOST ]]; then
           # remove IP addresses
-          ip addr flush dev $VHOST
+          ip -4 addr flush dev $VHOST
         fi
       fi
     fi
