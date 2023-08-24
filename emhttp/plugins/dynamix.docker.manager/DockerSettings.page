@@ -781,8 +781,8 @@ function changeMask(id,val) {
   for (var b=1; b<=3; b++) {
     var cell = id+b;
     switch (b) {
-      case 1: var step = floor(mask/65536)%256; break;
-      case 2: var step = floor(mask/256)%256; break;
+      case 1: var step = Math.floor(mask/65536)%256; break;
+      case 2: var step = Math.floor(mask/256)%256; break;
       case 3: var step = mask%256; break;
     }
     if (step==0) step = 256;
