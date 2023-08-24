@@ -446,10 +446,10 @@ start_network(){
         if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
           # create shim interface and copy parent IPv4 address to shim interface
           [[ -e $SYSTEM/$LINK ]] || ip link add $LINK link $NETWORK type $ATTACH mode $MODE
-          ip addr flush dev $LINK
-          [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $LINK metric 0
+          ip -4 addr flush dev $LINK
+          ip -4 addr add $IPV4 dev $LINK metric 0
           # disable IPv6 on shim interface
-          [[ -d $CONF6/$LINK ]] && echo 1 > $CONF6/$LINK/disable_ipv6
+          echo 1 > $CONF6/$LINK/disable_ipv6
           ip link set $LINK up
           if [[ -n $GW ]]; then
             if [[ -z ${GW[1]} ]]; then
@@ -472,9 +472,9 @@ start_network(){
         fi
       else
         if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
-          ip addr flush dev $VHOST
+          ip -4 addr flush dev $VHOST
           # copy parent IPv4 address to vhost interface
-          [[ -n $IPV4 ]] && ip -4 addr add $IPV4 dev $VHOST metric 0
+          ip -4 addr add $IPV4 dev $VHOST metric 0
           logger -t $(basename $0) "prepared network $VHOST for host access"
         elif [[ -e $SYSTEM/$VHOST ]]; then
           # remove IP addresses
