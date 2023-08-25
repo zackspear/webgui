@@ -54,6 +54,7 @@
 
 # Adapted by Bergware for use in unRAID - August 2023
 # - added macvtap network creation
+# - removed unnecessary error output redirection for 'run' command
 
 ############################
 # READ NETWORK CONFIG FILE #
@@ -237,7 +238,7 @@ vlan_up(){
       VLAN=${VLANID[$i,$j]}
       run ip link add link $PORT name $PORT.$VLAN type vlan id $VLAN
       [[ ${PORT:0:3} == eth ]] && set_mtu $PORT.$VLAN
-      run ip link set $PORT.$VLAN up 2>/dev/null
+      run ip link set $PORT.$VLAN up
     done
   done
 }
@@ -246,8 +247,8 @@ vlan_up(){
 vlan_down(){
   for PORT in ${BRNICS[$i]:-${IFNAME[$i]}}; do
     for VLAN in $(ls --indicator-style=none $SYSTEM|grep -Po "$PORT\.\d+"); do
-      run ip link set $VLAN down 2>/dev/null
-      run ip link del $VLAN 2>/dev/null
+      run ip link set $VLAN down
+      run ip link del $VLAN
     done
   done
 }
@@ -260,12 +261,12 @@ macvtap_up(){
   MAC=$(echo $(hostname)-$VTAP|md5sum|sed -r 's/^(..)(..)(..)(..)(..).*$/02:\1:\2:\3:\4:\5/')
   run ip link add link $PARENT name $VTAP address $MAC type macvtap mode bridge
   set_mtu $VTAP
-  run ip link set $VTAP up 2>/dev/null
+  run ip link set $VTAP up
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
     run ip link add link $PARENT.$VLAN name $VTAP.$VLAN address $MAC type macvtap mode bridge
     set_mtu $VTAP.$VLAN
-    run ip link set $VTAP.$VLAN up 2>/dev/null
+    run ip link set $VTAP.$VLAN up
   done
 }
 
@@ -277,12 +278,12 @@ macvtap_down(){
   for ((j=1;j<${VLANS[$i]:-0};j++)); do
     VLAN=${VLANID[$i,$j]}
     run ip addr flush dev $VTAP.$VLAN
-    run ip link set $VTAP.$VLAN down 2>/dev/null
-    run ip link del $VTAP.$VLAN 2>/dev/null
+    run ip link set $VTAP.$VLAN down
+    run ip link del $VTAP.$VLAN
   done
   run ip addr flush dev $VTAP
-  run ip link set $VTAP down 2>/dev/null
-  run ip link del $VTAP 2>/dev/null
+  run ip link set $VTAP down
+  run ip link del $VTAP
 }
 
 # function to enable/disable ipv6 protocol per interface
@@ -411,7 +412,7 @@ ipaddr_down(){
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     # release DHCP assigned addresses
-    run dhcpcd $DHCP_OPTIONS $IFACE 2>/dev/null
+    run dhcpcd $DHCP_OPTIONS $IFACE
     sleep 1
   fi
   # release assigned addresses and routes
