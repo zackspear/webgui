@@ -787,7 +787,7 @@ function changeMask(id,val) {
     }
     if (step==0) step = 256;
     if ($(cell).length==0) continue;
-    var max = $(cell+' option').size();
+    var max = $(cell+' option').length;
     for (var i=0; i < max; i++) if (i%step==0) $(cell+' option:eq('+i+')').removeClass('hide'); else $(cell+' option:eq('+i+')').addClass('hide');
     if ($(cell+' option:selected').val()%step!=0) $(cell+' option:selected').removeAttr('selected');
   }
