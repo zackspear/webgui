@@ -559,7 +559,11 @@ $(function() {
   $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
   $.jGrowl.defaults.pool = 10;
-  $.jGrowl.defaults.life = 3000;
+<?if ($notify['life'] > 0):?>
+  $.jGrowl.defaults.life = <?=$notify['life']*1000?>;
+<?else:?>
+  $.jGrowl.defaults.sticky = true;
+<?endif;?>
   Shadowbox.setup('a.sb-enable', {modal:true});
 // add any pre-existing reboot notices
   $.post('/webGui/include/Report.php',{cmd:'notice'},function(notices){

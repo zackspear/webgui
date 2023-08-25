@@ -621,7 +621,7 @@ Share can *not* be deleted as long as it contains data. Be aware that some data 
 :end
 
 :share_edit_exclusive_access_help:
-When set to "Yes" indicates a synmlink directly to a pool has been set up for the share in the /mnt/user tree.
+When set to "Yes" indicates a symlink directly to a pool has been set up for the share in the /mnt/user tree.
 
 Refer to [Global Share Settings](Settings/ShareSettings) -> Permit exclusive shares.
 :end
