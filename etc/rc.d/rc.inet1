@@ -55,7 +55,6 @@
 # Adapted by Bergware for use in unRAID - August 2023
 # - added macvtap network creation
 # - removed unnecessary error output redirection for 'run' command
-# - added error logging to syslog
 
 ############################
 # READ NETWORK CONFIG FILE #
@@ -66,7 +65,6 @@
 
 # system network reference
 SYSTEM=/sys/class/net
-BASENAME=$(basename "$0")
 
 # ipv6 config reference
 CONF6=/proc/sys/net/ipv6/conf
@@ -80,8 +78,8 @@ alias log=run
 
 run(){
   # log command in /var/log/syslog and execute
-  logger -t $BASENAME "$*"
-  [[ -n $2 ]] && $* 1>/dev/null 2>(logger -t $BASENAME)
+  logger -t rc.inet1 "$*"
+  [[ -n $2 ]] && $* 2>/dev/null
 }
 
 ############################
