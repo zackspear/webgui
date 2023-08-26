@@ -841,7 +841,7 @@ defaultPage.on('message', function(msg,meta) {
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
           afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
           click: function(e,m,o){if (notify.link) location.replace(notify.link);},
-          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token}<?if ($notify['life']==0):?>,function(){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}<?endif;?>);}
         });
       }
 <?endif;?>
