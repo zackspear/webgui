@@ -2003,10 +2003,20 @@ Write mover messages to the syslog file.
 
 :notifications_display_help:
 In *Detailed* view all notifications will be displayed on screen as soon as they arrive.<br>
-Notifications can be acknowledged individually or all in once.
+Notifications can be acknowledged individually or all at once.
 
 In *Summarized* view notifications will be counted only and the number of unread notifications is shown in the menu header per category.<br>
 Click on the counters to either acknowledge or view the unread notifications.
+:end
+
+:notifications_display_position_help:
+Choose the position of where notifications appear on screen in *Detailed* view. Multiple notifications are stacked, bottom-to-top or
+top-to-bottom depending on the selected placement.
+:end
+
+:notifications_auto_close_help:
+Number of seconds before notifications are automatically closed in *Detailed* view.<br>
+A value of 0 disables automatic closure.
 :end
 
 :notifications_date_format_help:
@@ -2015,10 +2025,6 @@ Select the desired date format which is used in the notifications archive. Recom
 
 :notifications_time_format_help:
 Select the desired time format which is used in the notifications archive. Recommended is 24 hours, which makes the date/time column sortable in a sensible way.
-:end
-
-:notifications_display_position_help:
-Choose the position of where notifications appear on screen. Multiple notifications are stacked, bottom-to-top or top-to-bottom depending on the selected placement.
 :end
 
 :notifications_store_flash_help:
