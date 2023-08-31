@@ -924,6 +924,9 @@ class MarkdownExtra extends \Michelf\Markdown {
 			$title = $this->encodeAttribute($title);
 			$result .=  " title=\"$title\"";
 		}
+		// limetech - if URL starts with "http" then open in new tab/window
+                if (str_starts_with($url, "http"))
+			$result .= " target='_blank'";
 		$result .= $attr;
 
 		$link_text = $this->runSpanGamut($link_text);
