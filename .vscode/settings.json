@@ -4,5 +4,5 @@
     },
     "prettier.tabWidth": 4,
     "editor.tabSize": 4,
-    "editor.indentSize": "tabSize",
+    "editor.indentSize": "tabSize"
 }
