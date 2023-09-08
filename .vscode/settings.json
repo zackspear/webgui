@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.page": "php"
+    },
+    "prettier.tabWidth": 4,
+    "editor.tabSize": 4,
+    "editor.indentSize": "tabSize",
+}
