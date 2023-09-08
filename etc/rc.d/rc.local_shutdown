@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 #
 # /etc/rc.d/rc.local_shutdown:  Local system shutdown script.
 #
+# LimeTech - Modified for Unraid OS
 
 # Beep the motherboard speaker
 beep -r 2

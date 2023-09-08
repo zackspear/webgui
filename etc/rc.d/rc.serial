@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # /etc/rc.serial 
 #	Initializes the serial ports on your system
@@ -15,6 +16,7 @@
 # using the multiport feature; it doesn't save the multiport configuration
 # (for now).  Autosave also doesn't work for the hayes devices.  
 #
+# LimeTech - Modified for Unraid OS
 
 RCLOCKFILE=/var/lock/subsys/serial
 DIRS="/lib/modules/`uname -r`/misc /lib/modules /usr/lib/modules ."

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # rc.inet2	This shell script boots up the entire network system.
 #		Note, that when this script is used to also fire
@@ -11,7 +11,8 @@
 #
 # Author:	Fred N. van Kempen, <waltje@uwalt.nl.mugnet.org>
 # Modified for Slackware by Patrick Volkerding <volkerdi@slackware.com>
-
+#
+# LimeTech - Modified for Unraid OS
 
 # At this point, we are (almost) ready to talk to The World...
 

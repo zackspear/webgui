@@ -2,6 +2,7 @@
 # Used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
 #
 # bergware - updated for Unraid, June 2023
+# shellcheck shell=bash
 
 WIREGUARD="/etc/wireguard"
 NETWORK_INI="/var/local/emhttp/network.ini"
