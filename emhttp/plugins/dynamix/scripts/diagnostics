@@ -720,6 +720,8 @@ if (is_dir("/boot/config/plugins/lxc")) {
   run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/lxc.conf"));
   run("cat /boot/config/plugins/lxc/default.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/default.conf"));
   run("lxc-checkconfig 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/checkconfig.txt"));
+  // remove username and token
+  run("sed -i -e '/LXC_GITHUB_USER/c ***line removed***' -e '/LXC_GITHUB_TOKEN/c ***line removed***' ".escapeshellarg("/$diag/lxc/plugin.cfg"));
 } else {
     null;
 }
