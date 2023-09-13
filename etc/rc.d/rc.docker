@@ -488,6 +488,7 @@ start_network(){
 
 # Remove custom networks
 stop_network(){
+  echo "stopping $DOCKERD networks..."
   for NIC in $NICS; do
     if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
       NIC=${NIC/eth/br}
@@ -542,7 +543,7 @@ start_containers(){
 
 # Stop containers
 stop_containers(){
-  [[ ! -z $(running_containers) ]] && docker stop $(running_containers) >/dev/null
+  [[ ! -z $(running_containers) ]] && echo "stopping $DOCKERD containers..." && docker stop $(running_containers) >/dev/null
 }
 
 # Start docker
@@ -572,25 +573,28 @@ start_docker(){
 stop_docker(){
   echo "stopping $DOCKERD ..."
   # If there is no PID file, ignore this request...
-  if [[ -r $DOCKER_PIDFILE ]]; then
-    kill $(docker_pid) 2>/dev/null
-    # must ensure daemon has exited
-    for n in {1..15}; do
-      sleep 1
-      if [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) != $DOCKERD ]]; then
-        rm -f $DOCKER_PIDFILE
-        # tear down the bridge
-        if ip link show docker0 >/dev/null 2>&1; then
-          ip link set docker0 down
-          ip link del docker0
-        fi
-        return
-      fi
-      echo "waiting for docker to die ..."
-    done
-    echo "docker will not die!"
-    exit 1
+  if [[ ! -r $DOCKER_PIDFILE ]]; then
+    echo "$DOCKERD is not running..."
+    return 1
   fi
+  kill $(docker_pid) 2>/dev/null
+  # must ensure daemon has exited
+  for n in {1..15}; do
+    sleep 1
+    if [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) != $DOCKERD ]]; then
+      rm -f $DOCKER_PIDFILE
+      # tear down the bridge
+      if ip link show docker0 >/dev/null 2>&1; then
+        ip link set docker0 down
+        ip link del docker0
+      fi
+      echo "$DOCKERD has stopped"
+      return
+    fi
+    echo "waiting for $DOCKERD to die ..."
+  done
+  echo "$DOCKERD will not die!"
+  exit 1
 }
 
 case "$1" in
