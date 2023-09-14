@@ -23,6 +23,7 @@ $disabled = $notify['system'] ? '' : 'disabled';
 ?>
 <style>
 select.a{min-width:220px}
+input.a{width:220px}
 span.a{display:inline-block;width:220px;font-style:italic}
 </style>
 <script>
@@ -123,6 +124,22 @@ _(Notifications display)_:
 
 :notifications_display_help:
 
+_(Display position)_:
+: <select name="position" class="a">
+  <?=mk_option($notify['position'], "top-left", _("top-left"))?>
+  <?=mk_option($notify['position'], "top-right", _("top-right"))?>
+  <?=mk_option($notify['position'], "bottom-left", _("bottom-left"))?>
+  <?=mk_option($notify['position'], "bottom-right", _("bottom-right"))?>
+  <?=mk_option($notify['position'], "center", _("center"))?>
+  </select>
+
+:notifications_display_position_help:
+
+_(Auto-close)_ (_(seconds)_):
+: <input type="number" name="life" class="a" min="0" max="60" value="<?=$notify['life']?>"> _(a value of zero means no automatic closure)_
+
+:notifications_auto_close_help:
+
 _(Date format)_:
 : <select name="date" class="a">
   <?=mk_option($notify['date'], "d-m-Y", _("DD-MM-YYYY"))?>
@@ -139,17 +156,6 @@ _(Time format)_:
   </select>
 
 :notifications_time_format_help:
-
-_(Display position)_:
-: <select name="position" class="a">
-  <?=mk_option($notify['position'], "top-left", _("top-left"))?>
-  <?=mk_option($notify['position'], "top-right", _("top-right"))?>
-  <?=mk_option($notify['position'], "bottom-left", _("bottom-left"))?>
-  <?=mk_option($notify['position'], "bottom-right", _("bottom-right"))?>
-  <?=mk_option($notify['position'], "center", _("center"))?>
-  </select>
-
-:notifications_display_position_help:
 
 _(Store notifications to flash)_:
 : <select name="path" class="a">

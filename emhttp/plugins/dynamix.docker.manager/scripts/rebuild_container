@@ -19,6 +19,7 @@ $DockerClient = new DockerClient();
 $DockerUpdate = new DockerUpdate();
 $DockerTemplates = new DockerTemplates();
 
+$start  = array_map(function($row){return strtok($row,' ');},@file('/var/lib/docker/unraid-autostart',FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES) ?: []);
 $custom = DockerUtil::custom();
 $subnet = DockerUtil::network($custom);
 $cpus   = DockerUtil::cpus();
@@ -30,6 +31,7 @@ $old = $DockerClient->getImageID($repository);
 
 removeContainer($name,false,false);
 execCommand(str_replace('/docker create ','/docker run -d ',$cmd),false);
+if (!in_array($name,$start)) stopContainer($name,false,false);
 $DockerClient->flushCaches();
 $new = $DockerClient->getImageID($repository);
 if ($old && $old != $new) removeImage($old,false);

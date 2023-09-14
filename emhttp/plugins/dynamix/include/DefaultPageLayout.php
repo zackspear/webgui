@@ -590,7 +590,11 @@ $(function() {
   $.jGrowl.defaults.theme = '';
   $.jGrowl.defaults.themeState = '';
   $.jGrowl.defaults.pool = 10;
-  $.jGrowl.defaults.life = 3000;
+<?if ($notify['life'] > 0):?>
+  $.jGrowl.defaults.life = <?=$notify['life']*1000?>;
+<?else:?>
+  $.jGrowl.defaults.sticky = true;
+<?endif;?>
   Shadowbox.setup('a.sb-enable', {modal:true});
 // add any pre-existing reboot notices
   $.post('/webGui/include/Report.php',{cmd:'notice'},function(notices){
@@ -868,7 +872,7 @@ defaultPage.on('message', function(msg,meta) {
           beforeOpen: function(e,m,o){if ($('div.jGrowl-notification').hasClass(notify.file)) return(false);},
           afterOpen: function(e,m,o){if (notify.link) $(e).css('cursor','pointer');},
           click: function(e,m,o){if (notify.link) location.replace(notify.link);},
-          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token});}
+          close: function(e,m,o){$.post('/webGui/include/Notify.php',{cmd:'hide',file:"<?=$notify['path'].'/unread/'?>"+notify.file,csrf_token:csrf_token}<?if ($notify['life']==0):?>,function(){$.post('/webGui/include/Notify.php',{cmd:'archive',file:notify.file,csrf_token:csrf_token});}<?endif;?>);}
         });
       }
 <?endif;?>
