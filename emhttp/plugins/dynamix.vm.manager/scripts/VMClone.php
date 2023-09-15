@@ -42,8 +42,10 @@ function write(...$messages){
 		[$cmd,$args] = explode(' ',$refcmd,2);
 		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._('Command execution')."</legend>".basename($cmd).' '.str_replace(" -","<br>&nbsp;&nbsp;-",htmlspecialchars($args))."<br><span id='wait-$waitID'>"._('Please wait')." </span><p class='logLine'></p></fieldset>","show_Wait\0$waitID");
 		$rtn = exec("$refcmd 2>&1", $output,$return) ;
-		if ($return == 0) $reflinkok = true ; else $reflinkok = false ;
-		write("addLog\0<br><b>{$output[0]}</b>");
+		if ($return == 0) $reflinkok = true ; else {
+			$reflinkok = false ;
+			write("addLog\0<br><b>{$output[0]}</b>");
+		}	
 		$out = $return ? _('The command failed revert to rsync')."." : _('The command finished successfully').'!';
 		write("stop_Wait\0$waitID","addLog\0<br><b>$out</b>");
 	}
