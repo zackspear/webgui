@@ -1509,9 +1509,13 @@ private static $encoding = 'UTF-8';
 		#Check free space.
 		write("addLog\0".htmlspecialchars("Checking for free space"));
 		$dirfree = disk_free_space($pathinfo["dirname"]) ;
-
+		$sourcedir = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($pathinfo["dirname"])." 2>/dev/null"));	
+		$repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]);
+		$repdirfree = disk_free_space($repdir) ;
+		$reflink = true ;
 		$capacity *=  1 ;
 
+		if ($free == "yes" && $repdirfree < $capacity) { $reflink = false ;}
 		if ($free == "yes" && $dirfree < $capacity) { write("addLog\0".htmlspecialchars(_("Insufficent storage for clone")));  return false ;} 
 
 		#Clone XML
@@ -1556,8 +1560,15 @@ private static $encoding = 'UTF-8';
 		foreach($file_clone as $diskid => $disk)  {
 			$target = $disk['target'] ;
 			$source = $disk['source'] ; 
+			$sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null"));	
+            $reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
+            $repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
+            #var_dump($repsrc,$reptgt) ;
+        
+			$cmdstr = "cp --reflink=always '$repsrc' '$reptgt'" ;
+        	if ($reflink == true) { $refcmd = $cmdstr ; } else {$refcmd = false; }
 			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$source' '$target'" ;
-			$error = execCommand_nchan($cmdstr,$path) ;
+			$error = execCommand_nchan($cmdstr,$path,$refcmd) ;
 			if (!$error) { write("addLog\0".htmlspecialchars("Image copied failed."));  return( false) ; }
 		}
 
