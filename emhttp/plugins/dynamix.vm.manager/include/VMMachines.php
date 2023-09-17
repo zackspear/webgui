@@ -171,10 +171,10 @@ foreach ($vms as $vm) {
   foreach ($lv->get_cdrom_stats($res) as $arrCD) {
     $capacity = $lv->format_size($arrCD['capacity'], 0);
     $allocation = $lv->format_size($arrCD['allocation'], 0);
-    $disk = $arrCD['file'] ?? $arrCD['partition'];
+    $disk = $arrCD['file'] ?? $arrCD['partition'] ?? "" ;
     $dev = $arrCD['device'];
     $bus = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
-    $boot= $arrCD["boot order"];
+    $boot= $arrCD["boot order"] ?? "" ;
     if ($boot < 1) $boot="Not set";
     if ($disk != "" ) {
     $title = _("Eject CD Drive").".";

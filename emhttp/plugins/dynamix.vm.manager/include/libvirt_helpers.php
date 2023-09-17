@@ -1370,7 +1370,7 @@ private static $encoding = 'UTF-8';
 				$vendor=$USB->source->vendor->attributes()->id ;
 				$product=$USB->source->product->attributes()->id ;
 				$startupPolicy=$USB->source->attributes()->startupPolicy ;
-				$usbboot= $USB->boot->attributes()->order  ;
+				$usbboot= $USB->boot->attributes()->order ?? "" ;
 				$id = str_replace('0x', '', $vendor . ':' . $product) ;
 				$found = false ;
 				foreach($arrValidUSBDevices as $key => $data) {
@@ -1420,7 +1420,7 @@ private static $encoding = 'UTF-8';
         global $lv ;
         $xml = new SimpleXMLElement($lv->domain_get_xml($res)) ;
         $data = $xml->xpath('//channel/target[@name="org.qemu.guest_agent.0"]/@state') ;
-        $data = $data[0]->state ;
+        $data = $data[0]->state ?? null ;
         return $data ;
 	}
 

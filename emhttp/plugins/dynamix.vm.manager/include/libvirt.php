@@ -781,6 +781,7 @@
 
 						if ($strAutoport == "yes") $strPort = $strWSport = "-1" ;
 						if (($gpu['copypaste'] == "yes") && ($strProtocol == "spice")) $vmrcmousemode = "<mouse mode='server'/>" ; else $vmrcmousemode = ""  ;
+						if ($strProtocol == "spice")  $virtualaudio = "spice" ; else  $virtualaudio = "none" ;
 
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
@@ -791,7 +792,9 @@
 								</graphics>
 								<video>
 									<model type='$strModelType'/>
-								</video>";
+								</video>
+								<audio id='1' type='$virtualaudio'/>";
+							
 
 						if ($gpu['copypaste'] == "yes") {
 							if ($strProtocol == "spice") {
@@ -1154,7 +1157,7 @@
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
 					$tmp['bus'] = $buses[$i];
-					$tmp["boot order"] = $boot[$i] ;
+					$tmp["boot order"] = $boot[$i] ?? "";
 					$ret[] = $tmp;
 				}
 				else {
@@ -1205,7 +1208,7 @@
 
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
-					$tmp["boot order"] = $disk->boot->attributes()->order ;
+					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
 					$tmp['serial'] = $disk->serial ;
 
 					// Libvirt reports 0 bytes for raw disk images that haven't been
@@ -1605,7 +1608,7 @@
 			if (!$dom)
 				return false;
 
-			$tmp = libvirt_domain_get_xml_desc($dom, $xpath);
+			$tmp = libvirt_domain_get_xml_desc($dom, 0);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
@@ -2007,7 +2010,7 @@
 
 		function domain_get_description($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/description', false);
-			$var = $tmp[0];
+			$var = $tmp[0] ?? "";
 			unset($tmp);
 
 			return $var;
@@ -2209,33 +2212,34 @@
 
 			// Get any pci devices contained in the qemu args
 			$args = $this->get_xpath($domain, '//domain/*[name()=\'qemu:commandline\']/*[name()=\'qemu:arg\']/@value', false);
+			if (isset($args['num'])) {
+				for ($i = 0; $i < $args['num']; $i++) {
+					if (strpos($args[$i], 'vfio-pci') !== 0) {
+						continue;
+					}
 
-			for ($i = 0; $i < $args['num']; $i++) {
-				if (strpos($args[$i], 'vfio-pci') !== 0) {
-					continue;
-				}
+					$arg_list = explode(',', $args[$i]);
 
-				$arg_list = explode(',', $args[$i]);
+					foreach ($arg_list as $arg) {
+						$keypair = explode('=', $arg);
 
-				foreach ($arg_list as $arg) {
-					$keypair = explode('=', $arg);
-
-					if ($keypair[0] == 'host' && !empty($keypair[1])) {
-						$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
-						$tmp2 = $this->get_node_device_information($devid);
-						[$bus, $slot, $func] = my_explode(":", str_replace('.', ':', $keypair[1]), 3);
-						$devs[] = [
-							'domain' => '0x0000',
-							'bus' => '0x' . $bus,
-							'slot' => '0x' . $slot,
-							'func' => '0x' . $func,
-							'id' => $keypair[1],
-							'vendor' => $tmp2['vendor_name'],
-							'vendor_id' => $tmp2['vendor_id'],
-							'product' => $tmp2['product_name'],
-							'product_id' => $tmp2['product_id']
-						];
-						break;
+						if ($keypair[0] == 'host' && !empty($keypair[1])) {
+							$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
+							$tmp2 = $this->get_node_device_information($devid);
+							[$bus, $slot, $func] = my_explode(":", str_replace('.', ':', $keypair[1]), 3);
+							$devs[] = [
+								'domain' => '0x0000',
+								'bus' => '0x' . $bus,
+								'slot' => '0x' . $slot,
+								'func' => '0x' . $func,
+								'id' => $keypair[1],
+								'vendor' => $tmp2['vendor_name'],
+								'vendor_id' => $tmp2['vendor_id'],
+								'product' => $tmp2['product_name'],
+								'product_id' => $tmp2['product_id']
+							];
+							break;
+						}
 					}
 				}
 			}
@@ -2264,15 +2268,17 @@
 			$pid = $this->get_xpath($domain, $xpath.'product/@id', false);
 
 			$devs = [];
-			for ($i = 0; $i < $vid['num']; $i++) {
-				$dev = $this->_lookup_device_usb($vid[$i], $pid[$i]);
-				$devs[] = [
-					'id' => str_replace('0x', '', $vid[$i] . ':' . $pid[$i]),
-					'vendor_id' => $vid[$i],
-					'product_id' => $pid[$i],
-					'product' => $dev['product_name'],
-					'vendor' => $dev['vendor_name']
-				];
+			if (isset($vid['num'])) {
+				for ($i = 0; $i < $vid['num']; $i++) {
+					$dev = $this->_lookup_device_usb($vid[$i], $pid[$i]);
+					$devs[] = [
+						'id' => str_replace('0x', '', $vid[$i] . ':' . $pid[$i]),
+						'vendor_id' => $vid[$i],
+						'product_id' => $pid[$i],
+						'product' => $dev['product_name'],
+						'vendor' => $dev['vendor_name']
+					];
+				}
 			}
 
 			return $devs;
@@ -2306,7 +2312,7 @@
 					'mac' => $macs[$i],
 					'network' => $net[0],
 					'model' => $model[0],
-					'boot' => $boot[0]
+					'boot' => $boot[0] ?? ""
 				];
 			}
 
