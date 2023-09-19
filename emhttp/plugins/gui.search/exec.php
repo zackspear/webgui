@@ -8,7 +8,7 @@
 @mkdir("/tmp/gui.search");
 
 extract(@parse_ini_file("/boot/config/plugins/dynamix/dynamix.cfg"));
-$locale = $locale ?: "";
+$locale = $locale ?? "";
 if ( $locale != @file_get_contents("/tmp/gui.search/locale") ) {
 	@unlink("/tmp/gui.search/searchResults.json");
 }
