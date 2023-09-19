@@ -38,3 +38,5 @@ mkdir -p "$CFG_NEW"
 # stating with 6.10 'USE_SSL="auto"' without a LE cert is invalid
 [[ ! -f /boot/config/ssl/certs/certificate_bundle.pem ]] && sed -i s/USE_SSL=\"auto\"/USE_SSL=\"no\"/ /boot/config/ident.cfg
 
+# delete any temp dir left over from a version downgrade (see dynamix.plugin.manager/include/Downgrade.php)
+rm -rf /boot/deletemedowngrade.*
