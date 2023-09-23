@@ -815,6 +815,77 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
 
+function selectsnapshot(uuid, name ,snaps, opt, getlist){
+ 
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
+  var box = $("#dialogWindow2");
+  box.html($("#templatesnapshot"+opt).html());
+  var height = 200;
+  const Capopt = opt.charAt(0).toUpperCase() + opt.slice(1) ;
+  var optiontext = Capopt + " Snapshot" ;
+  box.find('#VMName').html(name) ;
+  box.find('#targetsnap').val(snaps) ;
+  box.find('#targetsnapl').html(snaps) ;
+  if (getlist) {
+    var only = 1 ;
+    if (opt == "remove") only = 0;
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid , snapshotname:snaps, only:only}, function(data) {
+    if (data.html) {
+    box.find('#targetsnapimages').html(data.html) ; 
+    } 
+    },'json');
+  }
+
+
+ document.getElementById("targetsnapfspc").checked = true ;
+ 
+  box.dialog({
+    title: "_("+optiontext+ ")_",
+    resizable: false,
+    width: 600,
+    height: 500,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    
+    buttons: {
+      "_(Proceed)_": function(){
+        var target = box.find('#targetsnap');
+        if (target.length) {
+          target = target.val();
+          if (!target ) {errorTarget(); return;}
+        } else target = '';
+        var remove  = 'yes' 
+        var keep  = 'yes' 
+        var removemeta  = 'yes' 
+        var free = 'yes'
+        var desc = ''
+        box.find('#targetsnap').prop('disabled',true);
+        if (opt == "revert") {
+          const x = box.find('#targetsnaprmv').prop('checked') ;
+          if (x) remove = 'yes' ; else remove = 'no' ;
+            x = box.find('#targetsnaprmvmeta').prop('checked') ;
+          if (x) removemeta = 'yes' ; else removemeta = 'no' ;
+           x = box.find('#targetsnapkeep').prop('checked') ;
+          if (x) keep = 'yes' ; else keep = 'no' ;
+        }
+          if (opt == "create") {
+          const x = box.find('#targetsnapfspc').prop('checked') ;
+          if (x) free = 'yes' ; else free = 'no' ;
+          var desc = box.find("#targetsnapdesc").prop('value') ;
+        }
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid , snapshotname:target , remove:remove, free:free, desc:desc } , "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+
 function initCharts(clear) {
   $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
     data = JSON.parse(data);
@@ -1596,4 +1667,19 @@ function VMClone(uuid, name){
 </table>
 </body>
 </html>
+</div>
+
+<div id="dialogWindow2"></div>
+<div markdown="1" id="templatesnapshotcreate" class="template">
+<table id='snapshot'>
+<br><br>
+<tr><td> _(VM Name)_:</td><td>
+<label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td>
+<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+_(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description  )_:</td><td>
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
 </div>

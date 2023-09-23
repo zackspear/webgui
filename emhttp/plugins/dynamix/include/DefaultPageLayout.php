@@ -975,12 +975,12 @@ nchan_vmaction.on('message', function(data) {
       rows = document.getElementsByClassName('logLine');
       if (rows.length) {
         var row = rows[rows.length-1];
-        row.innerHTML += '<span id="'+data[1]+'">'+data[1]+' <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span></span><br>';
+        row.innerHTML += '<span id="'+data[1]+'">'+data[1]+': <span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.</span><br>';
       }
     } else {
       var rows_content = rows.getElementsByClassName('content');
       if (!rows_content.length || rows_content[rows_content.length-1].textContent != data[2]) {
-        rows.innerHTML += '<span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>';
+        rows.innerHTML += '<span class="content">'+data[2]+'</span><span class="progress-'+data[1]+'"></span>.';
       }
     }
     break;
@@ -998,7 +998,6 @@ nchan_vmaction.on('message', function(data) {
   }
   box.scrollTop(box[0].scrollHeight);
 });
-
 var backtotopoffset = 250;
 var backtotopduration = 500;
 $(window).scroll(function() {

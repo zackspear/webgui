@@ -786,7 +786,7 @@
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
-								<graphics type='$strProtocol' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
+								<graphics type='$strProtocol' sharePolicy='ignore' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
 									$vmrcmousemode
 								</graphics>
@@ -1467,7 +1467,7 @@
 		function domain_change_xml($domain, $xml) {
 			$dom = $this->get_domain_object($domain);
 
-			if (!($old_xml = domain_get_xml($dom)))
+			if (!($old_xml = $this->domain_get_xml($dom)))
 				return $this->_set_last_error();
 			if (!libvirt_domain_undefine($dom))
 				return $this->_set_last_error();
@@ -1871,6 +1871,48 @@
 
 			return false;
 		}
+
+		function nvram_create_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd', '/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd');
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd', '/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd');
+				return true;
+			}
+			return false;
+		}
+
+		function nvram_revert_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd');
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd') ;
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd');
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd') ;
+				return true;
+			}
+			return false;
+		}
+
+		function nvram_delete_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd') ;
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd') ;
+				return true;
+			}
+			return false;
+		}
+
 
 		function is_dir_empty($dir) {
 			if (!is_readable($dir)) return NULL;
@@ -2490,6 +2532,12 @@
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
+		//list all snapshots for domain
+		function domain_snapshot_get_xml($domain) {
+			$tmp = libvirt_domain_snapshot_get_xml($domain);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
 		// create a snapshot and metadata node for description
 		function domain_snapshot_create($domain) {
 			$this->domain_set_metadata($domain);
@@ -2499,10 +2547,9 @@
 		}
 
 		//delete snapshot and metadata
-		function domain_snapshot_delete($domain, $name) {
-			$this->snapshot_remove_metadata($domain, $name);
+		function domain_snapshot_delete($domain, $name, $flags=0) {
 			$name = $this->domain_snapshot_lookup_by_name($domain, $name);
-			$tmp = libvirt_domain_snapshot_delete($name);
+			$tmp = libvirt_domain_snapshot_delete($name,$flags);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 

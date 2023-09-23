@@ -62,7 +62,7 @@ function ajaxVMDispatchconsoleRV(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, console="web"){  
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, console="web", preview=false){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
@@ -106,6 +106,12 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       e.preventDefault();
       ajaxVMDispatch( {action:"domain-destroy", uuid:uuid}, "loadlist");
     }});
+    opts.push({divider:true});
+   
+    opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
+      e.preventDefault();
+      selectsnapshot(uuid , name, "--generate" , "create",false,state) ;
+    }}); 
   } else if (state == "pmsuspended") {
     opts.push({text:_("Resume"), icon:"fa-play", action:function(e) {
       e.preventDefault();
@@ -141,7 +147,8 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
           ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
         }});
       }
-  }}
+    }
+  }
   opts.push({divider:true});
   if (log !== "") {
     opts.push({text:_("Logs"), icon:"fa-navicon", action:function(e){e.preventDefault(); openTerminal('log',name,log);}});
@@ -156,6 +163,10 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
     }});
 
     opts.push({divider:true});
+    opts.push({text:_("Create Snapshot"), icon:"fa-clone", action:function(e) {
+      e.preventDefault();
+      selectsnapshot(uuid , name, "--generate" , "create",false,state) ;
+    }});
     opts.push({text:_("Remove VM"), icon:"fa-minus", action:function(e) {
       e.preventDefault();
       swal({
@@ -188,6 +199,50 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
     }
   }
   context.attach('#vm-'+uuid, opts);
+}
+function addVMSnapContext(name, uuid, template, state, snapshotname, preview=false){  
+  var opts = [];
+  var path = location.pathname;
+  var x = path.indexOf("?");
+  if (x!=-1) path = path.substring(0,x);
+
+  context.settings({right:false,above:false});
+  if (state == "running") {
+
+    opts.push({text:_("Revert snapshot"), icon:"fa-fast-backward", action:function(e) {
+      e.preventDefault();
+      selectsnapshot(uuid, name, snapshotname, "revert",true) ;
+     }});
+
+    opts.push({text:_("Block Commit"), icon:"fa-hdd-o", action:function(e) {
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      e.preventDefault();
+      selectblock(uuid, name, snapshotname, "commit",true) ;
+    }});
+    
+    opts.push({text:_("Block Pull"), icon:"fa-hdd-o", action:function(e) {
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      e.preventDefault();
+      selectblock(uuid, name, snapshotname, "pull",true) ;
+    }});
+    if (preview) {
+    opts.push({text:_("Block Copy"), icon:"fa-stop", action:function(e) {
+      e.preventDefault();
+      ajaxVMDispatch({action:"domain-stop", uuid:uuid}, "loadlist");
+    }}); }
+  } else {
+    opts.push({text:_("Revert snapshot"), icon:"fa-fast-backward", action:function(e) {
+      e.preventDefault();
+      $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+      selectsnapshot(uuid, name, snapshotname, "revert",true) ;
+    }});
+  }
+  opts.push({text:_("Remove snapshot"), icon:"fa-trash", action:function(e) {
+    e.preventDefault();
+    $('#vm-'+uuid).find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+    selectsnapshot(uuid, name, snapshotname, "remove",true) ;
+  }});
+  context.attach('#vmsnap-'+uuid, opts);
 }
 function startAll() {
   $('input[type=button]').prop('disabled',true);
