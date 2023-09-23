@@ -7,7 +7,7 @@
 ###################################################
 @mkdir("/tmp/gui.search");
 
-extract(@parse_ini_file("/boot/config/plugins/dynamix/dynamix.cfg"));
+extract(@parse_ini_file("/boot/config/plugins/dynamix/dynamix.cfg") ?: []);
 $locale = $locale ?? "";
 if ( $locale == "en_US")
 	$locale = "";
