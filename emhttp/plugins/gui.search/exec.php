@@ -9,11 +9,12 @@
 
 extract(@parse_ini_file("/boot/config/plugins/dynamix/dynamix.cfg"));
 $locale = $locale ?? "";
+if ( $locale == "en_US")
+	$locale = "";
+
 if ( $locale != @file_get_contents("/tmp/gui.search/locale") ) {
 	@unlink("/tmp/gui.search/searchResults.json");
 }
-if ( $locale == "en_US")
-	$locale = "";
 
 file_put_contents("/tmp/gui.search/locale",$locale);
 
