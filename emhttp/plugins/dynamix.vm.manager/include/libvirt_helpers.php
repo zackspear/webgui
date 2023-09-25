@@ -163,6 +163,7 @@ private static $encoding = 'UTF-8';
 
 	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
+	require_once "$docroot/webGui/include/Custom.php";
 
 	// Load emhttp variables if needed.
 	if (!isset($var)){
@@ -1203,6 +1204,7 @@ private static $encoding = 'UTF-8';
 			$arrDisks[] = [
 				'new' => $strPath,
 				'size' => '',
+				'driver' => $disk['type'],
 				'driver' => 'raw',
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
@@ -1370,7 +1372,7 @@ private static $encoding = 'UTF-8';
 				$vendor=$USB->source->vendor->attributes()->id ;
 				$product=$USB->source->product->attributes()->id ;
 				$startupPolicy=$USB->source->attributes()->startupPolicy ;
-				$usbboot= $USB->boot->attributes()->order  ;
+				$usbboot= $USB->boot->attributes()->order ?? "" ;
 				$id = str_replace('0x', '', $vendor . ':' . $product) ;
 				$found = false ;
 				foreach($arrValidUSBDevices as $key => $data) {
@@ -1420,7 +1422,7 @@ private static $encoding = 'UTF-8';
         global $lv ;
         $xml = new SimpleXMLElement($lv->domain_get_xml($res)) ;
         $data = $xml->xpath('//channel/target[@name="org.qemu.guest_agent.0"]/@state') ;
-        $data = $data[0]->state ;
+        $data = $data[0]->state ?? null ;
         return $data ;
 	}
 
@@ -1454,4 +1456,779 @@ private static $encoding = 'UTF-8';
 		if ($spicevmc || $qemuvdaagent) $copypaste = true ; else $copypaste = false ;
 		return $copypaste ;
 	}
+
+	function vm_clone($vm, $clone ,$overwrite,$start,$edit, $free, $waitID) {
+		global $lv,$domain_cfg ;
+		/*
+			Clone.
+
+			Stopped only.
+
+			Get new VM Name
+			Extract XML for VM to be cloned.
+			Check if directory exists.
+			Check for disk space
+
+			Stop VM Starting until clone is finished or fails.
+
+			Create new directory for Clone.
+			Update paths with new directory
+
+			Create new UUID
+			Create new MAC Address for NICs
+
+			Create VM Disks from source. Options full or Sparce. Method of copy?
+
+			release orginal VM to start.
+
+			If option to edit, show VMUpdate
+		*/
+		$uuid = $lv->domain_get_uuid($clone) ;
+		write("addLog\0".htmlspecialchars(_("Checking if clone exists")));
+		if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return false ;} 
+		#VM must be shutdown.
+		$res = $lv->get_domain_by_name($vm);
+		$dom = $lv->domain_get_info($res);
+		$state = $lv->domain_state_translate($dom['state']);
+		$vmxml = $lv->domain_get_xml($res) ;
+		file_put_contents("/tmp/cloningxml" ,$vmxml) ;
+		# if VM running shutdown. Record was running.
+		if ($state != 'shutoff') {write("addLog\0".htmlspecialchars(_("Shuting down $vm current $state"))); $arrResponse = $lv->domain_destroy($vm) ; }
+		# Wait for shutdown?
+
+		$disks =$lv->get_disk_stats($vm) ;
+
+		$capacity = 0 ;
+
+		foreach($disks as $disk)   {
+			$file = $disk["file"] ;
+			$pathinfo =  pathinfo($file) ;
+			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+			$capacity = $capacity + $disk["capacity"] ;
+		}
+		$dirpath = $pathinfo["dirname"] ;
+
+		#Check free space.
+		write("addLog\0".htmlspecialchars("Checking for free space"));
+		$dirfree = disk_free_space($pathinfo["dirname"]) ;
+		$sourcedir = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($pathinfo["dirname"])." 2>/dev/null"));	
+		$repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]);
+		$repdirfree = disk_free_space($repdir) ;
+		$reflink = true ;
+		$capacity *=  1 ;
+
+		if ($free == "yes" && $repdirfree < $capacity) { $reflink = false ;}
+		if ($free == "yes" && $dirfree < $capacity) { write("addLog\0".htmlspecialchars(_("Insufficent storage for clone")));  return false ;} 
+
+		#Clone XML
+		$uuid = $lv->domain_get_uuid($vm) ;
+		$config=domain_to_config($uuid) ;
+
+		$config["domain"]["name"] = $clone ;
+		$config["domain"]["uuid"]  = $lv->domain_generate_uuid() ;
+		foreach($config["nic"] as $index => $detail) {
+		$config["nic"][$index]["mac"] = $lv->generate_random_mac_addr() ;
+		}
+		$config["domain"]["type"] = "kvm";
+
+		$usbs = getVMUSBs($vmxml) ;
+		foreach($usbs as $i => $usb) {
+			if ($usb["checked"] == "checked") continue ;
+			unset($usbs[$i]) ;
+		}
+		$config["usb"] = $usbs ;
+
+		$files_exist = false ;
+		$files_clone = array() ;
+		foreach ($config["disk"] as $diskid => $disk) {
+			$file_clone[$diskid]["source"] = $config["disk"][$diskid]["new"] ;
+			$config["disk"][$diskid]["new"] = str_replace($vm,$clone,$config["disk"][$diskid]["new"]) ;
+			$pi = pathinfo($config["disk"][$diskid]["new"]) ;
+			$isdir = is_dir($pi['dirname']) ;
+			if (is_file($config["disk"][$diskid]["new"])) $file_exists = true ;
+			$file_clone[$diskid]["target"] = $config["disk"][$diskid]["new"] ;
+			}
+
+		$clonedir = $domain_cfg['DOMAINDIR'].$clone ;
+		if (!is_dir($clonedir)) {
+			mkdir($clonedir,0777,true) ;
+			chown($clonedir, 'nobody');
+			chgrp($clonedir, 'users');
+		}
+		write("addLog\0".htmlspecialchars("Checking for image files"));
+		if ($file_exists && $overwrite != "yes") { write("addLog\0".htmlspecialchars(_("New image file names exist and Overwrite is not allowed")));  return( false) ; } 
+
+		#Create duplicate files.
+		foreach($file_clone as $diskid => $disk)  {
+			$target = $disk['target'] ;
+			$source = $disk['source'] ; 
+			if ($target == $source) { write("addLog\0".htmlspecialchars(_("New image file is same as old")));  return( false) ; } 
+			$sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null"));	
+            $reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
+            $repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
+            #var_dump($repsrc,$reptgt) ;
+        
+			$cmdstr = "cp --reflink=always '$repsrc' '$reptgt'" ;
+        	if ($reflink == true) { $refcmd = $cmdstr ; } else {$refcmd = false; }
+			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$source' '$target'" ;
+			$error = execCommand_nchan($cmdstr,$path,$refcmd) ;
+			if (!$error) { write("addLog\0".htmlspecialchars("Image copied failed."));  return( false) ; }
+		}
+
+		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Completing Clone").": </legend><p class='logLine'></p><span id='wait-$waitID'></span></fieldset>");
+		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
+
+		$xml = $lv->config_to_xml($config, true) ;
+		file_put_contents("/tmp/clonexml" ,$xml) ;
+		$rtn = $lv->domain_define($xml) ;
+		return($rtn) ;
+	
+	}
+
+	
+	function compare_creationtime($a, $b) 	{
+		return strnatcmp($a['creationtime'], $b['creationtime']);
+  }	
+
+  function compare_creationtimelt($a, $b) 	{
+	  return $a['creationtime'] < $b['creationtime'];
+	}	
+
+  function getvmsnapshots($vm) {
+	  $snaps=array() ;
+	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
+	  $snaps_json = file_get_contents($dbpath."/snapshots.db") ;
+	  $snaps = json_decode($snaps_json,true) ; 
+	  if (is_array($snaps)) uasort($snaps,'compare_creationtime') ;
+	  return $snaps ;
+  }
+
+  function write_snapshots_database($vm,$name) {
+	  global $lv ;
+	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
+	  if (!is_dir($dbpath)) mkdir($dbpath) ;
+	  $snaps_json = file_get_contents($dbpath."/snapshots.db") ;
+	  $snaps = json_decode($snaps_json,true) ; 
+	  $snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$name) ;
+	  $snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
+	  $a = simplexml_load_string($snapshot_xml) ;
+	  $a = json_encode($a) ;
+	  $b= json_decode($a, TRUE);
+	  $vmsnap = $b["name"] ;
+	  $snaps[$vmsnap]["name"]= $b["name"];
+	  $snaps[$vmsnap]["parent"]= $b["parent"] ;
+	  $snaps[$vmsnap]["state"]= $b["state"];
+	  $snaps[$vmsnap]["desc"]= $b["description"];
+	  $snaps[$vmsnap]["memory"]= $b["memory"];
+	  $snaps[$vmsnap]["creationtime"]= $b["creationTime"];
+
+	  $disks =$lv->get_disk_stats($vm) ;
+		  foreach($disks as $disk)   {
+			  $file = $disk["file"] ;
+			  $output = "" ;
+			  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+			  foreach($output as $key => $line) {
+				  $line=str_replace("image: ","",$line) ;
+				  $output[$key] = $line ;  
+			  }
+
+			  $snaps[$vmsnap]['backing'][$disk["device"]] = $output ; 
+			  $rev = "r".$disk["device"] ;
+			  $reversed = array_reverse($output) ;
+			  $snaps[$vmsnap]['backing'][$rev] = $reversed ;
+		  }
+		  $parentfind = $snaps[$vmsnap]['backing'][$disk["device"]] ;
+		  $parendfileinfo = pathinfo($parentfind[1]) ;
+		  $snaps[$vmsnap]["parent"]= $parendfileinfo["extension"];
+		  $snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
+		  if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
+
+		  if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
+
+		  
+		  $value = json_encode($snaps,JSON_PRETTY_PRINT) ;
+	  file_put_contents($dbpath."/snapshots.db",$value) ;
+  }
+
+  function refresh_snapshots_database($vm) {
+	  global $lv ;
+	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
+	  if (!is_dir($dbpath)) mkdir($dbpath) ;
+	  $snaps_json = file_get_contents($dbpath."/snapshots.db") ;
+	  $snaps = json_decode($snaps_json,true) ; 
+	  foreach($snaps as $vmsnap=>$snap)
+
+		  $disks =$lv->get_disk_stats($vm) ;
+		  foreach($disks as $disk)   {
+			  $file = $disk["file"] ;
+			  $output = "" ;
+			  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+			  foreach($output as $key => $line) {
+				  $line=str_replace("image: ","",$line) ;
+				  $output[$key] = $line ;  
+			  }
+  
+			  $snaps[$vmsnap]['backing'][$disk["device"]] = $output ; 
+			  $rev = "r".$disk["device"] ;
+			  $reversed = array_reverse($output) ;
+			  $snaps[$vmsnap]['backing'][$rev] = $reversed ;
+		  }
+		  $parentfind = $snaps[$vmsnap]['backing'][$disk["device"]] ;
+		  $parendfileinfo = pathinfo($parentfind[1]) ;
+		  $snaps[$vmsnap]["parent"]= $parendfileinfo["extension"];
+		  $snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
+		  if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
+  
+		  $value = json_encode($snaps,JSON_PRETTY_PRINT) ;
+		  $res = $lv->get_domain_by_name($vm);
+		  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
+
+
+		  #Remove any NVRAMs that are no longer valid.
+		  # Get uuid
+		  $vmuuid = $lv->domain_get_uuid($vm) ;
+		  #Get list of files 
+		  #$filepath = "/etc/libvirt/qemu/nvram/'.$uuid*" ; #$snapshotname" 
+		  $filepath = "/etc/libvirt/qemu/nvram/$vmuuid*" ; #$snapshotname" 
+		  $nvram_files=glob($filepath) ;
+		  foreach($nvram_files as $key => $nvram_file)  {
+			  if ($nvram_file == "/etc/libvirt/qemu/nvram/$vmuuid"."_VARS-pure-efi.fd" || $nvram_file == "/etc/libvirt/qemu/nvram/$vmuuid"."_VARS-pure-efi-tpm.fd" ) unset($nvram_files[$key]) ;              
+			  foreach ($snaps as $snapshotname => $snap) {
+				  $tpmfilename = "/etc/libvirt/qemu/nvram/".$vmuuid.$snapshotname."_VARS-pure-efi-tpm.fd" ;
+				  $nontpmfilename = "/etc/libvirt/qemu/nvram/".$vmuuid.$snapshotname."_VARS-pure-efi.fd" ;
+				  if ($nvram_file == $tpmfilename || $nvram_file == $nontpmfilename ) {
+					  unset($nvram_files[$key]) ;}
+			  }
+		  }
+		  foreach ($nvram_files  as $nvram_file) unlink($nvram_file) ;
+
+	 
+	  file_put_contents($dbpath."/snapshots.db",$value) ;
+  }
+
+  function delete_snapshots_database($vm,$name) {
+	  global $lv ;
+	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
+	  $snaps_json = file_get_contents($dbpath."/snapshots.db") ;
+	  $snaps = json_decode($snaps_json,true) ; 
+	  unset($snaps[$name]) ;
+	  $value = json_encode($snaps,JSON_PRETTY_PRINT) ;
+	  file_put_contents($dbpath."/snapshots.db",$value) ;
+	  return true ;
+  }
+
+
+  function vm_snapshot($vm,$snapshotname, $snapshotdesc, $free = "yes",  $memorysnap = "yes") {
+	  global $lv ;
+	  
+	  #Get State
+	  $res = $lv->get_domain_by_name($vm);
+	  $dom = $lv->domain_get_info($res);
+	  $state = $lv->domain_state_translate($dom['state']);
+  
+	  #Get disks for --diskspec 
+	  $disks =$lv->get_disk_stats($vm) ;
+	  $diskspec = "" ;
+	  $capacity = 0 ;
+	  if ($snapshotname == "--generate") $name= "S" . date("YmdHis") ; else $name=$snapshotname ;
+	  if ($snapshotdesc != "") $snapshotdesc = " --description '$snapshotdesc'" ;
+		  
+	  foreach($disks as $disk)   {
+		  $file = $disk["file"] ;
+		  $pathinfo =  pathinfo($file) ;
+		  $filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+		  $diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
+		  $capacity = $capacity + $disk["capacity"] ;
+	  }
+	  $dirpath = $pathinfo["dirname"] ;
+	  #get memory
+	  $mem = $lv->domain_get_memory_stats($vm) ;
+	  $memory = $mem[6] ;
+  
+	  if ($memorysnap = "yes") $memspec = ' --memspec "'.$pathinfo["dirname"].'/memory'.$name.'.mem",snapshot=external' ; else $memspec = "" ;
+	  $cmdstr = "virsh snapshot-create-as '$vm' --name '$name' $snapshotdesc  --atomic" ;
+	  
+	
+	  if ($state == "running") {
+		  $cmdstr .= " --live ".$memspec.$diskspec ;
+		  $capacity = $capacity + $memory ;
+		  
+	  } else {
+		  $cmdstr .= "  --disk-only ".$diskspec ;    
+	  }
+  
+	  #Check free space.
+	  $dirfree = disk_free_space($pathinfo["dirname"]) ;
+  
+	  $capacity *=  1 ;
+  
+	  if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Snapshot")]; return $arrResponse ;} 
+	  
+	  #Copy nvram
+	  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
+
+	  $xmlfile = $pathinfo["dirname"]."/".$name.".running" ;
+	  file_put_contents("/tmp/xmltst", "$xmlfile" ) ;
+	  if ($state == "running") exec("virsh dumpxml '$vm' > ".escapeshellarg($xmlfile),$outxml,$rtnxml) ;
+		
+	  $output= [] ;
+	  $test = false ;
+	  if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
+
+	  if (strpos(" ".$output[0],"error") ) { 
+		  $arrResponse =  ['error' => substr($output[0],6) ] ;
+	  } else {
+		$arrResponse = ['success' => true] ;
+		write_snapshots_database("$vm","$name") ;
+		#remove meta data
+		$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
+	  }
+	  return $arrResponse ;
+
+  }
+
+  function vm_revert($vm, $snap="--current",$action="no",$actionmeta = 'yes') {
+	  global $lv ;
+	  $snapslist= getvmsnapshots($vm) ;
+	  $disks =$lv->get_disk_stats($vm) ;
+
+	  switch ($snapslist[$snap]['state']) {
+		  case "shutoff":	
+		  case "running":	
+			  #VM must be shutdown.
+			  $res = $lv->get_domain_by_name($vm);
+			  $dom = $lv->domain_get_info($res);
+			  $state = $lv->domain_state_translate($dom['state']);
+			  # if VM running shutdown. Record was running.
+			  if ($state != 'shutdown') $arrResponse = $lv->domain_destroy($vm) ;
+			  # Wait for shutdown?
+			  # GetXML
+			  $strXML= $lv->domain_get_xml($res) ;
+			  $xmlobj = custom::createArray('domain',$strXML) ;
+
+			  # Process disks and update path.
+			  $disks=($snapslist[$snap]['disks']) ;			
+			  foreach ($disks as $disk) {
+				  $diskname = $disk["@attributes"]["name"] ;
+				  if ($diskname == "hda" || $diskname == "hdb") continue ;
+				  $path = $disk["source"]["@attributes"]["file"] ;
+				  if ($diskname == "hdc") {
+					  $primarypathinfo =  pathinfo($path) ;
+					  $primarypath = $primarypathinfo['dirname'] ;
+				  }
+				  $item = array_search($path,$snapslist[$snap]['backing'][$diskname]) ;
+				  $newpath =  $snapslist[$snap]['backing'][$diskname][$item + 1];
+				  $json_info = getDiskImageInfo($newpath) ;
+				  foreach($xmlobj['devices']['disk'] as $ddk => $dd){
+					  if ($dd['target']["@attributes"]['dev'] == $diskname) {
+						  $xmlobj['devices']['disk'][$ddk]['source']["@attributes"]['file'] = "$newpath" ;
+						  $xmlobj['devices']['disk'][$ddk]['driver']["@attributes"]['type'] = $json_info["format"] ;
+						  }
+					  }
+				  }
+			  $xml = custom::createXML('domain',$xmlobj)->saveXML();
+			  $new = $lv->domain_define($xml);
+			  if ($new)
+				  $arrResponse  = ['success' => true] ; else
+				  $arrResponse = ['error' => $lv->get_last_error()] ;
+
+			  # remove snapshot meta data and images for all snpahots.
+
+			  foreach ($disks as $disk) {
+				  $diskname = $disk["@attributes"]["name"] ;
+				  if ($diskname == "hda" || $diskname == "hdb") continue ;
+				  $path = $disk["source"]["@attributes"]["file"] ;
+				  if (is_file($path) && $action == "yes") unlink("$path") ;
+				  $item = array_search($path,$snapslist[$snap]['backing']["r".$diskname]) ;
+				  $item++ ;
+				  while($item > 0)
+				  {
+				  if (!isset($snapslist[$snap]['backing']["r".$diskname][$item])) break ;
+				  $newpath =  $snapslist[$snap]['backing']["r".$diskname][$item] ;
+					  if (is_file($newpath) && $action == "yes") unlink("$newpath") ;
+				  $item++ ;
+				  }
+			  }
+	  
+				  uasort($snapslist,'compare_creationtimelt') ;
+				  foreach($snapslist as $s) {
+					  $name = $s['name'] ;
+
+					  $xmlfile = $primarypath."/$name.running" ;
+					  $memoryfile = $primarypath."/memory$name.mem" ;
+
+					  if ($snapslist[$snap]['state'] == "running") {
+					  # Set XML to saved XML
+					  $xml = file_get_contents($xmlfile) ;
+					  $xmlobj = custom::createArray('domain',$xml) ;
+					  $xml = custom::createXML('domain',$xmlobj)->saveXML();
+					  $rtn = $lv->domain_define($xml) ;
+
+					  # Restore Memory.
+
+					  $makerun = true ;
+					  if ($makerun == true) exec("virsh restore ".escapeshellarg($memoryfile)) ;	
+					  #exec("virsh restore $memoryfile") ;			
+					  }	
+					  #Delete Metadata only.
+					  if ($actionmeta == "yes") { 
+						  $ret = delete_snapshots_database("$vm","$name") ;
+					  } 
+					  if (is_file($memoryfile) && $action == "yes") unlink($memoryfile) ;
+					  if (is_file($xmlfile) && $action == "yes") unlink($xmlfile) ;
+					  if ($s['name'] == $snap) break ;
+				  }
+				  #if VM was started restart.
+				  if ($state == 'running' && $snapslist[$snap]['state'] != "running") {
+					  $arrResponse = $lv->domain_start($vm) ;
+				  } 
+	  
+				  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
+				  break ;
+	  
+		  }
+	  $arrResponse  = ['success' => true] ;
+	  return($arrResponse) ;
+	  }
+
+  function vm_snapimages($vm, $snap, $only) {
+	  global $lv ;
+	  $snapslist= getvmsnapshots($vm) ;
+	  $data = "<br><br>Images and metadata to remove if tickbox checked.<br>" ;
+
+	  $disks =$lv->get_disk_stats($vm) ;
+	  foreach($disks as $disk)   {
+		  $file = $disk["file"] ;
+		  $output = "" ;
+		  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+		  foreach($output as $key => $line) {
+			  $line=str_replace("image: ","",$line) ;
+			  $output[$key] = $line ;  
+		  }
+		  $snaps[$vm][$disk["device"]] = $output  ; 
+		  $rev = "r".$disk["device"] ;
+		  $reversed = array_reverse($output) ;
+		  $snaps[$vm][$rev] = $reversed ;
+		  $pathinfo =  pathinfo($file) ;
+		  $filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+		  $diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+		  $capacity = $capacity + $disk["capacity"] ;
+	  }
+
+	  $snapdisks= $snapslist[$snap]['disks'] ;
+	  
+	  foreach ($snapdisks as $diskkey => $snapdisk) {
+		  $diskname = $snapdisk["@attributes"]["name"] ;
+		  if ($diskname == "hda" || $diskname == "hdb") continue ;
+		  $path = $snapdisk["source"]["@attributes"]["file"] ;
+		  if (is_file($path)) $data .= "$path<br>" ;
+		  $item = array_search($path,$snaps[$vm]["r".$diskname]) ;
+		  $item++ ;
+		  if ($only == 0) $item = 0 ;
+		  while($item > 0)
+		  {
+		  if (!isset($snaps[$vm]["r".$diskname][$item])) break ;
+		  $newpath =  $snaps[$vm]["r".$diskname][$item] ;
+			  if (is_file($path)) $data .= "$newpath<br>" ;				
+		  $item++ ;
+
+		  }
+	  }
+	  $data .= "<br>Snapshots metadata to remove." ;
+	  if ($only == 0) {
+		  $data .= "<br>$snap";
+	  } else {
+	  uasort($snapslist,'compare_creationtimelt') ;
+	  foreach($snapslist as $s) {
+		  $name = $s['name'] ;
+		  $data .= "<br>$name";
+		  if ($s['name'] == $snap) break ;
+		  }
+	  }
+	  return($data) ;
+  }
+  
+
+  function vm_snapremove($vm, $snap) {
+	  global $lv ;
+	  $snapslist= getvmsnapshots($vm) ;
+	  $res = $lv->get_domain_by_name($vm);
+	  $dom = $lv->domain_get_info($res);
+
+	  $disks =$lv->get_disk_stats($vm) ;
+	  foreach($disks as $disk)   {
+		  $file = $disk["file"] ;
+		  $output = "" ;
+		  exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+		  foreach($output as $key => $line) {
+			  $line=str_replace("image: ","",$line) ;
+			  $output[$key] = $line ;  
+		  }
+
+		  $snaps[$vm][$disk["device"]] = $output ; 
+		  $rev = "r".$disk["device"] ;
+		  $reversed = array_reverse($output) ;
+		  $snaps[$vm][$rev] = $reversed ;
+		  $pathinfo =  pathinfo($file) ;
+	  }
+
+	  # GetXML
+	  $strXML= $lv->domain_get_xml($res) ;
+	  $xmlobj = custom::createArray('domain',$strXML) ;
+
+	  # Process disks.
+	  $disks=($snapslist[$snap]['disks']) ;		
+	  foreach ($disks as $disk) {
+		  $diskname = $disk["@attributes"]["name"] ;
+		  if ($diskname == "hda" || $diskname == "hdb") continue ;
+		  $path = $disk["source"]["@attributes"]["file"] ;
+		  $item = array_search($path,$snaps[$vm][$diskname]) ;
+		  if ($item!==false) {
+			  $data = ["error" => "Image currently active for this domain."] ;
+			  return ($data) ;
+			  }
+		  }
+  
+	  $disks=($snapslist[$snap]['disks']) ;
+	  foreach ($disks as $disk) {
+		  $diskname = $disk["@attributes"]["name"] ;
+		  if ($diskname == "hda" || $diskname == "hdb") continue ;
+		  $path = $disk["source"]["@attributes"]["file"] ;
+		  if (is_file($path)) {
+			  if(!unlink("$path")) {				
+				  $data = ["error" => "Unable to remove image file $path"] ;
+				  return ($data) ;
+			  }  
+		  }
+	  }
+
+	  # Delete NVRAM 
+	  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_delete_snapshot($lv->domain_get_uuid($vm),$snap) ;
+
+	  $ret = delete_snapshots_database("$vm","$snap")  ;
+  
+	  if(!$ret)
+		  $data = ["error" => "Unable to remove snap metadata $snap"] ;
+	  else
+		  $data = ["success => 'true"] ;
+	  
+	  return($data) ;
+  }
+
+function vm_blockcommit($vm, $snap ,$path,$base,$top,$pivot,$action) {
+  global $lv ;
+  /*
+NAME
+  blockcommit - Start a block commit operation.
+
+SYNOPSIS
+  blockcommit <domain> <path> [--bandwidth <number>] [--base <string>] [--shallow] [--top <string>] [--active] [--delete] [--wait] [--verbose] [--timeout <number>] [--pivot] [--keep-overlay] [--async] [--keep-relative] [--bytes]
+
+DESCRIPTION
+  Commit changes from a snapshot down to its backing image.
+
+OPTIONS
+  [--domain] <string>  domain name, id or uuid
+  [--path] <string>  fully-qualified path of disk
+  --bandwidth <number>  bandwidth limit in MiB/s
+  --base <string>  path of base file to commit into (default bottom of chain)
+  --shallow        use backing file of top as base
+  --top <string>   path of top file to commit from (default top of chain)
+  --active         trigger two-stage active commit of top file
+  --delete         delete files that were successfully committed
+  --wait           wait for job to complete (with --active, wait for job to sync)
+  --verbose        with --wait, display the progress
+  --timeout <number>  implies --wait, abort if copy exceeds timeout (in seconds)
+  --pivot          implies --active --wait, pivot when commit is synced
+  --keep-overlay   implies --active --wait, quit when commit is synced
+  --async          with --wait, don't wait for cancel to finish
+  --keep-relative  keep the backing chain relatively referenced
+  --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+
+  blockcommit Debian --path /mnt/user/domains/Debian/vdisk1.S20230513120410qcow2 --verbose --pivot --delete
+  */
+	  # Error if VM Not running.
+	  
+	  $snapslist= getvmsnapshots($vm) ;
+	  $disks =$lv->get_disk_stats($vm) ;
+
+	  foreach($disks as $disk)   {
+		  $path = $disk['file'] ;
+		  $cmdstr = "virsh blockcommit '$vm' --path '$path' --verbose " ;
+		  if ($pivot == "yes") $cmdstr .= " --pivot " ;
+		  if ($action == "yes") $cmdstr .= " --delete " ;
+		  # Process disks and update path.
+		  $snapdisks=($snapslist[$snap]['disks']) ;	
+		  if ($base != "--base" && $base != "") {
+			  #get file name from  snapshot.
+			  $snapdisks=($snapslist[$base]['disks']) ;
+			  $basepath = "" ;
+			  foreach ($snapdisks as $snapdisk) {
+				  $diskname = $snapdisk["@attributes"]["name"] ;
+				  if ($diskname != $disk['device']) continue ;
+				  $basepath = $snapdisk["source"]["@attributes"]["file"] ;
+				  }
+			  if ($basepath != "") $cmdstr .= " --base '$basepath' ";
+		  }
+		  if ($top != "--top" && $top !="")  {
+			  #get file name from  snapshot.
+			  $snapdisks=($snapslist[$top]['disks']) ;
+			  $toppath = "" ;
+			  foreach ($snapdisks as $snapdisk) {
+				  $diskname = $snapdisk["@attributes"]["name"] ;
+				  if ($diskname != $disk['device']) continue ;
+				  $toppath = $snapdisk["source"]["@attributes"]["file"] ;
+				  }
+			  if ($toppath != "") $cmdstr .= " --top '$toppath' ";
+		  }
+
+		  $error = execCommand_nchan($cmdstr,$path) ;
+		  if (!$error) { 
+			  $arrResponse =  ['error' => substr($output[0],6) ] ;
+			  return($arrResponse) ;
+		  } else {
+			  $arrResponse = ['success' => true] ;
+		  }
+		  
+	  }
+	  # Delete NVRAM 
+	  #if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_delete_snapshot($lv->domain_get_uuid($vm),$snap) ;
+
+	  refresh_snapshots_database($vm) ;
+	  $ret = $ret = delete_snapshots_database("$vm","$snap") ; ;
+	  if($ret)
+		  $data = ["error" => "Unable to remove snap metadata $snap"] ;
+	  else
+		  $data = ["success => 'true"] ;
+	  return $data ;
+
+}
+
+function vm_blockpull($vm, $snap ,$path,$base,$top,$pivot,$action) {
+  global $lv ;
+  /*
+NAME
+  blockpull - Populate a disk from its backing image.
+
+SYNOPSIS
+  blockpull <domain> <path> [--bandwidth <number>] [--base <string>] [--wait] [--verbose] [--timeout <number>] [--async] [--keep-relative] [--bytes]
+
+DESCRIPTION
+  Populate a disk from its backing image.
+
+OPTIONS
+  [--domain] <string>  domain name, id or uuid
+  [--path] <string>  fully-qualified path of disk
+  --bandwidth <number>  bandwidth limit in MiB/s
+  --base <string>  path of backing file in chain for a partial pull
+  --wait           wait for job to finish
+  --verbose        with --wait, display the progress
+  --timeout <number>  with --wait, abort if pull exceeds timeout (in seconds)
+  --async          with --wait, don't wait for cancel to finish
+  --keep-relative  keep the backing chain relatively referenced
+  --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+
+
+  */
+  $snapslist= getvmsnapshots($vm) ;
+  $disks =$lv->get_disk_stats($vm) ;
+  foreach($disks as $disk)   {
+	  $file = $disk["file"] ;
+	  $output = "" ;
+	  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
+	  foreach($output as $key => $line) {
+		  $line=str_replace("image: ","",$line) ;
+		  $output[$key] = $line ;  
+	  }
+	  $snaps[$vm][$disk["device"]] = $output  ; 
+	  $rev = "r".$disk["device"] ;
+	  $reversed = array_reverse($output) ;
+	  $snaps[$vm][$rev] = $reversed ;
+  }
+  $snaps_json=json_encode($snaps,JSON_PRETTY_PRINT) ;
+  $pathinfo =  pathinfo($file) ;
+  $dirpath = $pathinfo["dirname"] ;
+  file_put_contents("$dirpath/image.tracker",$snaps_json) ;
+
+  foreach($disks as $disk)   {
+  $path = $disk['file'] ;
+  $cmdstr = "virsh blockpull '$vm' --path '$path' --verbose --pivot --delete" ;
+  $cmdstr = "virsh blockpull '$vm' --path '$path' --verbose --wait " ;
+  # Process disks and update path.
+  $snapdisks=($snapslist[$snap]['disks']) ;	
+  if ($base != "--base" && $base != "") {
+	  #get file name from  snapshot.
+	  $snapdisks=($snapslist[$base]['disks']) ;
+	  $basepath = "" ;
+	  foreach ($snapdisks as $snapdisk) {
+		  $diskname = $snapdisk["@attributes"]["name"] ;
+		  if ($diskname != $disk['device']) continue ;
+		  $basepath = $snapdisk["source"]["@attributes"]["file"] ;
+		  }
+	  if ($basepath != "") $cmdstr .= " --base '$basepath' ";
+  }
+
+  if ($action) $cmdstr .= " $action ";
+
+
+  $error = execCommand_nchan($cmdstr,$path) ;
+  
+  if (!$error)  { 
+	  $arrResponse =  ['error' => substr($output[0],6) ] ;
+	  return($arrResponse) ;
+  } else {
+	  # Remove nvram snapshot
+	  $arrResponse = ['success' => true] ;
+  }
+
+	  }
+
+  refresh_snapshots_database($vm) ;
+  if($ret)
+	  $data = ["error" => "Unable to remove snap metadata $snap"] ;
+  else
+	  $data = ["success => 'true"] ;
+
+  return $data ;
+
+}
+
+function vm_blockcopy($vm,$path,$base,$top,$pivot,$action) {
+  /*
+NAME
+  blockcopy - Start a block copy operation.
+
+SYNOPSIS
+  blockcopy <domain> <path> [--dest <string>] [--bandwidth <number>] [--shallow] [--reuse-external] [--blockdev] [--wait] [--verbose] [--timeout <number>] [--pivot] [--finish] [--async] [--xml <string>] [--format <string>] [--granularity <number>] [--buf-size <number>] [--bytes] [--transient-job] [--synchronous-writes] [--print-xml]
+
+DESCRIPTION
+  Copy a disk backing image chain to dest.
+
+OPTIONS
+  [--domain] <string>  domain name, id or uuid
+  [--path] <string>  fully-qualified path of source disk
+  --dest <string>  path of the copy to create
+  --bandwidth <number>  bandwidth limit in MiB/s
+  --shallow        make the copy share a backing chain
+  --reuse-external  reuse existing destination
+  --blockdev       copy destination is block device instead of regular file
+  --wait           wait for job to reach mirroring phase
+  --verbose        with --wait, display the progress
+  --timeout <number>  implies --wait, abort if copy exceeds timeout (in seconds)
+  --pivot          implies --wait, pivot when mirroring starts
+  --finish         implies --wait, quit when mirroring starts
+  --async          with --wait, don't wait for cancel to finish
+  --xml <string>   filename containing XML description of the copy destination
+  --format <string>  format of the destination file
+  --granularity <number>  power-of-two granularity to use during the copy
+  --buf-size <number>  maximum amount of in-flight data during the copy
+  --bytes          the bandwidth limit is in bytes/s rather than MiB/s
+  --transient-job  the copy job is not persisted if VM is turned off
+  --synchronous-writes  the copy job forces guest writes to be synchronously written to the destination
+  --print-xml      print the XML used to start the copy job instead of starting the job
+  */
+}
+
+  
+
 ?>
