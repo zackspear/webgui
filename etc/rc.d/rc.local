@@ -67,7 +67,7 @@ rm -f /boot/plugins/unRAIDServer.plg
 rm -f $CONFIG/plugins/unRAIDServer.plg
 
 # These plugins are now integrated in the OS or obsolete and may interfere
-Obsolete="vfio.pci dynamix.wireguard dynamix.ssd.trim"
+Obsolete="vfio.pci dynamix.wireguard dynamix.ssd.trim gui.search"
 for Plugin in $Obsolete ; do
   if [[ -e $CONFIG/plugins/$Plugin.plg ]]; then
     logger "moving obsolete plugin $Plugin.plg to $CONFIG/plugins-error"
