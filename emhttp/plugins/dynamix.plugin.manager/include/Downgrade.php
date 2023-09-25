@@ -20,6 +20,9 @@ require_once "$docroot/webGui/include/Secure.php";
 $_SERVER['REQUEST_URI'] = 'plugins';
 require_once "$docroot/webGui/include/Translations.php";
 
+$tmpdir="/boot/deletemedowngrade.".uniqid();
+mkdir($tmpdir);
+exec("mv -f /boot/bz* $tmpdir");
 exec("mv -f /boot/previous/* /boot");
 $version = unscript(_var($_GET,'version'));
 file_put_contents("$docroot/plugins/unRAIDServer/README.md","**"._('DOWNGRADE TO VERSION')." $version**");
