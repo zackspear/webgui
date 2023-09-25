@@ -22,6 +22,14 @@ function makeList($list) {
 function sharename($share) {
   return basename($share,'.cfg');
 }
+$subpools = array( "special", "logs", "dedup", "cache", "spares");
+function isSubpool($name) {
+  global $subpools;
+  // pool name ending in any of these => zfs subpool
+  $tildaPosition = strpos($name, '~');
+  $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
+  return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
+}
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
@@ -31,7 +39,7 @@ table.divider{margin-top:20px}
 </style>
 <script>
 function validate(poolname) {
-  var valid = /^[a-z]([a-z0-9_-]*[a-z_-])*$/;
+  var valid = /^[a-z]([a-z0-9~._-]*[a-z_-])*$/;
   var reserved = [<?=makeList(explode(',',_var($var,'reservedNames')))?>];
   var shares = [<?=makeList(array_map('sharename',glob('boot/config/shares/*.cfg',GLOB_NOSORT)))?>];
   var pools = [<?=makeList($pools)?>];
@@ -82,6 +90,59 @@ function addPoolPopup() {
   $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
 }
+function removeOption(inputString,value) {
+  // Define a regular expression to match <option>...</option> substrings
+  const optionPattern = /<option .*?<\/option>/g;
+  // Replace all matching substrings that contain "value" with an empty string
+  const result = inputString.replace(optionPattern, (match) => {
+    if (match.includes(value)) {
+      return ''; // Remove the entire substring
+    } else {
+      return match; // Keep the substring as is
+    }
+  });
+  return result;
+}
+function addSubpoolPopup(poolname,currentsubpools) {
+  var popup = $('#dialogAddSubpool');
+  // Load popup with the template info
+  popup.html($("#templatePopupSubpool").html());
+  // Remove the options specifed by currentsubpools
+  if (currentsubpools.trim().length !== 0) {
+    var subpools = currentsubpools.split(',');
+    subpools.forEach(function(subpool) {
+      popup.html(function(index, oldHtml) {
+        return removeOption(oldHtml, subpool);
+      });
+    });
+  }
+  // Start Dialog section
+  popup.dialog({
+    title: "_(Add ZFS Subpool)_",
+    resizable: false,
+    width: 600,
+    modal: true,
+    show : {effect:'fade', duration:250},
+    hide : {effect:'fade', duration:250},
+    buttons: {
+    "_(Add)_": function() {
+        subpool=$(this).find('select[name="subpool"]').val();
+        $(this).find('input[name="poolName"]').val(poolname + "~" + subpool);
+        $(this).find('form').submit();
+        $(this).dialog('close');
+      },
+    "_(Cancel)_": function() {
+        $(this).dialog('close');
+      }
+    }
+  });
+  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
+  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
+  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
+  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
+  $(".ui-button-text").css({'padding':'0px 5px'});
+}
 
 <?if (_var($var,'fsState')=="Started"):?>
 $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
@@ -92,7 +153,11 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?foreach ($pools as $pool):?>
 <?if (isset($disks[$pool]['devices']) or _var($var,'fsState')=="Stopped"):?>
 <table class="disk_status wide<?=$i?' divider':''?>">
+<?if (isSubpool($pool)):?>
+<thead></thead>
+<?else:?>
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
+<?endif;?>
 <tbody id="pool_device<?=$i++?>">
 <?foreach (cache_filter($disks) as $disk) if (prefix($disk['name'])==$pool) echo "<tr><td colspan='11'>&nbsp;</td></tr>"?>
 </tbody>
@@ -108,6 +173,30 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
 : <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
+
+_(Slots)_:
+: <select name="poolSlots">
+  <?for ($n=1; $n<=_var($var,'MAX_CACHESZ',0); $n++):?>
+  <?=mk_option(1,$n,$n)?>
+  <?endfor;?>
+  </select>
+
+</form>
+</div>
+
+<div id="dialogAddSubpool" style="display:none"></div>
+<div id="templatePopupSubpool" style="display:none">
+<form markdown="1" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="changeSlots" value="apply">
+<input type="hidden" name="poolName" value="">
+_(Name)_:
+: <select name="subpool">
+  <?=mk_option("","special","special - Special Allocation Class")?>
+  <?=mk_option("","logs","logs - ZFS Intent Log")?>
+  <?=mk_option("","dedup","dedup - Deduplication Tables")?>
+  <?=mk_option("","cache","cache - Cache Devices")?>
+  <?=mk_option("","spares","spares - Hot Spares")?>
+  </select>
 
 _(Slots)_:
 : <select name="poolSlots">
