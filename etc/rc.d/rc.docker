@@ -15,6 +15,7 @@ SYSTEM=/sys/class/net
 CONF6=/proc/sys/net/ipv6/conf
 ACTIVE=$(ls --indicator-style=none $SYSTEM|awk '/^(bond|br|eth)[0-9]/' ORS=' ')
 NICS=$(ls --indicator-style=none $SYSTEM|awk '/^eth[0-9]+$/')
+DOCKER_TIMEOUT=$(cat /boot/config/docker.cfg | awk -F= '/DOCKER_TIMEOUT/ {gsub(/"/, "", $2); print $2}')
 
 DOCKERD=dockerd
 DOCKER=/usr/bin/$DOCKERD
@@ -543,7 +544,7 @@ start_containers(){
 
 # Stop containers
 stop_containers(){
-  [[ ! -z $(running_containers) ]] && echo "stopping $DOCKERD containers..." && docker stop $(running_containers) >/dev/null
+  [[ ! -z $(running_containers) ]] && echo "stopping $DOCKERD containers..." && docker stop --time=${DOCKER_TIMEOUT:=10} $(running_containers) >/dev/null
 }
 
 # Start docker
@@ -577,6 +578,9 @@ stop_docker(){
     echo "$DOCKERD is not running..."
     return 1
   fi
+  # Kill containers if still running
+  docker kill $(docker ps -q) 2>/dev/null
+  # Try to stop dockerd gracefully
   kill $(docker_pid) 2>/dev/null
   # must ensure daemon has exited
   for n in {1..15}; do
@@ -593,8 +597,11 @@ stop_docker(){
     fi
     echo "waiting for $DOCKERD to die ..."
   done
-  echo "$DOCKERD will not die!"
-  exit 1
+  echo "$DOCKERD will not die! killing $DOCKERD ..."
+  # Send SIGKILL to dockerd
+  kill -SIGKILL $(docker_pid) 2>/dev/null
+  # Remove .sock and .pid
+  rm -f /var/run/docker.sock $DOCKER_PIDFILE
 }
 
 case "$1" in
