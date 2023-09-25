@@ -1562,6 +1562,7 @@ private static $encoding = 'UTF-8';
 		foreach($file_clone as $diskid => $disk)  {
 			$target = $disk['target'] ;
 			$source = $disk['source'] ; 
+			if ($target == $source) { write("addLog\0".htmlspecialchars(_("New image file is same as old")));  return( false) ; } 
 			$sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null"));	
             $reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
             $repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
