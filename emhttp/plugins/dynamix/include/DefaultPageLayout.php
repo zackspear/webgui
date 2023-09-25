@@ -593,11 +593,11 @@ $.ajaxPrefilter(function(s, orig, xhr){
  <div id="template">
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
-   <div class="logo">
-   <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   <?=_('Version')?>: <?=_var($var,'version','?')?><?=$notes?>
-   </div>
-   <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
+    <div class="logo">
+      <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
+      <unraid-i18n-host><unraid-header-os-version></unraid-header-os-version></unraid-i18n-host>
+    </div>
+    <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>
   <a href="#" class="back_to_top" title="<?=_('Back To Top')?>"><i class="fa fa-arrow-circle-up"></i></a>
 <?
