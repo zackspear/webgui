@@ -566,6 +566,7 @@ $(function() {
 _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 </div>
+
 <div markdown="1" id="templateISOboth" class="template">
 _(CD1 ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop=""><br>
@@ -573,6 +574,71 @@ _(CD2 ISO Image)_:
 : <input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
 </div>
 
+<div id="dialogWindow2"></div>
+<div markdown="1" id="templatesnapshotcreate" class="template">
+<table id='snapshot'>
+<br><br>
+<tr><td> _(VM Name)_:</td><td>
+<label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td>
+<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+_(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description  )_:</td><td>
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
+</div>
+
+<div markdown="1" id="templatesnapshotrevert" class="template">
+_(VM Name)_:
+ <label id="VMName"></label>
+<br>
+_(Snapshot Name)_:
+  <input type="text" id="targetsnap" hidden>
+ <label id="targetsnapl"></label><br>
+_(Remove Images)_:
+<input type="checkbox" id="targetsnaprmv" checked >
+_(Remove Meta)_:
+<input type="checkbox" id="targetsnaprmvmeta" checked>
+<!--_(Keep snapshot)_:-->
+<input type="checkbox" id="targetsnapkeep" hidden><br>
+
+<label id="targetsnapimages"></label><br>
+
+<div markdown="1" id="templatesnapshotremove" class="template" post>
+_(!! Warning removing Snapshots can break the chain !!)_<br><br>
+
+_(VM Name)_:
+ <label id="VMName"></label>
+<br>
+_(Snapshot Name)_:
+  <input type="text" id="targetsnap" hidden>
+ <label id="targetsnapl"></label><br>
+
+<label id="targetsnapimages"></label><br>
+
+<div markdown="1" id="templateblock" class="template">
+_(VM Name)_:
+ <label id="VMName"></label>
+<br>
+_(Snapshot Name)_:
+  <input type="text" id="targetsnap" hidden>
+ <label id="targetsnapl"></label><br>
+<br><br><br><br>
+<table id='block'>
+<tr><td>_(Base Image)_:</td><td>
+<select class="targetblockbase" s>
+</select></td></tr>
+<tr name="toprow" class="toprow" ><td>_(Top Image  )_:</td><td>
+<select class="targetblocktop" name="targetblocktop" id="targetblocktop">
+</select></td><td>
+<tr name="targetpivotrow" class="targetpivotrow" ><td>_(Pivot)_:</td><td>
+<input type="checkbox" id="targetpivot" checked></td></tr>
+<tr name="targetdeleterow" class="targetdeleterow" ><td>_(Delete)_:</td><td>
+<input type="checkbox" id="targetdelete" checked></td></tr>
+</table>
+<input type="checkbox" id="targetsnapkeep" hidden><br>
+<label id="targetsnapimages"></label><br>
 </div>
 
 <div id="dialogWindow"></div>
@@ -611,73 +677,7 @@ _(CD2 ISO Image)_:
 </table>
 </body>
 </html>
-<div id="dialogWindow2"></div>
-<div markdown="1" id="templatesnapshotcreate" class="template">
-<table id='snapshot'>
-<br><br>
-<tr><td> _(VM Name)_:</td><td>
-<label id="VMName"></label></td></tr>
-<tr><td>_(Snapshot Name)_:</td><td>
-<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
-_(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked></td></tr>
-<tr><td>_(Description  )_:</td><td>
-<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
-</table>
+</div>
 </div>
 
-<div markdown="1" id="templatesnapshotrevert" class="template">
-_(VM Name)_:
- <label id="VMName"></label>
-<br>
-_(Snapshot Name)_:
-  <input type="text" id="targetsnap" hidden>
- <label id="targetsnapl"></label><br>
-_(Remove Images)_:
-<input type="checkbox" id="targetsnaprmv" checked >
-_(Remove Meta)_:
-<input type="checkbox" id="targetsnaprmvmeta" checked>
-<!--_(Keep snapshot)_:-->
-<input type="checkbox" id="targetsnapkeep" hidden><br>
-
-<label id="targetsnapimages"></label><br>
-
-
-</div>
-
-<div markdown="1" id="templatesnapshotremove" class="template" post>
-_(!! Warning removing Snapshots can break the chain !!)_<br><br>
-
-_(VM Name)_:
- <label id="VMName"></label>
-<br>
-_(Snapshot Name)_:
-  <input type="text" id="targetsnap" hidden>
- <label id="targetsnapl"></label><br>
-
-<label id="targetsnapimages"></label><br>
-
-<div markdown="1" id="templateblock" class="template">
-_(VM Name)_:
- <label id="VMName"></label>
-<br>
-_(Snapshot Name)_:
-  <input type="text" id="targetsnap" hidden>
- <label id="targetsnapl"></label><br>
-<br><br><br><br>
-<table id='block'>
-<tr><td>_(Base Image)_:</td><td>
-<select class="targetblockbase" s>
-</select></td></tr>
-<tr name="toprow" class="toprow" ><td>_(Top Image  )_:</td><td>
-<select class="targetblocktop" name="targetblocktop" id="targetblocktop">
-</select></td><td>
-<tr name="targetpivotrow" class="targetpivotrow" ><td>_(Pivot)_:</td><td>
-<input type="checkbox" id="targetpivot" checked></td></tr>
-<tr name="targetdeleterow" class="targetdeleterow" ><td>_(Delete)_:</td><td>
-<input type="checkbox" id="targetdelete" checked></td></tr>
-</table>
-<input type="checkbox" id="targetsnapkeep" hidden><br>
-<label id="targetsnapimages"></label><br>
-</div>
 </div>

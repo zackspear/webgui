@@ -1744,7 +1744,7 @@ private static $encoding = 'UTF-8';
 	  $mem = $lv->domain_get_memory_stats($vm) ;
 	  $memory = $mem[6] ;
   
-	  if ($memorysnap = "yes") $memspec = " --memspec ".$pathinfo["dirname"].'/memory"'.$name.'".mem,snapshot=external' ; else $memspec = "" ;
+	  if ($memorysnap = "yes") $memspec = ' --memspec "'.$pathinfo["dirname"].'/memory'.$name.'.mem",snapshot=external' ; else $memspec = "" ;
 	  $cmdstr = "virsh snapshot-create-as '$vm' --name '$name' $snapshotdesc  --atomic" ;
 	  
 	
@@ -1766,21 +1766,22 @@ private static $encoding = 'UTF-8';
 	  #Copy nvram
 	  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
 
-	  $xmlfile = $pathinfo["dirname"].'/"'.$name.'".running' ;
-	  if ($state == "running") exec("virsh dumpxml '$vm' > $xmlfile",$outxml,$rtnxml) ;
-		  
+	  $xmlfile = $pathinfo["dirname"]."/".$name.".running" ;
+	  file_put_contents("/tmp/xmltst", "$xmlfile" ) ;
+	  if ($state == "running") exec("virsh dumpxml '$vm' > ".escapeshellarg($xmlfile),$outxml,$rtnxml) ;
+		
+	  $output= [] ;
 	  $test = false ;
 	  if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
 
 	  if (strpos(" ".$output[0],"error") ) { 
 		  $arrResponse =  ['error' => substr($output[0],6) ] ;
 	  } else {
-		  # Remove nvram snapshot
-		  $arrResponse = ['success' => true] ;
+		$arrResponse = ['success' => true] ;
+		write_snapshots_database("$vm","$name") ;
+		#remove meta data
+		$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
 	  }
-	  write_snapshots_database("$vm","$name") ;
-	  #remove meta data
-	  $ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
 	  return $arrResponse ;
 
   }
@@ -1862,10 +1863,10 @@ private static $encoding = 'UTF-8';
 					  $xml = custom::createXML('domain',$xmlobj)->saveXML();
 					  $rtn = $lv->domain_define($xml) ;
 
-					  # Resotre Memeory.
+					  # Restore Memory.
 
 					  $makerun = true ;
-					  if ($makerun == true) exec("virsh restore $memoryfile") ;	
+					  if ($makerun == true) exec("virsh restore ".escapeshellarg($memoryfile)) ;	
 					  #exec("virsh restore $memoryfile") ;			
 					  }	
 					  #Delete Metadata only.
