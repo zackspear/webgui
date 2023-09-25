@@ -578,6 +578,9 @@ stop_docker(){
     echo "$DOCKERD is not running..."
     return 1
   fi
+  # Kill containers if still running
+  docker kill $(docker ps -q) 2>/dev/null
+  # Try to stop dockerd gracefully
   kill $(docker_pid) 2>/dev/null
   # must ensure daemon has exited
   for n in {1..15}; do
@@ -595,8 +598,6 @@ stop_docker(){
     echo "waiting for $DOCKERD to die ..."
   done
   echo "$DOCKERD will not die! killing $DOCKERD ..."
-  # Kill containers if still running
-  docker kill $(docker ps -q) 2>/dev/null
   # Send SIGKILL to dockerd
   kill -SIGKILL $(docker_pid) 2>/dev/null
   # Remove .sock and .pid
