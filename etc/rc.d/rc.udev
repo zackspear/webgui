@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This is a script to initialize udev, which populates the /dev
 # directory with device nodes, scans for devices, loads the
 # appropriate kernel modules, and configures the devices.

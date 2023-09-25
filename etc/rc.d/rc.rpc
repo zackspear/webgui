@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # rc.rpc:  start/stop/restart RPC daemons needed to use NFS.
 #
 # You must run these daemons in order to mount NFS partitions

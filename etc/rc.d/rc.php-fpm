@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+#
+# LimeTech - Modified for Unraid OS
 
 ### BEGIN INIT INFO
 # Provides:          php-fpm

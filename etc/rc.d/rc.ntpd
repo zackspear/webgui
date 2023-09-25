@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Start/stop/restart ntpd.
 
 # limetech - modified to initialize ntp.conf file from config

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Start/stop/restart the NFS server.
 #
 # This is an init script for the knfsd NFS daemons.
@@ -6,6 +6,8 @@
 # See exports(5) for information on /etc/exports format.
 #
 # Written for Slackware Linux by Patrick J. Volkerding <volkerdi@slackware.com>.
+#
+# LimeTech - Modified for Unraid OS
 #
 # bergware - added interface bind functionality
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Intialize libvirt config storage
 # Invoked by emhttp after mounting libvirt loopback but before starting libvirt.
 

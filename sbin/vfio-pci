@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # limetech - wrapper for Andre Ritchter's vfio-bind script:
 # https://github.com/andre-richter/vfio-pci-bind/blob/master/vfio-pci-bind.sh
 # additional changes by ljm42

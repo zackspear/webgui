@@ -1,8 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # /etc/rc.d/rc.inet1
 # This script is used to bring up the various network interfaces.
 #
 # @(#)/etc/rc.d/rc.inet1 10.2  Sun Jul 24 12:45:56 PDT 2005  (pjv)
+#
+# LimeTech - Modified for Unraid OS
 
 # Adapted by Bergware for use in unRAID - April 2016
 # - improved interface configuration
