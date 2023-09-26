@@ -6,13 +6,24 @@ require_once("$docroot/plugins/dynamix.my.servers/include/translations.php");
 /**
  * Reboot detection was moved from Update.page to here as to seed the web components on every page rather than just on /Tools/Update
  */
-$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)?:''; // read first 20 bytes of README.md
+$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md", false, null, 0, 20) ?? ''; // read first 20 bytes of README.md
 $reboot = preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/", $readme);
 
 $rebootForDowngrade = $reboot && strpos($readme, 'DOWNGRADE') !== false;
 $rebootForUpgrade = $reboot && strpos($readme, 'REBOOT REQUIRED') !== false;
 
 $rebootType = $rebootForDowngrade ? 'downgrade' : ($rebootForUpgrade ? 'upgrade' : '');
+
+/**
+ * Detect if third-party drivers were part of the upgrade process
+ */
+$processWaitingThirdParthDrivers = "inotifywait -q /boot/changes.txt -e move_self,delete_self";
+// Run the ps command to list processes and check if the process is running
+$ps_command = "ps aux | grep -E \"$processWaitingThirdParthDrivers\" | grep -v \"grep -E\"";
+$output = shell_exec($ps_command) ?? '';
+if (strpos($output, $processWaitingThirdParthDrivers) !== false) {
+    $rebootType = 'thirdPartyDriversDownloading';
+}
 ?>
 <script>
 window.LOCALE_DATA = '<?= rawurlencode(json_encode($webComponentTranslations, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE)) ?>';
