@@ -105,7 +105,7 @@ obsolete(){
   if [[ -e "$CONFIG/plugins/$PLUGIN.plg" ]]; then
     local VERSION=$(/usr/local/sbin/plugin version "$CONFIG/plugins/$PLUGIN.plg")
     # assumes all version strings are of form YYYY.MM.DD[.letter]
-    if [[ $BADVER <= $VERSION ]]; then
+    if [[ $VERSION < $BADVER || $VERSION == $BADVER ]]; then
       log "moving obsolete plugin $PLUGIN.plg version $VERSION to $CONFIG/plugins-error"
       /usr/local/emhttp/webGui/scripts/notify -e "Plugin Removed" -s "$PLUGIN" -d "Plugin '$PLUGIN' version '$VERSION' was removed as it is incompatible with this version of Unraid OS" -m "A replacement *may* be available in Community Apps" -i "alert" -l "/Plugins"
       mv "$CONFIG/plugins/$PLUGIN.plg" "$CONFIG/plugins-error/"

@@ -556,7 +556,7 @@ docker_service_stop(){
       if [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) != $DOCKERD ]]; then
         rm -f $DOCKER_PIDFILE
         # tear down the bridge
-        if [[ -e $SYSYEM/docker0 ]]; then
+        if [[ -e $SYSTEM/docker0 ]]; then
           run ip link set docker0 down
           run ip link del docker0
         fi
