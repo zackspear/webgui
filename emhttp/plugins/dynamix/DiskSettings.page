@@ -19,6 +19,11 @@ Tag="icon-disk"
 require_once "$docroot/webGui/include/Preselect.php";
 $events = explode('|',$var['smEvents'] ?? $numbers);
 
+$reply   = '/var/tmp/luks.reply';
+$keyfile = is_file($var['luksKeyfile']);
+$encrypt = false;
+foreach ($disks as $disk) if (isset($disk['fsType']) && strncmp($disk['fsType'],'luks:',5)===0) $encrypt = true;
+
 function displayTemp($temp) {
   global $display;
   return (is_numeric($temp) && _var($display,'unit')=='F') ? round(9/5*$temp)+32 : $temp;
@@ -27,7 +32,11 @@ function displayTemp($temp) {
 <style>
 span.code{display:inline-block;width:186px}
 </style>
+
 <script>
+function base64(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
 function doDispatch(form) {
   var fields = {};
 <?if (_var($display,'unit')=='F'):?>
@@ -55,11 +64,66 @@ function prepareDiskSettings(form) {
 function setIndex(form) {
   form.smIndex.value = form.smType.selectedIndex;
 }
+function prepareForm(form) {
+<?if (!$keyfile):?>
+  form.oldluks.value = base64(form.oldtext.value);
+  form.oldtext.disabled = true;
+  form.oldfile.disabled = true;
+<?endif;?>
+  form.newluks.value = base64(form.newtext.value);
+  form.newtext.disabled = true;
+  form.newcopy.disabled = true;
+  form.newfile.disabled = true;
+}
+function getFileContent(event,form,file) {
+  var input = event.target;
+  var reader = new FileReader();
+  reader.onload = function(){$(form).find('input[name="'+file+'"]').val(reader.result);};
+  reader.readAsDataURL(input.files[0]);
+}
+function selectInput(val,old) {
+  if (val=='text') {
+    if (old==true) {
+      $('div#oldfile').hide('slow');
+      $('div#oldtext').show('slow');
+    } else {
+      $('div#newfile').hide('slow');
+      $('div#newtext').show('slow');
+      $('input[name="newkey"]').prop('disabled',$('input[name="newtext"]').val()=='' || $('input[name="newtext"]').val()!=$('input[name="newcopy"]').val());
+    }
+  } else if (val=='file') {
+    if (old==true) {
+      $('div#oldtext').hide('slow');
+      $('div#oldfile').show('slow');
+    } else {
+      $('div#newtext').hide('slow');
+      $('div#newfile').show('slow');
+      $('input[name="newkey"]').prop('disabled',$('input[name="newfile"]').val()=='');
+    }
+  }
+}
+function showInput(show,old) {
+  if (old==true) {
+    var input = $('input[name="oldtext"]');
+  } else {
+    var input = $('input[name="newtext"],input[name="newcopy"]');
+  }
+  input.attr('type',show ? 'text' : 'password');
+}
+function checkInput(form) {
+  $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value=='' || form.newtext.value!=form.newcopy.value);
+}
+<?if (is_file($reply)):?>
+<?[$text,$type] = explode("\0",file_get_contents($reply)); unlink($reply);?>
+$(function() {
+  swal({title:"_(Encryption Key Update)_",text:"<?=$text?>",html:true,type:"<?=$type?>",confirmButtonText:"_(Ok)_"});
+});
+<?endif;?>
 </script>
 
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
 _(Enable auto start)_:
-: <select name="startArray" size="1">
+: <select name="startArray">
   <?=mk_option($var['startArray'], "no", _('No'))?>
   <?=mk_option($var['startArray'], "yes", _('Yes'))?>
   </select>
@@ -67,7 +131,7 @@ _(Enable auto start)_:
 :disk_enable_autostart_help:
 
 _(Default spin down delay)_:
-: <select name="spindownDelay" size="1">
+: <select name="spindownDelay">
   <?=mk_option($var['spindownDelay'], "0",  _('Never'))?>
   <?=mk_option($var['spindownDelay'], "15", "15 "._('minutes'))?>
   <?=mk_option($var['spindownDelay'], "30", "30 "._('minutes'))?>
@@ -86,7 +150,7 @@ _(Default spin down delay)_:
 :disk_spindown_delay_help:
 
 _(Enable spinup groups)_:
-: <select name="spinupGroups" size="1">
+: <select name="spinupGroups">
   <?=mk_option($var['spinupGroups'], "no", _('No'))?>
   <?=mk_option($var['spinupGroups'], "yes", _('Yes'))?>
   </select>
@@ -94,7 +158,7 @@ _(Enable spinup groups)_:
 :disk_spinup_groups_help:
 
 _(Default file system)_:
-: <select name="defaultFsType" size="1">
+: <select name="defaultFsType">
   <?=mk_option($var['defaultFsType'], "xfs", _('xfs'));?>
   <?=mk_option($var['defaultFsType'], "zfs", _('zfs'));?>
   <?=mk_option($var['defaultFsType'], "btrfs", _('btrfs'));?>
@@ -118,7 +182,7 @@ _(Tunable (poll_attributes))_:
 :disk_tunable_poll_attributes_help:
 
 _(Tunable (enable NCQ))_:
-: <select name="queueDepth" size="1">
+: <select name="queueDepth">
   <?=mk_option($var['queueDepth'], "auto", _('Auto'))?>
   <?=mk_option($var['queueDepth'], "1", _('No'))?>
   </select>
@@ -131,7 +195,7 @@ _(Tunable (nr_requests))_:
 :disk_tunable_nr_requests_help:
 
 _(Tunable (scheduler))_:
-: <select name="md_scheduler" size="1">
+: <select name="md_scheduler">
   <?=mk_option($var['md_scheduler'], "auto", _('Auto'))?>
   <?=mk_option($var['md_scheduler'], "mq-deadline", _('mq-deadline'))?>
   <?=mk_option($var['md_scheduler'], "kyber", _('kyber'))?>
@@ -157,7 +221,7 @@ _(Tunable (md_sync_limit))_:
 :disk_tunable_md_sync_limit_help:
 
 _(Tunable (md_write_method))_:
-: <select name="md_write_method" size="1">
+: <select name="md_write_method">
   <?=mk_option($var['md_write_method'], "auto", _('Auto'))?>
   <?=mk_option($var['md_write_method'], "0", _('read/modify/write'))?>
   <?=mk_option($var['md_write_method'], "1", _('reconstruct write'))?>
@@ -189,6 +253,63 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
+<?if ($encrypt && $var['fsState']=='Started'):?>
+<br><hr>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareForm(this)">
+<input type="hidden" name="#file" value="">
+<input type="hidden" name="#include" value="/webGui/include/update.encryption.php">
+<input type="hidden" name="#reply" value="<?=$reply?>">
+<input type="hidden" name="newdata" value="">
+<input type="hidden" name="newluks" value="">
+<?if (!$keyfile):?>
+<input type="hidden" name="olddata" value="">
+<input type="hidden" name="oldluks" value="">
+<?endif;?>
+&nbsp;
+: &nbsp;
+
+<?if (!$keyfile):?>
+_(Existing encryption key)_:
+: <select name="oldinput" class="lock" onchange='selectInput(this.value,true)'>
+  <?=mk_option(1,'text',_('Passphrase'))?>
+  <?=mk_option(1,'file',_('Keyfile'))?>
+  </select><br>
+
+<div markdown="1" id="oldtext">
+_(Enter existing passphrase)_:
+: <input type="password" name="oldtext" class="lock" maxlength="512" value="" autocomplete="off" spellcheck="false"><input name="showPass" type="checkbox" class="lock" onchange="showInput(this.checked,true)">_(show passphrase)_
+
+</div>
+<div markdown="1" id="oldfile" style="display:none">
+_(Select existing keyfile)_:
+: <input type="file" name="oldfile" class="lock" onchange="getFileContent(event,this.form,'olddata')">
+
+</div>
+<?endif;?>
+_(Change encryption key)_:
+: <select name="newinput" class="lock" onchange='selectInput(this.value,false)'>
+  <?=mk_option(1,'text',_('Passphrase'))?>
+  <?=mk_option(1,'file',_('Keyfile'))?>
+  </select><br>
+
+<div markdown="1" id="newtext">
+_(Type new passphrase)_:
+: <input type="password" name="newtext" class="lock" maxlength="512" value="" autocomplete="off" spellcheck="false" onkeyup="checkInput(this.form)" placeholder="_(use printable characters only)_"><input name="showPass" type="checkbox" class="lock" onchange="showInput(this.checked,false)">_(show passphrase)_
+
+_(Retype new passphrase)_:
+: <input type="password" name="newcopy" class="lock" maxlength="512" value="" autocomplete="off" spellcheck="false" onkeyup="checkInput(this.form)">
+
+</div>
+<div markdown="1" id="newfile" style="display:none">
+_(Select new keyfile)_:
+: <input type="file" name="newfile" onchange="getFileContent(event,this.form,'newdata')">
+
+</div>
+&nbsp;
+: <input type="submit" name="newkey" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+</form>
+<?endif;?>
+
 <div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(Global SMART Settings)_</span></div>
 
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDiskSettings(this)">
@@ -199,7 +320,7 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smIndex" value="0">
 _(Default SMART notification value)_:
-: <select name="smSelect" size="1">
+: <select name="smSelect">
   <?=mk_option(_var($var,'smSelect'), "0", _('Raw'))?>
   <?=mk_option(_var($var,'smSelect'), "1", _('Normalized'))?>
   </select>
@@ -207,7 +328,7 @@ _(Default SMART notification value)_:
 :disk_default_smart_notification_help:
 
 _(Default SMART notification tolerance level)_:
-: <select name="smLevel" size="1">
+: <select name="smLevel">
   <?=mk_option(_var($var,'smLevel'), "1.00", _('Absolute'))?>
   <?=mk_option(_var($var,'smLevel'), "1.05", "5%")?>
   <?=mk_option(_var($var,'smLevel'), "1.10", "10%")?>
@@ -220,7 +341,7 @@ _(Default SMART notification tolerance level)_:
 :disk_default_smart_tolerance_help:
 
 _(Default SMART controller type)_:
-: <select name="smType" size="1" onchange="setIndex(this.form)">
+: <select name="smType" onchange="setIndex(this.form)">
   <?=mk_option(_var($var,'smType'), "", _('Automatic'))?>
   <?=mk_option(_var($var,'smType'), "-d ata", "ATA")?>
   <?=mk_option(_var($var,'smType'), "-d nvme", "NVMe")?>
