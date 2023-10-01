@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+#
+# script: rc.rsyslogd
+#
 # Start/stop/restart the system logging daemons.
 #
 # Written for Slackware Linux by Patrick J. Volkerding <volkerdi@slackware.com>.
@@ -6,44 +9,52 @@
 # slightly modified by ponce <matteo.bernardini@sns.it> Oct 2010
 # rsyslogd_reload added by Christophe Trussardi <chris@teria.org> Sept 2011
 #
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-pidfile1=/var/run/rsyslogd.pid	# native rsyslogd pid file
-pidfile2=/var/run/syslogd.pid	# spoof the "old" syslogd file
+# run & log functions
+. /etc/rc.d/rc.runlog
 
-create_xconsole()
-{
-    if [ ! -e /dev/xconsole ]; then
-      mknod -m 640 /dev/xconsole p
-    else
-      chmod 0640 /dev/xconsole
-    fi
-    chown 0:0 /dev/xconsole
-}
+DAEMON="Syslog server daemon"
+PIDFILE1=/var/run/rsyslogd.pid  # native rsyslogd pid file
+PIDFILE2=/var/run/rsyslogd.pid  # spoof the "old" rsyslogd file
 
-rsyslogd_start() {
-  if [ -x /usr/sbin/rsyslogd ]; then
-    echo "Starting rsyslogd daemon: "
-    echo "/usr/sbin/rsyslogd -i $pidfile1"
-    /usr/sbin/rsyslogd -i "$pidfile1"
-    cp "$pidfile1" "$pidfile2"
+create_xconsole(){
+  if [[ ! -e /dev/xconsole ]]; then
+    mknod -m 640 /dev/xconsole p
+  else
+    chmod 0640 /dev/xconsole
   fi
+  chown 0:0 /dev/xconsole
 }
 
-rsyslogd_stop() {
-  killall rsyslogd 2> /dev/null
-  /usr/bin/rm $pidfile1 2> /dev/null
-  /usr/bin/rm $pidfile2 2> /dev/null
+rsyslogd_start(){
+  log "Starting $DAEMON..."
+  if [[ -x /usr/sbin/rsyslogd ]]; then
+    run /usr/sbin/rsyslogd -i "$PIDFILE1"
+    cp "$PIDFILE1" "$PIDFILE2"
+  fi
+  log "$DAEMON...  Started."
 }
 
-rsyslogd_restart() {
+rsyslogd_stop(){
+  log "Stopping $DAEMON..."
+  run killall rsyslogd
+  rm -f $PIDFILE1 $PIDFILE2
+  log "$DAEMON...  Stopped."
+}
+
+rsyslogd_restart(){
+  log "Restarting $DAEMON..."
   rsyslogd_stop
   sleep 1
   rsyslogd_start
 }
 
-rsyslogd_reload() {
-  echo "Reloading rsyslogd daemon: "
-  [ -f "$pidfile1" ] && /bin/kill -HUP $(cat $pidfile1)
+rsyslogd_reload(){
+  log "Reloading $DAEMON..."
+  [[ -f $PIDFILE1 ]] && run kill -HUP $(cat $PIDFILE1)
+  log "$DAEMON...  Reloaded."
 }
 
 case "$1" in
@@ -61,5 +72,7 @@ case "$1" in
   rsyslogd_reload
   ;;
 *)
-  echo "usage $0 start|stop|restart|reload"
+  echo "Usage: $BASENAME start|stop|restart|reload"
+  exit 1
 esac
+exit 0
