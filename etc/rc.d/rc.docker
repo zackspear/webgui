@@ -514,6 +514,8 @@ docker_container_stop(){
   log "Stopping containers..."
   if ! docker_running; then return 1; fi
   [[ -n $(running_containers) ]] && docker stop --time=${DOCKER_TIMEOUT:-10} $(running_containers) >/dev/null
+  # Kill containers if still running
+  docker kill $(docker ps -q) 2>/dev/null
   log "Containers stopped."
 }
 
@@ -545,8 +547,6 @@ docker_service_stop(){
   log "Stopping $DAEMON..."
   # If there is no PID file, ignore this request...
   if [[ -r $DOCKER_PIDFILE ]]; then
-    # Kill containers if still running
-    docker kill $(docker ps -q) 2>/dev/null
     # Try to stop dockerd gracefully
     kill $(docker_pid) 2>/dev/null
     TIMER=15
@@ -605,6 +605,7 @@ case "$1" in
   docker_service_stop
   ;;
 'force_stop')
+  docker_container_stop
   docker_service_stop
   ;;
 'restart')
