@@ -126,10 +126,8 @@ nfsd_reload(){
 
 nfsd_update(){
   # 0 = update needed, 1 = no action
-  if nfsd_running; then
-    if check && [[ "$(this)" == "-H ${BIND// / -H }" ]]; then exit 1; else exit 0; fi
-  fi
-  exit 1
+  if ! nfsd_running; then exit 1; fi
+  if check && [[ "$(this)" == "-H ${BIND// / -H }" ]]; then exit 1; else exit 0; fi
 }
 
 case "$1" in

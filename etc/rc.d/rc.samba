@@ -168,10 +168,8 @@ samba_reload(){
 
 samba_update(){
   # 0 = update needed, 1 = no action
-  if samba_running; then
-    if check && [[ "$(this interfaces)" == "$BIND" ]]; then exit 1; else exit 0; fi
-  fi
-  exit 1
+  if ! samba_running; then exit 1; fi
+  if check && [[ "$(this interfaces)" == "$BIND" ]]; then exit 1; else exit 0; fi
 }
 
 case "$1" in
