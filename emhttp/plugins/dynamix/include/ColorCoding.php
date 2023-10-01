@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -14,7 +14,7 @@
 // Color coding for syslog and disk log
 $match =
 [['class' => 'text',
-  'text'  => ['to the standard error','non[ -]fatal error','correct gpt errors','error handler\b','(kernel|logger): [|+ #-.]','logger: (naming|log)','tainted: (host-cpu|high-privileges)','root: (>f|cd)\+\+\+\+','root: \.d\.\.t\.','(move: ){2}','kernel: ERST']
+  'text'  => ['to the standard error','non[ -]fatal error','correct gpt errors','error handler\b','(kernel|logger): [|+ #-.]','logger: (naming|log)','tainted: (host-cpu|high-privileges)','root: (>f|cd)\+\+\+\+','root: \.d\.\.t\.','(move: ){2}','kernel: ERST','kernel: BTRFS info (device loop\d+):']
  ],
  ['class' => 'login',
   'text'  => ['(accepted|failed) password','sshd\[\d+\]:',' login user ']
