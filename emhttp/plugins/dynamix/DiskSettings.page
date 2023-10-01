@@ -268,7 +268,6 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 &nbsp;
 : &nbsp;
 
-<?if (!$keyfile):?>
 _(Existing encryption key)_:
 : <select name="oldinput" class="lock" onchange='selectInput(this.value,true)'>
   <?=mk_option(1,'text',_('Passphrase'))?>
@@ -285,7 +284,6 @@ _(Select existing keyfile)_:
 : <input type="file" name="oldfile" class="lock" onchange="getFileContent(event,this.form,'olddata')">
 
 </div>
-<?endif;?>
 _(Change encryption key)_:
 : <select name="newinput" class="lock" onchange='selectInput(this.value,false)'>
   <?=mk_option(1,'text',_('Passphrase'))?>
