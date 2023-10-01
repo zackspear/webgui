@@ -44,7 +44,7 @@ foreach ($plugins as $plugin) {
   $run = popen("$cmd $method $pluginArg",'r');
   while (!feof($run)) {
     $line .= fgetc($run);
-    if (in_array($line[-1],["\r","\n"])) {write($line); $line = '';}
+    if (!empty($line) && in_array($line[-1],["\r","\n"])) {write($line); $line = '';}
   }
   pclose($run);
   write("\n");
