@@ -130,6 +130,8 @@ samba_start(){
       [[ $USE_WSD == yes ]] && run $WSDD2 -d ${WSD2_OPT## }
       run $WINBINDD -D
       if samba_running; then REPLY="Started"; else REPLY="Failed"; fi
+    else
+      REPLY="Missing executables"
     fi
   fi
   log "$DAEMON...  $REPLY."
