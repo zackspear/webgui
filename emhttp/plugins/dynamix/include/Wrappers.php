@@ -74,14 +74,14 @@ function ipaddr($ethX='eth0', $prot=4) {
   global $$ethX;
   switch (_var($$ethX,'PROTOCOL:0')) {
   case 'ipv4':
-    return $$ethX['IPADDR:0'];
+    return _var($$ethX,'IPADDR:0');
   case 'ipv6':
-    return $$ethX['IPADDR6:0'];
+    return _var($$ethX,'IPADDR6:0');
   case 'ipv4+ipv6':
     switch ($prot) {
-    case 4: return $$ethX['IPADDR:0'];
-    case 6: return $$ethX['IPADDR6:0'];
-    default:return [$$ethX['IPADDR:0'],$$ethX['IPADDR6:0']];}
+    case 4: return _var($$ethX,'IPADDR:0');
+    case 6: return _var($$ethX,'IPADDR6:0');
+    default:return [_var($$ethX,'IPADDR:0'),_var($$ethX,'IPADDR6:0')];}
   default:
     return _var($$ethX,'IPADDR:0');
   }
