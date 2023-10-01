@@ -215,7 +215,13 @@ libvirtd_start(){
   cp -n /etc/libvirt-/*.conf /etc/libvirt &>/dev/null
   # ensure tpm-states path exists
   mkdir -p /etc/libvirt/qemu/swtpm/tpm-states
+  # setup snapshot persistance.
+  mkdir -p /etc/libvirt/qemu/snapshot/
+  rm -r  /var/lib/libvirt/qemu/snapshot/
+  ln -fs /etc/libvirt/qemu/snapshot/ /var/lib/libvirt/qemu/
+  # create directory for pid file
   mkdir -p $(dirname $LIBVIRTD_PIDFILE)
+
   check_processor
   modprobe -a $MODULE $MODULES
   libvirtd -d -l $LIBVIRTD_OPTS
