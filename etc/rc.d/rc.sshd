@@ -75,7 +75,7 @@ sshd_restart(){
   if [[ -r $PID ]]; then
     echo "WARNING: killing listener process only.  To kill every sshd process, you must"
     echo "         use 'rc.sshd stop'.  'rc.sshd restart' kills only the parent sshd to"
-    echo "         allow an admin echoged in through sshd to use 'rc.sshd restart' without"
+    echo "         allow an admin logged in through sshd to use 'rc.sshd restart' without"
     echo "         being cut off.  If sshd has been upgraded, new connections will now"
     echo "         use the new version, which should be a safe enough approach."
     kill $(cat $PID)
