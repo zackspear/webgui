@@ -15,7 +15,7 @@
 . /etc/rc.d/rc.runlog
 
 # irqbalance daemon distributes interrupts over processors and cores
-# if [ -x /usr/sbin/irqbalance ]; then
+# if [[ -x /usr/sbin/irqbalance ]]; then
 #   /usr/sbin/irqbalance
 # fi
 
