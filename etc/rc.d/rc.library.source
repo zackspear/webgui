@@ -169,8 +169,8 @@ extra_addr(){
       NET4=$(sub $(show -4 to $NET))
       NET6=$(sub $(show -6 to $NET))
     fi
-    [[ $CALLER != ntp && -n $NET4 && -z $(good $NET4) ]] && ipv4=yes BIND+=($NET4)
-    [[ $CALLER != ntp && -n $NET6 && -z $(good $NET6) ]] && ipv6=yes BIND+=($NET6)
+    [[ $CALLER != ntp && -n $NET4 && -z $(good $NET4) ]] && IPV4=yes BIND+=($NET4)
+    [[ $CALLER != ntp && -n $NET6 && -z $(good $NET6) ]] && IPV6=yes BIND+=($NET6)
   done
   for NET in $exclude_interfaces; do
     if $(isname $NET); then
