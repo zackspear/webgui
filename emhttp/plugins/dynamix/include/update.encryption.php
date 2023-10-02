@@ -16,8 +16,6 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
-file_put_contents('/tmp/post',print_r($_POST,true));
-
 $save   = false;
 $disks  = parse_ini_file('state/disks.ini',true);
 $newkey = parse_ini_file('state/var.ini')['luksKeyfile'];
