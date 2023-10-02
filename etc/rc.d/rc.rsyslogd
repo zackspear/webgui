@@ -29,8 +29,13 @@ create_xconsole(){
 
 rsyslogd_start(){
   log "Starting $DAEMON..."
-  [[ -x /usr/sbin/rsyslogd ]] && run /usr/sbin/rsyslogd -i $PIDFILE
-  log "$DAEMON...  Started."
+  if [[ -x /usr/sbin/rsyslogd ]]; then
+    run /usr/sbin/rsyslogd -i $PIDFILE
+    REPLY="Started"
+  else
+    REPLY="Missing executable"
+  fi
+  log "$DAEMON...  $REPLY."
 }
 
 rsyslogd_stop(){
