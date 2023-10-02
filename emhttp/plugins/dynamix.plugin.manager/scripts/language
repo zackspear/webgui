@@ -151,7 +151,7 @@ function download($url, $name, &$error) {
 // Deal with logging message.
 //
 function logmsg($message) {
-  shell_exec("logger $message");
+  shell_exec("logger -t language \"$message\"");
 }
 
 // Interpret a language file

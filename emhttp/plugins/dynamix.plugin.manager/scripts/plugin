@@ -284,7 +284,7 @@ function filter_url($url) {
 // Deal with logging message.
 //
 function logmsg($message) {
-  shell_exec("logger $message");
+  shell_exec("logger -t plugin \"$message\"");
 }
 
 // Interpret a plugin file
