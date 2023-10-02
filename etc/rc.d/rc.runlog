@@ -18,7 +18,9 @@ run(){
 log(){
   if [[ ! -t 0 ]]; then
     # log message to syslog
-    logger -t $BASENAME "${1:-$(</dev/stdin)}"
+    while IFS='\n' read -r LINE; do
+      logger -t $BASENAME "$LINE"
+    done <<< ${1:-$(</dev/stdin)}
   else
     # echo message to console
     [[ -n $1 ]] && echo "$1"
