@@ -19,8 +19,8 @@
 # License along with avahi; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-# limetech - 'status' modified to exit with correct status
-# limetech - 'start' modified to enable/disable ipv4/ipv6
+# LimeTech - 'status' modified to exit with correct status
+# LimeTech - 'start' modified to enable/disable ipv4/ipv6
 # Bergware - added interface bind functionality
 #
 # LimeTech - modified for Unraid OS
