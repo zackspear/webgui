@@ -29,9 +29,7 @@ create_xconsole(){
 
 rsyslogd_start(){
   log "Starting $DAEMON..."
-  if [[ -x /usr/sbin/rsyslogd ]]; then
-    run /usr/sbin/rsyslogd -i $PIDFILE
-  fi
+  [[ -x /usr/sbin/rsyslogd ]] && run /usr/sbin/rsyslogd -i $PIDFILE
   log "$DAEMON...  Started."
 }
 
