@@ -48,7 +48,7 @@ echo -n >$INI
 DATA=
 
 # loop thru all defined interfaces (=1 in case of legacy)
-for ((i=0;i<${SYSNICS:-1};i++)); do
+for ((i=0; i<${SYSNICS:-1}; i++)); do
   IFACE=${IFNAME[$i]:-eth$i}
   ETH=${IFACE/#bond/eth}
   ETH=${ETH/#br/eth}
