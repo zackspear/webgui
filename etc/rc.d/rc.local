@@ -79,7 +79,7 @@ for PLUGIN in $OBSOLETE; do
   if [[ -e $CONFIG/plugins/$PLUGIN.plg ]]; then
     log "moving obsolete plugin $PLUGIN.plg to $CONFIG/plugins-error"
     # preserve ssd-trim config
-    if [[ $PLUGIN = "dynamix.ssd.trim" ]]; then
+    if [[ $PLUGIN == dynamix.ssd.trim ]]; then
       if [[ -e $CONFIG/plugins/$PLUGIN/$PLUGIN.cfg ]]; then
         echo "[ssd]" >> $CONFIG/plugins/dynamix/dynamix.cfg
         cat $CONFIG/plugins/$PLUGIN/$PLUGIN.cfg >> $CONFIG/plugins/dynamix/dynamix.cfg
