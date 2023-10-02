@@ -45,7 +45,7 @@ sshd_start(){
     # make sure ssh dir exists on flash
     mkdir -p $SSH_BOOT
     # restore saved keys, config file, etc. (but not subdirs)
-    cp -f $SSH_BOOT/* $SSH_ETC 2>/dev/null
+    cp -n $SSH_BOOT/* $SSH_ETC 2>/dev/null
     chmod 600 $SSH_ETC/* 2>/dev/null
     # create host keys if needed and copy any newly generated key(s) back to flash
     ssh-keygen -A
