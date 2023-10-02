@@ -1,39 +1,45 @@
 #!/bin/bash
 #
-# /etc/rc.d/rc.local_shutdown:  Local system shutdown script.
+# script: rc.local_shutdown
 #
-# LimeTech - Modified for Unraid OS
+# Local system shutdown script.
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # Beep the motherboard speaker
 beep -r 2
-        
+
 # Invoke custom 'stop' script if present
-if [ -f /boot/config/stop ]; then
-  echo "Starting stop script"
+if [[ -f /boot/config/stop ]]; then
+  log "Starting stop script"
   fromdos </boot/config/stop >/var/tmp/stop
   chmod +x /var/tmp/stop
   /var/tmp/stop
 fi
 
 # Get time-out setting
-source /var/local/emhttp/var.ini
-TIMEOUT=${shutdownTimeout:=90}
+. /var/local/emhttp/var.ini
+TIMEOUT=${shutdownTimeout:-90}
 
 # Try to stop the array
-echo "Waiting up to $TIMEOUT seconds for graceful shutdown..."
-if ! timeout $TIMEOUT /usr/bin/curl -s --unix-socket /var/run/emhttpd.socket http://localhost/update.htm?cmdStop=apply\&csrf_token=$csrf_token >/dev/null ; then
-  echo "Forcing shutdown..."
+log "Waiting up to $TIMEOUT seconds for graceful shutdown..."
+if ! timeout $TIMEOUT curl -s --unix-socket /var/run/emhttpd.socket http://localhost/update.htm?cmdStop=apply\&csrf_token=$csrf_token >/dev/null; then
+  log "Forcing shutdown..."
   # Send some additional info to the system log and generate diagnostics.zip file
-  logger "Status of all loop devices"
-  losetup -a 2>&1 | logger
-  logger "Active pids left on /mnt/*"
-  /usr/bin/fuser -mv /mnt/* 2>&1 | logger
-  logger "Active pids left on /dev/md*"
-  /usr/bin/fuser -mv /dev/md* 2>&1 | logger
-  logger "Generating diagnostics..."
+  log "Status of all loop devices"
+  run losetup -a
+  log "Active pids left on /mnt/*"
+  run fuser -mv /mnt/*
+  log "Active pids left on /dev/md*"
+  run fuser -mv /dev/md*
+  log "Generating diagnostics..."
   /usr/local/sbin/diagnostics
 fi
 
 # Stop emhttpd
-echo "Stopping emhttpd"
-/usr/local/sbin/emhttp stop
+log "Stopping emhttpd"
+run /usr/local/sbin/emhttp stop
