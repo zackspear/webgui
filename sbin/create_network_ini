@@ -220,7 +220,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
   fi
 done
 # atomically update file
-mv $INI ${ini%.*}
+mv $INI ${INI%.*}
 
 logger -t network "hook services: interface=${interface:-$1}, reason=$reason, protocol=$protocol"
 # delayed execution
