@@ -133,4 +133,37 @@ function diagnostics(file) {
     }
   });
 }
+function cleanUpFlashBackup(zip) {
+  if (document.hasFocus()) {
+    $('div.spinner').hide('slow');
+    $.post('/webGui/include/Download.php', {
+      cmd: 'unlink',
+      file: zip,
+    });
+  } else {
+    setTimeout(function() {
+      cleanUpFlashBackup(zip);
+    }, 2000);
+  }
+}
+function flashBackup() {
+  $('div.spinner').show('slow');
+  $.post('/webGui/include/Download.php', { cmd: 'backup' }, function(zip) {
+    if (zip) {
+      location = '/'+zip;
+      setTimeout(function() {
+        cleanUpFlashBackup(zip);
+      }, 6000);
+    } else {
+      $('div.spinner').hide('slow');
+      swal({
+        title: "_(Creation error)_",
+        text: "_(Insufficient free disk space available)_",
+        type: 'error',
+        html: true,
+        confirmButtonText: "_(Ok)_",
+      });
+    }
+  });
+}
 </script>
