@@ -254,7 +254,7 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 </form>
 
 <?if ($encrypt && $var['fsState']=='Started'):?>
-<br><hr>
+<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change Encryption Key)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareForm(this)">
 <input type="hidden" name="#file" value="">
 <input type="hidden" name="#include" value="/webGui/include/update.encryption.php">
@@ -265,9 +265,6 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 <input type="hidden" name="olddata" value="">
 <input type="hidden" name="oldluks" value="">
 <?endif;?>
-&nbsp;
-: &nbsp;
-
 _(Existing encryption key)_:
 : <select name="oldinput" class="lock" onchange='selectInput(this.value,true)' <?=$keyfile?'disabled':''?>>
   <?=mk_option(1,'text',_('Passphrase'))?>
