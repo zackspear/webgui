@@ -80,7 +80,7 @@ fi
 # and rpc.statd. This might be needed to mount NFS partitions that are not
 # listed in /etc/fstab. Starting this twice won't hurt as the script will
 # check if things are already running before trying to start them.
-# limetech - nope
+# LimeTech - nope
 # if [[ -x /etc/rc.d/rc.rpc ]]; then
 #   /etc/rc.d/rc.rpc start
 # fi
@@ -106,8 +106,8 @@ fi
 # is on a network partition). NOTE: Don't put /usr on a network partition,
 # or even a separate local partition. This is not supported and is likely to
 # cause some problems...
-if [[ -x /etc/rc.d/rc.syslog && -d /var/log && ! -r /var/run/syslogd.pid ]]; then
-  . /etc/rc.d/rc.syslog start
+if [[ -x /etc/rc.d/rc.rsyslogd && -d /var/log && ! -r /var/run/rsyslogd.pid ]]; then
+  . /etc/rc.d/rc.rsyslogd start
 fi
 
 # Start the inetd server:
@@ -140,7 +140,7 @@ fi
 # the module for you).
 # You'll also need to set up some shares in /etc/exports.
 # Starting the NFS server:
-# limetech - don't start NFS here; emhttpd will bring up NFS if enabled.
+# LimeTech - don't start NFS here; emhttpd will bring up NFS if enabled.
 # if [[ -x /etc/rc.d/rc.nfsd ]]; then
 #   /etc/rc.d/rc.nfsd start
 # fi
