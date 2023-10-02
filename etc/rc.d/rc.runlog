@@ -23,6 +23,8 @@ log(){
     done <<< ${1:-$(</dev/stdin)}
   else
     # echo message to console
-    [[ -n $1 ]] && echo "$1"
+    while IFS='\n' read -r LINE; do
+      echo "$LINE"
+    done <<< $1
   fi
 }
