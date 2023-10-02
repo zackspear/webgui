@@ -34,7 +34,7 @@ while :; do
           IP=$(ip -4 addr show dev $LINK|grep -Pom1 'inet \K.[^/]+')
           PORT=$(wg show $WG listen-port)
           upnpc -u $XML -m $LINK -e "WireGuard-$WG" -a $IP $PORT $PORT udp >/dev/null 2>&1
-          [[ $? -eq 0 ]] && logger -t upnpc "Added port $PORT/udp" || logger -t upnpc "Failed to add port $PORT/udp"
+          [[ $? -eq 0 ]] && logger -t upnpc -- "Added port $PORT/udp" || logger -t upnpc -- "Failed to add port $PORT/udp"
         fi
       done
     fi

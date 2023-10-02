@@ -4,7 +4,7 @@
 
 # missing qemu directory would indicate new libvirt image file created
 if [ ! -d /etc/libvirt/qemu ]; then
-  logger "initializing /etc/libvirt"
+  logger -- "initializing /etc/libvirt"
   # initialize with default settings
   cp -rp /etc/libvirt-/* /etc/libvirt
   # check if libvirt image file exists on USB flash
