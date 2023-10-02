@@ -162,15 +162,15 @@ extra_addr(){
   for NET in $include_interfaces; do
     if $(isname $NET); then
       # NET is an interface name, get IP addresses
-      net4=$(sub $(show -4 dev $NET))
-      net6=$(sub $(show -6 dev $NET))
+      NET4=$(sub $(show -4 dev $NET))
+      NET6=$(sub $(show -6 dev $NET))
     else
       # NET is an IP address, validate
-      net4=$(sub $(show -4 to $NET))
-      net6=$(sub $(show -6 to $NET))
+      NET4=$(sub $(show -4 to $NET))
+      NET6=$(sub $(show -6 to $NET))
     fi
-    [[ $CALLER != ntp && -n $net4 && -z $(good $net4) ]] && ipv4=yes BIND+=($net4)
-    [[ $CALLER != ntp && -n $net6 && -z $(good $net6) ]] && ipv6=yes BIND+=($net6)
+    [[ $CALLER != ntp && -n $NET4 && -z $(good $NET4) ]] && ipv4=yes BIND+=($NET4)
+    [[ $CALLER != ntp && -n $NET6 && -z $(good $NET6) ]] && ipv6=yes BIND+=($NET6)
   done
   for NET in $exclude_interfaces; do
     if $(isname $NET); then
