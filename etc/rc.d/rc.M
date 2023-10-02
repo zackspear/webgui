@@ -45,8 +45,8 @@ fi
 /bin/dmesg -s 65536 > /var/log/dmesg
 
 # Start the system logger.
-if [ -x /etc/rc.d/rc.rsyslog ]; then
-  /etc/rc.d/rc.rsyslog start
+if [ -x /etc/rc.d/rc.rsyslogd ]; then
+  /etc/rc.d/rc.rsyslogd start
 fi
 
 # Update the X font indexes:
