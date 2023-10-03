@@ -20,13 +20,13 @@ inetd_start() {
   else
     REPLY="Failed"
   fi
-  log "$DAEMON... $REPLY."
+  log "$DAEMON...  $REPLY."
 }
 
 inetd_stop() {
   log "Stopping $DAEMON..."
   killall inetd 2>/dev/null
-  log "$DAEMON... Stopped."
+  log "$DAEMON...  Stopped."
 }
 
 inetd_restart() {
