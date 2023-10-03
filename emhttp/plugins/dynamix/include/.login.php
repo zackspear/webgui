@@ -119,12 +119,12 @@ function verifyTwoFactorToken(string $username, string $token): bool {
         // This should accept 200 or 204 status codes
         if ($httpCode !== 200 && $httpCode !== 204) {
             // Log error to syslog
-            exec("logger -t webGUI -- ".escapeshellarg("2FA code for {$username} is invalid, blocking access!"));
+            exec("logger -t webGUI -- \"2FA code for {$username} is invalid, blocking access!\"");
             return false;
         }
 
         // Log success to syslog
-        exec("logger -t webGUI -- ".escapeshellarg("2FA code for {$username} is valid, allowing login!"));
+        exec("logger -t webGUI -- \"2FA code for {$username} is valid, allowing login!\"");
 
         // Success
         return true;
@@ -199,7 +199,7 @@ if (!empty($username) && !empty($password)) {
 
         // Check if we're limited
         if ($failCount >= $maxFails) {
-            if ($failCount == $maxFails) exec("logger -t webGUI -- ".escapeshellarg("Ignoring login attempts for {$username} from {$remote_addr}"));
+            if ($failCount == $maxFails) exec("logger -t webGUI -- \"Ignoring login attempts for {$username} from {$remote_addr}\"");
             throw new Exception(_('Too many invalid login attempts'));
         }
 
@@ -216,7 +216,7 @@ if (!empty($username) && !empty($password)) {
         $_SESSION['unraid_user'] = $username;
         session_regenerate_id(true);
         session_write_close();
-        exec("logger -t webGUI -- ".escapeshellarg("Successful login user {$username} from {$remote_addr}"));
+        exec("logger -t webGUI -- \"Successful login user {$username} from {$remote_addr}\"");
 
         // Redirect the user to the start page
         header("Location: /".$var['START_PAGE']);
@@ -226,7 +226,7 @@ if (!empty($username) && !empty($password)) {
         $error = $exception->getMessage();
 
         // Log error to syslog
-        exec("logger -t webGUI -- ".escapeshellarg("Unsuccessful login user {$username} from {$remote_addr}"));
+        exec("logger -t webGUI -- \"Unsuccessful login user {$username} from {$remote_addr}\"");
         appendToFile($failFile, $time."\n");
     }
 }

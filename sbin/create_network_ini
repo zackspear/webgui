@@ -17,6 +17,9 @@ CFG=/boot/config/network.cfg
 
 declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 mask(){
   # convert prefix to netmask
   set -- $((5-(${1:-0}/8))) 255 255 255 255 $(((255<<(8-(${1:-0}%8)))&255)) 0 0 0
@@ -31,7 +34,7 @@ dns() {
 
 if [[ -s $CFG ]]; then
   # import existing settings
-  . <(fromdos < $CFG)
+  . <(fromdos <$CFG)
 else
   # import default settings
   IPADDR=
@@ -222,7 +225,7 @@ done
 # atomically update file
 mv $INI ${INI%.*}
 
-logger -t network -- "hook services: interface=${interface:-$1}, reason=$reason, protocol=$protocol"
+log "hook services: interface=${interface:-$1}, reason=$reason, protocol=$protocol"
 # delayed execution
 /usr/local/emhttp/webGui/scripts/update_services 30
 

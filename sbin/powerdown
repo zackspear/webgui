@@ -1,5 +1,10 @@
 #!/bin/bash
-logger "/usr/local/sbin/powerdown has been deprecated"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+log "/usr/local/sbin/powerdown has been deprecated"
+
 if [[ "$1" == "-r" ]]; then
   /sbin/reboot
 else
