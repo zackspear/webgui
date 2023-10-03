@@ -1,28 +1,48 @@
-#!/bin/sh
-# Start/stop/restart dnsmasq (a small DNS/DHCP server):
+#!/bin/bash
+#
+# script: rc.dnsmasq
+#
+# Start/stop/restart dnsmasq (a small DNS/DHCP server)
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-# Start dnsmasq:
-dnsmasq_start() {
-  if [ -x /usr/sbin/dnsmasq ]; then
-    echo "Starting dnsmasq:  /usr/sbin/dnsmasq"
-    /usr/sbin/dnsmasq
-  fi
+DAEMON="DNSmasq daemon"
+PIDFILE="/var/run/dnsmasq.pid"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+dnsmasq_running(){
+  pgrep -l -F $PIDFILE 2>/dev/null | grep -q dnsmasq
 }
 
-# Stop dnsmasq:
-dnsmasq_stop() {
-  # Try to use the .pid file first:
-  if pgrep -l -F /var/run/dnsmasq.pid 2> /dev/null | grep -q dnsmasq ; then
-    echo "Stopping dnsmasq."
-    pkill -F /var/run/dnsmasq.pid 2> /dev/null
-  else # kill any dnsmasq processes in this namespace:
-    echo "Stopping dnsmasq."
-    killall --ns $$ dnsmasq 2> /dev/null  
+dnsmasq_start(){
+  log "Starting $DAEMON..."
+  if [[ -x /usr/sbin/dnsmasq ]]; then
+    run /usr/sbin/dnsmasq
+    if dnsmasq_running; then REPLY="Started"; else REPLY="Failed"; fi
+  else
+    REPLY="Missing executable"
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-# Restart dnsmasq:
-dnsmasq_restart() {
+dnsmasq_stop(){
+  log "Stopping $DAEMON..."
+  if dnsmasq_running; then
+    # try to use the .pid file first
+    pkill -F $PIDFILE 2>/dev/null
+  else
+    # kill any dnsmasq processes in this namespace:
+    killall --ns $$ dnsmasq 2>/dev/null
+  fi
+  if ! dnsmasq_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  log "$DAEMON...  $REPLY."
+}
+
+dnsmasq_restart(){
+  log "Restarting $DAEMON..."
   dnsmasq_stop
   sleep 1
   dnsmasq_start
@@ -39,5 +59,7 @@ case "$1" in
   dnsmasq_restart
   ;;
 *)
-  echo "usage rc.dnsmasq: start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart"
+  exit 1
 esac
+exit 0

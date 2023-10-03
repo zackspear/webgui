@@ -1,5 +1,8 @@
 #!/bin/bash
-
+#
+# script: rc.avahi-dnsconfd
+#
+# Start/stop/restart the avahi dnsconfd daemon
 # This file is part of avahi.
 #
 # avahi is free software; you can redistribute it and/or modify it
@@ -14,50 +17,63 @@
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with avahi; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-# Start/stop/restart the avahi dnsconfd daemon:
+DAEMON="Avahi mDNS/DNS-SD DNS server daemon"
+AVAHI="/usr/sbin/avahi-dnsconfd"
 
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DESC="Avahi mDNS/DNS-SD DNS Server Configuration Daemon"
-NAME="avahi-dnsconfd"
-DAEMON="/usr/sbin/$NAME"
+# run & log functions
+. /etc/rc.d/rc.runlog
 
-avahidns_start()
-{
-  echo "Starting $DESC:  $DAEMON -D"
-  $DAEMON -D
+avahidns_running(){
+  $AVAHI -c
+  [[ $? == 0 ]]
 }
 
-avahidns_status()
-{
-  $DAEMON -c
-  [ $? = 0 ]
+avahidns_start(){
+  log "Starting $DAEMON..."
+  if avahidns_running; then
+    REPLY="Already started"
+  else
+    run $AVAHI -D
+    if avahidns_running; then REPLY="Started"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
 }
 
-avahidns_stop()
-{
-  echo -en "Stopping $DESC: "
-  $DAEMON -c
-  [ $? != 0 ]
-  echo "stopped";
-  $DAEMON -k 2>/dev/null
+avahidns_stop(){
+  log "Stopping $DAEMON..."
+  if ! avahidns_running; then
+    REPLY="Already stopped"
+  else
+    run $AVAHI -k
+    if ! avahidns_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
 }
 
-avahidns_restart()
-{
+avahidns_restart(){
+  log "Restarting $DAEMON..."
   avahidns_stop
+  sleep 1
   avahidns_start
+}
+
+avahidns_status(){
+  if avahidns_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
 }
 
 case "$1" in
 'start')
-  if ( ! avahidns_status ); then
-    avahidns_start
-  else
-    echo "$DESC is already running (will not start it twice)."
-  fi
+  avahidns_start
   ;;
 'stop')
   avahidns_stop
@@ -66,13 +82,10 @@ case "$1" in
   avahidns_restart
   ;;
 'status')
-  if ( avahidns_status ); then
-    echo "$DESC is currently running"
-  else
-    echo "$DESC is not running."
-  fi
+  avahidns_status
   ;;
 *)
-  echo "usage $0 start|stop|status|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
+  exit 1
 esac
-
+exit 0
