@@ -1,23 +1,34 @@
 #!/bin/bash
+#
+# script: rc.wireguard
+#
 # Start/stop wireguard interfaces
+# This script is used to autostart wireguard tunnels at system startup
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
 SYSTEM=/sys/class/net
 WIREGUARD=/etc/wireguard
+BOOT="/boot/config"
 LOG=/var/log/wg-quick.log
 TMP=/tmp/wg-quick.tmp
 
-start() {
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+wg_start(){
   if ! iptables -S | grep -qom1 "WIREGUARD$"; then
-    iptables -N WIREGUARD
-    iptables -A FORWARD -j WIREGUARD
+    run iptables -N WIREGUARD
+    run iptables -A FORWARD -j WIREGUARD
   fi
   if ! ip6tables -S | grep -qom1 "WIREGUARD$"; then
-    ip6tables -N WIREGUARD
-    ip6tables -A FORWARD -j WIREGUARD
+    run ip6tables -N WIREGUARD
+    run ip6tables -A FORWARD -j WIREGUARD
   fi
   if [[ ! -d $WIREGUARD ]]; then
-    mkdir -p /boot/config/wireguard
-    ln -s /boot/config/wireguard /etc
+    run mkdir -p $BOOT/wireguard
+    run ln -sf $BOOT/wireguard /etc
   fi
   # get active interface
   [[ -e $SYSTEM/bond0 ]] && NIC=bond0 || NIC=eth0
@@ -30,14 +41,14 @@ start() {
     # create routing table for network used by docker containers
     TABLE=$((${WG:2}+200))
     NETWORK="172.31.$TABLE.0/24"
-    if [[ -z $(ip rule|grep -Pom1 "from $NETWORK") ]]; then
-      ip -4 rule add from $NETWORK table $TABLE
-      ip -4 route add unreachable default table $TABLE
+    if [[ -z $(ip rule | grep -Pom1 "from $NETWORK") ]]; then
+      run ip -4 rule add from $NETWORK table $TABLE
+      run ip -4 route add unreachable default table $TABLE
     fi
     # interface has changed?
     if ! grep -qm1 "dev $NIC " $WIREGUARD/$WG.conf; then
       # update wireguard configuration
-      logger -t $(basename $0) "updated wireguard $WG configuration"
+      log "updated wireguard $WG configuration"
       sed -ri "s/dev (br0|bond0|eth0) /dev $NIC /" $WIREGUARD/$WG.conf
     fi
     # autostart WG tunnel?
@@ -47,9 +58,9 @@ start() {
       if [[ -n $GW ]]; then
         TIMER=10
         # wait for gateway to become reachable (max 10 seconds)
-        while [[ -z $(ip -4 route show default|grep -Pom1 "$GW ") && $TIMER -gt 0 ]]; do
-          sleep 1
+        while [[ -z $(ip -4 route show default | grep -Pom1 "$GW ") && $TIMER -gt 0 ]]; do
           ((TIMER--))
+          sleep 1
         done
       fi
       # start WG tunnel
@@ -63,15 +74,15 @@ start() {
         TABLE=$(grep -Pom1 'fwmark \K[\d]+' $TMP)
         ROUTE=$(grep -Pom1 '^Address=\K.+$' $WIREGUARD/$WG.conf)
         sleep 1
-        ip -4 route flush table $TABLE
-        ip -4 route add $ROUTE dev $WG table $TABLE
+        run ip -4 route flush table $TABLE
+        run ip -4 route add $ROUTE dev $WG table $TABLE
       fi
     fi
   done
   rm -f $TMP
 }
 
-stop() {
+wg_stop(){
   for WG in $(wg show interfaces); do
     echo "wg-quick down $WG (autostop)" >>$LOG
     wg-quick down $WG 2>>$LOG
@@ -81,12 +92,13 @@ stop() {
 
 case "$1" in
 'start')
-  start
+  wg_start
   ;;
 'stop')
-  stop
+  wg_stop
   ;;
 *)
-  echo "usage $0 start|stop"
-  ;;
+  echo "Usage: $BASENAME start|stop"
+  exit 1
 esac
+exit 0

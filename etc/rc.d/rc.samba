@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# /etc/rc.d/rc.samba
+# script: rc.samba
 #
 # Start/stop/restart the Samba SMB file/print server.
-#
 # To make Samba start automatically at boot, make this
 # file executable:  chmod 755 /etc/rc.d/rc.samba
 #
-# limetech - modified to initialize smb-names.conf file from config
-# bergware - added interface bind functionality
+# LimeTech - modified to initialize smb-names.conf file from config
+# Bergware - modified for Unraid OS, October 2023
 
+DAEMON="Samba server daemon"
 CALLER="smb"
 SMBD="/usr/sbin/smbd"
 NMBD="/usr/sbin/nmbd"
@@ -21,15 +21,22 @@ IDENT="/boot/config/ident.cfg"
 BOOT="/boot/config"
 PRIVATE="/var/lib/samba/private"
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # library functions
 . /etc/rc.d/rc.library.source
 
 # read Unraid settings
-[[ -r $IDENT ]] && . <(/usr/bin/fromdos <$IDENT)
+[[ -r $IDENT ]] && . <(fromdos <$IDENT)
 # disable ipv6 when netbios is used
-[[ $USE_NETBIOS == yes ]] && deny6=1
+[[ $USE_NETBIOS == yes ]] && DENY6=1
 
-samba_settings() {
+samba_running(){
+  [[ $(pgrep -cf $SMBD) -gt 0 ]]
+}
+
+samba_settings(){
   [[ -z $COMMENT ]] && COMMENT=""
   [[ -z $SECURITY ]] && SECURITY="user"
   [[ -z $WORKGROUP ]] && WORKGROUP="WORKGROUP"
@@ -94,59 +101,64 @@ samba_settings() {
   fi
   # bind samba service
   if check; then
-    if [[ -n $bind ]]; then
+    if [[ -n $BIND ]]; then
       echo "bind interfaces only = yes" >>$CONF
-      echo "interfaces = $bind" >>$CONF
+      echo "interfaces = $BIND" >>$CONF
     fi
     # wsdd2: enable ipv4/ipv6
-    [[ $ipv4 == yes && "$WSD2_OPT" != *"-4"* ]] && WSD2_OPT="$WSD2_OPT -4"
-    [[ $ipv6 == yes && "$WSD2_OPT" != *"-6"* ]] && WSD2_OPT="$WSD2_OPT -6"
+    [[ $IPV4 == yes && "$WSD2_OPT" != *"-4"* ]] && WSD2_OPT="$WSD2_OPT -4"
+    [[ $IPV6 == yes && "$WSD2_OPT" != *"-6"* ]] && WSD2_OPT="$WSD2_OPT -6"
   fi
 }
 
-samba_start() {
-  if [[ -x $SMBD && -x $NMBD && -x $WINBINDD && -r $SMBCONF ]]; then
-    mkdir -p /var/run/samba
-
-    # restore previously stored samba 'secrets' file (for better AD integration)
-    if [[ -e $BOOT/secrets.tdb ]]; then
-      cp -f $BOOT/secrets.tdb $PRIVATE
+samba_start(){
+  log "Starting $DAEMON..."
+  if samba_running; then
+    REPLY="Already started"
+  else
+    if [[ -x $SMBD && -x $NMBD && -x $WINBINDD && -r $SMBCONF ]]; then
+      mkdir -p /var/run/samba
+      # restore previously stored samba 'secrets' file (for better AD integration)
+      if [[ -e $BOOT/secrets.tdb ]]; then
+        cp -f $BOOT/secrets.tdb $PRIVATE
+      fi
+      # create settings
+      samba_settings
+      # start services
+      run $SMBD -D
+      [[ $USE_NETBIOS == yes ]] && run $NMBD -D
+      [[ $USE_WSD == yes ]] && run $WSDD2 -d ${WSD2_OPT## }
+      run $WINBINDD -D
+      if samba_running; then REPLY="Started"; else REPLY="Failed"; fi
+    else
+      REPLY="Missing executables"
     fi
-
-    # create settings
-    samba_settings
-
-    echo "Starting Samba:  $SMBD -D"
-    $SMBD -D 2>/dev/null
-    if [[ $USE_NETBIOS == yes ]]; then
-      echo "                 $NMBD -D"
-      $NMBD -D 2>/dev/null
-    fi
-    if [[ $USE_WSD == yes ]]; then
-      echo "                 $WSDD2 -d ${WSD2_OPT## }"
-      $WSDD2 -d ${WSD2_OPT## } 2>/dev/null
-    fi
-    echo "                 $WINBINDD -D"
-    $WINBINDD -D 2>/dev/null
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-samba_stop() {
-  killall smbd nmbd wsdd2 winbindd >/dev/null 2>&1
-  # save samba 'secrets' file
-  if [[ -e $PRIVATE/secrets.tdb ]]; then
-    cp -f $PRIVATE/secrets.tdb $BOOT
+samba_stop(){
+  log "Stopping $DAEMON..."
+  if ! samba_running; then
+    REPLY="Already stopped"
+  else
+    run killall smbd nmbd wsdd2 winbindd
+    # save samba 'secrets' file
+    [[ -e $PRIVATE/secrets.tdb ]] && cp -f $PRIVATE/secrets.tdb $BOOT
+    if ! samba_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-samba_restart() {
+samba_restart(){
+  log "Restarting $DAEMON..."
   samba_stop
   sleep 2
   samba_start
 }
 
-samba_reload() {
-  killall smbd nmbd wsdd2 winbindd >/dev/null 2>&1
+samba_reload(){
+  killall smbd nmbd wsdd2 winbindd 2>/dev/null
   # update settings
   samba_settings
   # restart services
@@ -156,15 +168,10 @@ samba_reload() {
   $WINBINDD -D 2>/dev/null
 }
 
-samba_update() {
-  [[ $(pgrep -cf $SMBD) -eq 0 ]] && exit 1 # not running
-  if check && [[ "$(this interfaces)" == "$bind" ]]; then
-    # no action required
-    exit 1
-  else
-    # service update required
-    exit 0
-  fi
+samba_update(){
+  # 0 = update needed, 1 = no action
+  if ! samba_running; then exit 1; fi
+  if check && [[ "$(this interfaces)" == "$BIND" ]]; then exit 1; else exit 0; fi
 }
 
 case "$1" in
@@ -188,3 +195,4 @@ case "$1" in
   # Slackware versions. This may change to a 'usage' error someday.
   samba_start
 esac
+exit 0

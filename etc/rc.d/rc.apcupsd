@@ -1,55 +1,88 @@
-#!/bin/sh
+#!/bin/bash
 #
-# apcupsd      This shell script takes care of starting and stopping
-#	       the apcupsd UPS monitoring daemon.
+# script: rc.apcupsd
+#
+# This shell script takes care of starting and stopping
+# the apcupsd UPS monitoring daemon.
 #
 # chkconfig: 2345 20 99
 # description: apcupsd monitors power and takes action if necessary
 #
-APCPID=/var/run/apcupsd.pid
-DISTVER="Slackware 14.2+"
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-return=""
+DAEMON="APC-UPS Power Management"
+APCPID="/var/run/apcupsd.pid"
+LOCK="/var/lock/apcupsd"
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+apcupsd_running(){
+  [[ -f $APCPID ]]
+}
+
+apcupsd_start(){
+  log "Starting $DAEMON..."
+  rm -f /etc/apcupsd/powerfail /etc/nologin
+  if apcupsd_running; then
+    REPLY="Already started"
+  else
+    mkdir -p $(dirname $LOCK)
+    if /sbin/apcupsd; then
+      touch $LOCK
+      REPLY="Started"
+    else
+      REPLY="Failed"
+    fi
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+apcupsd_stop(){
+  log "Stopping $DAEMON..."
+  if ! apcupsd_running; then
+    REPLY="Already stopped"
+  else
+    kill $(cat $APCPID)
+    if ! apcupsd_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+    rm -f $APCPID
+  fi
+  rm -f $LOCK
+  log "$DAEMON...  $REPLY."
+}
+
+apcupsd_restart(){
+  log "Restarting $DAEMON..."
+  apcupsd_stop
+  sleep 1
+  apcupsd_start
+}
+
+apcupsd_status(){
+  if apcupsd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
 
 case "$1" in
-    start)
-	rm -f /etc/apcupsd/powerfail
-	rm -f /etc/nologin
-	echo -n "Starting apcupsd power management:  /sbin/apcupsd"
-	if [ -f ${APCPID} ]; then
-		return="  Already running."
-	else
-		mkdir -p /var/lock
-		/sbin/apcupsd && touch /var/lock/apcupsd \
-		|| return="  Failed."
-	fi
-
-	echo -e "$return"
-    ;;
-    stop)
-	echo -n "Stopping apcupsd power management.."
-	if [ -f ${APCPID} ]; then
-		THEPID=$(cat ${APCPID})
-		kill ${THEPID} || return="  Failed."
-		sleep 2
-		rm -f ${APCPID}
-	else
-		return="  Nothing to stop."
-	fi
-	rm -f /var/lock/apcupsd
-	echo -e "$return"
-    ;;
-    restart)
-       $0 stop
-       $0 start
-    ;;
-    status)
-       /sbin/apcaccess status
-    ;;
-    *)
-    echo "Usage: $0 {start|stop|restart|status}"
-    exit 1
+'start')
+  apcupsd_start
+  ;;
+'stop')
+  apcupsd_stop
+  ;;
+'restart')
+  apcupsd_restart
+  ;;
+'status')
+  apcupsd_status
+  ;;
+*)
+  echo "Usage: $BASENAME start|stop|restart|status"
+  exit 1
 esac
-
 exit 0

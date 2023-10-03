@@ -35,7 +35,7 @@ if (!empty($_POST['password']) && !empty($_POST['confirmPassword'])) {
     }
 
     // Error when attempting to set password
-    exec("logger -t webGUI ".escapeshellarg($VALIDATION_MESSAGES['saveError'] . " [REMOTE_ADDR]: {$REMOTE_ADDR}"));
+    exec("logger -t webGUI -- ".escapeshellarg($VALIDATION_MESSAGES['saveError']." [REMOTE_ADDR]: {$REMOTE_ADDR}"));
     return $POST_ERROR = $VALIDATION_MESSAGES['saveError'];
 }
 

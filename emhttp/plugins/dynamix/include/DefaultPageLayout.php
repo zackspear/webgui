@@ -71,6 +71,7 @@ html{font-size:<?=$display['font']?>%}
 .upgrade_notice i{float:right;cursor:pointer}
 .back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
 span.big.blue-text{cursor:pointer}
+span.strong.tour{margin-left:5px;padding-left:0}
 i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
 pre#swalbody p{margin-block-end:1em}
 <?
@@ -770,7 +771,7 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 // Build footer
 annotate('Footer');
 echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
-$progress = (_var($var,'fsProgress')!='')? "&bullet;<span class='blue strong'>{$var['fsProgress']}</span>" : '';
+$progress = (_var($var,'fsProgress')!='')? "&bullet;<span class='blue strong tour'>{$var['fsProgress']}</span>" : '';
 switch (_var($var,'fsState')) {
 case 'Stopped':
   echo "<span class='red strong'><i class='fa fa-stop-circle'></i> "._('Array Stopped')."</span>$progress"; break;
@@ -835,7 +836,7 @@ defaultPage.on('message', function(msg,meta) {
     switch (ini['fsState']) {
       case 'Stopped'   : var status = "<span class='red strong'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>"; break;
       case 'Started'   : var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>"; break;
-      case 'Formatting': var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong'><?=_('Formatting device(s)')?></span>"; break;
+      case 'Formatting': var status = "<span class='green strong'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange strong tour'><?=_('Formatting device(s)')?></span>"; break;
       default          : var status = "<span class='orange strong'><i class='fa fa-pause-circle'></i> "+_('Array '+ini['fsState'])+"</span>";
     }
     if (ini['mdResyncPos'] > 0) {
@@ -847,11 +848,11 @@ defaultPage.on('message', function(msg,meta) {
         default     : var action = '';
       }
       action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-      status += "&bullet;<span class='orange strong'>"+action.replace('.','<?=_var($display,'number','.,')[0]?>');
+      status += "&bullet;<span class='orange strong tour'>"+action.replace('.','<?=_var($display,'number','.,')[0]?>');
       if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
       status += "</span>";
     }
-    if (ini['fsProgress']) status += "&bullet;<span class='blue strong'>"+_(ini['fsProgress'])+"</span>";
+    if (ini['fsProgress']) status += "&bullet;<span class='blue strong tour'>"+_(ini['fsProgress'])+"</span>";
     $('#statusbar').html(status);
     break;
   case 2:

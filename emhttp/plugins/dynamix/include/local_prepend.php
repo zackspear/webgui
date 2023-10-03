@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
+/* Copyright 2005-2023, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -15,7 +15,7 @@
  * auto_prepend_file="/usr/local/emhttp/webGui/include/local_prepend.php"
  */
 function csrf_terminate($reason) {
-    shell_exec("logger error: " . escapeshellarg($_SERVER['REQUEST_URI']) . ": $reason csrf_token");
+    shell_exec("logger -- ".escapeshellarg("error: ".$_SERVER['REQUEST_URI']).": $reason csrf_token");
     exit;
 }
 putenv('PATH=.:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin');

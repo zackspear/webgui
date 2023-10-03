@@ -1,10 +1,12 @@
 #!/bin/bash
 #
+# script: rc.nginx
+#
 # Nginx daemon control script.
 # Written for Slackware Linux by Cherife Li <cherife-#-dotimes.com>.
 
-# limetech: modified for Unraid
-# bergware: added interface bind functionality
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
 # reference:
 # LANNAME                 'tower'
@@ -15,6 +17,7 @@
 # WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
+DAEMON="Nginx server daemon"
 CALLER="nginx"
 NGINX="/usr/sbin/nginx"
 PID="/var/run/nginx.pid"
@@ -31,7 +34,7 @@ MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
 SERVER_NAMES=()
 
 # read Unraid settings
-[[ -r $IDENT ]] && . <(/usr/bin/fromdos <$IDENT)
+[[ -r $IDENT ]] && . <(fromdos <$IDENT)
 
 # preset default values
 [[ -z $START_PAGE ]] && START_PAGE=Main
@@ -49,64 +52,67 @@ if ! find /boot/config/*.key &>/dev/null; then
   START_PAGE="Tools/Registration"
 fi
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # library functions
 . /etc/rc.d/rc.library.source
 
-fqdn() {
+fqdn(){
   echo ${CERTNAME/'*'/${1//[.:]/-}}
 }
 
 # create listening ports
-listen() {
-  t='    '
+listen(){
+  T='    '
   if check && [[ $1 == lo ]]; then
-    if [[ $ipv4 == yes ]]; then
-      echo "${t}listen 127.0.0.1:$PORT; # lo"
-      echo "${t}listen 127.0.0.1:$PORTSSL; # lo"
+    if [[ $IPV4 == yes ]]; then
+      echo "${T}listen 127.0.0.1:$PORT; # lo"
+      echo "${T}listen 127.0.0.1:$PORTSSL; # lo"
     fi
-    if [[ $ipv6 == yes ]]; then
-      echo "${t}listen [::1]:$PORT; # lo"
-      echo "${t}listen [::1]:$PORTSSL; # lo"
+    if [[ $IPV6 == yes ]]; then
+      echo "${T}listen [::1]:$PORT; # lo"
+      echo "${T}listen [::1]:$PORTSSL; # lo"
     fi
-  elif [[ -n $bind ]]; then
-    for addr in $bind; do
-      [[ $(IPv $addr) == 4 ]] && echo "${t}listen $addr:$*; # $(show $addr)"
-      [[ $(IPv $addr) == 6 ]] && echo "${t}listen [$addr]:$*; # $(show $addr)"
+  elif [[ -n $BIND ]]; then
+    for ADDR in $BIND; do
+      [[ $(ipv $ADDR) == 4 ]] && echo "${T}listen $ADDR:$*; # $(show $ADDR)"
+      [[ $(ipv $ADDR) == 6 ]] && echo "${T}listen [$ADDR]:$*; # $(show $ADDR)"
     done
   else
     # default listen on any interface with ipv4 protocol
-    echo "${t}listen $*;"
+    echo "${T}listen $*;"
   fi
 }
 
 # create redirect server blocks
-redirect() {
-  t='    '
-  if check && [[ -n $bind ]]; then
-    url=$1
-    tag=$2
+redirect(){
+  T='    '
+  if check && [[ -n $BIND ]]; then
+    URL=$1
+    TAG=$2
     shift 2
-    case $url in
+    case $URL in
     'host')
       echo "server {"
-      for addr in $bind; do
-        host=
-        [[ $(IPv $addr) == 4 ]] && host="$addr"
-        [[ $(IPv $addr) == 6 ]] && host="[$addr]"
-        [[ -n $host ]] && echo "${t}listen $host:$*; # $(show $addr)"
+      for ADDR in $BIND; do
+        HOST=
+        [[ $(ipv $ADDR) == 4 ]] && HOST="$ADDR"
+        [[ $(ipv $ADDR) == 6 ]] && HOST="[$ADDR]"
+        [[ -n $HOST ]] && echo "${T}listen $HOST:$*; # $(show $ADDR)"
       done
-      echo "${t}return 302 https://\$host:$PORTSSL\$request_uri;"
+      echo "${T}return 302 https://\$host:$PORTSSL\$request_uri;"
       echo "}"
       ;;
     'fqdn')
-      for addr in $bind; do
-        host=
-        [[ $tag == 4 && $(IPv $addr) == 4 ]] && host="$addr"
-        [[ $tag == 6 && $(IPv $addr) == 6 ]] && host="[$addr]"
-        if [[ -n $host ]]; then
+      for ADDR in $BIND; do
+        HOST=
+        [[ $TAG == 4 && $(ipv $ADDR) == 4 ]] && HOST="$ADDR"
+        [[ $TAG == 6 && $(ipv $ADDR) == 6 ]] && HOST="[$ADDR]"
+        if [[ -n $HOST ]]; then
           echo "server {"
-          echo "${t}listen $host:$*; # $(show $addr)"
-          echo "${t}return 302 https://$(fqdn $addr)$PORTSSL_URL\$request_uri;"
+          echo "${T}listen $HOST:$*; # $(show $ADDR)"
+          echo "${T}return 302 https://$(fqdn $ADDR)$PORTSSL_URL\$request_uri;"
           echo "}"
         fi
       done
@@ -117,7 +123,7 @@ redirect() {
 
 # build our servers
 # pay attention to escaping
-build_servers() {
+build_servers(){
   cat <<- 'EOF' >$SERVERS
 	#
 	# Listen on local socket for nchan publishers
@@ -276,7 +282,7 @@ build_servers() {
 
 # build our locations
 # pay attention to escaping
-build_locations() {
+build_locations(){
   cat <<- EOF >$LOCATIONS
 	#
 	# Default start page
@@ -436,7 +442,7 @@ build_locations() {
 }
 
 # check if certificate common name or any alternative name matches LANMDNS
-acceptable_selfcert() {
+acceptable_selfcert(){
   local CN
   for CN in $(openssl x509 -noout -subject -nameopt multiline -in $SELFCERTPATH | sed -n 's/ *commonName *= //p' ;
               openssl x509 -noout -ext subjectAltName -in $SELFCERTPATH | grep -Eo "DNS:[a-zA-Z 0-9.*-]*" | sed "s/DNS://g"); do
@@ -446,7 +452,7 @@ acceptable_selfcert() {
   return 1
 }
 
-build_ssl() {
+build_ssl(){
   mkdir -p $SSL/certs
 
   if [[ ! -f $SSL/dhparam.pem ]]; then
@@ -457,7 +463,7 @@ build_ssl() {
   fi
   ln -sf $SSL/dhparam.pem /etc/nginx/dhparam.pem
 
-  LANNAME=$(hostname -s)
+  LANNAME=$(hostname)
   LANMDNS=${LANNAME}${LOCAL_TLD:+.$LOCAL_TLD}
 
   # fetch LAN IP address (read management interface eth0)
@@ -511,13 +517,13 @@ build_ssl() {
       if check; then
         # add included interfaces
         declare -A NET_FQDN NET_FQDN6
-        for addr in $bind; do
+        for ADDR in $BIND; do
           # convert IP to name
-          net=$(show $addr)
+          NET=$(show $ADDR)
           # skip invalid interface, LAN interface and WG VPN tunneled interfaces
-          [[ -z $net || $(show $LANIP) == $net || (${net:0:2} == wg && $(scan TYPE:1 $WIREGUARD/$net.cfg) -ge 7) ]] && continue
-          [[ $(IPv $addr) == 4 ]] && NET_FQDN[$net]=$(fqdn $addr) || NET_FQDN6[$net]=$(fqdn $addr)
-          SERVER_NAMES+=($(fqdn $addr))
+          [[ -z $NET || $(show $LANIP) == $NET || (${NET:0:2} == wg && $(scan TYPE:1 $WIREGUARD/$NET.cfg) -ge 7) ]] && continue
+          [[ $(ipv $ADDR) == 4 ]] && NET_FQDN[$NET]=$(fqdn $ADDR) || NET_FQDN6[$NET]=$(fqdn $ADDR)
+          SERVER_NAMES+=($(fqdn $ADDR))
         done
       fi
     else
@@ -536,8 +542,8 @@ build_ssl() {
 
   # define the default URL used to access the server
   if [[ $USE_SSL == auto ]]; then
-    [[ -n $LANIP && $(IPv $LANIP) == 4 ]] && DEFAULTURL="https://$LANFQDN$PORTSSL_URL"
-    [[ -n $LANIP && $(IPv $LANIP) == 6 ]] && DEFAULTURL="https://[$LANFQDN6]$PORTSSL_URL"
+    [[ -n $LANIP && $(ipv $LANIP) == 4 ]] && DEFAULTURL="https://$LANFQDN$PORTSSL_URL"
+    [[ -n $LANIP && $(ipv $LANIP) == 6 ]] && DEFAULTURL="https://[$LANFQDN6]$PORTSSL_URL"
   elif [[ $USE_SSL == yes ]]; then
     DEFAULTURL="https://$LANMDNS$PORTSSL_URL"
   else
@@ -573,119 +579,117 @@ build_ssl() {
     echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$INI
   done
   # atomically update file
-  /usr/bin/mv $INI ${INI%.*}
+  mv $INI ${INI%.*}
 }
 
-nginx_status() {
-  [[ -s $PID && -n "$(cat $PID)" && -d "/proc/$(cat $PID)" ]] && return 0 || return 1;
-}
-
-wait_nginx_shutdown() {
-  for i in {1..10}; do
-    if ! nginx_status; then
-      break
-    fi
-    sleep 1
-  done
-}
-
-unraid_api_control() {
+unraid_api_control(){
   # signal unraid-api script, if installed
   if [[ -f /etc/rc.d/rc.unraid-api ]]; then
     /etc/rc.d/rc.unraid-api $1
   fi
 }
 
-nginx_running() {
-  if ! nginx_status; then
-    echo "Nginx is not running"
-    exit 1
-  fi
+nginx_running(){
+  [[ -s $PID && -n "$(cat $PID)" && -d "/proc/$(cat $PID)" ]] && return 0 || return 1
 }
 
-nginx_check() {
-  echo "Checking configuration for correct syntax and"
-  echo "then trying to open files referenced in configuration..."
-  $NGINX -t -c $CONF
+nginx_waitfor_shutdown(){
+  for i in {1..10}; do
+    if ! nginx_running; then break; fi
+    sleep 1
+  done
 }
 
-nginx_start() {
-  if nginx_status; then
-    echo "Nginx is already running"
-    exit 1
-  fi
-
-  # sanity checks
-  if [[ ! -r $CONF ]]; then # no config file, exit:
-    echo "$CONF does not appear to exist. Abort."
-    exit 1
-  fi
-
-  # build ssl configuration file
-  build_ssl
-
-  # nginx does not unlink stale unix sockets before rebinding
-  # see: https://trac.nginx.org/nginx/ticket/753
-  rm -f /var/run/nginx.socket
-
-  echo "Starting Nginx server daemon..."
-  if [[ -x $NGINX ]]; then
-    $NGINX -c $CONF 2>/dev/null
-  fi
-
-  # side-load unraid-api
-  unraid_api_control start
+nginx_check(){
+  log "Checking configuration for correct syntax and then trying to open files referenced in configuration..."
+  run $NGINX -t -c $CONF
 }
 
-nginx_stop() {
+nginx_start(){
+  log "Starting $DAEMON..."
   if nginx_running; then
-    echo "Shutdown Nginx gracefully..."
+    REPLY="Already running"
+  elif [[ ! -r $CONF ]]; then
+    # sanity checks, no config file, exit
+    log "$CONF does not exist, aborting."
+    exit 1
+  else
+    # build ssl configuration file
+    build_ssl
+    # nginx does not unlink stale unix sockets before rebinding
+    # see: https://trac.nginx.org/nginx/ticket/753
+    rm -f /var/run/nginx.socket
+    [[ -x $NGINX ]] && $NGINX -c $CONF 2>/dev/null
+    # side-load unraid-api
+    unraid_api_control start
+    if nginx_running; then REPLY="Started"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+nginx_stop(){
+  log "Stopping $DAEMON gracefully..."
+  if ! nginx_running; then
+    REPLY="Already stopped"
+  else
     unraid_api_control stop
     kill -QUIT $(cat $PID)
-    wait_nginx_shutdown
+    nginx_waitfor_shutdown
+    if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-nginx_term() {
-  if nginx_running; then
-    echo "Shutdown Nginx quickly..."
+nginx_stop_forced(){
+  log "Stopping $DAEMON forcibly..."
+  if ! nginx_running; then
+    REPLY="Already stopped"
+  else
     unraid_api_control stop
     kill -TERM $(cat $PID)
-    wait_nginx_shutdown
+    nginx_waitfor_shutdown
+    if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-nginx_restart() {
+nginx_restart(){
+  log "Restarting $DAEMON..."
   # only stop working system if configuration is valid
   if nginx_running; then
     if nginx_check; then
       nginx_stop
       nginx_start
     else
-      echo "Invalid configuration, Nginx not restarted"
+      log "Invalid configuration, $DAEMON not restarted"
       return 1
     fi
+  else
+    log "$DAEMON...  Not running."
   fi
 }
 
-nginx_reload() {
+nginx_reload(){
+  log "Reloading $DAEMON..."
   # only stop working system if configuration is valid
   if nginx_running; then
     build_ssl
     if nginx_check; then
-      echo "Reloading Nginx configuration..."
+      log "Reloading $DAEMON configuration..."
       kill -HUP $(cat $PID)
       # update DNS
-      /usr/bin/php -f /usr/local/emhttp/webGui/include/UpdateDNS.php
+      php -f /usr/local/emhttp/webGui/include/UpdateDNS.php
       sleep 3
     else
-      echo "Invalid configuration, Nginx not reloaded"
+      log "Invalid configuration, $DAEMON not reloaded"
       return 1
     fi
+  else
+    log "$DAEMON...  Not running."
   fi
 }
 
-nginx_renew() {
+nginx_renew(){
   # stop unconditionally
   pkill -f $NGINX
   # rebuild configuration
@@ -693,21 +697,16 @@ nginx_renew() {
   # start unconditionally
   $NGINX -c $CONF 2>/dev/null
   # update DNS
-  /usr/bin/php -f /usr/local/emhttp/webGui/include/UpdateDNS.php
+  php -f /usr/local/emhttp/webGui/include/UpdateDNS.php
 }
 
-nginx_update() {
-  if ! nginx_status; then exit 1; fi # not running
-  if check && [[ "$(this)" == "$bind" ]]; then
-    # no action required
-    exit 1
-  else
-    # service update required
-    exit 0
-  fi
+nginx_update(){
+  # 0 = update needed, 1 = no action
+  if ! nginx_running; then exit 1; fi
+  if check && [[ "$(this)" == "$BIND" ]]; then exit 1; else exit 0; fi
 }
 
-nginx_upgrade() {
+nginx_upgrade(){
   if nginx_running; then
     echo "Upgrading to the new Nginx binary."
     echo "Make sure the Nginx binary has been replaced with new one"
@@ -718,10 +717,19 @@ nginx_upgrade() {
   fi
 }
 
-nginx_rotate() {
+nginx_rotate(){
   if nginx_running; then
-    echo "Rotating Nginx logs..."
+    log "Rotating $DAEMON logs..."
     kill -USR1 $(cat $PID)
+  fi
+}
+
+nginx_status(){
+  if nginx_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
   fi
 }
 
@@ -736,7 +744,7 @@ case "$1" in
   nginx_stop
   ;;
 'term')
-  nginx_term
+  nginx_stop_forced
   ;;
 'restart')
   nginx_restart
@@ -753,18 +761,17 @@ case "$1" in
 'port')
   echo $PORT
   ;;
-'status')
-  if nginx_running; then
-    echo "Nginx is running"
-  fi
-  ;;
 'upgrade')
   nginx_upgrade
   ;;
 'rotate')
   nginx_rotate
   ;;
+'status')
+  nginx_status
+  ;;
 *)
-  echo "usage: `basename $0` {check|start|stop|term|restart|reload|renew|update|port|status|upgrade|rotate}"
+  echo "Usage: $BASENAME check|start|stop|term|restart|reload|renew|update|port|upgrade|rotate|status"
   exit 1
 esac
+exit 0

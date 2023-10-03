@@ -6,10 +6,9 @@ function SysDriverslog($m, $type = "NOTICE") {
 	$m		= print_r($m,true);
 	$m		= str_replace("\n", " ", $m);
 	$m		= str_replace('"', "'", $m);
-	$cmd	= "/usr/bin/logger ".'"'.$m.'"'." -tSysDrivers";
+	$cmd	= "/usr/bin/logger -t SysDrivers -- \"$m\"";
 	exec($cmd);
 }
-
 
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations

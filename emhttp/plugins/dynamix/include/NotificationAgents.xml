@@ -215,9 +215,9 @@ EOF
     echo "${RET}"
   } >>"${LOG}"
   # if there was an error with the submission, log details and exit loop
-  [[ "${RET}" != *"retry_after"* ]] && echo "${DATA}" >>"${LOG}" && logger -t "${SCRIPTNAME}" "Failed sending notification" && break
+  [[ "${RET}" != *"retry_after"* ]] && echo "${DATA}" >>"${LOG}" && logger -t "${SCRIPTNAME}" -- "Failed sending notification" && break
   # if retries exhausted, log failure
-  [[ "${i}" -eq "${MAX}" ]] && echo "${DATA}" >>"${LOG}" && logger -t "${SCRIPTNAME}" "Failed sending notification - rate limited" && break
+  [[ "${i}" -eq "${MAX}" ]] && echo "${DATA}" >>"${LOG}" && logger -t "${SCRIPTNAME}" -- "Failed sending notification - rate limited" && break
   # we were rate limited, try again after a delay
   sleep 1
 done
