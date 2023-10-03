@@ -141,7 +141,7 @@ else
   # Install any extra packages
   if [[ -d /boot/extra ]]; then
     log "Installing /boot/extra packages"
-    ( cd /boot/extra ; find -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
+    ( export -f log; find /boot/extra -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
   fi
   # Install plugins
   log "Installing plugins"
