@@ -117,46 +117,6 @@ running_containers(){
   docker ps --format='{{.Names}}' 2>/dev/null
 }
 
-max6() {
-  # ipv6 addresses in long notation
-  f=:ffff:
-  for x in $*; do
-    read a m < <(IFS=/; echo $x)
-    [[ $a =~ $f && $a =~ '.' ]] && b=${a#*$f} a=${a%$f*}$f:0 || b=
-    c=${a//[^:]/}
-    [[ ${a:0:1} == : ]] && a=0${a}
-    [[ ${a:${#a}-1} == : ]] && a=${a}0
-    a=${a/::/:$(for((i=1;i<=$((8-${#c}));i++)); do printf "0:"; done)}
-    d= a=$(for q in ${a//:/ }; do printf "$d%04x" "0x$q"; d=:; done)
-    [[ -n $b ]] && d= a=${a%$f*}${f}$(for q in ${b//./ }; do printf "$d%03x" "0x$q"; d=.; done)
-    [[ -z $m ]] && echo $a || echo $a/$m
-  done
-}
-
-min6() {
-  # ipv6 address in short notation
-  f=:ffff:
-  [[ -n $1 ]] && read a m < <(IFS=/; echo $1) || return
-  [[ $a =~ $f && $a =~ '.' ]] && b=${a#*$f} a=${a%$f*}$f || b=
-  d= a=:$(for q in ${a//:/ }; do printf "$d%x" "0x$q"; d=:; done)
-  a=${a/$(grep -Po ':(0(:|$)){2,8}' <<< $a|sort|tail -1)/::}
-  [[ ${a:0:2} != :: ]] && a=${a:1}
-  [[ -n $b ]] && d= a=${a%$f*}:$(for q in ${b//./ }; do printf "$d%x" "0x$q"; d=.; done)
-  [[ -z $m ]] && echo $a || echo $a/$m
-}
-
-wipe() {
-  wet=($*)
-  # remove temporary (privacy extensions) and host ipv6 addresses
-  for tmp in $(ip -br -6 addr show scope global temporary dev $wet 2>/dev/null|awk '{$1=$2="";print}'); do
-    for i in ${!wet[@]}; do
-      [[ ${wet[$i]} == $tmp || (${wet[$i]} =~ '::' && ${wet[$i]#*/} == 128) ]] && unset 'wet[i]'
-    done
-  done
-  # return cleaned-up list without interface name
-  echo ${wet[@]/$wet}
-}
-
 # Network driver
 driver() {
   # user selection when bridge is enabled
@@ -347,7 +307,8 @@ start_network(){
         GATEWAY=$(ip -4 route show default dev $NETWORK|awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
-      IPV6=$(min6 $(max6 $(wipe $(ip -br -6 addr show $NETWORK scope global|awk '{$2="";print;exit}'))|sort|head -1))
+      IPV6=$(ip -br -6 addr show $NETWORK scope global mngtmpaddr|awk '{print $3;exit}')
+      [[ -z $IPV6 ]] && IPV6=$(ip -br -6 addr show $NETWORK scope global permanent|awk '{print $3;exit}')
       if [[ -n $IPV6 ]]; then
         # get IPV6 subnet, preset to /64 if single host address is given
         [[ ${IPV6#*/} == 128 ]] && SUBNET6=$(echo $IPV6|sed -r 's/^([^:]+):([^:]+):([^:]+):([^:]+).*$/\1:\2:\3:\4::\/64/') || SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK|awk '{print $1;exit}')
