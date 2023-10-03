@@ -17,15 +17,15 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # At this point, we are (almost) ready to talk to The World...
 #
 # If there is a firewall script, run it before enabling packet forwarding.
 # See the HOWTOs on http://www.netfilter.org/ for documentation on
 # setting up a firewall or NAT on Linux. In some cases this might need to
 # be moved past the section below dealing with IP packet forwarding.
-
-# run & log functions
-. /etc/rc.d/rc.runlog
 
 if [[ -x /etc/rc.d/rc.firewall ]]; then
   /etc/rc.d/rc.firewall start
