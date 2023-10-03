@@ -13,14 +13,14 @@
 # LimeTech - get rid of chatty '-l' rpcbind option
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="RPC server daemon"
 CALLER="rpc"
 RPCBIND="/sbin/rpcbind"
 STATD="/sbin/rpc.statd"
 RPC="/etc/default/rpc"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # library functions
 . /etc/rc.d/rc.library.source

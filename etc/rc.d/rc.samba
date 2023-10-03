@@ -9,9 +9,6 @@
 # LimeTech - modified to initialize smb-names.conf file from config
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="Samba server daemon"
 CALLER="smb"
 SMBD="/usr/sbin/smbd"
@@ -23,6 +20,9 @@ CONF="/etc/samba/smb-names.conf"
 IDENT="/boot/config/ident.cfg"
 BOOT="/boot/config"
 PRIVATE="/var/lib/samba/private"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # library functions
 . /etc/rc.d/rc.library.source

@@ -22,9 +22,6 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="libvirt daemon"
 MODULES=${MODULES:-"vhost_net"}
 TIMEOUT=${TIMEOUT:-60}
@@ -41,6 +38,9 @@ BOOT_DOMAIN="/boot/config/domain.cfg"
 SYSTEM="/sys/class/net"
 VIRTLOG="virtlog daemon"
 VIRTLOCK="virtlock daemon"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # Read Unraid configuration
 [[ -f $BOOT_DOMAIN ]] && . $BOOT_DOMAIN

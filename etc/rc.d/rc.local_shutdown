@@ -7,11 +7,11 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 # Beep the motherboard speaker
 beep -r 2
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # Invoke custom 'stop' script if present
 if [[ -f /boot/config/stop ]]; then

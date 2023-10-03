@@ -12,9 +12,6 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="NFS server daemon"
 CALLER="nfs"
 NFSD="/usr/sbin/rpc.nfsd"
@@ -24,6 +21,9 @@ MOUNTD="/usr/sbin/rpc.mountd"
 OPTIONS="-u -s"
 RPC="/etc/default/rpc"
 NFS="/etc/default/nfs"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # library functions
 . /etc/rc.d/rc.library.source

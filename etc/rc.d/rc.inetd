@@ -7,10 +7,10 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
+DAEMON="Internet daemon"
+
 # run & log functions
 . /etc/rc.d/rc.runlog
-
-DAEMON="Internet daemon"
 
 inetd_start() {
   log "Starting $DAEMON..."

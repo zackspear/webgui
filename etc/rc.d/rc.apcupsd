@@ -11,12 +11,12 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="APC-UPS Power Management"
 APCPID="/var/run/apcupsd.pid"
 LOCK="/var/lock/apcupsd"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 apcupsd_running(){
   [[ -f $APCPID ]]

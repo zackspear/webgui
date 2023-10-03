@@ -7,9 +7,6 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="SSH server daemon"
 CALLER="ssh"
 SSHD="/usr/sbin/sshd"
@@ -17,6 +14,9 @@ CONF="/etc/ssh/sshd_config"
 PID="/var/run/sshd.pid"
 SSH_BOOT="/boot/config/ssh"
 SSH_ETC="/etc/ssh"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # library functions
 . /etc/rc.d/rc.library.source

@@ -17,9 +17,6 @@
 # WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="Nginx server daemon"
 CALLER="nginx"
 NGINX="/usr/sbin/nginx"
@@ -54,6 +51,9 @@ SERVER_NAMES=()
 if ! find /boot/config/*.key &>/dev/null; then
   START_PAGE="Tools/Registration"
 fi
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # library functions
 . /etc/rc.d/rc.library.source

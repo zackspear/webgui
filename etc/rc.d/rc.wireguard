@@ -8,14 +8,14 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 SYSTEM=/sys/class/net
 WIREGUARD=/etc/wireguard
 BOOT="/boot/config"
 LOG=/var/log/wg-quick.log
 TMP=/tmp/wg-quick.tmp
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 wg_start(){
   if ! iptables -S | grep -qom1 "WIREGUARD$"; then

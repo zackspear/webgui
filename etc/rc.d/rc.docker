@@ -12,9 +12,6 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# run & log functions
-. /etc/rc.d/rc.runlog
-
 DAEMON="Docker daemon"
 UNSHARE="/usr/bin/unshare"
 SYSTEM="/sys/class/net"
@@ -34,6 +31,9 @@ DOCKER_TIMEOUT=$(awk -F'"' '/^DOCKER_TIMEOUT=/{print $2}' $DOCKER_CFG 2>/dev/nul
 # network file references
 INI=/var/local/emhttp/network.ini
 TMP=/var/tmp/network.tmp
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # determine active port name
 [[ -e $SYSTEM/bond0 ]] && PORT=bond0 || PORT=eth0
