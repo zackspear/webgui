@@ -635,7 +635,12 @@ nginx_stop(){
     unraid_api_control stop
     kill -QUIT $(cat $PID)
     nginx_waitfor_shutdown
-    if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+    if ! nginx_running; then
+      REPLY="Stopped"
+    else
+      pkill -f $NGINX
+      REPLY="Killed"
+    fi
   fi
   log "$DAEMON...  $REPLY."
 }
