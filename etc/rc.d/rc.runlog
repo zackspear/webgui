@@ -16,13 +16,13 @@ run(){
 }
 
 log(){
-  if [[ ! -t 0 ]]; then
+  if [[ ! -t 1 ]]; then
     # log message to syslog
     while IFS='\n' read -r LINE; do
       logger -t $BASENAME -- "$LINE"
     done <<< ${1:-$(</dev/stdin)}
   else
     # echo message to console
-    [[ -n $1 ]] && echo "$1"
+    [[ -n $1 ]] && echo "$BASENAME: $1"
   fi
 }
