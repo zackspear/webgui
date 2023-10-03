@@ -88,6 +88,9 @@ table.tablesorter.indexer thead th,table.tablesorter.indexer tbody td,table.tabl
 table.tablesorter.indexer thead tr>th+th{width:auto;text-align:left}
 table.tablesorter.indexer thead tr>th+th+th{width:14%}
 table.tablesorter.indexer tfoot td{padding-top:10px;font-size:1.1rem}
+table.t1.tablesorter tbody tr.alt-row{background-color:#ededed}
+table.t1.tablesorter tbody tr.normal-row{background-color:#f2f2f2}
+input.t1.search{color:#1c1b1b;background-color:#f2f2f2}
 span.select ul{display:none;list-style-type:none;margin:0 0 2px 0;padding:0}
 span.select ul.unused{display:block}
 span.select ul li.nosort{font-weight:bold}
