@@ -13,13 +13,16 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # Tell the viewers what's going to happen.
-echo "Going multiuser..."
+log "Going multiuser..."
 
 # Update all the shared library links:
 if [[ -x /sbin/ldconfig ]]; then
-  echo "Updating shared library links:  /sbin/ldconfig &"
-  /sbin/ldconfig &
+  log "Updating shared library links..."
+  run /sbin/ldconfig &
 fi
 
 # Call the setterm init script to set screen blanking and power management
@@ -52,8 +55,8 @@ fi
 
 # Update the X font indexes:
 if [[ -x /usr/bin/fc-cache ]]; then
-  echo "Updating X font indexes:  /usr/bin/fc-cache -f &"
-  /usr/bin/fc-cache -f &
+  log "Updating X font indexes..."
+  run /usr/bin/fc-cache -f &
 fi
 
 # Run rc.udev again.  This will start udev if it is not already running
@@ -95,7 +98,7 @@ if [[ -x /etc/rc.d/rc.inet2 ]]; then
 fi
 
 # Mount any additional filesystem types that haven't already been mounted:
-mount -a -v 2>/dev/null | grep -v -e "already mounted" -e "ignored" | cut -f 1 -d : | tr -d ' ' | while read dev ; do mount | grep "${dev} "; done
+mount -a -v 2>/dev/null | grep -v -e "already mounted" -e "ignored" | cut -f 1 -d : | tr -d ' ' | while read DEV; do mount | grep "$DEV "; done
 
 # Start the Network Time Protocol daemon:
 if [[ -x /etc/rc.d/rc.ntpd ]]; then
@@ -121,47 +124,43 @@ fi
 
 # Update any existing icon cache files:
 if find /usr/share/icons -maxdepth 2 2>/dev/null | grep -q icon-theme.cache; then
-  for theme_dir in /usr/share/icons/*; do
-    if [[ -r ${theme_dir}/icon-theme.cache ]]; then
-      echo "Updating icon-theme.cache in ${theme_dir}..."
-      /usr/bin/gtk-update-icon-cache -t -f ${theme_dir} 1>/dev/null 2>/dev/null &
+  for THEME_DIR in /usr/share/icons/*; do
+    if [[ -r $THEME_DIR/icon-theme.cache ]]; then
+      log "Updating icon-theme.cache in $THEME_DIR..."
+      run /usr/bin/gtk-update-icon-cache -t -f $THEME_DIR &
     fi
   done
   # This would be a large file and probably shouldn't be there.
   if [[ -r /usr/share/icons/icon-theme.cache ]]; then
-    echo "Deleting icon-theme.cache in /usr/share/icons..."
-    #/usr/bin/gtk-update-icon-cache -t -f /usr/share/icons 1> /dev/null 2> /dev/null &
-    rm -f /usr/share/icons/icon-theme.cache
+    log "Deleting icon-theme.cache in /usr/share/icons..."
+    #/usr/bin/gtk-update-icon-cache -t -f /usr/share/icons 1>/dev/null 2>/dev/null &
+    run rm -f /usr/share/icons/icon-theme.cache
   fi
 fi
 
 # Update mime database:
-if [[ -x /usr/bin/update-mime-database -a -d /usr/share/mime ]]; then
-  echo "Updating MIME database:  /usr/bin/update-mime-database /usr/share/mime &"
-  /usr/bin/update-mime-database /usr/share/mime 1> /dev/null 2> /dev/null &
+if [[ -x /usr/bin/update-mime-database && -d /usr/share/mime ]]; then
+  log "Updating MIME database..."
+  run /usr/bin/update-mime-database /usr/share/mime &
 fi
 
 # These GTK+/pango files need to be kept up to date for
 # proper input method, pixbuf loaders, and font support.
 if [[ -x /usr/bin/update-gtk-immodules ]]; then
-  echo "Updating gtk.immodules:"
-  echo "  /usr/bin/update-gtk-immodules &"
-  /usr/bin/update-gtk-immodules 1>/dev/null 2>/dev/null &
+  log "Updating gtk.immodules..."
+  run /usr/bin/update-gtk-immodules &
 fi
 if [[ -x /usr/bin/update-gdk-pixbuf-loaders ]]; then
-  echo "Updating gdk-pixbuf.loaders:"
-  echo "  /usr/bin/update-gdk-pixbuf-loaders &"
-  HOME=/root /usr/bin/update-gdk-pixbuf-loaders 1>/dev/null 2>/dev/null &
+  log "Updating gdk-pixbuf.loaders..."
+  HOME=/root run /usr/bin/update-gdk-pixbuf-loaders &
 fi
 if [[ -x /usr/bin/update-pango-querymodules ]]; then
-  echo "Updating pango.modules:"
-  echo "  /usr/bin/update-pango-querymodules &"
-  /usr/bin/update-pango-querymodules 1>/dev/null 2>/dev/null &
+  log "Updating pango.modules..."
+  run /usr/bin/update-pango-querymodules &
 fi
 if [[ -x /usr/bin/glib-compile-schemas ]]; then
-  echo "Compiling GSettings XML schema files:"
-  echo "  /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas &"
-  /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas 1>/dev/null 2>/dev/null &
+  log "Compiling GSettings XML schema files..."
+  run /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas &
 fi
 
 # Start dnsmasq, a simple DHCP/DNS server:
