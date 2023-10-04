@@ -17,6 +17,9 @@
 # Set the path.
 PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # Load a custom screen font if the user has an rc.font script.
 if [[ -x /etc/rc.d/rc.font ]]; then
   /etc/rc.d/rc.font
@@ -35,8 +38,8 @@ fi
 # Try to turn off quota:
 if grep -q quota /etc/fstab ; then
   if [[ -x /sbin/quotaoff ]]; then
-    echo "Turning off filesystem quotas."
-    /sbin/quotaoff -a
+    log "Turning off filesystem quotas."
+    run /sbin/quotaoff -a
   fi
 fi
 
@@ -69,9 +72,9 @@ fi
 # unmounting NFS volumes:
 unset FUSER_DELAY
 for DIR in $(/bin/mount | grep -e 'type nfs ' -e 'type nfs4 ' | sed -e 's|.* on ||g' | cut -d ' ' -f 1); do
-  echo "Killing processes holding NFS mount $DIR open..."
+  log "Killing processes holding NFS mount $DIR open..."
   # Background this to prevent fuser from also blocking shutdown:
-  /usr/bin/fuser -k -M -m "$DIR" &
+  run /usr/bin/fuser -k -M -m "$DIR" &
   FUSER_DELAY=5
 done
 # If fuser was run, let it have some delay:
@@ -80,8 +83,8 @@ if [[ -n "$FUSER_DELAY" ]]; then
 fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
-echo "Unmounting remote filesystems:"
-/bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | tr -d ' ' | grep successfully | sed "s/:successfullyunmounted/ has been successfully unmounted./g"
+log "Unmounting remote filesystems:"
+run /bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | tr -d ' ' | grep successfully | sed "s/:successfullyunmounted/ has been successfully unmounted./g"
 
 # Shut down PCMCIA devices:
 if [[ -x /etc/rc.d/rc.pcmcia ]]; then
@@ -96,33 +99,20 @@ if [[ -x /etc/rc.d/rc.acpid && -r /var/run/acpid.pid ]]; then # quit
 fi
 
 # Kill all processes.
-OMITPIDS="$(for p in $(pgrep mdmon); do echo -o $p; done)" # Don't kill mdmon
-echo
-echo "Sending all processes the SIGHUP signal."
-killall5 -1 $OMITPIDS
-echo -n "Waiting for processes to hang up"
-for LOOP in {1..5}; do
-  sleep 1
-  echo -n "."
-done
-echo
-echo "Sending all processes the SIGTERM signal."
-killall5 -15 $OMITPIDS
-echo -n "Waiting for processes to terminate"
-for LOOP in {1..5}; do
-  sleep 1
-  echo -n "."
-done
-echo
+OMITPIDS="$(for P in $(pgrep mdmon); do echo -o $P; done)" # Don't kill mdmon
+log "Sending all processes the SIGHUP signal."
+run killall5 -1 $OMITPIDS
+log "Waiting for processes to hang up"
+for LOOP in {1..5}; do sleep 1; done
+log "Sending all processes the SIGTERM signal."
+run killall5 -15 $OMITPIDS
+log "Waiting for processes to terminate"
+for LOOP in {1..5}; do sleep 1; done
 echo "Sending all processes the SIGKILL signal."
-killall5 -9 $OMITPIDS
-echo -n "Waiting for processes to exit"
-for LOOP in {1..5}; do
-  sleep 1
-  echo -n "."
-done
-echo
+run killall5 -9 $OMITPIDS
+log "Waiting for processes to exit"
+for LOOP in {1..5}; do sleep 1; done
 
 # Now go to the single user level
-echo "Going to single user mode..."
-/sbin/telinit -t 1 1
+log "Going to single user mode..."
+run /sbin/telinit -t 1 1

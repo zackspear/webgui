@@ -16,6 +16,9 @@
 # Set the path.
 PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # If there are SystemV init scripts for this runlevel, run them.
 if [[ -x /etc/rc.d/rc.sysvinit ]]; then
   /etc/rc.d/rc.sysvinit
@@ -24,7 +27,7 @@ fi
 # Set linefeed mode to avoid staircase effect.
 /bin/stty onlcr
 
-echo "Running shutdown script $0:"
+log "Running shutdown script $0:"
 
 # Find out how we were called.
 case "$0" in
@@ -53,23 +56,23 @@ if [[ -x /sbin/hwclock ]]; then
   fi
   if [[ /etc/adjtime -nt /etc/hardwareclock ]]; then
     if grep -q "^LOCAL" /etc/adjtime; then
-      echo "Saving system time to the hardware clock (localtime)."
+      log "Saving system time to the hardware clock (localtime)."
     else
-      echo "Saving system time to the hardware clock (UTC)."
+      log "Saving system time to the hardware clock (UTC)."
     fi
-    /sbin/hwclock $CLOCK_OPT --systohc
+    run /sbin/hwclock $CLOCK_OPT --systohc
   elif grep -q "^UTC" /etc/hardwareclock 2>/dev/null; then
-    echo "Saving system time to the hardware clock (UTC)."
+    log "Saving system time to the hardware clock (UTC)."
     if [[ ! -r /etc/adjtime ]]; then
-      echo "Creating system time correction file /etc/adjtime."
+      log "Creating system time correction file /etc/adjtime."
     fi
-    /sbin/hwclock $CLOCK_OPT --utc --systohc
+    run /sbin/hwclock $CLOCK_OPT --utc --systohc
   else
-    echo "Saving system time to the hardware clock (localtime)."
+    log "Saving system time to the hardware clock (localtime)."
     if [[ ! -r /etc/adjtime ]]; then
-      echo "Creating system time correction file /etc/adjtime."
+      log "Creating system time correction file /etc/adjtime."
     fi
-    /sbin/hwclock $CLOCK_OPT --localtime --systohc
+    run /sbin/hwclock $CLOCK_OPT --localtime --systohc
   fi
 fi
 
@@ -133,9 +136,9 @@ fi
 # unmounting NFS volumes:
 unset FUSER_DELAY
 for dir in $(mount | grep -e 'type nfs ' -e 'type nfs4 ' | sed -e 's|.* on ||g' | cut -d ' ' -f 1); do
-  echo "Killing processes holding NFS mount $dir open..."
+  log "Killing processes holding NFS mount $dir open..."
   # Background this to prevent fuser from also blocking shutdown:
-  /usr/bin/fuser -k -M -m "$dir" &
+  run /usr/bin/fuser -k -M -m "$dir" &
   FUSER_DELAY=5
 done
 # If fuser was run, let it have some delay:
@@ -144,8 +147,8 @@ if [[ ! -z "$FUSER_DELAY" ]]; then
 fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
-echo "Unmounting remote filesystems:"
-umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | tr -d ' ' | grep successfully | sed "s/:successfullyunmounted/ has been successfully unmounted./g"
+log "Unmounting remote filesystems:"
+run umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | tr -d ' ' | grep successfully | sed "s/:successfullyunmounted/ has been successfully unmounted./g"
 # Update PATH hashes:
 hash -r
 
@@ -189,11 +192,11 @@ fi
 # Kill all remaining processes.
 OMITPIDS="$(for p in $(pgrep mdmon); do echo -o $p; done)" # Don't kill mdmon
 if [[ $1 != fast ]]; then
-  echo "Sending all processes the SIGTERM signal."
-  killall5 -15 $OMITPIDS
+  log "Sending all processes the SIGTERM signal."
+  run killall5 -15 $OMITPIDS
   sleep 5
-  echo "Sending all processes the SIGKILL signal."
-  killall5 -9 $OMITPIDS
+  log "Sending all processes the SIGKILL signal."
+  run killall5 -9 $OMITPIDS
 fi
 
 # limetech - let's keep this on the USB flash
@@ -206,14 +209,14 @@ $SHUTDOWN_COMMAND -w
 
 # Turn off swap:
 if [[ ! $(cat /proc/swaps | wc -l) == 1 ]]; then
-  echo "Turning off swap."
-  swapoff -a
-  sync
+  log "Turning off swap."
+  run swapoff -a
+  run sync
 fi
 
 # Unmount local file systems:
 # limetech - but not /, /lib, /usr or /boot (yet)
-echo "Unmounting local file systems:"
+log "Unmounting local file systems:"
 EXCLUDE_TYPES=("proc" "sysfs" "tmpfs" "devtmpfs" "devpts" "nfsd")
 EXCLUDE_PATHS=("/" "/lib" "/usr" "/boot")
 MOUNTS=$(cat /proc/mounts)
@@ -222,30 +225,30 @@ while IFS= read -r line; do
   mount_path=$(echo "$line" | awk '{print $2}')
   [[ " ${EXCLUDE_TYPES[@]} " =~ " ${mount_type} " ]] && continue
   [[ " ${EXCLUDE_PATHS[@]} " =~ " ${mount_path} " ]] && continue
-  umount -v "$mount_path"
+  run umount -v "$mount_path"
 done <<< "$MOUNTS"
 
 # limetech - shut down the unraid driver if started
 if grep -qs 'mdState=STARTED' /proc/mdstat; then
-  echo "Stopping md/unraid driver:"
+  log "Stopping md/unraid driver:"
   echo "stop" >/proc/mdcmd
   if grep -qs 'mdState=STOPPED' /proc/mdstat; then
-    echo "Clean shutdown"
+    log "Clean shutdown"
     rm -f /boot/config/forcesync
   else
-    echo "Unclean shutdown - Cannot stop md/unraid driver"
+    log "Unclean shutdown - Cannot stop md/unraid driver"
   fi
 fi
 
 # This never hurts:
-sync
+run sync
 
 # now remount /boot read-only
-echo "Remounting /boot read-only:"
-mount -v -o remount,ro /boot
+log "Remounting /boot read-only:"
+run mount -v -o remount,ro /boot
 
-echo "Remounting root filesystem read-only:"
-mount -v -n -o remount,ro /
+log "Remounting root filesystem read-only:"
+run mount -v -n -o remount,ro /
 
 # sleep 3 fixes problems with some hard drives that don't
 # otherwise finish syncing before reboot or poweroff
@@ -258,12 +261,11 @@ if [[ -x /sbin/genpowerd ]]; then
   # See if this is a powerfail situation:
   if grep -E -q "FAIL|SCRAM" /etc/upsstatus 2>/dev/null; then
     # Signal UPS to shut off the inverter:
-    /sbin/genpowerd -k
+    run /sbin/genpowerd -k
     if [[ ! $? == 0 ]]; then
-      echo
-      echo "There was an error signaling the UPS."
-      echo "Perhaps you need to edit /etc/genpowerd.conf to configure"
-      echo "the serial line and UPS type."
+      log "There was an error signaling the UPS."
+      log "Perhaps you need to edit /etc/genpowerd.conf to configure"
+      log "the serial line and UPS type."
       # Wasting 15 seconds of precious power:
       sleep 15
     fi
@@ -272,8 +274,9 @@ fi
 
 # Now halt (poweroff with APM or ACPI enabled kernels) or reboot.
 if [[ $SHUTDOWN_COMMAND == reboot ]]; then
-  echo "Rebooting."
-  /sbin/reboot
+  log "Rebooting."
+  run /sbin/reboot
 else
-  /sbin/poweroff
+  log "Powering off."
+  run /sbin/poweroff
 fi
