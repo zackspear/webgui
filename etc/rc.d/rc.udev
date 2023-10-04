@@ -145,7 +145,7 @@ case "$1" in
       # Bergware - find the unique drivers currently in use by the interface(s)
       DRIVERS=
       for PORT in $(ls --indicator-style=none /sys/class/net | grep -P '^eth\d+$'); do
-        DRIVER=$(/usr/bin/ethtool -i $PORT | grep -Po '^driver: \K\S+')
+        DRIVER=$(/usr/sbin/ethtool -i $PORT | grep -Po '^driver: \K\S+')
         [[ $DRIVERS != *$DRIVER* ]] && DRIVERS="$DRIVERS $DRIVER"
       done
       # Bergware - delete existing interfaces and recreate them using the updated udev rules
