@@ -136,7 +136,7 @@ if [[ -x /sbin/sysctl && -r /etc/sysctl.conf ]]; then
 elif [[ -x /sbin/sysctl ]]; then
   log "Configuring kernel parameters..."
   # Don't say "Applying /etc/sysctl.conf" or complain if the file doesn't exist
-  run /sbin/sysctl -e --system | /bin/grep -v "Applying /etc/sysctl.conf"
+  /sbin/sysctl -e --system | /bin/grep -v "Applying /etc/sysctl.conf" | log
 fi
 
 # Clean up some temporary files:
