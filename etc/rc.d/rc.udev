@@ -91,7 +91,7 @@ case "$1" in
   mount_devshm
   if ! pidof udevd 1>/dev/null 2>/dev/null; then # start udevd
     log "Creating static nodes in /dev."
-    kmod static-nodes -f tmpfiles --output /run/static-nodes
+    run kmod static-nodes -f tmpfiles --output /run/static-nodes
     grep "^d " /run/static-nodes | while read line; do
       mkdir -p -m $(echo $line | cut -f 3 -d ' ') $(echo $line | cut -f 2 -d ' ')
     done
@@ -108,12 +108,12 @@ case "$1" in
     # Add any locally defined additional device nodes:
     cp --preserve=all --recursive --update /etc/udev/devices/* /dev 2>/dev/null
     log "Starting udevd:  /sbin/udevd --daemon"
-    udevd --daemon
+    run udevd --daemon
     # Since udev is just now being started we want to use add events:
     log "Triggering udev events:  /sbin/udevadm trigger --action=add"
     # Call udevtrigger and udevsettle to do the device configuration:
-    udevadm trigger --type=subsystems --action=add
-    udevadm trigger --type=devices --action=add
+    run udevadm trigger --type=subsystems --action=add
+    run udevadm trigger --type=devices --action=add
   else # trigger changes for already running udevd
     # Bergware - set file references
     RAM=/etc/udev/rules.d/70-persistent-net.rules
@@ -126,7 +126,7 @@ case "$1" in
         rm -f /etc/udev/rules.d/testfile
         # This should add persistent net rules:
         log "Triggering udev to write persistent rules to /etc/udev/rules.d/"
-        udevadm trigger --type=devices --action=add
+        run udevadm trigger --type=devices --action=add
         sleep 3
         # Create the files if they don't exist at this point.
         # If a machine does not have a network device or an optical
@@ -167,12 +167,12 @@ case "$1" in
     if touch /etc/udev/testfile 2>/dev/null; then
       rm -f /etc/udev/testfile
       log "Updating hardware database index:  udevadm hwdb --update"
-      udevadm hwdb --update
+      run udevadm hwdb --update
     fi
     # Since udevd is running, most of the time we only need change events:
     log "Triggering udev events:  udevadm trigger --action=change"
-    udevadm trigger --type=subsystems --action=change
-    udevadm trigger --type=devices --action=change
+    run udevadm trigger --type=subsystems --action=change
+    run udevadm trigger --type=devices --action=change
   fi
   udevadm settle --timeout=120
   ;;
