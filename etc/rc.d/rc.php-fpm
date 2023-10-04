@@ -25,15 +25,11 @@ PHP_FPM_PID="/var/run/php-fpm.pid"
 PHP_OPTS="--fpm-config $PHP_FPM_CONF --pid $PHP_FPM_PID  --allow-to-run-as-root"
 
 php_fpm_waitfor(){
-  TIMER=35
-  while $TIMER -gt 0; do
+  local TIMER=35
+  while [[ $TIMER -gt 0 ]]; do
     case "$1" in
-    'created')
-      [[ -f $2 ]] && return 0
-      ;;
-    'removed')
-      [[ -f $2 ]] || return 0
-      ;;
+      'created') [[ -f $2 ]] && return 0 ;;
+      'removed') [[ -f $2 ]] || return 0 ;;
     esac
     ((TIMER--))
     sleep 1
