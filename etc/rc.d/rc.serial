@@ -20,7 +20,7 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
-# Set path.
+# Set the path.
 PATH=/bin:/sbin:/usr/bin
 
 RCLOCKFILE="/var/lock/subsys/serial"
