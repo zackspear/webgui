@@ -135,7 +135,7 @@ fi
 # Kill any processes (typically gam) that would otherwise prevent
 # unmounting NFS volumes:
 unset FUSER_DELAY
-for DIR in $(/sbin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e 's|.* on ||g' | /bin/cut -d ' ' -f 1); do
+for DIR in $(/bin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e 's|.* on ||g' | /bin/cut -d ' ' -f 1); do
   log "Killing processes holding NFS mount $DIR open..."
   # Background this to prevent fuser from also blocking shutdown:
   run /usr/bin/fuser -k -M -m "$DIR" &
@@ -148,7 +148,7 @@ fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
 log "Unmounting remote filesystems:"
-/sbin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g" | log
+/bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g" | log
 # Update PATH hashes:
 hash -r
 
@@ -159,7 +159,7 @@ fi
 
 # Bring down the networking system, but first make sure that this
 # isn't a diskless client with the / partition mounted via NFS:
-if ! /sbin/mount | /bin/grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
+if ! /bin/mount | /bin/grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
   if [[ -x /etc/rc.d/rc.inet1 ]]; then
     /etc/rc.d/rc.inet1 stop
   fi
@@ -225,7 +225,7 @@ while IFS= read -r LINE; do
   MOUNT_PATH=$(/bin/echo "$LINE" | awk '{print $2}')
   [[ " ${EXCLUDE_TYPES[@]} " =~ " $MOUNT_TYPE " ]] && continue
   [[ " ${EXCLUDE_PATHS[@]} " =~ " $MOUNT_PATH " ]] && continue
-  run /sbin/umount -v "$MOUNT_PATH"
+  run /bin/umount -v "$MOUNT_PATH"
 done <<< "$MOUNTS"
 
 # limetech - shut down the unraid driver if started
@@ -245,10 +245,10 @@ fi
 
 # now remount /boot read-only
 log "Remounting /boot read-only:"
-run /sbin/mount -v -o remount,ro /boot
+run /bin/mount -v -o remount,ro /boot
 
 log "Remounting root filesystem read-only:"
-run /sbin/mount -v -n -o remount,ro /
+run /bin/mount -v -n -o remount,ro /
 
 # sleep 3 fixes problems with some hard drives that don't
 # otherwise finish syncing before reboot or poweroff
