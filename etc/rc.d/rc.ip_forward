@@ -32,7 +32,7 @@ ip_forward_start(){
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv4 sysctl parameters now:
     if [[ -r $SYSCTL ]]; then
-      grep ipv4 $SYSCTL | sysctl -p - 1>/dev/null 2>/dev/null
+      grep ipv4 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
   if [[ -f $SYSTEM/ipv6/conf/all/forwarding ]]; then
@@ -43,7 +43,7 @@ ip_forward_start(){
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv6 sysctl parameters now:
     if [[ -r $SYSCTL ]]; then
-      grep ipv6 $SYSCTL | sysctl -p - 1>/dev/null 2>/dev/null
+      grep ipv6 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
   # When using IPv4 packet forwarding, you will also get the
@@ -71,7 +71,7 @@ ip_forward_stop(){
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv4 sysctl parameters now:
     if [[ -r $SYSCTL ]]; then
-      grep ipv4 $SYSCTL | sysctl -p - 1>/dev/null 2>/dev/null
+      grep ipv4 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
   if [[ -f $SYSTEM/ipv6/conf/all/forwarding ]]; then
@@ -82,7 +82,7 @@ ip_forward_stop(){
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv6 sysctl parameters now:
     if [[ -r $SYSCTL ]]; then
-      grep ipv6 $SYSCTL | sysctl -p - 1>/dev/null 2>/dev/null
+      grep ipv6 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
 }

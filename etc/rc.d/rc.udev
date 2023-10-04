@@ -89,7 +89,7 @@ case "$1" in
   # Mount devpts
   mount_devpts
   mount_devshm
-  if ! pidof udevd 1>/dev/null 2>/dev/null; then # start udevd
+  if ! pidof udevd &>/dev/null; then # start udevd
     log "Creating static nodes in /dev."
     run kmod static-nodes -f tmpfiles --output /run/static-nodes
     grep "^d " /run/static-nodes | while read line; do
