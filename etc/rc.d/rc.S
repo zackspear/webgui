@@ -78,7 +78,7 @@ done
 abort() {
   read -p "$1 - press ENTER key to reboot..."
   echo
-  /sbin/reboot
+  reboot
 }
 find_device() {
   # find which USB flash device/partition has the indicated label

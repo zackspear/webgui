@@ -44,7 +44,7 @@ esac
 
 # Restart init. This prevents init from hanging on to file handles for removed
 # glibc shared libraries in the case that those were upgraded or reinstalled.
-/sbin/telinit u
+telinit u
 
 # Save the system time to the hardware clock using hwclock --systohc.
 # This will also create or update the timestamps in /etc/adjtime.
@@ -60,19 +60,19 @@ if [[ -x /sbin/hwclock ]]; then
     else
       log "Saving system time to the hardware clock (UTC)."
     fi
-    run /sbin/hwclock $CLOCK_OPT --systohc
+    run hwclock $CLOCK_OPT --systohc
   elif grep -q "^UTC" /etc/hardwareclock 2>/dev/null; then
     log "Saving system time to the hardware clock (UTC)."
     if [[ ! -r /etc/adjtime ]]; then
       log "Creating system time correction file /etc/adjtime."
     fi
-    run /sbin/hwclock $CLOCK_OPT --utc --systohc
+    run hwclock $CLOCK_OPT --utc --systohc
   else
     log "Saving system time to the hardware clock (localtime)."
     if [[ ! -r /etc/adjtime ]]; then
       log "Creating system time correction file /etc/adjtime."
     fi
-    run /sbin/hwclock $CLOCK_OPT --localtime --systohc
+    run hwclock $CLOCK_OPT --localtime --systohc
   fi
 fi
 
@@ -176,7 +176,7 @@ fi
 
 # Turn off process accounting:
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
-  /sbin/accton off
+  accton off
 fi
 
 # Terminate acpid before syslog:
@@ -261,7 +261,7 @@ if [[ -x /sbin/genpowerd ]]; then
   # See if this is a powerfail situation:
   if grep -E -q "FAIL|SCRAM" /etc/upsstatus 2>/dev/null; then
     # Signal UPS to shut off the inverter:
-    run /sbin/genpowerd -k
+    run genpowerd -k
     if [[ ! $? == 0 ]]; then
       log "There was an error signaling the UPS."
       log "Perhaps you need to edit /etc/genpowerd.conf to configure"
@@ -275,8 +275,8 @@ fi
 # Now halt (poweroff with APM or ACPI enabled kernels) or reboot.
 if [[ $SHUTDOWN_COMMAND == reboot ]]; then
   log "Rebooting."
-  run /sbin/reboot
+  run reboot
 else
   log "Powering off."
-  run /sbin/poweroff
+  run poweroff
 fi

@@ -39,13 +39,13 @@ fi
 if grep -q quota /etc/fstab ; then
   if [[ -x /sbin/quotaoff ]]; then
     log "Turning off filesystem quotas."
-    run /sbin/quotaoff -a
+    run quotaoff -a
   fi
 fi
 
 # Try to turn off accounting:
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
-  /sbin/accton off
+  accton off
 fi
 
 # Run any local shutdown scripts:
@@ -115,4 +115,4 @@ for LOOP in {1..5}; do sleep 1; done
 
 # Now go to the single user level
 log "Going to single user mode..."
-run /sbin/telinit -t 1 1
+run telinit -t 1 1

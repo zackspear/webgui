@@ -89,10 +89,10 @@ FREQ=0
 if [[ -r /etc/default/adjtimex ]]; then
   . /etc/default/adjtimex
 fi
-if /sbin/adjtimex --tick $TICK --frequency $FREQ; then
-  echo "Setting the system clock rate:  /sbin/adjtimex --tick $TICK --frequency $FREQ"
+if adjtimex --tick $TICK --frequency $FREQ; then
+  log "Setting the system clock rate: adjtimex --tick $TICK --frequency $FREQ"
 else
-  echo "Failed to set system clock with adjtimex, possibly invalid parameters? (TICK=$TICK FREQ=$FREQ)"
+  log "Failed to set system clock with adjtimex, possibly invalid parameters? (TICK=$TICK FREQ=$FREQ)"
 fi
 
 # Set the system time from the hardware clock using hwclock --hctosys.
@@ -104,17 +104,17 @@ if [[ -x /sbin/hwclock ]]; then
   fi
   if [[ /etc/adjtime -nt /etc/hardwareclock ]]; then
     if grep -q "^LOCAL" /etc/adjtime; then
-      echo -n "Setting system time from the hardware clock (localtime):  "
+      log "Setting system time from the hardware clock (localtime)..."
     else
-      echo -n "Setting system time from the hardware clock (UTC):  "
+      log "Setting system time from the hardware clock (UTC)..."
     fi
-    /sbin/hwclock $CLOCK_OPT --hctosys
+    run hwclock $CLOCK_OPT --hctosys
   elif grep -wq "^localtime" /etc/hardwareclock 2>/dev/null; then
-    echo -n "Setting system time from the hardware clock (localtime):  "
-    /sbin/hwclock $CLOCK_OPT --localtime --hctosys
+    log "Setting system time from the hardware clock (localtime)..."
+    run hwclock $CLOCK_OPT --localtime --hctosys
   else
-    echo -n "Setting system time from the hardware clock (UTC):  "
-    /sbin/hwclock $CLOCK_OPT --utc --hctosys
+    log "Setting system time from the hardware clock (UTC)..."
+    run hwclock $CLOCK_OPT --utc --hctosys
   fi
   date
 fi
@@ -122,18 +122,18 @@ fi
 # Configure ISA Plug-and-Play devices:
 if [[ -r /etc/isapnp.conf ]]; then
   if [[ -x /sbin/isapnp ]]; then
-    /sbin/isapnp /etc/isapnp.conf
+    isapnp /etc/isapnp.conf
   fi
 fi
 
 # Configure kernel parameters:
 if [[ -x /sbin/sysctl && -r /etc/sysctl.conf ]]; then
-  echo "Configuring kernel parameters:  /sbin/sysctl -e --system"
-  /sbin/sysctl -e --system
+  log "Configuring kernel parameters..."
+  run sysctl -e --system
 elif [[ -x /sbin/sysctl ]]; then
-  echo "Configuring kernel parameters:  /sbin/sysctl -e --system"
+  log "Configuring kernel parameters..."
   # Don't say "Applying /etc/sysctl.conf" or complain if the file doesn't exist
-  /sbin/sysctl -e --system 2>/dev/null | grep -v "Applying /etc/sysctl.conf"
+  run sysctl -e --system | grep -v "Applying /etc/sysctl.conf"
 fi
 
 # Clean up some temporary files:
@@ -153,7 +153,7 @@ fi
 
 # Start libcgroup services:
 if [[ -x /etc/rc.d/rc.cgconfig && -x /etc/rc.d/rc.cgred && -d /sys/fs/cgroup ]]; then
-  /etc/rc.d/rc.cgconfig start; echo " /usr/sbin/cgconfigparser -l /etc/cgconfig.conf"
+  /etc/rc.d/rc.cgconfig start
   /etc/rc.d/rc.cgred start
 fi
 

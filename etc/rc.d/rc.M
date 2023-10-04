@@ -22,7 +22,7 @@ log "Going multiuser..."
 # Update all the shared library links:
 if [[ -x /sbin/ldconfig ]]; then
   log "Updating shared library links..."
-  run /sbin/ldconfig &
+  run ldconfig &
 fi
 
 # Call the setterm init script to set screen blanking and power management
@@ -181,7 +181,7 @@ fi
 # because the log file can get VERY large.
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
   chmod 640 /var/log/pacct
-  /sbin/accton /var/log/pacct
+  accton /var/log/pacct
 fi
 
 # Start crond (Dillon's crond):
