@@ -47,7 +47,8 @@ case "${1:-start}" in
   fi
   # start emhttpd
   /usr/local/bin/emhttpd
-  log "emhttpd...  Started."
+  [[ -n $(pgrep emhttpd) ]] && REPLY="Started" || REPLY="Failed"
+  log "emhttpd...  $REPLY."
   ;;
 'stop')
   log "Stopping web services..."
