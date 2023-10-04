@@ -208,7 +208,7 @@ fi
 /sbin/$SHUTDOWN_COMMAND -w
 
 # Turn off swap:
-if [[ ! $(/bin/cat /proc/swaps | wc -l) == 1 ]]; then
+if [[ ! $(/bin/cat /proc/swaps | /bin/wc -l) == 1 ]]; then
   log "Turning off swap."
   run /sbin/swapoff -a
   run /bin/sync
