@@ -13,12 +13,12 @@ PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
 
 # Mount /proc if it is not already mounted:
 if [[ ! -d /proc/sys ]]; then
-  mount -v proc /proc -n -t proc 2> /dev/null
+  /bin/mount -v proc /proc -n -t proc 2> /dev/null
 fi
 
 # Mount /sys if it is not already mounted:
 if [[ ! -d /sys/kernel ]]; then
-  mount -v sysfs /sys -n -t sysfs 2> /dev/null
+  /bin/mount -v sysfs /sys -n -t sysfs 2> /dev/null
 fi
 
 # The efivarfs filesystem is used for reading and writing EFI variables, such
@@ -28,7 +28,7 @@ fi
 # Only try to mount if this directory exists (so the kernel supports efivarfs):
 if [[ -d /sys/firmware/efi/efivars ]]; then
   # Only try to mount if efivarfs is not already mounted:
-  if ! mount | grep -wq efivarfs; then
+  if ! /bin/mount | /bin/grep -wq efivarfs; then
     # Mount according to /etc/default/efivarfs:
     if [[ -r /etc/default/efivarfs ]]; then
       . /etc/default/efivarfs
@@ -37,10 +37,10 @@ if [[ -d /sys/firmware/efi/efivars ]]; then
     fi
     case "$EFIVARFS" in
     'rw')
-      mount -o rw -t efivarfs none /sys/firmware/efi/efivars
+      /bin/mount -o rw -t efivarfs none /sys/firmware/efi/efivars
       ;;
     'ro')
-      mount -o ro -t efivarfs none /sys/firmware/efi/efivars
+      /bin/mount -o ro -t efivarfs none /sys/firmware/efi/efivars
       ;;
     esac
   fi
@@ -49,13 +49,13 @@ fi
 # If /run exists, mount a tmpfs on it (unless the
 # initrd has already done so):
 if [[ -d /run ]]; then
-  if ! grep -wq "tmpfs /run tmpfs" /proc/mounts; then
-    mount -v -n -t tmpfs tmpfs /run -o mode=0755,size=32M,nodev,nosuid,noexec
+  if ! /bin/grep -wq "tmpfs /run tmpfs" /proc/mounts; then
+    /bin/mount -v -n -t tmpfs tmpfs /run -o mode=0755,size=32M,nodev,nosuid,noexec
   fi
 fi
 
 # LimeTech - lets mount debugfs
-mount -v -t debugfs none /sys/kernel/debug
+/bin/mount -v -t debugfs none /sys/kernel/debug
 
 # LimeTech - determine if the 'unraidlabel' kernel append parameter was
 # provided to override which device is mounted for /boot (default: UNRAID)
@@ -77,34 +77,36 @@ done
 # this serves to synchronize this script with USB subsystem
 abort() {
   read -p "$1 - press ENTER key to reboot..."
-  echo
-  reboot
+  /bin/echo
+  /sbin/reboot
 }
+
 find_device() {
   # find which USB flash device/partition has the indicated label
   local i
   for i in {1..30}; do
     DEVICE=$(/sbin/blkid -L $UNRAIDLABEL)
-    [[ -z $DEVICE ]] && sleep 1 || return 0
+    [[ -z $DEVICE ]] && /bin/sleep 1 || return 0
   done
   return 1
 }
-echo -n "waiting up to 30 sec for device with label $UNRAIDLABEL to come online ... "
-find_device && echo "found $DEVICE" || abort "not found"
 
-echo "Checking $DEVICE ..."
-fsck.fat -a -w $DEVICE 2>/dev/null
+/bin/echo -n "waiting up to 30 sec for device with label $UNRAIDLABEL to come online ... "
+find_device && /bin/echo "found $DEVICE" || abort "not found"
 
-mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mount $DEVICE"
+/bin/echo "Checking $DEVICE ..."
+/sbin/fsck.fat -a -w $DEVICE 2>/dev/null
+
+/bin/mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mount $DEVICE"
 
 # check initial files used to boot
 bzcheck(){
   local BZFILE=$1
   if [[ -f /boot/config/skipbzcheck ]]; then
-    echo "Skipping $BZFILE checksum verification"
+    /bin/echo "Skipping $BZFILE checksum verification"
     return
   fi
-  echo "Verifying $BZFILE checksum ..."
+  /bin/echo "Verifying $BZFILE checksum ..."
   [[ -f "/boot/$BZFILE" ]] || abort "$BZFILE not present"
   local BZFILECHK="$BZFILE.sha256"
   [[ -f "/boot/$BZFILECHK" ]] || abort "$BZFILECHK not present"
@@ -112,17 +114,19 @@ bzcheck(){
   local HASH2=$(/bin/cat /boot/$BZFILECHK)
   [[ ${HASH1:0:64} != ${HASH2:0:64} ]] && abort "$BZFILE checksum error"
 }
+
 bzmount(){
   local BZFILE=$1
   local MNTDIR=$2
   bzcheck $BZFILE
-  mkdir -p /$MNTDIR
-  mount -v -r -t squashfs /boot/$BZFILE /$MNTDIR || abort "cannot mount $BZFILE"
+  /bin/mkdir -p /$MNTDIR
+  /bin/mount -v -r -t squashfs /boot/$BZFILE /$MNTDIR || abort "cannot mount $BZFILE"
   # setup an overlayfs
-  mkdir -p /var/local/overlay/$MNTDIR
-  mkdir -p /var/local/overlay-work/$MNTDIR
-  mount -v -t overlay overlay -o lowerdir=/$MNTDIR,upperdir=/var/local/overlay/$MNTDIR,workdir=/var/local/overlay-work/$MNTDIR /$MNTDIR
+  /bin/mkdir -p /var/local/overlay/$MNTDIR
+  /bin/mkdir -p /var/local/overlay-work/$MNTDIR
+  /bin/mount -v -t overlay overlay -o lowerdir=/$MNTDIR,upperdir=/var/local/overlay/$MNTDIR,workdir=/var/local/overlay-work/$MNTDIR /$MNTDIR
 }
+
 if [[ $UNRAIDROOT == "" ]]; then
   bzcheck "bzimage"
   bzcheck "bzroot"
@@ -132,21 +136,21 @@ if [[ $UNRAIDROOT == "" ]]; then
   bzmount "bzfirmware" "usr"
 
   # now that /usr is mounted make /etc/rc.d a symlink
-  rm -rf /etc/rc.d
-  ln -sf /usr/local/etc/rc.d /etc
+  /bin/rm -rf /etc/rc.d
+  /bin/ln -sf /usr/local/etc/rc.d /etc
 
   # move /var/log to a tmpfs
-  mv -f /var/log/* /var/empty
-  mount -t tmpfs -o size=128m,mode=0755 tmpfs /var/log
-  mv -f /var/empty/* /var/log
+  /bin/mv -f /var/log/* /var/empty
+  /bin/mount -t tmpfs -o size=128m,mode=0755 tmpfs /var/log
+  /bin/mv -f /var/empty/* /var/log
 else
-  echo "Checking root filesystem"
-  fsck -C -a $UNRAIDROOT
+  /bin/echo "Checking root filesystem"
+  /sbin/fsck -C -a $UNRAIDROOT
   RETVAL=$?
   [[ $RETVAL -ge 2 ]] && abort "fsck failed with return value $RETVAL"
   # Remount the root filesystem in read-write mode
-  echo "Remounting $UNRAIDROOT with read-write enabled."
-  mount -w -v -n -o remount /
+  /bin/echo "Remounting $UNRAIDROOT with read-write enabled."
+  /bin/mount -w -v -n -o remount /
   RETVAL=$?
   [[ $RETVAL -gt 0 ]] && abort "failed to remount $UNRAIDROOT r/w with return value $RETVAL"
 fi

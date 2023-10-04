@@ -25,7 +25,7 @@ if [[ -x /etc/rc.d/rc.sysvinit ]]; then
 fi
 
 # Set linefeed mode to avoid staircase effect.
-stty onlcr
+/bin/stty onlcr
 
 log "Running shutdown script $0:"
 
@@ -38,41 +38,41 @@ case "$0" in
   SHUTDOWN_COMMAND="reboot"
   ;;
 *)
-  echo "$0: call me as \"rc.0\" or \"rc.6\" please!"
+  /bin/echo "$0: call me as \"rc.0\" or \"rc.6\" please!"
   exit 1
 esac
 
 # Restart init. This prevents init from hanging on to file handles for removed
 # glibc shared libraries in the case that those were upgraded or reinstalled.
-telinit u
+/sbin/telinit u
 
 # Save the system time to the hardware clock using hwclock --systohc.
 # This will also create or update the timestamps in /etc/adjtime.
 if [[ -x /sbin/hwclock ]]; then
   # Check for a broken motherboard RTC clock (where ioports for rtc are
   # unknown) to prevent hwclock causing a hang:
-  if ! grep -q " : rtc" /proc/ioports; then
+  if ! /bin/grep -q " : rtc" /proc/ioports; then
     CLOCK_OPT="--directisa"
   fi
   if [[ /etc/adjtime -nt /etc/hardwareclock ]]; then
-    if grep -q "^LOCAL" /etc/adjtime; then
+    if /bin/grep -q "^LOCAL" /etc/adjtime; then
       log "Saving system time to the hardware clock (localtime)."
     else
       log "Saving system time to the hardware clock (UTC)."
     fi
-    run hwclock $CLOCK_OPT --systohc
-  elif grep -q "^UTC" /etc/hardwareclock 2>/dev/null; then
+    run /sbin/hwclock $CLOCK_OPT --systohc
+  elif /bin/grep -q "^UTC" /etc/hardwareclock 2>/dev/null; then
     log "Saving system time to the hardware clock (UTC)."
     if [[ ! -r /etc/adjtime ]]; then
       log "Creating system time correction file /etc/adjtime."
     fi
-    run hwclock $CLOCK_OPT --utc --systohc
+    run /sbin/hwclock $CLOCK_OPT --utc --systohc
   else
     log "Saving system time to the hardware clock (localtime)."
     if [[ ! -r /etc/adjtime ]]; then
       log "Creating system time correction file /etc/adjtime."
     fi
-    run hwclock $CLOCK_OPT --localtime --systohc
+    run /sbin/hwclock $CLOCK_OPT --localtime --systohc
   fi
 fi
 
@@ -135,20 +135,20 @@ fi
 # Kill any processes (typically gam) that would otherwise prevent
 # unmounting NFS volumes:
 unset FUSER_DELAY
-for dir in $(mount | grep -e 'type nfs ' -e 'type nfs4 ' | sed -e 's|.* on ||g' | cut -d ' ' -f 1); do
-  log "Killing processes holding NFS mount $dir open..."
+for DIR in $(/bin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e 's|.* on ||g' | /bin/cut -d ' ' -f 1); do
+  log "Killing processes holding NFS mount $DIR open..."
   # Background this to prevent fuser from also blocking shutdown:
-  run /usr/bin/fuser -k -M -m "$dir" &
+  run /usr/bin/fuser -k -M -m "$DIR" &
   FUSER_DELAY=5
 done
 # If fuser was run, let it have some delay:
 if [[ ! -z "$FUSER_DELAY" ]]; then
-  sleep $FUSER_DELAY
+  /bin/sleep $FUSER_DELAY
 fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
 log "Unmounting remote filesystems:"
-run umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | tr -d ' ' | grep successfully | sed "s/:successfullyunmounted/ has been successfully unmounted./g"
+run /bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g"
 # Update PATH hashes:
 hash -r
 
@@ -159,7 +159,7 @@ fi
 
 # Bring down the networking system, but first make sure that this
 # isn't a diskless client with the / partition mounted via NFS:
-if ! mount | grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
+if ! /bin/mount | /bin/grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
   if [[ -x /etc/rc.d/rc.inet1 ]]; then
     /etc/rc.d/rc.inet1 stop
   fi
@@ -167,16 +167,16 @@ fi
 
 # In case dhcpcd might have been manually started on the command line,
 # look for the .pid file, and shut dhcpcd down if it's found:
-if ls /etc/dhcpc/*.pid &>/dev/null; then
-  dhcpcd -k &>/dev/null
+if /bin/ls /etc/dhcpc/*.pid &>/dev/null; then
+  /sbin/dhcpcd -k &>/dev/null
   # A little time for /etc/resolv.conf and/or other files to
   # restore themselves.
-  sleep 2
+  /bin/sleep 2
 fi
 
 # Turn off process accounting:
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
-  accton off
+  /sbin/accton off
 fi
 
 # Terminate acpid before syslog:
@@ -190,28 +190,28 @@ if [[ -x /etc/rc.d/rc.udev ]]; then
 fi
 
 # Kill all remaining processes.
-OMITPIDS="$(for p in $(pgrep mdmon); do echo -o $p; done)" # Don't kill mdmon
+OMITPIDS="$(for P in $(/usr/bin/pgrep mdmon); do /bin/echo -o $P; done)" # Don't kill mdmon
 if [[ $1 != fast ]]; then
   log "Sending all processes the SIGTERM signal."
-  run killall5 -15 $OMITPIDS
-  sleep 5
+  run /sbin/killall5 -15 $OMITPIDS
+  /bin/sleep 5
   log "Sending all processes the SIGKILL signal."
-  run killall5 -9 $OMITPIDS
+  run /sbin/killall5 -9 $OMITPIDS
 fi
 
 # limetech - let's keep this on the USB flash
 # Carry a random seed between reboots.
 /usr/sbin/seedrng
-cp /var/lib/seedrng/seed.credit /boot/config/random-seed 2>/dev/null
+/bin/cp /var/lib/seedrng/seed.credit /boot/config/random-seed 2>/dev/null
 
 # Before unmounting file systems write a reboot or halt record to wtmp.
-$SHUTDOWN_COMMAND -w
+/sbin/$SHUTDOWN_COMMAND -w
 
 # Turn off swap:
-if [[ ! $(cat /proc/swaps | wc -l) == 1 ]]; then
+if [[ ! $(/bin/cat /proc/swaps | wc -l) == 1 ]]; then
   log "Turning off swap."
-  run swapoff -a
-  run sync
+  run /sbin/swapoff -a
+  run /bin/sync
 fi
 
 # Unmount local file systems:
@@ -219,55 +219,55 @@ fi
 log "Unmounting local file systems:"
 EXCLUDE_TYPES=("proc" "sysfs" "tmpfs" "devtmpfs" "devpts" "nfsd")
 EXCLUDE_PATHS=("/" "/lib" "/usr" "/boot")
-MOUNTS=$(cat /proc/mounts)
-while IFS= read -r line; do
-  mount_type=$(echo "$line" | awk '{print $3}')
-  mount_path=$(echo "$line" | awk '{print $2}')
-  [[ " ${EXCLUDE_TYPES[@]} " =~ " ${mount_type} " ]] && continue
-  [[ " ${EXCLUDE_PATHS[@]} " =~ " ${mount_path} " ]] && continue
-  run umount -v "$mount_path"
+MOUNTS=$(/bin/cat /proc/mounts)
+while IFS= read -r LINE; do
+  MOUNT_TYPE=$(/bin/echo "$LINE" | awk '{print $3}')
+  MOUNT_PATH=$(/bin/echo "$LINE" | awk '{print $2}')
+  [[ " ${EXCLUDE_TYPES[@]} " =~ " $MOUNT_TYPE " ]] && continue
+  [[ " ${EXCLUDE_PATHS[@]} " =~ " $MOUNT_PATH " ]] && continue
+  run /bin/umount -v "$MOUNT_PATH"
 done <<< "$MOUNTS"
 
 # limetech - shut down the unraid driver if started
-if grep -qs 'mdState=STARTED' /proc/mdstat; then
+if /bin/grep -qs 'mdState=STARTED' /proc/mdstat; then
   log "Stopping md/unraid driver:"
-  echo "stop" >/proc/mdcmd
-  if grep -qs 'mdState=STOPPED' /proc/mdstat; then
+  /bin/echo "stop" >/proc/mdcmd
+  if /bin/grep -qs 'mdState=STOPPED' /proc/mdstat; then
     log "Clean shutdown"
-    rm -f /boot/config/forcesync
+    /bin/rm -f /boot/config/forcesync
   else
     log "Unclean shutdown - Cannot stop md/unraid driver"
   fi
 fi
 
 # This never hurts:
-run sync
+/bin/sync
 
 # now remount /boot read-only
 log "Remounting /boot read-only:"
-run mount -v -o remount,ro /boot
+run /bin/mount -v -o remount,ro /boot
 
 log "Remounting root filesystem read-only:"
-run mount -v -n -o remount,ro /
+run /bin/mount -v -n -o remount,ro /
 
 # sleep 3 fixes problems with some hard drives that don't
 # otherwise finish syncing before reboot or poweroff
-sleep 3
+/bin/sleep 3
 
 # This is to ensure all processes have completed on SMP machines:
 wait
 
 if [[ -x /sbin/genpowerd ]]; then
   # See if this is a powerfail situation:
-  if grep -E -q "FAIL|SCRAM" /etc/upsstatus 2>/dev/null; then
+  if /bin/grep -Eq "FAIL|SCRAM" /etc/upsstatus 2>/dev/null; then
     # Signal UPS to shut off the inverter:
-    run genpowerd -k
+    run /sbin/genpowerd -k
     if [[ ! $? == 0 ]]; then
       log "There was an error signaling the UPS."
       log "Perhaps you need to edit /etc/genpowerd.conf to configure"
       log "the serial line and UPS type."
       # Wasting 15 seconds of precious power:
-      sleep 15
+      /bin/sleep 15
     fi
   fi
 fi
@@ -275,8 +275,8 @@ fi
 # Now halt (poweroff with APM or ACPI enabled kernels) or reboot.
 if [[ $SHUTDOWN_COMMAND == reboot ]]; then
   log "Rebooting."
-  run reboot
+  run /sbin/reboot
 else
   log "Powering off."
-  run poweroff
+  run /sbin/poweroff
 fi
