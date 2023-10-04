@@ -139,7 +139,7 @@ $dnsserver = _var($$ethX,'DNS_SERVER1');
 
 $link      = iflink($ethX);
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
-$postUp1   = "logger -t wireguard -- \"Tunnel WireGuard-<wg> started\";$services";
+$postUp1   = "logger -t wireguard -- 'Tunnel WireGuard-<wg> started';$services";
 $postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
 $postUp3   = "iptables -N WIREGUARD_DROP_<WG>;iptables -A WIREGUARD -o $link -j WIREGUARD_DROP_<WG>";
 $postUpX   = "iptables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
@@ -149,7 +149,7 @@ $postUp36  = "ip6tables -N WIREGUARD_DROP_<WG>;ip6tables -A WIREGUARD -o $link -
 $postUpX6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
 $postUpZ6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -j ACCEPT;ip6tables -A WIREGUARD_DROP_<WG> -j RETURN";
 $postDown0 = "$script del $link <port> udp";
-$postDown1 = "logger -t wireguard -- \"Tunnel WireGuard-<wg> stopped\";$services";
+$postDown1 = "logger -t wireguard -- 'Tunnel WireGuard-<wg> stopped';$services";
 $postDown2 = "iptables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
 $postDown3 = "iptables -F WIREGUARD_DROP_<WG>;iptables -D WIREGUARD -o $link -j WIREGUARD_DROP_<WG>;iptables -X WIREGUARD_DROP_<WG>";
 $postDown26= "ip6tables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
