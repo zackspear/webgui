@@ -10,7 +10,7 @@
 # Bergware - modified for Unraid OS, October 2023
 
 # Set the path.
-PATH="/sbin:/bin:"
+PATH=/sbin:/bin
 
 # run & log functions
 . /etc/rc.d/rc.runlog
