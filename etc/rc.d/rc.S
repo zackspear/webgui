@@ -13,12 +13,12 @@ PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
 
 # Mount /proc if it is not already mounted:
 if [[ ! -d /proc/sys ]]; then
-  /sbin/mount -v proc /proc -n -t proc 2> /dev/null
+  /sbin/mount -v proc /proc -n -t proc 2>/dev/null
 fi
 
 # Mount /sys if it is not already mounted:
 if [[ ! -d /sys/kernel ]]; then
-  /sbin/mount -v sysfs /sys -n -t sysfs 2> /dev/null
+  /sbin/mount -v sysfs /sys -n -t sysfs 2>/dev/null
 fi
 
 # The efivarfs filesystem is used for reading and writing EFI variables, such
