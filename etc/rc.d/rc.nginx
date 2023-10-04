@@ -609,7 +609,7 @@ nginx_start(){
   log "Starting $DAEMON..."
   local REPLY
   if nginx_running; then
-    REPLY="Already running"
+    REPLY="Already started"
   elif [[ ! -r $CONF ]]; then
     # sanity checks, no config file, exit
     log "$CONF does not exist, aborting."
@@ -641,7 +641,8 @@ nginx_stop(){
       REPLY="Stopped"
     else
       pkill -f $NGINX
-      REPLY="Killed"
+      nginx_waitfor_shutdown
+      if ! nginx_running; then REPLY="Killed"; else REPLY="Failed"; fi
     fi
   fi
   log "$DAEMON...  $REPLY."
