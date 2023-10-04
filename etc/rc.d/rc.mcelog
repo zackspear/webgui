@@ -46,7 +46,7 @@ mcelog_start(){
   log "Starting $DAEMON..."
   if [[ $MCELOG_MODE == daemon ]]; then
     # ignorance is bliss I guess
-    $MCELOG --is-cpu-supported & >/dev/null
+    $MCELOG --is-cpu-supported &>/dev/null
     $MCELOG --daemon $MCELOG_OPTIONS
     if mcelog_running; then REPLY="Started"; else REPLY="Failed"; fi
   elif [[ -f $TRIGGER ]]; then

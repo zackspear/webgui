@@ -65,7 +65,7 @@ fi
 # by the architecture, processor, or underlying CPUFreq driver.  For example,
 # processors that use the Intel P-state driver will only be able to set
 # performance or powersave here.
-echo $SCALING_GOVERNOR | tee $SYSTEM/cpu*/cpufreq/scaling_governor 1>/dev/null 2>/dev/null
+echo $SCALING_GOVERNOR | tee $SYSTEM/cpu*/cpufreq/scaling_governor &>/dev/null
 
 # Report what CPU scaling governor is in use after applying the setting:
 if [[ -r $SYSTEM/cpu0/cpufreq/scaling_governor ]]; then

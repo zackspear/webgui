@@ -19,7 +19,7 @@ if [[ -r /etc/default/atd ]]; then
 fi
 
 atd_running(){
-  pgrep --ns $$ --euid daemon -f "^$CROND" 1>/dev/null 2>/dev/null
+  pgrep --ns $$ --euid daemon -f "^$CROND" &>/dev/null
 }
 
 atd_start(){
