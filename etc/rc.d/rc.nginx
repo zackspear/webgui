@@ -9,8 +9,8 @@
 # Bergware - modified for Unraid OS, October 2023
 
 # reference:
-# LANNAME                 'tower'
-# LANMDNS                 'tower.local'
+# LANNAME                     'tower'
+# LANMDNS               'tower.local'
 # LANFQDN  'lan-ip.hash.myunraid.net'  (wildcard cert)
 # LANFQDN           'hash.unraid.net'  (legacy cert)
 # WANFQDN  'wan-ip.hash.myunraid.net'  (wildcard cert)
