@@ -596,7 +596,7 @@ case "$1" in
 'start')
   docker_service_start
   docker_network_start
-  docker_container_start 1>/dev/null 2>/dev/null &
+  docker_container_start &>/dev/null &
   disown
   ;;
 'stop')
@@ -615,7 +615,7 @@ case "$1" in
   sleep 1
   docker_service_start
   docker_network_start
-  docker_container_start 1>/dev/null 2>/dev/null &
+  docker_container_start &>/dev/null &
   disown
   ;;
 'status')

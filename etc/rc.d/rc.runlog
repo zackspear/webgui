@@ -20,8 +20,6 @@ log(){
   while IFS=$'\n' read -r LINE; do
     /usr/bin/logger -t $BASENAME -- "$LINE"
   done <<< ${1:-$(</dev/stdin)}
-  if [[ -t 1 ]]; then
-    # echo message to console
-    [[ -n $1 ]] && /bin/echo "$BASENAME: $1"
-  fi
+  # echo message to console
+  [[ -n $1 ]] && /bin/echo "$BASENAME: $1"
 }
