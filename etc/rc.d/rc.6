@@ -148,7 +148,7 @@ fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
 log "Unmounting remote filesystems:"
-/bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g" | log
+/sbin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g" | log
 # Update PATH hashes:
 hash -r
 
@@ -225,7 +225,7 @@ while IFS= read -r LINE; do
   MOUNT_PATH=$(/bin/echo "$LINE" | awk '{print $2}')
   [[ " ${EXCLUDE_TYPES[@]} " =~ " $MOUNT_TYPE " ]] && continue
   [[ " ${EXCLUDE_PATHS[@]} " =~ " $MOUNT_PATH " ]] && continue
-  run /bin/umount -v "$MOUNT_PATH"
+  run /sbin/umount -v "$MOUNT_PATH"
 done <<< "$MOUNTS"
 
 # limetech - shut down the unraid driver if started
