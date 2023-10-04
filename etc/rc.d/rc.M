@@ -133,7 +133,7 @@ if find /usr/share/icons -maxdepth 2 2>/dev/null | grep -q icon-theme.cache; the
   # This would be a large file and probably shouldn't be there.
   if [[ -r /usr/share/icons/icon-theme.cache ]]; then
     log "Deleting icon-theme.cache in /usr/share/icons..."
-    #/usr/bin/gtk-update-icon-cache -t -f /usr/share/icons 1>/dev/null 2>/dev/null &
+    #/usr/bin/gtk-update-icon-cache -t -f /usr/share/icons &>/dev/null &
     run rm -f /usr/share/icons/icon-theme.cache
   fi
 fi

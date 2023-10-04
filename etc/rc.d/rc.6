@@ -167,8 +167,8 @@ fi
 
 # In case dhcpcd might have been manually started on the command line,
 # look for the .pid file, and shut dhcpcd down if it's found:
-if ls /etc/dhcpc/*.pid 1>/dev/null 2>/dev/null; then
-  dhcpcd -k 1>/dev/null 2>/dev/null
+if ls /etc/dhcpc/*.pid &>/dev/null; then
+  dhcpcd -k &>/dev/null
   # A little time for /etc/resolv.conf and/or other files to
   # restore themselves.
   sleep 2
