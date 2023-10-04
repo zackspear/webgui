@@ -121,7 +121,7 @@ nfsd_restart(){
 
 nfsd_reload(){
   # restart without info
-  nfsd_restart 1>/dev/null 2>/dev/null
+  nfsd_restart &>/dev/null
 }
 
 nfsd_update(){

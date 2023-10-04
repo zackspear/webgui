@@ -98,7 +98,7 @@ rpc_restart(){
 
 rpc_reload(){
   # restart without info
-  rpc_restart 1>/dev/null 2>/dev/null
+  rpc_restart &>/dev/null
 }
 
 rpc_update(){

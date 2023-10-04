@@ -12,16 +12,15 @@ run(){
   # log command to syslog
   /usr/bin/logger -t $BASENAME -- "$*"
   # run command - dismiss all output
-  $* 1>/dev/null 2>/dev/null
+  $* &>/dev/null
 }
 
 log(){
-  if [[ ! -t 1 ]]; then
-    # log message to syslog
-    while IFS=$'\n' read -r LINE; do
-      /usr/bin/logger -t $BASENAME -- "$LINE"
-    done <<< ${1:-$(</dev/stdin)}
-  else
+  # log message to syslog
+  while IFS=$'\n' read -r LINE; do
+    /usr/bin/logger -t $BASENAME -- "$LINE"
+  done <<< ${1:-$(</dev/stdin)}
+  if [[ -t 1 ]]; then
     # echo message to console
     [[ -n $1 ]] && /bin/echo "$BASENAME: $1"
   fi
