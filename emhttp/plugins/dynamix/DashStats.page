@@ -1570,7 +1570,6 @@ $(function() {
   $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function VMClone(uuid, name){
-
   //var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
   var match= ".iso";
   var box = $("#dialogWindow");
@@ -1590,24 +1589,19 @@ function VMClone(uuid, name){
     show: {effect:'fade', duration:250},
     hide: {effect:'fade', duration:250},
     buttons: {
-      "_(Clone)_" : function(){
+      "_(Clone)_": function(){
         var target = box.find('#target');
         if (target.length) {
           target = target.val();
           //if (!target ) {errorTarget(); return;}
         } else target = '';
-
-        var clone = box.find("#target").prop('value') ;
-        x = box.find('#Start').prop('checked') ;
-        if (x) start = 'yes' ; else start = 'no' ;
-        x = box.find('#Edit').prop('checked') ;
-        if (x) edit = 'yes' ; else edit = 'no' ;
-        x = box.find('#Overwrite').prop('checked') ;
-        if (x) overwrite = 'yes' ; else overwrite = 'no' ;
-        x = box.find('#Free').prop('checked') ;
-        if (x) free = 'yes' ; else free = 'no' ;
-        scripturl =  "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone" , name:name ,clone:clone, overwrite:overwrite , edit:edit, start,start, free:free})) ;
-        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist") ;
+        var clone = box.find("#target").prop('value');
+        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
+        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
+        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
+        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
+        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
+        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
