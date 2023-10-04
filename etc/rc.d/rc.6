@@ -135,7 +135,7 @@ fi
 # Kill any processes (typically gam) that would otherwise prevent
 # unmounting NFS volumes:
 unset FUSER_DELAY
-for DIR in $(/bin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e 's|.* on ||g' | /bin/cut -d ' ' -f 1); do
+for DIR in $(/sbin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e 's|.* on ||g' | /bin/cut -d ' ' -f 1); do
   log "Killing processes holding NFS mount $DIR open..."
   # Background this to prevent fuser from also blocking shutdown:
   run /usr/bin/fuser -k -M -m "$DIR" &
@@ -159,7 +159,7 @@ fi
 
 # Bring down the networking system, but first make sure that this
 # isn't a diskless client with the / partition mounted via NFS:
-if ! /bin/mount | /bin/grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
+if ! /sbin/mount | /bin/grep -q -e 'on / type nfs' -e 'on / type nfs4'; then
   if [[ -x /etc/rc.d/rc.inet1 ]]; then
     /etc/rc.d/rc.inet1 stop
   fi
@@ -245,10 +245,10 @@ fi
 
 # now remount /boot read-only
 log "Remounting /boot read-only:"
-run /bin/mount -v -o remount,ro /boot
+run /sbin/mount -v -o remount,ro /boot
 
 log "Remounting root filesystem read-only:"
-run /bin/mount -v -n -o remount,ro /
+run /sbin/mount -v -n -o remount,ro /
 
 # sleep 3 fixes problems with some hard drives that don't
 # otherwise finish syncing before reboot or poweroff

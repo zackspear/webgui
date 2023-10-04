@@ -46,39 +46,39 @@ if /bin/grep -wq cgroup /proc/filesystems; then
       # Check if we have some tools to autodetect the available cgroup controllers
       if [[ -x /bin/cut && -x /bin/tail ]]; then
         # Mount a tmpfs as the cgroup filesystem root
-        /bin/mount -t tmpfs -o mode=0755,size=8M cgroup_root /sys/fs/cgroup
+        /sbin/mount -t tmpfs -o mode=0755,size=8M cgroup_root /sys/fs/cgroup
         # Autodetect available controllers and mount them in subfolders
         CONTROLLERS="$(cut -f 1 /proc/cgroups | tail -n +2)"
         for i in $CONTROLLERS; do
           /bin/mkdir /sys/fs/cgroup/$i
-          /bin/mount -t cgroup -o $i $i /sys/fs/cgroup/$i
+          /sbin/mount -t cgroup -o $i $i /sys/fs/cgroup/$i
         done
         unset i CONTROLLERS
         # Eric S. figured out this needs to go here...
         /bin/echo 1 >/sys/fs/cgroup/memory/memory.use_hierarchy
       else
         # We can't use autodetection so fall back mounting them all together
-        /bin/mount -t cgroup cgroup /sys/fs/cgroup
+        /sbin/mount -t cgroup cgroup /sys/fs/cgroup
       fi
     else
       /bin/mkdir -p /dev/cgroup
-      /bin/mount -t cgroup cgroup /dev/cgroup
+      /sbin/mount -t cgroup cgroup /dev/cgroup
     fi
   else
     if [[ -d /sys/fs/cgroup ]]; then
       # See https://docs.kernel.org/admin-guide/cgroup-v2.html (section Mounting)
       # Mount a tmpfs as the cgroup2 filesystem root
-      /bin/mount -t tmpfs -o mode=0755,size=8M cgroup_root /sys/fs/cgroup
-      /bin/mount -t cgroup2 none /sys/fs/cgroup
+      /sbin/mount -t tmpfs -o mode=0755,size=8M cgroup_root /sys/fs/cgroup
+      /sbin/mount -t cgroup2 none /sys/fs/cgroup
     else
       /bin/mkdir -p /dev/cgroup
-      /bin/mount -t cgroup2 none /dev/cgroup
+      /sbin/mount -t cgroup2 none /dev/cgroup
     fi
   fi
 fi
 
 # Huge page support:
-/bin/mount /hugetlbfs
+/sbin/mount /hugetlbfs
 
 # Enable swapping:
 /sbin/swapon -a 2>/dev/null
