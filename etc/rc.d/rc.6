@@ -148,7 +148,7 @@ fi
 
 # Unmount any NFS, SMB, or CIFS filesystems:
 log "Unmounting remote filesystems:"
-run /bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g"
+/bin/umount -v -a -l -f -r -t nfs,nfs4,smbfs,cifs | /bin/tr -d ' ' | /bin/grep successfully | /bin/sed "s/:successfullyunmounted/ has been successfully unmounted./g" | log
 # Update PATH hashes:
 hash -r
 
