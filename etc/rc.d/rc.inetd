@@ -14,6 +14,7 @@ DAEMON="Internet daemon"
 
 inetd_start() {
   log "Starting $DAEMON..."
+  local REPLY
   if [[ -x /usr/sbin/inetd ]]; then
     run /usr/sbin/inetd
     REPLY="Started"

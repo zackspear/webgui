@@ -42,6 +42,7 @@ nfsd_running(){
 
 nfsd_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if nfsd_running; then
     REPLY="Already started"
   else
@@ -98,6 +99,7 @@ nfsd_start(){
 
 nfsd_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! nfsd_running; then
     REPLY="Already stopped"
   else

@@ -39,6 +39,7 @@ sshd_build(){
 
 sshd_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if sshd_running; then
     REPLY="Already started"
   else
@@ -60,6 +61,7 @@ sshd_start(){
 }
 
 sshd_stop(){
+  local REPLY
   if ! sshd_running; then
     REPLY="Already stopped"
   else

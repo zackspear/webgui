@@ -521,6 +521,7 @@ docker_container_stop(){
 
 docker_service_start(){
   log "Starting $DAEMON..."
+  local REPLY
   [[ -x $DOCKER ]] && REPLY= || REPLY="Failed"
   if [[ -z $REPLY ]]; then
     if ! mountpoint $DOCKER_ROOT &>/dev/null; then
@@ -545,6 +546,7 @@ docker_service_start(){
 
 docker_service_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   # If there is no PID file, ignore this request...
   if [[ -r $DOCKER_PIDFILE ]]; then
     # Try to stop dockerd gracefully

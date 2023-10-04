@@ -607,6 +607,7 @@ nginx_check(){
 
 nginx_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if nginx_running; then
     REPLY="Already running"
   elif [[ ! -r $CONF ]]; then
@@ -629,6 +630,7 @@ nginx_start(){
 
 nginx_stop(){
   log "Stopping $DAEMON gracefully..."
+  local REPLY
   if ! nginx_running; then
     REPLY="Already stopped"
   else
@@ -647,6 +649,7 @@ nginx_stop(){
 
 nginx_stop_forced(){
   log "Stopping $DAEMON forcibly..."
+  local REPLY
   if ! nginx_running; then
     REPLY="Already stopped"
   else

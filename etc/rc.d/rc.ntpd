@@ -46,6 +46,7 @@ ntpd_build(){
 
 ntpd_start(){
   log "Starting $DAEMON..."
+  local REPLY
   # read Unraid settings
   [[ -r $IDENT ]] && . <(fromdos <$IDENT)
   # if ntp not enabled, don't start ntp
@@ -66,6 +67,7 @@ ntpd_start(){
 
 ntpd_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! ntpd_running; then
     REPLY="Already stopped"
   else
