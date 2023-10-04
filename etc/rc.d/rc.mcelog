@@ -39,7 +39,7 @@ TRIGGER="/sys/devices/system/machinecheck/machinecheck0/trigger"
 
 
 mcelog_running(){
-  ps axc | grep -q mcelog
+  ps axc | grep -q ' mcelog'
 }
 
 mcelog_start(){
