@@ -23,6 +23,6 @@ log(){
     done <<< ${1:-$(</dev/stdin)}
   else
     # echo message to console
-    [[ -n $1 ]] && /usr/bin/echo "$BASENAME: $1"
+    [[ -n $1 ]] && /bin/echo "$BASENAME: $1"
   fi
 }
