@@ -191,7 +191,7 @@ check(){
   BIND=(); IPV4=no; IPV6=no; FAMILY=any;
   # active IPV4 interfaces (including wireguard)
   NETS=()
-  while IFS='\n' read -r NET; do
+  while IFS=$'\n' read -r NET; do
     NET=($NET)
     # exclude wireguard tunnels for ntp
     [[ ${NET:0:2} == wg && $CALLER == ntp ]] && continue

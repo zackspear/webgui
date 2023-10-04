@@ -68,7 +68,7 @@ waitfor(){
 stop_running_machines(){
   # create names array
   declare -A NAMES
-  while IFS='\n' read -r ID; do
+  while IFS=$'\n' read -r ID; do
     [[ -n $ID ]] && NAMES[${ID:0:36}]=${ID:37}
   done <<< $(virsh list --all --uuid --name)
 
