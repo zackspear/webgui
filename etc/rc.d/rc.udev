@@ -17,7 +17,6 @@ PATH="/sbin:/bin"
 
 check_mounted(){
   grep -Eq "^[^[:space:]]+ $1 $2" /proc/mounts
-  return $?
 }
 
 mount_devpts(){
