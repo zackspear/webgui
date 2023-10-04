@@ -57,7 +57,7 @@ if [[ -x /etc/rc.d/rc.kpropd ]]; then
 fi
 
 # Mount remote (NFS) filesystems:
-if cat /etc/fstab | grep -v '^#' | grep -w nfs 1>/dev/null 2>/dev/null; then
+if cat /etc/fstab | grep -v '^#' | grep -w nfs &>/dev/null; then
   # Start rpc.portmap, /sbin/rpc.lockd, and /sbin/rpc.statd if we find NFS
   # volumes defined in /etc/fstab since these will need to be running in order
   # to mount them. If they are not running, attempting to mount an NFS
@@ -87,7 +87,7 @@ fi
 
 # Mount remote CIFS filesystems. Note that where possible, using CIFS is
 # preferred over SMBFS. SMBFS is no longer actively maintained.
-if cat /etc/fstab | grep -v '^#' | grep -w cifs 1>/dev/null 2>/dev/null; then
+if cat /etc/fstab | grep -v '^#' | grep -w cifs &>/dev/null; then
   log "Mounting remote CIFS file systems."
   run /sbin/mount -a -t cifs
   # Show the mounted volumes:
@@ -95,7 +95,7 @@ if cat /etc/fstab | grep -v '^#' | grep -w cifs 1>/dev/null 2>/dev/null; then
 fi
 
 # Mount remote SMB filesystems:
-if cat /etc/fstab | grep -v '^#' | grep -w smbfs 1>/dev/null 2>/dev/null; then
+if cat /etc/fstab | grep -v '^#' | grep -w smbfs &>/dev/null; then
   log "Mounting remote SMBFS file systems."
   run /sbin/mount -a -t smbfs
   # Show the mounted volumes:
