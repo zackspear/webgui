@@ -10,7 +10,7 @@ BASENAME=$(basename "$0")
 
 run(){
   # log command to syslog
-  logger -t $BASENAME -- "$*"
+  /usr/bin/logger -t $BASENAME -- "$*"
   # run command - dismiss all output
   $* 1>/dev/null 2>/dev/null
 }
@@ -19,10 +19,10 @@ log(){
   if [[ ! -t 1 ]]; then
     # log message to syslog
     while IFS=$'\n' read -r LINE; do
-      logger -t $BASENAME -- "$LINE"
+      /usr/bin/logger -t $BASENAME -- "$LINE"
     done <<< ${1:-$(</dev/stdin)}
   else
     # echo message to console
-    [[ -n $1 ]] && echo "$BASENAME: $1"
+    [[ -n $1 ]] && /usr/bin/echo "$BASENAME: $1"
   fi
 }
