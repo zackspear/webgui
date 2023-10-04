@@ -10,7 +10,7 @@
 # Bergware - modified for Unraid OS, October 2023
 
 # Set the path.
-PATH="/sbin:/bin"
+PATH="/sbin:/bin:/usr/bin:"
 
 # run & log functions
 . /etc/rc.d/rc.runlog
@@ -140,12 +140,12 @@ case "$1" in
     if [[ -f $ROM ]]; then
       NEW=$(grep -Po $MAC $RAM | sort)
       # Bergware - set persistent rules of existing interfaces
-      grep -B2 "$NEW" $ROM | /usr/bin/fromdos >$RAM
+      grep -B2 "$NEW" $ROM | fromdos >$RAM
       udevadm control --reload
       # Bergware - find the unique drivers currently in use by the interface(s)
       DRIVERS=
       for PORT in $(ls --indicator-style=none /sys/class/net | grep -P '^eth\d+$'); do
-        DRIVER=$(/usr/sbin/ethtool -i $PORT | grep -Po '^driver: \K\S+')
+        DRIVER=$(ethtool -i $PORT | grep -Po '^driver: \K\S+')
         [[ $DRIVERS != *$DRIVER* ]] && DRIVERS="$DRIVERS $DRIVER"
       done
       # Bergware - delete existing interfaces and recreate them using the updated udev rules
@@ -154,13 +154,13 @@ case "$1" in
       # Bergware - check for changes and save them
       if [[ $NEW != $(grep -Po $MAC $ROM | sort) ]]; then
         # Bergware - copy to flash only when more than one interface is present
-        [[ $(echo "$NEW" | wc -l) -gt 1 ]] && /usr/bin/todos <$RAM >$ROM || rm -f $ROM
+        [[ $(echo "$NEW" | wc -l) -gt 1 ]] && todos <$RAM >$ROM || rm -f $ROM
       fi
     else
       # Bergware - remove leading remarks in file
       sed -i '/^# This/,/^$/d' $RAM
       # Bergware - copy to flash only when more than one interface is present
-      [[ $(grep -Pc 'NAME="eth\d+"' $RAM) -gt 1 ]] && /usr/bin/todos <$RAM >$ROM || rm -f $ROM
+      [[ $(grep -Pc 'NAME="eth\d+"' $RAM) -gt 1 ]] && todos <$RAM >$ROM || rm -f $ROM
     fi
     # Bergware - end of code
     # Update the hardware database index (/etc/udev/hwdb.bin), if possible:
