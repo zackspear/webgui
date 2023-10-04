@@ -23,6 +23,7 @@ crond_running(){
 
 crond_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if crond_running; then
     REPLY="Already started"
   else
@@ -35,6 +36,7 @@ crond_start(){
 
 crond_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! crond_running; then
     REPLY="Already stopped"
   else

@@ -28,6 +28,7 @@ dbus_running(){
 
 dbus_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if dbus_running; then
     REPLY="Already started"
   else
@@ -44,6 +45,7 @@ dbus_start(){
 
 dbus_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! dbus_running; then
     REPLY="Already stopped"
   else

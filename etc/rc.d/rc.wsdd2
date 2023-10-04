@@ -33,6 +33,7 @@ wsdd2_running(){
 
 wsdd2_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if [[ -r /etc/samba/smb.conf && -x /etc/rc.d/rc.samba && -x /usr/sbin/wsdd2 ]]; then
     if wsdd2_running; then
       REPLY="Already started"
@@ -51,6 +52,7 @@ wsdd2_start(){
 
 wsdd2_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   # check something is running before trying to kill it.
   if ! wsdd2_running; then
     REPLY="Already stopped"

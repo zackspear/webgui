@@ -24,6 +24,7 @@ atd_running(){
 
 atd_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if atd_running; then
     REPLY="Already started"
   else
@@ -35,6 +36,7 @@ atd_start(){
 
 atd_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! atd_running; then
     REPLY="Already stopped"
   else

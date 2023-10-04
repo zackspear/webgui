@@ -44,6 +44,7 @@ mcelog_running(){
 
 mcelog_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if [[ $MCELOG_MODE == daemon ]]; then
     # ignorance is bliss I guess
     $MCELOG --is-cpu-supported &>/dev/null
@@ -60,6 +61,7 @@ mcelog_start(){
 
 mcelog_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if [[ $MCELOG_MODE == daemon ]]; then
     killall -TERM $MCELOG
     if ! mcelog_running; then REPLY="Stopped"; else REPLY="Failed"; fi

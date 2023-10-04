@@ -33,6 +33,7 @@ elogind_running(){
 
 elogind_start(){
   log "Starting $DAEMON..."
+  local REPLY
   [[ -x $ELOGIND ]] || exit 1
   [[ -d /run/user ]] || mkdir -p /run/user
   if [[ ! -d /run/systemd ]]; then
@@ -53,6 +54,7 @@ elogind_start(){
 
 elogind_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! elogind_running; then
     REPLY="Already stopped"
   else

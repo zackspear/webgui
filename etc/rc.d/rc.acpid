@@ -14,6 +14,7 @@ DAEMON="ACPI daemon"
 
 acpid_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if [[ -x /usr/sbin/acpid && -d /proc/acpi ]]; then
     run /usr/sbin/acpid
     REPLY="Started"

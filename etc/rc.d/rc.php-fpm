@@ -29,24 +29,24 @@ php_fpm_waitfor(){
   while $TIMER -gt 0; do
     case "$1" in
     'created')
-      [[ -f $2 ]] && return
+      [[ -f $2 ]] && return 0
       ;;
     'removed')
-      [[ -f $2 ]] || return
+      [[ -f $2 ]] || return 0
       ;;
     esac
     ((TIMER--))
     sleep 1
   done
-  REPLY="Failed"
+  return 1
 }
 
 php_fpm_start(){
   log "Starting $DAEMON..."
+  local REPLY
   $PHP_FPM_BIN --daemonize $PHP_OPTS
   if [[ $? -eq 0 ]]; then
-    php_fpm_waitfor created $PHP_FPM_PID
-    REPLY="Started"
+    if php_fpm_waitfor created $PHP_FPM_PID; then REPLY="Started"; else REPLY="Failed"; fi
   else
     REPLY="Already started"
   fi
@@ -55,10 +55,10 @@ php_fpm_start(){
 
 php_fpm_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if [[ -r $PHP_FPM_PID ]]; then
     kill -QUIT $(cat $PHP_FPM_PID)
-    php_fpm_waitfor removed $PHP_FPM_PID
-    REPLY="Stopped"
+    if php_fpm_waitfor removed $PHP_FPM_PID; then REPLY="Stopped"; else REPLY="Failed"; fi
   else
     REPLY="Already stopped"
   fi

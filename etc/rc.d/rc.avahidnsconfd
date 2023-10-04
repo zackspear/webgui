@@ -35,6 +35,7 @@ avahidns_running(){
 
 avahidns_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if avahidns_running; then
     REPLY="Already started"
   else
@@ -46,6 +47,7 @@ avahidns_start(){
 
 avahidns_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! avahidns_running; then
     REPLY="Already stopped"
   else
