@@ -46,10 +46,14 @@ mcelog_start(){
   log "Starting $DAEMON..."
   local REPLY
   if [[ $MCELOG_MODE == daemon ]]; then
-    # ignorance is bliss I guess
-    $MCELOG --is-cpu-supported &>/dev/null
-    $MCELOG --daemon $MCELOG_OPTIONS
-    if mcelog_running; then REPLY="Started"; else REPLY="Failed"; fi
+    if mcelog_running; then
+      REPLY="Already started"
+    else
+      # ignorance is bliss I guess
+      $MCELOG --is-cpu-supported &>/dev/null
+      $MCELOG --daemon $MCELOG_OPTIONS
+      if mcelog_running; then REPLY="Started"; else REPLY="Failed"; fi
+    fi
   elif [[ -f $TRIGGER ]]; then
     echo $MCELOG > $TRIGGER
     REPLY="Triggered"
@@ -63,8 +67,12 @@ mcelog_stop(){
   log "Stopping $DAEMON..."
   local REPLY
   if [[ $MCELOG_MODE == daemon ]]; then
-    killall -TERM $MCELOG
-    if ! mcelog_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+    if ! mcelog_running; then
+      REPLY="Already stopped"
+    else
+      killall -TERM $MCELOG
+      if ! mcelog_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+    fi
   elif [[ $MCELOG_MODE == trigger && -f $TRIGGER ]]; then 
     echo > $TRIGGER
     REPLY="Triggered"
