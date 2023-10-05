@@ -142,7 +142,7 @@ for DIR in $(/bin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e
   FUSER_DELAY=5
 done
 # If fuser was run, let it have some delay:
-if [[ -n "$FUSER_DELAY" ]]; then
+if [[ -n $FUSER_DELAY ]]; then
   /bin/sleep $FUSER_DELAY
 fi
 
@@ -219,14 +219,13 @@ fi
 log "Unmounting local file systems:"
 EXCLUDE_TYPES=("proc" "sysfs" "tmpfs" "devtmpfs" "devpts" "nfsd")
 EXCLUDE_PATHS=("/" "/lib" "/usr" "/boot")
-MOUNTS=$(/bin/cat /proc/mounts)
 while IFS= read -r LINE; do
   MOUNT_TYPE=$(/bin/echo "$LINE" | awk '{print $3}')
   MOUNT_PATH=$(/bin/echo "$LINE" | awk '{print $2}')
   [[ " ${EXCLUDE_TYPES[@]} " =~ " $MOUNT_TYPE " ]] && continue
   [[ " ${EXCLUDE_PATHS[@]} " =~ " $MOUNT_PATH " ]] && continue
   run /bin/umount -v "$MOUNT_PATH"
-done <<< "$MOUNTS"
+done <<< "$(/bin/cat /proc/mounts)"
 
 # limetech - shut down the unraid driver if started
 if /bin/grep -qs 'mdState=STARTED' /proc/mdstat; then
