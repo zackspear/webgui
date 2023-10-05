@@ -314,7 +314,7 @@ if ($method == 'install') {
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack installed\n");
-  logger("language: $lang language pack installed");
+  logger("$lang language pack installed");
   // run hook scripts for post processing
   post_hooks();
   done(0);
@@ -396,7 +396,7 @@ if ($method == 'update') {
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack updated\n");
-  logger("language: $lang language pack updated");
+  logger("$lang language pack updated");
   // run hook scripts for post processing
   post_hooks();
   done(0);
@@ -423,7 +423,7 @@ if ($method == 'remove') {
     done(1);
   }
   write("language: $lang language pack removed\n");
-  logger("language: $lang language pack removed");
+  logger("$lang language pack removed");
   // run hook scripts for post processing
   post_hooks();
   done(0);
