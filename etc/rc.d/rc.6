@@ -142,7 +142,7 @@ for DIR in $(/bin/mount | /bin/grep -e 'type nfs ' -e 'type nfs4 ' | /bin/sed -e
   FUSER_DELAY=5
 done
 # If fuser was run, let it have some delay:
-if [[ ! -z "$FUSER_DELAY" ]]; then
+if [[ -n "$FUSER_DELAY" ]]; then
   /bin/sleep $FUSER_DELAY
 fi
 
@@ -262,7 +262,7 @@ if [[ -x /sbin/genpowerd ]]; then
   if /bin/grep -Eq "FAIL|SCRAM" /etc/upsstatus 2>/dev/null; then
     # Signal UPS to shut off the inverter:
     run /sbin/genpowerd -k
-    if [[ ! $? == 0 ]]; then
+    if [[ $? != 0 ]]; then
       log "There was an error signaling the UPS."
       log "Perhaps you need to edit /etc/genpowerd.conf to configure"
       log "the serial line and UPS type."
