@@ -57,7 +57,7 @@ function setupGUIsearch() {
 
 	if (navigator.appVersion.indexOf("Mac")!=-1) {
 		window.addEventListener('keydown', function (e) {
-			if (!e.altKey && e.metaKey && e.keyCode == 75) {
+			if (!e.shiftKey && !e.altKey && e.metaKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
 				if ( $("#guiSearchBoxSpan").is(":visible") ) {
@@ -71,7 +71,7 @@ function setupGUIsearch() {
 		});
 	} else {
 		window.addEventListener('keydown', function (e) {
-			if (!e.altKey && e.ctrlKey && e.keyCode == 75) {
+			if (!e.shiftKey && !e.altKey && e.ctrlKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
 				if ( $("#guiSearchBoxSpan").is(":visible") ) {
