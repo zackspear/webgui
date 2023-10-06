@@ -75,7 +75,7 @@ stop_running_machines(){
   # resume paused VMs
   for UUID in $(vmlist paused); do
     log "Resuming VM: ${NAMES[$UUID]}"
-    virsh resume $UUID 1>/dev/null 2>/dev/null
+    virsh resume $UUID &>/dev/null
   done
   # wait until VMs are resumed
   waitfor paused
@@ -83,7 +83,7 @@ stop_running_machines(){
   if [[ $HOSTSHUTDOWN == hibernate ]]; then
     for UUID in $(vmlist running); do
       log "Suspending VM: ${NAMES[$UUID]}"
-      virsh dompmsuspend $UUID disk 1>/dev/null 2>/dev/null
+      virsh dompmsuspend $UUID disk &>/dev/null
     done
     # wait until VMs are suspended
     waitfor running
@@ -92,7 +92,7 @@ stop_running_machines(){
   # graceful shutdown of running VMs
   for UUID in $(vmlist running); do
     log "Shutting down VM: ${NAMES[$UUID]}"
-    virsh shutdown $UUID 1>/dev/null 2>/dev/null
+    virsh shutdown $UUID &>/dev/null
   done
   # wait until VMs are stopped
   waitfor running
@@ -103,7 +103,7 @@ stop_running_machines(){
     # check explicitely for suspended VMs
     if [[ $STATE == pmsuspended ]]; then
       log "Stopping suspended VM: ${NAMES[${UUID[$i]}]}"
-      virsh destroy ${UUID[$i]} --graceful 1>/dev/null 2>/dev/null
+      virsh destroy ${UUID[$i]} --graceful &>/dev/null
     fi
     ((I++))
   done <<< $(vmstate)
@@ -113,7 +113,7 @@ stop_running_machines(){
   # forced shutdown of rogue VMs
   for UUID in $(vmlist running paused other); do
     log "Forced shutting down VM: ${NAMES[$UUID]}"
-    virsh destroy $UUID 1>/dev/null 2>/dev/null
+    virsh destroy $UUID &>/dev/null
   done
 }
 
@@ -217,7 +217,7 @@ libvirtd_start(){
   mkdir -p /etc/libvirt/qemu/swtpm/tpm-states
   # setup snapshot persistance.
   mkdir -p /etc/libvirt/qemu/snapshot/
-  rm -r  /var/lib/libvirt/qemu/snapshot/
+  rm -r /var/lib/libvirt/qemu/snapshot/*
   ln -fs /etc/libvirt/qemu/snapshot/ /var/lib/libvirt/qemu/
   # create directory for pid file
   mkdir -p $(dirname $LIBVIRTD_PIDFILE)

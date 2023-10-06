@@ -113,6 +113,7 @@ samba_settings(){
 
 samba_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if samba_running; then
     REPLY="Already started"
   else
@@ -139,6 +140,7 @@ samba_start(){
 
 samba_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! samba_running; then
     REPLY="Already stopped"
   else

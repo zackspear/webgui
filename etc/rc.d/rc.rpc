@@ -36,6 +36,7 @@ rpc_running(){
 
 rpc_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if rpc_running; then
     REPLY="Already started"
   else
@@ -74,6 +75,7 @@ rpc_start(){
 
 rpc_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! rpc_running; then
     REPLY="Already stopped"
   else
@@ -98,7 +100,7 @@ rpc_restart(){
 
 rpc_reload(){
   # restart without info
-  rpc_restart 1>/dev/null 2>/dev/null
+  rpc_restart &>/dev/null
 }
 
 rpc_update(){

@@ -9,8 +9,8 @@
 # Bergware - modified for Unraid OS, October 2023
 
 # reference:
-# LANNAME                 'tower'
-# LANMDNS                 'tower.local'
+# LANNAME                     'tower'
+# LANMDNS               'tower.local'
 # LANFQDN  'lan-ip.hash.myunraid.net'  (wildcard cert)
 # LANFQDN           'hash.unraid.net'  (legacy cert)
 # WANFQDN  'wan-ip.hash.myunraid.net'  (wildcard cert)
@@ -607,8 +607,9 @@ nginx_check(){
 
 nginx_start(){
   log "Starting $DAEMON..."
+  local REPLY
   if nginx_running; then
-    REPLY="Already running"
+    REPLY="Already started"
   elif [[ ! -r $CONF ]]; then
     # sanity checks, no config file, exit
     log "$CONF does not exist, aborting."
@@ -629,19 +630,27 @@ nginx_start(){
 
 nginx_stop(){
   log "Stopping $DAEMON gracefully..."
+  local REPLY
   if ! nginx_running; then
     REPLY="Already stopped"
   else
     unraid_api_control stop
     kill -QUIT $(cat $PID)
     nginx_waitfor_shutdown
-    if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+    if ! nginx_running; then
+      REPLY="Stopped"
+    else
+      pkill -f $NGINX
+      nginx_waitfor_shutdown
+      if ! nginx_running; then REPLY="Killed"; else REPLY="Failed"; fi
+    fi
   fi
   log "$DAEMON...  $REPLY."
 }
 
 nginx_stop_forced(){
   log "Stopping $DAEMON forcibly..."
+  local REPLY
   if ! nginx_running; then
     REPLY="Already stopped"
   else

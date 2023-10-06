@@ -1,5 +1,8 @@
-#!/bin/sh
-# /etc/rc.d/rc.ip_forward:  start/stop IP packet forwarding
+#!/bin/bash
+#
+# script: rc.ip_forward
+#
+# start/stop IP packet forwarding
 #
 # If you intend to run your Linux box as a router, i.e. as a
 # computer that forwards and redistributes network packets, you
@@ -10,29 +13,37 @@
 #
 # To disable IP packet forwarding at boot time, make this
 # script non-executable:  chmod 644 /etc/rc.d/rc.ip_forward
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-# Start IP packet forwarding:
-ip_forward_start() {
-  if [ -f /proc/sys/net/ipv4/ip_forward ]; then
-    echo "Activating IPv4 packet forwarding."
-    echo 1 > /proc/sys/net/ipv4/ip_forward
+SYSTEM="/proc/sys/net"
+SYSCTL="/etc/sysctl.conf"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+ip_forward_start(){
+  if [[ -f $SYSTEM/ipv4/ip_forward ]]; then
+    log "Activating IPv4 packet forwarding."
+    echo 1 >$SYSTEM/ipv4/ip_forward
     # Changing /proc/sys/net/ipv4/ip_forward results in resetting all
     # non-default ipv4 parameters for the interface as mentioned in
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv4 sysctl parameters now:
-    if [ -r /etc/sysctl.conf ]; then
-      /bin/grep ipv4 /etc/sysctl.conf | sysctl -p - 1> /dev/null 2> /dev/null
+    if [[ -r $SYSCTL ]]; then
+      grep ipv4 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
-  if [ -f /proc/sys/net/ipv6/conf/all/forwarding ]; then
-    echo "Activating IPv6 packet forwarding."
-    echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+  if [[ -f $SYSTEM/ipv6/conf/all/forwarding ]]; then
+    log "Activating IPv6 packet forwarding."
+    echo 1 >$SYSTEM/ipv6/conf/all/forwarding
     # Changing /proc/sys/net/ipv6/conf/all/forwarding results in resetting
     # all non-default ipv6 parameters for the interface as mentioned in
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv6 sysctl parameters now:
-    if [ -r /etc/sysctl.conf ]; then
-      /bin/grep ipv6 /etc/sysctl.conf | sysctl -p - 1> /dev/null 2> /dev/null
+    if [[ -r $SYSCTL ]]; then
+      grep ipv6 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
   # When using IPv4 packet forwarding, you will also get the
@@ -45,40 +56,38 @@ ip_forward_start() {
   # from that host to you) or if you operate a non-routing host
   # which has several IP addresses on different interfaces.  To
   # turn rp_filter off, uncomment the lines below:
-  #if [ -r /proc/sys/net/ipv4/conf/all/rp_filter ]; then
-  #  echo "Disabling rp_filter."
-  #  echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
-  #fi
+  # if [ -r $SYSTEM/ipv4/conf/all/rp_filter ]; then
+  #   log "Disabling rp_filter."
+  #   echo 0 >$SYSTEM/ipv4/conf/all/rp_filter
+  # fi
 }
 
-# Stop IP packet forwarding:
-ip_forward_stop() {
-  if [ -f /proc/sys/net/ipv4/ip_forward ]; then
-    echo "Disabling IPv4 packet forwarding."
-    echo 0 > /proc/sys/net/ipv4/ip_forward
+ip_forward_stop(){
+  if [[ -f $SYSTEM/ipv4/ip_forward ]]; then
+    log "Disabling IPv4 packet forwarding."
+    echo 0 >$SYSTEM/ipv4/ip_forward
     # Changing /proc/sys/net/ipv4/ip_forward results in resetting all
     # non-default ipv4 parameters for the interface as mentioned in
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv4 sysctl parameters now:
-    if [ -r /etc/sysctl.conf ]; then
-      /bin/grep ipv4 /etc/sysctl.conf | sysctl -p - 1> /dev/null 2> /dev/null
+    if [[ -r $SYSCTL ]]; then
+      grep ipv4 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
-  if [ -f /proc/sys/net/ipv6/conf/all/forwarding ]; then
-    echo "Disabling IPv6 packet forwarding."
-    echo 0 > /proc/sys/net/ipv6/conf/all/forwarding
+  if [[ -f $SYSTEM/ipv6/conf/all/forwarding ]]; then
+    log "Disabling IPv6 packet forwarding."
+    echo 0 >$SYSTEM/ipv6/conf/all/forwarding
     # Changing /proc/sys/net/ipv6/conf/all/forwarding results in resetting
     # all non-default ipv6 parameters for the interface as mentioned in
     # /usr/src/linux/Documentation/networking/ip-sysctl.txt.  So, we
     # will reapply any ipv6 sysctl parameters now:
-    if [ -r /etc/sysctl.conf ]; then
-      /bin/grep ipv6 /etc/sysctl.conf | sysctl -p - 1> /dev/null 2> /dev/null
+    if [[ -r $SYSCTL ]]; then
+      grep ipv6 $SYSCTL | sysctl -p - &>/dev/null
     fi
   fi
 }
 
-# Restart IP packet forwarding:
-ip_forward_restart() {
+ip_forward_restart(){
   ip_forward_stop
   sleep 1
   ip_forward_start
@@ -95,6 +104,7 @@ case "$1" in
   ip_forward_restart
   ;;
 *)
-  echo "usage $0 start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
+  exit 1
 esac
-
+exit 0

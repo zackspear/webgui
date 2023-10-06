@@ -1,40 +1,70 @@
-#!/bin/sh
-# /etc/rc.d/rc.crond - start/stop the cron daemon
+#!/bin/bash
+#
+# script: rc.crond
+#
+# Start/stop the cron daemon
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
+
+DAEMON="Cron daemon"
+CONF="/etc/default/crond"
+CROND="/usr/sbin/crond"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # To change the default options, edit /etc/default/crond.
-if [ -r /etc/default/crond ]; then
-  . /etc/default/crond
-fi
+[[ -r $CONF ]] && . $CONF
 
-start_crond() {
-  if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/sbin/crond" 1> /dev/null 2> /dev/null ; then
-    echo "Starting crond:  /usr/sbin/crond $CROND_OPTS"
+crond_running(){
+  pgrep --ns $$ --euid root -f "^$CROND" &>/dev/null
+}
+
+crond_start(){
+  log "Starting $DAEMON..."
+  local REPLY
+  if crond_running; then
+    REPLY="Already started"
+  else
     mkdir -p /run/cron
-    /usr/sbin/crond $CROND_OPTS
+    run $CROND $CROND_OPTS
+    if crond_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-stop_crond() {
-  echo "Stopping crond."
-  /usr/bin/pkill --ns $$ --euid root -f "^/usr/sbin/crond" 2> /dev/null 
+crond_stop(){
+  log "Stopping $DAEMON..."
+  local REPLY
+  if ! crond_running; then
+    REPLY="Already stopped"
+  else
+    run pkill --ns $$ --euid root -f "^$CROND"
+    if ! crond_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
 }
 
-restart_crond() {
-  stop_crond
+crond_restart(){
+  log "Restarting $DAEMON..."
+  crond_stop
   sleep 1
-  start_crond
+  crond_start
 }
 
 case "$1" in
 'start')
-  start_crond
+  crond_start
   ;;
 'stop')
-  stop_crond
+  crond_stop
   ;;
 'restart')
-  restart_crond
+  crond_restart
   ;;
 *)
-  echo "usage $0 start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart"
+  exit 1
 esac
+exit 0

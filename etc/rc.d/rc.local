@@ -22,16 +22,6 @@
 # reclaim 1.6M of microcode files that are no longer needed
 rm -rf /kernel
 
-# Start WireGuard
-if [[ -x /etc/rc.d/rc.wireguard ]]; then
-  /etc/rc.d/rc.wireguard start
-fi
-
-# Start mcelog
-if [[ -x /etc/rc.d/rc.mcelog ]]; then
-  /etc/rc.d/rc.mcelog start
-fi
-
 # For Docker: mark submounts under /mnt "shared"
 /sbin/mount --bind --make-rshared /mnt /mnt
 # and grant access to graphics device nodes
@@ -51,7 +41,7 @@ mkdir -p $CONFIG/ssl/certs
 
 # upgrade network configuration (if needed) and (re)generates our welcome text
 if [[ -x /usr/local/sbin/create_network_ini ]]; then
-  /usr/local/sbin/create_network_ini init 1>/dev/null 2>/dev/null &
+  /usr/local/sbin/create_network_ini init &>/dev/null &
 fi
 
 # Needed by dynamix
@@ -141,7 +131,7 @@ else
   # Install any extra packages
   if [[ -d /boot/extra ]]; then
     log "Installing /boot/extra packages"
-    ( cd /boot/extra ; find -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
+    ( export -f log; find /boot/extra -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
   fi
   # Install plugins
   log "Installing plugins"
