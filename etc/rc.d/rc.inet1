@@ -62,6 +62,9 @@
 # - added error logging to syslog
 # - replace logging for generic add-in module
 
+# Adapted by Bergware for use in Unraid OS - August 2023
+# - added interface carrier check when polling for DHCP server
+
 # Bergware - modified for Unraid OS, October 2023
 
 ###########
@@ -347,10 +350,17 @@ ipaddr_up(){
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     [[ $IP != ipv4 && -n $PRIV6 && -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
-    log "polling up to 60 sec for DHCP server on interface $IFACE"
-    if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
-      log "can't obtain IP address, continue polling in background on interface $IFACE"
+    if [[ $(cat $SYSTEM/$IFACE/carrier 2>/dev/null) == 0 ]]; then
+      # interface is DOWN
+      log "interface is DOWN, polling DHCP server in background on interface $IFACE"
       run dhcpcd -b $DHCP_OPTIONS $IFACE
+    else
+      # interface is UP
+      log "interface is UP, polling up to 60 sec for DHCP server on interface $IFACE"
+      if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
+        log "can't obtain IP address, continue polling in background on interface $IFACE"
+        run dhcpcd -b $DHCP_OPTIONS $IFACE
+      fi
     fi
     [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
