@@ -17,6 +17,8 @@ $run = $set != 'none';
 $ini = parse_ini_file('/var/local/emhttp/network.ini',true); ksort($ini,SORT_NATURAL);
 $cfg = '/boot/config/network.cfg';
 
+file_put_contents('/tmp/ini',print_r($ini,true));
+
 function update_wireguard($ifname) {
   if (!in_array($ifname,['br0','bond0','eth0'])) return;
   $nic = file_exists('/sys/class/net/br0') ? 'br0' : (file_exists('/sys/class/net/bond0') ? 'bond0' : 'eth0');
@@ -81,7 +83,7 @@ if ($run) {
 }
 
 // create configuration file for all available interfaces
-$i = 0; $new = []; $new[] = "# Generated settings:";
+$i = 0; $new = ["# Generated settings:"];
 foreach ($ini as $name => $port) {
   $bonding = $port['BONDING']=='yes';
   $bridging = $port['BRIDGING']=='yes';
@@ -126,8 +128,8 @@ file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  exec("/etc/rc.d/rc.inet1 {$ifname}_start >/dev/null 2>&1");
-  exec("/usr/local/sbin/create_network_ini $ifname >/dev/null 2>&1 &");
+  exec("/etc/rc.d/rc.inet1 {$ifname}_start &>/dev/null");
+  exec("/usr/local/sbin/create_network_ini $ifname &>/dev/null &");
   update_wireguard($ifname);
 }
 exit(0);
