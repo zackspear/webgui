@@ -107,10 +107,10 @@ case "$1" in
     cp --preserve=all --recursive --update /lib/udev/devices/* /dev 2>/dev/null
     # Add any locally defined additional device nodes:
     cp --preserve=all --recursive --update /etc/udev/devices/* /dev 2>/dev/null
-    log "Starting udevd:  /sbin/udevd --daemon"
+    log "Starting udevd..."
     run udevd --daemon
     # Since udev is just now being started we want to use add events:
-    log "Triggering udev events:  /sbin/udevadm trigger --action=add"
+    log "Triggering udev events..."
     # Call udevtrigger and udevsettle to do the device configuration:
     run udevadm trigger --type=subsystems --action=add
     run udevadm trigger --type=devices --action=add
@@ -141,7 +141,7 @@ case "$1" in
       NEW=$(grep -Po $MAC $RAM | sort)
       # Bergware - set persistent rules of existing interfaces
       grep -B2 "$NEW" $ROM | /usr/bin/fromdos >$RAM
-      udevadm control --reload
+      run udevadm control --reload
       # Bergware - find the unique drivers currently in use by the interface(s)
       DRIVERS=
       for PORT in $(ls --indicator-style=none /sys/class/net | grep -P '^eth\d+$'); do
@@ -166,15 +166,15 @@ case "$1" in
     # Update the hardware database index (/etc/udev/hwdb.bin), if possible:
     if touch /etc/udev/testfile 2>/dev/null; then
       rm -f /etc/udev/testfile
-      log "Updating hardware database index:  udevadm hwdb --update"
+      log "Updating hardware database index..."
       run udevadm hwdb --update
     fi
     # Since udevd is running, most of the time we only need change events:
-    log "Triggering udev events:  udevadm trigger --action=change"
+    log "Triggering udev events..."
     run udevadm trigger --type=subsystems --action=change
     run udevadm trigger --type=devices --action=change
   fi
-  udevadm settle --timeout=120
+  run udevadm settle --timeout=120
   ;;
 'stop')
   log "Stopping udevd is STRONGLY discouraged and not supported."
