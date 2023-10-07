@@ -350,17 +350,17 @@ ipaddr_up(){
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     [[ $IP != ipv4 && -n $PRIV6 && -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
-    if [[ $(cat $SYSTEM/$IFACE/carrier 2>/dev/null) == 0 ]]; then
-      # interface is DOWN
-      log "interface $IFACE is DOWN, polling DHCP $IP server in background"
-      run dhcpcd -b $DHCP_OPTIONS $IFACE
-    else
+    if [[ $(cat $SYSTEM/$IFACE/carrier 2>/dev/null) == 1 ]]; then
       # interface is UP
       log "interface $IFACE is UP, polling up to 60 sec for DHCP $IP server"
       if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
         log "can't obtain IP address, continue polling in background on interface $IFACE"
         run dhcpcd -b $DHCP_OPTIONS $IFACE
       fi
+    else
+      # interface is DOWN
+      log "interface $IFACE is DOWN, polling DHCP $IP server in background"
+      run dhcpcd -b $DHCP_OPTIONS $IFACE
     fi
     [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
