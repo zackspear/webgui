@@ -352,11 +352,11 @@ ipaddr_up(){
     [[ $IP != ipv4 && -n $PRIV6 && -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
     if [[ $(cat $SYSTEM/$IFACE/carrier 2>/dev/null) == 0 ]]; then
       # interface is DOWN
-      log "interface is DOWN, polling DHCP server in background on interface $IFACE"
+      log "interface is DOWN, polling DHCP $IP server in background on interface $IFACE"
       run dhcpcd -b $DHCP_OPTIONS $IFACE
     else
       # interface is UP
-      log "interface is UP, polling up to 60 sec for DHCP server on interface $IFACE"
+      log "interface is UP, polling up to 60 sec for DHCP $IP server on interface $IFACE"
       if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
         log "can't obtain IP address, continue polling in background on interface $IFACE"
         run dhcpcd -b $DHCP_OPTIONS $IFACE
