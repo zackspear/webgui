@@ -154,7 +154,7 @@ function error_desc($code) {
     case 2: return 'Parse error';
     case 3: return 'File I/O error';
     case 4: return 'Network failure';
-    case 5: return 'SSL verification failure';
+    case 5: return 'SSL verification failure - Check the date and time of your server in Settings - Date And Time';
     case 6: return 'Username/password authentication failure';
     case 7: return 'Protocol errors';
     case 8: return 'Invalid URL / Server error response';
