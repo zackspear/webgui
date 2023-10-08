@@ -178,8 +178,6 @@ bond_up(){
     fi
   done
   [[ -n $PRIMARY ]] && run ip link set name ${BONDNAME[$i]} type bond primary $PRIMARY
-  # delay to allow bond initialization
-  sleep 3
 }
 
 # function to delete bond interface
@@ -373,6 +371,7 @@ ipaddr_up(){
     [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
+    [[ carrier_up ]]
     ipv6_addr 0 1
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
