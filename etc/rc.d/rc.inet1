@@ -164,7 +164,6 @@ carrier_up(){
 bond_up(){
   [[ -d /proc/net/bonding ]] || modprobe bonding mode=${BONDING_MODE[$i]} miimon=${BONDING_MIIMON[$i]}
   run ip link add name ${BONDNAME[$i]} type bond mode ${BONDING_MODE[$i]} miimon ${BONDING_MIIMON[$i]}
-  run ip link set ${BONDNAME[$i]} up
   set_mtu ${BONDNAME[$i]}
   PRIMARY=;
   # loop thru assigned interfaces in bond
@@ -203,7 +202,6 @@ br_up(){
     BRSTP[$i]=${BRSTP[$i]/no/0}
     BRSTP[$i]=${BRSTP[$i]/yes/1}
     run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]}
-    run ip link set $BRIDGE up
     # loop thru assigned interfaces in bridge
     for BRNIC in ${BRNICS[$i]}; do
       [[ $j -eq 0 ]] && BRIF=$BRNIC || BRIF=$BRNIC.${VLANID[$i,$j]}
