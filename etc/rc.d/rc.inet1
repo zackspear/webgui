@@ -152,6 +152,14 @@ set_mtu(){
   fi
 }
 
+# function to wait for carrier of interface
+carrier_up(){
+  for i in {1..5}; do
+    [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
+  done
+  return 1
+}
+
 # function to create bond interface
 bond_up(){
   [[ -d /proc/net/bonding ]] || modprobe bonding mode=${BONDING_MODE[$i]} miimon=${BONDING_MIIMON[$i]}
@@ -350,7 +358,7 @@ ipaddr_up(){
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     [[ $IP != ipv4 && -n $PRIV6 && -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
-    if [[ $(cat $SYSTEM/$IFACE/carrier 2>/dev/null) == 1 ]]; then
+    if carrier_up $IFACE; then
       # interface is UP
       log "interface $IFACE is UP, polling up to 60 sec for DHCP $IP server"
       if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
