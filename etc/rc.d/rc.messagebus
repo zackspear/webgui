@@ -49,7 +49,7 @@ dbus_stop(){
   if ! dbus_running; then
     REPLY="Already stopped"
   else
-    run kill $(cat $PIDFILE 2>/dev/null)
+    run kill $(cat $PIDFILE)
     # Just in case:
     run killall dbus-daemon
     rm -f $PIDFILE

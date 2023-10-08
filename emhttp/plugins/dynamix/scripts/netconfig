@@ -81,7 +81,7 @@ if ($run) {
 }
 
 // create configuration file for all available interfaces
-$i = 0; $new = []; $new[] = "# Generated settings:";
+$i = 0; $new = ["# Generated settings:"];
 foreach ($ini as $name => $port) {
   $bonding = $port['BONDING']=='yes';
   $bridging = $port['BRIDGING']=='yes';
@@ -126,8 +126,8 @@ file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  exec("/etc/rc.d/rc.inet1 {$ifname}_start >/dev/null 2>&1");
-  exec("/usr/local/sbin/create_network_ini $ifname >/dev/null 2>&1 &");
+  exec("/etc/rc.d/rc.inet1 {$ifname}_start &>/dev/null");
+  exec("/usr/local/sbin/create_network_ini $ifname &>/dev/null &");
   update_wireguard($ifname);
 }
 exit(0);

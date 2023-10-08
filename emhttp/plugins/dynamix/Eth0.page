@@ -92,9 +92,31 @@ refresh(); // automatically include new ethernet ports
 Array.prototype.same = function(){return this.sort().filter(function(v,i,o){return i&&v===o[i-1]?v:0;}).length;}
 
 function prepareSettings(form) {
-  var metrics = [];
-  var metrics6 = [];
+  var bondnics = [], brnics = [];
+  for (var i=0,nic; nic=form.BONDNICS.options[i]; i++) {
+    if (nic.selected) {
+      bondnics.push(nic.value);
+      nic.selected = false;
+    }
+  }
+  nic = form.BONDNICS.options[0];
+  nic.value = bondnics.join(',');
+  nic.selected = true;
+  nic.disabled = false;
+  for (var i=0,nic; nic=form.BRNICS.options[i]; i++) {
+    if (nic.selected) {
+      brnics.push(nic.value);
+      nic.selected = false;
+    }
+  }
+  nic = form.BRNICS.options[0];
+  nic.value = form.BONDING.value=='yes' ? form.BONDNAME.value : brnics.join(',');
+  nic.selected = true;
+  nic.disabled = false;
+  if (brnics.length>1) form.BRSTP.value = 'yes';
   if ($(form).find('input[name="#arg[1]"]').val()=='none') return true;
+
+  var metrics = [], metrics6 = [];
   $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
@@ -123,31 +145,6 @@ function prepareSettings(form) {
       return false;
     }
   }
-  var member = '';
-  for (var i=0,item; item=form.BONDNICS.options[i]; i++) {
-    if (item.selected) {
-      if (member.length) member += ',';
-      member += item.value;
-      item.selected = false;
-    }
-  }
-  item = form.BONDNICS.options[0];
-  item.value = member;
-  item.selected = true;
-  item.disabled = false;
-  var member = '';
-  for (var i=0,item; item=form.BRNICS.options[i]; i++) {
-    if (item.selected) {
-      if (member.length) member += ',';
-      member += item.value;
-      item.selected = false;
-    }
-  }
-  item = form.BRNICS.options[0];
-  item.value = form.BONDING.value=='yes' ? form.BONDNAME.value : member;
-  item.selected = true;
-  item.disabled = false;
-  if (member.indexOf(',')>0) form.BRSTP.value = 'yes';
   $(form).find('select[name^="PROTOCOL:"]').each(function() {
     var protocol = $(this).val() || 'ipv4';
     var i = $(this).attr('name').split(':')[1];

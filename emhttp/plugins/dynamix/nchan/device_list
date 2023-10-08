@@ -466,9 +466,9 @@ while (true) {
         });
         if (count($current_subpools) < count($subpools)) {
           $current_subpools_list = str_replace("$pool~","", implode(',', $current_subpools));
-          $subPoolButton = "<input type='button' value='Add Subpool' style='margin:0' onclick='addSubpoolPopup(\"$pool\",\"$current_subpools_list\")'>";
+          $subPoolButton = "<input type='button' value='"._('Add Subpool')."' style='margin:0' onclick='addSubpoolPopup(\"$pool\",\"$current_subpools_list\")'>";
         } else {
-          $subPoolButton = "<input type='button' value='Add Subpool' style='margin:0' disabled>";
+          $subPoolButton = "<input type='button' value='"._('Add Subpool')."' style='margin:0' disabled>";
         }
         $echo[$n] .= "<tr class='tr_last'><td></td><td colspan='8'>$subPoolButton</td><td></td></tr>";
       }

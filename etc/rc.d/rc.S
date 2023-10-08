@@ -155,8 +155,9 @@ else
   [[ $RETVAL -gt 0 ]] && abort "failed to remount $UNRAIDROOT r/w with return value $RETVAL"
 fi
 
-# invoke testing hook
-if [[ -f /boot/config/rc.S.extra ]]; then
+# invoke testing hook (only for test versions)
+. /etc/unraid-version
+if [[ -f /boot/config/rc.S.extra && $version =~ beta ]]; then
   . /boot/config/rc.S.extra
 fi
 # and continue in separate script
