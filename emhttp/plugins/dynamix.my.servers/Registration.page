@@ -4,6 +4,6 @@ Title="Registration"
 Icon="icon-registration"
 Tag="pencil"
 ---
-<?php
-echo '<unraid-i18n-host><unraid-registration></unraid-registration></unraid-i18n-host>';
-?>
+<unraid-i18n-host>
+  <unraid-registration></unraid-registration>
+</unraid-i18n-host>
