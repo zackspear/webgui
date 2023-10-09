@@ -50,6 +50,8 @@ dmesg -s 65536 > /var/log/dmesg
 
 # Start the system logger.
 if [[ -x /etc/rc.d/rc.rsyslogd ]]; then
+  [[ -f /boot/logs/syslog-previous ]] && rm /boot/logs/syslog-previous
+  [[ -f /boot/logs/syslog ]] && mv /boot/logs/syslog /boot/logs/syslog-previous
   /etc/rc.d/rc.rsyslogd start
 fi
 

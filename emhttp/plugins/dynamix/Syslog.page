@@ -18,18 +18,27 @@ Tag="list"
 <?
 $zip    = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
 $log    = '/var/log/syslog';
+$prev   = '/boot/logs/syslog-previous';
 $cfg    = '/boot/config/rsyslog.cfg';
 $max    = 5000;
 $select = [];
+$logs = [];
 if (file_exists($cfg)) {
   $syslog = parse_ini_file($cfg);
   if (isset($syslog['local_server']) && isset($syslog['server_folder']) && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
     natsort($logs);
-    $select[] = "<select onchange='showLog(this.value)'>";
-    $select[] = mk_option(1,$log,'syslog');
-    foreach ($logs as $file) $select[] = mk_option(1,$file,basename($file));
-    $select[] = "</select>";
   }
+}
+if (file_exists($prev)) {
+  // add syslog-previous to front of logs array
+  array_unshift($logs, $prev);
+}
+if (count($logs)) {
+  // add syslog to front of logs array
+  array_unshift($logs, $log);
+  $select[] = "<select onchange='showLog(this.value)'>";
+  foreach ($logs as $file) $select[] = mk_option(1,$file,basename($file));
+  $select[] = "</select>";
 }
 $select = implode($select);
 ?>
