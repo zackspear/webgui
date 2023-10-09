@@ -22,10 +22,10 @@ $prev   = '/boot/logs/syslog-previous';
 $cfg    = '/boot/config/rsyslog.cfg';
 $max    = 5000;
 $select = [];
-$logs = [];
+$logs   = [];
 if (file_exists($cfg)) {
   $syslog = parse_ini_file($cfg);
-  if (isset($syslog['local_server']) && isset($syslog['server_folder']) && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
+  if (!empty($syslog['local_server']) && !empty($syslog['server_folder']) && $logs = glob($syslog['server_folder'].'/syslog-*.log',GLOB_NOSORT)) {
     natsort($logs);
   }
 }
