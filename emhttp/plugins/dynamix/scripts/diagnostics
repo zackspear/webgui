@@ -326,7 +326,7 @@ if ($cli) {
 // Run Fix Common Problems if present and results are old / not present
 if ( is_file("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php") ) {
   if ( ! is_file("/tmp/fix.common.problems/errors.json") || (time() - filemtime("/tmp/fix.common.problems/errors.json")) > 86400) {
-    run("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php",$ignore,60);
+    run("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php diagnostics",$ignore,60);
   }
 }
 // don't anonymize system share names
