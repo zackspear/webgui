@@ -24,6 +24,7 @@ apcupsd_running(){
 
 apcupsd_start(){
   log "Starting $DAEMON..."
+  local REPLY
   rm -f /etc/apcupsd/powerfail /etc/nologin
   if apcupsd_running; then
     REPLY="Already started"
@@ -41,6 +42,7 @@ apcupsd_start(){
 
 apcupsd_stop(){
   log "Stopping $DAEMON..."
+  local REPLY
   if ! apcupsd_running; then
     REPLY="Already stopped"
   else
