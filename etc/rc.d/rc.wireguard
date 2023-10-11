@@ -92,7 +92,7 @@ wg_stop(){
 }
 
 wg_status(){
-  wg show all dump
+  echo "Active tunnels: $(wg show interfaces)"
   exit 1
 }
 
