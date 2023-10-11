@@ -92,7 +92,8 @@ wg_stop(){
 }
 
 wg_status(){
-  echo "Active tunnels: $(wg show interfaces)"
+  WG=$(wg show interfaces)
+  echo "Active tunnels: ${WG:-none}"
   exit 1
 }
 
