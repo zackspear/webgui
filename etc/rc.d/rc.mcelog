@@ -49,10 +49,13 @@ mcelog_start(){
     if mcelog_running; then
       REPLY="Already started"
     else
-      # ignorance is bliss I guess
-      $MCELOG --is-cpu-supported &>/dev/null
-      $MCELOG --daemon $MCELOG_OPTIONS
-      if mcelog_running; then REPLY="Started"; else REPLY="Failed"; fi
+      # check cpu support (Intel)
+      if $MCELOG --is-cpu-supported &>/dev/null; then
+        $MCELOG --daemon $MCELOG_OPTIONS
+        if mcelog_running; then REPLY="Started"; else REPLY="Failed"; fi
+      else
+        REPLY="Skipped"
+      fi
     fi
   elif [[ -f $TRIGGER ]]; then
     echo $MCELOG > $TRIGGER

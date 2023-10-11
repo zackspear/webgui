@@ -15,11 +15,12 @@ $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $save   = false;
 $disks  = parse_ini_file('state/disks.ini',true);
-$newkey = parse_ini_file('state/var.ini')['luksKeyfile'];
-$oldkey = str_replace('keyfile','oldfile',$newkey);
+$newkey = parse_ini_file('state/var.ini')['luksKeyfile'] ?: '/root/keyfile';
+$oldkey = dirname($newkey).'/oldfile';
 $delkey = !is_file($newkey);
 $crypto = [];
 
@@ -45,7 +46,7 @@ function removeKey($key,$disk) {
     if ($match && preg_match($match,$row)) $slots++;
   }
   pclose($dump);
-  if ($slots > 1) exec("cryptsetup luksRemoveKey /dev/$disk $key 1>/dev/null 2>&1");
+  if ($slots > 1) exec("cryptsetup luksRemoveKey /dev/$disk $key &>/dev/null");
 }
 function diskname($name) {
   global $disks;
@@ -54,20 +55,20 @@ function diskname($name) {
 }
 function reply($text,$type) {
   global $oldkey,$newkey,$delkey;
-  $reply = $_POST['#reply'];
+  $reply = _var($_POST,'#reply');
   if (realpath(dirname($reply))=='/var/tmp') file_put_contents($reply,$text."\0".$type);
   delete_file($oldkey);
-  if ($_POST['newinput']=='text' || $delkey) delete_file($newkey);
+  if (_var($_POST,'newinput','text')=='text' || $delkey) delete_file($newkey);
   die();
 }
 
 if (isset($_POST['oldinput'])) {
   switch ($_POST['oldinput']) {
   case 'text':
-    file_put_contents($oldkey,base64_decode($_POST['oldluks']));
+    file_put_contents($oldkey,base64_decode(_var($_POST,'oldluks')));
     break;
   case 'file':
-    file_put_contents($oldkey,base64_decode(explode(';base64,',$_POST['olddata'])[1]));
+    file_put_contents($oldkey,base64_decode(explode(';base64,',_var($_POST,'olddata','x;base64,'))[1]));
     break;
   }
 } else {
@@ -76,7 +77,7 @@ if (isset($_POST['oldinput'])) {
 
 if (is_file($oldkey)) {
   $disk = $crypto[0]; // check first disk only (key is the same for all disks)
-  exec("cryptsetup luksOpen --test-passphrase --key-file $oldkey /dev/$disk 1>/dev/null 2>&1",$none,$error);
+  exec("cryptsetup luksOpen --test-passphrase --key-file $oldkey /dev/$disk &>/dev/null",$null,$error);
 } else $error = 1;
 
 if ($error > 0) reply(_('Incorrect existing key'),'warning');
@@ -84,20 +85,25 @@ if ($error > 0) reply(_('Incorrect existing key'),'warning');
 if (isset($_POST['newinput'])) {
   switch ($_POST['newinput']) {
   case 'text':
-    file_put_contents($newkey,base64_decode($_POST['newluks']));
+    file_put_contents($newkey,base64_decode(_var($_POST,'newluks')));
+    $luks = 'luksKey';
+    $data = _var($_POST,'newluks');
     break;
   case 'file':
-    file_put_contents($newkey,base64_decode(explode(';base64,',$_POST['newdata'])[1]));
+    file_put_contents($newkey,base64_decode(explode(';base64,',_var($_POST,'newdata','x;base64,'))[1]));
+    $luks = 'luksKey=&luksKeyfile';
+    $data = $newkey;
     break;
   }
   $good = $bad = [];
   foreach ($crypto as $disk) {
-    exec("cryptsetup luksAddKey --key-file $oldkey /dev/$disk $newkey 1>/dev/null 2>&1",$none,$error);
+    exec("cryptsetup luksAddKey --key-file $oldkey /dev/$disk $newkey &>/dev/null",$null,$error);
     if ($error==0) $good[] = $disk; else $bad[] = diskname($disk);
   }
   if (count($bad)==0) {
     // all okay, remove the old key
     foreach ($good as $disk) removeKey($oldkey,$disk);
+    exec("emcmd 'changeDisk=apply&$luks=$data'");
     reply(_('Key successfully changed'),'success');
   } else {
     // something went wrong, restore key
