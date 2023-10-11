@@ -755,6 +755,15 @@ private static $encoding = 'UTF-8';
 		$arrWhitelistGPUClassIDregex = '/^(0001|03)/';
 		$arrWhitelistAudioClassIDregex = '/^(0403)/';
 
+		# "System peripheral [0880]" "Global unichip corp. [1ac1]" "Coral Edge Tpu [089a]" -pff "Global unichip corp. [1ac1]" "Coral Edge Tpu [089a]" 
+		#                    typeid													productid
+		# file is csv typeid:productid
+		#
+		if (is_file("/boot/config/VMPCIOverride.cfg")) {
+			$arrWhiteListOverride = str_getcsv(file_get_contents("/boot/config/VMPCIOverride.cfg")) ;
+		} 
+		$arrWhiteListOverride[] = "0880:089a" ;
+
 		$arrValidPCIDevices = [];
 
 		exec("lspci -m -nn 2>/dev/null", $arrAllPCIDevices);
@@ -768,6 +777,9 @@ private static $encoding = 'UTF-8';
 					// Device blacklisted, skip device
 					$boolBlacklisted = true;
 				}
+
+				$overrideCheck = "${arrMatch['typeid']}:${arrMatch['productid']}" ;
+				if (in_array($overrideCheck,$arrWhiteListOverride) ) $boolBlacklisted = false;
 
 				$strClass = 'other';
 				if (preg_match($arrWhitelistGPUClassIDregex, $arrMatch['typeid'])) {
