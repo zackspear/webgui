@@ -370,7 +370,11 @@ ipaddr_up(){
     [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
-    ipv6_addr 0 1
+    if carrier_up $IFACE; then
+      ipv6_addr 0 1
+    else
+      ipv6_addr 0 1
+    fi
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
