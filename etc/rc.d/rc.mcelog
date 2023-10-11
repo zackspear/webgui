@@ -73,12 +73,8 @@ mcelog_stop(){
     if ! mcelog_running; then
       REPLY="Already stopped"
     else
-      if $MCELOG --is-cpu-supported &>/dev/null; then
-        killall -TERM $MCELOG
-        if ! mcelog_running; then REPLY="Stopped"; else REPLY="Failed"; fi
-      else
-        REPLY="Skipped"
-      fi
+      killall -TERM $MCELOG
+      if ! mcelog_running; then REPLY="Stopped"; else REPLY="Failed"; fi
     fi
   elif [[ $MCELOG_MODE == trigger && -f $TRIGGER ]]; then 
     echo > $TRIGGER
