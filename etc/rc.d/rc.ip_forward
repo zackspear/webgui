@@ -93,6 +93,27 @@ ip_forward_restart(){
   ip_forward_start
 }
 
+ip_forward_status(){
+  if [[ -f $SYSTEM/ipv4/ip_forward ]]; then
+    if [[ $(cat $SYSTEM/ipv4/ip_forward) == 1 ]]; then
+      echo "IPv4 packet forwarding is enabled."
+    else
+      echo "IPv4 packet forwarding is disabled."
+    fi
+  else
+    echo "IPv4 packet forwarding is not present."
+  fi
+  if [[ -f $SYSTEM/ipv6/conf/all/forwarding ]]; then
+    if [[ $(cat $SYSTEM/ipv6/conf/all/forwarding) == 1 ]]; then
+      echo "IPv6 packet forwarding is enabled."
+    else
+      echo "IPv6 packet forwarding is disabled."
+    fi
+  else
+    echo "IPv6 packet forwarding is not present."
+  fi
+}
+
 case "$1" in
 'start')
   ip_forward_start
@@ -103,8 +124,11 @@ case "$1" in
 'restart')
   ip_forward_restart
   ;;
+'status')
+  ip_forward_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
   exit 1
 esac
 exit 0
