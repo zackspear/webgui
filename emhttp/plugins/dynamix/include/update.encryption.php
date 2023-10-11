@@ -91,7 +91,7 @@ if (isset($_POST['newinput'])) {
     break;
   case 'file':
     file_put_contents($newkey,base64_decode(explode(';base64,',_var($_POST,'newdata',';base64,'))[1]));
-    $luks = 'luksKey&luksKeyfile';
+    $luks = 'luksKey=&luksKeyfile';
     $data = $newkey;
     break;
   }
