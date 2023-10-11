@@ -27,23 +27,33 @@ create_xconsole(){
   chown 0:0 /dev/xconsole
 }
 
+rsyslogd_running(){
+  ps axc | grep -q ' rsyslogd'
+}
+
 rsyslogd_start(){
   log "Starting $DAEMON..."
   local REPLY
-  if [[ -x /usr/sbin/rsyslogd ]]; then
-    run /usr/sbin/rsyslogd -i $PIDFILE
-    REPLY="Started"
+  if rsyslogd_running; then
+    REPLY="Already started"
   else
-    REPLY="Missing executable"
+    run /usr/sbin/rsyslogd -i $PIDFILE
+    if rsyslogd_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
   log "$DAEMON...  $REPLY."
 }
 
 rsyslogd_stop(){
   log "Stopping $DAEMON..."
-  run killall rsyslogd
-  rm -f $PIDFILE
-  log "$DAEMON...  Stopped."
+  local REPLY
+  if ! rsyslogd_running; then
+    REPLY="Already stopped"
+  else
+    run killall rsyslogd
+    rm -f $PIDFILE
+    if ! rsyslogd_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
 }
 
 rsyslogd_restart(){
@@ -55,8 +65,19 @@ rsyslogd_restart(){
 
 rsyslogd_reload(){
   log "Reloading $DAEMON..."
-  [[ -f $PIDFILE ]] && run kill -HUP $(cat $PIDFILE)
-  log "$DAEMON...  Reloaded."
+  local REPLY
+  REPLY="Reloaded"
+  [[ -f $PIDFILE ]] && run kill -HUP $(cat $PIDFILE) || REPLY="Failed"
+  log "$DAEMON...  $REPLY."
+}
+
+rsyslogd_status(){
+  if rsyslogd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
 }
 
 case "$1" in
@@ -73,8 +94,11 @@ case "$1" in
 'reload')
   rsyslogd_reload
   ;;
+'status')
+  rsyslogd_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart|reload"
+  echo "Usage: $BASENAME start|stop|restart|reload|status"
   exit 1
 esac
 exit 0
