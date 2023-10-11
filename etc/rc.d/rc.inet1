@@ -371,10 +371,11 @@ ipaddr_up(){
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
     if carrier_up $IFACE; then
-      ipv6_addr 0 1
+      log "interface $IFACE is UP, setting static $IP address"
     else
-      ipv6_addr 0 1
+      log "interface $IFACE is DOWN, setting static $IP address"
     fi
+    ipv6_addr 0 1
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
