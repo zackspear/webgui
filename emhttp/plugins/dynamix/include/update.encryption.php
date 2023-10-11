@@ -68,7 +68,7 @@ if (isset($_POST['oldinput'])) {
     file_put_contents($oldkey,base64_decode(_var($_POST,'oldluks')));
     break;
   case 'file':
-    file_put_contents($oldkey,base64_decode(explode(';base64,',_var($_POST,'olddata',';base64,'))[1]));
+    file_put_contents($oldkey,base64_decode(explode(';base64,',_var($_POST,'olddata','x;base64,'))[1]));
     break;
   }
 } else {
@@ -90,7 +90,7 @@ if (isset($_POST['newinput'])) {
     $data = _var($_POST,'newluks');
     break;
   case 'file':
-    file_put_contents($newkey,base64_decode(explode(';base64,',_var($_POST,'newdata',';base64,'))[1]));
+    file_put_contents($newkey,base64_decode(explode(';base64,',_var($_POST,'newdata','x;base64,'))[1]));
     $luks = 'luksKey=&luksKeyfile';
     $data = $newkey;
     break;
