@@ -70,6 +70,15 @@ wsdd2_restart(){
   wsdd2_start
 }
 
+wsdd2_status(){
+  if wsdd2_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   # we don't want to run this more than once,
@@ -82,6 +91,9 @@ case "$1" in
   ;;
 'restart')
   wsdd2_restart
+  ;;
+'status')
+  wsdd2_status
   ;;
 *)
   # default is start

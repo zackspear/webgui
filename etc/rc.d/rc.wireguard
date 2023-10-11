@@ -8,6 +8,7 @@
 # LimeTech - modified for Unraid OS
 # Bergware - modified for Unraid OS, October 2023
 
+DAEMON="Wireguard"
 SYSTEM=/sys/class/net
 WIREGUARD=/etc/wireguard
 BOOT="/boot/config"
@@ -90,6 +91,12 @@ wg_stop(){
   done
 }
 
+wg_status(){
+  WG=$(wg show interfaces)
+  echo "Active tunnels: ${WG:-none}"
+  exit 1
+}
+
 case "$1" in
 'start')
   wg_start
@@ -97,8 +104,11 @@ case "$1" in
 'stop')
   wg_stop
   ;;
+'status')
+  wg_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop"
+  echo "Usage: $BASENAME start|stop|status"
   exit 1
 esac
 exit 0

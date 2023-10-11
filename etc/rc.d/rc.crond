@@ -53,6 +53,15 @@ crond_restart(){
   crond_start
 }
 
+crond_status(){
+  if atd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   crond_start
@@ -63,8 +72,11 @@ case "$1" in
 'restart')
   crond_restart
   ;;
+'status')
+  crond_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
   exit 1
 esac
 exit 0

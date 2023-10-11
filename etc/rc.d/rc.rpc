@@ -109,6 +109,15 @@ rpc_update(){
   if check && [[ "$(this)" == "-h ${BIND// / -h }" ]]; then exit 1; else exit 0; fi
 }
 
+rpc_status(){
+  if rpc_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   # warm restart by default (see "man rpcbind" for details about the -w option)
@@ -129,8 +138,11 @@ case "$1" in
 'update')
   rpc_update
   ;;
+'status')
+  rpc_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart|reload|update"
+  echo "Usage: $BASENAME start|stop|restart|reload|update|status"
   exit 1
 esac
 exit 0

@@ -33,7 +33,7 @@ fi
 
 # Turn on IPv4 packet forwarding support.
 if [[ -x /etc/rc.d/rc.ip_forward ]]; then
-  . /etc/rc.d/rc.ip_forward start
+  /etc/rc.d/rc.ip_forward start
 fi
 
 # Start krb5kdc, which is the Kerberos version 5 Authentication Service
@@ -107,7 +107,7 @@ fi
 # or even a separate local partition. This is not supported and is likely to
 # cause some problems...
 if [[ -x /etc/rc.d/rc.rsyslogd && -d /var/log && ! -r /var/run/rsyslogd.pid ]]; then
-  . /etc/rc.d/rc.rsyslogd start
+  /etc/rc.d/rc.rsyslogd start
 fi
 
 # Start the inetd server:
