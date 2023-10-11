@@ -367,7 +367,6 @@ ipaddr_up(){
       log "interface $IFACE is DOWN, polling DHCP $IP server in background"
       run dhcpcd -b $DHCP_OPTIONS $IFACE
     fi
-    [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
     if carrier_up $IFACE; then
