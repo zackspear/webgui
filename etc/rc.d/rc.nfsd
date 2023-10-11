@@ -132,6 +132,15 @@ nfsd_update(){
   if check && [[ "$(this)" == "-H ${BIND// / -H }" ]]; then exit 1; else exit 0; fi
 }
 
+nfsd_status(){
+  if nfsd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   nfsd_start
@@ -148,8 +157,11 @@ case "$1" in
 'update')
   nfsd_update
   ;;
+'status')
+  nfsd_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart|reload|update"
+  echo "Usage: $BASENAME start|stop|restart|reload|update|status"
   exit 1
 esac
 exit 0

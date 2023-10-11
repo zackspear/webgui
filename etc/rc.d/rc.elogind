@@ -71,6 +71,15 @@ elogind_restart(){
   elogind_start
 }
 
+elogind_status(){
+  if elogind_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   elogind_start
@@ -81,8 +90,11 @@ case "$1" in
 'restart')
   elogind_restart
   ;;
+'status')
+  elogind_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
   exit 1
 esac
 exit 0

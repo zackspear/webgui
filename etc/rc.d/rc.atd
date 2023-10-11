@@ -53,6 +53,15 @@ atd_restart(){
   atd_start
 }
 
+atd_status(){
+  if atd_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
 case "$1" in
 'start')
   atd_start
@@ -63,8 +72,11 @@ case "$1" in
 'restart')
   atd_restart
   ;;
+'status')
+  atd_status
+  ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
   exit 1
 esac
 exit 0
