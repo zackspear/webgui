@@ -104,7 +104,7 @@ case "$1" in
   ip_forward_restart
   ;;
 *)
-  echo "Usage: $BASENAME start|stop|restart|status"
+  echo "Usage: $BASENAME start|stop|restart"
   exit 1
 esac
 exit 0
