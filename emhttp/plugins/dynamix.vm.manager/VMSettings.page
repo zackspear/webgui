@@ -99,6 +99,14 @@ _(Enable VMs)_:
 
 :vms_enable_help:
 
+_(Disable Autostart VMs)_:
+: <select id="DISABLE" name="DISABLE">
+  <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'no', _('No'))?>
+  <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'yes', _('Yes'))?>
+  </select>
+
+:vms_disable_help:
+
 <?if ($hardware):?>
 <div class="advanced" markdown="1">
 <?if ($libvirt_up):?>
