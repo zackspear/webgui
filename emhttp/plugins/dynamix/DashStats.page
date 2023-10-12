@@ -183,7 +183,7 @@ div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
-span.head_info{display:inline-block;width:240px}
+span.head_info{width:240px;display:inline-block}
 span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:200px}
 span.green,span.red,span.orange{padding-left:0}
@@ -334,14 +334,13 @@ foreach ($cpus as $pair) {
 </tbody>
 
 <tbody title="_(Interface Information)_" class="mixed">
-<tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_<br>
-<span><span class='dense'><i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span></span><span class='dense'><i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span></span>
-<i class='ups fa fa-angle-right'></i><select name="port_select" onchange="portSelect(this.value)">
+<tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_
+<span style="padding-left:20px"><i class='ups fa fa-angle-right'></i><select name="port_select" onchange="portSelect(this.value)">
 <?foreach ($ports as $port):?>
 <?=mk_option("",$port,_($port))?>
 <?endforeach;?>
-</select></span>
-<br></div>
+</select></span><br>
+<span class='head_info'><i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span></span><span><i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span></span><br></div>
 <a href='/Dashboard/Settings/NetworkSettings' title="_(Go to network settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w26'><select name="enter_view" onchange="changeView(this.value)">
@@ -383,7 +382,7 @@ foreach ($ports as $port) {
 
 <?if ($wireguard):?>
 <tbody title="_(VPN Connections)_">
-<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='dense'><i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br></div>
+<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='head_info'><i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br></div>
 <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <?foreach ($conf as $wg):?>
