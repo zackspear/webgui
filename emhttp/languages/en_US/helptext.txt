@@ -1581,6 +1581,10 @@ Make sure any newly entered values represent the selected temperature unit.
 Stopping the VM Manager will first attempt to shutdown all running VMs. After 60 seconds, any remaining VM instances will be terminated.
 :end
 
+:vms_disable_help:
+Stop VMs from Autostarting when VM Manager starts.
+:end
+
 :vms_libvirt_volume_help:
 This is the libvirt volume.
 :end
