@@ -700,6 +700,27 @@ function hideShow() {
 !-->
 </div>
 
+<div id="dialogWindow"></div>
+<div markdown="1" id="templateClone" class="template">
+<table>
+<tr><td>_(VM Being Cloned)_:</td><td><span id="VMBeingCloned"></span></td></tr>
+<tr><td>_(New VM)_:</td><td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+<tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
+<tr hidden><td>_(Start Cloned VM)_:</td><td><input type="checkbox" id="Start" value="" ></td></tr>
+<tr hidden><td>_(Edit VM after clone)_:</td><td><input type="checkbox" id="Edit" value="" ></td></tr>
+<tr><td>_(Check Free Space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
+</table>
+</div>
+
+<div id="dialogWindow2"></div>
+<div markdown="1" id="templatesnapshotcreate" class="template">
+<table id="snapshot">
+<tr><td>_(VM Name)_:</td><td><label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td><input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">_(Check free space)_:<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description)_:</td><td><input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
+</div>
+
 <script>
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
@@ -707,7 +728,7 @@ String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');
 String.prototype.md5 = function() {
   // Original copyright (c) Paul Johnston & Greg Holt.
   var hc = '0123456789abcdef';
-  function rh(n){var j,s='';for(j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
+  function rh(n){var j,s='';for (j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
   function ad(x,y){var l=(x&0xFFFF)+(y&0xFFFF);var m=(x>>16)+(y>>16)+(l>>16);return (m<<16)|(l&0xFFFF);}
   function rl(n,c){return (n<<c)|(n>>>(32-c));}
   function cm(q,a,b,x,s,t){return ad(rl(ad(ad(a,q),ad(x,t)),s),b);}
@@ -716,12 +737,12 @@ String.prototype.md5 = function() {
   function hh(a,b,c,d,x,s,t){return cm(b^c^d,a,b,x,s,t);}
   function ii(a,b,c,d,x,s,t){return cm(c^(b|(~d)),a,b,x,s,t);}
   function sb(x) {
-    var i;var nblk=((x.length+8)>>6)+1;var blks=new Array(nblk*16);for(i=0;i<nblk*16;i++) blks[i]=0;
-    for(i=0;i<x.length;i++) blks[i>>2]|=x.charCodeAt(i)<<((i%4)*8);
+    var i;var nblk=((x.length+8)>>6)+1;var blks=new Array(nblk*16);for (i=0;i<nblk*16;i++) blks[i]=0;
+    for (i=0;i<x.length;i++) blks[i>>2]|=x.charCodeAt(i)<<((i%4)*8);
     blks[i>>2]|=0x80<<((i%4)*8);blks[nblk*16-2]=x.length*8;return blks;
   }
   var i,x=sb(''+this),a=1732584193,b=-271733879,c=-1732584194,d=271733878,olda,oldb,oldc,oldd;
-  for(i=0;i<x.length;i+=16) {olda=a;oldb=b;oldc=c;oldd=d;
+  for (i=0;i<x.length;i+=16) {olda=a;oldb=b;oldc=c;oldd=d;
     a=ff(a,b,c,d,x[i+ 0], 7, -680876936);d=ff(d,a,b,c,x[i+ 1],12, -389564586);c=ff(c,d,a,b,x[i+ 2],17,  606105819);
     b=ff(b,c,d,a,x[i+ 3],22,-1044525330);a=ff(a,b,c,d,x[i+ 4], 7, -176418897);d=ff(d,a,b,c,x[i+ 5],12, 1200080426);
     c=ff(c,d,a,b,x[i+ 6],17,-1473231341);b=ff(b,c,d,a,x[i+ 7],22,  -45705983);a=ff(a,b,c,d,x[i+ 8], 7, 1770035416);
@@ -782,6 +803,7 @@ var netline = $.cookie('netline')||30;
 var update2 = true;
 var box     = null;
 var startup = true;
+var stopgap = '<thead class="stopgap"><tr><td class="stopgap"></td></tr></thead>';
 
 var options_cpu = {
   series:[{name:'load', data:cpu.slice()}],
@@ -1216,6 +1238,7 @@ function sortTables() {
       }
     }
   });
+  $('table.dashboard tbody').before(stopgap);
 }
 function addProperties() {
   $('div.frame tbody.system').addClass('sortable').attr('sort','_system_information_'.md5());
@@ -1357,6 +1380,7 @@ function contentMgmt() {
 }
 
 var sortableHelper = function(e,ui){
+  ui.prev().remove();
   ui.find('tr:first').children().each(function(){$(this).width($(this).width());});
   return ui;
 };
@@ -1372,7 +1396,7 @@ function LockButton() {
     $('tbody.sortable').css({'cursor':'move'});
     $('div.nav-item.LockButton span').text("_(Lock sortable items)_");
     $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
-    $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
+    $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',opacity:0.6,placeholder:'dashboard-sortable',zIndex:9999,forceHelperSize:true,forcePlaceholderSize:true,
     receive:function(e,ui){
       var table = ui.sender, index = [];
       var tile = table.parent();
@@ -1382,6 +1406,7 @@ function LockButton() {
     },
     stop:function(e,ui){
       var table = ui.item.parent(), index = [];
+      if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       $.cookie(table.prop('id'),index.join(';'),{expires:3650});
     }});
@@ -1612,55 +1637,3 @@ function VMClone(uuid, name){
   dialogStyle();
 }
 </script>
-
-<div id="dialogWindow"></div>
-<div markdown="1" id="templateClone" class="template">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-</head>
-<body>
-<br>
-<table>
-<tr><td>_(VM Being Cloned)_:</td>
-<td><span id="VMBeingCloned"></span></td></tr>
-
-<tr><td>_(New VM)_:</td>
-<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
-
-<tr><td>_(Overwrite)_:</td>
-<td><input type="checkbox" id="Overwrite" value="" ></td></tr>
-
-<tr hidden><td>_(Start Cloned VM)_:</td>
-<td><input type="checkbox" id="Start" value="" ></td></tr>
-
-<tr hidden><td>_(Edit VM after clone)_:</td>
-<td><input type="checkbox" id="Edit" value="" ></td></tr>
-
-<tr><td>_(Check Free Space)_:</td>
-<td><input type="checkbox" id="Free" value="" ></td></tr>
-</table>
-</body>
-</html>
-</div>
-
-<div id="dialogWindow2"></div>
-<div markdown="1" id="templatesnapshotcreate" class="template">
-<table id='snapshot'>
-<br><br>
-<tr><td> _(VM Name)_:</td><td>
-<label id="VMName"></label></td></tr>
-<tr><td>_(Snapshot Name)_:</td><td>
-<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
-_(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked></td></tr>
-<tr><td>_(Description  )_:</td><td>
-<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
-</table>
-</div>
