@@ -7,7 +7,7 @@
     "css": [
       "_nuxt/unraid-components.client-896c373f.css"
     ],
-    "file": "_nuxt/unraid-components.client-7f65bfef.js",
+    "file": "_nuxt/unraid-components.client-ecd1baba.js",
     "isEntry": true,
     "src": ".nuxt/nuxt-custom-elements/entries/unraid-components.client.mjs"
   }
