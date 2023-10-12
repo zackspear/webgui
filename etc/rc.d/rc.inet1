@@ -634,6 +634,12 @@ stop(){
   lo_down
 }
 
+status(){
+  echo "INTERFACE        STATE          INFORMATION"
+  echo "========================================================================"
+  [[ $1 == ip ]] && ip -brief addr || ip -brief link
+}
+
 ##########################
 # STATIC ROUTE FUNCTIONS #
 ##########################
@@ -721,6 +727,9 @@ restart)
   route_down $INTERFACE $ROUTE $METRIC
   ;;
   # default is to bring up the entire network
+status)
+  status $2
+  ;;
 *)
   start
 esac
@@ -739,3 +748,5 @@ exit 0
 # rc.inet1 10.0.0.1_default_add       add default route to gateway 10.0.0.1 with metric 1
 # rc.inet1 eth0_10.0.0.0/24_1_del     delete specific route & metric from interface eth0
 # rc.inet1 10.0.0.1_default_del       delete default route from gateway 10.0.0.1
+# rc.inet1 status                     show link status
+# rc.inet1 status ip                  show ip status
