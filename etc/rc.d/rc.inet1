@@ -63,7 +63,7 @@
 # - replace logging for generic add-in module
 
 # Adapted by Bergware for use in Unraid OS - October 2023
-# - added interface carrier check when polling for DHCP server
+# - added interface carrier check before assigning IP address (DHCP or static)
 # - added "status" command
 
 # Bergware - modified for Unraid OS, October 2023
@@ -370,11 +370,8 @@ ipaddr_up(){
     fi
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
-    if carrier_up $IFACE; then
-      log "interface $IFACE is UP, setting static $IP address"
-    else
-      log "interface $IFACE is DOWN, setting static $IP address"
-    fi
+    if carrier_up $IFACE; then STATE="UP"; else STATE="DOWN"; fi
+    log "interface $IFACE is $STATE, setting static $IP address"
     ipv6_addr 0 1
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
