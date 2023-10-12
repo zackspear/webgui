@@ -632,6 +632,7 @@ stop(){
   lo_down
 }
 
+# function to show network status
 status(){
   echo "INTERFACE        STATE          INFORMATION"
   echo "========================================================================"
