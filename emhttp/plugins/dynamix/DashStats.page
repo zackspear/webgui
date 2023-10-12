@@ -678,9 +678,11 @@ function hideShow() {
     var id = tbody.parent().prop('id');
     if ($(this).prop('checked')) {
       tbody.show();
+      tbody.prev().show();
       count[id]++;
     } else {
       tbody.hide();
+      tbody.prev().hide();
       inactive.push(sort[n]);
     }
     n++;
@@ -1271,6 +1273,7 @@ function showContent() {
       var id = tbody.parent().prop('id');
       count[id]--;
       tbody.hide();
+      tbody.prev().hide();
     }
   }
   var hidden = $.cookie('hidden_content');
@@ -1332,6 +1335,7 @@ function dismiss(button) {
   var tile = table.parent();
   var inactive = $.cookie('inactive_content');
   tbody.hide();
+  tbody.prev().hide();
   if (table.find('tbody:visible').length>0) tile.show(); else tile.hide();
   inactive = inactive==null ? [] : inactive.split(';');
   inactive.push(tbody.attr('sort'));
@@ -1400,7 +1404,14 @@ function LockButton() {
     receive:function(e,ui){
       var table = ui.sender, index = [];
       var tile = table.parent();
-      if (table.find('tbody:visible').length > 0) tile.show(); else tile.hide();
+      var gap = ui.item.prev();
+      if (table.find('tbody:visible').length > 0) {
+        tile.show();
+        gap.show();
+      } else {
+        tile.hide();
+        gap.hide();
+      }
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       $.cookie(table.prop('id'),index.join(';'),{expires:3650});
     },
