@@ -62,8 +62,9 @@
 # - added error logging to syslog
 # - replace logging for generic add-in module
 
-# Adapted by Bergware for use in Unraid OS - August 2023
-# - added interface carrier check when polling for DHCP server
+# Adapted by Bergware for use in Unraid OS - October 2023
+# - added interface carrier check before assigning IP address (DHCP or static)
+# - added "status" command
 
 # Bergware - modified for Unraid OS, October 2023
 
@@ -369,11 +370,8 @@ ipaddr_up(){
     fi
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
-    if carrier_up $IFACE; then
-      log "interface $IFACE is UP, setting static $IP address"
-    else
-      log "interface $IFACE is DOWN, setting static $IP address"
-    fi
+    if carrier_up $IFACE; then STATE="UP"; else STATE="DOWN"; fi
+    log "interface $IFACE is $STATE, setting static $IP address"
     ipv6_addr 0 1
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
@@ -634,6 +632,13 @@ stop(){
   lo_down
 }
 
+# function to show network status
+status(){
+  echo "INTERFACE        STATE          INFORMATION"
+  echo "========================================================================"
+  [[ $1 == ip ]] && ip -brief addr || ip -brief link
+}
+
 ##########################
 # STATIC ROUTE FUNCTIONS #
 ##########################
@@ -721,6 +726,9 @@ restart)
   route_down $INTERFACE $ROUTE $METRIC
   ;;
   # default is to bring up the entire network
+status)
+  status $2
+  ;;
 *)
   start
 esac
@@ -739,3 +747,5 @@ exit 0
 # rc.inet1 10.0.0.1_default_add       add default route to gateway 10.0.0.1 with metric 1
 # rc.inet1 eth0_10.0.0.0/24_1_del     delete specific route & metric from interface eth0
 # rc.inet1 10.0.0.1_default_del       delete default route from gateway 10.0.0.1
+# rc.inet1 status                     show link status
+# rc.inet1 status ip                  show ip status
