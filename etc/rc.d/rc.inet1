@@ -62,8 +62,9 @@
 # - added error logging to syslog
 # - replace logging for generic add-in module
 
-# Adapted by Bergware for use in Unraid OS - August 2023
+# Adapted by Bergware for use in Unraid OS - October 2023
 # - added interface carrier check when polling for DHCP server
+# - added "status" command
 
 # Bergware - modified for Unraid OS, October 2023
 
