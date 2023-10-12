@@ -55,6 +55,7 @@ exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/
 
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$dockerd);
 exec("/etc/rc.d/rc.libvirt status >/dev/null",$dummy,$libvirtd);
+$domain_cfg = parse_ini_file("/boot/config/domain.cfg");
 $dockerd = $dockerd==0;
 $libvirtd = $libvirtd==0;
 $apcupsd = file_exists('/var/run/apcupsd.pid');
@@ -181,6 +182,7 @@ div.last{padding-bottom:12px}
 div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
+div.template,div#dialogWindow,input#upload{display:none}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -813,6 +815,63 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
+
+function selectsnapshot(uuid, name ,snaps, opt, getlist){
+  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
+  var box = $("#dialogWindow2");
+  box.html($("#templatesnapshot"+opt).html());
+  var height = 200;
+  const Capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
+  var optiontext = Capopt + " Snapshot";
+  box.find('#VMName').html(name);
+  box.find('#targetsnap').val(snaps);
+  box.find('#targetsnapl').html(snaps);
+  if (getlist) {
+    var only = (opt == "remove") ? 0 : 1;
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
+  }
+ document.getElementById("targetsnapfspc").checked = true;
+  box.dialog({
+    title: "_("+optiontext+ ")_",
+    resizable: false,
+    width: 600,
+    height: 500,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      "_(Proceed)_": function(){
+        var target = box.find('#targetsnap');
+        if (target.length) {
+          target = target.val();
+          if (!target) {errorTarget(); return;}
+        } else target = '';
+        var remove = 'yes';
+        var removemeta = 'yes';
+        var keep = 'yes';
+        var free = 'yes';
+        var desc = '';
+        box.find('#targetsnap').prop('disabled',true);
+        if (opt == "revert") {
+          remove = box.find('#targetsnaprmv').prop('checked') ? 'yes' : 'no';
+          removemeta = box.find('#targetsnaprmvmeta').prop('checked') ? 'yes' : 'no';
+          keep = box.find('#targetsnapkeep').prop('checked') ? 'yes' : 'no';
+        }
+        if (opt == "create") {
+          free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
+          desc = box.find("#targetsnapdesc").prop('value');
+        }
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, desc:desc}, "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
 
 function initCharts(clear) {
   $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
@@ -1504,4 +1563,104 @@ $(function() {
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
+  function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title');
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
+function VMClone(uuid, name){
+  //var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
+  var match= ".iso";
+  var box = $("#dialogWindow");
+  var height = 200;
+  box.html($("#templateClone").html());
+  box.find('#VMBeingCloned').html(name).change() ;
+  box.find('#target').val(name + "_clone") ;
+  document.getElementById("Free").checked = true ;
+  document.getElementById("Overwrite").checked = true ;
+  var Cancel = _("Cancel") ;
+  box.dialog({
+    title: "VM Clone",
+    resizable: false,
+    width: 600,
+    height: 500,
+    modal: true,
+    show: {effect:'fade', duration:250},
+    hide: {effect:'fade', duration:250},
+    buttons: {
+      "_(Clone)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          //if (!target ) {errorTarget(); return;}
+        } else target = '';
+        var clone = box.find("#target").prop('value');
+        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
+        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
+        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
+        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
+        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
+        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
 </script>
+
+<div id="dialogWindow"></div>
+<div markdown="1" id="templateClone" class="template">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1600">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
+</head>
+<body>
+<br>
+<table>
+<tr><td>_(VM Being Cloned)_:</td>
+<td><span id="VMBeingCloned"></span></td></tr>
+
+<tr><td>_(New VM)_:</td>
+<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+
+<tr><td>_(Overwrite)_:</td>
+<td><input type="checkbox" id="Overwrite" value="" ></td></tr>
+
+<tr hidden><td>_(Start Cloned VM)_:</td>
+<td><input type="checkbox" id="Start" value="" ></td></tr>
+
+<tr hidden><td>_(Edit VM after clone)_:</td>
+<td><input type="checkbox" id="Edit" value="" ></td></tr>
+
+<tr><td>_(Check Free Space)_:</td>
+<td><input type="checkbox" id="Free" value="" ></td></tr>
+</table>
+</body>
+</html>
+</div>
+
+<div id="dialogWindow2"></div>
+<div markdown="1" id="templatesnapshotcreate" class="template">
+<table id='snapshot'>
+<br><br>
+<tr><td> _(VM Name)_:</td><td>
+<label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td>
+<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
+_(Check free space)_:
+<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description  )_:</td><td>
+<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
+</div>

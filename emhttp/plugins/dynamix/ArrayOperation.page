@@ -568,8 +568,8 @@ function formatWarning(val) {
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Unclean shutdown detected)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form,this)"></td>
           <td>**_(Start)_** _(will bring the array on-line)_.</td></tr>
 <?      elseif (missing_cache()):?>
-          <tr><td><?status_indicator()?>**_(Stopped)_**. _(Missing Cache disk)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form,this)" disabled></td>
-          <td>**_(Start)_** _(will remove the missing cache disk and then bring the array on-line)_.
+          <tr><td><?status_indicator()?>**_(Stopped)_**. _(Missing pool disk)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form,this)" disabled></td>
+          <td>**_(Start)_** _(will remove the missing pool disk and then bring the array on-line)_.
           <br><input type="checkbox" name="confirmStart" value="OFF" onclick="$('#cmdStart').prop('disabled',!arrayOps.confirmStart.checked)"><small>_(Yes, I want to do this)_</small></td></tr>
 <?      else:?>
           <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form,this)"></td>

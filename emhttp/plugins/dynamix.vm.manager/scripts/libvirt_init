@@ -1,10 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 # Intialize libvirt config storage
 # Invoked by emhttp after mounting libvirt loopback but before starting libvirt.
 
+# run & log functions
+. /etc/rc.d/rc.runlog
+
 # missing qemu directory would indicate new libvirt image file created
 if [ ! -d /etc/libvirt/qemu ]; then
-  logger "initializing /etc/libvirt"
+  log "initializing /etc/libvirt"
   # initialize with default settings
   cp -rp /etc/libvirt-/* /etc/libvirt
   # check if libvirt image file exists on USB flash

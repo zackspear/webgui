@@ -6,7 +6,10 @@ cfg=/boot/config/plugins/dynamix.apcupsd/dynamix.apcupsd.cfg
 [[ -f /var/run/apcupsd.pid || ! -f $cfg ]] && exit
 
 # Read settings
-source $cfg
+. $cfg
+
+# run & log functions
+. /etc/rc.d/rc.runlog
 
 # Apply settings
 sed -i -e '/^NISIP/c\\NISIP 0.0.0.0' $conf
@@ -27,4 +30,4 @@ else
 fi
 
 # Start daemon
-[[ $SERVICE == enable ]] && /etc/rc.d/rc.apcupsd start |& logger
+[[ $SERVICE == enable ]] && /etc/rc.d/rc.apcupsd start |& log

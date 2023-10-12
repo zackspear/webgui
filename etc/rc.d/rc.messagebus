@@ -1,81 +1,106 @@
-#!/bin/sh
+#!/bin/bash
 #
-# messagebus:   The D-BUS systemwide message bus
+# script: rc.messagebus
 #
-# description:  This is a daemon which broadcasts notifications of system events \
-#               and other messages. See http://www.freedesktop.org/software/dbus/
+# messagebus:  The D-BUS systemwide message bus
+#
+# description: This is a daemon which broadcasts notifications of system events \
+#              and other messages. See http://www.freedesktop.org/software/dbus/
 #
 # processname: dbus-daemon
 
 # This is a modified version of the rc.messagebus script distributed with the
 # dbus sources.  Thanks to Don Tanner of the GWare <http://gware.org> Project
 # for most of the work involved      --Robby Workman <rworkman@slackware.com>
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
+DAEMON="System Message Bus"
+PIDFILE="/var/run/dbus/dbus.pid"
 
-PIDFILE=/var/run/dbus/dbus.pid
+# run & log functions
+. /etc/rc.d/rc.runlog
 
-start() {
-  mkdir -p $(dirname $PIDFILE)
-  if ! ps -u messagebus -c | grep -wq dbus-daemon; then
+dbus_running(){
+  ps -u messagebus -c | grep -wq dbus-daemon
+}
+
+dbus_start(){
+  log "Starting $DAEMON..."
+  local REPLY
+  if dbus_running; then
+    REPLY="Already started"
+  else
+    mkdir -p $(dirname $PIDFILE)
     rm -f $(dirname $PIDFILE)/*
-    if [ -x /usr/bin/dbus-uuidgen -a -x /usr/bin/dbus-daemon ] ; then
-      echo "Starting system message bus:  /usr/bin/dbus-uuidgen --ensure ; /usr/bin/dbus-daemon --system"
-      /usr/bin/dbus-uuidgen --ensure
-      /usr/bin/dbus-daemon --system 1> /dev/null
+    if [[ -x /usr/bin/dbus-uuidgen && -x /usr/bin/dbus-daemon ]]; then
+      run /usr/bin/dbus-uuidgen --ensure
+      run /usr/bin/dbus-daemon --system
     fi
+    if dbus_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-stop() {
-  if [ -e "$PIDFILE" ]; then
-    echo "Stopping system message bus..."
-    pid=$(cat $PIDFILE)
-    kill $pid 1> /dev/null 2> /dev/null
+dbus_stop(){
+  log "Stopping $DAEMON..."
+  local REPLY
+  if ! dbus_running; then
+    REPLY="Already stopped"
+  else
+    run kill $(cat $PIDFILE)
     # Just in case:
-    killall dbus-daemon 1> /dev/null 2> /dev/null
+    run killall dbus-daemon
     rm -f $PIDFILE
+    if ! dbus_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-reload() {
-  echo "Reloading system message bus configuration..."
-  if [ -e "$PIDFILE" ]; then
+dbus_reload(){
+  log "Reloading $DAEMON..."
+  if [[ -e $PIDFILE ]]; then
     pid=$(cat $PIDFILE)
-    kill -HUP $pid
+    run kill -HUP $pid
   else
-    killall -HUP dbus-daemon
+    run killall -HUP dbus-daemon
   fi
+  log "$DAEMON...  Reloaded."
 }
 
-status() {
-  if ps -u messagebus -c | grep -wq dbus-daemon; then
-    echo "System dbus-daemon is running."
+dbus_status(){
+  if dbus_running; then
+    echo "$DAEMON is currently running."
   else
-    echo "System dbus-daemon is stopped."
+    echo "$DAEMON is not running."
+    exit 1
   fi
 }
 
 # See how we were called.
 case "$1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  restart)
-    stop
-    start
-    echo "You may need to restart your Window Manager to reconnect to the system dbus."
-    ;;
-  reload)
-    reload
-    ;;
-  status)
-    status
-    ;;
-  *)
-    echo $"Usage: $0 {start|stop|restart|reload|status}"
-    ;;
+'start')
+  dbus_start
+  ;;
+'stop')
+  dbus_stop
+  ;;
+'restart')
+  dbus_stop
+  sleep 1
+  dbus_start
+  log "You may need to restart your Window Manager to reconnect to the system dbus."
+  ;;
+'reload')
+  dbus_reload
+  ;;
+'status')
+  dbus_status
+  ;;
+*)
+  echo "Usage: $BASENAME start|stop|restart|reload|status"
+  exit 1
+  ;;
 esac
-
+exit 0

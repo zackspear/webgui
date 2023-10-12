@@ -49,7 +49,7 @@ if (isset($_POST['#file'])) {
   $cleanup = isset($_POST['#cleanup']);
   $default = ($file && isset($_POST['#default'])) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : [];
 
-  $keys = @parse_ini_file($file, $section) ?: [];
+  $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
   // the 'save' switch can be reset by the include file to disallow settings saving
   $save = true;
   if (isset($_POST['#include'])) {

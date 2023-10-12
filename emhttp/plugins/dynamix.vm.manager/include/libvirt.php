@@ -267,7 +267,7 @@
 		}
 
 
-		function config_to_xml($config) {
+		function config_to_xml($config,$vmclone = false) {
 			$domain = $config['domain'];
 			$media = $config['media'];
 			$nics = $config['nic'];
@@ -463,19 +463,26 @@
 			$usbstr = '';
 			if (!empty($usb)) {
 				foreach($usb as $i => $v){
-					$usbx = explode(':', $v);
+					if ($vmclone) $usbx = explode(':', $v['id']); else $usbx = explode(':', $v);
 					$startupPolicy = '' ;
-					if (isset($usbopt[$v])) {
+					if (isset($usbopt[$v]) && !$vmclone ) {
 						 if (strpos($usbopt[$v], "#remove") == false) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
-					}
+					}  
+					if (isset($v["startupPolicy"]) && $vmclone ) {
+						if ($v["startupPolicy"] == "optional" ) $startupPolicy = 'startupPolicy="optional"' ; 	else  $startupPolicy = '' ;
+				    } 
+
 					$usbstr .= "<hostdev mode='subsystem' type='usb'>
 									<source $startupPolicy>
 										<vendor id='0x".$usbx[0]."'/>
 										<product id='0x".$usbx[1]."'/>
 									</source>" ;
-					if (!empty($usbboot[$v])) {
+					if (!empty($usbboot[$v]) && !$vmclone ) {
 						$usbstr .= "<boot order='".$usbboot[$v]."'/>" ;
-						}
+						} 	
+					if (isset($v["usbboot"]) && $vmclone ) {
+						if ($v["usbboot"] != NULL) $usbstr .= "<boot order='".$v["usbboot"]."'/>" ;
+						} 			
 					$usbstr .= "</hostdev>";
 				}
 			}
@@ -774,17 +781,20 @@
 
 						if ($strAutoport == "yes") $strPort = $strWSport = "-1" ;
 						if (($gpu['copypaste'] == "yes") && ($strProtocol == "spice")) $vmrcmousemode = "<mouse mode='server'/>" ; else $vmrcmousemode = ""  ;
+						if ($strProtocol == "spice")  $virtualaudio = "spice" ; else  $virtualaudio = "none" ;
 
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
-								<graphics type='$strProtocol' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
+								<graphics type='$strProtocol' sharePolicy='ignore' port='$strPort' autoport='$strAutoport' websocket='$strWSport' listen='0.0.0.0' $passwdstr $strKeyMap>
 									<listen type='address' address='0.0.0.0'/>
 									$vmrcmousemode
 								</graphics>
 								<video>
 									<model type='$strModelType'/>
-								</video>";
+								</video>
+								<audio id='1' type='$virtualaudio'/>";
+							
 
 						if ($gpu['copypaste'] == "yes") {
 							if ($strProtocol == "spice") {
@@ -865,20 +875,23 @@
 					if (empty($pci_id) || in_array($pci_id, $pcidevs_used)) {
 						continue;
 					}
-
-					[$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
+					if ($vmclone) [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id['id']), 3);
+					else [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
 									</source>" ;
-					if (!empty($pciboot[$pci_id])) {
+					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
+					}
+					if (!empty($pci_id["boot"]) && $vmclone) {
+						$pcidevs .= "<boot order='".$pci_id["boot"]."'/>" ;
 					}
 					$pcidevs .= "</hostdev>";
 
-					$pcidevs_used[] = $pci_id;
+					if ($vmclone) $pcidevs_used[] = $pci_id['d']; else $pcidevs_used[] = $pci_id ;
 				}
 			}
 
@@ -1144,7 +1157,7 @@
 				$tmp = libvirt_domain_get_block_info($dom, $disks[$i]);
 				if ($tmp) {
 					$tmp['bus'] = $buses[$i];
-					$tmp["boot order"] = $boot[$i] ;
+					$tmp["boot order"] = $boot[$i] ?? "";
 					$ret[] = $tmp;
 				}
 				else {
@@ -1195,7 +1208,7 @@
 
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
-					$tmp["boot order"] = $disk->boot->attributes()->order ;
+					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
 					$tmp['serial'] = $disk->serial ;
 
 					// Libvirt reports 0 bytes for raw disk images that haven't been
@@ -1454,7 +1467,7 @@
 		function domain_change_xml($domain, $xml) {
 			$dom = $this->get_domain_object($domain);
 
-			if (!($old_xml = domain_get_xml($dom)))
+			if (!($old_xml = $this->domain_get_xml($dom)))
 				return $this->_set_last_error();
 			if (!libvirt_domain_undefine($dom))
 				return $this->_set_last_error();
@@ -1484,6 +1497,11 @@
 
 		function get_node_devices($dev = false) {
 			$tmp = ($dev == false) ? libvirt_list_nodedevs($this->conn) : libvirt_list_nodedevs($this->conn, $dev);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
+		function get_interface_addresses($domain,$flag) {
+			$tmp =  libvirt_domain_interface_addresses($domain,$flag);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
@@ -1590,7 +1608,7 @@
 			if (!$dom)
 				return false;
 
-			$tmp = libvirt_domain_get_xml_desc($dom, $xpath);
+			$tmp = libvirt_domain_get_xml_desc($dom, 0);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
@@ -1854,6 +1872,48 @@
 			return false;
 		}
 
+		function nvram_create_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd', '/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd');
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd', '/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd');
+				return true;
+			}
+			return false;
+		}
+
+		function nvram_revert_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi.fd');
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd') ;
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd')) {
+				copy('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd', '/etc/libvirt/qemu/nvram/'.$uuid.'_VARS-pure-efi-tpm.fd');
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd') ;
+				return true;
+			}
+			return false;
+		}
+
+		function nvram_delete_snapshot($uuid,$snapshotname) {
+			// snapshot backup OVMF VARS if this domain had them
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi.fd') ;
+				return true;
+			}
+			if (is_file('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd')) {
+				unlink('/etc/libvirt/qemu/nvram/'.$uuid.$snapshotname.'_VARS-pure-efi-tpm.fd') ;
+				return true;
+			}
+			return false;
+		}
+
+
 		function is_dir_empty($dir) {
 			if (!is_readable($dir)) return NULL;
 			  $handle = opendir($dir);
@@ -1992,7 +2052,7 @@
 
 		function domain_get_description($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/description', false);
-			$var = $tmp[0];
+			$var = $tmp[0] ?? "";
 			unset($tmp);
 
 			return $var;
@@ -2194,33 +2254,34 @@
 
 			// Get any pci devices contained in the qemu args
 			$args = $this->get_xpath($domain, '//domain/*[name()=\'qemu:commandline\']/*[name()=\'qemu:arg\']/@value', false);
+			if (isset($args['num'])) {
+				for ($i = 0; $i < $args['num']; $i++) {
+					if (strpos($args[$i], 'vfio-pci') !== 0) {
+						continue;
+					}
 
-			for ($i = 0; $i < $args['num']; $i++) {
-				if (strpos($args[$i], 'vfio-pci') !== 0) {
-					continue;
-				}
+					$arg_list = explode(',', $args[$i]);
 
-				$arg_list = explode(',', $args[$i]);
+					foreach ($arg_list as $arg) {
+						$keypair = explode('=', $arg);
 
-				foreach ($arg_list as $arg) {
-					$keypair = explode('=', $arg);
-
-					if ($keypair[0] == 'host' && !empty($keypair[1])) {
-						$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
-						$tmp2 = $this->get_node_device_information($devid);
-						[$bus, $slot, $func] = my_explode(":", str_replace('.', ':', $keypair[1]), 3);
-						$devs[] = [
-							'domain' => '0x0000',
-							'bus' => '0x' . $bus,
-							'slot' => '0x' . $slot,
-							'func' => '0x' . $func,
-							'id' => $keypair[1],
-							'vendor' => $tmp2['vendor_name'],
-							'vendor_id' => $tmp2['vendor_id'],
-							'product' => $tmp2['product_name'],
-							'product_id' => $tmp2['product_id']
-						];
-						break;
+						if ($keypair[0] == 'host' && !empty($keypair[1])) {
+							$devid = 'pci_0000_' . str_replace([':', '.'], '_', $keypair[1]);
+							$tmp2 = $this->get_node_device_information($devid);
+							[$bus, $slot, $func] = my_explode(":", str_replace('.', ':', $keypair[1]), 3);
+							$devs[] = [
+								'domain' => '0x0000',
+								'bus' => '0x' . $bus,
+								'slot' => '0x' . $slot,
+								'func' => '0x' . $func,
+								'id' => $keypair[1],
+								'vendor' => $tmp2['vendor_name'],
+								'vendor_id' => $tmp2['vendor_id'],
+								'product' => $tmp2['product_name'],
+								'product_id' => $tmp2['product_id']
+							];
+							break;
+						}
 					}
 				}
 			}
@@ -2249,15 +2310,17 @@
 			$pid = $this->get_xpath($domain, $xpath.'product/@id', false);
 
 			$devs = [];
-			for ($i = 0; $i < $vid['num']; $i++) {
-				$dev = $this->_lookup_device_usb($vid[$i], $pid[$i]);
-				$devs[] = [
-					'id' => str_replace('0x', '', $vid[$i] . ':' . $pid[$i]),
-					'vendor_id' => $vid[$i],
-					'product_id' => $pid[$i],
-					'product' => $dev['product_name'],
-					'vendor' => $dev['vendor_name']
-				];
+			if (isset($vid['num'])) {
+				for ($i = 0; $i < $vid['num']; $i++) {
+					$dev = $this->_lookup_device_usb($vid[$i], $pid[$i]);
+					$devs[] = [
+						'id' => str_replace('0x', '', $vid[$i] . ':' . $pid[$i]),
+						'vendor_id' => $vid[$i],
+						'product_id' => $pid[$i],
+						'product' => $dev['product_name'],
+						'vendor' => $dev['vendor_name']
+					];
+				}
 			}
 
 			return $devs;
@@ -2291,7 +2354,7 @@
 					'mac' => $macs[$i],
 					'network' => $net[0],
 					'model' => $model[0],
-					'boot' => $boot[0]
+					'boot' => $boot[0] ?? ""
 				];
 			}
 
@@ -2469,6 +2532,12 @@
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
+		//list all snapshots for domain
+		function domain_snapshot_get_xml($domain) {
+			$tmp = libvirt_domain_snapshot_get_xml($domain);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
 		// create a snapshot and metadata node for description
 		function domain_snapshot_create($domain) {
 			$this->domain_set_metadata($domain);
@@ -2478,10 +2547,9 @@
 		}
 
 		//delete snapshot and metadata
-		function domain_snapshot_delete($domain, $name) {
-			$this->snapshot_remove_metadata($domain, $name);
+		function domain_snapshot_delete($domain, $name, $flags=0) {
 			$name = $this->domain_snapshot_lookup_by_name($domain, $name);
-			$tmp = libvirt_domain_snapshot_delete($name);
+			$tmp = libvirt_domain_snapshot_delete($name,$flags);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 

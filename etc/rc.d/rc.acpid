@@ -1,28 +1,64 @@
-#!/bin/sh
+#!/bin/bash
+#
+# script: rc.acpid
+#
 # Start/stop/restart acpid.
+#
+# LimeTech - modified for Unraid OS
+# Bergware - modified for Unraid OS, October 2023
 
-# Start acpid:
-acpid_start() {
-  if [ -x /usr/sbin/acpid -a -d /proc/acpi ]; then
-    echo "Starting ACPI daemon:  /usr/sbin/acpid"
-    /usr/sbin/acpid
-  fi
+DAEMON="ACPI power management daemon"
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+acpid_running(){
+  ps axc | grep -q ' acpid'
 }
 
-# Stop acpid:
-acpid_stop() {
-  if [ -r /var/run/acpid.pid ]; then
-    kill $(cat /var/run/acpid.pid)
+acpid_start(){
+  log "Starting $DAEMON..."
+  local REPLY
+  if acpid_running; then
+    REPLY="Already started"
   else
-    killall acpid
+    if [[ -d /proc/acpi ]]; then
+      run /usr/sbin/acpid
+      if acpid_running; then REPLY="Started"; else REPLY="Failed"; fi
+    else
+      REPLY="No ACPI present"
+    fi
   fi
+  log "$DAEMON...  $REPLY."
 }
 
-# Restart acpid:
-acpid_restart() {
+acpid_stop(){
+  log "Stopping $DAEMON..."
+  local REPLY
+  if ! acpid_running; then
+    REPLY="Already stopped"
+  else
+    run kill $(cat /var/run/acpid.pid 2>/dev/null)
+    run killall acpid
+    if ! acpid_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+acpid_restart(){
+  log "Restarting $DAEMON..."
   acpid_stop
   sleep 1
   acpid_start
+}
+
+acpid_status(){
+  if acpid_running; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
 }
 
 case "$1" in
@@ -35,6 +71,11 @@ case "$1" in
 'restart')
   acpid_restart
   ;;
+'status')
+  acpid_status
+  ;;
 *)
-  echo "usage $0 start|stop|restart"
+  echo "Usage: $BASENAME start|stop|restart|status"
+  exit 1
 esac
+exit 0
