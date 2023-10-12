@@ -183,6 +183,9 @@ div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
+span.head_info{display:inline-block;width:240px}
+span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms{display:none;margin-left:0}
+span.head_bar{display:inline-block;width:200px}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -287,7 +290,9 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </tbody>
 
 <tbody title="_(Processor Information)_" data="toggleCPU(true)">
-<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br><span id='cpu-temp'></span><br></div>
+<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br>
+<span class="head_info"><span id='cpu-temp'></span></span>
+<span id="head_cpu">_(Load)_:<span class="head_bar"><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='_cpu_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><?=$cpumodel?></td></tr>
@@ -315,7 +320,9 @@ foreach ($cpus as $pair) {
 </tbody>
 
 <tbody title="_(Memory Utilization)_">
-<tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span><br></div>
+<tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br>
+<span class="head_info"><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span></span>
+<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='sys0 load fixed'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
@@ -393,7 +400,8 @@ foreach ($ports as $port) {
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
 <tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<br>
-<span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span><br></div>
+<span class="head_info"><span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span></span>
+<span id="head_ups"><span style="padding-right:12px">_(UPS Load)_:</span><span id='_ups_loadpct_'></span></span><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span></td></tr>
@@ -449,7 +457,8 @@ echo "</td></tr>";
 <?if ($dockerd && ($display['dashapps']=='icons' || $display['dashapps']=='docker')):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
-<span class='apps'><input type='checkbox' id='apps'></span><br></div>
+<span id="tile_apps"><span class='apps'><input type='checkbox' id='apps'></span></span>
+<span id="head_apps"></span><br></div>
 <a href='/Dashboard/Settings/DockerSettings' title="_(Go to Docker settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -457,7 +466,8 @@ echo "</td></tr>";
 <?if ($libvirtd && ($display['dashapps']=='icons' || $display['dashapps']=='vms')):?>
 <tbody id='vm_view' title="_(Virtual Machines)_" data="noVMs()">
 <tr><td><i class='icon-virtualization f32'></i><div class='section'>_(Virtual Machines)_<br>
-<span class='vms'><input type='checkbox' id='vms'></span><br></div>
+<span id="tile_vms"><span class='vms'><input type='checkbox' id='vms'></span></span>
+<span id="head_vms"></span><br></div>
 <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -778,9 +788,19 @@ jQuery.prototype.hideMe = function() {
 jQuery.prototype.mixedView = function(s) {
   if (s==0) {
     this.find('tr:gt(0)').hide();
+    this.find('span[id^="head_"]').show();
+    this.find('span[id^="tile_"]').hide();
+    this.find('span#_cpu_').prop('id','cpu');
+    this.find('span#_sys0_').prop('id','sys0');
+    this.find('span#_ups_loadpct_').prop('id','ups_loadpct');
     return;
   }
   this.find('tr:gt(0)').show();
+  this.find('span#cpu:first').prop('id','_cpu_');
+  this.find('span#sys0:first').prop('id','_sys0_');
+  this.find('span#ups_loadpct:first').prop('id','_ups_loadpct_');
+  this.find('span[id^="head_"]').hide();
+  this.find('span[id^="tile_"]').show();
   if (this.attr('data')) {
     setTimeout(this.attr('data'));
   }
@@ -998,6 +1018,14 @@ function loadlist(init) {
     $('#docker_view').append(data[0]).hideMe();
     $('#vm_view tr.updated').remove();
     $('#vm_view').append(data[1]).hideMe();
+    var started_apps = $('#docker_view').find('span.outer.apps.started').length;
+    var stopped_apps = $('#docker_view').find('span.outer.apps.stopped').length;
+    var paused_apps  = $('#docker_view').find('span.outer.apps.paused').length;
+    var started_vms  = $('#vm_view').find('span.outer.vms.started').length;
+    var stopped_vms  = $('#vm_view').find('span.outer.vms.stopped').length;
+    var paused_vms   = $('#vm_view').find('span.outer.vms.paused').length;
+    $('#head_apps').html("_(Containers)_ -- _(Started)_: "+started_apps+", _(Stopped)_: "+stopped_apps+", _(Paused)_: "+paused_apps);
+    $('#head_vms').html("_(VMs)_ -- _(Started)_: "+started_vms+", _(Stopped)_: "+stopped_vms+", _(Paused)_: "+paused_vms);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,noApps());
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,noVMs());
   });
@@ -1253,7 +1281,7 @@ function addProperties() {
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control tile' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
   });
   $('div.frame tr').attr('title','');
-  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').text(val);})});
+  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.fixed').text(val);})});
 <?if ($zfs):?>
   $('tr#var1').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);})});
 <?endif;?>
@@ -1283,6 +1311,11 @@ function showContent() {
       var tbody = $('div.frame tbody[sort="'+md5+'"]');
       tbody.find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
       tbody.find('tr:gt(0)').hide();
+      tbody.find('span[id^="head_"]').show();
+      tbody.find('span[id^="tile_"]').hide();
+      tbody.find('span#_cpu_').prop('id','cpu');
+      tbody.find('span#_sys0_').prop('id','sys0');
+      tbody.find('span#_ups_loadpct_').prop('id','ups_loadpct');
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
