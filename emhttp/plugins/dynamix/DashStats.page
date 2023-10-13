@@ -186,7 +186,7 @@ div.template,div#dialogWindow,input#upload{display:none}
 span.head_info{width:240px;display:inline-block}
 span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:200px}
-span.head_gap{padding-left:20px}
+span.head_gap{padding-left:14px}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -401,7 +401,7 @@ foreach ($ports as $port) {
 <tbody title="_(Power Status)_">
 <tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<span class='head_gap' id='_ups_status_'></span><br>
 <span class="head_info"><span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span></span>
-<span id="head_ups"><span style="padding-right:12px">_(UPS Load)_:</span><span id='_ups_loadpct_'></span></span></span><br></div>
+<span id="head_ups"><span>_(Load)_:</span><span class="head_gap" id='_ups_loadpct_'></span></span></span><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span></td></tr>
