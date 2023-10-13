@@ -119,10 +119,10 @@ while (true) {
   $now = time();
   if (_var($display,'time')=='%R') {
     // 24 hour format
-    $clock = date('H:i',$now); $ampm = '';
+    $clock = date('G:i',$now); $ampm = '';
   } else {
     // 12 hour format wih am/pm
-    $clock = date('h:i',$now); $ampm = '<span class="ampm">'.date('a',$now).'</span>';
+    $clock = date('g:i',$now); $ampm = '<span class="ampm">'.date('a',$now).'</span>';
   }
   $timedate = "$clock $ampm\n"._(date('l, F j, Y',$now),0);
   publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$timedate);

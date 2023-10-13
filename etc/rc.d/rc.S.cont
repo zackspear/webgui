@@ -201,7 +201,7 @@ fi
 # LimeTech - restore hostname from ident.cfg file on flash and ensure hostname is
 # defined as localhost alias in /etc/hosts (this lets wins name resolution work)
 NAME="Tower"
-TIMEZONE="America/Los_Angeles"
+timeZone="America/Los_Angeles"
 if [[ -r /boot/config/ident.cfg ]]; then
   . <(/usr/bin/fromdos </boot/config/ident.cfg)
   NAME=${NAME//[^a-zA-Z\-\.0-9]/\-}
@@ -212,10 +212,10 @@ fi
 /bin/echo "54.149.176.35  keys.lime-technology.com" >>/etc/hosts
 
 # LimeTech - restore the configured timezone
-if [[ $TIMEZONE == custom ]]; then
+if [[ $timeZone == custom ]]; then
   /bin/ln -sf /boot/config/timezone /etc/localtime
 else
-  /bin/ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+  /bin/ln -sf /usr/share/zoneinfo/$timeZone /etc/localtime
 fi
 
 # LimeTech - restore password files stored on flash
