@@ -162,7 +162,7 @@ table.share_status.dashboard tr:last-child td{padding-bottom:20px}
 table.share_status.dashboard tr.last td{padding-bottom:20px}
 table.share_status.dashboard tr.header td{padding-bottom:10px}
 table.share_status.dashboard td{padding:3px 10px}
-table.share_status.dashboard td.stopgap{height:10px!important;line-height:10px!important;padding:0!important;background-color:#1c1b1b}
+table.share_status.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1c1b1b}
 table.share_status.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 table.share_status.dashboard td div.section{display:inline-block;vertical-align:top;margin-left:4px;font-size:1.2rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 table.share_status.dashboard td div.section span{font-weight:normal;text-transform:none;letter-spacing:0;white-space:normal}
