@@ -183,7 +183,7 @@ div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
-span.head_info{width:240px;display:inline-block}
+span.head_info{width:250px;display:inline-block}
 span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:180px}
 span.head_gap{padding-left:14px}
