@@ -19,10 +19,30 @@ $data    = [];
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
+extract(parse_plugin_cfg('dynamix',true));
 
-// satisfy translations (not used)
-if (!function_exists('_')) {
-  function _($text) {return $text;}
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard/main';
+$login_locale = _var($display,'locale');
+require_once "$docroot/webGui/include/Translations.php";
+
+function update_translation($locale) {
+  global $docroot,$language;
+  $language = [];
+  if ($locale) {
+    $text = "$docroot/languages/$locale/translations.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/translations.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = unserialize(file_get_contents($store));
+    }
+    $text = "$docroot/languages/$locale/dashboard.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/dashboard.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
 }
 function ports() {
   global $net;
@@ -42,6 +62,12 @@ foreach (ports() as $port) {
 }
 // loop
 while (true) {
+  // check for language changes
+  extract(parse_plugin_cfg('dynamix',true));
+  if (_var($display,'locale') != $locale_init) {
+    $locale_init = _var($display,'locale');
+    update_translation($locale_init);
+  }
   $echo = $mode = $rxtx = $stat = [];
   $ts = $time - $time0;
   foreach (ports() as $port) {
@@ -89,8 +115,17 @@ while (true) {
     $tx_fifo   = port_get_contents("$net/$port/statistics/tx_fifo_errors");
     $stat[] = "Errors: {$rx_errors}<br>Drops: {$rx_drops}<br>Overruns: {$rx_fifo}\0Errors: {$tx_errors}<br>Drops: {$tx_drops}<br>Overruns: {$tx_fifo}";
   }
-
-  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat));
+  // current date and time
+  $now = time();
+  if (_var($display,'time')=='%R') {
+    // 24 hour format
+    $clock = date('H:i',$now); $ampm = '';
+  } else {
+    // 12 hour format wih am/pm
+    $clock = date('h:i',$now); $ampm = '<span class="ampm">'.date('a',$now).'</span>';
+  }
+  $timedate = "$clock $ampm\n"._(date('l, F j, Y',$now),0);
+  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$timedate);
   $time0 = $time;
   sleep(1);
   $time = microtime(true);
