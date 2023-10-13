@@ -738,6 +738,10 @@ foreach ($pages as $page) {
   // create list of nchan scripts to be started
   if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
   annotate($page['file']);
+  // include page specific stylesheet (if existing)
+  $css = "/{$page['root']}/pages/".strtolower($page['name']).".css";
+  if (is_file($docroot.$css)) echo '<link type="text/css" rel="stylesheet" href="',autov($css),'">',"\n";
+  // create page content
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }

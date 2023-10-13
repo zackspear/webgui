@@ -183,9 +183,10 @@ div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
-span.head_info{width:240px;display:inline-block}
-span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms{display:none;margin-left:0}
-span.head_bar{display:inline-block;width:200px}
+span.head_info{width:250px;display:inline-block}
+span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_{display:none;margin-left:0}
+span.head_bar{display:inline-block;width:180px}
+span.head_gap{padding-left:14px}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -201,6 +202,7 @@ span.wg1{font-size:1.1rem;text-indent:24px}
 span.wg2{font-size:1.1rem}
 span[id^=cpu],span[id^=sys]{width:0}
 span[class^="fa "]{font-size:1.6rem;margin-right:18px}
+span.load.resize{font-size:1.1rem}
 span.fan{width:36%;display:inline-block}
 span.w18{width:18%;display:inline-block;float:left}
 span.w26{width:26%;display:inline-block;float:left}
@@ -208,7 +210,7 @@ span.w36{width:36%;display:inline-block;float:left}
 span.w44{width:44%;display:inline-block;float:left}
 span.w72{width:72%;display:inline-block;float:left}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
-select[name=enter_share]{margin-top:0}
+select[name=enter_share],select[name=enter_user]{margin-top:0;float:none}
 img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
 i.heat{margin-left:8px}
 i.ups{margin-right:8px;font-size:1.4rem!important}
@@ -234,6 +236,9 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .switch-button-background{margin-left:0;margin-top:4px}
 .switch-button-label{margin-top:3px}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
+#current_time{font-size:4rem;margin-left:8px}
+#current_date{font-size:1.3rem;margin-left:18px}
+span.ampm{font-size:2rem}
 </style>
 <script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
@@ -260,6 +265,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </td></tr>
 <tr><td>
 <div class='leftside'>
+<span id="current_time"></span><br><span id="current_date"></span><br><br>
 <span class='header'><i class='indent fa fa-file-text-o'></i>_(Model)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?:'---'?><br><br>
 <span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
@@ -295,7 +301,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><?=$cpumodel?></td></tr>
-<tr><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load resize'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
 <tr id='cpu_main'><td><a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle'>
 <span><select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
@@ -309,9 +315,9 @@ foreach ($cpus as $pair) {
   [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
   echo "<tr class='cpu_open'>";
   if ($cpu2)
-    echo "<td><span class='w26'>CPU $cpu1 - HT $cpu2</span><span class='dashboard w36'><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span><span class='dashboard w36'><span class='cpu$cpu2 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></span></td>";
+    echo "<td><span class='w26'>CPU $cpu1 - HT $cpu2</span><span class='dashboard w36'><span class='cpu$cpu1 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span><span class='dashboard w36'><span class='cpu$cpu2 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></span></td>";
   else
-    echo "<td><span class='w26'>CPU $cpu1</span><span class='w72'><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span></td>";
+    echo "<td><span class='w26'>CPU $cpu1</span><span class='w72'><span class='cpu$cpu1 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span></td>";
   echo "</tr>";
 }
 ?>
@@ -321,20 +327,20 @@ foreach ($cpus as $pair) {
 <tbody title="_(Memory Utilization)_">
 <tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br>
 <span class="head_info"><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span></span>
-<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='sys0 load fixed'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
+<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='sys0 load head'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
-<tr id='var0'><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
-<tr id='var1'><td><span class='w26'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
-<tr id='var2'><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
-<tr id='var3'><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
-<tr id='var4'><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys4 load'>0%</span><div class='usage-disk sys'><span id='sys4'></span><span></span></div></span></td></tr>
+<tr id='var0'><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load resize'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
+<tr id='var1'><td><span class='w26'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_</span><span class='w72'><span class='sys1 load resize'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
+<tr id='var2'><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys2 load resize'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
+<tr id='var3'><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys3 load resize'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
+<tr id='var4'><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys4 load resize'>0%</span><div class='usage-disk sys'><span id='sys4'></span><span></span></div></span></td></tr>
 </tbody>
 
 <tbody title="_(Interface Information)_" class="mixed">
 <tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_
-<span style="padding-left:20px"><i class='ups fa fa-angle-right'></i><select name="port_select" onchange="portSelect(this.value)">
+<span class="head_gap"><i class='ups fa fa-angle-double-right'></i><select name="port_select" onchange="portSelect(this.value)">
 <?foreach ($ports as $port):?>
 <?=mk_option("",$port,_($port))?>
 <?endforeach;?>
@@ -397,9 +403,9 @@ foreach ($ports as $port) {
 
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
-<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<br>
+<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<span class='head_gap' id='_ups_status_'></span><br>
 <span class="head_info"><span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span></span>
-<span id="head_ups"><span style="padding-right:12px">_(UPS Load)_:</span><span id='_ups_loadpct_'></span></span><br></div>
+<span id="head_ups"><span>_(Load)_:</span><span class="head_gap" id='_ups_loadpct_'></span></span></span><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span></td></tr>
@@ -475,14 +481,14 @@ echo "</td></tr>";
 <tbody title="_(Shares Information)_"<?if ($group):?> class="mixed"<?endif;?>>
 <tr><td><i class='icon-folder f32'></i><div class='section'>_(Shares)_
 <?if ($group):?>
-<select name="enter_share" onchange="changeMode(this.value)">
+<span class="head_gap"><i class='ups fa fa-angle-double-right'></i><select name="enter_share" onchange="changeMode(this.value)">
 <?if (_var($var,'shareSMBEnabled')=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
 <?if (_var($var,'shareNFSEnabled')=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
-</select>
+</select></span>
 <?endif;?>
 <br><span>
 <?=sprintf(_("Share count: %s with %s cache only and %s encrypted"),count($shares),$cache_only,$encrypted)?>
@@ -533,14 +539,14 @@ if (!$group) {
 <tbody title="_(Users Information)_"<?if ($group):?> class="mixed"<?endif;?>>
 <tr><td><i class='icon-users f32'></i><div class='section'>_(Users)_
 <?if ($group):?>
-<select name="enter_user" class="unused">
+<span class="head_gap"><i class='ups fa fa-angle-double-right unused'></i><select name="enter_user" class="unused">
 <?if (_var($var,'shareSMBEnabled')=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
 <?if (_var($var,'shareNFSEnabled')=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
-</select>
+</select></span>
 <?endif;?>
 <br><span>
 <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
@@ -791,12 +797,14 @@ jQuery.prototype.mixedView = function(s) {
     this.find('span#_cpu_').prop('id','cpu');
     this.find('span#_sys0_').prop('id','sys0');
     this.find('span#_ups_loadpct_').prop('id','ups_loadpct');
+    this.find('span#_ups_status_').prop('id','ups_status');
     return;
   }
   this.find('tr:gt(0)').show();
   this.find('span#cpu:first').prop('id','_cpu_');
   this.find('span#sys0:first').prop('id','_sys0_');
   this.find('span#ups_loadpct:first').prop('id','_ups_loadpct_');
+  this.find('span#ups_status:first').prop('id','_ups_status_');
   this.find('span[id^="head_"]').hide();
   this.find('span[id^="tile_"]').show();
   if (this.attr('data')) {
@@ -1279,7 +1287,7 @@ function addProperties() {
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control tile' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
   });
   $('div.frame tr').attr('title','');
-  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.fixed').text(val);})});
+  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.head').text(val);})});
 <?if ($zfs):?>
   $('tr#var1').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);})});
 <?endif;?>
@@ -1314,6 +1322,7 @@ function showContent() {
       tbody.find('span#_cpu_').prop('id','cpu');
       tbody.find('span#_sys0_').prop('id','sys0');
       tbody.find('span#_ups_loadpct_').prop('id','ups_loadpct');
+      tbody.find('span#_ups_status_').prop('id','ups_status');
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
@@ -1557,6 +1566,10 @@ dashboard.on('message',function(msg,meta) {
     $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
     $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
     $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
+    // current date and time
+    var timedate = part[4].split('\n');
+    $('#current_time').html(timedate[0]);
+    $('#current_date').html(timedate[1]);
     break;
   case 4:
     // wireguard tunnels
