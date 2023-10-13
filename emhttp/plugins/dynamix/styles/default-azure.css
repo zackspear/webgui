@@ -170,7 +170,7 @@ table.share_status.dashboard td span.info{float:right;margin-right:20px;font-siz
 table.share_status.dashboard td span.info.title{font-weight:bold}
 table.share_status.dashboard td span.load{display:inline-block;width:38px;text-align:right}
 table.share_status.dashboard td span.finish{float:right;margin-right:24px}
-table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#d7dbdd;background-color:rgba(0,0,0,0.3);padding:2px}
+table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#d7dbdd;background-color:rgba(0,0,0,0.3);padding:2px;border-radius:5px}
 table.share_status.dashboard .usage-disk.sys{height:auto}
 .dashboard-sortable{background-color:#e4e2e4}
 tr.alert{color:#f0000c;background-color:#ff9e9e}
