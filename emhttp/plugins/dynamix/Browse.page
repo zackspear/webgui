@@ -31,7 +31,6 @@ $dir     = htmlspecialchars(str_replace('\\','\\\\',$dir));
 $lock    = $root=='mnt' ? ($main ?: '---') : ($root=='boot' ? _('flash') : '---');
 $isshare = $root=='mnt' && (!$main || !$next || ($main=='rootshare' && !$rest));
 $editor  = '/boot/config/editor.cfg';
-$newos   = version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9','>');
 
 if (!file_exists($editor)) file_put_contents($editor,implode("\n",['','txt','js','php','page','plg','xml','old','bak','log','css']));
 ?>
@@ -50,13 +49,8 @@ tr.ace_optionsMenuEntry td input[type=number]::-webkit-inner-spin-button{-webkit
 tr.ace_optionsMenuEntry td input[type=number]{-moz-appearance:auto;margin:0}
 
 .loc{text-align:left!important;padding-left:0!important}
-<?if ($newos):?>
 .title{letter-spacing:1px}
 .title span.left{text-transform:none}
-<?else:?>
-#title{letter-spacing:1px}
-#title span.left{text-transform:none}
-<?endif;?>
 table.tablesorter.indexer{margin-top:0}
 table.tablesorter.indexer thead th:nth-child(1){width:12px;text-align:left;padding-left:11px}
 table.tablesorter.indexer thead th:nth-child(2){width:3%!important}
