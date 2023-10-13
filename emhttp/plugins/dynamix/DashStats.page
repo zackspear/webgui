@@ -183,9 +183,8 @@ div.leftside{float:left;width:66%}
 div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
-span.head_time{font-size:2rem!important;padding-left:80px}
 span.head_info{width:250px;display:inline-block}
-span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_,#_current_time_{display:none;margin-left:0}
+span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:180px}
 span.head_gap{padding-left:14px}
 span.green,span.red,span.orange{padding-left:0}
@@ -251,7 +250,7 @@ span.ampm{font-size:2rem}
 <div class='tile' id='tile1'>
 <table id='db-box1' class='share_status dashboard'>
 <tbody class='system'>
-<tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><span id="_current_time_" class="head_time"></span><br>
+<tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
 <span><?=_var($var,'COMMENT')?></span><br></div>
 <a href='/Dashboard/Settings/Identification'><i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i></a><i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
 <span class='ctrl'>
@@ -799,7 +798,6 @@ jQuery.prototype.mixedView = function(s) {
     this.find('span#_sys0_').prop('id','sys0');
     this.find('span#_ups_loadpct_').prop('id','ups_loadpct');
     this.find('span#_ups_status_').prop('id','ups_status');
-    this.find('span#_current_time_').prop('id','current_time');
     return;
   }
   this.find('tr:gt(0)').show();
@@ -807,7 +805,6 @@ jQuery.prototype.mixedView = function(s) {
   this.find('span#sys0:first').prop('id','_sys0_');
   this.find('span#ups_loadpct:first').prop('id','_ups_loadpct_');
   this.find('span#ups_status:first').prop('id','_ups_status_');
-  this.find('span#current_time:first').prop('id','_current_time_');
   this.find('span[id^="head_"]').hide();
   this.find('span[id^="tile_"]').show();
   if (this.attr('data')) {
@@ -1326,7 +1323,6 @@ function showContent() {
       tbody.find('span#_sys0_').prop('id','sys0');
       tbody.find('span#_ups_loadpct_').prop('id','ups_loadpct');
       tbody.find('span#_ups_status_').prop('id','ups_status');
-      tbody.find('span#_current_time_').prop('id','current_time');
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
