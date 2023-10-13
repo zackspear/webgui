@@ -779,7 +779,7 @@ private static $encoding = 'UTF-8';
 					$boolBlacklisted = true;
 				}
 
-				$overrideCheck = "${arrMatch['typeid']}:${arrMatch['productid']}" ;
+				$overrideCheck = "{$arrMatch['typeid']}:{$arrMatch['productid']}" ;
 				if (in_array($overrideCheck,$arrWhiteListOverride) ) $boolBlacklisted = false;
 
 				$strClass = 'other';
