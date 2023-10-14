@@ -98,5 +98,4 @@ switch ($action) {
 #execCommand_nchan("ls /") ;
 write("stop_Wait\0$waitID") ;
 write('_DONE_','');
-
 ?>

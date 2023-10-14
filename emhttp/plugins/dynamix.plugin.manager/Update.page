@@ -4,8 +4,8 @@ Icon="icon-update"
 Tag="upload"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -35,21 +35,6 @@ if (file_exists($changes)) {
 }
 $reboot = preg_match("/^\*\*(REBOOT REQUIRED|DOWNGRADE)/",@file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20));
 ?>
-<style>
-ul,li{margin:0;padding-top:0;padding-bottom:0}
-pre.pre{margin:30px 0}
-pre>p{margin:0;padding:0}
-pre#swaltext{height:600px!important}
-@media (max-width:960px){pre#swaltext{height:400px!important}}
-@media (max-width:960px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
-@media (max-height:768px){pre#swaltext{height:400px!important}}
-@media (max-height:768px){.sweet-alert.nchan{height:600px;width:900px;margin-left:-470px}}
-input[value="_(Install)_"],input[value="_(Update)_"],input[value="_(Restore)_"]{margin:0}
-<?if ($themes1):?>
-span.vhshift{margin-top:13px!important}
-<?endif;?>
-</style>
-
 <script>
 var diagnosticsFile = "";
 var nchan_diagnostics = new NchanSubscriber('/sub/diagnostics',{subscriber:'websocket'});

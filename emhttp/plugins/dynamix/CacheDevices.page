@@ -33,9 +33,7 @@ function isSubpool($name) {
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
-<style>
-table.divider{margin-top:20px}
-</style>
+
 <script>
 function validate(poolname) {
   var valid = /^[a-z]([a-z0-9~._-]*[a-z_-])*$/;

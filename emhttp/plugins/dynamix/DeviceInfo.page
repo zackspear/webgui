@@ -106,14 +106,7 @@ $text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') 
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
-<style>
-input.option{display:none;width:40px}
-select.option,#autosize{display:none}
-span#devtext{display:none;font-weight:bold}
-span#helptext{display:none;font-style:italic}
-span.code{display:inline-block;width:186px}
-i.fa-info.i{margin-right:10px}
-</style>
+
 <script>
 if ($.cookie('deletepool')) {
   $.removeCookie('deletepool');

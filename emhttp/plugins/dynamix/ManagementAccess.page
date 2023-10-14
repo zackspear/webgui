@@ -190,10 +190,6 @@ foreach ($output as $line) {
 }
 sort($portsInUse,SORT_NUMERIC);
 ?>
-<style>
-span.warning{margin-left:20px}
-</style>
-
 <script>
 function provisionHandler(event, form) { // provisions and renewals require being Signed In to Unraid.net
   if (event.submitter.value === 'Delete') return true; // always allow deletes

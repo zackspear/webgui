@@ -81,13 +81,6 @@ function print_error($error) {
   return sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
 }
 ?>
-<style>
-tr#copy,tr#file{display:none}
-td.gap{padding-left:26px!important}
-td.wrap{white-space:normal!important}
-span#pass{display:none;margin-left:20px}
-input[type=checkbox]{margin-left:0}
-</style>
 <script>
 var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
 

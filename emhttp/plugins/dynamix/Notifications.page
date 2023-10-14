@@ -5,8 +5,8 @@ Icon="icon-notifications"
 Tag="phone-square"
 ---
 <?PHP
-/* Copyright 2005-2022, Lime Technology
- * Copyright 2012-2022, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2012, Andrew Hamer-Adams, http://www.pixeleyes.co.nz.
  *
  * This program is free software; you can redistribute it and/or
@@ -21,11 +21,6 @@ Tag="phone-square"
 $events = explode('|', $notify['events'] ?? '');
 $disabled = $notify['system'] ? '' : 'disabled';
 ?>
-<style>
-select.a{min-width:220px}
-input.a{width:220px}
-span.a{display:inline-block;width:220px;font-style:italic}
-</style>
 <script>
 function prepareNotify(form) {
   form.entity.value = form.normal1.checked | form.warning1.checked | form.alert1.checked;

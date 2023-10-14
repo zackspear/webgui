@@ -26,13 +26,6 @@ function my_time_now($time) {
 $regGen = (int)$var['regGen'] ?? 0;
 $trialExtensionEligible = $regGen === 0 || $regGen === 1;
 ?>
-<style>
-span.thanks{padding-left:12px;color:#6FA239;font-weight:bold;}
-span.thanks.red{color:#F0000C;}
-div.device{padding:0 12px;font-weight:normal;font-style:italic;}
-div.remark{padding:0 12px;text-align:justify;}
-</style>
-
 <?if ( (strstr($var['regTy'], "unregistered")) or ($var['regTy']=="Trial") or (strstr($var['regTy'], "no connection")) or (strstr($var['regTy'], "withdrawn")) or (strstr($var['regTy'], "expired")) ):?>
 
 <span class="thanks">_(Thank you for trying Unraid OS)_!</span>
