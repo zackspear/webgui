@@ -37,6 +37,7 @@ fi
 [[ -r $RPC ]] && . $RPC
 
 nfsd_running(){
+  sleep 0.1
   ps axc | grep -q rpc.mountd
 }
 

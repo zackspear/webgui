@@ -19,6 +19,7 @@ LOCK="/var/lock/apcupsd"
 . /etc/rc.d/rc.runlog
 
 apcupsd_running(){
+  sleep 0.1
   [[ -f $APCPID ]]
 }
 

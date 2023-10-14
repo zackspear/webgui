@@ -13,6 +13,7 @@ DAEMON="Internet daemon"
 . /etc/rc.d/rc.runlog
 
 inetd_running(){
+  sleep 0.1
   ps axc | grep -q ' inetd'
 }
 

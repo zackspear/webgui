@@ -101,6 +101,7 @@ docker_pid(){
 
 # Verify if docker daemon running
 docker_running(){
+  sleep 0.1
   [[ -S /var/run/docker.sock ]] || return 1
   [[ $(docker info 2>&1) =~ "Cannot connect to the Docker daemon" ]] && return 1 || return 0
 }

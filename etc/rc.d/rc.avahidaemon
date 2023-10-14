@@ -50,6 +50,7 @@ disable(){
 }
 
 avahid_running(){
+  sleep 0.1
   $AVAHI -c
   [[ $? == 0 ]]
 }

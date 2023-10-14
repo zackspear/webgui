@@ -31,6 +31,7 @@ if check && [[ -n $BIND ]]; then
 fi
 
 rpc_running(){
+  sleep 0.1
   ps axc | grep -q rpc.statd
 }
 

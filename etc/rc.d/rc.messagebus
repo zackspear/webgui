@@ -23,6 +23,7 @@ PIDFILE="/var/run/dbus/dbus.pid"
 . /etc/rc.d/rc.runlog
 
 dbus_running(){
+  sleep 0.1
   ps -u messagebus -c | grep -wq dbus-daemon
 }
 

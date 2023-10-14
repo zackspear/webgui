@@ -28,6 +28,7 @@ DAEMON="WSDD daemon"
 # fi
 
 wsdd2_running(){
+  sleep 0.1
   ps axc | grep -q ' wsdd2'
 }
 

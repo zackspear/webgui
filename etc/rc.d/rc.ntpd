@@ -21,6 +21,7 @@ IDENT="/boot/config/ident.cfg"
 . /etc/rc.d/rc.library.source
 
 ntpd_running(){
+  sleep 0.1
   [[ $(pgrep -cf $NTPD) -gt 0 ]]
 }
 

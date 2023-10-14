@@ -14,6 +14,7 @@ PIDFILE="/var/run/dnsmasq.pid"
 . /etc/rc.d/rc.runlog
 
 dnsmasq_running(){
+  sleep 0.1
   pgrep -l -F $PIDFILE 2>/dev/null | grep -q dnsmasq
 }
 

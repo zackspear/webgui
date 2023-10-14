@@ -22,6 +22,7 @@ SSH_ETC="/etc/ssh"
 . /etc/rc.d/rc.library.source
 
 sshd_running(){
+  sleep 0.1
   [[ $(pgrep -cf $SSHD) -gt 0 ]]
 }
 
