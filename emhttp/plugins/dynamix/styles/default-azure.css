@@ -196,7 +196,6 @@ span.ucfirst{text-transform:capitalize}
 span.strong{font-weight:bold}
 span.big{font-size:1.4rem}
 span.small{font-size:1.1rem}
-span.score{font-size:1.1rem;color:#ffffff;position:absolute}
 span#dropbox{background:none;line-height:6rem;margin-right:20px}
 span.outer{margin-bottom:20px;margin-right:0}
 span.outer.solid{background-color:#d7dbdd}
