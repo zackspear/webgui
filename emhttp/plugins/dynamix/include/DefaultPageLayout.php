@@ -686,6 +686,7 @@ foreach ($buttons as $button) {
   $css_theme = "$css-$theme.css";
   if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
   if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+  // create page content
   eval('?>'.parse_text($button['text']));
 }
 unset($buttons,$button);
