@@ -52,10 +52,9 @@ function customTiles($column) {
 // adjust the text color in log window
 $fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
 exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
-
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$dockerd);
 exec("/etc/rc.d/rc.libvirt status >/dev/null",$dummy,$libvirtd);
-$domain_cfg = parse_ini_file("/boot/config/domain.cfg");
+
 $dockerd = $dockerd==0;
 $libvirtd = $libvirtd==0;
 $apcupsd = file_exists('/var/run/apcupsd.pid');
@@ -239,6 +238,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 #current_time{font-size:4rem;margin-left:8px}
 #current_date{font-size:1.3rem;margin-left:18px}
 span.ampm{font-size:2rem}
+table.snapshot{margin-top:0}
 </style>
 <script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
@@ -666,6 +666,7 @@ if (!$group) {
 <input type='hidden' name='csrf_token' value='<?=_var($var,'csrf_token')?>'>
 <input type='hidden' name='cmd' value=''>
 </form>
+
 <div id="iframe-popup"></div>
 
 <div id="templateContentMgmt" class="template">
@@ -716,9 +717,8 @@ function hideShow() {
 !-->
 </div>
 
-<div id="dialogWindow"></div>
-<div markdown="1" id="templateClone" class="template">
-<table>
+<div id="templateClone" class="template">
+<table class="snapshot">
 <tr><td>_(VM Being Cloned)_:</td><td><span id="VMBeingCloned"></span></td></tr>
 <tr><td>_(New VM)_:</td><td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
 <tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
@@ -728,9 +728,8 @@ function hideShow() {
 </table>
 </div>
 
-<div id="dialogWindow2"></div>
-<div markdown="1" id="templatesnapshotcreate" class="template">
-<table id="snapshot">
+<div id="templatesnapshotcreate" class="template">
+<table id="snapshot" class="snapshot">
 <tr><td>_(VM Name)_:</td><td><label id="VMName"></label></td></tr>
 <tr><td>_(Snapshot Name)_:</td><td><input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">_(Check free space)_:<input type="checkbox" id="targetsnapfspc" checked></td></tr>
 <tr><td>_(Description)_:</td><td><input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
@@ -865,63 +864,6 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
-
-function selectsnapshot(uuid, name ,snaps, opt, getlist){
-  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
-  var match= ".iso";
-  var box = $("#dialogWindow2");
-  box.html($("#templatesnapshot"+opt).html());
-  var height = 200;
-  const Capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
-  var optiontext = Capopt + " Snapshot";
-  box.find('#VMName').html(name);
-  box.find('#targetsnap').val(snaps);
-  box.find('#targetsnapl').html(snaps);
-  if (getlist) {
-    var only = (opt == "remove") ? 0 : 1;
-    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
-  }
- document.getElementById("targetsnapfspc").checked = true;
-  box.dialog({
-    title: "_("+optiontext+ ")_",
-    resizable: false,
-    width: 600,
-    height: 500,
-    modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
-    buttons: {
-      "_(Proceed)_": function(){
-        var target = box.find('#targetsnap');
-        if (target.length) {
-          target = target.val();
-          if (!target) {errorTarget(); return;}
-        } else target = '';
-        var remove = 'yes';
-        var removemeta = 'yes';
-        var keep = 'yes';
-        var free = 'yes';
-        var desc = '';
-        box.find('#targetsnap').prop('disabled',true);
-        if (opt == "revert") {
-          remove = box.find('#targetsnaprmv').prop('checked') ? 'yes' : 'no';
-          removemeta = box.find('#targetsnaprmvmeta').prop('checked') ? 'yes' : 'no';
-          keep = box.find('#targetsnapkeep').prop('checked') ? 'yes' : 'no';
-        }
-        if (opt == "create") {
-          free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
-          desc = box.find("#targetsnapdesc").prop('value');
-        }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, desc:desc}, "loadlist");
-        box.dialog('close');
-      },
-      "_(Cancel)_": function(){
-        box.dialog('close');
-      }
-    }
-  });
-  dialogStyle();
-}
 
 function initCharts(clear) {
   $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
@@ -1381,6 +1323,12 @@ function dismiss(button) {
   inactive.push(tbody.attr('sort'));
   $.cookie('inactive_content',inactive.join(';'),{expires:3650});
 }
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 function contentMgmt() {
   box = $("#iframe-popup");
   box.html($("#templateContentMgmt").html().build());
@@ -1390,8 +1338,6 @@ function contentMgmt() {
     width: 900,
     resizable: false,
     modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
     buttons: {
       "_(Reset)_": function(){
         $.removeCookie('db-box1');
@@ -1417,10 +1363,94 @@ function contentMgmt() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
+}
+function VMClone(uuid, name){
+  box = $("#iframe-popup");
+  box.html($("#templateClone").html());
+  box.find('#VMBeingCloned').html(name).change();
+  box.find('#target').val(name + "_clone");
+  document.getElementById("Free").checked = true;
+  document.getElementById("Overwrite").checked = true;
+  box.dialog({
+    title: "_(VM Clone)_",
+    height: 300,
+    width: 600,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "_(Clone)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          //if (!target) {errorTarget(); return;}
+        } else target = '';
+        var clone = box.find("#target").prop('value');
+        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
+        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
+        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
+        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
+        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
+        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+function selectsnapshot(uuid, name ,snaps, opt, getlist){
+  box = $("#iframe-popup");
+  box.html($("#templatesnapshot"+opt).html());
+  const capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
+  var optiontext = capopt + " _(Snapshot)_";
+  box.find('#VMName').html(name);
+  box.find('#targetsnap').val(snaps);
+  box.find('#targetsnapl').html(snaps);
+  if (getlist) {
+    var only = (opt == "remove") ? 0 : 1;
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
+  }
+  document.getElementById("targetsnapfspc").checked = true;
+  box.dialog({
+    title: optiontext,
+    height: 300,
+    width: 600,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "_(Proceed)_": function(){
+        var target = box.find('#targetsnap');
+        if (target.length) {
+          target = target.val();
+          if (!target) {errorTarget(); return;}
+        } else target = '';
+        var remove = 'yes';
+        var removemeta = 'yes';
+        var keep = 'yes';
+        var free = 'yes';
+        var desc = '';
+        box.find('#targetsnap').prop('disabled',true);
+        if (opt == "revert") {
+          remove = box.find('#targetsnaprmv').prop('checked') ? 'yes' : 'no';
+          removemeta = box.find('#targetsnaprmvmeta').prop('checked') ? 'yes' : 'no';
+          keep = box.find('#targetsnapkeep').prop('checked') ? 'yes' : 'no';
+        }
+        if (opt == "create") {
+          free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
+          desc = box.find("#targetsnapdesc").prop('value');
+        }
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, desc:desc}, "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
 }
 
 var sortableHelper = function(e,ui){
@@ -1643,52 +1673,4 @@ $(function() {
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
-  function dialogStyle() {
-  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title');
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
-}
-function VMClone(uuid, name){
-  //var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
-  var match= ".iso";
-  var box = $("#dialogWindow");
-  var height = 200;
-  box.html($("#templateClone").html());
-  box.find('#VMBeingCloned').html(name).change() ;
-  box.find('#target').val(name + "_clone") ;
-  document.getElementById("Free").checked = true ;
-  document.getElementById("Overwrite").checked = true ;
-  var Cancel = _("Cancel") ;
-  box.dialog({
-    title: "VM Clone",
-    resizable: false,
-    width: 600,
-    height: 500,
-    modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
-    buttons: {
-      "_(Clone)_": function(){
-        var target = box.find('#target');
-        if (target.length) {
-          target = target.val();
-          //if (!target ) {errorTarget(); return;}
-        } else target = '';
-        var clone = box.find("#target").prop('value');
-        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
-        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
-        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
-        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
-        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
-        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
-        box.dialog('close');
-      },
-      "_(Cancel)_": function(){
-        box.dialog('close');
-      }
-    }
-  });
-  dialogStyle();
-}
 </script>
