@@ -836,6 +836,7 @@
 					}
 
 					if ($gpu['multi'] == "on"){
+						if ($gpu['guestbus'] == "") {
 							# This is a new Multifunction device/VM allocate from range 0x90
 							$multibus = array_key_last($multi) ;
 							file_put_contents("/tmp/mbus", $multibus) ;
