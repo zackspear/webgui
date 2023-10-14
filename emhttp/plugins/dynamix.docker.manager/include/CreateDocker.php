@@ -406,8 +406,6 @@ function addConfigPopup() {
     resizable: false,
     width: 800,
     modal: true,
-    show : {effect: 'fade' , duration: 250},
-    hide : {effect: 'fade' , duration: 250},
     buttons: {
     "_(Add)_": function() {
         $(this).dialog("close");
@@ -480,8 +478,6 @@ function editConfigPopup(num,disabled) {
     resizable: false,
     width: 800,
     modal: true,
-    show: {effect:'fade', duration: 250},
-    hide: {effect:'fade', duration: 250},
     buttons: {
     "_(Save)_": function() {
         $(this).dialog("close");
