@@ -66,8 +66,6 @@ function popupWithIframe(title, cmd, reload, func) {
     height: Math.max(window.innerHeight*3/5,600),
     resizable:true,
     modal:true,
-    show:{effect:'fade', duration:250},
-    hide:{effect:'fade', duration:250},
     open:function(ev, ui) {
       $('#myIframe').attr('src', cmd);
     },

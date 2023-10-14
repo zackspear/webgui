@@ -489,8 +489,6 @@ function renamePoolPopup() {
     resizable: false,
     width: 600,
     modal: true,
-    show : {effect:'fade', duration:250},
-    hide : {effect:'fade', duration:250},
     buttons: {
     "_(Rename)_": function() {
         if (validate($(this).find('input[name="poolName"]').val())) {
