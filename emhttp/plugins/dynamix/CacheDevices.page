@@ -30,7 +30,6 @@ function isSubpool($name) {
   $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
   return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
 }
-$bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
@@ -85,7 +84,6 @@ function addPoolPopup() {
   $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
   $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
   $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
   $(".ui-button-text").css({'padding':'0px 5px'});
 }
 function removeOption(inputString,value) {
@@ -132,12 +130,10 @@ function addSubpoolPopup(poolname,currentsubpools) {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 
 <?if (_var($var,'fsState')=="Started"):?>

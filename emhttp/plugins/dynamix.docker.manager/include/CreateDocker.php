@@ -437,11 +437,10 @@ function addConfigPopup() {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 
 function editConfigPopup(num,disabled) {
@@ -518,11 +517,10 @@ function editConfigPopup(num,disabled) {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
   $('.desc_readmore').readmore({maxHeight:10});
 }
 
