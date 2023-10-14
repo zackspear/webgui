@@ -680,6 +680,12 @@ if ($themes2) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
   annotate($button['file']);
+  // include page specific stylesheets (if existing)
+  $css = "/{$button['root']}/sheets/{$button['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css";
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
   eval('?>'.parse_text($button['text']));
 }
 unset($buttons,$button);
