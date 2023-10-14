@@ -137,12 +137,12 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
     }});
     if (vmrcprotocol == "VNC" || vmrcprotocol == "SPICE") { 
       if (console == "web" || console == "both")  {
-        opts.push({text:_("Start with console")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
+        opts.push({text:_("Start with console")+ " (" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
           e.preventDefault();
           ajaxVMDispatchconsole({action:"domain-start-console", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
         }});}
       if (console == "remote" || console == "both")  {
-        opts.push({text:_("Start with remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
+        opts.push({text:_("Start with remote-viewer")+ " (" + vmrcprotocol + ")" , icon:"fa-play", action:function(e) {
           e.preventDefault();
           ajaxVMDispatchconsoleRV({action:"domain-start-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
         }});
