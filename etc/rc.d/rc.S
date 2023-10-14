@@ -61,7 +61,7 @@ fi
 # provided to override which device is mounted for /boot (default: UNRAID)
 UNRAIDLABEL="UNRAID"
 UNRAIDROOT=
-set -- $(cat /proc/cmdline)
+set -- $(/bin/cat /proc/cmdline)
 for x in "$@"; do
   case "$x" in
   unraidlabel=*)
