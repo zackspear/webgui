@@ -36,7 +36,7 @@ function write(...$messages){
 	}
 	curl_close($com);
   }
-  function execCommand_nchan($command,$idx,$refcmd=false) {
+  function execCommand_nchan_clone($command,$idx,$refcmd=false) {
 	$waitID = mt_rand();
 	if ($refcmd) {
 		[$cmd,$args] = explode(' ',$refcmd,2);

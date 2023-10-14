@@ -99,7 +99,7 @@ _(Enable VMs)_:
 
 :vms_enable_help:
 
-_(Disable Autostart VMs)_:
+_(Disable Autostart/Start option for VMs)_:
 : <select id="DISABLE" name="DISABLE">
   <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'no', _('No'))?>
   <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'yes', _('Yes'))?>
