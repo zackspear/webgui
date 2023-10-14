@@ -732,6 +732,7 @@
 
 			$pcidevs='';
 			$gpudevs_used=[];
+			$multidevices = $multi = [] ; #Load?
 			$vmrc='';
 			$channelscopypaste = '';
 			if (!empty($gpus)) {
@@ -834,6 +835,27 @@
 						$strRomFile = "<rom file='".$gpu['rom']."'/>";
 					}
 
+					if ($gpu['multi'] == "on"){
+							# This is a new Multifunction device/VM allocate from range 0x90
+							$multibus = array_key_last($multi) ;
+							file_put_contents("/tmp/mbus", $multibus) ;
+							if ($multibus == NULL) $multi_bus = "0x90" ; 
+							else 
+								{
+									$multi_bus = hexdec($multibus) + 1 ;   
+									$multi_bus = "0x".dechex($multi_bus) ;
+								}
+							$multi[$multi_bus] = $multi_bus ;
+							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='".$multi_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."' multifunction='on' />" ;
+						} else {
+							$multi_bus = $gpu['guestbus'] ;
+							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='".$multi_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."' multifunction='on' />" ;
+						}
+						$multidevices[$gpu_bus] = $multi_bus ;
+					}
+
+					
+
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'".$strXVGA.">
 									<driver name='vfio'/>
 									<source>
@@ -846,8 +868,9 @@
 					$gpudevs_used[] = $gpu['id'];
 				}
 			}
-
+			file_put_contents("/tmp/bus", $multi) ;
 			$audiodevs_used=[];
+			$strSpecialAddressAudio = "" ;
 			if (!empty($audios)) {
 				foreach ($audios as $i => $audio) {
 					// Skip duplicate audio devices
@@ -856,12 +879,16 @@
 					}
 
 					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
+					if ($audio_function != 0) {
+						if (isset($multidevices[$audio_bus]))	$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='".$multidevices[$audio_bus]."' slot='0x".$audio_slot."' function='0x".$audio_function."' />" ;
+					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x".$audio_bus."' slot='0x".$audio_slot."' function='0x".$audio_function."'/>
 									</source>
+									$strSpecialAddressAudio
 								</hostdev>";
 
 					$audiodevs_used[] = $audio['id'];
@@ -2235,7 +2262,11 @@
 					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->value;
 					$devid = str_replace('0x', '', 'pci_'.$dom.'_'.$bus.'_'.$slot.'_'.$func);
 					$tmp2 = $this->get_node_device_information($devid);
-
+					$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->value ? "on" : "off" ;
+					$guest["dom"]  = $xpath->query('address/@domain', $objNode)->Item(0)->value;
+					$guest["bus"]  = $xpath->query('address/@bus', $objNode)->Item(0)->value;
+					$guest["slot"] = $xpath->query('address/@slot', $objNode)->Item(0)->value;
+					$guest["func"] = $xpath->query('address/@function', $objNode)->Item(0)->value;
 					$devs[] = [
 						'domain' => $dom,
 						'bus' => $bus,
@@ -2247,7 +2278,8 @@
 						'product' => $tmp2['product_name'],
 						'product_id' => $tmp2['product_id'],
 						'boot' => $boot,
-						'rom' => $rom
+						'rom' => $rom,
+						'guest' => $guest
 					];
 				}
 			}

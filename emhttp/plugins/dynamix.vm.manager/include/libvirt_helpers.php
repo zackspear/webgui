@@ -1166,25 +1166,26 @@ private static $encoding = 'UTF-8';
 				'wsport' => $lv->domain_get_ws_port($res),
 				'autoport' => $autoport,
 				'copypaste' => $getcopypaste,
+				'guest' => ['multi' => 'off' ],
 			];
 		}
 
 		foreach ($arrHostDevs as $arrHostDev) {
 			$arrFoundGPUDevices = array_filter($arrValidGPUDevices, function($arrDev) use ($arrHostDev) {return ($arrDev['id'] == $arrHostDev['id']);});
 			if (!empty($arrFoundGPUDevices)) {
-				$arrGPUDevices[] = ['id' => $arrHostDev['id'], 'rom' => $arrHostDev['rom']];
+				$arrGPUDevices[] = ['id' => $arrHostDev['id'], 'rom' => $arrHostDev['rom'], 'guest' => $arrHostDev['guest']];
 				continue;
 			}
 
 			$arrFoundAudioDevices = array_filter($arrValidAudioDevices, function($arrDev) use ($arrHostDev) {return ($arrDev['id'] == $arrHostDev['id']);});
 			if (!empty($arrFoundAudioDevices)) {
-				$arrAudioDevices[] = ['id' => $arrHostDev['id']];
+				$arrAudioDevices[] = ['id' => $arrHostDev['id'], 'guest' => $arrHostDev['guest']];
 				continue;
 			}
 
 			$arrFoundOtherDevices = array_filter($arrValidOtherDevices, function($arrDev) use ($arrHostDev) {return ($arrDev['id'] == $arrHostDev['id']);});
 			if (!empty($arrFoundOtherDevices)) {
-				$arrOtherDevices[] = ['id' => $arrHostDev['id'],'boot' => $arrHostDev['boot']];
+				$arrOtherDevices[] = ['id' => $arrHostDev['id'],'boot' => $arrHostDev['boot'], 'guest' => $arrHostDev['guest']];
 				continue;
 			}
 		}

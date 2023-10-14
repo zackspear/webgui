@@ -985,6 +985,19 @@
 						}
 					?>
 					</select>
+					<?			
+					#$multifunction =  "hidden" ;
+					if ($arrGPU['id'] != 'virtual') $multifunction = "" ;
+					?>
+					<span id="GPUMulti" name="gpu[<?=$i?>][multi]"  <?=$multifunction?>>_(Multifunction)_:</span>
+								
+					<select name="gpu[<?=$i?>][multi]" class="narrow" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
+					<?
+						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
+						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
+					?>
+					</select>
+					<input type="hidden" name="gpu[<?=$i?>][guestbus]" id="gpuguest" value="<?=htmlspecialchars($arrGPU['guest']["bus"])?>">
 				</td>
 			</tr>
 
@@ -1122,6 +1135,19 @@
 						}
 					?>
 					</select>
+					<?			
+					#$multifunction =  "hidden" ;
+					if ($arrGPU['id'] != 'virtual') $multifunction = "" ;
+					?>
+					<span id="GPUMulti" name="gpu[{{INDEX}}][multi]"  <?=$multifunction?>>_(Multifunction)_:</span>
+								
+					<select name="gpu[{{INDEX}}][multi]" class="narrow" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
+					<?
+						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
+						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
+					?>
+					</select>
+					<input type="hidden" name="gpu[{{INDEX}}][guestbus]" id="gpuguest" value="">
 				</td>
 			</tr>
 			<tr class="advanced romfile">
