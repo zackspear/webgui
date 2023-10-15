@@ -69,14 +69,14 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
   if (x!=-1) path = path.substring(0,x);
   if (vmrcurl !== "" && state == "running")  {
     if (console == "web" || console == "both") {
-      var vmrctext=_("VM Console") + "(" + vmrcprotocol + ")" ;
+      var vmrctext=_("VM Console") + " (" + vmrcprotocol + ")" ;
       opts.push({text:vmrctext, icon:"fa-desktop", action:function(e) {
         e.preventDefault();
         window.open(vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
       }});
     }
     if (console == "remote" || console == "both") {
-      opts.push({text:_("VM remote-viewer")+ "(" + vmrcprotocol + ")" , icon:"fa-desktop", action:function(e) {
+      opts.push({text:_("VM remote-viewer")+ " (" + vmrcprotocol + ")" , icon:"fa-desktop", action:function(e) {
         e.preventDefault();
         ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});
