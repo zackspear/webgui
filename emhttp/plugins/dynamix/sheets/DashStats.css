@@ -7,9 +7,12 @@ div.rightside{float:right;margin:0;text-align:center}
 div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
 span.head_info{width:250px;display:inline-block}
-span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_{display:none;margin-left:0}
+span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_,#_current_time_{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:180px}
 span.head_gap{padding-left:14px}
+span.head_time{padding-left:40px;font-size:inherit!important;font-weight:bold!important}
+span.head_time span.ampm{font-size:inherit!important;font-weight:bold!important}
+span.ampm{font-size:3rem}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
@@ -61,5 +64,4 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
 #current_time{font-size:4rem;margin-left:8px}
 #current_date{font-size:1.3rem;margin-left:18px}
-span.ampm{font-size:2rem}
 table.snapshot{margin-top:0}

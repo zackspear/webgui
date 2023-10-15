@@ -184,7 +184,7 @@ switch ($display['theme']) {
 <table id='db-box1' class='share_status dashboard'>
 <tbody class='system'>
 <tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
-<span><?=_var($var,'COMMENT')?></span><br></div>
+<span><?=_var($var,'COMMENT')?></span><span id="_current_time_" class="head_time"></span><br></div>
 <a href='/Dashboard/Settings/Identification'><i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i></a><i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
 <span class='ctrl'>
 <?if ($parity||$mover||$btrfs):?>
@@ -726,19 +726,13 @@ jQuery.prototype.mixedView = function(s) {
     this.find('tr:gt(0)').hide();
     this.find('span[id^="head_"]').show();
     this.find('span[id^="tile_"]').hide();
-    this.find('span#_cpu_').prop('id','cpu');
-    this.find('span#_sys0_').prop('id','sys0');
-    this.find('span#_ups_loadpct_').prop('id','ups_loadpct');
-    this.find('span#_ups_status_').prop('id','ups_status');
+    changeSpan(this,0)
     return;
   }
   this.find('tr:gt(0)').show();
-  this.find('span#cpu:first').prop('id','_cpu_');
-  this.find('span#sys0:first').prop('id','_sys0_');
-  this.find('span#ups_loadpct:first').prop('id','_ups_loadpct_');
-  this.find('span#ups_status:first').prop('id','_ups_status_');
   this.find('span[id^="head_"]').hide();
   this.find('span[id^="tile_"]').show();
+  changeSpan(this,1)
   if (this.attr('data')) {
     setTimeout(this.attr('data'));
   }
@@ -942,6 +936,13 @@ function changeMode(item) {
   }
 <?endif;?>
   $('select[name="enter_user"]').val(item);
+}
+function changeSpan(span,dir) {
+  const spans = ['cpu','sys0','ups_loadpct','ups_status','current_time'];
+  switch (dir) {
+    case 0: for (var i=0,id; id=spans[i]; i++) span.find('span#_'+id+'_').prop('id',id); break;
+    case 1: for (var i=0,id; id=spans[i]; i++) span.find('span#'+id+':first').prop('id','_'+id+'_'); break;
+  }
 }
 function changeView(item) {
   if (item==0) $.removeCookie('enter_view'); else $.cookie('enter_view',item,{expires:3650});
@@ -1194,10 +1195,7 @@ function showContent() {
       tbody.find('tr:gt(0)').hide();
       tbody.find('span[id^="head_"]').show();
       tbody.find('span[id^="tile_"]').hide();
-      tbody.find('span#_cpu_').prop('id','cpu');
-      tbody.find('span#_sys0_').prop('id','sys0');
-      tbody.find('span#_ups_loadpct_').prop('id','ups_loadpct');
-      tbody.find('span#_ups_status_').prop('id','ups_status');
+      changeSpan(tbody,0);
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
