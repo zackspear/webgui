@@ -11,7 +11,7 @@ span#head_cpu,span#head_ram,#head_ups,#head_apps,#head_vms,#_ups_status_,#_curre
 span.head_bar{display:inline-block;width:180px}
 span.head_gap{padding-left:14px}
 span.head_time{padding-left:40px;font-size:inherit!important;font-weight:bold!important}
-span.head_time span.ampm{font-size:inherit!important;font-weight:bold!important}
+span.head_time .ampm{font-size:inherit!important;font-weight:bold!important;text-transform:uppercase!important}
 span.ampm{font-size:3rem}
 span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
