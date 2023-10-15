@@ -517,7 +517,7 @@ _(Remove Meta)_:<input type="checkbox" id="targetsnaprmvmeta" checked> <input ty
 </div>
 
 <div id="templatesnapshotremove" class="template" post>
-<h2>!! _(Warning removing Snapshots can break the chain)_ !!</h2>
+<h3>!! _(Warning removing Snapshots can break the chain)_ !!</h3>
 
 _(VM Name)_: <label id="VMName"></label><br>
 _(Snapshot Name)_: <input type="text" id="targetsnap" hidden><label id="targetsnapl"></label><label id="targetsnapimages"></label>
