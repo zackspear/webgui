@@ -733,6 +733,11 @@
 			$pcidevs='';
 			$gpudevs_used=[];
 			$multidevices = $multi = [] ; #Load?
+			foreach ($gpus as $i => $gpu) {
+				 if ($gpu['guestbus'] != "") $multi[$gpu['guestbus']] = $gpu['guestbus'] ;
+				 #$multi[$gpu['guestbus']] = $gpu['guestbus'] ;
+			}
+			ksort($multi) ;
 			$vmrc='';
 			$channelscopypaste = '';
 			if (!empty($gpus)) {
@@ -838,8 +843,7 @@
 					if ($gpu['multi'] == "on"){
 						if ($gpu['guestbus'] == "") {
 							# This is a new Multifunction device/VM allocate from range 0x90
-							$multibus = array_key_last($multi) ;
-							file_put_contents("/tmp/mbus", $multibus) ;
+							$multibus = array_key_last($multi) ;						
 							if ($multibus == NULL) $multi_bus = "0x90" ; 
 							else 
 								{
@@ -897,6 +901,7 @@
 			}
 
 			$pcidevs_used=[];
+			$strSpecialAddressOther = "" ;
 			if (!empty($pcis)) {
 				foreach ($pcis as $i => $pci_id) {
 					// Skip duplicate other pci devices
@@ -905,12 +910,18 @@
 					}
 					if ($vmclone) [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id['id']), 3);
 					else [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
+					
+					if ($pci_function != 0) {
+						if (isset($multidevices[$pci_bus]))	$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='".$multidevices[$pci_bus]."' slot='0x".$pci_slot."' function='0x".$pci_function."' />" ;
+					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
-									</source>" ;
+									</source>
+									$strSpecialAddressOther " ;
+
 					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
 					}

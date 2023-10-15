@@ -986,18 +986,17 @@
 					?>
 					</select>
 					<?			
-					#$multifunction =  "hidden" ;
-					if ($arrGPU['id'] != 'virtual') $multifunction = "" ;
+					if ($arrGPU['id'] != 'virtual') $multifunction = "" ; else $multifunction =  " disabled " ;
 					?>
-					<span id="GPUMulti" name="gpu[<?=$i?>][multi]"  <?=$multifunction?>>_(Multifunction)_:</span>
+					<span id="GPUMulti<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced gpumultiline<?=$i?>"   >_(Multifunction)_:</span>
 								
-					<select name="gpu[<?=$i?>][multi]" class="narrow" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
+					<select id="GPUMultiSel<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced narrow gpumultiselect<?=$i?>" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
 					<?
 						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
 						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
 					?>
 					</select>
-					<input type="hidden" name="gpu[<?=$i?>][guestbus]" id="gpuguest" value="<?=htmlspecialchars($arrGPU['guest']["bus"])?>">
+					<input type="hidden" name="gpu[<?=$i?>][guestbus]" id="gpuguest<?=$i?>" value="<?=htmlspecialchars($arrGPU['guest']["bus"])?>">
 				</td>
 			</tr>
 
@@ -1143,8 +1142,8 @@
 								
 					<select name="gpu[{{INDEX}}][multi]" class="narrow" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
 					<?
-						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
-						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
+						echo mk_option("off", 'off', 'Off');
+						echo mk_option("off", 'on', 'On');
 					?>
 					</select>
 					<input type="hidden" name="gpu[{{INDEX}}][guestbus]" id="gpuguest" value="">
@@ -1851,9 +1850,13 @@ $(function() {
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = true ;
 			} else {
 				slideUpRows($vnc_sections);
 				$vnc_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = false ;
 			}
 		}
 
