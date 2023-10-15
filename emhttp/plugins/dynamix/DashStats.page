@@ -1265,7 +1265,7 @@ function contentMgmt() {
   box.html($("#templateContentMgmt").html().build());
   box.dialog({
     title: "_(Tile Management)_",
-    height: 350,
+    height: 330,
     width: 900,
     resizable: false,
     modal: true,
@@ -1305,7 +1305,7 @@ function VMClone(uuid, name){
   document.getElementById("Overwrite").checked = true;
   box.dialog({
     title: "_(VM Clone)_",
-    height: 300,
+    height: 330,
     width: 600,
     resizable: false,
     modal: true,
@@ -1347,7 +1347,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
   document.getElementById("targetsnapfspc").checked = true;
   box.dialog({
     title: optiontext,
-    height: 300,
+    height: 330,
     width: 600,
     resizable: false,
     modal: true,

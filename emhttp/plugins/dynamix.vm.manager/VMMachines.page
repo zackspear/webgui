@@ -228,7 +228,7 @@ function VMClone(uuid, name){
   document.getElementById("Overwrite").checked = true;
   box.dialog({
     title: "_(VM Clone)_",
-    height: 300,
+    height: 330,
     width: 600,
     resizable: false,
     modal: true,
@@ -275,7 +275,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
   document.getElementById("targetsnapfspc").checked = true;
   box.dialog({
     title: optiontext,
-    height: 300,
+    height: 330,
     width: 600,
     resizable: false,
     modal: true,
@@ -348,8 +348,8 @@ function selectblock(uuid, name, snaps, opt, getlist, state){
   }
   box.dialog({
     title: optiontext,
+    height: 330,
     width: 600,
-    height: 500,
     resizable: false,
     modal: true,
     buttons: {
