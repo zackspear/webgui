@@ -40,7 +40,7 @@ function execCommand_nchan($command,$idx) {
 	[$cmd,$args] = explode(' ',$command,2);
 	write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._('Command execution')."</legend>".basename($cmd).' '.str_replace(" -","<br>&nbsp;&nbsp;-",htmlspecialchars($args))."<br><span id='wait-$waitID'>"._('Please wait')." </span><p class='logLine'></p></fieldset>","show_Wait\0$waitID");
 	write("addLog\0<br>") ;
-	write("addToID\0$idx\0 $action") ;
+	#write("addToID\0$idx\0 $action") ;
 	$proc = popen("$command 2>&1",'r');
 	while ($out = fgets($proc)) {
 		$out = preg_replace("%[\t\n\x0B\f\r]+%", '',$out);

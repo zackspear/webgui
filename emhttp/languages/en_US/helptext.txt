@@ -1582,7 +1582,7 @@ Stopping the VM Manager will first attempt to shutdown all running VMs. After 60
 :end
 
 :vms_disable_help:
-Stop VMs from Autostarting when VM Manager starts.
+Stop VMs from Autostarting\Starting when VM Manager starts or open is run from the gui to start, error message will be seen.
 :end
 
 :vms_libvirt_volume_help:

@@ -779,7 +779,7 @@ private static $encoding = 'UTF-8';
 					$boolBlacklisted = true;
 				}
 
-				$overrideCheck = "${arrMatch['typeid']}:${arrMatch['productid']}" ;
+				$overrideCheck = "{$arrMatch['typeid']}:{$arrMatch['productid']}" ;
 				if (in_array($overrideCheck,$arrWhiteListOverride) ) $boolBlacklisted = false;
 
 				$strClass = 'other';
@@ -1515,11 +1515,9 @@ private static $encoding = 'UTF-8';
 		foreach($disks as $disk)   {
 			$file = $disk["file"] ;
 			$pathinfo =  pathinfo($file) ;
-			$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
 			$capacity = $capacity + $disk["capacity"] ;
 		}
-		$dirpath = $pathinfo["dirname"] ;
-
+	
 		#Check free space.
 		write("addLog\0".htmlspecialchars("Checking for free space"));
 		$dirfree = disk_free_space($pathinfo["dirname"]) ;
@@ -1578,12 +1576,11 @@ private static $encoding = 'UTF-8';
 			$sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null"));	
             $reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
             $repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
-            #var_dump($repsrc,$reptgt) ;
         
 			$cmdstr = "cp --reflink=always '$repsrc' '$reptgt'" ;
         	if ($reflink == true) { $refcmd = $cmdstr ; } else {$refcmd = false; }
 			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$source' '$target'" ;
-			$error = execCommand_nchan($cmdstr,$path,$refcmd) ;
+			$error = execCommand_nchan_clone($cmdstr,$target,$refcmd) ;
 			if (!$error) { write("addLog\0".htmlspecialchars("Image copied failed."));  return( false) ; }
 		}
 
@@ -1637,7 +1634,7 @@ private static $encoding = 'UTF-8';
 	  $disks =$lv->get_disk_stats($vm) ;
 		  foreach($disks as $disk)   {
 			  $file = $disk["file"] ;
-			  $output = "" ;
+			  $output = array() ;
 			  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 			  foreach($output as $key => $line) {
 				  $line=str_replace("image: ","",$line) ;
@@ -1673,7 +1670,7 @@ private static $encoding = 'UTF-8';
 		  $disks =$lv->get_disk_stats($vm) ;
 		  foreach($disks as $disk)   {
 			  $file = $disk["file"] ;
-			  $output = "" ;
+			  $output = array() ;
 			  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 			  foreach($output as $key => $line) {
 				  $line=str_replace("image: ","",$line) ;
@@ -1693,7 +1690,7 @@ private static $encoding = 'UTF-8';
   
 		  $value = json_encode($snaps,JSON_PRETTY_PRINT) ;
 		  $res = $lv->get_domain_by_name($vm);
-		  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
+		  #if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
 
 
 		  #Remove any NVRAMs that are no longer valid.
@@ -1907,11 +1904,12 @@ private static $encoding = 'UTF-8';
 	  global $lv ;
 	  $snapslist= getvmsnapshots($vm) ;
 	  $data = "<br><br>Images and metadata to remove if tickbox checked.<br>" ;
-
+      $capacity = 0 ;
+	  $diskspec = "" ;
 	  $disks =$lv->get_disk_stats($vm) ;
 	  foreach($disks as $disk)   {
 		  $file = $disk["file"] ;
-		  $output = "" ;
+		  $output = array() ;
 		  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 		  foreach($output as $key => $line) {
 			  $line=str_replace("image: ","",$line) ;
@@ -1922,8 +1920,8 @@ private static $encoding = 'UTF-8';
 		  $reversed = array_reverse($output) ;
 		  $snaps[$vm][$rev] = $reversed ;
 		  $pathinfo =  pathinfo($file) ;
-		  $filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-		  $diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
+		  #$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
+		  #$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
 		  $capacity = $capacity + $disk["capacity"] ;
 	  }
 
@@ -1970,7 +1968,7 @@ private static $encoding = 'UTF-8';
 	  $disks =$lv->get_disk_stats($vm) ;
 	  foreach($disks as $disk)   {
 		  $file = $disk["file"] ;
-		  $output = "" ;
+		  $output = array() ;
 		  exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
 		  foreach($output as $key => $line) {
 			  $line=str_replace("image: ","",$line) ;
@@ -2096,7 +2094,7 @@ OPTIONS
 
 		  $error = execCommand_nchan($cmdstr,$path) ;
 		  if (!$error) { 
-			  $arrResponse =  ['error' => substr($output[0],6) ] ;
+			  $arrResponse =  ['error' => "Process Failed"] ;
 			  return($arrResponse) ;
 		  } else {
 			  $arrResponse = ['success' => true] ;
@@ -2146,7 +2144,7 @@ OPTIONS
   $disks =$lv->get_disk_stats($vm) ;
   foreach($disks as $disk)   {
 	  $file = $disk["file"] ;
-	  $output = "" ;
+	  $output = array() ;
 	  exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output) ;
 	  foreach($output as $key => $line) {
 		  $line=str_replace("image: ","",$line) ;
@@ -2186,7 +2184,7 @@ OPTIONS
   $error = execCommand_nchan($cmdstr,$path) ;
   
   if (!$error)  { 
-	  $arrResponse =  ['error' => substr($output[0],6) ] ;
+	  $arrResponse =  ['error' => "Process Failed" ] ;
 	  return($arrResponse) ;
   } else {
 	  # Remove nvram snapshot
@@ -2196,6 +2194,7 @@ OPTIONS
 	  }
 
   refresh_snapshots_database($vm) ;
+  $ret = $ret = delete_snapshots_database("$vm","$snap") ; 
   if($ret)
 	  $data = ["error" => "Unable to remove snap metadata $snap"] ;
   else
