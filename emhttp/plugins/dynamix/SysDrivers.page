@@ -1,6 +1,6 @@
 Menu="UNRAID-OS"
 Title="System Drivers"
-Icon="fa-sitemap"
+Icon="icon-packages"
 Tag="server"
 ---
 <?PHP
