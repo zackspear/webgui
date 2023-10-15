@@ -1,8 +1,8 @@
 Type="xmenu"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,19 +18,6 @@ function clone_list($disk) {
   return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || in_array($disk['name'],$pools));
 }
 ?>
-<style>
-div.clone1{position:absolute;right:0;margin-top:0}
-div.clone2{position:absolute;right:0;margin-top:48px}
-<?if ($themes1):?>
-span.wrap{display:inline-block;width:128px}
-select.clone{min-width:123px;margin-right:0}
-<?else:?>
-span.wrap{display:inline-block;width:150px}
-select.clone{min-width:145px;margin-right:0}
-<?endif;?>
-input.clone{margin-left:8px;margin-right:0}
-span.clone,i.clone{margin-right:4px}
-</style>
 <script>
 function toggleButton(button,id) {
   var disabled = true;

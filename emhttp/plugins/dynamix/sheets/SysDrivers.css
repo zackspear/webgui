@@ -1,0 +1,9 @@
+table.t1{margin-top:0; border-collapse: collapse; border-spacing: 0;}
+table.t1 tr td{padding:0 0 3px 0;margin:0}
+table.t1 tr td.thin{line-height:8px;height:8px}
+table.t1 tr>td{width:1%;text-align:centre;white-space: nowrap}
+table.t1 tr>td+td{width:1%;white-space:nowrap}
+table.t1 tr>td+td+td{width:auto;text-align:left}
+table.t1 tr>td+td+td+td{text-align:left}
+table.t1 tr>td+td+td+td+td{text-align:left}
+.t1.tablesorter .filtered{display:none}

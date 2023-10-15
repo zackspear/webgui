@@ -26,13 +26,6 @@ if (file_exists($cfg)) {
   $exclude_interfaces = "";
 }
 ?>
-<style>
-span[id^="info-"]{margin-left:20px}
-<?if ($themes1):?>
-span.status.vhshift{margin-right:-10px!important}
-<?endif;?>
-</style>
-
 <script>
 function prepareText(form) {
   var mgmt = ['br0','bond0','eth0'];

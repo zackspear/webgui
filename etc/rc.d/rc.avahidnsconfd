@@ -29,6 +29,7 @@ AVAHI="/usr/sbin/avahi-dnsconfd"
 . /etc/rc.d/rc.runlog
 
 avahidns_running(){
+  sleep 0.1
   $AVAHI -c
   [[ $? == 0 ]]
 }

@@ -28,6 +28,7 @@ PIDFILE="/run/elogind.pid"
 . /etc/rc.d/rc.runlog
 
 elogind_running(){
+  sleep 0.1
   pgrep -l -F $PIDFILE 2>/dev/null | grep -q elogind
 }
 

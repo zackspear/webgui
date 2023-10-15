@@ -590,6 +590,7 @@ unraid_api_control(){
 }
 
 nginx_running(){
+  sleep 0.1
   [[ -s $PID && -n "$(cat $PID)" && -d "/proc/$(cat $PID)" ]] && return 0 || return 1
 }
 

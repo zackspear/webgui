@@ -2,7 +2,7 @@ html{font-family:clear-sans;font-size:62.5%;height:100%}
 body{font-size:1.3rem;color:#606e7f;background-color:#e4e2e4;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 @media (max-width:1280px){#template{min-width:1260px;max-width:1260px;margin:0}}
 @media (min-width:1281px){#template{min-width:1260px;margin:0}}
-@media (min-width:1921px){#template{min-width:1260px;max-width:1920px;margin:0 auto}}
+@media (min-width:1920px){#template{min-width:1260px;max-width:1920px;margin:0 auto}}
 img{border:none;text-decoration:none;vertical-align:middle}
 p{text-align:left}
 p.centered{text-align:left}
@@ -196,7 +196,6 @@ span.ucfirst{text-transform:capitalize}
 span.strong{font-weight:bold}
 span.big{font-size:1.4rem}
 span.small{font-size:1.1rem}
-span.score{font-size:1.1rem;color:#ffffff;position:absolute}
 span#dropbox{background:none;line-height:6rem;margin-right:20px}
 span.outer{margin-bottom:20px;margin-right:0}
 span.outer.solid{background-color:#d7dbdd}

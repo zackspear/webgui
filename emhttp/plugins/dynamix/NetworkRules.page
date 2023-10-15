@@ -34,12 +34,6 @@ foreach ($rules as $rule) {
 }
 ksort($link,SORT_NATURAL);
 ?>
-<style>
-span[id^="info-"]{margin-left:20px}
-<?if ($themes1):?>
-span.status.vhshift{margin-right:-10px!important}
-<?endif;?>
-</style>
 <script>
 var info = {};
 <?foreach ($link as $eth => $val):?>

@@ -23,7 +23,6 @@ $disk       = &$disks[$name] ?? [];
 $dev        = _var($disk,'device');
 $disk['id'] = _var($disk,'id');
 $events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
-$bgcolor    = in_array($display['theme'],['white','azure']) ? '#f2f2f2' : '#1c1c1c';
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
@@ -107,14 +106,7 @@ $text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') 
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
-<style>
-input.option{display:none;width:40px}
-select.option,#autosize{display:none}
-span#devtext{display:none;font-weight:bold}
-span#helptext{display:none;font-style:italic}
-span.code{display:inline-block;width:186px}
-i.fa-info.i{margin-right:10px}
-</style>
+
 <script>
 if ($.cookie('deletepool')) {
   $.removeCookie('deletepool');
@@ -489,8 +481,6 @@ function renamePoolPopup() {
     resizable: false,
     width: 600,
     modal: true,
-    show : {effect:'fade', duration:250},
-    hide : {effect:'fade', duration:250},
     buttons: {
     "_(Rename)_": function() {
         if (validate($(this).find('input[name="poolName"]').val())) {
@@ -503,12 +493,10 @@ function renamePoolPopup() {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-widget-content").css({'background':'<?=$bgcolor?>'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function deletePool() {
   $.cookie('deletepool','deletepool');

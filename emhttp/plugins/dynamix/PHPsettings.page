@@ -24,12 +24,6 @@ if (!file_exists($log)) touch($log);
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
-<style>
-div#templateWindow,div#dialogWindow{display:none}
-span.dim{opacity:0.2}
-#screenlog{margin-left:0}
-</style>
-
 <div markdown="1" style="width:43%;margin-bottom:40px;padding:5px 15px;border:solid 1px">
 :php_settings_plug:
 This utility is used for development purposes only and allows Plugin Authors to verify their PHP code by enabling different levels of PHP error reporting.
@@ -137,8 +131,6 @@ function PHPinfo() {
     height: Math.min(window.innerHeight-80,800),
     width: Math.min(window.innerWidth,1200),
     modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
     buttons: {
       "_(Done)_": function(){
         box.dialog('close');
@@ -147,7 +139,8 @@ function PHPinfo() {
   });
   $('.ui-dialog-titlebar-close').css({'display':'none'});
   $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-button-text').css({'padding':'0 5px'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function preset(form) {
   // reset to default settings

@@ -22,12 +22,6 @@ $plugins = '/var/log/plugins';
 
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 ?>
-<style>
-span#dropbox{margin-right:20px;}
-i.top{position:relative;padding-left:4px;cursor:pointer;}
-select.fixed{max-width:166px}
-</style>
-
 <script src="<?autov('/webGui/javascript/jquery.filedrop.js')?>"></script>
 <script>
 var path = '/boot/config/plugins/dynamix';

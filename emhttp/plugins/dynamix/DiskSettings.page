@@ -29,10 +29,6 @@ function displayTemp($temp) {
   return (is_numeric($temp) && _var($display,'unit')=='F') ? round(9/5*$temp)+32 : $temp;
 }
 ?>
-<style>
-span.code{display:inline-block;width:186px}
-</style>
-
 <script>
 function base64(str) {
   return window.btoa(unescape(encodeURIComponent(str)));

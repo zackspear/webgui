@@ -20,12 +20,6 @@ Tag="archive"
 $files = count(glob("{$notify['path']}/archive/*.notify", GLOB_NOSORT));
 $filters = mk_option(0,'',_('No filter')).mk_option(0,'alert',_('Alerts')).mk_option(0,'warning',_('Warnings')).mk_option(0,'normal',_('Notices'));
 ?>
-<style>
-select.filter{margin:0}
-span.right{margin-top:-6px;font-size:1.3rem!important;padding:0!important}
-i.red-text{font-size:1.6rem}
-</style>
-
 <script>
 var rows = [];
 var filter = "<?=unscript(_var($_GET,'filter'))?>";

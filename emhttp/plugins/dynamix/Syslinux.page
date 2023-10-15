@@ -3,8 +3,8 @@ Title="Syslinux Configuration"
 Tag="edit"
 ---
 <?PHP
-/* Copyright 2005-2020, Lime Technology
- * Copyright 2012-2020, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -31,28 +31,7 @@ $menu    = 'menu default';
 $mark    = 'label ';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<style>
-div.basic{display:block}
-div.advanced{display:none}
-textarea.raw{resize:none;font-family:bitstream;width:65.5%}
-<?
-switch (strtok($display['theme'],'-')) {
-case 'gray':
-case 'azure':
-  echo "span.array,span.system{margin-left:33.33%;width:65.5%;padding:2px 10px;font-weight:bold;border:solid 1px #606E7F;border-bottom:none}\n";
-  echo "textarea.menu{margin-left:33.33%;width:65.5%;margin-bottom:12px;padding:4px 10px;font-family:bitstream;border-top:none}\n";
-  break;
-case 'white':
-  echo "span.array,span.system{margin-left:33.33%;width:65.5%;padding:2px 10px;font-weight:bold;border:solid 1px #1c1c1c;border-bottom:none}\n";
-  echo "textarea.menu{margin-left:33.33%;width:65.5%;margin-bottom:12px;padding:4px 10px;font-family:bitstream;border:1px solid #1c1b1b;border-top:none}\n";
-  break;
-case 'black':
-  echo "span.array,span.system{margin-left:33.33%;width:65.5%;padding:2px 10px;font-weight:bold;border:solid 1px #f2f2f2;border-bottom:none}\n";
-  echo "textarea.menu{margin-left:33.33%;width:65.5%;margin-bottom:12px;padding:4px 10px;font-family:bitstream;border:1px solid #f2f2f2;border-top:none}\n";
-  break;
-}
-?>
-</style>
+
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 const title = '<?=$title?>';

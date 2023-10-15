@@ -35,9 +35,6 @@ foreach ($output as $line) {
   if (!in_array($port,$portsInUse) && (!$bind || in_array(plain($ip),$list))) $portsInUse[] = $port;
 }
 ?>
-<style>
-span.span{display:inline-block;width:224px}
-</style>
 <script>
 function localFolder(local,time) {
   if (local) $('#local_folder').show(time); else $('#local_folder').hide(time);

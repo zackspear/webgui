@@ -18,6 +18,7 @@ CROND="/usr/sbin/crond"
 [[ -r $CONF ]] && . $CONF
 
 crond_running(){
+  sleep 0.1
   pgrep --ns $$ --euid root -f "^$CROND" &>/dev/null
 }
 
