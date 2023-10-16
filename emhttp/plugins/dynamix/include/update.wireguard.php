@@ -226,6 +226,8 @@ function createIPs($list) {
   return implode(', ',array_map('host',array_filter(array_map('trim',explode(',',$list)))));
 }
 function parseInput($vtun,&$input,&$x) {
+  // assign values to parameters, be aware that certain parameters are assigned by parseInput itself
+  // this is based on the sequence of processing
   global $conf,$user,$var,$default4,$default6,$vpn,$tunip;
   $section = 0; $addPeer = false;
   foreach ($input as $key => $value) {
