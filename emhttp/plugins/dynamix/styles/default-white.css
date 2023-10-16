@@ -101,7 +101,7 @@ div.title.shift{margin-top:-30px}
 .usage-disk>span:first-child{position:absolute;left:0;margin:0!important;height:1.8rem;background-color:#a8a8a8}
 .usage-disk>span:last-child{position:relative;padding-right:4px;z-index:1}
 .usage-disk.sys{height:12px;margin:-15px 20px 0 44px}
-.usage-disk.sys>span:first-child{height:12px;padding:0}
+.usage-disk.sys>span{height:12px;padding:0}
 .usage-disk.sys.none{background-color:transparent}
 .usage-disk.mm{height:3px;margin:5px 20px 0 0}
 .usage-disk.mm>span:first-child{height:3px}
