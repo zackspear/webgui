@@ -108,7 +108,7 @@ foreach ($containers as $ct) {
   }
   echo "<span class='outer'><span id='$id' $menu class='hand'>$image</span><span class='inner'><span class='appname $update'>$appname</span><br><i id='load-$id' class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
   echo "<div class='advanced' style='margin-top:8px'>"._('Container ID').": $id<br>";
-  if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars(${ct['BaseImage']})."<br>";
+  if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars($ct['BaseImage'])."<br>";
   echo _('By').": ";
   $registry = $info['registry'];
   [$author,$version] = my_explode(':',$ct['Image']);
