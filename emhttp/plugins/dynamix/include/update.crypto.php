@@ -23,7 +23,7 @@ if ($index < count($tests)) {
   $test = $tests[$index];
   [$name,$size] = my_explode(':',$test);
   if (!$size) {
-    $default = ($test==_var($_GET,'hash']));
+    $default = ($test==_var($_GET,'hash'));
     if ($index>0) $test .= '|tail -1';
     if ($default) echo "<b>";
     echo preg_replace(['/^(# Tests.*\n)/','/\n$/'],["$1\n",""],shell_exec("/usr/sbin/cryptsetup benchmark -h $test"));

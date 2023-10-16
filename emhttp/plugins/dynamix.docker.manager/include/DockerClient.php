@@ -353,7 +353,6 @@ class DockerTemplates {
 		if (!$imgUrl) $imgUrl = $tmpIconUrl;
 		if (!$imgUrl || trim($imgUrl) == "/plugins/dynamix.docker.manager/images/question.png") return '';
 
-		$imageName = $contName ?: $name;
 		$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
 		$icon    = sprintf('%s/%s-%s.png', $dockerManPaths['images'], $contName, 'icon');
 
@@ -367,8 +366,8 @@ class DockerTemplates {
 		if (!is_file($icon) && is_file($iconRAM)) {
 			@copy($iconRAM,$icon);
 		}
-		if ( !is_file($iconRAM) ) {
-			exec("logger -t webGUI -- \"$imageName: Could not download icon $imgUrl\"");
+		if (!is_file($iconRAM)) {
+			exec("logger -t webGUI -- \"$contName: Could not download icon $imgUrl\"");
 		}
 
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';

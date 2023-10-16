@@ -50,7 +50,7 @@ function removeKey($key,$disk) {
 }
 function diskname($name) {
   global $disks;
-  foreach ($disks as $disk) if (strncmp($name,$disk['device'],strlen(disk['device']))==0) return $disk['name'];
+  foreach ($disks as $disk) if (strncmp($name,$disk['device'],strlen($disk['device']))==0) return $disk['name'];
   return $name;
 }
 function reply($text,$type) {
