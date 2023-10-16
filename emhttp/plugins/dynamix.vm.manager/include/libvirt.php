@@ -268,6 +268,7 @@
 
 
 		function config_to_xml($config,$vmclone = false) {
+			file_put_contents("/tmp/vmconfig", $config) ;
 			$domain = $config['domain'];
 			$media = $config['media'];
 			$nics = $config['nic'];
@@ -732,12 +733,7 @@
 
 			$pcidevs='';
 			$gpudevs_used=[];
-			$multidevices = $multi = [] ; #Load?
-			foreach ($gpus as $i => $gpu) {
-				 if ($gpu['guestbus'] != "") $multi[$gpu['guestbus']] = $gpu['guestbus'] ;
-				 #$multi[$gpu['guestbus']] = $gpu['guestbus'] ;
-			}
-			ksort($multi) ;
+			$multidevices = [] ; #Load?
 			$vmrc='';
 			$channelscopypaste = '';
 			if (!empty($gpus)) {
@@ -841,22 +837,8 @@
 					}
 
 					if ($gpu['multi'] == "on"){
-						if ($gpu['guestbus'] == "") {
-							# This is a new Multifunction device/VM allocate from range 0x90
-							$multibus = array_key_last($multi) ;						
-							if ($multibus == NULL) $multi_bus = "0x90" ; 
-							else 
-								{
-									$multi_bus = hexdec($multibus) + 1 ;   
-									$multi_bus = "0x".dechex($multi_bus) ;
-								}
-							$multi[$multi_bus] = $multi_bus ;
-							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='".$multi_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."' multifunction='on' />" ;
-						} else {
-							$multi_bus = $gpu['guestbus'] ;
-							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='".$multi_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."' multifunction='on' />" ;
-						}
-						$multidevices[$gpu_bus] = $multi_bus ;
+						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x20' slot='0x$gpu_bus' function='0x".$gpu_function."' multifunction='on' />" ;
+						$multidevices[$gpu_bus] = "0x$gpu_bus" ;
 					}
 
 					
@@ -873,7 +855,8 @@
 					$gpudevs_used[] = $gpu['id'];
 				}
 			}
-			file_put_contents("/tmp/bus", $multi) ;
+			#file_put_contents("/tmp/pcidevs" , $pcidevs) ;
+			#file_put_contents("/tmp/bus", $multidevices) ;
 			$audiodevs_used=[];
 			$strSpecialAddressAudio = "" ;
 			if (!empty($audios)) {
@@ -885,7 +868,7 @@
 
 					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
 					if ($audio_function != 0) {
-						if (isset($multidevices[$audio_bus]))	$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='".$multidevices[$audio_bus]."' slot='0x".$audio_slot."' function='0x".$audio_function."' />" ;
+						if (isset($multidevices[$audio_bus]))	$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x20'	 slot='".$multidevices[$audio_bus]."'  function='0x".$audio_function."' />" ;
 					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
@@ -919,8 +902,7 @@
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
-									</source>
-									$strSpecialAddressOther " ;
+									</source>" ;
 
 					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
@@ -933,6 +915,7 @@
 					if ($vmclone) $pcidevs_used[] = $pci_id['d']; else $pcidevs_used[] = $pci_id ;
 				}
 			}
+			#file_put_contents("/tmp/vmdetail", $pcidevs) ;
 
 			$memballoon = "<memballoon model='none'/>";
 			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='virtual' ; }) )) {
