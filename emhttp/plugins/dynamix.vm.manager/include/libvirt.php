@@ -268,7 +268,6 @@
 
 
 		function config_to_xml($config,$vmclone = false) {
-			file_put_contents("/tmp/vmconfig", $config) ;
 			$domain = $config['domain'];
 			$media = $config['media'];
 			$nics = $config['nic'];
@@ -855,8 +854,6 @@
 					$gpudevs_used[] = $gpu['id'];
 				}
 			}
-			#file_put_contents("/tmp/pcidevs" , $pcidevs) ;
-			#file_put_contents("/tmp/bus", $multidevices) ;
 			$audiodevs_used=[];
 			$strSpecialAddressAudio = "" ;
 			if (!empty($audios)) {
@@ -868,7 +865,7 @@
 
 					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
 					if ($audio_function != 0) {
-						if (isset($multidevices[$audio_bus]))	$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x20'	 slot='".$multidevices[$audio_bus]."'  function='0x".$audio_function."' />" ;
+						if (isset($multidevices[$audio_bus]))	$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x20' slot='0x$audio_bus'  function='0x".$audio_function."' />" ;
 					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
@@ -895,14 +892,15 @@
 					else [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
 					
 					if ($pci_function != 0) {
-						if (isset($multidevices[$pci_bus]))	$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='".$multidevices[$pci_bus]."' slot='0x".$pci_slot."' function='0x".$pci_function."' />" ;
+						if (isset($multidevices[$pci_bus]))	$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='0x20' slot='0x$pci_bus' function='0x".$pci_function."' />" ;
 					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
-									</source>" ;
+									</source>
+									$strSpecialAddressOther " ;
 
 					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
@@ -915,7 +913,6 @@
 					if ($vmclone) $pcidevs_used[] = $pci_id['d']; else $pcidevs_used[] = $pci_id ;
 				}
 			}
-			#file_put_contents("/tmp/vmdetail", $pcidevs) ;
 
 			$memballoon = "<memballoon model='none'/>";
 			if (empty( array_filter(array_merge($gpudevs_used, $audiodevs_used, $pcidevs_used), function($k){ return strpos($k,'#remove')===false && $k!='virtual' ; }) )) {
