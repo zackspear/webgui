@@ -461,7 +461,7 @@ while (true) {
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots')."</td><td colspan='8'>".cache_slots($off,$pool,_var($cache[$pool],'devicesSb'),_var($cache[$pool],'slots',0))."</td><td></td></tr>";
       $zfsPool = strstr(_var($cache[$pool],'fsType'),'zfs') && !isSubpool($pool);
       if ($zfsPool) {
-        $current_subpools = array_filter($pools, function ($element) {
+        $current_subpools = array_filter($pools, function ($element) use ($pool) {
           return strpos($element, "$pool~")!==false;
         });
         if (count($current_subpools) < count($subpools)) {

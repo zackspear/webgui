@@ -198,7 +198,7 @@ switch ($display['theme']) {
 </td></tr>
 <tr><td>
 <div class='leftside'>
-<span id="current_time"></span><br><span id="current_date"></span><br><br>
+<a href="/Settings/DateTime" class="hand none" title="_(Go to date and time settings)_"><span id="current_time"></span></a><br><span id="current_date"></span><br><br>
 <span class='header'><i class='indent fa fa-file-text-o'></i>_(Model)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?:'---'?><br><br>
 <span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
