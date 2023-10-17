@@ -32,11 +32,12 @@ function LanguageButton() {
     $.removeCookie('hidden_content');
   }
   if (locale) {
-    switchLanguage('');
     $.cookie('locale',locale);
+    switchLanguage('');
   } else {
-    switchLanguage($.cookie('locale'));
+    locale = $.cookie('locale');
     $.removeCookie('locale');
+    switchLanguage(locale);
   }
 }
 
