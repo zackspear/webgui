@@ -138,21 +138,22 @@ $server    = ipaddr($ethX);
 $dnsserver = _var($$ethX,'DNS_SERVER1');
 
 $link      = iflink($ethX);
+$vhost     = str_replace(['eth','br','bond'],'vhost',$link);
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
 $postUp1   = "logger -t wireguard 'Tunnel WireGuard-<wg> started';$services";
-$postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE;iptables -t nat -A POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postUp3   = "iptables -N WIREGUARD_DROP_<WG>;iptables -A WIREGUARD -o $link -j WIREGUARD_DROP_<WG>";
 $postUpX   = "iptables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
 $postUpZ   = "iptables -A WIREGUARD_DROP_<WG> -s <source> -j ACCEPT;iptables -A WIREGUARD_DROP_<WG> -j RETURN";
-$postUp26  = "ip6tables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postUp26  = "ip6tables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE;ip6tables -t nat -A POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postUp36  = "ip6tables -N WIREGUARD_DROP_<WG>;ip6tables -A WIREGUARD -o $link -j WIREGUARD_DROP_<WG>";
 $postUpX6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
 $postUpZ6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -j ACCEPT;ip6tables -A WIREGUARD_DROP_<WG> -j RETURN";
 $postDown0 = "$script del $link <port> udp";
 $postDown1 = "logger -t wireguard 'Tunnel WireGuard-<wg> stopped';$services";
-$postDown2 = "iptables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postDown2 = "iptables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE;iptables -t nat -D POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postDown3 = "iptables -F WIREGUARD_DROP_<WG>;iptables -D WIREGUARD -o $link -j WIREGUARD_DROP_<WG>;iptables -X WIREGUARD_DROP_<WG>";
-$postDown26= "ip6tables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postDown26= "ip6tables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE;ip6tables -t nat -D POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postDown36= "ip6tables -F WIREGUARD_DROP_<WG>;ip6tables -D WIREGUARD -o $link -j WIREGUARD_DROP_<WG>;ip6tables -X WIREGUARD_DROP_<WG>";
 
 $tld       = @file_get_contents("$docroot/webGui/include/tld.key")?:'';
@@ -252,7 +253,7 @@ refresh();
 Number.prototype.long2ip = function(){return [this>>>24,this>>>16&255,this>>>8&255,this&255].join('.');}
 String.prototype.ip2long = function(){var ip=this.split('.');return (ip[0]<<24)+(ip[1]<<16)+(ip[2]<<8)+(ip[3]*1);}
 String.prototype.desc    = function(){return this.substr(this.lastIndexOf('/'));}
-String.prototype.patch   = function(s,t){return t?this.replace(/<source>/,s).replace(/<target>/,t):this.replace(/<source>/,s);}
+String.prototype.patch   = function(s,t){return t?this.replace(/<source>/g,s).replace(/<target>/,t):this.replace(/<source>/g,s);}
 Array.prototype.bind     = function(w){return (this.join(';')).replace(/<WG>/g,w).replace(/,/g,';');}
 
 var xml = $.cookie('upnp')||'<?=@file_get_contents('/var/tmp/upnp')?>';
