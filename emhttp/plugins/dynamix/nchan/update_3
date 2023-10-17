@@ -127,7 +127,7 @@ while (true) {
     // 12 hour format wih am/pm
     $clock = date('g:i',$now); $ampm = '<span class="ampm">'.date('a',$now).'</span>';
   }
-  $timedate = "$clock $ampm\n"._(date('l, F j, Y',$now),0);
+  $timedate = "$clock $ampm\n"._(date('l, F j, Y',$now),0).', '.date('T',$now);
   publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$timedate);
   $time0 = $time;
   sleep(1);
