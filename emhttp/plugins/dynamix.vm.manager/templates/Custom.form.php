@@ -985,6 +985,17 @@
 						}
 					?>
 					</select>
+					<?			
+					if ($arrGPU['id'] != 'virtual') $multifunction = "" ; else $multifunction =  " disabled " ;
+					?>
+					<span id="GPUMulti<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced gpumultiline<?=$i?>"   >_(Multifunction)_:</span>
+								
+					<select id="GPUMultiSel<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced narrow gpumultiselect<?=$i?>" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
+					<?
+						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
+						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
+					?>
+					</select>
 				</td>
 			</tr>
 
@@ -1120,6 +1131,13 @@
 						foreach($arrValidGPUDevices as $arrDev) {
 							echo mk_option('', $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
 						}
+					?>
+					</select>
+					<span id="GPUMulti" name="gpu[{{INDEX}}][multi]"  >_(Multifunction)_:</span>
+					<select name="gpu[{{INDEX}}][multi]" class="narrow" title="_(define Multifunctiion Support)_" >
+					<?
+						echo mk_option("off", 'off', 'Off');
+						echo mk_option("off", 'on', 'On');
 					?>
 					</select>
 				</td>
@@ -1825,9 +1843,13 @@ $(function() {
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = true ;
 			} else {
 				slideUpRows($vnc_sections);
 				$vnc_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = false ;
 			}
 		}
 

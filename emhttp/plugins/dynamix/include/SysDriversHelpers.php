@@ -52,6 +52,9 @@ function getmodules($line) {
         case "file":
             $file = trim(str_replace("file:","",$outline)) ;
             break ;
+        case "version":
+            $version = trim(str_replace("version:","",$data[1])) ;
+            break ;
         case "alias":
         case "author":
         case "firmware":
@@ -103,7 +106,8 @@ $dir = str_replace("/lib/modules/$kernel/kernel/", "" ,$dir) ;
 if ($desc != null) $description = substr($desc , 0 ,60) ; else  $description = null ;
 $arrModules[$modname] = [
             'modname' => $modname,
-            'dependacy' => $depends, 
+            'dependacy' => $depends,
+            'version' => $version, 
             'parms' => $parms,
             'file' =>  $file,
             'modprobe' => $modprobe,
