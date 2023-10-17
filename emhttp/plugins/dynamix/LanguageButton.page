@@ -30,6 +30,14 @@ function LanguageButton() {
     switchLanguage($.cookie('locale'));
     $.removeCookie('locale');
   }
+  // reset dashboard tiles when switching language
+  if (locale != ($.cookie('locale')||'')) {
+    $.removeCookie('db-box1');
+    $.removeCookie('db-box2');
+    $.removeCookie('db-box3');
+    $.removeCookie('inactive_content');
+    $.removeCookie('hidden_content');
+  }
 }
 
 function switchLanguage(lang) {
