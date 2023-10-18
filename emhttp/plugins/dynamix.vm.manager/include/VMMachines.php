@@ -80,12 +80,13 @@ foreach ($vms as $vm) {
     $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
     $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
     if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/'.$wsport.'/';
-    $graphics = strtoupper($vmrcprotocol).":".$vmrcport;
+    $graphics = strtoupper($vmrcprotocol).":".$vmrcport."\n";
   } elseif ($vmrcport == -1 || $autoport) {
     $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
     if ($autoport == "yes") $auto = "auto"; else $auto="manual";
-    $graphics = strtoupper($vmrcprotocol).':'._($auto);
-  } elseif (!empty($arrConfig['gpu'])) {
+    $graphics = strtoupper($vmrcprotocol).':'._($auto)."\n";
+  } 
+  if (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
     foreach ($arrConfig['gpu'] as $arrGPU) {
       foreach ($arrValidGPUDevices as $arrDev) {
@@ -145,15 +146,44 @@ foreach ($vms as $vm) {
       if ($cdfile2 != "") $cdromcount++ ;
     }
   }
+
+  $ipliststr = $iptitlestr = "" ;
+  $gastate = getgastate($res);
+  if ($gastate == "connected") {
+  $ip  = $lv->domain_interface_addresses($res, 1);
+    if ($ip != false) {
+      $duplicates = []; // hide duplicate interface names
+      foreach ($ip as $arrIP) {
+        $ipname = $arrIP["name"];
+        if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
+        $iphdwadr = $arrIP["hwaddr"] == "" ?  _("N/A") : $arrIP["hwaddr"];
+        $iplist = $arrIP["addrs"];
+        foreach ($iplist as $arraddr) {
+          $ipaddrval = $arraddr["addr"];
+          if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
+          $iptype = $arraddr["type"] ? "ipv6" : "ipv4";
+          $ipprefix = $arraddr["prefix"];
+          $ipnamemac = "$ipname ($iphdwadr)";
+          if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
+          $ipliststr .= "<tr><td>$ipnamemac</td><td></td><td></td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
+          $iptitlestr .= "$ipaddrval $ipprefix\n" ;
+        }
+      }
+    }
+  } else {
+  if ($gastate == "disconnected") { $ipliststr .= "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>"; $iptitlestr = _('Requires guest agent installed') ; }
+  else { $ipliststr =  "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>"; $iptitlestr = _('Requires guest running') ;  }
+  }
+
   $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
   $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-bullseye' ></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
-  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
+  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info\nIP(s) inuse\n$iptitlestr'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
   echo "<td title='$diskdesc'><span class='state' >$disks&nbsp;&nbsp;&nbsp;&nbsp;$cdstr<br>$snapshotstr</span></td>";
-  echo "<td>$graphics</td>";
+  echo "<td><span class='vmgraphics'>$graphics</td>";
   echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $autostart></td></tr>";
 
   /* Disk device information */
@@ -217,32 +247,7 @@ foreach ($vms as $vm) {
   /* Display VM  IP Addresses "execute":"guest-network-get-interfaces" --pretty */
   echo "<thead class='child'><tr><th><i class='fa fa-sitemap'></i> <b>"._('Interfaces')."</b></th><th></th><th></th><th>"._('Type')."</th><th>"._('IP Address')."</th><th>"._('Prefix')."</th></tr></thead>";
   echo "<tbody class='child'>";
-  $gastate = getgastate($res);
-  if ($gastate == "connected") {
-    $ip  = $lv->domain_interface_addresses($res, 1);
-    if ($ip != false) {
-      $duplicates = []; // hide duplicate interface names
-      foreach ($ip as $arrIP) {
-        $ipname = $arrIP["name"];
-        if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
-        $iphdwadr = $arrIP["hwaddr"] == "" ?  _("N/A") : $arrIP["hwaddr"];
-        $iplist = $arrIP["addrs"];
-        foreach ($iplist as $arraddr) {
-          $ipaddrval = $arraddr["addr"];
-          if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
-          $iptype = $arraddr["type"] ? "ipv6" : "ipv4";
-          $ipprefix = $arraddr["prefix"];
-          $ipnamemac = "$ipname ($iphdwadr)";
-          if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
-          echo "<tr><td>$ipnamemac</td><td></td><td></td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
-        }
-      }
-    }
-  }
-  else {
-    if ($gastate == "disconnected") echo "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>";
-    else echo "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>";
-  }
+  echo $ipliststr ;
   echo "</tbody>";
   /* Display VM  Snapshots */
   if ($snapshots != null) {
