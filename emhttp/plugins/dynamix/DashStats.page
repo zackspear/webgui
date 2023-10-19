@@ -768,6 +768,28 @@ jQuery.prototype.mixedView = function(s) {
     });
   }
 }
+function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates = false) {
+  // Some browser states leave multi-value cookies with nulls, empties or duplicates.
+  // This function cleans up any such cookies so that they do not break functionality.
+  try {
+    var uncleanCookie = $.cookie(cookieName);
+    if (uncleanCookie) {
+      uncleanCookie = uncleanCookie.split(delimiter);
+      var cleanCookie = uncleanCookie.filter(n => n);
+      if (removeDuplicates) { cleanCookie = [...new Set(cleanCookie)]; }
+      if (JSON.stringify(uncleanCookie) !== JSON.stringify(cleanCookie)) {
+        $.cookie(cookieName,cleanCookie.join(delimiter),{expires:3650});
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } catch (ex) {
+    return false;
+  }
+}
 
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
@@ -1181,6 +1203,7 @@ function addProperties() {
 }
 function showContent() {
   var count = {'db-box1':$('table#db-box1 tbody').length, 'db-box2':$('table#db-box2 tbody').length, 'db-box3':$('table#db-box3 tbody').length}
+  sanitizeMultiCookie('inactive_content', ';', true);
   var inactive = $.cookie('inactive_content');
   if (inactive) {
     inactive = inactive.split(';');
@@ -1191,6 +1214,7 @@ function showContent() {
       tbody.hide();
     }
   }
+  sanitizeMultiCookie('hidden_content', ';', true);
   var hidden = $.cookie('hidden_content');
   if (hidden) {
     hidden = hidden.split(';');
