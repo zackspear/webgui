@@ -442,7 +442,7 @@
 					break;
 			}
 
-			if ($os_type == "windows") $hypervclock = "<timer name='hypervclock' present='yes'/>" else $hypervclock = "" ;
+			if ($os_type == "windows") $hypervclock = "<timer name='hypervclock' present='yes'/>" ; else $hypervclock = "" ;
 
 			$clock = "<clock offset='" . $domain['clock'] . "'>
 						<timer name='rtc' tickpolicy='catchup'/>
