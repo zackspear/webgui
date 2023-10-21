@@ -53,6 +53,7 @@
 			'maxmem' => 1024 * 1024,
 			'password' => '',
 			'cpumode' => 'host-passthrough',
+			'cpumigrate' => 'on',
 			'vcpus' => 1,
 			'vcpu' => [0],
 			'hyperv' => 1,
@@ -312,12 +313,25 @@
 		</blockquote>
 	</div>
 
+	<?
+				$migratehidden =  "disabled hidden" ;
+				if ($arrConfig['domain']['cpumode'] == 'host-passthrough') $migratehidden = "" ;
+	?>
+
 	<table>
 		<tr class="advanced">
-			<td>_(CPU Mode)_:</td>
+			<td><span class="advanced">_(CPU)_ </span>_(Mode)_:</td>
 			<td>
-				<select name="domain[cpumode]" title="_(define type of cpu presented to this vm)_">
+				<select id="cpu" name="domain[cpumode]" class="cpu" title="_(define type of cpu presented to this vm)_">
 				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'custom' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']);?>
+				</select>
+				<span class="advanced" id="domain_cpumigrate_text"<?=$migratehidden?>>_(Migratable)_:</span>
+
+				<select name="domain[cpumigrate]" id="domain_cpumigrate"  <?=$migratehidden?> class="narrow" title="_(define if migratable)_">
+				<?
+				echo mk_option($arrConfig['domain']['cpumigrate'], 'on', 'On');
+				echo mk_option($arrConfig['domain']['cpumigrate'], 'off', 'Off') ;
+				?>
 				</select>
 			</td>
 		</tr>
@@ -380,10 +394,8 @@
 					}
 				?>
 				</select>
-			</td>
-
-			<td class="advanced">_(Max)_ _(Memory)_:</td>
-			<td class="advanced">
+	
+			<span class="advanced">_(Max)_ _(Memory)_:</span>		
 				<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="_(define the maximum amount of memory)_">
 				<?
 					echo mk_option($arrConfig['domain']['maxmem'], 128 * 1024, '128 MB');
@@ -396,7 +408,6 @@
 				?>
 				</select>
 			</td>
-			<td></td>
 		</tr>
 	</table>
 	<div class="basic">
@@ -1832,6 +1843,23 @@ $(function() {
 			regenerateDiskPreview($input.closest('table').data('index'));
 		}
 	});
+
+	$("#vmform").on("change", ".cpu", function changeCPUEvent() {
+		var myvalue = $(this).val();
+		var mylabel = $(this).children('option:selected').text();
+		var cpumigrate = document.getElementById("domain_cpumigrate_text") ;
+		var cpumigrate_text = document.getElementById("domain_cpumigrate") ;
+		if (myvalue == "custom") {
+			document.getElementById("domain_cpumigrate_text").style.visibility="hidden";
+			document.getElementById("domain_cpumigrate").style.visibility="hidden";
+		} else {
+			document.getElementById("domain_cpumigrate_text").style.display="inline";
+			document.getElementById("domain_cpumigrate_text").style.visibility="visible";
+			document.getElementById("domain_cpumigrate").style.display="inline";
+			document.getElementById("domain_cpumigrate").style.visibility="visible";
+		}
+
+	}) ;
 
 	$("#vmform").on("change", ".gpu", function changeGPUEvent() {
 		var myvalue = $(this).val();

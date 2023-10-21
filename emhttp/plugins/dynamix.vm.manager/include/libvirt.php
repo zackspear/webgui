@@ -369,6 +369,7 @@
 			$cpumode = '';
 			$cpucache = '';
 			$cpufeatures = '';
+			$cpumigrate = '';
 			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'host-passthrough') {
 				$cpumode .= "mode='host-passthrough'";
 				$cpucache = "<cache mode='passthrough'/>";
@@ -389,9 +390,11 @@
 					$intCores = $vcpus / $intCPUThreadsPerCore;
 					$intThreads = $intCPUThreadsPerCore;
 				}
+
+				if (!empty($domain['cpumigrate'])) $cpumigrate = " migratable='".$domain['cpumigrate']."'" ;
 			}
 
-			$cpustr = "<cpu $cpumode>
+			$cpustr = "<cpu $cpumode $cpumigrate>
 							<topology sockets='1' cores='{$intCores}' threads='{$intThreads}'/>
 							$cpucache
 							$cpufeatures
@@ -2089,6 +2092,17 @@
 			$tmp = $this->get_xpath($domain, '//domain/cpu/@mode', false);
 			if (!$tmp)
 				return 'emulated';
+
+			$var = $tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
+		function domain_get_cpu_migrate($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/cpu/@migratable', false);
+			if (!$tmp)
+				return 'no';
 
 			$var = $tmp[0];
 			unset($tmp);
