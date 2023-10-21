@@ -347,6 +347,10 @@
 				<b>Emulated</b><br>
 				If you are having difficulties with Host Passthrough mode, you can try the emulated mode which doesn't expose the guest to host-based CPU features.  This may impact the performance of your VM.
 			</p>
+			<p>
+				<b>Migratable</b><br>
+				Migratable attribute may be used to explicitly request such features to be removed from (on) or kept in (off) the virtual CPU. Off will not remove any host features when using Host Passthrough. Not support on emulated.
+			</p>
 		</blockquote>
 	</div>
 
