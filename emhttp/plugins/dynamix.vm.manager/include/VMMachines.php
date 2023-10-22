@@ -75,16 +75,19 @@ foreach ($vms as $vm) {
   $autoport = $lv->domain_get_vmrc_autoport($res);
   $vmrcurl = '';
   $graphics = '';
+  $virtual = false ;
   if ($vmrcport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
     $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
     $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
     if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/'.$wsport.'/';
     $graphics = strtoupper($vmrcprotocol).":".$vmrcport."\n";
+    $virtual = true ;
   } elseif ($vmrcport == -1 || $autoport) {
     $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
     if ($autoport == "yes") $auto = "auto"; else $auto="manual";
     $graphics = strtoupper($vmrcprotocol).':'._($auto)."\n";
+    $virtual = true ;
   } 
   if (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
@@ -93,10 +96,10 @@ foreach ($vms as $vm) {
         if ($arrGPU['id'] == $arrDev['id']) {
           if (count(array_filter($arrValidGPUDevices, function($v) use ($arrDev) { return $v['name'] == $arrDev['name']; })) > 1) {
             $graphics .= $arrDev['name'].' ('.$arrDev['id'].')'."\n";
-            $vmrcprotocol = "VGA";
+            if (!$virtual) $vmrcprotocol = "VGA";
           } else {
             $graphics .= $arrDev['name']."\n";
-            $vmrcprotocol = "VGA";
+            if (!$virtual) $vmrcprotocol = "VGA";
           }
         }
       }
@@ -147,7 +150,7 @@ foreach ($vms as $vm) {
     }
   }
 
-  $ipliststr = $iptitlestr = "" ;
+  $ipliststr = $iptablestr = "" ;
   $gastate = getgastate($res);
   if ($gastate == "connected") {
   $ip  = $lv->domain_interface_addresses($res, 1);
@@ -166,24 +169,26 @@ foreach ($vms as $vm) {
           $ipnamemac = "$ipname ($iphdwadr)";
           if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
           $ipliststr .= "<tr><td>$ipnamemac</td><td></td><td></td><td>$iptype</td><td>$ipaddrval</td><td>$ipprefix</td></tr>";
-          $iptitlestr .= "$ipaddrval $ipprefix\n" ;
+          $iptablestr .= "$ipaddrval/$ipprefix\n" ;
         }
       }
     }
   } else {
-  if ($gastate == "disconnected") { $ipliststr .= "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>"; $iptitlestr = _('Requires guest agent installed') ; }
-  else { $ipliststr =  "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>"; $iptitlestr = _('Requires guest running') ;  }
+  if ($gastate == "disconnected") { $ipliststr .= "<tr><td>"._('Guest agent not installed')."</td><td></td><td></td><td></td></tr>"; $iptablestr = _('Requires guest agent installed') ; }
+  else { $ipliststr =  "<tr><td>"._('Guest not running')."</td><td></td><td></td><td></td><td></td></tr>"; $iptablestr = _('Requires guest running') ;  }
   }
+  $iptablestr = str_replace("\n", "<br>", trim($iptablestr));
 
   $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
   $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#'  onclick='$changemedia'> <i class='fa fa-bullseye' ></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
-  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info\nIP(s) inuse\n$iptitlestr'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
+  echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";
   echo "<td>$mem</td>";
   echo "<td title='$diskdesc'><span class='state' >$disks&nbsp;&nbsp;&nbsp;&nbsp;$cdstr<br>$snapshotstr</span></td>";
   echo "<td><span class='vmgraphics'>$graphics</td>";
+  echo "<td><span class='vmgraphics'>$iptablestr</td>";
   echo "<td><input class='autostart' type='checkbox' name='auto_{$vm}' title=\""._('Toggle VM autostart')."\" uuid='$uuid' $autostart></td></tr>";
 
   /* Disk device information */
