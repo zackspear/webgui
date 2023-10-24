@@ -176,7 +176,8 @@ build_servers(){
 	# ex: https://tower.local
 	#
 	server {
-	$(listen $PORTSSL ssl http2 default_server)
+	$(listen $PORTSSL ssl default_server)
+	    http2 on;
 	    # Ok to use concatenated pem files; nginx will do the right thing.
 	    ssl_certificate         $SELFCERTPATH;
 	    ssl_certificate_key     $SELFCERTPATH;
@@ -220,7 +221,8 @@ build_servers(){
 	# Return 404 (Not Found) as default ssl action, using self-signed cert
 	#
 	server {
-	$(listen $PORTSSL ssl http2 default_server)
+	$(listen $PORTSSL ssl default_server)
+	    http2 on;
 	    # Ok to use concatenated pem files; nginx will do the right thing.
 	    ssl_certificate         $SELFCERTPATH;
 	    ssl_certificate_key     $SELFCERTPATH;
@@ -240,7 +242,8 @@ build_servers(){
 	# Return 404 (Not Found) as default ssl action
 	#
 	server {
-	$(listen $PORTSSL ssl http2 default_server)
+	$(listen $PORTSSL ssl default_server)
+	    http2 on;
 	    # Ok to use concatenated pem files; nginx will do the right thing.
 	    ssl_certificate         $SELFCERTPATH;
 	    ssl_certificate_key     $SELFCERTPATH;
@@ -261,7 +264,8 @@ build_servers(){
 	# ex: https://hash.unraid.net
 	#
 	server {
-	$(listen $PORTSSL ssl http2)
+	$(listen $PORTSSL ssl)
+	    http2 on;
 	    server_name ${SERVER_NAMES[@]};
 	    # Ok to use concatenated pem files; nginx will do the right thing.
 	    ssl_certificate         $CERTPATH;
