@@ -381,7 +381,7 @@ build_locations(){
 	    add_header Cache-Control no-cache;
 	}
 	#
-	# pass PHP scripts to FastCGI server listening on unix:/var/run/php5-fpm.sock
+	# pass PHP scripts to FastCGI server listening on unix:/var/run/php-fpm.sock
 	#
 	location ~ \.php$ {
 	    include fastcgi_params;
