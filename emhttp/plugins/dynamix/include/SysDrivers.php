@@ -79,9 +79,9 @@ switch ($_POST['table']) {
                         $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>" ;
                     } 
             }  
-            if (isset($module["version"])) $version = "(".$module["version"].")" ; else $version = "" ;
+            if (isset($module["version"])) $version = " (".$module["version"].")" ; else $version = "" ;
         
-            $html .= "<td>$modname $version$supporthtml</td>" ;
+            $html .= "<td>$modname$version$supporthtml</td>" ;
             $html .= "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
     
             $text = "" ;
