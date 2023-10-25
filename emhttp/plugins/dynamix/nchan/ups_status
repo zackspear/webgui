@@ -118,7 +118,7 @@ while (true) {
         break;
       }
     }
-    if ($power && isset($load)) $status[5] = ($load<90 ? "<span $green>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
+    if (isset($power) && isset($load)) $status[5] = ($load<90 ? "<span $green>" : "<span $red>").round($power*$load/100)." W (".$status[5].")</span>";
     elseif (isset($load)) $status[5] = ($load<90 ? "<span>" : "<span $red>").$status[5]."</span>";
     $status[6] = isset($output) ? ((!$volt || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$status[6].(isset($freq) ? " ~ $freq Hz" : "")."</span>") : $status[6];
   }
