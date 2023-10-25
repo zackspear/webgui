@@ -16,19 +16,19 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  */
 ?>
 <?
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 function makeList($list) {
   return implode(',',array_map('escapestring',$list));
 }
 function sharename($share) {
   return basename($share,'.cfg');
 }
-$subpools = array( "special", "logs", "dedup", "cache", "spares");
 function isSubpool($name) {
   global $subpools;
-  // pool name ending in any of these => zfs subpool
-  $tildaPosition = strpos($name, '~');
-  $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
-  return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
+  $subpool = array_pad(explode('~',$name,2),2,'')[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
