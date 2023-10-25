@@ -27,7 +27,7 @@ function sharename($share) {
 }
 function isSubpool($name) {
   global $subpools;
-  $subpool = array_pad(explode('~',$name,2),2,'')[1];
+  $subpool = my_explode('~',$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
 ?>
