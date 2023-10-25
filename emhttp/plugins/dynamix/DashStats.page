@@ -1278,18 +1278,11 @@ function dismiss(button) {
   inactive.push(tbody.attr('sort'));
   $.cookie('inactive_content',inactive.join(';'),{expires:3650});
 }
-function dialogStyle() {
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
-}
 function contentMgmt() {
   box = $("#iframe-popup");
   box.html($("#templateContentMgmt").html().build());
   box.dialog({
     title: "_(Tile Management)_",
-    height: 330,
     width: 900,
     resizable: false,
     modal: true,
@@ -1329,7 +1322,6 @@ function VMClone(uuid, name){
   document.getElementById("Overwrite").checked = true;
   box.dialog({
     title: "_(VM Clone)_",
-    height: 330,
     width: 600,
     resizable: false,
     modal: true,
@@ -1371,7 +1363,6 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
   document.getElementById("targetsnapfspc").checked = true;
   box.dialog({
     title: optiontext,
-    height: 330,
     width: 600,
     resizable: false,
     modal: true,

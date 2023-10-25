@@ -374,6 +374,13 @@ function getVal(el, name) {
   }
 }
 
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
+
 function addConfigPopup() {
   var title = "_(Add Configuration)_";
   var popup = $("#dialogAddConfig");
@@ -391,8 +398,8 @@ function addConfigPopup() {
   // Start Dialog section
   popup.dialog({
     title: title,
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -425,10 +432,7 @@ function addConfigPopup() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 
 function editConfigPopup(num,disabled) {
@@ -462,8 +466,8 @@ function editConfigPopup(num,disabled) {
   popup.find(".switch-button-background").css("margin-top", "6px");
   popup.dialog({
     title: title,
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
     buttons: {
     "_(Save)_": function() {
@@ -505,10 +509,7 @@ function editConfigPopup(num,disabled) {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
   $('.desc_readmore').readmore({maxHeight:10});
 }
 

@@ -56,6 +56,12 @@ function validate(poolname) {
   }
   return true;
 }
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 function addPoolPopup() {
   var popup = $('#dialogAddPool');
   // Load popup with the template info
@@ -63,8 +69,8 @@ function addPoolPopup() {
   // Start Dialog section
   popup.dialog({
     title: "_(Add Pool)_",
-    resizable: false,
     width: 600,
+    resizable: false,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -78,10 +84,7 @@ function addPoolPopup() {
       }
     }
   });
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  dialogStyle();
 }
 function removeOption(inputString,value) {
   // Define a regular expression to match <option>...</option> substrings
@@ -112,8 +115,8 @@ function addSubpoolPopup(poolname,currentsubpools) {
   // Start Dialog section
   popup.dialog({
     title: "_(Add ZFS Subpool)_",
-    resizable: false,
     width: 600,
+    resizable: false,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -127,10 +130,7 @@ function addSubpoolPopup(poolname,currentsubpools) {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 
 <?if (_var($var,'fsState')=="Started"):?>

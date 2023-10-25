@@ -248,9 +248,9 @@ function dfm_makeDialog(open) {
     dialogClass: 'ui-dfm',
     autoOpen: open||dfm.dialog,
     title: dfm_read.title,
-    resizable: false,
-    width: 900,
     height: dfm.height,
+    width: 900,
+    resizable: false,
     modal: true,
     buttons: {
       "_(Start)_": function(){

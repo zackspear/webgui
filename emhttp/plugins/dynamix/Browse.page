@@ -449,9 +449,9 @@ function doAction(action,title,id) {
     dialogClass: 'ui-dfm',
     autoOpen: true,
     title: title,
-    resizable: false,
-    width: 900,
     height: dfm.height,
+    width: 900,
+    resizable: false,
     modal: true,
     buttons: {
       "_(Start)_": function(){
@@ -728,9 +728,9 @@ function doActions(action,title) {
     dialogClass: 'ui-dfm',
     autoOpen: true,
     title: title,
-    resizable: false,
-    width: 900,
     height: dfm.height,
+    width: 900,
+    resizable: false,
     modal: true,
     buttons: {
       "_(Start)_": function(){

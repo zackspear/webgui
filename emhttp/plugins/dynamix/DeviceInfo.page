@@ -105,7 +105,7 @@ $next = $i<$end ? $sheets[$i+1] : $sheets[0];
 $text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
 <script>
 if ($.cookie('deletepool')) {
@@ -471,6 +471,12 @@ function validate(poolname) {
   }
   return true;
 }
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 function renamePoolPopup() {
   var popup = $('#dialogRenamePool');
   // Load popup with the template info
@@ -478,8 +484,8 @@ function renamePoolPopup() {
   // Start Dialog section
   popup.dialog({
     title: "_(Rename Pool)_",
-    resizable: false,
     width: 600,
+    resizable: false,
     modal: true,
     buttons: {
     "_(Rename)_": function() {
@@ -493,10 +499,7 @@ function renamePoolPopup() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 function deletePool() {
   $.cookie('deletepool','deletepool');
