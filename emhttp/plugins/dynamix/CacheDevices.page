@@ -63,7 +63,7 @@ function dialogStyle() {
   $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function addPoolPopup() {
-  var popup = $('#dialogAddPool');
+  var popup = $('#dialogWindow');
   // Load popup with the template info
   popup.html($("#templatePopupPool").html());
   // Start Dialog section
@@ -100,7 +100,7 @@ function removeOption(inputString,value) {
   return result;
 }
 function addSubpoolPopup(poolname,currentsubpools) {
-  var popup = $('#dialogAddSubpool');
+  var popup = $('#dialogWindow');
   // Load popup with the template info
   popup.html($("#templatePopupSubpool").html());
   // Remove the options specifed by currentsubpools
@@ -153,11 +153,20 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 </table>
 <?endif;?>
 <?endforeach;?>
+
+:cache_devices_help:
+
+<?if (_var($var,'fsState')=="Stopped"):?>
+<div></div>
+:cache_slots_help:
+<?endif;?>
+
+<div id="dialogWindow" class="template"></div>
+
 <?if (_var($var,'fsState')=="Stopped"):?>
 <input type="button" value="_(Add Pool)_" style="margin:0" onclick="addPoolPopup()">
 
-<div id="dialogAddPool" style="display:none"></div>
-<div id="templatePopupPool" style="display:none">
+<div id="templatePopupPool" class="template">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
@@ -173,8 +182,7 @@ _(Slots)_:
 </form>
 </div>
 
-<div id="dialogAddSubpool" style="display:none"></div>
-<div id="templatePopupSubpool" style="display:none">
+<div id="templatePopupSubpool" class="template">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 <input type="hidden" name="poolName" value="">
@@ -196,11 +204,4 @@ _(Slots)_:
 
 </form>
 </div>
-<?endif;?>
-
-:cache_devices_help:
-
-<?if (_var($var,'fsState')=="Stopped"):?>
-<div></div>
-:cache_slots_help:
 <?endif;?>
