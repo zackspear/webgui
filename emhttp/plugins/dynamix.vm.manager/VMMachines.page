@@ -477,16 +477,16 @@ $(function() {
 <div id="templateISO" class="template">
 <dl>
 <dt>_(ISO Image)_:</dt>
-<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso"></dd>
 </dl>
 </div>
 
 <div id="templateISOboth" class="template">
 <dl>
 <dt>_(CD1 ISO Image)_:</dt>
-<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso"></dd>
 <dt>_(CD2 ISO Image)_:</dt>
-<dd><input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+<dd><input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso"></dd>
 </dl>
 </div>
 
