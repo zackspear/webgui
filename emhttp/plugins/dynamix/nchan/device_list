@@ -454,6 +454,7 @@ while (true) {
       $off = false;
       foreach ($cache as $disk) if (prefix(_var($disk,'name'))==$pool) {
         $echo[$n] .= array_offline($disk,$pool);
+        // tilde is not allowed in array key - replace it
         $diskname = str_replace('~','_-_',_var($disk,'name'));
         if (isset($log[$diskname])) $off |= ($log[$diskname] != _var($disk,'id')); elseif ($diskname) $log[$diskname] = _var($disk,'id');
       }
