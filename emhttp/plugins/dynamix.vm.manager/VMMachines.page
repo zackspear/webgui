@@ -157,7 +157,7 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
   });
   box.dialog({
     title: "_(Select ISOs for CDROMs)_",
-    height: 630,
+    height: 530,
     width: 900,
     resizable: false,
     modal: true,
@@ -189,7 +189,7 @@ function getisoimage(uuid,dev,bus,file){
   });
   box.dialog({
     title: "_(Select ISO)_",
-    height: 630,
+    height: 530,
     width: 900,
     resizable: false,
     modal: true,
