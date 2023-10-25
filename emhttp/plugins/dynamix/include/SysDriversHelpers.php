@@ -16,7 +16,7 @@ function getplugin($in) {
   $plugin_link = $plugins.$in;
   $plugin_file = @readlink($plugin_link);
   $support = plugin('support',$plugin_file) ?: "";
-  return($support);
+  return $support;
 }
 
 function getmodules($name) {
