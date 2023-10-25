@@ -143,35 +143,30 @@ function dialogStyle() {
   $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
-  var root = "<?=$domain_cfg["MEDIADIR"]?>";
-  var match = ".iso";
   var box = $("#dialogWindow");
   box.html($("#templateISOboth").html());
-  box.find('#target').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).attr('value',file).fileTreeAttach(null,null,function(path){
+  box.find('#target').attr('value',file).fileTreeAttach(null,null,function(path){
     var bits = path.substr(1).split('/');
     var auto = bits.length>3 ? '' : share;
     box.find('#target').val(path+auto).change();
   });
-  box.find('#target2').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).attr('value',file2).fileTreeAttach(null,null,function(path){
+  box.find('#target2').attr('value',file2).fileTreeAttach(null,null,function(path){
     var bits = path.substr(1).split('/');
     var auto = bits.length>3 ? '' : share;
     box.find('#target2').val(path+auto).change();
   });
   box.dialog({
     title: "_(Select ISOs for CDROMs)_",
-    width: 600,
+    height: 630,
+    width: 900,
     resizable: false,
     modal: true,
     buttons: {
       "_(Update)_": function(){
         var target = box.find('#target');
-        if (target.length) {
-          target = target.val();
-        } else target = '';
+        if (target.length) target = target.val(); else target = '';
         var target2 = box.find('#target2');
-        if (target2.length) {
-          target2 = target2.val();
-        } else target2 = '';
+        if (target2.length) target2 = target2.val(); else target2 = '';
         box.find('#target').prop('disabled',true);
         box.find('#target2').prop('disabled',true);
         ajaxVMDispatch({action:"change-media-both", uuid:uuid, cdrom:"", dev:dev, bus:bus, file:target, dev2:dev2, bus2:bus2, file2:target2}, "loadlist");
@@ -185,27 +180,23 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
   dialogStyle();
 }
 function getisoimage(uuid,dev,bus,file){
-  var root = "<?=$domain_cfg["MEDIADIR"]?>";
-  var match = ".iso";
   var box = $("#dialogWindow");
   box.html($("#templateISO").html());
-  box.find('#target').attr('data-pickroot',root).attr('data-picktop',root).attr('data-pickmatch',match).fileTreeAttach(null,null,function(path){
+  box.find('#target').attr('value',file).fileTreeAttach(null,null,function(path){
     var bits = path.substr(1).split('/');
     var auto = bits.length>3 ? '' : share;
     box.find('#target').val(path+auto).change();
   });
   box.dialog({
     title: "_(Select ISO)_",
-    width: 600,
+    height: 630,
+    width: 900,
     resizable: false,
     modal: true,
     buttons: {
       "_(Insert)_": function(){
         var target = box.find('#target');
-        if (target.length) {
-          target = target.val();
-          if (!target ) {errorTarget(); return;}
-        } else target = '';
+        if (target.length) target = target.val(); else target = '';
         box.find('#target').prop('disabled',true);
         ajaxVMDispatch({action:"change-media", uuid:uuid, cdrom:"", dev:dev, bus:bus, file:target}, "loadlist");
         box.dialog('close');
@@ -483,19 +474,20 @@ $(function() {
 
 <div id="dialogWindow"></div>
 
-<div markdown="1" id="templateISO" class="template">
-_(ISO Image)_:
-: <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
+<div id="templateISO" class="template">
+<dl>
+<dt>_(ISO Image)_:</dt>
+<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+</dl>
 </div>
 
-<div markdown="1" id="templateISOboth" class="template">
-_(CD1 ISO Image)_:
-: <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
-_(CD2 ISO Image)_:
-: <input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
-
+<div id="templateISOboth" class="template">
+<dl>
+<dt>_(CD1 ISO Image)_:</dt>
+<dd><input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+<dt>_(CD2 ISO Image)_:</dt>
+<dd><input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="iso" data-pickmatch=""></dd>
+</dl>
 </div>
 
 <div id="templatesnapshotcreate" class="template">
