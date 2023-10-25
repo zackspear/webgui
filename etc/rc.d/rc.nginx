@@ -43,8 +43,10 @@ SERVER_NAMES=()
 [[ $PORT != 80 ]] && PORT_URL=":$PORT"
 
 # delete legacy unraid.net certificate
-TMPCERTNAME=$(openssl x509 -noout -subject -nameopt multiline -in $CERTPATH | sed -n 's/ *commonName *= //p')
-[[ $TMPCERTNAME == *\.unraid\.net ]] && rm $CERTPATH
+if [[ -f $CERTPATH ]]; then
+  TMPCERTNAME=$(openssl x509 -noout -subject -nameopt multiline -in $CERTPATH | sed -n 's/ *commonName *= //p')
+  [[ $TMPCERTNAME == *\.unraid\.net ]] && rm $CERTPATH
+fi
 
 # if USE_SSL="auto" and no uploaded cert, treat like USE_SSL="no"
 [[ $USE_SSL == auto && ! -f $CERTPATH ]] && USE_SSL=no
