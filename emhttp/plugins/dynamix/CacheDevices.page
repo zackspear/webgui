@@ -1,7 +1,7 @@
 Menu="Main:2"
 Title="Pool Devices"
 Tag="bullseye"
-Cond="($pool_devices || $var['fsState']=='Stopped')"
+Cond="$var['fsState']=='Stopped'"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
@@ -175,6 +175,7 @@ _(Slots)_:
 
 <div id="dialogAddSubpool" style="display:none"></div>
 <div id="templatePopupSubpool" style="display:none">
+
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 <input type="hidden" name="poolName" value="">
