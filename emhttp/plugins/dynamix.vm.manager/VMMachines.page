@@ -486,6 +486,7 @@ $(function() {
 <div markdown="1" id="templateISO" class="template">
 _(ISO Image)_:
 : <input type="text" id="target" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
+
 </div>
 
 <div markdown="1" id="templateISOboth" class="template">
@@ -494,6 +495,7 @@ _(CD1 ISO Image)_:
 
 _(CD2 ISO Image)_:
 : <input type="text" id="target2" autocomplete="off" spellcheck="false" value="" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="" data-pickmatch="" data-pickroot="" data-picktop="">
+
 </div>
 
 <div id="templatesnapshotcreate" class="template">
