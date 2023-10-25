@@ -22,11 +22,12 @@ function getplugin($in) {
 function getmodules($name) {
   global $arrModules,$lsmod,$kernel,$arrModtoPlg,$modplugins;
   // preset variables
-  $modname = $depends = $filename = $desc = $file = $version = $state = $modprobe = $dir = $support = $supporturl = $pluginfile = "";
-  $parms   = [];
+  $modname = $depends = $filename = $desc = $file = $version = $state = $dir = $support = $supporturl = $pluginfile = "";
+  $modprobe = $parms = [];
   exec("modinfo $name",$output,$error);
   foreach($output as $outline) {
-    [$key,$data] = explode(':',$outline,2);
+    if (!$outline) continue;
+    [$key,$data] = array_pad(explode(':',$outline,2),2,'');
     $data = trim($data);
     switch ($key) {
     case "name":
@@ -75,16 +76,14 @@ function getmodules($name) {
   }
   if (is_file("/boot/config/modprobe.d/$modname.conf")) {
     $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf");
-    $modprobe = explode(PHP_EOL,$modprobe);
     $state = strpos($modprobe,"blacklist")!==false ? "Disabled" : "Custom";
-  } else {
-    if (is_file("/etc/modprobe.d/$modname.conf")) {
-      $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf");
-      $modprobe = explode(PHP_EOL,$modprobe);
-      $state = strpos($modprobe, "blacklist")!==false ? "Disabled" : "System";
-      $module['state'] = $state;
-      $module['modprobe'] = $modprobe;
-    }
+    $modprobe = explode(PHP_EOL,$modprobe);
+  } elseif (is_file("/etc/modprobe.d/$modname.conf")) {
+    $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf");
+    $state = strpos($modprobe, "blacklist")!==false ? "Disabled" : "System";
+    $module['state'] = $state;
+    $module['modprobe'] = $modprobe;
+    $modprobe = explode(PHP_EOL,$modprobe);
   }
   if ($filename != "(builtin)") {
     if ($filename) {
