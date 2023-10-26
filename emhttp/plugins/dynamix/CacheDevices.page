@@ -188,11 +188,11 @@ _(Slots)_:
 <input type="hidden" name="poolName" value="">
 _(Name)_:
 : <select name="subpool">
-  <?=mk_option("","special","_(special - Special Allocation Class)_")?>
-  <?=mk_option("","logs","_(logs - ZFS Intent Log)_")?>
-  <?=mk_option("","dedup","_(dedup - Deduplication Tables)_")?>
-  <?=mk_option("","cache","_(cache - Cache Devices)_")?>
-  <?=mk_option("","spares","_(spares - Hot Spares)_")?>
+  <?=mk_option("","special",_("special - Special Allocation Class"))?>
+  <?=mk_option("","logs",_("logs - ZFS Intent Log"))?>
+  <?=mk_option("","dedup",_("dedup - Deduplication Tables"))?>
+  <?=mk_option("","cache",_("cache - Cache Devices"))?>
+  <?=mk_option("","spares",_("spares - Hot Spares"))?>
   </select>
 
 _(Slots)_:
