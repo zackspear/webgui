@@ -15,9 +15,9 @@ Tag="server"
  * all copies or substantial portions of the Software.
  */
 ?>
-<script type="text/javascript" src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
-<script type="text/javascript">
+<script src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
 
+<script>
 function showDrivers(options, init = false) {
   option = options ;
   if (init) {

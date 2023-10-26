@@ -15,14 +15,13 @@ function getplugin($in) {
   $plugins = "/var/log/plugins/";
   $plugin_link = $plugins.$in;
   $plugin_file = @readlink($plugin_link);
-  $support = plugin('support',$plugin_file) ?: "";
-  return $support;
+  return plugin('support',$plugin_file) ?: '';
 }
 
 function getmodules($name) {
   global $arrModules,$lsmod,$kernel,$arrModtoPlg,$modplugins;
   // preset variables
-  $modname = $depends = $filename = $desc = $file = $version = $state = $dir = $support = $supporturl = $pluginfile = "";
+  $modname = $depends = $filename = $desc = $file = $version = $state = $dir = $support = $supporturl = $pluginfile = null;
   $modprobe = $parms = [];
   exec("modinfo $name",$output,$error);
   foreach($output as $outline) {

@@ -46,7 +46,7 @@ case 't1load':
   if (is_file($sysdrvinit)) $init = file_get_contents($sysdrvinit);
   $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
   $html .= "<tbody>";
-  if (is_array($arrModules)) ksort($arrModules);
+  ksort($arrModules);
   foreach($arrModules as $modname => $module) {
     if ($modname == "") continue;
     if (is_file("/boot/config/modprobe.d/$modname.conf")) {
@@ -76,17 +76,17 @@ case 't1load':
         $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>";
       }
     }
-    if (isset($module["version"])) $version = " (".$module["version"].")"; else $version = "";
+    if (!empty($module["version"])) $version = " (".$module["version"].")"; else $version = "";
     $html .= "<td>$modname$version$supporthtml</td>";
     $html .= "<td>{$module['description']}</td><td id=\"status$modname\">{$module['state']}</td><td>{$module['type']}</td>";
     $text = "";
-    if (is_array($module["modprobe"])) {
+    if (is_array($module["modprobe"]) && count($module["modprobe"])) {
       $text = implode("\n",$module["modprobe"]);
       $html .= "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>";
       $hidden = "";
       if ($module['state'] == "System") $hidden = "hidden";
       $html .= " <a class='info' href=\"#\" id=\"bin$modname\" $hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash'></i></a><span>";
-      $html .= "<span><textarea id=\"text".$modname."\" rows=3 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
+      $html .= "<span><textarea id=\"text".$modname."\" rows=2 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i  title='"._("Save Modprobe config")."' class='fa fa-save' ></i></a></span></td></tr>";
     } else {
       $html .= "<td><span><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>";
       $html .= " <a class='info' href=\"#\" id=\"bin$modname\" hidden><i title='"._("Delete Modprobe config")."'  onclick=\"removecfg('".$modname."',true);return false;\"  class='fa fa-trash'></i></a><span>";
