@@ -81,9 +81,9 @@ function getmodules($name) {
   } elseif (is_file("/etc/modprobe.d/$modname.conf")) {
     $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf");
     $state = strpos($modprobe, "blacklist")!==false ? "Disabled" : "System";
+    $modprobe = explode(PHP_EOL,$modprobe);
     $module['state'] = $state;
     $module['modprobe'] = $modprobe;
-    $modprobe = explode(PHP_EOL,$modprobe);
   }
   if ($filename != "(builtin)") {
     if ($filename) {
