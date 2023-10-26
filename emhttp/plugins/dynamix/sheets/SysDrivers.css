@@ -7,3 +7,4 @@ table.t1 tr>td+td+td{width:18%;text-align:left}
 table.t1 tr>td+td+td+td{width:18%;text-align:left}
 table.t1 tr>td+td+td+td+td{width:24%;text-align:left}
 .t1.tablesorter .filtered{display:none}
+textarea[id^=text]{width:80%}
