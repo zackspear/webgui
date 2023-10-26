@@ -484,6 +484,7 @@ function renamePoolPopup() {
   // Start Dialog section
   popup.dialog({
     title: "_(Rename Pool)_",
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,
@@ -1335,7 +1336,7 @@ $(function() {
 <?if (fsType('btrfs')):?>
   presetBTRFS(document.balance_schedule,'#balance-hour');
   presetBTRFS(document.scrub_schedule,'#scrub-hour');
-<?elseif (fsType('zfs')):?>
+<?elseif (fsType('zfs') && !isSubpool($name)):?>
   presetZFS(document.scrub_schedule,'#scrub-hour');
 <?endif;?>
 });

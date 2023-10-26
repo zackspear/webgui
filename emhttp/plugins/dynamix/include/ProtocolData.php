@@ -11,14 +11,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 switch (_var($_GET,'protocol')) {
-  case 'smb': $data = @parse_ini_file('state/sec.ini',true) ?: []; break;
-  case 'nfs': $data = @parse_ini_file('state/sec_nfs.ini',true) ?: []; break;
+  case 'smb': $data = (array)@parse_ini_file('state/sec.ini',true); break;
+  case 'nfs': $data = (array)@parse_ini_file('state/sec_nfs.ini',true); break;
 }
 $name = unscript(_var($_GET,'name'));
 echo json_encode(_var($data,$name));

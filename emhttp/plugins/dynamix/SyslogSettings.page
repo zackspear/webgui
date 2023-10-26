@@ -16,7 +16,7 @@ Tag="file-text-o"
  */
 ?>
 <?
-$syslog = @parse_ini_file('/boot/config/rsyslog.cfg') ?: [];
+$syslog = (array)@parse_ini_file('/boot/config/rsyslog.cfg');
 
 function plain($ip) {
   return str_replace(['[',']'],'',$ip);

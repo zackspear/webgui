@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {

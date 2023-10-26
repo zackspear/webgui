@@ -6,8 +6,8 @@ Markdown="false"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -18,7 +18,7 @@ Markdown="false"
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 $cpus = cpu_list();
@@ -146,14 +146,10 @@ function getisoimageboth(uuid,dev,bus,file,dev2,bus2,file2){
   var box = $("#dialogWindow");
   box.html($("#templateISOboth").html());
   box.find('#target').attr('value',file).fileTreeAttach(null,null,function(path){
-    var bits = path.substr(1).split('/');
-    var auto = bits.length>3 ? '' : share;
-    box.find('#target').val(path+auto).change();
+    box.find('#target').val(path).change();
   });
   box.find('#target2').attr('value',file2).fileTreeAttach(null,null,function(path){
-    var bits = path.substr(1).split('/');
-    var auto = bits.length>3 ? '' : share;
-    box.find('#target2').val(path+auto).change();
+    box.find('#target2').val(path).change();
   });
   box.dialog({
     title: "_(Select ISOs for CDROMs)_",
@@ -183,9 +179,7 @@ function getisoimage(uuid,dev,bus,file){
   var box = $("#dialogWindow");
   box.html($("#templateISO").html());
   box.find('#target').attr('value',file).fileTreeAttach(null,null,function(path){
-    var bits = path.substr(1).split('/');
-    var auto = bits.length>3 ? '' : share;
-    box.find('#target').val(path+auto).change();
+    box.find('#target').val(path).change();
   });
   box.dialog({
     title: "_(Select ISO)_",
@@ -217,6 +211,7 @@ function VMClone(uuid, name){
   document.getElementById("Overwrite").checked = true;
   box.dialog({
     title: "_(VM Clone)_",
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,
@@ -263,6 +258,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
   document.getElementById("targetsnapfspc").checked = true;
   box.dialog({
     title: optiontext,
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,
@@ -335,6 +331,7 @@ function selectblock(uuid, name, snaps, opt, getlist, state){
   }
   box.dialog({
     title: optiontext,
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,

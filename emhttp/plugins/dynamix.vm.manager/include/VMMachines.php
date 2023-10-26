@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,13 +12,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'vms';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
-require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 $user_prefs = '/boot/config/plugins/dynamix.vm.manager/userprefs.cfg';
 if (file_exists('/boot/config/plugins/dynamix.vm.manager/vmpreview')) $vmpreview = true ; else $vmpreview =  false ;
@@ -28,7 +28,7 @@ if (empty($vms)) {
   return;
 }
 if (file_exists($user_prefs)) {
-  $prefs = @parse_ini_file($user_prefs) ?: [];
+  $prefs = (array)@parse_ini_file($user_prefs);
   $sort = [];
   foreach ($vms as $vm) $sort[] = array_search($vm,$prefs);
   array_multisort($sort,SORT_NUMERIC,$vms);
@@ -185,7 +185,7 @@ foreach ($vms as $vm) {
 
   $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
   $title = _('Select ISO image');
-  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#'  onclick='$changemedia'><i class='fa fa-bullseye' ></i></a>";
+  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#' onclick='$changemedia'><i class='fa fa-floppy-o'></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
@@ -248,7 +248,7 @@ foreach ($vms as $vm) {
       $title = _('Insert CD');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")";
       $disk = _("No CD image inserted in to drive");
-      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'><i class='fa fa-bullseye'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
+      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'><i class='fa fa-floppy-o'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
     }
   }
   echo "</tbody>";

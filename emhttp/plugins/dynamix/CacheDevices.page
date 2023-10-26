@@ -69,6 +69,7 @@ function addPoolPopup() {
   // Start Dialog section
   popup.dialog({
     title: "_(Add Pool)_",
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,
@@ -115,6 +116,7 @@ function addSubpoolPopup(poolname,currentsubpools) {
   // Start Dialog section
   popup.dialog({
     title: "_(Add ZFS Subpool)_",
+    height: 'auto',
     width: 600,
     resizable: false,
     modal: true,

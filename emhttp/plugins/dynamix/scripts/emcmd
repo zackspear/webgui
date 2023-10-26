@@ -1,9 +1,10 @@
 #!/usr/bin/php -q
 <?PHP
-require_once "/usr/local/emhttp/webGui/include/publish.php";
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/publish.php";
 
 function emhttp_command($cmd) {
-  $var = @parse_ini_file("/var/local/emhttp/var.ini") ?: [];
+  $var = (array)@parse_ini_file("/var/local/emhttp/var.ini");
   $cmd .= "&csrf_token=".($var['csrf_token']??'');
   return curl_socket("/var/run/emhttpd.socket", "http://localhost/update", $cmd);
 }

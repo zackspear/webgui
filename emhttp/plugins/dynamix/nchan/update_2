@@ -278,10 +278,10 @@ function print_error($error) {
 }
 
 while (true) {
-  $var   = @parse_ini_file("$varroot/var.ini") ?: [];
-  $devs  = @parse_ini_file("$varroot/devs.ini",true) ?: [];
-  $disks = @parse_ini_file("$varroot/disks.ini",true) ?: [];
-  $saved = @parse_ini_file("$varroot/monitor.ini",true) ?: [];
+  $var   = (array)@parse_ini_file("$varroot/var.ini");
+  $devs  = (array)@parse_ini_file("$varroot/devs.ini",true);
+  $disks = (array)@parse_ini_file("$varroot/disks.ini",true);
+  $saved = (array)@parse_ini_file("$varroot/monitor.ini",true);
   $echo  = [];
   $size  = _var($var,'mdResyncSize');
   $spot  = _var($var,'mdResyncPos');

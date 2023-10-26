@@ -69,7 +69,7 @@ function create_file($file,...$data) {
 }
 
 while (true) {
-  $var = @parse_ini_file("$varroot/var.ini") ?: [];
+  $var = (array)@parse_ini_file("$varroot/var.ini");
   // check for language changes
   extract(parse_plugin_cfg('dynamix',true));
   if (_var($display,'locale') != $locale_init) {

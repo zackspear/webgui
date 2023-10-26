@@ -19,7 +19,7 @@ require_once "$docroot/webGui/include/publish.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 while (true) {
-  $var = @parse_ini_file("$varroot/var.ini") ?: [];
+  $var = (array)@parse_ini_file("$varroot/var.ini");
   publish('session',_var($var,'csrf_token'),0);
   sleep(10);
 }

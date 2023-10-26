@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
  * Copyright 2012-2023, Bergware International.
- * Copyright 2015-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2015-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,10 +12,8 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-libxml_use_internal_errors(true);
-
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
@@ -398,6 +396,7 @@ function addConfigPopup() {
   // Start Dialog section
   popup.dialog({
     title: title,
+    height: 'auto',
     width: 900,
     resizable: false,
     modal: true,
@@ -466,6 +465,7 @@ function editConfigPopup(num,disabled) {
   popup.find(".switch-button-background").css("margin-top", "6px");
   popup.dialog({
     title: title,
+    height: 'auto',
     width: 900,
     resizable: false,
     modal: true,

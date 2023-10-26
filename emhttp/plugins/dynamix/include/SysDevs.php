@@ -11,26 +11,27 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
     //udevadm info -a   --name=/dev/bus/usb/003/002 | grep KERNEL==
-    $udevcmd = "udevadm info -a   --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==" ;
-    $physical_busid = _("None") ;
+    $udevcmd = "udevadm info -a   --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==";
+    $physical_busid = _("None");
     exec($udevcmd , $udev);
     if (isset($udev)) {
-      $physical_busid = trim(substr($udev[0], 13) , '"') ;
+      $physical_busid = trim(substr($udev[0], 13) , '"');
       if (substr($physical_busid,0,3) =='usb') {
-        $physical_busid = substr($physical_busid,3).'-0' ;
+        $physical_busid = substr($physical_busid,3).'-0';
       }
     }
   }
-  return($physical_busid) ;
+  return($physical_busid);
 }
 
 switch ($_POST['table']) {
@@ -103,7 +104,6 @@ case 't1':
       }
     }
     $lines = array_values(array_unique($lines, SORT_STRING));
-
     $iommuinuse = array ();
     foreach ($lines as $pciinuse){
       $string = exec("ls /sys/kernel/iommu_groups/*/devices/$pciinuse -1 -d");
@@ -152,7 +152,7 @@ case 't1':
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:|sort;fi;done',$getusb);
               foreach($getusb as $usbdevice) {
                 [$bus,$id] = my_explode(':',$usbdevice);
-                $usbport = usb_physical_port($usbdevice) ;
+                $usbport = usb_physical_port($usbdevice);
                 if (strlen($usbport) > 7 ) {$usbport .= "\t"; } else { $usbport .= "\t\t"; }
                 echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus Port $usbport".trim($id)."</td></tr>";
               }
@@ -218,7 +218,7 @@ case 't3':
   exec('lsusb|sort',$lsusb);
   foreach ($lsusb as $line) {
     [$bus,$id] = my_explode(':',$line);
-    $usbport = usb_physical_port($line) ;
+    $usbport = usb_physical_port($line);
     echo "<tr><td>$bus Port $usbport</td><td>  ".trim($id)."</td></tr>";
   }
   break;

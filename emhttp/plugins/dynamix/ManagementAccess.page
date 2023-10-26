@@ -52,7 +52,7 @@ function acceptableCert($certFile, $hostname, $expectedURL) {
   return false;
 }
 $tasks       = find_tasks();
-$nginx       = @parse_ini_file('/var/local/emhttp/nginx.ini') ?: [];
+$nginx       = (array)@parse_ini_file('/var/local/emhttp/nginx.ini');
 $addr        = _var($nginx,'NGINX_LANIP') ?: _var($nginx,'NGINX_LANIP6');
 $keyfile     = empty(_var($var,'regFILE')) ? false : @file_get_contents(_var($var,'regFILE'));
 $cert2Issuer = '';

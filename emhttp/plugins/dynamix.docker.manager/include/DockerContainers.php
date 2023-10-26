@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,8 +12,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
@@ -34,7 +33,7 @@ if (!$containers && !$images) {
 }
 
 if (file_exists($user_prefs)) {
-  $prefs = @parse_ini_file($user_prefs) ?: [];
+  $prefs = (array)@parse_ini_file($user_prefs);
   $sort = [];
   foreach ($containers as $ct) $sort[] = array_search($ct['Name'],$prefs);
   array_multisort($sort,SORT_NUMERIC,$containers);
@@ -46,7 +45,7 @@ $allInfo = $DockerTemplates->getAllInfo();
 $docker = [];
 $null = '0.0.0.0';
 
-$autostart = @file($autostart_file,FILE_IGNORE_NEW_LINES) ?: [];
+$autostart = (array)@file($autostart_file,FILE_IGNORE_NEW_LINES);
 $names = array_map('var_split',$autostart);
 
 function my_lang_time($text) {

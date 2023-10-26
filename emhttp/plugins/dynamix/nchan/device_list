@@ -376,11 +376,11 @@ function update_translation($locale) {
   }
 }
 while (true) {
-  $var    = @parse_ini_file("$varroot/var.ini") ?: [];
-  $devs   = @parse_ini_file("$varroot/devs.ini",true) ?: [];
-  $disks  = @parse_ini_file("$varroot/disks.ini",true) ?: [];
-  $sec    = @parse_ini_file("$varroot/sec.ini",true) ?: [];
-  $diskio = @parse_ini_file("$varroot/diskload.ini") ?: [];
+  $var    = (array)@parse_ini_file("$varroot/var.ini");
+  $devs   = (array)@parse_ini_file("$varroot/devs.ini",true);
+  $disks  = (array)@parse_ini_file("$varroot/disks.ini",true);
+  $sec    = (array)@parse_ini_file("$varroot/sec.ini",true);
+  $diskio = (array)@parse_ini_file("$varroot/diskload.ini");
   $crypto = false;
   $pools  = pools_filter($disks);
   $echo   = [];

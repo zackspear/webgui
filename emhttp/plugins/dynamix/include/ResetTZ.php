@@ -11,9 +11,10 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$pid     = '/var/run/nchan.pid';
-$nchan   = 'webGui/nchan/update_3';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+
+$pid = '/var/run/nchan.pid';
+$nchan = 'webGui/nchan/update_3';
 
 if (is_file($pid) && exec("grep -Pom1 '^$nchan' $pid")) {
   // restart update_3 script

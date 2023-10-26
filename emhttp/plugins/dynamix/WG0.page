@@ -27,7 +27,7 @@ exec("ip -br -6 addr show scope global|awk '/^(br|bond|eth)[0-9]+(\\.[0-9]+)?/{s
 exec("ls  --indicator-style=none $etc/wg*.conf*|grep -Po wg[0-9]+",$vtuns);
 exec("docker network ls --filter driver='macvlan' --filter driver='ipvlan' --format='{{.Name}}' 2>/dev/null",$filter);
 
-$nginx = @parse_ini_file('state/nginx.ini') ?: [];
+$nginx = (array)@parse_ini_file('state/nginx.ini');
 
 // add subnets defined in Docker custom networks
 if (count($filter)) {

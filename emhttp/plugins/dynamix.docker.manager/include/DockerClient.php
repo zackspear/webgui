@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,10 +12,7 @@
  */
 ?>
 <?
-libxml_use_internal_errors(true); # Suppress any warnings from xml errors.
-
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
@@ -56,8 +53,8 @@ if (file_exists($docker_cfgfile) && exec("grep -Pom1 '_{$port}(_[0-9]+)?=' $dock
   exec("sed -ri 's/_(BR0|BOND0|ETH0)(_[0-9]+)?=/_{$port}\\2=/' $docker_cfgfile");
 }
 
-$defaults = @parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg") ?: [];
-$dockercfg = array_replace_recursive($defaults, @parse_ini_file($docker_cfgfile) ?: []);
+$defaults = (array)@parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg");
+$dockercfg = array_replace_recursive($defaults, (array)@parse_ini_file($docker_cfgfile));
 
 function var_split($item, $i=0) {
 	return array_pad(explode(' ',$item),$i+1,'')[$i];

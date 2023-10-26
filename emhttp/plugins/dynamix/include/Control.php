@@ -11,12 +11,12 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 function age($number,$time) {
   return sprintf(_('%s '.($number==1 ? $time : $time.'s').' ago'),$number);

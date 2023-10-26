@@ -11,7 +11,12 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+
+// add translations
+$_SERVER['REQUEST_URI'] = 'shares';
+require_once "$docroot/webGui/include/Translations.php";
 
 if (isset($_POST['scan'])) {
   die((new FilesystemIterator("/mnt/user/{$_POST['scan']}"))->valid() ? '0' : '1');
@@ -30,11 +35,6 @@ if (isset($_POST['cleanup'])) {
   // return number of deleted files
   die((string)$n);
 }
-
-// add translations
-$_SERVER['REQUEST_URI'] = 'shares';
-require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $compute = rawurldecode(_var($_POST,'compute'));
 $path    = rawurldecode(_var($_POST,'path'));
