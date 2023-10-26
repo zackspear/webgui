@@ -78,6 +78,9 @@ $pageroot = $docroot.'/'._var($myPage,'root');
 $nchan_pid = "/var/run/nchan.pid";
 $nchan_run = "";
 
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
 ?>

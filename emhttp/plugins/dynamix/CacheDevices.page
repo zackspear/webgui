@@ -16,9 +16,6 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  */
 ?>
 <?
-// pool name ending in any of these => zfs subpool
-$subpools = ['special','logs','dedup','cache','spares'];
-
 function makeList($list) {
   return implode(',',array_map('escapestring',$list));
 }
