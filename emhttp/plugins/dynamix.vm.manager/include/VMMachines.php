@@ -212,7 +212,7 @@ foreach ($vms as $vm) {
     $bus = $arrValidDiskBuses[$arrDisk['bus']] ?? 'VirtIO';
     $boot= $arrDisk["boot order"];
     $serial = $arrDisk["serial"];
-    if ($boot < 1) $boot="Not set";
+    if ($boot < 1) $boot = _('Not set');
     echo "<tr><td>$disk</td><td>$serial</td><td>$bus</td>";
     if ($state == 'shutoff') {
       echo "<td title='Click to increase Disk Size'>";
@@ -239,7 +239,7 @@ foreach ($vms as $vm) {
     $dev  = $arrCD['device'];
     $bus  = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
     $boot = $arrCD["boot order"] ?? "" ;
-    if ($boot < 1) $boot = "Not set";
+    if ($boot < 1) $boot = _('Not set');
     if ($disk != "" ) {
       $title = _('Eject CD Drive');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\", \"--eject\")";
