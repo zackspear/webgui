@@ -13,12 +13,17 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
-$pid = '/var/run/nchan.pid';
-$nchan = 'webGui/nchan/update_3';
+$scripts = ['update_2','update_3'];
+$pidfile = '/var/run/nchan.pid';
+$nchan   = 'webGui/nchan';
 
-if (is_file($pid) && exec("grep -Pom1 '^$nchan' $pid")) {
-  // restart update_3 script
-  exec("pkill -f $nchan");
-  exec("$docroot/$nchan &>/dev/null &");
+if (!is_file($pidfile)) exit;
+
+foreach ($scripts as $script) {
+  if (exec("grep -Pom1 '^$nchan/$script' $pidfile")) {
+    // restart selected script
+    exec("pkill -f $nchan/$script");
+    exec("$docroot/$nchan/$script &>/dev/null &");
+  }
 }
 ?>
