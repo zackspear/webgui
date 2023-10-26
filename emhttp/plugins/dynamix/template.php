@@ -46,6 +46,9 @@ $pool_devices = false;
 $pools = pools_filter($disks);
 foreach ($pools as $pool) $pool_devices |= _var($disks[$pool],'devices')!='';
 
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));
 
@@ -77,9 +80,6 @@ $pageroot = $docroot.'/'._var($myPage,'root');
 // Nchan script start/stop tracking
 $nchan_pid = "/var/run/nchan.pid";
 $nchan_run = "";
-
-// pool name ending in any of these => zfs subpool
-$subpools = ['special','logs','dedup','cache','spares'];
 
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
