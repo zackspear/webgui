@@ -11,8 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $device = $_POST['device']??'';
@@ -52,7 +51,7 @@ default:
     break;
   }
   // spin up/down group of devices
-  $disks = @parse_ini_file('state/disks.ini',true) ?: [];
+  $disks = (array)@parse_ini_file('state/disks.ini',true);
   // remove '*' from name
   $name = substr($name,0,-1);
   foreach ($disks as $disk) {

@@ -11,12 +11,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Secure.php";
+require_once "$docroot/webGui/include/Wrappers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Secure.php";
-require_once "$docroot/webGui/include/Wrappers.php";
 
 $dynamix = parse_plugin_cfg('dynamix',true);
 $filter  = unscript($_GET['filter']??false);

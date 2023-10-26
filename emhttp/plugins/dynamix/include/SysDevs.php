@@ -11,26 +11,27 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 function usb_physical_port($usbbusdev) {
   if (preg_match('/^Bus (?P<bus>\S+) Device (?P<dev>\S+): ID (?P<id>\S+)(?P<name>.*)$/', $usbbusdev, $usbMatch)) {
-    //udevadm info -a   --name=/dev/bus/usb/003/002 | grep KERNEL==
-    $udevcmd = "udevadm info -a   --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==" ;
-    $physical_busid = _("None") ;
+    //udevadm info -a --name=/dev/bus/usb/003/002 | grep KERNEL==
+    $udevcmd = "udevadm info -a --name=/dev/bus/usb/".$usbMatch['bus']."/".$usbMatch['dev']." | grep KERNEL==";
+    $physical_busid = _("None");
     exec($udevcmd , $udev);
     if (isset($udev)) {
-      $physical_busid = trim(substr($udev[0], 13) , '"') ;
+      $physical_busid = trim(substr($udev[0], 13) , '"');
       if (substr($physical_busid,0,3) =='usb') {
-        $physical_busid = substr($physical_busid,3).'-0' ;
+        $physical_busid = substr($physical_busid,3).'-0';
       }
     }
   }
-  return($physical_busid) ;
+  return($physical_busid);
 }
 
 switch ($_POST['table']) {
@@ -40,7 +41,7 @@ case 't1':
     exec('lspci -n|awk \'{print "["$3"]"}\'',$iommu);
     exec('lspci',$lspci);
     $i = 0;
-    foreach ($lspci as $line) echo "<tr><td>".$iommu[$i++]."</td><td>$line</td></tr>";
+    foreach ($lspci as $line) echo "<tr><td>",$iommu[$i++],"</td><td>$line</td></tr>";
     $noiommu = true;
   } else {
     $BDF_VD_REGEX = '/^[[:xdigit:]]{2}:[[:xdigit:]]{2}\.[[:xdigit:]](\|[[:xdigit:]]{4}:[[:xdigit:]]{4})?$/';
@@ -103,7 +104,6 @@ case 't1':
       }
     }
     $lines = array_values(array_unique($lines, SORT_STRING));
-
     $iommuinuse = array ();
     foreach ($lines as $pciinuse){
       $string = exec("ls /sys/kernel/iommu_groups/*/devices/$pciinuse -1 -d");
@@ -126,35 +126,35 @@ case 't1':
           // By default lspci does not output the <Domain> when the only domain in the system is 0000. Add it back.
           $pciaddress = "0000:".$pciaddress;
         }
-        echo ($append)?"":"<tr><td></td><td>";
+        echo ($append) ? "" : "<tr><td></td><td>";
         exec("lspci -v -s $pciaddress", $outputvfio);
         if (preg_grep("/vfio-pci/i", $outputvfio)) {
-          echo "<i class=\"fa fa-circle orb green-orb middle\" title=\""._('Kernel driver in use: vfio-pci')."\"></i>";
+          echo "<i class=\"fa fa-circle orb green-orb middle\" title=\"",_('Kernel driver in use: vfio-pci'),"\"></i>";
           $isbound = "true";
         }
         echo "</td><td>";
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
-          if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\""._('Function Level Reset (FLR) supported').".\"></i>";
+          if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"",_('Function Level Reset (FLR) supported'),".\"></i>";
           echo "</td><td>";
-          echo in_array($iommu, $iommuinuse) ? ' <input type="checkbox" value="" title="'._('In use by Unraid').'" disabled ' : ' <input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress."|".$vd.'" ';
+          echo in_array($iommu, $iommuinuse) ? '<input type="checkbox" value="" title="',_('In use by Unraid'),'" disabled ' : '<input type="checkbox" class="iommu',$iommu,'" value="',$pciaddress,"|",$vd,'" ';
           // check config file for two formats: <Domain:Bus:Device.Function>|<Vendor:Device> or just <Domain:Bus:Device.Function>
           echo (in_array($pciaddress."|".$vd, $vfio_cfg_devices) || in_array($pciaddress, $vfio_cfg_devices)) ? " checked>" : ">";
         } else { echo "</td><td>"; }
         echo '</td><td title="';
         foreach ($outputvfio as $line2) echo htmlentities($line2,ENT_QUOTES)."&#10;";
-        echo '">'.$line.'</td></tr>';
+        echo '">',$line,'</td></tr>';
         unset($outputvfio);
         switch (true) {
           case (strpos($line, 'USB controller') !== false):
             if (isset($isbound)) {
-              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected USB devices are not visible').'.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td>',_('This controller is bound to vfio, connected USB devices are not visible'),'.</td></tr>';
             } else {
               exec('for usb_ctrl in $(find /sys/bus/usb/devices/usb* -maxdepth 0 -type l);do path="$(realpath "${usb_ctrl}")";if [[ $path == *'.$pciaddress.'* ]];then bus="$(cat "${usb_ctrl}/busnum")";lsusb -s $bus:|sort;fi;done',$getusb);
               foreach($getusb as $usbdevice) {
                 [$bus,$id] = my_explode(':',$usbdevice);
-                $usbport = usb_physical_port($usbdevice) ;
+                $usbport = usb_physical_port($usbdevice);
                 if (strlen($usbport) > 7 ) {$usbport .= "\t"; } else { $usbport .= "\t\t"; }
-                echo "<tr><td></td><td></td><td></td><td></td><td style=\"padding-left: 50px;\">$bus Port $usbport".trim($id)."</td></tr>";
+                echo "<tr><td></td><td></td><td></td><td></td><td>$bus Port $usbport",trim($id),"</td></tr>";
               }
               unset($getusb);
             }
@@ -167,14 +167,14 @@ case 't1':
           case (strpos($line, 'Mass storage controller') !== false):
           case (strpos($line, 'Non-Volatile memory controller') !== false):
             if (isset($isbound)) {
-              echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'._('This controller is bound to vfio, connected drives are not visible').'.</td></tr>';
+              echo '<tr><td></td><td></td><td></td><td></td><td>',_('This controller is bound to vfio, connected drives are not visible'),'.</td></tr>';
             } else {
               exec('ls -al /sys/block/sd* /sys/block/hd* /sys/block/sr* /sys/block/nvme* 2>/dev/null | grep -i "'.$pciaddress.'"',$getsata);
               foreach($getsata as $satadevice) {
                 $satadevice = substr($satadevice, strrpos($satadevice, '/', -1)+1);
                 $search = preg_grep('/'.$satadevice.'.*/', $lsscsi);
                 foreach ($search as $deviceline) {
-                  echo '<tr><td></td><td></td><td></td><td></td><td style="padding-left: 50px;">'.$deviceline.'</td></tr>';
+                  echo '<tr><td></td><td></td><td></td><td></td><td>',$deviceline,'</td></tr>';
                 }
               }
               unset($search);
@@ -218,15 +218,15 @@ case 't3':
   exec('lsusb|sort',$lsusb);
   foreach ($lsusb as $line) {
     [$bus,$id] = my_explode(':',$line);
-    $usbport = usb_physical_port($line) ;
-    echo "<tr><td>$bus Port $usbport</td><td>  ".trim($id)."</td></tr>";
+    $usbport = usb_physical_port($line);
+    echo "<tr><td>$bus Port $usbport</td><td>".trim($id)."</td></tr>";
   }
   break;
 case 't4':
   exec('lsscsi -s',$lsscsi);
   foreach ($lsscsi as $line) {
     if (strpos($line,'/dev/')===false) continue;
-    echo "<tr><td>".preg_replace('/\]  +/',']</td><td>',$line)."</td></tr>";
+    echo "<tr><td>",preg_replace('/\]  +/',']</td><td>',$line),"</td></tr>";
   }
   break;
 }

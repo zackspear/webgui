@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2020, Lime Technology
+/* Copyright 2005-2023, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -10,13 +10,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 // add translations
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
-
-require_once "$docroot/webGui/include/Helpers.php";
-extract(parse_plugin_cfg('dynamix',true));
 
 $var = parse_ini_file('state/var.ini');
 

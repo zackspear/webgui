@@ -12,13 +12,18 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/webGui/include/Secure.php";
-require_once "$docroot/webGui/include/Wrappers.php";
 
-switch (_var($_GET,'protocol')) {
-  case 'smb': $data = (array)@parse_ini_file('state/sec.ini',true); break;
-  case 'nfs': $data = (array)@parse_ini_file('state/sec_nfs.ini',true); break;
+$scripts = ['update_2','update_3'];
+$pidfile = '/var/run/nchan.pid';
+$nchan   = 'webGui/nchan';
+
+if (!is_file($pidfile)) exit;
+
+foreach ($scripts as $script) {
+  if (exec("grep -Pom1 '^$nchan/$script' $pidfile")) {
+    // restart selected script
+    exec("pkill -f $nchan/$script");
+    exec("$docroot/$nchan/$script &>/dev/null &");
+  }
 }
-$name = unscript(_var($_GET,'name'));
-echo json_encode(_var($data,$name));
 ?>

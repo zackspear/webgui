@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,7 +12,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 $autostart_file = $dockerManPaths['autostart-file'];
@@ -25,7 +25,7 @@ case 'autostart':
   $container = urldecode(($_POST['container']));
   $wait = $_POST['wait'];
   $item = rtrim("$container $wait");
-  $autostart = @file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
+  $autostart = (array)@file($autostart_file, FILE_IGNORE_NEW_LINES);
   $key = array_search($item, $autostart);
   if ($_POST['auto']=='true') {
     if ($key===false) $autostart[] = $item;
@@ -48,7 +48,7 @@ case 'wait':
   $container = urldecode(($_POST['container']));
   $wait = $_POST['wait'];
   $item = rtrim("$container $wait");
-  $autostart = file($autostart_file, FILE_IGNORE_NEW_LINES) ?: [];
+  $autostart = (array)@file($autostart_file, FILE_IGNORE_NEW_LINES);
   $names = array_map('var_split', $autostart);
   $autostart[array_search($container,$names)] = $item;
   file_put_contents($autostart_file, implode("\n", $autostart)."\n");

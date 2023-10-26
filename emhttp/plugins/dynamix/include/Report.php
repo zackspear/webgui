@@ -11,8 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Secure.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
@@ -42,7 +41,7 @@ case 'notice':
   break;
 case 'state':
   $pools = explode(',',_var($_POST,'pools'));
-  $disks = @parse_ini_file('state/disks.ini',true) ?: [];
+  $disks = (array)@parse_ini_file('state/disks.ini',true);
   $error = [];
   foreach ($pools as $pool) if (stripos(_var($disks[$pool],'state'),'ERROR:')===0) $error[] = $pool.' - '.str_ireplace('ERROR:','',$disks[$pool]['state']);
   echo implode('<br>',$error);

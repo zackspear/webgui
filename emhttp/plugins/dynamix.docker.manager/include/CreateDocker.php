@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
  * Copyright 2012-2023, Bergware International.
- * Copyright 2015-2020, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,10 +12,8 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-libxml_use_internal_errors(true);
-
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
@@ -374,6 +372,13 @@ function getVal(el, name) {
   }
 }
 
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
+
 function addConfigPopup() {
   var title = "_(Add Configuration)_";
   var popup = $("#dialogAddConfig");
@@ -391,8 +396,9 @@ function addConfigPopup() {
   // Start Dialog section
   popup.dialog({
     title: title,
+    height: 'auto',
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -425,10 +431,7 @@ function addConfigPopup() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 
 function editConfigPopup(num,disabled) {
@@ -462,8 +465,9 @@ function editConfigPopup(num,disabled) {
   popup.find(".switch-button-background").css("margin-top", "6px");
   popup.dialog({
     title: title,
+    height: 'auto',
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
     buttons: {
     "_(Save)_": function() {
@@ -505,10 +509,7 @@ function editConfigPopup(num,disabled) {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
   $('.desc_readmore').readmore({maxHeight:10});
 }
 

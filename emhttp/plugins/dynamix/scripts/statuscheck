@@ -12,11 +12,12 @@
  */
 ?>
 <?
-$var   = @parse_ini_file("/var/local/emhttp/var.ini") ?: [];
-$disks = @parse_ini_file("/var/local/emhttp/disks.ini",true) ?: [];
-
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
+
+$var   = (array)@parse_ini_file("/var/local/emhttp/var.ini");
+$disks = (array)@parse_ini_file("/var/local/emhttp/disks.ini",true);
+
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 $script = "$docroot/webGui/scripts/notify";

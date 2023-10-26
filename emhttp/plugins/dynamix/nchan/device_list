@@ -30,19 +30,19 @@ require_once "$docroot/webGui/include/Translations.php";
 // remember current language
 $locale_init = $locale;
 
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 }
 function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
-$subpools = array( "special", "logs", "dedup", "cache", "spares");
 function isSubpool($name) {
-  // pool name ending in any of these => zfs subpool
   global $subpools;
-  $tildaPosition = strpos($name, '~');
-  $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
-  return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
+  $subpool = my_explode('~',$name)[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto;
@@ -376,11 +376,11 @@ function update_translation($locale) {
   }
 }
 while (true) {
-  $var    = @parse_ini_file("$varroot/var.ini") ?: [];
-  $devs   = @parse_ini_file("$varroot/devs.ini",true) ?: [];
-  $disks  = @parse_ini_file("$varroot/disks.ini",true) ?: [];
-  $sec    = @parse_ini_file("$varroot/sec.ini",true) ?: [];
-  $diskio = @parse_ini_file("$varroot/diskload.ini") ?: [];
+  $var    = (array)@parse_ini_file("$varroot/var.ini");
+  $devs   = (array)@parse_ini_file("$varroot/devs.ini",true);
+  $disks  = (array)@parse_ini_file("$varroot/disks.ini",true);
+  $sec    = (array)@parse_ini_file("$varroot/sec.ini",true);
+  $diskio = (array)@parse_ini_file("$varroot/diskload.ini");
   $crypto = false;
   $pools  = pools_filter($disks);
   $echo   = [];
@@ -450,11 +450,13 @@ while (true) {
     $echo[$n] = "pool_device".($n-2)."\n";
     foreach ($cache as $disk) if (prefix(_var($disk,'name'))==$pool) $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
     if (_var($var,'fsState')=='Stopped') {
-      $log = file_exists($pool_log) ? parse_ini_file($pool_log) : [];
+      $log = @parse_ini_file($pool_log) ?: [];
       $off = false;
       foreach ($cache as $disk) if (prefix(_var($disk,'name'))==$pool) {
         $echo[$n] .= array_offline($disk,$pool);
-        if (isset($log[_var($disk,'name')])) $off |= ($log[$disk['name']]!=_var($disk,'id')); else $log[_var($disk,'name')] = _var($disk,'id');
+        // tilde is not allowed in array key - replace it
+        $diskname = str_replace('~','_-_',_var($disk,'name'));
+        if (isset($log[$diskname])) $off |= ($log[$diskname] != _var($disk,'id')); elseif ($diskname) $log[$diskname] = _var($disk,'id');
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
       file_put_contents($pool_log,implode("\n",$data));

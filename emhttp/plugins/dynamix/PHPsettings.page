@@ -122,14 +122,20 @@ function logSize() {
     setTimeout(logSize,3000);
   });
 }
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 function PHPinfo() {
   box = $("#dialogWindow");
   box.html($("#templateWindow").html().build());
   box.dialog({
     title: "_(PHP Information)_",
-    resizable: false,
     height: Math.min(window.innerHeight-80,800),
     width: Math.min(window.innerWidth,1200),
+    resizable: false,
     modal: true,
     buttons: {
       "_(Done)_": function(){
@@ -137,10 +143,7 @@ function PHPinfo() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 function preset(form) {
   // reset to default settings

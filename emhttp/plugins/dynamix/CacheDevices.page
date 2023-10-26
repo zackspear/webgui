@@ -16,23 +16,23 @@ Cond="($pool_devices || $var['fsState']=='Stopped')"
  */
 ?>
 <?
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 function makeList($list) {
   return implode(',',array_map('escapestring',$list));
 }
 function sharename($share) {
   return basename($share,'.cfg');
 }
-$subpools = array( "special", "logs", "dedup", "cache", "spares");
 function isSubpool($name) {
   global $subpools;
-  // pool name ending in any of these => zfs subpool
-  $tildaPosition = strpos($name, '~');
-  $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
-  return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
+  $subpool = my_explode('~',$name)[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
 <script>
 function validate(poolname) {
@@ -56,15 +56,22 @@ function validate(poolname) {
   }
   return true;
 }
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
 function addPoolPopup() {
-  var popup = $('#dialogAddPool');
+  var popup = $('#dialogWindow');
   // Load popup with the template info
   popup.html($("#templatePopupPool").html());
   // Start Dialog section
   popup.dialog({
     title: "_(Add Pool)_",
-    resizable: false,
+    height: 'auto',
     width: 600,
+    resizable: false,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -78,11 +85,7 @@ function addPoolPopup() {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  dialogStyle();
 }
 function removeOption(inputString,value) {
   // Define a regular expression to match <option>...</option> substrings
@@ -98,7 +101,7 @@ function removeOption(inputString,value) {
   return result;
 }
 function addSubpoolPopup(poolname,currentsubpools) {
-  var popup = $('#dialogAddSubpool');
+  var popup = $('#dialogWindow');
   // Load popup with the template info
   popup.html($("#templatePopupSubpool").html());
   // Remove the options specifed by currentsubpools
@@ -113,8 +116,9 @@ function addSubpoolPopup(poolname,currentsubpools) {
   // Start Dialog section
   popup.dialog({
     title: "_(Add ZFS Subpool)_",
-    resizable: false,
+    height: 'auto',
     width: 600,
+    resizable: false,
     modal: true,
     buttons: {
     "_(Add)_": function() {
@@ -128,10 +132,7 @@ function addSubpoolPopup(poolname,currentsubpools) {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
 }
 
 <?if (_var($var,'fsState')=="Started"):?>
@@ -154,11 +155,20 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 </table>
 <?endif;?>
 <?endforeach;?>
+
+:cache_devices_help:
+
+<?if (_var($var,'fsState')=="Stopped"):?>
+<div></div>
+:cache_slots_help:
+<?endif;?>
+
+<div id="dialogWindow" class="template"></div>
+
 <?if (_var($var,'fsState')=="Stopped"):?>
 <input type="button" value="_(Add Pool)_" style="margin:0" onclick="addPoolPopup()">
 
-<div id="dialogAddPool" style="display:none"></div>
-<div id="templatePopupPool" style="display:none">
+<div id="templatePopupPool" class="template">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="changeSlots" value="apply">
 _(Name)_:
@@ -174,18 +184,17 @@ _(Slots)_:
 </form>
 </div>
 
-<div id="dialogAddSubpool" style="display:none"></div>
-<div id="templatePopupSubpool" style="display:none">
+<div id="templatePopupSubpool" class="template">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 <input type="hidden" name="poolName" value="">
 _(Name)_:
 : <select name="subpool">
-  <?=mk_option("","special","special - Special Allocation Class")?>
-  <?=mk_option("","logs","logs - ZFS Intent Log")?>
-  <?=mk_option("","dedup","dedup - Deduplication Tables")?>
-  <?=mk_option("","cache","cache - Cache Devices")?>
-  <?=mk_option("","spares","spares - Hot Spares")?>
+  <?=mk_option("","special",_("special - Special Allocation Class"))?>
+  <?=mk_option("","logs",_("logs - ZFS Intent Log"))?>
+  <?=mk_option("","dedup",_("dedup - Deduplication Tables"))?>
+  <?=mk_option("","cache",_("cache - Cache Devices"))?>
+  <?=mk_option("","spares",_("spares - Hot Spares"))?>
   </select>
 
 _(Slots)_:
@@ -197,11 +206,4 @@ _(Slots)_:
 
 </form>
 </div>
-<?endif;?>
-
-:cache_devices_help:
-
-<?if (_var($var,'fsState')=="Stopped"):?>
-<div></div>
-:cache_slots_help:
 <?endif;?>

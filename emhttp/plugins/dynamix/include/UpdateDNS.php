@@ -11,12 +11,12 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 function host_lookup_ip($host) {
   $result = @dns_get_record($host, DNS_A);
@@ -180,8 +180,8 @@ if ($cli && ($argc > 1) && $argv[1] == "-v") {
 if ($cli && ($argc > 1) && $argv[1] == "-vv") {
   $verbose = true;
 }
-$var = @parse_ini_file('/var/local/emhttp/var.ini') ?: [];
-$nginx = @parse_ini_file('/var/local/emhttp/nginx.ini') ?: [];
+$var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
+$nginx = (array)@parse_ini_file('/var/local/emhttp/nginx.ini');
 $is69 = version_compare(_var($var,'version'),"6.9.9","<");
 $reloadNginx = false;
 $dnserr = false;
@@ -189,7 +189,7 @@ $icon_warn = "⚠️  ";
 $icon_ok = "✅  ";
 
 $myservers_flash_cfg_path='/boot/config/plugins/dynamix.my.servers/myservers.cfg';
-$myservers = file_exists($myservers_flash_cfg_path) ? @parse_ini_file($myservers_flash_cfg_path,true) : [];
+$myservers = (array)@parse_ini_file($myservers_flash_cfg_path,true);
 // ensure some vars are defined here so we don't have to test them later
 if (empty($myservers['remote']['apikey'])) {
   $myservers['remote']['apikey'] = "";

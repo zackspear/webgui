@@ -10,8 +10,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 
 // add translations
@@ -49,7 +48,7 @@ if ($host && in_array($host,['keys.lime-technology.com','lime-technology.com']))
   $key_file = basename($url);
   exec("/usr/bin/wget -q -O ".escapeshellarg("/boot/config/$key_file")." ".escapeshellarg($url), $output, $return_var);
   if ($return_var === 0) {
-    $var = @parse_ini_file('/var/local/emhttp/var.ini') ?: [];
+    $var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
     if (_var($var,'mdState')=="STARTED") {
       response_complete(200, array('status' => _('Please Stop array to complete key installation')), _('success').', '._('Please Stop array to complete key installation'));
     } else {
