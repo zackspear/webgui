@@ -44,7 +44,7 @@ case 't1load':
   $arrModules = json_decode($list,TRUE);
   $init = false;
   if (is_file($sysdrvinit)) $init = file_get_contents($sysdrvinit);
-  $html =  "<thead><tr><th><b>"._("Driver")."</th><th><b>"._("Description")."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'><b>"._("State")."</th><th><b>"._("Type")."</th><th><b>"._("Modprobe.d config file")."</th></tr></thead>";
+  $html =  "<thead><tr><th>"._('Driver')."</th><th>"._('Description')."</th><th data-value='System|Inuse|Custom|Disabled|\"Kernel - Inuse\"'>"._('State')."</th><th>"._('Type')."</th><th>"._('Modprobe.d config file')."</th></tr></thead>";
   $html .= "<tbody>";
   ksort($arrModules);
   foreach($arrModules as $modname => $module) {
