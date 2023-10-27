@@ -91,7 +91,7 @@ function doDispatch(form) {
   var fields = {};
   var old_tz = "<?=$var['timeZone']?>";
   fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
-  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
+  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val();});
   $.post('/webGui/include/Dispatcher.php',fields);
   if (form.timeZone.value != old_tz) $.post('/webGui/include/ResetTZ.php');
 }
