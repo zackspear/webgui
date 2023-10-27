@@ -136,7 +136,7 @@ case 't1':
         if ((strpos($line, 'Host bridge') === false) && (strpos($line, 'PCI bridge') === false)) {
           if (file_exists('/sys/kernel/iommu_groups/'.$iommu.'/devices/'.$pciaddress.'/reset')) echo "<i class=\"fa fa-retweet grey-orb middle\" title=\"",_('Function Level Reset (FLR) supported'),".\"></i>";
           echo "</td><td>";
-          echo in_array($iommu, $iommuinuse) ? '<input type="checkbox" value="" title="',_('In use by Unraid'),'" disabled ' : '<input type="checkbox" class="iommu',$iommu,'" value="',$pciaddress,"|",$vd,'" ';
+          echo in_array($iommu, $iommuinuse) ? '<input type="checkbox" value="" title="'._('In use by Unraid').'" disabled ' : '<input type="checkbox" class="iommu'.$iommu.'" value="'.$pciaddress."|".$vd.'" ';
           // check config file for two formats: <Domain:Bus:Device.Function>|<Vendor:Device> or just <Domain:Bus:Device.Function>
           echo (in_array($pciaddress."|".$vd, $vfio_cfg_devices) || in_array($pciaddress, $vfio_cfg_devices)) ? " checked>" : ">";
         } else { echo "</td><td>"; }
