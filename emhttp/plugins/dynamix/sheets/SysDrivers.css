@@ -5,7 +5,7 @@ table.t1 tr>td{width:5%;text-align:left;white-space:nowrap}
 table.t1 tr>td+td{width:35%;text-align:left;white-space:normal}
 table.t1 tr>td+td+td{width:18%;text-align:left}
 table.t1 tr>td+td+td+td{width:18%;text-align:left}
-table.t1 tr>td+td+td+td+td{width:24%;text-align:left}
+table.t1 tr>td+td+td+td+td{width:24%;text-align:left;padding-right:0}
 .t1.tablesorter .filtered{display:none}
 textarea[id^=text]{width:90%;margin:0!important;padding:0!important;float:right}
 span[id^=save]{margin:0!important;padding:0!important}
