@@ -17,7 +17,8 @@ Tag="clock-o"
 ?>
 <?$keys = explode("\n", file_get_contents('webGui/include/timezones.key'));?>
 
-<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
+<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
+<input type="hidden" name="setDateTime" value="Apply">
 _(Current date and time)_:
 : <?=_(my_time(time()),0)?>
 
@@ -83,17 +84,19 @@ _(New date and time)_:
 :current_time_help:
 
 &nbsp;
-: <input type="submit" name="setDateTime" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <input type="button" value="_(Apply)_" onclick="doDispatch(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
 
 <script>
 function doDispatch(form) {
   var fields = {};
   var old_tz = "<?=$var['timeZone']?>";
+  $(form).find('button').prop('disabled',true);
   fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
   $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val();});
   $.post('/webGui/include/Dispatcher.php',fields);
   if (form.timeZone.value != old_tz) $.post('/webGui/include/ResetTZ.php');
+  form.submit();
 }
 function presetTime(form) {
   var system = form.display_date.selectedIndex==0;
