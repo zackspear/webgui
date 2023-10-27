@@ -1,7 +1,7 @@
 table.t1{margin-top:0; border-collapse: collapse; border-spacing: 0;}
 table.t1 tr td{padding:4px 20px 4px 0!important;margin:0!important;text-align:left!important;white-space:normal!important}
-table.t1 tr td:nth-child(1){width:5%}
-table.t1 tr td:nth-child(2){width:35%}
+table.t1 tr td:nth-child(1){width:7%}
+table.t1 tr td:nth-child(2){width:33%}
 table.t1 tr td:nth-child(3){width:15%}
 table.t1 tr td:nth-child(4){width:20%}
 table.t1 tr td:nth-child(5){width:25%;padding-right:0!important}
