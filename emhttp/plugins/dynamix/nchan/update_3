@@ -62,11 +62,6 @@ function esc($text) {
   return "\\".join("\\",str_split($text));
 }
 
-function mix($text) {
-  // convert linux date format to PHP equivalent
-  return str_replace(['%A','%Y','%B','%e','%m','%d'],['l','Y','F','j','m','d'],$text);
-}
-
 // initialize variables
 $time0 = $time = microtime(true);
 foreach (ports() as $port) {
@@ -131,7 +126,7 @@ while (true) {
   // current date and time
   $now   = time();
   $clock = date(_var($display,'time')=='%R' ? 'G:i' : 'g:i '.esc('<span class="ampm">').'a'.esc('</span>'),$now);
-  $date  = date(_var($display,'date','%c')=='%c' ? 'D j M Y, T' : mix($display['date']).', T',$now);
+  $date  = date(_var($display,'date','%c')=='%c' ? 'D j M Y, T' : my_date($display['date']).', T',$now);
   publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$clock."\n"._($date,0));
   $time0 = $time;
   sleep(1);
