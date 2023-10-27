@@ -95,8 +95,12 @@ function doDispatch(form) {
   $.post('/webGui/include/Dispatcher.php',fields);
   if (form.timeZone.value != old_tz) $.post('/webGui/include/ResetTZ.php');
 }
-function checkDateTimeSettings() {
-  form = document.datetime_settings;
+function presetTime(form) {
+  var system = form.display_date.selectedIndex==0;
+  if (system) form.display_time.selectedIndex = 0;
+  form.display_time.disabled = system;
+}
+function checkDateTimeSettings(form) {
   if (form.USE_NTP.value=="yes") {
     form.newDateTime.disabled=true;
     form.NTP_SERVER1.disabled=false;
@@ -111,5 +115,9 @@ function checkDateTimeSettings() {
     form.NTP_SERVER4.disabled=true;
   }
 }
-$(checkDateTimeSettings);
+$(function() {
+  var form = document.datetime_settings;
+  presetTime(form);
+  checkDateTimeSettings(form);
+});
 </script>

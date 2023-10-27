@@ -50,11 +50,6 @@ function upload(lang) {
     $.removeCookie('hidden_content');
   }
 }
-function presetTime(form) {
-  var system = form.date.selectedIndex==0;
-  if (system) form.time.selectedIndex = 0;
-  form.time.disabled = system;
-}
 function presetBanner(form) {
   if (form.banner.selectedIndex == 0) $('.js-bannerSettings').hide(); else $('.js-bannerSettings').show();
 }
@@ -121,7 +116,6 @@ $(function() {
     var files = e.target.files;
     if ($('#dropbox').triggerHandler({type:'drop',dataTransfer:{files:files}})==false) e.stopImmediatePropagation();
   });
-  presetTime(document.display_settings);
   presetBanner(document.display_settings);
 });
 </script>
