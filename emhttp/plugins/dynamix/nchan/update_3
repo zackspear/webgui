@@ -128,7 +128,7 @@ while (true) {
   $xtime = _var($display,'time')!='%R';
   $xdate = _var($display,'date')=='%c';
   $clock = date($xtime||$xdate ? 'g:i '.esc('<span class="ampm">').'a'.esc('</span>') : 'G:i',$now);
-  $date  = $xdate ? date('D j M Y, T',$now) : my_date($display['date'].', T',$now);
+  $date  = my_date($xdate ? 'D j M Y, T' : $display['date'].', T',$now);
   publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$clock."\n"._($date,0));
   $time0 = $time;
   sleep(1);
