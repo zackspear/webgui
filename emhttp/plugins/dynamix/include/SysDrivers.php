@@ -82,15 +82,18 @@ case 't1load':
     $text = "";
     if (is_array($module["modprobe"]) && count($module["modprobe"])) {
       $text = implode("\n",$module["modprobe"]);
-      $html .= "<td><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>";
-      $hidden = "";
-      if ($module['state'] == "System") $hidden = "hidden";
-      $html .= " <a class='info' href=\"#\" id=\"bin$modname\" $hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash'></i></a>";
-      $html .= "<textarea id=\"text".$modname."\" rows=2 disabled>$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a  class='info' href=\"#\"><i title='"._("Save Modprobe config")."' class='fa fa-save'></i></a></td></tr>";
+      $hidden = ($module['state'] == "System") ? "hidden" : "";
+      $html .= "<td><span class='pin'>";
+      $html .= "<a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit pin'></i></a>";
+      $html .= "<a class='info' href=\"#\" id=\"bin$modname\" $hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash pin'></i></a>";
+      $html .= "<span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\"><a class='info' href=\"#\"><i title='"._("Save Modprobe config")."' class='fa fa-save pin'></i></a></span></span>";
+      $html .= "<textarea id=\"text".$modname."\" rows=2 disabled>$text</textarea></td></tr>";
     } else {
-      $html .= "<td><a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit'></i></a>";
-      $html .= " <a class='info' href=\"#\" id=\"bin$modname\" hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash'></i></a>";
-      $html .= "<textarea id=\"text".$modname."\" rows=1 hidden disabled >$text</textarea><span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\" ><a class='info' href=\"#\"><i title='"._("Save Modprobe config")."' class='fa fa-save'></i></a></td></tr>";
+      $html .= "<td><span class='pin'>";
+      $html .= "<a class='info' href=\"#\"><i title='"._("Edit Modprobe config")."' onclick=\"textedit('".$modname."');return false;\" id=\"icon'.$modname.'\" class='fa fa-edit pin'></i></a>";
+      $html .= "<a class='info' href=\"#\" id=\"bin$modname\" hidden><i title='"._("Delete Modprobe config")."' onclick=\"removecfg('".$modname."',true);return false;\" class='fa fa-trash pin'></i></a>";
+      $html .= "<span id=\"save$modname\" hidden onclick=\"textsave('".$modname."');return false;\"><a class='info' href=\"#\"><i title='"._("Save Modprobe config")."' class='fa fa-save pin'></i></a></span></span>";
+      $html .= "<textarea id=\"text".$modname."\" rows=2 hidden disabled >$text</textarea></td></tr>";
     }
   }
   $html .=  "</tbody>";
