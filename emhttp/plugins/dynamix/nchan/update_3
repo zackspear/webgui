@@ -129,7 +129,7 @@ while (true) {
     $stat[] = "Errors: {$rx_errors}<br>Drops: {$rx_drops}<br>Overruns: {$rx_fifo}\0Errors: {$tx_errors}<br>Drops: {$tx_drops}<br>Overruns: {$tx_fifo}";
   }
   // current date and time
-  $now = time();
+  $now   = time();
   $clock = _var($display,'time')=='%R' ? date('G:i',$now) : date('g:i '.esc('<span class="ampm">').'a'.esc('</span>'),$now);
   $date  = _var($display,'date','%c')=='%c' ? date('l, F j, Y, '.esc(_('UTC')).'P',$now) : date(mix($display['date']).', '.esc(_('UTC')).'P',$now);
   $dst   = date('I',$now) ? ' <sup>'._('DST').'</sup>' : '';
