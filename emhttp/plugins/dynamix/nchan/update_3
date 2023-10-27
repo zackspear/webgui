@@ -58,7 +58,13 @@ function port_get_contents($port) {
 }
 
 function esc($text) {
+  // escape literal text in date format string
   return "\\".join("\\",str_split($text));
+}
+
+function mix($text) {
+  // convert linux date format to PHP equivalent
+  return str_replace(['%A','%Y','%B','%e','%m','%d'],['l','Y','F','j','m','d'],$text);
 }
 
 // initialize variables
@@ -124,15 +130,10 @@ while (true) {
   }
   // current date and time
   $now = time();
-  if (_var($display,'time')=='%R') {
-    // 24 hour format
-    $clock = date('G:i',$now);
-  } else {
-    // 12 hour format wih am/pm
-    $clock = date('g:i '.esc('<span class="ampm">').'a'.esc('</span>'),$now);
-  }
-  $timedate = "$clock\n"._(date('l, F j, Y, '.esc(_('UTC')).'P',$now),0).(date('I',$now) ? ' <sup>'._('DST').'</sup>' : '');
-  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$timedate);
+  $clock = _var($display,'time')=='%R' ? date('G:i',$now) : date('g:i '.esc('<span class="ampm">').'a'.esc('</span>'),$now);
+  $date  = _var($display,'date','%c')=='%c' ? date('l, F j, Y, '.esc(_('UTC')).'P',$now) : date(mix($display['date']).', '.esc(_('UTC')).'P',$now);
+  $dst   = date('I',$now) ? ' <sup>'._('DST').'</sup>' : '';
+  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1"."$clock\n"._($date,0).$dst);
   $time0 = $time;
   sleep(1);
   $time = microtime(true);
