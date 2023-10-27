@@ -10,4 +10,4 @@ table.t1 tr>td+td+td+td+td{width:24%;text-align:left}
 textarea[id^=text]{width:90%;margin:0!important;padding:0!important;float:right}
 span[id^=save]{margin:0!important;padding:0!important}
 span.pin{display:inline-block;float:left}
-i.pin{margin:0!important;padding:4px 0 0 0!important;float:left;clear:both}
+i.pin{margin:0!important;padding:2px 0!important;float:left;clear:both}
