@@ -133,7 +133,7 @@ while (true) {
   $clock = date(_var($display,'time')=='%R' ? 'G:i' : 'g:i '.esc('<span class="ampm">').'a'.esc('</span>'),$now);
   $date  = date((_var($display,'date','%c')=='%c' ? 'l, F j, Y' : mix($display['date'])).', '.esc(_('UTC')).'P',$now);
   $dst   = date('I',$now) ? ' <sup>'._('DST').'</sup>' : '';
-  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1"."$clock\n"._($date,0).$dst);
+  publish('update3',implode("\n",$echo)."\1".implode("\0",$mode)."\1".implode("\0",$rxtx)."\1".implode("\0",$stat)."\1".$clock."\n"._($date,0).$dst);
   $time0 = $time;
   sleep(1);
   $time = microtime(true);
