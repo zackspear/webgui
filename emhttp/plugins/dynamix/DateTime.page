@@ -17,9 +17,27 @@ Tag="clock-o"
 ?>
 <?$keys = explode("\n", file_get_contents('webGui/include/timezones.key'));?>
 
-<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onsubmit="resetTZ(this.timeZone.value)">
+<form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onsubmit="doDispatch(this)">
 _(Current date and time)_:
 : <?=_(my_time(time()),0)?>
+
+_(Date format)_:
+: <select name="display_date" onchange="presetTime(this.form)">
+  <?=mk_option($display['date'], "%c","_(System Setting)_")?>
+  <?=mk_option($display['date'], "%A, %Y %B %e",_('Day, YYYY Month D'))?>
+  <?=mk_option($display['date'], "%A, %e %B %Y",_('Day, D Month YYYY'))?>
+  <?=mk_option($display['date'], "%A, %B %e, %Y",_('Day, Month D, YYYY'))?>
+  <?=mk_option($display['date'], "%A, %m/%d/%Y",_('Day, MM/DD/YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d-%m-%Y",_('Day, DD-MM-YYYY'))?>
+  <?=mk_option($display['date'], "%A, %d.%m.%Y",_('Day, DD.MM.YYYY'))?>
+  <?=mk_option($display['date'], "%A, %Y-%m-%d",_('Day, YYYY-MM-DD'))?>
+  </select>
+
+_(Time format)_:
+: <select name="display_time">
+  <?=mk_option($display['time'], "%I:%M %p",_('12 hours'))?>
+  <?=mk_option($display['time'], "%R",_('24 hours'))?>
+  </select>
 
 _(Time zone)_:
 : <select name="timeZone"><?
@@ -69,9 +87,13 @@ _(New date and time)_:
 </form>
 
 <script>
-function resetTZ(new_tz) {
+function doDispatch(form) {
+  var fields = {};
   var old_tz = "<?=$var['timeZone']?>";
-  if (new_tz != old_tz) $.post('/webGui/include/ResetTZ.php');
+  fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
+  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
+  $.post('/webGui/include/Dispatcher.php',fields);
+  if (form.timeZone.value != old_tz) $.post('/webGui/include/ResetTZ.php');
 }
 function checkDateTimeSettings() {
   form = document.datetime_settings;
