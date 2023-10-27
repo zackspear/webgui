@@ -11,3 +11,4 @@ textarea[id^=text]{width:90%;margin:0!important;padding:0!important;float:right}
 span[id^=save]{margin:0!important;padding:0!important}
 span.pin{display:inline-block;float:left}
 i.pin{margin:0!important;padding:2px 0!important;float:left;clear:both}
+.tablesorter-header-inner{font-family:clear-sans;font-weight:bold}
