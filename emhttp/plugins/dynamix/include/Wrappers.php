@@ -88,7 +88,7 @@ function ipaddr($ethX='eth0', $prot=4) {
 }
 // convert strftime to date format
 function my_date($fmt, $time) {
-  $legacy = ['%c' => 'D j M Y h:i:s A','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
+  $legacy = ['%c' => 'D j M Y h:i A','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
   return date(strtr($fmt,$legacy), $time);
 }
 ?>
