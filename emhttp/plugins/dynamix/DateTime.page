@@ -16,10 +16,10 @@ Tag="clock-o"
  */
 ?>
 <?
-$keys = explode("\n", file_get_contents('webGui/include/timezones.key'));
+$keys = explode("\n",file_get_contents("$docroot/webGui/include/timezones.key"));
 ?>
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame">
-<input type="hidden" name="setDateTime" value="Apply">
+<input type="hidden" name="setDateTime" value="apply">
 _(Current date and time)_:
 : <?=_(my_time(time()),0)?>
 
