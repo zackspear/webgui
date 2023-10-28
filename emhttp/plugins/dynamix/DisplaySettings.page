@@ -50,11 +50,6 @@ function upload(lang) {
     $.removeCookie('hidden_content');
   }
 }
-function presetTime(form) {
-  var system = form.date.selectedIndex==0;
-  if (system) form.time.selectedIndex = 0;
-  form.time.disabled = system;
-}
 function presetBanner(form) {
   if (form.banner.selectedIndex == 0) $('.js-bannerSettings').hide(); else $('.js-bannerSettings').show();
 }
@@ -121,7 +116,6 @@ $(function() {
     var files = e.target.files;
     if ($('#dropbox').triggerHandler({type:'drop',dataTransfer:{files:files}})==false) e.stopImmediatePropagation();
   });
-  presetTime(document.display_settings);
   presetBanner(document.display_settings);
 });
 </script>
@@ -166,24 +160,6 @@ _(Terminal font size)_:
   </select>
 
 :display_tty_size_help:
-
-_(Date format)_:
-: <select name="date" onchange="presetTime(this.form)">
-  <?=mk_option($display['date'], "%c","_(System Setting)_")?>
-  <?=mk_option($display['date'], "%A, %Y %B %e",_('Day, YYYY Month D'))?>
-  <?=mk_option($display['date'], "%A, %e %B %Y",_('Day, D Month YYYY'))?>
-  <?=mk_option($display['date'], "%A, %B %e, %Y",_('Day, Month D, YYYY'))?>
-  <?=mk_option($display['date'], "%A, %m/%d/%Y",_('Day, MM/DD/YYYY'))?>
-  <?=mk_option($display['date'], "%A, %d-%m-%Y",_('Day, DD-MM-YYYY'))?>
-  <?=mk_option($display['date'], "%A, %d.%m.%Y",_('Day, DD.MM.YYYY'))?>
-  <?=mk_option($display['date'], "%A, %Y-%m-%d",_('Day, YYYY-MM-DD'))?>
-  </select>
-
-_(Time format)_:
-: <select name="time">
-  <?=mk_option($display['time'], "%I:%M %p",_('12 hours'))?>
-  <?=mk_option($display['time'], "%R",_('24 hours'))?>
-  </select>
 
 _(Number format)_:
 : <select name="number">

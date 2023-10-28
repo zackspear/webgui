@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -46,6 +46,8 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.sweetalert.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/defaultpagelayout.css")?>">
+
 <style>
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
@@ -64,16 +66,6 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?endif;?>
 <?endif;?>
-.inline_help{display:none}
-.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
-.upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
-.upgrade_notice.alert{color:#f0000c;background-color:#ff9e9e;border-color:#f0000c}
-.upgrade_notice i{float:right;cursor:pointer}
-.back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
-span.big.blue-text{cursor:pointer}
-span.strong.tour{margin-left:5px;padding-left:0}
-i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
-pre#swalbody p{margin-block-end:1em}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = _var($var,'safeMode')=='yes';

@@ -80,11 +80,9 @@ function maintenance_mode() {
   return _var($var,'fsState')=="Started" && _var($var,'startMode')=="Maintenance" && _var($disk,'luksState',0)<=1;
 }
 function isSubpool($name) {
-  // pool name ending in any of these => zfs subpool
-  $subpools = array( "special", "logs", "dedup", "cache", "spares");
-  $tildaPosition = strpos($name, '~');
-  $subpool = ($tildaPosition!==false) ? substr($name, $tildaPosition+1) : false;
-  return ($subpool!==false && in_array($subpool, $subpools)) ? $subpool : false;
+  global $subpools;
+  $subpool = my_explode('~',$name)[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
 }
 function isPool($name) {
   global $pools;

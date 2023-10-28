@@ -94,7 +94,6 @@ function getmodules($name) {
     $dir = str_replace("drivers/", "", $file);
     $state = ($state=="Inuse") ? "Kernel - Inuse" : "Kernel";
   }
-  $description = $desc ? substr($desc,0,60) : "";
   $arrModules[$modname] = [
     'modname'     => $modname,
     'dependacy'   => $depends,
@@ -107,7 +106,7 @@ function getmodules($name) {
     'type'        => $dir,
     'support'     => $support,
     'supporturl'  => $supporturl,
-    'description' => $description
+    'description' => $desc
   ];
 }
 
