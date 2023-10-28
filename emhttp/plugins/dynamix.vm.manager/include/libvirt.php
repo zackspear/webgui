@@ -1430,7 +1430,7 @@
 		}
 
 		//create a storage volume and add file extension
-		function volume_create($name, $capacity, $allocation, $format) {
+		/*function volume_create($name, $capacity, $allocation, $format) {
 			$capacity = $this->parse_size($capacity);
 			$allocation = $this->parse_size($allocation);
 			($format != 'raw' ) ? $ext = $format : $ext = 'img';
@@ -1447,7 +1447,7 @@
 
 			$tmp = libvirt_storagevolume_create_xml($pool, $xml);
 			return ($tmp) ? $tmp : $this->_set_last_error();
-		}
+		}*/
 
 		function get_hypervisor_name() {
 			$tmp = libvirt_connect_get_information($this->conn);
@@ -2262,20 +2262,20 @@
 			$objNodes = $xpath->query('//domain/devices/hostdev[@type="pci"]');
 			if ($objNodes->length > 0) {
 				foreach ($objNodes as $objNode) {
-					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->value;
-					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->value;
-					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->value;
-					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->value;
+					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->nodeValue;
+					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->nodeValue;
+					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->nodeValue;
+					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->nodeValue;
 					$rom = $xpath->query('rom/@file', $objNode);
-					$rom = ($rom->length > 0 ? $rom->Item(0)->value : '');
-					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->value;
+					$rom = ($rom->length > 0 ? $rom->Item(0)->nodeValue : '');
+					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->nodeValue;
 					$devid = str_replace('0x', '', 'pci_'.$dom.'_'.$bus.'_'.$slot.'_'.$func);
 					$tmp2 = $this->get_node_device_information($devid);
-					$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->value ? "on" : "off" ;
-					$guest["dom"]  = $xpath->query('address/@domain', $objNode)->Item(0)->value;
-					$guest["bus"]  = $xpath->query('address/@bus', $objNode)->Item(0)->value;
-					$guest["slot"] = $xpath->query('address/@slot', $objNode)->Item(0)->value;
-					$guest["func"] = $xpath->query('address/@function', $objNode)->Item(0)->value;
+					$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->nodeValue ? "on" : "off" ;
+					$guest["dom"]  = $xpath->query('address/@domain', $objNode)->Item(0)->nodeValue;
+					$guest["bus"]  = $xpath->query('address/@bus', $objNode)->Item(0)->nodeValue;
+					$guest["slot"] = $xpath->query('address/@slot', $objNode)->Item(0)->nodeValue;
+					$guest["func"] = $xpath->query('address/@function', $objNode)->Item(0)->nodeValue;
 					$devs[] = [
 						'domain' => $dom,
 						'bus' => $bus,
@@ -2643,7 +2643,7 @@
 		}
 
 		//change disk capacity
-		function disk_set_cap($disk, $cap) {
+		/*function disk_set_cap($disk, $cap) {
 			$xml = $this->domain_get_xml($domain);
 			$tmp = explode("\n", $xml);
 			for ($i = 0; $i < sizeof($tmp); $i++)
@@ -2653,7 +2653,7 @@
 			$xml = join("\n", $tmp);
 
 			return $this->domain_define($xml);
-		}
+		}*/
 
 		//change domain boot device
 		function domain_set_boot_device($domain, $bootdev) {
