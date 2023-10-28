@@ -1094,7 +1094,7 @@ private static $encoding = 'UTF-8';
 		$arrValidNetworks['bridges'] = array_values($arrBridges);
 
 		// This breaks VMSettings.page if libvirt is not running
-			if ($libvirt_running == "yes") {
+		/*	if ($libvirt_running == "yes") {
 			$arrVirtual = $lv->libvirt_get_net_list($lv->get_connection());
 
 			if (($key = array_search('default', $arrVirtual)) !== false) {
@@ -1104,7 +1104,7 @@ private static $encoding = 'UTF-8';
 			array_unshift($arrVirtual, 'default');
 
 			$arrValidNetworks['libvirt'] = array_values($arrVirtual);
-		}
+		}*/
 
 		return $arrValidNetworks;
 	}
@@ -1276,6 +1276,7 @@ private static $encoding = 'UTF-8';
 				'maxmem' => $lv->domain_get_memory($res),
 				'password' => '', //TODO?
 				'cpumode' => $lv->domain_get_cpu_type($res),
+				'cpumigrate' => $lv->domain_get_cpu_migrate($res),
 				'vcpus' => $dom['nrVirtCpu'],
 				'vcpu' => $lv->domain_get_vcpu_pins($res),
 				'hyperv' => ($lv->domain_get_feature($res, 'hyperv') ? 1 : 0),
