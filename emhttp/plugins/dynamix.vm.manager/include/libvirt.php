@@ -843,7 +843,8 @@
 
 					if ($gpu['multi'] == "on"){
 						$newgpu_bus = dechex(hexdec($gpu_bus) + 0x20) ;
-						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x$newgpu_bus' slot='0x0' function='0x".$gpu_function."' multifunction='on' />" ;
+						if ($machine_type == "pc") $newgpu_slot = "0x01" ; else $newgpu_slot = "0x00" ; 
+						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x$newgpu_bus' slot='$newgpu_slot' function='0x".$gpu_function."' multifunction='on' />" ;
 						$multidevices[$gpu_bus] = "0x$gpu_bus" ;
 					}
 
@@ -874,7 +875,8 @@
 					if ($audio_function != 0) {
 						if (isset($multidevices[$audio_bus]))	{
 							$newaudio_bus = dechex(hexdec($audio_bus) + 0x20) ;
-							$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x$newaudio_bus' slot='0x0'  function='0x".$audio_function."' />" ;
+							if ($machine_type == "pc") $newaudio_slot = "0x01" ; else $newaudio_slot = "0x00" ; 
+							$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x$newaudio_bus' slot='$newaudio_slot'  function='0x".$audio_function."' />" ;
 						}
 					}
 
@@ -904,7 +906,8 @@
 					if ($pci_function != 0) {
 						if (isset($multidevices[$pci_bus]))	{
 							$newpci_bus = dechex(hexdec($pci_bus) + 0x20) ;
-							$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='0x$newpci_bus' slot='0x0' function='0x".$pci_function."' />" ;
+							if ($machine_type == "pc") $newpci_slot = "0x01" ; else $newpci_slot = "0x00" ; 
+							$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='0x$newpci_bus' slot='$newpci_slot' function='0x".$pci_function."' />" ;
 						}
 					}
 
