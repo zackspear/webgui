@@ -505,6 +505,8 @@ start_containers(){
 # Stop containers
 stop_containers(){
   [[ -n $(running_containers) ]] && docker stop --time=${DOCKER_TIMEOUT:-10} $(running_containers) >/dev/null
+  # Kill containers if still running
+  docker kill $(docker ps -q) 2>/dev/null
 }
 
 # Start docker
@@ -562,6 +564,7 @@ stop_docker(){
       kill -SIGKILL $(docker_pid) 2>/dev/null
       # Remove .sock and .pid
       rm -f /var/run/docker.sock $DOCKER_PIDFILE
+      echo "$DAEMON... Killed."
     fi
   fi
 }
