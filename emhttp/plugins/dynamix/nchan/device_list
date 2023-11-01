@@ -53,8 +53,8 @@ function device_info(&$disk,$online) {
     $view = "<a class='view' href=\"/Main/Browse?dir=".htmlspecialchars($dir)."\"><i class=\"icon-u-tab\" title=\""._('Browse')." $dir\"></i></a>";
   }
   $name = _var($disk,'name');
-  //$fancyname = compress(_(my_disk(my_explode('~',$name)[1]?:$name),3),16,5);
-  $fancyname = compress(_(my_disk(my_explode('~',$name)[1]?:$name),3),16,5);
+  $extra = my_explode('~',$name)[1];
+  $fancyname = compress($extra ? '~'.my_disk(_($extra,3)) : my_disk(_($name,3)),16,5);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
   $action = strpos(_var($disk,'color'),'blink')===false ? 'down' : 'up';
   switch (_var($disk,'color')) {
