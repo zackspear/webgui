@@ -20,7 +20,7 @@ function toggle_state(device,name,action) {
   if (name) {
     var group = name.replace(/(\d+|\*)$/,'');
     if (name.slice(-1)!='*') {
-      $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      $('#dev-'+name.replace('~','_-_')).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     } else {
       if (group=='array') {
         $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
