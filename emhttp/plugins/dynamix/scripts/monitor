@@ -322,7 +322,7 @@ if ($saved) {
   $text = '';
   foreach ($saved as $item => $block) {
     if ($block) $text .= "[$item]\n";
-    foreach ($block as $key => $value) $text .= str_replace('~','_-_',$key)."=\"$value\"\n";
+    foreach ($block as $key => $value) $text .= no_tilde($key)."=\"$value\"\n";
   }
   if ($text) {
     if ($text != @file_get_contents($ram)) file_put_contents($ram, $text);
