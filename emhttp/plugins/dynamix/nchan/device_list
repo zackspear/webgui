@@ -183,6 +183,7 @@ function my_diskio($data) {
 function array_offline(&$disk, $pool='') {
   global $var, $disks;
   $echo = []; $warning = '';
+  $status = ['DISK_DSBL','DISK_INVALID','DISK_DSBL_NEW','DISK_NEW','DISK_WRONG'];
   $text = "<span class='red-text'><em>"._('All existing data on this device will be OVERWRITTEN when array is Started')."</em></span>";
   if (strpos(_var($var,'mdState'),'ERROR:')===false) {
     if (_var($disk,'type')=='Cache') {
@@ -191,7 +192,7 @@ function array_offline(&$disk, $pool='') {
       if (_var($var,'mdState')=='NEW_ARRAY') {
         if (_var($disk,'type')=='Parity') $warning = $text;
       } elseif (_var($var,'mdNumInvalid',0)<=1) {
-        if (in_array(_var($disk,'status'),['DISK_DSBL','DISK_INVALID','DISK_DSBL_NEW','DISK_NEW','DISK_WRONG'])) $warning = $text;
+        if (in_array(_var($disk,'status'),$status)) $warning = $text;
       }
     }
   }
