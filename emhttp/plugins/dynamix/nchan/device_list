@@ -57,17 +57,19 @@ function device_info(&$disk,$online) {
   $extra = my_explode('~',$name)[1];
   $fancyname = compress($extra ? '~'.my_disk(_($extra,3)) : my_disk(_($name,3)),16,5);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
+  $pool = _var($disk,'type')=='Cache';
+  $parity = _var($disk,'type')=='Parity';
   $action = strpos(_var($disk,'color'),'blink')===false ? 'down' : 'up';
   switch (_var($disk,'color')) {
     case 'green-on':     $orb = 'circle';  $color = 'green';  $help = _('Normal operation, device is active'); break;
     case 'green-blink':  $orb = 'circle';  $color = 'grey';   $help = _('Device is in standby mode (spun-down)'); break;
     case 'blue-on':      $orb = 'square';  $color = 'blue';   $help = _('New device'); break;
     case 'blue-blink':   $orb = 'square';  $color = 'grey';   $help = _('New device, in standby mode (spun-down)'); break;
-    case 'yellow-on':    $orb = 'warning'; $color = 'yellow'; $help = _var($disk,'type')=='Parity' ? _('Parity is invalid') : _('Device contents emulated'); break;
-    case 'yellow-blink': $orb = 'warning'; $color = 'grey';   $help = _var($disk,'type')=='Parity' ? _('Parity is invalid, in standby mode (spun-down)') : _('Device contents emulated, in standby mode (spun-down)'); break;
+    case 'yellow-on':    $orb = 'warning'; $color = 'yellow'; $help = $pool ? _('Device contents invalid') : ($parity ? _('Parity is invalid') : _('Device contents emulated')); break;
+    case 'yellow-blink': $orb = 'warning'; $color = 'grey';   $help = $pool ? _('Device contents invalid, in standby mode (spun-down)') : ($parity ? _('Parity is invalid, in standby mode (spun-down)') : _('Device contents emulated, in standby mode (spun-down)')); break;
     case 'red-on':
-    case 'red-blink':    $orb = 'times';   $color = 'red';    $help = _var($disk,'type')=='Parity' ? _('Parity device is disabled') : _('Device is disabled, contents emulated'); break;
-    case 'red-off':      $orb = 'times';   $color = 'red';    $help = _var($disk,'type')=='Parity' ? _('Parity device is missing') : _('Device is missing (disabled), contents emulated'); break;
+    case 'red-blink':    $orb = 'times';   $color = 'red';    $help = $pool ? _('Device is disabled') : ($parity ? _('Parity device is disabled') : _('Device is disabled, contents emulated')); break;
+    case 'red-off':      $orb = 'times';   $color = 'red';    $help = $pool ? _('Device is missing (disabled)') : ($parity ? _('Parity device is missing') : _('Device is missing (disabled), contents emulated')); break;
     case 'grey-off':     $orb = 'square';  $color = 'grey';   $help = _('Device not present'); break;
   }
   $ctrl = '';
