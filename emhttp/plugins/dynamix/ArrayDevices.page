@@ -16,6 +16,7 @@ Tag="database"
 ?>
 <script>
 String.prototype.no_tilde = function(){return this.replace('~','_-_');}
+String.prototype.master = function(){return this.split('~')[0];}
 
 function toggle_state(device,name,action) {
   var button = null;
@@ -28,7 +29,7 @@ function toggle_state(device,name,action) {
         $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
         $('[id^="dev-disk"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       } else {
-        $('[id^="dev-'+group.no_tilde()+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+        $('[id^="dev-'+group.master()+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       }
     }
   } else if (device!='Clear') {
