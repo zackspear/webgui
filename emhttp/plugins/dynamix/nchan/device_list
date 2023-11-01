@@ -465,7 +465,7 @@ while (true) {
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
       file_put_contents($pool_log,implode("\n",$data));
-      $echo[$n] .= "<tr class='tr_last'><td>"._('Slots')."</td><td colspan='8'><span class='slots'><span class='slots-left'>".cache_slots($off,$pool,_var($cache[$pool],'devicesSb'),_var($cache[$pool],'slots',0))."</span>";
+      $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'><span class='slots'><span class='slots-left'>".cache_slots($off,$pool,_var($cache[$pool],'devicesSb'),_var($cache[$pool],'slots',0))."</span>";
       $zfsPool = strstr(_var($cache[$pool],'fsType'),'zfs') && !isSubpool($pool);
       if ($zfsPool) {
         $current_subpools = array_filter($pools, function($element) use ($pool) {return strpos($element, "$pool~")!==false;});
