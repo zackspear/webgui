@@ -205,6 +205,9 @@ span.outer.stopped>img,span.outer.stopped>i.img{opacity:0.3}
 span.outer.paused>img,span.outer.paused>i.img{opacity:0.6}
 span.inner{display:inline-block;vertical-align:top}
 span.state{font-size:1.1rem;margin-left:7px}
+span.slots{display:inline-block;width:44rem}
+span.slots-left{float:left}
+input.subpool{float:right;margin:0}
 i.padlock{margin-right:8px;cursor:default;vertical-align:middle}
 i.nolock{visibility:hidden;margin-right:8px;vertical-align:middle}
 i.lock{margin-left:8px;cursor:default;vertical-align:middle}

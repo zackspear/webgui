@@ -175,6 +175,7 @@ function device_smart(&$disk, &$fail, &$smart) {
   if (!_var($disk,'device') || strpos(_var($disk,'color'),'blink')!==false) return "-";
   $failed = ['FAILED','NOK'];
   $name   = _var($disk,'name');
+  $named  = no_tilde($name);
   $select = get_value($name,'smSelect',0);
   $level  = get_value($name,'smLevel',1);
   $events = explode('|',get_value($disk,'smEvents',$numbers));
@@ -186,7 +187,7 @@ function device_smart(&$disk, &$fail, &$smart) {
   if (file_exists("$file") && exec("grep -Pom1 '^SMART.*: \K[A-Z]+' ".escapeshellarg($file)." |tr -d '\n' 2>/dev/null", $ssa) && in_array("$ssa",$failed)) {
     $title = _('SMART health-check failed')."\n"; $thumb = 'thumbs-o-down'; $color = 'red'; $text = 'fail'; $fail++;
   } else {
-    if (empty($saved["smart"]["$name.ack"])) {
+    if (empty($saved["smart"]["$named.ack"])) {
       exec("awk 'NR>7{print $1,$2,$4,$6,$9,$10}' ".escapeshellarg($file)." 2>/dev/null", $codes);
       foreach ($codes as $code) {
         if (!$code || !is_numeric($code[0])) continue;
@@ -199,7 +200,7 @@ function device_smart(&$disk, &$fail, &$smart) {
     }
   }
   $title .= _('Click for context menu');
-  return "<span id='smart-$name' name=Device class='fa fa-$thumb $color-text' style='margin-right:8px' onmouseover='this.style.cursor=\"pointer\"' title='$title'></span><span id='text-$name'>$text</span>";
+  return "<span id='smart-$named' name=Device class='fa fa-$thumb $color-text' style='margin-right:8px' onmouseover='this.style.cursor=\"pointer\"' title='$title'></span><span id='text-$named'>$text</span>";
 }
 function device_usage(&$disk, &$full, &$high) {
   global $display;

@@ -63,6 +63,9 @@ function my_disks($disk) {
 function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
 }
+function no_tilde($name) {
+  return str_replace('~','_-_',$name);
+}
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }
