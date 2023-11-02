@@ -22,6 +22,7 @@ DOCKER_PIDFILE=/var/run/$DOCKERD.pid
 DOCKER_LOG=/var/log/docker.log
 DOCKER_ROOT=/var/lib/docker
 DOCKER_CFG=/boot/config/docker.cfg
+DOCKER_TIMEOUT=$(awk -F'"' '/^DOCKER_TIMEOUT=/{print $2}' $DOCKER_CFG 2>/dev/null)
 STOCK="eth br bond"
 
 # network file references
@@ -503,7 +504,9 @@ start_containers(){
 
 # Stop containers
 stop_containers(){
-  [[ ! -z $(running_containers) ]] && docker stop $(running_containers) >/dev/null
+  [[ -n $(running_containers) ]] && docker stop --time=${DOCKER_TIMEOUT:-10} $(running_containers) >/dev/null
+  # Kill containers if still running
+  docker kill $(docker ps -q) 2>/dev/null
 }
 
 # Start docker
@@ -534,23 +537,35 @@ stop_docker(){
   echo "stopping $DOCKERD ..."
   # If there is no PID file, ignore this request...
   if [[ -r $DOCKER_PIDFILE ]]; then
+    # Try to stop dockerd gracefully
     kill $(docker_pid) 2>/dev/null
+    local TIMER=15
     # must ensure daemon has exited
-    for n in {1..15}; do
+    while [[ $TIMER -gt 0 ]]; do
       sleep 1
       if [[ $(ps -p $(docker_pid) -o comm= 2>/dev/null) != $DOCKERD ]]; then
         rm -f $DOCKER_PIDFILE
         # tear down the bridge
-        if ip link show docker0 >/dev/null 2>&1; then
+        if [[ -e $SYSTEM/docker0 ]]; then
           ip link set docker0 down
           ip link del docker0
         fi
-        return
+        # signal succesful stop
+        TIMER=-1
+      else
+        # show waiting message
+        echo "$DAEMON... Waiting to die."
+        ((TIMER--))
       fi
-      echo "waiting for docker to die ..."
     done
-    echo "docker will not die!"
-    exit 1
+    if [[ $TIMER -eq 0 ]]; then
+      echo "Error: process will not die!"
+      # Send SIGKILL to dockerd
+      kill -SIGKILL $(docker_pid) 2>/dev/null
+      # Remove .sock and .pid
+      rm -f /var/run/docker.sock $DOCKER_PIDFILE
+      echo "$DAEMON... Killed."
+    fi
   fi
 }
 
