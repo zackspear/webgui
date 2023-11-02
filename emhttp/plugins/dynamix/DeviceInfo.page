@@ -80,8 +80,8 @@ function maintenance_mode() {
   return _var($var,'fsState')=="Started" && _var($var,'startMode')=="Maintenance" && _var($disk,'luksState',0)<=1;
 }
 function isSubpool($name) {
-  global $subpools;
-  $subpool = my_explode('~',$name)[1];
+  global $subpools, $tilde;
+  $subpool = my_explode($tilde,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
 function isPool($name) {
