@@ -55,7 +55,7 @@ function device_info(&$disk,$online) {
   $name = _var($disk,'name');
   $named = no_tilde($name);
   $extra = my_explode('~',$name)[1];
-  $fancyname = compress($extra ? '~'.my_disk(_($extra,3)) : my_disk(_($name,3)),16,5);
+  $fancyname = compress($extra ? '~'._(my_disk($extra),3) : _(my_disk($name),3),16,5);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
   $pool = _var($disk,'type')=='Cache';
   $parity = _var($disk,'type')=='Parity';
