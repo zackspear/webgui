@@ -37,7 +37,7 @@ function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
 function device_info(&$disk,$online) {
-  global $pools, $var, $crypto, $tilde;
+  global $pools, $var, $crypto, $tilde, $arrow;
   if (!$online || _var($disk,'fsStatus')!='Mounted' || (in_array(_var($disk,'type'),['Parity','Cache']) && (!in_array(_var($disk,'name'),$pools) || isSubpool(_var($disk,'name'))))) {
     $view = "<a class='view'></a>";
   } else {
@@ -47,7 +47,7 @@ function device_info(&$disk,$online) {
   $name = _var($disk,'name');
   $named = no_tilde($name);
   $extra = my_explode($tilde,$name)[1];
-  $fancyname = compress($extra ? '&#187; '._(my_disk($extra),3) : _(my_disk($name),3),16,5);
+  $fancyname = compress($extra ? "$arrow "._(my_disk($extra),3) : _(my_disk($name),3),16,5);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
   $pool = _var($disk,'type')=='Cache';
   $parity = _var($disk,'type')=='Parity';

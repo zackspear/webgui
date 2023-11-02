@@ -19,6 +19,7 @@ $subpools = ['special','logs','dedup','cache','spares'];
 // ZFS subpool name separator and replacement
 $tilde = '~';
 $proxy = '__';
+$arrow = '&#187;';
 
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
