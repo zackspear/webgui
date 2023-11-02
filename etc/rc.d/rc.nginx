@@ -577,6 +577,7 @@ build_ssl() {
 }
 
 nginx_status() {
+  sleep 0.1
   [[ -s $PID && -n "$(cat $PID)" && -d "/proc/$(cat $PID)" ]] && return 0 || return 1;
 }
 
@@ -643,6 +644,11 @@ nginx_stop() {
     unraid_api_control stop
     kill -QUIT $(cat $PID)
     wait_nginx_shutdown
+    if nginx_status; then
+      echo "Killing Nginx..."
+      pkill -f $NGINX
+      wait_nginx_shutdown
+    fi
   fi
 }
 
