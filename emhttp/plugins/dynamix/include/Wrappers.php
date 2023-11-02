@@ -17,9 +17,9 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 $subpools = ['special','logs','dedup','cache','spares'];
 
 // ZFS subpool name separator and replacement
-$tilde = '~';
-$proxy = '__';
-$arrow = '&#187;';
+$tilde_ = '~';
+$proxy_ = '__';
+$arrow_ = '&#187;';
 
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
@@ -95,15 +95,15 @@ function ipaddr($ethX='eth0', $prot=4) {
   }
 }
 function no_tilde($name) {
-  global $tilde,$proxy;
-  return str_replace($tilde,$proxy,$name);
+  global $tilde_,$proxy_;
+  return str_replace($tilde_,$proxy_,$name);
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
 }
 function isSubpool($name) {
-  global $subpools, $tilde;
-  $subpool = my_explode($tilde,$name)[1];
+  global $subpools, $tilde_;
+  $subpool = my_explode($tilde_,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
 // convert strftime to date format

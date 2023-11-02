@@ -537,7 +537,7 @@ _(Name)_:
 
 <?else:?>
 _(Name)_:
-: <?=str_replace($tilde," $arrow ",_(my_disk($name),3))?>
+: <?=str_replace($tilde_," $arrow_ ",_(my_disk($name),3))?>
 
 <?endif;?>
 <?if (diskStatus('_NP')):?>
@@ -726,7 +726,7 @@ _(Critical disk utilization threshold)_ (%):
     <?if (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal" && diskType('Data')): $erasable=true; endif;?>
     <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
-  <?if (isPool($name) && strpos($name,$tilde)===false):?>
+  <?if (isPool($name) && strpos($name,$tilde_)===false):?>
     <?if (_var($var,'fsState')=="Stopped" || (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal")): $erasable=true; endif;?>
     <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>

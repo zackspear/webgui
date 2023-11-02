@@ -15,8 +15,8 @@ Tag="database"
  */
 ?>
 <script>
-String.prototype.no_tilde = function(){return this.replace('<?=$tilde?>','<?=$proxy?>');}
-String.prototype.master = function(){return this.split('<?=$tilde?>')[0];}
+String.prototype.no_tilde = function(){return this.replace('<?=$tilde_?>','<?=$proxy_?>');}
+String.prototype.master = function(){return this.split('<?=$tilde_?>')[0];}
 
 function toggle_state(device,name,action) {
   var button = null;

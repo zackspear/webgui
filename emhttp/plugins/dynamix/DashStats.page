@@ -570,7 +570,7 @@ if (!$group) {
 <?$i=0?>
 <?foreach ($pools as $pool):?>
 <tbody id='pool_list<?=$i?>' title="_(<?=ucfirst($pool)?> Information)_">
-<tr><td><i class='icon-disk f32'></i><div class='section'><?=ucfirst(str_replace($tilde," $arrow ",$pool))?><?if (!$started):?> (_(stopped)_)<?endif;?><br>
+<tr><td><i class='icon-disk f32'></i><div class='section'><?=ucfirst(str_replace($tilde_," $arrow_ ",$pool))?><?if (!$started):?> (_(stopped)_)<?endif;?><br>
 <span><?if ($started):?><?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?><?endif;?></span><br></div>
 <a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>

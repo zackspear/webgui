@@ -46,7 +46,7 @@ default:
   foreach ($disks as $disk) {
     if (_var($disk,'status') != 'DISK_OK') continue;
     $array = ($name=='array' && in_array(_var($disk,'type'),['Parity','Data']));
-    if ($array || explode($tilde,prefix(_var($disk,'name')))[0]==$name) emcmd("cmdSpin{$action}="._var($disk,'name'));
+    if ($array || explode($tilde_,prefix(_var($disk,'name')))[0]==$name) emcmd("cmdSpin{$action}="._var($disk,'name'));
   }
   break;
 }
