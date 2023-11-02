@@ -487,7 +487,7 @@ while (true) {
       if (strcmp($root,$pool)!=0) $cache[$root]['devices'] += $cache[$pool]['devices'];
       if (strcmp($pool,$print)==0) {
         delete_file($pool_log);
-        if (_var($display,'total') && _var($cache[$root],'devices',0)>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$root]['devices'])),strpos($pool,$tilde)!==false,"$pool*");
+        if (_var($display,'total') && _var($cache[$root],'devices',0)>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$root]['devices'])),strpos($pool,$tilde)!==false,"$root*");
         $sum = initSum();
       }
    }
