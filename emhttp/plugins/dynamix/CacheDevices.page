@@ -23,8 +23,8 @@ function sharename($share) {
   return basename($share,'.cfg');
 }
 function isSubpool($name) {
-  global $subpools;
-  $subpool = my_explode('~',$name)[1];
+  global $subpools, $tilde;
+  $subpool = my_explode($tilde,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
 ?>
