@@ -40,12 +40,12 @@ function model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
 function isSubpool($name) {
-  global $subpools;
-  $subpool = my_explode('~',$name)[1];
+  global $subpools, $tilde;
+  $subpool = my_explode($tilde,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
 function device_info(&$disk,$online) {
-  global $pools, $var, $crypto;
+  global $pools, $var, $crypto, $tilde;
   if (!$online || _var($disk,'fsStatus')!='Mounted' || (in_array(_var($disk,'type'),['Parity','Cache']) && (!in_array(_var($disk,'name'),$pools) || isSubpool(_var($disk,'name'))))) {
     $view = "<a class='view'></a>";
   } else {
@@ -54,8 +54,8 @@ function device_info(&$disk,$online) {
   }
   $name = _var($disk,'name');
   $named = no_tilde($name);
-  $extra = my_explode('~',$name)[1];
-  $fancyname = compress($extra ? '~'._(my_disk($extra),3) : _(my_disk($name),3),16,5);
+  $extra = my_explode($tilde,$name)[1];
+  $fancyname = compress($extra ? $tilde._(my_disk($extra),3) : _(my_disk($name),3),16,5);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
   $pool = _var($disk,'type')=='Cache';
   $parity = _var($disk,'type')=='Parity';
@@ -454,7 +454,7 @@ while (true) {
   foreach ($cache as $disk) $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
   foreach ($pools as $pool) {
     $echo[$n] = "pool_device".($n-2)."\n";
-    $root = explode('~',$pool)[0];
+    $root  = explode($tilde,$pool)[0];
     $print = array_filter(array_column($cache,'name'),function($name) use ($pools,$root) {return in_array($name,$pools) && strncmp($root,$name,strlen($root))==0;});
     $print = end($print);
     if (_var($var,'fsState')=='Stopped') {
@@ -473,8 +473,8 @@ while (true) {
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'><span class='slots'><span class='slots-left'>".cache_slots($off,$pool,_var($cache[$pool],'devicesSb'),_var($cache[$pool],'slots',0))."</span>";
       $zfsPool = strstr(_var($cache[$pool],'fsType'),'zfs') && !isSubpool($pool);
       if ($zfsPool) {
-        $current_subpools = array_filter($pools, function($element) use ($pool) {return strpos($element, "$pool~")!==false;});
-        $current_subpools_list = str_replace("$pool~","", implode(',', $current_subpools));
+        $current_subpools = array_filter($pools, function($element) use ($pool,$tilde) {return strpos($element, "{$pool}{$tilde}")!==false;});
+        $current_subpools_list = str_replace("{$pool}{$tilde}","", implode(',', $current_subpools));
         $echo[$n] .= "<input type='button' value='"._('Add Subpool')."' class='subpool' onclick='addSubpoolPopup(\"$pool\",\"$current_subpools_list\")'".(count($current_subpools)<count($subpools)?'':' disabled').">";
       }
       $echo[$n] .= "</span></td><td></td></tr>";
@@ -487,7 +487,7 @@ while (true) {
       if (strcmp($root,$pool)!=0) $cache[$root]['devices'] += $cache[$pool]['devices'];
       if (strcmp($pool,$print)==0) {
         delete_file($pool_log);
-        if (_var($display,'total') && _var($cache[$root],'devices',0)>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$root]['devices'])),strpos($pool,'~')!==false,"$pool*");
+        if (_var($display,'total') && _var($cache[$root],'devices',0)>1) $echo[$n] .= show_totals(sprintf(_('Pool of %s devices'),my_word($cache[$root]['devices'])),strpos($pool,$tilde)!==false,"$pool*");
         $sum = initSum();
       }
    }
