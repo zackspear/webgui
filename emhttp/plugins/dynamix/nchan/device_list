@@ -130,7 +130,7 @@ function assignment(&$disk) {
   $echo[] = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $echo[] = "<input type='hidden' name='changeDevice' value='apply'>";
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
-  $echo[] = "<select class='slot' name='slotId."._var($disk,'idx')."' onChange='this.form.submit()'>";
+  $echo[] = "<select class='slot' name='slotId."._var($disk,'idx')."' onChange='devices.start();this.form.submit()'>";
   $empty = _var($disk,'idSb')!='' ? _('no device') : _('unassigned');
   if (_var($disk,'id')) {
     $echo[] = "<option value=\"{$disk['id']}\" selected>".device_desc($disk)."</option>";
@@ -336,7 +336,7 @@ function array_slots() {
   $echo[] = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
-  $echo[] = "<select class='narrow' name='SYS_ARRAY_SLOTS' onChange='this.form.submit()'>";
+  $echo[] = "<select class='narrow' name='SYS_ARRAY_SLOTS' onChange='devices.start();this.form.submit()'>";
   for ($n=$min; $n<=$max; $n++) {
     $selected = $n==_var($var,'SYS_ARRAY_SLOTS') ? ' selected' : '';
     $echo[] = "<option value='$n'{$selected}>$n</option>";
@@ -353,7 +353,7 @@ function cache_slots($off,$pool,$min,$slots) {
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
   $echo[] = "<input type='hidden' name='poolName' value='$pool'>";
-  $echo[] = "<select class='narrow' name='poolSlots' onChange='this.form.submit()'{$off}>";
+  $echo[] = "<select class='narrow' name='poolSlots' onChange='devices.start();this.form.submit()'{$off}>";
   for ($n=$min; $n<=$max; $n++) {
     $option = $n ?: _('none');
     $selected = ($n==$slots) ? ' selected' : '';
@@ -455,7 +455,8 @@ while (true) {
   foreach ($pools as $pool) {
     $echo[$n] = "pool_device".($n-2)."\n";
     $root = explode('~',$pool)[0];
-    $print = end(array_filter(array_column($cache,'name'),function($name) use ($pools,$root) {return in_array($name,$pools) && strncmp($root,$name,strlen($root))==0;}));
+    $print = array_filter(array_column($cache,'name'),function($name) use ($pools,$root) {return in_array($name,$pools) && strncmp($root,$name,strlen($root))==0;});
+    $print = end($print);
     if (_var($var,'fsState')=='Stopped') {
       $log = @parse_ini_file($pool_log) ?: [];
       $off = false;
@@ -467,6 +468,7 @@ while (true) {
         if (isset($log[$named])) $off |= ($log[$named] != _var($disk,'id')); elseif ($named) $log[$named] = _var($disk,'id');
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
+      $off &= !empty(_var($cache[$pool],'uuid'));
       file_put_contents($pool_log,implode("\n",$data));
       $echo[$n] .= "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'><span class='slots'><span class='slots-left'>".cache_slots($off,$pool,_var($cache[$pool],'devicesSb'),_var($cache[$pool],'slots',0))."</span>";
       $zfsPool = strstr(_var($cache[$pool],'fsType'),'zfs') && !isSubpool($pool);
