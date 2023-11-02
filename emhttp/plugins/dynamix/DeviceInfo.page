@@ -727,19 +727,13 @@ _(Critical disk utilization threshold)_ (%):
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" id="doneButton" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
   <?if (diskType('Parity','Data')):?>
-    <?if (_var($var,'fsState')=="Stopped" && diskStatus('_NEW')):?>
-      <?$erasable=true?>
-    <?endif;?>
-    <?if (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal" && diskType('Data')):?>
-      <?$erasable=true?>
-    <?endif;?>
-    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+    <?if (_var($var,'fsState')=="Stopped" && diskStatus('_NEW')): $erasable=true; endif;?>
+    <?if (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal" && diskType('Data')): $erasable=true; endif;?>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
-  <?if (isPool($name)):?>
-    <?if (_var($var,'fsState')=="Stopped" || (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal")):?>
-      <?$erasable=true?>
-    <?endif;?>
-    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':'  disabled'?>>
+  <?if (isPool($name) && strpos($name,'~')===false):?>
+    <?if (_var($var,'fsState')=="Stopped" || (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal")): $erasable=true; endif;?>
+    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
   <?if (_var($var,'fsState')=="Stopped" && isPool($name)):?>
     <?$empty = _var($disk,'devices',0)==0?>
