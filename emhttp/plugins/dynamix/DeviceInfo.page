@@ -537,7 +537,7 @@ _(Name)_:
 
 <?else:?>
 _(Name)_:
-: <?=_(my_disk($name),3)?>
+: <?=str_replace($tilde," $arrow ",_(my_disk($name),3))?>
 
 <?endif;?>
 <?if (diskStatus('_NP')):?>

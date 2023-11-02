@@ -126,16 +126,17 @@ function active_disks($disk) {
   return substr(_var($disk,'status'),0,7)!='DISK_NP' && in_array(_var($disk,'type'),['Parity','Data']);
 }
 function device_name(&$disk) {
+  global $tilde, $arrow;
   switch (_var($disk,'type')) {
     case 'Extra' :
     case 'Parity': $type = _var($disk,'rotational') ? 'disk' : 'nvme'; break;
     case 'Data'  :
     case 'Cache' : $type = _var($disk,'rotational') ? (_var($disk,'luksState') ? 'disk-encrypted' : 'disk') : 'nvme'; break;
   }
-  $name = my_disk(_var($disk,'name'));
-  [$p1,$p2] = my_explode(' ',$name);
-  $name = _($p1).($p2?" $p2":"");
-  return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name="._var($disk,'name'))."\" title=\"$name settings\">$name</a>";
+  $name = _var($disk,'name');
+  $extra = my_explode($tilde,$name)[1];
+  $fancyname = compress($extra ? "$arrow "._(my_disk($extra),3) : _(my_disk($name),3),16,5);
+  return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name=$name")."\" title=\"$fancyname settings\">$fancyname</a>";
 }
 function device_status(&$disk, &$error, &$warning) {
   global $var;
