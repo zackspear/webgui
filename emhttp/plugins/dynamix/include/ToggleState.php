@@ -18,25 +18,25 @@ $device = $_POST['device']??'';
 $name   = $_POST['name']??'';
 $action = $_POST['action']??'';
 
-function emhttpd($cmd) {
+function emcmd($cmd) {
   exec("emcmd $cmd");
 }
 switch ($device) {
 case 'New':
-  emhttpd("cmdSpin{$action}={$name}");
+  emcmd("cmdSpin{$action}={$name}");
   break;
 case 'Clear':
-  emhttpd("clearStatistics=true");
+  emcmd("clearStatistics=true");
   break;
 default:
   if (!$name) {
     // spin up/down all devices
-    emhttpd("cmdSpin{$device}All=true");
+    emcmd("cmdSpin{$device}All=true");
     break;
   }
   if (substr($name,-1) != '*') {
     // spin up/down single device
-    emhttpd("cmdSpin{$action}={$name}");
+    emcmd("cmdSpin{$action}={$name}");
     break;
   }
   // spin up/down group of devices
@@ -46,7 +46,7 @@ default:
   foreach ($disks as $disk) {
     if (_var($disk,'status') != 'DISK_OK') continue;
     $array = ($name=='array' && in_array(_var($disk,'type'),['Parity','Data']));
-    if ($array || explode($tilde,prefix(_var($disk,'name')))[0]==$name) emhttpd("cmdSpin{$action}="._var($disk,'name'));
+    if ($array || explode($tilde,prefix(_var($disk,'name')))[0]==$name) emcmd("cmdSpin{$action}="._var($disk,'name'));
   }
   break;
 }
