@@ -13,6 +13,9 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
 // ZFS subpool name separator and replacement
 $tilde = '~';
 $proxy = '__';
@@ -96,6 +99,11 @@ function no_tilde($name) {
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
+}
+function isSubpool($name) {
+  global $subpools, $tilde;
+  $subpool = my_explode($tilde,$name)[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
 }
 // convert strftime to date format
 function my_date($fmt, $time) {

@@ -46,9 +46,6 @@ $pool_devices = false;
 $pools = pools_filter($disks);
 foreach ($pools as $pool) $pool_devices |= _var($disks[$pool],'devices')!='';
 
-// pool name ending in any of these => zfs subpool
-$subpools = ['special','logs','dedup','cache','spares'];
-
 // Read network settings
 extract(parse_ini_file('state/network.ini',true));
 

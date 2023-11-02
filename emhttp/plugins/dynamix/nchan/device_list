@@ -30,19 +30,11 @@ require_once "$docroot/webGui/include/Translations.php";
 // remember current language
 $locale_init = $locale;
 
-// pool name ending in any of these => zfs subpool
-$subpools = ['special','logs','dedup','cache','spares'];
-
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 }
 function model($id) {
   return substr($id,0,strrpos($id,'_'));
-}
-function isSubpool($name) {
-  global $subpools, $tilde;
-  $subpool = my_explode($tilde,$name)[1];
-  return in_array($subpool,$subpools) ? $subpool : false;
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto, $tilde;

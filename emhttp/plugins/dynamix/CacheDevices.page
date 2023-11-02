@@ -22,11 +22,6 @@ function makeList($list) {
 function sharename($share) {
   return basename($share,'.cfg');
 }
-function isSubpool($name) {
-  global $subpools, $tilde;
-  $subpool = my_explode($tilde,$name)[1];
-  return in_array($subpool,$subpools) ? $subpool : false;
-}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
