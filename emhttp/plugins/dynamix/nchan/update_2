@@ -126,7 +126,7 @@ function active_disks($disk) {
   return substr(_var($disk,'status'),0,7)!='DISK_NP' && in_array(_var($disk,'type'),['Parity','Data']);
 }
 function device_name(&$disk) {
-  global $tilde_, $arrow_;
+  global $_tilde_, $_arrow_;
   switch (_var($disk,'type')) {
     case 'Extra' :
     case 'Parity': $type = _var($disk,'rotational') ? 'disk' : 'nvme'; break;
@@ -134,8 +134,8 @@ function device_name(&$disk) {
     case 'Cache' : $type = _var($disk,'rotational') ? (_var($disk,'luksState') ? 'disk-encrypted' : 'disk') : 'nvme'; break;
   }
   $name = _var($disk,'name');
-  $extra = my_explode($tilde_,$name)[1];
-  $fancyname = compress($extra ? "$arrow_ "._(my_disk($extra),3) : _(my_disk($name),3),16,5);
+  $extra = my_explode($_tilde_,$name)[1];
+  $fancyname = compress($extra ? "$_arrow_ "._(my_disk($extra),3) : _(my_disk($name),3),16,5);
   return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name=$name")."\" title=\"$fancyname settings\">$fancyname</a>";
 }
 function device_status(&$disk, &$error, &$warning) {

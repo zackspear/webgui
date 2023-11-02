@@ -115,7 +115,7 @@ function addSubpoolPopup(poolname,currentsubpools) {
     buttons: {
     "_(Add)_": function() {
         subpool=$(this).find('select[name="subpool"]').val();
-        $(this).find('input[name="poolName"]').val(poolname + '<?=$tilde_?>' + subpool);
+        $(this).find('input[name="poolName"]').val(poolname + '<?=$_tilde_?>' + subpool);
         $(this).find('form').submit();
         $(this).dialog('close');
       },
