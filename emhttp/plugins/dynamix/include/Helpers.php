@@ -15,6 +15,10 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/webGui/include/Secure.php";
 
+// ZFS subpool name separator and replacement
+$tilde = '~';
+$proxy = '__';
+
 // Helper functions
 function my_scale($value, &$unit, $decimals=NULL, $scale=NULL, $kilo=1000) {
   global $display,$language;
@@ -64,7 +68,8 @@ function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
 }
 function no_tilde($name) {
-  return str_replace('~','_-_',$name);
+  global $tilde,$proxy;
+  return str_replace($tilde,$proxy,$name);
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
