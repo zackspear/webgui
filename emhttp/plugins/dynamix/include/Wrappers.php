@@ -13,6 +13,10 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
+// ZFS subpool name separator and replacement
+$tilde = '~';
+$proxy = '__';
+
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
   global $docroot;
@@ -85,6 +89,13 @@ function ipaddr($ethX='eth0', $prot=4) {
   default:
     return _var($$ethX,'IPADDR:0');
   }
+}
+function no_tilde($name) {
+  global $tilde,$proxy;
+  return str_replace($tilde,$proxy,$name);
+}
+function prefix($key) {
+  return preg_replace('/\d+$/','',$key);
 }
 // convert strftime to date format
 function my_date($fmt, $time) {

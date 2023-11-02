@@ -12,7 +12,7 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $device = $_POST['device']??'';
 $name   = $_POST['name']??'';
