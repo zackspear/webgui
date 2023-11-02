@@ -731,7 +731,7 @@ _(Critical disk utilization threshold)_ (%):
     <?if (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal" && diskType('Data')): $erasable=true; endif;?>
     <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
-  <?if (isPool($name) && strpos($name,'~')===false):?>
+  <?if (isPool($name) && strpos($name,$tilde)===false):?>
     <?if (_var($var,'fsState')=="Stopped" || (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal")): $erasable=true; endif;?>
     <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
