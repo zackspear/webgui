@@ -11,17 +11,24 @@
  */
 ?>
 <?
-$ram   = "/var/local/emhttp/monitor.ini";
-$rom   = "/boot/config/plugins/dynamix/monitor.ini";
-$saved = parse_ini_file($ram,true);
-$saved["smart"]["{$_POST['disk']}.ack"] = "true";
+$ram  = "/var/local/emhttp/monitor.ini";
+$rom  = "/boot/config/plugins/dynamix/monitor.ini";
+$disk = $_POST['disk'] ?? '';
 
-$text = "";
-foreach ($saved as $item => $block) {
-  if ($block) $text .= "[$item]\n";
-  foreach ($block as $key => $value) $text .= "$key=\"$value\"\n";
+if ($disk) {
+  $text  = "";
+  $saved = parse_ini_file($ram,true);
+  $saved["smart"]["$disk.ack"] = "true";
+
+  foreach ($saved as $item => $block) {
+    if ($block) $text .= "[$item]\n";
+    foreach ($block as $key => $value) $text .= "$key=\"$value\"\n";
+  }
+
+  file_put_contents($ram, $text);
+  file_put_contents($rom, $text);
+  echo "200 OK";
+} else {
+  echo "404 ERROR";
 }
-file_put_contents($ram, $text);
-file_put_contents($rom, $text);
-echo "200 OK";
 ?>
