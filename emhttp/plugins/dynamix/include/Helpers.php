@@ -63,9 +63,6 @@ function my_disks($disk) {
 function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
 }
-function prefix($key) {
-  return preg_replace('/\d+$/','',$key);
-}
 function parity_only($disk) {
   return _var($disk,'type')=='Parity';
 }

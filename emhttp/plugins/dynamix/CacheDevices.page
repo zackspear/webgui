@@ -22,11 +22,6 @@ function makeList($list) {
 function sharename($share) {
   return basename($share,'.cfg');
 }
-function isSubpool($name) {
-  global $subpools;
-  $subpool = my_explode('~',$name)[1];
-  return in_array($subpool,$subpools) ? $subpool : false;
-}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
@@ -120,7 +115,7 @@ function addSubpoolPopup(poolname,currentsubpools) {
     buttons: {
     "_(Add)_": function() {
         subpool=$(this).find('select[name="subpool"]').val();
-        $(this).find('input[name="poolName"]').val(poolname + "~" + subpool);
+        $(this).find('input[name="poolName"]').val(poolname + '<?=$_tilde_?>' + subpool);
         $(this).find('form').submit();
         $(this).dialog('close');
       },
@@ -141,9 +136,7 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?foreach ($pools as $pool):?>
 <?if (isset($disks[$pool]['devices']) or _var($var,'fsState')=="Stopped"):?>
 <table class="disk_status wide<?=$i?' divider':''?>">
-<?if (isSubpool($pool)):?>
-<thead></thead>
-<?else:?>
+<?if (!isSubpool($pool)):?>
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_.</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
 <?endif;?>
 <tbody id="pool_device<?=$i++?>">
