@@ -1458,6 +1458,7 @@ private static $encoding = 'UTF-8';
 
 	function getQEMUCmdLine($xml) {
 		$x = strpos($xml,"<qemu:commandline>", 0) ;
+		if ($x === false) return null ;
 		$y = strpos($xml,"</qemu:commandline>", 0)  ;
 		$z=$y ;
 		while ($y!=false) {
