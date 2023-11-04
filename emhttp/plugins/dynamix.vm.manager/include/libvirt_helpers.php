@@ -1449,23 +1449,6 @@ private static $encoding = 'UTF-8';
 		$memorybacking = $memoryBacking->memoryBacking ;
 		return json_encode($memorybacking); ;
 	}
-	function getClocks($xml) {
-		$clocks = new SimpleXMLElement($xml);
-		$clocks = $clocks->clock ;
-		return json_encode($clocks); ;
-	}
-
-	function getQEMUCmdLine($xml) {
-		$x = strpos($xml,"<qemu:commandline>", 0) ;
-		if ($x === false) return null ;
-		$y = strpos($xml,"</qemu:commandline>", 0)  ;
-		$z=$y ;
-		while ($y!=false) {
-			$y = strpos($xml,"<qemu:commandline>", $z +19)  ;
-			if ($y != false) $z =$y  ;
-		}
-		return substr($xml,$x, ($z + 19) -$x) ;
-	}
 
 	function getClocks($xml) {
 		$clocks = new SimpleXMLElement($xml);
