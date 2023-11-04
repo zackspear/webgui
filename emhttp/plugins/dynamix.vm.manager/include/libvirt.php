@@ -984,6 +984,12 @@
 
 		}
 
+		function appendqemucmdline($xml,$cmdline) {
+			$newxml = $xml ;
+			if ($cmdline != null) $newxml = str_replace("</domain>",$cmdline."\n</domain>",$xml) ;
+			return $newxml ;
+		}
+
 		function domain_new($config) {
 
 			// attempt to create all disk images if needed
@@ -1007,6 +1013,8 @@
 
 			// generate xml for this domain
 			$strXML = $this->config_to_xml($config);
+			$qemucmdline = $config['qemucmdline'];
+			$strXML = $this->appendqemucmdline($strXML,$qemucmdline) ;
 
 
 			// Start the VM now if requested
@@ -1698,7 +1706,7 @@
 			if (strpos($xml,'<qemu:commandline>')) {
 				$tmp = explode("\n", $xml);
 				for ($i = 0; $i < sizeof($tmp); $i++)
-					if (strpos('.'.$tmp[$i], "<domain type='kvm'"))
+					if (strpos('.'.$tmp[$i], "<domain type='kvm'") || strpos('.'.$tmp[$i], '<domain type="kvm"'))
 						$tmp[$i] = "<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>";
 				$xml = join("\n", $tmp);
 			}
