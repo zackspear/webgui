@@ -274,8 +274,8 @@ _(Search pattern)_:
 <!--!
 <style>div#dfm_editor{position:absolute;top:0;bottom:0;left:0;right:0}</style>
 <div id="dfm_editor"></div>
-<script src="<?autov('/plugins/dynamix.file.manager/javascript/ace/ace.js')?>"></script>
-<script src="<?autov('/plugins/dynamix.file.manager/javascript/ace/ext-modelist.js')?>"></script>
+<script src="<?autov('/webGui/javascript/ace/ace.js')?>"></script>
+<script src="<?autov('/webGui/javascript/ace/ext-modelist.js')?>"></script>
 <script>
 function getMode(file){
   var modelist = require('ace/ext/modelist');
@@ -291,7 +291,7 @@ editor.setOptions({
   theme:'ace/theme/<?if (in_array($theme,['black','gray'])):?>tomorrow_night<?else:?>tomorrow<?endif;?>'
 });
 timers.editor = setTimeout(function(){$('div.spinner.fixed').show();},500);
-$.post('/plugins/dynamix.file.manager/include/Control.php',{mode:'edit',file:encodeURIComponent(source)},function(data){
+$.post('/webGui/include/Control.php',{mode:'edit',file:encodeURIComponent(source)},function(data){
   clearTimeout(timers.editor);
   $('div.spinner.fixed').hide();
   editor.session.setValue(data);
@@ -303,7 +303,7 @@ $.post('/plugins/dynamix.file.manager/include/Control.php',{mode:'edit',file:enc
 <div id="dfm_templateViewFile">
 <!--!
 <img id="dfm_viewer" href="{$0}">
-<script src="<?autov('/plugins/dynamix.file.manager/javascript/EZView.js')?>"></script>
+<script src="<?autov('/webGui/javascript/EZView.js')?>"></script>
 <script>
 $('#dfm_viewer').EZView();
 $('#dfm_viewer').click();
@@ -316,7 +316,7 @@ $('#dfm_viewer').click();
 <style>div#dfm_jobs{position:absolute;top:0;bottom:0;left:0;right:0;line-height:3rem}</style>
 <div id="dfm_jobs"></div>
 <script>
-$.post('/plugins/dynamix.file.manager/include/Control.php',{mode:'jobs'},function(jobs){
+$.post('/webGui/include/Control.php',{mode:'jobs'},function(jobs){
   $('#dfm_jobs').html(jobs);
 });
 </script>
