@@ -1452,8 +1452,34 @@ private static $encoding = 'UTF-8';
 
 	function getClocks($xml) {
 		$clocks = new SimpleXMLElement($xml);
-		$clocks = $clocks->clock ;
-		return json_encode($clocks); ;
+		$clocks = json_decode(json_encode($clocks->clock),true) ;
+		$arrClocks = [
+			"offset" => $clocks['@attributes']['offset'] ,
+			"hpet" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"hypervclock" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"pit" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"rtc" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			]
+		] ;
+		foreach ($clocks['timer'] as $timer) {
+			$name = $timer["@attributes"]["name"] ;
+			$tickpolicy = $timer["@attributes"]["tickpolicy"] ;
+			$present = $timer["@attributes"]["present"] ;
+			if (isset($present)) $arrClocks[$name]['present'] = $present ;
+			if (isset($tickpolicy)) $arrClocks[$name]['tickpolicy'] = $tickpolicy ; 
+		}
+		return json_encode($arrClocks) ;
 	}
 
 	function getQEMUCmdLine($xml) {
