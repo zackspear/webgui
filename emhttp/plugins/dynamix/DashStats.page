@@ -1185,14 +1185,14 @@ function addProperties() {
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control tile' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
   });
   $('div.frame tr').attr('title','');
-  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.head').text(val);})});
+  $('tr#var0').hover(function(){if(!timers.var0){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.head').text(val);timers.var0=setTimeout(function(){timers.var0=null},5000);});}});
 <?if ($zfs):?>
-  $('tr#var1').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);})});
+  $('tr#var1').show().hover(function(){if(!timers.var1){$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);timers.var1=setTimeout(function(){timers.var1=null},5000);});}});
 <?endif;?>
-  $('tr#var2').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:2},function(val){$('.sys2').text(val);})});
-  $('tr#var3').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:3},function(val){$('.sys3').text(val);})});
+  $('tr#var2').hover(function(){if(!timers.var2){$.post('/webGui/include/DashboardApps.php',{sys:2},function(val){$('.sys2').text(val);timers.var2=setTimeout(function(){timers.var2=null},5000);});}});
+  $('tr#var3').hover(function(){if(!timers.var3){$.post('/webGui/include/DashboardApps.php',{sys:3},function(val){$('.sys3').text(val);timers.var3=setTimeout(function(){timers.var3=null},5000);});}});
 <?if ($dockerd):?>
-  $('tr#var4').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:4},function(val){$('.sys4').text(val);})});
+  $('tr#var4').show().hover(function(){if(!timers.var4){$.post('/webGui/include/DashboardApps.php',{sys:4},function(val){$('.sys4').text(val);timers.var4=setTimeout(function(){timers.var4=null},5000);});}});
 <?endif;?>
 }
 function showContent() {
