@@ -95,11 +95,18 @@ function ipaddr($ethX='eth0', $prot=4) {
   }
 }
 function no_tilde($name) {
-  global $_tilde_,$_proxy_;
+  global $_tilde_ ,$_proxy_;
   return str_replace($_tilde_,$_proxy_,$name);
 }
 function prefix($key) {
   return preg_replace('/\d+$/','',$key);
+}
+function native($name, $full=0) {
+  global $_tilde_, $_arrow_;
+  switch ($full) {
+    case 0: return str_replace($_tilde_," $_arrow_ ",$name);
+    case 1: return strpos($name,$_tilde_)!==false ? "$_arrow_ ".explode($_tilde_,$name)[1] : $name;
+  }
 }
 function isSubpool($name) {
   global $subpools, $_tilde_;
