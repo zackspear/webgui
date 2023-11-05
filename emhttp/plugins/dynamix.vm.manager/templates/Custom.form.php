@@ -1467,7 +1467,7 @@
 
 	<table class="timers">
 		<tr><td></td><td>_(Clocks)_</td></tr>
-		<tr><td>_(Clocks Offset)_:<?=$arrConfig['domain']['clock']?></td>
+		<tr><td>_(Clocks Offset)_:</td>
 		<td>
 			<?$clockdisabled = "" ;?>
 			<select name="domain[clock]" <?=$clockdisabled?> id="clockoffset" class="narrow" title="_(Clock Offset)_" <?=$arrConfig["domain"]['clock']?>> 
