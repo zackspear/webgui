@@ -292,6 +292,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
+			$_POST['clock'] = $arrDefaultClocks["other"] ;
 			if ($lv->domain_new($_POST)){
 				$reply = ['success' => true];
 			} else {
@@ -375,6 +376,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
+			$_POST['clock'] = $arrDefaultClocks["other"] ;
 			$arrExistingConfig = custom::createArray('domain',$strXML);
 			$arrUpdatedConfig = custom::createArray('domain',$lv->config_to_xml($_POST));
 			array_update_recursive($arrExistingConfig, $arrUpdatedConfig);
