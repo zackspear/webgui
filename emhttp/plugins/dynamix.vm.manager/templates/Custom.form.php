@@ -514,7 +514,7 @@
 		<tr class="advanced">
 			<td>_(Hyper-V)_:</td>
 			<td>
-				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_">
+				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_" 	<?if ($boolNew && $os_type == "windows"):?> onchange="HypervChgNew(this)" <?endif?>>
 				<?mk_dropdown_options([_('No'), _('Yes')], $arrConfig['domain']['hyperv']);?>
 				</select>
 			</td>
@@ -1488,14 +1488,14 @@
 		<td>
 						<span class="narrow" style="width: 50px"><?=ucfirst($i)?></span></td><td>
 						<span class="narrow" style="width: 50px">_(Present)_:</span>
-						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>]['present']" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
+						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
 						<?
 							echo mk_option($arrTimer["present"], 'yes', 'Yes');
 							echo mk_option($arrTimer["present"], 'no', "No");
 						?>
 						</select></td><td>
 						<span class="narrow" style="width: 50px">_(Tickpolicy)_:</span>
-						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>]['tickpolicy']" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
+						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
 						<?
 							echo mk_option($arrTimer["tickpolicy"], 'delay', 'Delay');
 							echo mk_option($arrTimer["tickpolicy"], 'catchup', 'Catchup');
@@ -1595,6 +1595,19 @@ function QEMUChgCmd(qemu) {
 			document.getElementById("qemucmdline").setAttribute("rows","15");
 		} else {
 			document.getElementById("qemucmdline").setAttribute("rows","2");
+		}
+}
+
+function HypervChgNew(hyperv) {
+		var value = hyperv.value;
+		if (value == "0") {
+			var clockdefault = "windows" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['windows']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['windows']['pit']['present']?>" ;
+		} else {
+			var clockdefault = "hyperv" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['hyperv']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['hyperv']['pit']['present']?>";
 		}
 }
 
