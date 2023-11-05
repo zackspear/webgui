@@ -470,7 +470,7 @@
 			*/
 
 			$clock = "<clock offset='" . $domain['clock'] . "'>" ;
-            foreach ($clocks as $clockname => $clockvalues) { 
+			foreach ($clocks as $clockname => $clockvalues) { 
 				switch ($clockname){
 					case "rtc":
 						if ($clockvalues['present'] == "yes") $clock .= "<timer name='rtc' tickpolicy='{$clockvalues['tickpolicy']}'/>";
@@ -484,7 +484,7 @@
 					case "hypervclock":
 						$clock .= "<timer name='hypervclock' present='{$clockvalues['present']}'/>" ;
 						break ;
-            	}
+				}
 			}
 			$hyperv = "" ;
 			if ($domain['hyperv'] == 1 && $os_type == "windows") {

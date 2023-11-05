@@ -1517,6 +1517,29 @@
 		Details can be found on the Libvirt XML page => <a href="https://libvirt.org/formatdomain.html#id25"  target="_blank">https://libvirt.org/formatdomain.html#id25 </a>
 		</p>
 	</blockquote>
+
+	<table>
+		<tr>
+			<td></td>
+			<td>
+			<?if (!$boolNew) {?>
+				<input type="hidden" name="updatevm" value="1" />
+				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
+			<?} else {?>
+				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
+				<br>
+				<input type="hidden" name="createvm" value="1" />
+				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
+			<?}?>
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
+			</td>
+		</tr>
+	</table>
+	<?if ($boolNew) {?>
+	<blockquote class="inline_help">
+		<p>Click Create to generate the vDisks and return to the Virtual Machines page where your new VM will be created.</p>
+	</blockquote>
+	<?}?>
 </div>
 
 <div class="xmlview">
