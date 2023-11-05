@@ -126,6 +126,15 @@ $(function() {
 <input type="hidden" name="#file" value="dynamix/dynamix.cfg">
 <input type="hidden" name="#section" value="display">
 <input type="hidden" name="rtl" value="<?=$display['rtl']?>">
+
+_(Display width)_:
+: <select name="width">
+  <?=mk_option($display['width'], "",_('Boxed'))?>
+  <?=mk_option($display['width'], "1",_('Unlimited'))?>
+  </select>
+
+:display_width_help:
+
 _(Language)_:
 : <select name="locale" class="fixed" onchange="updateDirection(this.value)">
 <?echo mk_option($display['locale'], "","English");

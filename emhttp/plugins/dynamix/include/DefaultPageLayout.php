@@ -49,6 +49,15 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/defaultpagelayout.css")?>">
 
 <style>
+<?if (empty($display['width'])):?>
+@media (max-width:1280px){#template{min-width:1260px;max-width:1260px;margin:0}}
+@media (min-width:1281px){#template{min-width:1260px;margin:0 10px}}
+@media (min-width:1921px){#template{min-width:1260px;max-width:1920px;margin:0 auto}}
+<?else:?>
+@media (max-width:1280px){#template{margin:0}}
+@media (min-width:1281px){#template{margin:0 10px}}
+@media (min-width:1921px){#template{margin:0 <?=$themes1?'20px':'auto'?>}
+<?endif;?>
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
 <?endif;?>
