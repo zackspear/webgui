@@ -1526,8 +1526,6 @@
 				<input type="hidden" name="updatevm" value="1" />
 				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
 			<?} else {?>
-				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
-				<br>
 				<input type="hidden" name="createvm" value="1" />
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<?}?>
