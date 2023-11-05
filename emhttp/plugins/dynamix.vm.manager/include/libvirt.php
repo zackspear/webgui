@@ -281,6 +281,7 @@
 			$pciboot = $config['pciboot'];
 			$audios = $config['audio'];
 			$template = $config['template'];
+			$clocks = $config['clock'];
 
 			$type = $domain['type'];
 			$name = $domain['name'];
@@ -442,6 +443,7 @@
 					break;
 			}
 
+			/*
 			if ($os_type == "windows") $hypervclock = "<timer name='hypervclock' present='yes'/>" ; else $hypervclock = "" ;
 
 			$clock = "<clock offset='" . $domain['clock'] . "'>
@@ -465,6 +467,42 @@
 							<timer name='hpet' present='no'/>
 						</clock>";
 			}
+			*/
+
+			$clock = "<clock offset='" . $domain['clock'] . "'>" ;
+            foreach ($clocks as $clockname => $clockvalues) { 
+				switch ($clockname){
+					case "rtc":
+						if ($clockvalues['present'] == "yes") $clock .= "<timer name='rtc' tickpolicy='{$clockvalues['tickpolicy']}'/>";
+						break ;
+					case "pit":
+						if ($clockvalues['present'] == "yes") $clock .= "<timer name='pit' tickpolicy='{$clockvalues['tickpolicy']}'/>";
+						break ;
+					case "hpet":
+						$clock .= "<timer name='hpet' present='{$clockvalues['present']}'/>" ;
+						break ;
+					case "hypervclock":
+						$clock .= "<timer name='hypervclock' present='{$clockvalues['present']}'/>" ;
+						break ;
+            	}
+			}
+			$hyperv = "" ;
+			if ($domain['hyperv'] == 1 && $os_type == "windows") {
+				$hyperv = "<hyperv>
+							<relaxed state='on'/>
+							<vapic state='on'/>
+							<spinlocks state='on' retries='8191'/>
+							<vendor_id state='on' value='none'/>
+						";
+
+						if ($clocks['hypervclock']['present'] == "yes") 
+						$hyperv .= "<vpindex state='on'/><synic state='on'/><stimer state='on'/>" ;
+						$hyperv .="</hyperv>";
+				#$clock = "<clock offset='" . $domain['clock'] . "'>
+				#			<timer name='hypervclock' present='yes'/>
+				#			<timer name='hpet' present='no'/>";
+			}
+			$clock .= "</clock>" ;
 
 			$usbstr = '';
 			if (!empty($usb)) {

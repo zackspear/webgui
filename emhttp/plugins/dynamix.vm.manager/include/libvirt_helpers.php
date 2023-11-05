@@ -650,6 +650,64 @@ private static $encoding = 'UTF-8';
 		]
 	];}
 
+	$arrDefaultClocks = [
+		"windows" => [ 
+			"hpet" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"hypervclock" => [
+				"present" => "yes",
+				"tickpolicy" => "delay"
+			],
+			"pit" => [
+				"present" => "yes",
+				"tickpolicy" => "delay"
+			],
+			"rtc" => [
+				"present" => "yes",
+				"tickpolicy" => "catchup"
+			]
+		], 
+		"hyperv" => [ 
+			"hpet" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"hypervclock" => [
+				"present" => "yes",
+				"tickpolicy" => "delay"
+			],
+			"pit" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"rtc" => [
+				"present" => "no",
+				"tickpolicy" => "catchup"
+			]
+		] ,
+		"other" => [ 
+			"hpet" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"hypervclock" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"pit" => [
+				"present" => "yes",
+				"tickpolicy" => "delay"
+			],
+			"rtc" => [
+				"present" => "yes",
+				"tickpolicy" => "catchup"
+			]
+		]
+	] ;
+
+
 	// Read configuration file (guaranteed to exist)
 	$domain_cfgfile = "/boot/config/domain.cfg";
 	$domain_cfg = parse_ini_file($domain_cfgfile);
@@ -1351,7 +1409,7 @@ private static $encoding = 'UTF-8';
 			foreach ($old['devices']['disk'] as $k => $d) if ($source==$d['source']['@attributes']['file']) $new['devices']['disk'][$key]['driver']['@attributes'] = $d['driver']['@attributes'];
 		}
 		// settings not in the GUI, but maybe customized
-		unset($new['clock']);
+		unset($old['clock']);
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
@@ -1454,7 +1512,6 @@ private static $encoding = 'UTF-8';
 		$clocks = new SimpleXMLElement($xml);
 		$clocks = json_decode(json_encode($clocks->clock),true) ;
 		$arrClocks = [
-			"offset" => $clocks['@attributes']['offset'] ,
 			"hpet" => [
 				"present" => "no",
 				"tickpolicy" => "delay"
@@ -1477,7 +1534,7 @@ private static $encoding = 'UTF-8';
 			$tickpolicy = $timer["@attributes"]["tickpolicy"] ;
 			$present = $timer["@attributes"]["present"] ;
 			if (isset($present)) $arrClocks[$name]['present'] = $present ;
-			if (isset($tickpolicy)) $arrClocks[$name]['tickpolicy'] = $tickpolicy ; 
+			if (isset($tickpolicy)) { $arrClocks[$name]['tickpolicy'] = $tickpolicy ; $arrClocks[$name]['present'] = 'yes' ; }
 		}
 		return json_encode($arrClocks) ;
 	}
