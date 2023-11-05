@@ -1300,7 +1300,9 @@ private static $encoding = 'UTF-8';
 			'pci' => $arrOtherDevices,
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
-			'shares' => $lv->domain_get_mount_filesystems($res)
+			'shares' => $lv->domain_get_mount_filesystems($res),
+			'qemucmdline' => getQEMUCmdLine($strDOMXML),
+			'clocks' => getClocks($strDOMXML)
 		];
 	}
 
@@ -1450,12 +1452,39 @@ private static $encoding = 'UTF-8';
 
 	function getClocks($xml) {
 		$clocks = new SimpleXMLElement($xml);
-		$clocks = $clocks->clock ;
-		return json_encode($clocks); ;
+		$clocks = json_decode(json_encode($clocks->clock),true) ;
+		$arrClocks = [
+			"offset" => $clocks['@attributes']['offset'] ,
+			"hpet" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"hypervclock" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"pit" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			],
+			"rtc" => [
+				"present" => "no",
+				"tickpolicy" => "delay"
+			]
+		] ;
+		foreach ($clocks['timer'] as $timer) {
+			$name = $timer["@attributes"]["name"] ;
+			$tickpolicy = $timer["@attributes"]["tickpolicy"] ;
+			$present = $timer["@attributes"]["present"] ;
+			if (isset($present)) $arrClocks[$name]['present'] = $present ;
+			if (isset($tickpolicy)) $arrClocks[$name]['tickpolicy'] = $tickpolicy ; 
+		}
+		return json_encode($arrClocks) ;
 	}
 
 	function getQEMUCmdLine($xml) {
 		$x = strpos($xml,"<qemu:commandline>", 0) ;
+		if ($x === false) return null ;
 		$y = strpos($xml,"</qemu:commandline>", 0)  ;
 		$z=$y ;
 		while ($y!=false) {

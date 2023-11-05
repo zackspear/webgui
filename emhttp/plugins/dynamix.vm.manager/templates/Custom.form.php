@@ -229,6 +229,7 @@
 				array_update_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$arrConfig = array_replace_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$xml = custom::createXML('domain',$arrConfig)->saveXML();
+				$xml = $lv->appendqemucmdline($xml,$_POST["qemucmdline"]) ;
 			} else {
 				echo json_encode(['error' => $error]);
 				exit;
@@ -291,6 +292,7 @@
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
+<input type="hidden" name="clocks" value="<?=htmlspecialchars($arrConfig['clocks'])?>">
 
 	<table>
 		<tr>
@@ -1418,6 +1420,20 @@
 
 	<table>
 		<tr>
+			<td>_(QEMU Command Line)_:</td>
+			<td>
+			<textarea id="qemucmdline" name="qemucmdline" rows=15 style="width: 850px"><?=htmlspecialchars($arrConfig['qemucmdline'])?></textarea></td></tr>
+			</td>
+		</tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>If you need to add QEMU arguments to the XML</p>
+		Examples can be found on the Libvirt page => <a href="https://libvirt.org/kbase/qemu-passthrough-security.html "  target="_blank">https://libvirt.org/kbase/qemu-passthrough-security.html </a>
+		</p>
+	</blockquote>
+
+	<table>
+		<tr>
 			<td></td>
 			<td>
 			<?if (!$boolNew) {?>
@@ -1950,7 +1966,7 @@ $(function() {
 			if (audio && !sound.includes(audio)) form.append('<input type="hidden" name="pci[]" value="'+audio+'#remove">');
 		});
 		<?endif?>
-		var postdata = form.find('input,select').serialize().replace(/'/g,"%27");
+		var postdata = form.find('input,select,textarea[name="qemucmdline"').serialize().replace(/'/g,"%27");
 		<?if (!$boolNew):?>
 		// keep checkbox visually unchecked
 		form.find('input[name="usb[]"],input[name="usbopt[]"],input[name="pci[]"]').each(function(){
