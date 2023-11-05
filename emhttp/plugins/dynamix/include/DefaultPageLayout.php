@@ -50,13 +50,13 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 
 <style>
 <?if (empty($display['width'])):?>
-@media (max-width:1280px){#template{min-width:1260px;max-width:1260px;margin:0}}
-@media (min-width:1281px){#template{min-width:1260px;margin:0 10px}}
-@media (min-width:1921px){#template{min-width:1260px;max-width:1920px;margin:0 auto}}
+@media (max-width:1280px){#display{min-width:1260px;max-width:1260px;margin:0}}
+@media (min-width:1281px){#display{min-width:1260px;margin:0 10px}}
+@media (min-width:1921px){#display{min-width:1260px;max-width:1920px;margin:0 auto}}
 <?else:?>
-@media (max-width:1280px){#template{margin:0}}
-@media (min-width:1281px){#template{margin:0 10px}}
-@media (min-width:1921px){#template{margin:0 <?=$themes1?'20px':'auto'?>}
+@media (max-width:1280px){#display{margin:0}}
+@media (min-width:1281px){#display{margin:0 10px}}
+@media (min-width:1921px){#display{margin:0 <?=$themes1?'20px':'auto'?>}
 <?endif;?>
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
@@ -623,7 +623,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
- <div id="template">
+ <div id="display">
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
