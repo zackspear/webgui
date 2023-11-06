@@ -1486,14 +1486,16 @@
 					?>
 		<tr><td><?=$clocksourcetext?></td>
 		<td>
-						<span class="narrow" style="width: 50px"><?=ucfirst($i)?></span></td><td>
-						<span class="narrow" style="width: 50px">_(Present)_:</span>
+						<span class="narrow" style="width: 50px"><?=ucfirst($i)?>:</span></td>
+						<td class="present">
+						<span>_(Present)_:</span>
 						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
 						<?
 							echo mk_option($arrTimer["present"], 'yes', 'Yes');
 							echo mk_option($arrTimer["present"], 'no', "No");
 						?>
-						</select></td><td>
+						</select></td>
+						<td>
 						<span class="narrow" style="width: 50px">_(Tickpolicy)_:</span>
 						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
 						<?
