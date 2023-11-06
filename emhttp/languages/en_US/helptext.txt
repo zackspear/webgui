@@ -1527,6 +1527,12 @@ The display settings below determine how items are displayed on screen. Use thes
 You can experiment with these settings as desired, they only affect visual properties.
 :end
 
+:display_width_help:
+**Boxed** is the legacy setting which constrains the content width to maximum 1920 pixels
+
+**Unlimited** allows content to use all available width, which maybe useful on wide screens
+:end
+
 :display_font_size_help:
 Changes the font size in the GUI. This is a per device setting.
 :end
