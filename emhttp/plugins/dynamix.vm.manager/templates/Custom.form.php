@@ -1482,7 +1482,7 @@
 					if (!empty($arrClocks)) {
 						foreach($arrClocks as $i => $arrTimer) {
 							if ($i =="offset") continue ;
-							if ($clockcount == 0)  $clocksourcetext = _("Clocks Source").":" ;else $clocksourcetext = "" ;
+							if ($clockcount == 0)  $clocksourcetext = _("Timer Source").":" ;else $clocksourcetext = "" ;
 					?>
 		<tr><td><?=$clocksourcetext?></td>
 		<td>
@@ -1515,8 +1515,13 @@
 		</tr>
 	</table>
 	<blockquote class="inline_help">
-		<p>Allows setting of timers and offset into the XML</p>
-		Details can be found on the Libvirt XML page => <a href="https://libvirt.org/formatdomain.html#id25"  target="_blank">https://libvirt.org/formatdomain.html#id25 </a>
+		<p>Allows setting of timers and offset into the XML You should not need to modify these values.</p>
+		<p>Windows tuning details can be found here <a href="https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/"  target="_blank">https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/ </a> </p>
+			<p>Details can be found on the Libvirt XML page => <a href="https://libvirt.org/formatdomain.html#time-keeping"  target="_blank">https://libvirt.org/formatdomain.html#time-keeping</a></p>
+			<p>Defaults are:	</p>
+			<p>linux Hpet:no Hypervclock: no Pit yes rtc yes tickpolicy catchup.	</p>
+			<p> Windows Hpet:no Hypervclock: yes Pit yes rtc yes tickpolicy catchup.	</p>
+			<p>Windows and Hyperv Hpet:no Hypervclock: yes Pit no rtc no.	</p>
 		</p>
 	</blockquote>
 
