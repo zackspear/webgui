@@ -275,6 +275,11 @@
 		$arrConfig['template']['os'] = ($arrConfig['domain']['clock']=='localtime' ? 'windows' : 'linux');
 	}
 	$os_type = ((empty($arrConfig['template']['os']) || stripos($arrConfig['template']['os'], 'windows') === false) ? 'other' : 'windows');
+	if (isset($arrConfig['clocks'])) $arrClocks = json_decode($arrConfig['clocks'],true) ; else {
+		if ($os_type == "windows") {
+			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv'] ; else $arrClocks = $arrDefaultClocks['windows'] ;
+		} else $arrClocks = $arrDefaultClocks['other'] ;
+	}
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -288,11 +293,9 @@
 <input type="hidden" name="template[os]" id="template_os" value="<?=htmlspecialchars($arrConfig['template']['os'])?>">
 <input type="hidden" name="domain[persistent]" value="<?=htmlspecialchars($arrConfig['domain']['persistent'])?>">
 <input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($arrConfig['domain']['uuid'])?>">
-<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
-<input type="hidden" name="clocks" value="<?=htmlspecialchars($arrConfig['clocks'])?>">
 
 	<table>
 		<tr>
@@ -511,7 +514,7 @@
 		<tr class="advanced">
 			<td>_(Hyper-V)_:</td>
 			<td>
-				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_">
+				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_" 	<?if ($boolNew && $os_type == "windows"):?> onchange="HypervChgNew(this)" <?endif?>>
 				<?mk_dropdown_options([_('No'), _('Yes')], $arrConfig['domain']['hyperv']);?>
 				</select>
 			</td>
@@ -1356,7 +1359,7 @@
 						<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
 						/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp
 						<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
-						<?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+						<?=htmlspecialchars(substr($arrDev['name'],0,100))?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 						<?
 						}
 					} else {
@@ -1418,19 +1421,7 @@
 		<p>Use boot order to set device as bootable and boot sequence. Only NVMe and Network devices (PCI types 0108 and 02xx) supported for boot order.</p>
 	</blockquote>
 
-	<table>
-		<tr>
-			<td>_(QEMU Command Line)_:</td>
-			<td>
-			<textarea id="qemucmdline" name="qemucmdline" rows=15 style="width: 850px"><?=htmlspecialchars($arrConfig['qemucmdline'])?></textarea></td></tr>
-			</td>
-		</tr>
-	</table>
-	<blockquote class="inline_help">
-		<p>If you need to add QEMU arguments to the XML</p>
-		Examples can be found on the Libvirt page => <a href="https://libvirt.org/kbase/qemu-passthrough-security.html "  target="_blank">https://libvirt.org/kbase/qemu-passthrough-security.html </a>
-		</p>
-	</blockquote>
+
 
 	<table>
 		<tr>
@@ -1442,6 +1433,106 @@
 			<?} else {?>
 				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 				<br>
+				<input type="hidden" name="createvm" value="1" />
+				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
+			<?}?>
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
+			</td>
+		</tr>
+	</table>
+	<?if ($boolNew) {?>
+	<blockquote class="inline_help">
+		<p>Click Create to generate the vDisks and return to the Virtual Machines page where your new VM will be created.</p>
+	</blockquote>
+	<?}?>
+
+	<table>
+	<tr>
+	<td></td>	<td>_(Advanced tuning options)_</td></tr>
+		<tr>
+			<td>_(QEMU Command Line)_:</td>
+			<?
+				if ($arrConfig['qemucmdline'] == "") $qemurows = 2 ; else $qemurows = 15 ;
+				?>
+			<td>
+			<textarea id="qemucmdline" name="qemucmdline" rows=<?=$qemurows?> style="width: 850px" onchange="QEMUChgCmd(this)"><?=htmlspecialchars($arrConfig['qemucmdline'])?> </textarea></td></tr>
+			</td>
+		</tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>If you need to add QEMU arguments to the XML</p>
+		Examples can be found on the Libvirt page => <a href="https://libvirt.org/kbase/qemu-passthrough-security.html "  target="_blank">https://libvirt.org/kbase/qemu-passthrough-security.html </a>
+		</p>
+	</blockquote>
+
+	<table class="timers">
+		<tr><td></td><td>_(Clocks)_</td></tr>
+		<tr><td>_(Clocks Offset)_:</td>
+		<td>
+			<?$clockdisabled = "" ;?>
+			<select name="domain[clock]" <?=$clockdisabled?> id="clockoffset" class="narrow" title="_(Clock Offset)_" <?=$arrConfig["domain"]['clock']?>> 
+				<?
+					echo mk_option($arrConfig['domain']['clock'], 'localtime', 'Localtime');
+					echo mk_option($arrConfig['domain']['clock'], 'utc', "UTC");
+				?>
+				</select>
+			</td>
+		</tr>
+					<?$clockcount = 0 ;
+					if (!empty($arrClocks)) {
+						foreach($arrClocks as $i => $arrTimer) {
+							if ($i =="offset") continue ;
+							if ($clockcount == 0)  $clocksourcetext = _("Timer Source").":" ;else $clocksourcetext = "" ;
+					?>
+		<tr><td><?=$clocksourcetext?></td>
+		<td>
+						<span class="narrow" style="width: 50px"><?=ucfirst($i)?>:</span></td>
+						<td class="present">
+						<span>_(Present)_:</span>
+						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
+						<?
+							echo mk_option($arrTimer["present"], 'yes', 'Yes');
+							echo mk_option($arrTimer["present"], 'no', "No");
+						?>
+						</select></td>
+						<td>
+						<span class="narrow" style="width: 50px">_(Tickpolicy)_:</span>
+						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
+						<?
+							echo mk_option($arrTimer["tickpolicy"], 'delay', 'Delay');
+							echo mk_option($arrTimer["tickpolicy"], 'catchup', 'Catchup');
+							echo mk_option($arrTimer["tickpolicy"], 'merge', "Merge");
+							echo mk_option($arrTimer["tickpolicy"], 'discard', "Discard");
+						?>
+						</select>
+						</td></tr>
+						<?
+							$clockcount++ ;
+						}
+					}
+					?>
+			</td>
+		</tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>Allows setting of timers and offset into the XML You should not need to modify these values.</p>
+		<p>Windows tuning details can be found here <a href="https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/"  target="_blank">https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/ </a> </p>
+			<p>Details can be found on the Libvirt XML page => <a href="https://libvirt.org/formatdomain.html#time-keeping"  target="_blank">https://libvirt.org/formatdomain.html#time-keeping</a></p>
+			<p>Defaults are:	</p>
+			<p>linux Hpet:no Hypervclock: no Pit yes rtc yes tickpolicy catchup.	</p>
+			<p> Windows Hpet:no Hypervclock: yes Pit yes rtc yes tickpolicy catchup.	</p>
+			<p>Windows and Hyperv Hpet:no Hypervclock: yes Pit no rtc no.	</p>
+		</p>
+	</blockquote>
+
+	<table>
+		<tr>
+			<td></td>
+			<td>
+			<?if (!$boolNew) {?>
+				<input type="hidden" name="updatevm" value="1" />
+				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
+			<?} else {?>
 				<input type="hidden" name="createvm" value="1" />
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<?}?>
@@ -1523,6 +1614,28 @@ function BIOSChange(bios) {
 			document.getElementById("USBBoottext").style.visibility="visible";
 			document.getElementById("domain_usbboot").style.display="inline";
 			document.getElementById("domain_usbboot").style.visibility="visible";
+		}
+}
+
+function QEMUChgCmd(qemu) {
+		var value = qemu.value;
+		if (value != "") {
+			document.getElementById("qemucmdline").setAttribute("rows","15");
+		} else {
+			document.getElementById("qemucmdline").setAttribute("rows","2");
+		}
+}
+
+function HypervChgNew(hyperv) {
+		var value = hyperv.value;
+		if (value == "0") {
+			var clockdefault = "windows" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['windows']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['windows']['pit']['present']?>" ;
+		} else {
+			var clockdefault = "hyperv" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['hyperv']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['hyperv']['pit']['present']?>";
 		}
 }
 
@@ -2043,6 +2156,7 @@ $(function() {
 		});
 	} else {
 		$('#vmform #domain_clock').val('utc');
+		$('#vmform #clockoffset').val('utc');
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('q35') != -1) {
 				$('#vmform #domain_machine').val($(this).val()).change();
