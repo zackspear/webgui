@@ -155,7 +155,6 @@ $webComponentTranslations = [
     '<p>Your license key file is corrupted or missing. The key file should be located in the /config directory on your USB Flash boot device.</p><p>If you do not have a backup copy of your license key file you may attempt to recover your key.</p><p>If this was an expired Trial installation, you may purchase a license key.</p>' => '<p>' . _('Your license key file is corrupted or missing.') . ' ' . _('The key file should be located in the /config directory on your USB Flash boot device') . '</p><p>' . _('If you do not have a backup copy of your license key file you may attempt to recover your key with your Unraid.net account') . '</p><p>' . _('If this was an expired Trial installation, you may purchase a license key.') . '</p>',
     'Invalid installation' => _('Invalid installation'),
     '<p>It is not possible to use a Trial key with an existing Unraid OS installation.</p><p>You may purchase a license key corresponding to this USB Flash device to continue using this installation.</p>' => '<p>' . _('It is not possible to use a Trial key with an existing Unraid OS installation') . '</p><p>' . _('You may purchase a license key corresponding to this USB Flash device to continue using this installation.') . '</p>',
-
     'No USB flash configuration data' => _('No USB flash configuration data'),
     '<p>There is a problem with your USB Flash device</p>' => '<p>' . _('There is a problem with your USB Flash device') . '</p>',
     'No Flash' => _('No Flash'),

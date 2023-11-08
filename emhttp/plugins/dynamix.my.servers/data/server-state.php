@@ -1,4 +1,4 @@
-<?PHP
+<?php
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 $var = (array)parse_ini_file('state/var.ini');
 

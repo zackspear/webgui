@@ -1,4 +1,7 @@
 <?php
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/plugins/dynamix.my.servers/include/reboot-details.php";
+
 // read flashbackup ini file
 $flashbackup_ini = '/var/local/emhttp/flashbackup.ini';
 $flashbackup_status = (file_exists($flashbackup_ini)) ? @parse_ini_file($flashbackup_ini) : [];
@@ -31,12 +34,21 @@ $configErrorEnum = [
 $osVersionBranch = trim(@exec('plugin category /var/log/plugins/unRAIDServer.plg') ?? 'stable');
 $registered = !empty($myservers['remote']['apikey']) && $connectPluginInstalled;
 
+/**
+ * Reboot detection
+ */
+// Create an instance of the RebootDetails class
+$rebootDetails = new RebootDetails();
+// Access the detected reboot type
+$rebootType = $rebootDetails->getRebootType();
+
 $serverState = [
     "apiKey" => $myservers['upc']['apikey'] ?? '',
     "apiVersion" => $myservers['api']['version'] ?? '',
     "avatar" => (!empty($myservers['remote']['avatar']) && $connectPluginInstalled) ? $myservers['remote']['avatar'] : '',
     "config" => [
         'valid' => ($var['configValid'] === 'yes'),
+        /** @todo remove error key value when config is valid */
         'error' => isset($configErrorEnum[$var['configValid']]) ? $configErrorEnum[$var['configValid']] : 'UNKNOWN_ERROR',
     ],
     "connectPluginInstalled" => $connectPluginInstalled,
@@ -65,6 +77,7 @@ $serverState = [
     "osVersion" => $var['version'],
     "osVersionBranch" => $osVersionBranch,
     "protocol" => $_SERVER['REQUEST_SCHEME'],
+    "rebootType" => $rebootType,
     "regDev" => @(int)$var['regDev'] ?? 0,
     "regGen" => @(int)$var['regGen'],
     "regGuid" => @$var['regGUID'] ?? '',
