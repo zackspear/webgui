@@ -15,14 +15,6 @@ Cond="_var($var,'fsState')!='Stopped' && _var($var,'shareUser')=='e'"
  * all copies or substantial portions of the Software.
  */
 ?>
-<style>
-table.share_status thead tr td:first-child{width:15%}
-table.share_status thead tr td:nth-child(n+3){width:9%!important}
-table.share_status thead tr td:nth-child(5){width:13%!important}
-td.empty{text-align:center;padding-top:12px}
-i.fa-fw{margin-right:2px}
-</style>
-
 <table class="share_status">
 <thead><tr><td>_(Name)_</td><td>_(Comment)_</td><td>_(SMB)_</td><td>_(NFS)_</td><td>_(Storage)_</td><td>_(Size)_</td><td>_(Free)_</td></tr></thead>
 <tbody id="shareslist"></tbody>

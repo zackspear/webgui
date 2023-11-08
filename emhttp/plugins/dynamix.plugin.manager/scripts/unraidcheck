@@ -12,8 +12,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
@@ -24,7 +23,7 @@ if (!function_exists('_')) {
 
 extract(parse_plugin_cfg('dynamix', true));
 
-$var     = @parse_ini_file('/var/local/emhttp/var.ini') ?: [];
+$var     = (array)@parse_ini_file('/var/local/emhttp/var.ini');
 $script  = "$docroot/webGui/scripts/notify";
 $server  = strtoupper(_var($var,'NAME','server'));
 $output  = _var($notify,'plugin');

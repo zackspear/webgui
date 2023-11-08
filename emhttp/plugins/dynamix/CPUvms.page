@@ -3,8 +3,8 @@ Title="CPU Pinning VM"
 Tag="icon-cpu"
 ---
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -41,14 +41,6 @@ function create() {
   echo "<th>$label</th>".implode(array_map(function($t){return "<th>$t</th>";},$text));
 }
 ?>
-<style>
-table.tablesorter tr>th+th{text-align:right;vertical-align:top}
-table.tablesorter tr>td+td+td{vertical-align:top}
-table.tablesorter tr>th+th+th,table.tablesorter tr>td+td{text-align:center}
-table.tablesorter th:first-child,table.tablesorter td:first-child{width:180px;text-align:left}
-input.flat{margin:0}
-input.lock{margin:0}
-</style>
 <script>
 String.prototype.strip = function(){return this.replace(/ |\(|\)|\[|\]/g,'');}
 String.prototype.encode = function(){return this.replace(/\./g,'%2e');}

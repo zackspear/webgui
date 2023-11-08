@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
- * Copyright 2012-2021, Bergware International.
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,13 +11,13 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+extract(parse_plugin_cfg('dynamix',true));
+
 // add translations
 $_SERVER['REQUEST_URI'] = '';
 require_once "$docroot/webGui/include/Translations.php";
-
-require_once "$docroot/webGui/include/Helpers.php";
-extract(parse_plugin_cfg('dynamix',true));
 
 [$luks,$size,$hash,$rng] = my_explode(',',exec("/usr/sbin/cryptsetup --help|tail -1"),4);
 $luks = str_replace('-plain64','',trim(explode(':',$luks)[1]));

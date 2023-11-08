@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,15 +12,16 @@
  */
 ?>
 <?
-	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+	require_once "$docroot/webGui/include/Helpers.php";
+	require_once "$docroot/webGui/include/Custom.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 	// add translations
 	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
 		$_SERVER['REQUEST_URI'] = 'vms';
 		require_once "$docroot/webGui/include/Translations.php";
 	}
-	require_once "$docroot/webGui/include/Helpers.php";
-	require_once "$docroot/webGui/include/Custom.php";
-	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 	$arrValidMachineTypes = getValidMachineTypes();
 	$arrValidGPUDevices = getValidGPUDevices();
@@ -53,6 +54,7 @@
 			'maxmem' => 1024 * 1024,
 			'password' => '',
 			'cpumode' => 'host-passthrough',
+			'cpumigrate' => 'on',
 			'vcpus' => 1,
 			'vcpu' => [0],
 			'hyperv' => 1,
@@ -227,6 +229,7 @@
 				array_update_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$arrConfig = array_replace_recursive($arrExistingConfig, $arrUpdatedConfig);
 				$xml = custom::createXML('domain',$arrConfig)->saveXML();
+				$xml = $lv->appendqemucmdline($xml,$_POST["qemucmdline"]) ;
 			} else {
 				echo json_encode(['error' => $error]);
 				exit;
@@ -272,6 +275,11 @@
 		$arrConfig['template']['os'] = ($arrConfig['domain']['clock']=='localtime' ? 'windows' : 'linux');
 	}
 	$os_type = ((empty($arrConfig['template']['os']) || stripos($arrConfig['template']['os'], 'windows') === false) ? 'other' : 'windows');
+	if (isset($arrConfig['clocks'])) $arrClocks = json_decode($arrConfig['clocks'],true) ; else {
+		if ($os_type == "windows") {
+			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv'] ; else $arrClocks = $arrDefaultClocks['windows'] ;
+		} else $arrClocks = $arrDefaultClocks['other'] ;
+	}
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -285,7 +293,6 @@
 <input type="hidden" name="template[os]" id="template_os" value="<?=htmlspecialchars($arrConfig['template']['os'])?>">
 <input type="hidden" name="domain[persistent]" value="<?=htmlspecialchars($arrConfig['domain']['persistent'])?>">
 <input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($arrConfig['domain']['uuid'])?>">
-<input type="hidden" name="domain[clock]" id="domain_clock" value="<?=htmlspecialchars($arrConfig['domain']['clock'])?>">
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
@@ -312,12 +319,25 @@
 		</blockquote>
 	</div>
 
+	<?
+				$migratehidden =  "disabled hidden" ;
+				if ($arrConfig['domain']['cpumode'] == 'host-passthrough') $migratehidden = "" ;
+	?>
+
 	<table>
 		<tr class="advanced">
-			<td>_(CPU Mode)_:</td>
+			<td><span class="advanced">_(CPU)_ </span>_(Mode)_:</td>
 			<td>
-				<select name="domain[cpumode]" title="_(define type of cpu presented to this vm)_">
+				<select id="cpu" name="domain[cpumode]" class="cpu" title="_(define type of cpu presented to this vm)_">
 				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'custom' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']);?>
+				</select>
+				<span class="advanced" id="domain_cpumigrate_text"<?=$migratehidden?>>_(Migratable)_:</span>
+
+				<select name="domain[cpumigrate]" id="domain_cpumigrate"  <?=$migratehidden?> class="narrow" title="_(define if migratable)_">
+				<?
+				echo mk_option($arrConfig['domain']['cpumigrate'], 'on', 'On');
+				echo mk_option($arrConfig['domain']['cpumigrate'], 'off', 'Off') ;
+				?>
 				</select>
 			</td>
 		</tr>
@@ -332,6 +352,10 @@
 			<p>
 				<b>Emulated</b><br>
 				If you are having difficulties with Host Passthrough mode, you can try the emulated mode which doesn't expose the guest to host-based CPU features.  This may impact the performance of your VM.
+			</p>
+			<p>
+				<b>Migratable</b><br>
+				Migratable attribute may be used to explicitly request such features to be removed from (on) or kept in (off) the virtual CPU. Off will not remove any host features when using Host Passthrough. Not support on emulated.
 			</p>
 		</blockquote>
 	</div>
@@ -380,10 +404,8 @@
 					}
 				?>
 				</select>
-			</td>
-
-			<td class="advanced">_(Max)_ _(Memory)_:</td>
-			<td class="advanced">
+	
+			<span class="advanced">_(Max)_ _(Memory)_:</span>		
 				<select name="domain[maxmem]" id="domain_maxmem" class="narrow" title="_(define the maximum amount of memory)_">
 				<?
 					echo mk_option($arrConfig['domain']['maxmem'], 128 * 1024, '128 MB');
@@ -396,7 +418,6 @@
 				?>
 				</select>
 			</td>
-			<td></td>
 		</tr>
 	</table>
 	<div class="basic">
@@ -449,13 +470,13 @@
 					}
 				?>
 				</select>
-			
-			<?			
+
+			<?
 			$usbboothidden =  "hidden" ;
 				if ($arrConfig['domain']['ovmf'] != '0') $usbboothidden = "" ;
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
-								
+
 				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options)_" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
@@ -493,7 +514,7 @@
 		<tr class="advanced">
 			<td>_(Hyper-V)_:</td>
 			<td>
-				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_">
+				<select name="domain[hyperv]" id="hyperv" class="narrow" title="_(Hyperv tweaks for Windows)_" 	<?if ($boolNew && $os_type == "windows"):?> onchange="HypervChgNew(this)" <?endif?>>
 				<?mk_dropdown_options([_('No'), _('Yes')], $arrConfig['domain']['hyperv']);?>
 				</select>
 			</td>
@@ -607,8 +628,8 @@
 							$boolShowAllDisks = (strpos($domain_cfg['DOMAINDIR'], '/mnt/user/') === 0);
 
 							if (!empty($arrDisk['new'])) {
-								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false || 
-									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] || 
+								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false ||
+									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] ||
 									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
 									$default_option = 'manual';
 								}
@@ -736,12 +757,12 @@
 				<b>vDisk Bus</b><br>
 				Select virtio for best performance.
 			</p>
-			
+
 			<p class="advanced">
 				<b>vDisk Boot Order</b><br>
 				Specify the order the devices are used for booting.
 			</p>
-			
+
 			<p class="advanced">
 				<b>vDisk Serial</b><br>
 				Set the device serial number presented to the VM.
@@ -837,7 +858,7 @@
 					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow">
 					<?mk_dropdown_options($arrValidDiskBuses, '');?>
 					</select>
-				
+
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				</td>
@@ -868,7 +889,7 @@
 				</select>
 				_(Unraid Share)_:
 				<select name="shares[<?=$i?>][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
-				    <?	$UnraidShareDisabled = ' disabled="disabled"' ; 
+				    <?	$UnraidShareDisabled = ' disabled="disabled"' ;
 					    $arrUnraidIndex = array_search("User:".$arrShare['target'],$arrUnraidShares) ;
 					    if ($arrUnraidIndex != false && substr($arrShare['source'],0,10) != '/mnt/user/') $arrUnraidIndex = false ;
 					    if ($arrUnraidIndex == false) $arrUnraidIndex = array_search("Disk:".$arrShare['target'],$arrUnraidShares) ;
@@ -876,11 +897,11 @@
 						mk_dropdown_options($arrUnraidShares, $arrUnraidIndex);?>
 				</select>
 				</td>
-				</tr>	
+				</tr>
 
 			<tr class="advanced">
-				<td> 
-					<text id="shares[<?=$i?>]sourcetext" > _(Unraid Source Path)_: </text> 
+				<td>
+					<text id="shares[<?=$i?>]sourcetext" > _(Unraid Source Path)_: </text>
 				</td>
 				<td>
 					<input type="text" <?=$UnraidShareDisabled?> id="shares[<?=$i?>][source]" name="shares[<?=$i?>][source]" autocomplete="off" data-pickfolders="true" data-pickfilter="NO_FILES_FILTER" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrShare['source'])?>" placeholder="_(e.g.)_ /mnt/user/..." title="_(path of Unraid share)_" />
@@ -903,7 +924,7 @@
 						Used to create a VirtFS mapping to a Linux-based guest.  Specify the mode you want to use either 9p or Virtiofs.
 					</p>
 
-					
+
 					<p>
 						<b>Unraid Share</b><br>
 						Set tag and path to match the selected Unraid share.
@@ -918,8 +939,8 @@
 						<b>Unraid Mount tag</b><br>
 						Specify the mount tag that you will use for mounting the VirtFS share inside the VM.  See this page for how to do this on a Linux-based guest: <a href="http://wiki.qemu.org/Documentation/9psetup" target="_blank">http://wiki.qemu.org/Documentation/9psetup</a>
 					</p>
-					<p>	
-						For Windows additional software needs to be installed: <a href="https://virtio-fs.gitlab.io/howto-windows.html" target="_blank">https://virtio-fs.gitlab.io/howto-windows.html</a>	
+					<p>
+						For Windows additional software needs to be installed: <a href="https://virtio-fs.gitlab.io/howto-windows.html" target="_blank">https://virtio-fs.gitlab.io/howto-windows.html</a>
 					</p>
 
 					<p>Additional devices can be added/removed by clicking the symbols to the left.</p>
@@ -939,12 +960,12 @@
 				</select>
 
 				_(Unraid Share)_:
-				
+
 				<select name="shares[{{INDEX}}][unraid]" class="disk_bus narrow"  onchange="ShareChange(this)" >
 					<?mk_dropdown_options($arrUnraidShares, '');?>
 				</select>
 				</td>
-				</tr>	
+				</tr>
 
 			<tr class="advanced">
 				<td>_(Unraid Source Path)_:</td>
@@ -975,7 +996,7 @@
 						if ($i == 0) {
 							// Only the first video card can be VNC or SPICE
 							echo mk_option($arrGPU['id'], 'virtual', _('Virtual'));
-							
+
 						} else {
 							echo mk_option($arrGPU['id'], '', _('None'));
 						}
@@ -985,10 +1006,21 @@
 						}
 					?>
 					</select>
+					<?
+					if ($arrGPU['id'] != 'virtual') $multifunction = "" ; else $multifunction =  " disabled " ;
+					?>
+					<span id="GPUMulti<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced gpumultiline<?=$i?>"   >_(Multifunction)_:</span>
+
+					<select id="GPUMultiSel<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced narrow gpumultiselect<?=$i?>" title="_(define Multifunctiion Support)_" <?=$multifunction?> >
+					<?
+						echo mk_option($arrGPU['guest']['multi'], 'off', 'Off');
+						echo mk_option($arrGPU['guest']['multi'], 'on', 'On');
+					?>
+					</select>
 				</td>
 			</tr>
 
-			<?if ($i == 0) { 
+			<?if ($i == 0) {
 				$hiddenport = $hiddenwsport = "hidden" ;
 				if ($arrGPU['autoport'] == "no"){
 				if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
@@ -1022,13 +1054,13 @@
 						echo mk_option($arrGPU['autoport'], 'no', _('No'));
 						?>
 					</select>
-				
+
 					<span id="Porttext"  <?=$hiddenport?>>_(VM Console Port)_:</span>
-				
+
 				    <input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"   title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
-				
+
 					<span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
-				
+
 				    <input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"   title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 			</tr>
@@ -1071,7 +1103,7 @@
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<b>Virtual video protocol VNC/SPICE</b><br>
-				If you wish to assign a protocol type, specify one here. 
+				If you wish to assign a protocol type, specify one here.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
@@ -1081,7 +1113,7 @@
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 				<b>Virtual auto port</b><br>
-				Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set. 
+				Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set.
 			</p>
 
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
@@ -1120,6 +1152,13 @@
 						foreach($arrValidGPUDevices as $arrDev) {
 							echo mk_option('', $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
 						}
+					?>
+					</select>
+					<span id="GPUMulti" name="gpu[{{INDEX}}][multi]"  >_(Multifunction)_:</span>
+					<select name="gpu[{{INDEX}}][multi]" class="narrow" title="_(define Multifunctiion Support)_" >
+					<?
+						echo mk_option("off", 'off', 'Off');
+						echo mk_option("off", 'on', 'On');
 					?>
 					</select>
 				</td>
@@ -1178,13 +1217,13 @@
 	</script>
 
 	<?	if ( $arrConfig['nic'] == false) {
-	  		$arrConfig['nic']['0'] = 
+	  		$arrConfig['nic']['0'] =
 			[
 				'network' => $domain_bridge,
 				'mac' => "",
 				'model' => 'virtio-net'
 			] ;
-		}	
+		}
 	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
@@ -1308,7 +1347,7 @@
 
 	<table>
 		<tr><td></td>
-		<td>_(Select)_&nbsp&nbsp_(Optional)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+		<td>_(Select)_&nbsp&nbsp_(Optional)_&nbsp&nbsp_(Boot Order)_</td></tr></div>
 		<tr>
 			<td>_(USB Devices)_:</td>
 			<td>
@@ -1318,9 +1357,9 @@
 						foreach($arrVMUSBs as $i => $arrDev) {
 						?>
 						<label for="usb<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="usb[]" id="usb<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if (count(array_filter($arrConfig['usb'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) echo 'checked="checked"';?>
-						/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp 
+						/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp
 						<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
-						<?=htmlspecialchars($arrDev['name'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+						<?=htmlspecialchars(substr($arrDev['name'],0,100))?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 						<?
 						}
 					} else {
@@ -1339,7 +1378,7 @@
 
 	<table>
 	<tr><td></td>
-		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div>
 		<tr>
 		<tr>
 			<td>_(Other PCI Devices)_:</td>
@@ -1355,14 +1394,14 @@
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
 								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
-									
+
 							} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 								//$extra .= ' disabled="disabled"';
 								continue;
 							}
 							$intAvailableOtherPCIDevices++;
 					?>
-						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
+						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp
 						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow pcibootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
@@ -1382,6 +1421,8 @@
 		<p>Use boot order to set device as bootable and boot sequence. Only NVMe and Network devices (PCI types 0108 and 02xx) supported for boot order.</p>
 	</blockquote>
 
+
+
 	<table>
 		<tr>
 			<td></td>
@@ -1392,6 +1433,106 @@
 			<?} else {?>
 				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 				<br>
+				<input type="hidden" name="createvm" value="1" />
+				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
+			<?}?>
+				<input type="button" value="_(Cancel)_" id="btnCancel" />
+			</td>
+		</tr>
+	</table>
+	<?if ($boolNew) {?>
+	<blockquote class="inline_help">
+		<p>Click Create to generate the vDisks and return to the Virtual Machines page where your new VM will be created.</p>
+	</blockquote>
+	<?}?>
+
+	<table>
+	<tr>
+	<td></td>	<td>_(Advanced tuning options)_</td></tr>
+		<tr>
+			<td>_(QEMU Command Line)_:</td>
+			<?
+				if ($arrConfig['qemucmdline'] == "") $qemurows = 2 ; else $qemurows = 15 ;
+				?>
+			<td>
+			<textarea id="qemucmdline" name="qemucmdline" rows=<?=$qemurows?> style="width: 850px" onchange="QEMUChgCmd(this)"><?=htmlspecialchars($arrConfig['qemucmdline'])?> </textarea></td></tr>
+			</td>
+		</tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>If you need to add QEMU arguments to the XML</p>
+		Examples can be found on the Libvirt page => <a href="https://libvirt.org/kbase/qemu-passthrough-security.html "  target="_blank">https://libvirt.org/kbase/qemu-passthrough-security.html </a>
+		</p>
+	</blockquote>
+
+	<table class="timers">
+		<tr><td></td><td>_(Clocks)_</td></tr>
+		<tr><td>_(Clocks Offset)_:</td>
+		<td>
+			<?$clockdisabled = "" ;?>
+			<select name="domain[clock]" <?=$clockdisabled?> id="clockoffset" class="narrow" title="_(Clock Offset)_" <?=$arrConfig["domain"]['clock']?>> 
+				<?
+					echo mk_option($arrConfig['domain']['clock'], 'localtime', 'Localtime');
+					echo mk_option($arrConfig['domain']['clock'], 'utc', "UTC");
+				?>
+				</select>
+			</td>
+		</tr>
+					<?$clockcount = 0 ;
+					if (!empty($arrClocks)) {
+						foreach($arrClocks as $i => $arrTimer) {
+							if ($i =="offset") continue ;
+							if ($clockcount == 0)  $clocksourcetext = _("Timer Source").":" ;else $clocksourcetext = "" ;
+					?>
+		<tr><td><?=$clocksourcetext?></td>
+		<td>
+						<span class="narrow" style="width: 50px"><?=ucfirst($i)?>:</span></td>
+						<td class="present">
+						<span>_(Present)_:</span>
+						<select name="clock[<?=$i?>][present]" <?=$clockdisabled?>  id="clock[<?=$i?>][present]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["present"]?>> 
+						<?
+							echo mk_option($arrTimer["present"], 'yes', 'Yes');
+							echo mk_option($arrTimer["present"], 'no', "No");
+						?>
+						</select></td>
+						<td>
+						<span class="narrow" style="width: 50px">_(Tickpolicy)_:</span>
+						<select name="clock[<?=$i?>][tickpolicy]" <?=$clockdisabled?>  id="clock[<?=$i?>][tickpolicy]" class="narrow" title="_(Clock Offset)_" <?=$arrTimer["tickpolicy"]?>> 
+						<?
+							echo mk_option($arrTimer["tickpolicy"], 'delay', 'Delay');
+							echo mk_option($arrTimer["tickpolicy"], 'catchup', 'Catchup');
+							echo mk_option($arrTimer["tickpolicy"], 'merge', "Merge");
+							echo mk_option($arrTimer["tickpolicy"], 'discard', "Discard");
+						?>
+						</select>
+						</td></tr>
+						<?
+							$clockcount++ ;
+						}
+					}
+					?>
+			</td>
+		</tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>Allows setting of timers and offset into the XML You should not need to modify these values.</p>
+		<p>Windows tuning details can be found here <a href="https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/"  target="_blank">https://forums.unraid.net/topic/134041-guide-optimizing-windows-vms-in-unraid/ </a> </p>
+			<p>Details can be found on the Libvirt XML page => <a href="https://libvirt.org/formatdomain.html#time-keeping"  target="_blank">https://libvirt.org/formatdomain.html#time-keeping</a></p>
+			<p>Defaults are:	</p>
+			<p>linux Hpet:no Hypervclock: no Pit yes rtc yes tickpolicy catchup.	</p>
+			<p> Windows Hpet:no Hypervclock: yes Pit yes rtc yes tickpolicy catchup.	</p>
+			<p>Windows and Hyperv Hpet:no Hypervclock: yes Pit no rtc no.	</p>
+		</p>
+	</blockquote>
+
+	<table>
+		<tr>
+			<td></td>
+			<td>
+			<?if (!$boolNew) {?>
+				<input type="hidden" name="updatevm" value="1" />
+				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
+			<?} else {?>
 				<input type="hidden" name="createvm" value="1" />
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<?}?>
@@ -1453,8 +1594,8 @@ function ShareChange(share) {
 			var path = "/mnt/" + strArray[1] ;
 		}
 		if (strArray[0] != "Manual") {
-		document.getElementById(name+"[target]").value = strArray[1] ;	
-		document.getElementById(name+"[source]").value = path ;	
+		document.getElementById(name+"[target]").value = strArray[1] ;
+		document.getElementById(name+"[source]").value = path ;
 		document.getElementById(name+"[target]").setAttribute("disabled","disabled");
 		document.getElementById(name+"[source]").setAttribute("disabled","disabled");
 		} else {
@@ -1476,6 +1617,28 @@ function BIOSChange(bios) {
 		}
 }
 
+function QEMUChgCmd(qemu) {
+		var value = qemu.value;
+		if (value != "") {
+			document.getElementById("qemucmdline").setAttribute("rows","15");
+		} else {
+			document.getElementById("qemucmdline").setAttribute("rows","2");
+		}
+}
+
+function HypervChgNew(hyperv) {
+		var value = hyperv.value;
+		if (value == "0") {
+			var clockdefault = "windows" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['windows']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['windows']['pit']['present']?>" ;
+		} else {
+			var clockdefault = "hyperv" ;
+			document.getElementById("clock[rtc][present]").value = "<?=$arrDefaultClocks['hyperv']['rtc']['present']?>" ;
+			document.getElementById("clock[pit][present]").value = "<?=$arrDefaultClocks['hyperv']['pit']['present']?>";
+		}
+}
+
 function SetBootorderfields(usbbootvalue) {
 	var bootelements = document.getElementsByClassName("bootorder");
 	for(var i = 0; i < bootelements.length; i++) {
@@ -1485,18 +1648,18 @@ function SetBootorderfields(usbbootvalue) {
 		} else bootelements[i].removeAttribute("disabled");
 	}
 	var bootelements = document.getElementsByClassName("pcibootorder");
-	const bootpcidevs = <? 	
+	const bootpcidevs = <?
 		$devlist = [] ;
 		foreach($arrValidOtherDevices as $i => $arrDev) {
 			if ($arrDev["typeid"] != "0108" && substr($arrDev["typeid"],0,2) != "02") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
 		}
 		echo json_encode($devlist) ;
-		?>  
+		?>
 
 	for(var i = 0; i < bootelements.length; i++) {
 		let bootpciid = bootelements[i].name.split('[') ;
 		bootpciid= bootpciid[1].replace(']', '') ;
-		
+
 		if (usbbootvalue == "Yes") {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
@@ -1534,7 +1697,7 @@ function AutoportChange(autoport) {
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
-		}	
+		}
 	}
 
 function ProtocolChange(protocol) {
@@ -1558,10 +1721,10 @@ function ProtocolChange(protocol) {
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
-		}	
+		}
 	}
-		
-	
+
+
 
 
 
@@ -1729,7 +1892,7 @@ $(function() {
 				var auto_serial = 'vdisk' + (index+1) ;
 				$disk_serial.val(auto_serial);
 
-			} 
+			}
 
 		});
 	};
@@ -1815,6 +1978,23 @@ $(function() {
 		}
 	});
 
+	$("#vmform").on("change", ".cpu", function changeCPUEvent() {
+		var myvalue = $(this).val();
+		var mylabel = $(this).children('option:selected').text();
+		var cpumigrate = document.getElementById("domain_cpumigrate_text") ;
+		var cpumigrate_text = document.getElementById("domain_cpumigrate") ;
+		if (myvalue == "custom") {
+			document.getElementById("domain_cpumigrate_text").style.visibility="hidden";
+			document.getElementById("domain_cpumigrate").style.visibility="hidden";
+		} else {
+			document.getElementById("domain_cpumigrate_text").style.display="inline";
+			document.getElementById("domain_cpumigrate_text").style.visibility="visible";
+			document.getElementById("domain_cpumigrate").style.display="inline";
+			document.getElementById("domain_cpumigrate").style.visibility="visible";
+		}
+
+	}) ;
+
 	$("#vmform").on("change", ".gpu", function changeGPUEvent() {
 		var myvalue = $(this).val();
 		var mylabel = $(this).children('option:selected').text();
@@ -1825,9 +2005,13 @@ $(function() {
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = true ;
 			} else {
 				slideUpRows($vnc_sections);
 				$vnc_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
+				var MultiSel = document.getElementById("GPUMultiSel0") ;
+				MultiSel.disabled = false ;
 			}
 		}
 
@@ -1895,7 +2079,7 @@ $(function() {
 			if (audio && !sound.includes(audio)) form.append('<input type="hidden" name="pci[]" value="'+audio+'#remove">');
 		});
 		<?endif?>
-		var postdata = form.find('input,select').serialize().replace(/'/g,"%27");
+		var postdata = form.find('input,select,textarea[name="qemucmdline"').serialize().replace(/'/g,"%27");
 		<?if (!$boolNew):?>
 		// keep checkbox visually unchecked
 		form.find('input[name="usb[]"],input[name="usbopt[]"],input[name="pci[]"]').each(function(){
@@ -1972,6 +2156,7 @@ $(function() {
 		});
 	} else {
 		$('#vmform #domain_clock').val('utc');
+		$('#vmform #clockoffset').val('utc');
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('q35') != -1) {
 				$('#vmform #domain_machine').val($(this).val()).change();

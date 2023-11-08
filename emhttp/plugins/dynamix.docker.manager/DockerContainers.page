@@ -7,8 +7,8 @@ Nchan="docker_load:stop"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -29,20 +29,7 @@ $cpus    = cpu_list();
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
-<style>
-.basic{display:block}
-.advanced{display:none;white-space:nowrap}
-.log{cursor:zoom-in}
-.exec{cursor:pointer}
-table#docker_containers{text-align:left}
-th.five{width:5%}
-th.nine{width:9%}
-th.load{width:140px}
-input.wait{width:24px;margin:0 4px;padding:0 5px;border:none;box-shadow:none;background-color:transparent}
-table tbody td{line-height:normal}
-i.mover{margin-right:8px;display:none}
-#resetsort{margin-left:12px;display:inline-block;width:32px}
-</style>
+
 <table id="docker_containers" class="tablesorter shift">
 <thead><tr><th><a id="resetsort" class="nohand" onclick="resetSorting()" title="_(Reset sorting)_"><i class="fa fa-th-list"></i></a>_(Application)_</th><th>_(Version)_</th><th>_(Network)_</th><th>_(Port Mappings)_ <small>(_(App to Host)_)</small></th><th>_(Volume Mappings)_ <small>(_(App to Host)_)</small></th><th class="load advanced">_(CPU & Memory load)_</th><th class="nine">_(Autostart)_</th><th class="five">_(Uptime)_</th></tr></thead>
 <tbody id="docker_list"><tr><td colspan='8'></td></tr></tbody>

@@ -81,13 +81,6 @@ function print_error($error) {
   return sprintf(_('Finding **%s** error'.($error==1?'':'s')),$error?:'0');
 }
 ?>
-<style>
-tr#copy,tr#file{display:none}
-td.gap{padding-left:26px!important}
-td.wrap{white-space:normal!important}
-span#pass{display:none;margin-left:20px}
-input[type=checkbox]{margin-left:0}
-</style>
 <script>
 var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
 
@@ -327,9 +320,9 @@ devices.on('message', function(msg,meta) {
     // stop updating when array is stopped
     if (stopped==1) {
 <?if (_var($var,'fsState')=='Started'):?>
-      setTimeout(refresh,0);
+      setTimeout(refresh);
 <?else:?>
-      if (!timers.stopped) timers.stopped = setTimeout(function(){devices.stop(); arraymonitor.start();},1000);
+      if (!timers.stopped) timers.stopped = setTimeout(function(){devices.stop(); arraymonitor.start();},1500);
 <?endif;?>
     }
     break;

@@ -27,7 +27,7 @@ $(function() {
 </script>
 <?endif;?>
 <?
-$myPage['text'] = $page['text'] = $pages['Vars']['text'] = $language = $text = $notes = $site = '...';
+$myPage['text'] = $page['text'] = $pages['Vars']['text'] = $language = $text = $notes = $site = $webComponentTranslations = '...';
 $globals = $GLOBALS;
 ksort($globals);
 if (isset($globals['_SERVER']['PHP_AUTH_PW'])) $globals['_SERVER']['PHP_AUTH_PW'] = "***";

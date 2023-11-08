@@ -28,13 +28,6 @@ fi
 # remove previous auto-populated docker template descriptions
 /usr/local/emhttp/plugins/dynamix.docker.manager/scripts/fixDescriptions
 
-# migrate settings from early unraid.net users
-CFG_OLD=/boot/config/plugins/Unraid.net
-CFG_NEW=/boot/config/plugins/dynamix.my.servers
-[[ -d "$CFG_OLD" ]] && [[ ! -d "$CFG_NEW" ]] && mv "$CFG_OLD" "$CFG_NEW"
-mkdir -p "$CFG_NEW"
-/usr/local/emhttp/plugins/dynamix.my.servers/scripts/cfgMigration
-
 # stating with 6.10 'USE_SSL="auto"' without a LE cert is invalid
 [[ ! -f /boot/config/ssl/certs/certificate_bundle.pem ]] && sed -i s/USE_SSL=\"auto\"/USE_SSL=\"no\"/ /boot/config/ident.cfg
 

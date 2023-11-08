@@ -1,5 +1,5 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
  * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
@@ -281,6 +281,7 @@
 			$pciboot = $config['pciboot'];
 			$audios = $config['audio'];
 			$template = $config['template'];
+			$clocks = $config['clock'];
 
 			$type = $domain['type'];
 			$name = $domain['name'];
@@ -369,6 +370,7 @@
 			$cpumode = '';
 			$cpucache = '';
 			$cpufeatures = '';
+			$cpumigrate = '';
 			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'host-passthrough') {
 				$cpumode .= "mode='host-passthrough'";
 				$cpucache = "<cache mode='passthrough'/>";
@@ -389,9 +391,11 @@
 					$intCores = $vcpus / $intCPUThreadsPerCore;
 					$intThreads = $intCPUThreadsPerCore;
 				}
+
+				if (!empty($domain['cpumigrate'])) $cpumigrate = " migratable='".$domain['cpumigrate']."'" ;
 			}
 
-			$cpustr = "<cpu $cpumode>
+			$cpustr = "<cpu $cpumode $cpumigrate>
 							<topology sockets='1' cores='{$intCores}' threads='{$intThreads}'/>
 							$cpucache
 							$cpufeatures
@@ -439,10 +443,14 @@
 					break;
 			}
 
+			/*
+			if ($os_type == "windows") $hypervclock = "<timer name='hypervclock' present='yes'/>" ; else $hypervclock = "" ;
+
 			$clock = "<clock offset='" . $domain['clock'] . "'>
 						<timer name='rtc' tickpolicy='catchup'/>
 						<timer name='pit' tickpolicy='delay'/>
 						<timer name='hpet' present='no'/>
+						$hypervclock
 					</clock>";
 
 			$hyperv = '';
@@ -459,6 +467,42 @@
 							<timer name='hpet' present='no'/>
 						</clock>";
 			}
+			*/
+
+			$clock = "<clock offset='" . $domain['clock'] . "'>" ;
+			foreach ($clocks as $clockname => $clockvalues) { 
+				switch ($clockname){
+					case "rtc":
+						if ($clockvalues['present'] == "yes") $clock .= "<timer name='rtc' tickpolicy='{$clockvalues['tickpolicy']}'/>";
+						break ;
+					case "pit":
+						if ($clockvalues['present'] == "yes") $clock .= "<timer name='pit' tickpolicy='{$clockvalues['tickpolicy']}'/>";
+						break ;
+					case "hpet":
+						$clock .= "<timer name='hpet' present='{$clockvalues['present']}'/>" ;
+						break ;
+					case "hypervclock":
+						$clock .= "<timer name='hypervclock' present='{$clockvalues['present']}'/>" ;
+						break ;
+				}
+			}
+			$hyperv = "" ;
+			if ($domain['hyperv'] == 1 && $os_type == "windows") {
+				$hyperv = "<hyperv>
+							<relaxed state='on'/>
+							<vapic state='on'/>
+							<spinlocks state='on' retries='8191'/>
+							<vendor_id state='on' value='none'/>
+						";
+
+						if ($clocks['hypervclock']['present'] == "yes") 
+						$hyperv .= "<vpindex state='on'/><synic state='on'/><stimer state='on'/>" ;
+						$hyperv .="</hyperv>";
+				#$clock = "<clock offset='" . $domain['clock'] . "'>
+				#			<timer name='hypervclock' present='yes'/>
+				#			<timer name='hpet' present='no'/>";
+			}
+			$clock .= "</clock>" ;
 
 			$usbstr = '';
 			if (!empty($usb)) {
@@ -732,6 +776,7 @@
 
 			$pcidevs='';
 			$gpudevs_used=[];
+			$multidevices = [] ; #Load?
 			$vmrc='';
 			$channelscopypaste = '';
 			if (!empty($gpus)) {
@@ -834,6 +879,15 @@
 						$strRomFile = "<rom file='".$gpu['rom']."'/>";
 					}
 
+					if ($gpu['multi'] == "on"){
+						$newgpu_bus = dechex(hexdec($gpu_bus) + 0x20) ;
+						if ($machine_type == "pc") $newgpu_slot = "0x01" ; else $newgpu_slot = "0x00" ; 
+						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x$newgpu_bus' slot='$newgpu_slot' function='0x".$gpu_function."' multifunction='on' />" ;
+						$multidevices[$gpu_bus] = "0x$gpu_bus" ;
+					}
+
+					
+
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'".$strXVGA.">
 									<driver name='vfio'/>
 									<source>
@@ -846,8 +900,8 @@
 					$gpudevs_used[] = $gpu['id'];
 				}
 			}
-
 			$audiodevs_used=[];
+			$strSpecialAddressAudio = "" ;
 			if (!empty($audios)) {
 				foreach ($audios as $i => $audio) {
 					// Skip duplicate audio devices
@@ -856,12 +910,20 @@
 					}
 
 					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
+					if ($audio_function != 0) {
+						if (isset($multidevices[$audio_bus]))	{
+							$newaudio_bus = dechex(hexdec($audio_bus) + 0x20) ;
+							if ($machine_type == "pc") $newaudio_slot = "0x01" ; else $newaudio_slot = "0x00" ; 
+							$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x$newaudio_bus' slot='$newaudio_slot'  function='0x".$audio_function."' />" ;
+						}
+					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x".$audio_bus."' slot='0x".$audio_slot."' function='0x".$audio_function."'/>
 									</source>
+									$strSpecialAddressAudio
 								</hostdev>";
 
 					$audiodevs_used[] = $audio['id'];
@@ -869,6 +931,7 @@
 			}
 
 			$pcidevs_used=[];
+			$strSpecialAddressOther = "" ;
 			if (!empty($pcis)) {
 				foreach ($pcis as $i => $pci_id) {
 					// Skip duplicate other pci devices
@@ -877,12 +940,22 @@
 					}
 					if ($vmclone) [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id['id']), 3);
 					else [$pci_bus, $pci_slot, $pci_function] = my_explode(":", str_replace('.', ':', $pci_id), 3);
+					
+					if ($pci_function != 0) {
+						if (isset($multidevices[$pci_bus]))	{
+							$newpci_bus = dechex(hexdec($pci_bus) + 0x20) ;
+							if ($machine_type == "pc") $newpci_slot = "0x01" ; else $newpci_slot = "0x00" ; 
+							$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='0x$newpci_bus' slot='$newpci_slot' function='0x".$pci_function."' />" ;
+						}
+					}
 
 					$pcidevs .= "<hostdev mode='subsystem' type='pci' managed='yes'>
 									<driver name='vfio'/>
 									<source>
 										<address domain='0x0000' bus='0x" . $pci_bus . "' slot='0x" . $pci_slot . "' function='0x" . $pci_function . "'/>
-									</source>" ;
+									</source>
+									$strSpecialAddressOther " ;
+
 					if (!empty($pciboot[$pci_id]) && !$vmclone) {
 						$pcidevs .= "<boot order='".$pciboot[$pci_id]."'/>" ;
 					}
@@ -952,6 +1025,12 @@
 
 		}
 
+		function appendqemucmdline($xml,$cmdline) {
+			$newxml = $xml ;
+			if ($cmdline != null) $newxml = str_replace("</domain>",$cmdline."\n</domain>",$xml) ;
+			return $newxml ;
+		}
+
 		function domain_new($config) {
 
 			// attempt to create all disk images if needed
@@ -975,6 +1054,8 @@
 
 			// generate xml for this domain
 			$strXML = $this->config_to_xml($config);
+			$qemucmdline = $config['qemucmdline'];
+			$strXML = $this->appendqemucmdline($strXML,$qemucmdline) ;
 
 
 			// Start the VM now if requested
@@ -1405,7 +1486,7 @@
 		}
 
 		//create a storage volume and add file extension
-		function volume_create($name, $capacity, $allocation, $format) {
+		/*function volume_create($name, $capacity, $allocation, $format) {
 			$capacity = $this->parse_size($capacity);
 			$allocation = $this->parse_size($allocation);
 			($format != 'raw' ) ? $ext = $format : $ext = 'img';
@@ -1422,7 +1503,7 @@
 
 			$tmp = libvirt_storagevolume_create_xml($pool, $xml);
 			return ($tmp) ? $tmp : $this->_set_last_error();
-		}
+		}*/
 
 		function get_hypervisor_name() {
 			$tmp = libvirt_connect_get_information($this->conn);
@@ -1666,7 +1747,7 @@
 			if (strpos($xml,'<qemu:commandline>')) {
 				$tmp = explode("\n", $xml);
 				for ($i = 0; $i < sizeof($tmp); $i++)
-					if (strpos('.'.$tmp[$i], "<domain type='kvm'"))
+					if (strpos('.'.$tmp[$i], "<domain type='kvm'") || strpos('.'.$tmp[$i], '<domain type="kvm"'))
 						$tmp[$i] = "<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>";
 				$xml = join("\n", $tmp);
 			}
@@ -2077,6 +2158,17 @@
 			return $var;
 		}
 
+		function domain_get_cpu_migrate($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/cpu/@migratable', false);
+			if (!$tmp)
+				return 'no';
+
+			$var = $tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+
 		function domain_get_vcpu($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/vcpu', false);
 			$var = $tmp[0];
@@ -2226,16 +2318,20 @@
 			$objNodes = $xpath->query('//domain/devices/hostdev[@type="pci"]');
 			if ($objNodes->length > 0) {
 				foreach ($objNodes as $objNode) {
-					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->value;
-					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->value;
-					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->value;
-					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->value;
+					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->nodeValue;
+					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->nodeValue;
+					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->nodeValue;
+					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->nodeValue;
 					$rom = $xpath->query('rom/@file', $objNode);
-					$rom = ($rom->length > 0 ? $rom->Item(0)->value : '');
-					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->value;
+					$rom = ($rom->length > 0 ? $rom->Item(0)->nodeValue : '');
+					$boot =$xpath->query('boot/@order', $objNode)->Item(0)->nodeValue;
 					$devid = str_replace('0x', '', 'pci_'.$dom.'_'.$bus.'_'.$slot.'_'.$func);
 					$tmp2 = $this->get_node_device_information($devid);
-
+					$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->nodeValue ? "on" : "off" ;
+					$guest["dom"]  = $xpath->query('address/@domain', $objNode)->Item(0)->nodeValue;
+					$guest["bus"]  = $xpath->query('address/@bus', $objNode)->Item(0)->nodeValue;
+					$guest["slot"] = $xpath->query('address/@slot', $objNode)->Item(0)->nodeValue;
+					$guest["func"] = $xpath->query('address/@function', $objNode)->Item(0)->nodeValue;
 					$devs[] = [
 						'domain' => $dom,
 						'bus' => $bus,
@@ -2247,7 +2343,8 @@
 						'product' => $tmp2['product_name'],
 						'product_id' => $tmp2['product_id'],
 						'boot' => $boot,
-						'rom' => $rom
+						'rom' => $rom,
+						'guest' => $guest
 					];
 				}
 			}
@@ -2602,7 +2699,7 @@
 		}
 
 		//change disk capacity
-		function disk_set_cap($disk, $cap) {
+		/*function disk_set_cap($disk, $cap) {
 			$xml = $this->domain_get_xml($domain);
 			$tmp = explode("\n", $xml);
 			for ($i = 0; $i < sizeof($tmp); $i++)
@@ -2612,7 +2709,7 @@
 			$xml = join("\n", $tmp);
 
 			return $this->domain_define($xml);
-		}
+		}*/
 
 		//change domain boot device
 		function domain_set_boot_device($domain, $bootdev) {

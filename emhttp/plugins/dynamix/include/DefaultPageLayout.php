@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$display['font'] = filter_var($_COOKIE['fontSize']??$display['font']??'',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 $theme   = strtok($display['theme'],'-');
 $header  = $display['header'];
 $backgnd = $display['background'];
@@ -46,7 +46,18 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.sweetalert.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/defaultpagelayout.css")?>">
+
 <style>
+<?if (empty($display['width'])):?>
+@media (max-width:1280px){#displaybox{min-width:1280px;max-width:1280px;margin:0}}
+@media (min-width:1281px){#displaybox{min-width:1280px;max-width:1920px;margin:0 <?=$themes1?'10px':'auto'?>}}
+@media (min-width:1921px){#displaybox{min-width:1280px;max-width:1920px;margin:0 auto}}
+<?else:?>
+@media (max-width:1280px){#displaybox{min-width:1280px;margin:0}}
+@media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'10px':'auto'?>}}
+@media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'20px':'auto'?>}}
+<?endif;?>
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
 <?endif;?>
@@ -64,16 +75,6 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?endif;?>
 <?endif;?>
-.inline_help{display:none}
-.upgrade_notice{position:fixed;top:24px;left:50%;margin-left:-480px;width:900px;height:38px;line-height:38px;color:#e68a00;background-color:#feefb3;border:#e68a00 1px solid;border-radius:38px;text-align:center;font-size:1.4rem;z-index:999}
-.upgrade_notice.done{color:#4f8a10;background-color:#dff2bf;border-color:#4f8a10}
-.upgrade_notice.alert{color:#f0000c;background-color:#ff9e9e;border-color:#f0000c}
-.upgrade_notice i{float:right;cursor:pointer}
-.back_to_top{display:none;position:fixed;bottom:30px;right:12px;color:#e22828;font-size:2.5rem;z-index:999}
-span.big.blue-text{cursor:pointer}
-span.strong.tour{margin-left:5px;padding-left:0}
-i.abortOps{font-size:2rem;float:right;margin-right:20px;margin-top:8px;cursor:pointer}
-pre#swalbody p{margin-block-end:1em}
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = _var($var,'safeMode')=='yes';
@@ -622,7 +623,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
- <div id="template">
+ <div id="displaybox">
   <div class="upgrade_notice" style="display:none"></div>
   <div id="header" class="<?=$display['banner']?>">
     <div class="logo">
@@ -680,6 +681,13 @@ if ($themes2) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
   annotate($button['file']);
+  // include page specific stylesheets (if existing)
+  $css = "/{$button['root']}/sheets/{$button['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css";
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+  // create page content
   eval('?>'.parse_text($button['text']));
 }
 unset($buttons,$button);
@@ -738,6 +746,13 @@ foreach ($pages as $page) {
   // create list of nchan scripts to be started
   if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
   annotate($page['file']);
+  // include page specific stylesheets (if existing)
+  $css = "/{$page['root']}/sheets/{$page['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css";
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+  // create page content
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
 }

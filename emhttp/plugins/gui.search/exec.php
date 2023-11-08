@@ -29,7 +29,7 @@ if ( $locale ) {
 	}
 }
 
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 $_SERVER['REQUEST_URI'] = $uri;
 $_SESSION['locale'] = $locale;

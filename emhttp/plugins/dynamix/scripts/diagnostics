@@ -18,20 +18,21 @@
 // if called from cli:
 //   anonymous: diagnostics
 //   all data:  diagnostics -a
+
 $opt = getopt('a',['all']);
 $all = isset($opt['a']) || isset($opt['all']);
 $zip = $all ? ($argv[2]??'') : ($argv[1]??'');
 $cli = empty($zip);
 
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
+
+$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 // global variables
 $path  = "/var/local/emhttp";
-$var   = @parse_ini_file("$path/var.ini") ?: [];
-$disks = @parse_ini_file("$path/disks.ini",true) ?: [];
+$var   = (array)@parse_ini_file("$path/var.ini");
+$disks = (array)@parse_ini_file("$path/disks.ini",true);
 $pools = pools_filter($disks);
 
 require_once "$docroot/webGui/include/CustomMerge.php";
@@ -354,8 +355,8 @@ if ($cli) {
 }
 
 // don't anonymize system share names
-$vardomain    = @parse_ini_file('/boot/config/domain.cfg') ?: [];
-$vardocker    = @parse_ini_file('/boot/config/docker.cfg') ?: [];
+$vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
 $showshares   = [];
 $customShares = '';
 if (!empty($vardomain['IMAGE_FILE']))             $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
@@ -495,7 +496,7 @@ foreach ($files as $file) {
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
 // create default user shares information
-$shares = @parse_ini_file("$path/shares.ini", true) ?: [];
+$shares = (array)@parse_ini_file("$path/shares.ini", true);
 foreach ($shares as $share) {
   $name = _var($share,'name');
   if ($name && !in_array("/boot/config/shares/$name.cfg",$files)) {

@@ -33,6 +33,7 @@ PRIVATE="/var/lib/samba/private"
 [[ $USE_NETBIOS == yes ]] && DENY6=1
 
 samba_running(){
+  sleep 0.1
   [[ $(pgrep -cf $SMBD) -gt 0 ]]
 }
 

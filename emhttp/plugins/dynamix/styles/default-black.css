@@ -1,8 +1,5 @@
 html{font-family:clear-sans;font-size:62.5%;height:100%}
 body{font-size:1.3rem;color:#f2f2f2;background-color:#1c1b1b;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-@media (max-width:1280px){#templsate{min-width:1260px;max-width:1260px;margin:0}}
-@media (min-width:1281px){#template{min-width:1260px;margin:0 10px}}
-@media (min-width:1921px){#template{min-width:1260px;max-width:1920px;margin:0 auto}}
 img{border:none;text-decoration:none;vertical-align:middle}
 p{text-align:justify}
 p.centered{text-align:left}
@@ -154,14 +151,15 @@ table.share_status tbody tr.warn{color:#e68a00}
 table.share_status.fixed tr>td+td{min-width:39px;font-size:1.1rem;text-align:center;padding:0}
 table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
-table.share_status.dashboard{margin:0;border:1px solid #2b2b2b}
-table.share_status.dashboard tbody{border:1px solid #2b2b2b}
-table.share_status.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
+table.share_status.dashboard{margin:0;border:none;background-color:#262626}
+table.share_status.dashboard tbody{border:1px solid #333333}
+table.share_status.dashboard tr:first-child td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
 table.share_status.dashboard tr:nth-child(even){background-color:transparent}
-table.share_status.dashboard tr:last-child>td{padding-bottom:20px}
-table.share_status.dashboard tr.last>td{padding-bottom:20px}
+table.share_status.dashboard tr:last-child td{padding-bottom:20px}
+table.share_status.dashboard tr.last td{padding-bottom:20px}
 table.share_status.dashboard tr.header td{padding-bottom:10px}
 table.share_status.dashboard td{padding:3px 10px}
+table.share_status.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1c1b1b}
 table.share_status.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 table.share_status.dashboard td div.section{display:inline-block;vertical-align:top;margin-left:4px;font-size:1.2rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 table.share_status.dashboard td div.section span{font-weight:normal;text-transform:none;letter-spacing:0;white-space:normal}
@@ -169,7 +167,8 @@ table.share_status.dashboard td span.info{float:right;margin-right:20px;font-siz
 table.share_status.dashboard td span.info.title{font-weight:bold}
 table.share_status.dashboard td span.load{display:inline-block;width:38px;text-align:right}
 table.share_status.dashboard td span.finish{float:right;margin-right:24px}
-table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;background-color:rgba(255,255,255,0.1);padding:2px}
+table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#262626;background-color:rgba(255,255,255,0.3);padding:2px;border-radius:5px}
+.dashboard-sortable{background-color:#1c1b1b}
 [name=arrayOps]{margin-top:12px}
 span.error{color:#f0000c;background-color:#ff9e9e;display:block;width:100%}
 span.warn{color:#e68a00;background-color:#feefb3;display:block;width:100%}
@@ -190,13 +189,16 @@ span.strong{font-weight:bold}
 span.big{font-size:1.4rem}
 span.small{font-size:1.2rem}
 span.outer{margin-bottom:20px;margin-right:0}
-span.outer.solid{background-color:#191818}
+span.outer.solid{background-color:#262626}
 span.hand{cursor:pointer}
 span.outer.started>img,span.outer.started>i.img{opacity:1.0}
 span.outer.stopped>img,span.outer.stopped>i.img{opacity:0.3}
 span.outer.paused>img,span.outer.paused>i.img{opacity:0.6}
 span.inner{display:inline-block;vertical-align:top}
 span.state{font-size:1.1rem;margin-left:7px}
+span.slots{display:inline-block;width:44rem;margin:0!important}
+span.slots-left{float:left;margin:0!important}
+input.subpool{float:right;margin:0}
 i.padlock{margin-right:8px;cursor:default;vertical-align:middle}
 i.nolock{visibility:hidden;margin-right:8px;vertical-align:middle}
 i.lock{margin-left:8px;cursor:default;vertical-align:middle}

@@ -28,6 +28,7 @@ create_xconsole(){
 }
 
 rsyslogd_running(){
+  sleep 0.1
   ps axc | grep -q ' rsyslogd'
 }
 

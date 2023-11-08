@@ -61,17 +61,15 @@ function popupWithIframe(title, cmd, reload, func) {
   $('#iframe-popup').dialog({
     autoOpen:true,
     title:title,
+    height: 600,
+    width: 900,
     draggable:true,
-    width: Math.min(Math.max(window.innerWidth/2,900),1600),
-    height: Math.max(window.innerHeight*3/5,600),
     resizable:true,
     modal:true,
-    show:{effect:'fade', duration:250},
-    hide:{effect:'fade', duration:250},
-    open:function(ev, ui) {
+    open:function(ev, ui){
       $('#myIframe').attr('src', cmd);
     },
-    close:function(event, ui) {
+    close:function(event, ui){
       if (reload && !$('#myIframe').contents().find('#canvas').length) {
         if (func) setTimeout(func+'()',0); else location = window.location.href;
       } else {
@@ -79,13 +77,13 @@ function popupWithIframe(title, cmd, reload, func) {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').text('X').prop('title',_('Close'));
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function execUpContainer(container) {
-  var title = _('Updating the container')+': '+container;
+  var title = _('Updating the container TEST')+': '+container;
   var cmd = '/plugins/dynamix.docker.manager/include/CreateDocker.php?updateContainer=true&ct[]='+encodeURIComponent(container);
   popupWithIframe(title, cmd, true, 'loadlist');
 }

@@ -1527,6 +1527,12 @@ The display settings below determine how items are displayed on screen. Use thes
 You can experiment with these settings as desired, they only affect visual properties.
 :end
 
+:display_width_help:
+**Boxed** is the legacy setting which constrains the content width to maximum 1920 pixels
+
+**Unlimited** allows content to use all available width, which maybe useful on wide screens
+:end
+
 :display_font_size_help:
 Changes the font size in the GUI. This is a per device setting.
 :end
@@ -1579,6 +1585,10 @@ Make sure any newly entered values represent the selected temperature unit.
 
 :vms_enable_help:
 Stopping the VM Manager will first attempt to shutdown all running VMs. After 60 seconds, any remaining VM instances will be terminated.
+:end
+
+:vms_disable_help:
+Stop VMs from Autostarting\Starting when VM Manager starts or open is run from the gui to start, error message will be seen.
 :end
 
 :vms_libvirt_volume_help:

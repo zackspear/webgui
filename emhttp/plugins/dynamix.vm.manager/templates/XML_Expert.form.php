@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,14 +12,15 @@
  */
 ?>
 <?
-	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+	require_once "$docroot/webGui/include/Helpers.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 	// add translations
 	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
 		$_SERVER['REQUEST_URI'] = 'vms';
 		require_once "$docroot/webGui/include/Translations.php";
 	}
-	require_once "$docroot/webGui/include/Helpers.php";
-	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 	$hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaration
 

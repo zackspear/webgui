@@ -5,8 +5,8 @@ Tag="icon-docker"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2014-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -106,31 +106,6 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<style>
-.errortext{color:#EF3D47;display:none;margin-left:20px}
-.fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
-.basic{display:inline-block}
-.advanced{display:none}
-select.mask{min-width:0;margin:0 10px 0 4px}
-select.net{min-width:0;margin:0 4px 0 2px}
-select option.hide{display:none}
-input.ip4{width:100px;margin:0 4px 0 1px}
-input.ip6{width:140px;margin:0 4px}
-input.gw4{width:100px;margin:0 4px 0 1px}
-input.gw6{width:160px;margin:0 4px}
-input.pool6{width:40px;margin:0 4px 0 1px}
-span.net{margin-left:4px;margin-right:2px}
-span.ip4{display:inline-block;width:260px}
-span.ip6{display:inline-block;width:310px}
-span.gw4{display:inline-block;width:200px}
-span.gw6{display:inline-block;width:270px}
-span.nonexist{margin-left:20px}
-<?if (strstr('white,azure',$display['theme'])):?>
-span.disabled{color:#B0B0B0}
-<?else:?>
-span.disabled{color:#404040}
-<?endif;?>
-</style>
 <span class="status vhshift"><input type="checkbox" class="advancedview"></span>
 
 <form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareDocker(this)">
@@ -257,16 +232,14 @@ _(Template Authoring Mode)_:
 
 :docker_authoring_mode_help:
 
-<?if ($bridge):?>
 _(Docker custom network type)_:
 : <select name="DOCKER_NETWORK_TYPE">
-  <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '1', _('ipvlan'))?>
-  <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '', _('macvlan'))?>
+  <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '1', _('ipvlan'), $bridge?'':'disabled')?>
+  <?=mk_option(_var($dockercfg,'DOCKER_NETWORK_TYPE'), '', _('macvlan'), $bridge?'':'selected')?>
   </select>&nbsp;_(Please read the Help carefully)_.  _(Misconfiguration can cause problems)_.
 
 :docker_custom_network_type_help:
 
-<?endif;?>
 _(Host access to custom networks)_:
 : <select name="DOCKER_ALLOW_ACCESS">
   <?=mk_option(_var($dockercfg,'DOCKER_ALLOW_ACCESS'), '', _('Disabled'))?>
@@ -465,13 +438,11 @@ _(Docker LOG rotation)_:
 
 :docker_log_rotation_active_help:
 
-<?if ($bridge):?>
 _(Docker custom network type)_:
-: <?=_var($dockercfg,'DOCKER_NETWORK_TYPE')=='1' ? _('ipvlan') : _('macvlan')?>
+: <?=_var($dockercfg,'DOCKER_NETWORK_TYPE')!='1' || !$bridge ? _('macvlan') : _('ipvlan')?>
 
 :docker_custom_network_type_help:
 
-<?endif;?>
 _(Host access to custom networks)_:
 : <?=_var($dockercfg,'DOCKER_ALLOW_ACCESS')=='yes' ? _('Enabled') : _('Disabled')?>
 

@@ -11,7 +11,9 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/Preselect.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'main';
@@ -19,8 +21,6 @@ require_once "$docroot/webGui/include/Translations.php";
 
 $disks = array_merge_recursive(@parse_ini_file('state/disks.ini',true)?:[], @parse_ini_file('state/devs.ini',true)?:[]);
 require_once "$docroot/webGui/include/CustomMerge.php";
-require_once "$docroot/webGui/include/Helpers.php";
-require_once "$docroot/webGui/include/Preselect.php";
 
 function normalize($text, $glue='_') {
   $words = explode($glue,$text);

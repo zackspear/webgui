@@ -13,6 +13,7 @@ DAEMON="ACPI power management daemon"
 . /etc/rc.d/rc.runlog
 
 acpid_running(){
+  sleep 0.1
   ps axc | grep -q ' acpid'
 }
 

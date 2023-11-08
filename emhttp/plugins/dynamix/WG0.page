@@ -27,7 +27,7 @@ exec("ip -br -6 addr show scope global|awk '/^(br|bond|eth)[0-9]+(\\.[0-9]+)?/{s
 exec("ls  --indicator-style=none $etc/wg*.conf*|grep -Po wg[0-9]+",$vtuns);
 exec("docker network ls --filter driver='macvlan' --filter driver='ipvlan' --format='{{.Name}}' 2>/dev/null",$filter);
 
-$nginx = @parse_ini_file('state/nginx.ini') ?: [];
+$nginx = (array)@parse_ini_file('state/nginx.ini');
 
 // add subnets defined in Docker custom networks
 if (count($filter)) {
@@ -138,21 +138,22 @@ $server    = ipaddr($ethX);
 $dnsserver = _var($$ethX,'DNS_SERVER1');
 
 $link      = iflink($ethX);
+$vhost     = str_replace(['eth','br','bond'],'vhost',$link);
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
 $postUp1   = "logger -t wireguard -- 'Tunnel WireGuard-<wg> started';$services";
-$postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE;iptables -t nat -A POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postUp3   = "iptables -N WIREGUARD_DROP_<WG>;iptables -A WIREGUARD -o $link -j WIREGUARD_DROP_<WG>";
 $postUpX   = "iptables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
 $postUpZ   = "iptables -A WIREGUARD_DROP_<WG> -s <source> -j ACCEPT;iptables -A WIREGUARD_DROP_<WG> -j RETURN";
-$postUp26  = "ip6tables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postUp26  = "ip6tables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE;ip6tables -t nat -A POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postUp36  = "ip6tables -N WIREGUARD_DROP_<WG>;ip6tables -A WIREGUARD -o $link -j WIREGUARD_DROP_<WG>";
 $postUpX6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -d <target> -j DROP";
 $postUpZ6  = "ip6tables -A WIREGUARD_DROP_<WG> -s <source> -j ACCEPT;ip6tables -A WIREGUARD_DROP_<WG> -j RETURN";
 $postDown0 = "$script del $link <port> udp";
 $postDown1 = "logger -t wireguard -- 'Tunnel WireGuard-<wg> stopped';$services";
-$postDown2 = "iptables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postDown2 = "iptables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE;iptables -t nat -D POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postDown3 = "iptables -F WIREGUARD_DROP_<WG>;iptables -D WIREGUARD -o $link -j WIREGUARD_DROP_<WG>;iptables -X WIREGUARD_DROP_<WG>";
-$postDown26= "ip6tables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE";
+$postDown26= "ip6tables -t nat -D POSTROUTING -s <source> -o $link -j MASQUERADE;ip6tables -t nat -D POSTROUTING -s <source> -o $vhost -j MASQUERADE";
 $postDown36= "ip6tables -F WIREGUARD_DROP_<WG>;ip6tables -D WIREGUARD -o $link -j WIREGUARD_DROP_<WG>;ip6tables -X WIREGUARD_DROP_<WG>";
 
 $tld       = @file_get_contents("$docroot/webGui/include/tld.key")?:'';
@@ -211,39 +212,7 @@ foreach ($vtuns as $wgX) {
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<style>
-dt{width:22%}
-span.even{float:right;display:inline-block;width:150px;margin-top:3px}
-span.even.wide{width:200px}
-span.pin{float:right;margin:-40px 12px 0 0;clear:both;display:inline-block;width:400px;text-align:right}
-span[class^=rx]{margin-right:40px}
-span.hshift{margin-right:<?=$themes1?'-7':'11'?>px!important}
-span.vshift{margin-top:-2px!important}
-span.label{font-size:1.1rem;text-transform:uppercase;letter-spacing:1px;margin-left:<?=$themes1?'-12':'-4'?>px}
-span.input{display:inline-block;width:420px}
-span.access-type{display:inline-block;width:35%;white-space:normal}
-@media(max-width:1920px){span.access-type{width:20%}}
-span.block{display:inline-block;width:48%;white-space:normal}
-div.shade-white{background-color:#ededed;margin-top:10px;padding:8px 0 3px 0}
-div.shade-black{background-color:#212121;margin-top:10px;padding:8px 0 3px 0}
-div.shade-azure{background-color:#edeaef;margin-top:10px;padding:8px 0 3px 0}
-div.shade-gray{background-color:#121510;margin-top:10px;padding:8px 0 3px 0}
-div.title{margin-bottom:10px!important}
-div[id^=block-wg]{margin-bottom:30px}
-div.preset{margin:8px 0;float:right}
-input.wide{width:360px}
-input.subnet{width:150px;margin-right:4px}
-input.mask{width:30px}
-input.port{width:50px}
-input.form,button.form{font-size:1rem;min-width:0;padding:5px 8px;margin:0}
-input.ok{color:#f2f2f2;background:#4f8a10}
-input.nok{color:#f2f2f2;background:#f0000c}
-select.subnet{min-width:150px}
-i.fa-fw{margin-left:5px}
-i.key-off{opacity:0.3;cursor:default!important}
-input:user-invalid {border-bottom-color:#E22828;}
-input:-moz-ui-invalid {border-bottom-color:#E22828;}
-</style>
+
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script>
 <?if ($build):?>
@@ -252,7 +221,7 @@ refresh();
 Number.prototype.long2ip = function(){return [this>>>24,this>>>16&255,this>>>8&255,this&255].join('.');}
 String.prototype.ip2long = function(){var ip=this.split('.');return (ip[0]<<24)+(ip[1]<<16)+(ip[2]<<8)+(ip[3]*1);}
 String.prototype.desc    = function(){return this.substr(this.lastIndexOf('/'));}
-String.prototype.patch   = function(s,t){return t?this.replace(/<source>/,s).replace(/<target>/,t):this.replace(/<source>/,s);}
+String.prototype.patch   = function(s,t){return t?this.replace(/<source>/g,s).replace(/<target>/,t):this.replace(/<source>/g,s);}
 Array.prototype.bind     = function(w){return (this.join(';')).replace(/<WG>/g,w).replace(/,/g,';');}
 
 var xml = $.cookie('upnp')||'<?=@file_get_contents('/var/tmp/upnp')?>';

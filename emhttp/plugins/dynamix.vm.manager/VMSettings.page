@@ -5,8 +5,8 @@ Tag="columns"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -51,7 +51,7 @@ function detect(&$syslinux, $key) {
   return $value;
 }
 $syslinux          = file('/boot/syslinux/syslinux.cfg',FILE_IGNORE_NEW_LINES+FILE_SKIP_EMPTY_LINES);
-$arrValidNetworks   = getValidNetworks();
+$arrValidNetworks  = getValidNetworks();
 $pcie_acs_override = detect($syslinux, 'pcie_acs_override');
 $vfio_allow_unsafe = detect($syslinux, 'allow_unsafe_interrupts');
 $bgcolor           = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
@@ -61,21 +61,6 @@ $libvirt_log       = file_exists("/var/log/libvirt/libvirtd.log");
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<style>
-body{-webkit-overflow-scrolling:touch}
-.errortext{color:#EF3D47;display:none}
-.fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:absolute;z-index:100;display:none}
-.basic{display:block}
-.advanced{display:none}
-#winvirtio{display:none}
-#download_status{margin-left:5px;color:#777;display:none}
-#download_button{cursor:pointer;margin-left:-2px;color:#08C;display:none;transform:translate(0px,2px)}
-#download_button.fa-spin{cursor:default;color:#777}
-#download_button span{font-family:clear-sans}
-#download_button.fa-spin span{font-family:clear-sans;display:none}
-#remove_button{cursor:pointer;margin-left:-2px;color:#EF3D47;display:none;transform:translate(0px,2px)}
-#remove_button span{font-family:clear-sans}
-</style>
 
 <?if ($hardware):?>
 <span class="status vhshift"><input type="checkbox" class="advancedview"></span>
@@ -98,6 +83,14 @@ _(Enable VMs)_:
   <?endif;?>
 
 :vms_enable_help:
+
+_(Disable Autostart/Start option for VMs)_:
+: <select id="DISABLE" name="DISABLE">
+  <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'no', _('No'))?>
+  <?= mk_option(htmlspecialchars($domain_cfg['DISABLE']), 'yes', _('Yes'))?>
+  </select>
+
+:vms_disable_help:
 
 <?if ($hardware):?>
 <div class="advanced" markdown="1">
@@ -233,7 +226,7 @@ _(VFIO allow unsafe interrupts)_:
 _(btrfs filesystem show)_:
 : <?="<pre id='btrfs-scrub'>".shell_exec("btrfs filesystem show /etc/libvirt")."</pre>"?>
 
-<form markdown="1" method="POST" action="/update.php" target="progressFrame"  onsubmit="prepareFS(this,'btrfs-scrub-vm','/etc/libvirt'>">
+<form markdown="1" method="POST" action="/update.php" target="progressFrame"  onsubmit="prepareFS(this,'btrfs-scrub-vm','/etc/libvirt')>">
 <?exec("$docroot/webGui/scripts/btrfs_scrub status /etc/libvirt", $scrub_status, $retval);?>
 _(btrfs scrub status)_:
 : <?="<pre>".implode("\n", $scrub_status)."</pre>"?>

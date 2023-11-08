@@ -52,10 +52,9 @@ function customTiles($column) {
 // adjust the text color in log window
 $fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
 exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
-
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$dockerd);
 exec("/etc/rc.d/rc.libvirt status >/dev/null",$dummy,$libvirtd);
-$domain_cfg = parse_ini_file("/boot/config/domain.cfg");
+
 $dockerd = $dockerd==0;
 $libvirtd = $libvirtd==0;
 $apcupsd = file_exists('/var/run/apcupsd.pid');
@@ -173,66 +172,7 @@ switch ($display['theme']) {
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
-<style>
-div.frame{padding-top:14px;padding-bottom:160px}
-div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(<?=$themes1?'610px':'580px'?>,1fr));column-gap:20px}
-div.tile,i.tile{display:none}
-div#iframe-popup{display:none;-webkit-overflow-scrolling:touch}
-div.last{padding-bottom:12px}
-div.leftside{float:left;width:66%}
-div.rightside{float:right;margin:0;text-align:center}
-div[id$=chart]{margin:-12px 8px -24px -18px}
-div.template,div#dialogWindow,input#upload{display:none}
-span.green,span.red,span.orange{padding-left:0}
-span.ctrl{float:right;margin-top:0;margin-right:10px}
-span.ctrl span{font-size:2rem!important}
-span.outer{float:left}
-span.inner{width:143px}
-span.rx{width:80px;display:inline-block}
-span.busy,i.inactive{opacity:0.5}
-span.dense{width:180px;display:inline-block}
-span#ups_model{margin-right:30px}
-span#chart-toggle{float:right}
-span.header,tr.header{font-size:1.1rem!important;text-transform:uppercase;letter-spacing:1px}
-span.wg1{font-size:1.1rem;text-indent:24px}
-span.wg2{font-size:1.1rem}
-span[id^=cpu],span[id^=sys]{width:0}
-span[class^="fa "]{font-size:1.6rem;margin-right:18px}
-span.load{font-size:85%}
-span.fan{width:36%;display:inline-block}
-span.w18{width:18%;display:inline-block;float:left}
-span.w26{width:26%;display:inline-block;float:left}
-span.w36{width:36%;display:inline-block;float:left}
-span.w44{width:44%;display:inline-block;float:left}
-span.w72{width:72%;display:inline-block;float:left}
-select#cpuline,select#netline{border:none;padding:0 12px 0 0}
-select[name=enter_share]{margin-top:0}
-img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
-i.heat{margin-left:8px}
-i.ups{margin-right:8px;font-size:1.4rem!important}
-i.vpn{font-size:1.4rem!important;cursor:pointer}
-i.indent{display:inline-block;width:18px}
-i.f32{font-size:32px!important}
-i.f14{font-size:1.4rem!important}
-i.fa.orb{margin-left:0}
-i.fa-wrench.tile{color:#0099ff!important;background-color:rgba(0,153,255,0.1)!important}
-i[class^="icon-"]{font-size:1.6rem;margin-right:8px}
-i[class^="icon-u-"]{font-size:inherit}
-i#mycase[class^="case-"]{font-size:128px}
-i#mycase[class^="fa "]{font-size:96px}
-a.cpu_close,span.hand{cursor:pointer;z-index:1001}
-tr#var0,tr#var1,tr#var2,tr#var3,tr#var4{cursor:alias}
-tr#var1,tr#var4,tr#cpu_chart,.cpu_open{display:none}
-td.none{text-align:center;padding-top:12px}
-input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
-.share1,.share3,.user1,.user3,.view1,.view2,.view3,.view4,.unused{display:none}
-.port_view,.control,#apps,#vms{z-index:10000}
-.flat{height:0;lineheight:0}
-.wrap{white-space:normal}
-.switch-button-background{margin-left:0;margin-top:4px}
-.switch-button-label{margin-top:3px}
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled]{cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%}
-</style>
+
 <script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.docker.manager/javascript/docker.js')?>"></script>
@@ -244,7 +184,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 <table id='db-box1' class='share_status dashboard'>
 <tbody class='system'>
 <tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
-<span><?=_var($var,'COMMENT')?></span><br></div>
+<span><?=_var($var,'COMMENT')?></span><span id="_current_time_" class="head_time"></span><br></div>
 <a href='/Dashboard/Settings/Identification'><i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i></a><i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
 <span class='ctrl'>
 <?if ($parity||$mover||$btrfs):?>
@@ -258,6 +198,7 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </td></tr>
 <tr><td>
 <div class='leftside'>
+<a href="/Settings/DateTime" class="hand none" title="_(Go to date and time settings)_"><span id="current_time"></span></a><br><span id="current_date"></span><br><br>
 <span class='header'><i class='indent fa fa-file-text-o'></i>_(Model)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?:'---'?><br><br>
 <span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
@@ -287,11 +228,13 @@ input[value=Edit]{margin:12px 0 0 0;padding:5px 10px}
 </tbody>
 
 <tbody title="_(Processor Information)_" data="toggleCPU(true)">
-<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br><span id='cpu-temp'></span><br></div>
+<tr><td><i class='icon-cpu f32'></i><div class='section'>_(Processor)_<br>
+<span class="head_info"><span id='cpu-temp'></span></span>
+<span id="head_cpu">_(Load)_:<span class="head_bar"><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='_cpu_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><?=$cpumodel?></td></tr>
-<tr><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
+<tr><td><span class='w26'>_(Overall Load)_:</span><span class='w72'><span class='cpu load resize'>0%</span><div class='usage-disk sys'><span id='cpu'></span><span></span></div></span></td></tr>
 <tr id='cpu_main'><td><a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a><span id='chart-toggle'>
 <span><select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
 <?=mk_option("","10", _("10 s"));?>
@@ -305,9 +248,9 @@ foreach ($cpus as $pair) {
   [$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
   echo "<tr class='cpu_open'>";
   if ($cpu2)
-    echo "<td><span class='w26'>CPU $cpu1 - HT $cpu2</span><span class='dashboard w36'><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span><span class='dashboard w36'><span class='cpu$cpu2 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></span></td>";
+    echo "<td><span class='w26'>CPU $cpu1 - HT $cpu2</span><span class='dashboard w36'><span class='cpu$cpu1 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span><span class='dashboard w36'><span class='cpu$cpu2 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu2'></span><span></span></div></span></td>";
   else
-    echo "<td><span class='w26'>CPU $cpu1</span><span class='w72'><span class='cpu$cpu1 load'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span></td>";
+    echo "<td><span class='w26'>CPU $cpu1</span><span class='w72'><span class='cpu$cpu1 load resize'>0%</span><div class='usage-disk sys'><span id='cpu$cpu1'></span><span></span></div></span></td>";
   echo "</tr>";
 }
 ?>
@@ -315,26 +258,27 @@ foreach ($cpus as $pair) {
 </tbody>
 
 <tbody title="_(Memory Utilization)_">
-<tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span><br></div>
+<tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br>
+<span class="head_info"><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span></span>
+<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='sys0 load head'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
-<tr id='var0'><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
-<tr id='var1'><td><span class='w26'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_</span><span class='w72'><span class='sys1 load'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
-<tr id='var2'><td><span class='w26'><i class='ups fa fa-fw fa-suitcase'></i>_(Flash)_</span><span class='w72'><span class='sys2 load'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
-<tr id='var3'><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys3 load'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
-<tr id='var4'><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys4 load'>0%</span><div class='usage-disk sys'><span id='sys4'></span><span></span></div></span></td></tr>
+<tr id='var0'><td><span class='w26'><i class='ups fa fa-fw fa-microchip'></i>_(RAM)_</span><span class='w72'><span class='sys0 load resize'>0%</span><div class='usage-disk sys'><span id='sys0'></span><span></span></div></span></td></tr>
+<tr id='var1'><td><span class='w26'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_</span><span class='w72'><span class='sys1 load resize'>0%</span><div class='usage-disk sys'><span id='sys1'></span><span></span></div></span></td></tr>
+<tr id='var2'><td><span class='w26'><i class='ups fa fa-fw fa-pencil-square'></i>_(Flash)_</span><span class='w72'><span class='sys2 load resize'>0%</span><div class='usage-disk sys'><span id='sys2'></span><span></span></div></span></td></tr>
+<tr id='var3'><td><span class='w26'><i class='ups fa fa-fw fa-file-text'></i>_(Log)_</span><span class='w72'><span class='sys3 load resize'>0%</span><div class='usage-disk sys'><span id='sys3'></span><span></span></div></span></td></tr>
+<tr id='var4'><td><span class='w26'><i class='ups fa fa-fw fa-docker'></i>_(Docker)_</span><span class='w72'><span class='sys4 load resize'>0%</span><div class='usage-disk sys'><span id='sys4'></span><span></span></div></span></td></tr>
 </tbody>
 
 <tbody title="_(Interface Information)_" class="mixed">
-<tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_<br>
-<span><span class='dense'><i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span></span><span class='dense'><i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span></span>
-<i class='ups fa fa-angle-right'></i><select name="port_select" onchange="portSelect(this.value)">
+<tr><td><i class='icon-ethernet f32'></i><div class='section'>_(Interface)_
+<span class="head_gap"><i class='ups fa fa-angle-double-right'></i><select name="port_select" onchange="portSelect(this.value)">
 <?foreach ($ports as $port):?>
 <?=mk_option("",$port,_($port))?>
 <?endforeach;?>
-</select></span>
-<br></div>
+</select></span><br>
+<span class='head_info'><i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span></span><span><i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span></span><br></div>
 <a href='/Dashboard/Settings/NetworkSettings' title="_(Go to network settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w26'><select name="enter_view" onchange="changeView(this.value)">
@@ -376,7 +320,7 @@ foreach ($ports as $port) {
 
 <?if ($wireguard):?>
 <tbody title="_(VPN Connections)_">
-<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='dense'><i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br></div>
+<tr><td><i class='icon-vpn f32'></i><div class='section'>_(VPN)_<br><span><span class='head_info'><i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span></span><i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span></span><br></div>
 <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <?foreach ($conf as $wg):?>
@@ -392,8 +336,9 @@ foreach ($ports as $port) {
 
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
-<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<br>
-<span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span><br></div>
+<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<span class='head_gap' id='_ups_status_'></span><br>
+<span class="head_info"><span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span></span>
+<span id="head_ups"><span>_(Load)_:</span><span class="head_gap" id='_ups_loadpct_'></span></span></span><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-fw fa-plug'></i>_(UPS status)_:</span><span id='ups_status'></span></td></tr>
@@ -449,7 +394,8 @@ echo "</td></tr>";
 <?if ($dockerd && ($display['dashapps']=='icons' || $display['dashapps']=='docker')):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
-<span class='apps'><input type='checkbox' id='apps'></span><br></div>
+<span id="tile_apps"><span class='apps'><input type='checkbox' id='apps'></span></span>
+<span id="head_apps"></span><br></div>
 <a href='/Dashboard/Settings/DockerSettings' title="_(Go to Docker settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -457,7 +403,8 @@ echo "</td></tr>";
 <?if ($libvirtd && ($display['dashapps']=='icons' || $display['dashapps']=='vms')):?>
 <tbody id='vm_view' title="_(Virtual Machines)_" data="noVMs()">
 <tr><td><i class='icon-virtualization f32'></i><div class='section'>_(Virtual Machines)_<br>
-<span class='vms'><input type='checkbox' id='vms'></span><br></div>
+<span id="tile_vms"><span class='vms'><input type='checkbox' id='vms'></span></span>
+<span id="head_vms"></span><br></div>
 <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -467,14 +414,14 @@ echo "</td></tr>";
 <tbody title="_(Shares Information)_"<?if ($group):?> class="mixed"<?endif;?>>
 <tr><td><i class='icon-folder f32'></i><div class='section'>_(Shares)_
 <?if ($group):?>
-<select name="enter_share" onchange="changeMode(this.value)">
+<span class="head_gap"><i class='ups fa fa-angle-double-right'></i><select name="enter_share" onchange="changeMode(this.value)">
 <?if (_var($var,'shareSMBEnabled')=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
 <?if (_var($var,'shareNFSEnabled')=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
-</select>
+</select></span>
 <?endif;?>
 <br><span>
 <?=sprintf(_("Share count: %s with %s cache only and %s encrypted"),count($shares),$cache_only,$encrypted)?>
@@ -525,14 +472,14 @@ if (!$group) {
 <tbody title="_(Users Information)_"<?if ($group):?> class="mixed"<?endif;?>>
 <tr><td><i class='icon-users f32'></i><div class='section'>_(Users)_
 <?if ($group):?>
-<select name="enter_user" class="unused">
+<span class="head_gap"><i class='ups fa fa-angle-double-right unused'></i><select name="enter_user" class="unused">
 <?if (_var($var,'shareSMBEnabled')=='yes'):?>
 <?=mk_option("", "0", "SMB")?>
 <?endif;?>
 <?if (_var($var,'shareNFSEnabled')=='yes'):?>
 <?=mk_option("", "2", "NFS")?>
 <?endif;?>
-</select>
+</select></span>
 <?endif;?>
 <br><span>
 <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
@@ -623,7 +570,7 @@ if (!$group) {
 <?$i=0?>
 <?foreach ($pools as $pool):?>
 <tbody id='pool_list<?=$i?>' title="_(<?=ucfirst($pool)?> Information)_">
-<tr><td><i class='icon-disk f32'></i><div class='section'><?=ucfirst($pool)?><?if (!$started):?> (_(stopped)_)<?endif;?><br>
+<tr><td><i class='icon-disk f32'></i><div class='section'><?=_(native($pool),3).($started ? '' : ' ('._('stopped').')')?><br>
 <span><?if ($started):?><?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?><?endif;?></span><br></div>
 <a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
@@ -652,6 +599,7 @@ if (!$group) {
 <input type='hidden' name='csrf_token' value='<?=_var($var,'csrf_token')?>'>
 <input type='hidden' name='cmd' value=''>
 </form>
+
 <div id="iframe-popup"></div>
 
 <div id="templateContentMgmt" class="template">
@@ -678,9 +626,11 @@ function hideShow() {
     var id = tbody.parent().prop('id');
     if ($(this).prop('checked')) {
       tbody.show();
+      tbody.prev().show();
       count[id]++;
     } else {
       tbody.hide();
+      tbody.prev().hide();
       inactive.push(sort[n]);
     }
     n++;
@@ -700,6 +650,25 @@ function hideShow() {
 !-->
 </div>
 
+<div id="templateClone" class="template">
+<table class="snapshot">
+<tr><td>_(VM Being Cloned)_:</td><td><span id="VMBeingCloned"></span></td></tr>
+<tr><td>_(New VM)_:</td><td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+<tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
+<tr hidden><td>_(Start Cloned VM)_:</td><td><input type="checkbox" id="Start" value="" ></td></tr>
+<tr hidden><td>_(Edit VM after clone)_:</td><td><input type="checkbox" id="Edit" value="" ></td></tr>
+<tr><td>_(Check Free Space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
+</table>
+</div>
+
+<div id="templatesnapshotcreate" class="template">
+<table id="snapshot" class="snapshot">
+<tr><td>_(VM Name)_:</td><td><label id="VMName"></label></td></tr>
+<tr><td>_(Snapshot Name)_:</td><td><input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">_(Check free space)_:<input type="checkbox" id="targetsnapfspc" checked></td></tr>
+<tr><td>_(Description)_:</td><td><input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+</table>
+</div>
+
 <script>
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
@@ -707,7 +676,7 @@ String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');
 String.prototype.md5 = function() {
   // Original copyright (c) Paul Johnston & Greg Holt.
   var hc = '0123456789abcdef';
-  function rh(n){var j,s='';for(j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
+  function rh(n){var j,s='';for (j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
   function ad(x,y){var l=(x&0xFFFF)+(y&0xFFFF);var m=(x>>16)+(y>>16)+(l>>16);return (m<<16)|(l&0xFFFF);}
   function rl(n,c){return (n<<c)|(n>>>(32-c));}
   function cm(q,a,b,x,s,t){return ad(rl(ad(ad(a,q),ad(x,t)),s),b);}
@@ -716,12 +685,12 @@ String.prototype.md5 = function() {
   function hh(a,b,c,d,x,s,t){return cm(b^c^d,a,b,x,s,t);}
   function ii(a,b,c,d,x,s,t){return cm(c^(b|(~d)),a,b,x,s,t);}
   function sb(x) {
-    var i;var nblk=((x.length+8)>>6)+1;var blks=new Array(nblk*16);for(i=0;i<nblk*16;i++) blks[i]=0;
-    for(i=0;i<x.length;i++) blks[i>>2]|=x.charCodeAt(i)<<((i%4)*8);
+    var i;var nblk=((x.length+8)>>6)+1;var blks=new Array(nblk*16);for (i=0;i<nblk*16;i++) blks[i]=0;
+    for (i=0;i<x.length;i++) blks[i>>2]|=x.charCodeAt(i)<<((i%4)*8);
     blks[i>>2]|=0x80<<((i%4)*8);blks[nblk*16-2]=x.length*8;return blks;
   }
   var i,x=sb(''+this),a=1732584193,b=-271733879,c=-1732584194,d=271733878,olda,oldb,oldc,oldd;
-  for(i=0;i<x.length;i+=16) {olda=a;oldb=b;oldc=c;oldd=d;
+  for (i=0;i<x.length;i+=16) {olda=a;oldb=b;oldc=c;oldd=d;
     a=ff(a,b,c,d,x[i+ 0], 7, -680876936);d=ff(d,a,b,c,x[i+ 1],12, -389564586);c=ff(c,d,a,b,x[i+ 2],17,  606105819);
     b=ff(b,c,d,a,x[i+ 3],22,-1044525330);a=ff(a,b,c,d,x[i+ 4], 7, -176418897);d=ff(d,a,b,c,x[i+ 5],12, 1200080426);
     c=ff(c,d,a,b,x[i+ 6],17,-1473231341);b=ff(b,c,d,a,x[i+ 7],22,  -45705983);a=ff(a,b,c,d,x[i+ 8], 7, 1770035416);
@@ -755,9 +724,15 @@ jQuery.prototype.hideMe = function() {
 jQuery.prototype.mixedView = function(s) {
   if (s==0) {
     this.find('tr:gt(0)').hide();
+    this.find('span[id^="head_"]').show();
+    this.find('span[id^="tile_"]').hide();
+    changeSpan(this,0)
     return;
   }
   this.find('tr:gt(0)').show();
+  this.find('span[id^="head_"]').hide();
+  this.find('span[id^="tile_"]').show();
+  changeSpan(this,1)
   if (this.attr('data')) {
     setTimeout(this.attr('data'));
   }
@@ -768,6 +743,28 @@ jQuery.prototype.mixedView = function(s) {
       var names = ($(this).attr('class')||'').split(' ');
       for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide();
     });
+  }
+}
+function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates = false) {
+  // Some browser states leave multi-value cookies with nulls, empties or duplicates.
+  // This function cleans up any such cookies so that they do not break functionality.
+  try {
+    var uncleanCookie = $.cookie(cookieName);
+    if (uncleanCookie) {
+      uncleanCookie = uncleanCookie.split(delimiter);
+      var cleanCookie = uncleanCookie.filter(n => n);
+      if (removeDuplicates) { cleanCookie = [...new Set(cleanCookie)]; }
+      if (JSON.stringify(uncleanCookie) !== JSON.stringify(cleanCookie)) {
+        $.cookie(cookieName,cleanCookie.join(delimiter),{expires:3650});
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } catch (ex) {
+    return false;
   }
 }
 
@@ -782,6 +779,7 @@ var netline = $.cookie('netline')||30;
 var update2 = true;
 var box     = null;
 var startup = true;
+var stopgap = '<thead class="stopgap"><tr><td class="stopgap"></td></tr></thead>';
 
 var options_cpu = {
   series:[{name:'load', data:cpu.slice()}],
@@ -815,63 +813,6 @@ var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 
 if ($.cookie('port_select')!=null && !ports.includes($.cookie('port_select'))) $.removeCookie('port_select');
 var port_select = $.cookie('port_select')||ports[0];
-
-function selectsnapshot(uuid, name ,snaps, opt, getlist){
-  var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
-  var match= ".iso";
-  var box = $("#dialogWindow2");
-  box.html($("#templatesnapshot"+opt).html());
-  var height = 200;
-  const Capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
-  var optiontext = Capopt + " Snapshot";
-  box.find('#VMName').html(name);
-  box.find('#targetsnap').val(snaps);
-  box.find('#targetsnapl').html(snaps);
-  if (getlist) {
-    var only = (opt == "remove") ? 0 : 1;
-    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
-  }
- document.getElementById("targetsnapfspc").checked = true;
-  box.dialog({
-    title: "_("+optiontext+ ")_",
-    resizable: false,
-    width: 600,
-    height: 500,
-    modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
-    buttons: {
-      "_(Proceed)_": function(){
-        var target = box.find('#targetsnap');
-        if (target.length) {
-          target = target.val();
-          if (!target) {errorTarget(); return;}
-        } else target = '';
-        var remove = 'yes';
-        var removemeta = 'yes';
-        var keep = 'yes';
-        var free = 'yes';
-        var desc = '';
-        box.find('#targetsnap').prop('disabled',true);
-        if (opt == "revert") {
-          remove = box.find('#targetsnaprmv').prop('checked') ? 'yes' : 'no';
-          removemeta = box.find('#targetsnaprmvmeta').prop('checked') ? 'yes' : 'no';
-          keep = box.find('#targetsnapkeep').prop('checked') ? 'yes' : 'no';
-        }
-        if (opt == "create") {
-          free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
-          desc = box.find("#targetsnapdesc").prop('value');
-        }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, desc:desc}, "loadlist");
-        box.dialog('close');
-      },
-      "_(Cancel)_": function(){
-        box.dialog('close');
-      }
-    }
-  });
-  dialogStyle();
-}
 
 function initCharts(clear) {
   $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
@@ -974,6 +915,14 @@ function loadlist(init) {
     $('#docker_view').append(data[0]).hideMe();
     $('#vm_view tr.updated').remove();
     $('#vm_view').append(data[1]).hideMe();
+    var started_apps = $('#docker_view').find('span.outer.apps.started').length;
+    var stopped_apps = $('#docker_view').find('span.outer.apps.stopped').length;
+    var paused_apps  = $('#docker_view').find('span.outer.apps.paused').length;
+    var started_vms  = $('#vm_view').find('span.outer.vms.started').length;
+    var stopped_vms  = $('#vm_view').find('span.outer.vms.stopped').length;
+    var paused_vms   = $('#vm_view').find('span.outer.vms.paused').length;
+    $('#head_apps').html("_(Containers)_ -- _(Started)_: "+started_apps+", _(Stopped)_: "+stopped_apps+", _(Paused)_: "+paused_apps);
+    $('#head_vms').html("_(VMs)_ -- _(Started)_: "+started_vms+", _(Stopped)_: "+stopped_vms+", _(Paused)_: "+paused_vms);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,noApps());
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,noVMs());
   });
@@ -1009,6 +958,13 @@ function changeMode(item) {
   }
 <?endif;?>
   $('select[name="enter_user"]').val(item);
+}
+function changeSpan(span,dir) {
+  const spans = ['cpu','sys0','ups_loadpct','ups_status','current_time'];
+  switch (dir) {
+    case 0: for (var i=0,id; id=spans[i]; i++) span.find('span#_'+id+'_').prop('id',id); break;
+    case 1: for (var i=0,id; id=spans[i]; i++) span.find('span#'+id+':first').prop('id','_'+id+'_'); break;
+  }
 }
 function changeView(item) {
   if (item==0) $.removeCookie('enter_view'); else $.cookie('enter_view',item,{expires:3650});
@@ -1216,6 +1172,7 @@ function sortTables() {
       }
     }
   });
+  $('table.dashboard tbody').before(stopgap);
 }
 function addProperties() {
   $('div.frame tbody.system').addClass('sortable').attr('sort','_system_information_'.md5());
@@ -1228,18 +1185,19 @@ function addProperties() {
     $(this).find('td:first').prepend("<i class='fa fa-fw fa-close control tile' onclick='dismiss($(this))' title=\"_(Close Tile)_\"></i>");
   });
   $('div.frame tr').attr('title','');
-  $('tr#var0').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').text(val);})});
+  $('tr#var0').hover(function(){if(!timers.var0){timers.var0=setTimeout(function(){timers.var0=null},3000);$.post('/webGui/include/DashboardApps.php',{sys:0},function(val){$('.sys0').not('.head').text(val);});}});
 <?if ($zfs):?>
-  $('tr#var1').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);})});
+  $('tr#var1').show().hover(function(){if(!timers.var1){timers.var1=setTimeout(function(){timers.var1=null},3000);$.post('/webGui/include/DashboardApps.php',{sys:1},function(val){$('.sys1').text(val);});}});
 <?endif;?>
-  $('tr#var2').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:2},function(val){$('.sys2').text(val);})});
-  $('tr#var3').hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:3},function(val){$('.sys3').text(val);})});
+  $('tr#var2').hover(function(){if(!timers.var2){timers.var2=setTimeout(function(){timers.var2=null},3000);$.post('/webGui/include/DashboardApps.php',{sys:2},function(val){$('.sys2').text(val);});}});
+  $('tr#var3').hover(function(){if(!timers.var3){timers.var3=setTimeout(function(){timers.var3=null},3000);$.post('/webGui/include/DashboardApps.php',{sys:3},function(val){$('.sys3').text(val);});}});
 <?if ($dockerd):?>
-  $('tr#var4').show().hover(function(){$.post('/webGui/include/DashboardApps.php',{sys:4},function(val){$('.sys4').text(val);})});
+  $('tr#var4').show().hover(function(){if(!timers.var4){timers.var4=setTimeout(function(){timers.var4=null},3000);$.post('/webGui/include/DashboardApps.php',{sys:4},function(val){$('.sys4').text(val);});}});
 <?endif;?>
 }
 function showContent() {
   var count = {'db-box1':$('table#db-box1 tbody').length, 'db-box2':$('table#db-box2 tbody').length, 'db-box3':$('table#db-box3 tbody').length}
+  sanitizeMultiCookie('inactive_content', ';', true);
   var inactive = $.cookie('inactive_content');
   if (inactive) {
     inactive = inactive.split(';');
@@ -1248,8 +1206,10 @@ function showContent() {
       var id = tbody.parent().prop('id');
       count[id]--;
       tbody.hide();
+      tbody.prev().hide();
     }
   }
+  sanitizeMultiCookie('hidden_content', ';', true);
   var hidden = $.cookie('hidden_content');
   if (hidden) {
     hidden = hidden.split(';');
@@ -1257,6 +1217,9 @@ function showContent() {
       var tbody = $('div.frame tbody[sort="'+md5+'"]');
       tbody.find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
       tbody.find('tr:gt(0)').hide();
+      tbody.find('span[id^="head_"]').show();
+      tbody.find('span[id^="tile_"]').hide();
+      changeSpan(tbody,0);
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
@@ -1309,22 +1272,27 @@ function dismiss(button) {
   var tile = table.parent();
   var inactive = $.cookie('inactive_content');
   tbody.hide();
+  tbody.prev().hide();
   if (table.find('tbody:visible').length>0) tile.show(); else tile.hide();
   inactive = inactive==null ? [] : inactive.split(';');
   inactive.push(tbody.attr('sort'));
   $.cookie('inactive_content',inactive.join(';'),{expires:3650});
+}
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
 }
 function contentMgmt() {
   box = $("#iframe-popup");
   box.html($("#templateContentMgmt").html().build());
   box.dialog({
     title: "_(Tile Management)_",
-    height: 350,
+    height: 'auto',
     width: 900,
     resizable: false,
     modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
     buttons: {
       "_(Reset)_": function(){
         $.removeCookie('db-box1');
@@ -1350,13 +1318,98 @@ function contentMgmt() {
       }
     }
   });
-  $('.ui-dialog-titlebar-close').css({'display':'none'});
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
+  dialogStyle();
+}
+function VMClone(uuid, name){
+  box = $("#iframe-popup");
+  box.html($("#templateClone").html());
+  box.find('#VMBeingCloned').html(name).change();
+  box.find('#target').val(name + "_clone");
+  document.getElementById("Free").checked = true;
+  document.getElementById("Overwrite").checked = true;
+  box.dialog({
+    title: "_(VM Clone)_",
+    height: 'auto',
+    width: 600,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "_(Clone)_": function(){
+        var target = box.find('#target');
+        if (target.length) {
+          target = target.val();
+          //if (!target) {errorTarget(); return;}
+        } else target = '';
+        var clone = box.find("#target").prop('value');
+        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
+        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
+        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
+        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
+        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
+        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
+}
+function selectsnapshot(uuid, name ,snaps, opt, getlist){
+  box = $("#iframe-popup");
+  box.html($("#templatesnapshot"+opt).html());
+  const capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
+  var optiontext = capopt + " _(Snapshot)_";
+  box.find('#VMName').html(name);
+  box.find('#targetsnap').val(snaps);
+  box.find('#targetsnapl').html(snaps);
+  if (getlist) {
+    var only = (opt == "remove") ? 0 : 1;
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
+  }
+  document.getElementById("targetsnapfspc").checked = true;
+  box.dialog({
+    title: optiontext,
+    height: 'auto',
+    width: 600,
+    resizable: false,
+    modal: true,
+    buttons: {
+      "_(Proceed)_": function(){
+        var target = box.find('#targetsnap');
+        if (target.length) {
+          target = target.val();
+          if (!target) {errorTarget(); return;}
+        } else target = '';
+        var remove = 'yes';
+        var removemeta = 'yes';
+        var keep = 'yes';
+        var free = 'yes';
+        var desc = '';
+        box.find('#targetsnap').prop('disabled',true);
+        if (opt == "revert") {
+          remove = box.find('#targetsnaprmv').prop('checked') ? 'yes' : 'no';
+          removemeta = box.find('#targetsnaprmvmeta').prop('checked') ? 'yes' : 'no';
+          keep = box.find('#targetsnapkeep').prop('checked') ? 'yes' : 'no';
+        }
+        if (opt == "create") {
+          free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
+          desc = box.find("#targetsnapdesc").prop('value');
+        }
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, desc:desc}, "loadlist");
+        box.dialog('close');
+      },
+      "_(Cancel)_": function(){
+        box.dialog('close');
+      }
+    }
+  });
+  dialogStyle();
 }
 
 var sortableHelper = function(e,ui){
+  ui.prev().remove();
   ui.find('tr:first').children().each(function(){$(this).width($(this).width());});
   return ui;
 };
@@ -1372,16 +1425,24 @@ function LockButton() {
     $('tbody.sortable').css({'cursor':'move'});
     $('div.nav-item.LockButton span').text("_(Lock sortable items)_");
     $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
-    $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',delay:100,opacity:0.5,zIndex:9999,forcePlaceholderSize:true,
+    $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',opacity:0.6,placeholder:'dashboard-sortable',zIndex:9999,forceHelperSize:true,forcePlaceholderSize:true,
     receive:function(e,ui){
       var table = ui.sender, index = [];
       var tile = table.parent();
-      if (table.find('tbody:visible').length > 0) tile.show(); else tile.hide();
+      var gap = ui.item.prev();
+      if (table.find('tbody:visible').length > 0) {
+        tile.show();
+        gap.show();
+      } else {
+        tile.hide();
+        gap.hide();
+      }
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       $.cookie(table.prop('id'),index.join(';'),{expires:3650});
     },
     stop:function(e,ui){
       var table = ui.item.parent(), index = [];
+      if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       $.cookie(table.prop('id'),index.join(';'),{expires:3650});
     }});
@@ -1490,6 +1551,10 @@ dashboard.on('message',function(msg,meta) {
     $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
     $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
     $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
+    // current date and time
+    var timedate = part[4].split('\n');
+    $('#current_time').html(timedate[0]);
+    $('#current_date').html(timedate[1]);
     break;
   case 4:
     // wireguard tunnels
@@ -1563,104 +1628,4 @@ $(function() {
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
-  function dialogStyle() {
-  $('.ui-dialog-titlebar-close').css({'background':'transparent','border':'none','font-size':'1.8rem','margin-top':'-14px','margin-right':'-18px'}).html('<i class="fa fa-times"></i>').prop('title');
-  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
-  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
-  $('.ui-button-text').css({'padding':'0px 5px'});
-}
-function VMClone(uuid, name){
-  //var root = <?= '"'.$domain_cfg["MEDIADIR"].'"';?>;
-  var match= ".iso";
-  var box = $("#dialogWindow");
-  var height = 200;
-  box.html($("#templateClone").html());
-  box.find('#VMBeingCloned').html(name).change() ;
-  box.find('#target').val(name + "_clone") ;
-  document.getElementById("Free").checked = true ;
-  document.getElementById("Overwrite").checked = true ;
-  var Cancel = _("Cancel") ;
-  box.dialog({
-    title: "VM Clone",
-    resizable: false,
-    width: 600,
-    height: 500,
-    modal: true,
-    show: {effect:'fade', duration:250},
-    hide: {effect:'fade', duration:250},
-    buttons: {
-      "_(Clone)_": function(){
-        var target = box.find('#target');
-        if (target.length) {
-          target = target.val();
-          //if (!target ) {errorTarget(); return;}
-        } else target = '';
-        var clone = box.find("#target").prop('value');
-        var start = box.find('#Start').prop('checked') ? 'yes' : 'no';
-        var edit = box.find('#Edit').prop('checked') ? 'yes' : 'no';
-        var overwrite = box.find('#Overwrite').prop('checked') ? 'yes' : 'no';
-        var free = box.find('#Free').prop('checked') ? 'yes' : 'no';
-        var scripturl = "VMClone.php " + encodeURIComponent("/usr/local/emhttp/plugins/dynamix.vm.manager/include/VMClone.php&" + $.param({action:"clone", name:name, clone:clone, overwrite:overwrite, edit:edit, start:start, free:free}));
-        openVMAction((scripturl),"VM Clone", "dynamix.vm.manager", "loadlist");
-        box.dialog('close');
-      },
-      "_(Cancel)_": function(){
-        box.dialog('close');
-      }
-    }
-  });
-  dialogStyle();
-}
 </script>
-
-<div id="dialogWindow"></div>
-<div markdown="1" id="templateClone" class="template">
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no">
-<meta name="viewport" content="width=1600">
-<meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="same-origin">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
-</head>
-<body>
-<br>
-<table>
-<tr><td>_(VM Being Cloned)_:</td>
-<td><span id="VMBeingCloned"></span></td></tr>
-
-<tr><td>_(New VM)_:</td>
-<td><input type="text" id="target" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
-
-<tr><td>_(Overwrite)_:</td>
-<td><input type="checkbox" id="Overwrite" value="" ></td></tr>
-
-<tr hidden><td>_(Start Cloned VM)_:</td>
-<td><input type="checkbox" id="Start" value="" ></td></tr>
-
-<tr hidden><td>_(Edit VM after clone)_:</td>
-<td><input type="checkbox" id="Edit" value="" ></td></tr>
-
-<tr><td>_(Check Free Space)_:</td>
-<td><input type="checkbox" id="Free" value="" ></td></tr>
-</table>
-</body>
-</html>
-</div>
-
-<div id="dialogWindow2"></div>
-<div markdown="1" id="templatesnapshotcreate" class="template">
-<table id='snapshot'>
-<br><br>
-<tr><td> _(VM Name)_:</td><td>
-<label id="VMName"></label></td></tr>
-<tr><td>_(Snapshot Name)_:</td><td>
-<input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">
-_(Check free space)_:
-<input type="checkbox" id="targetsnapfspc" checked></td></tr>
-<tr><td>_(Description  )_:</td><td>
-<input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
-</table>
-</div>

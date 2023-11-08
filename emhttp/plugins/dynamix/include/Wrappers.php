@@ -11,7 +11,15 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+
+// pool name ending in any of these => zfs subpool
+$subpools = ['special','logs','dedup','cache','spares'];
+
+// ZFS subpool name separator and replacement
+$_tilde_ = '~';
+$_proxy_ = '__';
+$_arrow_ = '&#187;';
 
 // Wrapper functions
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
@@ -86,9 +94,28 @@ function ipaddr($ethX='eth0', $prot=4) {
     return _var($$ethX,'IPADDR:0');
   }
 }
+function no_tilde($name) {
+  global $_tilde_ ,$_proxy_;
+  return str_replace($_tilde_,$_proxy_,$name);
+}
+function prefix($key) {
+  return preg_replace('/\d+$/','',$key);
+}
+function native($name, $full=0) {
+  global $_tilde_, $_arrow_;
+  switch ($full) {
+    case 0: return str_replace($_tilde_," $_arrow_ ",$name);
+    case 1: return strpos($name,$_tilde_)!==false ? "$_arrow_ ".explode($_tilde_,$name)[1] : $name;
+  }
+}
+function isSubpool($name) {
+  global $subpools, $_tilde_;
+  $subpool = my_explode($_tilde_,$name)[1];
+  return in_array($subpool,$subpools) ? $subpool : false;
+}
 // convert strftime to date format
 function my_date($fmt, $time) {
-  $legacy = ['%c' => 'D j M Y h:i:s A T','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
+  $legacy = ['%c' => 'D j M Y h:i A','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
   return date(strtr($fmt,$legacy), $time);
 }
 ?>

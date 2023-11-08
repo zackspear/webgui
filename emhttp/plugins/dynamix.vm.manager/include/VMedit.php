@@ -1,6 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2015-2023, Derek Macias, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
+ * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -11,14 +12,15 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 // add translations
 if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
 	$_SERVER['REQUEST_URI'] = 'vms';
 	require_once "$docroot/webGui/include/Translations.php";
 }
-require_once "$docroot/webGui/include/Helpers.php";
-require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 switch ($display['theme']) {
 	case 'gray' : $bgcolor = '#121510'; $border = '#606e7f'; $top = -44; break;
@@ -87,55 +89,6 @@ if (isset($_GET['uuid'])) {
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-
-<style>
-body{-webkit-overflow-scrolling:touch}
-.fileTree{background:<?=$bgcolor?>;width:300px;max-height:150px;overflow-y:scroll;overflow-x:hidden;position:relative;z-index:100;display:none}
-#vmform table{margin-top:0}
-#vmform div.title + table{margin-top:0}
-#vmform table tr{vertical-align:top;line-height:40px}
-#vmform table tr td:nth-child(odd){width:300px;text-align:right;padding-right:10px}
-#vmform table tr td:nth-child(even){width:110px}
-#vmform table tr td:first-child{padding-right:30px}
-#vmform table tr td:last-child{width:inherit}
-#vmform .multiple{position:relative}
-#vmform .sectionbutton{position:absolute;left:2px;cursor:pointer;opacity:0.4;font-size:1.4rem;line-height:17px;z-index:10;transition-property:opacity,left;transition-duration:0.1s;transition-timing-function:linear}
-#vmform .sectionbutton.remove{top:0;opacity:0.3}
-#vmform .sectionbutton.add{bottom:0}
-#vmform .sectionbutton:hover{opacity:1.0}
-#vmform .sectiontab{position:absolute;top:2px;bottom:2px;left:0;width:6px;border-radius:3px;background-color:#DDDDDD;transition-property:background,width;transition-duration:0.1s;transition-timing-function:linear}
-#vmform .multiple:hover .sectionbutton{opacity:0.7;left:4px}
-#vmform .multiple:hover .sectionbutton.remove{opacity:0.6}
-#vmform .multiple:hover .sectiontab{background-color:#CCCCCC;width:8px}
-#vmform table.multiple{margin:10px 0;background:<?=$bgcolor?>;background-size:800px 100%;background-position:-800px;background-repeat:no-repeat;background-clip:content-box;transition:background 0.3s linear}
-#vmform table.multiple:hover{background-position:0 0;}
-#vmform table.multiple td{padding:5px 0}
-span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
-.basic{display:none}
-.advanced{/*Empty placeholder*/}
-.switch-button-label.off{color:inherit}
-#template_img{cursor:pointer}
-#template_img:hover{opacity:0.5}
-#template_img:hover i{opacity:1.0}
-.template_img_chooser_inner{display:inline-block;width:80px;margin-bottom:15px;margin-right:10px;text-align:center;}
-.template_img_chooser_inner img{width:48px;height:48px}
-.template_img_chooser_inner p{text-align:center;line-height:8px;}
-#template_img_chooser{width:560px;height:300px;overflow-y:scroll;position:relative}
-#template_img_chooser div:hover{background-color:#eee;cursor:pointer;}
-#template_img_chooser_outer{position:absolute;display:none;border-radius:5px;border:1px solid <?=$border?>;background:<?=$bgcolor?>;z-index:10}
-#form_content{display:none}
-#vmform .four{overflow:hidden}
-#vmform .four label{float:left;display:table-cell;width:15%;}
-#vmform .four label:nth-child(4n+4){}
-#vmform .four label.cpu1{width:28%;height:16px;line-height:16px}
-#vmform .four label.cpu2{width:3%;height:16px;line-height:16px}
-#vmform .mac_generate{cursor:pointer;margin-left:-5px;color:#08C;font-size:1.3rem;transform:translate(0px, 2px)}
-#vmform .disk{display:none}
-#vmform .disk_preview{display:inline-block;color:#BBB;transform:translate(0px, 1px)}
-span#dropbox{border:1px solid <?=$border?>;background:<?=$bgcolor?>;padding:28px 12px;line-height:72px;margin-right:16px;}
-i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
-input[type=checkbox]{margin-left:0}
-</style>
 
 <span class="status advancedview_panel" style="margin-top:<?=$top?>px"><input type="checkbox" class="advancedview"></span>
 <div class="domain">

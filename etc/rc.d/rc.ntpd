@@ -21,6 +21,7 @@ IDENT="/boot/config/ident.cfg"
 . /etc/rc.d/rc.library.source
 
 ntpd_running(){
+  sleep 0.1
   [[ $(pgrep -cf $NTPD) -gt 0 ]]
 }
 
@@ -33,8 +34,8 @@ ntpd_build(){
     [[ $IPV4 == no ]] && echo "interface ignore ipv4" >>$CONF
     [[ $IPV6 == no ]] && echo "interface ignore ipv6" >>$CONF
     # add listen interfaces
-    for net in $BIND; do
-      echo "interface listen $net # $(show $net)" >>$CONF
+    for NET in $BIND; do
+      echo "interface listen $NET # $(show $NET)" >>$CONF
     done
   fi
   # add configured NTP servers

@@ -1,7 +1,7 @@
 <?PHP
-/* Copyright 2005-2021, Lime Technology
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
  * Copyright 2015-2021, Derek Macias, Eric Schultz, Jon Panozzo.
- * Copyright 2012-2021, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,15 +12,16 @@
  */
 ?>
 <?
-	$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+	require_once "$docroot/webGui/include/Helpers.php";
+	require_once "$docroot/webGui/include/Custom.php";
+	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 	// add translations
 	if (substr($_SERVER['REQUEST_URI'],0,4) != '/VMs') {
 		$_SERVER['REQUEST_URI'] = 'vms';
 		require_once "$docroot/webGui/include/Translations.php";
 	}
-	require_once "$docroot/webGui/include/Helpers.php";
-	require_once "$docroot/webGui/include/Custom.php";
-	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 	$arrValidMachineTypes = getValidMachineTypes();
 	$arrValidGPUDevices = getValidGPUDevices();
@@ -292,6 +293,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
+			$_POST['clock'] = $arrDefaultClocks["other"] ;
 			if ($lv->domain_new($_POST)){
 				$reply = ['success' => true];
 			} else {
@@ -375,6 +377,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			if (isset($_POST['shares'][0]['source'])) {
 				@mkdir($_POST['shares'][0]['source'], 0777, true);
 			}
+			$_POST['clock'] = $arrDefaultClocks["other"] ;
 			$arrExistingConfig = custom::createArray('domain',$strXML);
 			$arrUpdatedConfig = custom::createArray('domain',$lv->config_to_xml($_POST));
 			array_update_recursive($arrExistingConfig, $arrUpdatedConfig);
@@ -666,12 +669,12 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						}
 					?>
 					</select>
-					<?			
+					<?
 			$usbboothidden =  "hidden" ;
 				if ($arrConfig['domain']['ovmf'] != '0') $usbboothidden = "" ;
 				?>
 				<span id="USBBoottext" class="advanced" <?=$usbboothidden?>>_(Enable USB boot)_:</span>
-								
+
 				<select name="domain[usbboot]" id="domain_usbboot" class="narrow" title="_(define OS boot options)_" <?=$usbboothidden?> onchange="USBBootChange(this)">
 				<?
 					echo mk_option($arrConfig['domain']['usbboot'], 'No', 'No');
@@ -748,7 +751,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 						</select>
 					</td>
 				</tr>
-				<?if ($i == 0) { 
+				<?if ($i == 0) {
 					$hiddenport = $hiddenwsport = "hidden" ;
 					if ($arrGPU['autoport'] == "no"){
 					if ($arrGPU['protocol'] == "vnc") $hiddenport = $hiddenwsport = "" ;
@@ -772,13 +775,13 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							echo mk_option($arrGPU['autoport'], 'no', _('No'));
 							?>
 						</select>
-										
+
 					<span id="Porttext"  <?=$hiddenport?>>_(VM Console Port)_:</span>
-				
+
 				    <input type="number" size="5" maxlength="5"  id="port" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][port]"  title="_(port for virtual console)_"  value="<?=$arrGPU['port']?>"  <?=$hiddenport?> >
-				
+
 					<span id="WSPorttext" <?=$hiddenwsport?>>_(VM Console WS Port)_:</span>
-				
+
 				    <input type="number" size="5" maxlength="5" id="wsport" class="narrow" style="width: 50px;" name="gpu[<?=$i?>][wsport]"  title="_(wsport for virtual console)_"  value="<?=$arrGPU['wsport']?>" <?=$hiddenwsport?> >
 				</td>
 				</tr>
@@ -800,19 +803,19 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					<b>virtual video protocol VDA/SPICE</b><br>
 					If you wish to assign a protocol type, specify one here.
 				</p>
-	
+
 				<b>Graphics Card</b><br>
 				If you wish to assign a graphics card to the VM, select it from this list, otherwise leave it set to virtual.
 				</p>
 
 				<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 					<b>virtual video protocol VDC/SPICE</b><br>
-					If you wish to assign a protocol type, specify one here. 
+					If you wish to assign a protocol type, specify one here.
 				</p>
 
 				<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced protocol">
 					<b>virtual auto port</b><br>
-					Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set. 
+					Set it you want to specify a manual port for VNC or Spice. VNC needs two ports where Spice only requires one. Leave as auto yes for the system to set.
 				</p>
 
 
@@ -898,15 +901,15 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 			</table>
 		</script>
 
-		<?	
+		<?
 		if ( $arrConfig['nic'] == false) {
-			$arrConfig['nic']['0'] = 
+			$arrConfig['nic']['0'] =
 		  	[
 			  'network' => $domain_bridge,
 			  'mac' => "",
 			  'model' => 'virtio-net'
 		  	] ;
-	  	}	
+	  	}
 	  	foreach ($arrConfig['nic'] as $i => $arrNic) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 
@@ -951,7 +954,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 					<td>
 					<input type="number" size="5" maxlength="5" id="nic[<?=$i?>][boot]" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="nic[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrNic['boot']?>" >
 					</td>
-				</tr>	
+				</tr>
 			</table>
 			<?if ($i == 0) {?>
 			<div class="advanced">
@@ -1025,7 +1028,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 		<table>
 			<tr><td></td>
-			<td>_(Select)_&nbsp&nbsp_(Optional)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+			<td>_(Select)_&nbsp&nbsp_(Optional)_&nbsp&nbsp_(Boot Order)_</td></tr></div>
 			<tr>
 			<tr>
 				<td>_(USB Devices)_:</td>
@@ -1057,7 +1060,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 
 	<table>
 	<tr><td></td>
-		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div> 
+		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div>
 		<tr>
 			<tr>
 				<td>_(Other PCI Devices)_:</td>
@@ -1073,14 +1076,14 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 							if (count($pcidevice=array_filter($arrConfig['pci'], function($arr) use ($arrDev) { return ($arr['id'] == $arrDev['id']); }))) {
 								$extra .= ' checked="checked"';
 								foreach ($pcidevice as $pcikey => $pcidev)  $pciboot = $pcidev["boot"];  ;
-									
+
 								} elseif (!in_array($arrDev['driver'], ['pci-stub', 'vfio-pci'])) {
 									//$extra .= ' disabled="disabled"';
 									continue;
 								}
 								$intAvailableOtherPCIDevices++;
 						?>
-						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp 
+						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp
 						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow pcibootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
 					<?
@@ -1159,7 +1162,7 @@ $hdrXML = "<?xml version='1.0' encoding='UTF-8'?>\n"; // XML encoding declaratio
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
-	
+
 function BIOSChange(bios) {
 		var value = bios.value;
 		if (value == "0") {
@@ -1182,18 +1185,18 @@ function SetBootorderfields(usbbootvalue) {
 		} else bootelements[i].removeAttribute("disabled");
 	}
 	var bootelements = document.getElementsByClassName("pcibootorder");
-	const bootpcidevs = <? 	
+	const bootpcidevs = <?
 		$devlist = [] ;
 		foreach($arrValidOtherDevices as $i => $arrDev) {
 			if ($arrDev["typeid"] != "0108") $devlist[$arrDev['id']] = "N" ; else $devlist[$arrDev['id']] = "Y" ;
 		}
 		echo json_encode($devlist) ;
-		?>  
+		?>
 
 	for(var i = 0; i < bootelements.length; i++) {
 		let bootpciid = bootelements[i].name.split('[') ;
 		bootpciid= bootpciid[1].replace(']', '') ;
-		
+
 		if (usbbootvalue == "Yes") {
 		bootelements[i].value = "";
 		bootelements[i].setAttribute("disabled","disabled");
@@ -1231,7 +1234,7 @@ function AutoportChange(autoport) {
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
-		}	
+		}
 	}
 
 function ProtocolChange(protocol) {
@@ -1255,10 +1258,10 @@ function ProtocolChange(protocol) {
 				document.getElementById("wsport").style.visibility="hidden";
 				document.getElementById("WSPorttext").style.visibility="hidden";
 			}
-		}	
+		}
 	}
-		
-	
+
+
 $(function() {
 	function completeAfter(cm, pred) {
 		var cur = cm.getCursor();

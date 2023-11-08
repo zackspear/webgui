@@ -11,7 +11,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/webGui/include/Secure.php";
 
@@ -62,9 +62,6 @@ function my_disks($disk) {
 }
 function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
-}
-function prefix($key) {
-  return preg_replace('/\d+$/','',$key);
 }
 function parity_only($disk) {
   return _var($disk,'type')=='Parity';

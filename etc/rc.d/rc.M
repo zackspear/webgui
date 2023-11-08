@@ -52,6 +52,12 @@ dmesg -s 65536 > /var/log/dmesg
 if [[ -x /etc/rc.d/rc.rsyslogd ]]; then
   [[ -f /boot/logs/syslog-previous ]] && rm /boot/logs/syslog-previous
   [[ -f /boot/logs/syslog ]] && mv /boot/logs/syslog /boot/logs/syslog-previous
+  # Check for additional rsyslog config files and link them if found
+  if [[ ! -z "$(ls -1 /boot/config/rsyslog.d/ 2>/dev/null)" ]]; then
+    for file in $(ls -1 /boot/config/rsyslog.d/); do
+      ln -s "/boot/config/rsyslog.d/$file" "/etc/rsyslog.d/$file"
+    done
+  fi
   /etc/rc.d/rc.rsyslogd start
 fi
 

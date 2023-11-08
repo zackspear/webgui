@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
- * Copyright 2015-2023, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -12,10 +12,8 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-libxml_use_internal_errors(true);
-
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
@@ -277,18 +275,6 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-{$display['theme']}.css")?>">
 
-<style>
-.noshow,.advanced{display:none}
-.fileTree{width:240px;max-height:200px;overflow-y:scroll;overflow-x:hidden;position:absolute;display:none;background:<?=$bgcolor?>}
-.required:after{content:" *";color:#E80000}
-span.boxed{display:inline-block;line-height:normal;white-space:normal;width:56%}
-span.cpu,label.checkbox{display:inline-block;width:32px}
-span.ct{display:inline-block;width:230px}
-span.net{display:inline-block;width:120px}
-span.ip{display:inline-block;width:160px}
-dl,dt,dd{line-height:normal!important}
-</style>
-
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
@@ -386,6 +372,13 @@ function getVal(el, name) {
   }
 }
 
+function dialogStyle() {
+  $('.ui-dialog-titlebar-close').css({'display':'none'});
+  $('.ui-dialog-title').css({'text-align':'center','width':'100%','font-size':'1.8rem'});
+  $('.ui-dialog-content').css({'padding-top':'15px','vertical-align':'bottom'});
+  $('.ui-button-text').css({'padding':'0px 5px'});
+}
+
 function addConfigPopup() {
   var title = "_(Add Configuration)_";
   var popup = $("#dialogAddConfig");
@@ -403,11 +396,10 @@ function addConfigPopup() {
   // Start Dialog section
   popup.dialog({
     title: title,
+    height: 'auto',
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
-    show : {effect: 'fade' , duration: 250},
-    hide : {effect: 'fade' , duration: 250},
     buttons: {
     "_(Add)_": function() {
         $(this).dialog("close");
@@ -439,11 +431,7 @@ function addConfigPopup() {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  dialogStyle();
 }
 
 function editConfigPopup(num,disabled) {
@@ -477,11 +465,10 @@ function editConfigPopup(num,disabled) {
   popup.find(".switch-button-background").css("margin-top", "6px");
   popup.dialog({
     title: title,
+    height: 'auto',
+    width: 900,
     resizable: false,
-    width: 800,
     modal: true,
-    show: {effect:'fade', duration: 250},
-    hide: {effect:'fade', duration: 250},
     buttons: {
     "_(Save)_": function() {
         $(this).dialog("close");
@@ -522,11 +509,7 @@ function editConfigPopup(num,disabled) {
       }
     }
   });
-  $(".ui-dialog .ui-dialog-titlebar").addClass('menu');
-  $('.ui-dialog .ui-dialog-titlebar-close').css({'display':'none'});
-  $(".ui-dialog .ui-dialog-title").css({'text-align':'center','width':'100%'});
-  $(".ui-dialog .ui-dialog-content").css({'padding-top':'15px','vertical-align':'bottom'});
-  $(".ui-button-text").css({'padding':'0px 5px'});
+  dialogStyle();
   $('.desc_readmore').readmore({maxHeight:10});
 }
 
@@ -1009,7 +992,7 @@ _(Password Mask)_:
 <input type="hidden" name="confRequired[]" value="{7}">
 <input type="hidden" name="confMask[]" value="{8}">
 <span class="{11}">{0}:</span>
-: <span class="boxed"><input type="text" name="confValue[]" default="{2}" value="{9}" autocomplete="off" spellcheck="false" {11}>{10}<br><span class='orange-text'>{12}: {1}</span><br><span class="orange-text">{4}</span><br>
+: <span class="boxed"><input type="text" class="setting_input" name="confValue[]" default="{2}" value="{9}" autocomplete="off" spellcheck="false" {11}>{10}<br><span class='orange-text'>{12}: {1}</span><br><span class="orange-text">{4}</span><br></span>
 </div>
 
 <div markdown="1" id="templateAllocations" style="display:none">

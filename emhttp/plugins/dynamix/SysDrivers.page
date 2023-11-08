@@ -1,6 +1,6 @@
 Menu="UNRAID-OS"
 Title="System Drivers"
-Icon="fa-sitemap"
+Icon="icon-packages"
 Tag="server"
 ---
 <?PHP
@@ -15,23 +15,11 @@ Tag="server"
  * all copies or substantial portions of the Software.
  */
 ?>
-<style>
-table.t1{margin-top:0; border-collapse: collapse; border-spacing: 0;}
-table.t1 tr td{padding:0 0 3px 0;margin:0}
-table.t1 tr td.thin{line-height:8px;height:8px}
-table.t1 tr>td{width:1%;text-align:centre;white-space: nowrap}
-table.t1 tr>td+td{width:1%;white-space:nowrap}
-table.t1 tr>td+td+td{width:auto;text-align:left}
-table.t1 tr>td+td+td+td{text-align:left}
-table.t1 tr>td+td+td+td+td{text-align:left}
-.t1.tablesorter .filtered{display:none}
-</style>
+<script src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
 
-<script type="text/javascript" src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
-<script type="text/javascript">
-
+<script>
 function showDrivers(options, init = false) {
-  option = options ;
+  option = options;
   if (init) {
   $('#driversearch').prop('disabled', true);
   $('#select').prop('disabled', true);
@@ -41,15 +29,15 @@ function showDrivers(options, init = false) {
     $("#t1").trigger("destroy");
     $('#t1').html(data.html);
     $('#t1').tablesorter({
-      sortList:[[0,0]],
-      sortAppend:[[0,0]],
-      widgets: ['stickyHeaders','filter', 'zebra'],
+      sortList: [[0,0]],
+      sortAppend: [[0,0]],
+      widgets: ['stickyHeaders','filter','zebra'],
       widgetOptions: {
         // on black and white, offset is height of #menu
         // on azure and gray, offset is height of #header
-        stickyHeaders_offset: ( $('#menu').height() < 50 ) ? $('#menu').height() : $('#header').height(),
+        stickyHeaders_offset: ($('#menu').height() < 50) ? $('#menu').height() : $('#header').height(),
         filter_columnFilters: false,
-        zebra : [ "normal-row", "alt-row" ]
+        zebra: ["normal-row","alt-row"]
       }
     });
     $('div.spinner.fixed').hide('slow');
@@ -58,8 +46,8 @@ function showDrivers(options, init = false) {
     $('#rebuild').prop('disabled', data.init);
   },"json");
   } else {
-  filter = [];
-    filterDrivers() ;
+    filter = [];
+    filterDrivers();
   }
 }
 
@@ -68,7 +56,7 @@ function filterDrivers() {
   var filter = [];
   filter[2] = ($('#select').val() === "inuse") ? "System|Inuse|Custom|Disabled|'Kernel - Inuse'" : "";
   filter[totalColumns] = $('#driversearch').val(); // this searches all columns
-  $('#t1').trigger('search', [ filter ]);
+  $('#t1').trigger('search', [filter]);
 }
 
 function showDriversupdate() {
@@ -79,13 +67,13 @@ function showDriversupdate() {
   $('div.spinner.fixed').show('slow');
   $.post('/webGui/include/SysDrivers.php',{table:'t1create',option:"all"},function(data){
     $('#rebuild').prop('disabled', false);
-    showDrivers("all",true) ;
+    showDrivers("all",true);
     $('div.spinner.fixed').hide('slow');
   });
 }
 
 function textedit(module) {
-  var i=module ;
+  var i=module;
   $('#text'+module).prop('disabled', false);
   $('#save'+module).attr('hidden', false);
   $('#text'+module).attr('hidden', false);
@@ -96,15 +84,15 @@ function removecfg(module) {
 }
 
 function textsave(module,remove = false) {
-  var i=module ;
+  var i=module;
   $('#text'+module).prop('disabled', true);
   $('#save'+module).attr('hidden', true);
   var x = (remove) ? "" : document.getElementById("text" + module).value;
   $.post('/webGui/include/SysDrivers.php',{table:'update',module:module,conf:x},function(data){
     if (data) {
       formHasUnsavedChanges=false;
-      $('#text'+module).val(data.modprobe) ;
-      $('#status'+module).html(data.state) ;
+      $('#text'+module).val(data.modprobe);
+      $('#status'+module).html(data.state);
       if (data.state == "Custom") {
         $('#bin'+module).show();
       } else {
@@ -113,7 +101,7 @@ function textsave(module,remove = false) {
       if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3);
       if (data.supportpage == true) {
         if (data.support == true) {
-          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>" ;
+          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>";
         }
       }
     }
@@ -125,7 +113,7 @@ function textsave(module,remove = false) {
 }
 
 $('.tabs').append("<span class='status'><span class='lite label'>_(Select View)_:</span><select id='select' onchange='showDrivers(this.value)'><option value='all' >All Drivers</option><option value='inuse' selected >Inuse Drivers</option></select>");
-showDrivers("all",true) ;
+showDrivers("all",true);
 </script>
 
 :sysdrivers_intro_help:

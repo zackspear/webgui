@@ -11,9 +11,8 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
-
 extract(parse_plugin_cfg('dynamix',true));
 
 $path    = _var($notify,'path','/tmp/notifications');

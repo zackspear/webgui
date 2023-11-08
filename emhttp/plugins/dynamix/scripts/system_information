@@ -12,8 +12,7 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 extract(parse_plugin_cfg('dynamix',true));
 
@@ -36,7 +35,7 @@ function dmidecode($key, $n, $all=true) {
   return $all ? $properties : $properties[0]??null;
 }
 
-$var      = @parse_ini_file('state/var.ini') ?: [];
+$var      = (array)@parse_ini_file('state/var.ini');
 $model    = _var($var,'SYS_MODEL',_('N/A'));
 $board    = dmidecode('Base Board Information',2,0);
 $bios     = dmidecode('BIOS Information',0,0);

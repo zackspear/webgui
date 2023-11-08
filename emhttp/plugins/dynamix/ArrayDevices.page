@@ -15,18 +15,21 @@ Tag="database"
  */
 ?>
 <script>
+String.prototype.no_tilde = function(){return this.replace('<?=$_tilde_?>','<?=$_proxy_?>');}
+String.prototype.master = function(){return this.split('<?=$_tilde_?>')[0];}
+
 function toggle_state(device,name,action) {
   var button = null;
   if (name) {
     var group = name.replace(/(\d+|\*)$/,'');
     if (name.slice(-1)!='*') {
-      $('#dev-'+name).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      $('#dev-'+name.no_tilde()).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     } else {
       if (group=='array') {
         $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
         $('[id^="dev-disk"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       } else {
-        $('[id^="dev-'+group+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+        $('[id^="dev-'+group.master()+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       }
     }
   } else if (device!='Clear') {
@@ -34,7 +37,7 @@ function toggle_state(device,name,action) {
     button = '[id^=button-]';
   }
   devices.stop();
-  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action,state:'<?=$var['mdState']?>',csrf:'<?=$var['csrf_token']?>'},function(){setTimeout(function(){devices.start();},1000);if (button) $(button).prop('disabled',false);});
+  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action},function(){setTimeout(function(){devices.start();},1000);if (button) $(button).prop('disabled',false);});
 }
 function display_diskio() {
   if ($.cookie('diskio')===undefined) {

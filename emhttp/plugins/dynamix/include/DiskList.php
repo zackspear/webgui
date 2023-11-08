@@ -11,12 +11,12 @@
  */
 ?>
 <?
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 $compute = rawurldecode(_var($_POST,'compute'));
 $path    = rawurldecode(_var($_POST,'path'));
@@ -88,7 +88,7 @@ foreach ($disks as $name => $disk) {
   } else $luks = "";
   echo "<tr><td><a class='view' href=\"/$path/Browse?dir=/mnt/$name\"><i class=\"icon-u-tab\" title=\"",_('Browse')," /mnt/$name\"></i></a>";
   echo "<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href=\"/$path/Disk?name=$name\" onclick=\"$.cookie('one','tab1')\">",compress($name),"</a></td>";
-  echo "<td>{$disk['comment']}</td>";
+  echo "<td>"._var($disk,'comment')."</td>";
   echo "<td>",disk_share_settings(_var($var,'shareSMBEnabled'), $sec[$name]),"</td>";
   echo "<td>",disk_share_settings(_var($var,'shareNFSEnabled'), $sec_nfs[$name]),"</td>";
   $cmd="/webGui/scripts/disk_size&arg1=$name&arg2=ssz2";
