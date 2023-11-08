@@ -89,9 +89,6 @@ if ($themes2) {
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
-$notes = '/var/tmp/unRAIDServer.txt';
-if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<span class='big blue-text fa fa-info-circle fa-fw' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
 ?>
 </style>
 
@@ -504,15 +501,6 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
 
-function showUpgradeChanges() {
-  openChanges("showchanges /tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>");
-}
-function showUpgrade(text,noDismiss=false) {
-  if ($.cookie('os_upgrade')==null) {
-    if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
-    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
-  }
-}
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
   if (set)
@@ -1074,14 +1062,6 @@ $(function() {
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
-<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)?:''?>
-<?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
-  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to upgrade Unraid OS')?>",true);
-<?elseif (strpos($readme,'DOWNGRADE')!==false):?>
-  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
-<?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <?if (is_file('/tmp/plugins/unRAIDServer.txt')):?><span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' title=\"<?=_('Release Notes')?>\"></span> <?endif;?><a><?=_('Update Now')?></a>");
-<?endif;?>
 <?if (!_var($notify,'system')):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
