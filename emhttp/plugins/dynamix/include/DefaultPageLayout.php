@@ -87,9 +87,9 @@ if ($themes2) {
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
-$notes = '/var/tmp/unRAIDServer.txt';
-if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-$notes = "&nbsp;<span class='big blue-text fa fa-info-circle fa-fw' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
+// $notes = '/var/tmp/unRAIDServer.txt';
+// if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+// $notes = "&nbsp;<span class='big blue-text fa fa-info-circle fa-fw' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
 ?>
 </style>
 
@@ -471,15 +471,15 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
   $.post("/plugins/dynamix.plugin.manager/scripts/PluginAPI.php",{action:'removeRebootNotice',message:message});
 }
 
-function showUpgradeChanges() {
-  openChanges("showchanges /tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>");
-}
-function showUpgrade(text,noDismiss=false) {
-  if ($.cookie('os_upgrade')==null) {
-    if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
-    osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
-  }
-}
+// function showUpgradeChanges() {
+//   openChanges("showchanges /tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>");
+// }
+// function showUpgrade(text,noDismiss=false) {
+//   if ($.cookie('os_upgrade')==null) {
+//     if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
+//     osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
+//   }
+// }
 function hideUpgrade(set) {
   removeBannerWarning(osUpgradeWarning);
   if (set)
@@ -595,7 +595,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
   <div id="header" class="<?=$display['banner']?>">
    <div class="logo">
    <a href="https://unraid.net" target="_blank"><?readfile("$docroot/webGui/images/UN-logotype-gradient.svg")?></a>
-   <?=_('Version')?>: <?=_var($var,'version','?')?><?=$notes?>
+   <unraid-i18n-host><unraid-header-os-version></unraid-header-os-version></unraid-i18n-host>
    </div>
    <?include "$docroot/plugins/dynamix.my.servers/include/myservers2.php"?>
   </div>

@@ -63,3 +63,7 @@ share/
 
 # Auto-generated when emhttpd/webGUI start
 emhttp/languages/en_US/helptext.dot
+
+# development scripts
+.dev-scripts/
+emhttp/plugins/dynamix.my.servers/unraid-components/index.html
