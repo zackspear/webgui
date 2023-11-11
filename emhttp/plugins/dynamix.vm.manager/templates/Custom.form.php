@@ -1068,7 +1068,7 @@
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<td>_(VM Console Video Driver)_:</td>
 				<td>
-					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
+					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VM Console)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
 					</select>
 				</td>
