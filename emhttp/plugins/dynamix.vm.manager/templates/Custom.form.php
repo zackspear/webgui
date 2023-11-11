@@ -1036,7 +1036,7 @@
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<td>_(VM Console Video Driver)_:</td>
 				<td>
-					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
+					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VM Console)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
 					</select>
 				</td>
@@ -1044,12 +1044,12 @@
 
 			<tr class="vncpassword">
 				<td>_(VM Console Password)_:</td>
-				<td><input type="password" name="domain[password]" autocomplete='new-password' value="<?=$arrGPU['password']?>" title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
+				<td><input type="password" name="domain[password]" autocomplete='new-password' value="<?=$arrGPU['password']?>" title="_(password for VM Console)_" placeholder="_(password for VM Console)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
 				<td>_(VM Console Keyboard)_:</td>
 				<td>
-					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
+					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VM Console)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
 					</select>
 				</td>

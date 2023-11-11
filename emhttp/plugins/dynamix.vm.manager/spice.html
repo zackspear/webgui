@@ -82,7 +82,7 @@
 
             if (auto === 'true' || auto == '1') {
             auto = true;
-            connect();
+            setTimeout(connect, 3000);
             }
 
             function spice_error(e)
