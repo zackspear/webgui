@@ -1068,7 +1068,7 @@
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<td>_(VM Console Video Driver)_:</td>
 				<td>
-					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VNC)_">
+					<select id="vncmodel" name="gpu[<?=$i?>][model]" class="narrow" title="_(video for VM Console)_">
 					<?mk_dropdown_options($arrValidVNCModels, $arrGPU['model']);?>
 					</select>
 				</td>
@@ -1076,12 +1076,12 @@
 
 			<tr class="vncpassword">
 				<td>_(VM Console Password)_:</td>
-				<td><input type="password" name="domain[password]" autocomplete='new-password' value="<?=$arrGPU['password']?>" title="_(password for VNC)_" placeholder="_(password for VNC)_ (_(optional)_)" /></td>
+				<td><input type="password" name="domain[password]" autocomplete='new-password' value="<?=$arrGPU['password']?>" title="_(password for VM Console)_" placeholder="_(password for VM Console)_ (_(optional)_)" /></td>
 			</tr>
 			<tr class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vnckeymap">
 				<td>_(VM Console Keyboard)_:</td>
 				<td>
-					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VNC)_">
+					<select name="gpu[<?=$i?>][keymap]" title="_(keyboard for VM Console)_">
 					<?mk_dropdown_options($arrValidKeyMaps, $arrGPU['keymap']);?>
 					</select>
 				</td>
@@ -2079,7 +2079,7 @@ $(function() {
 			if (audio && !sound.includes(audio)) form.append('<input type="hidden" name="pci[]" value="'+audio+'#remove">');
 		});
 		<?endif?>
-		var postdata = form.find('input,select,textarea[name="qemucmdline"').serialize().replace(/'/g,"%27");
+		var postdata = form.find('input,select,textarea[name="qemucmdline"]').serialize().replace(/'/g,"%27");
 		<?if (!$boolNew):?>
 		// keep checkbox visually unchecked
 		form.find('input[name="usb[]"],input[name="usbopt[]"],input[name="pci[]"]').each(function(){
