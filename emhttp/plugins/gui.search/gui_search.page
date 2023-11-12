@@ -32,8 +32,14 @@ var browserName = (function (agent) {
 
 $(function() {
 <?if ($themes2):?>
-	$(".nav-item.gui_search a").append("<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password'></input></span><span class='guiSearchBoxResults'></span>");
-	$(".nav-item.gui_search").on('mouseenter',function(){gui_search();});
+	$(".nav-item.gui_search").hover(
+		function(){
+			$(".nav-item.gui_search a").append("<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' autocomplete='new-password'></input></span><span class='guiSearchBoxResults'></span>");
+		  gui_search();
+	  },function(){
+			closeSearchBox();
+		}
+	);
 <?endif;?>
 	$.post("/plugins/gui.search/include/exec.php",function(data) {
 		if (data) {
@@ -87,8 +93,10 @@ function gui_search() {
 		languageVisible = $(".LanguageButton").is(":visible");
 		$(".nav-tile.right").prepend("<span id='guiSearchBoxSpan'><i class='icon-u-search input'></i><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password' placeholder='_(Search)_...'></input></span><span class='guiSearchBoxResults'></span>");
 		$(".nav-item.util,.nav-user.show").hide();
+		$(".nav-tile.right").css("overflow","visible");
+	<?else:?>
+		$(".nav-item.gui_search").css("overflow","visible");
 	<?endif;?>
-		$(".nav-item.gui_search,.nav-tile.right").css("overflow","visible");
 		var guiSearchAwesomplete;
 		guiSearchBoxInput = document.getElementById("guiSearchBox");
 		guiSearchAwesomplete = new Awesomplete(guiSearchBoxInput);
@@ -107,10 +115,13 @@ function gui_search() {
 }
 
 function closeSearchBox() {
-<?if ($themes1):?>
 	$("#guiSearchBoxSpan").remove();
+<?if ($themes1):?>
+	$(".nav-tile.right").css("overflow","hidden");
 	$(".nav-item.util,.nav-user.show").show();
 	if (!languageVisible) $(".nav-item.LanguageButton").hide();
+<?else:?>
+	$(".nav-item.gui_search").css("overflow","hidden");
 <?endif;?>
 }
 
