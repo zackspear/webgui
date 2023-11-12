@@ -15,12 +15,13 @@ Code="e982"
  * all copies or substantial portions of the Software.
  */
 ?>
-<script>
 <?if (count(glob('/var/log/plugins/lang-*.xml'))==0):?>
-// hide switch button when no other language packs
-$(function(){$('.nav-item.LanguageButton').hide();});
+<style>
+.nav-item.LanguageButton{display:none}
+</style>
 <?endif;?>
 
+<script>
 function LanguageButton() {
   var locale = '<?=$locale?>';
   // reset dashboard tiles when switching language
