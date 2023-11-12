@@ -91,7 +91,7 @@ function gui_search() {
 	if (typeof Awesomplete == 'function') {
 	<?if ($themes1):?>
 		languageVisible = $(".LanguageButton").is(":visible");
-		$(".nav-tile.right").prepend("<span id='guiSearchBoxSpan'><i class='icon-u-search input'></i><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password' placeholder='_(Search)_...'></input></span><span class='guiSearchBoxResults'></span>");
+		$(".nav-tile.right").prepend("<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password'></input></span><span class='guiSearchBoxResults'></span>");
 		$(".nav-item.util,.nav-user.show").hide();
 		$(".nav-tile.right").css("overflow","visible");
 	<?else:?>
