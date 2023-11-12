@@ -1,4 +1,4 @@
-Menu='Buttons'
+Menu='Buttons:1'
 Icon='icon-u-search'
 Title='Search'
 Code='e956'
@@ -12,12 +12,20 @@ Code='e956'
 ###################################################
 
 $currentUnraidPage = str_replace("Browse","Main",basename(explode("?",$_SERVER['REQUEST_URI'])[0]));
-
-$altGUI = ($theme == "azure" || $theme == "gray");
 ?>
-<script>
+<style>
+<?if ($themes1):?>
+#guiSearchBoxSpan{display:inline-block;float:right;margin:1px;text-align:left;line-height:normal;font-size:1.3rem}
+#guiSearchBox{width:50rem;border:2px solid #e68a00;border-radius:20px;margin-left:8px;padding-left:12px;color:#1c1b1b;background-color:#feefb3}
+i.input{color:#e68a00}
+<?else:?>
+#guiSearchBoxSpan{display:inline-block;margin-left:20px;line-height:normal;font-size:1.3rem}
+#guiSearchBox{position:relative;top:0;left:0;width:50rem;border:none;border-radius:20px;margin:0;color:#1c1b1b;background-color:#feefb3}
+<?endif;?>
+</style>
 
-var languageVisible = true;
+<script>
+var languageVisible;
 var guiSearchSuggestions;
 
 var browserName = (function (agent) {
@@ -34,6 +42,10 @@ var browserName = (function (agent) {
 })(window.navigator.userAgent.toLowerCase());
 
 $(function() {
+<?if ($themes2):?>
+	$(".nav-item.gui_search a").append("<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password'></input></span>");
+	$(".nav-item.gui_search").on('mouseenter',function(){gui_search();});
+<?endif;?>
 	$.post("/plugins/gui.search/exec.php",function(data) {
 		if (data) {
 			try{
@@ -41,29 +53,19 @@ $(function() {
 				setupGUIsearch();
 			} catch(e) {
 				console.log("Invalid JSON for GUI search autocomplete");
-				$(".gui_search").hide();
 			}
 		}
 	});
 });
 
 function setupGUIsearch() {
-	<? if ($altGUI) : ?>
-		$(".gui_search").hide();
-		$("#menu").prepend("<span id='guiSearchBoxSpan' style='float:left;text-align:left !important'><input autocomplete='new-password' id='guiSearchBox' class='narrow' placeholder='Search WebGUI' type='text' style='width:166px;'></input></span>");
-		$("#nav-block,.right").css("overflow","visible");
-		gui_search();
-	<? endif; ?>
-
 	if (navigator.appVersion.indexOf("Mac")!=-1) {
 		window.addEventListener('keydown', function (e) {
 			if (!e.shiftKey && !e.altKey && e.metaKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
-				if ( $("#guiSearchBoxSpan").is(":visible") ) {
-					<? if ( ! $altGUI ) : ?>
-						closeSearchBox();
-					<? endif; ?>
+				if ($("#guiSearchBoxSpan").is(":visible")) {
+					closeSearchBox();
 					return;
 				}
 				gui_search();
@@ -74,10 +76,8 @@ function setupGUIsearch() {
 			if (!e.shiftKey && !e.altKey && e.ctrlKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
-				if ( $("#guiSearchBoxSpan").is(":visible") ) {
-					<? if ( ! $altGUI ) : ?>
-						closeSearchBox();
-					<? endif; ?>
+				if ($("#guiSearchBoxSpan").is(":visible")) {
+					closeSearchBox();
 					return;
 				}
 				gui_search();
@@ -86,23 +86,20 @@ function setupGUIsearch() {
 	}
 	if (browserName !== "Chrome" && browserName !== "Edge") {
 		var hashTag = window.location.hash.substr(1).replace("%20"," ").replace("%2d","-");
-		if ( hashTag.length) {
+		if (hashTag.length) {
 			$("body").mark(hashTag,{"accuracy": {"value": "exactly","limiters": [".",":","?"]},"separateWordSearch": false});
 		}
 	}
-}	
+}
 
 function gui_search() {
-	if (typeof Awesomplete == 'function' ) {
-		<? if ( ! $altGUI ) : ?>
-			languageVisible = $(".LanguageButton").is(":visible");
-			$(".right").prepend("<span id='guiSearchBoxSpan' style='float:right;text-align:left !important'><input onfocusout='closeSearchBox();' autocomplete='new-password' id='guiSearchBox' class='narrow' placeholder='"+_("Search WebGUI")+"' type='text' style='width:50rem;'></input></span>");
-			$("#nav-block,.right").css("overflow","visible");
-			$(".nav-item.util,#nav-item.util,.nav-user.show").hide();
-		<? endif; ?>
-		<? if ( ! $altGUI && $notify['display'] ): ?>
-			$(".tub,#nav-tub1,#nav-tub2,#nav-tub3").hide();
-		<? endif; ?>
+	if (typeof Awesomplete == 'function') {
+	<?if ($themes1):?>
+		languageVisible = $(".LanguageButton").is(":visible");
+		$(".nav-tile.right").prepend("<span id='guiSearchBoxSpan'><i class='icon-u-search input'></i><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password' placeholder='_(Search)_...'></input></span>");
+		$(".nav-item.util,.nav-user.show").hide();
+	<?endif;?>
+		$("#nav-block,.nav-tile.right").css("overflow","visible");
 		var guiSearchAwesomplete;
 		guiSearchBoxInput = document.getElementById("guiSearchBox");
 		guiSearchAwesomplete = new Awesomplete(guiSearchBoxInput);
@@ -115,38 +112,28 @@ function gui_search() {
 			$("#guiSearchBox").next().addClass("guiSearchBoxResults");
 			$("#guiSearchBox").attr("autocomplete","new-password"); // Stop awesomplete from resetting autocomplete
 		}
-		$("#guiSearchBox").focus();
-
-		<? if ( ! $altGUI ) : ?>
-			$("#guiSearchBox").keydown(function(e) {
-				if (e.which === 27)
-					closeSearchBox();
-			});
-		<? endif; ?>
+		$("#guiSearchBox").focus().keydown(function(e) {
+			if (e.which == 27) closeSearchBox();
+		});
 	}
 }
 
 function closeSearchBox() {
+<?if ($themes1):?>
 	$("#guiSearchBoxSpan").remove();
-	$(".nav-item,#nav-item,.nav-user.show").show();
-	if ( ! languageVisible )
-		$(".LanguageButton").hide();
-
-	<? if ( ! $altGUI && $notify['display'] ): ?>
-		$(".tub,#nav-tub1,#nav-tub2,#nav-tub3").show();
-	<? endif; ?>
+	$(".nav-item.util,.nav-user.show").show();
+	if (!languageVisible) $(".nav-item.LanguageButton").hide();
+<?endif;?>
 }
-
 
 function guiSearch() {
 	event.stopPropagation();
 
 	var searchInfo = $("#guiSearchBox").val().split("**");
-	
+
 	var separator = "#";
-	if (browserName == "Chrome" || browserName == "Edge")
-		var separator = "#:~:text=";
-	
+	if (browserName == "Chrome" || browserName == "Edge") separator = "#:~:text=";
+
 	if (typeof searchInfo[1] !== 'undefined')
 		var scrollText = separator+searchInfo[1].replace(" ","%20").replace("-","%2d");
 	else
@@ -154,15 +141,13 @@ function guiSearch() {
 
 	var newPage = "<?=$currentUnraidPage?>/Settings/Tools";
 	newPage = newPage.replace(searchInfo[0]+"/","");
-	if ( newPage == "Dashboard/Settings/Tools" ) {
-		newPage = "Settings";
-	}
+	if (newPage == "Dashboard/Settings/Tools") newPage = "Settings";
+
 	location.replace("/"+newPage+"/"+searchInfo[0]+scrollText);
 	closeSearchBox();
 }
 
 if (browserName !== "Chrome" && browserName !== "Edge") {
-
     /*!***************************************************
     * mark.js v9.0.0
     * https://markjs.io/
