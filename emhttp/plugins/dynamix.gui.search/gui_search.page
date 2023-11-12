@@ -13,7 +13,6 @@ Code='e956'
 
 $currentUnraidPage = str_replace("Browse","Main",basename(explode("?",$_SERVER['REQUEST_URI'])[0]));
 $guiSearchBoxSpan1 = "<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' autocomplete='new-password' onfocusout='closeSearchBox()'></input></span><span class='guiSearchBoxResults'></span>";
-$guiSearchBoxSpan2 = "<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' autocomplete='new-password'></input></span><span class='guiSearchBoxResults'></span>";
 ?>
 <script>
 var languageVisible;
@@ -34,14 +33,10 @@ var browserName = (function (agent) {
 
 $(function() {
 <?if ($themes2):?>
-	$(".nav-item.gui_search").hover(
-		function(){
-			if ($("#guiSearchBoxSpan").length == 0) $(".nav-item.gui_search a").append("<?=$guiSearchBoxSpan2?>");
-		  gui_search();
-	  },function(){
-			closeSearchBox();
-		}
-	);
+	$(".nav-item.gui_search").hover(function(){
+		if ($("#guiSearchBoxSpan").length == 0) $(".nav-item.gui_search a").append("<?=$guiSearchBoxSpan1?>");
+	  gui_search();
+	});
 <?endif;?>
 	$.post("/plugins/dynamix.gui.search/include/exec.php",function(data) {
 		if (data) {
