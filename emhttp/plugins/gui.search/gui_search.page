@@ -35,13 +35,14 @@ $(function() {
 	$(".nav-item.gui_search a").append("<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' onfocusout='closeSearchBox()' autocomplete='new-password'></input></span>");
 	$(".nav-item.gui_search").on('mouseenter',function(){gui_search();});
 <?endif;?>
-	$.post("/plugins/gui.search/exec.php",function(data) {
-		if (!data) return;
-		try{
-			guiSearchSuggestions = JSON.parse(data);
-			setupGUIsearch();
-		} catch(e) {
-			console.log("Invalid JSON for GUI search autocomplete");
+	$.post("/plugins/gui.search/include/exec.php",function(data) {
+		if (data) {
+			try{
+				guiSearchSuggestions = JSON.parse(data);
+				setupGUIsearch();
+			} catch(e) {
+				console.log("Invalid JSON for GUI search autocomplete");
+			}
 		}
 	});
 });
