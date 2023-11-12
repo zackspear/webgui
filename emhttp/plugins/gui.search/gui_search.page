@@ -117,7 +117,7 @@ function gui_search() {
 function closeSearchBox() {
 	$("#guiSearchBoxSpan").remove();
 <?if ($themes1):?>
-	$(".nav-tile.right").css("overflow","hidden");
+	$(".nav-tile.right").css({"overflow-x":"auto","overflow-y":"hidden"});
 	$(".nav-item.util,.nav-user.show").show();
 	if (!languageVisible) $(".nav-item.LanguageButton").hide();
 <?else:?>
