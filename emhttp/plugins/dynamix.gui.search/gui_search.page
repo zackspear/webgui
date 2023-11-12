@@ -43,7 +43,7 @@ $(function() {
 		}
 	);
 <?endif;?>
-	$.post("/plugins/gui.search/include/exec.php",function(data) {
+	$.post("/plugins/dynamix.gui.search/include/exec.php",function(data) {
 		if (data) {
 			try {
 				guiSearchSuggestions = JSON.parse(data);
@@ -152,7 +152,7 @@ if (browserName !== "Chrome" && browserName !== "Edge") {
   var head    = document.getElementsByTagName('head')[0];
   var script  = document.createElement('script');
   script.type = "text/javascript";
-  script.src  = "<?autov('/plugins/gui.search/javascript/jquery.mark.js')?>";
+  script.src  = "<?autov('/plugins/dynamix.gui.search/javascript/jquery.mark.js')?>";
   head.appendChild(script);
 }
 </script>
