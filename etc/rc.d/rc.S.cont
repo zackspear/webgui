@@ -18,6 +18,10 @@
 # If "unraidsafemode" indicated, skip installing driver packages
 if [[ -f /boot/unraidsafemode ]] || grep -wq unraidsafemode /proc/cmdline; then
   log "Unraid Safe Mode (unraidsafemode) has been set, skip driver installation"
+  # Run a local (sysadmin-version) of rc.modules if it exists:
+  if [[ -x /etc/rc.d/rc.modules.local ]]; then
+    /etc/rc.d/rc.modules.local
+  fi
 else
   # Run the kernel module script. This updates the module dependencies and
   # also supports manually loading kernel modules through rc.modules.local.
