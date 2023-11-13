@@ -150,6 +150,17 @@ for LANGUAGE in $CONFIG/plugins/lang-*.xml; do
 done
 shopt -u nullglob
 
+# Enable persistent bash history
+PERSISTENT_BASH_HISTORY=$(grep "persist_bash_history" /boot/config/plugins/dynamix/dynamix.cfg 2>/dev/null | cut -d'=' -f2 | sed 's/"//g')
+if [[ $PERSISTENT_BASH_HISTORY == 1 ]]; then
+  if [[ ! -d /boot/config/history ]]; then
+    mkdir -p /boot/config/history
+  fi
+  rm -f /root/.bash_history
+  touch /boot/config/history/bash_history
+  ln -s /boot/config/history/bash_history /root/.bash_history
+fi
+
 # Invoke the 'go' script
 if [[ -f $CONFIG/go ]]; then
   log "Starting go script"
