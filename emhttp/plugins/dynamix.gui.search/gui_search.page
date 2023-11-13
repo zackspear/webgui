@@ -45,7 +45,7 @@ $(function() {
 
 function setupGUIsearch() {
 	if (navigator.appVersion.indexOf("Mac")!=-1) {
-		window.addEventListener('keydown', function (e) {
+		window.addEventListener('keydown', function(e) {
 			if (!e.shiftKey && !e.altKey && e.metaKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -57,7 +57,7 @@ function setupGUIsearch() {
 			}
 		});
 	} else {
-		window.addEventListener('keydown', function (e) {
+		window.addEventListener('keydown', function(e) {
 			if (!e.shiftKey && !e.altKey && e.ctrlKey && e.keyCode == 75) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -71,9 +71,7 @@ function setupGUIsearch() {
 	}
 	if (browserName != "Chrome" && browserName != "Edge") {
 		var hashTag = window.location.hash.substr(1).replace("%20"," ").replace("%2d","-");
-		if (hashTag.length) {
-			$("body").mark(hashTag,{"accuracy": {"value": "exactly","limiters": [".",":","?"]},"separateWordSearch": false});
-		}
+		if (hashTag.length) $("body").mark(hashTag,{"accuracy": {"value": "exactly","limiters": [".",":","?"]},"separateWordSearch": false});
 	}
 }
 
