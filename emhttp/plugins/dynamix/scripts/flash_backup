@@ -19,7 +19,7 @@ $out = ['prev','previous'];
 
 $server = isset($var['NAME']) ? str_replace(' ','_',strtolower($var['NAME'])) : 'tower';
 $mydate = date('Ymd-Hi');
-$osVersion = @$var['version'] ?? '_unknown';
+$osVersion = _var($var,'version','_unknown');
 $backup = "$server-v$osVersion-flash-backup-$mydate.zip";
 
 $used = exec("df /boot|awk 'END{print $3}'") * 1.5;
