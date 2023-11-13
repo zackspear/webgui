@@ -96,8 +96,8 @@ find_device && /bin/echo "found $DEVICE" || abort "not found"
 
 # detect filesystem from boot device
 if /sbin/blkid -s TYPE $DEVICE | /bin/grep -q "btrfs" ; then
-  NONVFAT=true
-  /sbin/mount -v -t btrfs -o auto,rw,noatime,nodiratime,discard=async $DEVICE /boot || abort "cannot mount $DEVICE"
+  NONVFAT=btrfs
+  /sbin/mount -v -t btrfs -o auto,rw,noatime,nodiratime,discard=sync $DEVICE /boot || abort "cannot mount $DEVICE"
 else
   /bin/echo "Checking $DEVICE ..."
   /sbin/fsck.fat -a -w $DEVICE 2>/dev/null
@@ -162,7 +162,7 @@ else
 fi
 
 # set permissions for non vfat boot on /boot
-if [[ $NONVFAT == true ]]; then
+if [[ $NONVFAT == btrfs ]]; then
   /usr/bin/chown -R root:root /boot
   /usr/bin/chmod -R 644 /boot
 fi
