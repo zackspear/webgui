@@ -77,7 +77,7 @@ function setupGUIsearch() {
 			}
 		});
 	}
-	if (browserName !== "Chrome" && browserName !== "Edge") {
+	if (browserName != "Chrome" && browserName != "Edge") {
 		var hashTag = window.location.hash.substr(1).replace("%20"," ").replace("%2d","-");
 		if (hashTag.length) {
 			$("body").mark(hashTag,{"accuracy": {"value": "exactly","limiters": [".",":","?"]},"separateWordSearch": false});
