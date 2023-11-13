@@ -378,6 +378,7 @@ function abortOperation(pid) {
   });
 }
 function openChanges(cmd,title,nchan,button=0) {
+  $('div.spinner.fixed').show();
   // button = 0 : hide CLOSE button (default)
   // button = 1 : show CLOSE button
   // nchan argument is not used, exists for backward compatibility
