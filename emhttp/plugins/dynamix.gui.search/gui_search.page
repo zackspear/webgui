@@ -63,28 +63,26 @@ function setupGUIsearch() {
 }
 
 function gui_search() {
-	if (typeof Awesomplete == 'function') {
-	<?if ($themes1):?>
-		languageVisible = $('.nav-item.LanguageButton').is(':visible');
-		$('.nav-tile.right').prepend("<?=$guiSearchBoxSpan?>").css('overflow','visible');
-		$('.nav-item.util,.nav-user.show').hide();
-	<?else:?>
-		if (!guiSearchBoxSpan()) $('.nav-item.gui_search a').append("<?=$guiSearchBoxSpan?>");
-		$('.nav-item.gui_search').css('overflow','visible');
-	<?endif;?>
-		var guiSearchAwesomplete;
-		guiSearchBoxInput = document.getElementById('guiSearchBox');
-		guiSearchAwesomplete = new Awesomplete(guiSearchBoxInput);
-		if (guiSearchSuggestions) {
-			guiSearchAwesomplete.list = guiSearchSuggestions;
-			guiSearchAwesomplete.maxItems = 15;
-			guiSearchAwesomplete.autoFirst = true;
-			Awesomplete.$('#guiSearchBox').removeEventListener('awesomplete-selectcomplete',guiSearch);
-			Awesomplete.$('#guiSearchBox').addEventListener('awesomplete-selectcomplete',guiSearch);
-			$('#guiSearchBox').attr('autocomplete','new-password'); // Stop awesomplete from resetting autocomplete
-		}
-		$('#guiSearchBox').focus().keydown(function(e){if (e.which==27) closeSearchBox(e);}).blur(function(e){closeSearchBox(e);});
+	var guiSearchAwesomplete;
+<?if ($themes1):?>
+	languageVisible = $('.nav-item.LanguageButton').is(':visible');
+	$('.nav-tile.right').prepend("<?=$guiSearchBoxSpan?>").css('overflow','visible');
+	$('.nav-item.util,.nav-user.show').hide();
+<?else:?>
+	if (!guiSearchBoxSpan()) $('.nav-item.gui_search a').append("<?=$guiSearchBoxSpan?>");
+	$('.nav-item.gui_search').css('overflow','visible');
+<?endif;?>
+	guiSearchBoxInput = document.getElementById('guiSearchBox');
+	guiSearchAwesomplete = new Awesomplete(guiSearchBoxInput);
+	if (guiSearchSuggestions) {
+		guiSearchAwesomplete.list = guiSearchSuggestions;
+		guiSearchAwesomplete.maxItems = 15;
+		guiSearchAwesomplete.autoFirst = true;
+		Awesomplete.$('#guiSearchBox').removeEventListener('awesomplete-selectcomplete',guiSearch);
+		Awesomplete.$('#guiSearchBox').addEventListener('awesomplete-selectcomplete',guiSearch);
+		$('#guiSearchBox').attr('autocomplete','new-password'); // Stop awesomplete from resetting autocomplete
 	}
+	$('#guiSearchBox').focus().keydown(function(e){if (e.which==27) closeSearchBox(e);}).blur(function(e){closeSearchBox(e);});
 }
 
 function closeSearchBox(e) {
