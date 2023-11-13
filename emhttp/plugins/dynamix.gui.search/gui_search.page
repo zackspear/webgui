@@ -63,7 +63,6 @@ function setupGUIsearch() {
 }
 
 function gui_search() {
-	var guiSearchAwesomplete;
 <?if ($themes1):?>
 	languageVisible = $('.nav-item.LanguageButton').is(':visible');
 	$('.nav-tile.right').prepend("<?=$guiSearchBoxSpan?>").css('overflow','visible');
@@ -72,9 +71,8 @@ function gui_search() {
 	if (!guiSearchBoxSpan()) $('.nav-item.gui_search a').append("<?=$guiSearchBoxSpan?>");
 	$('.nav-item.gui_search').css('overflow','visible');
 <?endif;?>
-	guiSearchBoxInput = document.getElementById('guiSearchBox');
-	guiSearchAwesomplete = new Awesomplete(guiSearchBoxInput);
 	if (guiSearchSuggestions) {
+		var guiSearchAwesomplete = new Awesomplete(document.getElementById('guiSearchBox'));
 		guiSearchAwesomplete.list = guiSearchSuggestions;
 		guiSearchAwesomplete.maxItems = 15;
 		guiSearchAwesomplete.autoFirst = true;
