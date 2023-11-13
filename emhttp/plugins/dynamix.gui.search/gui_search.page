@@ -32,6 +32,13 @@ var browserName = (function (agent) {
 })(window.navigator.userAgent.toLowerCase());
 
 $(function() {
+<?if ($themes2):?>
+	$(".nav-item.gui_search").hover(function(){
+		gui_search();
+	},function(){
+		closeSearchBox();
+	});
+<?endif;?>
 	$.post("/plugins/dynamix.gui.search/include/exec.php",function(data) {
 		if (data) {
 			try {
@@ -45,13 +52,6 @@ $(function() {
 });
 
 function setupGUIsearch() {
-<?if ($themes2):?>
-	$(".nav-item.gui_search").hover(function(){
-		gui_search();
-	},function(){
-		closeSearchBox();
-	});
-<?endif;?>
 	if (navigator.appVersion.indexOf("Mac")!=-1) {
 		window.addEventListener('keydown', function (e) {
 			if (!e.shiftKey && !e.altKey && e.metaKey && e.keyCode == 75) {
