@@ -87,9 +87,8 @@ if ($themes2) {
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
 }
-// $notes = '/var/tmp/unRAIDServer.txt';
-// if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
-// $notes = "&nbsp;<span class='big blue-text fa fa-info-circle fa-fw' title='"._('View Release Notes')."' onclick=\"openChanges('showchanges $notes','"._('Release Notes')."')\"></span>";
+$notes = '/var/tmp/unRAIDServer.txt';
+if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
 ?>
 </style>
 
