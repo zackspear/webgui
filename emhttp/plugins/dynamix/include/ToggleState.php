@@ -23,6 +23,7 @@ function emcmd($cmd) {
 }
 switch ($device) {
 case 'New':
+  // unassigned device
   emcmd("cmdSpin{$action}={$name}");
   break;
 case 'Clear':
@@ -31,7 +32,7 @@ case 'Clear':
 default:
   if (!$name) {
     // spin up/down all devices
-    emcmd("cmdSpin{$device}All=true");
+    emcmd("cmdSpin{$device}All=Apply");
     break;
   }
   if (substr($name,-1) != '*') {
@@ -40,14 +41,8 @@ default:
     break;
   }
   // spin up/down group of devices
-  $disks = (array)@parse_ini_file('state/disks.ini',true);
-  // remove '*' from name
-  $name = substr($name,0,-1);
-  foreach ($disks as $disk) {
-    if (_var($disk,'status') != 'DISK_OK') continue;
-    $array = ($name=='array' && in_array(_var($disk,'type'),['Parity','Data']));
-    if ($array || explode($_tilde_,prefix(_var($disk,'name')))[0]==$name) emcmd("cmdSpin{$action}="._var($disk,'name'));
-  }
+  $name = substr($name,0,-1); // remove trailing '*' from name
+  emcmd("cmdSpin{$action}All=Apply&poolName={$name}");
   break;
 }
 ?>
