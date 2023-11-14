@@ -721,6 +721,9 @@ if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|
 // generate nvidia diagnostics
 if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
 
+// add gpu_statistics gpujson
+if (is_file("/boot/config/plugins/gpustat.plg")) run("cat /tmp/gpujson 2>/dev/null|todos >>".escapeshellarg("/$diag/system/gpujson.txt")); else null;
+
 // generate lxc diagnostics
 if (is_dir("/boot/config/plugins/lxc")) {
   run("mkdir -p ".escapeshellarg("/$diag/lxc"));
