@@ -13,6 +13,7 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Wrappers.php";
 
 $var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
 $dir = ['system','appdata','isos','domains'];
