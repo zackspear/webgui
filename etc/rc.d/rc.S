@@ -94,10 +94,16 @@ find_device() {
 /bin/echo -n "waiting up to 30 sec for device with label $UNRAIDLABEL to come online ... "
 find_device && /bin/echo "found $DEVICE" || abort "not found"
 
-/bin/echo "Checking $DEVICE ..."
-/sbin/fsck.fat -a -w $DEVICE 2>/dev/null
+# detect filesystem from boot device
+if /sbin/blkid -s TYPE $DEVICE | /bin/grep -q "btrfs" ; then
+  NONVFAT=btrfs
+  /sbin/mount -v -t btrfs -o auto,rw,noatime,nodiratime,discard=sync $DEVICE /boot || abort "cannot mount $DEVICE"
+else
+  /bin/echo "Checking $DEVICE ..."
+  /sbin/fsck.fat -a -w $DEVICE 2>/dev/null
 
-/sbin/mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mount $DEVICE"
+  /sbin/mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mo>
+fi
 
 # check initial files used to boot
 bzcheck(){
@@ -153,6 +159,12 @@ else
   /sbin/mount -w -v -n -o remount /
   RETVAL=$?
   [[ $RETVAL -gt 0 ]] && abort "failed to remount $UNRAIDROOT r/w with return value $RETVAL"
+fi
+
+# set permissions for non vfat boot on /boot
+if [[ $NONVFAT == btrfs ]]; then
+  /usr/bin/chown -R root:root /boot
+  /usr/bin/chmod -R 644 /boot
 fi
 
 # invoke testing hook (only for test versions)
