@@ -23,16 +23,20 @@ function toggle_state(device,name,action) {
   if (name) {
     var group = name.replace(/(\d+|\*)$/,'');
     if (name.slice(-1)!='*') {
+      // single device
       $('#dev-'+name.no_tilde()).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     } else {
-      if (group=='array') {
+      if (group=='disk') {
+        // array devices
         $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
         $('[id^="dev-disk"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       } else {
+        // pool devices
         $('[id^="dev-'+group.master()+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
       }
     }
   } else if (device!='Clear') {
+    // all devices
     $('[id^="dev-"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
     button = '[id^=button-]';
   }
