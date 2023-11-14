@@ -1089,6 +1089,7 @@ private static $encoding = 'UTF-8';
 
 	function getValidKeyMaps() {
 		$arrValidKeyMaps = [
+			'none' => 'No Keymap',
 			'ar' => 'Arabic (ar)',
 			'hr' => 'Croatian (hr)',
 			'cz' => 'Czech (cz)',
@@ -1413,6 +1414,7 @@ private static $encoding = 'UTF-8';
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
+		if (!isset($new['devices']['graphics']['@attributes']['keymap']) && isset($old['devices']['graphics']['@attributes']['keymap'])) unset($old['devices']['graphics']['@attributes']['keymap']) ;
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);
 		if (!$new['devices']['hostdev']) unset($new['devices']['hostdev']);

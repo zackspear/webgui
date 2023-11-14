@@ -789,7 +789,7 @@
 					if ($gpu['id'] == 'virtual') {
 						$strKeyMap = '';
 						if (!empty($gpu['keymap'])) {
-							$strKeyMap = "keymap='" . $gpu['keymap'] . "'";
+							if ($gpu['keymap'] != "none")  $strKeyMap = "keymap='" . $gpu['keymap'] . "'";
 						}
 
 						$passwdstr = '';
@@ -2085,7 +2085,7 @@
 		function domain_get_vnc_keymap($domain) {
 			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@keymap', false);
 			if (!$tmp)
-				return 'en-us';
+				return 'none';
 
 			$var = $tmp[0];
 			unset($tmp);
