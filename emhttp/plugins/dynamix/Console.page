@@ -95,8 +95,8 @@ _(Local screen blank time)_:
 
 _(Persistent Bash History)_:
 : <select name="persist_bash_history" class="narrow">
-    <option value="0" <?php echo ($console['persist_bash_history'] == 0) ? 'selected' : ''; ?>>Disabled</option>
-    <option value="1" <?php echo ($console['persist_bash_history'] == 1) ? 'selected' : ''; ?>>Enabled</option>
+   <?=mk_option($console['persist_bash_history'], "0", _('Disabled'))?>
+   <?=mk_option($console['persist_bash_history'], "1", _('Enabled'))?>
 </select>
 
 <blockquote class="inline_help">
