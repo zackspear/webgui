@@ -34,6 +34,9 @@
  * $wCTranslations->getTranslations();
  * ```
  */
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Translations.php";
+
 class WebComponentTranslations
 {
     private $translations = [];
@@ -384,6 +387,10 @@ class WebComponentTranslations
         return $this->translations ?? [];
     }
 
+    /**
+     * @param $urlEncode {bool}
+     * @return string
+     */
     public function getTranslationsJson($urlEncode = false)
     {
         if ($urlEncode) {
