@@ -15,19 +15,10 @@
 # LimeTech - bind selected devices to vfio-pci
 /usr/local/sbin/vfio-pci 1>/var/log/vfio-pci 2>/var/log/vfio-pci-errors
 
-# If "unraidsafemode" indicated, skip installing driver packages
-if [[ -f /boot/unraidsafemode ]] || grep -wq unraidsafemode /proc/cmdline; then
-  log "Unraid Safe Mode (unraidsafemode) has been set, skip driver installation"
-  # Run a local (sysadmin-version) of rc.modules if it exists:
-  if [[ -x /etc/rc.d/rc.modules.local ]]; then
-    /etc/rc.d/rc.modules.local
-  fi
-else
-  # Run the kernel module script. This updates the module dependencies and
-  # also supports manually loading kernel modules through rc.modules.local.
-  if [[ -x /etc/rc.d/rc.modules ]]; then
-    /etc/rc.d/rc.modules
-  fi
+# Run the kernel module script. This updates the module dependencies and
+# also supports manually loading kernel modules through rc.modules.local.
+if [[ -x /etc/rc.d/rc.modules ]]; then
+  /etc/rc.d/rc.modules
 fi
 
 # Initialize udev to manage /dev entries and hotplugging.

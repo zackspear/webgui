@@ -101,8 +101,7 @@ if /sbin/blkid -s TYPE $DEVICE | /bin/grep -q "btrfs" ; then
 else
   /bin/echo "Checking $DEVICE ..."
   /sbin/fsck.fat -a -w $DEVICE 2>/dev/null
-
-  /sbin/mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mo>
+  /sbin/mount -v -t vfat -o auto,rw,flush,noatime,nodiratime,dmask=77,fmask=177,shortname=mixed $DEVICE /boot || abort "cannot mount $DEVICE"
 fi
 
 # check initial files used to boot
