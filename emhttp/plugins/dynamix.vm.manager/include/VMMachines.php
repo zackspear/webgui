@@ -185,7 +185,7 @@ foreach ($vms as $vm) {
 
   $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
   $title = _('Select ISO image');
-  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#' onclick='$changemedia'><i class='fa fa-circle-o'></i></a>";
+  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-circle-o'></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
@@ -247,8 +247,8 @@ foreach ($vms as $vm) {
     } else {
       $title = _('Insert CD');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")";
-      $disk = _("No CD image inserted in to drive");
-      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'><i class='fa fa-circle-o'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
+      $disk = _("No CD image inserted into drive");
+      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-circle-o'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
     }
   }
   echo "</tbody>";
