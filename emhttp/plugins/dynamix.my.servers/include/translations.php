@@ -25,8 +25,8 @@
  * 3a. This is done so that the translation is available to the rest of the Unraid webgui.
  * 3b. Unfortunately there are numerous "special characters" that aren't allowed in Unraid's translation keys as they're automatically stripped out.
  * 3c. This means that we have to create a new translation key that is a "safe" version of the translation key used in the web components.
- * 3d. Special characters that are not allowed are: . ( ) { } [ ] ; ' " < > * /
- * 3e. There are likely more but I'm unable to find the documentation PDF. Go figure.
+ * 3d. Special characters that are not allowed are: ? { } | & ~ ! [ ] ( ) / : * ^ . " '
+ * 3e. There are likely more but I'm unable to find the documentation PDF - updated list of invalid characters above as mentioned in the language guide document.
  *
  * Usage example:
  * ```
@@ -277,7 +277,7 @@ class WebComponentTranslations
             'Checking...' => _('Checking...'),
             'View release notes' => _('View release notes'),
             'View Changelog for {0}' => sprintf(_('View Changelog for %s'), '{0}'),
-            'View Changelog & Update' => _('View Changelog & Update'),
+            'View Changelog Update' => _('View Changelog & Update'),
             '{0} Release Notes' => sprintf(_('%s Release Notes'), '{0}'),
             'Unable to open release notes' => _('Unable to open release notes'),
             'Downgrades are only recommended if you\'re unable to solve a critical issue.' => _('Downgrades are only recommended if you\'re unable to solve a critical issue.'),
