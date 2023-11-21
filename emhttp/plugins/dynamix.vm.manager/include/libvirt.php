@@ -877,7 +877,7 @@
 							# Add support for SR-IOV
 						} else {
 							if ($machine_type == 'q35'){
-								$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x06' slot='0x00' function='0x0'/>;";
+								$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x06' slot='0x00' function='0x0'/>";
 							} else {
 								$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x06' slot='0x10' function='0x0'/>";
 							}
