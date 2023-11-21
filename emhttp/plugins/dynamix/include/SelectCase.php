@@ -15,7 +15,6 @@ $file  = $_POST['file']??'';
 $model = $_POST['model']??'';
 $root  = "/boot/config/plugins/dynamix";
 $name  = "$root/$file";
-
 if (realpath(dirname($name)) == $root) {
   switch ($_POST['mode']??'') {
   case 'set':
