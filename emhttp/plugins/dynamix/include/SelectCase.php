@@ -20,6 +20,18 @@ if (realpath(dirname($name)) == $root) {
   switch ($_POST['mode']??'') {
   case 'set':
     if ($model) file_put_contents($name,$model);
+    /**
+     * reset cookie so emhttp/plugins/dynamix.my.servers/include/state.php doesn't need to read the flash each page load
+     * cookie is read in emhttp/plugins/dynamix.my.servers/include/state.php
+     */
+    $cookieOptions = array (
+      'expires' => time() + (10 * 365 * 24 * 60 * 60), // overkill
+      'path' => '/',
+      'secure' => false,
+      'httponly' => false,
+      'samesite' => 'Strict',
+    );
+    setcookie('caseModel', file_get_contents($name), $cookieOptions);
     break;
   case 'get':
     if (is_file($name)) echo file_get_contents($name);
