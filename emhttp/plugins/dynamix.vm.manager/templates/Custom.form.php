@@ -41,7 +41,8 @@
 		'template' => [
 			'name' => $strSelectedTemplate,
 			'icon' => $arrAllTemplates[$strSelectedTemplate]['icon'],
-			'os' => $arrAllTemplates[$strSelectedTemplate]['os']
+			'os' => $arrAllTemplates[$strSelectedTemplate]['os'],
+			'storage' => "default"
 		],
 		'domain' => [
 			'name' => $strSelectedTemplate,
@@ -295,6 +296,7 @@
 <input type="hidden" name="domain[uuid]" value="<?=htmlspecialchars($arrConfig['domain']['uuid'])?>">
 <input type="hidden" name="domain[arch]" value="<?=htmlspecialchars($arrConfig['domain']['arch'])?>">
 <input type="hidden" name="domain[oldname]" id="domain_oldname" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>">
+<!--<input type="hidden" name="template[oldstorage]" id="storage_oldname" value="<?=htmlspecialchars($arrConfig['template']['storage'])?>"> -->
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 	<table>
@@ -318,6 +320,63 @@
 			<p>Give the VM a brief description (optional field).</p>
 		</blockquote>
 	</div>
+
+	<table>
+		<tr>
+			<?if (!$boolNew) $disablestorage = " disabled "; else $disablestorage = "";?>
+			<td>_(Override Storage Location)_:</td><td>
+			<select <?=$disablestorage?> name="template[storage]" class="disk_select narrow" id="storage_location" title="_(Location of virtual machine files)_">
+			<?
+			$default_storage=htmlspecialchars($arrConfig['template']['storage']);
+			echo mk_option($default_storage, 'default', _('Default'));
+			
+			$strShareUserLocalInclude = '';
+			$strShareUserLocalExclude = '';
+			$strShareUserLocalUseCache = 'no';
+
+			// Get the share name and its configuration
+			$arrDomainDirParts = explode('/', $domain_cfg['DOMAINDIR']);
+			$strShareName = $arrDomainDirParts[3];
+			if (!empty($strShareName) && is_file('/boot/config/shares/'.$strShareName.'.cfg')) {
+				$arrShareCfg = parse_ini_file('/boot/config/shares/'.$strShareName.'.cfg');
+				if (!empty($arrShareCfg['shareInclude'])) {
+					$strShareUserLocalInclude = $arrShareCfg['shareInclude'];
+				}
+				if (!empty($arrShareCfg['shareExclude'])) {
+					$strShareUserLocalExclude = $arrShareCfg['shareExclude'];
+				}
+				if (!empty($arrShareCfg['shareUseCache'])) {
+					$strShareUserLocalUseCache = $arrShareCfg['shareUseCache'];
+				}
+			}
+
+			// Available cache pools
+			foreach ($pools as $pool) {
+				$strLabel = $pool.' - '.my_scale($disks[$pool]['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+				echo mk_option($default_storage, $pool, $strLabel);
+			}
+
+			// Determine which disks from the array are available for this share:
+			foreach ($disks as $name => $disk) {
+				if ((strpos($name, 'disk') === 0) && (!empty($disk['device']))) {
+					if ((!empty($strShareUserLocalInclude) && (strpos($strShareUserLocalInclude.',', $name.',') === false)) ||
+						(!empty($strShareUserLocalExclude) && (strpos($strShareUserLocalExclude.',', $name.',') !== false)) ||
+						(!empty($var['shareUserInclude']) && (strpos($var['shareUserInclude'].',', $name.',') === false)) ||
+						(!empty($var['shareUserExclude']) && (strpos($var['shareUserExclude'].',', $name.',') !== false))) {
+						// skip this disk based on local and global share settings
+						continue;
+					}
+					$strLabel = _(my_disk($name),3).' - '.my_scale($disk['fsFree']*1024, $strUnit).' '.$strUnit.' '._('free');
+					echo mk_option($default_storage, $name, $strLabel);
+				}
+			}	
+			?>
+			</td></tr>
+	</table>
+	<blockquote class="inline_help">
+		<p>Specify the overide storage pool for VM.</p>
+	</blockquote>
+
 
 	<?
 				$migratehidden =  "disabled hidden" ;
@@ -692,6 +751,8 @@
 				</td>
 			</tr>
 
+			<input type="hidden" name="disk[<?=$i?>][storage]" id="disk[<?=$i?>][storage]" value="<?=htmlspecialchars($arrConfig['template']['storage'])?>">
+
 			<tr class="disk_file_options">
 				<td>_(vDisk Size)_:</td>
 				<td>
@@ -835,7 +896,7 @@
 					</select><input type="text" name="disk[{{INDEX}}][new]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" class="disk" id="disk_{{INDEX}}" value="" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
 				</td>
 			</tr>
-
+			<input type="hidden" name="disk[{{INDEX}}][storage]" id="disk[{{INDEX}}][storage]" value="<?=htmlspecialchars($arrConfig['template']['storage'])?>">
 			<tr class="disk_file_options">
 				<td>_(vDisk Size)_:</td>
 				<td>
