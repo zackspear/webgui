@@ -116,9 +116,6 @@ function maskIP($file) {
   run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
 }
 
-function prefix($key) {
-  return preg_replace('/\d+$/','',$key);
-}
 function cache_only($disk) {
   return _var($disk,'type')=='Cache';
 }
