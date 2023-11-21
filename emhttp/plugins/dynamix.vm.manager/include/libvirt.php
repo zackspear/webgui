@@ -873,7 +873,7 @@
 						$strXVGA = '';
 						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x".$gpu_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."'/>";
 						if ($gpu_function == '00') {
-							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x".$gpu_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."'/>;";
+							$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x".$gpu_bus."' slot='0x".$gpu_slot."' function='0x".$gpu_function."'/>";
 							# Add support for SR-IOV
 						} else {
 							if ($machine_type == 'q35'){
