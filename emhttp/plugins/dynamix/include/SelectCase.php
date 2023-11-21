@@ -15,29 +15,10 @@ $file  = $_POST['file']??'';
 $model = $_POST['model']??'';
 $root  = "/boot/config/plugins/dynamix";
 $name  = "$root/$file";
-
-/**
- * reset cookie so emhttp/plugins/dynamix.my.servers/include/state.php doesn't need to read the flash each page load
- * cookie is read in emhttp/plugins/dynamix.my.servers/include/state.php
- */
-function setCaseModelCookie($modelName) {
-  $cookieOptions = array (
-    'expires' => time() + (10 * 365 * 24 * 60 * 60), // overkill
-    'path' => '/',
-    'secure' => false,
-    'httponly' => false,
-    'samesite' => 'Strict',
-  );
-  setcookie('caseModel', $modelName, $cookieOptions);
-}
-
 if (realpath(dirname($name)) == $root) {
   switch ($_POST['mode']??'') {
   case 'set':
-    if ($model) {
-      file_put_contents($name,$model);
-      setCaseModelCookie($model);
-    }
+    if ($model) file_put_contents($name,$model);
     break;
   case 'get':
     if (is_file($name)) echo file_get_contents($name);
@@ -46,7 +27,6 @@ if (realpath(dirname($name)) == $root) {
     $case = 'case-model.png';
     file_put_contents($name,$case);
     file_put_contents("$root/$case",base64_decode(str_replace('data:image/png;base64,','',$_POST['data']??'')));
-    setCaseModelCookie('custom');
     break;
   }
 }
