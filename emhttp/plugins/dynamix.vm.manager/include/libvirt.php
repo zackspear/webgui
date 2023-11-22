@@ -79,7 +79,7 @@
 
 			$folder = transpose_user_path($folder);
 
-			@shell_exec("chattr +C -R " . escapeshellarg($folder) . " &>/dev/null");
+			#@shell_exec("chattr +C -R " . escapeshellarg($folder) . " &>/dev/null");
 
 			return true;
 		}
