@@ -185,7 +185,7 @@ foreach ($vms as $vm) {
 
   $changemedia = "getisoimageboth(\"{$uuid}\",\"hda\",\"{$cdbus}\",\"{$cdfile}\",\"hdb\",\"{$cdbus2}\",\"{$cdfile2}\")";
   $title = _('Select ISO image');
-  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-circle-o'></i></a>";
+  $cdstr = $cdromcount." / 2<a class='hand' title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-dot-circle-o'></i></a>";
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a><br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." $snapshotstcount</span></span></span></td>";
   echo "<td>$desc</td>";
@@ -200,7 +200,7 @@ foreach ($vms as $vm) {
   echo "<tr child-id='$i' id='name-$i".(in_array('name-'.$i++,$show) ? "'>" : "' style='display:none'>");
   echo "<td colspan='8' style='margin:0;padding:0'>";
   echo "<table class='tablesorter domdisk'>";
-  echo "<thead class='child'><tr><th><i class='fa fa-hdd-o'></i> <b>",_('Disk devices'),"</b></th><th>",_('Serial'),"</b></th><th>",_('Bus'),"</th><th>",_('Capacity'),"</th><th>",_('Allocation'),"</th><th>Boot Order</th</tr></thead>";
+  echo "<thead class='child'><tr><th><i class='fa fa-hdd-o'></i> <b>",_('Disk devices/Volume'),"</b></th><th>",_('Serial'),"</b></th><th>",_('Bus'),"</th><th>",_('Capacity'),"</th><th>",_('Allocation'),"</th><th>Boot Order</th</tr></thead>";
   echo "<tbody class='child'>";
 
   /* Display VM disks */
@@ -213,7 +213,9 @@ foreach ($vms as $vm) {
     $boot= $arrDisk["boot order"];
     $serial = $arrDisk["serial"];
     if ($boot < 1) $boot = _('Not set');
-    echo "<tr><td>$disk</td><td>$serial</td><td>$bus</td>";
+    $reallocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($disk)." 2>/dev/null"));
+    if (!empty($reallocation)) $reallocationstr = "($reallocation)"; else $reallocationstr = "";
+    echo "<tr><td>$disk $reallocationstr</td><td>$serial</td><td>$bus</td>";
     if ($state == 'shutoff') {
       echo "<td title='Click to increase Disk Size'>";
       echo "<form method='get' action=''>";
@@ -248,7 +250,7 @@ foreach ($vms as $vm) {
       $title = _('Insert CD');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")";
       $disk = _("No CD image inserted into drive");
-      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-circle-o'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
+      echo "<tr><td>$disk<a title='$title' href='#' onclick='$changemedia'>&nbsp;<i class='fa fa-dot-circle-o'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
     }
   }
   echo "</tbody>";
