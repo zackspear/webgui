@@ -4,7 +4,7 @@ body{-webkit-overflow-scrolling:touch}
 #vmform table tr{vertical-align:top;line-height:40px}
 #vmform table tr td:nth-child(odd){width:300px;text-align:right;padding-right:10px}
 #vmform table tr td:nth-child(even){width:110px}
-#vmform table tr td:first-child{padding-right:30px}
+#vmform table tr td:first-child{width:35%;padding-right:4rem}
 #vmform table tr td:last-child{width:inherit}
 #vmform .multiple{position:relative}
 #vmform .sectionbutton{position:absolute;left:2px;cursor:pointer;opacity:0.4;font-size:1.4rem;line-height:17px;z-index:10;transition-property:opacity,left;transition-duration:0.1s;transition-timing-function:linear}
@@ -41,4 +41,3 @@ span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
 i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
 input[type=checkbox]{margin-left:0}
 #vmform table.timers td.present {width:150px;}
-#vmform table tr td:first-child{width:35%;padding-right:4rem}
