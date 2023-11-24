@@ -1610,7 +1610,7 @@ private static $encoding = 'UTF-8';
 		$dom = $lv->domain_get_info($res);
 		$state = $lv->domain_state_translate($dom['state']);
 		$vmxml = $lv->domain_get_xml($res) ;
-		file_put_contents("/tmp/cloningxml" ,$vmxml) ;
+		file_put_contents("/tmp/cloningxml" ,$vmxml) ; ## Remove before stable.
 		$storage =  $lv->_get_single_xpath_result($vm, '//domain/metadata/*[local-name()=\'vmtemplate\']/@storage');
 		if (empty($storage)) $storage = "default" ;
 		# if VM running shutdown. Record was running.
@@ -1697,7 +1697,7 @@ private static $encoding = 'UTF-8';
 		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
 
 		$xml = $lv->config_to_xml($config, true) ;
-		file_put_contents("/tmp/clonexml" ,$xml) ;
+		file_put_contents("/tmp/clonexml" ,$xml) ; ## Remove before stable.
 		$rtn = $lv->domain_define($xml) ;
 		return($rtn) ;
 
@@ -1867,7 +1867,7 @@ private static $encoding = 'UTF-8';
 		  $diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
 		  $capacity = $capacity + $disk["capacity"] ;
 	  }
-	  
+
 	  #get memory
 	  $mem = $lv->domain_get_memory_stats($vm) ;
 	  $memory = $mem[6] ;
@@ -1895,7 +1895,7 @@ private static $encoding = 'UTF-8';
 	  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
 
 	  $xmlfile = $dirpath."/".$name.".running" ;
-	  file_put_contents("/tmp/xmltst", "$xmlfile" ) ;
+	  file_put_contents("/tmp/xmltst", "$xmlfile" ) ;## Remove before stable.
 	  if ($state == "running") exec("virsh dumpxml '$vm' > ".escapeshellarg($xmlfile),$outxml,$rtnxml) ;
 
 	  $output= [] ;
@@ -1956,7 +1956,7 @@ private static $encoding = 'UTF-8';
 			  $xml = custom::createXML('domain',$xmlobj)->saveXML();
 			  if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
 			  $new = $lv->domain_define($xml);
-			  file_put_contents("/tmp/xmlrevert", "$xml" ) ;
+			  file_put_contents("/tmp/xmlrevert", "$xml" ) ;## Remove before stable.
 			  if ($new)
 				  $arrResponse  = ['success' => true] ; else
 				  $arrResponse = ['error' => $lv->get_last_error()] ;
@@ -1992,14 +1992,13 @@ private static $encoding = 'UTF-8';
 					  $xmlobj = custom::createArray('domain',$xml) ;
 					  $xml = custom::createXML('domain',$xmlobj)->saveXML();
 					  if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
-					  file_put_contents("/tmp/xmlrevert2", "$xml" ) ;
+					  file_put_contents("/tmp/xmlrevert2", "$xml" ) ;## Remove before stable.
 					  $rtn = $lv->domain_define($xml) ;
 
 					  # Restore Memory.
 
 					  $makerun = true ;
 					  if ($makerun == true) exec("virsh restore ".escapeshellarg($memoryfile)) ;
-					  #exec("virsh restore $memoryfile") ;
 					  }
 					  #Delete Metadata only.
 					  if ($actionmeta == "yes") {
@@ -2042,8 +2041,6 @@ private static $encoding = 'UTF-8';
 		  $reversed = array_reverse($output) ;
 		  $snaps[$vm][$rev] = $reversed ;
 		  $pathinfo =  pathinfo($file) ;
-		  #$filenew = $pathinfo["dirname"].'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-		  #$diskspec .= " --diskspec ".$disk["device"].",snapshot=external,file=".$filenew ;
 		  $capacity = $capacity + $disk["capacity"] ;
 	  }
 
