@@ -217,11 +217,15 @@
 				}
 			}
 		}
-
+		$newuuid = $uuid;
+		$olduuid = $uuid;
 		// construct updated config
 		if (isset($_POST['xmldesc'])) {
 			// XML view
 			$xml = $_POST['xmldesc'];
+			$arrExistingConfig = custom::createArray('domain',$xml);
+			$newuuid = $arrExistingConfig['uuid'] ;
+			$xml = str_replace($olduuid,$newuuid,$xml);
 		} else {
 			// form view
 			if ($error = create_vdisk($_POST) === false) {
@@ -240,6 +244,7 @@
 		$lv->nvram_backup($uuid);
 		$lv->domain_undefine($dom);
 		$lv->nvram_restore($uuid);
+		if ($newuuid != $olduuid) $lv->nvram_rename($olduuid,$newuuid);
 		$new = $lv->domain_define($xml);
 		if ($new) {
 			$lv->domain_set_autostart($new, $newAutoStart);
