@@ -41,3 +41,4 @@ span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
 i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
 input[type=checkbox]{margin-left:0}
 #vmform table.timers td.present {width:150px;}
+#vmform table tr td:first-child{width:35%;padding-right:4rem}
