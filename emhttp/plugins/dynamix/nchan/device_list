@@ -273,7 +273,7 @@ function array_online(&$disk, $fstype='') {
   case 'DISK_DSBL':
   default:
     $echo[] = "<td>".device_info($disk,true)."</td>";
-    $echo[] = "<td>".device_desc($disk)." NVME Test</td>";
+    $echo[] = "<td>".device_desc($disk)."</td>";
     if ($disk['transport'] == "nvme") {
       $powerstate=getnvmepowerstate("/dev/".$disk['device']); 
       $powerstatevalue="<br>PS: ".$powerstate['powerstatevalue']."(".$powerstate['powerstate'].")" ;
