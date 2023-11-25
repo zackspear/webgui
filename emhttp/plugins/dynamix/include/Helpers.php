@@ -277,15 +277,15 @@ function getnvmepowerstate($device) {
           case "cctemp":
               $return['cctemp'] = $split[1] - 273;
               break;
-              case "ps0":
-              case "ps1":
-              case "ps2":
-              case "ps3":
-              case "ps4":
-              case "ps5":
-                  $power = explode(" ",$split[2]) ;
-                  $return[$check] = $power[0];
-                  break;
+          case "ps0":
+          case "ps1":
+          case "ps2":
+          case "ps3":
+          case "ps4":
+          case "ps5":
+              $power = explode(" ",$split[2]) ;
+              $return[$check] = $power[0];
+              break;
       }
   }
   $powerstate = shell_exec("nvme get-feature $device -f 02");
