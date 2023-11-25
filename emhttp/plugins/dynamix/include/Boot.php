@@ -34,6 +34,7 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 
 <style>
 .notice{background-image:none;color:#e68a00;font-size:6rem;text-transform:uppercase;text-align:center;padding:4rem 0}
