@@ -102,7 +102,7 @@ div.title.shift{margin-top:-30px}
 .usage-disk.sys.none{background-color:transparent}
 .usage-disk.mm{height:3px;margin:5px 20px 0 0}
 .usage-disk.mm>span:first-child{height:3px}
-.notice{background:#fff6bf url(../images/notice.png) no-repeat;background-position:60px 50%;color:#1c1b1b;font-size:1.4rem;text-align:left;padding:15px 0 15px 130px;display:block;height:7rem;line-height:7rem;vertical-align:middle;border-top:2px solid #ffd324;border-bottom:2px solid #ffd324}
+.notice{background:rgba(255,255,255,.5) url(../images/notice.png) no-repeat;background-position:60px 50%;color:#1c1b1b;font-size:1.4rem;text-align:left;padding:15px 0 15px 130px;display:block;height:7rem;line-height:7rem;vertical-align:middle}
 .notice.shift{margin-top:160px}
 .greenbar{background:-webkit-gradient(linear,left top,right top,from(#127a05),to(#17bf0b));background:linear-gradient(90deg,#127a05 0,#17bf0b)}
 .orangebar{background:-webkit-gradient(linear,left top,right top,from(#ce7c10),to(#ce7c10));background:linear-gradient(90deg,#ce7c10 0,#ce7c10)}
@@ -229,7 +229,7 @@ div.Panel i.PanelIcon{font-size:32px;color:#1c1b1b}
 div.user-list{float:left;padding:10px;margin-right:10px;margin-bottom:24px;border:1px solid #dedede;border-radius:5px;line-height:2rem;height:10rem;width:10rem;background-color:#e8e8e8}
 div.user-list img{width:auto;max-width:48px;height:48px;margin-bottom:16px}
 div.up{margin-top:-30px;border:1px solid #e3e3e3;padding:4px 6px;overflow:auto}
-div.spinner{text-align:center;cursor:wait;}
+div.spinner{text-align:center;cursor:wait}
 div.spinner.fixed{display:none;position:fixed;top:0;left:0;z-index:99999;bottom:0;right:0;margin:0;}
 div.spinner .unraid_mark{height:64px; position:fixed;top:50%;left:50%;margin-top:-16px;margin-left:-64px;}
 div.spinner .unraid_mark_2,div .unraid_mark_4{animation:mark_2 1.5s ease infinite}

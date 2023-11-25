@@ -108,7 +108,7 @@ div.title.shift{margin-top:-12px}
 .usage-disk.sys>span{line-height:normal;height:12px;padding:0}
 .usage-disk.mm{height:3px;line-height:normal;background-color:transparent;margin:5px 20px 0 0}
 .usage-disk.mm>span:first-child{height:3px;line-height:normal}
-.notice{background:#fff6bf url(../images/notice.png) no-repeat;background-position:60px 50%;font-size:1.4rem;text-align:left;padding:15px 0 15px 130px;display:block;height:7rem;line-height:7rem;vertical-align:middle;border-top:1px solid #ffd324;border-bottom:1px solid #ffd324}
+.notice{background:rgba(0,0,0,.5) url(../images/notice.png) no-repeat;background-position:60px 50%;font-size:1.4rem;text-align:left;padding:15px 0 15px 130px;display:block;height:7rem;line-height:7rem;vertical-align:middle}
 .greenbar{background:-webkit-radial-gradient(#127a05,#17bf0b);background:linear-gradient(#127a05,#17bf0b)}
 .orangebar{background:-webkit-radial-gradient(#ce7c10,#f0b400);background:linear-gradient(#ce7c10,#f0b400)}
 .redbar{background:-webkit-radial-gradient(#941c00,#de1100);background:linear-gradient(#941c00,#de1100)}
@@ -242,7 +242,7 @@ div.vmtemplate:hover{background-color:#121510}
 div.vmtemplate{height:12rem;width:12rem;border:1px solid #0c0f0b}
 div.vmtemplate img{margin-top:20px}
 div.up{margin-top:-20px;border:1px solid #0c0f0b;padding:4px 6px;overflow:auto}
-div.spinner{text-align:center;cursor:wait;}
+div.spinner{text-align:center;cursor:wait}
 div.spinner.fixed{display:none;position:fixed;top:0;left:0;z-index:99999;bottom:0;right:0;margin:0;}
 div.spinner .unraid_mark{height:64px; position:fixed;top:50%;left:50%;margin-top:-16px;margin-left:-64px;}
 div.spinner .unraid_mark_2,div .unraid_mark_4{animation:mark_2 1.5s ease infinite}
