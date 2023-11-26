@@ -111,27 +111,27 @@ function shutdown_now() {
 }
 function reboot_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){
-     $('#system').html("<?=_("System is going down")?>... "+timer());
-     setTimeout(reboot_online,5000);
-   })
-   .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
+  .done(function(){
+    $('#system').html("<?=_("System is going down")?>... "+timer());
+    setTimeout(reboot_online,5000);
+  })
+  .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
 }
 function reboot_offline() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){location = '/Main';})
-   .fail(function(){
-     $('#system').html("<?=_("System is rebooting")?>... "+timer());
-     setTimeout(reboot_offline,1000);
-   });
+  .done(function(){location = '/Main';})
+  .fail(function(){
+    $('#system').html("<?=_("System is rebooting")?>... "+timer());
+    setTimeout(reboot_offline,1000);
+  });
 }
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){
-     $('#system').html("<?=_("System is going down")?>... "+timer());
-     setTimeout(shutdown_online,5000);
-   })
-   .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
+  .done(function(){
+    $('#system').html("<?=_("System is going down")?>... "+timer());
+    setTimeout(shutdown_online,5000);
+  })
+  .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
 }
 function shutdown_offline() {
   var time = timer();
@@ -145,8 +145,8 @@ function shutdown_offline() {
 }
 function power_on() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
-   .done(function(){location = '/Main';})
-   .fail(function(){setTimeout(power_on,1000);});
+  .done(function(){location = '/Main';})
+  .fail(function(){setTimeout(power_on,1000);});
 }
 $(document).ajaxSend(function(elm, xhr, s){
   if (s.type == "POST") {
