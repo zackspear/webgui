@@ -57,12 +57,12 @@ var boot = new NchanSubscriber('/sub/var',{subscriber:'websocket'});
 boot.on('message', function(msg) {
   var ini = parseINI(msg);
   switch (ini['fsState']) {
-    case 'Stopped'   : var status = '<span class="red"><?=_('Array Stopped')?></span>'; break;
-    case 'Started'   : var status = '<span class="green"><?=_('Array Started')?></span>'; break;
-    case 'Formatting': var status = '<span class="green"><?=_('Array Started')?></span>&bullet;<span class="orange tour"><?=_('Formatting device(s)')?></span>'; break;
-    default          : var status = '<span class="orange">'+_('Array '+ini['fsState'])+'</span>';
+    case 'Stopped'   : var status = "<span class='red'><?=_('Array Stopped')?></span>"; break;
+    case 'Started'   : var status = "<span class='green'><?=_('Array Started')?></span>"; break;
+    case 'Formatting': var status = "<span class='green'><?=_('Array Started')?></span>&bullet;<span class='orange tour'><?=_('Formatting device(s)')?></span>"; break;
+    default          : var status = "<span class='orange'>"+_('Array '+ini['fsState'])+"</span>";
   }
-  if (ini['fsProgress']) status += '&bullet;<span class="blue tour">'+_(ini['fsProgress'])+'</span>';
+  if (ini['fsProgress']) status += "&bullet;<span class='blue tour'>"+_(ini['fsProgress'])+"</span>";
   $('.sub1').html(status);
 });
 
@@ -158,7 +158,7 @@ $(document).ajaxSend(function(elm, xhr, s){
 </head>
 <?
 $safemode = '/boot/unraidsafemode';
-$progress = (_var($var,'fsProgress')!='') ? '&bullet;<span class="blue tour">'.$var['fsProgress'].'</span>' : '';
+$progress = (_var($var,'fsProgress')!='') ? "&bullet;<span class='blue tour'>{$var['fsProgress']}</span>" : "";
 
 switch (_var($_POST,'cmd','shutdown')) {
 case 'reboot':
@@ -176,13 +176,13 @@ echo '<div class="notice"></div>';
 echo '<div class="sub1">';
 switch (_var($var,'fsState')) {
 case 'Stopped':
-  echo '<span class="red">',_('Array Stopped'),"</span>$progress"; break;
+  echo "<span class='red'>",_('Array Stopped'),"</span>$progress"; break;
 case 'Starting':
-  echo '<span class="orange">',_('Array Starting'),"</span>$progress"; break;
+  echo "<span class='orange'>",_('Array Starting'),"</span>$progress"; break;
 case 'Stopping':
-  echo '<span class="orange">',_('Array Stopping'),"</span>$progress"; break;
+  echo "<span class='orange'>",_('Array Stopping'),"</span>$progress"; break;
 default:
-  echo '<span class="green">',_('Array Started'),"</span>$progress"; break;
+  echo "<span class='green'>",_('Array Started'),"</span>$progress"; break;
 }
 echo '</div>';
 echo '<div class="sub2"></div>';
