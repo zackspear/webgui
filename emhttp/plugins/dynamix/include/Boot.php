@@ -34,7 +34,6 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-{$display['theme']}.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 
 <style>
 .notice{background-image:none;color:#e68a00;font-size:6rem;text-transform:uppercase;text-align:center;padding:4rem 0}
@@ -58,23 +57,10 @@ var boot = new NchanSubscriber('/sub/var',{subscriber:'websocket'});
 boot.on('message', function(msg) {
   var ini = parseINI(msg);
   switch (ini['fsState']) {
-    case 'Stopped'   : var status = "<span class='red'><i class='fa fa-stop-circle'></i> <?=_('Array Stopped')?></span>"; break;
-    case 'Started'   : var status = "<span class='green'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>"; break;
-    case 'Formatting': var status = "<span class='green'><i class='fa fa-play-circle'></i> <?=_('Array Started')?></span>&bullet;<span class='orange tour'><?=_('Formatting device(s)')?></span>"; break;
-    default          : var status = "<span class='orange'><i class='fa fa-pause-circle'></i> "+_('Array '+ini['fsState'])+"</span>";
-  }
-  if (ini['mdResyncPos'] > 0) {
-    var resync = ini['mdResyncAction'].split(/\s+/);
-    switch (resync[0]) {
-      case 'recon': var action = resync[1]=='P' ? "<?=_('Parity-Sync')?>" : "<?=_('Data-Rebuild')?>"; break;
-      case 'check': var action = resync.length>1 ? "<?=_('Parity-Check')?>" : "<?=_('Read-Check')?>"; break;
-      case 'clear': var action = "<?=_('Disk-Clear')?>"; break;
-      default     : var action = '';
-    }
-    action += " "+(ini['mdResyncPos']/(ini['mdResyncSize']/100+1)).toFixed(1)+" %";
-    status += "&bullet;<span class='orange tour'>"+action.replace('.','<?=_var($display,'number','.,')[0]?>');
-    if (ini['mdResyncDt']==0) status += " &bullet; <?=_('Paused')?>";
-    status += "</span>";
+    case 'Stopped'   : var status = "<span class='red'><?=_('Array Stopped')?></span>"; break;
+    case 'Started'   : var status = "<span class='green'><?=_('Array Started')?></span>"; break;
+    case 'Formatting': var status = "<span class='green'><?=_('Array Started')?></span>&bullet;<span class='orange tour'><?=_('Formatting device(s)')?></span>"; break;
+    default          : var status = "<span class='orange'>"+_('Array '+ini['fsState'])+"</span>";
   }
   if (ini['fsProgress']) status += "&bullet;<span class='blue tour'>"+_(ini['fsProgress'])+"</span>";
   $('#array').html(status);
@@ -193,13 +179,13 @@ echo '<div class="notice"></div>';
 echo '<div id="array">';
 switch (_var($var,'fsState')) {
 case 'Stopped':
-  echo "<span class='red'><i class='fa fa-stop-circle'></i> "._('Array Stopped')."</span>$progress"; break;
+  echo "<span class='red'>"._('Array Stopped')."</span>$progress"; break;
 case 'Starting':
-  echo "<span class='orange'><i class='fa fa-pause-circle'></i> "._('Array Starting')."</span>$progress"; break;
+  echo "<span class='orange'>"._('Array Starting')."</span>$progress"; break;
 case 'Stopping':
-  echo "<span class='orange'><i class='fa fa-pause-circle'></i> "._('Array Stopping')."</span>$progress"; break;
+  echo "<span class='orange'>"._('Array Stopping')."</span>$progress"; break;
 default:
-  echo "<span class='green'><i class='fa fa-play-circle'></i> "._('Array Started')."</span>$progress"; break;
+  echo "<span class='green'>"._('Array Started')."</span>$progress"; break;
 }
 echo '</div>';
 echo '<div id="system"></div>';
