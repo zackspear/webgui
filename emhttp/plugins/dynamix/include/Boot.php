@@ -37,7 +37,7 @@ $var = parse_ini_file("/var/local/emhttp/var.ini");
 
 <style>
 .notice{background-image:none;color:#e68a00;font-size:6rem;text-transform:uppercase;text-align:center;padding:4rem 0}
-#system,#array{margin:6rem 0;text-align:center;font-size:3rem}
+.sub1,.sub2{margin:6rem 0;text-align:center;font-size:3rem}
 </style>
 
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
@@ -63,7 +63,7 @@ boot.on('message', function(msg) {
     default          : var status = "<span class='orange'>"+_('Array '+ini['fsState'])+"</span>";
   }
   if (ini['fsProgress']) status += "&bullet;<span class='blue tour'>"+_(ini['fsProgress'])+"</span>";
-  $('#array').html(status);
+  $('.sub1').html(status);
 });
 
 function parseINI(msg) {
@@ -112,7 +112,7 @@ function shutdown_now() {
 function reboot_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){
-    $('#system').html("<?=_("System is going down")?>... "+timer());
+    $('.sub2').html("<?=_("System is going down")?>... "+timer());
     setTimeout(reboot_online,5000);
   })
   .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
@@ -121,14 +121,14 @@ function reboot_offline() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){location = '/Main';})
   .fail(function(){
-    $('#system').html("<?=_("System is rebooting")?>... "+timer());
+    $('.sub2').html("<?=_("System is rebooting")?>... "+timer());
     setTimeout(reboot_offline,1000);
   });
 }
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){
-    $('#system').html("<?=_("System is going down")?>... "+timer());
+    $('.sub2').html("<?=_("System is going down")?>... "+timer());
     setTimeout(shutdown_online,5000);
   })
   .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
@@ -136,10 +136,10 @@ function shutdown_online() {
 function shutdown_offline() {
   var time = timer();
   if (time < 30) {
-    $('#system').html("<?=_("System is offline")?>... "+time);
+    $('.sub2').html("<?=_("System is offline")?>... "+time);
     setTimeout(shutdown_offline,5000);
   } else {
-    $('#system').html("<?=_("System is powered off")?>... "+time);
+    $('.sub2').html("<?=_("System is powered off")?>... "+time);
     setTimeout(power_on,1000);
   }
 }
@@ -149,7 +149,7 @@ function power_on() {
   .fail(function(){setTimeout(power_on,1000);});
 }
 $(document).ajaxSend(function(elm, xhr, s){
-  if (s.type == "POST") {
+  if (s.type == 'POST') {
     s.data += s.data?"&":"";
     s.data += "csrf_token=<?=_var($var,'csrf_token')?>";
   }
@@ -158,7 +158,7 @@ $(document).ajaxSend(function(elm, xhr, s){
 </head>
 <?
 $safemode = '/boot/unraidsafemode';
-$progress = (_var($var,'fsProgress')!='')? "&bullet;<span class='blue tour'>{$var['fsProgress']}</span>" : '';
+$progress = (_var($var,'fsProgress')!='') ? "&bullet;<span class='blue tour'>{$var['fsProgress']}</span>" : "";
 
 switch (_var($_POST,'cmd','shutdown')) {
 case 'reboot':
@@ -173,7 +173,7 @@ case 'shutdown':
   break;
 }
 echo '<div class="notice"></div>';
-echo '<div id="array">';
+echo '<div class="sub1">';
 switch (_var($var,'fsState')) {
 case 'Stopped':
   echo "<span class='red'>",_('Array Stopped'),"</span>$progress"; break;
@@ -185,7 +185,7 @@ default:
   echo "<span class='green'>",_('Array Started'),"</span>$progress"; break;
 }
 echo '</div>';
-echo '<div id="system"></div>';
+echo '<div class="sub2"></div>';
 echo '</body>';
 ?>
 </html>
