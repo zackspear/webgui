@@ -960,6 +960,7 @@ nchan_docker.on('message', function(data) {
   }
   box.scrollTop(box[0].scrollHeight);
 });
+
 var nchan_vmaction = new NchanSubscriber('/sub/vmaction',{subscriber:'websocket'});
 nchan_vmaction.on('message', function(data) {
   if (!data || openDone(data) || openError(data)) return;
@@ -1008,6 +1009,7 @@ nchan_vmaction.on('message', function(data) {
   }
   box.scrollTop(box[0].scrollHeight);
 });
+
 var backtotopoffset = 250;
 var backtotopduration = 500;
 $(window).scroll(function() {
