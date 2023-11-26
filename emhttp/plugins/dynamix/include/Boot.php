@@ -100,19 +100,19 @@ function timer() {
   return Math.round((now.getTime()-start.getTime())/1000);
 }
 function reboot_now() {
-  $('.notice').html("<?=_("Reboot")?>");
+  $('.notice').html("<?=_('Reboot')?>");
   boot.start();
   reboot_online();
 }
 function shutdown_now() {
-  $('.notice').html("<?=_("Shutdown")?>");
+  $('.notice').html("<?=_('Shutdown')?>");
   boot.start();
   shutdown_online();
 }
 function reboot_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){
-    $('.sub2').html("<?=_("System is going down")?>... "+timer());
+    $('.sub2').html("<?=_('System is going down')?>... "+timer());
     setTimeout(reboot_online,5000);
   })
   .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
@@ -121,14 +121,14 @@ function reboot_offline() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){location = '/Main';})
   .fail(function(){
-    $('.sub2').html("<?=_("System is rebooting")?>... "+timer());
+    $('.sub2').html("<?=_('System is rebooting')?>... "+timer());
     setTimeout(reboot_offline,1000);
   });
 }
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
   .done(function(){
-    $('.sub2').html("<?=_("System is going down")?>... "+timer());
+    $('.sub2').html("<?=_('System is going down')?>... "+timer());
     setTimeout(shutdown_online,5000);
   })
   .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
@@ -136,10 +136,10 @@ function shutdown_online() {
 function shutdown_offline() {
   var time = timer();
   if (time < 30) {
-    $('.sub2').html("<?=_("System is offline")?>... "+time);
+    $('.sub2').html("<?=_('System is offline')?>... "+time);
     setTimeout(shutdown_offline,5000);
   } else {
-    $('.sub2').html("<?=_("System is powered off")?>... "+time);
+    $('.sub2').html("<?=_('System is powered off')?>... "+time);
     setTimeout(power_on,1000);
   }
 }
