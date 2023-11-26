@@ -100,17 +100,18 @@ function timer() {
   return Math.round((now.getTime()-start.getTime())/1000);
 }
 function reboot_now() {
+  $('.notice').html("<?=_("Reboot")?>");
   boot.start();
   reboot_online();
 }
 function shutdown_now() {
+  $('.notice').html("<?=_("Shutdown")?>");
   boot.start();
   shutdown_online();
 }
 function reboot_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
    .done(function(){
-     $('.notice').html("<?=_("Reboot")?>");
      $('#system').html("<?=_("System is going down")?>... "+timer());
      setTimeout(reboot_online,5000);
    })
@@ -120,7 +121,6 @@ function reboot_offline() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
    .done(function(){location = '/Main';})
    .fail(function(){
-     $('.notice').html("<?=_("Reboot")?>");
      $('#system').html("<?=_("System is rebooting")?>... "+timer());
      setTimeout(reboot_offline,1000);
    });
@@ -128,7 +128,6 @@ function reboot_offline() {
 function shutdown_online() {
   $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
    .done(function(){
-     $('.notice').html("<?=_("Shutdown")?>");
      $('#system').html("<?=_("System is going down")?>... "+timer());
      setTimeout(shutdown_online,5000);
    })
@@ -137,11 +136,9 @@ function shutdown_online() {
 function shutdown_offline() {
   var time = timer();
   if (time < 30) {
-    $('.notice').html("<?=_("Shutdown")?>");
     $('#system').html("<?=_("System is offline")?>... "+time);
     setTimeout(shutdown_offline,5000);
   } else {
-    $('.notice').html("<?=_("Shutdown")?>");
     $('#system').html("<?=_("System is powered off")?>... "+time);
     setTimeout(power_on,1000);
   }
@@ -179,13 +176,13 @@ echo '<div class="notice"></div>';
 echo '<div id="array">';
 switch (_var($var,'fsState')) {
 case 'Stopped':
-  echo "<span class='red'>"._('Array Stopped')."</span>$progress"; break;
+  echo "<span class='red'>",_('Array Stopped'),"</span>$progress"; break;
 case 'Starting':
-  echo "<span class='orange'>"._('Array Starting')."</span>$progress"; break;
+  echo "<span class='orange'>",_('Array Starting'),"</span>$progress"; break;
 case 'Stopping':
-  echo "<span class='orange'>"._('Array Stopping')."</span>$progress"; break;
+  echo "<span class='orange'>",_('Array Stopping'),"</span>$progress"; break;
 default:
-  echo "<span class='green'>"._('Array Started')."</span>$progress"; break;
+  echo "<span class='green'>",_('Array Started'),"</span>$progress"; break;
 }
 echo '</div>';
 echo '<div id="system"></div>';
