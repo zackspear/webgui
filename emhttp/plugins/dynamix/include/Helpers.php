@@ -265,35 +265,36 @@ function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
 function getnvmepowerstate($device) {
-  $array=[] ;
-  exec("nvme  id-ctrl $device |grep -E 'ps |wctemp|cctemp'",$array,$error) ;
-  foreach ($array as $line){
-      $split = explode(":",$line) ;
-      $check=str_replace(" ","",trim($split[0]));
-      switch($check){
-          case "wctemp":
-              $return['wctemp'] = $split[1] - 273;
-              break;
-          case "cctemp":
-              $return['cctemp'] = $split[1] - 273;
-              break;
-          case "ps0":
-          case "ps1":
-          case "ps2":
-          case "ps3":
-          case "ps4":
-          case "ps5":
-              $power = explode(" ",$split[2]) ;
-              $return[$check] = $power[0];
-              break;
-      }
+  if (!exec("which nvme 2>/dev/null")) return;
+  exec("nvme id-ctrl $device | grep -E 'ps |wctemp|cctemp'",$rows);
+  foreach ($rows as $row){
+    if (!$row) continue;
+    $split = explode(':',$row);
+    $check = str_replace(' ','',trim($split[0]));
+    switch ($check){
+    case "wctemp":
+      $return['wctemp'] = $split[1] - 273;
+      break;
+    case "cctemp":
+      $return['cctemp'] = $split[1] - 273;
+      break;
+    case "ps0":
+    case "ps1":
+    case "ps2":
+    case "ps3":
+    case "ps4":
+    case "ps5":
+      $power = explode(' ',$split[2]);
+      $return[$check] = $power[0];
+      break;
+    }
   }
   $powerstate = shell_exec("nvme get-feature $device -f 02");
-  $powersplit = explode(":",$powerstate) ;
-  $powerstate = substr(trim($powersplit[2]), -1) ;
-  #get-feature:0x02 (Power Management), Current value:0x00000003)
-  $return["powerstate"] = $powerstate;
-  $return["powerstatevalue"] =  $return['ps'.$return['powerstate']] ;
+  $powersplit = explode(':',$powerstate);
+  $powerstate = substr(trim($powersplit[2]),-1);
+  # get-feature:0x02 (Power Management), Current value:0x00000003)
+  $return['powerstate'] = $powerstate;
+  $return['powerstatevalue'] = $return['ps'.$return['powerstate']];
   return $return;
 }
 ?>
