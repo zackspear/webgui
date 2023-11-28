@@ -390,8 +390,7 @@ echo "</td></tr>";
 
 <div class='tile' id='tile2'>
 <table id='db-box2' class='share_status dashboard'>
-<?if ($display['dashapps']!='none'):?>
-<?if ($dockerd && ($display['dashapps']=='icons' || $display['dashapps']=='docker')):?>
+<?if ($dockerd):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
 <span id="tile_apps"><span class='apps'><input type='checkbox' id='apps'></span></span>
@@ -400,7 +399,7 @@ echo "</td></tr>";
 </td></tr>
 </tbody>
 <?endif;?>
-<?if ($libvirtd && ($display['dashapps']=='icons' || $display['dashapps']=='vms')):?>
+<?if ($libvirtd):?>
 <tbody id='vm_view' title="_(Virtual Machines)_" data="noVMs()">
 <tr><td><i class='icon-virtualization f32'></i><div class='section'>_(Virtual Machines)_<br>
 <span id="tile_vms"><span class='vms'><input type='checkbox' id='vms'></span></span>
@@ -408,7 +407,6 @@ echo "</td></tr>";
 <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
-<?endif;?>
 <?endif;?>
 
 <tbody title="_(Shares Information)_"<?if ($group):?> class="mixed"<?endif;?>>
@@ -909,7 +907,7 @@ function loadlist(init) {
       $('#vms').is(':checked') ? $.cookie('my_vms','startedOnly',{expires:3650}) : $.removeCookie('my_vms');
     });
   }
-  $.post('/webGui/include/DashboardApps.php',{display:'<?=$display['dashapps']?>',docker:'<?=$dockerd?>',vms:'<?=$libvirtd?>'},function(d) {
+  $.post('/webGui/include/DashboardApps.php',{docker:'<?=$dockerd?>',vms:'<?=$libvirtd?>'},function(d) {
     var data = d.split('\0');
     $('#docker_view tr.updated').remove();
     $('#docker_view').append(data[0]).hideMe();
