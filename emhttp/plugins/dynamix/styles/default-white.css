@@ -102,7 +102,7 @@ div.title.shift{margin-top:-30px}
 .usage-disk.sys.none{background-color:transparent}
 .usage-disk.mm{height:3px;margin:5px 20px 0 0}
 .usage-disk.mm>span:first-child{height:3px}
-.notice{background:#fff6bf url(../images/notice.png) no-repeat;background-position:60px 50%;color:#1c1b1b;font-size:1.4rem;text-align:left;padding:15px 0 15px 130px;display:block;height:7rem;line-height:7rem;vertical-align:middle;border-top:2px solid #ffd324;border-bottom:2px solid #ffd324}
+.notice{background:url(../images/notice.png) no-repeat 30px 50%;font-size:1.5rem;text-align:left;vertical-align:middle;padding-left:100px;height:6rem;line-height:6rem}
 .notice.shift{margin-top:160px}
 .greenbar{background:-webkit-gradient(linear,left top,right top,from(#127a05),to(#17bf0b));background:linear-gradient(90deg,#127a05 0,#17bf0b)}
 .orangebar{background:-webkit-gradient(linear,left top,right top,from(#ce7c10),to(#ce7c10));background:linear-gradient(90deg,#ce7c10 0,#ce7c10)}
@@ -229,9 +229,9 @@ div.Panel i.PanelIcon{font-size:32px;color:#1c1b1b}
 div.user-list{float:left;padding:10px;margin-right:10px;margin-bottom:24px;border:1px solid #dedede;border-radius:5px;line-height:2rem;height:10rem;width:10rem;background-color:#e8e8e8}
 div.user-list img{width:auto;max-width:48px;height:48px;margin-bottom:16px}
 div.up{margin-top:-30px;border:1px solid #e3e3e3;padding:4px 6px;overflow:auto}
-div.spinner{text-align:center;cursor:wait;}
-div.spinner.fixed{display:none;position:fixed;top:0;left:0;z-index:99999;bottom:0;right:0;margin:0;}
-div.spinner .unraid_mark{height:64px; position:fixed;top:50%;left:50%;margin-top:-16px;margin-left:-64px;}
+div.spinner{text-align:center;cursor:wait}
+div.spinner.fixed{display:none;position:fixed;top:0;left:0;z-index:99999;bottom:0;right:0;margin:0}
+div.spinner .unraid_mark{height:64px; position:fixed;top:50%;left:50%;margin-top:-16px;margin-left:-64px}
 div.spinner .unraid_mark_2,div .unraid_mark_4{animation:mark_2 1.5s ease infinite}
 div.spinner .unraid_mark_3{animation:mark_3 1.5s ease infinite}
 div.spinner .unraid_mark_6,div .unraid_mark_8{animation:mark_6 1.5s ease infinite}
@@ -245,7 +245,7 @@ pre.up{margin-top:-30px}
 pre{border:1px solid #e3e3e3;font-family:bitstream;font-size:1.3rem;line-height:1.8rem;padding:4px 6px;overflow:auto}
 iframe#progressFrame{position:fixed;bottom:32px;left:0;margin:0;padding:8px 8px 0 8px;width:100%;height:1.2rem;line-height:1.2rem;border-style:none;overflow:hidden;font-family:bitstream;font-size:1.1rem;color:#808080;white-space:nowrap;z-index:-10}
 dl{margin:0;padding-left:12px;line-height:2.6rem}
-dt{clear:left;float:left;width:35%;font-weight:normal}
+dt{clear:left;float:left;width:35%;font-weight:normal;text-align:right;margin-right:4rem}
 dd{margin-bottom:12px;white-space:nowrap}
 dd p{margin:0 0 4px 0}
 dd blockquote{padding-left:0}
@@ -259,10 +259,10 @@ span.checkmark{position:absolute;top:0;left:6px;height:14px;width:14px;backgroun
 label.checkbox:hover input ~ .checkmark{background-color:#b3b3b3}
 label.checkbox input:checked ~ .checkmark{background-color:#ff8c2f}
 label.checkbox input:disabled ~ .checkmark{opacity:0.5}
-a.bannerDismiss {float:right;cursor:pointer;text-decoration:none;margin-right:1rem;}
-.bannerDismiss::before {content:"\e92f";font-family:Unraid;color:#e68a00;}
-a.bannerInfo {cursor:pointer;text-decoration:none;}
-.bannerInfo::before {content:"\f05a";font-family:fontAwesome;color:#e68a00;}
+a.bannerDismiss {float:right;cursor:pointer;text-decoration:none;margin-right:1rem}
+.bannerDismiss::before {content:"\e92f";font-family:Unraid;color:#e68a00}
+a.bannerInfo {cursor:pointer;text-decoration:none}
+.bannerInfo::before {content:"\f05a";font-family:fontAwesome;color:#e68a00}
 ::-webkit-scrollbar{width:10px;height:10px;background:transparent}
 ::-webkit-scrollbar-thumb{background:lightgray;border-radius:10px}
 ::-webkit-scrollbar-corner{background:lightgray;border-radius:10px}

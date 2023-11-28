@@ -73,25 +73,29 @@ function prepareConsole(form) {
 
 _(Local keyboard layout)_:
 : <select name="keyboard_layout">
-  <?foreach ($keymaps as $keymap => $text) echo mk_option($console['keyboard_layout'], $keymap, $text, (!isset($console['keyboard_layout']) && $keymap == 'us' ? 'selected' : ''))?>
-</select>
+  <?foreach ($keymaps as $keymap => $text):?>
+  <?=mk_option(_var($console,'keyboard_layout','us'), $keymap, $text)?>
+  <?endforeach;?>
+  </select>
 
 :console_keyboard_help:
 
 _(Local screen blank time)_:
-: <select name="screen_blank" class="narrow">
-  <option value="default" <?php echo (!isset($console['screen_blank']) || $console['screen_blank'] == 'default') ? 'selected' : ''; ?>>Default - 15</option>
-  <option value="disabled" <?php echo ($console['screen_blank'] == 'disabled') ? 'selected' : ''; ?>>Disabled - 0</option>
-  <?php foreach ($minutes as $minute) echo mk_option($console['screen_blank'], $minute, $minute, ($console['screen_blank'] == $minute) ? 'selected' : ''); ?>
-</select> _(minutes)_
+: <select name="screen_blank">
+  <?=mk_option(_var($console,'screen_blank','default'), 'default', _('Default'))?>
+  <?=mk_option(_var($console,'screen_blank','default'), 'disabled', _('Disabled'))?>
+  <?foreach ($minutes as $minute):?>
+  <?=mk_option(_var($console,'screen_blank','default'), $minute, "$minute "._('minute'.($minute==1?'':'s')))?>
+  <?endforeach;?>
+  </select>
 
 :console_screen_help:
 
 _(Persistent Bash History)_:
-: <select name="persist_bash_history" class="narrow">
-   <?=mk_option($console['persist_bash_history'], "0", _('Disabled'))?>
-   <?=mk_option($console['persist_bash_history'], "1", _('Enabled'))?>
-</select>
+: <select name="persist_bash_history">
+  <?=mk_option(_var($console,'persist_bash_history','0'), '0', _('Disabled'))?>
+  <?=mk_option(_var($console,'persist_bash_history','0'), '1', _('Enabled'))?>
+  </select>
 
 :console_bash_help:
 
