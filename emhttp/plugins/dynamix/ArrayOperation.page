@@ -395,6 +395,9 @@ window.onunload = function(){
   mymonitor.stop();
   devices.stop();
 <?endif;?>
+<?if ($spot==0):?>
+  paritymonitor.stop(();
+<?endif;?>
 }
 </script>
 <form name="arrayOps" method="POST" action="/update.htm" target="progressFrame">
