@@ -1628,4 +1628,11 @@ $(function() {
     $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
   });
 });
+
+window.onunload = function(){
+  dashboard.stop();
+<?if ($apcupsd):?>
+  apcups.stop();
+<?endif;?>
+}
 </script>
