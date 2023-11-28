@@ -115,7 +115,12 @@ function device_desc(&$disk) {
   $log = _var($var,'fsState')=='Started'
        ? "<a class='info hand' onclick=\"openTerminal('disklog','"._var($disk,'device')."','')\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
        : "<a class='static'><i class='icon-$type icon'></i></a>";
-  return  $log."<span style='font-family:bitstream'>".my_id(_var($disk,'id'))."</span> - $size $unit ("._var($disk,'device').")";
+  $powerstatevalue = "";
+  if (_var($disk,'transport') == 'nvme') {
+    $powerstate = getnvmepowerstate("/dev/"._var($disk,'device')); 
+    $powerstatevalue = is_array($powerstate) ? ' &bullet; '._('PS').': '._var($powerstate,'powerstatevalue','?').' '._var($powerstate,'powerstate','?') : '';
+  }
+  return $log."<span style='font-family:bitstream'>".my_id(_var($disk,'id'))."</span> - $size $unit ("._var($disk,'device').$powerstatevalue.")";
 }
 function assignment(&$disk) {
   global $var, $devs;
@@ -276,12 +281,7 @@ function array_online(&$disk, $fstype='') {
   default:
     $echo[] = "<td>".device_info($disk,true)."</td>";
     $echo[] = "<td>".device_desc($disk)."</td>";
-    $powerstatevalue = "";
-    if (_var($disk,'transport') == 'nvme') {
-      $powerstate = getnvmepowerstate("/dev/"._var($disk,'device')); 
-      $powerstatevalue = '<br>'._('PS').': '._var($powerstate,'powerstatevalue','?').'('._var($powerstate,'powerstate','--').')';
-    }
-    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).$powerstatevalue."</td>";
+    $echo[] = "<td>".my_temp(_var($disk,'temp','*'))."</td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number(_var($disk,'numReads',0))."</span></td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number(_var($disk,'numWrites',0))."</span></td>";
     $echo[] = "<td>".my_number(_var($disk,'numErrors',0))."</td>";
