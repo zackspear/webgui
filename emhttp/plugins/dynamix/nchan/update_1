@@ -14,9 +14,9 @@
 <?
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
-$md5_old = -1;
 require_once "$docroot/webGui/include/publish.php";
 
+$md5_old = -1;
 while (true) {
   unset($memory,$sys,$zfs,$rpms,$lsof);
   exec("grep -Po '^Mem(Total|Available):\s+\K\d+' /proc/meminfo",$memory);
@@ -42,4 +42,3 @@ while (true) {
   sleep(5);
 }
 ?>
-
