@@ -17,6 +17,8 @@ $varroot  = '/var/local/emhttp';
 $pool_log = '/var/tmp/pool_log.tmp';
 $smartALL = '/boot/config/smart-all.cfg';
 $smartONE = '/boot/config/smart-one.cfg';
+$md5_old  = -1;
+$fs_old   = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -514,8 +516,17 @@ while (true) {
   $n++;
   $echo[$n] = _var($var,'fsState')=='Stopped' ? 1 : 0;
 
-  publish('devices', implode("\0",$echo));
-  publish('arraymonitor', _var($var,'fsState')=='Started' ? 1 : 0);
+  $echo = implode("\0",$echo);
+  $md5_new = md5($echo,true);
+  if ($md5_new !== $md5_old) {
+    publish('devices', $echo);
+    $md5_old = $md5_new;
+  }
+  $fs_new = _var($var,'fsState')=='Started' ? 1 : 0;
+  if ($fs_new !== $fs_old) {
+    publish('arraymonitor', $fs_new);
+    $fs_old = $fs_new;
+  }
   sleep(1);
 }
 ?>

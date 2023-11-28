@@ -14,6 +14,7 @@
 <?
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
+$md5_old = -1;
 require_once "$docroot/webGui/include/publish.php";
 
 while (true) {
@@ -32,7 +33,12 @@ while (true) {
   foreach ($names as $name) $count[] = $counts[$name] ?? 0;
   $count = implode("\0",$count);
 
-  publish('update1', "$info\1$rpms\1$count");
+  $echo = "$info\1$rpms\1$count";
+  $md5_new = md5($echo,true);
+  if ($md5_new !== $md5_old) {
+    publish('update1', $echo);
+    $md5_old = $md5_new;
+  }
   sleep(5);
 }
 ?>
