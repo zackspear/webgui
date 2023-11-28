@@ -396,7 +396,7 @@ window.onunload = function(){
   devices.stop();
 <?endif;?>
 <?if ($spot==0):?>
-  paritymonitor.stop(();
+  paritymonitor.stop();
 <?endif;?>
 }
 </script>
