@@ -110,43 +110,43 @@ function shutdown_now() {
   shutdown_online();
 }
 function reboot_online() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:500})
   .done(function(){
     $('.sub2').html("<?=_('System is going down')?>... "+timer());
-    setTimeout(reboot_online,5000);
+    setTimeout(reboot_online,500);
   })
-  .fail(function(){start=new Date(); setTimeout(reboot_offline,5000);});
+  .fail(function(){start=new Date(); setTimeout(reboot_offline,500);});
 }
 function reboot_offline() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:500})
   .done(function(){location = '/Main';})
   .fail(function(){
     $('.sub2').html("<?=_('System is rebooting')?>... "+timer());
-    setTimeout(reboot_offline,1000);
+    setTimeout(reboot_offline,500);
   });
 }
 function shutdown_online() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:500})
   .done(function(){
     $('.sub2').html("<?=_('System is going down')?>... "+timer());
-    setTimeout(shutdown_online,5000);
+    setTimeout(shutdown_online,500);
   })
-  .fail(function(){start=new Date(); setTimeout(shutdown_offline,5000);});
+  .fail(function(){start=new Date(); setTimeout(shutdown_offline,500);});
 }
 function shutdown_offline() {
   var time = timer();
   if (time < 30) {
     $('.sub2').html("<?=_('System is offline')?>... "+time);
-    setTimeout(shutdown_offline,5000);
+    setTimeout(shutdown_offline,500);
   } else {
     $('.sub2').html("<?=_('System is powered off')?>... "+time);
-    setTimeout(power_on,1000);
+    setTimeout(power_on,500);
   }
 }
 function power_on() {
-  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:5000})
+  $.ajax({url:'/webGui/include/ProcessStatus.php',type:'POST',data:{name:'emhttpd',update:true},timeout:500})
   .done(function(){location = '/Main';})
-  .fail(function(){setTimeout(power_on,1000);});
+  .fail(function(){setTimeout(power_on,500);});
 }
 $(document).ajaxSend(function(elm, xhr, s){
   if (s.type == 'POST') {
