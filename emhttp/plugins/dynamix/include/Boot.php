@@ -139,7 +139,7 @@ function shutdown_offline() {
     $('.sub2').html("<?=_('System is offline')?>... "+time);
     setTimeout(shutdown_offline,500);
   } else {
-    $('.sub2').html("<?=_('System is powered off')?>... "+time);
+    $('.sub2').html("<?=_('System is powered off')?>...");
     setTimeout(power_on,500);
   }
 }
