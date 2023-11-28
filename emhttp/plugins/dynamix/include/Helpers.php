@@ -265,7 +265,7 @@ function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
 function getnvmepowerstate($device) {
-  if (!exec("which nvme 2>/dev/null")) return;
+  if (!exec("which nvme 2>/dev/null")) return; // temporary check
   exec("nvme id-ctrl $device | grep -E 'ps |wctemp|cctemp'",$rows);
   foreach ($rows as $row){
     if (!$row) continue;
