@@ -16,6 +16,7 @@ $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
 $stamps  = '/var/tmp/stamps.ini';
 $resync  = '/var/tmp/resync.ini';
+$md5_old = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -463,7 +464,12 @@ while (true) {
       $echo[4] .= _('Scheduled parity check is disabled');
     }
   }
-  publish('update2', implode("\1",$echo));
+  $echo = implode("\1",$echo);
+  $md5_new = md5($echo,true);
+  if ($md5_new !== $md5_old) {
+    publish('update2', $echo);
+    $md5_old = $md5_new;
+  }
   sleep(5);
 }
 ?>

@@ -11,17 +11,30 @@
  */
 ?>
 <?
+function curl_socket($socket, $url, $message) {
+  $com = curl_init($url);
+  curl_setopt_array($com,[
+    CURLOPT_UNIX_SOCKET_PATH => $socket,
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => 1
+  ]);
+  $reply = curl_exec($com);
+  curl_close($com);
+  return $reply;
+}
+
 function publish($endpoint, $message, $len=1) {
   $com = curl_init("http://localhost/pub/$endpoint?buffer_length=$len");
-  curl_setopt_array($com, [CURLOPT_UNIX_SOCKET_PATH => "/var/run/nginx.socket", CURLOPT_HTTPHEADER => ['Accept:text/json'], CURLOPT_RETURNTRANSFER => 1]);
+  curl_setopt_array($com,[
+    CURLOPT_UNIX_SOCKET_PATH => "/var/run/nginx.socket",
+    CURLOPT_HTTPHEADER => ['Accept:text/json'],
+    CURLOPT_POST => 1,
+    CURLOPT_POSTFIELDS => $message,
+    CURLOPT_RETURNTRANSFER => 1
+  ]);
   $reply = json_decode(curl_exec($com),true);
-  // only send message when active subscribers are present
-  if (($reply['subscribers']??0)>0) {
-    curl_setopt_array($com, [CURLOPT_POST => 1, CURLOPT_POSTFIELDS => $message]);
-    $reply = json_decode(curl_exec($com),true);
-  }
   curl_close($com);
-  // return number of active subscribers
-  return $reply['subscribers']??0;
+  return $reply['subscribers'] ?? 0;
 }
 ?>
