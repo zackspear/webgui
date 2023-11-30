@@ -62,7 +62,7 @@ boot.on('message', function(msg) {
     case 'Formatting': var status = "<span class='green'><?=_('Array Started')?></span><br><span class='orange'><?=_('Formatting device(s)')?></span>"; break;
     default          : var status = "<span class='orange'>"+_('Array '+ini['fsState'])+"</span>";
   }
-  status += ini['fsProgress'] ? "<br><span class='blue'>"+_(ini['fsProgress'])+"</span>" : "<br>";
+  status += ini['fsProgress'] ? "<br><span class='blue'>"+_(ini['fsProgress'])+"</span>" : "<br>&nbsp;";
   $('.sub1').html(status);
 });
 
@@ -158,7 +158,7 @@ $(document).ajaxSend(function(elm, xhr, s){
 </head>
 <?
 $safemode = '/boot/unraidsafemode';
-$progress = (_var($var,'fsProgress')!='') ? "<br><span class='blue'>{$var['fsProgress']}</span>" : "<br>";
+$progress = (_var($var,'fsProgress')!='') ? "<br><span class='blue'>{$var['fsProgress']}</span>" : "<br>&nbsp;";
 
 switch (_var($_POST,'cmd','shutdown')) {
 case 'reboot':
