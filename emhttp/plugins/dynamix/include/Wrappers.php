@@ -115,10 +115,13 @@ function isSubpool($name) {
 }
 function get_nvme_info($device, $info) {
   switch ($info) {
+  case 'temp':
+    exec("nvme id-ctrl /dev/$device | grep '^[wc]ctemp '",$temp);
+    return [my_explode(':',$temp[0])[1]-273,my_explode(':',$temp[1])[1]-273];
   case 'cctemp':
-    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^cctemp '"))[1] - 273;
+    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^cctemp '"))[1]-273;
   case 'wctemp':
-    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^wctemp '"))[1] - 273;
+    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^wctemp '"))[1]-273;
   case 'power':
     $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
     return strtok(explode(':',exec("nvme id-ctrl /dev/$device | grep '^ps    $state '"))[2],'W');

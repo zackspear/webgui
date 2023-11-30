@@ -159,10 +159,9 @@ function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
   $temp = _var($disk,'temp','*');
-  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'cctemp') : -1;
-  $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($nvme>=0 ? $nvme : (_var($display,'max',-1)>=0 ? $display['max'] : 0));
-  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'wctemp') : -1;
-  $hot  = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($nvme>=0 ? $nvme : (_var($display,'hot',-1)>=0 ? $display['hot'] : 0));
+  [$hotNVME,$maxNVME] = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'temp') : [-1,-1];
+  $hot  = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($display,'hot',-1)>=0 ? $display['hot'] : 0));
+  $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($display,'max',-1)>=0 ? $display['max'] : 0));
   $top  = $display['top'] ?? 120;
   $heat = false; $color = 'green';
   if (exceed($temp,$max,$top)) {
