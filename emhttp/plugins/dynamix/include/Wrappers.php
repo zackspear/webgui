@@ -116,7 +116,7 @@ function isSubpool($name) {
 function get_nvme_powerstate($device) {
   $nvme  = [];
   $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
-  exec("nvme id-ctrl /dev/$device | grep -E '^ps    $state |[wc]ctemp '",$rows);
+  exec("nvme id-ctrl /dev/$device | grep -E '^ps    $state |^[wc]ctemp '",$rows);
   foreach ($rows as $row) {
     if (!$row) continue;
     $value = my_explode(':',$row,3);
