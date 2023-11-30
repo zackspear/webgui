@@ -268,7 +268,7 @@ function get_nvme_powerstate($device) {
   global $display;
   $nvme   = [];
   $number = _var($display,'number','.,');
-  exec("nvme id-ctrl $device | grep -E '^ps |^wctemp|^cctemp'",$rows);
+  exec("nvme id-ctrl /dev/$device | grep -E '^ps |^wctemp|^cctemp'",$rows);
   foreach ($rows as $row) {
     if (!$row) continue;
     $value = my_explode(':',$row,3);
@@ -291,7 +291,7 @@ function get_nvme_powerstate($device) {
     }
   }
   # get-feature:0x02 (Power Management), Current value:0x00000003)
-  $nvme['powerstate'] = hexdec(my_explode(':',exec("nvme get-feature $device -f 2"),3)[2]);
+  $nvme['powerstate'] = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
   $nvme['powerstatevalue'] = _var($nvme,'ps'.$nvme['powerstate']);
   return $nvme;
 }
