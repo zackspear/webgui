@@ -134,7 +134,9 @@ table.array_status tr>td+td{padding-left:2px;width:20%}
 table.array_status tr>td+td+td{width:auto}
 table.array_status td.line{border-top:1px solid #0c0f0b}
 table.settings{padding-top:8px;line-height:4.2rem}
-table.settings td:first-child{width:35%;padding-left:12px}
+@media (max-width:1280px){table.settings td:first-child{width:35%;padding-left:12px}}
+@media (min-width:1281px){table.settings td:first-child{width:30%;padding-left:12px}}
+@media (min-width:1921px){table.settings td:first-child{width:25%;padding-left:12px}}
 table.settings td+td{padding-left:8px}
 table.settings tr>td+td{line-height:1.6rem}
 table.settings.shifted{padding:0;margin-left:0;margin-top:0}
@@ -257,7 +259,10 @@ pre.up{margin-top:0}
 pre{border:1px solid #0c0f0b;font-family:bitstream;font-size:1.3rem;line-height:1.8rem;padding:0;overflow:auto;margin-bottom:10px;padding:10px}
 iframe#progressFrame{position:fixed;bottom:32px;left:60px;margin:0;padding:8px 8px 0 8px;width:100%;height:1.2rem;line-height:1.2rem;border-style:none;overflow:hidden;font-family:bitstream;font-size:1.1rem;color:#808080;white-space:nowrap;z-index:-2}
 dl{margin-top:0;padding-left:12px;line-height:2.6rem}
-dt{clear:left;float:left;width:35%;text-align:right;margin-right:4rem}
+dt{clear:left;float:left;text-align:right;margin-right:4rem}
+@media (max-width:1280px){dt{width:35%}}
+@media (min-width:1281px){dt{width:30%}}
+@media (min-width:1921px){dt{width:25%}}
 dd{margin-bottom:12px;white-space:nowrap}
 dd p{margin:0 0 4px 0}
 dd blockquote{padding-left:0}

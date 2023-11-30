@@ -131,13 +131,17 @@ table.array_status tr>td+td+td{width:auto}
 table.array_status td.line{border-top:1px solid #e3e3e3}
 table.array_status.noshift{margin-top:0}
 table.settings{margin:0;padding:0;background-color:transparent}
-table.settings td:first-child{width:35%;padding:12px}
+@media (max-width:1280px){table.settings td:first-child{width:35%;padding:12px}}
+@media (min-width:1281px){table.settings td:first-child{width:30%;padding:12px}}
+@media (min-width:1921px){table.settings td:first-child{width:25%;padding:12px}}
 table.settings td+td{padding-left:8px}
 table.settings.shifted{padding:0;margin-left:0;margin-top:0}
 table.settings.shifted td{padding-left:0}
 table.access_list{border-spacing:0;margin-top:10px;border:none}
 table.access_list tr:first-child td{font-size:1.1rem;text-transform:uppercase;letter-spacing:1px;vertical-align:middle;text-align:left;border:1px solid #e3e3e3;border-bottom:1px solid #e3e3e3;background-color:#e8e8e8}
-table.access_list td:first-child{font-weight:normal;width:35%;padding-left:12px}
+@media (max-width:1280px){table.access_list td:first-child{font-weight:normal;width:35%;padding-left:12px}}
+@media (min-width:1281px){table.access_list td:first-child{font-weight:normal;width:30%;padding-left:12px}}
+@media (min-width:1921px){table.access_list td:first-child{font-weight:normal;width:25%;padding-left:12px}}
 table.access_list tr:first-child td:first-child{font-weight:normal}
 table.access_list tr>td+td{white-space:nowrap}
 table.share_status{white-space:nowrap}
@@ -245,7 +249,10 @@ pre.up{margin-top:-30px}
 pre{border:1px solid #e3e3e3;font-family:bitstream;font-size:1.3rem;line-height:1.8rem;padding:4px 6px;overflow:auto}
 iframe#progressFrame{position:fixed;bottom:32px;left:0;margin:0;padding:8px 8px 0 8px;width:100%;height:1.2rem;line-height:1.2rem;border-style:none;overflow:hidden;font-family:bitstream;font-size:1.1rem;color:#808080;white-space:nowrap;z-index:-10}
 dl{margin:0;padding-left:12px;line-height:2.6rem}
-dt{clear:left;float:left;width:35%;font-weight:normal;text-align:right;margin-right:4rem}
+dt{clear:left;float:left;font-weight:normal;text-align:right;margin-right:4rem}
+@media (max-width:1280px){dt{width:35%}}
+@media (min-width:1281px){dt{width:30%}}
+@media (min-width:1921px){dt{width:25%}}
 dd{margin-bottom:12px;white-space:nowrap}
 dd p{margin:0 0 4px 0}
 dd blockquote{padding-left:0}
