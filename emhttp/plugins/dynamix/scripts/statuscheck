@@ -94,9 +94,9 @@ function my_clock($time) {
 function my_array(&$disk) {
   global $data,$display,$error0,$error1,$error2,$error3;
   $name = _var($disk,'name');
-  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['cctemp'] : -1;
+  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'cctemp') : -1;
   $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($nvme>=0 ? $nvme : (_var($display,'max',-1)>=0 ? $display['max'] : 0));
-  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['wctemp'] : -1;
+  $nvme = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'wctemp') : -1;
   $hot  = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($nvme>=0 ? $nvme : (_var($display,'hot',-1)>=0 ? $display['hot'] : 0));
   if (strpos(_var($disk,'status'),'_NP')!==false) return false;
   $temp = _var($disk,'temp');

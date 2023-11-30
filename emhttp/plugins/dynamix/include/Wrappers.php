@@ -113,25 +113,16 @@ function isSubpool($name) {
   $subpool = my_explode($_tilde_,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
-function get_nvme_powerstate($device) {
-  $nvme  = [];
-  $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
-  exec("nvme id-ctrl /dev/$device | grep -E '^ps    $state |^[wc]ctemp '",$rows);
-  foreach ($rows as $row) {
-    if (!$row) continue;
-    $value = my_explode(':',$row,3);
-    $entry = trim($value[0]);
-    switch ($entry){
-    case 'wctemp':
-    case 'cctemp':
-      $nvme[$entry] = $value[1] - 273; // kelvin -> celsius
-      break;
-    default:
-      $nvme['power'] = strtok($value[2],'W');
-      break;
-    }
+function get_nvme_info($device, $info) {
+  switch ($info) {
+  case 'cctemp':
+    return explode(':',exec("nvme id-ctrl /dev/$device | grep '^cctemp '"))[1] - 273;
+  case 'wctemp':
+    return explode(':',exec("nvme id-ctrl /dev/$device | grep '^wctemp '"))[1] - 273;
+  case 'power':
+    $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
+    return strtok(explode(':',exec("nvme id-ctrl /dev/$device | grep '^ps    $state '"))[2],'W');
   }
-  return $nvme;
 }
 // convert strftime to date format
 function my_date($fmt, $time) {

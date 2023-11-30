@@ -180,7 +180,7 @@ function my_diskio($data) {
 }
 function array_offline(&$disk, $pool='') {
   global $var, $disks;
-  $disk['power'] ??= (_var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['power'] : 0);
+  $disk['power'] ??= (_var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'power') : 0);
   $echo = []; $warning = '';
   $status = ['DISK_DSBL','DISK_INVALID','DISK_DSBL_NEW','DISK_NEW','DISK_WRONG'];
   $text = "<span class='red-text'><em>"._('All existing data on this device will be OVERWRITTEN when array is Started')."</em></span>";
@@ -242,7 +242,7 @@ function array_offline(&$disk, $pool='') {
 }
 function array_online(&$disk, $fstype='') {
   global $pools, $sum, $diskio;
-  $disk['power'] ??= (_var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['power'] : 0);
+  $disk['power'] ??= (_var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'power') : 0);
   $echo = [];
   $data = [0,0];
   if (_var($disk,'device')) {
