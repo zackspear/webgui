@@ -264,7 +264,7 @@ function my_preg_split($split, $text, $count=2) {
 function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
-function getnvmepowerstate($device) {
+function get_nvme_powerstate($device) {
   global $display;
   $nvme   = [];
   $number = _var($display,'number','.,');
