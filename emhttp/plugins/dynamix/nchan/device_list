@@ -118,7 +118,7 @@ function device_desc(&$disk) {
   $powerstatevalue = "";
   if (_var($var,'fsState',)=='Started' && _var($disk,'transport')=='nvme') {
     $nvme = get_nvme_powerstate("/dev/"._var($disk,'device')); 
-    $powerstatevalue = is_array($nvme) ? ' &bullet; '._var($nvme,'powerstatevalue','? W') : '';
+    $powerstatevalue = ' &bullet; '._var($nvme,'powerstatevalue','? W');
   }
   return $log."<span style='font-family:bitstream'>".my_id(_var($disk,'id'))."</span> - $size $unit ("._var($disk,'device').$powerstatevalue.")";
 }
