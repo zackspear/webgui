@@ -58,10 +58,12 @@ case "attributes":
   $level  = get_value($disk,'smLevel',1);
   $events = explode('|',get_value($disk,'smEvents',$numbers));
   extract(parse_plugin_cfg('dynamix',true));
-  $max = ($disk['maxTemp'] ?? $display['max'] ?? 0) ?: 0;
-  $hot = ($disk['hotTemp'] ?? $display['hot'] ?? 0) ?: 0;
-  $top = $_POST['top'] ?? 120;
-  $empty = true;
+  $nvme   = _var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['cctemp'] : 0;
+  $max    = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($nvme > 0 ? $nvme : (_var($display,'max',-1)>=0 ? $display['max'] : 0));
+  $nvme   = _var($disk,'transport')=='nvme' ? get_nvme_powerstate(_var($disk,'device'))['wctemp'] : 0;
+  $hot    = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($nvme > 0 ? $nvme : (_var($display,'hot',-1)>=0 ? $display['hot'] : 0));
+  $top    = $_POST['top'] ?? 120;
+  $empty  = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
   // remove empty rows
   $output = array_filter($output);

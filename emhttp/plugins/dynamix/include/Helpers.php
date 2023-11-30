@@ -264,33 +264,4 @@ function my_preg_split($split, $text, $count=2) {
 function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
-function get_nvme_powerstate($device) {
-  global $display;
-  $nvme   = [];
-  $number = _var($display,'number','.,');
-  exec("nvme id-ctrl /dev/$device | grep -E '^ps |^wctemp|^cctemp'",$rows);
-  foreach ($rows as $row) {
-    if (!$row) continue;
-    $value = my_explode(':',$row,3);
-    $entry = str_replace(' ','',trim($value[0]));
-    switch ($entry){
-    case 'wctemp':
-    case 'cctemp':
-      $nvme[$entry] = $value[1] - 273;
-      break;
-    case 'ps0':
-    case 'ps1':
-    case 'ps2':
-    case 'ps3':
-    case 'ps4':
-    case 'ps5':
-      $nvme[$entry] = number_format(strtok($value[2],'W'),2,$number[0]).' W';
-      break;
-    }
-  }
-  # get-feature:0x02 (Power Management), Current value:0x00000003)
-  $nvme['powerstate'] = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
-  $nvme['powerstatevalue'] = _var($nvme,'ps'.$nvme['powerstate']);
-  return $nvme;
-}
 ?>
