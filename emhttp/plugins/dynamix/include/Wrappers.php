@@ -124,7 +124,7 @@ function get_nvme_info($device, $info) {
     return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^wctemp '"))[1]-273;
   case 'power':
     $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
-    return strtok(explode(':',exec("nvme id-ctrl /dev/$device | grep '^ps    $state '"))[2],'W');
+    return strtok(my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^ps    $state '"),3)[2],'W');
   }
 }
 // convert strftime to date format
