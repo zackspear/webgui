@@ -265,36 +265,34 @@ function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
 function getnvmepowerstate($device) {
-  if (!exec("which nvme 2>/dev/null")) return; // temporary check
-  exec("nvme id-ctrl $device | grep -E 'ps |wctemp|cctemp'",$rows);
-  foreach ($rows as $row){
+  global $display;
+  $nvme   = [];
+  $number = _var($display,'number','.,');
+  exec("nvme id-ctrl $device | grep -E '^ps |^wctemp|^cctemp'",$rows);
+  foreach ($rows as $row) {
     if (!$row) continue;
-    $split = explode(':',$row);
-    $check = str_replace(' ','',trim($split[0]));
-    switch ($check){
-    case "wctemp":
-      $return['wctemp'] = $split[1] - 273;
+    $value = my_explode(':',$row,3);
+    $entry = str_replace(' ','',trim($value[0]));
+    switch ($entry){
+    case 'wctemp':
+      $nvme[$entry] = $value[1] - 273;
       break;
-    case "cctemp":
-      $return['cctemp'] = $split[1] - 273;
+    case 'cctemp':
+      $nvme[$entry] = $value[1] - 273;
       break;
-    case "ps0":
-    case "ps1":
-    case "ps2":
-    case "ps3":
-    case "ps4":
-    case "ps5":
-      $power = explode(' ',$split[2]);
-      $return[$check] = $power[0];
+    case 'ps0':
+    case 'ps1':
+    case 'ps2':
+    case 'ps3':
+    case 'ps4':
+    case 'ps5':
+      $nvme[$entry] = number_format(strtok($value[2],'W'),2,$number[0]).' W';
       break;
     }
   }
-  $powerstate = shell_exec("nvme get-feature $device -f 02");
-  $powersplit = explode(':',$powerstate);
-  $powerstate = substr(trim($powersplit[2]),-1);
   # get-feature:0x02 (Power Management), Current value:0x00000003)
-  $return['powerstate'] = $powerstate;
-  $return['powerstatevalue'] = $return['ps'.$return['powerstate']];
-  return $return;
+  $nvme['powerstate'] = hexdec(my_explode(':',exec("nvme get-feature $device -f 2"),3)[2]);
+  $nvme['powerstatevalue'] = _var($nvme,'ps'.$nvme['powerstate']);
+  return $nvme;
 }
 ?>

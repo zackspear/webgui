@@ -116,9 +116,9 @@ function device_desc(&$disk) {
        ? "<a class='info hand' onclick=\"openTerminal('disklog','"._var($disk,'device')."','')\"><i class='icon-$type icon'></i><span>"._('Disk Log Information')."</span></a>"
        : "<a class='static'><i class='icon-$type icon'></i></a>";
   $powerstatevalue = "";
-  if (_var($disk,'transport') == 'nvme') {
-    $powerstate = getnvmepowerstate("/dev/"._var($disk,'device')); 
-    $powerstatevalue = is_array($powerstate) ? ' &bullet; '._('PS').': '._var($powerstate,'powerstatevalue','?').' '._var($powerstate,'powerstate','?') : '';
+  if (_var($var,'fsState',)=='Started' && _var($disk,'transport')=='nvme') {
+    $nvme = getnvmepowerstate("/dev/"._var($disk,'device')); 
+    $powerstatevalue = is_array($nvme) ? ' &bullet; '._var($nvme,'powerstatevalue','? W') : '';
   }
   return $log."<span style='font-family:bitstream'>".my_id(_var($disk,'id'))."</span> - $size $unit ("._var($disk,'device').$powerstatevalue.")";
 }
