@@ -275,8 +275,6 @@ function get_nvme_powerstate($device) {
     $entry = str_replace(' ','',trim($value[0]));
     switch ($entry){
     case 'wctemp':
-      $nvme[$entry] = $value[1] - 273;
-      break;
     case 'cctemp':
       $nvme[$entry] = $value[1] - 273;
       break;
