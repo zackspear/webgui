@@ -20,9 +20,6 @@
 SIZE=$(awk '/MemTotal/{print $(NF-1)*128}' /proc/meminfo)
 echo "# limetech - Default ARC size is MemTotal/8 (in bytes)" > /etc/modprobe.d/zfs.conf
 echo "options zfs zfs_arc_max=$SIZE" >> /etc/modprobe.d/zfs.conf
-echo "#" >> /etc/modprobe.d/zfs.conf
-echo "# zfs data corruption mitigation, re: https://github.com/openzfs/zfs/issues/15526" >> /etc/modprobe.d/zfs.conf
-echo "options zfs zfs_dmu_offset_next_sync=0" >> /etc/modprobe.d/zfs.conf
 
 # limetech - grab any user defined module conf files
 if [ -d /boot/config/modprobe.d ]; then
