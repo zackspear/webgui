@@ -116,15 +116,15 @@ function isSubpool($name) {
 function get_nvme_info($device, $info) {
   switch ($info) {
   case 'temp':
-    exec("nvme id-ctrl /dev/$device | grep '^[wc]ctemp '",$temp);
-    return [my_explode(':',$temp[0])[1]-273, my_explode(':',$temp[1])[1]-273];
+    exec("nvme id-ctrl /dev/$device | grep -Pom2 '^[wc]ctemp +: \K\d+'",$temp);
+    return [$temp[0]-273, $temp[1]-273];
   case 'cctemp':
-    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^cctemp '"))[1]-273;
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^cctemp +: \K\d+'")-273;
   case 'wctemp':
-    return my_explode(':',exec("nvme id-ctrl /dev/$device | grep '^wctemp '"))[1]-273;
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^wctemp +: \K\d+'")-273;
   case 'power':
-    $state = hexdec(my_explode(':',exec("nvme get-feature /dev/$device -f 2"),3)[2]);
-    return strtok(my_explode(':',exec("nvme id-ctrl /dev/$device | grep -E '^ps +$state '"),3)[2],'W');
+    $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K.+'"));
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^ps +$state : mp:\K[^W]+'");
   }
 }
 // convert strftime to date format
