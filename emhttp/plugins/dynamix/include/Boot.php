@@ -100,12 +100,12 @@ function timer() {
   return Math.round((now.getTime()-start.getTime())/1000);
 }
 function reboot_now() {
-  $('.notice').html("<?=_('Reboot')?>");
+  $('.notice').html("<?=_('Reboot')?> - <?=gethostname()?>");
   boot.start();
   reboot_online();
 }
 function shutdown_now() {
-  $('.notice').html("<?=_('Shutdown')?>");
+  $('.notice').html("<?=_('Shutdown')?> - <?=gethostname()?>");
   boot.start();
   shutdown_online();
 }
