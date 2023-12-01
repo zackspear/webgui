@@ -123,7 +123,7 @@ function get_nvme_info($device, $info) {
   case 'wctemp':
     return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^wctemp +: \K\d+'")-273;
   case 'power':
-    $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K.+'"));
+    $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K0x\d+'"));
     return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^ps +$state : mp:\K[^W]+'");
   }
 }
