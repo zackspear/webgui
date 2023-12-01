@@ -113,6 +113,20 @@ function isSubpool($name) {
   $subpool = my_explode($_tilde_,$name)[1];
   return in_array($subpool,$subpools) ? $subpool : false;
 }
+function get_nvme_info($device, $info) {
+  switch ($info) {
+  case 'temp':
+    exec("nvme id-ctrl /dev/$device | grep -Pom2 '^[wc]ctemp +: \K\d+'",$temp);
+    return [$temp[0]-273, $temp[1]-273];
+  case 'cctemp':
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^cctemp +: \K\d+'")-273;
+  case 'wctemp':
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^wctemp +: \K\d+'")-273;
+  case 'power':
+    $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K0x\d+'"));
+    return exec("smartctl -c /dev/$device | grep -Pom1 '^ *$state [+-] +\K[^W]+'");
+  }
+}
 // convert strftime to date format
 function my_date($fmt, $time) {
   $legacy = ['%c' => 'D j M Y h:i A','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
