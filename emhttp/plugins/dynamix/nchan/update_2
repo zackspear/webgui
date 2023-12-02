@@ -171,11 +171,11 @@ function device_temp(&$disk, &$red, &$orange) {
   $top  = $display['top'] ?? 120;
   $heat = false; $color = 'green';
   if (exceed($temp,$max,$top)) {
-    $heat = 'fire'; $color = 'red'; $red++;
+    $color = 'red'; $red++;
   } elseif (exceed($temp,$hot,$top)) {
-    $heat = 'fire'; $color = 'orange'; $orange++;
+    $color = 'orange'; $orange++;
   }
-  return (($spin && $temp>0) ? "<span class='$color-text'>".my_temp($temp)."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*").($nvme ? my_power($dev) : "");
+  return (($spin && $temp>0) ? "<span class='$color-text'>".my_temp($temp)."</span>" : "*").($nvme ? my_power($dev) : "");
 }
 function device_smart(&$disk, &$fail, &$smart) {
   global $numbers,$saved;
