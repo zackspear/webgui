@@ -19,6 +19,7 @@ Tag="icon-disk"
 require_once "$docroot/webGui/include/Preselect.php";
 $events = explode('|',$var['smEvents'] ?? $numbers);
 
+$default = parse_ini_file("$docroot/webGui/default.cfg",true);
 $reply   = '/var/tmp/luks.reply';
 $keyfile = is_file($var['luksKeyfile']);
 $encrypt = false;
@@ -226,22 +227,22 @@ _(Tunable (md_write_method))_:
 :disk_tunable_md_write_method_help:
 
 _(Default warning disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="display_warning" class="narrow" value="<?=_var($display,'warning')?>">
+: <input type="number" min="0" max="100" name="display_warning" class="narrow" value="<?=$display['warning']?>" placeholder="<?=$default['display']['warning']?>">
 
 :disk_default_warning_utilization_help:
 
 _(Default critical disk utilization threshold)_ (%):
-: <input type="number" min="0" max="100" name="display_critical" class="narrow" value="<?=_var($display,'critical')?>">
+: <input type="number" min="0" max="100" name="display_critical" class="narrow" value="<?=$display['critical']?>" placeholder="<?=$default['display']['critical']?>">
 
 :disk_default_critical_utilization_help:
 
 _(Default warning disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="display_hot" class="narrow" value="<?=displayTemp(_var($display,'hot'))?>">
+: <input type="number" min="0" max="300" name="display_hot" class="narrow" value="<?=displayTemp($display['hot'])?>" placeholder="<?=$default['display']['hot']?>">
 
 :disk_default_warning_temperature_help:
 
 _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="display_max" class="narrow" value="<?=displayTemp(_var($display,'max'))?>">
+: <input type="number" min="0" max="300" name="display_max" class="narrow" value="<?=displayTemp($display['max'])?>" placeholder="<?=$default['display']['max']?>">
 
 :disk_default_critical_temperature_help:
 
