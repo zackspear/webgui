@@ -237,12 +237,12 @@ _(Default critical disk utilization threshold)_ (%):
 :disk_default_critical_utilization_help:
 
 _(Default warning disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="display_hot" class="narrow" value="<?=displayTemp($display['hot'])?>" placeholder="<?=$default['display']['hot']?>">
+: <input type="number" min="0" max="300" name="display_hot" class="narrow" value="<?=displayTemp($display['hot'])?>" placeholder="<?=displayTemp($default['display']['hot'])?>">
 
 :disk_default_warning_temperature_help:
 
 _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="display_max" class="narrow" value="<?=displayTemp($display['max'])?>" placeholder="<?=$default['display']['max']?>">
+: <input type="number" min="0" max="300" name="display_max" class="narrow" value="<?=displayTemp($display['max'])?>" placeholder="<?=displayTemp($default['display']['max'])?>">
 
 :disk_default_critical_temperature_help:
 
