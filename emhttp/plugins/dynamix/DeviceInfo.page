@@ -18,7 +18,7 @@ Tag="hdd-o"
 require_once "$docroot/webGui/include/Preselect.php";
 
 $unassigned = array_key_exists($name,$devs);
-$disk       = &$disks[$name] ?? [];
+$disk       = $disks[$name] ?? $devs[$name] ?? [];
 $dev        = _var($disk,'device');
 $disk['id'] = _var($disk,'id');
 $events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
