@@ -32,7 +32,7 @@ function setTemp(&$disk, $zone) {
     case 'hot': $nvme = 'wctemp'; break;
     case 'max': $nvme = 'cctemp'; break;
   }
- return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display[$zone]>0 ? $display[$zone]+15 : $display[$zone]);
+ return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display[$zone]>0 ? $display[$zone]+$display['ssd'] : $display[$zone]);
 }
 function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
