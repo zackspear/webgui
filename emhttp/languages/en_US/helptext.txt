@@ -941,6 +941,12 @@ A value of zero will disable the warning threshold (including notifications).
 A value of zero will disable the critical threshold (including notifications).
 :end
 
+:ssd_default_disk_offset_temperature_help:
+*SSD offset temperature* adds the given number of degrees to the default warning and critical thresholds for SSD devices.
+
+Usually SSD devices can tolerate higher temperature thresholds than regular HDD devices.
+:end
+
 :disk_default_smart_notification_help:
 SMART notifications are generated on either an increasing RAW value of the attribute, or a decreasing NORMALIZED value which reaches a predefined threshold set by the manufacturer.
 

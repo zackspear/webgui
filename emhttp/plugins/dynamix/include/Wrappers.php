@@ -59,6 +59,16 @@ function plugin_update_available($plugin, $os=false) {
 function _var(&$name, $key=null, $default='') {
   return is_null($key) ? ($name ?? $default) : ($name[$key] ?? $default);
 }
+function celsius($temp) {
+  return round(($temp-32)*5/9);
+}
+function fahrenheit($temp) {
+  return round(9/5*$temp)+32;
+}
+function displayTemp($temp) {
+  global $display;
+  return (is_numeric($temp) && _var($display,'unit')=='F') ? fahrenheit($temp) : $temp;
+}
 function get_value(&$name, $key, $default) {
   global $var;
   $value = $name[$key] ?? -1;

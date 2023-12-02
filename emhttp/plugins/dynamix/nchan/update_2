@@ -120,9 +120,6 @@ function normalize($type,$count) {
   foreach ($words as &$word) $word = $word==strtoupper($word) ? $word : preg_replace(['/^(ct|cnt)$/','/^blk$/'],['count','block'],strtolower($word));
   return ucfirst(implode(' ',$words)).": ".str_replace('_',' ',strtolower($count))."\n";
 }
-function my_unit($value,$unit) {
-  return ($unit=='F' ? round(9/5*$value+32) : $value)." $unit";
-}
 function active_disks($disk) {
   return substr(_var($disk,'status'),0,7)!='DISK_NP' && in_array(_var($disk,'type'),['Parity','Data']);
 }
@@ -169,7 +166,7 @@ function device_temp(&$disk, &$red, &$orange) {
   } elseif (exceed($temp,$hot,$top)) {
     $heat = 'fire'; $color = 'orange'; $orange++;
   }
-  return ($spin && $temp>0) ? "<span class='$color-text'>".my_unit($temp,_var($display,'unit','C'))."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*";
+  return ($spin && $temp>0) ? "<span class='$color-text'>".my_temp($temp)."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*";
 }
 function device_smart(&$disk, &$fail, &$smart) {
   global $numbers,$saved;

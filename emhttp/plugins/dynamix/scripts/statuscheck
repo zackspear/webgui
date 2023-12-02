@@ -35,7 +35,7 @@ function my_temp($value) {
   global $display;
   if ($value=='*') return ' - standby';
   $unit = _var($display,'unit','C');
-  return ' - active '.($unit=='F' ? round(9/5*$value+32) : str_replace('.',_var($display,'number','.,')[0], $value)).' '.$unit;
+  return ' - active '.($unit=='F' ? fahrenheit($value) : str_replace('.',_var($display,'number','.,')[0], $value)).' '.$unit;
 }
 function my_disk($name) {
   return ucfirst(preg_replace('/(\d+)$/',' $1',$name));

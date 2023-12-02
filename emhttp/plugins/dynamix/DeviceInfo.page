@@ -26,14 +26,6 @@ $events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-function setTemp(&$disk, $zone) {
-  global $display;
-  switch ($zone) {
-    case 'hot': $nvme = 'wctemp'; break;
-    case 'max': $nvme = 'cctemp'; break;
-  }
- return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display[$zone]>0 ? $display[$zone]+$display['ssd'] : $display[$zone]);
-}
 function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
   $last = array_pop($data);
@@ -79,9 +71,13 @@ function makeList($list) {
 function sharename($share) {
   return basename($share,'.cfg');
 }
-function displayTemp($temp) {
+function makeTemp(&$disk, $zone) {
   global $display;
-  return (_var($display,'unit')=='F' && is_numeric($temp)) ? round($temp*9/5)+32 : $temp;
+  switch ($zone) {
+    case 'hot': $nvme = 'wctemp'; break;
+    case 'max': $nvme = 'cctemp'; break;
+  }
+ return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display[$zone]>0 ? $display[$zone]+$display['ssd'] : $display[$zone]);
 }
 function maintenance_mode() {
   global $var;
@@ -109,6 +105,8 @@ $text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') 
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
 <script>
+String.prototype.celsius = function(){return Math.round((parseInt(this)-32)*5/9).toString();}
+
 if ($.cookie('deletepool')) {
   $.removeCookie('deletepool');
   done();
@@ -292,8 +290,8 @@ function prepareDeviceInfo(form) {
   if (form.smEvents.value == '<?=$numbers?>') form.smEvents.value = '';
   if (form.smLevel.value == 1.00) form.smLevel.value = '';
 <?if (_var($display,'unit')=='F'):?>
-  if (form.hotTemp.value>0) form.hotTemp.value = Math.round((form.hotTemp.value-32)*5/9);
-  if (form.maxTemp.value>0) form.maxTemp.value = Math.round((form.maxTemp.value-32)*5/9);
+  if (form.hotTemp.value>0) form.hotTemp.value = form.hotTemp.value.celsius();
+  if (form.maxTemp.value>0) form.maxTemp.value = form.maxTemp.value.celsius();
 <?endif;?>
 }
 function setGlue(form,reset) {
@@ -1183,12 +1181,12 @@ _(xfs_repair status)_:
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smGlue"   value="<?=_var($var,'smGlue')?>">
 _(Warning disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(setTemp($disk,'hot'))?>">
+: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(makeTemp($disk,'hot'))?>">
 
 :info_warning_temp_help:
 
 _(Critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(setTemp($disk,'max'))?>">
+: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(makeTemp($disk,'max'))?>">
 
 :info_critical_temp_help:
 
