@@ -126,7 +126,7 @@ function isSubpool($name) {
 function get_nvme_info($device, $info) {
   switch ($info) {
   case 'temp':
-    exec("nvme id-ctrl /dev/$device | grep -Pom2 '^[wc]ctemp +: \K\d+'",$temp);
+    exec("nvme id-ctrl /dev/$device 2>/dev/null | grep -Pom2 '^[wc]ctemp +: \K\d+'",$temp);
     return [$temp[0]-273, $temp[1]-273];
   case 'cctemp':
     return exec("nvme id-ctrl /dev/$device 2>/dev/null | grep -Pom1 '^cctemp +: \K\d+'")-273;
