@@ -17,14 +17,33 @@ Tag="hdd-o"
 <?
 require_once "$docroot/webGui/include/Preselect.php";
 
-$unassigned = array_key_exists($name, $devs);
-$disks      = array_merge_recursive($disks, $devs);
+$unassigned = array_key_exists($name,$devs);
 $disk       = &$disks[$name] ?? [];
 $dev        = _var($disk,'device');
 $disk['id'] = _var($disk,'id');
 $events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+$sheets     = [];
+$i = $n     = 0;
+
+foreach ($disks as $sheet) {
+  if (_var($sheet,'type')=="Flash" || _var($sheet,'color')=="grey-off" || empty($sheet['name'])) continue;
+  $sheets[] = $sheet['name'];
+  if ($sheet['name']==$name) {$i = $n;}
+  $n++;
+}
+foreach ($devs as $sheet) {
+  if (empty($sheet['name'])) continue;
+  $sheets[] = $sheet['name'];
+  if ($sheet['name']==$name) {$i = $n;}
+  $n++;
+}
+$tag  = _var($disk,'name');
+$end  = count($sheets)-1;
+$prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
+$next = $i<$end ? $sheets[$i+1] : $sheets[0];
+$text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
 
 function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
@@ -87,19 +106,6 @@ function isPool($name) {
   global $pools;
   return in_array($name,$pools);
 }
-$sheets = []; $i = $n = 0;
-foreach ($disks as $sheet) {
-  if (_var($sheet,'type')=="Flash" || _var($sheet,'color')=="grey-off" || empty($sheet['name'])) continue;
-  $sheets[] = $sheet['name'];
-  if ($sheet['name']==$name) {$i = $n;}
-  $n++;
-}
-$tag  = _var($disk,'name');
-$end  = count($sheets)-1;
-$prev = $i>0 ? $sheets[$i-1] : $sheets[$end];
-$next = $i<$end ? $sheets[$i+1] : $sheets[0];
-
-$text = isPool($name) ? _('This will ERASE content of ALL devices in the pool') : _('This will ERASE ALL device content');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
