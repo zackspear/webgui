@@ -132,6 +132,9 @@ function get_nvme_info($device, $info) {
     return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^cctemp +: \K\d+'")-273;
   case 'wctemp':
     return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^wctemp +: \K\d+'")-273;
+  case 'state':
+    $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K0x\d+'"));
+    return exec("nvme id-ctrl /dev/$device | grep -Pom1 '^ps +$state : \S+ \K\S+'");
   case 'power':
     $state = hexdec(exec("nvme get-feature /dev/$device -f2 | grep -Pom1 'value:\K0x\d+'"));
     return exec("smartctl -c /dev/$device | grep -Pom1 '^ *$state [+-] +\K[^W]+'");

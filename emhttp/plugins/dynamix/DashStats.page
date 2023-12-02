@@ -562,7 +562,7 @@ if (!$group) {
 <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td id='array_info'></td></tr>
-<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
+<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_ / _(Power)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 
 <?$i=0?>
@@ -573,7 +573,7 @@ if (!$group) {
 <a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td id='pool_info<?=$i++?>'></td></tr>
-<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
+<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_ / _(Power)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 <?endforeach;?>
 
@@ -584,7 +584,7 @@ if (!$group) {
 <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 <tr><td id='devs_info'></td></tr>
-<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
+<tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_ / _(Power)_</span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
 <?endif;?>
 <?customTiles('column3');?>
