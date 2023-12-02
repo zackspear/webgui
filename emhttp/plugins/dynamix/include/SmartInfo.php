@@ -230,10 +230,11 @@ case "stop":
   exec("smartctl -X $type ".escapeshellarg("/dev/$port"));
   break;
 case "update":
-  if ($disk["transport"] == "scsi" || $disk["transport"] == "nvme") {
+  $transport = _var($disk,'transport');
+  if ($transport == 'scsi' || $transport == 'nvme') {
     $progress = exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -Pom1 '\d+%'");
     if ($progress) {
-      if ($disk["transport"] == "nvme") echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(substr($progress,0,-1))."% "._('complete')."</span>"; else echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
+      if ($transport == 'nvme') echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(substr($progress,0,-1))."% "._('complete')."</span>"; else echo "<span class='big'><i class='fa fa-spinner fa-pulse'></i> "._('self-test in progress').", ".(100-substr($progress,0,-1))."% "._('complete')."</span>";
       break;
     } 
   } else {
@@ -243,8 +244,8 @@ case "update":
       break;
     }
   }
-  if ($disk["transport"] == "scsi") $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c24-50"));
-  else if ($disk["transport"] == "nvme") $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^ 0'|cut -c24-50"));
+  if ($transport == 'scsi') $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c24-50"));
+  else if ($transport == 'nvme') $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^ 0'|cut -c24-50"));
   else $result = trim(exec("smartctl -n standby -l selftest $type ".escapeshellarg("/dev/$port")."|grep -m1 '^# 1'|cut -c26-55"));
   if (!$result) {
     $spundown = $disk['spundown'] ? "Device spundown, spinup to get information" : "No self-tests logged on this disk" ;
