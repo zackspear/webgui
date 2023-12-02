@@ -30,10 +30,11 @@ require_once "$docroot/webGui/include/Translations.php";
 // remember current language
 $locale_init = $locale;
 
-function my_power($device, $power) {
+function my_power($device) {
   global $display;
   $number = _var($display,'number','.,');
-  $state  = strtr(get_nvme_info($device,'state'),['non-operational' => 'green', 'operational' => 'orange']);
+  [$power,$state] = explode('W ',get_nvme_info($device,'state'));
+  $state = strtr($state, ['non-operational' => 'green', 'operational' => 'orange']);
   return " / <span class='$state'>".number_format($power,2,$number[0])." W</span>";
 }
 function my_clock($time) {
@@ -162,8 +163,9 @@ function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
   $temp = _var($disk,'temp','*');
+  $dev  = _var($disk,'device');
   $nvme = _var($disk,'transport')=='nvme';
-  [$hotNVME,$maxNVME] = $nvme ? get_nvme_info(_var($disk,'device'),'temp') : [-1,-1];
+  [$hotNVME,$maxNVME] = $nvme ? get_nvme_info($dev,'temp') : [-1,-1];
   $hot  = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($disk,'rotational',1)==0 && $display['hot']>0 ? $display['hot']+$display['ssd'] : $display['hot']));
   $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 && $display['max']>0 ? $display['max']+$display['ssd'] : $display['max']));
   $top  = $display['top'] ?? 120;
@@ -173,9 +175,7 @@ function device_temp(&$disk, &$red, &$orange) {
   } elseif (exceed($temp,$hot,$top)) {
     $heat = 'fire'; $color = 'orange'; $orange++;
   }
-  $device = _var($disk,'device');
-  $power  = $disk['power'] ?? ($nvme ? get_nvme_info($device,'power') : 0);
-  return (($spin && $temp>0) ? "<span class='$color-text'>".my_temp($temp)."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*").($nvme ? my_power($device, $power) : "");
+  return (($spin && $temp>0) ? "<span class='$color-text'>".my_temp($temp)."</span>".($heat ? "<i class='fa fa-$heat $color-text heat'></i>" : "") : "*").($nvme ? my_power($dev) : "");
 }
 function device_smart(&$disk, &$fail, &$smart) {
   global $numbers,$saved;
@@ -477,6 +477,6 @@ while (true) {
     publish('update2', $echo);
     $md5_old = $md5_new;
   }
-  sleep(5);
+  sleep(2);
 }
 ?>
