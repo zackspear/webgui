@@ -26,6 +26,14 @@ $events     = explode('|',$disk['smEvents'] ?? $var['smEvents'] ?? $numbers);
 $mode       = ['Disabled','Hourly','Daily','Weekly','Monthly'];
 $days       = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+function setTemp(&$disk, $zone) {
+  global $display;
+  switch ($zone) {
+    case 'hot': $nvme = 'wctemp'; break;
+    case 'max': $nvme = 'cctemp'; break;
+  }
+ return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 ? ($display[$zone]>0 ? $display[$zone]+15 : 0) : $display[$zone]);
+}
 function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
   $last = array_pop($data);
@@ -1175,12 +1183,12 @@ _(xfs_repair status)_:
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smGlue"   value="<?=_var($var,'smGlue')?>">
 _(Warning disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(_var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'wctemp') : _var($display,'hot'))?>">
+: <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(setTemp($disk,'hot'))?>">
 
 :info_warning_temp_help:
 
 _(Critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(_var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'cctemp') : _var($display,'max'))?>">
+: <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(setTemp($disk,'max'))?>">
 
 :info_critical_temp_help:
 
