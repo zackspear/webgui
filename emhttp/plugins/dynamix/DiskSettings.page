@@ -166,7 +166,7 @@ _(Default file system)_:
 
 :disk_default_file_system_help:
 
-_(Shutdown time-out)_:
+_(Shutdown time-out)_ (_(seconds)_):
 : <input type="text" name="shutdownTimeout" maxlength="10" value="<?=$var['shutdownTimeout']?>" class="narrow" placeholder="90">
 
 :disk_shutdown_timeout_help:
