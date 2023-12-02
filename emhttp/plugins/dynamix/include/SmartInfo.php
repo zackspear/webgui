@@ -59,8 +59,8 @@ case "attributes":
   $events = explode('|',get_value($disk,'smEvents',$numbers));
   extract(parse_plugin_cfg('dynamix',true));
   [$hotNVME,$maxNVME] = _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'temp') : [-1,-1];
-  $hot    = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($disk,'rotational',1)==0 ? ($display['hot']>0 ? $display['hot']+15 : 0) : $display['hot']));
-  $max    = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 ? ($display['max']>0 ? $display['max']+15 : 0) : $display['max']));
+  $hot    = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($disk,'rotational',1)==0 && $display['hot']>0 ? $display['hot']+15 : $display['hot']));
+  $max    = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 && $display['max']>0 ? $display['max']+15 : $display['max']));
   $top    = $_POST['top'] ?? 120;
   $empty  = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
