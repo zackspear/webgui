@@ -169,7 +169,7 @@ function device_temp(&$disk, &$red, &$orange) {
   $hot  = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($disk,'rotational',1)==0 && $display['hot']>0 ? $display['hot']+$display['ssd'] : $display['hot']));
   $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 && $display['max']>0 ? $display['max']+$display['ssd'] : $display['max']));
   $top  = $display['top'] ?? 120;
-  $heat = false; $color = 'green';
+  $color= 'green';
   if (exceed($temp,$max,$top)) {
     $color = 'red'; $red++;
   } elseif (exceed($temp,$hot,$top)) {
