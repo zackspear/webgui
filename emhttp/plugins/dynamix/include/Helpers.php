@@ -51,7 +51,7 @@ function my_temp($value) {
   global $display;
   $unit = _var($display,'unit','C');
   $number = _var($display,'number','.,');
-  return is_numeric($value) ? (($unit=='F' ? fahrenheit($value) : str_replace('.', $number[0], $value)).' &#176;'.$unit) : $value;
+  return is_numeric($value) ? (($unit=='F' ? fahrenheit($value) : str_replace('.', $number[0], $value)).'&#8201;&#176;'.$unit) : $value;
 }
 function my_disk($name, $raw=false) {
   global $display;
