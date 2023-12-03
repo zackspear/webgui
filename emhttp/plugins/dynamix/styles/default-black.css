@@ -130,7 +130,6 @@ table.share_status thead tr:first-child td{font-size:1.1rem;text-transform:upper
 table.share_status tr td:nth-child(1){min-width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;padding-left:8px}
 table.share_status tr td:nth-child(2){min-width:400px;max-width:400px;overflow:hidden;text-overflow:ellipsis}
 table.share_status tr td:nth-child(5){min-width:100px;max-width:100px;overflow:hidden;text-overflow:ellipsis}
-table.share_status tr>td:nth-child(n+2){padding-left:0}
 table.share_status tbody tr:nth-child(even){background-color:#212121}
 table.share_status:not(.dashboard) tbody tr:hover td{background-color:rgba(255,255,255,0.1)}
 table.share_status tbody tr.alert{color:#f0000c}
