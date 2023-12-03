@@ -30,11 +30,11 @@ span[id^=cpu],span[id^=sys]{width:0}
 span[class^="fa "]{font-size:1.6rem;margin-right:18px}
 span.load.resize{font-size:1.1rem}
 span.fan{width:36%;display:inline-block}
-span.w18{width:18%;display:inline-block;float:left}
-span.w26{width:26%;display:inline-block;float:left}
-span.w36{width:36%;display:inline-block;float:left}
-span.w44{width:44%;display:inline-block;float:left}
-span.w72{width:72%;display:inline-block;float:left}
+span.w18{min-width:18%;max-width:18%;width:18%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
+span.w26{min-width:26%;max-width:26%;width:26%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
+span.w36{min-width:36%;max-width:36%;width:36%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
+span.w44{min-width:44%;max-width:44%;width:44%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
+span.w72{min-width:72%;max-width:72%;width:72%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 select[name=enter_share],select[name=enter_user]{margin-top:0;float:none}
 img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
