@@ -181,7 +181,7 @@ switch ($display['theme']) {
 <div class='frame'>
 <div class='grid'>
 <div class='tile' id='tile1'>
-<table id='db-box1' class='share_status dashboard'>
+<table id='db-box1' class='dashboard'>
 <tbody class='system'>
 <tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
 <span><?=_var($var,'COMMENT')?></span><span id="_current_time_" class="head_time"></span><br></div>
@@ -389,7 +389,7 @@ echo "</td></tr>";
 </div>
 
 <div class='tile' id='tile2'>
-<table id='db-box2' class='share_status dashboard'>
+<table id='db-box2' class='dashboard'>
 <?if ($dockerd):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
@@ -545,7 +545,7 @@ if (!$group) {
 </div>
 
 <div class='tile' id='tile3'>
-<table id='db-box3' class='share_status dashboard'>
+<table id='db-box3' class='dashboard'>
 <tbody title="_(Parity Information)_">
 <tr><td><i class='icon-health f32'></i><div class='section'>_(Parity)_<br>
 <span class='parity'></span><br></div>

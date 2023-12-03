@@ -137,23 +137,23 @@ table.share_status tbody tr.warn{color:#e68a00}
 table.share_status.fixed tr td:nth-child(n+2){min-width:39px;font-size:1.1rem;text-align:center;padding:0}
 table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
-table.share_status.dashboard{margin:0;border:none;background-color:#262626}
-table.share_status.dashboard tbody{border:1px solid #333333}
-table.share_status.dashboard tr:first-child td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
-table.share_status.dashboard tr:nth-child(even){background-color:transparent}
-table.share_status.dashboard tr:last-child td{padding-bottom:20px}
-table.share_status.dashboard tr.last td{padding-bottom:20px}
-table.share_status.dashboard tr.header td{padding-bottom:10px}
-table.share_status.dashboard td{padding:3px 10px}
-table.share_status.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1c1b1b}
-table.share_status.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
-table.share_status.dashboard td div.section{display:inline-block;vertical-align:top;margin-left:4px;font-size:1.2rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
-table.share_status.dashboard td div.section span{font-weight:normal;text-transform:none;letter-spacing:0;white-space:normal}
-table.share_status.dashboard td span.info{float:right;margin-right:20px;font-size:1.2rem;font-weight:normal;text-transform:none;letter-spacing:0}
-table.share_status.dashboard td span.info.title{font-weight:bold}
-table.share_status.dashboard td span.load{display:inline-block;width:38px;text-align:right}
-table.share_status.dashboard td span.finish{float:right;margin-right:24px}
-table.share_status.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#262626;background-color:rgba(255,255,255,0.3);padding:2px;border-radius:5px}
+table.dashboard{margin:0;border:none;background-color:#262626}
+table.dashboard tbody{border:1px solid #333333}
+table.dashboard tr:first-child td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
+table.dashboard tr:nth-child(even){background-color:transparent}
+table.dashboard tr:last-child td{padding-bottom:20px}
+table.dashboard tr.last td{padding-bottom:20px}
+table.dashboard tr.header td{padding-bottom:10px}
+table.dashboard td{padding:3px 10px}
+table.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1c1b1b}
+table.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+table.dashboard td div.section{display:inline-block;vertical-align:top;margin-left:4px;font-size:1.2rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+table.dashboard td div.section span{font-weight:normal;text-transform:none;letter-spacing:0;white-space:normal}
+table.dashboard td span.info{float:right;margin-right:20px;font-size:1.2rem;font-weight:normal;text-transform:none;letter-spacing:0}
+table.dashboard td span.info.title{font-weight:bold}
+table.dashboard td span.load{display:inline-block;width:38px;text-align:right}
+table.dashboard td span.finish{float:right;margin-right:24px}
+table.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#262626;background-color:rgba(255,255,255,0.3);padding:2px;border-radius:5px}
 .dashboard-sortable{background-color:#1c1b1b}
 [name=arrayOps]{margin-top:12px}
 span.error{color:#f0000c;background-color:#ff9e9e;display:block;width:100%}
