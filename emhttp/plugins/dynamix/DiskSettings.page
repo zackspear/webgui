@@ -244,10 +244,15 @@ _(Default critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C
 
 :disk_default_critical_temperature_help:
 
-_(Default SSD offset temperature)_ (&deg;<?=_var($display,'unit','C')?>):
-: <input type="number" min="0" max="300" name="display_ssd" class="narrow" value="<?=displayTemp($display['ssd'])?>" placeholder="<?=displayTemp($default['display']['ssd'])?>">
+_(Default warning SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+: <input type="number" min="0" max="300" name="display_hotssd" class="narrow" value="<?=displayTemp($display['hotssd'])?>" placeholder="<?=displayTemp($default['display']['hotssd'])?>">
 
-:ssd_default_disk_offset_temperature_help:
+:ssd_default_warning_temperature_help:
+
+_(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+: <input type="number" min="0" max="300" name="display_maxssd" class="narrow" value="<?=displayTemp($display['maxssd'])?>" placeholder="<?=displayTemp($default['display']['maxssd'])?>">
+
+:ssd_default_critical_temperature_help:
 
 &nbsp;
 : <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">

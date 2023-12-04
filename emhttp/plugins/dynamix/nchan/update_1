@@ -31,10 +31,12 @@ while (true) {
   exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$fans);
   $zfs = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null")?:0;
   [$total,$free] = $memory;
-  $meminfo[] = max(round(100*(1-$free/$total)),0)."%";
+  $meminfo[] = round(100*(1-$free/$total))."%";
   $meminfo[] = my_scale($total-$free,$unit,null,-1,1024)." $unit";
-  $meminfo[] = max(round(100*($total-$free-$zfs)/$total),0)."%";
-  $meminfo[] = min(round(100*$zfs/$total),100)."%";
+  $meminfo[] = round(100*($total-$free-$zfs)/$total)."%";
+  $meminfo[] = round(100*$zfs/$total)."%";
+  $meminfo[] = my_scale($total-$free-$zfs,$unit,null,-1,1024)." $unit";
+  $meminfo[] = my_scale($free,$unit,null,-1,1024)." $unit";
   $meminfo[] = my_scale($zfs,$unit,null,-1,1024)." $unit\0";
   foreach ($df as $data) {
     [$pcent,$used] = explode(' ',$data);

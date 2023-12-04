@@ -263,13 +263,20 @@ foreach ($cpus as $pair) {
 <span id="head_ram">_(RAM)_:<span class="head_bar"><span class='_sys0_ load'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
-<tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
 <tr><td>
-<span class='w26'><?if($zfs):?><div class='zfs'><i class='ups fa fa-fw fa-shield'></i>_(ZFS)_: <span id='zfs'></span></div><?else:?>&nbsp;<?endif;?></span>
-<span class='w18 center'><span class='center'>_(RAM)_</span><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
-<span class='w18 center'><span class='center'>_(Flash)_</span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
-<span class='w18 center'><span class='center'>_(Log)_</span><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
-<span class='w18 center'><span class='center'>_(Docker)_</span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
+<span class='w26'><div class='more'>
+<i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?><br>
+<i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?><br><br>
+<i class='ups fa fa-circle used'></i>_(Services)_: <span id='used'></span><br>
+<?if($zfs):?>
+<i class='ups fa fa-circle zfs'></i>_(ZFS cache)_: <span id='zfs'></span><br>
+<?endif;?>
+<i class='ups fa fa-circle free'></i>_(Free)_: <span id='free'></span><br>
+</div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'>_(RAM)_<br>_(usage)_<span>_(Percentage of total used memory)_</span></a></span><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'>_(Flash)_<br>_(device)_<span>_(Percentage usage of flash device)_</span></a></span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'>_(Log)_<br>_(filesystem)_<span>_(Percentage usage of LOG file system)_</span></a></span><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'>_(Docker)_<br>_(vDisk)_<span>_(Percentage usage of Docker image)_</span></a></span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
 </td></tr>
 </tbody>
 
@@ -1484,8 +1491,10 @@ dashboard.on('message',function(msg,meta) {
       var load = v[0].slice(0,-1);
       $('.sys'+k).text(v[0]).css({color:fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
       if (k == 0) {
+        $('#used').text(v[4]);
+        $('#free').text(v[5]);
 <?if ($zfs):?>
-        $('#zfs').text(v[4]+' ('+v[3]+')');
+        $('#zfs').text(v[6]);
 <?endif;?>
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('._sys0_').text(v[0]);

@@ -96,7 +96,7 @@ function makeTemp(&$disk, $zone) {
     case 'hot': $nvme = 'wctemp'; break;
     case 'max': $nvme = 'cctemp'; break;
   }
- return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display[$zone]>0 ? $display[$zone]+$display['ssd'] : $display[$zone]);
+  return _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),$nvme) : (_var($disk,'rotational',1)==0 && $display["{$zone}ssd"]>=0 ? $display["{$zone}ssd"] : $display[$zone]);
 }
 function maintenance_mode() {
   global $var;
@@ -1186,12 +1186,24 @@ _(xfs_repair status)_:
 <input type="hidden" name="#cleanup" value="true">
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smGlue"   value="<?=_var($var,'smGlue')?>">
+<?if (_var($disk,'rotational',1)==1):?>
 _(Warning disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?elseif (_var($disk,'transport')=='nvme'):?>
+_(Warning NVME temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?else:?>
+_(Warning SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?endif;?>
 : <input type="number" min="0" max="300" name="hotTemp" class="narrow" value="<?=displayTemp(_var($disk,'hotTemp'))?>" placeholder="<?=displayTemp(makeTemp($disk,'hot'))?>">
 
 :info_warning_temp_help:
 
+<?if (_var($disk,'rotational',1)==1):?>
 _(Critical disk temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?elseif (_var($disk,'transport')=='nvme'):?>
+_(Critical NVME temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?else:?>
+_(Critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C')?>):
+<?endif;?>
 : <input type="number" min="0" max="300" name="maxTemp" class="narrow" value="<?=displayTemp(_var($disk,'maxTemp'))?>" placeholder="<?=displayTemp(makeTemp($disk,'max'))?>">
 
 :info_critical_temp_help:
