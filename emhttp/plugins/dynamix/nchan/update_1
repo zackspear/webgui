@@ -34,7 +34,8 @@ while (true) {
   $meminfo[] = max(round(100*(1-$free/$total)),0)."%";
   $meminfo[] = my_scale($total-$free,$unit,null,-1,1024)." $unit";
   $meminfo[] = max(round(100*($total-$free-$zfs)/$total),0)."%";
-  $meminfo[] = min(round(100*$zfs/$total),100)."%\0";
+  $meminfo[] = min(round(100*$zfs/$total),100)."%";
+  $meminfo[] = my_scale($zfs,$unit,null,-1,1024)." $unit\0";
   foreach ($df as $data) {
     [$pcent,$used] = explode(' ',$data);
     $sysinfo[] = $pcent.';'.my_scale($used,$unit,null,-1,1024)." $unit";
