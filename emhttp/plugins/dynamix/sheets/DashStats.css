@@ -35,7 +35,7 @@ span.w26{min-width:26%;max-width:26%;display:inline-block;float:left;overflow:hi
 span.w36{min-width:36%;max-width:36%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
 span.w44{min-width:44%;max-width:44%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
 span.w72{min-width:72%;max-width:72%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
-span.center{display:block;width:90px;text-align:center;margin:4px 0 8px 0}
+span.center{display:block;width:96px;text-align:center;margin:4px 0 8px 0}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 select[name=enter_share],select[name=enter_user]{margin-top:0;float:none}
 img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
