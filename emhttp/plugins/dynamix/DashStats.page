@@ -260,7 +260,7 @@ foreach ($cpus as $pair) {
 <tbody title="_(Memory Utilization)_">
 <tr><td><i class='icon-ram f32'></i><div class='section'>_(System)_<br>
 <span class="head_info"><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span></span>
-<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='sys0 load head'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
+<span id="head_ram">_(RAM)_:<span class="head_bar"><span class='_sys0_ load'>0%</span><div class='usage-disk sys'><span id='_sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
 </td></tr>
 <tr><td><span class='w36'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=my_scale($total,$unit,1,null,1024)." $unit"?></span><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></td></tr>
@@ -960,7 +960,7 @@ function changeMode(item) {
   $('select[name="enter_user"]').val(item);
 }
 function changeSpan(span,dir) {
-  const spans = ['cpu','sys0','ups_loadpct','ups_status','current_time'];
+  const spans = ['cpu','ups_loadpct','ups_status','current_time'];
   switch (dir) {
     case 0: for (var i=0,id; id=spans[i]; i++) span.find('span#_'+id+'_').prop('id',id); break;
     case 1: for (var i=0,id; id=spans[i]; i++) span.find('span#'+id+':first').prop('id','_'+id+'_'); break;
@@ -1482,7 +1482,12 @@ dashboard.on('message',function(msg,meta) {
 <?if ($zfs):?>
         $('#zfs').text(v[2]);
 <?endif;?>
-        $('#sys'+k).css({background:'conic-gradient(<?=$c1?> 0% '+v[1]+',<?=$c2?> '+v[1]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        var color = setColor(v[0].slice(0,-1),<?=$display['critical']?>,<?=$display['warning']?>);
+        // header
+        $('._sys0_').text(v[0]);
+        $('#_sys0_').finish().animate({width:v[0]},{step:function(){$('#_sys0_').css('overflow','visible').removeClass().addClass(color);}});
+        // body
+        $('#sys0').css({background:'conic-gradient(<?=$c1?> 0% '+v[1]+',<?=$c2?> '+v[1]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       } else {
         $('#sys'+k).css({background:'conic-gradient(<?=$c1?> 0% '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       }
