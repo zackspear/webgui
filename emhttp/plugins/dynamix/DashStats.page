@@ -274,7 +274,7 @@ foreach ($cpus as $pair) {
 <i class='ups fa fa-circle free'></i>_(Free)_: <span id='free'></span><br>
 </div></span>
 <span class='w18 center'><span class='center'><a class='info hand none'>_(RAM)_<br>_(usage)_<span>_(Percentage of total used memory)_</span></a></span><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'>_(Flash)_<br>_(device)_<span>_(Percentage usage of flash device)_</span></a></span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'>_(Flash)_<br>_(device)_<span>_(Percentage usage of flash usb device)_</span></a></span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
 <span class='w18 center'><span class='center'><a class='info hand none'>_(Log)_<br>_(filesystem)_<span>_(Percentage usage of LOG file system)_</span></a></span><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
 <span class='w18 center'><span class='center'><a class='info hand none'>_(Docker)_<br>_(vDisk)_<span>_(Percentage usage of Docker image)_</span></a></span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
 </td></tr>
