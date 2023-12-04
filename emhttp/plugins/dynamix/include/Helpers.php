@@ -63,6 +63,9 @@ function my_disks($disk) {
 function my_hyperlink($text, $link) {
   return str_replace(['[',']'],["<a href=\"$link\">","</a>"],$text);
 }
+function main_only($disk) {
+  return _var($disk,'type')=='Parity' || _var($disk,'type')=='Data';
+}
 function parity_only($disk) {
   return _var($disk,'type')=='Parity';
 }
@@ -71,6 +74,9 @@ function data_only($disk) {
 }
 function cache_only($disk) {
   return _var($disk,'type')=='Cache';
+}
+function main_filter($disks) {
+  return array_filter($disks,'main_only');
 }
 function parity_filter($disks) {
   return array_filter($disks,'parity_only');
