@@ -35,13 +35,13 @@ $locale_init = $locale;
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'power'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 }
-function model($id) {
+function get_model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
-function power($power) {
+function my_power($power) {
   global $display;
   $number = _var($display,'number','.,');
-  return $power ? ' / '.number_format($power,2,$number[0]).' W' : '';
+  return $power ? ' / '.number_format($power,$power<10?2:1,$number[0]).' '._('W') : '';
 }
 function device_info(&$disk,$online) {
   global $pools, $var, $crypto;
@@ -53,7 +53,7 @@ function device_info(&$disk,$online) {
   }
   $name = _var($disk,'name');
   $named = no_tilde($name);
-  $fancy = compress(_(my_disk(native($name,1)),3),16,5);
+  $fancy = _(my_disk(native($name,1)),3);
   $type = _var($disk,'type')=='Flash' ? $disk['type'] : 'Device';
   $pool = _var($disk,'type')=='Cache';
   $parity = _var($disk,'type')=='Parity';
@@ -215,7 +215,7 @@ function array_offline(&$disk, $pool='') {
   case 'DISK_NEW':
     $echo[] = "<td>".device_info($disk,false)."</td>";
     $echo[] = "<td>".assignment($disk)."</td>";
-    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).power($disk['power'])."</td>";
+    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).my_power($disk['power'])."</td>";
     if ($warning) {
       $echo[] = "<td colspan='7'>$warning</td>";
     } else {
@@ -284,7 +284,7 @@ function array_online(&$disk, $fstype='') {
   default:
     $echo[] = "<td>".device_info($disk,true)."</td>";
     $echo[] = "<td>".device_desc($disk)."</td>";
-    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).power($disk['power'])."</td>";
+    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).my_power($disk['power'])."</td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number(_var($disk,'numReads',0))."</span></td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number(_var($disk,'numWrites',0))."</span></td>";
     $echo[] = "<td>".my_number(_var($disk,'numErrors',0))."</td>";
@@ -305,7 +305,7 @@ function show_totals($text,$array,$name) {
   $echo[] = "<tr class='tr_last'>";
   $echo[] = "<td><a class='info'><i class='fa fa-fw fa-toggle-down control' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up control' $ctrl2></i><span>$help2</span></a></td>";
   $echo[] = "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>$text</td>";
-  $echo[] = "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*').power($sum['power'])."</td>";
+  $echo[] = "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*').my_power($sum['power'])."</td>";
   $echo[] = "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
   $echo[] = "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
   $echo[] = "<td>".my_number($sum['numErrors'])."</td>";
@@ -398,7 +398,7 @@ while (true) {
     update_translation($locale_init);
   }
   // sort unassigned devices on disk identification
-  if (count($devs)>1) array_multisort(array_column($devs,'sectors'),SORT_DESC,array_map('model',array_column($devs,'id')),SORT_NATURAL|SORT_FLAG_CASE,array_column($devs,'device'),$devs);
+  if (count($devs)>1) array_multisort(array_column($devs,'sectors'),SORT_DESC,array_map('get_model',array_column($devs,'id')),SORT_NATURAL|SORT_FLAG_CASE,array_column($devs,'device'),$devs);
 
   // merge device custom settings
   if (file_exists($smartALL)) $var = array_merge($var,parse_ini_file($smartALL));
