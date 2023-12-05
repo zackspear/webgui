@@ -1123,7 +1123,7 @@ function StopArray() {
 <?endif;?>
 }
 function StopArrayNow() {
-  $('span.hand').prop('onclick',null).off('click').addClass('busy').css('cursor','default');
+  $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
   $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStop:'Stop',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
 }
 function StartArray() {
@@ -1134,7 +1134,7 @@ function StartArray() {
 <?endif;?>
 }
 function StartArrayNow() {
-  $('span.hand').prop('onclick',null).off('click').addClass('busy').css('cursor','default');
+  $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
   $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStart:'Start',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
 }
 function Reboot() {
@@ -1494,7 +1494,7 @@ dashboard.on('message',function(msg,meta) {
         cpuchart.updateSeries([{data:cpu}]);
       }
       $('.'+k).text(load+'%');
-      $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css('overflow','visible').removeClass().addClass(color);}});
+      $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
     });
     break;
   case 1:
@@ -1503,7 +1503,7 @@ dashboard.on('message',function(msg,meta) {
     $.each(part[0].split('\0'),function(k,v) {
       v = v.split(';');
       var load = v[0].slice(0,-1);
-      $('.sys'+k).text(v[0]).css({color:fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
+      $('.sys'+k).text(v[0]).css({'color':fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
       $('.var'+k).text(v[1]);
       if (k == 0) {
         $('#used').text(v[4]);
@@ -1514,9 +1514,9 @@ dashboard.on('message',function(msg,meta) {
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('._sys0_').text(v[0]);
         $('#_sys0_').finish().animate({width:v[0]},{step:function(){$('#_sys0_').css('overflow','visible').removeClass().addClass(color);}});
-        $('#sys0').css({background:'conic-gradient(<?=$c1?> 0% '+v[2]+',<?=$c2?> '+v[2]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        $('#sys0').css({'background':'conic-gradient(<?=$c1?> 0% '+v[2]+',<?=$c2?> '+v[2]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       } else {
-        $('#sys'+k).css({background:'conic-gradient(<?=$c1?> 0% '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        $('#sys'+k).css({'background':'conic-gradient(<?=$c1?> 0% '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       }
     });
 <?if ($fans):?>
@@ -1537,7 +1537,7 @@ dashboard.on('message',function(msg,meta) {
     // array devices
     $('#array_list tr.updated').remove();
     $('#array_list').append(data[0]).hideMe();
-    $('#array_info').parent().css('display',info?'':'none');
+    $('#array_info').parent().css({'display':info?'':'none'});
     $('#array_info').html(info);
     smartMenu('#array_list');
     // pool devices
@@ -1547,7 +1547,7 @@ dashboard.on('message',function(msg,meta) {
       var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
       $('#pool_list'+i).append(t).hideMe();
-      $('#pool_info'+i).parent().css('display',info?'':'none');
+      $('#pool_info'+i).parent().css({'display':info?'':'none'});
       $('#pool_info'+i).html(info);
       smartMenu('#pool_list'+i);
     }
@@ -1557,7 +1557,7 @@ dashboard.on('message',function(msg,meta) {
     var info = moreInfo(data,"_(Unassigned)_");
     $('#devs_list tr.updated').remove();
     $('#devs_list').append(data[0]).hideMe();
-    $('#devs_info').parent().css('display',info?'':'none');
+    $('#devs_info').parent().css({'display':info?'':'none'});
     $('#devs_info').html(info);
     smartMenu('#devs_list');
 <?endif;?>
