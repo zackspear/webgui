@@ -53,6 +53,7 @@ i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
 i#mycase[class^="fa "]{font-size:96px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
+a.info{white-space:normal;word-spacing:40px}
 tr#var0,tr#var1,tr#var2,tr#var3,tr#var4{cursor:alias}
 tr#var1,tr#var4,tr#cpu_chart,.cpu_open{display:none}
 td.none{text-align:center;padding-top:12px}
@@ -74,3 +75,4 @@ div.pie span{z-index:2;font-size:1.6rem;font-weight:bold}
 div.more{margin-top:8px}
 i.zfs{color:#d4ac0d}
 .var0,.var1,.var2,.var3{display:none;font-size:1.3rem!important}
+legend{font-variant:small-caps;margin-bottom:4px}
