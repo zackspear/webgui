@@ -11,14 +11,10 @@
  */
 ?>
 <?
-function curl_socket($socket, $url, $message) {
+function curl_socket($socket, $url, $message='') {
   $com = curl_init($url);
-  curl_setopt_array($com,[
-    CURLOPT_UNIX_SOCKET_PATH => $socket,
-    CURLOPT_POST => 1,
-    CURLOPT_POSTFIELDS => $message,
-    CURLOPT_RETURNTRANSFER => 1
-  ]);
+  curl_setopt_array($com, [CURLOPT_UNIX_SOCKET_PATH => $socket, CURLOPT_RETURNTRANSFER => 1]);
+  if ($message) curl_setopt_array($com, [CURLOPT_POSTFIELDS => $message, CURLOPT_POST => 1]);
   $reply = curl_exec($com);
   curl_close($com);
   return $reply;
