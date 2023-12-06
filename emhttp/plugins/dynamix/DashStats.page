@@ -1483,11 +1483,11 @@ dashboard.on('message',function(msg,meta) {
       if (k=='cpu') {
         addChartCpu(load);
         cpuchart.updateSeries([{data:cpu}]);
+        $('.cpu_').text(load+'%');
+        $('#cpu_').finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
       }
       $('.'+k).text(load+'%');
-      $('.'+k+'_').text(load+'%');
       $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
-      $('#'+k+'_').finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
     });
     break;
   case 1:
