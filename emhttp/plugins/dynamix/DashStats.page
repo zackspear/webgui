@@ -191,7 +191,7 @@ switch ($theme) {
 <table id='db-box1' class='dashboard'>
 <tbody class='system'>
 <tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
-<span><?=_var($var,'COMMENT')?></span><span class="switch"><span id="current_time_" class="head_time"></span></span><br></div>
+<span><?=_var($var,'COMMENT')?></span><span id="current_time_" class="switch head_time"></span><br></div>
 <a href='/Dashboard/Settings/Identification'><i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i></a><i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
 <span class='ctrl'>
 <?if ($parity||$mover||$btrfs):?>
@@ -353,7 +353,7 @@ foreach ($ports as $port) {
 
 <?if ($apcupsd):?>
 <tbody title="_(Power Status)_">
-<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<span class="switch"><span class='head_gap' id='ups_status_'></span></span><br>
+<tr><td><i class='icon-ups f32'></i><div class='section'>_(Power)_<span class='switch head_gap' id='ups_status_'></span><br>
 <span class="head_info"><span><i class='ups fa fa-bar-chart'></i>_(UPS Model)_: </span><span id='ups_model'></span></span>
 <span class="switch"><span>_(Load)_:</span><span class="head_gap" id='ups_loadpct_'></span></span></span><br></div>
 <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_"><i class='fa fa-fw fa-cog control'></i></a>
