@@ -8,7 +8,6 @@ div[id$=chart]{margin:-12px 8px -24px -18px}
 div.template,div#dialogWindow,input#upload{display:none}
 span.head_info{width:250px;display:inline-block}
 span.switch{display:none}
-span#head_apps,#head_vms{display:none;margin-left:0}
 span.head_bar{display:inline-block;width:180px}
 span.head_gap{padding-left:14px}
 span.head_time{padding-left:40px;font-size:inherit!important;font-weight:bold!important}

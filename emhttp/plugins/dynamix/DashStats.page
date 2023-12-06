@@ -410,8 +410,8 @@ echo "</td></tr>";
 <?if ($dockerd):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
-<span id="tile_apps"><span class='apps'><input type='checkbox' id='apps'></span></span>
-<span id="head_apps"></span><br></div>
+<span class='apps button'><input type='checkbox' id='apps'></span>
+<span class='apps switch'></span><br></div>
 <a href='/Dashboard/Settings/DockerSettings' title="_(Go to Docker settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -419,8 +419,8 @@ echo "</td></tr>";
 <?if ($libvirtd):?>
 <tbody id='vm_view' title="_(Virtual Machines)_" data="noVMs()">
 <tr><td><i class='icon-virtualization f32'></i><div class='section'>_(Virtual Machines)_<br>
-<span id="tile_vms"><span class='vms'><input type='checkbox' id='vms'></span></span>
-<span id="head_vms"></span><br></div>
+<span class='vms button'><input type='checkbox' id='vms'></span>
+<span class='vms switch'></span><br></div>
 <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
 </tbody>
@@ -745,12 +745,12 @@ jQuery.prototype.mixedView = function(s) {
   if (s==0) {
     this.find('tr:gt(0)').hide();
     this.find('span.switch').show();
-    this.find('span[id^="tile_"]').hide();
+    this.find('span.button').hide();
     return;
   }
   this.find('tr:gt(0)').show();
   this.find('span.switch').hide();
-  this.find('span[id^="tile_"]').show();
+  this.find('span.button').show();
   if (this.attr('data')) {
     setTimeout(this.attr('data'));
   }
@@ -939,8 +939,8 @@ function loadlist(init) {
     var started_vms  = $('#vm_view').find('span.outer.vms.started').length;
     var stopped_vms  = $('#vm_view').find('span.outer.vms.stopped').length;
     var paused_vms   = $('#vm_view').find('span.outer.vms.paused').length;
-    $('#head_apps').html("_(Containers)_ -- _(Started)_: "+started_apps+", _(Stopped)_: "+stopped_apps+", _(Paused)_: "+paused_apps);
-    $('#head_vms').html("_(VMs)_ -- _(Started)_: "+started_vms+", _(Stopped)_: "+stopped_vms+", _(Paused)_: "+paused_vms);
+    $('.apps.switch').html("_(Containers)_ -- _(Started)_: "+started_apps+", _(Stopped)_: "+stopped_apps+", _(Paused)_: "+paused_apps);
+    $('.vms.switch').html("_(VMs)_ -- _(Started)_: "+started_vms+", _(Stopped)_: "+stopped_vms+", _(Paused)_: "+paused_vms);
     if ($.cookie('my_apps')!=null) $('span.apps.stopped').hide(0,noApps());
     if ($.cookie('my_vms')!=null) $('span.vms.stopped').hide(0,noVMs());
   });
@@ -1226,7 +1226,7 @@ function showContent() {
       tbody.find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
       tbody.find('tr:gt(0)').hide();
       tbody.find('span.switch').show();
-      tbody.find('span[id^="tile_"]').hide();
+      tbody.find('span.button').hide();
     }
   }
   if (count['db-box1']>0) $('div#tile1').show();
