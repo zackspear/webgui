@@ -41,6 +41,7 @@ function doDispatch(form) {
   fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
   fields['#cleanup'] = true;
   $(form).find('input[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
+  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
   $.post('/webGui/include/Dispatcher.php',fields);
 }
 function prepareDiskSettings(form) {
@@ -223,6 +224,12 @@ _(Tunable (md_write_method))_:
   </select>
 
 :disk_tunable_md_write_method_help:
+
+_(Enable NVME power monitoring)_:
+: <select name="display_power">
+  <?=mk_option($display['power'], "", _('No'))?>
+  <?=mk_option($display['power'], "1", _('Yes'))?>
+  </select>
 
 _(Default warning disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="display_warning" class="narrow" value="<?=$display['warning']?>" placeholder="<?=$default['display']['warning']?>">

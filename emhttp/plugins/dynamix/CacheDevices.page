@@ -138,7 +138,7 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <table class="disk_status wide<?=$i?' divider':''?>">
 <?if (!isSubpool($pool)):
 $cache = array_filter(cache_filter($disks),function($disk) use ($pool){return prefix($disk['name'])==$pool;});
-$power = in_array('nvme',array_column($cache,'transport')) ? ' / '._('Power') : '';
+$power = _var($display,'power') && in_array('nvme',array_column($cache,'transport')) ? ' / '._('Power') : '';
 ?>
 <thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_<?=$power?></td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
 <?endif;?>

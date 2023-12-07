@@ -32,6 +32,7 @@ $locale_init = $locale;
 
 function my_power($device) {
   global $display;
+  if (!_var($display,'power')) return '';
   $number = _var($display,'number','.,');
   [$power,$state] = explode('W ',get_nvme_info($device,'state'));
   $state = strtr($state, ['non-operational' => 'green', 'operational' => 'orange']);
