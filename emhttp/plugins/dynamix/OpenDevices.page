@@ -16,7 +16,7 @@ Cond="(count($devs)>0)"
  */
 ?>
 <?
-$power = in_array('nvme',array_column($devs,'transport')) ? ' / '._('Power') : '';
+$power = _var($display,'power') && in_array('nvme',array_column($devs,'transport')) ? ' / '._('Power') : '';
 $tabX  = '#tab'.($var['fsState']=='Stopped'||$pool_devices ? '4' : '3');
 ?>
 <script>

@@ -15,7 +15,7 @@ Tag="database"
  */
 ?>
 <?
-$power = in_array('nvme',array_column(main_filter($disks),'transport')) ? ' / '._('Power') : '';
+$power = _var($display,'power') && in_array('nvme',array_column(main_filter($disks),'transport')) ? ' / '._('Power') : '';
 ?>
 <script>
 String.prototype.no_tilde = function(){return this.replace('<?=$_tilde_?>','<?=$_proxy_?>');}
