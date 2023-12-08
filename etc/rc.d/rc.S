@@ -97,10 +97,10 @@ find_device && /bin/echo "found $DEVICE" || abort "not found"
 # detect filesystem from boot device
 if /sbin/blkid -s TYPE $DEVICE | /bin/grep -q "btrfs" ; then
   NONVFAT=btrfs
-  /sbin/mount -v -t btrfs -o auto,rw,noatime,nodiratime,degraded,discard=sync ${DEVICE}1 /boot || abort "cannot mount $DEVICE"
+  /sbin/mount -v -t btrfs -o auto,rw,noatime,nodiratime,degraded,discard=sync $DEVICE /boot || abort "cannot mount $DEVICE"
 elif /sbin/blkid -s TYPE $DEVICE | /bin/grep -q "xfs" ; then
   NONVFAT=xfs
-  /sbin/mount -v -t xfs -o auto,rw,noatime,nodiratime,discard,wsync ${DEVICE}1 /boot || abort "cannot mount $DEVICE"
+  /sbin/mount -v -t xfs -o auto,rw,noatime,nodiratime,discard,wsync $DEVICE /boot || abort "cannot mount $DEVICE"
 else
   /bin/echo "Checking $DEVICE ..."
   /sbin/fsck.fat -a -w $DEVICE 2>/dev/null
