@@ -381,7 +381,7 @@ ipaddr_up(){
       if [[ -n $ADDR ]]; then
         A=(${ADDR//./ })
         # remove leading zeros
-        for x in {0..3}; do A[$x]=$((10#${A[$x]})); done
+        for x in ${!A[@]}; do A[$x]=$((10#${A[$x]})); done
         A=${A[@]}
         ADDR=${A// /.}
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
