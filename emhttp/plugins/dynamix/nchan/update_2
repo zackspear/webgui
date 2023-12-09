@@ -163,7 +163,7 @@ function device_status(&$disk, &$error, &$warning) {
 function device_temp(&$disk, &$red, &$orange) {
   global $display;
   $spin = strpos(_var($disk,'color'),'blink')===false;
-  $temp = _var($disk,'temp','*');
+  $temp = _var($disk,'temp');
   $dev  = _var($disk,'device');
   $nvme = _var($disk,'transport')=='nvme';
   [$hotNVME,$maxNVME] = $nvme ? get_nvme_info($dev,'temp') : [-1,-1];
@@ -171,7 +171,7 @@ function device_temp(&$disk, &$red, &$orange) {
   $max  = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 && $display['maxssd']>=0 ? $display['maxssd'] : $display['max']));
   $top  = $display['top'] ?? 120;
   $color= 'green';
-  if (exceed($temp,$max,$top) || $temp<0) {
+  if (exceed($temp,$max,$top) || (is_numeric($temp) && $temp<0)) {
     $color = 'red'; $red++;
   } elseif (exceed($temp,$hot,$top)) {
     $color = 'orange'; $orange++;
