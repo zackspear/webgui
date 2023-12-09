@@ -86,7 +86,7 @@ function port_name($port) {
   return substr($port,-2)!='n1' ? $port : substr($port,0,-2);
 }
 function exceed($value, $limit, $top=100) {
-  return $limit>0 ? ($value>$limit && $value<=$top) : false;
+  return is_numeric($value) && $limit>0 ? ($value>$limit && $value<=$top) : false;
 }
 function ipaddr($ethX='eth0', $prot=4) {
   global $$ethX;
