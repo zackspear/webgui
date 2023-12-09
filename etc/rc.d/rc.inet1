@@ -379,9 +379,9 @@ ipaddr_up(){
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
-        A=(${ADDR//./ })
+        A=()
         # remove leading zeros
-        for x in ${!A[@]}; do A[$x]=$((10#${A[$x]})); done
+        for x in ${ADDR//./ }; do A+=($((10#$x))); done
         A=${A[@]}
         ADDR=${A// /.}
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
