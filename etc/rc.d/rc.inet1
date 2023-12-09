@@ -66,7 +66,10 @@
 # - added interface carrier check before assigning IP address (DHCP or static)
 # - added "status" command
 
-# Bergware - modified for Unraid OS, October 2023
+# Adapted by Bergware for use in Unraid OS - December 2023
+# - remove leading zeros from IPv4 address
+
+# Bergware - modified for Unraid OS, December 2023
 
 ###########
 # LOGGING #
@@ -376,6 +379,11 @@ ipaddr_up(){
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
+        A=(${ADDR//./ })
+        # remove leading zeros
+        for x in {0..3}; do A[$x]=$((10#${A[$x]})); done
+        A=${A[@]}
+        ADDR=${A// /.}
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
         [[ -n $MASK ]] && run ip -4 addr add $ADDR/$MASK dev $IFACE metric 1
       fi
