@@ -67,7 +67,7 @@
 # - added "status" command
 
 # Adapted by Bergware for use in Unraid OS - December 2023
-# - added function to remove leading zeros in IPv4 and IPv6 addresses
+# - added functions to remove leading zeros in IPv4 and IPv6 addresses
 
 # Bergware - modified for Unraid OS, December 2023
 
@@ -140,15 +140,17 @@ lo_down(){
 # INTERFACE FUNCTIONS #
 #######################
 
-# function to remove leading zeros in IPv4 and IPv6 addresses
+# function to remove leading zeros in IPv4 address
 unzero(){
+  local M Q
+  echo -n $(for Q in ${1//./ }; do printf "$M%x" "0x$Q"; M=.; done)
+}
+
+# function to remove leading zeros in IPv6 address
+unzero6(){
   local A M Q
-  case "$1" in
-  -4) echo -n $(for Q in ${2//./ }; do printf "$M%x" "0x$Q"; M=.; done) ;;
-  -6) A=${2/::/:-:}
-      echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done) ;;
-   *) echo -n $2 ;;
-  esac
+  A=${1/::/:-:}
+  echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
 }
 
 # function to get link mtu size
@@ -391,14 +393,14 @@ ipaddr_up(){
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
-        [[ -n $MASK ]] && run ip -4 addr add $(unzero -4 $ADDR)/$MASK dev $IFACE metric 1
+        [[ -n $MASK ]] && run ip -4 addr add $(unzero $ADDR)/$MASK dev $IFACE metric 1
       fi
     fi
     if [[ $IP != ipv4 ]]; then
       [[ $j -eq 0 ]] && ADDR6=${IPADDR6[$i]} || ADDR6=${IPADDR6[$i,$j]}
       if [[ -n $ADDR6 ]]; then
         [[ $j -eq 0 ]] && MASK6=${NETMASK6[$i]} || MASK6=${NETMASK6[$i,$j]}
-        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero -6 $ADDR6)/$MASK6 dev $IFACE metric 1
+        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $ADDR6)/$MASK6 dev $IFACE metric 1
         [[ -n $PRIV6 && -d $CONF6/$IFACE ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
       fi
     fi
