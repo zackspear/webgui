@@ -140,6 +140,15 @@ lo_down(){
 # INTERFACE FUNCTIONS #
 #######################
 
+# function to remove leading zeros in IPv4 address
+pact(){
+  local A=()
+  local n
+  for n in ${1//./ }; do A+=($((10#$n))); done
+  A=${A[@]}
+  echo -n ${A// /.}
+}
+
 # function to get link mtu size
 get_mtu(){
   ip link show $1 | grep -Po 'mtu \K\d+'
@@ -379,13 +388,8 @@ ipaddr_up(){
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
-        A=()
-        # remove leading zeros
-        for x in ${ADDR//./ }; do A+=($((10#$x))); done
-        A=${A[@]}
-        ADDR=${A// /.}
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
-        [[ -n $MASK ]] && run ip -4 addr add $ADDR/$MASK dev $IFACE metric 1
+        [[ -n $MASK ]] && run ip -4 addr add $(pact $ADDR)/$MASK dev $IFACE metric 1
       fi
     fi
     if [[ $IP != ipv4 ]]; then
