@@ -146,8 +146,8 @@ $root  = explode($_tilde_,$pool)[0];
 <?endif;?>
 <?endif;?>
 <tbody id="pool_device<?=$i++?>">
-<?foreach ($cache as $disk) if (substr($disk['status'],0,7)!='DISK_NP') echo "<tr><td colspan='10'>&nbsp;</td></tr>"?>
-<?if (_var($display,'total') && _var($cache[$root],'devices',0)>1) echo "<tr class='tr_last'><td colspan='10'>&nbsp;</td></tr>"?>
+<?foreach ($cache as $disk) if (substr($disk['status'],0,7)!='DISK_NP') echo "<tr><td colspan='10'></td></tr>"?>
+<?if (_var($display,'total') && _var($cache[$root],'devices',0)>1) echo "<tr class='tr_last'><td colspan='10'></td></tr>"?>
 </tbody>
 </table>
 <?endif;?>

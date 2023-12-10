@@ -30,7 +30,7 @@ $('<?=$tabX?>').bind({click:function() {$('i.toggle').show('slow');}});
 <tbody id="open_devices">
 <?
 foreach ($devs as $dev):
-  echo "<tr><td colspan='10'>&nbsp;</td></tr>";
+  echo "<tr><td colspan='10'></td></tr>";
 endforeach;
 ?>
 </tbody>
