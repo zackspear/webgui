@@ -103,7 +103,7 @@ div.title.shift{margin-top:-12px}
 .usage-bar>span{display:block;height:3px;color:#ffffff;background-color:#606e7f}
 .usage-disk{position:relative;height:2.2rem;line-height:2.2rem;background-color:#eceaec;margin:0}
 .usage-disk>span:first-child{position:absolute;left:0;margin:0!important;height:3px;background-color:#606e7f}
-.usage-disk>span:last-child{position:relative;padding-right:4px;z-index:1}
+.usage-disk>span:last-child{position:relative;padding-right:4px;z-index:1000}
 .usage-disk.sys{line-height:normal;background-color:transparent;margin:-15px 20px 0 44px}
 .usage-disk.sys>span{line-height:normal;height:12px;padding:0}
 .usage-disk.mm{height:3px;line-height:normal;background-color:transparent;margin:5px 20px 0 0}
@@ -117,7 +117,7 @@ table{border-collapse:collapse;border-spacing:0;border-style:hidden;margin:0;wid
 table thead td{line-height:3.2rem;white-space:nowrap}
 table tbody td{line-height:3.2rem;white-space:nowrap}
 table tbody tr.tr_last{border-bottom:1px solid #606e7f}
-table.disk_status thead tr:first-child td{text-transform:uppercase;color:#9794a0;border-bottom:1px solid #606e7f}
+table.disk_status thead tr:first-child>td{text-transform:uppercase;color:#9794a0;border-bottom:1px solid #606e7f}
 table.disk_status tr>td:nth-child(1){min-width:140px;max-width:140px;width:140px;overflow:hidden;text-overflow:ellipsis;padding-left:8px}
 table.disk_status tr>td:nth-child(2){min-width:490px;max-width:490px;overflow:hidden;text-overflow:ellipsis}
 table.disk_status tr>td:nth-child(3){text-align:center}
@@ -125,30 +125,30 @@ table.disk_status tr>td:nth-child(n+1):hover{overflow:visible}
 table.disk_status tr>td:nth-child(n+3){min-width:6.5%;max-width:6.5%;width:6.5%}
 table.disk_status tr>td:nth-child(n+4){text-align:right;padding-right:8px}
 table.disk_status tbody tr{border-bottom:1px solid #f3f0f4}
-table.disk_status tbody tr:not(.tr_last):hover td{background-color:rgba(0,0,0,0.05)}
+table.disk_status tbody tr:not(.tr_last):hover>td{background-color:rgba(0,0,0,0.05)}
 table.array_status tr>td:nth-child(1){width:30%;padding-left:8px}
 table.array_status tr>td:nth-child(2){width:20%}
 table.array_status td.line{border-top:1px solid #f3f0f4}
 table.share_status{margin-top:12px}
-table.share_status thead tr:first-child td{font-size:1.2rem;letter-spacing:1px;text-transform:uppercase;color:#9794a0;border-bottom:1px solid #606e7f}
+table.share_status thead tr:first-child>td{font-size:1.2rem;letter-spacing:1px;text-transform:uppercase;color:#9794a0;border-bottom:1px solid #606e7f}
 table.share_status tr>td:nth-child(1){min-width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;padding-left:8px}
 table.share_status tr>td:nth-child(2){min-width:400px;max-width:400px;overflow:hidden;text-overflow:ellipsis}
 table.share_status tr>td:nth-child(5){min-width:100px;max-width:100px;overflow:hidden;text-overflow:ellipsis}
 table.share_status tr>td:nth-child(n+1):hover{overflow:visible}
 table.share_status tbody tr{border-bottom:1px solid #f3f0f4}
-table.share_status tbody tr:hover td{background-color:rgba(0,0,0,0.05)}
-table.share_status tbody tr:last-child td{border-bottom:1px solid #606e7f}
+table.share_status tbody tr:hover>td{background-color:rgba(0,0,0,0.05)}
+table.share_status tbody tr:last-child>td{border-bottom:1px solid #606e7f}
 table.share_status tbody tr.alert{color:#f0000c}
 table.share_status tbody tr.warn{color:#e68a00}
-table.share_status.fixed tr td:nth-child(n+2){min-width:39px;font-size:1.1rem;text-align:center;padding:0}
+table.share_status.fixed tr>td:nth-child(n+2){min-width:39px;font-size:1.1rem;text-align:center;padding:0}
 table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
 table.dashboard{margin:0;border:none;background-color:#d7dbdd}
 table.dashboard tbody{border:1px solid #cacfd2}
-table.dashboard tr:first-child td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
-table.dashboard tr:last-child td{padding-bottom:20px}
-table.dashboard tr.last td{padding-bottom:20px}
-table.dashboard tr.header td{padding-bottom:10px;color:#9794a0}
+table.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
+table.dashboard tr:last-child>td{padding-bottom:20px}
+table.dashboard tr.last>td{padding-bottom:20px}
+table.dashboard tr.header>td{padding-bottom:10px;color:#9794a0}
 table.dashboard tr{border:none}
 table.dashboard td{line-height:normal;padding:3px 10px;border:none!important}
 table.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#e4e2e4}
@@ -160,8 +160,6 @@ table.dashboard td span.info.title{font-weight:bold}
 table.dashboard td span.load{display:inline-block;width:38px;text-align:right}
 table.dashboard td span.finish{float:right;margin-right:24px}
 table.dashboard i.control{float:right;font-size:1.4rem!important;margin:0 3px 0 0;cursor:pointer;color:#d7dbdd;background-color:rgba(0,0,0,0.3);padding:2px;border-radius:5px}
-table.dashboard .usage-disk.sys{height:auto}
-.dashboard-sortable{background-color:#e4e2e4}
 tr.alert{color:#f0000c;background-color:#ff9e9e}
 tr.warn{color:#e68a00;background-color:#feefb3}
 tr.past{color:#d63301;background-color:#ffddd1}
