@@ -97,7 +97,7 @@ div.title.shift{margin-top:-30px}
 .usage-disk{position:relative;height:1.8rem;background-color:#444444;margin:0}
 .usage-disk>span:first-child{position:absolute;left:0;margin:0!important;height:1.8rem;background-color:#787878}
 .usage-disk>span:last-child{position:relative;top:-0.4rem;right:0;padding-right:6px;z-index:1}
-.usage-disk.sys{height:12px;margin:-1.8rem 20px 0 44px}
+.usage-disk.sys{height:12px;margin:-1.4rem 20px 0 44px}
 .usage-disk.sys>span{height:12px;padding:0}
 .usage-disk.sys.none{background-color:transparent}
 .usage-disk.mm{height:3px;margin:5px 20px 0 0}
@@ -141,12 +141,12 @@ table.share_status.table{margin-top:36px}
 table.share_status.table tr>td{width:50%}
 table.dashboard{margin:0;border:none;background-color:#262626}
 table.dashboard tbody{border:1px solid #333333}
+table.dashboard tbody td{line-height:normal;height:auto;padding:5px 10px}
 table.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
 table.dashboard tr:nth-child(even){background-color:transparent}
 table.dashboard tr:last-child>td{padding-bottom:20px}
 table.dashboard tr.last>td{padding-bottom:20px}
 table.dashboard tr.header>td{padding-bottom:10px}
-table.dashboard td{padding:0 10px}
 table.dashboard td{line-height:2.4rem;height:2.4rem}
 table.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1c1b1b}
 table.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
