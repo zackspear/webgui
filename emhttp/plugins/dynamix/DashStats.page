@@ -169,11 +169,11 @@ $low = $memory_maximum < $memory_installed;
 if ($low) $memory_maximum = pow(2,ceil(log($memory_installed)/log(2)));
 
 switch ($theme) {
-  case 'white': $color = '#1c1b1b'; $grid = '#e3e3e3'; $c0 = '#dcdcdc'; $c1 = '#a8a8a8'; $c2 = '#d4ac0d'; break;
-  case 'black': $color = '#f2f2f2'; $grid = '#2b2b2b'; $c0 = '#444444'; $c1 = '#787878'; $c2 = '#d4ac0d'; break;
-  case 'azure': $color = '#606e7f'; $grid = '#f3f0f4'; $c0 = '#eceaec'; $c1 = '#606e7f'; $c2 = '#d4ac0d'; break;
-  case 'gray' : $color = '#606e7f'; $grid = '#0c0f0b'; $c0 = '#232523'; $c1 = '#606e7f'; $c2 = '#d4ac0d'; break;
-  default     : $color = '#1c1b1b'; $grid = '#e3e3e3'; $c0 = '#dcdcdc'; $c1 = '#a8a8a8'; $c2 = '#d4ac0d'; break;
+  case 'white': $color = '#1c1b1b'; $grid = '#e3e3e3'; $c0 = '#dcdcdc'; $c1 = '#a8a8a8'; $c2 = '#d77e0d'; $c3 = '#d4ac0d'; break;
+  case 'black': $color = '#f2f2f2'; $grid = '#2b2b2b'; $c0 = '#444444'; $c1 = '#787878'; $c2 = '#d77e0d'; $c3 = '#d4ac0d'; break;
+  case 'azure': $color = '#606e7f'; $grid = '#f3f0f4'; $c0 = '#eceaec'; $c1 = '#606e7f'; $c2 = '#d77e0d'; $c3 = '#d4ac0d'; break;
+  case 'gray' : $color = '#606e7f'; $grid = '#0c0f0b'; $c0 = '#232523'; $c1 = '#606e7f'; $c2 = '#d77e0d'; $c3 = '#d4ac0d'; break;
+  default     : $color = '#1c1b1b'; $grid = '#e3e3e3'; $c0 = '#dcdcdc'; $c1 = '#a8a8a8'; $c2 = '#d77e0d'; $c3 = '#d4ac0d'; break;
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -273,9 +273,12 @@ foreach ($cpus as $pair) {
 <tr><td>
 <span class='w26'><div class='more'>
 <i class='ups fa fa-compress'></i>_(Usable size)_: <?=$ramsize?><br>
-<i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?><br><br>
+<i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?>
 <legend>_(Legend)_</legend>
 <i class='ups fa fa-circle used'></i>_(Services)_: <span id='used'></span><br>
+<?if($libvirtd):?>
+<i class='ups fa fa-circle vmsize'></i>_(VM usage)_: <span id='vmsize'></span><br>
+<?endif;?>
 <?if($zfs):?>
 <i class='ups fa fa-circle zfs'></i>_(ZFS cache)_: <span id='zfs'></span><br>
 <?endif;?>
@@ -1500,14 +1503,17 @@ dashboard.on('message',function(msg,meta) {
       $('.var'+k).text(v[1]);
       if (k == 0) {
         $('#used').text(v[4]);
-        $('#free').text(v[5]);
+<?if ($libvirtd):?>
+        $('#vmsize').text(v[5]);
+<?endif;?>
 <?if ($zfs):?>
         $('#zfs').text(v[6]);
 <?endif;?>
+        $('#free').text(v[7]);
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('.sys0_').text(v[0]);
         $('#sys0_').finish().animate({width:v[0]},{step:function(){$('#sys0_').css('overflow','visible').removeClass().addClass(color);}});
-        $('#sys0').css({'background':'conic-gradient(<?=$c1?> 0% '+v[2]+',<?=$c2?> '+v[2]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        $('#sys0').css({'background':'conic-gradient(<?=$c1?> 0% '+v[2]+',<?=$c2?> '+v[2]+' '+v[3]+',<?=$c3?> '+v[3]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       } else {
         $('#sys'+k).css({'background':'conic-gradient(<?=$c1?> 0% '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
       }
