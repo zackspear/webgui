@@ -28,7 +28,7 @@ $(function() {
 <?endif;?>
 <?
 $globals = [];
-$names   = ['devs','disks','sec','sec_nfs','shares','users','var'];
+$names   = ['_SERVER','devs','disks','sec','sec_nfs','shares','users','var'];
 foreach ($names as $name) $globals[$name] = $$name;
 echo "<pre class='up'>",htmlspecialchars(print_r($globals,true)),"</pre>";
 ?>
