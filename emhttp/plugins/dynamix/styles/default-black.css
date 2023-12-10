@@ -187,7 +187,7 @@ span.inner{display:inline-block;vertical-align:top}
 span.state{font-size:1.1rem;margin-left:7px}
 span.slots{display:inline-block;width:44rem;margin:0!important}
 span.slots-left{float:left;margin:0!important}
-input.subpool{float:right;margin:0}
+input.subpool{float:right;margin:8px 0 0 0}
 i.padlock{margin-right:8px;cursor:default;vertical-align:middle}
 i.nolock{visibility:hidden;margin-right:8px;vertical-align:middle}
 i.lock{margin-left:8px;cursor:default;vertical-align:middle}
