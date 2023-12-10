@@ -17,7 +17,7 @@ span.green,span.red,span.orange{padding-left:0}
 span.ctrl{float:right;margin-top:0;margin-right:10px}
 span.ctrl span{font-size:2rem!important}
 span.outer{float:left}
-span.inner{width:143px}
+span.inner{width:143px;line-height:2rem;height:2rem;margin-top:-4px}
 span.rx{width:80px;display:inline-block}
 span.busy,i.inactive{opacity:0.5}
 span.dense{width:180px;display:inline-block}
