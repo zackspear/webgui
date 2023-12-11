@@ -67,7 +67,7 @@
 # - added "status" command
 
 # Adapted by Bergware for use in Unraid OS - December 2023
-# - added functions to remove leading zeros in IPv4 and IPv6 addresses
+# - remove leading zeros in IPv4 and IPv6 addresses
 
 # Bergware - modified for Unraid OS, December 2023
 
@@ -139,19 +139,6 @@ lo_down(){
 #######################
 # INTERFACE FUNCTIONS #
 #######################
-
-# function to remove leading zeros in IPv4 address
-unzero(){
-  local M Q
-  echo -n $(for Q in ${1//./ }; do printf "$M%x" "0x$Q"; M=.; done)
-}
-
-# function to remove leading zeros in IPv6 address
-unzero6(){
-  local A M Q
-  A=${1/::/:-:}
-  echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
-}
 
 # function to get link mtu size
 get_mtu(){
@@ -589,8 +576,8 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD=${METRIC[$x]}
     [[ -n $AD ]] && AD="metric $AD"
-    EXIST=$(ip -4 route show default via $GW dev $DEV | grep "$AD ")
-    [[ $IP != ipv6 && -z $EXIST ]] && run ip -4 route add default via $GW dev $DEV $AD
+    EXIST=$(ip -4 route show default via $(unzero $GW) dev $DEV | grep "$AD ")
+    [[ $IP != ipv6 && -z $EXIST ]] && run ip -4 route add default via $(unzero $GW) dev $DEV $AD
   done
   for GW6 in ${GATEWAY6[@]}; do
     [[ -z $GW6 ]] && continue
@@ -601,8 +588,8 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD6=${METRIC6[$x]}
     [[ -n $AD6 ]] && AD6="metric $AD6"
-    EXIST=$(ip -6 route show default via $GW6 dev $DEV | grep "$AD6 ")
-    [[ $IP != ipv4 && -z $EXIST ]] && run ip -6 route add default via $GW6 dev $DEV $AD6
+    EXIST=$(ip -6 route show default via $(unzero6 $GW6) dev $DEV | grep "$AD6 ")
+    [[ $IP != ipv4 && -z $EXIST ]] && run ip -6 route add default via $(unzero6 $GW6) dev $DEV $AD6
   done
 }
 
