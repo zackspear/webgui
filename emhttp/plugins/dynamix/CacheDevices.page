@@ -135,7 +135,7 @@ $('#tab2').bind({click:function() {$('i.toggle').show('slow');}});
 <?$i = 0?>
 <?foreach ($pools as $pool):?>
 <?if (isset($disks[$pool]['devices']) or _var($var,'fsState')=="Stopped"):?>
-<table class="disk_status<?=$i ? ' divider' : ''?>">
+<table class="unraid disk_status<?=$i ? ' divider' : ''?>">
 <?if (!isSubpool($pool)):
 $cache = array_filter(cache_filter($disks),function($disk) use ($pool){return prefix($disk['name'])==$pool;});
 $power = _var($display,'power') && in_array('nvme',array_column($cache,'transport')) ? ' / '._('Power') : '';
