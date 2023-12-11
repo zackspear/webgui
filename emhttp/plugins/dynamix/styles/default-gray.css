@@ -114,8 +114,8 @@ div.title.shift{margin-top:-12px}
 .redbar{background:-webkit-radial-gradient(#941c00,#de1100);background:linear-gradient(#941c00,#de1100)}
 .graybar{background:-webkit-radial-gradient(#949494,#d9d9d9);background:linear-gradient(#949494,#d9d9d9)}
 table{border-collapse:collapse;border-spacing:0;border-style:hidden;margin:0;width:100%}
-table thead td{line-height:3.2rem;white-space:nowrap}
-table tbody td{line-height:3.2rem;white-space:nowrap}
+table thead td{line-height:3rem;height:3rem;white-space:nowrap}
+table tbody td{line-height:3rem;height:3rem;white-space:nowrap}
 table tbody tr.tr_last{border-bottom:1px solid #606e7f}
 table.disk_status thead tr:first-child>td{text-transform:uppercase;color:#82857e;border-bottom:1px solid #606e7f}
 table.disk_status tr>td:nth-child(1){min-width:170px;max-width:170px;width:170px;overflow:hidden;text-overflow:ellipsis;padding-left:8px}
@@ -151,7 +151,7 @@ table.dashboard tr:last-child>td{padding-bottom:20px}
 table.dashboard tr.last>td{padding-bottom:20px}
 table.dashboard tr.header>td{padding-bottom:10px;color:#82857e}
 table.dashboard tr{border:none}
-table.dashboard td{line-height:normal;padding:3px 10px;border:none!important}
+table.dashboard td{line-height:normal;height:auto;padding:3px 10px;border:none!important}
 table.dashboard td.stopgap{height:20px!important;line-height:20px!important;padding:0!important;background-color:#1b1d1b}
 table.dashboard td.vpn{font-size:1.1rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
 table.dashboard td div.section{display:inline-block;vertical-align:top;margin-left:4px;font-size:1.2rem;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
