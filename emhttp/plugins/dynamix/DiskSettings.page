@@ -36,7 +36,8 @@ function doDispatch(form) {
 <?if ($display['unit']=='F'):?>
   form.display_hot.value = form.display_hot.value.celsius();
   form.display_max.value = form.display_max.value.celsius();
-  form.display_ssd.value = form.display_ssd.value.celsius();
+  form.display_hotssd.value = form.display_hotssd.value.celsius();
+  form.display_maxssd.value = form.display_maxssd.value.celsius();
 <?endif;?>
   fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
   fields['#cleanup'] = true;
