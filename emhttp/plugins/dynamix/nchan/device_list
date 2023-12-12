@@ -154,7 +154,7 @@ function fs_info(&$disk) {
   global $display, $pools;
   $echo = [];
   if (empty($disk['fsStatus']) || $disk['fsStatus']=='-') {
-    return (_var($disk,'type')=='Cache' && !in_array(_var($disk,'name'),$pools)) ? "<td colspan='4'>"._('Device is part of a pool')."</td>" : "<td></td><td></td><td></td><td></td>";
+    return (_var($disk,'type')=='Cache' && !in_array(_var($disk,'name'),$pools)) ? "<td colspan='4'>"._('Device is part of a pool')."</td>" : "<td colspan='4'></td>";
   } elseif (_var($disk,'fsStatus')=='Mounted') {
     $echo[] = "<td>".vfs_info(_var($disk,'fsType'))."</td>";
     $echo[] = "<td>".my_scale(_var($disk,'fsSize',0)*1024,$unit,-1)." $unit</td>";
@@ -201,12 +201,12 @@ function array_offline(&$disk, $pool='') {
   case 'DISK_NP_DSBL':
     $echo[] = "<td>".device_info($disk,false)."</td>";
     $echo[] = "<td>".assignment($disk)."</td>";
-    $echo[] = "<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>";
+    $echo[] = "<td colspan='8'></td>";
     break;
   case 'DISK_NP_MISSING':
     $echo[] = "<td>".device_info($disk,false)."<br><span class='diskinfo'><em>"._('Missing')."</em></span></td>";
     $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale(_var($disk,'sizeSb',0)*1024,$unit)." $unit</em></td>";
-    $echo[] = "<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>";
+    $echo[] = "<td colspan='8'></td>";
     break;
   case 'DISK_OK':
   case 'DISK_DSBL':
@@ -219,9 +219,9 @@ function array_offline(&$disk, $pool='') {
     if ($warning) {
       $echo[] = "<td colspan='7'>$warning</td>";
     } else {
-      $echo[] = "<td></td><td></td><td></td>";
+      $echo[] = "<td colspan='3'></td>";
       $echo[] = "<td>".vfs_type(_var($disk,'fsType'))."</td>";
-      $echo[] = "<td></td><td></td><td></td>";
+      $echo[] = "<td colspan='3'></td>";
     }
     break;
   case 'DISK_WRONG':
@@ -231,9 +231,9 @@ function array_offline(&$disk, $pool='') {
     if ($warning) {
       $echo[] = "<td colspan='7'>$warning</td>";
     } else {
-      $echo[] = "<td></td><td></td><td></td>";
+      $echo[] = "<td colspan='3'></td>";
       $echo[] = "<td>".vfs_type(_var($disk,'fsType'))."</td>";
-      $echo[] = "<td></td><td></td><td></td>";
+      $echo[] = "<td colspan='3'></td>";
     }
     break;
   }
@@ -270,14 +270,14 @@ function array_online(&$disk, $fstype='') {
     if (in_array(_var($disk,'name'),$pools) || $fstype=='zfs') {
       $echo[] = "<td>".device_info($disk,true)."</td>";
       $echo[] = "<td><a class='static'><i class='icon-disk icon'></i><span></span></a><em>".($fstype=='zfs' ? _('Not present') : _('Not installed'))."</em></td>";
-      $echo[] = "<td></td><td></td><td></td><td></td>";
+      $echo[] = "<td colspan='4'></td>";
       $echo[] = fs_info($disk);
     }
     break;
   case 'DISK_NP_DSBL':
     $echo[] = "<td>".device_info($disk,true)."</td>";
     $echo[] = "<td><a class='static'><i class='icon-disk icon'></i><span></span></a><em>"._('Not installed')."</em></td>";
-    $echo[] = "<td></td><td></td><td></td><td></td>";
+    $echo[] = "<td colspan='4'></td>";
     $echo[] = fs_info($disk);
     break;
   case 'DISK_DSBL':
@@ -325,7 +325,7 @@ function show_totals($text,$array,$name) {
       $echo[] = "<td><div class='usage-disk'><span style='width:$free%' class='".usage_color($display,$free,true)."'></span><span>".my_scale($sum['fsFree']*1024,$unit)." $unit</span></div></td>";
     }
   } else {
-    $echo[] = "<td></td><td></td><td></td>";
+    $echo[] = "<td colspan='3'></td>";
   }
   $echo[] = "</tr>";
   return implode($echo);
@@ -493,7 +493,7 @@ while (true) {
         $sum = initSum();
       }
    }
-    $n++;
+   $n++;
   }
 
   $echo[$n] = "open_devices\n";
