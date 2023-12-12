@@ -287,7 +287,7 @@ foreach ($cpus as $pair) {
 <span class='w18 center'><span class='center'><a class='info hand none'>_(RAM usage)_<span>_(Percent of total used memory)_ (<?=$ramsize?>)</span></a></span><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
 <span class='w18 center'><span class='center'><a class='info hand none'>_(Flash device)_<span>_(Percent usage of flash usb device)_ (<?=$flashsize?>)</span></a></span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
 <span class='w18 center'><span class='center'><a class='info hand none'>_(Log filesystem)_<span>_(Percent usage of LOG file system)_ (<?=$logsize?>)</span></a></span><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'><?=$vdisk?><span>_(Percent usage of Docker image)_ (<?=$dockersize?>)</span></a></span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
+<span class='w18 center'><span class='center'><a class='info hand none'><?=$vdisk?><span><?=_("Percent usage of $vdisk")?> (<?=$dockersize?>)</span></a></span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
 </td></tr>
 </tbody>
 

@@ -319,6 +319,7 @@ devices.on('message', function(msg,meta) {
     display_diskio();
     // stop updating when array is stopped
     if (stopped==1) {
+      $('thead tr').removeClass().addClass('offline');
 <?if (_var($var,'fsState')=='Started'):?>
       setTimeout(refresh);
 <?else:?>
