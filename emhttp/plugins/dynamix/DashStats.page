@@ -789,6 +789,7 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates = false) {
   }
 }
 
+var colors  = ['<?=$c0?>','<?=$c1?>','<?=$c2?>','<?=$c3?>'];
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
 var rxd     = [];
@@ -1502,20 +1503,29 @@ dashboard.on('message',function(msg,meta) {
       $('.sys'+k).text(v[0]).css({'color':fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
       $('.var'+k).text(v[1]);
       if (k == 0) {
-        $('#used').text(v[4]);
+        $('#used').text(v[5]);
 <?if ($libvirtd):?>
-        $('#vmsize').text(v[5]);
+        $('#vmsize').text(v[7]);
 <?endif;?>
 <?if ($zfs):?>
-        $('#zfs').text(v[6]);
+        $('#zfs').text(v[9]);
 <?endif;?>
-        $('#free').text(v[7]);
+        $('#free').text(v[3]);
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('.sys0_').text(v[0]);
         $('#sys0_').finish().animate({width:v[0]},{step:function(){$('#sys0_').css('overflow','visible').removeClass().addClass(color);}});
-        $('#sys0').css({'background':'conic-gradient(<?=$c1?> 0% '+v[2]+',<?=$c2?> '+v[2]+' '+v[3]+',<?=$c3?> '+v[3]+' '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        var start = 0;
+        var end = parseInt(v[4]);
+        var ring = [colors[1]+' '+start+'% '+end+'%']
+        for (var i=6; i < v.length; i=i+2) {
+          start = end;
+          end += parseInt(v[i]);
+          ring.push(colors[(i-2)/2]+' '+start+'% '+end+'%');
+        }
+        ring.push(colors[0]+' '+v[0]+' 100%');
+        $('#sys0').css({'background':'conic-gradient('+ring.join(',')+')'});
       } else {
-        $('#sys'+k).css({'background':'conic-gradient(<?=$c1?> 0% '+v[0]+',<?=$c0?> '+v[0]+' 100%'});
+        $('#sys'+k).css({'background':'conic-gradient('+colors[1]+' 0% '+v[0]+','+colors[0]+' '+v[0]+' 100%)'});
       }
     });
 <?if ($fans):?>

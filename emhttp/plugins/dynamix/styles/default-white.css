@@ -131,7 +131,7 @@ table.disk_status tbody tr.tr_last{line-height:3rem;height:3rem;background-color
 table.array_status{table-layout:fixed}
 table.array_status tr>td{padding-left:8px}
 table.array_status tr>td:nth-child(1){width:30%}
-table.array_status tr>td:nth-child(2){width:20%}
+table.array_status tr>td:nth-child(2){width:22%}
 table.array_status.noshift{margin-top:0}
 table.array_status td.line{border-top:1px solid #e3e3e3}
 table.share_status{table-layout:fixed}
