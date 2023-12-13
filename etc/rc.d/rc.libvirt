@@ -207,13 +207,17 @@ libvirtd_start(){
       if [[ ! -e $SYSTEM/$DEV ]]; then
         NAME=${DEV//[0-9.]/}
         if [[ $NAME == br ]]; then
-          # change to macvtap
-          log "change $DEV to macvtap in $XML"
-          sed -ri "${ROW[$i]} s/<interface type='bridge'>/<interface type='direct' trustGuestRxFilters='yes'>/; $ROW2 s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/" "$XML"
+          if grep -qm1 "<interface type='bridge'>" "$XML"; then
+            # change to macvtap
+            log "change $DEV to macvtap in $XML"
+            sed -ri "${ROW[$i]} s/<interface type='bridge'>/<interface type='direct' trustGuestRxFilters='yes'>/; $ROW2 s/<source bridge='$DEV'\/>/<source dev='${DEV/$NAME/vhost}' mode='bridge'\/>/" "$XML"
+          fi
         else
-          # change to bridge
-          log "change $DEV to bridge in $XML"
-          sed -ri "${ROW[$i]} s/<interface type='direct'( trustGuestRxFilters='yes')?>/<interface type='bridge'>/; $ROW2 s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
+          if grep -qm1 "<interface type='direct'" "$XML"; then
+            # change to bridge
+            log "change $DEV to bridge in $XML"
+            sed -ri "${ROW[$i]} s/<interface type='direct'( trustGuestRxFilters='yes')?>/<interface type='bridge'>/; $ROW2 s/<source dev='$DEV' mode='bridge'\/>/<source bridge='${DEV/$NAME/br}'\/>/" "$XML"
+          fi
         fi
       fi
     done
