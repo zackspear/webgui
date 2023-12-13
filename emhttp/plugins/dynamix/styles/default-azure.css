@@ -131,9 +131,10 @@ table.disk_status tr.offline>td:nth-child(2){width:43%}
 table.disk_status tr.offline>td:nth-child(n+3){width:5.5%}
 table.disk_status tbody tr{border-bottom:1px solid #f3f0f4}
 table.array_status{table-layout:fixed}
-table.array_status tr>td{padding-left:8px}
-table.array_status tr>td:nth-child(1){width:30%}
+table.array_status tr>td{overflow:hidden;text-overflow:ellipsis;padding-left:8px}
+table.array_status tr>td:nth-child(1){width:33%}
 table.array_status tr>td:nth-child(2){width:22%}
+table.array_status tr>td:nth-child(3){white-space:normal}
 table.array_status.noshift{margin-top:0}
 table.array_status td.line{border-top:1px solid #f3f0f4}
 table.share_status{table-layout:fixed;margin-top:12px}
