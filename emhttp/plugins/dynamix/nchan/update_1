@@ -35,14 +35,16 @@ while (true) {
   [$total,$free] = $memory;
   $used      = $total-$free;
   $services  = $used-$vmsize-$zfs;
-  $meminfo[] = round(100*$used/$total)."%";
+  $meminfo[] = round(100*$used/$total).'%';
   $meminfo[] = my_scale($used,$unit,null,-1,1024)." $unit";
-  $meminfo[] = round(100*$services/$total)."%";
-  $meminfo[] = round(100*($used-$zfs)/$total)."%";
+  $meminfo[] = round(100*($free)/$total);
+  $meminfo[] = my_scale($free,$unit,null,-1,1024)." $unit";
+  $meminfo[] = round(100*$services/$total);
   $meminfo[] = my_scale($services,$unit,null,-1,1024)." $unit";
+  $meminfo[] = round(100*($vmsize)/$total);
   $meminfo[] = my_scale($vmsize,$unit,null,-1,1024)." $unit";
-  $meminfo[] = my_scale($zfs,$unit,null,-1,1024)." $unit";
-  $meminfo[] = my_scale($free,$unit,null,-1,1024)." $unit\0";
+  $meminfo[] = round(100*($zfs)/$total);
+  $meminfo[] = my_scale($zfs,$unit,null,-1,1024)." $unit\0";
   foreach ($df as $data) {
     [$pcent,$used] = explode(' ',$data);
     $sysinfo[] = $pcent.';'.my_scale($used,$unit,null,-1,1024)." $unit";
