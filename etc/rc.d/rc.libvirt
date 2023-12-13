@@ -180,8 +180,6 @@ libvirtd_start(){
     log "$DAEMON...  Already started."
     return 1
   fi
-  for file in /etc/libvirt/qemu/*.xml; do
-  done
   . /etc/unraid-version
   [[ $(version $version) -le $(version "6.12") ]] && LEGACY=1 || LEGACY=
   # update interface section((s) of VM configuration files
