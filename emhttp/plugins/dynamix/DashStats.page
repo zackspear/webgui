@@ -1520,7 +1520,7 @@ dashboard.on('message',function(msg,meta) {
         // dynamic info from hook scripts
         var html = [];
         for (var i=0,name; name=names[i]; i++) if (i!=1) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i]||'#486dba')+"'></i>"+name+": "+(i==0?v[5]:v[i*2+3]));
-        html.push("<i class='ups fa fa-circle' style='color:"+colors[1]+"'></i>"+names[1]+": "+v[3])
+        html.push("<i class='ups fa fa-circle' style='color:"+colors[1]+"'></i>"+names[1]+": "+v[3]);
         $('#dynamic').html(html.join('<br>'));
       } else {
         $('#sys'+k).css({'background':'conic-gradient('+colors[0]+' 0% '+v[0]+','+colors[1]+' '+v[0]+' 100%)'});
