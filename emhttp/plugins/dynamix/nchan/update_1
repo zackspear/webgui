@@ -14,17 +14,45 @@
 <?
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
+$md5_old = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
+extract(parse_plugin_cfg('dynamix',true));
 
 // add translations
-$_SERVER['REQUEST_URI'] = 'main';
+$_SERVER['REQUEST_URI'] = 'dashboard';
+$login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
-$md5_old = -1;
+// remember current language
+$locale_init = $locale;
+
+function update_translation($locale) {
+  global $docroot,$language;
+  $language = [];
+  if ($locale) {
+    $text = "$docroot/languages/$locale/translations.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/translations.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = unserialize(file_get_contents($store));
+    }
+    $text = "$docroot/languages/$locale/main.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/main.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
+}
+
 while (true) {
   extract(parse_plugin_cfg('dynamix',true));
+  if (_var($display,'locale') != $locale_init) {
+    $locale_init = _var($display,'locale');
+    update_translation($locale_init);
+  }
   unset($memory,$df,$fans,$lsof);
   exec("awk '/^Mem(Total|Available)/{print $2*1024}' /proc/meminfo",$memory);
   exec("df --output=pcent,used /boot /var/log /var/lib/docker 2>/dev/null|awk '(NR>1){print $1,$2*1024}'",$df);
