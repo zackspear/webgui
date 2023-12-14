@@ -1511,7 +1511,7 @@ dashboard.on('message',function(msg,meta) {
         for (var i=6; i < v.length; i=i+2) {
           start = end;
           end += parseInt(v[i]);
-          ring.push(colors[(i-2)/2]+' '+start+'% '+end+'%');
+          ring.push((colors[(i-2)/2]||'#486dba')+' '+start+'% '+end+'%');
         }
         ring.push(colors[1]+' '+v[0]+' 100%');
         $('#sys0').css({'background':'conic-gradient('+ring.join(',')+')'});
