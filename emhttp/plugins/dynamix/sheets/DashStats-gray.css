@@ -1,4 +1,2 @@
 div.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(580px,1fr));column-gap:20px}
 div.pie::after{background-color:#212f3d}
-i.free{color:#232523}
-i.used{color:#606e7f}
