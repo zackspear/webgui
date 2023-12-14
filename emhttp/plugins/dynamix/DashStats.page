@@ -73,6 +73,9 @@ $vdisk = exec("grep -Pom1 '^DOCKER_IMAGE_TYPE=\"\\K[^\"]+' /boot/config/docker.c
 $dot = _var($display,'number','.,')[0];
 $zfs = count(array_filter(array_column($disks,'fsType'),function($fs){return str_replace('luks:','',$fs??'')=='zfs';}));
 
+chmod("$docroot/webGui/system/VM usage",$libvirtd ? 0755 : 0644);
+chmod("$docroot/webGui/system/ZFS cache",$zfs ? 0755 : 0644);
+
 foreach ($disks as $disk) {
   switch (_var($disk,'type')) {
   case 'Data':
@@ -276,12 +279,6 @@ foreach ($cpus as $pair) {
 <i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?>
 <legend>_(Legend)_</legend>
 <i class='ups fa fa-circle used'></i>_(Services)_: <span id='used'></span><br>
-<?if($libvirtd):?>
-<i class='ups fa fa-circle vmsize'></i>_(VM usage)_: <span id='vmsize'></span><br>
-<?endif;?>
-<?if($zfs):?>
-<i class='ups fa fa-circle zfs'></i>_(ZFS cache)_: <span id='zfs'></span><br>
-<?endif;?>
 <span id='dynamic'></span>
 <i class='ups fa fa-circle free'></i>_(Free)_: <span id='free'></span><br>
 </div></span>
@@ -1505,12 +1502,6 @@ dashboard.on('message',function(msg,meta) {
       $('.var'+k).text(v[1]);
       if (k == 0) {
         $('#used').text(v[5]);
-<?if ($libvirtd):?>
-        $('#vmsize').text(v[7]);
-<?endif;?>
-<?if ($zfs):?>
-        $('#zfs').text(v[9]);
-<?endif;?>
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('.sys0_').text(v[0]);
         $('#sys0_').finish().animate({width:v[0]},{step:function(){$('#sys0_').css('overflow','visible').removeClass().addClass(color);}});
@@ -1529,7 +1520,7 @@ dashboard.on('message',function(msg,meta) {
         var names = (dynamic[1]||'').split('\r');
         // dynamic info from hook scripts
         var html = [];
-        for (var i=0,name; name=names[i]; i++) if (name) html.push("<i class='ups fa fa-circle' style='color:"+colors[i+4]+"'></i>"+name+": "+v[i*2+11]+"<br>");
+        for (var i=0,name; name=names[i]; i++) if (name) html.push("<i class='ups fa fa-circle' style='color:"+colors[i+2]+"'></i>"+_(name)+": "+v[i*2+7]+"<br>");
         $('#dynamic').html(html.join(''));
         $('#free').text(v[3]);
 

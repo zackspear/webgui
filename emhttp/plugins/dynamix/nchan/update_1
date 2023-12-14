@@ -14,7 +14,6 @@
 <?
 $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
-$pidfile = '/var/run/libvirt/libvirtd.pid';
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -26,31 +25,25 @@ require_once "$docroot/webGui/include/Translations.php";
 $md5_old = -1;
 while (true) {
   extract(parse_plugin_cfg('dynamix',true));
-  unset($memory,$df,$fans,$lsof,$meminfo,$sysinfo);
+  unset($memory,$df,$fans,$lsof);
   exec("awk '/^Mem(Total|Available)/{print $2*1024}' /proc/meminfo",$memory);
   exec("df --output=pcent,used /boot /var/log /var/lib/docker 2>/dev/null|awk '(NR>1){print $1,$2*1024}'",$df);
   exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$fans);
-  $vmsize = file_exists($pidfile) ? exec("virsh domstats --list-active --balloon | awk -F= '/^ *balloon.rss=/{t+=\$2}END{print t*1024}'") : 0;
-  $zfs = exec("awk '/^size/{print \$3;exit}' /proc/spl/kstat/zfs/arcstats 2>/dev/null") ?: 0;
   [$total,$free] = $memory;
-  $used = $total-$free;
-  $names = $bytes = [];
-  $hooks = array_slice(array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);}),0,8);
+  $used  = $total-$free;
+  $names = $bytes = $meminfo = $sysinfo = [];
+  $hooks = array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);});
   foreach ($hooks as $hook) {
     $names[] = basename($hook); // name of element
     $bytes[] = @intval(exec(escapeshellarg($hook))); // value in bytes of element
   }
-  $services  = $used-$vmsize-$zfs-array_sum($bytes);
+  $services  = $used-array_sum($bytes);
   $meminfo[] = round(100*$used/$total)."%";
   $meminfo[] = my_scale($used,$unit,null,-1,1024)." $unit";
   $meminfo[] = round(100*$free/$total);
   $meminfo[] = my_scale($free,$unit,null,-1,1024)." $unit";
   $meminfo[] = round(100*$services/$total);
   $meminfo[] = my_scale($services,$unit,null,-1,1024)." $unit";
-  $meminfo[] = round(100*$vmsize/$total);
-  $meminfo[] = my_scale($vmsize,$unit,null,-1,1024)." $unit";
-  $meminfo[] = round(100*$zfs/$total);
-  $meminfo[] = my_scale($zfs,$unit,null,-1,1024)." $unit";
   foreach ($bytes as $byte) {
     // parse hook information
     $meminfo[] = round(100*$byte/$total);
