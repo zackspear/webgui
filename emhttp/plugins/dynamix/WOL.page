@@ -1,6 +1,6 @@
 Menu="UNRAID-OS"
 Title="Wake On LAN"
-Icon="icon-packages"
+Icon="fa-bell"
 Tag="server"
 ---
 <?PHP
@@ -14,6 +14,32 @@ Tag="server"
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  */
+
+if (count($_POST)) {
+  $cfg = NULL ;
+  if ($_POST['#apply'] == "_(Save)_") {
+    foreach($_POST as $postkey=>$data) {
+      if ($postkey=="#apply") continue;
+      $keys = explode(";",$postkey);
+      if (count($keys) >1) $update_file[$keys[1]][$keys[2]][$keys[0]]=$data;        
+    }
+
+    foreach($update_file as $type => $types) {
+      foreach($types as $name => $details) {
+        if ($details['user_mac'] == "") $details['user_mac'] = "None Defined";
+        if ($details['user_mac'] == "None Defined" && $details['enable'] == "enable") unset($update_file[$type][$name]) ;
+      }
+    }
+  }
+  unset($_POST) ;
+  file_put_contents("/boot/config/wol.json",json_encode($update_file));
+  #echo '<meta http-equiv="refresh" content="0;url=/Tools">';
+  echo '<meta http-equiv="refresh" content="0">';
+  #unset($_SESSION['csrf_token']);
+ 
+  
+
+}
 ?>
 <script src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
 
@@ -70,50 +96,26 @@ function showWOLupdate() {
   });
 }
 
-function textedit(module) {
-  var i=module;
-  $('#text'+module).prop('disabled', false);
-  $('#save'+module).attr('hidden', false);
-  $('#text'+module).attr('hidden', false);
-}
 
-function removecfg(module) {
-  swal({title:"_(Proceed)_?",text:"_(Remove custom modprobe.d configuration?)_: "+module,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) textsave(module, true); else return false;});
+function maccreate(name) {
+ 
+  $.getJSON("/plugins/dynamix.vm.manager/include/VMajax.php?action=generate-mac", function( data ) {
+			if (data.mac) {
+				$('#'+name).val(data.mac);
+			}
+		});
 }
-
-function textsave(module,remove = false) {
-  var i=module;
-  $('#text'+module).prop('disabled', true);
-  $('#save'+module).attr('hidden', true);
-  var x = (remove) ? "" : document.getElementById("text" + module).value;
-  $.post('/webGui/include/WOL.php',{table:'update',module:module,conf:x},function(data){
-    if (data) {
-      formHasUnsavedChanges=false;
-      $('#text'+module).val(data.modprobe);
-      $('#status'+module).html(data.state);
-      if (data.state == "Custom") {
-        $('#bin'+module).show();
-      } else {
-        $('#bin'+module).hide();
-      }
-      if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3);
-      if (data.supportpage == true) {
-        if (data.support == true) {
-          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='" + _("Support page")_ + "' class='fa fa-phone-square'></i></a>";
-        }
-      }
-    }
-    $('#t1').trigger("updateCell",[document.getElementById('text'+module), false, null]);
-    $('#t1').trigger("updateCell",[document.getElementById('status'+module), false, null]);
-  },"json");
-}
-
 
 showWOL("all",true);
 </script>
 
-:sysWOL_intro_help:
+:WOL_intro_help:
 
 <form autocomplete="off" onsubmit="return false;"><span><input class="t1 search" id="wolsearch" type="search" placeholder="Search..." onchange="filterWOL();"></span></form>
-<pre><form id="sysWOL" class="js-confirm-leave" onsubmit="return false"><table id='t1' class="t1 disk_status tablesorter"><tr><td><div class="spinner"></div></td></tr></table></form></pre><br>
+<pre><form name="WOL" id="WOL" method="POST" class="js-confirm-leave"  >
+<table name="t1"id='t1' class="t1 unraid  tablesorter" >
+<tr><td><div class="spinner"></div></td></tr></table></pre><br>
 <input type="button" value="_(Done)_" onclick="done()">
+<input type="submit" name="#apply" id='#apply' value="_(Save)_" >
+</form>
+

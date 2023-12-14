@@ -25,7 +25,7 @@ require_once "/usr/local/emhttp/plugins/dynamix.vm.manager/include/libvirt.php";
 $vms = $lv->get_domains();
 sort($vms,SORT_NATURAL);
 foreach($vms as $vm){
-  $arry['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
+  $arrEntries['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
   $arry['VM'][$vm]['name'] = $vm;
 }
 
@@ -46,7 +46,7 @@ foreach ($lxc as $lxcname) {
   $arry['LXC'][$lxcname]['name'] = $lxcname;
 }
 
-if (is_file("/tmp/wol.json")) $user_mac = json_decode(file_get_contents("/tmp/wol.json"),true); else $user_mac = [];
+if (is_file("/boot/config/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
 
 foreach($arry as $key => $data) {
   $type=$key;
@@ -55,7 +55,7 @@ foreach($arry as $key => $data) {
     if (isset($user_mac[$type][$name])) {
         $name=$name;
       #var_dump($name);
-      $arry[$type][$name]['enable'] = $user_mac[$type][$name]['enable']? "enable" : "disabled";
+      $arry[$type][$name]['enable'] = $user_mac[$type][$name]['enable'];
       $arry[$type][$name]['user_mac'] = strtolower($user_mac[$type][$name]['user_mac']);
     } else {
       $arry[$type][$name]['enable'] = 'enable';
@@ -67,50 +67,30 @@ foreach($arry as $key => $data) {
 switch ($_POST['table']) {
 
 case 't1load':
-  $arrModules = $arry;
-  $init = false;
-  if (is_file($sysdrvinit)) $init = file_get_contents($sysdrvinit);
+  $arrMacs = $arry;
   $html =  "<thead><tr><th>"._('Service')."</th><th>"._('Name')."</th><th>"._('Mac Address')."</th><th>"._('Enabled')."</th><th>"._('User Mac Address')."</th></tr></thead>";
   $html .= "<tbody>";
-  ksort($arrModules);
-  foreach($arrModules as $modname => $m) {
-    foreach($m as $module) {  
-    if ($modname == "") continue;
-    if (is_file("/boot/config/modprobe.d/$modname.conf")) {
-      $modprobe = file_get_contents("/boot/config/modprobe.d/$modname.conf");
-      $state = strpos($modprobe, "blacklist");
-      $modprobe = explode(PHP_EOL,$modprobe);
-      if($state !== false) {$state = "Disabled";} else $state="Custom";
-      $module['state'] = $state;
-      $module['modprobe'] = $modprobe;
-    } else {
-      if (is_file("/etc/modprobe.d/$modname.conf")) {
-        $modprobe = file_get_contents("/etc/modprobe.d/$modname.conf");
-        $state = strpos($modprobe, "blacklist");
-        $modprobe = explode(PHP_EOL,$modprobe);
-        if($state !== false) {$state = "Disabled";} else $state="System";
-        $module['state'] = $state;
-        $module['modprobe'] = $modprobe;
-      }
-    }
-    $html .=  "<tr id='row$modname'>";
-    if ($supportpage) {
-      if ($module['support'] == false) {
-        $supporthtml = "";
-      } else {
-        $supporturl = $module['supporturl'];
-        $pluginname = $module['plugin'];
-        $supporthtml = "<span id='link$modname'><a href='$supporturl' target='_blank'><i title='"._("Support page $pluginname")."' class='fa fa-phone-square'></i></a></span>";
-      }
-    }
-   if (!empty($module["version"])) $version = " (".$module["version"].")"; else $version = "";
+  ksort($arrMacs);
+  foreach($arrMacs as $systype => $m) {
+    foreach($m as $macaddr) {  
+    if ($systype == "") continue;
+
+    $html .=  "<tr id='row$systype'>";
    $macs = "";
-   foreach($module['interfaces'] as $intdetail)
+   foreach($macaddr['interfaces'] as $intdetail)
    {
     $macs .= " {$intdetail['mac']}" ;
    }
-    $html .= "<td>$modname</td>";
-    $html .= "<td>{$module['name']}</td><td id=\"status$modname\">$macs</td><td>{$module['enable']}</td><td>{$module['user_mac']}</td></tr>";
+    $html .= "<td>$systype</td>";
+    $selecttypename="enable;".$systype.";".$macaddr['name'];
+    $mactypename=htmlspecialchars("user_mac;".$systype.";".$macaddr['name']);
+    $mactypeid=htmlspecialchars("user_mac".$systype."".$macaddr['name']);
+    $user_mac_str = '<input type="text" name="'.$mactypename.'" id="'.$mactypeid.'" class="narrow" value="'.htmlspecialchars($macaddr['user_mac']).'" title="'._("random mac, you can supply your own").'" /><a><i  onclick="maccreate(\''.$mactypeid.'\')" class="fa fa-refresh mac_generate" title="re-generate random mac address"></i></a>';
+    $html .= "<td>{$macaddr['name']}</td><td id=\"status$systype\">$macs</td><td>";
+    $html .="<select name='$selecttypename' class='audio narrow'>";
+    $html .= mk_option($macaddr["enable"]  , "disable", _("Disabled"));
+    $html .= mk_option($macaddr["enable"]  , "enable", _("Enabled"));
+    $html .= "</select></td><td>".$user_mac_str."</td></tr>";
     $text = "";
   }
 }
@@ -118,21 +98,15 @@ case 't1load':
   
   $rtn = array();
   $rtn['html'] = $html;
-  if ($init !== false) {$init = true; unlink($sysdrvinit);}
-  $rtn['init'] = $init;
   echo json_encode($rtn);
   break;
 
-case "update":
-  $conf = $_POST['conf'];
-  $module = $_POST['module'];
-  if ($conf == "") $error = unlink("/boot/config/modprobe.d/$module.conf"); else $error = file_put_contents("/boot/config/modprobe.d/$module.conf",$conf);
-  getmodules($module);
-  $return = $arrModules[$module];
-  $return['supportpage'] = $supportpage;
-  if (is_array($return["modprobe"]))$return["modprobe"] = implode("\n",$return["modprobe"]);
-  if ($error !== false) $return["error"] = false; else $return["error"] = true;
-  echo json_encode($return);
-  break;
+case "macaddress":
+        $seed = 1;
+        $prefix = '52:54:AA';
+        $prefix.':'.$lv->macbyte(($seed * rand()) % 256).':'.$lv->macbyte(($seed * rand()) % 256).':'.$lv->macbyte(($seed * rand()) % 256);
+        echo json_encode(['mac' => $prefix]);
+        break; 
+
 }
 ?>

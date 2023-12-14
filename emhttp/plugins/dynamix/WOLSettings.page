@@ -1,0 +1,84 @@
+Menu="OtherSettings"
+Type="xmenu"
+Title="Wake on Lan Settings"
+Icon="fa-bell"
+Tag="share-alt"
+---
+<?PHP
+/* Copyright 2005-2023, Lime Technology
+ * Copyright 2012-2023, Bergware International.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License version 2,
+ * as published by the Free Software Foundation.
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ */
+?>
+<?
+exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$ports);
+$disabled = _var($var,'fsState')!='Stopped' ? 'disabled' : '';
+$width    = [166,300];
+$file    = '/boot/config/wol.cfg';
+$current = parse_ini_file($file);
+?>
+<script>
+showStatus('pid','unraidwold');
+</script>
+<form markdown="1" name="WOLsettings" method="POST" action="/update.php" target="progressFrame"  >
+<input type="hidden" name="#file" value="<?=$file;?>">
+<input type="hidden" name="#command" value="/webGui/scripts/action_wol">
+
+_(Enable Wake on Lan)_:
+: <select name="WOLenabled" >
+  <?=mk_option($current['WOLenabled'], "no", _('No'))?>
+  <?=mk_option($current['WOLenabled'], "yes", _('Yes'))?>
+  </select>
+
+:WOL_enable_help:
+
+_(Enable Docker actions)_:
+
+: <select name="runDocker" >
+  <?=mk_option($current['runDocker'], "y", _('Yes'))?>
+  <?=mk_option($current['runDocker'], "n", _('No'))?>
+  </select>
+
+:run_Docker_help:
+
+_(Enable LXC actions)_:
+: <select name="runLXC" >
+  <?=mk_option($current['runLXC'], "y", _('Yes'))?>
+  <?=mk_option($current['runLXC'], "n", _('No'))?>
+  </select>
+
+:run_LXC_help:
+
+_(Enable VM actions)_:
+: <select name="runVM" >
+  <?=mk_option($current['runVM'], "y", _('Yes'))?>
+  <?=mk_option($current['runVM'], "n", _('No'))?>
+  </select>
+
+:run_VM_help:
+
+_(Interface to listern on)_
+: <select id="Interface" name="INTERFACE" >
+  <?=mk_option(_var($eth0,'INTERFACE'),'eth0','eth0','selected')?>
+  <?foreach ($ports as $port):?>
+  <?if (!locked('eth0',$port)) echo mk_option_check($current['INTERFACE'],$port,$port)?>
+  <?endforeach;?>
+  </select>
+
+  _(Interface promiscous mode)_
+: <select id="Ifmode" name="Ifmode" >
+  <?=mk_option($current['ifmode'], "n", _('No'))?>
+  <?=mk_option($current['ifmode'], "y", _('Yes'))?>
+  </select>
+
+:eth_bonding_members_help:
+
+&nbsp;
+: <input type="submit"  value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+</form>
