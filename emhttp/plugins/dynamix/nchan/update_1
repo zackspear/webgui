@@ -35,7 +35,7 @@ while (true) {
   $hooks = array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);});
   foreach ($hooks as $hook) {
     $names[] = basename($hook); // name of element
-    $bytes[] = @intval(exec(escapeshellarg($hook))); // value in bytes of element
+    $bytes[] = @intval(exec(escapeshellarg($hook))); // value in bytes of element (error -> 0)
   }
   $services  = $used-array_sum($bytes);
   $meminfo[] = round(100*$used/$total)."%";
@@ -45,15 +45,17 @@ while (true) {
   $meminfo[] = round(100*$services/$total);
   $meminfo[] = my_scale($services,$unit,null,-1,1024)." $unit";
   foreach ($bytes as $byte) {
-    // parse hook information
+    // parse hook script information for RAM usage graph
     $meminfo[] = round(100*$byte/$total);
     $meminfo[] = my_scale($byte,$unit,null,-1,1024)." $unit";
   }
+  // parse the graphs for flash, log & docker
   foreach ($df as $data) {
     [$pcent,$used] = explode(' ',$data);
     $sysinfo[] = $pcent.';'.my_scale($used,$unit,null,-1,1024)." $unit";
   }
   $name = array_keys((array)parse_ini_file("$varroot/shares.ini"));
+  // get number of open files (smb)
   exec("LANG='en_US.UTF8' lsof -Owl /mnt/disk[0-9]* 2>/dev/null|awk '/^shfs/ && \$0!~/\.AppleD(B|ouble)/ && \$5==\"REG\"'|awk -F/ '{print \$4}'",$lsof);
   $counts = array_count_values($lsof); $count = [];
   foreach ($name as $share) $count[] = $counts[$share] ?? 0;

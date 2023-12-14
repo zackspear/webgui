@@ -73,6 +73,7 @@ $vdisk = exec("grep -Pom1 '^DOCKER_IMAGE_TYPE=\"\\K[^\"]+' /boot/config/docker.c
 $dot = _var($display,'number','.,')[0];
 $zfs = count(array_filter(array_column($disks,'fsType'),function($fs){return str_replace('luks:','',$fs??'')=='zfs';}));
 
+// enable/disable graph elements by making hook script executable or not
 chmod("$docroot/webGui/system/VM usage",$libvirtd ? 0755 : 0644);
 chmod("$docroot/webGui/system/ZFS cache",$zfs ? 0755 : 0644);
 
@@ -1508,6 +1509,7 @@ dashboard.on('message',function(msg,meta) {
         var start = 0;
         var end = parseInt(v[4]);
         var ring = [colors[0]+' '+start+'% '+end+'%']
+        // create individual elements of the graph
         for (var i=6; i < v.length; i=i+2) {
           start = end;
           end += parseInt(v[i]);
