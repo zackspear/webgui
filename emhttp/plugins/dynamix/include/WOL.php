@@ -26,13 +26,13 @@ $vms = $lv->get_domains();
 sort($vms,SORT_NATURAL);
 foreach($vms as $vm){
   $arrEntries['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
-  $arry['VM'][$vm]['name'] = $vm;
+  $arrEntries['VM'][$vm]['name'] = $vm;
 }
 
 $DockerClient    = new DockerClient();
 $containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
 foreach($containers as $ct)
-  $arry['Docker'][substr($ct["Names"][0],1)] = [
+  $arrEntries['Docker'][substr($ct["Names"][0],1)] = [
       'interfaces' => ['0 '=> ['mac' => $ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]]],
       'name' => substr($ct["Names"][0],1),
   ];
@@ -42,24 +42,24 @@ $lxcpath = trim(shell_exec("lxc-config lxc.lxcpath"));
 foreach ($lxc as $lxcname) {
   if ($lxcname == "") continue;
   $value = explode("=",shell_exec("cat $lxcpath/$lxcname/config  | grep 'hwaddr'"));
-  $arry['LXC'][$lxcname]['interfaces'][0]['mac'] = trim($value[1]);
-  $arry['LXC'][$lxcname]['name'] = $lxcname;
+  $arrEntries['LXC'][$lxcname]['interfaces'][0]['mac'] = trim($value[1]);
+  $arrEntries['LXC'][$lxcname]['name'] = $lxcname;
 }
 
 if (is_file("/boot/config/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
 
-foreach($arry as $key => $data) {
+foreach($arrEntries as $key => $data) {
   $type=$key;
   foreach($data as $data2){
     $name=$data2['name'];
     if (isset($user_mac[$type][$name])) {
         $name=$name;
       #var_dump($name);
-      $arry[$type][$name]['enable'] = $user_mac[$type][$name]['enable'];
-      $arry[$type][$name]['user_mac'] = strtolower($user_mac[$type][$name]['user_mac']);
+      $arrEntries[$type][$name]['enable'] = $user_mac[$type][$name]['enable'];
+      $arrEntries[$type][$name]['user_mac'] = strtolower($user_mac[$type][$name]['user_mac']);
     } else {
-      $arry[$type][$name]['enable'] = 'enable';
-      $arry[$type][$name]['user_mac'] = 'None Defined';
+      $arrEntries[$type][$name]['enable'] = 'enable';
+      $arrEntries[$type][$name]['user_mac'] = 'None Defined';
     }
   }
 }
@@ -67,7 +67,7 @@ foreach($arry as $key => $data) {
 switch ($_POST['table']) {
 
 case 't1load':
-  $arrMacs = $arry;
+  $arrMacs = $arrEntries; 
   $html =  "<thead><tr><th>"._('Service')."</th><th>"._('Name')."</th><th>"._('Mac Address')."</th><th>"._('Enabled')."</th><th>"._('User Mac Address')."</th></tr></thead>";
   $html .= "<tbody>";
   ksort($arrMacs);
