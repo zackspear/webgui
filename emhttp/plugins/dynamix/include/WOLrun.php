@@ -24,6 +24,10 @@ $libvirtd_running = is_file('/var/run/libvirt/libvirtd.pid') ;
 $dockerd_running = is_file('/var/run/dockerd.pid');
 $lxc_ls_exist = is_file('/usr/bin/lxc-ls');
 $run_Docker = $run_LXC = $run_VM = true;
+extract(parse_ini_file("/boot/config/wol.cfg")) ;
+if (!isset($runLXC)) $runLXC = "y";
+if (!isset($runVM)) $runVM = "y";
+if (!isset($runDocker)) $runDocker = "y";
 
 $arrEntries = [] ;
 if ($libvirtd_running && $run_VM == true) {
@@ -56,7 +60,7 @@ if ($lxc_ls_exist && $run_LXC == true) {
   }
 }
 
-if (is_file("/tmp/wol.json")) $user_mac = json_decode(file_get_contents("/tmp/wol.json"),true); else $user_mac = [];
+if (is_file("/tmp/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
 
 foreach($arrEntries as $typekey => $typedata)
 {
@@ -66,11 +70,11 @@ foreach($arrEntries as $typekey => $typedata)
       
       $name=$name;
       
-      $arrEntries[$typekey][$name]['enable'] = $user_mac[$typekey][$name]['enable'] ? "enable" : "disabled";
+      $arrEntries[$typekey][$name]['enable'] = $user_mac[$typekey][$name]['enable'];
       $arrEntries[$typekey][$name]['user_mac'] = strtolower($user_mac[$typekey][$name]['user_mac']);
 
     } else {
-      $arrEntries[$typekey][$name]['enable'] = 'enable';
+      $arrEntries[$typekey][$name]['enable'] = "enable";
       $arrEntries[$typekey][$name]['user_mac'] = 'None Defined';
     }
   }
@@ -86,11 +90,13 @@ foreach($arrEntries as $type => $detail)
         {
             if($interfaces['mac'] == "" && $entryDetail['user_mac'] == "None Defined") continue;
             if (isset($entryDetail['state'])) $state = $entryDetail['state']; else $state = "";
+            if (isset($entryDetail['enable']) && !$entryDetail['enable'] ) $enable = false; else $enable = true;
             if ($entryDetail['user_mac'] != "None Defined") {
               $mac_list[$entryDetail['user_mac']] = [
                 'type' => $type,
                 'name' => $name,
-                'state' => $state,
+                'state' => $state,             
+                'enable' => $entryDetail['enable'],
               ];
             }
             if ($interfaces['mac'] != "") {
@@ -98,6 +104,7 @@ foreach($arrEntries as $type => $detail)
               'type' => $type,
               'name' => $name,
               'state' => $state,
+              'enable' => $entryDetail['enable'],
             ];
           }
         }
@@ -109,12 +116,12 @@ foreach($arrEntries as $type => $detail)
   $found = array_key_exists($mac,$mac_list);
 
 
-if ($found) {
+if ($found && $mac_list[$mac]['enable'] == "enable") {
         echo "Found $mac ".$mac_list[$mac]['type']." ".$mac_list[$mac]['name'];
         switch ($mac_list[$mac]['type']) {
         
           case "VM":
-            if ($libvirtd_running && $run_VM == true) {
+            if ($libvirtd_running && $run_VM == "y") {
             $res = $lv->get_domain_by_name($mac_list[$mac]['name']);
             $dom = $lv->domain_get_info($res);
             $state = $lv->domain_state_translate($dom['state']);
@@ -131,23 +138,21 @@ if ($found) {
             } 
             break;
           case "LXC":
-            if ($lxc_ls_exist && $run_LXC == true) {
+            if ($lxc_ls_exist && $run_LXC == "y") {
             $state = getContainerStats($mac_list[$mac]['name'], "State");
             switch ($state) {
               case 'RUNNING':
                 break;
               case 'FROZEN':
                 shell_exec("lxc-unfreeze {$mac_list[$mac]['name']}");  
-                #Resume
                 break;
               default:
-                #echo "Starting LXC\n";
                 shell_exec("lxc-start {$mac_list[$mac]['name']}");  
               }
             }
             break;
           case "Docker":
-            if ($dockerd_running && $run_Docker == true) {
+            if ($dockerd_running && $run_Docker == "y") {
               
               switch ($mac_list[$mac]['state']) {
   
