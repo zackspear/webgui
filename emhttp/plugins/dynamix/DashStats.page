@@ -1522,7 +1522,7 @@ dashboard.on('message',function(msg,meta) {
         var names = (dynamic[1]||'').split('\r');
         // dynamic info from hook scripts
         var html = [];
-        for (var i=0,name; name=names[i]; i++) if (name) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i+2]||'#486dba')+"'></i>"+_(name)+": "+v[i*2+7]+"<br>");
+        for (var i=0,name; name=names[i]; i++) if (name) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i+2]||'#486dba')+"'></i>"+name+": "+v[i*2+7]+"<br>");
         $('#dynamic').html(html.join(''));
         $('#free').text(v[3]);
 

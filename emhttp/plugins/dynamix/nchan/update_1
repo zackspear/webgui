@@ -34,7 +34,7 @@ while (true) {
   $names = $bytes = $meminfo = $sysinfo = [];
   $hooks = array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);});
   foreach ($hooks as $hook) {
-    $names[] = basename($hook); // name of element
+    $names[] = _(basename($hook)); // name of element (with translation)
     $bytes[] = @intval(exec(escapeshellarg($hook))); // value in bytes of element (error -> 0)
   }
   $services  = $used-array_sum($bytes);
