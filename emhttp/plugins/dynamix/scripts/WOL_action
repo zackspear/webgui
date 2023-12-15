@@ -52,7 +52,9 @@ unraidwold_status(){
 
 unraidwold_load()
 {
-    unraidwold_stop
+    if  unraidwold_running; then
+        unraidwold_stop
+    fi
     sleep 1
     if [ "$WOLENABLED" == "yes" ]; then
     interfacemode=""
@@ -67,7 +69,7 @@ unraidwold_load()
     fi
 
     unraidwold_start --interface $INTERFACE $interfacemode $logoptions
-fi
+    fi
 
  }
 

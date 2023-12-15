@@ -166,6 +166,9 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             }
             break;
           }
-        } else echo "Not Found $mac ignoring";
+        } else {
+          if ($mac_list[$mac]['enable'] == "disable")  echo "Not Found $mac set to disabled";
+          else echo "Not Found $mac ignoring or Maybe actions disabled for type(Docker/VM/LXC)";
+        }
 
 ?>
