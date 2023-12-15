@@ -43,7 +43,7 @@ if ($dockerd_running && $run_Docker == true) {
   $containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
   foreach($containers as $container)
     $arrEntries['Docker'][ substr($container["Names"][0],1) ] = [
-        'interfaces' => ['0 '=> ['mac' => $container["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]]],
+        'interfaces' => ['0' => ['mac' => isset($container["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]) ? $container["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]:""]],
         'name' => substr($container["Names"][0],1),
         'state' => $container["State"],
     ];
@@ -165,6 +165,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
               }
             }
             break;
-}}
+          }
+        } else echo "Not Found $mac ignoring";
 
 ?>
