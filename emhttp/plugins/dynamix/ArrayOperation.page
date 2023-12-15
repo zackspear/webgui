@@ -325,6 +325,12 @@ devices.on('message', function(msg,meta) {
 <?else:?>
       if (!timers.stopped) timers.stopped = setTimeout(function(){devices.stop(); arraymonitor.start();},1500);
 <?endif;?>
+    } else {
+      // make truncated descriptions fully visible when hovering over them
+      $('td.desc').hover(
+        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {devices.stop();$(this).next().html('');}},
+        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {devices.start();}}
+      );
     }
     break;
   case 1:
