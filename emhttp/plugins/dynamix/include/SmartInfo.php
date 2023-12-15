@@ -38,16 +38,6 @@ function duration(&$hrs) {
   $age = date_diff($poh,$now);
   $hrs = "$hrs (".($age->y?"{$age->y}y, ":"").($age->m?"{$age->m}m, ":"").($age->d?"{$age->d}d, ":"")."{$age->h}h)";
 }
-function fmt_bytes($bytes) {
-  $kb = $bytes / 1000;
-  $mb = $kb / 1000;
-  $gb = $mb / 1000;
-  $tb = $gb / 1000;
-  if ($mb < 1) return "".round($kb,1)." KB";
-  elseif ($gb < 1) return "".round($mb,1)." MB";
-  elseif ($tb < 1) return "".round($gb,1)." GB";
-  else return "".round($tb,1)." TB";
-}
 function append(&$ref, &$info) {
   if ($info) $ref .= ($ref ? " " : "").$info;
 }
@@ -93,8 +83,8 @@ case "attributes":
       }
       if ($info[8]=='-') $info[8] = 'Never';
       if ($info[0]==9 && is_numeric(size($info[9]))) duration($info[9]);
-      if (str_starts_with($info[1], 'Total_LBAs_')) $info[9] = "$info[9] (".fmt_bytes($info[9] * 512).")"; // Assumes 512 byte sectors      
-      if (str_ends_with($info[1], '32MiB')) $info[9] = "$info[9] (".fmt_bytes($info[9] * 32*1024*1024).")";
+      if (str_starts_with($info[1], 'Total_LBAs_')) $info[9] = "$info[9] (".my_scale($info[9] * 512, $unit)." $unit)"; // Assumes 512 byte sectors
+      if (str_ends_with($info[1], '32MiB')) $info[9] = "$info[9] (".my_scale($info[9] * 32*1024*1024, $unit)." $unit)";
       echo "<tr{$color}>".implode('',array_map('normalize', $info))."</tr>";
       $empty = false;
     }
