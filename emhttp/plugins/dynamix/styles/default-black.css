@@ -60,7 +60,7 @@ div.title span img{padding-right:4px}
 div.title.shift{margin-top:-30px}
 #menu{position:absolute;top:90px;left:0;right:0;display:grid;grid-template-columns:auto max-content;z-index:101}
 .nav-tile{height:4rem;line-height:4rem;padding:0;margin:0;font-size:1.2rem;letter-spacing:1.8px;background-color:#f2f2f2;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
-.nav-tile::-webkit-scrollbar{height:8px}
+.nav-tile::-webkit-scrollbar{height:5px}
 .nav-tile.right{text-align:right}
 .nav-item,.nav-user{position:relative;display:inline-block;text-align:center;margin:0}
 .nav-item a{min-width:0}
