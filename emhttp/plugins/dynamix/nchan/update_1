@@ -65,8 +65,8 @@ while (true) {
   foreach ($hooks as $hook) {
     $data = @intval(exec(escapeshellarg($hook)));
     if (!$data || $data>$used) continue;
-    $names[] = _(basename($hook)); // name of element (with translation)
-    $bytes[] = $data;              // value in bytes of element
+    $names[] = _(basename(str_replace('_',' ',$hook))); // name of element (with translation)
+    $bytes[] = $data;                                   // value in bytes of element
   }
   $services  = $used-array_sum($bytes);
   $meminfo[] = round(100*$used/$total)."%";
