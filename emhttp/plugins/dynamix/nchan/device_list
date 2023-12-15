@@ -146,17 +146,17 @@ function vfs_type($fs) {
 function vfs_luks($fs) {
   return ($fs != vfs_type($fs));
 }
-function vfs_info($fs) {
-  $fs = vfs_type($fs);
-  return $fs; // no special action on reiserfs (may come in future)
+function vfs_parent($name) {
+  global $disks;
+  return vfs_type(_var($disks[prefix($name)],'fsType'));
 }
 function fs_info(&$disk) {
   global $display, $pools;
   $echo = [];
   if (empty($disk['fsStatus']) || $disk['fsStatus']=='-') {
-    return (_var($disk,'type')=='Cache' && !in_array(_var($disk,'name'),$pools)) ? "<td colspan='4'>"._('Device is part of a pool')."</td>" : "<td colspan='4'></td>";
+    return (_var($disk,'type')=='Cache' && !in_array(_var($disk,'name'),$pools)) ? "<td>".vfs_parent(_var($disk,'name'))."</td><td colspan='3'>"._('Device is part of a pool')."</td>" : "<td colspan='4'></td>";
   } elseif (_var($disk,'fsStatus')=='Mounted') {
-    $echo[] = "<td>".vfs_info(_var($disk,'fsType'))."</td>";
+    $echo[] = "<td>".vfs_type(_var($disk,'fsType'))."</td>";
     $echo[] = "<td>".my_scale(_var($disk,'fsSize',0)*1024,$unit,-1)." $unit</td>";
     if ($display['text']%10==0) {
       $echo[] = "<td>".my_scale(_var($disk,'fsUsed',0)*1024,$unit)." $unit</td>";
@@ -171,7 +171,7 @@ function fs_info(&$disk) {
       $echo[] = "<td><div class='usage-disk'><span style='width:$free%' class='".usage_color($disk,$free,true)."'></span><span>".my_scale(_var($disk,'fsFree',0)*1024,$unit)." $unit</span></div></td>";
     }
   } else {
-    $echo[] = "<td>".vfs_info(_var($disk,'fsType'))."</td><td colspan='3'>"._(_var($disk,'fsStatus'))."</td>";
+    $echo[] = "<td>".vfs_type(_var($disk,'fsType'))."</td><td colspan='3'>"._(_var($disk,'fsStatus'))."</td>";
   }
   return implode($echo);
 }
