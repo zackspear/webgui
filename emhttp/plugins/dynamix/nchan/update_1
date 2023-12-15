@@ -64,7 +64,7 @@ while (true) {
   $hooks = array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);});
   foreach ($hooks as $hook) {
     $data = @intval(exec(escapeshellarg($hook)));
-    if (!$data) continue;
+    if (!$data || $data>$used) continue;
     $names[] = _(basename($hook)); // name of element (with translation)
     $bytes[] = $data;              // value in bytes of element
   }
