@@ -23,14 +23,14 @@ $mac = $argv[1];
 $libvirtd_running = is_file('/var/run/libvirt/libvirtd.pid') ;
 $dockerd_running = is_file('/var/run/dockerd.pid');
 $lxc_ls_exist = is_file('/usr/bin/lxc-ls');
-$run_Docker = $run_LXC = $run_VM = true;
+#$RUNDOCKER = $RUNLXC = $RUNVM = true;
 extract(parse_ini_file("/boot/config/wol.cfg")) ;
-if (!isset($runLXC)) $runLXC = "y";
-if (!isset($runVM)) $runVM = "y";
-if (!isset($runDocker)) $runDocker = "y";
+if (!isset($RUNLXC)) $RUNLXC = "y";
+if (!isset($RUNVM)) $RUNVM = "y";
+if (!isset($RUNDocker)) $RUNDocker = "y";
 
 $arrEntries = [] ;
-if ($libvirtd_running && $run_VM == true) {
+if ($libvirtd_running && $RUNVM == "y") {
   $vms = $lv->get_domains();
   sort($vms,SORT_NATURAL);
   foreach($vms as $vm){
@@ -38,7 +38,7 @@ if ($libvirtd_running && $run_VM == true) {
     $arrEntries['VM'][$vm]['name'] = $vm;
   }
 }
-if ($dockerd_running && $run_Docker == true) {
+if ($dockerd_running && $RUNDOCKER == "y") {
   $DockerClient = new DockerClient();
   $containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
   foreach($containers as $container)
@@ -49,7 +49,7 @@ if ($dockerd_running && $run_Docker == true) {
     ];
 }
 
-if ($lxc_ls_exist && $run_LXC == true) {
+if ($lxc_ls_exist && $RUNLXC == "y") {
   $lxc = explode("\n",shell_exec("lxc-ls -1")) ;
   $lxcpath = trim(shell_exec("lxc-config lxc.lxcpath"));
   foreach ($lxc as $lxcname) {
@@ -121,7 +121,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
         switch ($mac_list[$mac]['type']) {
         
           case "VM":
-            if ($libvirtd_running && $run_VM == "y") {
+            if ($libvirtd_running && $RUNVM == "y") {
             $res = $lv->get_domain_by_name($mac_list[$mac]['name']);
             $dom = $lv->domain_get_info($res);
             $state = $lv->domain_state_translate($dom['state']);
@@ -138,7 +138,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             } 
             break;
           case "LXC":
-            if ($lxc_ls_exist && $run_LXC == "y") {
+            if ($lxc_ls_exist && $RUNLXC == "y") {
             $state = getContainerStats($mac_list[$mac]['name'], "State");
             switch ($state) {
               case 'RUNNING':
@@ -152,7 +152,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             }
             break;
           case "Docker":
-            if ($dockerd_running && $run_Docker == "y") {
+            if ($dockerd_running && $RUNDOCKER == "y") {
               
               switch ($mac_list[$mac]['state']) {
   
