@@ -421,9 +421,10 @@ while (true) {
   $crypto = false;
   $echo   = [];
   foreach ($disks as $disk) {
-    if ($disk['type']=='Flash') continue;
-    ${$disk['type']}[] = $disk;
-    $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
+    $type = $disk['type'];
+    if ($type=='Flash') continue;
+    ${$type}[$disk['name']] = $disk;
+    if ($type!='Parity') $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
   }
   $pools = array_unique(array_map('prefix',array_column($Cache,'name')));
 
