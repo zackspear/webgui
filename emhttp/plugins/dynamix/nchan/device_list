@@ -41,7 +41,7 @@ function get_model($id) {
 function my_power($power) {
   global $display;
   $number = _var($display,'number','.,');
-  return _var($display,'power') && $power ? ' / '.number_format($power,$power<10?2:1,$number[0]).' '._('W') : '';
+  return _var($display,'power') && $power ? number_format($power,$power<10?2:1,$number[0]).' '._('W').' / ' : '';
 }
 function device_info(&$disk,$online) {
   global $pools, $var;
@@ -214,7 +214,7 @@ function array_offline(&$disk, $pool='') {
   case 'DISK_NEW':
     $echo[] = "<td>".device_info($disk,false)."</td>";
     $echo[] = "<td>".assignment($disk)."</td>";
-    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).my_power($disk['power'])."</td>";
+    $echo[] = "<td>".my_power($disk['power']).my_temp(_var($disk,'temp','*'))."</td>";
     if ($warning) {
       $echo[] = "<td colspan='7'>$warning</td>";
     } else {
@@ -283,7 +283,7 @@ function array_online(&$disk, $fstype='') {
   default:
     $echo[] = "<td>".device_info($disk,true)."</td>";
     $echo[] = "<td class='desc'>".device_desc($disk)."</td>";
-    $echo[] = "<td>".my_temp(_var($disk,'temp','*')).my_power($disk['power'])."</td>";
+    $echo[] = "<td>".my_power($disk['power']).my_temp(_var($disk,'temp','*'))."</td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[0])."</span><span class='number'>".my_number(_var($disk,'numReads',0))."</span></td>";
     $echo[] = "<td><span class='diskio'>".my_diskio($data[1])."</span><span class='number'>".my_number(_var($disk,'numWrites',0))."</span></td>";
     $echo[] = "<td>".my_number(_var($disk,'numErrors',0))."</td>";
@@ -304,7 +304,7 @@ function show_totals($text,$array,$name) {
   $echo[] = "<tr class='tr_last'>";
   $echo[] = "<td><a class='info'><i class='fa fa-toggle-down control' $ctrl1></i><span>$help1</span></a><a class='info'><i class='fa fa-fw fa-toggle-up control' $ctrl2></i><span>$help2</span></a></td>";
   $echo[] = "<td><a class='static'><i class='icon-disks icon'></i></a><span></span>$text</td>";
-  $echo[] = "<td>".($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*').my_power($sum['power'])."</td>";
+  $echo[] = "<td>".my_power($sum['power']).($sum['count']>0 ? my_temp(round($sum['temp']/$sum['count'],1)) : '*')."</td>";
   $echo[] = "<td><span class='diskio'>".my_diskio($sum['ioReads'])."</span><span class='number'>".my_number($sum['numReads'])."</span></td>";
   $echo[] = "<td><span class='diskio'>".my_diskio($sum['ioWrites'])."</span><span class='number'>".my_number($sum['numWrites'])."</span></td>";
   $echo[] = "<td>".my_number($sum['numErrors'])."</td>";
