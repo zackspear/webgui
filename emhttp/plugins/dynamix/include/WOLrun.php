@@ -60,7 +60,7 @@ if ($lxc_ls_exist && $RUNLXC == "y") {
   }
 }
 
-if (is_file("/tmp/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
+if (is_file("/boot/config/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
 
 foreach($arrEntries as $typekey => $typedata)
 {
