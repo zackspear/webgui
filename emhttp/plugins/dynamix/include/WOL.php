@@ -33,7 +33,7 @@ $DockerClient    = new DockerClient();
 $containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
 foreach($containers as $ct)
   $arrEntries['Docker'][substr($ct["Names"][0],1)] = [
-      'interfaces' => ['0 '=> ['mac' => $ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]]],
+      'interfaces' => ['0 '=> ['mac' => isset($ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]) ?  $ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"] : ""]],
       'name' => substr($ct["Names"][0],1),
   ];
 
