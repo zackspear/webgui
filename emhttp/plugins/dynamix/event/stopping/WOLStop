@@ -1,5 +1,3 @@
 #!/bin/bash
 
-# run & log functions
-
 /usr/local/emhttp/plugins/dynamix/include/script/WOL_action stop &

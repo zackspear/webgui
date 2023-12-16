@@ -117,7 +117,7 @@ foreach($arrEntries as $type => $detail)
 
 
 if ($found && $mac_list[$mac]['enable'] == "enable") {
-        echo "Found $mac ".$mac_list[$mac]['type']." ".$mac_list[$mac]['name'];
+        echo _("Found "). $mac . " ".$mac_list[$mac]['type']." ".$mac_list[$mac]['name'];
         switch ($mac_list[$mac]['type']) {
         
           case "VM":
@@ -167,8 +167,8 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             break;
           }
         } else {
-          if ($mac_list[$mac]['enable'] == "disable")  echo "Not Found $mac set to disabled";
-          else echo "Not Found $mac ignoring or Maybe actions disabled for type(Docker/VM/LXC)";
+          if ($mac_list[$mac]['enable'] == "disable")  echo _("Not Found "). " ". $mac . " " . _(" set to disabled");
+          else echo _("Not Found ")." ". $mac . " "._(" ignoring or Maybe actions disabled for type(Docker/VM/LXC)");
         }
 
 ?>
