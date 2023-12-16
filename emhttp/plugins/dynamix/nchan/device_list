@@ -129,7 +129,7 @@ function vfs_type(&$disk, $parent=false) {
   if ($crypto) switch (_var($disk,'luksState',0)) {
     case 0:
       if (vfs_luks($fsType))
-      $luks = "<a class='info'><i class='padlock fa fa-unlock orange-text'></i><span>"._('Device to be encrypted')."</span></a>";
+      $luks = "<a class='info'><i class='padlock fa fa-unlock-alt orange-text'></i><span>"._('Device to be encrypted')."</span></a>";
       break;
     case 1:
       if ($online) {
