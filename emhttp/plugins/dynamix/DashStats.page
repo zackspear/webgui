@@ -693,7 +693,7 @@ function hideShow() {
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
 String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');}
-jQuery.prototype.alive = function(width,color){return $(this).finish().animate({width:width},{step:function(){$(this).css({'overflow':'visible'}).removeClass().addClass(color);}});}
+jQuery.prototype.alive = function(width,color){return this.finish().animate({width:width},{step:function(){$(this).css({'overflow':'visible'}).removeClass().addClass(color);}});}
 String.prototype.md5 = function(){
   // Original copyright (c) Paul Johnston & Greg Holt.
   var hc = '0123456789abcdef';
