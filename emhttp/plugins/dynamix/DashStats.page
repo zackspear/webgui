@@ -693,7 +693,8 @@ function hideShow() {
 Number.prototype.pad = function(size){var s=String(this);while(s.length<(size||2)){s='0'+s;}return s;}
 Array.prototype.tail = function(t){return this.slice(-t).map(function(o){return o.y;}).join(';');}
 String.prototype.build = function(){return this.replace(/\n(<!--!|!-->)\n/g,'');}
-String.prototype.md5 = function() {
+jQuery.prototype.alive = function(width,color){return $(this).finish().animate({width:width},{step:function(){$(this).css({'overflow':'visible'}).removeClass().addClass(color);}});}
+String.prototype.md5 = function(){
   // Original copyright (c) Paul Johnston & Greg Holt.
   var hc = '0123456789abcdef';
   function rh(n){var j,s='';for (j=0;j<=3;j++) s+=hc.charAt((n>>(j*8+4))&0x0F)+hc.charAt((n>>(j*8))&0x0F);return s;}
@@ -1485,10 +1486,10 @@ dashboard.on('message',function(msg,meta) {
         addChartCpu(load);
         cpuchart.updateSeries([{data:cpu}]);
         $('.cpu_').text(load+'%');
-        $('#cpu_').finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
+        $('#cpu_').alive(load+'%',color);
       }
       $('.'+k).text(load+'%');
-      $('#'+k).finish().animate({width:load+'%'},{step:function(){$('#'+k).css({'overflow':'visible'}).removeClass().addClass(color);}});
+      $('#'+k).alive(load+'%',color);
     });
     break;
   case 1:
@@ -1502,7 +1503,7 @@ dashboard.on('message',function(msg,meta) {
       if (k == 0) {
         var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
         $('.sys0_').text(v[0]);
-        $('#sys0_').finish().animate({width:v[0]},{step:function(){$('#sys0_').css('overflow','visible').removeClass().addClass(color);}});
+        $('#sys0_').alive(v[0],color);
         var start = 0;
         var end = parseInt(v[4]);
         var ring = [colors[0]+' '+start+'% '+end+'%']
