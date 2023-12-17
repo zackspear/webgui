@@ -416,16 +416,14 @@ while (true) {
 
   // initialize stuff
   $sum = initSum();
-  $Parity = $Data = $Cache = [];
-  $Flash  = &$disks['flash'];
+  $Parity = $Data = $Cache = $Flash = [];
   $crypto = false;
   $echo   = [];
   foreach ($disks as $disk) {
-    $type = $disk['type'];
-    if ($type=='Flash') continue;
-    ${$type}[$disk['name']] = $disk;
-    if ($type!='Parity') $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
+    ${$disk['type']}[$disk['name']] = &$disks[$disk['name']];
+    if (in_array($disk['type'],['Data','Cache'])) $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
   }
+  $Flash = &$Flash['flash'];
   $pools = array_unique(array_map('prefix',array_column($Cache,'name')));
 
   $echo[0] = "array_devices\n";
