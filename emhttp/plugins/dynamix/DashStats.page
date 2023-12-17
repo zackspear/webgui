@@ -788,7 +788,7 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates = false) {
 }
 
 var colors  = ['<?=$c0?>','<?=$c1?>','#d77e0d','#d4ac0d','#cd5c5c','#ffc0cb','#e6e6fa','#9370db','#7cfc00','#228b22','#00ffff','#4682b4'];
-var blue    = '#486dba'; // used when too many elements exist
+var blue    = '#486dba'; // used when too many graph elements exist
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
 var rxd     = [];
