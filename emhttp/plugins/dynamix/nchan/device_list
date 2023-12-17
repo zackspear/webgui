@@ -424,7 +424,7 @@ while (true) {
     if (in_array($disk['type'],['Data','Cache'])) $crypto |= _var($disk,'luksState',0)!=0 || vfs_luks(_var($disk,'fsType'));
   }
   $Flash = &$Flash['flash'];
-  $pools = array_unique(array_map('prefix',array_column($Cache,'name')));
+  $pools = array_unique(array_map('prefix',array_keys($Cache)));
 
   $echo[0] = "array_devices\n";
   if (_var($var,'fsState')=='Stopped') {
