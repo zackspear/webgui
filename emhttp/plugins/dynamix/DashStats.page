@@ -788,6 +788,7 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates = false) {
 }
 
 var colors  = ['<?=$c0?>','<?=$c1?>','#d77e0d','#d4ac0d','#cd5c5c','#ffc0cb','#e6e6fa','#9370db','#7cfc00','#228b22','#00ffff','#4682b4'];
+var blue    = '#486dba'; // used when too many elements exist
 var ports   = [<?=implode(',',array_map('escapestring',$ports))?>];
 var cpu     = [];
 var rxd     = [];
@@ -1511,7 +1512,7 @@ dashboard.on('message',function(msg,meta) {
         for (var i=6; i < v.length; i=i+2) {
           start = end;
           end += parseInt(v[i]);
-          ring.push((colors[(i-2)/2]||'#486dba')+' '+start+'% '+end+'%');
+          ring.push((colors[(i-2)/2]||blue)+' '+start+'% '+end+'%');
         }
         ring.push(colors[1]+' '+v[0]+' 100%');
         $('#sys0').css({'background':'conic-gradient('+ring.join(',')+')'});
@@ -1520,7 +1521,7 @@ dashboard.on('message',function(msg,meta) {
         var names = (dynamic[1]||'').split('\r');
         // dynamic info from hook scripts
         var html = [];
-        for (var i=0,name; name=names[i]; i++) if (i!=1) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i]||'#486dba')+"'></i>"+name+": "+(i==0?v[5]:v[i*2+3]));
+        for (var i=0,name; name=names[i]; i++) if (i!=1) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i]||blue)+"'></i>"+name+": "+(i==0?v[5]:v[i*2+3]));
         html.push("<i class='ups fa fa-circle' style='color:"+colors[1]+"'></i>"+names[1]+": "+v[3]);
         $('#dynamic').html(html.join('<br>'));
       } else {
