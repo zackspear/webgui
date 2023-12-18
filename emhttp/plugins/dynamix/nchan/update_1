@@ -92,10 +92,10 @@ while (true) {
   // add fans information
   if (count($fans)) $echo['fan'] = array_map(function($fan){return "$fan RPM";},$fans);
   // add streams information
-  $name = array_keys((array)parse_ini_file("$varroot/shares.ini"));
-  exec("LANG='en_US.UTF8' lsof -Owl /mnt/disk[0-9]* 2>/dev/null|awk '/^shfs/ && \$0!~/\.AppleD(B|ouble)/ && \$5==\"REG\"'|awk -F/ '{print \$4}'",$lsof);
-  $counts = array_count_values($lsof);
-  foreach ($name as $share) $echo['stream'][] = $counts[$share] ?? 0;
+  $share = array_keys(parse_ini_file("$varroot/shares.ini",true));
+  exec("LANG='en_US.UTF8' lsof -Owl /mnt/disk[0-9]* 2>/dev/null|awk -F/ '/^shfs/{print \$4}'",$lsof);
+  $count = array_count_values($lsof);
+  foreach ($share as $name) $echo['stream'][] = [$name,$count[$name]??0];
 
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
