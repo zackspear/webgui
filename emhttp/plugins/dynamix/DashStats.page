@@ -1526,12 +1526,11 @@ dashboard.on('message',function(msg,meta) {
     }
 <?if ($fans):?>
     // fans rpm
-    for (var k=0,fan; fan=get.fan[k]; k++) $('#fan'+k).html(fan);
+    for (var k=0; k < get.fan.length; k++) $('#fan'+k).html(get.fan[k]);
 <?endif;?>
 <?if (_var($var,'fsState')=='Started' && $group):?>
     // stream counters (smb only)
-    var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-    if (tag=='smb') for (var k=0; k < get.stream.length; k++) {$('#share'+k).html(get.stream[k]); $('#share'+k).removeClass(); if (get.stream[k]>0) $('#share'+k).addClass('orange-text');}
+    if ($('.smb').is(':visible')) for (var k=0; k < get.stream.length; k++) {$('#share'+k).html(get.stream[k]); $('#share'+k).removeClass(); if (get.stream[k]>0) $('#share'+k).addClass('orange-text');}
 <?endif;?>
     break;
   case 2:
