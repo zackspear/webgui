@@ -498,6 +498,12 @@
 		</blockquote>
 	</div>
 
+	<?
+	if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']]))  {
+		$arrConfig['domain']['machine'] = ValidateMachineType($arrConfig['domain']['machine']);
+	}
+	?>
+	
 	<table>
 		<tr class="advanced">
 			<td>_(Machine)_:</td>
