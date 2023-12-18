@@ -1531,7 +1531,7 @@ dashboard.on('message',function(msg,meta) {
 <?if (_var($var,'fsState')=='Started' && $group):?>
     // stream counters (smb only)
     var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-    if (tag=='smb') for (var k=0; k < get.stream.length; k++) $('#share'+k).html(get.stream[k]);
+    if (tag=='smb') for (var k=0; k < get.stream.length; k++) {$('#share'+k).html(get.stream[k]); $('#share'+k).removeClass(); if (get.stream[k]>0) $('#share'+k).addClass('orange-text');}
 <?endif;?>
     break;
   case 2:
