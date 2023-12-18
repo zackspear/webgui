@@ -966,6 +966,16 @@ private static $encoding = 'UTF-8';
 		return $arrValidMachineTypes;
 	}
 
+	function ValidateMachineType($machinetype) {
+		$machinetypes=getValidMachineTypes();
+		$type = substr($machinetype,0,strpos($machinetype,'-',3));
+		foreach($machinetypes as $machinetypekey => $machinedetails){
+			$check_type = substr($machinetypekey,0,strlen($type));
+			if ($check_type == $type) break;
+		}
+		return($machinetypekey) ;	
+	}	
+
 	function getLatestMachineType($strType = 'i440fx') {
 		$arrMachineTypes = getValidMachineTypes();
 
