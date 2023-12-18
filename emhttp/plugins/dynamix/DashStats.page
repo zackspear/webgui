@@ -446,14 +446,16 @@ echo "</td></tr>";
 <tr class='header'><td><span class='w26'>_(Name)_</span><span class='w44'>_(Description)_</span><span class='w18'>_(Security)_</span><span>_(Streams)_</span></td></tr>
 <?
 if (_var($var,'shareSMBEnabled')=='yes') {
+  $i = 0;
   foreach ($shares as $name => $share) {
+    $i++;
     $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
     if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
     elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = $share['comment'] ?: '&nbsp;';
     $security = export_settings(_var($var,'shareSMBEnabled'), $sec[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
-    echo "<tr class='smb share share1{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span id=\"$name\">0</span></td></tr>";
+    echo "<tr class='smb share share1{$last}'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>$comment</span><span class='w18'>$security</span><span id='share{$i}'>0</span></td></tr>";
   }
   if (!count($shares)) echo "<tr class='smb share share1'><td class='none'>"._("No shares present")."</td></tr>";
 }
@@ -1530,7 +1532,7 @@ dashboard.on('message',function(msg,meta) {
 <?if (_var($var,'fsState')=='Started' && $group):?>
     // stream counters (smb only)
     var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-    if (tag=='smb') for (var k=0,stream; stream=get.stream[k]; k++) $('#'+stream[0]).html(stream[1]);
+    if (tag=='smb') for (var k=1,stream; stream=get.stream[k-1]; k++) $('#share'+k).html(stream);
 <?endif;?>
     break;
   case 2:
