@@ -56,6 +56,13 @@
 # - added macvtap network creation
 # - removed unnecessary error output redirection for 'run' command
 
+# Adapted by Bergware for use in Unraid OS - December 2023
+# - added interface carrier check before assigning IP address (DHCP or static)
+# - added "status" command
+# - remove leading zeros in IPv4 and IPv6 addresses
+
+# Bergware - modified for Unraid OS, December 2023
+
 ############################
 # READ NETWORK CONFIG FILE #
 ############################
@@ -63,10 +70,8 @@
 # get the configuration information from rc.inet1.conf
 . /etc/rc.d/rc.inet1.conf
 
-# system network reference
+# system network references
 SYSTEM=/sys/class/net
-
-# ipv6 config reference
 CONF6=/proc/sys/net/ipv6/conf
 
 ###########
@@ -149,11 +154,19 @@ set_mtu(){
   fi
 }
 
+# function to wait for carrier of interface
+carrier_up(){
+  local n
+  for n in {1..10}; do
+    [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
+  done
+  return 1
+}
+
 # function to create bond interface
 bond_up(){
   [[ -d /proc/net/bonding ]] || modprobe bonding mode=${BONDING_MODE[$i]} miimon=${BONDING_MIIMON[$i]}
   run ip link add name ${BONDNAME[$i]} type bond mode ${BONDING_MODE[$i]} miimon ${BONDING_MIIMON[$i]}
-  run ip link set ${BONDNAME[$i]} up
   set_mtu ${BONDNAME[$i]}
   PRIMARY=;
   # loop thru assigned interfaces in bond
@@ -167,8 +180,6 @@ bond_up(){
     fi
   done
   [[ -n $PRIMARY ]] && run ip link set name ${BONDNAME[$i]} type bond primary $PRIMARY
-  # delay to allow bond initialization
-  sleep 3
 }
 
 # function to delete bond interface
@@ -194,7 +205,6 @@ br_up(){
     BRSTP[$i]=${BRSTP[$i]/no/0}
     BRSTP[$i]=${BRSTP[$i]/yes/1}
     run ip link add name $BRIDGE type bridge stp_state ${BRSTP[$i]} forward_delay ${BRFD[$i]}
-    run ip link set $BRIDGE up
     # loop thru assigned interfaces in bridge
     for BRNIC in ${BRNICS[$i]}; do
       [[ $j -eq 0 ]] && BRIF=$BRNIC || BRIF=$BRNIC.${VLANID[$i,$j]}
@@ -347,27 +357,35 @@ ipaddr_up(){
     [[ $IP == ipv4 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -4"
     [[ $IP == ipv6 ]] && DHCP_OPTIONS="$DHCP_OPTIONS -6"
     [[ $IP != ipv4 && -n $PRIV6 && -d $CONF6/$IFACE ]] && echo $PRIV6 >$CONF6/$IFACE/use_tempaddr
-    log "polling up to 60 sec for DHCP server on interface $IFACE"
-    if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
-      log "can't obtain IP address, continue polling in background on interface $IFACE"
+    if carrier_up $IFACE; then
+      # interface is UP
+      log "interface $IFACE is UP, polling up to 60 sec for DHCP $IP server"
+      if ! run timeout 60 dhcpcd -w $DHCP_OPTIONS $IFACE; then
+        log "can't obtain IP address, continue polling in background on interface $IFACE"
+        run dhcpcd -b $DHCP_OPTIONS $IFACE
+      fi
+    else
+      # interface is DOWN
+      log "interface $IFACE is DOWN, polling DHCP $IP server in background"
       run dhcpcd -b $DHCP_OPTIONS $IFACE
     fi
-    [[ $j -eq $((${VLANS[$i]}-1)) ]] && sleep 3
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
+    if carrier_up $IFACE; then STATE="UP"; else STATE="DOWN"; fi
+    log "interface $IFACE is $STATE, setting static $IP address"
     ipv6_addr 0 1
     if [[ $IP != ipv6 ]]; then
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
-        [[ -n $MASK ]] && run ip -4 addr add $ADDR/$MASK dev $IFACE metric 1
+        [[ -n $MASK ]] && run ip -4 addr add $(unzero $ADDR)/$MASK dev $IFACE metric 1
       fi
     fi
     if [[ $IP != ipv4 ]]; then
       [[ $j -eq 0 ]] && ADDR6=${IPADDR6[$i]} || ADDR6=${IPADDR6[$i,$j]}
       if [[ -n $ADDR6 ]]; then
         [[ $j -eq 0 ]] && MASK6=${NETMASK6[$i]} || MASK6=${NETMASK6[$i,$j]}
-        [[ -n $MASK6 ]] && run ip -6 addr add $ADDR6/$MASK6 dev $IFACE metric 1
+        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $ADDR6)/$MASK6 dev $IFACE metric 1
         [[ -n $PRIV6 && -d $CONF6/$IFACE ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
       fi
     fi
@@ -425,8 +443,7 @@ if_up(){
   # set index of INTERFACE in array
   i=0
   while [[ $i -lt $MAXNICS ]]; do
-    [[ ${IFNAME[$i]} == $1 ]] && break
-    ((i++))
+    [[ ${IFNAME[$i]} == $1 ]] && break || ((i++))
   done
   # exit when interface is not found
   [[ $i -eq $MAXNICS ]] && break
@@ -461,6 +478,7 @@ if_up(){
       [[ -n ${HWADDR[$i]} ]] && run ip link set $1 addr ${HWADDR[$i]}
       set_mtu $1
     fi
+    run ip link set $IFACE up
     # set interface address
     [[ $i -eq 0 && $j -eq 0 ]] && MAIN=1 || MAIN=
     if [[ $IP == ipv4 ]]; then
@@ -490,7 +508,6 @@ if_up(){
       DHCP_KEEP_RESOLV=$DHCP6_KEEP_RESOLV
       ipaddr_up
     fi
-    run ip link set $IFACE up
   done
 }
 
@@ -536,10 +553,10 @@ if_down(){
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $IFACE not present, can't take down"
     fi
   done
-  [[ -z ${BRNICS[$i]} ]] && macvtap_down # delete macvtap interfaces
-  [[ -n ${BRNICS[$i]} ]] && br_down      # delete interface as bridge
-  [[ -n ${VLANS[$i]} ]] && vlan_down     # delete interface VLANs
-  [[ -n ${BONDNICS[$i]} ]] && bond_down  # delete interface as bond
+  [[ -z ${BRNICS[$i]} ]] && macvtap_down   # delete macvtap interfaces
+  [[ -n ${BRNICS[$i]} ]] && br_down        # delete interface as bridge
+  [[ -n ${VLANS[$i]} ]] && vlan_down       # delete interface VLANs
+  [[ -n ${BONDNICS[$i]} ]] && bond_down    # delete interface as bond
 }
 
 #####################
@@ -557,8 +574,8 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD=${METRIC[$x]}
     [[ -n $AD ]] && AD="metric $AD"
-    EXIST=$(ip -4 route show default via $GW dev $DEV|grep "$AD ")
-    [[ $IP != ipv6 && -z $EXIST ]] && run ip -4 route add default via $GW dev $DEV $AD
+    EXIST=$(ip -4 route show default via $(unzero $GW) dev $DEV|grep "$AD ")
+    [[ $IP != ipv6 && -z $EXIST ]] && run ip -4 route add default via $(unzero $GW) dev $DEV $AD
   done
   for GW6 in ${GATEWAY6[@]}; do
     [[ -z $GW6 ]] && continue
@@ -569,8 +586,8 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD6=${METRIC6[$x]}
     [[ -n $AD6 ]] && AD6="metric $AD6"
-    EXIST=$(ip -6 route show default via $GW6 dev $DEV|grep "$AD6 ")
-    [[ $IP != ipv4 && -z $EXIST ]] && run ip -6 route add default via $GW6 dev $DEV $AD6
+    EXIST=$(ip -6 route show default via $(unzero6 $GW6) dev $DEV|grep "$AD6 ")
+    [[ $IP != ipv4 && -z $EXIST ]] && run ip -6 route add default via $(unzero6 $GW6) dev $DEV $AD6
   done
 }
 
@@ -614,6 +631,13 @@ stop(){
     if_down $INTERFACE
   done
   lo_down
+}
+
+# function to show network status
+status(){
+  echo "INTERFACE        STATE          INFORMATION"
+  echo "========================================================================"
+  [[ $1 == ip ]] && ip -brief addr || ip -brief link
 }
 
 ##########################
@@ -660,50 +684,54 @@ route_down(){
 ### MAIN ###
 ############
 
-case $1 in
+case "$1" in
 start|up)
   start
-;;
+  ;;
 stop|down)
   stop
-;;
+  ;;
 restart)
   stop
   sleep 1
   start
-;;
+  ;;
 *_start|*_up)
   INTERFACE=$(echo $1|cut -d_ -f1)
   if_up $INTERFACE
   gateway_up
-;;
+  ;;
 *_stop|*_down)
   INTERFACE=$(echo $1|cut -d_ -f1)
   if_down $INTERFACE
-;;
+  ;;
 *_restart)
   INTERFACE=$(echo $1|cut -d_ -f1)
   if_down $INTERFACE
   sleep 1
   if_up $INTERFACE
   gateway_up
-;;
+  ;;
 *_add)
   INTERFACE=$(echo $1|cut -d_ -f1)
   ROUTE=$(echo $1|cut -d_ -f2)
   METRIC=$(echo $1|cut -d_ -f3)
   [[ $METRIC == add ]] && METRIC=
   route_up $INTERFACE $ROUTE $METRIC
-;;
+  ;;
 *_del)
   INTERFACE=$(echo $1|cut -d_ -f1)
   ROUTE=$(echo $1|cut -d_ -f2)
   METRIC=$(echo $1|cut -d_ -f3)
   [[ $METRIC == del ]] && METRIC=
   route_down $INTERFACE $ROUTE $METRIC
-;;
-# default is to bring up the entire network
-*) start
+  ;;
+status)
+  status $2
+  ;;
+  # default is to bring up the entire network
+*)
+  start
 esac
 
 # Command examples
@@ -719,3 +747,5 @@ esac
 # rc.inet1 10.0.0.1_default_add       add default route to gateway 10.0.0.1 with metric 1
 # rc.inet1 eth0_10.0.0.0/24_1_del     delete specific route & metric from interface eth0
 # rc.inet1 10.0.0.1_default_del       delete default route from gateway 10.0.0.1
+# rc.inet1 status                     show link status
+# rc.inet1 status ip                  show ip status
