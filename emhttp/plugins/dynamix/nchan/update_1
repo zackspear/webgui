@@ -59,38 +59,45 @@ while (true) {
   exec("sensors -uA 2>/dev/null|grep -Po 'fan\d_input: \K\d+'",$fans);
   [$total,$free] = $memory;
   $used  = $total-$free;
-  $names = [_('Services'), _('Free')];
-  $bytes = $meminfo = $sysinfo = [];
+  $names = [_('Services'),_('Free')];
+  $bytes = $echo = [];
   $hooks = array_filter(glob("/usr/local/emhttp/plugins/*/system/*",GLOB_NOSORT),function($file){return is_executable($file);});
   foreach ($hooks as $hook) {
     $data = @intval(exec(escapeshellarg($hook)));
     if (!$data || $data>$used) continue;
-    $names[] = _(str_replace('_',' ',basename($hook))); // name of element (with translation)
-    $bytes[] = $data;                                   // value in bytes of element
+    $names[] = _(str_replace('_',' ',basename($hook))); // name of element
+    $bytes[] = $data;                                   // value in bytes
   }
+  // parse RAM graph
+  $a = 'ram';
   $services  = $used-array_sum($bytes);
-  $meminfo[] = round(100*$used/$total)."%";
-  $meminfo[] = my_scale($used,$unit,null,-1,1024)." $unit";
-  $meminfo[] = round(100*$free/$total);
-  $meminfo[] = my_scale($free,$unit,null,-1,1024)." $unit";
-  $meminfo[] = round(100*$services/$total);
-  $meminfo[] = my_scale($services,$unit,null,-1,1024)." $unit";
+  $echo[$a][] = round(100*$used/$total)."%";
+  $echo[$a][] = my_scale($used,$unit,null,-1,1024)." $unit";
+  $echo[$a][] = round(100*$free/$total);
+  $echo[$a][] = my_scale($free,$unit,null,-1,1024)." $unit";
+  $echo[$a][] = round(100*$services/$total);
+  $echo[$a][] = my_scale($services,$unit,null,-1,1024)." $unit";
   foreach ($bytes as $byte) {
     // parse hook script information for RAM usage graph
-    $meminfo[] = round(100*$byte/$total);
-    $meminfo[] = my_scale($byte,$unit,null,-1,1024)." $unit";
+    $echo[$a][] = round(100*$byte/$total);
+    $echo[$a][] = my_scale($byte,$unit,null,-1,1024)." $unit";
   }
+  // add element names
+  $echo['name'] = $names;
   // parse the graphs for flash, log & docker
   foreach ($df as $data) {
     [$pcent,$used] = explode(' ',$data);
-    $sysinfo[] = $pcent.';'.my_scale($used,$unit,null,-1,1024)." $unit";
+    $echo['sys'][] = [$pcent,my_scale($used,$unit,null,-1,1024)." $unit"];
   }
+  // add fans information
+  if (count($fans)) $echo['fan'] = array_map(function($fan){return "$fan RPM";},$fans);
+  // add streams information
   $name = array_keys((array)parse_ini_file("$varroot/shares.ini"));
-  // get number of open files (smb)
   exec("LANG='en_US.UTF8' lsof -Owl /mnt/disk[0-9]* 2>/dev/null|awk '/^shfs/ && \$0!~/\.AppleD(B|ouble)/ && \$5==\"REG\"'|awk -F/ '{print \$4}'",$lsof);
-  $counts = array_count_values($lsof); $count = [];
-  foreach ($name as $share) $count[] = $counts[$share] ?? 0;
-  $echo = implode(";",$meminfo)."\n".implode("\r",$names)."\0".implode("\0",$sysinfo)."\1".(count($fans)?implode(" RPM\0",$fans).' RPM':'')."\1".implode("\0",$count);
+  $counts = array_count_values($lsof);
+  foreach ($name as $share) $echo['stream'][] = $counts[$share] ?? 0;
+
+  $echo = json_encode($echo);
   $md5_new = md5($echo,true);
   if ($md5_new !== $md5_old) {
     publish('update1', $echo);

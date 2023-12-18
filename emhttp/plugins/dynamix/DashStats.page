@@ -677,7 +677,7 @@ function hideShow() {
 <tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
 <tr hidden><td>_(Start Cloned VM)_:</td><td><input type="checkbox" id="Start" value="" ></td></tr>
 <tr hidden><td>_(Edit VM after clone)_:</td><td><input type="checkbox" id="Edit" value="" ></td></tr>
-<tr><td>_(Check Free Space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
+<tr><td>_(Check free space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
 </table>
 </div>
 
@@ -1478,9 +1478,9 @@ var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wir
 dashboard.on('message',function(msg,meta) {
   switch (meta.id.channel()) {
   case 0:
-    var ini = parseINI(msg);
+    var get = parseINI(msg);
     // cpu load
-    $.each(ini,function(k,v) {
+    $.each(get,function(k,v) {
       var load = v['host'];
       var color = setColor(load, 90, 70);
       if (k=='cpu') {
@@ -1494,54 +1494,51 @@ dashboard.on('message',function(msg,meta) {
     });
     break;
   case 1:
-    var part = msg.split('\1');
+    var get = JSON.parse(msg);
     // memory & disk load
-    $.each(part[0].split('\0'),function(k,v) {
-      v = v.split(';');
-      var load = v[0].slice(0,-1);
-      $('.sys'+k).text(v[0]).css({'color':fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
-      $('.var'+k).text(v[1]);
-      if (k == 0) {
-        var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
-        $('.sys0_').text(v[0]);
-        $('#sys0_').alive(v[0],color);
-        var start = 0;
-        var end = parseInt(v[4]);
-        var ring = [colors[0]+' '+start+'% '+end+'%']
-        // create individual elements of the graph
-        for (var i=6; i < v.length; i=i+2) {
-          start = end;
-          end += parseInt(v[i]);
-          ring.push((colors[(i-2)/2]||blue)+' '+start+'% '+end+'%');
-        }
-        ring.push(colors[1]+' '+v[0]+' 100%');
-        $('#sys0').css({'background':'conic-gradient('+ring.join(',')+')'});
-        var dynamic = v[v.length-1].split('\n');
-        v[v.length-1] = dynamic[0];
-        var names = (dynamic[1]||'').split('\r');
-        // dynamic info from hook scripts
-        var html = [];
-        for (var i=0,name; name=names[i]; i++) if (i!=1) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i]||blue)+"'></i>"+name+": "+(i==0?v[5]:v[i*2+3]));
-        html.push("<i class='ups fa fa-circle' style='color:"+colors[1]+"'></i>"+names[1]+": "+v[3]);
-        $('#dynamic').html(html.join('<br>'));
-      } else {
-        $('#sys'+k).css({'background':'conic-gradient('+colors[0]+' 0% '+v[0]+','+colors[1]+' '+v[0]+' 100%)'});
-      }
-    });
+    var load = get.ram[0].slice(0,-1);
+    $('.sys0').text(get.ram[0]).css({'color':fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
+    $('.var0').text(get.ram[1]);
+    var color = setColor(load,<?=$display['critical']?>,<?=$display['warning']?>);
+    $('.sys0_').text(get.ram[0]);
+    $('#sys0_').alive(get.ram[0],color);
+    var start = 0;
+    var end = parseInt(get.ram[4]);
+    var ring = [colors[0]+' '+start+'% '+end+'%']
+    // create individual elements of the RAM graph
+    for (var i=6; i < get.ram.length; i=i+2) {
+      start = end;
+      end += parseInt(get.ram[i]);
+      ring.push((colors[(i-2)/2]||blue)+' '+start+'% '+end+'%');
+    }
+    ring.push(colors[1]+' '+get.ram[0]+' 100%');
+    $('#sys0').css({'background':'conic-gradient('+ring.join(',')+')'});
+    // dynamic info from hook scripts
+    var html = [];
+    for (var i=0,name; name=get.name[i]; i++) if (i!=1) html.push("<i class='ups fa fa-circle' style='color:"+(colors[i]||blue)+"'></i>"+name+": "+(i==0?get.ram[5]:get.ram[i*2+3]));
+    html.push("<i class='ups fa fa-circle' style='color:"+colors[1]+"'></i>"+get.name[1]+": "+get.ram[3]);
+    $('#dynamic').html(html.join('<br>'));
+    // flash, Log & Docker graphs
+    for (var k=1,sys; sys=get.sys[k-1]; k++) {
+      var load = sys[0].slice(0,-1);
+      $('.sys'+k).text(sys[0]).css({'color':fontColor(load,<?=$display['critical']?>,<?=$display['warning']?>)});
+      $('.var'+k).text(sys[1]);
+      $('#sys'+k).css({'background':'conic-gradient('+colors[0]+' 0% '+sys[0]+','+colors[1]+' '+sys[0]+' 100%)'});
+    }
 <?if ($fans):?>
     // fans rpm
-    $.each(part[1].split('\0'),function(k,v) {$('#fan'+k).html(v);});
+    for (var k=0,fan; fan=get.fan[k]; k++) $('#fan'+k).html(fan);
 <?endif;?>
 <?if (_var($var,'fsState')=='Started' && $group):?>
     // stream counters (smb only)
     var tag = $('.smb').is(':visible') ? 'smb' : $('.nfs').is(':visible') ? 'nfs' : '';
-    if (tag == 'smb') $.each(part[2].split('\0'),function(k,v) {$('#share'+(k+1)).html(v);});
+    if (tag=='smb') for (var k=1,stream; stream=get.stream[k-1]; k++) $('#share'+k).html(stream);
 <?endif;?>
     break;
   case 2:
     if (!update2) break;
-    var part = msg.split('\1');
-    var data = part[0].split('\0');
+    var get  = JSON.parse(msg);
+    var data = get.disk.split('\n');
     var info = moreInfo(data,"_(Array)_");
     // array devices
     $('#array_list tr.updated').remove();
@@ -1550,19 +1547,18 @@ dashboard.on('message',function(msg,meta) {
     $('#array_info').html(info);
     smartMenu('#array_list');
     // pool devices
-    var text = part[1].split('\r');
-    for (var i=0,t; t=text[i]; i++) {
-      var data = t.split('\0');
+    for (var i=0,pool; pool=get.pool[i]; i++) {
+      var data = pool.split('\n');
       var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
-      $('#pool_list'+i).append(t).hideMe();
+      $('#pool_list'+i).append(pool).hideMe();
       $('#pool_info'+i).parent().css({'display':info?'':'none'});
       $('#pool_info'+i).html(info);
       smartMenu('#pool_list'+i);
     }
 <?if ($devs):?>
     // unassigned devices
-    var data = part[2].split('\0');
+    var data = get.open.split('\n');
     var info = moreInfo(data,"_(Unassigned)_");
     $('#devs_list tr.updated').remove();
     $('#devs_list').append(data[0]).hideMe();
@@ -1571,44 +1567,40 @@ dashboard.on('message',function(msg,meta) {
     smartMenu('#devs_list');
 <?endif;?>
     // parity status
-    $('span.parity').html(part[3]);
+    $('span.parity').html(get.parity);
     // parity schedule
-    var data = part[4].split('\0');
+    var data = get.schedule.split('\n');
     $('#parity').html(data[0]);
     $('#program').html(data[1]);
     break;
   case 3:
-    var part = msg.split('\1');
-    var ports = part[0].split('\n');
+    var get = JSON.parse(msg);
     // rx & tx speeds
-    for (var i=0,port; port=ports[i]; i++) {
-      var data = port.split('\0');
-      if (data[0] == port_select) {
-        $('#inbound').text(data[1]);
-        $('#outbound').text(data[2]);
-        addChartNet(data[3], data[4]);
+    for (var i=0,port; port=get.port[i]; i++) {
+      if (port[0] == port_select) {
+        $('#inbound').text(port[1]);
+        $('#outbound').text(port[2]);
+        addChartNet(port[3], port[4]);
         netchart.updateSeries([{data:rxd},{data:txd}]);
         break;
       }
     }
     // port counters
-    $.each(part[1].split('\0'),function(k,v) {$('#main'+k).html(v);});
-    $.each(part[2].split('\0'),function(k,v) {$('#port'+k).html(v);});
-    $.each(part[3].split('\0'),function(k,v) {$('#link'+k).html(v);});
+    for (let k=0; k < get.mode.length; k++) $('#main'+k).html(get.mode[k]);
+    for (let k=0; k < get.rxtx.length; k++) $('#port'+k).html(get.rxtx[k]);
+    for (let k=0; k < get.stat.length; k++) $('#link'+k).html(get.stat[k]);
     // current date and time
-    var timedate = part[4].split('\n');
-    $('#current_time').html(timedate[0]);
-    $('#current_time_').html(timedate[0]);
-    $('#current_date').html(timedate[1]);
+    $('#current_time').html(get.time[0]);
+    $('#current_time_').html(get.time[0]);
+    $('#current_date').html(get.time[1]);
     break;
   case 4:
     // wireguard tunnels
+    var get = JSON.parse(msg);
     var n = {};
-    var rows = msg.split('\0');
-    for (var i=0,row; row=rows[i]; i++) {
-      var info = row.split(';');
+    for (var i=0,info; info=get[i]; i++) {
       var vtun = info[0];
-      if (typeof n[vtun]=='undefined') n[vtun] = 0; else n[vtun]++;
+      if (typeof n[vtun]=='undefined') n[vtun]=0; else n[vtun]++;
       if (info[1] == 0) {
         $('span#'+vtun+'-hs-'+n[vtun]).text("_(not received)_");
       } else if (info[1] > 86400) {
