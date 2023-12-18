@@ -130,7 +130,7 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
-  if ($snapshots != null)  $snapshotstr = _("(Snapshots :").count($snapshots).')'; else $snapshotstr = _("(Snapshots :None)");
+  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots).')'; else $snapshotstr = '('._('Snapshots').': '._('None').')';
   $cdbus = $cdbus2 = $cdfile = $cdfile2 = "";
   $cdromcount = 0;
     foreach ($cdroms as $arrCD) {
