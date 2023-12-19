@@ -110,7 +110,7 @@ foreach ($containers as $ct) {
   if ($ct['BaseImage']) echo "<i class='fa fa-cubes' style='margin-right:5px'></i>".htmlspecialchars($ct['BaseImage'])."<br>";
   echo _('By').": ";
   $registry = $info['registry'];
-  [$author,$version] = my_explode(':',$ct['Image']);
+  ['strRepo' => $author, 'strTag' => $version] = DockerUtil::parseImageTag($ct['Image']);
   if ($registry) {
     echo "<a href='".htmlspecialchars($registry)."' target='_blank'>".htmlspecialchars(compress($author,24))."</a>";
   } else {
