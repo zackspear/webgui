@@ -48,7 +48,7 @@
 			'uuid' => $lv->domain_generate_uuid(),
 			'clock' => 'localtime',
 			'arch' => 'x86_64',
-			'machine' => 'pc',
+			'machine' => 'pc-i440fx',
 			'mem' => 1024 * 1024,
 			'maxmem' => 1024 * 1024,
 			'password' => '',
