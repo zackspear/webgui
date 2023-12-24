@@ -155,7 +155,7 @@ check(){
     for ADDR in ${NET[@]/$NET}; do
       ADDR=$(unmask $ADDR)
       if [[ "avahi show" =~ "$CALLER" ]]; then
-        [[ -z $(good $NET) ]] && BIND+=($NET) || continue
+        [[ -z $(good $NET) ]] && BIND+=($NET)
       else
         [[ -z $(good $ADDR) ]] && BIND+=($ADDR) || continue
       fi
