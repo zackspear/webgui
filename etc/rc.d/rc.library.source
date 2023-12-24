@@ -63,14 +63,12 @@ unmask(){
   if [[ $CALLER != smb ]]; then
     # remove netmask
     echo ${1/\/*}
-  else
+  elif [[ $(ipv $1) == 4 ]]; then
     # replace netmask
-    if [[ $(ipv $1) == 4 ]]; then
-      echo ${1/\/32/\/24}
-    else
-      # add IPv6 only when netbios is disabled
-      [[ -z $DENY6 ]] && echo ${1/\/128/\/64}
-    fi
+    echo ${1/\/32/\/24}
+  elif [[ -z $DENY6 ]]; then
+    # IPv6 only when netbios is disabled
+    echo ${1/\/128/\/64}
   fi
 }
 
