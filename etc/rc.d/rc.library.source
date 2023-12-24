@@ -108,7 +108,6 @@ extra_name(){
 
 extra_addr(){
   local NET MAP ADDR
-  [[ $CALLER == ntp ]] && return
   for NET in $include_interfaces; do
     if $(isname $NET); then
       # NET is an interface name, get IP addresses
@@ -162,7 +161,7 @@ check(){
     [[ $IPV6 == yes ]] && BIND+=(::1)
   fi
   # add user defined interfaces
-  if [[ -f $NETWORK_EXTRA ]]; then
+  if [[ -f $NETWORK_EXTRA && $CALLER != ntp ]]; then
     . <(fromdos <$NETWORK_EXTRA)
     [[ "avahi show" =~ "$CALLER" ]] && extra_name || extra_addr
   fi
