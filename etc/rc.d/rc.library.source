@@ -47,7 +47,7 @@ scan(){
 good(){
   local BAD=
   for i in ${BIND[@]}; do
-    [[ -z $1 || $1 == $i || ${1:0:4} == fe80 ]] && BAD=1
+    [[ -z $1 || $1 == $i || ${1:0:4} == fe80 ]] && BAD=1 && break
   done
   echo $BAD
 }
@@ -60,12 +60,17 @@ show(){
 }
 
 unmask(){
-  if [[ $CALLER == smb && -z $DENY6 ]]; then
-    # replace netmask
-    [[ $(ipv $1) == 4 ]] && echo ${1/\/32/\/24} || echo ${1/\/128/\/64}
-  else
+  if [[ $CALLER != smb ]]; then
     # remove netmask
     echo ${1/\/*}
+  else
+    # replace netmask
+    if [[ $(ipv $1) == 4 ]]; then
+      echo ${1/\/32/\/24}
+    else
+      # add IPv6 only when netbios is disabled
+      [[ -z $DENY6 ]] && echo ${1/\/128/\/64}
+    fi
   fi
 }
 
@@ -73,6 +78,7 @@ remove(){
   local ADDR
   for ADDR in $@; do
     ADDR=$(unmask $ADDR)
+    [[ -z $ADDR ]] && continue
     for i in ${!BIND[@]}; do
       [[ $ADDR == ${BIND[$i]} ]] && unset 'BIND[i]'
     done
