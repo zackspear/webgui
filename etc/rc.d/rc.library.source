@@ -45,7 +45,7 @@ scan(){
 }
 
 good(){
-  local TAG BAD=
+  local TAG BAD
   for TAG in ${BIND[@]}; do
     [[ -z $1 || $1 == $TAG || ${1:0:4} == fe80 ]] && BAD=1 && break
   done
