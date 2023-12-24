@@ -83,7 +83,7 @@ isname(){
   [[ -z ${1//[^.:]} || ${1//[^.:]} == . ]] && return 0 || return 1
 }
 
-extra_name(){
+add_name(){
   local NET
   for NET in $include_interfaces; do
     if $(isname $NET); then
@@ -106,7 +106,7 @@ extra_name(){
   done
 }
 
-extra_addr(){
+add_addr(){
   local NET MAP ADDR
   for NET in $include_interfaces; do
     if $(isname $NET); then
@@ -163,7 +163,7 @@ check(){
   # add user defined interfaces
   if [[ -f $NETWORK_EXTRA && $CALLER != ntp ]]; then
     . <(fromdos <$NETWORK_EXTRA)
-    [[ "avahi show" =~ "$CALLER" ]] && extra_name || extra_addr
+    [[ "avahi show" =~ "$CALLER" ]] && add_name || add_addr
   fi
   if [[ $CALLER == ssh ]]; then
     # BIND stays array
