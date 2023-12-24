@@ -97,10 +97,10 @@ add_name(){
   done
   for NET in $exclude_interfaces; do
     if $(isname $NET); then
-      # NET is an interface name, remove
+      # NET is an interface name
       remove "$NET"
     else
-      # NET is an IP address, convert to name and remove
+      # NET is an IP address, convert to name
       remove "$(show $NET)"
     fi
   done
