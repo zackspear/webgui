@@ -16,33 +16,27 @@ ipv(){
 }
 
 this(){
-  local LIST ADDR
+  local MAP ADDR
   case $CALLER in
   'avahi')
-    grep -Pom1 "^$1=\K.*" $CONF
-    ;;
+    grep -Pom1 "^$1=\K.*" $CONF ;;
   'smb')
-    grep -Pom1 "^$1 = \K.*" $CONF
-    ;;
+    grep -Pom1 "^$1 = \K.*" $CONF ;;
   'ntp'|'ssh')
-    grep -Po "^$1 \K\S+" $CONF | tr '\n' ' ' | sed 's/ $//'
-    ;;
+    grep -Po "^$1 \K\S+" $CONF | tr '\n' ' ' | sed 's/ $//' ;;
   'nfs')
-    grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS
-    ;;
+    grep -Pom1 "^RPC_NFSD_OPTS=\"$OPTIONS \K[^\"]+" $NFS ;;
   'rpc')
-    grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC
-    ;;
+    grep -Pom1 "^RPCBIND_OPTS=\"\K[^\"]+" $RPC ;;
   'nginx')
-    LIST=();
+    MAP=();
     for ADDR in $(awk '$1=="listen" && $2~/^[0-9]|\[/ && $0~/http2; #.*$/{print $2}' $SERVERS 2>/dev/null); do
       # extract ipv4 / ipv6 address
       [[ $(ipv $ADDR) == 4 ]] && ADDR=${ADDR%:*} || ADDR=${ADDR#*[} ADDR=${ADDR%]*}
-      LIST+=($ADDR)
+      MAP+=($ADDR)
     done
     # return addresses
-    echo ${LIST[@]}
-    ;;
+    echo ${MAP[@]} ;;
   esac
 }
 
@@ -60,8 +54,8 @@ good(){
 
 show(){
   case $# in
-    1) ip -br addr show scope global to $1 2>/dev/null | awk '{gsub("@.+","",$1);print $1;exit}';;
-    2) ip -br addr show scope global $1 $2 2>/dev/null | awk '{$1=$2="";print;exit}' | sed -r 's/ metric [0-9]+//g';;
+    1) ip -br addr show scope global to $1 2>/dev/null | awk '{gsub("@.+","",$1);print $1;exit}' ;;
+    2) ip -br addr show scope global $1 $2 2>/dev/null | awk '{$1=$2="";print;exit}' | sed -r 's/ metric [0-9]+//g' ;;
   esac
 }
 
@@ -113,17 +107,17 @@ extra_name(){
 }
 
 extra_addr(){
-  local NET LIST ADDR
+  local NET MAP ADDR
   [[ $CALLER == ntp ]] && return
   for NET in $include_interfaces; do
     if $(isname $NET); then
       # NET is an interface name, get IP addresses
-      LIST="$(show dev $NET)"
+      MAP="$(show dev $NET)"
     else
       # NET is an IP address, validate
-      LIST="$(show to $NET)"
+      MAP="$(show to $NET)"
     fi
-    for ADDR in $LIST; do
+    for ADDR in $MAP; do
       ADDR=$(unmask $ADDR)
       [[ -z $(good $ADDR) ]] && BIND+=($ADDR) || continue
       [[ $(ipv $ADDR) == 4 ]] && IPV4=yes || IPV6=yes
