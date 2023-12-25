@@ -233,7 +233,7 @@ function device_usage(&$disk, &$full, &$high) {
 }
 function array_group($type, $pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
-  $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
+  if ($type != 'Data') {$error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;}
   $echo = [];
   foreach ($disks as $disk) if (_var($disk,'type')==$type && strpos(_var($disk,'status'),'DISK_NP')===false && (!$pool||$pool==prefix(_var($disk,'name')))) {
     $echo[] = "<tr class='updated'><td>";
