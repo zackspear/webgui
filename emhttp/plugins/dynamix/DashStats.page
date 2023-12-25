@@ -209,7 +209,7 @@ switch ($theme) {
 </td></tr>
 <tr><td>
 <div class='leftside'>
-<a href="/Settings/DateTime" class="hand none" title="_(Go to date and time settings)_"><span id="current_time"></span></a><br><span id="current_date"></span><br><br>
+<a href="/Settings/DateTime" class="hand none"><span id="current_time"></span></a><br><span id="current_date"></span><br><br>
 <span class='header'><i class='indent fa fa-file-text-o'></i>_(Model)_</span><br><i class='indent'></i><?=_var($var,'SYS_MODEL')?:'---'?><br><br>
 <span class='header'><i class='indent fa fa-id-badge'></i>_(Registration)_</span><br><i class='indent'></i>Unraid OS <b><em><?=_var($var,'regTy')?></em></b><br><br>
 <span class='header'><i class='indent fa fa-clock-o'></i>_(Uptime)_</span><br><i class='indent'></i><span class='uptime'></span>
@@ -1118,7 +1118,7 @@ function StopArray() {
 }
 function StopArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
-  $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStop:'Stop',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
+  $.post('/update.htm',{cmdStop:'Stop'},function(){refresh();});
 }
 function StartArray() {
 <?if ($confirm['stop']):?>
@@ -1129,7 +1129,7 @@ function StartArray() {
 }
 function StartArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
-  $.post('/update.htm',{startState:'<?=_var($var,'mdState')?>',cmdStart:'Start',csrf_token:'<?=_var($var,'csrf_token')?>'},function(){refresh();});
+  $.post('/update.htm',{cmdStart:'Start'},function(){refresh();});
 }
 function Reboot() {
 <?if ($confirm['down']):?>
@@ -1204,6 +1204,7 @@ function addProperties() {
   $('div#sys1').hover(function(){$('.sys1').hide();$('.var1').show();},function(){$('.sys1').show();$('.var1').hide();});
   $('div#sys2').hover(function(){$('.sys2').hide();$('.var2').show();},function(){$('.sys2').show();$('.var2').hide();});
   $('div#sys3').hover(function(){$('.sys3').hide();$('.var3').show();},function(){$('.sys3').show();$('.var3').hide();});
+  $('#current_time').hover(function(){$.post('/webGui/include/DashboardApps.php',{ntp:'ntp'},function(ntp){$('#current_time').prop('title',ntp+"\n_(Go to date and time settings)_");});});
 }
 function showContent() {
   var count = {'db-box1':$('table#db-box1 tbody').length, 'db-box2':$('table#db-box2 tbody').length, 'db-box3':$('table#db-box3 tbody').length}
@@ -1381,7 +1382,7 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist){
   box.find('#targetsnapl').html(snaps);
   if (getlist) {
     var only = (opt == "remove") ? 0 : 1;
-    $.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"snap-images", uuid:uuid, snapshotname:snaps, only:only}, function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
+    $.post("/plugins/dynamix.vm.manager/include/VMajax.php",{action:"snap-images",uuid:uuid,snapshotname:snaps,only:only},function(data){if (data.html) box.find('#targetsnapimages').html(data.html);},'json');
   }
   document.getElementById("targetsnapfspc").checked = true;
   box.dialog({
