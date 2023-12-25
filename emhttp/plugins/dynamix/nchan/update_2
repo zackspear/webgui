@@ -223,13 +223,13 @@ function device_usage(&$disk, &$full, &$high) {
       if ($critical>0 && $load>=$critical) {$class = 'redbar'; $full++;}
       elseif ($warning>0 && $load>=$warning) {$class = 'orangebar'; $high++;}
       else $class = 'greenbar';
-    }
-    else
+    } else {
       $class = false;
+    }
     return $text%10==0 ? $used : "<span class='load'>$used</span><div class='usage-disk sys'><span style='width:$used'".($class?" class='$class'":"")."></span><span></span></div>";
-  }
-  else
+  } else {
     return $text%10==0 ? "-" : "<span class='load'>-</span><div class='usage-disk sys none'><span></span></div>";
+  }
 }
 function array_group($type, $pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
