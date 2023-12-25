@@ -1030,10 +1030,10 @@ function portSelect(name) {
 }
 function moreInfo(data,table) {
   var info = [];
-  if (data[1]>0) info.push(data[1]+" _(failed device)_"+(data[1]==1?'':'s'));
-  if (data[2]>0) info.push(data[2]+" _(heat warning)_"+(data[2]==1?'':'s'));
-  if (data[3]>0) info.push(data[3]+" _(SMART error)_"+(data[3]==1?'':'s'));
-  if (data[4]>0) info.push(data[4]+" _(utilization warning)_"+(data[4]==1?'':'s'));
+  if (data[1]>0) info.push(data[1]+' '+(data[1]==1 ? "_(failed device)_" : "_(failed devices)_"));
+  if (data[2]>0) info.push(data[2]+' '+(data[2]==1 ? "_(heat warning)_" : "_(heat warnings)_"));
+  if (data[3]>0) info.push(data[3]+' '+(data[3]==1 ? "_(SMART error)_" : "_(SMART errors)_"));
+  if (data[4]>0) info.push(data[4]+' '+(data[4]==1 ? "_(utilization warning)_" : "_(utilization warnings)_"));
   return info.length ? "<div class='last'><i class='icon-u-triangle failed'></i><span class='failed'>"+table+" _(has)_ "+info.join('. ')+".</span></div>" : "";
 }
 function autoscale(value,text,size,kilo) {
@@ -1537,7 +1537,7 @@ dashboard.on('message',function(msg,meta) {
   case 2:
     if (!update2) break;
     var get  = JSON.parse(msg);
-    var data = get.disk.split('\r');
+    var data = get.disk;
     var info = moreInfo(data,"_(Array)_");
     // array devices
     $('#array_list tr.updated').remove();
@@ -1546,18 +1546,17 @@ dashboard.on('message',function(msg,meta) {
     $('#array_info').html(info);
     smartMenu('#array_list');
     // pool devices
-    for (var i=0,pool; pool=get.pool[i]; i++) {
-      var data = pool.split('\r');
+    for (var i=0,data; data=get.pool[i]; i++) {
       var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
-      $('#pool_list'+i).append(pool).hideMe();
+      $('#pool_list'+i).append(data[0]).hideMe();
       $('#pool_info'+i).parent().css({'display':info?'':'none'});
       $('#pool_info'+i).html(info);
       smartMenu('#pool_list'+i);
     }
 <?if ($devs):?>
     // unassigned devices
-    var data = get.open.split('\n');
+    var data = get.open;
     var info = moreInfo(data,"_(Unassigned)_");
     $('#devs_list tr.updated').remove();
     $('#devs_list').append(data[0]).hideMe();
