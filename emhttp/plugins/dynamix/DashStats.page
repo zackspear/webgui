@@ -1537,7 +1537,7 @@ dashboard.on('message',function(msg,meta) {
   case 2:
     if (!update2) break;
     var get  = JSON.parse(msg);
-    var data = get.disk.split('\n');
+    var data = get.disk.split('\r');
     var info = moreInfo(data,"_(Array)_");
     // array devices
     $('#array_list tr.updated').remove();
@@ -1547,7 +1547,7 @@ dashboard.on('message',function(msg,meta) {
     smartMenu('#array_list');
     // pool devices
     for (var i=0,pool; pool=get.pool[i]; i++) {
-      var data = pool.split('\n');
+      var data = pool.split('\r');
       var info = moreInfo(data,"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
       $('#pool_list'+i).append(pool).hideMe();

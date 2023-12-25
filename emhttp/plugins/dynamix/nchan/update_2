@@ -309,7 +309,7 @@ while (true) {
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
   $echo[$a][] = array_group('Parity');
   $echo[$a][] = array_group('Data');
-  $echo[$a][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
+  $echo[$a][] = "\r".($error+$warning)."\r".($red+$orange)."\r".($fail+$smart)."\r".($full+$high);
   $echo[$a] = implode($echo[$a]);
 
   //pool devices
@@ -320,7 +320,7 @@ while (true) {
     $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
     $echo[$a][$p] = [];
     $echo[$a][$p][] = array_group('Cache',$pool);
-    $echo[$a][$p][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
+    $echo[$a][$p][] = "\r".($error+$warning)."\r".($red+$orange)."\r".($fail+$smart)."\r".($full+$high);
     $echo[$a][$p] = implode($echo[$a][$p]);
     $p++;
   }
