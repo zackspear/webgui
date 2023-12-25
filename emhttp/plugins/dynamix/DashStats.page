@@ -1567,9 +1567,8 @@ dashboard.on('message',function(msg,meta) {
     // parity status
     $('span.parity').html(get.parity);
     // parity schedule
-    var data = get.schedule.split('\n');
-    $('#parity').html(data[0]);
-    $('#program').html(data[1]);
+    $('#parity').html(get.schedule[0]);
+    $('#program').html(get.schedule[1]);
     break;
   case 3:
     var get = JSON.parse(msg);
