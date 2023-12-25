@@ -273,18 +273,18 @@ foreach ($cpus as $pair) {
 <span class="head_info"><span><i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?></span></span>
 <span class="switch">_(RAM)_:<span class="head_bar"><span class='sys0_ load'>0%</span><div class='usage-disk sys'><span id='sys0_'></span><span></span></div></span></span><br></div>
 <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_"><i class='fa fa-fw fa-info-circle control'></i></a>
-</td></tr>
-<tr><td>
-<span class='w26'><div class='more'>
-<i class='ups fa fa-compress'></i>_(Usable size)_: <?=$ramsize?><br>
-<i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?>
-<legend>_(Legend)_</legend>
-<span id='dynamic'></span>
-</div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'>_(RAM usage)_<span>_(Percent of total used memory)_ (<?=$ramsize?>)</span></a></span><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'>_(Flash device)_<span>_(Percent usage of flash usb device)_ (<?=$flashsize?>)</span></a></span><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'>_(Log filesystem)_<span>_(Percent usage of LOG file system)_ (<?=$logsize?>)</span></a></span><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
-<span class='w18 center'><span class='center'><a class='info hand none'><?=$vdisk?><span><?=_("Percent usage of $vdisk")?> (<?=$dockersize?>)</span></a></span><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
+</td></tr><tr><td>
+<span class='w26'><i class='ups fa fa-compress'></i>_(Usable size)_: <?=$ramsize?><br><i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?></span>
+<span class='w18 center'><a class='info hand none'>_(RAM usage)_<span>_(Percent of total used memory)_ (<?=$ramsize?>)</span></a></span>
+<span class='w18 center'><a class='info hand none'>_(Flash device)_<span>_(Percent usage of flash usb device)_ (<?=$flashsize?>)</span></a></span>
+<span class='w18 center'><a class='info hand none'>_(Log filesystem)_<span>_(Percent usage of LOG file system)_ (<?=$logsize?>)</span></a></span>
+<span class='w18 center'><a class='info hand none'><?=$vdisk?><span><?=_("Percent usage of $vdisk")?> (<?=$dockersize?>)</span></a></span>
+</td></tr><tr><td>
+<span class='w26'><legend>_(Legend)_</legend><span id='dynamic'></span></span>
+<span class='w18 center'><div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div></span>
+<span class='w18 center'><div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div></span>
+<span class='w18 center'><div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div></span>
+<span class='w18 center'><div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div></span>
 </td></tr>
 </tbody>
 

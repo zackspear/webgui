@@ -35,8 +35,8 @@ span.w26{min-width:26%;max-width:26%;display:inline-block;float:left;overflow:hi
 span.w36{min-width:36%;max-width:36%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
 span.w44{min-width:44%;max-width:44%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
 span.w72{min-width:72%;max-width:72%;display:inline-block;float:left;overflow:hidden;text-overflow:ellipsis}
-span.w18:hover{overflow:visible}
-span.center{display:block;width:96px;text-align:center;margin:4px 0 8px 0}
+span.w26:hover,span.w18:hover{overflow:visible}
+span.center{text-align:center;margin-bottom:4px}
 select#cpuline,select#netline{border:none;padding:0 12px 0 0}
 select[name=enter_share],select[name=enter_user]{margin-top:0;float:none}
 img#mycase{width:auto;max-width:128px;height:auto;max-height:128px}
@@ -53,7 +53,7 @@ i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
 i#mycase[class^="fa "]{font-size:96px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
-a.info{white-space:normal;word-spacing:40px}
+a.info{white-space:normal;word-spacing:96px;word-break:break-all}
 a.info span{word-spacing:normal}
 tr#var0,tr#var1,tr#var2,tr#var3,tr#var4{cursor:alias}
 tr#var1,tr#var4,tr#cpu_chart,.cpu_open{display:none}
@@ -73,6 +73,5 @@ table.snapshot{margin-top:0}
 div.pie{height:96px;width:96px;border-radius:50%;display:flex;justify-content:center;align-items:center}
 div.pie::after{content:'';position:absolute;height:72px;width:72px;border-radius:50%}
 div.pie span{z-index:2;font-size:1.6rem;font-weight:bold}
-div.more{margin-top:8px}
 .var0,.var1,.var2,.var3{display:none;font-size:1.3rem!important}
-legend{font-variant:small-caps;margin:8px 0 4px 0}
+legend{font-variant:small-caps;margin-bottom:4px}
