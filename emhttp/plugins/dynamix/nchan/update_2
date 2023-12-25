@@ -329,7 +329,7 @@ while (true) {
   $echo[$a] = [];
   $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
   $echo[$a][] = extra_group();
-  $echo[$a][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
+  $echo[$a][] = "\r".($error+$warning)."\r".($red+$orange)."\r".($fail+$smart)."\r".($full+$high);
   $echo[$a] = implode($echo[$a]);
 
   // parity status
