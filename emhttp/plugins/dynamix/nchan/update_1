@@ -38,9 +38,9 @@ function update_translation($locale) {
       if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
       $language = unserialize(file_get_contents($store));
     }
-    $text = "$docroot/languages/$locale/main.txt";
+    $text = "$docroot/languages/$locale/dashboard.txt";
     if (file_exists($text)) {
-      $store = "$docroot/languages/$locale/main.dot";
+      $store = "$docroot/languages/$locale/dashboard.dot";
       if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
       $language = array_merge($language,unserialize(file_get_contents($store)));
     }
