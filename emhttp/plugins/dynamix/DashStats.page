@@ -1537,29 +1537,27 @@ dashboard.on('message',function(msg,meta) {
   case 2:
     if (!update2) break;
     var get  = JSON.parse(msg);
-    var data = get.disk;
-    var info = moreInfo(data,"_(Array)_");
+    var info = moreInfo(get.disk,"_(Array)_");
     // array devices
     $('#array_list tr.updated').remove();
-    $('#array_list').append(data[0]).hideMe();
+    $('#array_list').append(get.disk[0]).hideMe();
     $('#array_info').parent().css({'display':info?'':'none'});
     $('#array_info').html(info);
     smartMenu('#array_list');
     // pool devices
-    for (var i=0,data; data=get.pool[i]; i++) {
-      var info = moreInfo(data,"_(Pool)_");
+    for (var i=0; i < get.pool.length; i++) {
+      var info = moreInfo(get.pool[i],"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
-      $('#pool_list'+i).append(data[0]).hideMe();
+      $('#pool_list'+i).append(get.pool[i][0]).hideMe();
       $('#pool_info'+i).parent().css({'display':info?'':'none'});
       $('#pool_info'+i).html(info);
       smartMenu('#pool_list'+i);
     }
 <?if ($devs):?>
     // unassigned devices
-    var data = get.open;
-    var info = moreInfo(data,"_(Unassigned)_");
+    var info = moreInfo(get.open,"_(Unassigned)_");
     $('#devs_list tr.updated').remove();
-    $('#devs_list').append(data[0]).hideMe();
+    $('#devs_list').append(get.open[0]).hideMe();
     $('#devs_info').parent().css({'display':info?'':'none'});
     $('#devs_info').html(info);
     smartMenu('#devs_list');
