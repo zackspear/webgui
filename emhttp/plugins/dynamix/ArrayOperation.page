@@ -83,6 +83,8 @@ function print_error($error) {
 ?>
 <script>
 var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
+var recall = null;
+var recover = null;
 
 function base64(str) {
   return window.btoa(unescape(encodeURIComponent(str)));
@@ -310,6 +312,7 @@ devices.on('message', function(msg,meta) {
     // array + pool + ua + flash devices
     var get = JSON.parse(msg);
     for (var name in get) $('#'+name).html(get[name]);
+    if (recall !== null) recall.html('&nbsp;');
     display_diskio();
     // stop updating when array is stopped
     if (get.stop==1) {
@@ -322,8 +325,8 @@ devices.on('message', function(msg,meta) {
     } else {
       // make truncated descriptions fully visible when hovering over them
       $('td.desc').hover(
-        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {devices.stop();$(this).next().html('');}},
-        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {devices.start();}}
+        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {recall=$(this).next(); recover=recall.html(); recall.html('&nbsp;');}},
+        function(){if ($(this)[0].offsetWidth < $(this)[0].scrollWidth) {recall.html(recover); recall=null;}}
       );
     }
     break;
