@@ -1571,7 +1571,7 @@ dashboard.on('message',function(msg,meta) {
   case 3:
     var get = JSON.parse(msg);
     // rx & tx speeds
-    for (var i=0,port; port=get.port[i]; i++) {
+    for (let i=0,port; port=get.port[i]; i++) {
       if (port[0] == port_select) {
         $('#inbound').text(port[1]);
         $('#outbound').text(port[2]);
