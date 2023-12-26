@@ -1615,17 +1615,17 @@ dashboard.on('message',function(msg,meta) {
 });
 <?if ($apcupsd):?>
 var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
-apcups.on('message',function(data) {
-  data = data.split(';');
-  $('#ups_model').html(data[0]);
-  $('#ups_status').html(data[1]);
-  $('#ups_status_').html(data[1]);
-  $('#ups_bcharge').html(data[2]);
-  $('#ups_timeleft').html(data[3]);
-  $('#ups_nompower').html(data[4]);
-  $('#ups_loadpct').html(data[5]);
-  $('#ups_loadpct_').html(data[5]);
-  $('#ups_outputv').html(data[6]);
+apcups.on('message',function(msg) {
+  var get = JSON.parse(msg);
+  $('#ups_model').html(get[0]);
+  $('#ups_status').html(get[1]);
+  $('#ups_status_').html(get[1]);
+  $('#ups_bcharge').html(get[2]);
+  $('#ups_timeleft').html(get[3]);
+  $('#ups_nompower').html(get[4]);
+  $('#ups_loadpct').html(get[5]);
+  $('#ups_loadpct_').html(get[5]);
+  $('#ups_outputv').html(get[6]);
 });
 <?endif;?>
 
