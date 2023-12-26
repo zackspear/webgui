@@ -1545,7 +1545,7 @@ dashboard.on('message',function(msg,meta) {
     $('#array_info').html(info);
     smartMenu('#array_list');
     // pool devices
-    for (var i=0; i < get.pool.length; i++) {
+    for (let i=0; i < get.pool.length; i++) {
       var info = moreInfo(get.pool[i],"_(Pool)_");
       $('#pool_list'+i+' tr.updated').remove();
       $('#pool_list'+i).append(get.pool[i][0]).hideMe();
