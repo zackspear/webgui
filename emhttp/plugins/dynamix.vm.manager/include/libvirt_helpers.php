@@ -1409,10 +1409,11 @@ private static $encoding = 'UTF-8';
 				if ($p2['bus'] && $p2['slot'] && $p2['function'] && $p2['bus']==$pci['bus'] && $p2['slot']==$pci['slot'] && $p2['function']==$function) unset($old['devices']['hostdev'][$k]);
 			}
 		}
-		// remove and rebuild usb controllers
+		// remove and rebuild usb + scsi controllers
 		$devices = $old['devices']['controller'];
 		foreach ($devices as $key => $controller) {
 			if ($controller['@attributes']['type']=='usb') unset($old['devices']['controller'][$key]);
+			if ($controller['@attributes']['type']=='scsi') unset($old['devices']['controller'][$key]);
 		}
 		// preserve existing disk driver settings
 		foreach ($new['devices']['disk'] as $key => $disk) {
@@ -1731,7 +1732,7 @@ private static $encoding = 'UTF-8';
 	  return $snaps ;
   }
 
-  function write_snapshots_database($vm,$name) {
+  function write_snapshots_database($vm,$name,$method="QEMU") {
 	  global $lv ;
 	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
 	  if (!is_dir($dbpath)) mkdir($dbpath) ;
@@ -1749,6 +1750,7 @@ private static $encoding = 'UTF-8';
 	  $snaps[$vmsnap]["desc"]= $b["description"];
 	  $snaps[$vmsnap]["memory"]= $b["memory"];
 	  $snaps[$vmsnap]["creationtime"]= $b["creationTime"];
+	  $snaps[$vmsnap]["method"]= $method;
 
 	  $disks =$lv->get_disk_stats($vm) ;
 		  foreach($disks as $disk)   {
