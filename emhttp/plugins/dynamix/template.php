@@ -71,7 +71,7 @@ $path = substr(strtok(_var($_SERVER,'REQUEST_URI'),'?'),1);
 $task = strtok($path,'/');
 
 // Add translation for favorites page
-if ($task=='Favorites') {
+if ($locale && $task=='Favorites') {
   foreach(['settings','tools'] as $more) {
     $text = "$docroot/languages/$locale/$more.txt";
     if (file_exists($text)) {
