@@ -23,7 +23,8 @@ $file = fopen($page,'r');
 extract(parse_ini_string(fgets($file)));
 fclose($file);
 
-$Menu = str_replace(' MyFavorites','',$Menu);
+// remove label and escape single quotes for sed command
+$Menu = str_replace([' MyFavorites',"'"],['',"'\''"],$Menu);
 switch ($action) {
 case $permit[0]:
   break;
