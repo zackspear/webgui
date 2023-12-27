@@ -2,18 +2,6 @@ Menu="Tasks:2"
 Type="xmenu"
 Code="e970"
 ---
-<?
-$uri = ['settings','tools'];
-foreach($uri as $more) {
-  $text = "$docroot/languages/$locale/$more.txt";
-  if (file_exists($text)) {
-    // additional translations
-    $store = "$docroot/languages/$locale/$more.dot";
-    if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
-    $language = array_merge($language,unserialize(file_get_contents($store)));
-  }
-}
-?>
 <script>
 function delPage(page) {
   $.post('/webGui/include/MyFavorites.php',{action:'del',page:page},function(){refresh();});

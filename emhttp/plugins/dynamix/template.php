@@ -70,6 +70,20 @@ $path = substr(strtok(_var($_SERVER,'REQUEST_URI'),'?'),1);
 // The current "task" is the first element of the path
 $task = strtok($path,'/');
 
+// Add translation for favorites page
+if ($task=='Favorites') {
+  foreach(['settings','tools'] as $more) {
+    $text = "$docroot/languages/$locale/$more.txt";
+    if (file_exists($text)) {
+      // additional translations
+      $store = "$docroot/languages/$locale/$more.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      file_put_contents('/tmp/lang',$store."\n",FILE_APPEND);
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
+}
+
 // Here's the page we're rendering
 $myPage   = $site[basename($path)];
 $pageroot = $docroot.'/'._var($myPage,'root');
