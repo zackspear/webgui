@@ -15,6 +15,8 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 $permit = ['del','add'];
 $action = $_POST['action']??'';
 $page = glob("$docroot/plugins/*/{$_POST['page']}.page",GLOB_NOSORT)[0];
+$cfg = '/boot/config/favorites.cfg';
+
 // validate input
 if (!$page || !in_array($action,$permit)) exit;
 
@@ -26,11 +28,20 @@ fclose($file);
 // remove label and escape single quotes for sed command
 $Menu = str_replace([' MyFavorites',"'"],['',"'\''"],$Menu);
 switch ($action) {
-case $permit[0]:
+case $permit[0]: // del
+  $del = str_replace('/','\/',$page);
+  exec("sed -i '/$del/d' $cfg 2>/dev/null");
   break;
-case $permit[1]:
+case $permit[1]: // add
+  $file = fopen($cfg,'a+');
+  fseek($file,0,0);
+  while (($line = fgets($file))!==false) {
+    if (rtrim($line) == $page) break;
+  }
+  if (feof($file)) fwrite($file, $page."\n");
+  fclose($file);
   $Menu .= ' MyFavorites';
   break;
 }
 // update Menu settings
-exec("sed -ri '0,/^Menu=\".+\"$/s//Menu=\"$Menu\"/' $page");
+exec("sed -ri '0,/^Menu=\".+\"$/s//Menu=\"$Menu\"/' $page 2>/dev/null");
