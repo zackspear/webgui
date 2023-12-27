@@ -38,7 +38,7 @@ function preparePowermode(form) {
 }
 $(function(){
   $('input[type=radio]').each(function(){
-    if ($(this).prop('disabled')) $(this).next('span').html(" <i>(_(unsupported)_)</i>");
+    if ($(this).prop('disabled')) $(this).next('span').html(" <i>(_(unavailable)_)</i>");
   });
 });
 </script>
