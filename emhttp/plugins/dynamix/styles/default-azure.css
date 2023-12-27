@@ -122,6 +122,7 @@ table.unraid thead tr:first-child>td{font-size:1.2rem;text-transform:uppercase;l
 table.unraid tbody tr:not(.tr_last):hover>td{background-color:rgba(0,0,0,0.05)}
 table.unraid tr>td{overflow:hidden;text-overflow:ellipsis;padding-left:8px}
 table.unraid tr>td:hover{overflow:visible}
+table.legacy{table-layout:auto}
 table.disk_status{table-layout:fixed}
 table.disk_status tr>td:last-child{padding-right:8px}
 table.disk_status tr>td:nth-child(1){width:13%}
