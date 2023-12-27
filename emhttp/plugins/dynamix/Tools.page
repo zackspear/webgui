@@ -2,3 +2,20 @@ Menu="Tasks:90"
 Type="xmenu"
 Tabs="false"
 Code="e909"
+---
+<script>
+function addPage(page) {
+  $.post('/webGui/include/MyFavorites.php',{action:'add',page:page},function(){
+    swal({title:"_(Added to Favorites)_",text:"",type:"success",html:true,confirmButtonText:"_(Ok)_"});
+  });
+}
+
+$(function(){
+  $('i.PanelIcon').each(function(){
+    var icon = $(this);
+    var page = icon.closest('a').prop('href').split('/').pop();
+    icon.after('<i class="fa fa-plus-square-o favo" style="display:none" title="_(Add to favorites)_" onclick="addPage(&quot;'+page+'&quot;);return false"></i>');
+    icon.parent().parent().parent().hover(function(){icon.next().show();},function(){icon.next().hide();});
+  });
+});
+</script>

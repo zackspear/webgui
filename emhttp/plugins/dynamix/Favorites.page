@@ -1,0 +1,31 @@
+Menu="Tasks:2"
+Type="xmenu"
+Code="e970"
+---
+<?
+$uri = ['settings','tools'];
+foreach($uri as $more) {
+  $text = "$docroot/languages/$locale/$more.txt";
+  if (file_exists($text)) {
+    // additional translations
+    $store = "$docroot/languages/$locale/$more.dot";
+    if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+    $language = array_merge($language,unserialize(file_get_contents($store)));
+  }
+}
+?>
+<script>
+function delPage(page) {
+  $.post('/webGui/include/MyFavorites.php',{action:'del',page:page},function(){refresh();});
+}
+
+$(function(){
+  $('i.PanelIcon').each(function(){
+    var icon = $(this);
+    var page = icon.closest('a').prop('href').split('/').pop();
+    icon.after('<i class="fa fa-minus-square-o favo" style="display:none" title="_(Remove from favorites)_" onclick="delPage(&quot;'+page+'&quot;);return false"></i>');
+    icon.parent().parent().parent().hover(function(){icon.next().show();},function(){icon.next().hide();});
+  });
+  if ($('i.PanelIcon').length==0) $('#nofavs').show();
+});
+</script>
