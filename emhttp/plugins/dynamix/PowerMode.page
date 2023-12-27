@@ -40,6 +40,9 @@ $(function(){
   $('input[type=radio]').each(function(){
     if ($(this).prop('disabled')) $(this).next('span').html(" <i>(_(unavailable)_)</i>");
   });
+<?if (exec("lsblk -Ano mountpoint,label|grep -Pom1 '^/boot +\K.+'") != 'UNRAID'):?>
+  $('#vm').show();
+<?endif;?>
 });
 </script>
 
@@ -61,3 +64,5 @@ _(Change power mode)_:
 &nbsp;
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
+
+<div id="vm" class="notice">_(When running Unraid virtualized, there are no available power modes)_</div>
