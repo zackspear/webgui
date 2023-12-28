@@ -14,7 +14,7 @@ $(function(){
   $('i.PanelIcon').each(function(){
     var icon = $(this);
     var page = icon.closest('a').prop('href').split('/').pop();
-    icon.after('<i class="fa fa-plus-square-o favo" style="display:none" title="_(Add to favorites)_" onclick="addPage(&quot;'+page+'&quot;);return false"></i>');
+    icon.after('<i class="fa fa-heart favo" style="display:none" title="_(Add to favorites)_" onclick="addPage(&quot;'+page+'&quot;);return false"></i>');
     icon.parent().parent().parent().hover(function(){icon.next().show();},function(){icon.next().hide();});
   });
 });
