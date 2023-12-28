@@ -1493,12 +1493,21 @@ This will increase write performance but might possibly decrease read performanc
 Let the server act as a central syslog server and collect syslog messages from other systems.
 The server can listen on UDP, TCP or both with a selectable port number.
 
-Syslog information is stored per IP address. That is every system gets its own syslog file.
+Syslog information is stored either per IP address or per hostname. That is every system gets its own syslog file.
 :end
 
 :syslog_local_folder_help:
 Select the share folder where the syslogs will be stored.
 It is recommended that you use a share located on the cache drive to prevent array disk spinups.
+:end
+
+:syslog_remote_system_identifier_help:
+Select the identifier for the remote system (used in the logfile name). 
+
+* "IP Address" uses the IP address (IPv4 or IPv6) of the sending system.
+* "Hostname (from syslog message)" uses the hostname included in each syslog message.
+* "Hostname (from DNS reverse lookup)" performs a DNS reverse lookup for the sending IP and uses the result.
+
 :end
 
 :syslog_local_rotation_help:
