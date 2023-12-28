@@ -11,7 +11,7 @@ $(function(){
   $('i.PanelIcon').each(function(){
     var icon = $(this);
     var page = icon.closest('a').prop('href').split('/').pop();
-    icon.after('<i class="fa fa-heartbeat favo" style="display:none" title="_(Remove from favorites)_" onclick="delPage(&quot;'+page+'&quot;);return false"></i>');
+    icon.after('<i class="fa fa-heartbeat favo" title="_(Remove from favorites)_" onclick="delPage(&quot;'+page+'&quot;);return false"></i>');
     icon.parent().parent().parent().hover(function(){icon.next().show();},function(){icon.next().hide();});
   });
   if ($('i.PanelIcon').length==0) $('#nofavs').show();

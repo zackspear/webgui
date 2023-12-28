@@ -19,7 +19,7 @@ i.spacing{margin-left:0;margin-right:10px}
 i.icon{font-size:1.6rem;margin-right:4px;vertical-align:middle}
 i.title{display:none}
 i.control{cursor:pointer;color:#606060;font-size:1.8rem}
-i.favo{font-size:1.8rem;position:absolute}
+i.favo{display:none;font-size:1.8rem;position:absolute}
 pre ul{margin:0;padding-top:0;padding-bottom:0;padding-left:28px}
 pre li{margin:0;padding-top:0;padding-bottom:0;padding-left:18px}
 big{font-size:1.4rem;font-weight:bold;text-transform:uppercase}
