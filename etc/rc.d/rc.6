@@ -211,7 +211,7 @@ CFG=/boot/config/rsyslog.cfg
 [[ -r $CFG ]] && MIRROR=$(/bin/grep -Pom1 '^syslog_flash="\K[^"]+' $CFG)
 [[ -r $CFG ]] && COPY=$(/bin/grep -Pom1 '^syslog_shutdown="\K[^"]+' $CFG)
 if [[ ! -f /boot/logs/syslog && -z $MIRROR && -z $COPY ]]; then
-  AVAIL=$(/bin/df --output=avail /boot | /bin/awk '(NR>1){print $1*1024}')
+  AVAIL=$(/bin/df --output=avail /boot | /bin/awk '(NR>1){print $1*1024;exit}')
   SIZE=$(($(/bin/stat -c%s /var/log/syslog)*2))
   if [[ $AVAIL -ge $SIZE ]]; then
     log "Saving syslog to flash"
