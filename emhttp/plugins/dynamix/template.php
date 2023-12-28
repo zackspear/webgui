@@ -78,7 +78,6 @@ if ($locale && $task=='Favorites') {
     // additional translations
     $store = "$docroot/languages/$locale/$more.dot";
     if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
-    file_put_contents('/tmp/lang',$store."\n",FILE_APPEND);
     $language = array_merge($language,unserialize(file_get_contents($store)));
   }
 }
