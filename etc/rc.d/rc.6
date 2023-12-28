@@ -208,8 +208,8 @@ fi
 # The copied file will become /boot/logs/syslog-previous after next boot (see rc.M)
 # Safety feature: copy only when enough space is available on the flash device
 CFG=/boot/config/rsyslog.cfg
-[[ -r $CFG ]] && MIRROR=$(grep -Pom1 '^syslog_flash="\K[^"]+' $CFG)
-[[ -r $CFG ]] && COPY=$(grep -Pom1 '^syslog_shutdown="\K[^"]+' $CFG)
+[[ -r $CFG ]] && MIRROR=$(/bin/grep -Pom1 '^syslog_flash="\K[^"]+' $CFG)
+[[ -r $CFG ]] && COPY=$(/bin/grep -Pom1 '^syslog_shutdown="\K[^"]+' $CFG)
 if [[ ! -f /boot/logs/syslog && -z $MIRROR && -z $COPY ]]; then
   AVAIL=$(/bin/df --output=avail /boot | /bin/awk '(NR>1){print $1*1024}')
   SIZE=$(($(/bin/stat -c%s /var/log/syslog)*2))
