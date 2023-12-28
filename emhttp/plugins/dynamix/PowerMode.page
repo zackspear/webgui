@@ -40,7 +40,7 @@ $(function(){
   $('input[type=radio]').each(function(){
     if ($(this).prop('disabled')) $(this).next('span').html(" <i>(_(unavailable)_)</i>");
   });
-<?if (exec("lsblk -Ano mountpoint,label|grep -Pom1 '^/boot +\K.+'") != 'UNRAID'):?>
+<?if (exec("dmesg | grep -Pom1 'Hypervisor detected'")):?>
   $('#vm').show();
 <?endif;?>
 });
