@@ -190,7 +190,7 @@ container_add_route(){
   local PID=${CT[0]}
   local NET=${CT[1]#*[}
   local LAN=${NET%:*}
-  if [[ $PID -gt 0 && "${LAN//[^0-9]/}" == "0" ]]; then
+  if [[ $PID -gt 0 && "eth0 br0 bond0" =~ $LAN ]]; then
     local THISIP=$(sed -n '/^\[eth0\]$/,/^TYPE/p' $INI | grep -Pom1 '^IPADDR:0="\K[^"]+')
     for CFG in /etc/wireguard/wg*.cfg ; do
       local NETWORK=$(grep -Pom1 '^Network:0="\K[^"]+' $CFG)
