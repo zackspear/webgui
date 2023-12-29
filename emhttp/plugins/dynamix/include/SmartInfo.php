@@ -102,6 +102,11 @@ case "attributes":
         if (is_numeric(size($value))) duration($value);
         break;
       }
+      if (str_ends_with($name, ', hours') && str_starts_with($value, 'minutes ')) {
+        $name = substr($name, 0, -7);
+        $value = substr($value, 8);
+        if (is_numeric(size($value))) duration($value);
+      }
       echo "<tr{$color}><td>-</td><td>$name</td><td colspan='8'>$value</td></tr>";
       $empty = false;
     }
