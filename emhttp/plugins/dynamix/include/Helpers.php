@@ -270,4 +270,28 @@ function my_preg_split($split, $text, $count=2) {
 function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
+function my_mkdir($dirname) {
+	$pathinfo = pathinfo($dirname);
+	$parent = $pathinfo["dirname"];
+	$userPathFound = strpos($dirname,"/mnt/user");
+	$realdir = $dirname;
+	if ($userPathFound !== false) {
+		$realLocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg("$parent")));
+		$realdir = str_replace("/mnt/user","/mnt/$realLocation",$dirname);
+		$parent = dirname($realdir);
+	}
+	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+	switch ($fstype) {
+		case "zfs":
+			$zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
+			shell_exec("zfs create $zfsdataset/{$pathinfo['filename']}");
+			break;
+		case "btrfs":
+			shell_exec("btrfs subvolume create $realdir");
+			break;
+		default:
+			mkdir($realdir, 0777, true);
+			break;
+	}
+}
 ?>
