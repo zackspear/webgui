@@ -62,6 +62,7 @@ case "attributes":
   $hot    = _var($disk,'hotTemp',-1)>=0 ? $disk['hotTemp'] : ($hotNVME>=0 ? $hotNVME : (_var($disk,'rotational',1)==0 && $display['hotssd']>=0 ? $display['hotssd'] : $display['hot']));
   $max    = _var($disk,'maxTemp',-1)>=0 ? $disk['maxTemp'] : ($maxNVME>=0 ? $maxNVME : (_var($disk,'rotational',1)==0 && $display['maxssd']>=0 ? $display['maxssd'] : $display['max']));
   $top    = $_POST['top'] ?? 120;
+  $ssd_remaining = NULL;
   $empty  = true;
   exec("smartctl -n standby -A $type ".escapeshellarg("/dev/$port"),$output);
   // remove empty rows
@@ -101,6 +102,9 @@ case "attributes":
       case 'Power on hours':
         if (is_numeric(size($value))) duration($value);
         break;
+      case 'Percentage used':
+          $ssd_remaining = 100 - str_replace('%', '', $value);
+        break;
       }
       if (str_ends_with($name, ', hours') && str_starts_with($value, 'minutes ')) {
         $name = substr($name, 0, -7);
@@ -111,6 +115,25 @@ case "attributes":
       $empty = false;
     }
   }
+  if (is_null($ssd_remaining)) {
+    // Try to look up SSD's 'Percentage Used Endurance Indicator' with special command
+    exec("smartctl -n standby -l ssd $type ".escapeshellarg("/dev/$port"), $ssd_out);
+    $ssd_out = array_filter($ssd_out);
+    foreach ($ssd_out as $row) {
+      if (str_ends_with($row, 'Percentage Used Endurance Indicator')) {
+        // Probably a SATA SSD
+        $info = explode(' ', trim(preg_replace('/\s+/',' ',$row)), 6);
+        $ssd_remaining = 100 - $info[3];
+      } elseif (str_starts_with($row, 'Percentage used endurance indicator:')) {
+        // Probably a SAS SSD
+        [$name,$value] = array_map('trim',explode(':', $row));
+        $ssd_remaining = 100 - str_replace('%','',$value);
+      }
+    }    
+  }
+  if (!is_null($ssd_remaining)) {
+    echo "<tr><td>-</td><td>SSD endurance remaining</td><td colspan='8'>$ssd_remaining %</td></tr>";
+  }  
   if ($empty) echo "<tr><td colspan='10' style='text-align:center;padding-top:12px'>"._('Attributes not available')."</td></tr>";
   break;
 case "capabilities":
