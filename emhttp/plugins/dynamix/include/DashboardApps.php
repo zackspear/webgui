@@ -13,13 +13,17 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard';
+require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
-// add translations
-$_SERVER['REQUEST_URI'] = 'dashboard';
-require_once "$docroot/webGui/include/Translations.php";
+if (isset($_POST['ntp'])) {
+  $ntp = exec("ntpq -pn|awk '{if (NR>3 && $2!=\".INIT.\") c++} END {print c}'");
+  die($ntp ? sprintf(_('Clock synchronized with %s NTP server'.($ntp==1?'':'s')),$ntp) : _('Clock is unsynchronized with no NTP servers'));
+}
 
 if ($_POST['docker']) {
   $user_prefs = $dockerManPaths['user-prefs'];

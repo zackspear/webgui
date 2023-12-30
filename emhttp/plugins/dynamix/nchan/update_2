@@ -223,16 +223,17 @@ function device_usage(&$disk, &$full, &$high) {
       if ($critical>0 && $load>=$critical) {$class = 'redbar'; $full++;}
       elseif ($warning>0 && $load>=$warning) {$class = 'orangebar'; $high++;}
       else $class = 'greenbar';
-    }
-    else
+    } else {
       $class = false;
+    }
     return $text%10==0 ? $used : "<span class='load'>$used</span><div class='usage-disk sys'><span style='width:$used'".($class?" class='$class'":"")."></span><span></span></div>";
-  }
-  else
+  } else {
     return $text%10==0 ? "-" : "<span class='load'>-</span><div class='usage-disk sys none'><span></span></div>";
+  }
 }
 function array_group($type, $pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
+  if ($type != 'Data') {$error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;}
   $echo = [];
   foreach ($disks as $disk) if (_var($disk,'type')==$type && strpos(_var($disk,'status'),'DISK_NP')===false && (!$pool||$pool==prefix(_var($disk,'name')))) {
     $echo[] = "<tr class='updated'><td>";
@@ -247,6 +248,7 @@ function array_group($type, $pool=false) {
 }
 function extra_group() {
   global $devs,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
+  $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
   $echo = [];
   foreach ($devs as $disk) {
     $name = _var($disk,'name');
@@ -292,9 +294,9 @@ while (true) {
   $devs  = (array)@parse_ini_file("$varroot/devs.ini",true);
   $disks = (array)@parse_ini_file("$varroot/disks.ini",true);
   $saved = (array)@parse_ini_file("$varroot/monitor.ini",true);
-  $echo  = [];
-  $size  = _var($var,'mdResyncSize');
-  $spot  = _var($var,'mdResyncPos');
+  $echo  = []; $p = 0;
+  $size  = _var($var,'mdResyncSize',0);
+  $spot  = _var($var,'mdResyncPos',0);
   require "$docroot/webGui/include/CustomMerge.php";
   require "$docroot/webGui/include/Preselect.php";
   // check for language changes
@@ -304,33 +306,15 @@ while (true) {
     update_translation($locale_init);
   }
   //array devices
-  $a = 'disk';
-  $echo[$a] = [];
-  $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-  $echo[$a][] = array_group('Parity');
-  $echo[$a][] = array_group('Data');
-  $echo[$a][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
-  $echo[$a] = implode($echo[$a]);
+  $echo['disk'] = [array_group('Parity').array_group('Data'), $error+$warning, $red+$orange, $fail+$smart, $full+$high];
 
   //pool devices
-  $a = 'pool'; $p = 0;
-  $echo[$a] = [];
   foreach (pools_filter($disks) as $pool) {
     if (empty($disks[$pool]['devices'])) continue;
-    $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-    $echo[$a][$p] = [];
-    $echo[$a][$p][] = array_group('Cache',$pool);
-    $echo[$a][$p][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
-    $echo[$a][$p] = implode($echo[$a][$p]);
-    $p++;
+    $echo['pool'][$p++] = [array_group('Cache',$pool), $error+$warning, $red+$orange, $fail+$smart, $full+$high];
   }
   //unassigned devices
-  $a = 'open';
-  $echo[$a] = [];
-  $error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;
-  $echo[$a][] = extra_group();
-  $echo[$a][] = "\n".($error+$warning)."\n".($red+$orange)."\n".($fail+$smart)."\n".($full+$high);
-  $echo[$a] = implode($echo[$a]);
+  $echo['open'] = [extra_group(), $error+$warning, $red+$orange, $fail+$smart, $full+$high];
 
   // parity status
   $a = 'parity';
@@ -371,7 +355,6 @@ while (true) {
 
   // parity schedule
   $a = 'schedule';
-  $echo[$a] = [];
   [$delta,$bytes] = [_var($var,'mdResyncDt',0),_var($var,'mdResyncDb',0)];
   $synced = create_sync($stamps);
   $sbSynced = array_shift($synced) ?: _var($var,'sbSynced');
@@ -381,6 +364,7 @@ while (true) {
     $echo[$a][] = "<br><i class='fa fa-fw fa-clock-o'></i> "._('Elapsed time').": "._(my_clock(floor((time()-$sbSynced)/60)),2);
     $echo[$a][] = "<br><i class='fa fa-fw fa-flag-checkered'></i> "._('Estimated finish').': '.($bytes ? _(my_clock(round(((($delta*(($size-$spot)/($bytes/100+1)))/100)/60),0)),2) : _('Unknown'));
     $echo[$a][] = "<br><i class='fa fa-fw fa-search'></i> ".print_error(_var($var,'sbSyncErrs',0));
+    $echo[$a] = implode($echo[$a]);
   } else {
     [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();
     if (_var($var,'sbSyncExit',0)!=0) {
@@ -414,7 +398,7 @@ while (true) {
       $echo[$a][] = "<br><i class='fa fa-fw fa-clock-o'></i> "._('Duration').': '.my_check($duration,$speed);
       $echo[$a][] = "<br><i class='fa fa-fw fa-search'></i> ".print_error(_var($var,'sbSyncErrs',0));
     }
-    [$m,$h] = explode(' ', $parity['hour']);
+    [$m,$h] = explode(' ',$parity['hour']);
     $time = time();
     $check = true;
     switch ($parity['mode']) {
@@ -476,17 +460,14 @@ while (true) {
       case 'WL': $t = stage(0); break;}
       break;
     }
-    $echo[$a][] = "\n";
     if ($check) {
       $frmt = _var($display,'date').(_var($display,'date')!='%c' ? ", "._var($display,'time') : "");
-      $echo[$a][] = sprintf(_('Next check scheduled on **%s**'),_(my_date($frmt,$time+$t),0));
-      $echo[$a][] = "<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
+      $extra = sprintf(_('Next check scheduled on **%s**'),_(my_date($frmt,$time+$t),0))."<br><i class='fa fa-fw fa-clock-o'></i> "._('Due in').": "._(my_clock(floor($t/60)),2);
     } else {
-      $echo[$a][] = _('Scheduled parity check is disabled');
+      $extra = _('Scheduled parity check is disabled');
     }
+    $echo[$a] = [implode($echo[$a]), $extra];
   }
-  $echo[$a] = implode($echo[$a]);
-
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
   if ($md5_new !== $md5_old) {
