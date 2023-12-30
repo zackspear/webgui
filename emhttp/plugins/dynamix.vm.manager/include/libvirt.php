@@ -175,7 +175,7 @@
 
 					// create folder if needed
 					if (!is_dir($strImgFolder)) {
-						mkdir($strImgFolder, 0777, true);
+						my_mkdir($strImgFolder);
 						chown($strImgFolder, 'nobody');
 						chgrp($strImgFolder, 'users');
 					}
@@ -191,7 +191,7 @@
 
 					// create parent folder if needed
 					if (!is_dir($path_parts['dirname'])) {
-						mkdir($path_parts['dirname'], 0777, true);
+						my_mkdir($path_parts['dirname']);
 						chown($path_parts['dirname'], 'nobody');
 						chgrp($path_parts['dirname'], 'users');
 					}
@@ -216,7 +216,7 @@
 						// create folder if needed
 						$strImgRawLocationParent = dirname($strImgRawLocationPath);
 						if (!is_dir($strImgRawLocationParent)) {
-							mkdir($strImgRawLocationParent, 0777, true);
+							my_mkdir($strImgRawLocationParent);
 							chown($strImgRawLocationParent, 'nobody');
 							chgrp($strImgRawLocationParent, 'users');
 						}
@@ -1407,6 +1407,20 @@
 			unset($tmp);
 
 			return $ret;
+		}
+
+		function get_disk_fstype($domain) {
+			$dom = $this->get_domain_object($domain);
+			$tmp = $this->get_disk_stats($dom);
+			$dirname = transpose_user_path($tmp[0]['file']);
+			$pathinfo = pathinfo($dirname);
+			$parent = $pathinfo["dirname"];
+			$fstype = strtoupper(trim(shell_exec(" stat -f -c '%T' $parent")));
+			if ($fstype != "ZFS") $fstype = "QEMU";
+			#if ($fstype != "ZFS" && $fstype != "BTRFS") $fstype = "QEMU";
+			unset($tmp);
+
+			return $fstype;
 		}
 
 		function format_size($value, $decimals, $unit='?') {

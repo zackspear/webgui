@@ -1681,7 +1681,7 @@ private static $encoding = 'UTF-8';
 
 		if ($storage == "default") $clonedir = $domain_cfg['DOMAINDIR'].$clone ; else $clonedir = str_replace('/mnt/user/', "/mnt/$storage/", $domain_cfg['DOMAINDIR']).$clone;
 		if (!is_dir($clonedir)) {
-			mkdir($clonedir,0777,true) ;
+			my_mkdir($clonedir) ;
 			chown($clonedir, 'nobody');
 			chgrp($clonedir, 'users');
 		}
@@ -1732,17 +1732,33 @@ private static $encoding = 'UTF-8';
 	  return $snaps ;
   }
 
-  function write_snapshots_database($vm,$name,$method="QEMU") {
+  function write_snapshots_database($vm,$name,$state,$desc,$method="QEMU") {
 	  global $lv ;
 	  $dbpath = "/etc/libvirt/qemu/snapshot/$vm" ;
 	  if (!is_dir($dbpath)) mkdir($dbpath) ;
+	  $noxml = "";
 	  $snaps_json = file_get_contents($dbpath."/snapshots.db") ;
 	  $snaps = json_decode($snaps_json,true) ;
 	  $snapshot_res=$lv->domain_snapshot_lookup_by_name($vm,$name) ;
+	  if (!$snapshot_res) {
+	  	 # Manual Snap no XML
+		if ($state == "shutoff" && ($method == "ZFS" || $method == "BTRFS")) {
+			# Create Snapshot info
+			$vmsnap = $name;
+			$snaps[$vmsnap]["name"]= $name;
+			$snaps[$vmsnap]["parent"]= "Base" ;
+			$snaps[$vmsnap]["state"]= "shutoff";
+			$snaps[$vmsnap]["desc"]= $desc;
+			$snaps[$vmsnap]["memory"]= ['@attributes' => ['snapshot' => 'no']];
+			$snaps[$vmsnap]["creationtime"]= date("U");
+			$snaps[$vmsnap]["method"]= $method;
+			$noxml = "noxml";
+		}
+	  } else {
 	  $snapshot_xml=$lv->domain_snapshot_get_xml($snapshot_res) ;
 	  $a = simplexml_load_string($snapshot_xml) ;
 	  $a = json_encode($a) ;
-	  $b= json_decode($a, TRUE);
+	  $b = json_decode($a, TRUE);
 	  $vmsnap = $b["name"] ;
 	  $snaps[$vmsnap]["name"]= $b["name"];
 	  $snaps[$vmsnap]["parent"]= $b["parent"] ;
@@ -1751,6 +1767,7 @@ private static $encoding = 'UTF-8';
 	  $snaps[$vmsnap]["memory"]= $b["memory"];
 	  $snaps[$vmsnap]["creationtime"]= $b["creationTime"];
 	  $snaps[$vmsnap]["method"]= $method;
+		}
 
 	  $disks =$lv->get_disk_stats($vm) ;
 		  foreach($disks as $disk)   {
@@ -1773,11 +1790,12 @@ private static $encoding = 'UTF-8';
 		  $snaps[$vmsnap]["parent"] = str_replace("qcow2",'',$snaps[$vmsnap]["parent"]) ;
 		  if (isset($parentfind[1]) && !isset($parentfind[2])) $snaps[$vmsnap]["parent"]="Base" ;
 
-		  if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
+		  if (isset($b)) if (array_key_exists(0 , $b["disks"]["disk"])) $snaps[$vmsnap]["disks"]= $b["disks"]["disk"]; else $snaps[$vmsnap]["disks"][0]= $b["disks"]["disk"];
 
 
 		  $value = json_encode($snaps,JSON_PRETTY_PRINT) ;
 	  file_put_contents($dbpath."/snapshots.db",$value) ;
+	  return $noxml;
   }
 
   function refresh_snapshots_database($vm) {
@@ -1847,8 +1865,33 @@ private static $encoding = 'UTF-8';
 	  return true ;
   }
 
+  function my_vmmkdir($dirname) {
+	$pathinfo = pathinfo($dirname);
+	$parent = $pathinfo["dirname"];
+	$userPathFound = strpos($dirname,"/mnt/user");
+	$realdir = $dirname;
+	if ($userPathFound !== false) {
+		$realLocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg("$parent")));
+		$realdir = str_replace("/mnt/user","/mnt/$realLocation",$dirname);
+		$parent = dirname($realdir);
+	}
+	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+	switch ($fstype) {
+		case "zfs":
+			$zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
+			shell_exec("zfs create $zfsdataset/{$pathinfo['filename']}");
+			break;
+		case "btrfs":
+			shell_exec("btrfs subvolume create $realdir");
+			break;
+		default:
+			mkdir($realdir, 0777, true);
+			break;
+	}
+}
 
-  function vm_snapshot($vm,$snapshotname, $snapshotdesc, $free = "yes",  $memorysnap = "yes") {
+
+  function vm_snapshot($vm,$snapshotname, $snapshotdesc, $free = "yes", $method = "QEMU",  $memorysnap = "yes") {
 	  global $lv ;
 
 	  #Get State
@@ -1876,7 +1919,14 @@ private static $encoding = 'UTF-8';
 				$dirpath= str_replace('/mnt/user/', "/mnt/$storagelocation/", $dirpath);
 		  } 
 		  $filenew = $dirpath.'/'.$pathinfo["filename"].'.'.$name.'qcow2' ;
-		  $diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
+		  switch ($method) {
+			case "QEMU" :
+				$diskspec .= " --diskspec '".$disk["device"]."',snapshot=external,file='".$filenew."'" ;
+				break;
+			case "ZFS":
+			case "BTRFS":
+				$diskspec .= " --diskspec '".$disk["device"]."',snapshot=manual " ;
+		  }
 		  $capacity = $capacity + $disk["capacity"] ;
 	  }
 
@@ -1884,7 +1934,7 @@ private static $encoding = 'UTF-8';
 	  $mem = $lv->domain_get_memory_stats($vm) ;
 	  $memory = $mem[6] ;
 
-	  if ($memorysnap = "yes") $memspec = ' --memspec "'.$dirpath.'/memory'.$name.'.mem",snapshot=external' ; else $memspec = "" ;
+	  if ($memorysnap == "yes") $memspec = ' --memspec "'.$dirpath.'/memory'.$name.'.mem",snapshot=external' ; else $memspec = "" ;
 	  $cmdstr = "virsh snapshot-create-as '$vm' --name '$name' $snapshotdesc  --atomic" ;
 
 
@@ -1911,16 +1961,36 @@ private static $encoding = 'UTF-8';
 	  if ($state == "running") exec("virsh dumpxml '$vm' > ".escapeshellarg($xmlfile),$outxml,$rtnxml) ;
 
 	  $output= [] ;
-	  $test = false ;
-	  if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
+	  #$test = false ;
+	  #if ($test)  exec($cmdstr." --print-xml 2>&1",$output,$return) ; else   exec($cmdstr." 2>&1",$output,$return) ;
+
+	  switch ($method) {
+		case "ZFS":
+			# Create ZFS Snapshot
+			#$zfsdataset = "vmpoolzfs/domains3/Arch3";
+			#stat -f -c '%T' /mnt/vmpoolzfs/domains2/Arch3 
+			if ($state == "running") exec($cmdstr." 2>&1",$output,$return);
+			$zfsdataset = trim(shell_exec("zfs list -H -o name -r $dirpath")) ;
+			$fssnapcmd = " zfs snapshot $zfsdataset@$name";
+			shell_exec($fssnapcmd);
+			# if running resume.
+			if ($state == "running") $lv->domain_resume($vm);
+			break;
+		case "BTRFS":
+			# Create BTRFS Snapshot
+			break;
+		default:
+			# No Action
+			exec($cmdstr." 2>&1",$output,$return);
+	  }
 
 	  if (strpos(" ".$output[0],"error") ) {
 		  $arrResponse =  ['error' => substr($output[0],6) ] ;
 	  } else {
 		$arrResponse = ['success' => true] ;
-		write_snapshots_database("$vm","$name") ;
+		$ret = write_snapshots_database("$vm","$name",$state,$snapshotdesc,$method) ;
 		#remove meta data
-		$ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
+		if ($ret != "noxml") $ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
 	  }
 	  return $arrResponse ;
 
@@ -1980,12 +2050,14 @@ private static $encoding = 'UTF-8';
 				  if ($diskname == "hda" || $diskname == "hdb") continue ;
 				  $path = $disk["source"]["@attributes"]["file"] ;
 				  if (is_file($path) && $action == "yes") unlink("$path") ;
+				  file_put_contents("/tmp/rmvsnaps",$path,FILE_APPEND);
 				  $item = array_search($path,$snapslist[$snap]['backing']["r".$diskname]) ;
 				  $item++ ;
 				  while($item > 0)
 				  {
 				  if (!isset($snapslist[$snap]['backing']["r".$diskname][$item])) break ;
 				  $newpath =  $snapslist[$snap]['backing']["r".$diskname][$item] ;
+				  file_put_contents("/tmp/rmvsnaps",$newpath,FILE_APPEND);
 					  if (is_file($newpath) && $action == "yes") unlink("$newpath") ;
 				  $item++ ;
 				  }

@@ -108,7 +108,9 @@ foreach ($vms as $vm) {
   }
   unset($dom);
   if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log), $vmrcconsole,$vmpreview);
+  if ($diskcnt > 0) $fstype = $lv->get_disk_fstype($res); else $fstype="QEMU";
+  #$fstype = "ZFS";
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,$vmpreview);
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':
@@ -130,7 +132,7 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
-  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots).')'; else $snapshotstr = '('._('Snapshots').': '._('None').')';
+  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots)." / Type: $fstype)"; else $snapshotstr = '('._('Snapshots').': '._('None')." / Type: $fstype)";
   $cdbus = $cdbus2 = $cdfile = $cdfile2 = "";
   $cdromcount = 0;
     foreach ($cdroms as $arrCD) {
@@ -280,7 +282,7 @@ foreach ($vms as $vm) {
         $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"]));
         $snapshotparent = $snapshot["parent"] ? $snapshot["parent"]  : "None";
         $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s");
-        $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$vmpreview);
+        $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$snapshot["method"],$vmpreview);
         echo "<tr><td><span id='vmsnap-$uuid' $snapmenu class='hand'>$tab|__&nbsp;&nbsp;<i class='fa fa-clone'></i></span>&nbsp;",$snapshot["name"],"</td><td>$snapshotdesc</td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
         $tab .="&nbsp;&nbsp;&nbsp;&nbsp;";
       }
