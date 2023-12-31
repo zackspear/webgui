@@ -175,7 +175,8 @@
 
 					// create folder if needed
 					if (!is_dir($strImgFolder)) {
-						my_mkdir($strImgFolder);
+						mkdir($strImgFolder, 0777, true);
+						#my_mkdir($strImgFolder, 0777, true);
 						chown($strImgFolder, 'nobody');
 						chgrp($strImgFolder, 'users');
 					}
@@ -191,7 +192,8 @@
 
 					// create parent folder if needed
 					if (!is_dir($path_parts['dirname'])) {
-						my_mkdir($path_parts['dirname']);
+						mkdir($path_parts['dirname'], 0777, true);
+						#my_mkdir($path_parts['dirname'], 0777, true);
 						chown($path_parts['dirname'], 'nobody');
 						chgrp($path_parts['dirname'], 'users');
 					}
@@ -216,7 +218,8 @@
 						// create folder if needed
 						$strImgRawLocationParent = dirname($strImgRawLocationPath);
 						if (!is_dir($strImgRawLocationParent)) {
-							my_mkdir($strImgRawLocationParent);
+							mkdir($strImgRawLocationParent, 0777, true);
+							#my_mkdir($strImgRawLocationParent, 0777, true);
 							chown($strImgRawLocationParent, 'nobody');
 							chgrp($strImgRawLocationParent, 'users');
 						}

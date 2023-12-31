@@ -68,7 +68,7 @@ foreach ($vms as $vm) {
   $diskdesc = '';
   if (($diskcnt = $lv->get_disk_count($res)) > 0) {
     $disks = $diskcnt.' / '.$lv->get_disk_capacity($res);
-    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true);
+    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type:$fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
   $vmrcport = $lv->domain_get_vnc_port($res);
@@ -132,7 +132,7 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
-  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots)." / Type: $fstype)"; else $snapshotstr = '('._('Snapshots').': '._('None')." / Type: $fstype)";
+  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots).")"; else $snapshotstr = '('._('Snapshots').': '._('None').")";
   $cdbus = $cdbus2 = $cdfile = $cdfile2 = "";
   $cdromcount = 0;
     foreach ($cdroms as $arrCD) {
