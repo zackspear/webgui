@@ -2082,7 +2082,7 @@ private static $encoding = 'UTF-8';
 	  return($arrResponse) ;
 	  }
 
-	  function vm_revert($vm, $snap="--current",$action="no",$actionmeta = 'yes') {
+	  function vm_revert($vm, $snap="--current",$action="no",$actionmeta = 'yes',$dryrun = false) {
 		global $lv ;
 		$snapslist= getvmsnapshots($vm) ;
 		#$disks =$lv->get_disk_stats($vm) ;
@@ -2129,7 +2129,7 @@ private static $encoding = 'UTF-8';
 		if ($snapstate != "running") {	
 			$xml = custom::createXML('domain',$xmlobj)->saveXML();
 			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
-			$new = $lv->domain_define($xml);
+			if (!$dryrun) $new = $lv->domain_define($xml);
 			file_put_contents("/tmp/xmlrevert", "$xml" ) ;## Remove before stable.
 			if ($new) $arrResponse  = ['success' => true] ; else $arrResponse = ['error' => $lv->get_last_error()] ;
 		}
@@ -2140,7 +2140,7 @@ private static $encoding = 'UTF-8';
 			$diskname = $disk["@attributes"]["name"] ;
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
-			if (is_file($path) && $action == "yes") unlink("$path") ;
+			if (is_file($path) && $action == "yes") if (!$dryrun)  unlink("$path") ;else echo "unlink $path\n";
 			file_put_contents("/tmp/rmvsnaps",$path,FILE_APPEND);
 			$item = array_search($path,$snapslist[$snap]['backing']["r".$diskname]) ;
 			$item++ ;
@@ -2149,7 +2149,7 @@ private static $encoding = 'UTF-8';
 			if (!isset($snapslist[$snap]['backing']["r".$diskname][$item])) break ;
 			$newpath =  $snapslist[$snap]['backing']["r".$diskname][$item] ;
 			file_put_contents("/tmp/rmvsnaps",$newpath,FILE_APPEND);
-				if (is_file($newpath) && $action == "yes") unlink("$newpath") ;
+				if (is_file($newpath) && $action == "yes") if (!$dryrun) unlink("$newpath"); else echo "unlink $newpath\n";
 			$item++ ;
 			}
 		}
@@ -2162,6 +2162,7 @@ private static $encoding = 'UTF-8';
 			if ($s['name'] == $snap) break ;
 			$name = $s['name'] ;
 			$oldmethod = $s['method'];
+			if (!$dryrun) echo "$name $oldmethod\n";
 			if (!isset($primarypath)) $primarypath = $s['primarypath'];
 			$xmlfile = $primarypath."/$name.running" ;
 			$memoryfile = $primarypath."/memory$name.mem" ;
@@ -2172,7 +2173,7 @@ private static $encoding = 'UTF-8';
 				$olddiskname = $olddisk["@attributes"]["name"] ;
 				if ($olddiskname == "hda" || $olddiskname == "hdb") continue ;
 				$oldpath = $olddisk["source"]["@attributes"]["file"] ;
-				if (is_file($oldpath) && $action == "yes") unlink($oldpath) ;
+				if (is_file($oldpath) && $action == "yes") if (!$dryrun) unlink("$oldpath"); else echo "$oldpath\n";
 				}
 			}
 			if ($oldmethod == "ZFS") {
@@ -2180,25 +2181,30 @@ private static $encoding = 'UTF-8';
 			#$zfsdataset = "vmpoolzfs/domains3/Arch3";
 			#stat -f -c '%T' /mnt/vmpoolzfs/domains2/Arch3 
 			#if ($state == "running") exec($cmdstr." 2>&1",$output,$return);
-			$zfsdataset = trim(shell_exec("zfs list -H -o name -r $primarypath")) ;
+			$zfsdataset = trim(shell_exec("zfs list -H -o name -r ".transpose_user_path($primarypath))) ;
 			$fssnapcmd = " zfs destroy $zfsdataset@$name";
-			shell_exec($fssnapcmd);
+			if (!$dryrun) shell_exec($fssnapcmd); else echo "old $fssnapcmd\n";
 			}
 
 			#Delete Metadata
-			if ($actionmeta == "yes") $ret = delete_snapshots_database("$vm","$name") ;
+			#if ($actionmeta == "yes") if (!$dryrun) $ret = delete_snapshots_database("$vm","$name") ;
 		
-			if (is_file($memoryfile) && $action == "yes") echo ("$memoryfile \n") ;
-			if (is_file($xmlfile) && $action == "yes") echo ("$xmlfile \n") ;
+			if (is_file($memoryfile) && $action == "yes") if (!$dryrun) unlink($memoryfile); else echo ("$memoryfile \n") ;
+			if (is_file($xmlfile) && $action == "yes") if (!$dryrun) unlink($xmlfile); else echo ("$xmlfile \n") ;
 			# Delete NVRAM
-			if (!empty($lv->domain_get_ovmf($res)) && $action == "yes")  echo "Remove NV\n";
+			if (!empty($lv->domain_get_ovmf($res)) && $action == "yes")  if (!$dryrun) if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ; else echo "Remove old NV\n";
+			if ($actionmeta == "yes") {
+				if (!$dryrun)  $ret = delete_snapshots_database("$vm","$name") ; echo "Old Delete snapshot meta\n";
+			}
 		}
 
 		if ($method == "ZFS") {
-			$fssnapcmd = " zfs rollback $zfsdataset@$name";
-			shell_exec($fssnapcmd);
-			$fssnapcmd = " zfs destroy $zfsdataset@$name";
-			shell_exec($fssnapcmd);
+			if (!isset($primarypath)) $primarypath = $snapslist[$snap]['primarypath'];
+			$zfsdataset = trim(shell_exec("zfs list -H -o name -r ".transpose_user_path($primarypath))) ;
+			$fssnapcmd = " zfs rollback $zfsdataset@$snap";
+			if (!$dryrun) shell_exec($fssnapcmd); else echo "$fssnapcmd\n";
+			$fssnapcmd = " zfs destroy $zfsdataset@$snap";
+			if (!$dryrun) shell_exec($fssnapcmd); else echo "$fssnapcmd\n";
 		}
 
 		if ($snapslist[$snap]['state'] == "running") {
@@ -2210,22 +2216,27 @@ private static $encoding = 'UTF-8';
 			$xml = custom::createXML('domain',$xmlobj)->saveXML();
 			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
 			file_put_contents("/tmp/xmlrevert2", "$xml" ) ;## Remove before stable.
-			$rtn = $lv->domain_define($xml) ;
+			if (!$dryrun) $rtn = $lv->domain_define($xml) ;
 
 
 			# Restore Memory.
-			exec("virsh restore ".escapeshellarg($memoryfile)) ;
+			if (!$dryrun) exec("virsh restore ".escapeshellarg($memoryfile)) ;
 		}
 
 
 		#if VM was started restart.
 		if ($state == 'running' && $snapslist[$snap]['state'] != "running") {
-			$arrResponse = $lv->domain_start($vm) ;
+			if (!$dryrun) $arrResponse = $lv->domain_start($vm) ;
+		}
+
+		if ($actionmeta == "yes") {
+			if (!$dryrun)  $ret = delete_snapshots_database("$vm","$snap"); else echo "Delete snapshot meta\n";
 		}
   
-		if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ;
+		if (!$dryrun) if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$snap) ; else echo "Delete NV $vm,$snap\n";
 
 		$arrResponse  = ['success' => true] ;
+		if ($dryrun) var_dump($arrResponse);
 		return($arrResponse) ;
 		}
   
