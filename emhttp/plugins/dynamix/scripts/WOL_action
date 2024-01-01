@@ -7,7 +7,7 @@
 # Simon Fairweather - Initial Script October 2023
 
 DAEMON="unraidwold"
-BINARY="/usr/local/sbin/unraidwold"
+BINARY="/usr/local/bin/unraidwold"
 
 # run & log functions
 . /etc/rc.d/rc.runlog
