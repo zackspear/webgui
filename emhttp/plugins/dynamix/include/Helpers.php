@@ -282,13 +282,13 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
       $rtncode=exec("zfs create $zfsdataset/{$pathinfo['filename']}");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive);
 			break;
-		case "btrfs":
+    case "btrfs":
       $rtncode=exec("btrfs subvolume create $dirname");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive);
       break;
-		default:
-			mkdir($dirname, $permissions, $recursive);
-			break;
+    default:
+      mkdir($dirname, $permissions, $recursive);
+      break;
 	}
 }
 ?>
