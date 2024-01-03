@@ -280,7 +280,7 @@ class WebComponentTranslations
             'Checking...' => _('Checking...'),
             'View release notes' => _('View release notes'),
             'View Changelog for {0}' => sprintf(_('View Changelog for %s'), '{0}'),
-            'View Changelog Update' => _('View Changelog & Update'),
+            'View Changelog & Update' => _('View Changelog & Update'),
             '{0} Release Notes' => sprintf(_('%s Release Notes'), '{0}'),
             'Unable to open release notes' => _('Unable to open release notes'),
             'Downgrades are only recommended if you\'re unable to solve a critical issue.' => _('Downgrades are only recommended if you\'re unable to solve a critical issue.'),
