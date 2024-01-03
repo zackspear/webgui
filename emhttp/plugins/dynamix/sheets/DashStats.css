@@ -54,7 +54,7 @@ i[class^="icon-u-"]{font-size:inherit}
 i#mycase[class^="case-"]{font-size:128px}
 i#mycase[class^="fa "]{font-size:96px}
 a.cpu_close,span.hand{cursor:pointer;z-index:1001}
-a.info{white-space:normal;word-spacing:92px;word-break:break-all}
+a.info{white-space:normal;word-spacing:92px;word-break:break-word}
 a.info span{word-spacing:normal}
 tr#var0,tr#var1,tr#var2,tr#var3,tr#var4{cursor:alias}
 tr#var1,tr#var4,tr#cpu_chart,.cpu_open{display:none}
