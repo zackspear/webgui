@@ -66,8 +66,10 @@ foreach ($vms as $vm) {
   $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
   $disks = '-';
   $diskdesc = '';
+  $fstype ="QEMU";
   if (($diskcnt = $lv->get_disk_count($res)) > 0) {
     $disks = $diskcnt.' / '.$lv->get_disk_capacity($res);
+    $fstype = $lv->get_disk_fstype($res);
     $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type:$fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
@@ -108,8 +110,6 @@ foreach ($vms as $vm) {
   }
   unset($dom);
   if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-  if ($diskcnt > 0) $fstype = $lv->get_disk_fstype($res); else $fstype="QEMU";
-  #$fstype = "ZFS";
   $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,$vmpreview);
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {

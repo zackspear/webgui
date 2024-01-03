@@ -83,6 +83,8 @@ if ($_POST['vms']) {
     $uuid = libvirt_domain_get_uuid_string($res);
     $dom = $lv->domain_get_info($res);
     $id = $lv->domain_get_id($res);
+    $fstype ="QEMU";
+    if (($diskcnt = $lv->get_disk_count($res)) > 0) $fstype = $lv->get_disk_fstype($res);
     $state = $lv->domain_state_translate($dom['state']);
     $vmrcport = $lv->domain_get_vnc_port($res);
     $autoport = $lv->domain_get_vmrc_autoport($res);
@@ -114,7 +116,7 @@ if ($_POST['vms']) {
     if (empty($template)) $template = 'Custom';
     $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
     if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log), $vmrcconsole);
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole);
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
