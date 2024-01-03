@@ -980,14 +980,6 @@ $(function() {
 <?if ($safemode):?>
   showNotice("<?=_('System running in')?> <b><?=('safe mode')?></b>");
 <?else:?>
-<?$readme = @file_get_contents("$docroot/plugins/unRAIDServer/README.md",false,null,0,20)?:''?>
-<?if (strpos($readme,'REBOOT REQUIRED')!==false):?>
-  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to upgrade Unraid OS')?>",true);
-<?elseif (strpos($readme,'DOWNGRADE')!==false):?>
-  showUpgrade("<b><?=_('Reboot Now')?></b> <?=_('to downgrade Unraid OS')?>",true);
-<?elseif ($version = plugin_update_available('unRAIDServer',true)):?>
-  showUpgrade("Unraid OS v<?=$version?> <?=_('is available')?>. <?if (is_file('/tmp/plugins/unRAIDServer.txt')):?><span class='fa fa-info-circle fa-fw big blue-text' onclick='showUpgradeChanges()' title=\"<?=_('Release Notes')?>\"></span> <?endif;?><a><?=_('Update Now')?></a>");
-<?endif;?>
 <?if (!_var($notify,'system')):?>
   addBannerWarning("<?=_('System notifications are')?> <b><?=_('disabled')?></b>. <?=_('Click')?> <a href='/Settings/Notifications'><?=_('here')?></a> <?=_('to change notification settings')?>.",true,true);
 <?endif;?>
