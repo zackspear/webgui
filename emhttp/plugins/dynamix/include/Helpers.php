@@ -278,14 +278,14 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
   $rtncode = false;
 	switch ($fstype) {
 		case "zfs":
-			$zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
-			$rtncode=exec("zfs create $zfsdataset/{$pathinfo['filename']}");
+      $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
+      $rtncode=exec("zfs create $zfsdataset/{$pathinfo['filename']}");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive);
 			break;
 		case "btrfs":
-			$rtncode=exec("btrfs subvolume create $dirname");
+      $rtncode=exec("btrfs subvolume create $dirname");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive);
-			break;
+      break;
 		default:
 			mkdir($dirname, $permissions, $recursive);
 			break;
