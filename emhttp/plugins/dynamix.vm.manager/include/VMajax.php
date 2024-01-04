@@ -338,7 +338,7 @@ case 'snap-create':
 
 case 'snap-create-external':
 	requireLibvirt();
-	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free']) ;
+	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free'],$_REQUEST['fstype']) ;
 	break;
 
 case 'snap-images':
@@ -397,6 +397,7 @@ case 'disk-create':
 	$size = str_replace(["KB","MB","GB","TB","PB", " ", ","], ["K","M","G","T","P", "", ""], strtoupper($_REQUEST['size']));
 	$dir = dirname($disk);
 	if (!is_dir($dir)) mkdir($dir);
+	#if (!is_dir($dir)) my_mkdir($dir);
 	// determine the actual disk if user share is being used
 	$dir = transpose_user_path($dir);
 	#@exec("chattr +C -R ".escapeshellarg($dir)." >/dev/null");
