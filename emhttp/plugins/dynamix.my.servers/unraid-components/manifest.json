@@ -1,13 +1,13 @@
 {
   ".nuxt/nuxt-custom-elements/entries/unraid-components.client.css": {
-    "file": "_nuxt/unraid-components.client-5fd7df52.css",
+    "file": "_nuxt/unraid-components.client-b74ef392.css",
     "src": ".nuxt/nuxt-custom-elements/entries/unraid-components.client.css"
   },
   ".nuxt/nuxt-custom-elements/entries/unraid-components.client.mjs": {
     "css": [
-      "_nuxt/unraid-components.client-5fd7df52.css"
+      "_nuxt/unraid-components.client-b74ef392.css"
     ],
-    "file": "_nuxt/unraid-components.client-ec8aa63e.js",
+    "file": "_nuxt/unraid-components.client-905bd884.js",
     "isEntry": true,
     "src": ".nuxt/nuxt-custom-elements/entries/unraid-components.client.mjs"
   }
