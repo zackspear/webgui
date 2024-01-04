@@ -6,6 +6,28 @@ nginx=/var/run/nginx.socket                          # nginx local access
 status=http://localhost/pub/session?buffer_length=1  # nchan information about GUI subscribers
 nchan_id=$(basename "$0")
 
+# immediate kill command
+if [[ $1 == kill ]]; then
+  [[ -e $nchan_pid ]] || exit
+  echo "Killing nchan processes..."
+  while IFS=$'\n' read -r running; do
+    name="${running##*/}"
+    # kill all processes or single process
+    if [[ -z $2 || $2 == ${name/:stop/} ]]; then
+      echo "$name"
+      pkill -f "$docroot/${running/:stop/}"
+    fi
+  done < $nchan_pid
+  if [[ -z $2 ]]; then
+    # remove pid file
+    rm -f $nchan_pid $disk_load
+  else
+    # remove single entry
+    sed -i "/$2/d" $nchan_pid
+  fi
+  exit
+fi
+
 while :; do
   # only act when GUI registered nchan processes are running
   if [[ -e $nchan_pid ]]; then
