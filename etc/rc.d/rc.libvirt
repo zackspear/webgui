@@ -229,6 +229,7 @@ libvirtd_start(){
   mkdir -p /etc/libvirt/qemu/swtpm/tpm-states
   # setup snapshot persistance.
   mkdir -p /etc/libvirt/qemu/snapshot
+  mkdir -p /etc/libvirt/qemu/snapshotdb
   rm -rf /var/lib/libvirt/qemu/snapshot
   ln -sf /etc/libvirt/qemu/snapshot /var/lib/libvirt/qemu/snapshot
   # create directory for pid file
