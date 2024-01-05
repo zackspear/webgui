@@ -332,7 +332,8 @@ devices.on('message', function(msg,meta) {
     break;
   case 1:
     // running parity status
-    $.each(msg.split(';'),function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
+    var get = JSON.parse(msg);
+    $.each(get,function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
     // button control
     if ($('#pauseButton').length>0 && $('#pauseButton').prop('disabled')==false) {
       if (!msg && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {

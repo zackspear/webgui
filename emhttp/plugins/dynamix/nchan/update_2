@@ -16,7 +16,7 @@ $docroot = '/usr/local/emhttp';
 $varroot = '/var/local/emhttp';
 $stamps  = '/var/tmp/stamps.ini';
 $resync  = '/var/tmp/resync.ini';
-$md5_old = -1;
+$md5_old = $timeout = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -470,9 +470,11 @@ while (true) {
   }
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
-  if ($md5_new !== $md5_old) {
+  $timeout++;
+  if ($md5_new !== $md5_old || $timeout >= 30) {
     publish('update2', $echo);
     $md5_old = $md5_new;
+    $timeout = -1;
   }
   sleep(2);
 }
