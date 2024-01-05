@@ -25,7 +25,7 @@ require_once "$docroot/webGui/include/Translations.php";
 
 // remember current language
 $locale_init = $locale;
-$md5_old = $timeout = -1;
+$md5_old = -1;
 $state = [
   'ONLINE'   => _('Online'),
   'SLAVE'    => '('._('slave').')',
@@ -123,11 +123,8 @@ while (true) {
   }
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
-  $timeout++;
-  if ($md5_new !== $md5_old || $timeout >= 20) {
-    publish('apcups', $echo);
-    $md5_old = $md5_new;
-    $timeout = -1;
+  if ($md5_new !== $md5_old) {
+    $md5_old = publish('apcups',$echo)!==false ? $md5_new : -1;
   }
   sleep(3);
 }

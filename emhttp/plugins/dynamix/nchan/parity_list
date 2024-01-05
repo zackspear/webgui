@@ -17,7 +17,7 @@ $varroot  = '/var/local/emhttp';
 $log      = '/boot/config/parity-checks.log';
 $stamps   = '/var/tmp/stamps.ini';
 $resync   = '/var/tmp/resync.ini';
-$md5_old  = $spot_old = $fs_old = $proc_old = $timeout = -1;
+$md5_old  = $spot_old = $fs_old = $proc_old = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -116,23 +116,17 @@ while (true) {
 
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
-  $timeout++;
-  if ($md5_new !== $md5_old || $timeout >= 60) {
-    publish('parity', $echo);
-    $md5_old = $md5_new;
-    $timeout = -1;
+  if ($md5_new !== $md5_old) {
+    $md5_old = publish('parity',$echo)!==false ? $md5_new : -1;
   }
   if ($spot !== $spot_old) {
-    publish('paritymonitor', $spot>0 ? 1 : 0);
-    $spot_old = $spot;
+    $spot_old = publish('paritymonitor',$spot>0 ? 1 : 0)!==false ? $spot : -1;
   }
   if ($fsState !== $fs_old) {
-    publish('fsState', $fsState);
-    $fs_old = $fsState;
+    $fs_old = publish('fsState',$fsState)!==false ? $fsState : -1;
   }
   if ($process !== $proc_old) {
-    publish('mymonitor', $process);
-    $proc_old = $process;
+    $proc_old = publish('mymonitor',$process)!==false ? $process : -1;
   }
   sleep(1);
 }

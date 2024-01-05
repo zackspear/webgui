@@ -15,7 +15,7 @@
 $docroot = '/usr/local/emhttp';
 $net     = '/sys/class/net';
 $bond    = '/proc/net/bonding';
-$md5_old = $timeout = -1;
+$md5_old = -1;
 $data    = [];
 
 require_once "$docroot/webGui/include/Helpers.php";
@@ -137,12 +137,9 @@ while (true) {
 
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
-  $timeout++;
-  if ($md5_new !== $md5_old || $timeout >= 60) {
-    publish('update3', $echo);
-    $md5_old = $md5_new;
+  if ($md5_new !== $md5_old) {
+    $md5_old = publish('update3',$echo)!==false ? $md5_new : -1;
     $time0 = $time1;
-    $timeout = -1;
   }
   sleep(1);
   $time1 = microtime(true);
