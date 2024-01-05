@@ -70,7 +70,7 @@ foreach ($vms as $vm) {
   if (($diskcnt = $lv->get_disk_count($res)) > 0) {
     $disks = $diskcnt.' / '.$lv->get_disk_capacity($res);
     $fstype = $lv->get_disk_fstype($res);
-    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type:$fstype";
+    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type: $fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
   $vmrcport = $lv->domain_get_vnc_port($res);

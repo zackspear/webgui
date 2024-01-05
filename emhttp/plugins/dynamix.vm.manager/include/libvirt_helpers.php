@@ -1287,7 +1287,6 @@ private static $encoding = 'UTF-8';
 				'new' => $strPath,
 				'size' => '',
 				'driver' => $disk['type'],
-				'driver' => 'raw',
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
 				'boot' => $disk['boot order'],
