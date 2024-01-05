@@ -706,7 +706,7 @@
 									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
 									$default_option = 'manual';
 								}
-								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img')) {
+								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img') || file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.qcow2')) {
 									// hide all the disks because the auto disk already has been created
 									$boolShowAllDisks = false;
 								}
@@ -777,7 +777,7 @@
 			<tr class="advanced disk_file_options">
 				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[<?=$i?>][driver]" class="narrow" title="_(type of storage image)_">
+					<select name="disk[<?=$i?>][driver]" class="narrow" title="_(type of storage image)_" onchange="updatefileext()">
 					<?mk_dropdown_options($arrValidDiskDrivers, $arrDisk['driver']);?>
 					</select>
 				</td>
