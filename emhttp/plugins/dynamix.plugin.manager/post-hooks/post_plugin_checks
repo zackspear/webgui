@@ -46,7 +46,7 @@ case 'plugin':
     $info = readJson('/tmp/community.applications/tempFiles/templates.json');
     // find matching support link
     $url = plugin('pluginURL', $plugin);
-    if ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) {
+    if ( !empty($info) && ($support = searchLink($info, $url) ?: searchLink($info, newurl($url))) ) {
       // update incorrect or missing support links
       if (plugin('support', $plugin) != $support) {
         $xml = @simplexml_load_file($plugin);
