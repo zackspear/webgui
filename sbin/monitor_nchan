@@ -8,7 +8,7 @@ nchan_id=$(basename "$0")
 
 # immediate kill command
 if [[ $1 == kill ]]; then
-  [[ -e $nchan_pid ]] || exit
+  [[ -s $nchan_pid ]] || exit
   echo "Killing nchan processes..."
   while IFS=$'\n' read -r running; do
     name="${running##*/}"
@@ -28,18 +28,24 @@ if [[ $1 == kill ]]; then
   exit
 fi
 
+start=$(date +%s)
 while :; do
   # only act when GUI registered nchan processes are running
-  if [[ -e $nchan_pid ]]; then
+  if [[ -s $nchan_pid ]]; then
     # get number of GUI nchan subscribers
     subs=$(curl --unix-socket $nginx $status 2>/dev/null|grep -Pom1 'subscribers: \K\d+')
     if [[ -z $subs || $subs -eq 0 ]]; then
-      sleep 3
+      sleep 5
       # steady state?
       subs=$(curl --unix-socket $nginx $status 2>/dev/null|grep -Pom1 'subscribers: \K\d+')
       if [[ -z $subs || $subs -eq 0 ]]; then
-       logger -t $nchan_id -- "Stop running nchan processes"
-       # kill GUI registered nchan processes
+        now=$(date +%s)
+        # log at 1 hour interval
+        if [[ $((now-start)) -ge 3600 ]]; then
+          logger -t $nchan_id -- "Stop running nchan processes"
+          start=$now
+        fi
+        # kill GUI registered nchan processes
         while IFS=$'\n' read -r running; do
           pkill -f $docroot/${running/:stop/}
         done < $nchan_pid
