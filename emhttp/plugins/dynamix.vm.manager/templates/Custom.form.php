@@ -702,11 +702,12 @@
 
 							if (!empty($arrDisk['new'])) {
 								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false ||
-									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] ||
-									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
+									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] || (
+									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') && basename($arrDisk['new']) != 'vdisk'.($i+1).'.qcow2') {
+									if ($arrDisk['driver'] == "qcow2" && (basename($arrDisk['new']) == 'vdisk'.($i+1).'.qcow2')) $default_option = "auto"; else	
 									$default_option = 'manual';
 								}
-								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img')) {
+								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img') || file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.qcow2')) {
 									// hide all the disks because the auto disk already has been created
 									$boolShowAllDisks = false;
 								}
@@ -1886,7 +1887,8 @@ $(function() {
 			var $disk_serial = $table.find('.disk_serial');
 			var $disk_driver = $table.find('.disk_driver').val();
 			var $disk_ext = "img";
-			//if ($disk_driver == "raw") $disk_ext = "img"; else $disk_ext = $disk_driver;
+			if ($disk_driver == "raw") $disk_ext = "img"; 
+				else if(disk_select != 'manual') $disk_ext = $disk_driver;
 
 			if (disk_select == 'manual') {
 
