@@ -29,6 +29,14 @@ switch ($display['theme']) {
 	default     : $bgcolor = '#ededed'; $border = '#e3e3e3'; $top = -58; break;
 }
 
+
+if (is_file("/tmp/savedtemplates.json")){
+	$arrAllTemplates["User-templates"] = "";
+	$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+	$arrAllTemplates = array_merge($arrAllTemplates, $ut);
+}
+
+
 $strSelectedTemplate = array_keys($arrAllTemplates)[1];
 if (isset($_GET['template']) && isset($arrAllTemplates[unscript($_GET['template'])])) {
 	$strSelectedTemplate = unscript($_GET['template']);

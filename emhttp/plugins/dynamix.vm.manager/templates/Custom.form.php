@@ -37,6 +37,13 @@
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
 
+	
+	if (is_file("/tmp/savedtemplates.json")){
+		$arrAllTemplates["User-templates"] = "";
+		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
+	}
+
 	$arrConfigDefaults = [
 		'template' => [
 			'name' => $strSelectedTemplate,
@@ -153,6 +160,46 @@
 		echo json_encode($reply);
 		exit;
 	}
+
+		// create new VM
+		if (isset($_POST['createvmtemplate'])) {
+			if (isset($_POST['xmldesc'])) {
+				// XML view
+				#$new = $lv->domain_define($_POST['xmldesc'], $_POST['domain']['xmlstartnow']==1);
+				if ($new){
+					#$lv->domain_set_autostart($new, $_POST['domain']['autostart']==1);
+					$reply = ['success' => true];
+				} else {
+					$reply = ['error' => $lv->get_last_error()];
+				}
+			} else {
+				// form view
+				$savedtemplates = json_decode(file_get_contents("/tmp/savedtemplates.json"),true);
+				$usertemplate = $_POST; 
+							// generate xml for this domain
+				$strXML = $lv->config_to_xml($usertemplate);
+				$qemucmdline = $config['qemucmdline'];
+				$strXML = $lv->appendqemucmdline($strXML,$qemucmdline) ;
+
+				unset($usertemplate['domain']['xmlstart']);
+				$templatename=$usertemplate['template']['name'];
+				$savedtemplates["User-".$templatename] = [
+					'icon' => $usertemplate['template']['icon'],
+					'form' => 'Custom.form.php',
+					'os' => $usertemplate['template']['os'],
+					'overrides' => $usertemplate
+				];
+				file_put_contents("/tmp/savedtemplates.json",json_encode($savedtemplates,JSON_PRETTY_PRINT));
+					// Fire off the vnc/spice popup if available
+					$reply = ['success' => true];
+
+				#} else {
+				#	$reply = ['error' => $lv->get_last_error()];
+				
+			}
+			echo json_encode($reply);
+			exit;
+		}
 
 	// update existing VM
 	if (isset($_POST['updatevm'])) {
@@ -1506,11 +1553,13 @@
 			<?if (!$boolNew) {?>
 				<input type="hidden" name="updatevm" value="1" />
 				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
+				<input type="button" value="_(Update Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?} else {?>
 				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 				<br>
 				<input type="hidden" name="createvm" value="1" />
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
+				<input type="button" value="_(Create Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
 			</td>
@@ -2174,6 +2223,83 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
+			if (data.success) {
+				if (data.vmrcurl) {
+					var vmrc_window=window.open(data.vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
+					try {
+						vmrc_window.focus();
+					} catch (e) {
+						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
+						return;
+					}
+				}
+				done();
+			}
+			if (data.error) {
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
+				$panel.find('input').prop('disabled', false);
+				$button.val($button.attr('readyvalue'));
+				resetForm();
+			}
+		}, "json");
+	});
+
+	$("#vmform .formview #btnTemplateSubmit").click(function frmSubmit() {
+		var $button = $(this);
+		var $panel = $('.formview');
+		var form = $button.closest('form');
+		form.append('<input type="hidden" name="createvmtemplate" value="1" />');
+		var createVmInput = form.find('input[name="createvm"],input[name="updatevm"]');
+		createVmInput.remove();
+		
+
+		$("#vmform .disk_select option:selected").not("[value='manual']").closest('table').each(function () {
+			var v = $(this).find('.disk_preview').html();
+			$(this).find('.disk').val(v);
+		});
+
+		$panel.find('input').prop('disabled', false); // enable all inputs otherwise they wont post
+
+		<?if (!$boolNew):?>
+		// signal devices to be added or removed
+		form.find('input[name="usb[]"],input[name="pci[]"],input[name="usbopt[]"]').each(function(){
+			if (!$(this).prop('checked')) $(this).prop('checked',true).val($(this).val()+'#remove');
+		});
+		// remove unused graphic cards
+		var gpus = [], i = 0;
+		do {
+			var gpu = form.find('select[name="gpu['+(i++)+'][id]"] option:selected').val();
+			if (gpu) gpus.push(gpu);
+		} while (gpu);
+		form.find('select[name="gpu[0][id]"] option').each(function(){
+			var gpu = $(this).val();
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+		});
+		// remove unused sound cards
+		var sound = [], i = 0;
+		do {
+			var audio = form.find('select[name="audio['+(i++)+'][id]"] option:selected').val();
+			if (audio) sound.push(audio);
+		} while (audio);
+		form.find('select[name="audio[0][id]"] option').each(function(){
+			var audio = $(this).val();
+			if (audio && !sound.includes(audio)) form.append('<input type="hidden" name="pci[]" value="'+audio+'#remove">');
+		});
+		<?endif?>
+		var postdata = form.find('input,select,textarea[name="qemucmdline"]').serialize().replace(/'/g,"%27");
+		<?if (!$boolNew):?>
+		// keep checkbox visually unchecked
+		form.find('input[name="usb[]"],input[name="usbopt[]"],input[name="pci[]"]').each(function(){
+			if ($(this).val().indexOf('#remove')>0) $(this).prop('checked',false);
+		});
+		<?endif?>
+
+		$panel.find('input').prop('disabled', true);
+		$button.val($button.attr('busyvalue'));
+
+		//swal({title:"_(Enter Template Name)_",text:"_(Enter name of user template)_",type:"error",confirmButtonText:"_(Ok)_"});
+	
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vmrcurl) {
