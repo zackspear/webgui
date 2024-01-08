@@ -1278,16 +1278,14 @@ private static $encoding = 'UTF-8';
 				!file_exists($domain_cfg['DOMAINDIR']) ||
 				!is_file($strPath) ||
 				strpos($domain_cfg['DOMAINDIR'], dirname(dirname($strPath))) === false ||
-				basename($strPath) != 'vdisk'.($i+1).'.img') {
-
-				$default_option = 'manual';
+				basename($strPath) != 'vdisk'.($i+1).'.img' || basename($strPath) != 'vdisk'.($i+1).'.qcow2') {
+				if (($disk['type'] == "qcow2" && (basename($strPath) == 'vdisk'.($i+1).'.qcow2')) || ($disk['type'] == "raw" && (basename($strPath) == 'vdisk'.($i+1).'.img'))) $default_option = "auto"; else $default_option = 'manual';
 			}
 
 			$arrDisks[] = [
 				'new' => $strPath,
 				'size' => '',
 				'driver' => $disk['type'],
-				'driver' => 'raw',
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
 				'boot' => $disk['boot order'],

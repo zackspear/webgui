@@ -200,7 +200,8 @@
 
 					$this->set_folder_nodatacow($path_parts['dirname']);
 
-					$strImgPath = $strImgFolder;
+					$strExt = ($disk['driver'] == 'raw') ? 'img' : $disk['driver'];
+					$strImgPath = $path_parts['dirname'] . '/vdisk' . $diskid . '.' . $strExt;
 				}
 
 
