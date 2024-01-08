@@ -124,8 +124,7 @@ while (true) {
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
   if ($md5_new !== $md5_old) {
-    publish('apcups', $echo);
-    $md5_old = $md5_new;
+    $md5_old = publish('apcups',$echo)!==false ? $md5_new : -1;
   }
   sleep(3);
 }

@@ -17,7 +17,7 @@ $varroot  = '/var/local/emhttp';
 $pool_log = '/var/tmp/pool_log.tmp';
 $smartALL = '/boot/config/smart-all.cfg';
 $smartONE = '/boot/config/smart-one.cfg';
-$md5_old  = $fs_old = $timeout = -1;
+$md5_old  = $fs_old = -1;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -530,16 +530,12 @@ while (true) {
 
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
-  $timeout++;
-  if ($md5_new !== $md5_old || $timeout >= 15) {
-    publish('devices', $echo);
-    $md5_old = $md5_new;
-    $timeout = -1;
+  if ($md5_new !== $md5_old) {
+    $md5_old = publish('devices',$echo)!==false ? $md5_new : -1;
   }
   $fs_new = _var($var,'fsState')=='Started' ? 1 : 0;
   if ($fs_new !== $fs_old) {
-    publish('arraymonitor', $fs_new);
-    $fs_old = $fs_new;
+    $fs_old = publish('arraymonitor',$fs_new)!==false ? $fs_new : -1;
   }
   sleep(1);
 }
