@@ -702,11 +702,12 @@
 
 							if (!empty($arrDisk['new'])) {
 								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false ||
-									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] ||
-									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
+									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] || (
+									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') && basename($arrDisk['new']) != 'vdisk'.($i+1).'.qcow2') {
+									if ($arrDisk['driver'] == "qcow2" && (basename($arrDisk['new']) == 'vdisk'.($i+1).'.qcow2')) $default_option = "auto"; else	
 									$default_option = 'manual';
 								}
-								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img')) {
+								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img') || file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.qcow2')) {
 									// hide all the disks because the auto disk already has been created
 									$boolShowAllDisks = false;
 								}
@@ -777,7 +778,7 @@
 			<tr class="advanced disk_file_options">
 				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[<?=$i?>][driver]" class="narrow" title="_(type of storage image)_">
+					<select name="disk[<?=$i?>][driver]" class="disk_driver narrow" title="_(type of storage image)_">
 					<?mk_dropdown_options($arrValidDiskDrivers, $arrDisk['driver']);?>
 					</select>
 				</td>
@@ -921,7 +922,7 @@
 			<tr class="advanced disk_file_options">
 				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[{{INDEX}}][driver]" class="narrow" title="_(type of storage image)_">
+					<select name="disk[{{INDEX}}][driver]" class="disk_driver narrow" title="_(type of storage image)_">
 					<?mk_dropdown_options($arrValidDiskDrivers, '');?>
 					</select>
 				</td>
@@ -1884,6 +1885,10 @@ $(function() {
 			var $disk_input = $table.find('.disk');
 			var $disk_preview = $table.find('.disk_preview');
 			var $disk_serial = $table.find('.disk_serial');
+			var $disk_driver = $table.find('.disk_driver').val();
+			var $disk_ext = "img";
+			if ($disk_driver == "raw") $disk_ext = "img"; 
+				else if(disk_select != 'manual') $disk_ext = $disk_driver;
 
 			if (disk_select == 'manual') {
 
@@ -1912,7 +1917,7 @@ $(function() {
 			} else if (disk_select !== '') {
 
 				// Auto disk
-				var auto_disk_path = domaindir + '/vdisk' + (index+1) + '.img';
+				var auto_disk_path = domaindir + '/vdisk' + (index+1) + '.' + $disk_ext;
 				$disk_preview.html(auto_disk_path);
 				$disk_input.fadeOut('fast', function() {
 					$disk_preview.fadeIn('fast');
@@ -2041,6 +2046,10 @@ $(function() {
 	});
 
 	$("#vmform").on("change", ".disk_select", function changeDiskSelectEvent() {
+		regenerateDiskPreview($(this).closest('table').data('index'));
+	});
+
+	$("#vmform").on("change", ".disk_driver", function changeDiskSelectEvent() {
 		regenerateDiskPreview($(this).closest('table').data('index'));
 	});
 
