@@ -166,6 +166,14 @@ _(Mirror syslog to flash)_:
 
 :syslog_mirror_flash_help:
 
+_(Copy syslog to flash on shutdown)_:
+: <select name="syslog_shutdown">
+  <?=mk_option(_var($syslog,'syslog_shutdown'), "", _("Yes"))?>
+  <?=mk_option(_var($syslog,'syslog_shutdown'), "1", _("No"))?>
+  </select>
+
+:syslog_shutdown_flash_help:
+
 &nbsp;
 : <input type="button" value="_(Apply)_" onclick='validatePort(this.form)' disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

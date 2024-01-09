@@ -1513,6 +1513,15 @@ Change this setting to YES when troubleshooting is required and it is not possib
 A mirror of the syslog file is stored in the **logs** folder of the flash device.
 :end
 
+:syslog_shutdown_flash_help:
+This setting is YES by default and enables the system to copy the
+syslog file to the USB device on shutdown or reboot.
+
+After rebooting, the syslog from this run will be visible on Tools >
+Syslog > syslog-previous;
+it will also be included in diagnostics as logs/syslog-previous.txt
+:end
+
 :confirm_reboot_help:
 Choose if rebooting or powering down the server needs a confirmation checkbox.
 :end
