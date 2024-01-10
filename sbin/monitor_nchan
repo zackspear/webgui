@@ -15,7 +15,7 @@ while :; do
       # steady state?
       subs=$(curl --unix-socket $nginx $status 2>/dev/null|grep -Pom1 'subscribers: \K\d+')
       if [[ -z $subs || $subs -eq 0 ]]; then
-       logger -t monitor "Stop running nchan processes"
+#      logger -t monitor "Stop running nchan processes"
        # kill GUI registered nchan processes
         while IFS=$'\n' read -r running; do
           pkill -f $docroot/${running/:stop/}
