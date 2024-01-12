@@ -338,8 +338,12 @@ class DockerTemplates {
 				$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 			}
 			if (!$com) $tmp['updated'] = 'undef';
-			if (empty($tmp['template']) || $reload) $tmp['template'] = $this->getUserTemplate($name);
-			if ($reload) $DockerUpdate->updateUserTemplate($name);
+			if ($ct['Manager'] !== 'dockerman')
+				$tmp['template'] = null;
+			else if (empty($tmp['template']) || $reload) {
+				$tmp['template'] = $this->getUserTemplate($name);
+				if ($reload) $DockerUpdate->updateUserTemplate($name);
+			}
 			//$this->debug("\n$name");
 			//foreach ($tmp as $c => $d) $this->debug(sprintf('   %-10s: %s', $c, $d));
 		}
