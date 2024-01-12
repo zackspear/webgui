@@ -1,7 +1,7 @@
 <?PHP
 /* Copyright 2005-2023, Lime Technology
-  * Copyright 2012-2023, Bergware International.
-* Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
+ * Copyright 2012-2023, Bergware International.
+ * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -49,11 +49,11 @@ $port = file_exists('/sys/class/net/br0') ? 'BR0' : (file_exists('/sys/class/net
 // Docker configuration file - guaranteed to exist
 $docker_cfgfile = '/boot/config/docker.cfg';
 if (file_exists($docker_cfgfile)) {
-  exec("grep -Pom2 '_SUBNET_|_{$port}(_[0-9]+)?=' $docker_cfgfile",$cfg);
-  if (isset($cfg[0]) && $cfg[0]=='_SUBNET_' && empty($cfg[1])) {
-  # interface has changed, update configuration
-  exec("sed -ri 's/_(BR0|BOND0|ETH0)(_[0-9]+)?=/_{$port}\\2=/' $docker_cfgfile");
-}
+	exec("grep -Pom2 '_SUBNET_|_{$port}(_[0-9]+)?=' $docker_cfgfile",$cfg);
+	if (isset($cfg[0]) && $cfg[0]=='_SUBNET_' && empty($cfg[1])) {
+		# interface has changed, update configuration
+		exec("sed -ri 's/_(BR0|BOND0|ETH0)(_[0-9]+)?=/_{$port}\\2=/' $docker_cfgfile");
+	}
 }
 
 $defaults = (array)@parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg");
@@ -357,7 +357,7 @@ class DockerTemplates {
 		if (!$imgUrl) $imgUrl = $tmpIconUrl;
 		if (!$imgUrl || trim($imgUrl) == "/plugins/dynamix.docker.manager/images/question.png") return '';
 
-				$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
+		$iconRAM = sprintf('%s/%s-%s.png', $dockerManPaths['images-ram'], $contName, 'icon');
 		$icon    = sprintf('%s/%s-%s.png', $dockerManPaths['images'], $contName, 'icon');
 
 		if (!is_dir(dirname($iconRAM))) mkdir(dirname($iconRAM), 0755, true);
@@ -1031,11 +1031,11 @@ class DockerUtil {
 				// Unprocessable input
 				$strRepo = $image;
 			}
-}
+		}
 
 		// Add :latest tag to image if it's absent
 		if (empty($strTag)) $strTag = 'latest';
-		
+
 		return array_map('trim', ['strRepo' => $strRepo, 'strTag' => $strTag]);
 	}
 
