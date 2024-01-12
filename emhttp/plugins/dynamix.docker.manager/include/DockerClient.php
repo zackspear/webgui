@@ -255,7 +255,7 @@ class DockerTemplates {
 			$doc = new DOMDocument();
 			$doc->load($file['path']);
 			if ($name) {
-				if ($doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name) continue;
+				if (@$doc->getElementsByTagName('Name')->item(0)->nodeValue !== $name) continue;
 			}
 			$TemplateRepository = DockerUtil::ensureImageTag($doc->getElementsByTagName('Repository')->item(0)->nodeValue??'');
 			if ($TemplateRepository && $TemplateRepository==$Repository) {
