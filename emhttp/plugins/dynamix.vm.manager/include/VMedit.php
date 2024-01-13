@@ -93,6 +93,8 @@ if (isset($_GET['uuid'])) {
 	}
 	$arrLoad['form'] = $arrAllTemplates[$strSelectedTemplate]['form'];
 }
+$strSelectedTemplateUT = $strSelectedTemplate;
+if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
@@ -102,7 +104,7 @@ if (isset($_GET['uuid'])) {
 <div class="domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
-	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplate)?>" />
+	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplateUT)?>" />
 
 	<table>
 		<tr>

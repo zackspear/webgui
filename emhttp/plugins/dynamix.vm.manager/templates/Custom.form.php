@@ -181,9 +181,18 @@
 				$qemucmdline = $config['qemucmdline'];
 				$strXML = $lv->appendqemucmdline($strXML,$qemucmdline) ;
 
+				unset($usertemplate['createvmtemplate']);
 				unset($usertemplate['domain']['xmlstart']);
-				$templatename=$usertemplate['template']['name'];
-				$savedtemplates["User-".$templatename] = [
+				unset($usertemplate['pci']) ;
+				unset($usertemplate['usb']) ;
+				unset($usertemplate['usbboot']) ;
+				unset($usertemplate['nic']['mac']) ;
+
+				$templatename=$usertemplate['templatename'];
+				if ($templatename = "") $templatename=$usertemplate['template']['os'];
+				unset($usertemplate['templatename']) ;
+				if (strpos($templatename,"User-") === false) $templatename = "User-".$templatename ;
+				$savedtemplates[$templatename] = [
 					'icon' => $usertemplate['template']['icon'],
 					'form' => 'Custom.form.php',
 					'os' => $usertemplate['template']['os'],
@@ -333,6 +342,8 @@
 			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv'] ; else $arrClocks = $arrDefaultClocks['windows'] ;
 		} else $arrClocks = $arrDefaultClocks['other'] ;
 	}
+
+	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name'])
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -1158,7 +1169,7 @@
 					</select>
 				</td>
 				</tr>
-				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced ">
+				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced copypaste">
 					<td>_(VM Console enable Copy/paste)_:</td>
 				<td>
 					<select id="copypaste" name="gpu[<?=$i?>][copypaste]" class="narrow" >
@@ -1553,13 +1564,11 @@
 			<?if (!$boolNew) {?>
 				<input type="hidden" name="updatevm" value="1" />
 				<input type="button" value="_(Update)_" busyvalue="_(Updating)_..." readyvalue="_(Update)_" id="btnSubmit" />
-				<input type="button" value="_(Update Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?} else {?>
 				<label for="domain_start"><input type="checkbox" name="domain[startnow]" id="domain_start" value="1" checked="checked"/> _(Start VM after creation)_</label>
 				<br>
 				<input type="hidden" name="createvm" value="1" />
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
-				<input type="button" value="_(Create Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
 			</td>
@@ -1662,6 +1671,7 @@
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
+				<input type="button" value=" _(Create/Modify Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			</td>
 		</tr>
 	</table>
@@ -2134,7 +2144,7 @@ $(function() {
 		var myindex = $(this).closest('table').data('index');
 
 		if (myindex == 0) {
-			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap');
+			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap,.copypaste');
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
@@ -2298,8 +2308,20 @@ $(function() {
 		$panel.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 
-		//swal({title:"_(Enter Template Name)_",text:"_(Enter name of user template)_",type:"error",confirmButtonText:"_(Ok)_"});
-	
+		swal({
+			title: _("Template Name")_,
+			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			type: "input",
+			showCancelButton: true,
+			closeOnConfirm: false,
+			//animation: "slide-from-top",
+			inputPlaceholder: _("Leaving blank will use OS name.")_
+			},
+			function(inputValue){
+
+
+	  	postdata=postdata+"&templatename="+inputValue;
+		
 		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
 			if (data.success) {
 				if (data.vmrcurl) {
@@ -2321,6 +2343,7 @@ $(function() {
 			}
 		}, "json");
 	});
+});
 
 	$("#vmform .xmlview #btnSubmit").click(function frmSubmit() {
 		var $button = $(this);
