@@ -14,10 +14,21 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 $permit = ['del','add'];
 $action = $_POST['action']??'';
-$page = glob("$docroot/plugins/*/{$_POST['page']}.page",GLOB_NOSORT)[0];
 $cfg = '/boot/config/favorites.cfg';
 
+// remove non-existing pages
+if ($action=='clear') {
+  if (file_exists($cfg)) foreach (file($cfg,FILE_IGNORE_NEW_LINES) as $page) {
+    if (!file_exists($page)) {
+      $page = str_replace('/','\/',$page);
+      exec("sed -i '/$page/d' $cfg 2>/dev/null");
+    }
+  }
+  exit;
+}
+
 // validate input
+$page = glob("$docroot/plugins/*/{$_POST['page']}.page",GLOB_NOSORT)[0];
 if (!$page || !in_array($action,$permit)) exit;
 
 $file = fopen($page,'r');

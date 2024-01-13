@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -755,7 +755,7 @@ foreach ($pages as $page) {
   if ($close) echo "</div></div>";
 }
 if (count($pages)) {
-  $running = file_exists($nchan_pid) ? file($nchan_pid,FILE_IGNORE_NEW_LINES) : [];
+  $running = file_exists($nchan_pid) ? file($nchan_pid,FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES) : [];
   $start   = array_diff($nchan, $running);  // returns any new scripts to be started
   $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
   $running = array_merge($start, $running); // update list of current running nchan scripts
@@ -768,7 +768,7 @@ if (count($pages)) {
   foreach ($stop as $row) {
     [$script,$opt] = my_explode(':',$row);
     if ($opt == 'stop') {
-      exec("pkill -f $docroot/$script >/dev/null &");
+      exec("pkill -f $docroot/$script &>/dev/null &");
       array_splice($running,array_search($row,$running),1);
     }
   }
@@ -796,7 +796,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> ",_('Array Started'),"</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>Unraid&reg; webGui &copy;2023, Lime Technology, Inc.";
+echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/category/manual' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
 ?>

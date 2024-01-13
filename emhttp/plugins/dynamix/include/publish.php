@@ -17,6 +17,7 @@ function curl_socket($socket, $url, $message='') {
   if ($message) curl_setopt_array($com, [CURLOPT_POSTFIELDS => $message, CURLOPT_POST => 1]);
   $reply = curl_exec($com);
   curl_close($com);
+  if ($reply===false) exec("logger -t curl_socket -- 'curl to $url failed'");
   return $reply;
 }
 
@@ -29,8 +30,9 @@ function publish($endpoint, $message, $len=1) {
     CURLOPT_POSTFIELDS => $message,
     CURLOPT_RETURNTRANSFER => 1
   ]);
-  $reply = json_decode(curl_exec($com),true);
+  $reply = curl_exec($com);
   curl_close($com);
-  return $reply['subscribers'] ?? 0;
+  if ($reply===false) exec("logger -t publish -- 'curl to $endpoint failed'");
+  return $reply;
 }
 ?>
