@@ -20,6 +20,8 @@ Markdown="false"
 	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
+	
+
 	if (is_file("/tmp/savedtemplates.json")){
 		$arrAllTemplates["User-templates"] = "";
 		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
@@ -32,10 +34,11 @@ Markdown="false"
 		echo '<div class="vmheader">'.$strName.'</div>';
 		continue;
 	}
+	if (strpos($strName,"User-") === false) $user = ""; else $user = ' class="user"'; 
 ?>
 <div class="vmtemplate">
 	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
-		<img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>">
+		<span <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
 		<p><?=htmlspecialchars($strName)?></p>
 	</a>
 </div>
@@ -43,3 +46,23 @@ Markdown="false"
 <br>
 <center><button type='button' onclick='done()'>_(Cancel)_</button></center>
 <br>
+
+<script>
+function removeUserTemplate(page) {
+  $.post('/webGui/include/MyFavorites.php',{action:'add',page:page},function(){
+    swal({title:"_(Added to Favorites)_",text:"",type:"success",html:true,confirmButtonText:"_(Ok)_"},function(x){refresh();});
+  });
+}
+
+$(function(){
+  $('div.vmtemplate').each(function(){
+    var page = $(this).find('a').prop('href').split('/').pop();
+    $(this).find('span.user').append('<i class="fa fa-trash bin" title="_(Remove User Template)_" onclick="removeUserTemplate(&quot;'+<?=$strName?>+'&quot;);return false"></i>');
+    $(this).hover(function(){$(this).find('i.bin').show();},function(){$(this).find('i.bin').hide();});
+  });
+});
+</script>
+<style>
+
+i.bin{display:none;font-size:1.8rem;position:absolute;margin-left:12px}
+</style>
