@@ -36,6 +36,7 @@ Markdown="false"
 	}
 	if (strpos($strName,"User-") === false) $user = ""; else $user = ' class="user"'; 
 ?>
+
 <div class="vmtemplate">
 	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
 		<span <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
@@ -48,16 +49,19 @@ Markdown="false"
 <br>
 
 <script>
-function removeUserTemplate(page) {
-  $.post('/webGui/include/MyFavorites.php',{action:'add',page:page},function(){
-    swal({title:"_(Added to Favorites)_",text:"",type:"success",html:true,confirmButtonText:"_(Ok)_"},function(x){refresh();});
-  });
+function removeUserTemplate(template) {
+  $.post('/plugins/dynamix.vm.manager/include/VMajax.php',{action:'vm-template-remove',template:template},function(){
+    refresh();});
+}
+
+function confirmRemoveUserTemplate(template) {
+	swal({title:"_(Proceed)_?",text:"Remove user template: " + template ,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) removeUserTemplate(template); else refresh();});
 }
 
 $(function(){
   $('div.vmtemplate').each(function(){
     var page = $(this).find('a').prop('href').split('/').pop();
-    $(this).find('span.user').append('<i class="fa fa-trash bin" title="_(Remove User Template)_" onclick="removeUserTemplate(&quot;'+<?=$strName?>+'&quot;);return false"></i>');
+    $(this).find('span.user').append('<i class="fa fa-trash bin" title="_(Remove User Template)_" onclick="confirmRemoveUserTemplate(&quot;' + "<?=$strName?>" + '&quot;);return false"></i>');
     $(this).hover(function(){$(this).find('i.bin').show();},function(){$(this).find('i.bin').hide();});
   });
 });

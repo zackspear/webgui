@@ -161,7 +161,7 @@
 		exit;
 	}
 
-		// create new VM
+		// create new VM template
 		if (isset($_POST['createvmtemplate'])) {
 			if (isset($_POST['xmldesc'])) {
 				// XML view
@@ -189,7 +189,7 @@
 				unset($usertemplate['nic']['mac']) ;
 
 				$templatename=$usertemplate['templatename'];
-				if ($templatename = "") $templatename=$usertemplate['template']['os'];
+				if ($templatename == "") $templatename=$usertemplate['template']['os'];
 				unset($usertemplate['templatename']) ;
 				if (strpos($templatename,"User-") === false) $templatename = "User-".$templatename ;
 				$savedtemplates[$templatename] = [

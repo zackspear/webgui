@@ -727,6 +727,16 @@ case 'virtio-win-iso-remove':
 	}
 	break;
 
+case 'vm-template-remove':
+	$template = $_REQUEST['template'];	
+	if (is_file("/tmp/savedtemplates.json")){
+		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+		unset($ut[$template]);
+		file_put_contents("/tmp/savedtemplates.json",json_encode($ut,JSON_PRETTY_PRINT));
+	}
+	$arrResponse = ['success' => true];
+	break;
+
 default:
 	$arrResponse = ['error' => _('Unknown action')." '$action'"];
 	break;
