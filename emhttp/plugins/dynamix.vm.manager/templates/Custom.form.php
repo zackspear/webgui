@@ -208,6 +208,8 @@
 				if ($templatename == "") $templatename=$usertemplate['template']['os'];
 				unset($usertemplate['templatename']) ;
 				if (strpos($templatename,"User-") === false) $templatename = "User-".$templatename ;
+				if (is_array($usertemplate['clock'])) $usertemplate['clocks'] = json_encode($usertemplate['clock']);
+				unset($usertemplate['clock']);
 				$savedtemplates[$templatename] = [
 					'icon' => $usertemplate['template']['icon'],
 					'form' => 'Custom.form.php',
@@ -359,7 +361,7 @@
 		} else $arrClocks = $arrDefaultClocks['other'] ;
 	}
 
-	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name'])
+	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
