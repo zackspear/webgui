@@ -25,6 +25,7 @@ Markdown="false"
 	if (is_file($templateslocation)){
 		$arrAllTemplates["User-templates"] = "";
 		$ut = json_decode(file_get_contents($templateslocation),true) ;
+		if (is_array($ut)) ksort($ut,SORT_NATURAL);
 		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 	}
 
