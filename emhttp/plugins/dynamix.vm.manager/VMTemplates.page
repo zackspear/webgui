@@ -39,7 +39,7 @@ Markdown="false"
 
 <div class="vmtemplate">
 	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
-		<span <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
+		<span name="<?=htmlspecialchars(urlencode($strName))?>" <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
 		<p><?=htmlspecialchars($strName)?></p>
 	</a>
 </div>
@@ -60,8 +60,8 @@ function confirmRemoveUserTemplate(template) {
 
 $(function(){
   $('div.vmtemplate').each(function(){
-    var page = $(this).find('a').prop('href').split('/').pop();
-    $(this).find('span.user').append('<i class="fa fa-trash bin" title="_(Remove User Template)_" onclick="confirmRemoveUserTemplate(&quot;' + "<?=$strName?>" + '&quot;);return false"></i>');
+    var templatename = $(this).find('span').attr('name');
+    $(this).find('span.user').append('<i class="fa fa-trash bin" title="_(Remove User Template)_" onclick="confirmRemoveUserTemplate(&quot;' + templatename + '&quot;);return false"></i>');
     $(this).hover(function(){$(this).find('i.bin').show();},function(){$(this).find('i.bin').hide();});
   });
 });
