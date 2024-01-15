@@ -29,10 +29,10 @@ switch ($display['theme']) {
 	default     : $bgcolor = '#ededed'; $border = '#e3e3e3'; $top = -58; break;
 }
 
-
-if (is_file("/tmp/savedtemplates.json")){
+$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
+if (is_file($templateslocation)){
 	$arrAllTemplates["User-templates"] = "";
-	$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+	$ut = json_decode(file_get_contents($templateslocation),true) ;
 	$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 }
 

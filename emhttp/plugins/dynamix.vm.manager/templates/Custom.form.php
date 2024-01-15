@@ -37,10 +37,11 @@
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
 
-	
-	if (is_file("/tmp/savedtemplates.json")){
+	$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
+
+	if (is_file($templateslocation)){
 		$arrAllTemplates["User-templates"] = "";
-		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+		$ut = json_decode(file_get_contents($templateslocation),true) ;
 		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 	}
 
@@ -163,24 +164,39 @@
 
 		// create new VM template
 		if (isset($_POST['createvmtemplate'])) {
+			$savedtemplates = json_decode(file_get_contents($templateslocation),true);
 			if (isset($_POST['xmldesc'])) {
-				// XML view
-				#$new = $lv->domain_define($_POST['xmldesc'], $_POST['domain']['xmlstartnow']==1);
-				if ($new){
-					#$lv->domain_set_autostart($new, $_POST['domain']['autostart']==1);
-					$reply = ['success' => true];
-				} else {
-					$reply = ['error' => $lv->get_last_error()];
+				$data = explode("\n",$_POST['xmldesc']);
+				foreach ($data as $k => $line)
+				{
+				  if (strpos($line,"uuid")) unset($data[$k]);
+				  if (strpos($line,"<nvram>")) unset($data[$k]);
+				  if (strpos($line,"<name>")) $data[$k] = "<name>#template123456</name>";
 				}
+				
+				$data = implode("\n",$data);
+				$new = $lv->domain_define($data);
+				$dom = $lv->get_domain_by_name("#template123456") ;
+				$uuid = $lv->domain_get_uuid("#template123456") ;
+				$usertemplate = domain_to_config($uuid);
+				$lv->domain_undefine($dom);
+				$usertemplate['templatename'] = $_POST['templatename'];
+				$usertemplate['template'] = $_POST['template'];
+				unset($usertemplate['domain']['uuid']);
+				unset($usertemplate['domain']['name']);
+
+
 			} else {
 				// form view
-				$savedtemplates = json_decode(file_get_contents("/tmp/savedtemplates.json"),true);
+
 				$usertemplate = $_POST; 
 							// generate xml for this domain
 				$strXML = $lv->config_to_xml($usertemplate);
 				$qemucmdline = $config['qemucmdline'];
 				$strXML = $lv->appendqemucmdline($strXML,$qemucmdline) ;
+			}
 
+				foreach($usertemplate['disk'] as $diskid => $diskdata) { unset($usertemplate['disk'][$diskid]['new']);}
 				unset($usertemplate['createvmtemplate']);
 				unset($usertemplate['domain']['xmlstart']);
 				unset($usertemplate['pci']) ;
@@ -198,14 +214,14 @@
 					'os' => $usertemplate['template']['os'],
 					'overrides' => $usertemplate
 				];
-				file_put_contents("/tmp/savedtemplates.json",json_encode($savedtemplates,JSON_PRETTY_PRINT));
+				file_put_contents($templateslocation,json_encode($savedtemplates,JSON_PRETTY_PRINT));
 					// Fire off the vnc/spice popup if available
 					$reply = ['success' => true];
 
 				#} else {
 				#	$reply = ['error' => $lv->get_last_error()];
 				
-			}
+			
 			echo json_encode($reply);
 			exit;
 		}
@@ -1700,6 +1716,7 @@
 					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 				<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
+				<input type="button" value=" _(Create/Modify Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?} else {?>
 				<input type="button" value="_(Back)_" id="btnCancel" />
 			<?}?>
@@ -2369,6 +2386,52 @@ $(function() {
 				resetForm();
 			}
 		}, "json");
+	});
+
+	$("#vmform .xmlview #btnTemplateSubmit").click(function frmSubmit() {
+		var $button = $(this);
+		var $panel = $('.xmlview');
+
+
+		editor.save();
+
+		$panel.find('input').prop('disabled', false); // enable all inputs otherwise they wont post
+		var form = $button.closest('form');
+		form.append('<input type="hidden" name="createvmtemplate" value="1" />');
+		var createVmInput = form.find('input[name="createvm"],input[name="updatevm"]');
+		createVmInput.remove();
+
+		var postdata = $panel.closest('form').serialize().replace(/'/g,"%27");
+
+		$panel.find('input').prop('disabled', true);
+		$button.val($button.attr('busyvalue'));
+
+		swal({
+			title: _("Template Name")_,
+			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			type: "input",
+			showCancelButton: true,
+			closeOnConfirm: false,
+			//animation: "slide-from-top",
+			inputPlaceholder: _("Leaving blank will use OS name.")_
+			},
+			function(inputValue){
+
+
+	  	postdata=postdata+"&templatename="+inputValue;
+
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
+			if (data.success) {
+				done();
+			}
+			if (data.error) {
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
+				$panel.find('input').prop('disabled', false);
+				$button.val($button.attr('readyvalue'));
+				resetForm();
+			}
+		}, "json");
+	});
 	});
 
 	// Fire events below once upon showing page

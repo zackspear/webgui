@@ -20,11 +20,11 @@ Markdown="false"
 	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
-	
+	$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
 
-	if (is_file("/tmp/savedtemplates.json")){
+	if (is_file($templateslocation)){
 		$arrAllTemplates["User-templates"] = "";
-		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+		$ut = json_decode(file_get_contents($templateslocation),true) ;
 		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 	}
 

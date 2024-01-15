@@ -729,10 +729,11 @@ case 'virtio-win-iso-remove':
 
 case 'vm-template-remove':
 	$template = $_REQUEST['template'];	
-	if (is_file("/tmp/savedtemplates.json")){
-		$ut = json_decode(file_get_contents("/tmp/savedtemplates.json"),true) ;
+	$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
+	if (is_file($templateslocation)){
+		$ut = json_decode(file_get_contents($templateslocation),true) ;
 		unset($ut[$template]);
-		file_put_contents("/tmp/savedtemplates.json",json_encode($ut,JSON_PRETTY_PRINT));
+		file_put_contents($templateslocation,json_encode($ut,JSON_PRETTY_PRINT));
 	}
 	$arrResponse = ['success' => true];
 	break;
