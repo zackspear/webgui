@@ -197,6 +197,7 @@
 			}
 
 				foreach($usertemplate['disk'] as $diskid => $diskdata) { unset($usertemplate['disk'][$diskid]['new']);}
+				foreach($usertemplate['gpu'] as $gpuid => $gpudata) { $usertemplate['gpu'][$gpuid]['guest']['multi'] = $usertemplate['gpu'][$gpuid]['multi'];  unset($usertemplate['gpu'][$gpuid]['multi']);}
 				unset($usertemplate['createvmtemplate']);
 				unset($usertemplate['domain']['xmlstart']);
 				unset($usertemplate['pci']) ;
@@ -362,6 +363,7 @@
 	}
 
 	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
+	#var_dump($arrConfig);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
