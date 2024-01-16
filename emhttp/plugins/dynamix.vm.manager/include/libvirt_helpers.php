@@ -2465,6 +2465,69 @@ OPTIONS
   */
 }
 
+function addtemplatexml($post) {
+	global $templateslocation,$lv,$config;
+	$savedtemplates = json_decode(file_get_contents($templateslocation),true);
+	if (isset($post['xmldesc'])) {
+		$data = explode("\n",$post['xmldesc']);
+		foreach ($data as $k => $line)
+		{
+		  if (strpos($line,"uuid")) unset($data[$k]);
+		  if (strpos($line,"<nvram>")) unset($data[$k]);
+		  if (strpos($line,"<name>")) $data[$k] = "<name>#template123456</name>";
+		}
+		
+		$data = implode("\n",$data);
+		$new = $lv->domain_define($data);
+		$dom = $lv->get_domain_by_name("#template123456") ;
+		$uuid = $lv->domain_get_uuid("#template123456") ;
+		$usertemplate = domain_to_config($uuid);
+		$lv->domain_undefine($dom);
+		$usertemplate['templatename'] = $post['templatename'];
+		$usertemplate['template'] = $post['template'];
+		unset($usertemplate['domain']['uuid']);
+		unset($usertemplate['domain']['name']);
 
+
+	} else {
+		// form view
+
+		$usertemplate = $post; 
+					// generate xml for this domain
+		$strXML = $lv->config_to_xml($usertemplate);
+		$qemucmdline = $config['qemucmdline'];
+		$strXML = $lv->appendqemucmdline($strXML,$qemucmdline) ;
+	}
+
+		foreach($usertemplate['disk'] as $diskid => $diskdata) { unset($usertemplate['disk'][$diskid]['new']);}
+		foreach($usertemplate['gpu'] as $gpuid => $gpudata) { $usertemplate['gpu'][$gpuid]['guest']['multi'] = $usertemplate['gpu'][$gpuid]['multi'];  unset($usertemplate['gpu'][$gpuid]['multi']);}
+		unset($usertemplate['createvmtemplate']);
+		unset($usertemplate['domain']['xmlstart']);
+		unset($usertemplate['pci']) ;
+		unset($usertemplate['usb']) ;
+		unset($usertemplate['usbboot']) ;
+		unset($usertemplate['nic']['mac']) ;
+
+		$templatename=$usertemplate['templatename'];
+		if ($templatename == "") $templatename=$usertemplate['template']['os'];
+		unset($usertemplate['templatename']) ;
+		if (strpos($templatename,"User-") === false) $templatename = "User-".$templatename ;
+		if (is_array($usertemplate['clock'])) $usertemplate['clocks'] = json_encode($usertemplate['clock']);
+		unset($usertemplate['clock']);
+		$savedtemplates[$templatename] = [
+			'icon' => $usertemplate['template']['icon'],
+			'form' => 'Custom.form.php',
+			'os' => $usertemplate['template']['os'],
+			'overrides' => $usertemplate
+		];
+		file_put_contents($templateslocation,json_encode($savedtemplates,JSON_PRETTY_PRINT));
+			// Fire off the vnc/spice popup if available
+			$reply = ['success' => true];
+
+		#} else {
+		#	$reply = ['error' => $lv->get_last_error()];
+		
+	return $reply;
+}
 
 ?>
