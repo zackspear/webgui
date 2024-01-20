@@ -408,6 +408,12 @@ function openDone(data) {
   if (data == '_DONE_') {
     $('div.spinner.fixed').hide();
     $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
+    if ( typeof ca_done_override !== 'undefined' ) {
+      if (ca_done_override == true) {
+        $("button.confirm").trigger("click");
+        ca_done_override = false;
+      }
+    }
     return true;
   }
   return false;
