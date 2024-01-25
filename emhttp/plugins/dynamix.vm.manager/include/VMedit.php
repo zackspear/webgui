@@ -29,6 +29,14 @@ switch ($display['theme']) {
 	default     : $bgcolor = '#ededed'; $border = '#e3e3e3'; $top = -58; break;
 }
 
+$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
+if (is_file($templateslocation)){
+	$arrAllTemplates["User-templates"] = "";
+	$ut = json_decode(file_get_contents($templateslocation),true) ;
+	$arrAllTemplates = array_merge($arrAllTemplates, $ut);
+}
+
+
 $strSelectedTemplate = array_keys($arrAllTemplates)[1];
 if (isset($_GET['template']) && isset($arrAllTemplates[unscript($_GET['template'])])) {
 	$strSelectedTemplate = unscript($_GET['template']);
@@ -85,6 +93,8 @@ if (isset($_GET['uuid'])) {
 	}
 	$arrLoad['form'] = $arrAllTemplates[$strSelectedTemplate]['form'];
 }
+$strSelectedTemplateUT = $strSelectedTemplate;
+if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
@@ -94,7 +104,7 @@ if (isset($_GET['uuid'])) {
 <div class="domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
-	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplate)?>" />
+	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplateUT)?>" />
 
 	<table>
 		<tr>
