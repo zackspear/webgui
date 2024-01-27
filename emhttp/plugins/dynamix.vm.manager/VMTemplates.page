@@ -40,7 +40,7 @@ Markdown="false"
 
 <div class="vmtemplate">
 	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
-		<span name="<?=htmlspecialchars(urlencode($strName))?>" <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
+		<span name="<?=htmlspecialchars($strName)?>" <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>
 		<p><?=htmlspecialchars($strName)?></p>
 	</a>
 </div>
