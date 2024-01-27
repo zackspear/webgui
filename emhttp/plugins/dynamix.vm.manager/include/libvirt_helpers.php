@@ -1289,6 +1289,7 @@ private static $encoding = 'UTF-8';
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
 				'boot' => $disk['boot order'],
+				'rotation' => $disk['rotation'],
 				'serial' => $disk['serial'],
 				'select' => $default_option
 			];
@@ -1300,7 +1301,8 @@ private static $encoding = 'UTF-8';
 				'driver' => 'raw',
 				'dev' => 'hda',
 				'select' => '',
-				'bus' => 'virtio'
+				'bus' => 'virtio',
+				'rotation' => "0"
 			];
 		}
 
@@ -2521,11 +2523,7 @@ function addtemplatexml($post) {
 			'overrides' => $usertemplate
 		];
 		file_put_contents($templateslocation,json_encode($savedtemplates,JSON_PRETTY_PRINT));
-			// Fire off the vnc/spice popup if available
-			$reply = ['success' => true];
-
-		#} else {
-		#	$reply = ['error' => $lv->get_last_error()];
+		$reply = ['success' => true];
 		
 	return $reply;
 }

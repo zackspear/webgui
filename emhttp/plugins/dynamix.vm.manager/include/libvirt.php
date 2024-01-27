@@ -261,6 +261,9 @@
 					if (!empty($disk['boot'])) {
 						$arrReturn['boot'] = $disk['boot'];
 					}
+					if (!empty($disk['rotation'])) {
+						$arrReturn['rotation'] = $disk['rotation'];
+					}
 					if (!empty($disk['serial'])) {
 						$arrReturn['serial'] = $disk['serial'];
 					}
@@ -687,13 +690,18 @@
 
 						if ($disk["serial"] != "") $serial = "<serial>".$disk["serial"]."</serial>" ; else $serial = "" ;
 
+						$rotation_rate = "";
+						if ($disk['bus'] == "scsi" || $disk['bus'] == "sata" || $disk['bus'] == "ide" ) {
+							if ($disk['rotation']) $rotation_rate = " rotation_rate='1' ";
+						}
+
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
 							$diskstr .= "<disk type='" . $strDevType . "' device='disk'>
 											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'/>
 											<source " . $strSourceType . "='" . htmlspecialchars($disk['image'], ENT_QUOTES | ENT_XML1) . "'/>
-											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "'/>
+											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "' $rotation_rate />
 											$bootorder
 											$readonly
 											$serial
@@ -1307,6 +1315,7 @@
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
+					$tmp["rotation"] = $disk->target->attributes()->rotation_rate ?? "0";
 					$tmp['serial'] = $disk->serial ;
 
 					// Libvirt reports 0 bytes for raw disk images that haven't been
@@ -1335,6 +1344,7 @@
 						'physical' => '-',
 						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
+						'rotation' => $disk->target->attributes()->rotation_rate ?? "0",
 						'serial' => $disk->serial
 					];
 				}
@@ -2365,6 +2375,7 @@
 				foreach ($objNodes as $objNode) {
 					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->nodeValue;
 					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->nodeValue;
+					$rotation  = $xpath->query('target/address/@rotation_rate', $objNode)->Item(0)->nodeValue;
 					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->nodeValue;
 					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->nodeValue;
 					$rom = $xpath->query('rom/@file', $objNode);
@@ -2388,6 +2399,7 @@
 						'product' => $tmp2['product_name'],
 						'product_id' => $tmp2['product_id'],
 						'boot' => $boot,
+						'rotation' => $rotation,
 						'rom' => $rom,
 						'guest' => $guest
 					];
