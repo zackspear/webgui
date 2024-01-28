@@ -101,7 +101,7 @@ function textsave(module,remove = false) {
       if (data.modprobe == "")  $('#text'+module).attr('hidden', true); else $('#text'+module).attr('rows', 3);
       if (data.supportpage == true) {
         if (data.support == true) {
-          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='"+_(Support page)_+"' class='fa fa-phone-square'></i></a>";
+          document.getElementById("link" + module).innerHTML = "<a href='" + data.supporturl + "'target='_blank'><i title='"+_("Support page")_+"' class='fa fa-phone-square'></i></a>";
         }
       }
     }
