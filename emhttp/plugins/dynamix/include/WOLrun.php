@@ -118,7 +118,7 @@ foreach($arrEntries as $type => $detail)
 
 
 if ($found && $mac_list[$mac]['enable'] != "disable") {
-        echo _("Found"). " " . $mac . " ".$mac_list[$mac]['type']." ".$mac_list[$mac]['name'];
+        echo _("Found"). " " . $mac . " " .$mac_list[$mac]['type'] . " " . $mac_list[$mac]['name'];
         switch ($mac_list[$mac]['type']) {
         
           case "VM":
