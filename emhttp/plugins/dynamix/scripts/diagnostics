@@ -51,12 +51,12 @@ function write(...$messages){
   }
   curl_close($com);
 }
-function run($cmd, &$save=null) {
+function run($cmd, &$save=null, $timeout=30) {
   global $cli,$diag;
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("timeout -s9 30 $cmd", $save);
+  exec("timeout -s9 $timeout $cmd", $save);
   return implode("\n",$save);
 }
 
@@ -351,6 +351,12 @@ if ($cli) {
   $date = "{$split[2]}-{$split[3]}";
 }
 
+// Run Fix Common Problems if present and results are old / not present
+if ( is_file("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php") ) {
+  if ( ! is_file("/tmp/fix.common.problems/errors.json") || (time() - filemtime("/tmp/fix.common.problems/errors.json")) > 86400) {
+    run("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php diagnostics",$ignore,60);
+  }
+}
 // don't anonymize system share names
 $vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
 $vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');

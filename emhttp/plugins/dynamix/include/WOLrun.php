@@ -18,7 +18,7 @@ function getContainerStats($container, $option) {
   }
 }
 
-$mac = $argv[1];
+$mac = strtolower($argv[1]);
 
 $libvirtd_running = is_file('/var/run/libvirt/libvirtd.pid') ;
 $dockerd_running = is_file('/var/run/dockerd.pid');
@@ -89,6 +89,7 @@ foreach($arrEntries as $type => $detail)
       {
         foreach($entryDetail['interfaces'] as $interfaces)
         {
+            $interfaces['mac'] = strtolower($interfaces['mac']);
             if($interfaces['mac'] == "" && $entryDetail['user_mac'] == "None Defined") continue;
             if (isset($entryDetail['state'])) $state = $entryDetail['state']; else $state = "";
             if (isset($entryDetail['enable']) && !$entryDetail['enable'] ) $enable = false; else $enable = true;
@@ -173,7 +174,7 @@ if ($found && $mac_list[$mac]['enable'] != "disable") {
           }
         } else {
           if ($mac_list[$mac]['enable'] == "disable")  echo  $mac . " " . _(" has not been actioned as set to disabled");
-          else echo _("Not Found ")." ". $mac . " "._(" ignoring or Maybe actions disabled for type(Docker/VM/LXC)");
+          else echo _("Not Found"). " " . $mac . " " . _("ignoring or Maybe actions disabled for type(Docker/VM/LXC)");
         }
 
 ?>

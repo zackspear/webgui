@@ -21,8 +21,9 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
-require_once "/usr/local/emhttp/plugins/dynamix.vm.manager/include/libvirt.php";
-$vms = $lv->get_domains();
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
+$arrEntries = [];
+$vms = $lv->get_domains() ?:[];
 sort($vms,SORT_NATURAL);
 foreach($vms as $vm){
   $arrEntries['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
@@ -95,6 +96,10 @@ case 't1load':
     $text = "";
   }
 }
+  if (count($arrMacs) < 1) {
+    $html .=  "<tr id='row'>";
+    $html .= "<td></td><td></td><td>"._("No Entries")."</td><td></td><td></td></tr>";
+  }
   $html .=  "</tbody>";
   
   $rtn = array();

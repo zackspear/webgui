@@ -15,7 +15,7 @@ Tag="database"
  */
 ?>
 <?
-$power = _var($display,'power') && in_array('nvme',array_column(main_filter($disks),'transport')) ? ' / '._('Power') : '';
+$power = _var($display,'power') && in_array('nvme',array_column(main_filter($disks),'transport')) ? _('Power').' / ' : '';
 ?>
 <script>
 String.prototype.no_tilde = function(){return this.replace('<?=$_tilde_?>','<?=$_proxy_?>');}
@@ -70,8 +70,8 @@ $('#tab1').bind({click:function() {$('i.toggle').show('slow');}});
 <?endif;?>
 </script>
 
-<table class="disk_status">
-<thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td>_(Temp)_<?=$power?></td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
+<table class="unraid disk_status">
+<thead><tr><td>_(Device)_</td><td>_(Identification)_</td><td><?=$power?>_(Temp)_</td><td>_(Reads)_</td><td>_(Writes)_</td><td>_(Errors)_</td><td>_(FS)_</td><td>_(Size)_</td><td>_(Used)_</td><td>_(Free)_</td></tr></thead>
 <tbody id="array_devices">
 <?
 foreach (main_filter($disks) as $disk) if (substr($disk['status'],0,7)!='DISK_NP') echo "<tr><td colspan='10'></td></tr>";

@@ -37,6 +37,14 @@
 	$arrValidNetworks = getValidNetworks();
 	$strCPUModel = getHostCPUModel();
 
+	$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
+
+	if (is_file($templateslocation)){
+		$arrAllTemplates["User-templates"] = "";
+		$ut = json_decode(file_get_contents($templateslocation),true) ;
+		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
+	}
+
 	$arrConfigDefaults = [
 		'template' => [
 			'name' => $strSelectedTemplate,
@@ -50,7 +58,7 @@
 			'uuid' => $lv->domain_generate_uuid(),
 			'clock' => 'localtime',
 			'arch' => 'x86_64',
-			'machine' => 'pc',
+			'machine' => 'pc-i440fx',
 			'mem' => 1024 * 1024,
 			'maxmem' => 1024 * 1024,
 			'password' => '',
@@ -153,6 +161,13 @@
 		echo json_encode($reply);
 		exit;
 	}
+
+		// create new VM template
+		if (isset($_POST['createvmtemplate'])) {
+			$reply = addtemplatexml($_POST);
+			echo json_encode($reply);
+			exit;
+		}
 
 	// update existing VM
 	if (isset($_POST['updatevm'])) {
@@ -286,6 +301,9 @@
 			if ($arrConfig['domain']['hyperv'] == 1) $arrClocks = $arrDefaultClocks['hyperv'] ; else $arrClocks = $arrDefaultClocks['windows'] ;
 		} else $arrClocks = $arrDefaultClocks['other'] ;
 	}
+
+	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
+	#var_dump($arrConfig);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -498,6 +516,12 @@
 		</blockquote>
 	</div>
 
+	<?
+	if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']]))  {
+		$arrConfig['domain']['machine'] = ValidateMachineType($arrConfig['domain']['machine']);
+	}
+	?>
+	
 	<table>
 		<tr class="advanced">
 			<td>_(Machine)_:</td>
@@ -696,11 +720,12 @@
 
 							if (!empty($arrDisk['new'])) {
 								if (strpos($domain_cfg['DOMAINDIR'], dirname(dirname($arrDisk['new']))) === false ||
-									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] ||
-									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') {
+									basename(dirname($arrDisk['new'])) != $arrConfig['domain']['name'] || (
+									basename($arrDisk['new']) != 'vdisk'.($i+1).'.img') && basename($arrDisk['new']) != 'vdisk'.($i+1).'.qcow2') {
+									if ($arrDisk['driver'] == "qcow2" && (basename($arrDisk['new']) == 'vdisk'.($i+1).'.qcow2')) $default_option = "auto"; else	
 									$default_option = 'manual';
 								}
-								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img')) {
+								if (file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.img') || file_exists(dirname(dirname($arrDisk['new'])).'/'.$arrConfig['domain']['name'].'/vdisk'.($i+1).'.qcow2')) {
 									// hide all the disks because the auto disk already has been created
 									$boolShowAllDisks = false;
 								}
@@ -771,7 +796,7 @@
 			<tr class="advanced disk_file_options">
 				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[<?=$i?>][driver]" class="narrow" title="_(type of storage image)_">
+					<select name="disk[<?=$i?>][driver]" class="disk_driver narrow" title="_(type of storage image)_">
 					<?mk_dropdown_options($arrValidDiskDrivers, $arrDisk['driver']);?>
 					</select>
 				</td>
@@ -915,7 +940,7 @@
 			<tr class="advanced disk_file_options">
 				<td>_(vDisk Type)_:</td>
 				<td>
-					<select name="disk[{{INDEX}}][driver]" class="narrow" title="_(type of storage image)_">
+					<select name="disk[{{INDEX}}][driver]" class="disk_driver narrow" title="_(type of storage image)_">
 					<?mk_dropdown_options($arrValidDiskDrivers, '');?>
 					</select>
 				</td>
@@ -1104,7 +1129,7 @@
 					</select>
 				</td>
 				</tr>
-				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced ">
+				<tr  id="copypasteline" name="copypaste" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced copypaste">
 					<td>_(VM Console enable Copy/paste)_:</td>
 				<td>
 					<select id="copypaste" name="gpu[<?=$i?>][copypaste]" class="narrow" >
@@ -1606,6 +1631,7 @@
 				<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 			<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
+				<input type="button" value=" _(Create/Modify Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			</td>
 		</tr>
 	</table>
@@ -1634,6 +1660,7 @@
 					<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 				<?}?>
 				<input type="button" value="_(Cancel)_" id="btnCancel" />
+				<input type="button" value=" _(Create/Modify Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 			<?} else {?>
 				<input type="button" value="_(Back)_" id="btnCancel" />
 			<?}?>
@@ -1878,6 +1905,10 @@ $(function() {
 			var $disk_input = $table.find('.disk');
 			var $disk_preview = $table.find('.disk_preview');
 			var $disk_serial = $table.find('.disk_serial');
+			var $disk_driver = $table.find('.disk_driver').val();
+			var $disk_ext = "img";
+			if ($disk_driver == "raw") $disk_ext = "img"; 
+				else if(disk_select != 'manual') $disk_ext = $disk_driver;
 
 			if (disk_select == 'manual') {
 
@@ -1906,7 +1937,7 @@ $(function() {
 			} else if (disk_select !== '') {
 
 				// Auto disk
-				var auto_disk_path = domaindir + '/vdisk' + (index+1) + '.img';
+				var auto_disk_path = domaindir + '/vdisk' + (index+1) + '.' + $disk_ext;
 				$disk_preview.html(auto_disk_path);
 				$disk_input.fadeOut('fast', function() {
 					$disk_preview.fadeIn('fast');
@@ -2038,6 +2069,10 @@ $(function() {
 		regenerateDiskPreview($(this).closest('table').data('index'));
 	});
 
+	$("#vmform").on("change", ".disk_driver", function changeDiskSelectEvent() {
+		regenerateDiskPreview($(this).closest('table').data('index'));
+	});
+
 	$("#vmform").on("input change", ".disk", function changeDiskEvent() {
 		var $input = $(this);
 		var config = $input.data();
@@ -2070,7 +2105,7 @@ $(function() {
 		var myindex = $(this).closest('table').data('index');
 
 		if (myindex == 0) {
-			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap');
+			$vnc_sections = $('.autoportline,.protocol,.vncmodel,.vncpassword,.vnckeymap,.copypaste');
 			if (myvalue == 'virtual') {
 				$vnc_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 				slideDownRows($vnc_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
@@ -2181,6 +2216,96 @@ $(function() {
 		}, "json");
 	});
 
+	$("#vmform .formview #btnTemplateSubmit").click(function frmSubmit() {
+		var $button = $(this);
+		var $panel = $('.formview');
+		var form = $button.closest('form');
+		form.append('<input type="hidden" name="createvmtemplate" value="1" />');
+		var createVmInput = form.find('input[name="createvm"],input[name="updatevm"]');
+		createVmInput.remove();
+		
+
+		$("#vmform .disk_select option:selected").not("[value='manual']").closest('table').each(function () {
+			var v = $(this).find('.disk_preview').html();
+			$(this).find('.disk').val(v);
+		});
+
+		$panel.find('input').prop('disabled', false); // enable all inputs otherwise they wont post
+
+		<?if (!$boolNew):?>
+		// signal devices to be added or removed
+		form.find('input[name="usb[]"],input[name="pci[]"],input[name="usbopt[]"]').each(function(){
+			if (!$(this).prop('checked')) $(this).prop('checked',true).val($(this).val()+'#remove');
+		});
+		// remove unused graphic cards
+		var gpus = [], i = 0;
+		do {
+			var gpu = form.find('select[name="gpu['+(i++)+'][id]"] option:selected').val();
+			if (gpu) gpus.push(gpu);
+		} while (gpu);
+		form.find('select[name="gpu[0][id]"] option').each(function(){
+			var gpu = $(this).val();
+			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+		});
+		// remove unused sound cards
+		var sound = [], i = 0;
+		do {
+			var audio = form.find('select[name="audio['+(i++)+'][id]"] option:selected').val();
+			if (audio) sound.push(audio);
+		} while (audio);
+		form.find('select[name="audio[0][id]"] option').each(function(){
+			var audio = $(this).val();
+			if (audio && !sound.includes(audio)) form.append('<input type="hidden" name="pci[]" value="'+audio+'#remove">');
+		});
+		<?endif?>
+		var postdata = form.find('input,select,textarea[name="qemucmdline"]').serialize().replace(/'/g,"%27");
+		<?if (!$boolNew):?>
+		// keep checkbox visually unchecked
+		form.find('input[name="usb[]"],input[name="usbopt[]"],input[name="pci[]"]').each(function(){
+			if ($(this).val().indexOf('#remove')>0) $(this).prop('checked',false);
+		});
+		<?endif?>
+
+		$panel.find('input').prop('disabled', true);
+		$button.val($button.attr('busyvalue'));
+
+		swal({
+			title: _("Template Name")_,
+			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			type: "input",
+			showCancelButton: true,
+			closeOnConfirm: false,
+			//animation: "slide-from-top",
+			inputPlaceholder: _("Leaving blank will use OS name.")_
+			},
+			function(inputValue){
+
+
+	  	postdata=postdata+"&templatename="+inputValue;
+		
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
+			if (data.success) {
+				if (data.vmrcurl) {
+					var vmrc_window=window.open(data.vmrcurl, '_blank', 'scrollbars=yes,resizable=yes');
+					try {
+						vmrc_window.focus();
+					} catch (e) {
+						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
+						return;
+					}
+				}
+				done();
+			}
+			if (data.error) {
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
+				$panel.find('input').prop('disabled', false);
+				$button.val($button.attr('readyvalue'));
+				resetForm();
+			}
+		}, "json");
+	});
+});
+
 	$("#vmform .xmlview #btnSubmit").click(function frmSubmit() {
 		var $button = $(this);
 		var $panel = $('.xmlview');
@@ -2205,6 +2330,52 @@ $(function() {
 				resetForm();
 			}
 		}, "json");
+	});
+
+	$("#vmform .xmlview #btnTemplateSubmit").click(function frmSubmit() {
+		var $button = $(this);
+		var $panel = $('.xmlview');
+
+
+		editor.save();
+
+		$panel.find('input').prop('disabled', false); // enable all inputs otherwise they wont post
+		var form = $button.closest('form');
+		form.append('<input type="hidden" name="createvmtemplate" value="1" />');
+		var createVmInput = form.find('input[name="createvm"],input[name="updatevm"]');
+		createVmInput.remove();
+
+		var postdata = $panel.closest('form').serialize().replace(/'/g,"%27");
+
+		$panel.find('input').prop('disabled', true);
+		$button.val($button.attr('busyvalue'));
+
+		swal({
+			title: _("Template Name")_,
+			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			type: "input",
+			showCancelButton: true,
+			closeOnConfirm: false,
+			//animation: "slide-from-top",
+			inputPlaceholder: _("Leaving blank will use OS name.")_
+			},
+			function(inputValue){
+
+
+	  	postdata=postdata+"&templatename="+inputValue;
+
+		$.post("/plugins/dynamix.vm.manager/templates/Custom.form.php", postdata, function( data ) {
+			if (data.success) {
+				done();
+			}
+			if (data.error) {
+				swal({title:"_(VM creation error)_",text:data.error,type:"error",confirmButtonText:"_(Ok)_"});
+				$panel.find('input').prop('disabled', false);
+				$button.val($button.attr('readyvalue'));
+				resetForm();
+			}
+		}, "json");
+	});
 	});
 
 	// Fire events below once upon showing page

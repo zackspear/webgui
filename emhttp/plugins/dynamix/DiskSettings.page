@@ -267,7 +267,7 @@ _(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C'
 </form>
 
 <?if ($encrypt && $var['fsState']=='Started'):?>
-<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change Encryption Key)_</span></div>
+<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change encryption key)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareForm(this)">
 <input type="hidden" name="#file" value="">
 <input type="hidden" name="#include" value="/webGui/include/update.encryption.php">

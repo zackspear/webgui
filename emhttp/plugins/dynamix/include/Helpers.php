@@ -270,4 +270,25 @@ function my_preg_split($split, $text, $count=2) {
 function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
+function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
+  $dirname = transpose_user_path($dirname);
+	$pathinfo = pathinfo($dirname);
+	$parent = $pathinfo["dirname"];
+	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+  $rtncode = false;
+	switch ($fstype) {
+		case "zfs":
+      $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
+      $rtncode=exec("zfs create $zfsdataset/{$pathinfo['filename']}");
+      if (!$rtncode) mkdir($dirname, $permissions, $recursive);
+			break;
+    case "btrfs":
+      $rtncode=exec("btrfs subvolume create $dirname");
+      if (!$rtncode) mkdir($dirname, $permissions, $recursive);
+      break;
+    default:
+      mkdir($dirname, $permissions, $recursive);
+      break;
+	}
+}
 ?>
