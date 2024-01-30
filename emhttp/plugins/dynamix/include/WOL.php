@@ -90,6 +90,7 @@ case 't1load':
     $html .="<select name='$selecttypename' class='audio narrow'>";
     $html .= mk_option($macaddr["enable"]  , "disable", _("Disabled"));
     $html .= mk_option($macaddr["enable"]  , "enable", _("Enabled"));
+    $html .= mk_option($macaddr["enable"]  , "shutdown", _("Enabled and Shutdown"));
     $html .= "</select></td><td>".$user_mac_str."</td></tr>";
     $text = "";
   }
