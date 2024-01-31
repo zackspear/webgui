@@ -27,7 +27,7 @@ if (count($_POST)) {
     foreach($update_file as $type => $types) {
       foreach($types as $name => $details) {
         if ($details['user_mac'] == "") $details['user_mac'] = "None Defined";
-        if ($details['user_mac'] == "None Defined" && $details['enable'] == "enable") unset($update_file[$type][$name]) ;
+        if ($details['user_mac'] == "None Defined" && ($details['enable'] == "enable" || $details['enable'] == "shutdown")) unset($update_file[$type][$name]) ;
       }
     }
   }

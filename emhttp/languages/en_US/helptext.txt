@@ -2499,6 +2499,10 @@ If set to yes when wake on lan packets are received checks are carrried out for 
 If set to yes when wake on lan packets are received checks are carrried out for LXC otherwise LXC will be ignored. The LXC plugin needs to be installed for LXC to be processed.
 :end
 
+:WOL_run_shutdown_help:
+If set to yes when wake on lan packets are received checks are carrried out and if enabled for service and that service is running the entity will be shutdown. System has to be set to Enabled and Shutdwon for it to be action.
+:end
+
 :WOL_interface_help:
 Specify the interface to the daemon to bind to. Some interfaces may not be able to recieve etherframe packets. Recommend to bind to a physical interface.
 :end

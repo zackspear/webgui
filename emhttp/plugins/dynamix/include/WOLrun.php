@@ -28,6 +28,7 @@ extract(parse_ini_file("/boot/config/wol.cfg")) ;
 if (!isset($RUNLXC)) $RUNLXC = "y";
 if (!isset($RUNVM)) $RUNVM = "y";
 if (!isset($RUNDocker)) $RUNDocker = "y";
+if (!isset($RUNSHUT)) $RUNSHUT = "n";
 
 $arrEntries = [] ;
 if ($libvirtd_running && $RUNVM == "y") {
@@ -117,7 +118,7 @@ foreach($arrEntries as $type => $detail)
   $found = array_key_exists($mac,$mac_list);
 
 
-if ($found && $mac_list[$mac]['enable'] == "enable") {
+if ($found && $mac_list[$mac]['enable'] != "disable") {
         echo _("Found"). " " . $mac . " " .$mac_list[$mac]['type'] . " " . $mac_list[$mac]['name'];
         switch ($mac_list[$mac]['type']) {
         
@@ -128,6 +129,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             $state = $lv->domain_state_translate($dom['state']);
             switch ($state) {
               case 'running':
+                if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") $lv->domain_shutdown("{$mac_list[$mac]['name']}");
                 break;
               case 'paused':
               case 'pmsuspended':
@@ -143,6 +145,7 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             $state = getContainerStats($mac_list[$mac]['name'], "State");
             switch ($state) {
               case 'RUNNING':
+                if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") shell_exec("lxc-stop {$mac_list[$mac]['name']}");
                 break;
               case 'FROZEN':
                 shell_exec("lxc-unfreeze {$mac_list[$mac]['name']}");  
@@ -156,7 +159,9 @@ if ($found && $mac_list[$mac]['enable'] == "enable") {
             if ($dockerd_running && $RUNDOCKER == "y") {
               
               switch ($mac_list[$mac]['state']) {
-  
+                case "running":
+                  if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") shell_exec("docker stop {$mac_list[$mac]['name']}");
+                  break;
                 case "exited":
                   case "created":
                     shell_exec("docker start {$mac_list[$mac]['name']}");
