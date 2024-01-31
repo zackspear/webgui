@@ -303,7 +303,6 @@
 	}
 
 	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
-	#var_dump($arrConfig);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -805,11 +804,14 @@
 			<tr class="advanced disk_bus_options">
 				<td>_(vDisk Bus)_:</td>
 				<td>
-					<select name="disk[<?=$i?>][bus]" class="disk_bus narrow">
+					<select name="disk[<?=$i?>][bus]" class="disk_bus narrow" onchange="BusChange(this)">
 					<?mk_dropdown_options($arrValidDiskBuses, $arrDisk['bus']);?>
 					</select>
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
+				<? if ($arrDisk['bus'] == "virtio" || $arrDisk['bus'] == "usb") $ssddisabled = "hidden "; else $ssddisabled = " ";?>
+				<span id="disk[<?=$i?>][rotatetext]" <?=$ssddisabled?>>_(SSD)_:</span>
+				<input type="checkbox"  id="disk[<?=$i?>][rotation]" class="narrow rotation" onchange="updateSSDCheck(this)"style="width: 50px;" name="disk[<?=$i?>][rotation]"  <?=$ssddisabled ?> <?=$arrDisk['rotation'] ? "checked ":"";?>  title="_(Set SDD flag)_"  value="<?=$arrDisk['rotation']?>" >
 				</td>
 			</tr>
 			<tr class="advanced disk_bus_options">
@@ -855,6 +857,11 @@
 			<p class="advanced">
 				<b>vDisk Boot Order</b><br>
 				Specify the order the devices are used for booting.
+			</p>
+
+			<p class="advanced">
+				<b>vDisk SSD Flag</b><br>
+				Specify the vdisk shows as SSD within the guest, only supported on SCSI, SATA and IDE bus types.
 			</p>
 
 			<p class="advanced">
@@ -949,12 +956,14 @@
 			<tr class="advanced disk_bus_options">
 				<td>_(vDisk Bus)_:</td>
 				<td>
-					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow">
+					<select name="disk[{{INDEX}}][bus]" class="disk_bus narrow" onchange="BusChange(this)">
 					<?mk_dropdown_options($arrValidDiskBuses, '');?>
 					</select>
 
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
+				<span id="disk[{{INDEX}}][rotatetext]" hidden>_(SSD)_:</span>
+				<input type="checkbox"  id="disk[{{INDEX}}][rotation]" class="narrow rotation" onchange="updateSSDCheck(this)"style="width: 50px;" name="disk[{{INDEX}}[rotation]" hidden title="_(Set SSD flag)_" value='0' >
 				</td>
 				<tr class="advanced disk_bus_options">
 				<td>_(Serial)_:</td>
@@ -1698,6 +1707,28 @@ function ShareChange(share) {
 			document.getElementById(name+"[target]").removeAttribute("disabled");
 			document.getElementById(name+"[source]").removeAttribute("disabled");
 		}
+}
+
+function BusChange(bus) {
+		var value = bus.value;
+		var index = bus.name.indexOf("]") + 1;
+		var name = bus.name.substr(0,index) ;
+		if (value == "virtio" || value == "usb" ) {
+		document.getElementById(name+"[rotatetext]").style.visibility="hidden";
+		document.getElementById(name+"[rotation]").style.visibility="hidden";
+		} else {
+			document.getElementById(name+"[rotation]").style.display="inline";
+			document.getElementById(name+"[rotation]").style.visibility="visible";
+			document.getElementById(name+"[rotatetext]").style.display="inline";
+			document.getElementById(name+"[rotatetext]").style.visibility="visible";
+		}
+}
+
+function updateSSDCheck(ssd) {
+		var value = ssd.value;
+		var index = ssd.name.indexOf("]") + 1;
+		var name = ssd.name.substr(0,index) ;
+		if (document.getElementById(name+"[rotation]").checked) ssd.value = "1"; else ssd.value = "0";
 }
 
 function BIOSChange(bios) {
