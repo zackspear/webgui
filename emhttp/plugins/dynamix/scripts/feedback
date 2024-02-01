@@ -209,6 +209,7 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
       troubleshoot_reset();
       comment_reset();
       $('#optFeatureRequest').click();
+      $('button.confirm').text("<?=_('Cancel')?>");
     });
   </script>
 </body>
