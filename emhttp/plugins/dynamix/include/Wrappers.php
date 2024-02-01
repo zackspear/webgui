@@ -145,4 +145,8 @@ function my_date($fmt, $time) {
   $legacy = ['%c' => 'D j M Y h:i A','%A' => 'l','%Y' => 'Y','%B' => 'F','%e' => 'j','%d' => 'd','%m' => 'm','%I' => 'h','%H' => 'H','%M' => 'i','%S' => 's','%p' => 'a','%R' => 'H:i', '%F' => 'Y-m-d', '%T' => 'H:i:s'];
   return date(strtr($fmt,$legacy), $time);
 }
+// ensure params passed to logger are properly escaped
+function my_logger($tag, $message) {
+  exec('logger -t '.escapeshellarg($tag).' -- '.escapeshellarg($message));
+}
 ?>
