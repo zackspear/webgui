@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_URI'] == '/logout') {
     $error = _('Successfully logged out');
 }
 
+// If issue with license key redirect to Tools/Registration, otherwise go to start page
+$start_page = (!empty(_var($var,'regCheck'))) ? 'Tools/Registration' : _var($var,'START_PAGE','Main');
+
 $result = exec( "/usr/bin/passwd --status root");
 if (($result === false) || (substr($result, 0, 6) !== "root P"))
   include "$docroot/webGui/include/.set-password.php";

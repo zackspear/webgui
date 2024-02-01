@@ -30,7 +30,8 @@ if (!empty($_POST['password']) && !empty($_POST['confirmPassword'])) {
         session_regenerate_id(true);
         session_write_close();
 
-        header("Location: /".$var['START_PAGE']);
+        // Redirect the user to the start page
+        header("Location: /".$start_page);
         exit;
     }
 
