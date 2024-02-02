@@ -179,10 +179,10 @@ class ReplaceKey
         if (!$latestKey) {
             // we supposedly have a new key, but didn't get it back…
             $this->writeJsonFile(
-              '/tmp/ReplaceKey/error.json',
-              [
-                'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
-              ]
+                '/tmp/ReplaceKey/error.json',
+                [
+                    'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
+                ]
             );
             return;
         }
