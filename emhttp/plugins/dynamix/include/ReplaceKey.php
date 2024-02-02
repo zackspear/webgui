@@ -156,37 +156,37 @@ class ReplaceKey
 
     public function check()
     {
-      // we don't need to check
-      if ($this->guid === null || $this->keyfile === null || $this->regExp === null) {
-          return;
-      }
+        // we don't need to check
+        if ($this->guid === null || $this->keyfile === null || $this->regExp === null) {
+            return;
+        }
 
-      // if regExp is seven days or less from now, we need to check
-      $shouldCheck = strtotime($this->regExp) <= strtotime('+7 days');
-      if (!$shouldCheck) {
-          return;
-      }
+        // if regExp is seven days or less from now, we need to check
+        $shouldCheck = strtotime($this->regExp) <= strtotime('+7 days');
+        if (!$shouldCheck) {
+            return;
+        }
 
-      // see if we have a new key
-      $validateGuidResponse = $this->validateGuid();
+        // see if we have a new key
+        $validateGuidResponse = $this->validateGuid();
 
-      $hasNewerKeyfile = @$validateGuidResponse['hasNewerKeyfile'] ?? false;
-      if (!$hasNewerKeyfile) {
-          return; // if there is no newer keyfile, we don't need to do anything
-      }
+        $hasNewerKeyfile = @$validateGuidResponse['hasNewerKeyfile'] ?? false;
+        if (!$hasNewerKeyfile) {
+            return; // if there is no newer keyfile, we don't need to do anything
+        }
 
-      $latestKey = $this->getLatestKey();
-      if (!$latestKey) {
-          // we supposedly have a new key, but didn't get it back…
-          $this->writeJsonFile(
-            '/tmp/ReplaceKey/error.json',
-            [
-              'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
-            ]
-          );
-          return;
-      }
-      $this->installNewKey($latestKey);
+        $latestKey = $this->getLatestKey();
+        if (!$latestKey) {
+            // we supposedly have a new key, but didn't get it back…
+            $this->writeJsonFile(
+              '/tmp/ReplaceKey/error.json',
+              [
+                'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
+              ]
+            );
+            return;
+        }
+        $this->installNewKey($latestKey);
     }
 }
 
