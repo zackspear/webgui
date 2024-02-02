@@ -691,7 +691,7 @@ if ($method == 'install') {
       $event = "Install error";
       $subject = "plugin: ".basename($plugin_file);
       $description = "Plugin failed to install";
-      exec("$notify -e $event -s $subject -d $description) -i 2");
+      exec("$notify -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i 'warning'");
       // run hook scripts for post processing
       post_hooks($error);
       done(1);
