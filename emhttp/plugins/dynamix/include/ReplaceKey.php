@@ -11,7 +11,7 @@ class ReplaceKey
     private $keyfile;
     private $regExp;
 
-    private function __construct()
+    public function __construct()
     {
         $this->docroot = $GLOBALS['docroot'] ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
