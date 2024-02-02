@@ -99,11 +99,11 @@ function showWOLupdate() {
 
 function maccreate(name) {
  
-  $.getJSON("/plugins/dynamix.vm.manager/include/VMajax.php?action=generate-mac", function( data ) {
+  $.post('/webGui/include/WOL.php',{table:'macaddress'}, function( data ) {
 			if (data.mac) {
 				$('#'+name).val(data.mac);
 			}
-		});
+		},'json');
 }
 
 showWOL("all",true);
