@@ -9,8 +9,8 @@ if (!empty($_COOKIE['unraid_'.md5($server_name)])) {
 
     // Check if the user is already logged in
     if ($_SESSION && !empty($_SESSION['unraid_user'])) {
-        // If so redirect them to the start page
-        header("Location: /".$var['START_PAGE']);
+        // Redirect the user to the start page
+        header("Location: /".$start_page);
         exit;
     }
 }
@@ -219,7 +219,7 @@ if (!empty($username) && !empty($password)) {
         exec("logger -t webGUI ".escapeshellarg("Successful login user {$username} from {$remote_addr}"));
 
         // Redirect the user to the start page
-        header("Location: /".$var['START_PAGE']);
+        header("Location: /".$start_page);
         exit;
     } catch (Exception $exception) {
         // Set error message
