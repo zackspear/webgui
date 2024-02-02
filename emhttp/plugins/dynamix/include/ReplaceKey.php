@@ -5,6 +5,8 @@ require_once "$docroot/plugins/dynamix.my.servers/include/state.php";
 
 class ReplaceKey
 {
+    private const KEY_SERVER_URL = 'https://keys.lime-technology.com';
+
     private $docroot;
     private $serverState;
     private $guid;
@@ -69,9 +71,6 @@ class ReplaceKey
 
     private function validateGuid()
     {
-        $keyServerUrl = 'https://keys.lime-technology.com';
-        $validateGuidUrl = $keyServerUrl . '/validate/guid';
-
         $headers = [
             'Content-Type: application/x-www-form-urlencoded',
         ];
@@ -92,7 +91,7 @@ class ReplaceKey
          * updatesRenewable: false;
          */
         $response = $this->request(
-            $validateGuidUrl,
+            self::KEY_SERVER_URL . '/validate/guid',
             'POST',
             http_build_query($params),
             $headers,
@@ -111,9 +110,6 @@ class ReplaceKey
 
     private function getLatestKey()
     {
-        $keyServerUrl = 'https://keys.lime-technology.com';
-        $getNewKeyUrl = $keyServerUrl . '/key/latest';
-
         $headers = [
             'Content-Type: application/x-www-form-urlencoded',
         ];
@@ -127,7 +123,7 @@ class ReplaceKey
          * license: string;
          */
         $response = $this->request(
-            $getNewKeyUrl,
+            self::KEY_SERVER_URL . '/key/latest',
             'POST',
             http_build_query($params),
             $headers,
