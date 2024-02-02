@@ -20,7 +20,7 @@ function curl_socket($socket, $url, $message='') {
   if ($message) curl_setopt_array($com, [CURLOPT_POSTFIELDS => $message, CURLOPT_POST => 1]);
   $reply = curl_exec($com);
   curl_close($com);
-  if ($reply===false) my_logger('curl_socket', "curl to $url failed");
+  if ($reply===false) my_logger("curl to $url failed", 'curl_socket');
   return $reply;
 }
 
@@ -35,7 +35,7 @@ function publish($endpoint, $message, $len=1) {
   ]);
   $reply = curl_exec($com);
   curl_close($com);
-  if ($reply===false) my_logger('publish', "curl to $endpoint failed");
+  if ($reply===false) my_logger("curl to $endpoint failed", 'publish');
   return $reply;
 }
 ?>

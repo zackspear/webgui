@@ -146,7 +146,7 @@ function my_date($fmt, $time) {
   return date(strtr($fmt,$legacy), $time);
 }
 // ensure params passed to logger are properly escaped
-function my_logger($tag, $message) {
+function my_logger($message, $tag="webgui") {
   exec('logger -t '.escapeshellarg($tag).' -- '.escapeshellarg($message));
 }
 ?>
