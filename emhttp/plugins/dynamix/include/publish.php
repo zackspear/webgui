@@ -11,13 +11,16 @@
  */
 ?>
 <?
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Wrappers.php";
+
 function curl_socket($socket, $url, $message='') {
   $com = curl_init($url);
   curl_setopt_array($com, [CURLOPT_UNIX_SOCKET_PATH => $socket, CURLOPT_RETURNTRANSFER => 1]);
   if ($message) curl_setopt_array($com, [CURLOPT_POSTFIELDS => $message, CURLOPT_POST => 1]);
   $reply = curl_exec($com);
   curl_close($com);
-  if ($reply===false) exec("logger -t curl_socket -- 'curl to $url failed'");
+  if ($reply===false) my_logger("curl to $url failed", 'curl_socket');
   return $reply;
 }
 
@@ -32,7 +35,7 @@ function publish($endpoint, $message, $len=1) {
   ]);
   $reply = curl_exec($com);
   curl_close($com);
-  if ($reply===false) exec("logger -t publish -- 'curl to $endpoint failed'");
+  if ($reply===false) my_logger("curl to $endpoint failed", 'publish');
   return $reply;
 }
 ?>

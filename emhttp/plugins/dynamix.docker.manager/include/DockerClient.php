@@ -367,7 +367,7 @@ class DockerTemplates {
 			@copy($iconRAM,$icon);
 		}
 		if (!is_file($iconRAM)) {
-			exec("logger -t webGUI -- \"$contName: Could not download icon $imgUrl\"");
+			my_logger("$contName: Could not download icon $imgUrl");
 		}
 
 		return (is_file($iconRAM)) ? str_replace($docroot, '', $iconRAM) : '';

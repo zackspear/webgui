@@ -1,6 +1,7 @@
 <?php
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
 extract(parse_plugin_cfg('dynamix',true));
