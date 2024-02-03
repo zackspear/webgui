@@ -23,8 +23,6 @@ class ReplaceKey
         $this->guid = @$this->serverState['guid'] ?? null;
         $this->keyfile = @$this->serverState['keyfile'] ?? null;
         $this->regExp = @$this->serverState['regExp'] ?? null;
-
-        $this->check();
     }
 
     private function request($url, $method, $payload = null, $headers = null)
@@ -189,6 +187,3 @@ class ReplaceKey
         $this->installNewKey($latestKey);
     }
 }
-
-// self invoke
-new ReplaceKey();
