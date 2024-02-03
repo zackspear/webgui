@@ -236,20 +236,21 @@ $(function() {
   });
 
   $('#submit_button').click(function() {
+    var url = 'https://keys.lime-technology.com/feedback/';
     var tab = '#'+$('input[name=mode]:checked').val();
     switch (tab) {
     case '#featureRequest':
-      form_submit('https://keys.lime-technology.com/feedback/featurerequest',{},tab);
+      form_submit(url+'featurerequest',{},tab);
       break;
     case '#bugReport':
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{},tab,1);
+      form_submit(url+'bugreport',{},tab,1);
       break;
     case '#troubleshoot':
       // @todo - update this to use a new troubleshoot endpoint
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{},tab,1);
+      form_submit(url+'bugreport',{},tab,1);
       break;
     case '#otherComment':
-      form_submit('https://keys.lime-technology.com/feedback/comment',{},tab);
+      form_submit(url+'comment',{},tab);
       break;
     }
   });
