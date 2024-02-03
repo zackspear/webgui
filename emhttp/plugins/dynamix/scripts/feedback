@@ -56,7 +56,7 @@ span.spacer{margin:0 4px}
 <hr>
 </div>
 
-<div id="thanks_panel" class="allpanels"></div>
+<div id="reply_panel" class="allpanels"></div>
 
 <div id="featureRequest_panel" class="allpanels">
 <textarea id="featureRequest" class="feedback"></textarea>
@@ -158,23 +158,25 @@ function feedback_reset() {
   md5.otherComment = $('#otherComment').val().md5();
 }
 
-function form_submit(url, params, panel, diagnostics) {
+function form_submit(url, params, tab, diagnostics) {
+  var panel = $(tab+'_panel');
   $('#submit_button').prop('disabled',true);
   panel.find('textarea').prop('disabled',true);
   $('div.spinner.fixed').show();
   if (diagnostics) {
     var anonymize = $('#anonymize').is(':checked') ? '1' : '';
-    $.get('/webGui/include/Feedback.php',{getdiagnostics:1, anonymize:anonymize}, function(data) {
+    $.get('/webGui/include/Feedback.php',{getdiagnostics:1, anonymize:anonymize}, function(data){
       params.diagnostics = data;
-      form_submit(url, params, panel);
-    }).fail(function() {
+      form_submit(url, params, tab);
+    }).fail(function(){
       $('div.spinner.fixed').hide();
       panel.fadeOut('fast').find('textarea').prop('disabled',false);
       var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?> (<?=_('Unable to generate system diagnostics')?> <?=_('Please try again later')?>).</p>";
-      $('#thanks_panel').html(failure_message).fadeIn('fast');
+      $('#reply_panel').html(failure_message).fadeIn('fast');
     });
     return;
   }
+  params.description = $(tab).val();
   params.email = $('input#email').val();
   params.timestamp = unraid_timestamp;
   params.osversion = unraid_osversion;
@@ -184,19 +186,19 @@ function form_submit(url, params, panel, diagnostics) {
     $('div.spinner.fixed').hide();
     if (data.error) {
       var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
-      $('#thanks_panel').html(failure_message).fadeIn('fast');
+      $('#reply_panel').html(failure_message).fadeIn('fast');
     } else {
       data.message = data.message || '';
-      var name = panel.prop('id').replace('_panel','').toLowerCase();
+      var name = tab.substr(1).toLowerCase();
       var success_message = '<div style="text-align:center"><h2 style="color:#4f8a10!important"><?=_("Thank You")?>!</h2><img src="/webGui/images/feedback_'+name+'.png"><p class="success">'+data.message+'</p></div>';
-      $('#thanks_panel').html(success_message).fadeIn('fast');
+      $('#reply_panel').html(success_message).fadeIn('fast');
     }
   }).fail(function(jqXHR, textStatus, errorThrown) {
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
     var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
-    $('#thanks_panel').html(failure_message).fadeIn('fast');
+    $('#reply_panel').html(failure_message).fadeIn('fast');
   }).always(function() {
     $('#spinner_image').fadeOut('fast');
     panel.fadeOut('fast').find('textarea').prop('disabled',false);
@@ -237,17 +239,17 @@ $(function() {
     var tab = '#'+$('input[name=mode]:checked').val();
     switch (tab) {
     case '#featureRequest':
-      form_submit('https://keys.lime-technology.com/feedback/featurerequest',{description:$(tab).val()}, $(tab+'_panel'));
+      form_submit('https://keys.lime-technology.com/feedback/featurerequest',{},tab);
       break;
     case '#bugReport':
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$(tab).val()}, $(tab+'_panel'), 1);
+      form_submit('https://keys.lime-technology.com/feedback/bugreport',{},tab,1);
       break;
     case '#troubleshoot':
       // @todo - update this to use a new troubleshoot endpoint
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$(tab).val()}, $(tab+'_panel'), 1);
+      form_submit('https://keys.lime-technology.com/feedback/bugreport',{},tab,1);
       break;
     case '#otherComment':
-      form_submit('https://keys.lime-technology.com/feedback/comment',{description:$(tab).val()}, $(tab+'_panel'));
+      form_submit('https://keys.lime-technology.com/feedback/comment',{},tab);
       break;
     }
   });
