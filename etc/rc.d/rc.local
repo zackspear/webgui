@@ -54,6 +54,9 @@ fi
 /usr/local/emhttp/webGui/scripts/notify smtp-init
 /usr/local/emhttp/webGui/scripts/notify cron-init
 
+# initialize replace key job
+/usr/local/emhttp/webGui/scripts/replace_key_job cron-init
+
 # restore favorites
 if [[ -x /usr/local/emhttp/webGui/scripts/restore_favorites ]]; then
   /usr/local/emhttp/webGui/scripts/restore_favorites
