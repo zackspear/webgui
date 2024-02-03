@@ -37,7 +37,6 @@ div.divide{text-align:center;box-sizing:border-box;-moz-box-sizing:border-box;-w
 div.allpanels{display:none;position:absolute;left:0;right:0;top:40px;bottom:0;overflow:auto}
 div#footer_panel{position:absolute;left:0;right:0;bottom:0;text-align:right}
 textarea.feedback{width:<?=$width?>;height:530px;margin:0;resize:none}
-textarea#troubleshoot_details{display:none}
 @media(max-width:960px){textarea.feedback{height:330px}}
 @media(max-height:768px){textarea.feedback{height:330px}}
 input#email{float:left;padding-left:8px}
@@ -70,7 +69,6 @@ span.spacer{margin:0 4px}
 
 <div id="troubleshoot_panel" class="allpanels">
 <textarea id="troubleshoot" class="feedback"></textarea>
-<textarea id="troubleshoot_details"></textarea>
 <label class="note" for="anonymize_troubleshoot"><input type="checkbox" id="anonymize_troubleshoot" class="anonymize" value="1"><?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
 <p class="note"><b><?=_('NOTE')?>:</b> <i><?=_('Submission of this troubleshooting request will automatically send your system diagnostics to Lime Technology')?>.</i></p>
 </div>
@@ -254,7 +252,7 @@ $(function() {
       break;
     case 'troubleshoot':
       // @todo - update this to use a new troubleshoot endpoint
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#troubleshoot').val()+'\n\n'+$('#troubleshoot_details').val(), email:$('input#email').val()}, $('#troubleshoot_panel'), 1);
+      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#troubleshoot').val(), email:$('input#email').val()}, $('#troubleshoot_panel'), 1);
       break;
     case 'otherComment':
       form_submit('https://keys.lime-technology.com/feedback/comment',{description:$('#otherComment').val(), email:$('input#email').val()}, $('#otherComment_panel'));
