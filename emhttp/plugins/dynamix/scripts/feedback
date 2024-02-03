@@ -159,7 +159,8 @@ function feedback_reset() {
 }
 
 function form_submit(url, params, panel, diagnostics) {
-  panel.find('textarea,input').prop('disabled', true);
+  $('#submit-button').prop('disabled',true);
+  panel.find('textarea').prop('disabled',true);
   $('div.spinner.fixed').show();
   if (diagnostics) {
     var anonymize = $('#anonymize').is(':checked') ? '1' : '';
@@ -168,7 +169,7 @@ function form_submit(url, params, panel, diagnostics) {
       form_submit(url, params, panel);
     }).fail(function() {
       $('div.spinner.fixed').hide();
-      panel.fadeOut('fast').find('textarea,input').prop('disabled', false);
+      panel.fadeOut('fast').find('textarea').prop('disabled',false);
       var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?> (<?=_('Unable to generate system diagnostics')?> <?=_('Please try again later')?>).</p>";
       $('#thanks_panel').html(failure_message).fadeIn('fast');
     });
@@ -198,9 +199,8 @@ function form_submit(url, params, panel, diagnostics) {
     $('#thanks_panel').html(failure_message).fadeIn('fast');
   }).always(function() {
     $('#spinner_image').fadeOut('fast');
-    panel.fadeOut('fast').find('textarea,input').prop('disabled', false);
+    panel.fadeOut('fast').find('textarea').prop('disabled',false);
   });
-  $('#submit-button').prop('disabled',true);
 }
 
 $(function() {
