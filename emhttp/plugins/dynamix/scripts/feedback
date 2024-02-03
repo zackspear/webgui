@@ -159,7 +159,7 @@ function feedback_reset() {
 }
 
 function form_submit(url, params, panel, diagnostics) {
-  $('#submit-button').prop('disabled',true);
+  $('#submit_button').prop('disabled',true);
   panel.find('textarea').prop('disabled',true);
   $('div.spinner.fixed').show();
   if (diagnostics) {
@@ -218,22 +218,22 @@ $(function() {
     var email = "<?=_('Contact Email Address')?>";
     var option = " (<?=_('optional')?>)";
     $('input#email').prop('placeholder',email+(required?'':option)).prop('required',required);
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
+    $('#submit_button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
   });
 
   $('button.confirm').text("<?=_('Cancel')?>");
-  if ($('#submit-button').length == 0) $('button.confirm').before('<input type="button" id="submit-button" value="<?=_('Submit')?>" disabled>');
+  if ($('#submit_button').length == 0) $('button.confirm').before('<input type="button" id="submit_button" value="<?=_('Submit')?>" disabled>');
 
   $('textarea').on('input change',function(){
-    $('#submit-button').prop('disabled',validInput($(this)));
+    $('#submit_button').prop('disabled',validInput($(this)));
   });
 
   $('input#email').on('input change',function(){
     var panel = $('input[name=mode]:checked').val();
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
+    $('#submit_button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
   });
 
-  $('#submit-button').click(function() {
+  $('#submit_button').click(function() {
     switch ($('input[name=mode]:checked').val()) {
     case 'featureRequest':
       form_submit('https://keys.lime-technology.com/feedback/featurerequest',{description:$('#featureRequest').val()}, $('#featureRequest_panel'));
