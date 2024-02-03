@@ -679,7 +679,7 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div class='nav-user show'><a id='board' href='#'><b id='bell' class='icon-u-bell system'></b></a></div>";
+echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
 if ($themes2) echo "</div>";
 echo "</div></div>";
