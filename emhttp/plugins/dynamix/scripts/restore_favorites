@@ -8,6 +8,7 @@ while (($page = fgets($file))!==false) {
   // update each favorite
   $page = rtrim($page);
   $line = fopen($page,'r');
+  if ($line === false) continue;
   // get current Menu settings
   extract(parse_ini_string(fgets($line)));
   fclose($line);
