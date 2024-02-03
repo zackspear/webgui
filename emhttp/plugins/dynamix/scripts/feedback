@@ -139,7 +139,7 @@ var inpageurl = window.top.location.href;
 var md5 = {};
 
 function validInput(input,panel) {
-  return input.md5() == md5[panel];
+  return input.val().md5() == md5[panel];
 }
 
 function validEmail(input) {
@@ -231,17 +231,17 @@ $(function() {
     var email = "<?=_('Contact Email Address')?>";
     var option = " (<?=_('optional')?>)";
     $('input#email').prop('placeholder',email+(required?'':option)).prop('required',required);
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea').val(),panel) || !validEmail($('input#email')));
+    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea'),panel) || !validEmail($('input#email')));
   });
 
   $('textarea').on('input change',function(){
     var panel = $(this).parent().prop('id').replace('_panel','');
-    $('#submit-button').prop('disabled',validInput($(this).val(),panel) || !validEmail($('input#email')));
+    $('#submit-button').prop('disabled',validInput($(this),panel) || !validEmail($('input#email')));
   });
 
   $('input#email').on('input change',function(){
     var panel = $('input[name=mode]:checked').val();
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea').val(),panel) || !validEmail($(this)));
+    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea'),panel) || !validEmail($(this)));
   });
 
   $('#submit-button').click(function() {
