@@ -388,6 +388,7 @@ function openChanges(cmd,title,nchan,button=0) {
     $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(close){
       $('.sweet-alert').hide('fast').removeClass('nchan');
+      $('#submit-button').remove();
     });
     $('.sweet-alert').addClass('nchan');
     $('pre#swalbody').html(data);

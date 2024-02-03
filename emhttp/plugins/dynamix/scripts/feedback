@@ -158,7 +158,7 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
         $('#spinner_image').fadeOut('fast');
         panel.fadeOut('fast').find('textarea,input').prop('disabled', false);
       });
-      $('#submit').prop('disabled',true);
+      $('#submit-button').prop('disabled',true);
     }
 
     $(function() {
@@ -174,11 +174,11 @@ $width = in_array($display['theme'], ['azure', 'gray']) ? '98.4%' : '100%';
       });
 
       $('button.confirm').text("<?=_('Cancel')?>");
-      if ($('#submit').length == 0) $('button.confirm').before('<input type="button" id="submit" value="<?=_('Submit')?>">');
+      if ($('#submit-button').length == 0) $('button.confirm').before('<input type="button" id="submit-button" value="<?=_('Submit')?>">');
 
-      $('input[name=mode]').click(function(){$('#submit').prop('disabled',false);});
+      $('input[name=mode]').click(function(){$('#submit-button').prop('disabled',false);});
 
-      $('#submit').click(function() {
+      $('#submit-button').click(function() {
         switch ($('input[name=mode]:checked').val()) {
         case 'featurerequest':
           if ($('#featureDescription').val() === '') return;
