@@ -15,6 +15,9 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
 
+// exit when missing parameters
+if ($argc == 1) exit;
+
 $set = $ifname = $argv[1];
 $run = $set != 'none';
 $ini = parse_ini_file('/var/local/emhttp/network.ini',true); ksort($ini,SORT_NATURAL);

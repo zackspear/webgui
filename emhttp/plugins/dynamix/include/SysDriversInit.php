@@ -3,7 +3,7 @@
 function SysDriverslog($m, $type='NOTICE') {
   if ($type == 'DEBUG') return;
   $m = str_replace(["\n",'"'],[" ","'"],print_r($m,true));
-  my_logger('sysDrivers', "$m");
+  my_logger("$m", 'sysDrivers');
 }
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
