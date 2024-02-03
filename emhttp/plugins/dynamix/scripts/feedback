@@ -205,27 +205,24 @@ function form_submit(url, params, panel, diagnostics) {
 
 $(function() {
   $('#control_panel input[name=mode]').click(function() {
-    var showPanel = '#'+$('#control_panel input[name=mode]:checked').val()+'_panel';
+    var panel = $('#control_panel input[name=mode]:checked').val();
+    var showPanel = '#'+panel+'_panel';
     $('.allpanels').not(showPanel).fadeOut('fast');
-    var loadfunction = window[$('#control_panel input[name=mode]:checked').val()+'_load'];
+    var loadfunction = window[panel+'_load'];
     if (typeof loadfunction !== 'undefined' && $.isFunction(loadfunction)) {
       loadfunction();
     } else {
       $(showPanel).fadeIn('fast');
     }
-  });
-
-  $('button.confirm').text("<?=_('Cancel')?>");
-  if ($('#submit-button').length == 0) $('button.confirm').before('<input type="button" id="submit-button" value="<?=_('Submit')?>" disabled>');
-
-  $('input[name=mode]').click(function(){
-    var panel = $('input[name=mode]:checked').val();
     var required = (panel == 'troubleshoot');
     var email = "<?=_('Contact Email Address')?>";
     var option = " (<?=_('optional')?>)";
     $('input#email').prop('placeholder',email+(required?'':option)).prop('required',required);
     $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
   });
+
+  $('button.confirm').text("<?=_('Cancel')?>");
+  if ($('#submit-button').length == 0) $('button.confirm').before('<input type="button" id="submit-button" value="<?=_('Submit')?>" disabled>');
 
   $('textarea').on('input change',function(){
     $('#submit-button').prop('disabled',validInput($(this)));
