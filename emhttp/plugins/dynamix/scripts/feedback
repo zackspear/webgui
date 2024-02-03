@@ -39,7 +39,7 @@ div#footer_panel{position:absolute;left:0;right:0;bottom:0;text-align:right}
 textarea.feedback{width:<?=$width?>;height:530px;margin:0;resize:none}
 @media(max-width:960px){textarea.feedback{height:330px}}
 @media(max-height:768px){textarea.feedback{height:330px}}
-input#email{float:left;padding-left:8px}
+input#email{float:left;padding-left:4px}
 p.note,label.note{font-size:1.1rem!important}
 p.success{text-align:center!important;margin-top:20px}
 span.spacer{margin:0 4px}
@@ -58,7 +58,7 @@ span.spacer{margin:0 4px}
 <div id="thanks_panel" class="allpanels"></div>
 
 <div id="featureRequest_panel" class="allpanels">
-<textarea id="featureRequest" class="feedback" placeholder="<?=_('Please summarize your suggestion here')?>."></textarea>
+<textarea id="featureRequest" class="feedback"></textarea>
 </div>
 
 <div id="bugReport_panel" class="allpanels">
@@ -74,14 +74,14 @@ span.spacer{margin:0 4px}
 </div>
 
 <div id="otherComment_panel" class="allpanels">
-<textarea id="otherComment" class="feedback" placeholder="<?=_('Type your question or comment to Lime Technology here')?>."></textarea>
+<textarea id="otherComment" class="feedback"></textarea>
 </div>
 
 <div id="footer_panel">
-  <input type="email" id="email" autocomplete="off" spellcheck="false">
-  <a href="https://unraid.net" target="_blank"><?=_('Website')?></a><span class="spacer blue-text">|</span>
-  <a href="https://forums.unraid.net" target="_blank"><?=_('Forum')?></a><span class="spacer blue-text">|</span>
-  <a href="https://docs.unraid.net/" target="_blank"><?=_('Docs')?></a>
+<input type="email" id="email" autocomplete="off" spellcheck="false">
+<a href="https://unraid.net" target="_blank"><?=_('Website')?></a><span class="spacer blue-text">|</span>
+<a href="https://forums.unraid.net" target="_blank"><?=_('Forum')?></a><span class="spacer blue-text">|</span>
+<a href="https://docs.unraid.net/" target="_blank"><?=_('Docs')?></a>
 </div>
 </div>
 
@@ -136,17 +136,15 @@ var unraid_timestamp = <?=time()?>;
 var inpageurl = window.top.location.href;
 var md5 = {};
 
-function validInput(input,panel) {
-  return input.val().md5() == md5[panel];
-}
-
-function validEmail(input) {
+function validInput(input) {
   var validRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return input.prop('required')===false || input.val().match(validRegex);
+  var panel = input.prop('id');
+  var email = $('input#email');
+  return input.val().md5() == md5[panel] || !(email.prop('required')===false || email.val().match(validRegex));
 }
 
 function feedback_reset() {
-  $('#featureRequest').val("");
+  $('#featureRequest').val("").prop('placeholder',"<?=_('Please summarize your suggestion here')?>.");
   md5.featureRequest = $('#featureRequest').val().md5();
 
   $('#bugReport').val("<?=_('Bug Description')?>:\n\n\n\n<?=_('How to reproduce')?>:\n\n\n\n<?=_('Expected results')?>:\n\n\n\n<?=_('Actual results')?>:\n\n\n\n<?=_('Other information')?>:\n");
@@ -155,7 +153,7 @@ function feedback_reset() {
   $('#troubleshoot').val("<?=_('Description')?>:\n\n\n\n<?=_('How to reproduce')?>:\n\n\n\n<?=_('Expected results')?>:\n\n\n\n<?=_('Actual results')?>:\n\n\n\n<?=_('Other information')?>:\n");
   md5.troubleshoot = $('#troubleshoot').val().md5();
 
-  $('#otherComment').val("");
+  $('#otherComment').val("").prop('placeholder',"<?=_('Type your question or comment to Lime Technology here')?>.");
   md5.otherComment = $('#otherComment').val().md5();
 }
 
@@ -229,17 +227,16 @@ $(function() {
     var email = "<?=_('Contact Email Address')?>";
     var option = " (<?=_('optional')?>)";
     $('input#email').prop('placeholder',email+(required?'':option)).prop('required',required);
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea'),panel) || !validEmail($('input#email')));
+    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
   });
 
   $('textarea').on('input change',function(){
-    var panel = $(this).parent().prop('id').replace('_panel','');
-    $('#submit-button').prop('disabled',validInput($(this),panel) || !validEmail($('input#email')));
+    $('#submit-button').prop('disabled',validInput($(this)));
   });
 
   $('input#email').on('input change',function(){
     var panel = $('input[name=mode]:checked').val();
-    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea'),panel) || !validEmail($(this)));
+    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea')));
   });
 
   $('#submit-button').click(function() {
