@@ -226,12 +226,12 @@ $(function() {
   if ($('#submit-button').length == 0) $('button.confirm').before('<input type="button" id="submit-button" value="<?=_('Submit')?>" disabled>');
 
   $('input[name=mode]').click(function(){
-    var label = $('input[name=mode]:checked').val();
-    var required = (label == 'troubleshoot');
+    var panel = $('input[name=mode]:checked').val();
+    var required = (panel == 'troubleshoot');
     var email = "<?=_('Contact Email Address')?>";
     var option = " (<?=_('optional')?>)";
-    $('#submit-button').prop('disabled',$('#'+label)!='');
     $('input#email').prop('placeholder',email+(required?'':option)).prop('required',required);
+    $('#submit-button').prop('disabled',validInput($('#'+panel+'_panel textarea').val(),panel) || !validEmail($('input#email')));
   });
 
   $('textarea').on('input change',function(){
