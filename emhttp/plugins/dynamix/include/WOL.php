@@ -22,6 +22,14 @@ $_SERVER['REQUEST_URI'] = 'tools';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt.php";
+
+function macbyte($val) {
+  if ($val < 16)
+    return '0'.dechex($val);
+
+  return dechex($val);
+}
+
 $arrEntries = [];
 $vms = $lv->get_domains() ?:[];
 sort($vms,SORT_NATURAL);
@@ -54,8 +62,7 @@ foreach($arrEntries as $key => $data) {
   foreach($data as $data2){
     $name=$data2['name'];
     if (isset($user_mac[$type][$name])) {
-        $name=$name;
-      #var_dump($name);
+      $name=$name;
       $arrEntries[$type][$name]['enable'] = $user_mac[$type][$name]['enable'];
       $arrEntries[$type][$name]['user_mac'] = strtolower($user_mac[$type][$name]['user_mac']);
     } else {
@@ -91,6 +98,7 @@ case 't1load':
     $html .="<select name='$selecttypename' class='audio narrow'>";
     $html .= mk_option($macaddr["enable"]  , "disable", _("Disabled"));
     $html .= mk_option($macaddr["enable"]  , "enable", _("Enabled"));
+    $html .= mk_option($macaddr["enable"]  , "shutdown", _("Enabled and Shutdown"));
     $html .= "</select></td><td>".$user_mac_str."</td></tr>";
     $text = "";
   }
@@ -108,8 +116,8 @@ case 't1load':
 
 case "macaddress":
         $seed = 1;
-        $prefix = '52:54:AA';
-        $prefix.':'.$lv->macbyte(($seed * rand()) % 256).':'.$lv->macbyte(($seed * rand()) % 256).':'.$lv->macbyte(($seed * rand()) % 256);
+        $prefix = '62:00:00';
+        $prefix .=':'.macbyte(($seed * rand()) % 256).':'.macbyte(($seed * rand()) % 256).':'.macbyte(($seed * rand()) % 256);
         echo json_encode(['mac' => $prefix]);
         break; 
 

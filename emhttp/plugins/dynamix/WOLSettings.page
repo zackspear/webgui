@@ -65,6 +65,14 @@ _(Enable VM actions)_:
 
 :WOL_run_VM_help:
 
+_(Enable Shutdown actions)_:
+: <select name="RUNSHUT" >
+  <?=mk_option($current['RUNSHUT'], "n", _('No'))?>
+  <?=mk_option($current['RUNSHUT'], "y", _('Yes'))?>
+  </select>
+
+:WOL_run_shutdown_help:
+
 _(Interface to listern on)_:
 : <select id="INTERFACE" name="INTERFACE" >
   <?=mk_option(_var($eth0,'INTERFACE'),'eth0','eth0','selected')?>

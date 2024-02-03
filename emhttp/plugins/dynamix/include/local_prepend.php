@@ -15,7 +15,7 @@
 // auto_prepend_file="/usr/local/emhttp/webGui/include/local_prepend.php"
 
 function csrf_terminate($reason) {
-  exec("logger -t webGUI -- \"error: {$_SERVER['REQUEST_URI']} - {$reason} csrf_token\"");
+  exec('logger -t webGUI -- '.escapeshellarg("error: {$_SERVER['REQUEST_URI']} - {$reason} csrf_token"));
   exit;
 }
 
