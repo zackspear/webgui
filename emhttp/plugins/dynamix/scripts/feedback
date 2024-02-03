@@ -174,6 +174,7 @@ function form_submit(url, params, panel, diagnostics) {
     });
     return;
   }
+  params.email = $('input#email').val();
   params.timestamp = unraid_timestamp;
   params.osversion = unraid_osversion;
   params.keyfile = inkeyfile;
@@ -243,17 +244,17 @@ $(function() {
   $('#submit-button').click(function() {
     switch ($('input[name=mode]:checked').val()) {
     case 'featureRequest':
-      form_submit('https://keys.lime-technology.com/feedback/featurerequest',{description:$('#featureRequest').val(), email:$('input#email').val()}, $('#featureRequest_panel'));
+      form_submit('https://keys.lime-technology.com/feedback/featurerequest',{description:$('#featureRequest').val()}, $('#featureRequest_panel'));
       break;
     case 'bugReport':
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#bugReport').val(), email:$('input#email').val()}, $('#bugReport_panel'), 1);
+      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#bugReport').val()}, $('#bugReport_panel'), 1);
       break;
     case 'troubleshoot':
       // @todo - update this to use a new troubleshoot endpoint
-      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#troubleshoot').val(), email:$('input#email').val()}, $('#troubleshoot_panel'), 1);
+      form_submit('https://keys.lime-technology.com/feedback/bugreport',{description:$('#troubleshoot').val()}, $('#troubleshoot_panel'), 1);
       break;
     case 'otherComment':
-      form_submit('https://keys.lime-technology.com/feedback/comment',{description:$('#otherComment').val(), email:$('input#email').val()}, $('#otherComment_panel'));
+      form_submit('https://keys.lime-technology.com/feedback/comment',{description:$('#otherComment').val()}, $('#otherComment_panel'));
       break;
     }
   });
