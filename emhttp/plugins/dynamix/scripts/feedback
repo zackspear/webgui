@@ -204,8 +204,8 @@ function form_submit(url, params, panel, diagnostics) {
 }
 
 $(function() {
-  $('#control_panel input[name=mode]').click(function() {
-    var panel = $('#control_panel input[name=mode]:checked').val();
+  $('input[name=mode]').click(function() {
+    var panel = $('input[name=mode]:checked').val();
     var showPanel = '#'+panel+'_panel';
     $('.allpanels').not(showPanel).fadeOut('fast');
     var loadfunction = window[panel+'_load'];
