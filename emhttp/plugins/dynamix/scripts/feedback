@@ -30,11 +30,6 @@ $diagn = _('Unable to generate system diagnostics');
 $sorry = _('Sorry, an error occurred');
 $again = _('Please try again later');
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Feedback Form</title>
 <style>
 div.spinner.fixed{z-index:100000}
 div#control_panel{position:absolute;left:0;right:0;top:0;padding-top:8px;line-height:24px;white-space:nowrap}
@@ -53,8 +48,7 @@ img{display:inline-block;margin-bottom:30px}
 .green-text{color:#4f8a10!important}
 .red-text{color:#f0000c!important}
 </style>
-</head>
-<body>
+
 <div>
 <div id="control_panel" class="divide">
 <label for="opt_featurerequest"><input type="radio" name="mode" id="opt_featurerequest" value="featurerequest" checked="checked"><?=_('Product Suggestion')?></label>
@@ -259,5 +253,3 @@ $(function(){
   $('#opt_featurerequest').click();
 });
 </script>
-</body>
-</html>
