@@ -22,6 +22,8 @@ $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
 $month = [' Jan '=>'-01-',' Feb '=>'-02-',' Mar '=>'-03-',' Apr '=>'-04-',' May '=>'-05-',' Jun '=>'-06-',' Jul '=>'-07-',' Aug '=>'-08-',' Sep '=>'-09-',' Oct '=>'-10-',' Nov '=>'-11-',' Dec '=>'-12-'];
+$log   = "/boot/config/parity-checks.log";
+$list  = [];
 
 function this_plus($val, $word, $last) {
   return $val>0 ? (($val||$last)?($val.' '.$word.($last?'':', ')):'') : '';
@@ -35,10 +37,10 @@ function this_duration($time) {
   $secs = $hmss%60;
   return this_plus($days,_('day'),($hour|$mins|$secs)==0).this_plus($hour,_('hr'),($mins|$secs)==0).this_plus($mins,_('min'),$secs==0).this_plus($secs,_('sec'),true);
 }
-$log  = "/boot/config/parity-checks.log";
-$head = "<table style='margin-top:10px;background-color:inherit'><tr style='font-weight:bold'><td>"._('Action')."</td><td>"._('Date')."</td><td>"._('Size')."</td><td>"._('Duration')."</td><td>"._('Speed')."</td><td>"._('Status')."</td><td>"._('Errors')."</td></tr>";
-$list = [];
-
+?>
+<table style='margin-top:10px;background-color:inherit'>
+<tr style='font-weight:bold'><td><?=_('Action')?></td><td><?=_('Date')?></td><td><?=_('Size')?></td><td><?=_('Duration')?></td><td><?=_('Speed')?></td><td><?=_('Status')?></td><td><?=_('Errors')?></td></tr>
+<?
 if (file_exists($log)) {
   $handle = fopen($log, 'r');
   while (($row = fgets($handle))!==false) {
@@ -66,5 +68,6 @@ if ($list) {
 } else {
   $list[] = "<tr><td colspan='7' style='text-align:center;padding-top:12px'>"._('No parity check history present')."!</td></tr>";
 }
-echo $head,implode($list),"</table>";
+echo implode($list);
 ?>
+</table>
