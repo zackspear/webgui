@@ -192,13 +192,13 @@ function form_submit(url, params, tab, diagnostics) {
       var success_message = '<div style="text-align:center"><h2 style="color:#4f8a10!important"><?=_("Thank You")?>!</h2><img src="/webGui/images/feedback_'+name+'.png"><p class="success">'+data.message+'</p></div>';
       $('#reply_panel').html(success_message).fadeIn('fast');
     }
-  }).fail(function(jqXHR, textStatus, errorThrown) {
+  }).fail(function(jqXHR, textStatus, errorThrown){
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
     var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
     $('#reply_panel').html(failure_message).fadeIn('fast');
-  }).always(function() {
+  }).always(function(){
     $('#spinner_image').fadeOut('fast');
     panel.fadeOut('fast').find('textarea').prop('disabled',false);
   });
