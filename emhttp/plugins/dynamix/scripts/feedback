@@ -42,8 +42,11 @@ textarea.feedback{width:<?=$width?>;height:530px;margin:0;resize:none}
 @media(max-height:768px){textarea.feedback{height:330px}}
 input#email{float:left;padding-left:4px}
 p.note,label.note{font-size:1.1rem!important}
-p.success{text-align:center!important;margin-top:20px}
 span.spacer{margin:0 4px}
+img{display:inline-block;margin-bottom:30px}
+.center{text-align:center!important}
+.green-text{color:#4f8a10!important}
+.red-text{color:#f0000c!important}
 </style>
 </head>
 <body>
@@ -170,8 +173,8 @@ function form_submit(url, params, tab, diagnostics) {
     }).fail(function(){
       $('div.spinner.fixed').hide();
       panel.fadeOut('fast').find('textarea').prop('disabled',false);
-      var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?> (<?=_('Unable to generate system diagnostics')?> <?=_('Please try again later')?>).</p>";
-      $('#reply_panel').html(failure_message).fadeIn('fast');
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='/webGui/images/feedback_error.png'><br><?=_('Unable to generate system diagnostics')?>. <?=_('Please try again later')?>).</p>";
+      $('#reply_panel').html(reply).fadeIn('fast');
     });
     return;
   }
@@ -184,20 +187,20 @@ function form_submit(url, params, tab, diagnostics) {
   $.post(url, params, function(data){
     $('div.spinner.fixed').hide();
     if (data.error) {
-      var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
-      $('#reply_panel').html(failure_message).fadeIn('fast');
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='/webGui/images/feedback_error.png'><br><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
+      $('#reply_panel').html(reply).fadeIn('fast');
     } else {
       data.message = data.message || '';
       var name = tab.substr(1).toLowerCase();
-      var success_message = '<div style="text-align:center"><h2 style="color:#4f8a10!important"><?=_("Thank You")?>!</h2><img src="/webGui/images/feedback_'+name+'.png"><p class="success">'+data.message+'</p></div>';
-      $('#reply_panel').html(success_message).fadeIn('fast');
+      var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img src='/webGui/images/feedback_"+name+".png'><br>"+data.message+"</p>";
+      $('#reply_panel').html(reply).fadeIn('fast');
     }
   }).fail(function(jqXHR, textStatus, errorThrown){
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
-    var failure_message = "<p class='red-text' style='text-align:center'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
-    $('#reply_panel').html(failure_message).fadeIn('fast');
+    var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='/webGui/images/feedback_error.png'><br><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
+    $('#reply_panel').html(reply).fadeIn('fast');
   }).always(function(){
     $('#spinner_image').fadeOut('fast');
     panel.fadeOut('fast').find('textarea').prop('disabled',false);
