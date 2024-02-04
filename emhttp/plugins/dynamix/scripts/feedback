@@ -26,7 +26,7 @@ $keyfile = !empty(_var($var,'regFILE')) ? trim(base64_encode(@file_get_contents(
 $width = in_array($display['theme'], ['azure','gray']) ? '98.8%' : '100%';
 $feedback = '/webGui/images/feedback_';
 
-$unable = _('Unable to generate system diagnostics');
+$diagn = _('Unable to generate system diagnostics');
 $sorry = _('Sorry, an error occurred');
 $again = _('Please try again later');
 ?>
@@ -57,22 +57,22 @@ img{display:inline-block;margin-bottom:30px}
 <body>
 <div>
 <div id="control_panel" class="divide">
-<label for="optFeatureRequest"><input type="radio" name="mode" id="optFeatureRequest" value="featureRequest" checked="checked"><?=_('Product Suggestion')?></label>
-<label for="optBugReport"><input type="radio" name="mode" id="optBugReport" value="bugReport"><?=_('Bug Report')?></label>
-<label for="optTroubleshoot"><input type="radio" name="mode" id="optTroubleshoot" value="troubleshoot"><?=_('Troubleshoot')?></label>
-<label for="optComment"><input type="radio" name="mode" id="optComment" value="otherComment"><?=_('Other Comment')?></label>
+<label for="opt_featurerequest"><input type="radio" name="mode" id="opt_featurerequest" value="featurerequest" checked="checked"><?=_('Product Suggestion')?></label>
+<label for="opt_bugreport"><input type="radio" name="mode" id="opt_bugreport" value="bugreport"><?=_('Bug Report')?></label>
+<label for="opt_troubleshoot"><input type="radio" name="mode" id="opt_troubleshoot" value="troubleshoot"><?=_('Troubleshoot')?></label>
+<label for="opt_comment"><input type="radio" name="mode" id="opt_comment" value="comment"><?=_('Other Comment')?></label>
 <hr>
 </div>
 
-<div id="reply_panel" class="allpanels"></div>
+<div id="result_panel" class="allpanels"></div>
 
-<div id="featureRequest_panel" class="allpanels">
-<textarea id="featureRequest" class="feedback"></textarea>
+<div id="featurerequest_panel" class="allpanels">
+<textarea id="featurerequest" class="feedback"></textarea>
 </div>
 
-<div id="bugReport_panel" class="allpanels">
-<textarea id="bugReport" class="feedback"></textarea>
-<label class="note" for="anonymize_bugReport"><input type="checkbox" id="anonymize_bugReport" class="anonymize" value="1"> <?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
+<div id="bugreport_panel" class="allpanels">
+<textarea id="bugreport" class="feedback"></textarea>
+<label class="note" for="anonymize_bugreport"><input type="checkbox" id="anonymize_bugreport" class="anonymize" value="1"> <?=_('Anonymize diagnostics (may make troubleshooting more difficult)')?></label>
 <p class="note"><b><?=_('NOTE')?>:</b> <i><?=_('Submission of this bug report will automatically send your system diagnostics to Lime Technology')?>.</i></p>
 </div>
 
@@ -82,8 +82,8 @@ img{display:inline-block;margin-bottom:30px}
 <p class="note"><b><?=_('NOTE')?>:</b> <i><?=_('Submission of this troubleshooting request will automatically send your system diagnostics to Lime Technology')?>.</i></p>
 </div>
 
-<div id="otherComment_panel" class="allpanels">
-<textarea id="otherComment" class="feedback"></textarea>
+<div id="comment_panel" class="allpanels">
+<textarea id="comment" class="feedback"></textarea>
 </div>
 
 <div id="footer_panel">
@@ -152,17 +152,17 @@ function validInput(input) {
 }
 
 function feedback_reset() {
-  $('#featureRequest').val("").prop('placeholder',"<?=_('Please summarize your suggestion here')?>.");
-  md5.featureRequest = $('#featureRequest').val().md5();
+  $('#featurerequest').val("").prop('placeholder',"<?=_('Please summarize your suggestion here')?>.");
+  md5.featurerequest = $('#featurerequest').val().md5();
 
-  $('#bugReport').val("<?=_('Bug Description')?>:\n\n\n\n<?=_('How to reproduce')?>:\n\n\n\n<?=_('Expected results')?>:\n\n\n\n<?=_('Actual results')?>:\n\n\n\n<?=_('Other information')?>:\n");
-  md5.bugReport = $('#bugReport').val().md5();
+  $('#bugreport').val("<?=_('Bug Description')?>:\n\n\n\n<?=_('How to reproduce')?>:\n\n\n\n<?=_('Expected results')?>:\n\n\n\n<?=_('Actual results')?>:\n\n\n\n<?=_('Other information')?>:\n");
+  md5.bugreport = $('#bugreport').val().md5();
 
   $('#troubleshoot').val("<?=_('Description')?>:\n\n\n\n<?=_('How to reproduce')?>:\n\n\n\n<?=_('Expected results')?>:\n\n\n\n<?=_('Actual results')?>:\n\n\n\n<?=_('Other information')?>:\n");
   md5.troubleshoot = $('#troubleshoot').val().md5();
 
-  $('#otherComment').val("").prop('placeholder',"<?=_('Type your question or comment to Lime Technology here')?>.");
-  md5.otherComment = $('#otherComment').val().md5();
+  $('#comment').val("").prop('placeholder',"<?=_('Type your question or comment to Lime Technology here')?>.");
+  md5.comment = $('#comment').val().md5();
 }
 
 function form_submit(url, params, tab, diagnostics) {
@@ -178,8 +178,8 @@ function form_submit(url, params, tab, diagnostics) {
     }).fail(function(){
       $('div.spinner.fixed').hide();
       panel.fadeOut('fast').find('textarea').prop('disabled',false);
-      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$unable.'. '.$again?>.</p>";
-      $('#reply_panel').html(reply).fadeIn('fast');
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$diagn.'. '.$again?>.</p>";
+      $('#result_panel').html(reply).fadeIn('fast');
     });
     return;
   }
@@ -193,18 +193,18 @@ function form_submit(url, params, tab, diagnostics) {
     $('div.spinner.fixed').hide();
     if (data.error) {
       var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$sorry.'. '.$again?>.</p>";
-      $('#reply_panel').html(reply).fadeIn('fast');
+      $('#result_panel').html(reply).fadeIn('fast');
     } else {
       var name = tab.substr(1).toLowerCase();
       var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img src='<?=$feedback?>"+name+".png'><br>"+(data.message||'')+"</p>";
-      $('#reply_panel').html(reply).fadeIn('fast');
+      $('#result_panel').html(reply).fadeIn('fast');
     }
   }).fail(function(jqXHR, textStatus, errorThrown){
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
     var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$sorry.'. '.$again?>.</p>";
-    $('#reply_panel').html(reply).fadeIn('fast');
+    $('#result_panel').html(reply).fadeIn('fast');
   }).always(function(){
     $('#spinner_image').fadeOut('fast');
     panel.fadeOut('fast').find('textarea').prop('disabled',false);
@@ -239,24 +239,24 @@ $(function(){
     var url = 'https://keys.lime-technology.com/feedback/';
     var tab = '#'+$('input[name=mode]:checked').val();
     switch (tab) {
-    case '#featureRequest':
+    case '#featurerequest':
       form_submit(url+'featurerequest',{},tab);
       break;
-    case '#bugReport':
+    case '#bugreport':
       form_submit(url+'bugreport',{},tab,1);
       break;
     case '#troubleshoot':
       // @todo - update this to use a new troubleshoot endpoint
       form_submit(url+'bugreport',{},tab,1);
       break;
-    case '#otherComment':
+    case '#comment':
       form_submit(url+'comment',{},tab);
       break;
     }
   });
 
   feedback_reset();
-  $('#optFeatureRequest').click();
+  $('#opt_featurerequest').click();
 });
 </script>
 </body>
