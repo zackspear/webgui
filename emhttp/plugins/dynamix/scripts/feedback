@@ -210,20 +210,14 @@ $(function() {
   if ($('#submit_button').length == 0) $('button.confirm').before('<input type="button" id="submit_button" value="<?=_('Submit')?>" disabled>');
 
   $('input[name=mode]').click(function() {
-    var tab = $('input[name=mode]:checked').val();
-    var panel = '#'+tab+'_panel';
-    var email = "<?=_('Contact Email Address')?>";
+    var tab = '#'+$('input[name=mode]:checked').val();
+    var panel = tab+'_panel';
+    var enter = ['#troubleshoot'].includes(tab);
+    var email = "<?=_('Contact Email Address')?> ("+(enter ? "<?=_('required')?>" : "<?=_('optional')?>")+")";
+    $('input#email').prop('placeholder',email).prop('required',enter);
+    $('#submit_button').prop('disabled',validInput($(tab)));
     $('.allpanels').not(panel).fadeOut('fast');
-    var loadfunction = window[tab+'_load'];
-    if (typeof loadfunction !== 'undefined' && $.isFunction(loadfunction)) {
-      loadfunction();
-    } else {
-      $(panel).fadeIn('fast');
-    }
-    var required = ['troubleshoot'].includes(tab);
-    var optional = required ? "" : " (<?=_('optional')?>)";
-    $('input#email').prop('placeholder',email+optional).prop('required',required);
-    $('#submit_button').prop('disabled',validInput($('#'+tab+'_panel textarea')));
+    $(panel).fadeIn('fast');
   });
 
   $('textarea').on('input change',function(){
@@ -231,8 +225,8 @@ $(function() {
   });
 
   $('input#email').on('input change',function(){
-    var tab = $('input[name=mode]:checked').val();
-    $('#submit_button').prop('disabled',validInput($('#'+tab+'_panel textarea')));
+    var tab = '#'+$('input[name=mode]:checked').val();
+    $('#submit_button').prop('disabled',validInput($(tab)));
   });
 
   $('#submit_button').click(function() {
