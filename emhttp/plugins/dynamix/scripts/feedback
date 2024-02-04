@@ -196,7 +196,7 @@ function form_submit(url, params, tab, diagnostics) {
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
-    var failure_message = "<p class='red-text' style='text-align:center;'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
+    var failure_message = "<p class='red-text' style='text-align:center'><?=_('Sorry, an error occurred')?>. <?=_('Please try again later')?>.</p>";
     $('#reply_panel').html(failure_message).fadeIn('fast');
   }).always(function(){
     $('#spinner_image').fadeOut('fast');
