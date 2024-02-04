@@ -139,9 +139,8 @@ var md5 = {};
 
 function validInput(input) {
   var validRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  var panel = input.prop('id');
   var email = $('input#email');
-  return input.val().md5() == md5[panel] || !(email.prop('required')===false || email.val().match(validRegex));
+  return input.val().md5() == md5[input.prop('id')] || !(email.prop('required')===false || email.val().match(validRegex));
 }
 
 function feedback_reset() {
