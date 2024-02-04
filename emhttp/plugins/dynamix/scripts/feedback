@@ -195,9 +195,8 @@ function form_submit(url, params, tab, diagnostics) {
       var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$sorry.'. '.$again?>.</p>";
       $('#reply_panel').html(reply).fadeIn('fast');
     } else {
-      data.message = data.message || '';
       var name = tab.substr(1).toLowerCase();
-      var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img src='<?=$feedback?>"+name+".png'><br>"+data.message+"</p>";
+      var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img src='<?=$feedback?>"+name+".png'><br>"+(data.message||'')+"</p>";
       $('#reply_panel').html(reply).fadeIn('fast');
     }
   }).fail(function(jqXHR, textStatus, errorThrown){
