@@ -388,7 +388,7 @@ function openChanges(cmd,title,nchan,button=0) {
     $('div.spinner.fixed').hide();
     swal({title:title,text:"<pre id='swalbody'></pre><hr>",html:true,animation:'none',showConfirmButton:button!=0,confirmButtonText:"<?=_('Close')?>"},function(close){
       $('.sweet-alert').hide('fast').removeClass('nchan');
-      if ($('#submit-button').length > 0) $('#submit-button').remove();
+      if ($('#submit_button').length > 0) $('#submit_button').remove();
     });
     $('.sweet-alert').addClass('nchan');
     $('pre#swalbody').html(data);
@@ -679,7 +679,7 @@ foreach ($buttons as $button) {
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
 
-echo "<div class='nav-user show'><a id='board' href='#'><b id='bell' class='icon-u-bell system'></b></a></div>";
+echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
 if ($themes2) echo "</div>";
 echo "</div></div>";
