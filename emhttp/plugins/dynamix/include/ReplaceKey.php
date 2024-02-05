@@ -1,14 +1,13 @@
 <?php
 $webguiGlobals = $GLOBALS;
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-require_once "$docroot/plugins/dynamix.my.servers/include/state.php";
 
 class ReplaceKey
 {
     private const KEY_SERVER_URL = 'https://keys.lime-technology.com';
 
     private $docroot;
-    private $serverState;
+    private $var;
     private $guid;
     private $keyfile;
     private $regExp;
@@ -17,12 +16,16 @@ class ReplaceKey
     {
         $this->docroot = $GLOBALS['docroot'] ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
-        $ServerStateClass = new ServerState();
-        $this->serverState = $ServerStateClass->getServerState();
+        $this->var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
+        $this->guid = @$this->var['regGUID'] ?? null;
 
-        $this->guid = @$this->serverState['guid'] ?? null;
-        $this->keyfile = @$this->serverState['keyfile'] ?? null;
-        $this->regExp = @$this->serverState['regExp'] ?? null;
+        $keyfileBase64 = empty($this->var['regFILE']) ? null : @file_get_contents($this->var['regFILE']);
+        if ($keyfileBase64 !== false) {
+            $keyfileBase64 = @base64_encode($keyfileBase64);
+            $this->keyfile = str_replace(['+', '/', '='], ['-', '_', ''], trim($keyfileBase64));
+        }
+
+        $this->regExp = @$this->var['regExp'] ?? null;
     }
 
     private function request($url, $method, $payload = null, $headers = null)
@@ -155,12 +158,16 @@ class ReplaceKey
     public function check()
     {
         // we don't need to check
-        if ($this->guid === null || $this->keyfile === null || $this->regExp === null) {
+        if (empty($this->guid) || empty($this->keyfile) || empty($this->regExp)) {
             return;
         }
 
+        // set $isAlreadyExpired to true if regExp is in the past
+        $isAlreadyExpired = $this->regExp <= time();
         // if regExp is seven days or less from now, we need to check
-        $shouldCheck = strtotime($this->regExp) <= strtotime('+7 days');
+        $isWithinSevenDays = $this->regExp <= strtotime('+7 days');
+
+        $shouldCheck = $isAlreadyExpired || $isWithinSevenDays;
         if (!$shouldCheck) {
             return;
         }
