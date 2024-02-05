@@ -172,7 +172,7 @@ function form_submit(url, params, tab, diagnostics) {
     }).fail(function(){
       $('div.spinner.fixed').hide();
       panel.fadeOut('fast').find('textarea').prop('disabled',false);
-      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$diagn.'. '.$again?>.</p>";
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$diagn. $again"?>.</p>";
       $('#result_panel').html(reply).fadeIn('fast');
     });
     return;
@@ -186,7 +186,7 @@ function form_submit(url, params, tab, diagnostics) {
   $.post(url, params, function(data){
     $('div.spinner.fixed').hide();
     if (data.error) {
-      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$sorry.'. '.$again?>.</p>";
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
       $('#result_panel').html(reply).fadeIn('fast');
     } else {
       var name = tab.substr(1).toLowerCase();
@@ -197,7 +197,7 @@ function form_submit(url, params, tab, diagnostics) {
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
-    var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?=$sorry.'. '.$again?>.</p>";
+    var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
     $('#result_panel').html(reply).fadeIn('fast');
   }).always(function(){
     $('#spinner_image').fadeOut('fast');
