@@ -8,6 +8,7 @@
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
+$logger = 'language-manager';
 
 $usage = <<<EOF
 Process language files.
@@ -311,7 +312,7 @@ if ($method == 'install') {
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack installed\n");
-  my_logger("$lang language pack installed", 'language-manager');
+  my_logger("$lang language pack installed", $logger);
   // run hook scripts for post processing
   post_hooks();
   done(0);
@@ -393,7 +394,7 @@ if ($method == 'update') {
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack updated\n");
-  my_logger("$lang language pack updated", 'language-manager');
+  my_logger("$lang language pack updated", $logger);
   // run hook scripts for post processing
   post_hooks();
   done(0);
@@ -420,7 +421,7 @@ if ($method == 'remove') {
     done(1);
   }
   write("language: $lang language pack removed\n");
-  my_logger("$lang language pack removed", 'language-manager');
+  my_logger("$lang language pack removed", $logger);
   // run hook scripts for post processing
   post_hooks();
   done(0);
