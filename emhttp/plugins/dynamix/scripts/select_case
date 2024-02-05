@@ -32,6 +32,7 @@ div.case-list span.fa{top:24px;max-width:80px;font-size:80px}
 div.case-list:hover{color:#f0000c}
 div.case-name{position:relative;top:74px;font-family:clear-sans!important}
 div.custom-name{position:relative;top:10px;font-family:clear-sans!important}
+input#file{display:none}
 </style>
 
 <script>
@@ -67,5 +68,5 @@ $select = $cmodel=='case-model.png' ? 'color:#e68a00' : '';
 ?>
 <div id='Custom' class='case-list' style='<?=$select?>' onclick='$("input#file").trigger("click")'><span class='fa fa-file-image-o'></span><div class='custom-name'><?=_('custom image')?></div></div>
 </div></div>
-<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])' style='display:none'>
+<input type='file' id='file' accept='.png' onchange='importFile(this.files[0])'>
 </div>
