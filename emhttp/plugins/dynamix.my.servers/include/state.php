@@ -15,6 +15,7 @@ $webguiGlobals = $GLOBALS;
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 require_once "$docroot/plugins/dynamix.my.servers/include/reboot-details.php";
+require_once "$docroot/plugins/dynamix.plugin.manager/include/UnraidCheck.php";
 /**
  * ServerState class encapsulates server-related information and settings.
  *
@@ -47,7 +48,10 @@ class ServerState
     private $rebootDetails;
     private $caseModel = '';
     private $keyfileBase64UrlSafe = '';
+    private $updateOsCheck;
+    private $updateOsNotificationsEnabled = false;
     private $updateOsResponse;
+    private $updateOsIgnoredReleases = [];
 
     public $myServersFlashCfg = [];
     public $myServersMemoryCfg = [];
@@ -164,17 +168,21 @@ class ServerState
           $this->keyfileBase64UrlSafe = str_replace(['+', '/', '='], ['-', '_', ''], trim($this->keyfileBase64));
         }
 
-        /**
-         * updateOsResponse is provided by the dynamix.plugin.manager/scripts/unraidcheck script saving to /tmp/unraidcheck/result.json
-         */
-        $this->updateOsResponse = @json_decode(@file_get_contents('/tmp/unraidcheck/result.json'), true);
+        $this->updateOsCheck = new UnraidOsCheck();
+        $this->updateOsIgnoredReleases = $this->updateOsCheck->getIgnoredReleases();
+        $this->updateOsNotificationsEnabled = !empty(@$this->getWebguiGlobal('notify', 'unraidos'));
+        $this->updateOsResponse = $this->updateOsCheck->getUnraidOSCheckResult();
     }
 
     /**
      * Retrieve the value of a webgui global setting.
      */
-    public function getWebguiGlobal(string $key) {
-        return $this->webguiGlobals[$key];
+    public function getWebguiGlobal(string $key, string $subkey = null) {
+        if (!$subkey) {
+            return _var($this->webguiGlobals, $key, '');
+        }
+        $keyArray = _var($this->webguiGlobals, $key, []);
+        return _var($keyArray, $subkey, '');
     }
     /**
      * Retrieve the server information as an associative array
@@ -196,8 +204,8 @@ class ServerState
             "connectPluginVersion" => $this->connectPluginVersion,
             "csrf" => $this->var['csrf_token'],
             "dateTimeFormat" => [
-                "date" => @$this->getWebguiGlobal('display')['date'] ?? '',
-                "time" => @$this->getWebguiGlobal('display')['time'] ?? '',
+                "date" => @$this->getWebguiGlobal('display', 'date') ?? '',
+                "time" => @$this->getWebguiGlobal('display', 'time') ?? '',
             ],
             "description" => $this->var['COMMENT'] ? htmlspecialchars($this->var['COMMENT']) : '',
             "deviceCount" => $this->var['deviceCount'],
@@ -209,7 +217,7 @@ class ServerState
             "flashBackupActivated" => empty($this->flashbackupStatus['activated']) ? '' : 'true',
             "guid" => $this->var['flashGUID'],
             "hasRemoteApikey" => !empty($this->myServersFlashCfg['remote']['apikey']),
-            "internalPort" => $_SERVER['SERVER_PORT'],
+            "internalPort" => _var($_SERVER, 'SERVER_PORT'),
             "keyfile" => $this->keyfileBase64UrlSafe,
             "lanIp" => ipaddr(),
             "locale" => (!empty($_SESSION) && $_SESSION['locale']) ? $_SESSION['locale'] : 'en_US',
@@ -217,7 +225,7 @@ class ServerState
             "name" => htmlspecialchars($this->var['NAME']),
             "osVersion" => $this->osVersion,
             "osVersionBranch" => $this->osVersionBranch,
-            "protocol" => $_SERVER['REQUEST_SCHEME'],
+            "protocol" => _var($_SERVER, 'REQUEST_SCHEME'),
             "rebootType" => $this->rebootDetails->getRebootType(),
             "regDev" => @(int)$this->var['regDev'] ?? 0,
             "regGen" => @(int)$this->var['regGen'],
@@ -228,16 +236,16 @@ class ServerState
             "regExp" => $this->var['regExp'] ? @$this->var['regExp'] * 1000 : '', // JS expects milliseconds
             "registered" => $this->registered,
             "registeredTime" => $this->myServersFlashCfg['remote']['regWizTime'] ?? '',
-            "site" => $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'],
+            "site" => _var($_SERVER, 'REQUEST_SCHEME') . "://" . _var($_SERVER, 'HTTP_HOST'),
             "state" => strtoupper(empty($this->var['regCheck']) ? $this->var['regTy'] : $this->var['regCheck']),
             "theme" => [
-                "banner" => !empty($this->getWebguiGlobal('display')['banner']),
-                "bannerGradient" => $this->getWebguiGlobal('display')['showBannerGradient'] === 'yes' ?? false,
-                "bgColor" => ($this->getWebguiGlobal('display')['background']) ? '#' . $this->getWebguiGlobal('display')['background'] : '',
-                "descriptionShow" => (!empty($this->getWebguiGlobal('display')['headerdescription']) && $this->getWebguiGlobal('display')['headerdescription'] !== 'no'),
-                "metaColor" => ($this->getWebguiGlobal('display')['headermetacolor'] ?? '') ? '#' . $this->getWebguiGlobal('display')['headermetacolor'] : '',
-                "name" => $this->getWebguiGlobal('display')['theme'],
-                "textColor" => ($this->getWebguiGlobal('display')['header']) ? '#' . $this->getWebguiGlobal('display')['header'] : '',
+                "banner" => !empty($this->getWebguiGlobal('display', 'banner')),
+                "bannerGradient" => $this->getWebguiGlobal('display', 'showBannerGradient') === 'yes' ?? false,
+                "bgColor" => ($this->getWebguiGlobal('display', 'background')) ? '#' . $this->getWebguiGlobal('display', 'background') : '',
+                "descriptionShow" => (!empty($this->getWebguiGlobal('display', 'headerdescription')) && $this->getWebguiGlobal('display', 'headerdescription') !== 'no'),
+                "metaColor" => ($this->getWebguiGlobal('display', 'headermetacolor') ?? '') ? '#' . $this->getWebguiGlobal('display', 'headermetacolor') : '',
+                "name" => $this->getWebguiGlobal('display', 'theme'),
+                "textColor" => ($this->getWebguiGlobal('display', 'header')) ? '#' . $this->getWebguiGlobal('display', 'header') : '',
             ],
             "ts" => time(),
             "uptime" => 1000 * (time() - round(strtok(exec("cat /proc/uptime"), ' '))),
@@ -247,6 +255,14 @@ class ServerState
 
         if ($this->combinedKnownOrigins) {
             $serverState['combinedKnownOrigins'] = $this->combinedKnownOrigins;
+        }
+
+        if ($this->updateOsIgnoredReleases) {
+            $serverState['updateOsIgnoredReleases'] = $this->updateOsIgnoredReleases;
+        }
+
+        if ($this->updateOsNotificationsEnabled) {
+            $serverState['updateOsNotificationsEnabled'] = $this->updateOsNotificationsEnabled;
         }
 
         if ($this->updateOsResponse) {
