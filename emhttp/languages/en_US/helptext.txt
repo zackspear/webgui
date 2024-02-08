@@ -2494,8 +2494,7 @@ If the service is paused a WOL Packet will resume.
 For each service you can set: enable, disable or enable and shutdown
 
 When the enable and shutdown is set if the service is running when the next WOL packet is recieved a shutdown will be performed.
-
-:end:
+:end
 
 :WOL_enable_help:
 If set to yes Unraidwold daemon is set to run.
