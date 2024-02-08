@@ -73,3 +73,11 @@ class KeyInstaller
         }
     }
 }
+
+$isGetRequest = !empty($_SERVER) && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET';
+$getHasUrlParam = $_GET !== null && !empty($_GET) && isset($_GET['url']);
+
+if ($isGetRequest && $getHasUrlParam) {
+    $keyInstaller = new KeyInstaller();
+    $keyInstaller->installKey();
+}
