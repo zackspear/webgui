@@ -227,7 +227,7 @@ mv $INI ${INI%.*}
 
 log "interface=${interface:-$1}, reason=$reason, protocol=$protocol"
 # delayed execution
-/usr/local/emhttp/webGui/scripts/update_services 30
+/usr/local/emhttp/webGui/scripts/update_services 45
 
 # send update information
 if [[ -n $DATA && -e /var/run/nginx.socket ]]; then
