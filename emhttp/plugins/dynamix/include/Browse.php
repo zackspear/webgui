@@ -72,6 +72,57 @@ function my_devs(&$devs,$name,$menu) {
   }
   return implode($text);
 }
+function icon_class($ext) {
+  switch ($ext) {
+  case 'ico': case 'gif': case 'jpg': case 'jpeg': case 'jpc': case 'jp2': case 'jpx': case 'xbm': case 'wbmp': case 'png': case 'bmp': case 'tif': case 'tiff': case 'webp': case 'avif': case 'svg':
+    return 'fa fa-picture-o';
+  case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'ts': case 'jsx': case 'tsx': case 'hbs': case 'json': case 'sh': case 'config': case 'twig': case 'tpl': case 'md': case 'gitignore': case 'c': case 'cpp': case 'cs': case 'py': case 'rs': case 'map': case 'lock': case 'dtd':
+    return 'fa fa-file-code-o';
+  case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'yaml': case 'yml': case 'toml': case 'tmp': case 'top': case 'bot': case 'dat': case 'bak': case 'htpasswd': case 'pl':
+    return 'fa fa-file-text-o';
+  case 'css': case 'less': case 'sass': case 'scss':
+    return 'fa fa-css3';
+  case 'bz2': case 'zip': case 'rar': case 'gz': case 'tar': case '7z': case 'xz':
+    return 'fa fa-file-archive-o';
+  case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
+    return 'fa fa-code';
+  case 'htm': case 'html': case 'shtml': case 'xhtml':
+    return 'fa fa-html5';
+  case 'xml': case 'xsl':
+    return 'fa fa-file-excel-o';
+  case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg': case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds':
+    return 'fa fa-music';
+  case 'm3u': case 'm3u8': case 'pls': case 'cue': case 'xspf':
+    return 'fa fa-headphones';
+  case 'avi': case 'mpg': case 'mpeg': case 'mp4': case 'm4v': case 'flv': case 'f4v': case 'ogm': case 'ogv': case 'mov': case 'mkv': case '3gp': case 'asf': case 'wmv': case 'webm':
+    return 'fa fa-file-video-o';
+  case 'eml': case 'msg':
+    return 'fa fa-envelope-o';
+  case 'xls': case 'xlsx': case 'ods':
+    return 'fa fa-file-excel-o';
+  case 'csv':
+    return 'fa fa-file-text-o';
+  case 'bak': case 'swp':
+    return 'fa fa-clipboard';
+  case 'doc': case 'docx': case 'odt':
+    return 'fa fa-file-word-o';
+  case 'ppt': case 'pptx':
+    return 'fa fa-file-powerpoint-o';
+  case 'ttf': case 'ttc': case 'otf': case 'woff': case 'woff2': case 'eot': case 'fon':
+    return 'fa fa-font';
+  case 'pdf':
+    return 'fa fa-file-pdf-o';
+  case 'psd': case 'ai': case 'eps': case 'fla': case 'swf':
+    return 'fa fa-file-image-o';
+  case 'exe': case 'msi':
+    return 'fa fa-file-o';
+  case 'bat':
+    return 'fa fa-terminal';
+  default:
+    return 'fa fa-question-circle-o';
+  }
+}
+
 $dir = validdir(htmlspecialchars_decode(rawurldecode($_GET['dir'])));
 if (!$dir) {echo '<tbody><tr><td></td><td></td><td colspan="6">',_('Invalid path'),'</td><td></td></tr></tbody>'; exit;}
 
@@ -102,7 +153,7 @@ while (($row = fgets($stat))!==false) {
   $text = [];
   if ($type[0]=='d') {
     $text[] = '<tr><td><i id="check_'.$objs.'" class="fa fa-fw fa-square-o" onclick="selectOne(this.id)"></i></td>';
-    $text[] = '<td data=""><div class="icon-dir"></div></td>';
+    $text[] = '<td data=""><i class="fa fa-folder-o"></i></td>';
     $text[] = '<td><a id="name_'.$objs.'" oncontextmenu="folderContextMenu(this.id,\'right\');return false" href="/'.$path.'?dir='.rawurlencode(htmlspecialchars($name)).'">'.htmlspecialchars(basename($name)).'</a></td>';
     $text[] = '<td id="owner_'.$objs.'">'.$owner.'</td>';
     $text[] = '<td id="perm_'.$objs.'">'.$perm.'</td>';
@@ -115,7 +166,7 @@ while (($row = fgets($stat))!==false) {
     $ext = strtolower(pathinfo($name,PATHINFO_EXTENSION));
     $tag = count($devs)>1 ? 'warning' : '';
     $text[] = '<tr><td><i id="check_'.$objs.'" class="fa fa-fw fa-square-o" onclick="selectOne(this.id)"></i></td>';
-    $text[] = '<td class="ext" data="'.$ext.'"><div class="icon-file icon-'.$ext.'"></div></td>';
+    $text[] = '<td class="ext" data="'.$ext.'"><i class="'.icon_class($ext).'"></i></td>';
     $text[] = '<td id="name_'.$objs.'" class="'.$tag.'" onclick="fileEdit(this.id)" oncontextmenu="fileContextMenu(this.id,\'right\');return false">'.htmlspecialchars(basename($name)).'</td>';
     $text[] = '<td id="owner_'.$objs.'" class="'.$tag.'">'.$owner.'</td>';
     $text[] = '<td id="perm_'.$objs.'" class="'.$tag.'">'.$perm.'</td>';
@@ -128,6 +179,6 @@ while (($row = fgets($stat))!==false) {
   }
 }
 pclose($stat);
-if ($link = parent_link()) echo '<tbody class="tablesorter-infoOnly"><tr><td></td><td><div><img src="/webGui/icons/folderup.png"></div></td><td>',$link,'</td><td colspan="6"></td></tr></tbody>';
+if ($link = parent_link()) echo '<tbody class="tablesorter-infoOnly"><tr><td></td><td><i class="fa fa-folder-open-o"></i></td><td>',$link,'</td><td colspan="6"></td></tr></tbody>';
 echo write($dirs),write($files),'<tfoot><tr><td></td><td></td><td colspan="7">',add($objs,'object'),': ',add($dirs,'director','y','ies'),', ',add($files,'file'),' (',my_scale($total,$unit),' ',$unit,' ',_('total'),')</td></tr></tfoot>';
 ?>
