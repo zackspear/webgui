@@ -2522,6 +2522,7 @@ function addtemplatexml($post) {
 			'os' => $usertemplate['template']['os'],
 			'overrides' => $usertemplate
 		];
+		if (!is_dir(dirname($templateslocation))) mkdir(dirname($templateslocation));
 		file_put_contents($templateslocation,json_encode($savedtemplates,JSON_PRETTY_PRINT));
 		$reply = ['success' => true];
 		
