@@ -90,7 +90,7 @@ function icon_class($ext) {
     return 'fa fa-html5';
   case 'xml': case 'xsl':
     return 'fa fa-file-excel-o';
-  case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg': case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds':
+  case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg': case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds': case 'dsf':
     return 'fa fa-music';
   case 'm3u': case 'm3u8': case 'pls': case 'cue': case 'xspf':
     return 'fa fa-headphones';
