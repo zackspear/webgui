@@ -1694,8 +1694,8 @@
 			else {
 				$doms = libvirt_list_domains($this->conn);
 				foreach ($doms as $dom) {
-					$tmp = $this->domain_get_name($dom);
-					$ret[$tmp] = libvirt_domain_get_info($dom);
+					$tmp = $this->get_domain_object($dom);
+					$ret[$dom] = libvirt_domain_get_info($tmp);
 				}
 			}
 
@@ -1768,6 +1768,11 @@
 				return false;
 
 			$tmp = libvirt_domain_memory_stats($dom);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
+		function domain_get_all_domain_stats() {
+			$tmp = libvirt_connect_get_all_domain_stats($this->conn);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 

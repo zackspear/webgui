@@ -2528,4 +2528,81 @@ function addtemplatexml($post) {
 	return $reply;
 }
 
+function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$collectnicstats = true, $collectmemstats = true) {
+	global $lv, $vmusagestats;
+	
+	$hostcpus = $lv->host_get_node_info();
+	$timestamp = time();
+	$allstats=$lv->domain_get_all_domain_stats();
+
+	foreach ($allstats as $vm => $data) {
+		$state = $data["state.state"];
+		# CPU Metrics
+		$cpuTime = 0;
+		$cpuHostPercent = 0;
+		$cpuGuestPercent = 0;
+		$cpuTimeAbs = $data["cpu.time"];
+		if ($state == 1 && $collectcpustats == true) {
+			$guestcpus = $data["vcpu.current"];
+			$cpuTime = $cpuTimeAbs - $vmusagestats[$vm]["cpuTimeAbs"];
+			$pcentbase = ((($cpuTime) * 100.0) / ((($timestamp) - $vmusagestats[$vm]["timestamp"] ) * 1000.0 * 1000.0 * 1000.0));
+			$cpuHostPercent = round($pcentbase / $hostcpus['cpus'],1);
+			$cpuGuestPercent = round($pcentbase / $guestcpus, 1) ;
+			$cpuHostPercent = max(0.0, min(100.0, $cpuHostPercent));
+			$cpuGuestPercent = max(0.0, min(100.0, $cpuGuestPercent));
+		}
+
+		# Memory Metrics
+		if ($state == 1 && $collectmemstats) {
+		$currentmem = $data["balloon.current"];
+		$unusedmem = $data["balloon.unused"];
+		$meminuse = $currentmem - $unusedmem;
+		} else $currentmem = $meminuse = 0;
+
+		# Disk
+		if ($state == 1 && $collectdiskstats) {
+			$disknum = $data["block.count"];
+			$rd=$wr=$i=0;
+			for ($i = 0; $i < $disknum; $i++) {
+				if ($data["block.$i.name"] == "hda" || $data["block.$i.name"] == "hdb") continue;
+				$rd +=  $data["block.$i.rd.bytes"] ;
+				$wr +=  $data["block.$i.wr.bytes"] ;
+			}
+			$rdrate = ($rd - $vmusagestats[$vm]['rdp'])/1024;
+			$wrrate = ($wr - $vmusagestats[$vm]['wrp'])/1024;
+		} else $rdrate=$wrrate=0;
+
+		# Net
+		if ($state == 1 && $collectnicstats) {
+			$nicnum = $data["net.count"];
+			$rx=$tx=$i=0;
+			for ($i = 0; $i < $nicnum; $i++) {
+				$rx +=  $data["net.$i.rx.bytes"] ;
+				$tx +=  $data["net.$i.tx.bytes"] ;
+			}
+			$rxrate = round(($rx - $vmusagestats[$vm]['rxp'])/1024,0);
+			$txrate = round(($tx - $vmusagestats[$vm]['txp'])/1024,0);
+			} else $rxrate=$txrate=0;
+
+			$vmusagestats[$vm] = [
+				"cpuTime" => $cpuTime,
+				"cpuTimeAbs" => $cpuTimeAbs,
+				"cpuhost" => $cpuHostPercent,
+				"cpuguest" => $cpuGuestPercent,
+				"timestamp" => $timestamp,
+				"mem" => $meminuse,
+				"maxmem" => $currentmem,
+				"rxrate" => $rxrate,
+				"rxp" => $rx,
+				"txrate" => $txrate,
+				"txp" => $tx,
+				"rdp" => $rd,
+				"rdrate" => $rdrate,
+				"wrp" => $wr,
+				"wrrate" => $wrrate,
+				"state" => $state,
+			];
+	}
+}
+
 ?>
