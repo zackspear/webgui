@@ -2568,8 +2568,8 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 				$rd +=  $data["block.$i.rd.bytes"] ;
 				$wr +=  $data["block.$i.wr.bytes"] ;
 			}
-			$rdrate = ($rd - $vmusagestats[$vm]['rdp'])/1024;
-			$wrrate = ($wr - $vmusagestats[$vm]['wrp'])/1024;
+			$rdrate = ($rd - $vmusagestats[$vm]['rdp']);
+			$wrrate = ($wr - $vmusagestats[$vm]['wrp']);
 		} else $rdrate=$wrrate=0;
 
 		# Net
@@ -2580,8 +2580,8 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 				$rx +=  $data["net.$i.rx.bytes"] ;
 				$tx +=  $data["net.$i.tx.bytes"] ;
 			}
-			$rxrate = round(($rx - $vmusagestats[$vm]['rxp'])/1024,0);
-			$txrate = round(($tx - $vmusagestats[$vm]['txp'])/1024,0);
+			$rxrate = round(($rx - $vmusagestats[$vm]['rxp']),0);
+			$txrate = round(($tx - $vmusagestats[$vm]['txp']),0);
 			} else $rxrate=$txrate=0;
 
 			$vmusagestats[$vm] = [
