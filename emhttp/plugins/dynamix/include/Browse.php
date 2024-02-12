@@ -148,8 +148,7 @@ $stat = popen("shopt -s dotglob;stat -L -c'%F|%U|%A|%s|%Y|%n' ".escapeshellarg($
 while (($row = fgets($stat))!==false) {
   [$type,$owner,$perm,$size,$time,$name] = explode('|',rtrim($row,"\n"),6);
   $dev  = explode('/',$name,5);
-  $devs = explode(',',$user ? $set[basename($name)]??$shares[$dev[3]]['cachePool']??'' :
-$lock);
+  $devs = explode(',',$user ? $set[basename($name)]??$shares[$dev[3]]['cachePool']??'' : $lock);
   $objs++;
   $text = [];
   if ($type[0]=='d') {
@@ -165,8 +164,7 @@ $lock);
     $dirs[] = gzdeflate(implode($text));
   } else {
     $ext = strtolower(pathinfo($name,PATHINFO_EXTENSION));
-    $tag = count($devs)>1 ? 'warning' :
-'';
+    $tag = count($devs)>1 ? 'warning' : '';
     $text[] = '<tr><td><i id="check_'.$objs.'" class="fa fa-fw fa-square-o" onclick="selectOne(this.id)"></i></td>';
     $text[] = '<td class="ext" data="'.$ext.'"><i class="'.icon_class($ext).'"></i></td>';
     $text[] = '<td id="name_'.$objs.'" class="'.$tag.'" onclick="fileEdit(this.id)" oncontextmenu="fileContextMenu(this.id,\'right\');return false">'.htmlspecialchars(basename($name)).'</td>';
@@ -182,6 +180,5 @@ $lock);
 }
 pclose($stat);
 if ($link = parent_link()) echo '<tbody class="tablesorter-infoOnly"><tr><td></td><td><i class="fa fa-folder-open-o"></i></td><td>',$link,'</td><td colspan="6"></td></tr></tbody>';
-echo write($dirs),write($files),'<tfoot><tr><td></td><td></td><td colspan="7">',add($objs,'object'),':
-',add($dirs,'director','y','ies'),', ',add($files,'file'),' (',my_scale($total,$unit),' ',$unit,' ',_('total'),')</td></tr></tfoot>';
+echo write($dirs),write($files),'<tfoot><tr><td></td><td></td><td colspan="7">',add($objs,'object'),':',add($dirs,'director','y','ies'),', ',add($files,'file'),' (',my_scale($total,$unit),' ',$unit,' ',_('total'),')</td></tr></tfoot>';
 ?>
