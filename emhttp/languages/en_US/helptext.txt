@@ -1675,6 +1675,14 @@ For setting the console options to show on context menus. Web will show only inb
 Virtual Manager Remote Viewer will only show the Remote Viewer option. Both will show both Web and Remote Viewer.
 :end
 
+:vms_usage_help:
+Show metrics for CPU both guest and host percentage, memory, disk io and network io.
+:end
+
+:vms_usage_timer_help:
+Setting in seconds for metrics refresh time.
+:end
+
 :vms_acs_override_help:
 *PCIe ACS override* allows various hardware components to expose themselves as isolated devices.
 Typically it is sufficient to isolate *Downstream* ports.

@@ -52,6 +52,10 @@ function update_translation($locale) {
   }
 }
 
+$domain_cfgfile = "/boot/config/domain.cfg";
+$domain_cfg = parse_ini_file($domain_cfgfile);
+if (!isset($domain_cfg['USAGETIMER'])) $timer = 3 ; else $timer = $domain_cfg['USAGETIMER'];
+
 while (true) {
 
   extract(parse_plugin_cfg('dynamix',true));
@@ -88,6 +92,6 @@ while (true) {
     $time0 = $time1;
   }
 
-  sleep(3);
+  sleep($timer);
 }
 ?>

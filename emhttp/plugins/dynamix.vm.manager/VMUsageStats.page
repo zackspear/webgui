@@ -1,7 +1,7 @@
 Menu="VMs:0"
 Title="VM Usage Statisics"
-Cond="exec(\"grep -o '^SERVICE=.enable' /boot/config/domain.cfg 2>/dev/null\")"
 Nchan="vm_usage:stop"
+Cond="exec(\"grep -o '^USAGE=.Y' /boot/config/domain.cfg 2>/dev/null\") && is_file('/var/run/libvirt/libvirtd.pid')"
 ---
 <?PHP
 /* Copyright 2005-2024, Lime Technology
