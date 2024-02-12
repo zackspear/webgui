@@ -135,14 +135,9 @@ $dirs   = $files = [];
 $total  = $objs = 0;
 [$null,$root,$main,$next,$rest] = my_explode('/',$dir,5);
 $user   = $root=='mnt' && in_array($main,['user','user0']);
-$lock   = $root=='mnt' ? ($main ?:
-'---') :
-($root=='boot' ? _('flash') :
-'---');
+$lock   = $root=='mnt' ? ($main ?: '---') : ($root=='boot' ? _('flash') : '---');
 $ishare = $root=='mnt' && (!$main || !$next || ($main=='rootshare' && !$rest));
-$folder = $lock=='---' ? _('DEVICE') :
-($ishare ? _('SHARE') :
-_('FOLDER'));
+$folder = $lock=='---' ? _('DEVICE') : ($ishare ? _('SHARE') : _('FOLDER'));
 
 if ($user ) {
   exec("shopt -s dotglob;getfattr --no-dereference --absolute-names -n system.LOCATIONS ".escapeshellarg($dir)."/* 2>/dev/null",$tmp);
