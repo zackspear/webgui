@@ -74,52 +74,52 @@ function my_devs(&$devs,$name,$menu) {
 }
 function icon_class($ext) {
   switch ($ext) {
-  case 'ico': case 'gif': case 'jpg': case 'jpeg': case 'jpc': case 'jp2': case 'jpx': case 'xbm': case 'wbmp': case 'png': case 'bmp': case 'tif': case 'tiff': case 'webp': case 'avif': case 'svg':
-    return 'fa fa-picture-o';
-  case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'ts': case 'jsx': case 'tsx': case 'hbs': case 'json': case 'sh': case 'config': case 'twig': case 'tpl': case 'md': case 'gitignore': case 'c': case 'cpp': case 'cs': case 'py': case 'rs': case 'map': case 'lock': case 'dtd':
-    return 'fa fa-file-code-o';
-  case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'yaml': case 'yml': case 'toml': case 'tmp': case 'top': case 'bot': case 'dat': case 'bak': case 'htpasswd': case 'pl':
-    return 'fa fa-file-text-o';
-  case 'css': case 'less': case 'sass': case 'scss':
-    return 'fa fa-css3';
-  case 'bz2': case 'zip': case 'rar': case 'gz': case 'tar': case '7z': case 'xz':
+  case '3gp': case 'asf': case 'avi': case 'f4v': case 'flv': case 'm4v': case 'mkv': case 'mov': case 'mp4': case 'mpeg': case 'mpg': case 'm2ts': case 'ogm': case 'ogv': case 'vob': case 'webm': case 'wmv':
+    return 'fa fa-film';
+  case '7z': case 'bz2': case 'gz': case 'rar': case 'tar': case 'xz': case 'zip':
     return 'fa fa-file-archive-o';
-  case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
-    return 'fa fa-code';
-  case 'htm': case 'html': case 'shtml': case 'xhtml':
-    return 'fa fa-html5';
-  case 'xml': case 'xsl':
-    return 'fa fa-file-excel-o';
-  case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg': case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds': case 'dsf':
+  case 'aac': case 'ac3': case 'dsf': case 'flac': case 'm4a': case 'mka': case 'mp2': case 'mp3': case 'oga': case 'ogg': case 'tds': case 'wav': case 'wma':
     return 'fa fa-music';
-  case 'm3u': case 'm3u8': case 'pls': case 'cue': case 'xspf':
-    return 'fa fa-headphones';
-  case 'avi': case 'mpg': case 'mpeg': case 'mp4': case 'm4v': case 'flv': case 'f4v': case 'ogm': case 'ogv': case 'mov': case 'mkv': case '3gp': case 'asf': case 'wmv': case 'webm':
-    return 'fa fa-file-video-o';
-  case 'eml': case 'msg':
-    return 'fa fa-envelope-o';
-  case 'xls': case 'xlsx': case 'ods':
-    return 'fa fa-file-excel-o';
-  case 'csv':
-    return 'fa fa-file-text-o';
+  case 'ai': case 'eps': case 'fla': case 'psd': case 'swf':
+    return 'fa fa-file-image-o';
+  case 'avif': case 'bmp': case 'gif': case 'ico': case 'jp2': case 'jpc': case 'jpeg': case 'jpg': case 'jpx': case 'png': case 'svg': case 'tif': case 'tiff': case 'wbmp': case 'webp': case 'xbm':
+    return 'fa fa-picture-o';
   case 'bak': case 'swp':
     return 'fa fa-clipboard';
-  case 'doc': case 'docx': case 'odt':
-    return 'fa fa-file-word-o';
-  case 'ppt': case 'pptx':
-    return 'fa fa-file-powerpoint-o';
-  case 'ttf': case 'ttc': case 'otf': case 'woff': case 'woff2': case 'eot': case 'fon':
-    return 'fa fa-font';
-  case 'pdf':
-    return 'fa fa-file-pdf-o';
-  case 'psd': case 'ai': case 'eps': case 'fla': case 'swf':
-    return 'fa fa-file-image-o';
-  case 'exe': case 'msi':
-    return 'fa fa-file-o';
   case 'bat':
     return 'fa fa-terminal';
+  case 'bot': case 'cfg': case 'conf': case 'dat': case 'htaccess': case 'htpasswd': case 'ini': case 'log': case 'pl': case 'tmp': case 'toml': case 'top': case 'txt': case 'yaml': case 'yml':
+    return 'fa fa-file-text-o';
+  case 'c': case 'config': case 'cpp': case 'cs': case 'dtd': case 'exe': case 'ftpquota': case 'gitignore': case 'hbs': case 'json': case 'jsx': case 'lock': case 'map': case 'md': case 'msi': case 'passwd': case 'rs': case 'sh': case 'sql': case 'tpl': case 'ts': case 'tsx': case 'twig':
+    return 'fa fa-file-code-o';
+  case 'css': case 'less': case 'sass': case 'scss':
+    return 'fa fa-css3';
+  case 'csv':
+    return 'fa fa-file-text-o';
+  case 'cue': case 'm3u': case 'm3u8': case 'pls': case 'xspf':
+    return 'fa fa-headphones';
+  case 'doc': case 'docm': case 'docx': case 'dot': case 'dotm': case 'dotx': case 'odt':
+    return 'fa fa-file-word-o';
+  case 'eml': case 'msg':
+    return 'fa fa-envelope-o';
+  case 'eot': case 'fon': case 'otf': case 'ttc': case 'ttf': case 'woff': case 'woff2':
+    return 'fa fa-font';
+  case 'htm': case 'html': case 'shtml': case 'xhtml':
+    return 'fa fa-html5';
+  case 'js': case 'php': case 'php4': case 'php5': case 'phps': case 'phtml': case 'py':
+    return 'fa fa-code';
+  case 'key':
+    return 'fa fa-key';
+  case 'ods': case 'xla': case 'xls': case 'xlsb': case 'xlsm': case 'xlsx': case 'xlt': case 'xltm': case 'xltx':
+    return 'fa fa-file-excel-o';
+  case 'pdf':
+    return 'fa fa-file-pdf-o';
+  case 'pot': case 'potx': case 'ppt': case 'pptm': case 'pptx':
+    return 'fa fa-file-powerpoint-o';
+  case 'xml': case 'xsl':
+    return 'fa fa-file-excel-o';
   default:
-    return 'fa fa-question-circle-o';
+    return 'fa fa-file-o';
   }
 }
 
