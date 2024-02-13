@@ -60,8 +60,8 @@ if (isset($_POST['#file'])) {
   }
   if ($save) {
     $text = "";
+    $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
     if ($section) {
-      $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
       foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$section][$key] = $default[$section][$key] ?? $value;
       foreach ($keys as $section => $block) {
         $text .= "[$section]\n";
