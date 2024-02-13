@@ -978,7 +978,7 @@ class DockerClient {
 			$c['Id']          = $this->extractID($ct['Id']);
 			$c['ParentId']    = $this->extractID($ct['ParentId']);
 			$c['Size']        = $this->formatBytes($ct['Size']);
-			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize']);
+			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize'] ?? null);
 			$c['Tags']        = array_map('htmlspecialchars', $ct['RepoTags'] ?? []);
 			$c['Repository']  = DockerUtil::parseImageTag($ct['RepoTags'][0]??'')['strRepo'];
 			$c['usedBy']      = $this->usedBy($c['Id']);
