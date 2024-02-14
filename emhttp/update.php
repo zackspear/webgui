@@ -43,11 +43,19 @@ flush();
 $docroot = $_SERVER['DOCUMENT_ROOT'];
 if (isset($_POST['#file'])) {
   $file = $_POST['#file'];
+  $raw_file = isset($_POST['#raw_file']) ? ($_POST['#raw_file'] === 'true') : false;
   // prepend with boot (flash) if path is relative
   if ($file && $file[0]!='/') $file = "/boot/config/plugins/$file";
   $section = $_POST['#section'] ?? false;
   $cleanup = isset($_POST['#cleanup']);
   $default = ($file && isset($_POST['#default'])) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : [];
+
+  // if the file is not a raw file, it can be parsed 
+  if (! $raw_file) {
+    $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
+  } else {
+    $keys = [];
+  }
 
   // the 'save' switch can be reset by the include file to disallow settings saving
   $save = true;
@@ -60,7 +68,6 @@ if (isset($_POST['#file'])) {
   }
   if ($save) {
     $text = "";
-    $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
     if ($section) {
       foreach ($_POST as $key => $value) if ($key[0]!='#') $keys[$section][$key] = $default[$section][$key] ?? $value;
       foreach ($keys as $section => $block) {
