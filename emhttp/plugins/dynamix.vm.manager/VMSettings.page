@@ -183,6 +183,19 @@ _(Console Options)_:
 
 :vms_console_help:
 
+_(Show VM Usage)_:
+: <select id="vmusage" name="USAGE">
+  <?=mk_option($domain_cfg['USAGE'], 'N', _('Disabled'))?>
+  <?=mk_option($domain_cfg['USAGE'], 'Y', _('Enabled'))?>
+  </select>
+
+:vms_usage_help:
+
+_(VM Usage refresh timer(seconds))_:
+: <input type="number" id="vm_usage_timer" name="USAGETIMER" value="<?=htmlspecialchars($domain_cfg['USAGETIMER'] ?? 3) ?>" class="narrow">
+
+:vms_usage_timer_help:
+
 _(PCIe ACS override)_:
 : <select id="pcie_acs_override"<?=$safemode?' disabled':''?>>
   <?= mk_option($pcie_acs_override, '', _('Disabled'))?>
