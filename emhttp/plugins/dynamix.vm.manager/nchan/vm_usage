@@ -70,6 +70,7 @@ while (true) {
   $ts = $time1 - $time0;
   $echodata = "";
   $running = 0;
+  ksort($vmusagestats);
   foreach ($vmusagestats as $vm => $vmdata) {
 
     if ($vmdata['state'] == 1) {
