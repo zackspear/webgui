@@ -51,11 +51,7 @@ if (isset($_POST['#file'])) {
   $default = ($file && isset($_POST['#default'])) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : [];
 
   // if the file is not a raw file, it can be parsed 
-  if (! $raw_file) {
-    $keys = is_file($file) ? (parse_ini_file($file, $section) ?: []) : [];
-  } else {
-    $keys = [];
-  }
+  $keys = (is_file($file) && !$raw_file) ? (parse_ini_file($file, $section) ?: []) : [];
 
   // the 'save' switch can be reset by the include file to disallow settings saving
   $save = true;
