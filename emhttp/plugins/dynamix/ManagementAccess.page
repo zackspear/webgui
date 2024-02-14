@@ -115,8 +115,8 @@ if ($cert2Present) {
   }
 }
 
-$http_port       = _var($var,'PORT',80) != 80 ? ":{$var['PORT']}" : '';
-$https_port      = _var($var,'PORTSSL',443) != 443 ? ":{$var['PORTSSL']}" : '';
+$http_port       = _var($var,'PORT','80') != '80' ? ":{$var['PORT']}" : '';
+$https_port      = _var($var,'PORTSSL','443') != '443' ? ":{$var['PORTSSL']}" : '';
 $http_ip_url     = "http://"._var($nginx,'NGINX_LANIP')."{$http_port}/";
 $https_ip_url    = "https://"._var($nginx,'NGINX_LANIP')."{$https_port}/";
 $http_ip6_url    = "http://"._var($nginx,'NGINX_LANIP6')."{$http_port}/";
