@@ -143,8 +143,7 @@ if ($_POST['vms']) {
     echo "<span class='outer solid vms $status'><span id='vm-$uuid' $menu class='hand'>$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span></span>";
   }
   $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
-  if ($running == 0) $nodisplay = "style='display:none'"; else $nodisplay = "";
-  echo "<span id='no_vms' $nodisplay >$none<br><br></span>";
+  echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
   echo "</td></tr>";
 
   echo "\0";
