@@ -173,7 +173,7 @@ if ($_POST['vms']) {
         break;
       }
       $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
-      echo "<span class='outer solid vmsuse $status'><span id='vm-$uuid' >$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span>";
+      echo "<span class='outer solid vmsuse $status'><span id='vmusage-$uuid' >$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span>";
       echo "<br><br><span id='vmmetrics-gcpu-".$uuid."'>",_("Loading")."....</span>";
       echo "<br><span id='vmmetrics-hcpu-".$uuid."'>"._("Loading")."....</span>";
       echo "<br><span id='vmmetrics-mem-".$uuid."'>"._("Loading")."....</span>";
