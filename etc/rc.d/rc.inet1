@@ -69,7 +69,10 @@
 # Adapted by Bergware for use in Unraid OS - December 2023
 # - remove leading zeros in IPv4 and IPv6 addresses
 
-# Bergware - modified for Unraid OS, December 2023
+# Adapted by Bergware for use in Unraid OS - February 2024
+# - revised bond interface creation for linux kernel 6.1 and 6.6 latest point releases
+
+# Bergware - modified for Unraid OS, February 2024
 
 ###########
 # LOGGING #
