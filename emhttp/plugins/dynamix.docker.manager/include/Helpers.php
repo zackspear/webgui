@@ -270,6 +270,8 @@ function xmlToCommand($xml, $create_paths=false) {
     $Mode            = strval($config['Mode']);
     if ($confType != "device" && !strlen($containerConfig)) continue;
     if ($confType == "path") {
+      if ( ! trim($hostConfig) || ! trim($containerConfig) )
+        continue;
       $Volumes[] = escapeshellarg($hostConfig).':'.escapeshellarg($containerConfig).':'.escapeshellarg($Mode);
       if (!file_exists($hostConfig) && $create_paths) {
         @mkdir($hostConfig, 0777, true);
