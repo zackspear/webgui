@@ -1,5 +1,5 @@
 Menu="UNRAID-OS"
-Title="Wake On LAN"
+Title="WOL for Services"
 Icon="fa-bell"
 Tag="server"
 ---

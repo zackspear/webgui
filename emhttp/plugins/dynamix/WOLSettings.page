@@ -1,6 +1,6 @@
 Menu="OtherSettings"
 Type="xmenu"
-Title="Wake on Lan Settings"
+Title="WOL for Services Settings"
 Icon="fa-bell"
 Tag="share-alt"
 ---
