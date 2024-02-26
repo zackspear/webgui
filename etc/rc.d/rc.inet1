@@ -61,7 +61,10 @@
 # - added "status" command
 # - remove leading zeros in IPv4 and IPv6 addresses
 
-# Bergware - modified for Unraid OS, December 2023
+# Adapted by Bergware for use in Unraid OS - February 2024
+# - revised bond interface creation for linux kernel 6.1.75 and later point releases
+
+# Bergware - modified for Unraid OS, February 2024
 
 ############################
 # READ NETWORK CONFIG FILE #
@@ -173,8 +176,8 @@ bond_up(){
   for BONDIF in ${BONDNICS[$i]}; do
     if [[ -e $SYSTEM/$BONDIF ]]; then
       [[ -z $PRIMARY ]] && PRIMARY=$BONDIF
-      run ip link set $BONDIF down
-      run ip link set $BONDIF master ${BONDNAME[$i]} up type bond_slave
+      run ip link set $BONDIF up
+      run ip link set $BONDIF master ${BONDNAME[$i]} down type bond_slave
     else
       [[ $DEBUG_ETH_UP == yes ]] && log "interface $BONDIF not present, can't add to ${BONDNAME[$i]}"
     fi
