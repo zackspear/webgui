@@ -78,7 +78,7 @@ _(Enable VM actions)_:
 
 :WOL_run_VM_help:
 
-_(Enable Shutdown actions)_:
+_(Enable Shutdown / Suspend actions)_:
 : <select name="RUNSHUT" >
   <?=mk_option($current['RUNSHUT'], "n", _('No'))?>
   <?=mk_option($current['RUNSHUT'], "y", _('Yes'))?>

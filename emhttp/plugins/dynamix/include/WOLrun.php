@@ -130,6 +130,7 @@ if ($found && $mac_list[$mac]['enable'] != "disable") {
             switch ($state) {
               case 'running':
                 if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") $lv->domain_shutdown("{$mac_list[$mac]['name']}");
+                if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "suspend") $lv->domain_suspend("{$mac_list[$mac]['name']}");
                 break;
               case 'paused':
               case 'pmsuspended':
@@ -146,6 +147,7 @@ if ($found && $mac_list[$mac]['enable'] != "disable") {
             switch ($state) {
               case 'RUNNING':
                 if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") shell_exec("lxc-stop {$mac_list[$mac]['name']}");
+                if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "suspend") shell_exec("lxc-freeze {$mac_list[$mac]['name']}");
                 break;
               case 'FROZEN':
                 shell_exec("lxc-unfreeze {$mac_list[$mac]['name']}");  
@@ -161,6 +163,7 @@ if ($found && $mac_list[$mac]['enable'] != "disable") {
               switch ($mac_list[$mac]['state']) {
                 case "running":
                   if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "shutdown") shell_exec("docker stop {$mac_list[$mac]['name']}");
+                  if ($RUNSHUT == "y" && $mac_list[$mac]['enable'] == "suspend") shell_exec("docker pause {$mac_list[$mac]['name']}");
                   break;
                 case "exited":
                   case "created":

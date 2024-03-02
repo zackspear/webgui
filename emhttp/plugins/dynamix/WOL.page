@@ -27,18 +27,13 @@ if (count($_POST)) {
     foreach($update_file as $type => $types) {
       foreach($types as $name => $details) {
         if ($details['user_mac'] == "") $details['user_mac'] = "None Defined";
-        if ($details['user_mac'] == "None Defined" && ($details['enable'] == "enable" || $details['enable'] == "shutdown")) unset($update_file[$type][$name]) ;
+        if ($details['user_mac'] == "None Defined" && ($details['enable'] == "enable" || $details['enable'] == "shutdown" || $details['enable'] == "suspend")) unset($update_file[$type][$name]) ;
       }
     }
   }
   unset($_POST) ;
   file_put_contents("/boot/config/wol.json",json_encode($update_file));
-  #echo '<meta http-equiv="refresh" content="0;url=/Tools">';
   echo '<meta http-equiv="refresh" content="0">';
-  #unset($_SESSION['csrf_token']);
- 
-  
-
 }
 ?>
 <script src="/webGui/javascript/jquery.tablesorter.widgets.js"></script>
