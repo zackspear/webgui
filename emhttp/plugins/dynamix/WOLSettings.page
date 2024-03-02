@@ -5,8 +5,9 @@ Icon="fa-bell"
 Tag="share-alt"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
+ * Copyright 2023-2024, Simon Fairweather.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,12 +18,24 @@ Tag="share-alt"
  */
 ?>
 <?
+$members = parse_ini_file('state/network.ini',true);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$ports);
 $disabled = _var($var,'fsState')!='Stopped' ? 'disabled' : '';
 $width    = [166,300];
 $file    = '/boot/config/wol.cfg';
 $current = parse_ini_file($file);
-if (!isset($current['LOGFILE'])) $current['LOGFILE'] = "syslog"
+if (!isset($current['LOGFILE'])) $current['LOGFILE'] = "syslog";
+
+function locked($source,$port) {
+  global $members;
+  foreach ($members as $member => $value) {
+    if ($member == $source) continue;
+    if ($value['BONDING']=='yes' && in_array($port,explode(',',$value['BONDNICS']))) return $value['BONDNAME'].' '.$member;
+    if ($value['BRIDGING']=='yes' && in_array($port,explode(',',$value['BRNICS']))) return $value['BRNAME'].' '.$member;
+  }
+  return false;
+}
+
 ?>
 <script>
 showStatus('pid','unraidwold');
@@ -83,7 +96,7 @@ _(Interface to listern on)_:
 
 :WOL_interface_help:
 
-  _(Interface promiscuous mode)_:
+_(Interface promiscuous mode)_:
 : <select id="IFMODE" name="IFMODE" >
   <?=mk_option($current['IFMODE'], "n", _('No'))?>
   <?=mk_option($current['IFMODE'], "y", _('Yes'))?>
