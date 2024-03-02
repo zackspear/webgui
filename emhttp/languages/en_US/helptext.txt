@@ -2501,7 +2501,7 @@ When the enable and shutdown is set if the service is running when the next WOL 
 If set to yes Unraidwold daemon is set to run.
 :end
 
-:WOL_docker_help:
+:WOL_run_docker_help:
 If set to yes when wake on lan packets are received checks are carrried out for dockers otherwise dockers will be ignored.
 :end
 
