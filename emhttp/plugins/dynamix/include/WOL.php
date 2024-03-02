@@ -30,29 +30,37 @@ function macbyte($val) {
   return dechex($val);
 }
 
+$libvirtd_running = is_file('/var/run/libvirt/libvirtd.pid') ;
+$dockerd_running = is_file('/var/run/dockerd.pid');
+$lxc_ls_exist = is_file('/usr/bin/lxc-ls');
+
 $arrEntries = [];
-$vms = $lv->get_domains() ?:[];
-sort($vms,SORT_NATURAL);
-foreach($vms as $vm){
-  $arrEntries['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
-  $arrEntries['VM'][$vm]['name'] = $vm;
+if ($libvirtd_running) {
+  $vms = $lv->get_domains() ?:[];
+  sort($vms,SORT_NATURAL);
+  foreach($vms as $vm){
+    $arrEntries['VM'][$vm]['interfaces'] = $lv->get_nic_info($vm);
+    $arrEntries['VM'][$vm]['name'] = $vm;
+  }
 }
-
-$DockerClient    = new DockerClient();
-$containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
-foreach($containers as $ct)
-  $arrEntries['Docker'][substr($ct["Names"][0],1)] = [
-      'interfaces' => ['0 '=> ['mac' => isset($ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]) ?  $ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"] : ""]],
-      'name' => substr($ct["Names"][0],1),
-  ];
-
-$lxc = explode("\n",shell_exec("lxc-ls -1")) ;
-$lxcpath = trim(shell_exec("lxc-config lxc.lxcpath"));
-foreach ($lxc as $lxcname) {
-  if ($lxcname == "") continue;
-  $value = explode("=",shell_exec("cat $lxcpath/$lxcname/config  | grep 'hwaddr'"));
-  $arrEntries['LXC'][$lxcname]['interfaces'][0]['mac'] = trim($value[1]);
-  $arrEntries['LXC'][$lxcname]['name'] = $lxcname;
+if ($dockerd_running) {
+  $DockerClient    = new DockerClient();
+  $containers      = $DockerClient->getDockerJSON("/containers/json?all=1");
+  foreach($containers as $ct)
+    $arrEntries['Docker'][substr($ct["Names"][0],1)] = [
+        'interfaces' => ['0 '=> ['mac' => isset($ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"]) ?  $ct["NetworkSettings"]["Networks"]["bridge"]["MacAddress"] : ""]],
+        'name' => substr($ct["Names"][0],1),
+    ];
+}
+if ($lxc_ls_exist) {
+  $lxc = explode("\n",shell_exec("lxc-ls -1")) ;
+  $lxcpath = trim(shell_exec("lxc-config lxc.lxcpath"));
+  foreach ($lxc as $lxcname) {
+    if ($lxcname == "") continue;
+    $value = explode("=",shell_exec("cat $lxcpath/$lxcname/config  | grep 'hwaddr'"));
+    $arrEntries['LXC'][$lxcname]['interfaces'][0]['mac'] = trim($value[1]);
+    $arrEntries['LXC'][$lxcname]['name'] = $lxcname;
+  }
 }
 
 if (is_file("/boot/config/wol.json")) $user_mac = json_decode(file_get_contents("/boot/config/wol.json"),true); else $user_mac = [];
