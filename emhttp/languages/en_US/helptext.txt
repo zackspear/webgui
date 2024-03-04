@@ -2485,7 +2485,7 @@ If set to 'Yes' the bash history will persist reboots, set to 'No' to disable.
 :WOL_intro_help:
 This page allows the setup to start/resume and stop VMs, Containters(Docker and LXC) using WOL magic packets
 
-It does setup wake up of the Unraid server.
+It does not setup wake up of the Unraid server.
 
 The process will look for the defined mac address defined within the service(VM or container) with the exception of dockers. Dockers do not have a mac address until they are running so you will need to define a user mac address to allow you to start them
 

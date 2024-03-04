@@ -23,7 +23,17 @@ exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[1-9][0-9]*$'",$port
 $disabled = _var($var,'fsState')!='Stopped' ? 'disabled' : '';
 $width    = [166,300];
 $file    = '/boot/config/wol.cfg';
-$current = parse_ini_file($file);
+$current = @parse_ini_file($file);
+if ($current == false) $current =[
+  "WOLENABLED" => "no",
+  "RUNDOCKER" => "y",
+  "RUNLXC" => "y",
+  "RUNVM" => "y",
+  "RUNSHUT" => "n",
+  "INTERFACE" => "eth0",
+  "IFMODE" => "n",
+  "LOGFILE" => "syslog"
+];
 if (!isset($current['LOGFILE'])) $current['LOGFILE'] = "syslog";
 
 function locked($source,$port) {
@@ -45,7 +55,7 @@ showStatus('pid','unraidwold');
 <input type="hidden" name="#command" value="/webGui/scripts/WOL_action">
 <input type="hidden" name="#arg[1]" value="load">
 
-_(Enable Wake on Lan)_:
+_(Enable WOL for services)_:
 : <select name="WOLENABLED" >
   <?=mk_option($current['WOLENABLED'], "no", _('No'))?>
   <?=mk_option($current['WOLENABLED'], "yes", _('Yes'))?>
@@ -86,7 +96,7 @@ _(Enable Shutdown / Suspend actions)_:
 
 :WOL_run_shutdown_help:
 
-_(Interface to listern on)_:
+_(Interface to listen on)_:
 : <select id="INTERFACE" name="INTERFACE" >
   <?=mk_option(_var($eth0,'INTERFACE'),'eth0','eth0','selected')?>
   <?foreach ($ports as $port):?>
