@@ -661,6 +661,13 @@ if (file_exists($dhcplog)) {
   if (!$all) maskIP($log);
 }
 
+// copy phplog
+$phplog = "/var/log/phplog";
+if (file_exists($phplog)) {
+  $log = "/$diag/logs/phplog.txt";
+  run("todos <$phplog >".escapeshellarg($log));
+}
+
 // copy graphql-api.log
 $graphql = "/var/log/graphql-api.log";
 if (file_exists($graphql)) {
