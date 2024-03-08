@@ -237,6 +237,7 @@ libvirtd_start(){
 
   check_processor
   modprobe -a $MODULE $MODULES
+  echo 0 > /sys/module/kvm/parameters/report_ignored_msrs
   libvirtd -d -l $LIBVIRTD_OPTS
   log "$DAEMON...  Started."
 }
