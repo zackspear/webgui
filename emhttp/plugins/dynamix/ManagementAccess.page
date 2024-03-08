@@ -119,8 +119,8 @@ $http_port       = _var($var,'PORT','80') != '80' ? ":{$var['PORT']}" : '';
 $https_port      = _var($var,'PORTSSL','443') != '443' ? ":{$var['PORTSSL']}" : '';
 $http_ip_url     = "http://"._var($nginx,'NGINX_LANIP')."{$http_port}/";
 $https_ip_url    = "https://"._var($nginx,'NGINX_LANIP')."{$https_port}/";
-$http_ip6_url    = "http://"._var($nginx,'NGINX_LANIP6')."{$http_port}/";
-$https_ip6_url   = "https://"._var($nginx,'NGINX_LANIP6')."{$https_port}/";
+$http_ip6_url    = "http://["._var($nginx,'NGINX_LANIP6')."]{$http_port}/";
+$https_ip6_url   = "https://["._var($nginx,'NGINX_LANIP6')."]{$https_port}/";
 $http_mdns_url   = "http://"._var($nginx,'NGINX_LANMDNS')."{$http_port}/";
 $https_mdns_url  = "https://"._var($nginx,'NGINX_LANMDNS')."{$https_port}/";
 $https_fqdn_url  = "https://"._var($nginx,'NGINX_LANFQDN')."{$https_port}/";
@@ -359,12 +359,10 @@ _(Local access URLs)_:
 $n = 0;
 foreach($urls as $url) {
   $msg  = "";
-  $url0 = substr_count($url[0]??'',':')>3 ? preg_replace('#(://)(.+?)(:?\d*)/$#','$1[$2]$3/',$url[0]) : $url[0]; // IPv6 - IPv4 notation
-  $url1 = substr_count($url[1]??'',':')>3 ? preg_replace('#(://)(.+?)(:?\d*)/$#','$1[$2]$3/',$url[1]) : $url[1]; // IPv6 - IPv4 notation
-  if ($url[1]) $msg .= " "._("redirects to")." <a href='$url1'>$url1</a>";
+  if ($url[1]) $msg .= " "._("redirects to")." <a href='$url[1]'>$url[1]</a>";
   if ($url[2]) $msg .= " "._("uses")." ".$url[2];
   if ($url[3]) $msg .= "<span class='warning'> <i class='fa fa-warning fa-fw'></i> "._("is a self-signed certificate, ignore the browser's warning and proceed to the GUI")."</span>";
-  echo ($n ? "<dt>&nbsp;</dt><dd>" : ""),"<a href='$url0'>$url0</a>$msg",($n++ ? "</dd>" : "");
+  echo ($n ? "<dt>&nbsp;</dt><dd>" : ""),"<a href='$url[0]'>$url[0]</a>$msg",($n++ ? "</dd>" : "");
 }?>
 
 :mgmt_local_access_urls_help:
