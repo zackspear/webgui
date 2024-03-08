@@ -1868,7 +1868,7 @@ private static $encoding = 'UTF-8';
 	  return true ;
   }
 
-  function vm_snapshot($vm,$snapshotname, $snapshotdesc, $free = "yes", $method = "QEMU",  $memorysnap = "yes") {
+  function vm_snapshot($vm,$snapshotname, $snapshotdescinput, $free = "yes", $method = "QEMU",  $memorysnap = "yes") {
 	  global $lv ;
 
 	  #Get State
@@ -1883,7 +1883,7 @@ private static $encoding = 'UTF-8';
 	  $diskspec = "" ;
 	  $capacity = 0 ;
 	  if ($snapshotname == "--generate") $name= "S" . date("YmdHis") ; else $name=$snapshotname ;
-	  if ($snapshotdesc != "") $snapshotdesc = " --description '$snapshotdesc'" ;
+	  if ($snapshotdescinput != "") $snapshotdesc = " --description '$snapshotdescinput'" ;
 
 	  foreach($disks as $disk)   {
 		  $file = $disk["file"] ;
@@ -1961,7 +1961,7 @@ private static $encoding = 'UTF-8';
 		  $arrResponse =  ['error' => substr($output[0],6) ] ;
 	  } else {
 		$arrResponse = ['success' => true] ;
-		$ret = write_snapshots_database("$vm","$name",$state,$snapshotdesc,$method) ;
+		$ret = write_snapshots_database("$vm","$name",$state,$snapshotdescinput,$method) ;
 		#remove meta data
 		if ($ret != "noxml") $ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
 	  }
