@@ -10,9 +10,7 @@
 # LANNAME                 'tower'
 # LANMDNS                 'tower.local'
 # LANFQDN  'lan-ip.hash.myunraid.net'  (wildcard cert)
-# LANFQDN           'hash.unraid.net'  (legacy cert)
 # WANFQDN  'wan-ip.hash.myunraid.net'  (wildcard cert)
-# WANFQDN       'www.hash.unraid.net'  (legacy)
 # WG0FQDN  'wg0-ip.hash.myunraid.net'  (wildcard cert)
 
 CALLER="nginx"
@@ -40,6 +38,12 @@ SERVER_NAMES=()
 [[ -z $USE_SSL ]] && USE_SSL=no
 [[ $PORTSSL != 443 ]] && PORTSSL_URL=":$PORTSSL"
 [[ $PORT != 80 ]] && PORT_URL=":$PORT"
+
+# delete legacy unraid.net certificate
+if [[ -f $CERTPATH ]]; then
+  TMPCERTNAME=$(openssl x509 -noout -subject -nameopt multiline -in $CERTPATH | sed -n 's/ *commonName *= //p')
+  [[ $TMPCERTNAME == *\.unraid\.net ]] && rm $CERTPATH
+fi
 
 # if USE_SSL="auto" and no uploaded cert, treat like USE_SSL="no"
 [[ $USE_SSL == auto && ! -f $CERTPATH ]] && USE_SSL=no
@@ -252,7 +256,6 @@ build_servers() {
 	#
 	# Port settings for https using CA-signed cert
 	# ex: https://lan-ip.hash.myunraid.net
-	# ex: https://hash.unraid.net
 	#
 	server {
 	$(listen $PORTSSL ssl http2)
@@ -491,15 +494,7 @@ build_ssl() {
       WANIP=$(curl https://wanip4.unraid.net/ 2>/dev/null)
       WANIP6=$(curl https://wanip6.unraid.net/ 2>/dev/null)
     fi
-    if [[ $CERTNAME == *\.unraid\.net ]]; then
-      # legacy LE certificate (only supports IPv4)
-      LANFQDN=$CERTNAME
-      SERVER_NAMES+=($LANFQDN)
-      if [[ -n $WANACCESS && -n $WANIP ]]; then
-        WANFQDN="www.$CERTNAME"
-        SERVER_NAMES+=($WANFQDN)
-      fi
-    elif [[ $CERTNAME == *\.myunraid\.net ]]; then
+    if [[ $CERTNAME == *\.myunraid\.net ]]; then
       # wildcard LE certificate
       [[ -n $LANIP ]] && LANFQDN=$(fqdn $LANIP) SERVER_NAMES+=($LANFQDN)
       [[ -n $LANIP6 ]] && LANFQDN6=$(fqdn $LANIP6) SERVER_NAMES+=($LANFQDN6)
