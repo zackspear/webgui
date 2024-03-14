@@ -1,6 +1,6 @@
 <?php
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -108,6 +108,7 @@ class UnraidOsCheck
             function _($text) {return $text;}
         }
 
+        // this command will set the $notify array
         extract(parse_plugin_cfg('dynamix', true));
 
         $var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
@@ -166,7 +167,10 @@ class UnraidOsCheck
             $server  = strtoupper(_var($var,'NAME','server'));
             $newver = (array_key_exists('version',$responseMutated) && $responseMutated['version']) ? $responseMutated['version'] : 'unknown';
             $script  = '/usr/local/emhttp/webGui/scripts/notify';
-            exec("$script -e ".escapeshellarg("System - Unraid [$newver]")." -s ".escapeshellarg("Notice [$server] - Version update $newver")." -d ".escapeshellarg("A new version of Unraid is available")." -i ".escapeshellarg("normal $output")." -l '/Tools/Update' -x");
+            $event = "System - Unraid [$newver]";
+            $subject = "Notice [$server] - Version update $newver";
+            $description = "A new version of Unraid is available";
+            exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Tools/Update' -x");
         }
 
         exit(0);
