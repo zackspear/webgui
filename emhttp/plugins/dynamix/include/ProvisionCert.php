@@ -46,9 +46,8 @@ $certPresent = file_exists($certPath);
 if ($certPresent) {
   // renew existing cert
   $certSubject = exec("/usr/bin/openssl x509 -subject -noout -in ".escapeshellarg($certPath));
-  $isLegacyCert = preg_match('/.*\.unraid\.net$/', $certSubject);
   $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $certSubject);
-  if ($isLegacyCert || $isWildcardCert) {    
+  if ($isWildcardCert) {    
     exec("/usr/bin/openssl x509 -checkend 2592000 -noout -in ".escapeshellarg($certPath), $arrout, $retval_expired);
     if ($retval_expired === 0) {
       // not within 30 days of cert expire date
@@ -59,7 +58,6 @@ if ($certPresent) {
     response_complete(406, '{"error":"'._('Cannot renew a custom cert at').' '.$certPath.'"}');
   }
 }
-$endpoint = ($certPresent && $isLegacyCert) ? "provisioncert" : "provisionwildcard";
 
 $keyfile = empty($var['regFILE']) ? false : @file_get_contents($var['regFILE']);
 if ($keyfile === false) {
@@ -67,7 +65,7 @@ if ($keyfile === false) {
 }
 $keyfile = @base64_encode($keyfile);
 
-$ch = curl_init("https://keys.lime-technology.com/account/ssl/$endpoint");
+$ch = curl_init("https://keys.lime-technology.com/account/ssl/provisionwildcard");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [
