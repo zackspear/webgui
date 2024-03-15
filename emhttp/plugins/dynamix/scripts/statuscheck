@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2024, Lime Technology
+ * Copyright 2012-2024, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -21,6 +21,7 @@ $disks = (array)@parse_ini_file("/var/local/emhttp/disks.ini",true);
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 $script = "$docroot/webGui/scripts/notify";
+// this command will set the $notify array
 extract(parse_plugin_cfg("dynamix",true));
 $output = _var($notify,'report');
 $server = strtoupper(_var($var,'NAME','tower'));
@@ -178,7 +179,8 @@ $warn = ($error0 || $error3) ? "alert" : (($error1 || $error2) ? "warning" : "no
 $stat = $warn=="normal" ? "[PASS]" : "[FAIL]";
 $info = "Array has $size disk".($size==1 ? "" : "s").($parity ? " ({$word}parity".($pools ? " & pools)" : ")") : ($pools ? " ({$word}pools)" : ""));
 $message = implode('\n', $data);
-exec("$script -s ".escapeshellarg("Notice [$server] - array health report $stat")." -d ".escapeshellarg("$info")." -m ".escapeshellarg("$message")." -i ".escapeshellarg("$warn $output")." -l '/Main'");
+$subject = "Notice [$server] - array health report $stat";
+exec("$script -s ".escapeshellarg($subject)." -d ".escapeshellarg("$info")." -m ".escapeshellarg("$message")." -i ".escapeshellarg("$warn $output")." -l '/Main'");
 
 exit(0);
 ?>
