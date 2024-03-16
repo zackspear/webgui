@@ -62,7 +62,7 @@ function ajaxVMDispatchconsoleRV(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",console="web", preview=false){  
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",console="web",usage=false){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
@@ -198,7 +198,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
       }});
     }
   }
-  context.attach('#vm-'+uuid, opts);
+  if (usage) context.attach('#vmusage-'+uuid, opts); else context.attach('#vm-'+uuid, opts);
 }
 function addVMSnapContext(name, uuid, template, state, snapshotname, method, preview=false){  
   var opts = [];
