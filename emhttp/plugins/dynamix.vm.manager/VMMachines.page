@@ -258,6 +258,10 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state ,fstype){
   document.getElementById("targetsnaprmvmeta").checked = true;
   document.getElementById("targetsnapkeep").checked = true;
   document.getElementById("targetsnapfspc").checked = true;
+    if (fstype == "ZFS") {
+    box.find('#targetsnaprmv').prop('disabled',true);
+    box.find('#targetsnaprmvmeta').prop('disabled',true);
+  }
   box.dialog({
     title: optiontext,
     height: 'auto',
