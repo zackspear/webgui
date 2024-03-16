@@ -313,8 +313,8 @@ function setGlue(form,reset) {
    {glue:'/',more:3,dev:1,type:'',min1:1,max1:4,min2:1,max2:128,min3:1,max3:4},            // highpoint
    {glue:'' ,more:1,dev:1,type:'',min1:0,max1:15},                                         // hp cciss
    {glue:'' ,more:0,dev:0,type:''},                                                        // marvell
-   {glue:',',more:1,dev:1,type:'',min1:0,max1:127}                                         // megaraid
-   {glue:',',more:1,dev:0,type:'input'},min1:'',max1:'0xffffffff'},                        // cypress
+   {glue:',',more:1,dev:1,type:'',min1:0,max1:127},                                        // megaraid
+   {glue:',',more:1,dev:0,type:'input',min1:'',max1:'0xffffffff'},                         // cypress
    {glue:',',more:3,dev:0,type:'select',min1:'',max1:'p',min2:'',max2:'x',min3:1,max3:128},// jmicron ata
    {glue:'' ,more:0,dev:0,type:''},                                                        // prolific
    {glue:'' ,more:0,dev:0,type:''},                                                        // sunplus
