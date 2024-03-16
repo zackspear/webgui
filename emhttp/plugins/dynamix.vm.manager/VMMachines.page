@@ -507,6 +507,7 @@ $(function() {
 <div id="templatesnapshotrevert" class="template">
 _(VM Name)_: <label id="VMName"></label><br>
 _(Snapshot Name)_: <input type="text" id="targetsnap" hidden><label id="targetsnapl"></label><br>
+<tr id="fstypeline"><td>_(Snapshot Method)_:</td><td><label id="fstype"></label><br>
 _(Remove Images)_: <input type="checkbox" id="targetsnaprmv" checked><br>
 _(Remove Meta)_:<input type="checkbox" id="targetsnaprmvmeta" checked> <input type="checkbox" id="targetsnapkeep" hidden><label id="targetsnapimages"></label><br>
 </div>
