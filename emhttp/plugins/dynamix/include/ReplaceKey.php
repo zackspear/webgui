@@ -1,6 +1,7 @@
 <?php
 $webguiGlobals = $GLOBALS;
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
 
 class ReplaceKey
 {
@@ -31,6 +32,9 @@ class ReplaceKey
     private function request($url, $method, $payload = null, $headers = null)
     {
         $ch = curl_init($url);
+
+        // setup outgoing proxy
+        $ch = getProxyCurlOpt($url, $ch);
 
         // Set the request method
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);

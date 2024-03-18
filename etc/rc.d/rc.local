@@ -14,6 +14,10 @@
 # run & log functions
 . /etc/rc.d/rc.runlog
 
+# load proxy environment vars so it is used for plugin updates and the go script
+/usr/local/sbin/set_proxy
+[[ -x /etc/profile.d/proxy.sh ]] && . /etc/profile.d/proxy.sh
+
 # irqbalance daemon distributes interrupts over processors and cores
 # if [[ -x /usr/sbin/irqbalance ]]; then
 #   /usr/sbin/irqbalance

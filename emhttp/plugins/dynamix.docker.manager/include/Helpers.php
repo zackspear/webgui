@@ -12,6 +12,9 @@
  */
 ?>
 <?
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
+
 function addRoute($ct) {
   // add static route(s) for remote WireGuard access
   [$pid,$net] = array_pad(explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct")),2,'');
@@ -517,6 +520,7 @@ function getAllocations() {
 
 function getCurlHandle($url, $method='GET') {
   $ch = curl_init();
+  $ch = getProxyCurlOpt($url, $ch);
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

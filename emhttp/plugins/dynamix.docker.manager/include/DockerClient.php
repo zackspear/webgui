@@ -14,6 +14,7 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
@@ -87,6 +88,7 @@ class DockerTemplates {
 
 	public function download_url($url, $path='') {
 		$ch = curl_init();
+		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -176,7 +178,7 @@ class DockerTemplates {
 			}
 			// if after above we don't have a valid url, check for GitLab
 			if (empty($github_api['url'])) {
-				$source = file_get_contents($url);
+				$source = file_get_contents($url, false, getProxyStreamContext($url));
 				// the following should always exist for GitLab Community Edition or GitLab Enterprise Edition
 				if (preg_match("/<meta content='GitLab (Community|Enterprise) Edition' name='description'>/", $source) > 0) {
 					$parse = parse_url($url);
@@ -395,6 +397,7 @@ class DockerUpdate{
 
 	public function download_url($url, $path='') {
 		$ch = curl_init();
+		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -411,6 +414,7 @@ class DockerUpdate{
 
 	public function download_url_and_headers($url, $headers=[], $path='') {
 		$ch = curl_init();
+		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);

@@ -25,6 +25,7 @@ $zip = $all ? ($argv[2]??'') : ($argv[1]??'');
 $cli = empty($zip);
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 $folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
@@ -115,18 +116,9 @@ function maskIP($file) {
   // anonymize full IPv6 addresses
   run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
 }
-
-function cache_only($disk) {
-  return _var($disk,'type')=='Cache';
-}
-function cache_filter($disks) {
-  return array_filter($disks,'cache_only');
-}
-function pools_filter($disks) {
-  return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
-}
 function download_url($url, $path="", $bg=false, $timeout=15) {
   $ch = curl_init();
+  $ch = getProxyCurlOpt($url, $ch);
   curl_setopt_array($ch,[
     CURLOPT_URL => $url,
     CURLOPT_FRESH_CONNECT => true,

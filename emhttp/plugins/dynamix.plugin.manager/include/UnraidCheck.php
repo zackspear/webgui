@@ -29,6 +29,7 @@
  */
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 
 class UnraidOsCheck
@@ -132,7 +133,7 @@ class UnraidOsCheck
         }
         set_error_handler("warning_as_error");
         try {
-            $response = file_get_contents($url);
+            $response = file_get_contents($url, false, getProxyStreamContext($url));
         } catch (Exception $e) {
             $response = json_encode(array('error' => $e->getMessage()), JSON_PRETTY_PRINT);
         }
@@ -159,7 +160,7 @@ class UnraidOsCheck
 
         // send notification if a newer version is available and not ignored
         $isNewerVersion = array_key_exists('isNewer',$responseMutated) ? $responseMutated['isNewer'] : false;
-        $isReleaseIgnored = in_array($responseMutated['version'], $this->getIgnoredReleases());
+        $isReleaseIgnored = array_key_exists('version',$responseMutated) ? in_array($responseMutated['version'], $this->getIgnoredReleases()) : false;
 
         if ($responseMutated && $isNewerVersion && !$isReleaseIgnored) {
             $output  = _var($notify,'plugin');
