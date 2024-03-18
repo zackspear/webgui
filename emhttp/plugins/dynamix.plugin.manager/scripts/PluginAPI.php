@@ -13,7 +13,6 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.plugin.manager/include/PluginHelpers.php";
 require_once "$docroot/plugins/dynamix/include/Secure.php";
-require_once "$docroot/webGui/include/Helpers.php";
 
 //add translations
 $_SERVER['REQUEST_URI'] = "plugins";
@@ -21,7 +20,6 @@ require_once "$docroot/plugins/dynamix/include/Translations.php";
 
 function download_url($url, $path = "") {
 	$ch = curl_init();
-	$ch = getProxyCurlOpt($url, $ch);
 	curl_setopt_array($ch,[
 		CURLOPT_URL => $url,
 		CURLOPT_FRESH_CONNECT => true,

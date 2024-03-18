@@ -118,7 +118,6 @@ function maskIP($file) {
 }
 function download_url($url, $path="", $bg=false, $timeout=15) {
   $ch = curl_init();
-  $ch = getProxyCurlOpt($url, $ch);
   curl_setopt_array($ch,[
     CURLOPT_URL => $url,
     CURLOPT_FRESH_CONNECT => true,

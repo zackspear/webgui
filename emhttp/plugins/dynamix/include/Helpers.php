@@ -324,21 +324,4 @@ function getProxyStreamContext($url, $streamContextOptions = [], $http_proxy_ove
     return null;
   } 
 }
-// use after calling curl_init();
-// reads environment variables and determines whether to proxy the request
-// example usage: $ch = getProxyCurlOpt($url, $ch);
-function getProxyCurlOpt($url, $ch, $http_proxy_override = null, $no_proxy_override = null) {
-  $url_host=parse_url($url, PHP_URL_HOST);
-
-  $http_proxy = $http_proxy_override ?? getenv('http_proxy');
-  $no_proxy = $no_proxy_override ?? getenv('no_proxy');
-  $no_proxy_arr = ($no_proxy) ? explode (",", $no_proxy) : [];
-
-  // do not proxy hosts listed in the no_proxy environment variable
-  if ($http_proxy && ! in_array($url_host, $no_proxy_arr)) {
-    curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, true);
-    curl_setopt($ch, CURLOPT_PROXY, $http_proxy);
-  }
-  return $ch;
-}
 ?>

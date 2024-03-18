@@ -12,7 +12,6 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
@@ -67,9 +66,7 @@ if ($keyfile === false) {
 }
 $keyfile = @base64_encode($keyfile);
 
-$url = 'https://keys.lime-technology.com/account/ssl/provisionwildcard';
-$ch = curl_init($url);
-$ch = getProxyCurlOpt($url, $ch);
+$ch = curl_init("https://keys.lime-technology.com/account/ssl/provisionwildcard");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, [

@@ -14,7 +14,6 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
-require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
@@ -88,7 +87,6 @@ class DockerTemplates {
 
 	public function download_url($url, $path='') {
 		$ch = curl_init();
-		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -397,7 +395,6 @@ class DockerUpdate{
 
 	public function download_url($url, $path='') {
 		$ch = curl_init();
-		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -414,7 +411,6 @@ class DockerUpdate{
 
 	public function download_url_and_headers($url, $headers=[], $path='') {
 		$ch = curl_init();
-		$ch = getProxyCurlOpt($url, $ch);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
