@@ -292,14 +292,13 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
 	}
 }
 // use when calling file_get_contents, fopen, or similar on a url 
-// reads proxy.ini and determines whether to proxy the request
+// reads environment variables and determines whether to proxy the request
 // example usage: file_get_contents($url, false, getProxyStreamContext($url));
 function getProxyStreamContext($url, $streamContextOptions = [], $http_proxy_override = null, $no_proxy_override = null) {
   $url_host=parse_url($url, PHP_URL_HOST);
-  $proxy = (array)@parse_ini_file("/var/local/emhttp/proxy.ini",true);
-
-  $http_proxy = $http_proxy_override ?? _var($proxy,'http_proxy');
-  $no_proxy = $no_proxy_override ?? _var($proxy,'no_proxy');
+  
+  $http_proxy = $http_proxy_override ?? getenv('http_proxy');
+  $no_proxy = $no_proxy_override ?? getenv('no_proxy');
   $no_proxy_arr = ($no_proxy) ? explode (",", $no_proxy) : [];
 
   // php does not support sock5 proxies in HTTP context options, only http proxies
@@ -326,14 +325,13 @@ function getProxyStreamContext($url, $streamContextOptions = [], $http_proxy_ove
   } 
 }
 // use after calling curl_init();
-// reads proxy.ini and determines whether to proxy the request
+// reads environment variables and determines whether to proxy the request
 // example usage: $ch = getProxyCurlOpt($url, $ch);
 function getProxyCurlOpt($url, $ch, $http_proxy_override = null, $no_proxy_override = null) {
   $url_host=parse_url($url, PHP_URL_HOST);
-  $proxy = (array)@parse_ini_file("/var/local/emhttp/proxy.ini",true);
 
-  $http_proxy = $http_proxy_override ?? _var($proxy,'http_proxy');
-  $no_proxy = $no_proxy_override ?? _var($proxy,'no_proxy');
+  $http_proxy = $http_proxy_override ?? getenv('http_proxy');
+  $no_proxy = $no_proxy_override ?? getenv('no_proxy');
   $no_proxy_arr = ($no_proxy) ? explode (",", $no_proxy) : [];
 
   // do not proxy hosts listed in the no_proxy environment variable
