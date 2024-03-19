@@ -126,18 +126,21 @@ class UnraidOsCheck
         $urlbase = $parsedAltUrl ?? $defaultUrl;
         $url     = $urlbase.'?'.http_build_query($params);
 
-        $response = "";
-        // use error handler to convert warnings from file_get_contents to errors so they can be captured
-        function warning_as_error($severity, $message, $filename, $lineno) {
-            throw new ErrorException($message, 0, $severity, $filename, $lineno);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+        curl_setopt($ch, CURLOPT_ENCODING, "");
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_REFERER, "");
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            $response = json_encode(array('error' => curl_error($ch)), JSON_PRETTY_PRINT);
         }
-        set_error_handler("warning_as_error");
-        try {
-            $response = file_get_contents($url, false, getProxyStreamContext($url));
-        } catch (Exception $e) {
-            $response = json_encode(array('error' => $e->getMessage()), JSON_PRETTY_PRINT);
-        }
-        restore_error_handler();
+        curl_close($ch);
 
         $responseMutated = json_decode($response, true);
         if (!$responseMutated) {

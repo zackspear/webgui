@@ -291,37 +291,4 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
       break;
 	}
 }
-// use when calling file_get_contents, fopen, or similar on a url 
-// reads environment variables and determines whether to proxy the request
-// example usage: file_get_contents($url, false, getProxyStreamContext($url));
-function getProxyStreamContext($url, $streamContextOptions = [], $http_proxy_override = null, $no_proxy_override = null) {
-  $url_host=parse_url($url, PHP_URL_HOST);
-  
-  $http_proxy = $http_proxy_override ?? getenv('http_proxy');
-  $no_proxy = $no_proxy_override ?? getenv('no_proxy');
-  $no_proxy_arr = ($no_proxy) ? explode (",", $no_proxy) : [];
-
-  // php does not support sock5 proxies in HTTP context options, only http proxies
-  // do not proxy hosts listed in the no_proxy environment variable
-  if ($http_proxy && str_starts_with($http_proxy, 'http://') && ! in_array($url_host, $no_proxy_arr)) {
-    $auth = null;
-    $proxy_parts = parse_url($http_proxy);
-    if (isset($proxy_parts['user']) && isset($proxy_parts['pass'])) {
-      // rebuild $http_proxy url without user:pass
-      $http_proxy = $proxy_parts['scheme'] . '://' . $proxy_parts['host'] . (isset($proxy_parts['port']) ? ':' . $proxy_parts['port'] : '');
-      // prep for basic auth
-      $auth = base64_encode(urldecode($proxy_parts['user']).':'.urldecode($proxy_parts['pass']));
-    }
-    $http_proxy = str_replace('http://', 'tcp://', $http_proxy);
-    $streamContextOptions['http']['proxy'] = $http_proxy;
-    $streamContextOptions['http']['request_fulluri'] = true;
-    if ($auth) $streamContextOptions['http']['header'] = 'Proxy-Authorization: Basic '.$auth;
-  }
-  if (!empty($streamContextOptions)) {
-    $streamContext=stream_context_create($streamContextOptions);
-    return $streamContext;
-  } else {
-    return null;
-  } 
-}
 ?>

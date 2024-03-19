@@ -14,7 +14,6 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.docker.manager/include/Helpers.php";
-require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
@@ -177,7 +176,7 @@ class DockerTemplates {
 			}
 			// if after above we don't have a valid url, check for GitLab
 			if (empty($github_api['url'])) {
-				$source = file_get_contents($url, false, getProxyStreamContext($url));
+				$source = $this->download_url($url);
 				// the following should always exist for GitLab Community Edition or GitLab Enterprise Edition
 				if (preg_match("/<meta content='GitLab (Community|Enterprise) Edition' name='description'>/", $source) > 0) {
 					$parse = parse_url($url);
