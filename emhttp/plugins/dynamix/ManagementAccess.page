@@ -75,7 +75,7 @@ if ($cert1Present) {
   $cert1SelfSigned = ($cert1Subject == $cert1Issuer);
 }
 
-// unraid.net, myunraid.net LE cert. could potentially be user provided as well
+// myunraid.net LE cert. could potentially be user provided as well
 $cert2File    = "/boot/config/ssl/certs/certificate_bundle.pem";
 $cert2Present = file_exists("$cert2File");
 if ($cert2Present) {
@@ -84,6 +84,8 @@ if ($cert2Present) {
   $cert2Expires = exec("/usr/bin/openssl x509 -in $cert2File -noout -text | sed -n -e 's/^.*Not After : //p'");
   $isWildcardCert = preg_match('/.*\.myunraid\.net$/', $cert2Subject);
   $subject2URL = $cert2Subject;
+  $dnsValid = false;
+  $dnsRebindingProtection = false;
   if ($isWildcardCert) {
     exec("openssl x509 -checkend 2592000 -noout -in $cert2File 2>/dev/null", $arrout, $retval_expired);
     if (!$addr) {
