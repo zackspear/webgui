@@ -24,7 +24,7 @@ $lsmod = shell_exec("lsmod") ;
 $supportpage = true;
 $modtoplgfile = "/tmp/modulestoplg.json" ;
 $sysdrvfile = "/tmp/sysdrivers.json" ;
-$arrModtoPlg = json_decode(file_get_contents("/tmp/modulestoplg.json") ,TRUE) ;
+$arrModtoPlg = file_exists($modtoplgfile) ? json_decode(file_get_contents($modtoplgfile), true) : '';
 file_put_contents("/tmp/sysdrivers.init","1") ;
 SysDriverslog("SysDrivers Build Starting") ;
 modtoplg() ;
