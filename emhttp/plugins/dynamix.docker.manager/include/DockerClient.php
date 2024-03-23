@@ -176,7 +176,7 @@ class DockerTemplates {
 			}
 			// if after above we don't have a valid url, check for GitLab
 			if (empty($github_api['url'])) {
-				$source = file_get_contents($url);
+				$source = $this->download_url($url);
 				// the following should always exist for GitLab Community Edition or GitLab Enterprise Edition
 				if (preg_match("/<meta content='GitLab (Community|Enterprise) Edition' name='description'>/", $source) > 0) {
 					$parse = parse_url($url);
