@@ -149,4 +149,47 @@ function my_date($fmt, $time) {
 function my_logger($message, $logger='webgui') {
   exec('logger -t '.escapeshellarg($logger).' -- '.escapeshellarg($message));
 }
+// Original PHP code by Chirp Internet: www.chirpinternet.eu
+// Please acknowledge use of this code by including this header.
+// https://www.the-art-of-web.com/php/http-get-contents/
+// Modified for Unraid
+/**
+ * Fetches URL and returns content
+ * @param string $url The URL to fetch
+ * @param array $opts Array of options to pass to curl_setopt()
+ * @param array $getinfo Empty array passed by reference, will contain results of curl_getinfo and curl_error
+ * @return string|false $out The fetched content
+ */
+function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL) {
+  $ch = curl_init();
+  if(isset($getinfo)) {
+    curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
+  }
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+  curl_setopt($ch, CURLOPT_ENCODING, "");
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  curl_setopt($ch, CURLOPT_REFERER, "");
+  curl_setopt($ch, CURLOPT_FAILONERROR, true);
+  if(is_array($opts) && $opts) {
+    foreach($opts as $key => $val) {
+      curl_setopt($ch, $key, $val);
+    }
+  }
+  $out = curl_exec($ch);
+  if(isset($getinfo)) {
+    $getinfo = curl_getinfo($ch);
+  }
+  if (curl_errno($ch)) {
+    $msg = curl_error($ch) . " {$url}";
+    if(isset($getinfo)) {
+      $getinfo['error'] = $msg;
+    }
+    my_logger($msg, "http_get_contents");
+  }
+  return $out;
+}
 ?>

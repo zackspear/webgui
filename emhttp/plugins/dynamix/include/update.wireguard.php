@@ -13,6 +13,7 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'settings';
@@ -20,22 +21,6 @@ $_SERVER['REQUEST_URI'] = 'settings';
 if (!isset($_SESSION['locale'])) $_SESSION['locale'] = _var($_POST,'#locale');
 
 require_once "$docroot/webGui/include/Translations.php";
-
-function download_url($url) {
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 12);
-  curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-  curl_setopt($ch, CURLOPT_ENCODING, "");
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-  curl_setopt($ch, CURLOPT_REFERER, "");
-  curl_setopt($ch, CURLOPT_FAILONERROR, true);
-  $out = curl_exec($ch) ?: false;
-  curl_close($ch);
-  return $out;
-}
 
 $dockerd   = is_file('/var/run/dockerd.pid') && is_dir('/proc/'.file_get_contents('/var/run/dockerd.pid'));
 $etc       = '/etc/wireguard';
@@ -442,9 +427,9 @@ case 'public':
   $v4 = _var($_POST,'#prot')!='6';
   $v6 = _var($_POST,'#prot')!='';
   $int_ipv4 = $v4 ? (preg_match("/^$validIP4$/",$ip) ? $ip : (@dns_get_record($ip,DNS_A)[0]['ip'] ?: '')) : '';
-  $ext_ipv4 = $v4 ? (download_url('https://wanip4.unraid.net') ?: '') : '';
+  $ext_ipv4 = $v4 ? (http_get_contents('https://wanip4.unraid.net') ?: '') : '';
   $int_ipv6 = $v6 ? (preg_match("/^$validIP6$/",$ip) ? $ip : (@dns_get_record($ip,DNS_AAAA)[0]['ipv6'] ?: '')) : '';
-  $ext_ipv6 = $v6 ? (download_url('https://wanip6.unraid.net') ?: '') : '';
+  $ext_ipv6 = $v6 ? (http_get_contents('https://wanip6.unraid.net') ?: '') : '';
   echo "$int_ipv4;$ext_ipv4;$int_ipv6;$ext_ipv6";
   break;
 case 'addtunnel':
