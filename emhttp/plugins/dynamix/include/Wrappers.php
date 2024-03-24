@@ -192,4 +192,13 @@ function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL
   }
   return $out;
 }
+/**
+ * Detect network connectivity via Network Connectivity Status Indicator
+ * @return bool
+ */
+function check_network_connectivity(): bool {
+  $url = 'http://www.msftncsi.com/ncsi.txt';
+  $out = http_get_contents($url);
+  return ($out=="Microsoft NCSI");
+}
 ?>
