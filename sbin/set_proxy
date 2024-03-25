@@ -53,9 +53,11 @@ EOF
   mv "${FILE}.${RND}" "${FILE}"
 }
 
-# restart_phpfpm whenever the environment variables change
+# if running, restart_phpfpm when the environment variables change
 restart_phpfpm () {
-  /etc/rc.d/rc.php-fpm restart > /dev/null
+  if /etc/rc.d/rc.php-fpm status > /dev/null; then
+    /etc/rc.d/rc.php-fpm restart > /dev/null
+  fi
 }
 
 # generate proxy files
