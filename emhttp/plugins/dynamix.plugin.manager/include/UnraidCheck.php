@@ -124,24 +124,12 @@ class UnraidOsCheck
         if ($parsedAltUrl) $params['altUrl'] = $parsedAltUrl;
 
         $urlbase = $parsedAltUrl ?? $defaultUrl;
-        $url     = $urlbase.'?'.http_build_query($params);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-        curl_setopt($ch, CURLOPT_ENCODING, "");
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_REFERER, "");
-        curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $response = json_encode(array('error' => curl_error($ch)), JSON_PRETTY_PRINT);
+        $url     = $urlbase.'?'.http_build_query($params);       
+        $curlinfo = [];
+        $response = http_get_contents($url,[],$curlinfo);
+        if (array_key_exists('error', $curlinfo)) {
+            $response = json_encode(array('error' => $curlinfo['error']), JSON_PRETTY_PRINT);
         }
-        curl_close($ch);
-
         $responseMutated = json_decode($response, true);
         if (!$responseMutated) {
             $response = json_encode(array('error' => 'Invalid response from '.$urlbase), JSON_PRETTY_PRINT);
