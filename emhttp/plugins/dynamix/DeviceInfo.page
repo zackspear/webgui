@@ -603,7 +603,7 @@ _(Spin down delay)_:
 _(File system status)_:
 : <?=_(_var($disk,'fsStatus'))?>&nbsp;
 
-<?$disabled = (_var($var,'fsState')=="Stopped" && !empty(_var($disk,'uuid'))) || (_var($var,'fsState')=="Started" &&  _var($disk,'fsStatus')=='Mounted') ? "disabled" : ""?>
+<?$disabled = (_var($var,'fsState')=="Stopped" && !empty(_var($disk,'uuid'))) || (_var($var,'fsState')=="Started" &&  _var($disk,'fsType')!='auto') ? "disabled" : ""?>
 <?if (diskType('Data') || (!isSubpool($name) && _var($disk,'slots',0)==1)):?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=_var($disk,'idx',0)?>" onchange="changeFsType()" <?=$disabled?>>
