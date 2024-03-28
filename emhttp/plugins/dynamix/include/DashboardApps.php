@@ -13,13 +13,17 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+// add translations
+$_SERVER['REQUEST_URI'] = 'dashboard';
+require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
-// add translations
-$_SERVER['REQUEST_URI'] = 'dashboard';
-require_once "$docroot/webGui/include/Translations.php";
+if (isset($_POST['ntp'])) {
+  $ntp = exec("ntpq -pn|awk '{if (NR>3 && $2!=\".INIT.\") c++} END {print c}'");
+  die($ntp ? sprintf(_('Clock synchronized with %s NTP server'.($ntp==1?'':'s')),$ntp) : _('Clock is unsynchronized with no NTP servers'));
+}
 
 if ($_POST['docker']) {
   $user_prefs = $dockerManPaths['user-prefs'];
@@ -64,6 +68,7 @@ if ($_POST['docker']) {
 }
 echo "\0";
 if ($_POST['vms']) {
+  $vmusage = $_POST['vmusage'];
   $user_prefs = '/boot/config/plugins/dynamix.vm.manager/userprefs.cfg';
   $vms = $lv->get_domains() ?: [];
   if (file_exists($user_prefs)) {
@@ -74,11 +79,14 @@ if ($_POST['vms']) {
     natcasesort($vms);
   }
   echo "<tr title='' class='updated'><td>";
+  $running = 0;
   foreach ($vms as $vm) {
     $res = $lv->get_domain_by_name($vm);
     $uuid = libvirt_domain_get_uuid_string($res);
     $dom = $lv->domain_get_info($res);
     $id = $lv->domain_get_id($res);
+    $fstype ="QEMU";
+    if (($diskcnt = $lv->get_disk_count($res)) > 0) $fstype = $lv->get_disk_fstype($res);
     $state = $lv->domain_state_translate($dom['state']);
     $vmrcport = $lv->domain_get_vnc_port($res);
     $autoport = $lv->domain_get_vmrc_autoport($res);
@@ -110,13 +118,14 @@ if ($_POST['vms']) {
     if (empty($template)) $template = 'Custom';
     $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
     if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log), $vmrcconsole);
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole);
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
       $shape = 'play';
       $status = 'started';
       $color = 'green-text';
+      $running++;
       break;
     case 'paused':
     case 'pmsuspended':
@@ -136,4 +145,44 @@ if ($_POST['vms']) {
   $none = count($vms) ? _('No running virtual machines') : _('No virtual machines defined');
   echo "<span id='no_vms' style='display:none'>$none<br><br></span>";
   echo "</td></tr>";
+
+  echo "\0";
+  echo "<tr title='' class='useupdated'><td>";
+  $running = 0;
+  if ($vmusage == "Y") {
+    foreach ($vms as $vm) {
+      $res = $lv->get_domain_by_name($vm);
+      $uuid = libvirt_domain_get_uuid_string($res);
+      $dom = $lv->domain_get_info($res);
+      $id = $lv->domain_get_id($res);
+      $fstype ="QEMU";
+      if (($diskcnt = $lv->get_disk_count($res)) > 0) $fstype = $lv->get_disk_fstype($res);
+      $state = $lv->domain_state_translate($dom['state']);
+      $template = $lv->_get_single_xpath_result($res, '//domain/metadata/*[local-name()=\'vmtemplate\']/@name');
+      if (empty($template)) $template = 'Custom';
+      $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
+      if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
+      $icon = $lv->domain_get_icon_url($res);
+      if ($state != "running") continue;
+      $running++;
+      switch ($state) {
+      case 'running':
+        $shape = 'play';
+        $status = 'started';
+        $color = 'green-text';
+        break;
+      }
+      $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
+      echo "<span class='outer solid vmsuse $status'><span id='vmusage-$uuid' >$image</span><span class='inner'>$vm<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)."</span></span>";
+      echo "<br><br><span id='vmmetrics-gcpu-".$uuid."'>",_("Loading")."....</span>";
+      echo "<br><span id='vmmetrics-hcpu-".$uuid."'>"._("Loading")."....</span>";
+      echo "<br><span id='vmmetrics-mem-".$uuid."'>"._("Loading")."....</span>";
+      echo "<br><span id='vmmetrics-disk-".$uuid."'>"._("Loading")."....</span>";
+      echo "<br><span id='vmmetrics-net-".$uuid."'>"._("Loading")."....</span>";
+      echo "</span>";
+    }
+    if (!count($vms))  echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
+    if ($running < 1 && count($vms)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
+    echo "</td></tr>";
+  }
 }

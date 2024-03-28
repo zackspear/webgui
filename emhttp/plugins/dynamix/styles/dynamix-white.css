@@ -1,4 +1,4 @@
-.jGrowl{position:fixed;font-size:1.3rem}
+.jGrowl{position:fixed;font-size:1.3rem;z-index:10001}
 .jGrowl.top-left{left:10px;top:130px}
 .jGrowl.top-right{right:10px;top:130px}
 .jGrowl.bottom-left{left:10px;bottom:24px}

@@ -66,9 +66,11 @@ foreach ($vms as $vm) {
   $log = (is_file("/var/log/libvirt/qemu/$vm.log") ? "libvirt/qemu/$vm.log" : '');
   $disks = '-';
   $diskdesc = '';
+  $fstype ="QEMU";
   if (($diskcnt = $lv->get_disk_count($res)) > 0) {
     $disks = $diskcnt.' / '.$lv->get_disk_capacity($res);
-    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true);
+    $fstype = $lv->get_disk_fstype($res);
+    $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type: $fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
   $vmrcport = $lv->domain_get_vnc_port($res);
@@ -108,7 +110,7 @@ foreach ($vms as $vm) {
   }
   unset($dom);
   if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log), $vmrcconsole,$vmpreview);
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,$vmpreview);
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':
@@ -130,7 +132,7 @@ foreach ($vms as $vm) {
   }
 
   /* VM information */
-  if ($snapshots != null)  $snapshotstr = _("(Snapshots :").count($snapshots).')'; else $snapshotstr = _("(Snapshots :None)");
+  if ($snapshots != null)  $snapshotstr = '('._('Snapshots').': '.count($snapshots).")"; else $snapshotstr = '('._('Snapshots').': '._('None').")";
   $cdbus = $cdbus2 = $cdfile = $cdfile2 = "";
   $cdromcount = 0;
     foreach ($cdroms as $arrCD) {
@@ -267,7 +269,7 @@ foreach ($vms as $vm) {
       if ($snap['parent'] == "" || $snap['parent'] == "Base") $j++;
       $steps[$j] .= $snap['name'].';';
     }
-    echo "<thead class='child' child-id='$i'><tr><th><i class='fa fa-clone'></i> <b>",_('Snapshots'),"</b></th><th></th><th>",_('Date/Time'),"</th><th>",_('Type'),"</th><th>",_('Parent'),"</th><th>",_('Memory'),"</th></tr></thead>";
+    echo "<thead class='child' child-id='$i'><tr><th><i class='fa fa-clone'></i> <b>",_('Snapshots'),"</b></th><th></th><th>",_('Date/Time'),"</th><th>",_('Type (Method)'),"</th><th>",_('Parent'),"</th><th>",_('Memory'),"</th></tr></thead>";
     echo "<tbody class='child'child-id='$i'>";
     foreach ($steps as $stepsline) {
       $snapshotlist = explode(";",$stepsline);
@@ -275,12 +277,12 @@ foreach ($vms as $vm) {
       foreach ($snapshotlist as  $snapshotitem) {
         if ($snapshotitem == "") continue;
         $snapshot = $snapshots[$snapshotitem] ;
-        $snapshotstate = _(ucfirst($snapshot["state"]));
+        $snapshotstate = _(ucfirst($snapshot["state"]))." ({$snapshot["method"]})";
         $snapshotdesc = $snapshot["desc"];
         $snapshotmemory = _(ucfirst($snapshot["memory"]["@attributes"]["snapshot"]));
         $snapshotparent = $snapshot["parent"] ? $snapshot["parent"]  : "None";
         $snapshotdatetime = my_time($snapshot["creationtime"],"Y-m-d" )."<br>".my_time($snapshot["creationtime"],"H:i:s");
-        $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$vmpreview);
+        $snapmenu = sprintf("onclick=\"addVMSnapContext('%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,$snapshot["name"],$snapshot["method"],$vmpreview);
         echo "<tr><td><span id='vmsnap-$uuid' $snapmenu class='hand'>$tab|__&nbsp;&nbsp;<i class='fa fa-clone'></i></span>&nbsp;",$snapshot["name"],"</td><td>$snapshotdesc</td><td><span class='inner' style='font-size:1.1rem;'>$snapshotdatetime</span></td><td>$snapshotstate</td><td>$snapshotparent</td><td>$snapshotmemory</td></tr>";
         $tab .="&nbsp;&nbsp;&nbsp;&nbsp;";
       }

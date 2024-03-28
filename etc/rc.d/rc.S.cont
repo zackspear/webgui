@@ -67,12 +67,11 @@ if /bin/grep -wq cgroup /proc/filesystems; then
   else
     if [[ -d /sys/fs/cgroup ]]; then
       # See https://docs.kernel.org/admin-guide/cgroup-v2.html (section Mounting)
-      # Mount a tmpfs as the cgroup2 filesystem root
-      /sbin/mount -t tmpfs -o mode=0755,size=8M cgroup_root /sys/fs/cgroup
-      /sbin/mount -t cgroup2 none /sys/fs/cgroup
+      # Mount cgroup2 filesystem
+      /sbin/mount -t cgroup2 -o rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot cgroup2 /sys/fs/cgroup
     else
-      /bin/mkdir -p /dev/cgroup
-      /sbin/mount -t cgroup2 none /dev/cgroup
+      # Display message if /sys/fs/cgroup does not exist
+      echo "/sys/fs/cgroup does not exist. cgroup2 cannot be mounted."
     fi
   fi
 fi

@@ -238,12 +238,14 @@ function VMClone(uuid, name){
   });
   dialogStyle();
 }
-function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
+function selectsnapshot(uuid, name ,snaps, opt, getlist,state ,fstype){
   var box = $("#dialogWindow");
   box.html($("#templatesnapshot"+opt).html());
   const capopt = opt.charAt(0).toUpperCase() + opt.slice(1);
   var optiontext = capopt + " _(Snapshot)_";
   box.find('#VMName').html(name);
+  box.find('#fstype').html(fstype);
+  if (fstype == "QEMU") box.find('#fstypeline').prop('hidden',true);
   box.find('#targetsnap').val(snaps);
   box.find('#targetsnapl').html(snaps);
   if (getlist) {
@@ -282,9 +284,11 @@ function selectsnapshot(uuid, name ,snaps, opt, getlist,state){
         }
         if (opt == "create") {
           free = box.find('#targetsnapfspc').prop('checked') ? 'yes' : 'no';
+          fstypeuse = box.find('#targetsnapfstype').prop('checked') ? 'yes' : 'no';
+          if (fstypeuse == "no") fstype ="QEMU";
           desc = box.find("#targetsnapdesc").prop('value');
         }
-        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, removemeta:removemeta, keep:keep, desc:desc}, "loadlist");
+        ajaxVMDispatch({action:"snap-" + opt +'-external', uuid:uuid, snapshotname:target, remove:remove, free:free, removemeta:removemeta, keep:keep, desc:desc, fstype:fstype}, "loadlist");
         box.dialog('close');
       },
       "_(Cancel)_": function(){
@@ -492,6 +496,7 @@ $(function() {
 <tr><td>_(VM Name)_:</td><td><label id="VMName"></label></td></tr>
 <tr><td>_(Snapshot Name)_:</td><td><input type="text" id="targetsnap" autocomplete="off" spellcheck="false" value="--generate" onclick="this.select()">_(Check free space)_: <input type="checkbox" id="targetsnapfspc" checked></td></tr>
 <tr><td>_(Description  )_:</td><td><input type="text" id="targetsnapdesc" autocomplete="off" spellcheck="false" value="" onclick="this.select()"></td></tr>
+<tr id="fstypeline"><td>_(FS Native Snapshot )_:</td><td><label id="fstype"></label><input type="checkbox" id="targetsnapfstype"  checked>_(Unchecked will use QEMU External Snapshot)_</td></tr>
 </table>
 </div>
 
@@ -529,6 +534,6 @@ _(Snapshot Name)_: <input type="text" id="targetsnap" hidden><label id="targetsn
 <tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
 <tr hidden><td>_(Start Cloned VM)_:</td><td><input type="checkbox" id="Start" value="" ></td></tr>
 <tr hidden><td>_(Edit VM after clone)_:</td><td><input type="checkbox" id="Edit" value="" ></td></tr>
-<tr><td>_(Check Free Space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
+<tr><td>_(Check free space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
 </table>
 </div>

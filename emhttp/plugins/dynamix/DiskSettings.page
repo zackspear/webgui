@@ -36,11 +36,13 @@ function doDispatch(form) {
 <?if ($display['unit']=='F'):?>
   form.display_hot.value = form.display_hot.value.celsius();
   form.display_max.value = form.display_max.value.celsius();
-  form.display_ssd.value = form.display_ssd.value.celsius();
+  form.display_hotssd.value = form.display_hotssd.value.celsius();
+  form.display_maxssd.value = form.display_maxssd.value.celsius();
 <?endif;?>
   fields['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
   fields['#cleanup'] = true;
   $(form).find('input[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
+  $(form).find('select[name^="display_"]').each(function(){fields[$(this).attr('name')] = $(this).val(); $(this).prop('disabled',true);});
   $.post('/webGui/include/Dispatcher.php',fields);
 }
 function prepareDiskSettings(form) {
@@ -224,6 +226,12 @@ _(Tunable (md_write_method))_:
 
 :disk_tunable_md_write_method_help:
 
+_(Enable NVME power monitoring)_:
+: <select name="display_power">
+  <?=mk_option($display['power'], "", _('No'))?>
+  <?=mk_option($display['power'], "1", _('Yes'))?>
+  </select>
+
 _(Default warning disk utilization threshold)_ (%):
 : <input type="number" min="0" max="100" name="display_warning" class="narrow" value="<?=$display['warning']?>" placeholder="<?=$default['display']['warning']?>">
 
@@ -259,7 +267,7 @@ _(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C'
 </form>
 
 <?if ($encrypt && $var['fsState']=='Started'):?>
-<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change Encryption Key)_</span></div>
+<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change encryption key)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareForm(this)">
 <input type="hidden" name="#file" value="">
 <input type="hidden" name="#include" value="/webGui/include/update.encryption.php">

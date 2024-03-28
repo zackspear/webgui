@@ -14,6 +14,10 @@
 # run & log functions
 . /etc/rc.d/rc.runlog
 
+# load proxy environment vars so it is used for plugin updates and the go script
+/usr/local/sbin/set_proxy
+[[ -x /etc/profile.d/proxy.sh ]] && . /etc/profile.d/proxy.sh
+
 # irqbalance daemon distributes interrupts over processors and cores
 # if [[ -x /usr/sbin/irqbalance ]]; then
 #   /usr/sbin/irqbalance
@@ -53,6 +57,11 @@ fi
 # initialize notifications
 /usr/local/emhttp/webGui/scripts/notify smtp-init
 /usr/local/emhttp/webGui/scripts/notify cron-init
+
+# restore favorites
+if [[ -x /usr/local/emhttp/webGui/scripts/restore_favorites ]]; then
+  /usr/local/emhttp/webGui/scripts/restore_favorites
+fi
 
 # start nchan monitoring -> stop all running nchan processes when no subscribers are connected
 if [[ -x /usr/local/sbin/monitor_nchan ]]; then

@@ -176,6 +176,7 @@
 					// create folder if needed
 					if (!is_dir($strImgFolder)) {
 						mkdir($strImgFolder, 0777, true);
+						#my_mkdir($strImgFolder, 0777, true);
 						chown($strImgFolder, 'nobody');
 						chgrp($strImgFolder, 'users');
 					}
@@ -192,13 +193,15 @@
 					// create parent folder if needed
 					if (!is_dir($path_parts['dirname'])) {
 						mkdir($path_parts['dirname'], 0777, true);
+						#my_mkdir($path_parts['dirname'], 0777, true);
 						chown($path_parts['dirname'], 'nobody');
 						chgrp($path_parts['dirname'], 'users');
 					}
 
 					$this->set_folder_nodatacow($path_parts['dirname']);
 
-					$strImgPath = $strImgFolder;
+					$strExt = ($disk['driver'] == 'raw') ? 'img' : $disk['driver'];
+					$strImgPath = $path_parts['dirname'] . '/vdisk' . $diskid . '.' . $strExt;
 				}
 
 
@@ -217,6 +220,7 @@
 						$strImgRawLocationParent = dirname($strImgRawLocationPath);
 						if (!is_dir($strImgRawLocationParent)) {
 							mkdir($strImgRawLocationParent, 0777, true);
+							#my_mkdir($strImgRawLocationParent, 0777, true);
 							chown($strImgRawLocationParent, 'nobody');
 							chgrp($strImgRawLocationParent, 'users');
 						}
@@ -256,6 +260,9 @@
 					}
 					if (!empty($disk['boot'])) {
 						$arrReturn['boot'] = $disk['boot'];
+					}
+					if (!empty($disk['rotation'])) {
+						$arrReturn['rotation'] = $disk['rotation'];
 					}
 					if (!empty($disk['serial'])) {
 						$arrReturn['serial'] = $disk['serial'];
@@ -683,13 +690,18 @@
 
 						if ($disk["serial"] != "") $serial = "<serial>".$disk["serial"]."</serial>" ; else $serial = "" ;
 
+						$rotation_rate = "";
+						if ($disk['bus'] == "scsi" || $disk['bus'] == "sata" || $disk['bus'] == "ide" ) {
+							if ($disk['rotation']) $rotation_rate = " rotation_rate='1' ";
+						}
+
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
 							$diskstr .= "<disk type='" . $strDevType . "' device='disk'>
 											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'/>
 											<source " . $strSourceType . "='" . htmlspecialchars($disk['image'], ENT_QUOTES | ENT_XML1) . "'/>
-											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "'/>
+											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "' $rotation_rate />
 											$bootorder
 											$readonly
 											$serial
@@ -1314,6 +1326,7 @@
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
+					$tmp["rotation"] = $disk->target->attributes()->rotation_rate ?? "0";
 					$tmp['serial'] = $disk->serial ;
 
 					// Libvirt reports 0 bytes for raw disk images that haven't been
@@ -1342,6 +1355,7 @@
 						'physical' => '-',
 						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
+						'rotation' => $disk->target->attributes()->rotation_rate ?? "0",
 						'serial' => $disk->serial
 					];
 				}
@@ -1418,6 +1432,20 @@
 			unset($tmp);
 
 			return $ret;
+		}
+
+		function get_disk_fstype($domain) {
+			$dom = $this->get_domain_object($domain);
+			$tmp = $this->get_disk_stats($dom);
+			$dirname = transpose_user_path($tmp[0]['file']);
+			$pathinfo = pathinfo($dirname);
+			$parent = $pathinfo["dirname"];
+			$fstype = strtoupper(trim(shell_exec(" stat -f -c '%T' $parent")));
+			if ($fstype != "ZFS") $fstype = "QEMU";
+			#if ($fstype != "ZFS" && $fstype != "BTRFS") $fstype = "QEMU";
+			unset($tmp);
+
+			return $fstype;
 		}
 
 		function format_size($value, $decimals, $unit='?') {
@@ -1677,8 +1705,8 @@
 			else {
 				$doms = libvirt_list_domains($this->conn);
 				foreach ($doms as $dom) {
-					$tmp = $this->domain_get_name($dom);
-					$ret[$tmp] = libvirt_domain_get_info($dom);
+					$tmp = $this->get_domain_object($dom);
+					$ret[$dom] = libvirt_domain_get_info($tmp);
 				}
 			}
 
@@ -1751,6 +1779,11 @@
 				return false;
 
 			$tmp = libvirt_domain_memory_stats($dom);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
+		function domain_get_all_domain_stats() {
+			$tmp = libvirt_connect_get_all_domain_stats($this->conn);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
@@ -2358,6 +2391,7 @@
 				foreach ($objNodes as $objNode) {
 					$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->nodeValue;
 					$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->nodeValue;
+					$rotation  = $xpath->query('target/address/@rotation_rate', $objNode)->Item(0)->nodeValue;
 					$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->nodeValue;
 					$func = $xpath->query('source/address/@function', $objNode)->Item(0)->nodeValue;
 					$rom = $xpath->query('rom/@file', $objNode);
@@ -2381,6 +2415,7 @@
 						'product' => $tmp2['product_name'],
 						'product_id' => $tmp2['product_id'],
 						'boot' => $boot,
+						'rotation' => $rotation,
 						'rom' => $rom,
 						'guest' => $guest
 					];
