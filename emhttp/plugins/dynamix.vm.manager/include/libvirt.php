@@ -1263,7 +1263,7 @@
 			for ($i = 0; $i < $cds['num']; $i++) {
 				$spundown = 0;
 				$reallocation = null;
-				if (isset($files[$i])) $reallocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($files[$i])." 2>/dev/null")); 
+				if (isset($files[$i])) $reallocation = trim(get_realvolume($files[$i]));
 				if ($spincheck) {
 					if (isset($unraiddisks[$reallocation]['spundown']) && $unraiddisks[$reallocation]['spundown'] == 1) $spundown = 1; else $tmp = libvirt_domain_get_block_info($dom, $cds[$i]);
 				} else $tmp = libvirt_domain_get_block_info($dom, $cds[$i]);
