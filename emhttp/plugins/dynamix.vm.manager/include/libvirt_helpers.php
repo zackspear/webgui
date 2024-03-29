@@ -1913,7 +1913,7 @@ private static $encoding = 'UTF-8';
 	  $cmdstr = "virsh snapshot-create-as '$vm' --name '$name' $snapshotdesc  --atomic" ;
 
 
-	  if ($state == "running") {
+	  if ($state == "running" & $memorysnap == "yes") {
 		  $cmdstr .= " --live ".$memspec.$diskspec ;
 		  $capacity = $capacity + $memory ;
 
@@ -2088,7 +2088,7 @@ private static $encoding = 'UTF-8';
 			if (!$dryrun) shell_exec($fssnapcmd); else echo "$fssnapcmd\n";
 		}
 
-		if ($snapslist[$snap]['state'] == "running") {
+		if ($snapslist[$snap]['state'] == "running" || $snapslist[$snap]['state'] == "disk-snapshot") {
 			$xmlfile = $primarypath."/$snap.running" ;
 			$memoryfile = $primarypath."/memory$snap.mem" ;
 			# Set XML to saved XML
@@ -2100,9 +2100,12 @@ private static $encoding = 'UTF-8';
 
 
 			# Restore Memory.
-			if (!$dryrun) $cmdrtn = exec("virsh restore --running ".escapeshellarg($memoryfile)) ;
-			if (!$dryrun && !$cmdrtn) unlink($xmlfile);
-			if (!$dryrun && !$cmdrtn) unlink($memoryfile);
+			if ($snapslist[$snap]['state'] == "running") {
+				if (!$dryrun) $cmdrtn = exec("virsh restore --running ".escapeshellarg($memoryfile)) ;
+				if (!$dryrun && !$cmdrtn) unlink($xmlfile);
+				if (!$dryrun && !$cmdrtn) unlink($memoryfile);
+			}
+			if ($snapslist[$snap]['state'] == "disk-snapshot") if (!$dryrun) unlink($xmlfile);
 		}
 
 
