@@ -1,4 +1,5 @@
 #!/bin/bash
+DISABLE="no"
 source /boot/config/domain.cfg
 if [ $DISABLE == "yes" ]
     then 
