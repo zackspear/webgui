@@ -426,6 +426,11 @@ private static $encoding = 'UTF-8';
 			'icon' => 'vyos.png',
 			'os' => 'vyos'
 		],
+		'!Test' => [
+			'form' => 'Custom.formXML.php',
+			'icon' => 'scientific.png',
+			'os' => 'scientific'
+		],
 
 		' ' => '', /* Custom / XML Expert Header */
 
@@ -1330,7 +1335,7 @@ private static $encoding = 'UTF-8';
   	}
 
 		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
-
+		$vmname = $lv->domain_get_name($res);
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1371,7 +1376,11 @@ private static $encoding = 'UTF-8';
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
 			'qemucmdline' => getQEMUCmdLine($strDOMXML),
-			'clocks' => getClocks($strDOMXML)
+			'clocks' => getClocks($strDOMXML),
+			'xml' => [
+				'machine' => $lv->domain_get_xml($vmname, "//domain/os/*"),
+				'devices' => $lv->get_xpath($vmname, "//domain/os/*"),
+			],
 		];
 	}
 
