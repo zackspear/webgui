@@ -53,7 +53,7 @@ foreach ($vms as $vm) {
   $image = substr($icon,-4)=='.png' ? "<img src='$icon' class='img'>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
   $arrConfig = domain_to_config($uuid);
   $snapshots = getvmsnapshots($vm) ;
-  $cdroms = $lv->get_cdrom_stats($res) ;
+  $cdroms = $lv->get_cdrom_stats($res,true,true) ;
   if ($state == 'running') {
     $mem = $dom['memory']/1024;
   } else {
@@ -215,7 +215,7 @@ foreach ($vms as $vm) {
     $boot= $arrDisk["boot order"];
     $serial = $arrDisk["serial"];
     if ($boot < 1) $boot = _('Not set');
-    $reallocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($disk)." 2>/dev/null"));
+    $reallocation = trim(get_realvolume($disk));
     if (!empty($reallocation)) $reallocationstr = "($reallocation)"; else $reallocationstr = "";
     echo "<tr><td>$disk $reallocationstr</td><td>$serial</td><td>$bus</td>";
     if ($state == 'shutoff') {
@@ -237,8 +237,10 @@ foreach ($vms as $vm) {
 
   /* Display VM cdroms */
   foreach ($cdroms as $arrCD) {
+    $tooltip = "";
     $capacity = $lv->format_size($arrCD['capacity'], 0);
     $allocation = $lv->format_size($arrCD['allocation'], 0);
+    if ($arrCD['spundown']) {$capacity = $allocation = "*"; $tooltip = "Drive spun down ISO volume is ".$arrCD['reallocation'];} else $tooltip = "ISO volume is ".$arrCD['reallocation'];
     $disk = $arrCD['file'] ?? $arrCD['partition'] ?? "" ;
     $dev  = $arrCD['device'];
     $bus  = $arrValidDiskBuses[$arrCD['bus']] ?? 'VirtIO';
@@ -247,7 +249,7 @@ foreach ($vms as $vm) {
     if ($disk != "" ) {
       $title = _('Eject CD Drive');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\", \"--eject\")";
-      echo "<tr><td>$disk <a title='$title' href='#' onclick='$changemedia'> <i class='fa fa-eject'></i></a></td><td></td><td>$bus</td><td>$capacity</td><td>$allocation</td><td>$boot</td></tr>";
+      echo "<tr><td>$disk <a title='$title' href='#' onclick='$changemedia'> <i class='fa fa-eject'></i></a></td><td></td><td>$bus</td><td><span title='$tooltip' data-toggle='tooltip'>$capacity</span></td><td>$allocation</td><td>$boot</td></tr>";
     } else {
       $title = _('Insert CD');
       $changemedia = "changemedia(\"{$uuid}\",\"{$dev}\",\"{$bus}\",\"--select\")";
