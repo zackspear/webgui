@@ -36,36 +36,32 @@ $cfg['proxy_name_1']	= $cfg['proxy_name_1'] ?? "";
 $cfg['proxy_name_2']	= $cfg['proxy_name_2'] ?? "";
 $cfg['proxy_name_3']	= $cfg['proxy_name_3'] ?? "";
 
-/* Get the encrypted url. */
-$proxy_1_url			= $cfg['proxy_url_1'] ?? "";
-
 /* Parse the url, user, and password from the full url for proxy 1. */
-$url_array				= get_url($cfg['proxy_url_1'] ?? "");
+$url_array				= get_proxy_info($cfg['proxy_url_1'] ?? "", $cfg['proxy_user_1'] ?? "", $cfg['proxy_pass_1'] ?? "");
 $cfg['proxy_url_1']		= $url_array['url'];
 $cfg['proxy_user_1']	= $url_array['user'];
 $cfg['proxy_pass_1']	= $url_array['pass'];
-
-/* Get the encrypted url. */
-$proxy_2_url			= $cfg['proxy_url_2'] ?? "";
+$proxy_1_url			= $url_array['full_url'];
 
 /* Parse the url, user, and password from the full url for proxy 2. */
-$url_array				= get_url($cfg['proxy_url_2'] ?? "");
+$url_array				= get_proxy_info($cfg['proxy_url_2'] ?? "", $cfg['proxy_user_2'] ?? "", $cfg['proxy_pass_2'] ?? "");
 $cfg['proxy_url_2']		= $url_array['url'];
 $cfg['proxy_user_2']	= $url_array['user'];
 $cfg['proxy_pass_2']	= $url_array['pass'];
-
-/* Get the encrypted url. */
-$proxy_3_url			= $cfg['proxy_url_3'] ?? "";
+$proxy_2_url			= $url_array['full_url'];
 
 /* Parse the url, user, and password from the full url for proxy 3. */
-$url_array				= get_url($cfg['proxy_url_3'] ?? "");
+$url_array				= get_proxy_info($cfg['proxy_url_3'] ?? "", $cfg['proxy_user_3'] ?? "", $cfg['proxy_pass_3'] ?? "");
 $cfg['proxy_url_3']		= $url_array['url'];
 $cfg['proxy_user_3']	= $url_array['user'];
 $cfg['proxy_pass_3']	= $url_array['pass'];
+$proxy_3_url			= $url_array['full_url'];
+
+outgoingproxy_log("*** plg_config_file ".$plg_config_file);
 ?>
 
 <form markdown="1" name="outgoing_proxy_manager" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="/boot/config/proxy.cfg">
+<input type="hidden" name="#file" value="<?=$plg_config_file;?>">
 <input type="hidden" name="#command" value="/plugins/<?=$opmPlugin;?>/scripts/outgoingproxy.sh">
 <input type="hidden" name="#arg[1]" value="apply">
 

@@ -15,7 +15,7 @@ require_once("plugins/".$opmPlugin."/include/OutgoingProxyLib.php");
 
 /* Save settings and update config. */
 function apply() {
-	global $opmPlugin, $proxy_config_file;
+	global $opmPlugin, $plg_config_file, $proxy_config_file;
 
 	/* Process the new configuration. */
 	$cfg = parse_plugin_config();
@@ -31,8 +31,6 @@ function apply() {
 			/* Confirm the url is in the proper format. */
 			if (strpos($url, 'http://') !== false && preg_match('/:\d+$/', $url)) {
 				/* The string contains 'http://' and a port designation at the end */
-				$proxy_user	= "proxy_user_".$i;
-				$proxy_pass	= "proxy_pass_".$i;
 
 				/* Parse the URL components. */
 				$urlComponents = parse_url($url);
@@ -43,42 +41,28 @@ function apply() {
 				$user = isset($urlComponents['user']) ? $urlComponents['user'] : '';
 				$pass = isset($urlComponents['pass']) ? $urlComponents['pass'] : '';
 
+				/* Remove credentials from the entered URL. */
+				$cfg[$proxy_url]	= "http://".$host.':'.$port;
+
 				/* Use the entered user if not blank. */
-				$cfg_user		= $cfg[$proxy_user] ?? "";
-				$user			= $cfg_user ? $cfg_user : $user;
-				$encodedUser	= (strpos($user, '%') === false) ? urlencode($user) : $user;
+				$cfg_user			= $cfg[$proxy_user] ?? "";
+				$cfg[$proxy_user]	= $cfg_user ? $cfg_user : urldecode($user);
+				$encodedUser		= (strpos($cfg[$proxy_user], '%') === false) ? urlencode($cfg[$proxy_user]) : $cfg[$proxy_user];
 
 				/* Use the entered pass if not blank. */
-				$cfg_pass		= $cfg[$proxy_pass] ?? "";
-				$pass 			= $cfg_pass ? $cfg_pass : $pass;
-				$encodedPass	= (strpos($pass, '%') === false) ? urlencode($pass) : $pass;
-
-				/* Reconstruct the URL with new credentials. */
-				if (($host) && ($port)) {
-					$constructedUrl = 'http://';
-					if (($encodedUser) && ($encodedPass)) {
-						$constructedUrl .= $encodedUser.':'.$encodedPass.'@';
-					}
-					$constructedUrl .= $host.':'.$port;
-				} else {
-					$constructedUrl	= "";
-				}
+				$cfg_pass			= $cfg[$proxy_pass] ?? "";
+				$cfg[$proxy_pass]	= $cfg_pass ? $cfg_pass : urldecode($pass);
+				$encodedPass		= (strpos($cfg[$proxy_pass], '%') === false) ? urlencode($cfg[$proxy_pass]) : $cfg[$proxy_pass];
+				$cfg[$proxy_pass]	= encrypt_data($cfg[$proxy_pass]);
 			} else {
 				/* The string does not contain 'http://' and/or a port designation at the end */
-				$constructedUrl	= "";
+				$cfg[$proxy_url]	= "";
 			}
-
-			/* Save the constructed url. */
-			$cfg[$proxy_url]	= $constructedUrl;
 		} else if (! $name) {
 			$cfg[$proxy_url]	= "";
 		}
-
-		/* Remove user and pass from the configuration file. */
-		unset($cfg[$proxy_user]);
-		unset($cfg[$proxy_pass]);
 	}
-
+	
 	/* Rewrite config file. */
 	/* Convert the array to an INI string. */
 	$iniString = '';
@@ -86,8 +70,11 @@ function apply() {
 		$iniString .= "$key=\"$value\"\n";
 	}
 
-	/* Write the INI string to a file. */
-	file_put_contents($proxy_config_file, $iniString);
+	/* Write the INI string to the plugin config file. */
+	file_put_contents($plg_config_file, $iniString);
+
+	/* Create the proxy file for the set_proxy script. */
+	exec("/plugins/".$opmPlugin."/create_proxy.sh");
 
 	/* Let things settle. */
 	sleep(1);
