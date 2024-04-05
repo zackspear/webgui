@@ -27,17 +27,16 @@ function create_proxy($proxy_file) {
 		$proxy_user	= "proxy_user_".$i;
 		$proxy_pass	= "proxy_pass_".$i;
 
-		/* Parse the url, user, and password from the full url for proxy 2. */
-		$url_array			= get_proxy_info($cfg[$proxy_url] ?? "", $cfg[$proxy_user] ?? "", $cfg['proxy_pass_2'] ?? "");
+		/* Parse the url, user, and password from the full url for each proxy. */
+		$url_array			= get_proxy_info($cfg[$proxy_url] ?? "", $cfg[$proxy_user] ?? "", $cfg[$proxy_pass] ?? "");
 		$tmp[$proxy_name]	= $cfg[$proxy_name];
 		$tmp[$proxy_url]	= $url_array['full_url'];
 		$tmp[$proxy_user]	= $url_array['user'];
 		$tmp[$proxy_pass]	= $url_array['pass'];
-
 	}
 
 	/* Convert the array to an INI string. */
-	$iniString = '';
+	$iniString = "";
 	foreach ($tmp as $key => $value) {
 		$iniString .= "$key=\"$value\"\n";
 	}
@@ -46,11 +45,12 @@ function create_proxy($proxy_file) {
 	$directoryPath = dirname($proxy_file);
 
 	/* Check if the directory exists. */
-	if (!is_dir($directoryPath)) {
+	if (! is_dir($directoryPath)) {
 		/* Create the directory if it doesn't exist. */
 		mkdir($directoryPath, 0755, true);
 	}
 
+	/* Write the proxy.cfg file. */
 	file_put_contents($proxy_file, $iniString);
 }
 
