@@ -20,6 +20,16 @@ function apply() {
 	/* Process the new configuration. */
 	$cfg = parse_plugin_config();
 
+	/* Generate encryption keys if they have not been generated. */
+	if ((! isset($cfg['key'])) || (! isset($cfg['iv']))) {
+		/* Doing an encryption will generate keys. */
+		encrypt_data("test");
+
+		/* Get new keys. */
+		$cfg['key']	= get_config("key");
+		$cfg['iv']	= get_config("iv");
+	}
+
 	for ($i = 1; $i <= 3; $i++) {
 		$proxy_name	= "proxy_name_".$i;
 		$name		= trim($cfg[$proxy_name]);
