@@ -31,8 +31,6 @@ function create_proxy($proxy_file) {
 		$url_array			= get_proxy_info($cfg[$proxy_url] ?? "", $cfg[$proxy_user] ?? "", $cfg[$proxy_pass] ?? "");
 		$tmp[$proxy_name]	= $cfg[$proxy_name];
 		$tmp[$proxy_url]	= $url_array['full_url'];
-		$tmp[$proxy_user]	= $url_array['user'];
-		$tmp[$proxy_pass]	= $url_array['pass'];
 	}
 
 	/* Convert the array to an INI string. */
