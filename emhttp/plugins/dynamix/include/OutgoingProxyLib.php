@@ -158,21 +158,21 @@ function set_config($variable, $value) {
 
 /* Encrypt data. */
 function encrypt_data($data) {
-    $key	= get_config("key");
-    if ((! $key) || strlen($key) != 32) {
-        $key = substr(base64_encode(openssl_random_pseudo_bytes(32)), 0, 32);
-        set_config("key", $key);
-    }
-    $iv		= get_config("iv");
-    if ((! $iv) || strlen($iv) != 16) {
-        $iv = substr(base64_encode(openssl_random_pseudo_bytes(16)), 0, 16);
-        set_config("iv", $iv);
-    }
+	$key	= get_config("key");
+	if ((! $key) || strlen($key) != 32) {
+		$key = substr(base64_encode(openssl_random_pseudo_bytes(32)), 0, 32);
+		set_config("key", $key);
+	}
+	$iv		= get_config("iv");
+	if ((! $iv) || strlen($iv) != 16) {
+		$iv = substr(base64_encode(openssl_random_pseudo_bytes(16)), 0, 16);
+		set_config("iv", $iv);
+	}
 
-    /* Encrypt the data using aes256. */
-    $value	= trim(openssl_encrypt($data, 'aes256', $key, $options=0, $iv));
+	/* Encrypt the data using aes256. */
+	$value	= trim(openssl_encrypt($data, 'aes256', $key, $options=0, $iv));
 
-    return $value;
+	return $value;
 }
 
 /* Decrypt data. */
