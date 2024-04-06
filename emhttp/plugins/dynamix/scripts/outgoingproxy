@@ -84,7 +84,7 @@ function apply() {
 	file_put_contents($plg_config_file, $iniString);
 
 	/* Create the proxy file for the set_proxy script. */
-	exec("/plugins/".$opmPlugin."/create_proxy.sh");
+	exec("/plugins/".$opmPlugin."/create_proxy");
 
 	/* Let things settle. */
 	sleep(1);
@@ -106,8 +106,8 @@ switch ($argv[1]) {
 		break;
 
 	default:
-		echo("Error: 'outgoingproxy.sh {$argv[1]}' not understood\n");
-		echo("outgoingproxy.sh usage: 'apply'\n");
+		echo("Error: 'outgoingproxy {$argv[1]}' not understood\n");
+		echo("outgoingproxy usage: 'apply'\n");
 		exit(0);
 		break;
 }

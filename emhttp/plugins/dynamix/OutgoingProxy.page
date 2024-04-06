@@ -60,7 +60,7 @@ $proxy_3_url			= $url_array['full_url'];
 
 <form markdown="1" name="outgoing_proxy_manager" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=$plg_config_file;?>">
-<input type="hidden" name="#command" value="/plugins/<?=$opmPlugin;?>/scripts/outgoingproxy.sh">
+<input type="hidden" name="#command" value="/plugins/<?=$opmPlugin;?>/scripts/outgoingproxy">
 <input type="hidden" name="#arg[1]" value="apply">
 
 <p><strong>_(Enable Outgoing Proxy)_</strong></p>
