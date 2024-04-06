@@ -932,15 +932,12 @@ class DockerClient {
 			if (isset($driver[$c['NetworkMode']])) {
 				if ($driver[$c['NetworkMode']]=='bridge') {
 					$ports = &$info['HostConfig']['PortBindings'];
-					$nat = true;
 				} else {
 					$ports = &$info['Config']['ExposedPorts'];
-					$nat = false;
 				}
 			} else if (!$id) {
 				$c['NetworkMode'] = DockerUtil::ctMap($c['NetworkMode']);
 				$ports = &$info['Config']['ExposedPorts'];
-				$nat = false;
 				foreach($ct['NetworkSettings']['Networks'] as $netName => $netVals) {
 					$i = $c['NetworkMode']=='host' ? $host : $netVals['IPAddress'];
 					$c['Networks'][$netName] = [ 'IPAddress' => $i ];
@@ -951,7 +948,8 @@ class DockerClient {
 			$ports = (isset($ports) && is_array($ports)) ? $ports : [];
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
-				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort'] : null, 'NAT' => $nat, 'Type' => $Type];
+				$PublicPort = $info['HostConfig']['PortBindings']["$port"][0]['HostPort'] ?: null;
+				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $PublicPort, 'Type' => $Type];
 			}
 			ksort($c['Ports']);
 			$this::$containersCache[] = $c;
