@@ -93,7 +93,9 @@ foreach ($containers as $ct) {
   }
   $ports = [];
   foreach ($ct['Ports'] as $port) {
-      $ports[] = sprintf('%s:%s<i class="fa fa-arrows-h" style="margin:0 6px"></i>%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')), _var($port,'PublicPort'));
+      $arrow_style = _var($port,'PublicPort') ? "\"fa fa-arrows-h\"" : "";
+      $ports[] = sprintf('%s:%s<i class=%s style="margin:0 6px"></i>%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , _var($port,'PublicPort'));
+ 
   }
   $paths = [];
   $ct['Volumes'] = is_array($ct['Volumes']) ? $ct['Volumes'] : [];

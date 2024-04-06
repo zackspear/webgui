@@ -924,7 +924,8 @@ class DockerClient {
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
 			$c['Icon']        = $info['Config']['Labels']['net.unraid.docker.icon'] ?? false;
 			$c['Url']         = $info['Config']['Labels']['net.unraid.docker.webui'] ?? false;
-			$c['Shell']       = $info['Config']['Labels']['net.unraid.docker.shell'] ?? false;
+			$c['Shell']         = $info['Config']['Labels']['net.unraid.docker.shell'] ?? false;
+			$c['Manager']         = $info['Config']['Labels']['net.unraid.docker.managed'] ?? false;
 			$c['Ports']       = [];
 			$c['Networks']	  = [];
 			if ($id) $c['NetworkMode'] = $net.str_replace('/',':',DockerUtil::ctMap($id)?:'/???');
@@ -950,7 +951,7 @@ class DockerClient {
 			$ports = (isset($ports) && is_array($ports)) ? $ports : [];
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
-				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort'] : $PrivatePort, 'NAT' => $nat, 'Type' => $Type];
+				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $nat ? $value[0]['HostPort'] : null, 'NAT' => $nat, 'Type' => $Type];
 			}
 			ksort($c['Ports']);
 			$this::$containersCache[] = $c;
