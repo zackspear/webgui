@@ -501,7 +501,7 @@ docker_container_start(){
           log "$CONTAINER: $OUT" &
         else
           run container_add_route $CONTAINER
-          log "$CONTAINER: started succesfully!" &
+          log "$CONTAINER: started successfully!" &
           if [[ $WAIT -gt 0 ]]; then
             log "$CONTAINER: wait $WAIT seconds" &
             sleep $WAIT
@@ -566,7 +566,7 @@ docker_service_stop(){
           run ip link del docker0
         fi
         REPLY="Stopped"
-        # signal succesful stop
+        # signal successful stop
         TIMER=-1
       else
         # show waiting message
