@@ -307,5 +307,5 @@ _(Password)_:
 	});
 
 	/* URL for Outgoing Proxy PHP file. */
-	const OPMURL = '/plugins/<?=$opmPlugin;?>/OutgoingProxy.php';
+	const OPMURL = '/plugins/<?=$opmPlugin;?>/include/OutgoingProxy.php';
 </script>
