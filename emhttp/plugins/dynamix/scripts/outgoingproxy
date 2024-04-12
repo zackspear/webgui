@@ -15,7 +15,7 @@ require_once("plugins/".$opmPlugin."/include/OutgoingProxyLib.php");
 
 /* Save settings and update config. */
 function apply() {
-	global $opmPlugin, $plg_config_file, $proxy_config_file;
+	global $opmPlugin, $plg_config_file;
 
 	/* Process the new configuration. */
 	$cfg = parse_plugin_config();
@@ -83,15 +83,12 @@ function apply() {
 	/* Write the INI string to the plugin config file. */
 	file_put_contents($plg_config_file, $iniString);
 
-	/* Create the proxy file for the set_proxy script. */
-	exec("/plugins/".$opmPlugin."/create_proxy");
-
 	/* Let things settle. */
 	sleep(1);
 
 	/* Now run the proxy setup script. */
 	if (is_executable("/usr/local/sbin/set_proxy")) {
-		exec("at -M -f /usr/local/sbin/set_proxy now 2>/dev/null");
+		exec("/usr/local/sbin/set_proxy 1>/dev/null");
 
 		outgoingproxy_log("'set_proxy' script executed");
 	} else {
