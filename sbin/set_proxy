@@ -129,7 +129,7 @@ function display_generated_file($file) {
 $config = parse_plugin_config();
 
 /* Get the current active proxy. */
-$proxy_active	= array_key_exists('proxy_active', $config) ? $config['proxy_active'] : 0;
+$proxy_active	= $config['proxy_active'] ?? "0";
 $proxy_url		= "";
 
 /* Only build full url for an active proxy. */
@@ -146,7 +146,7 @@ if ($proxy_active != "0") {
 	/* If the active proxy url is defined, create the generated files. */
 	if ($proxy_url) {
 		/* Proxies are defined, write generated files. */
-		$no_proxy = "127.0.0.1,localhost";
+		$no_proxy	= "127.0.0.1,localhost";
 		add_proxy_to_generated_files();
 	}
 } else {
