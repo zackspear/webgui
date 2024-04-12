@@ -46,10 +46,10 @@ function apply() {
 				$urlComponents = parse_url($url);
 
 				/* Replace user and password in the url. */
-				$host = isset($urlComponents['host']) ? $urlComponents['host'] : '';
-				$port = isset($urlComponents['port']) ? $urlComponents['port'] : '';
-				$user = isset($urlComponents['user']) ? $urlComponents['user'] : '';
-				$pass = isset($urlComponents['pass']) ? $urlComponents['pass'] : '';
+				$host = $urlComponents['host'] ?? "";
+				$port = $urlComponents['port'] ?? "";
+				$user = $urlComponents['user'] ?? "";
+				$pass = $urlComponents['pass'] ?? "";
 
 				/* Remove credentials from the entered URL. */
 				$cfg[$proxy_url]	= "http://".$host.':'.$port;
