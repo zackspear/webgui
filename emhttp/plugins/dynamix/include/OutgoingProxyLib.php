@@ -14,9 +14,6 @@ $opmPlugin			= "dynamix";
 /* UI config file location. */
 $plg_config_file	= "/boot/config/plugins/".$opmPlugin."/outgoingproxy.cfg";
 
-/* Output config file location for set_proxy script. */
-$proxy_config_file = "/boot/config/proxy.cfg";
-
 /* Outgoing Proxy Manager logging tag. */
 $opm_log	= "Outgoing Proxy Manager";
 
