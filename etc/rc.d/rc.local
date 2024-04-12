@@ -189,16 +189,17 @@ if [[ $PERSISTENT_BASH_HISTORY == 1 ]]; then
 fi
 
 # cleanup the 'go' script
-# delete emhttp line with trailing & (could also have leading env vars), add new line with just call to emhttp
-GOTEST1='^[^#]*/usr/local/sbin/emhttp.*&$'
-if grep -q "$GOTEST1" $CONFIG/go; then
-  cp $CONFIG/go $CONFIG/go-
-  sed -i "s@$GOTEST1@/usr/local/sbin/emhttp@g" $CONFIG/go
+# delete non-commented line with emhttp and trailing & (could also have leading env vars)
+# add new line with call to emhttp (preserve any params to emhttp and CRLF line endings)
+GOTEST1='^[^#]*/usr/local/sbin/emhttp(.*)&(.*)$'
+if grep -q -E "$GOTEST1" $CONFIG/go; then
+  cp $CONFIG/go $CONFIG/go~
+  sed -i -E "s@$GOTEST1@/usr/local/sbin/emhttp\1\2@g" $CONFIG/go
 fi
 # delete lines added by ProxyEditor
 GOTEST2='# Added by ProxyEditor'
 if grep -q "$GOTEST2" $CONFIG/go; then
-  [[ ! -f $CONFIG/go- ]] && cp $CONFIG/go $CONFIG/go-
+  [[ ! -f $CONFIG/go~ ]] && cp $CONFIG/go $CONFIG/go~
   sed -i "/$GOTEST2/d" $CONFIG/go
 fi
 
