@@ -66,31 +66,31 @@ function unset_proxy_sh() {
 
 /* Write proxy information to /usr/local/emhttp/state/proxy.ini. */
 function set_proxy_ini() {
-    global $proxy_ini, $proxy_url, $no_proxy;
+	global $proxy_ini, $proxy_url, $no_proxy;
 
-    $content	 = "http_proxy=".$proxy_url."\n";
+	$content	 = "http_proxy=".$proxy_url."\n";
 	$content	.= "https_proxy=".$proxy_url."\n";
 	$content	.= "no_proxy=".$no_proxy."\n";
 
-    write_file($proxy_ini, $content);
+	write_file($proxy_ini, $content);
 }
 
 /* Clear /usr/local/emhttp/state/proxy.ini. */
 function unset_proxy_ini() {
-    /* Vars are empty now, call set_proxy_ini to add empty vars to proxy.ini. */
-    set_proxy_ini();
+	/* Vars are empty now, call set_proxy_ini to add empty vars to proxy.ini. */
+	set_proxy_ini();
 }
 
 /* Generate proxy files. */
 function add_proxy_to_generated_files() {
-    global $verbose;
+	global $verbose;
 
-    echo("generating proxy files\n");
-    set_proxy_sh();
-    set_proxy_ini();
-    if ($verbose) {
-        display_generated_files();
-    }
+	echo("generating proxy files\n");
+	set_proxy_sh();
+	set_proxy_ini();
+	if ($verbose) {
+		display_generated_files();
+	}
 }
 
 /* Remove proxy info from all generated files. */
@@ -129,7 +129,7 @@ function display_generated_file($file) {
 $config = parse_plugin_config();
 
 /* Get the current active proxy. */
-$proxy_active	= $config['proxy_active'];
+$proxy_active	= array_key_exists('proxy_active', $config) ? $config['proxy_active'] : 0;
 $proxy_url		= "";
 
 /* Only build full url for an active proxy. */
