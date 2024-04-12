@@ -208,7 +208,7 @@ _(Password)_:
 			/* Update the proxy status div */
 			$('#proxy-status-3').html('<strong>' + data.proxy_status_3 + '</strong>');
 
-			// Get a reference to the dropdown element
+			//*Get a reference to the dropdown element. */
 			const dropdown = document.querySelector('select[name="proxy_active"]');
 			const options = dropdown.getElementsByTagName('option');
 
@@ -232,10 +232,10 @@ _(Password)_:
 
 			if (optionToEnableOrDisable_2) {
 				if (condition_2) {
-					// Enable the option
+					/* Enable the option. */
 					optionToEnableOrDisable_2.removeAttribute('disabled');
 				} else {
-					// Disable the option
+					/* Disable the option. */
 					optionToEnableOrDisable_2.setAttribute('disabled', 'disabled');
 				}
 			}
@@ -246,10 +246,10 @@ _(Password)_:
 
 			if (optionToEnableOrDisable_3) {
 				if (condition_3) {
-					// Enable the option
+					/* Enable the option. */
 					optionToEnableOrDisable_3.removeAttribute('disabled');
 				} else {
-					// Disable the option
+					/* Disable the option. */
 					optionToEnableOrDisable_3.setAttribute('disabled', 'disabled');
 				}
 			}
