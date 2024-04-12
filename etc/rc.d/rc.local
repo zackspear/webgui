@@ -15,7 +15,7 @@
 . /etc/rc.d/rc.runlog
 
 # import CA proxy
-UnProxy=/boot/config/proxy.cfg
+UnProxy=/boot/config/plugins/dynamix/outgoingproxy.cfg
 CAProxy=/boot/config/plugins/community.applications/proxy.cfg
 if [[ -f "${CAProxy}" && ! -f "${UnProxy}" ]]; then
   proxy=
