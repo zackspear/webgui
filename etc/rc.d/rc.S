@@ -50,7 +50,7 @@ fi
 # initrd has already done so):
 if [[ -d /run ]]; then
   if ! /bin/grep -wq "tmpfs /run tmpfs" /proc/mounts; then
-    /sbin/mount -v -n -t tmpfs tmpfs /run -o mode=0755,size=32M,nodev,nosuid,noexec
+    /sbin/mount -v -n -t tmpfs tmpfs /run -o mode=0755,size=128M,nodev,nosuid,noexec
   fi
 fi
 

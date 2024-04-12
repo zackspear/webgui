@@ -338,7 +338,7 @@ case 'snap-create':
 
 case 'snap-create-external':
 	requireLibvirt();
-	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free'],$_REQUEST['fstype']) ;
+	$arrResponse = vm_snapshot($domName,$_REQUEST['snapshotname'],$_REQUEST['desc'],$_REQUEST['free'],$_REQUEST['fstype'],$_REQUEST['memorydump']) ;
 	break;
 
 case 'snap-images':

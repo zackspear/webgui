@@ -291,4 +291,13 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
       break;
 	}
 }
+function get_realvolume($path) {
+  if (strpos($path,"/mnt/user/",0) === 0) 
+    $reallocation = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($path)." 2>/dev/null")); 
+  else {
+    $realexplode = explode("/",str_replace("/mnt/","",$path));
+    $reallocation = $realexplode[0];
+  }
+  return $reallocation;
+}
 ?>
