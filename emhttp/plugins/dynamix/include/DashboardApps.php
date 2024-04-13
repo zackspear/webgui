@@ -165,7 +165,7 @@ if ($_POST['vms']) {
       echo $vmhtml;
      }
     if (!count($vmusagehtml))  echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
-    if ($running < 1 && count($vmsusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
+    if ($running < 1 && count($vmusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
     echo "</td></tr>";
   }
 }

@@ -30,6 +30,8 @@ $(function() {
 $globals = [];
 $names   = ['_SERVER','devs','disks','sec','sec_nfs','shares','users','var'];
 foreach ($names as $name) $globals[$name] = $$name;
+// show outgoing proxy information, is in the environment but not a superglobal
+$globals['environment'] = ['http_proxy' => getenv('http_proxy'), 'no_proxy' => getenv('no_proxy')];
 echo "<pre class='up'>",htmlspecialchars(print_r($globals,true)),"</pre>";
 ?>
 <input type="button" value="_(Done)_" onclick="done()">

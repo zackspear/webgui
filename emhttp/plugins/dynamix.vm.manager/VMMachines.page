@@ -49,7 +49,7 @@ function showCPUs($uuid) {
 function vsize($size,$expand=true) {
   $units = ['','K','M','G','T','P','E','Z','Y'];
   if ($expand) {
-    $size = str_replace(['B',' ',',', '.'],'',strtoupper($size));
+    $size = str_replace(['B',' ',','],'',strtoupper($size));
     [$c1,$c2] = my_preg_split('/(?<=[0-9])(?=[A-Z])/',$size);
     return $c1 * pow(1024,array_search($c2,$units)?:0);
   } else {

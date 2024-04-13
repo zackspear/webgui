@@ -545,6 +545,9 @@ window.onunload = function(){
 <?  elseif (_var($var,'configValid')=="invalid"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(Too many attached devices. Please consider upgrading your)_ <a href="/Tools/Registration">_(registration key)_</a>.</td></tr>
+<?  elseif (_var($var,'configValid')=="ineligible"):?>
+      <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
+      <td>_(Ineligible to run this version of Unraid OS. Please consider extending your)_ <a href="/Tools/Registration">_(registration key)_</a>.</td></tr>
 <?  elseif (_var($var,'configValid')=="nokeyserver"):?>
       <tr><td><?status_indicator()?>**_(Stopped)_.**</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
       <td>_(Cannot contact key-server. Please check your)_ <a href="/Settings/NetworkSettings">_(network settings)_</a>.</td></tr>

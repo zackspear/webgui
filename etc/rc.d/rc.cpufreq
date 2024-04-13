@@ -42,7 +42,8 @@ SYSTEM="/sys/devices/system/cpu"
 # provides power savings on Intel processors while avoiding the ramp-up lag
 # present when using the powersave governor (which is the default if ondemand
 # is requested on these machines):
-if [[ $(cat $SYSTEM/cpu0/cpufreq/scaling_driver 2>/dev/null) == intel_pstate ]]; then
+if [[ $(cat $SYSTEM/cpu0/cpufreq/scaling_driver 2>/dev/null) == intel_pstate  ||
+      $(cat $SYSTEM/cpu0/cpufreq/scaling_driver 2>/dev/null) == amd-pstate-epp ]]; then
   SCALING_GOVERNOR="performance"
 fi
 

@@ -68,7 +68,7 @@ if /bin/grep -wq cgroup /proc/filesystems; then
     if [[ -d /sys/fs/cgroup ]]; then
       # See https://docs.kernel.org/admin-guide/cgroup-v2.html (section Mounting)
       # Mount cgroup2 filesystem
-      mount -t cgroup2 -o rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot cgroup2 /sys/fs/cgroup
+      /sbin/mount -t cgroup2 -o rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot cgroup2 /sys/fs/cgroup
     else
       # Display message if /sys/fs/cgroup does not exist
       echo "/sys/fs/cgroup does not exist. cgroup2 cannot be mounted."

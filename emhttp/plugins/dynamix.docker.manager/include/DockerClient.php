@@ -176,7 +176,7 @@ class DockerTemplates {
 			}
 			// if after above we don't have a valid url, check for GitLab
 			if (empty($github_api['url'])) {
-				$source = file_get_contents($url);
+				$source = $this->download_url($url);
 				// the following should always exist for GitLab Community Edition or GitLab Enterprise Edition
 				if (preg_match("/<meta content='GitLab (Community|Enterprise) Edition' name='description'>/", $source) > 0) {
 					$parse = parse_url($url);
@@ -721,7 +721,7 @@ class DockerClient {
 		$fp = stream_socket_client('unix:///var/run/docker.sock', $errno, $errstr);
 		if ($fp === false) {
 			echo "Couldn't create socket: [$errno] $errstr";
-			return null;
+			return [];
 		}
 		$protocol = $unchunk ? 'HTTP/1.0' : 'HTTP/1.1';
 		$out = "$method {$api}{$url} $protocol\r\nHost:127.0.0.1\r\nConnection:Close\r\n";
@@ -915,6 +915,7 @@ class DockerClient {
 			$c['Volumes']     = $info['HostConfig']['Binds'];
 			$c['Created']     = $this->humanTiming($ct['Created']);
 			$c['NetworkMode'] = $ct['HostConfig']['NetworkMode'];
+			$c['Manager'] 	  = $info['Config']['Labels']['net.unraid.docker.managed'] ?? false;
 			[$net, $id]       = array_pad(explode(':',$c['NetworkMode']),2,'');
 			$c['CPUset']      = $info['HostConfig']['CpusetCpus'];
 			$c['BaseImage']   = $ct['Labels']['BASEIMAGE'] ?? false;
@@ -978,7 +979,7 @@ class DockerClient {
 			$c['Id']          = $this->extractID($ct['Id']);
 			$c['ParentId']    = $this->extractID($ct['ParentId']);
 			$c['Size']        = $this->formatBytes($ct['Size']);
-			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize']);
+			$c['VirtualSize'] = $this->formatBytes($ct['VirtualSize'] ?? null);
 			$c['Tags']        = array_map('htmlspecialchars', $ct['RepoTags'] ?? []);
 			$c['Repository']  = DockerUtil::parseImageTag($ct['RepoTags'][0]??'')['strRepo'];
 			$c['usedBy']      = $this->usedBy($c['Id']);
