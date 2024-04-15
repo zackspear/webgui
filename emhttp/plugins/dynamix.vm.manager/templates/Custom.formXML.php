@@ -304,36 +304,7 @@
 	}
 
 	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
-	#var_dump($arrConfig['xml']);
-	$xmlsections = [
-		"name",
-		"uuid",
-		"description",
-		"metadata",
-		"memory",
-		"currentMemory",
-		"memoryBacking",
-		"vcpu",
-		"cputune",
-		"os",
-		"features",
-		"cpu",
-		"clock",
-		"on_poweroff",
-		"on_reboot",
-		"on_crash",
-		"devices",
-	  
-	  ];
-	  
-	  #var_dump($xmlsections);
-	  $endpos = 0;
-	  foreach($xmlsections as $xmlsection) {
-		$strpos = strpos($strXML,"<$xmlsection",$endpos);
-		$endcheck = "</$xmlsection>";
-		$endpos = strpos($strXML,$endcheck,$strpos);
-		$xml2[$xmlsection] = trim(substr($strXML,$strpos,$endpos-$strpos+strlen($endcheck)),'/0') ;
-	  }
+	$xml2 = build_xml_templates($strXML);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -356,7 +327,7 @@
 		<tr>
 			<td>_(Name)_:</td>
 			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
-			<td><textarea id="xmlname" rows=1 disabled ><?=htmlspecialchars($xml2['name'])?></textarea></td>
+			<td><textarea class="xml" id="xmlname" rows=1 disabled ><?=htmlspecialchars($xml2['name'])?></textarea></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -367,7 +338,7 @@
 		<tr class="advanced">
 			<td>_(Description)_:</td>
 			<td><input type="text" name="domain[desc]" title="_(description of virtual machine)_" placeholder="_(description of virtual machine)_ (_(optional)_)" value="<?=htmlspecialchars($arrConfig['domain']['desc'])?>" /></td>
-			<td><textarea id="xmldesription" rows=1 disabled ><?=htmlspecialchars($xml2['description'])?></textarea></td>
+			<td><textarea class="xml" id="xmldesription" rows=1 disabled ><?=htmlspecialchars($xml2['description'])?></textarea></td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -457,7 +428,7 @@
 				?>
 				</select>
 			</td>
-			<td><textarea id="xmlcpu" rows=1 disabled ><?=htmlspecialchars($xml2['cpu'])?></textarea></td>
+			<td><textarea class="xml" id="xmlcpu" rows=1 disabled ><?=htmlspecialchars($xml2['cpu'])?></textarea></td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -500,7 +471,7 @@
 				?>
 				</div>
 			</td>
-			<td><textarea id="xmlvcpu" rows=5 disabled ><?=htmlspecialchars($xml2['vcpu'])."\n".htmlspecialchars($xml2['cputune'])?></textarea></td>
+			<td><textarea class="xml" id="xmlvcpu" rows=5 disabled ><?=htmlspecialchars($xml2['vcpu'])."\n".htmlspecialchars($xml2['cputune'])?></textarea></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -537,7 +508,7 @@
 				?>
 				</select>
 			</td>
-			<td><textarea id="xmlmem" rows=5 disabled ><?=htmlspecialchars($xml2['memory'])."\n".htmlspecialchars($xml2['currentMemory'])."\n".htmlspecialchars($xml2['memoryBacking'])?></textarea></td>
+			<td><textarea class="xml" id="xmlmem" rows=2  disabled ><?=htmlspecialchars($xml2['memory'])."\n".htmlspecialchars($xml2['currentMemory'])."\n".htmlspecialchars($xml2['memoryBacking'])?></textarea></td>
 		</tr>
 	</table>
 	<div class="basic">
@@ -565,7 +536,7 @@
 				<?mk_dropdown_options($arrValidMachineTypes, $arrConfig['domain']['machine']);?>
 				</select>
 			</td>
-			<td><textarea id="xmlos" rows=5 disabled ><?=htmlspecialchars($xml2['os'])?></textarea></td>
+			<td><textarea class="xml" id="xmlos" rows=5 cols=200 disabled ><?=htmlspecialchars($xml2['os'])?></textarea></td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -738,6 +709,7 @@
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : _('Primary');
 
 		?>
+		<div><div>
 		<table data-category="vDisk" data-multiple="true" data-minimum="1" data-maximum="24" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
 				<td>_(vDisk Location)_:</td>
@@ -818,6 +790,7 @@
 					?>
 					</select><input type="text" name="disk[<?=$i?>][new]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
 				</td>
+				<td><textarea class="xml" id="xmlcpu" rows=4 disabled wrap="soft"><?=htmlspecialchars($xml2['devices']['disk'][$i])?></textarea></td>
 			</tr>
 
 			<input type="hidden" name="disk[<?=$i?>][storage]" id="disk[<?=$i?>][storage]" value="<?=htmlspecialchars($arrConfig['template']['storage'])?>">
@@ -1037,6 +1010,7 @@
 						mk_dropdown_options($arrUnraidShares, $arrUnraidIndex);?>
 				</select>
 				</td>
+				<td><textarea class="xml" id="xmlcpu" rows=4  wrap="soft" disabled ><?=htmlspecialchars($xml2['devices']['filesystem'][$i])?></textarea></td>
 				</tr>
 
 			<tr class="advanced">
@@ -1158,6 +1132,13 @@
 					?>
 					</select>
 				</td>
+				<?
+					if ($arrGPU['id'] == 'virtual') {
+			    ?>
+				<td><textarea class="xml" id="xmlgraphics" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['graphics'][0])?></textarea></td>
+				<?} else {?>
+				<td><textarea class="xml" id="xmlgraphics" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['hostdev'][0])?></textarea></td>
+				<?}?>
 			</tr>
 
 			<?if ($i == 0) {
@@ -1374,6 +1355,7 @@
 				<td>
 					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
+				<td><textarea class="xml" id="xmlmem" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['interface'][$i])?></textarea></td>
 			</tr>
 			<tr class="advanced">
 				<td>_(Network Source)_:</td>
@@ -1595,7 +1577,7 @@
 				if ($arrConfig['qemucmdline'] == "") $qemurows = 2 ; else $qemurows = 15 ;
 				?>
 			<td>
-			<textarea id="qemucmdline" name="qemucmdline" rows=<?=$qemurows?> style="width: 850px" onchange="QEMUChgCmd(this)"><?=htmlspecialchars($arrConfig['qemucmdline'])?> </textarea></td></tr>
+			<textarea id="qemucmdline" name="qemucmdline" class="xml" rows=<?=$qemurows?> style="width: 850px" onchange="QEMUChgCmd(this)"><?=htmlspecialchars($arrConfig['qemucmdline'])?> </textarea></td></tr>
 			</td>
 		</tr>
 	</table>
@@ -1617,7 +1599,7 @@
 				?>
 				</select>
 			</td>
-			<td></td><td></td><td><textarea id="xmlclock" rows=5 disabled ><?=htmlspecialchars($xml2['clock'])?></textarea></td>
+			<td></td><td></td><td><textarea class="xml" id="xmlclock" rows=5 disabled ><?=htmlspecialchars($xml2['clock'])?></textarea></td>
 		</tr>
 					<?$clockcount = 0 ;
 					if (!empty($arrClocks)) {
