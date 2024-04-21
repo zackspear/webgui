@@ -426,11 +426,6 @@ private static $encoding = 'UTF-8';
 			'icon' => 'vyos.png',
 			'os' => 'vyos'
 		],
-		'!Test' => [
-			'form' => 'Custom.formXML.php',
-			'icon' => 'scientific.png',
-			'os' => 'scientific'
-		],
 
 		' ' => '', /* Custom / XML Expert Header */
 
@@ -875,7 +870,7 @@ private static $encoding = 'UTF-8';
 				$arrMatch['vendorname'] = sanitizeVendor($arrMatch['vendorname']);
 				$arrMatch['productname'] = sanitizeProduct($arrMatch['productname']);
 
-				$arrValidPCIDevices[] = [
+				$arrValidPCIDevices[$arrMatch['id']] = [
 					'id' => $arrMatch['id'],
 					'type' => $arrMatch['type'],
 					'typeid' => $arrMatch['typeid'],
@@ -979,7 +974,7 @@ private static $encoding = 'UTF-8';
 				// Clean up the name
 				$arrMatch['name'] = sanitizeVendor($arrMatch['name']);
 
-				$arrValidUSBDevices[] = [
+				$arrValidUSBDevices[$arrMatch['id']] = [
 					'id' => $arrMatch['id'],
 					'name' => $arrMatch['name'],
 				];
@@ -2609,6 +2604,101 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 				"state" => $state,
 			];
 	}
+}
+
+function build_xml_templates($strXML) {
+	global $arrValidPCIDevices,$arrValidUSBDevices;
+	$xmlsections = [
+		"name",
+		"uuid",
+		"description",
+		"metadata",
+		"memory",
+		"currentMemory",
+		"memoryBacking",
+		"vcpu",
+		"cputune",
+		"os",
+		"features",
+		"cpu",
+		"clock",
+		"on_poweroff",
+		"on_reboot",
+		"on_crash",
+		"devices",
+	  
+	  ];
+	  
+	$endpos = 0;
+	foreach($xmlsections as $xmlsection) {
+		$strpos = strpos($strXML,"<$xmlsection",$endpos);
+		if ($strpos === false) continue  ;
+		$endcheck = "</$xmlsection>";
+		$endpos = strpos($strXML,$endcheck,$strpos);
+		$xml2[$xmlsection] = trim(substr($strXML,$strpos,$endpos-$strpos+strlen($endcheck)),'/0') ;
+	}
+
+	$xmldevsections = [
+		"emulator" => "yes",
+		"disk"=> "yes",
+		"controller"=> "yes",
+		"interface"=> "yes",
+		"serial"=> "yes",
+		"channel"=> "yes",
+		"console"=> "yes",
+		"input"=> "yes",
+		"audio"=> "yes",
+		"watchdog"=> "yes",
+		"memballoon"=> "yes",
+		"graphics"=> "yes",
+		"hostdev"=> "yes",
+		"filesystem"=>"yes",
+		];
+	  
+	$xml = $xml2['devices'];
+	$endpos = 0;
+	foreach($xmldevsections as $xmlsection => $mult) {
+		if ($mult == "yes") {
+			$endpos = $strpos = $count = 0;
+			while (true) {
+				
+				$strpos = strpos($xml,"<$xmlsection",$endpos);
+				if ($strpos === false) continue  2;
+				$endcheck = "</$xmlsection>";
+				$endpos = strpos($xml,$endcheck,$strpos);
+				#echo $xmlsection." ".$strpos." ".$endpos."\n";
+				if ($endpos === false) {
+					$endcheck = "/>";
+					$endpos = strpos($xml,$endcheck,$strpos);
+				}
+				# echo substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+				$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+				$count++;
+			}
+		}
+	}
+	$xml2["devices"] = $devxml;
+	$xml2["devices"]["allusb"] = "";
+	foreach ($xml2['devices']["hostdev"] as $xmlhostdev) {
+		$xmlhostdevdoc = new SimpleXMLElement($xmlhostdev);
+		switch ($xmlhostdevdoc->attributes()->type) {
+			case 'pci' :
+				$pciaddr = $xmlhostdevdoc->source->address->attributes()->bus.":".$xmlhostdevdoc->source->address->attributes()->slot.".".$xmlhostdevdoc->source->address->attributes()->function;
+				$pciaddr = str_replace("0x","",$pciaddr);
+				$xml2["devices"][$arrValidPCIDevices[$pciaddr]["class"]][$pciaddr] = $xmlhostdev; 
+				break;
+			case "usb":  
+				$usbaddr = $xmlhostdevdoc->source->vendor->attributes()->id.":".$xmlhostdevdoc->source->product->attributes()->id;
+				$usbaddr = str_replace("0x","",$usbaddr);
+				$xml2["devices"]["usb"][$usbaddr] = $xmlhostdev; 
+				$xml2["devices"]["allusb"] .= $xmlhostdev; 
+				break;
+		}
+	  
+	  
+	  }
+
+	return $xml2;
 }
 
 ?>

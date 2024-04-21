@@ -95,6 +95,8 @@ if (isset($_GET['uuid'])) {
 }
 $strSelectedTemplateUT = $strSelectedTemplate;
 if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
+$newmodel = is_file("/etc/libvirt/qemu/newmodel");
+if ($newmodel && $arrLoad['form'] == "Custom.form.php") $arrLoad['form'] = "Custom.formXML.php"; 
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">

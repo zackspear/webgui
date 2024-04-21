@@ -24,6 +24,7 @@
 	}
 
 	$arrValidMachineTypes = getValidMachineTypes();
+	$arrValidPCIDevices = getValidPCIDevices();
 	$arrValidGPUDevices = getValidGPUDevices();
 	$arrValidAudioDevices = getValidAudioDevices();
 	$arrValidOtherDevices = getValidOtherDevices();
@@ -709,7 +710,6 @@
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : _('Primary');
 
 		?>
-		<div><div>
 		<table data-category="vDisk" data-multiple="true" data-minimum="1" data-maximum="24" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
 				<td>_(vDisk Location)_:</td>
@@ -790,7 +790,7 @@
 					?>
 					</select><input type="text" name="disk[<?=$i?>][new]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfolders="true" data-pickfilter="img,qcow,qcow2" data-pickmatch="^[^.].*" data-pickroot="/mnt/" class="disk" id="disk_<?=$i?>" value="<?=htmlspecialchars($arrDisk['new'])?>" placeholder="_(Separate sub-folder and image will be created based on Name)_"><div class="disk_preview"></div>
 				</td>
-				<td><textarea class="xml" id="xmlcpu" rows=4 disabled wrap="soft"><?=htmlspecialchars($xml2['devices']['disk'][$i])?></textarea></td>
+				<td><textarea class="xml" id="xmlvdisk<?=$i?>" rows=4 disabled wrap="soft"><?=htmlspecialchars($xml2['devices']['disk'][$i])?></textarea></td>
 			</tr>
 
 			<input type="hidden" name="disk[<?=$i?>][storage]" id="disk[<?=$i?>][storage]" value="<?=htmlspecialchars($arrConfig['template']['storage'])?>">
@@ -1010,7 +1010,7 @@
 						mk_dropdown_options($arrUnraidShares, $arrUnraidIndex);?>
 				</select>
 				</td>
-				<td><textarea class="xml" id="xmlcpu" rows=4  wrap="soft" disabled ><?=htmlspecialchars($xml2['devices']['filesystem'][$i])?></textarea></td>
+				<td><textarea class="xml" id="xmlshare<?=$i?>" rows=4  wrap="soft" disabled ><?=htmlspecialchars($xml2['devices']['filesystem'][$i])?></textarea></td>
 				</tr>
 
 			<tr class="advanced">
@@ -1135,9 +1135,9 @@
 				<?
 					if ($arrGPU['id'] == 'virtual') {
 			    ?>
-				<td><textarea class="xml" id="xmlgraphics" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['graphics'][0])?></textarea></td>
+				<td><textarea class="xml" id="xmlgraphics<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['graphics'][0])."\n".htmlspecialchars($xml2['devices']['audio'][0])?></textarea></td>
 				<?} else {?>
-				<td><textarea class="xml" id="xmlgraphics" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['hostdev'][0])?></textarea></td>
+				<td><textarea class="xml" id="xmlgraphics<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['vga'][$arrGPU['id']])?></textarea></td>
 				<?}?>
 			</tr>
 
@@ -1311,6 +1311,7 @@
 					?>
 					</select>
 				</td>
+				<td><textarea class="xml" id="xmlaudio<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['audio'][$arrAudio['id']])?></textarea></td>
 			</tr>
 		</table>
 		<?if ($i == 0) {?>
@@ -1355,7 +1356,7 @@
 				<td>
 					<input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" title="_(random mac, you can supply your own)_" /> <i class="fa fa-refresh mac_generate" title="_(re-generate random mac address)_"></i>
 				</td>
-				<td><textarea class="xml" id="xmlmem" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['interface'][$i])?></textarea></td>
+				<td><textarea class="xml" id="xmlnet<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['interface'][$i])?></textarea></td>
 			</tr>
 			<tr class="advanced">
 				<td>_(Network Source)_:</td>
@@ -1482,6 +1483,7 @@
 						/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <input type="checkbox" name="usbopt[<?=htmlspecialchars($arrDev['id'])?>]" id="usbopt<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?if ($arrDev["startupPolicy"] =="optional") echo 'checked="checked"';?>/>&nbsp&nbsp&nbsp&nbsp&nbsp
 						<input type="number" size="5" maxlength="5" id="usbboot<?=$i?>" class="narrow bootorder" <?=$bootdisable?>  style="width: 50px;" name="usbboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$arrDev['usbboot']?>" >
 						<?=htmlspecialchars(substr($arrDev['name'],0,100))?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+						
 						<?
 						}
 					} else {
@@ -1489,7 +1491,7 @@
 					}
 				?>
 				</div>
-			</td>
+			</td><td><textarea class="xml" id="xmlusb<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['allusb'])?></textarea></td>
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -1526,6 +1528,7 @@
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp
 						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow pcibootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
+						<td><textarea class="xml" id="xmlpci<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['other'][$arrDev['id']])?></textarea></td>
 					<?
 						}
 					}
@@ -1536,6 +1539,7 @@
 				?>
 				</div>
 			</td>
+
 		</tr>
 	</table>
 	<blockquote class="inline_help">
@@ -1933,6 +1937,8 @@ $(function() {
 	$('.advancedview').change(function () {
 		if ($(this).is(':checked')) {
 			setTimeout(function() {
+				var h = window.outerHeight - 550;
+				editor.setSize(null,h );
 				editor.refresh();
 			}, 100);
 		}
