@@ -1914,6 +1914,7 @@ $(function() {
 		if ($(this).is(':checked')) {
 			setTimeout(function() {
 				var xmlPanelHeight = window.outerHeight - 550;
+				if (xmlPanelHeight < 0) xmlPanelHeight = null;
 				editor.setSize(null,xmlPanelHeight);
 				editor.refresh();
 			}, 100);
