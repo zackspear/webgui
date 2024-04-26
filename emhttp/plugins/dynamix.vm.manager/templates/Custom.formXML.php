@@ -292,6 +292,11 @@
 		$arrConfig = $arrConfigDefaults;
 		$arrVMUSBs = getVMUSBs($strXML) ;
 		$strXML = $lv->config_to_xml($arrConfig);
+		$domXML = new DOMDocument();
+		$domXML->preserveWhiteSpace = false;
+		$domXML->formatOutput = true;
+		$domXML->loadXML($strXML);
+		$strXML=  $domXML->saveXML();
 	}
 	// Add any custom metadata field defaults (e.g. os)
 	if (!$arrConfig['template']['os']) {
