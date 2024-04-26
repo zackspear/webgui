@@ -1370,7 +1370,7 @@ private static $encoding = 'UTF-8';
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
-			'qemucmdline' => getQEMUCmdLine($strDOMXML),
+			'qemucmdline' => getQEMUCmdLine($strDOMXML)."\n".getQEMUOverride($strDOMXML),
 			'clocks' => getClocks($strDOMXML)
 		];
 	}
@@ -1562,6 +1562,18 @@ private static $encoding = 'UTF-8';
 			if ($y != false) $z =$y  ;
 		}
 		return substr($xml,$x, ($z + 19) -$x) ;
+	}
+
+	function getQEMUOverride($xml) {
+		$x = strpos($xml,"<qemu:override>", 0) ;
+		if ($x === false) return null ;
+		$y = strpos($xml,"</qemu:override>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"<qemu:override>", $z +16)  ;
+			if ($y != false) $z =$y  ;
+		}
+		return substr($xml,$x, ($z + 16) -$x) ;
 	}
 
 	function getchannels($res) {
