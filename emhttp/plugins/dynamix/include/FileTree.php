@@ -9,6 +9,7 @@
  *
  * History:
  *
+ * 1.2.1 - pass in a list of folders to exclude from the dropdown list
  * 1.2.0 - adapted by Bergware for use in Unraid - support UTF-8 encoding & hardening
  * 1.1.1 - SECURITY: forcing root to prevent users from determining system's file structure (per DaveBrad)
  * 1.1.0 - adding multiSelect (checkbox) support (08/22/2014)
@@ -48,6 +49,9 @@ $filters  = (array)$_POST['filter'];
 $match    = $_POST['match'];
 $checkbox = $_POST['multiSelect']=='true' ? "<input type='checkbox'>" : "";
 
+/* Add the pickexclude functionality to exclude folders from the list. */
+$excludedFolders = explode(",", $_POST['pickexclude']);
+
 echo "<ul class='jqueryFileTree'>";
 if ($_POST['show_parent']=='true' && is_top($rootdir)) echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"".htmlspecialchars(dirname($rootdir))."\">..</a></li>";
 
@@ -60,7 +64,10 @@ if (is_low($rootdir) && is_dir($rootdir)) {
     $htmlRel  = htmlspecialchars($rootdir.$name);
     $htmlName = htmlspecialchars(mb_strlen($name)<=33 ? $name : mb_substr($name,0,30).'...');
     if (is_dir($rootdir.$name)) {
-      if (empty($match)||preg_match("/$match/",$rootdir.$name)) echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
+      /* Check if the directory should be excluded. */
+      if (!in_array($name, $excludedFolders) && (empty($match) || preg_match("/$match/",$rootdir.$name))) {
+        echo "<li class='directory collapsed'>$checkbox<a href='#' rel=\"$htmlRel/\">$htmlName</a></li>";
+      }
     }
   }
   foreach ($files as $name) {
