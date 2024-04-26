@@ -1370,7 +1370,7 @@ private static $encoding = 'UTF-8';
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
-			'qemucmdline' => getQEMUCmdLine($strDOMXML),
+			'qemucmdline' => getQEMUCmdLine($strDOMXML)."\n".getQEMUOverride($strDOMXML),
 			'clocks' => getClocks($strDOMXML),
 			'xml' => [
 				'machine' => $lv->domain_get_xml($vmname, "//domain/os/*"),
@@ -1565,7 +1565,19 @@ private static $encoding = 'UTF-8';
 			$y = strpos($xml,"<qemu:commandline>", $z +19)  ;
 			if ($y != false) $z =$y  ;
 		}
-		return substr($xml,$x, ($z + 19) -$x) ;
+		return substr($xml,$x, ($z + 19) -$x);
+	}
+
+	function getQEMUOverride($xml) {
+		$x = strpos($xml,"<qemu:override>", 0) ;
+		if ($x === false) return null ;
+		$y = strpos($xml,"</qemu:override>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"<qemu:override>", $z +16)  ;
+			if ($y != false) $z =$y  ;
+		}
+		return substr($xml,$x, ($z + 16) -$x) ;
 	}
 
 	function getchannels($res) {
@@ -2648,6 +2660,7 @@ function build_xml_templates($strXML) {
 		"console"=> "yes",
 		"input"=> "yes",
 		"audio"=> "yes",
+		"video"=> "yes",
 		"watchdog"=> "yes",
 		"memballoon"=> "yes",
 		"graphics"=> "yes",
@@ -2672,7 +2685,14 @@ function build_xml_templates($strXML) {
 					$endpos = strpos($xml,$endcheck,$strpos);
 				}
 				# echo substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
-				$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+				if ($xmlsection == "disk") {
+					$disk = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck));
+					$xmldiskdoc = new SimpleXMLElement($disk);
+					$devxml[$xmlsection][$xmldiskdoc->target->attributes()->dev->__toString()] = $disk;
+
+				} else {
+					$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+				}
 				$count++;
 			}
 		}

@@ -102,7 +102,7 @@ if ($newmodel && $arrLoad['form'] == "Custom.form.php") $arrLoad['form'] = "Cust
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 
-<span class="status advancedview_panel" style="margin-top:<?=$top?>px"><input type="checkbox" class="advancedview"></span>
+<span class="status advancedview_panel" style="margin-top:<?=$top?>px;"><input type="checkbox" class="inlineview"><input type="checkbox" class="advancedview"></span>
 <div class="domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
@@ -161,6 +161,21 @@ function isVMXMLMode() {
 	return ($.cookie('vmmanager_listview_mode') == 'xml');
 }
 
+function isinlineXMLMode() {
+	return ($.cookie('vmmanager_inline_mode') == 'hide');
+}
+
+function hidexml(checked)
+{
+	var form = document.getElementById("vmform"); // Replace "yourFormId" with the actual ID of your form
+		var xmlElements = form.getElementsByClassName("xml");
+		if (checked == 1) xmldisplay = "none"; else xmldisplay = "";
+		// Unhide each element
+		for (var i = 0; i < xmlElements.length; i++) {
+			xmlElements[i].style.display = xmldisplay; // Setting to empty string will revert to default style
+}
+}
+
 $(function() {
 	$('.autostart').switchButton({
 		on_label: "_(Yes)_",
@@ -177,9 +192,19 @@ $(function() {
 		off_label: "_(Form View)_",
 		checked: isVMXMLMode()
 	});
+	$('.inlineview').switchButton({
+		labels_placement: "left",
+		on_label: "_(Hide inline xml)_",
+		off_label: "_(Show Inline XML)_",
+		checked: isinlineXMLMode()
+	});
 	$('.advancedview').change(function () {
 		toggleRows('xmlview', $(this).is(':checked'), 'formview');
 		$.cookie('vmmanager_listview_mode', $(this).is(':checked') ? 'xml' : 'form', { expires: 3650 });
+	});
+	$('.inlineview').change(function () {
+		hidexml($(this).is(':checked'));
+		$.cookie('vmmanager_inline_mode', $(this).is(':checked') ? 'hide' : 'show', { expires: 3650 });
 	});
 
 	$('#template_img').click(function (){
@@ -227,6 +252,7 @@ $(function() {
 	} else {
 		$('.advancedview_panel').fadeOut('fast');
 	}
+	hidexml(isinlineXMLMode());
 
 	$("#vmform #btnCancel").click(function (){
 		done();
