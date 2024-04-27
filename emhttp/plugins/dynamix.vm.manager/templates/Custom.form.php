@@ -1913,8 +1913,8 @@ $(function() {
 	$('.advancedview').change(function () {
 		if ($(this).is(':checked')) {
 			setTimeout(function() {
-				var xmlPanelHeight = window.outerHeight - 550;
-				if (xmlPanelHeight < 0) xmlPanelHeight = null;
+				var xmlPanelHeight = window.outerHeight;
+				if (xmlPanelHeight > 1024) xmlPanelHeight = xmlPanelHeight-550;
 				editor.setSize(null,xmlPanelHeight);
 				editor.refresh();
 			}, 100);
