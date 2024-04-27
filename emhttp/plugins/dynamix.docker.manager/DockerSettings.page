@@ -20,6 +20,9 @@ Tag="icon-docker"
 // Add the Docker JSON client
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
+/* Folders to be excluded from the drop down file picker. */
+$excludeFolders	= ".Recycle.Bin,RecycleBin,addons,disks,remotes,rootshare,user0";
+
 $DockerClient  = new DockerClient();
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$DockerStopped);
 
@@ -163,7 +166,7 @@ _(Docker vDisk size)_:
 :docker_vdisk_size_help:
 
 _(Docker vDisk location)_:
-: <input type="text" id="DOCKER_IMAGE_FILE1" name="DOCKER_IMAGE_FILE1" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>" placeholder="_(e.g.)_ /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickexclude=".Recycle.Bin,RecycleBin,addons,disks,remotes,rootshare,user0" data-pickfolders="true" disabled required pattern="^[^\\]*(docker-xfs\.img|docker\.img)$">
+: <input type="text" id="DOCKER_IMAGE_FILE1" name="DOCKER_IMAGE_FILE1" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>" placeholder="_(e.g.)_ /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickexclude="<?=$excludeFolders;?>" data-pickfolders="true" disabled required pattern="^[^\\]*(docker-xfs\.img|docker\.img)$">
   <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete vDisk file)_</label></span>
   <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir(dirname(_var($dockercfg,'DOCKER_IMAGE_FILE')))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
@@ -174,7 +177,7 @@ _(Docker vDisk location)_:
 </div>
 <div markdown="1" id="vdisk_dir" style="display:none">
 _(Docker directory)_:
-: <input type="text" id="DOCKER_IMAGE_FILE2" name="DOCKER_IMAGE_FILE2" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>" placeholder="_(e.g.)_ /mnt/user/system/docker" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickexclude=".Recycle.Bin,RecycleBin,addons,disks,remotes,rootshare,user0" data-pickroot="/mnt" data-pickfolders="true" disabled required pattern="^[^\\]*/$">
+: <input type="text" id="DOCKER_IMAGE_FILE2" name="DOCKER_IMAGE_FILE2" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>" placeholder="_(e.g.)_ /mnt/user/system/docker" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickexclude="<?=$excludeFolders;?>" data-pickroot="/mnt" data-pickfolders="true" disabled required pattern="^[^\\]*/$">
   <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete directory)_</label></span>
   <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir(dirname(_var($dockercfg,'DOCKER_IMAGE_FILE')))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
@@ -184,7 +187,7 @@ _(Docker directory)_:
 
 </div>
 _(Default appdata storage location)_:
-: <input type="text" id="DOCKER_APP_CONFIG_PATH" name="DOCKER_APP_CONFIG_PATH" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_APP_CONFIG_PATH')?>" placeholder="_(e.g.)_ /mnt/user/appdata/" data-pickfilter="HIDE_FILES_FILTER" data-pickexclude=".Recycle.Bin,RecycleBin,addons,disks,remotes,rootshare,user0" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
+: <input type="text" id="DOCKER_APP_CONFIG_PATH" name="DOCKER_APP_CONFIG_PATH" autocomplete="off" spellcheck="false" value="<?=_var($dockercfg,'DOCKER_APP_CONFIG_PATH')?>" placeholder="_(e.g.)_ /mnt/user/appdata/" data-pickfilter="HIDE_FILES_FILTER" data-pickexclude="<?=$excludeFolders;?>" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
   <?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir(_var($dockercfg,'DOCKER_APP_CONFIG_PATH'))):?>
