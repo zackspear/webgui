@@ -1569,6 +1569,18 @@ private static $encoding = 'UTF-8';
 		return substr($xml,$x, ($z + 19) -$x) ;
 	}
 
+	function getQEMUOverride($xml) {
+		$x = strpos($xml,"<qemu:override>", 0) ;
+		if ($x === false) return null ;
+		$y = strpos($xml,"</qemu:override>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"<qemu:override>", $z +16)  ;
+			if ($y != false) $z =$y  ;
+		}
+		return substr($xml,$x, ($z + 16) -$x) ;
+	}
+
 	function getchannels($res) {
 		global $lv ;
         $xml = $lv->domain_get_xml($res) ;
