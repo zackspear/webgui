@@ -22,7 +22,7 @@ jQuery && function(e) {
 					function s(r, n, o) {
 						e(r).addClass("wait"),
 							e(".jqueryFileTree.start").remove(),
-							// Modify the post data to include pickexclude
+							/* Modify the post data to include pickexclude. */
 							e.post(i.script, {
 								dir: n,
 								root: i.top,
@@ -30,7 +30,7 @@ jQuery && function(e) {
 								filter: i.filter,
 								match: i.match,
 								show_parent: o,
-								// Add pickexclude parameter
+								/* Add pickexclude parameter. */
 								pickexclude: i.pickexclude
 							}).done(function(o) {
 								var d;
@@ -104,7 +104,7 @@ jQuery && function(e) {
 										top: a.picktop,
 										filter: (a.pickfilter || "").split(","),
 										match: a.pickmatch || ".*",
-										// Include pickexclude parameter in fileTreeAttach
+										/* Include pickexclude parameter in fileTreeAttach. */
 										pickexclude: a.pickexclude
 									}, e.isFunction(t) ? t : function(e) {
 										i.val(e).change(),
