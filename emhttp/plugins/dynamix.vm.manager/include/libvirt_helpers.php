@@ -1330,7 +1330,12 @@ private static $encoding = 'UTF-8';
   	}
 
 		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
-
+		$cmdline = null;
+		$QEMUCmdline = getQEMUCmdLine($strDOMXML);
+		$QEMUOverride = getQEMUOverride($strDOMXML);
+		if (isset($QEMUCmdline)) $cmdline = $QEMUCmdline;
+		if (isset($QEMUOverride) && isset($QEMUCmdline)) $cmdline .= "\n".$QEMUOverride;
+		if (isset($QEMUOverride) && !isset($QEMUCmdline)) $cmdline = $QEMUOverride;
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1370,7 +1375,7 @@ private static $encoding = 'UTF-8';
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
-			'qemucmdline' => getQEMUCmdLine($strDOMXML)."\n".getQEMUOverride($strDOMXML),
+			'qemucmdline' => $cmdline,
 			'clocks' => getClocks($strDOMXML)
 		];
 	}
