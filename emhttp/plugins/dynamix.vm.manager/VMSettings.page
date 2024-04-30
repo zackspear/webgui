@@ -135,7 +135,7 @@ _(Default VM storage path)_:
 :vms_libvirt_storage_help:
 
 _(Default ISO storage path)_:
-: <input type="text" id="mediadir" name="MEDIADIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickexclude="<?=$excludeFolders;?>" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
+: <input type="text" id="mediadir" name="MEDIADIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt/user" data-pickexclude="<?=$excludeFolders;?>" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
