@@ -19,9 +19,6 @@ Tag="columns"
 <?
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
-/* Folders to be excluded from the drop down file picker. */
-$excludeFolders	= ".Recycle.Bin,RecycleBin,addons,disks,remotes,rootshare,user0";
-
 // Check for Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support
 // If either kvm_intel or kvm_amd are loaded then Intel VT-x (vmx) or AMD-V (svm) cpu virtualization support was found
 $hardware = !empty(shell_exec("/etc/rc.d/rc.libvirt test"));
@@ -118,7 +115,7 @@ _(Libvirt vdisk size)_:
 :vms_libvirt_vdisk_size_help:
 
 _(Libvirt storage location)_:
-: <input type="text" id="IMAGE_FILE" name="IMAGE_FILE" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickexclude="<?=$excludeFolders;?>" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
+: <input type="text" id="IMAGE_FILE" name="IMAGE_FILE" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($domain_cfg['IMAGE_FILE']);?>" placeholder="e.g. /mnt/user/system/libvirt/libvirt.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" required pattern="^[^\\]*libvirt\.img$">
  <?if (file_exists($domain_cfg['IMAGE_FILE'])):?><span id="deletePanel"><label><input type="checkbox" id="deleteCheckbox" /> _(Delete Image File)_</label></span><?endif;?>
  <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
  <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE']))):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
@@ -128,14 +125,14 @@ _(Libvirt storage location)_:
 
 <?endif;?>
 _(Default VM storage path)_:
-: <input type="text" id="domaindir" name="DOMAINDIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickexclude="<?=$excludeFolders;?>" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
+: <input type="text" id="domaindir" name="DOMAINDIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" value="<?=htmlspecialchars($domain_cfg['DOMAINDIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['DOMAINDIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
 :vms_libvirt_storage_help:
 
 _(Default ISO storage path)_:
-: <input type="text" id="mediadir" name="MEDIADIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt/user" data-pickexclude="<?=$excludeFolders;?>" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
+: <input type="text" id="mediadir" name="MEDIADIR" autocomplete="off" spellcheck="false" data-pickfolders="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt/user" value="<?=htmlspecialchars($domain_cfg['MEDIADIR'])?>" placeholder="_(Click to Select)_" pattern="^[^\\]*/$">
   <?if (!$started):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
   <?elseif (!is_dir($domain_cfg['MEDIADIR'])):?><span><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span><?endif;?>
 
