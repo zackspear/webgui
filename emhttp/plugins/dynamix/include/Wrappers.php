@@ -181,8 +181,8 @@ function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL
   }
   $out = curl_exec($ch);
   if (curl_errno($ch) == 23) {
-    // error 23 detected, try CURLOPT_ENCODING = null
-    curl_setopt($ch, CURLOPT_ENCODING, null);
+    // error 23 detected, try CURLOPT_ENCODING = "deflate"
+    curl_setopt($ch, CURLOPT_ENCODING, "deflate");
     $out = curl_exec($ch);
   }
   if (isset($getinfo)) {
