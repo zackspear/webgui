@@ -174,6 +174,7 @@ function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_REFERER, "");
   curl_setopt($ch, CURLOPT_FAILONERROR, true);
+  curl_setopt($ch, CURLOPT_USERAGENT, 'Unraid');
   if(is_array($opts) && $opts) {
     foreach($opts as $key => $val) {
       curl_setopt($ch, $key, $val);
