@@ -208,7 +208,6 @@ fi
 /bin/echo "$NAME" >/etc/HOSTNAME
 /bin/echo "# Generated" >/etc/hosts
 /bin/echo "127.0.0.1      $NAME localhost" >>/etc/hosts
-/bin/echo "54.149.176.35  keys.lime-technology.com" >>/etc/hosts
 
 # LimeTech - restore the configured timezone
 if [[ $timeZone == custom ]]; then

@@ -180,16 +180,22 @@ function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL
     }
   }
   $out = curl_exec($ch);
-  if(isset($getinfo)) {
+  if (curl_errno($ch) == 23) {
+    // error 23 detected, try CURLOPT_ENCODING = null
+    curl_setopt($ch, CURLOPT_ENCODING, null);
+    $out = curl_exec($ch);
+  }
+  if (isset($getinfo)) {
     $getinfo = curl_getinfo($ch);
   }
-  if (curl_errno($ch)) {
-    $msg = curl_error($ch) . " {$url}";
+  if ($errno = curl_errno($ch)) {
+    $msg = "Curl error $errno: " . (curl_error($ch) ?: curl_strerror($errno)) . ". Requested url: '$url'";
     if(isset($getinfo)) {
       $getinfo['error'] = $msg;
     }
     my_logger($msg, "http_get_contents");
   }
+  curl_close($ch);
   return $out;
 }
 /**

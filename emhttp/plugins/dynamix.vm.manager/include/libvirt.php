@@ -1801,7 +1801,7 @@
 		}
 
 		function domain_define($xml, $autostart=false) {
-			if (strpos($xml,'<qemu:commandline>')) {
+			if (strpos($xml,'<qemu:commandline>') || strpos($xml,'<qemu:override>')) {
 				$tmp = explode("\n", $xml);
 				for ($i = 0; $i < sizeof($tmp); $i++)
 					if (strpos('.'.$tmp[$i], "<domain type='kvm'") || strpos('.'.$tmp[$i], '<domain type="kvm"'))

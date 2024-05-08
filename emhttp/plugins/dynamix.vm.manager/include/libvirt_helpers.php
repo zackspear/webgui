@@ -1330,7 +1330,12 @@ private static $encoding = 'UTF-8';
   	}
 
 		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
-
+		$cmdline = null;
+		$QEMUCmdline = getQEMUCmdLine($strDOMXML);
+		$QEMUOverride = getQEMUOverride($strDOMXML);
+		if (isset($QEMUCmdline)) $cmdline = $QEMUCmdline;
+		if (isset($QEMUOverride) && isset($QEMUCmdline)) $cmdline .= "\n".$QEMUOverride;
+		if (isset($QEMUOverride) && !isset($QEMUCmdline)) $cmdline = $QEMUOverride;
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1370,7 +1375,7 @@ private static $encoding = 'UTF-8';
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
-			'qemucmdline' => getQEMUCmdLine($strDOMXML),
+			'qemucmdline' => $cmdline,
 			'clocks' => getClocks($strDOMXML)
 		];
 	}
@@ -1562,6 +1567,18 @@ private static $encoding = 'UTF-8';
 			if ($y != false) $z =$y  ;
 		}
 		return substr($xml,$x, ($z + 19) -$x) ;
+	}
+
+	function getQEMUOverride($xml) {
+		$x = strpos($xml,"<qemu:override>", 0) ;
+		if ($x === false) return null ;
+		$y = strpos($xml,"</qemu:override>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"<qemu:override>", $z +16)  ;
+			if ($y != false) $z =$y  ;
+		}
+		return substr($xml,$x, ($z + 16) -$x) ;
 	}
 
 	function getchannels($res) {
