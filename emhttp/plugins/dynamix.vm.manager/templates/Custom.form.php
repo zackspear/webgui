@@ -1626,7 +1626,7 @@
 			<p>Windows and Hyperv Hpet:no Hypervclock: yes Pit no rtc no.	</p>
 		</p>
 	</blockquote>
-	<?#echo "<span>".var_dump($arrConfig['evdev'])."</span>";
+	<?
 	 if ( $arrConfig['evdev'] == false) {
 
 			$evdevxml = "<input type='evdev'>
@@ -1639,7 +1639,7 @@
 	foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 		?>
-		<table data-category="Input" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
+		<table data-category="evdev" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
 				<td>_(Evdev Device)_:</td>
 				<td>
