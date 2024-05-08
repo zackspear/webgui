@@ -28,9 +28,12 @@ $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 
-// exit when no disks
-$nodisks = "<tr><td class='empty' colspan='7'><i class='fa fa-folder-open-o icon'></i>"._('There are no exportable disk shares')."</td></tr>";
+// exit when no mountable array disks
+$nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
 if (!$disks) die($nodisks);
+
+// No shared disks
+$nodisks = "<tr><td class='empty' colspan='7'><i class='fa fa-folder-open-o icon'></i>"._('There are no exportable disk shares')."</td></tr>";
 
 // GUI settings
 extract(parse_plugin_cfg('dynamix',true));
