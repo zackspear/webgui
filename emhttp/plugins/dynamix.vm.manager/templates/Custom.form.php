@@ -1717,7 +1717,7 @@
 		<?}?>
 	<?}?>
 	<script type="text/html" id="tmplevdev">
-	<table data-category="Input" data-multiple="true" data-minimum="1"  data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
+	<table data-category="evdev" data-multiple="true" data-minimum="1"  data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 			<tr>
 				<td>_(Evdev Device)_:</td>
 				<td>
