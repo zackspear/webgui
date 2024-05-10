@@ -192,7 +192,7 @@ _(Month of the year)_:
 _(Write corrections to parity disk)_:
 : <select name="write">
   <?=mk_option($parity['write'], "NOCORRECT", _("No"))?>
-  <?=mk_option($parity['write'], "", _("Yes"))?>
+  <?=mk_option($parity['write'], "yes", _("Yes"))?>
   </select>
 
 :parity_write_corrections_help:
