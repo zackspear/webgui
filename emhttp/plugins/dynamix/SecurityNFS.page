@@ -80,7 +80,7 @@ _(Security)_:
 <form  id="nfsHostListForm" markdown="1" method="POST" name="otherForm" action="/update.htm" target="progressFrame">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 _(Rule)_:
-: <textarea name="shareHostListNFS" cols="40" rows="5" style="width:45%"><?= htmlspecialchars($sec_nfs[$name]['hostList']) ?></textarea>
+: <textarea name="shareHostListNFS" cols="40" rows="5" style="width:45%" placeholder="Example: *(rw,sec=sys,insecure,anongid=100,anonuid=99,no_root_squash,lock)"><?= htmlspecialchars($sec_nfs[$name]['hostList']) ?></textarea>
 
 &nbsp;
 : <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
