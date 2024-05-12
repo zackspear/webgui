@@ -621,11 +621,11 @@ _(File system type)_:
   <?=mk_option(_var($disk,'fsType'), "xfs", _('xfs'))?>
   <?=mk_option(_var($disk,'fsType'), "zfs", _('zfs'))?>
   <?=mk_option(_var($disk,'fsType'), "btrfs", _('btrfs'))?>
-  <?=mk_option(_var($disk,'fsType'), "reiserfs", _('reiserfs'))?>
+  <?=mk_option(_var($disk,'fsType'), "reiserfs", _('reiserfs'), "disabled")?>
   <?=mk_option(_var($disk,'fsType'), "luks:xfs", _('xfs')." - "._('encrypted'))?>
   <?=mk_option(_var($disk,'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
   <?=mk_option(_var($disk,'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
-  <?=mk_option(_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted'))?>
+  <?=mk_option(_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted'), "disabled")?>
   </select><span id="reiserfs" class="warning"<?if (!fsType('reiserfs')):?> style="display:none"<?endif;?>><i class="fa fa-warning"></i>&nbsp;_(ReiserFS is deprecated, please use another file system)_!</span>
 
 :info_file_system_help:
