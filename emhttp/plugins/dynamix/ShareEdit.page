@@ -56,7 +56,7 @@ function presetSpace($val) {
   if (!$val or strcasecmp($val,'NaN')==0) return;
   sanitize($val);
   $small = [];
-  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
+  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsFree');
   $fsSize[""] = min(array_filter($small));
   foreach ($pools as $pool) $fsSize[$pool] = _var($disks[$pool],'fsSize',0);
   $pool = _var($shares[$name],'cachePool');
@@ -72,7 +72,7 @@ function presetSpace($val) {
 function fsSize() {
   global $disks,$pools;
   $fsSize = $small = [];
-  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
+  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsFree');
   $fsSize[] = '"":"'.min(array_filter($small)).'"';
   foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsSize',0).'"';
   return implode(',',$fsSize);
@@ -469,7 +469,7 @@ function setFloor(val) {
     size = size.toString()
     $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
   } else {
-    size = val;
+   size = val;
     $.removeCookie('autosize-'+$('#shareName').val());
   }
   var unit = size.replace(/[0-9.,\s]/g,'');
