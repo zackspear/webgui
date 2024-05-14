@@ -58,7 +58,7 @@ function presetSpace($val) {
   $small = [];
   foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsFree');
   $fsSize[""] = min(array_filter($small));
-  foreach ($pools as $pool) $fsSize[$pool] = _var($disks[$pool],'fsSize',0);
+  foreach ($pools as $pool) $fsSize[$pool] = _var($disks[$pool],'fsFree',0);
   $pool = _var($shares[$name],'cachePool');
   $size = _var($fsSize,$pool,0);
   $size = $size>0 ? round(100*$val/$size,1) : 0;
@@ -74,7 +74,7 @@ function fsSize() {
   $fsSize = $small = [];
   foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsFree');
   $fsSize[] = '"":"'.min(array_filter($small)).'"';
-  foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsSize',0).'"';
+  foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsFree',0).'"';
   return implode(',',$fsSize);
 }
 function fsType() {
