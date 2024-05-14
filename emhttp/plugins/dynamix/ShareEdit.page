@@ -457,30 +457,64 @@ function unite(field) {
   for (var i=0,item; item=field.options[i]; i++) if (item.selected) list.push(item.value);
   return list.join(',');
 }
+
+function parseDiskSize(sizeStr) {
+    const units = {
+        B: 1 / 1000,
+        KB: 1,
+        MB: 1000,
+        GB: 1000 * 1000,
+        TB: 1000 * 1000 * 1000,
+        PB: 1000 * 1000 * 1000 * 1000,
+        EB: 1000 * 1000 * 1000 * 1000 * 1000,
+        ZB: 1000 * 1000 * 1000 * 1000 * 1000 * 1000,
+        YB: 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+    };
+
+    // Check if the input is numeric only (assumed to be kilobytes)
+    if (/^\d+$/.test(sizeStr)) {
+        return parseInt(sizeStr, 10);
+    }
+
+    // Extract the numeric part and the unit
+    const result = sizeStr.match(/(\d+(\.\d+)?)\s*(B|KB|MB|GB|TB|PB|EB|ZB|YB)?/i);
+    if (!result) {
+        console.error("Invalid size format");
+        return null;
+    }
+
+    const value = parseFloat(result[1]); // The numeric part
+    const unit = (result[3] || "KB").toUpperCase(); // The unit part, default to KB
+
+    // Calculate total kilobytes
+    if (unit in units) {
+        return Math.round(value * units[unit]);
+    } else {
+        console.error("Unknown unit");
+        return null;
+    }
+}
+
 function setFloor(val) {
-  const fsSize = {<?=fsSize()?>};
-  const units = ['K','M','G','T','P','E','Z','Y'];
+  const fsSize = {<?=fsSize()?>};  // Make sure PHP outputs JSON here
   var full = fsSize[$('#primary').val()];
   var size = parseInt(full * 0.1); // 10% of available size
-  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
-  var last = number.pop();
-  number = number.length ? number.join('')+'.'+last : last;
-  if (number==0 && size>0) {
-    size = size.toString()
-    $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
+  var parsedVal = parseDiskSize(val);  // Parse the input string to get numeric bytes
+
+  if (!parsedVal && size > 0) {
+    size = size.toString();
+    $.cookie('autosize-'+$('#shareName').val(), '1', {expires: 365});
   } else {
-   size = val;
+    // Correct comparison: check if parsedVal is less than full size, not just the 10% (size)
+    if (parsedVal < full) {
+      size = parsedVal;
+    }
     $.removeCookie('autosize-'+$('#shareName').val());
   }
-  var unit = size.replace(/[0-9.,\s]/g,'');
-  if (unit=='%') {
-    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
-  } else {
-    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
-  }
-  return isNaN(number) ? '' : number;
+
+  return size; // Return the possibly adjusted size
 }
+
 // Compose input fields
 function prepareEdit() {
 // Test share name validity
