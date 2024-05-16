@@ -458,6 +458,7 @@ _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.f
 </div>
 <?endif;?>
 </form>
+
 <script>
 var form = document.share_edit;
 
@@ -620,19 +621,19 @@ function setFloor(val) {
 		}
 	}
 
-	/* Is the primary device selection. */
+	/* Is the secondary device array. */
 	var primarySelectElement = document.getElementById('primary');
 	var primarySelectedOption = primarySelectElement.options[primarySelectElement.selectedIndex];
 	var primaryText = primarySelectedOption.text;
 
-	/* Is the secondary device selection. */
+	/* Is the secondary device array. */
 	var secondarySelectElement = document.getElementById('secondary');
 	var secondarySelectedOption = secondarySelectElement.options[secondarySelectElement.selectedIndex];
 	var secondaryText = secondarySelectedOption.text;
 
 	/* See if either primary or secondary is an array device. */
 	if (primaryText === "Array" || secondaryText === "Array") {
-		/* Check that after all calculations to see if the size is still less than the largest array free. */
+		/* Check that after all calculations to set the size it is still less than the largest array free. */
 		if (size > array_free) {
 			size = array_free * 0.9;
 		}
@@ -683,72 +684,53 @@ function parseDiskSize(sizeStr) {
 
 /* Compose input fields. */
 function prepareEdit() {
-	/* Test share name validity. */
-	var share = form.shareName.value.trim();
-	if (share.length == 0) {
-		swal({
-			title: "_(Missing share name)_",
-			text: "_(Enter a name for the share)_",
-			type: 'error',
-			html: true,
-			confirmButtonText: "_(Ok)_"
-		});
-		return false;
-	}
+  /* Test share name validity. */
+  var share = form.shareName.value.trim();
 
-	var reserved = [<?= implode(',', array_map('escapestring', explode(',', $var['reservedNames']))) ?>];
-	if (reserved.includes(share)) {
-		swal({
-			title: "_(Invalid share name)_",
-			text: "_(Do not use reserved names)_",
-			type: 'error',
-			html: true,
-			confirmButtonText: "_(Ok)_"
-		});
-		return false;
-	}
+  /* Clean up the share name. */
+  share = safeName(share);
+  if (share.length==0) {
+    swal({title:"_(Missing share name)_",text:"_(Enter a name for the share)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    return false;
+  }
 
-	var pools = [<?= implode(',', array_map('escapestring', $pools)) ?>];
-	if (pools.includes(share)) {
-		swal({
-			title: "_(Invalid share name)_",
-			text: "_(Do not use pool names)_",
-			type: 'error',
-			html: true,
-			confirmButtonText: "_(Ok)_"
-		});
-		return false;
-	}
+  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
+  if (reserved.includes(share)) {
+    swal({title:"_(Invalid share name)_",text:"_(Do not use reserved names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    return false;
+  }
 
-	if (share.match('[:\\\/*<>|"?]')) {
-		swal({
-			title: "_(Invalid Characters)_",
-			text: "_(You cannot use the following within share names)_" + '<b> \\ / : * < > | " ?</b>',
-			type: 'error',
-			html: true,
-			confirmButtonText: "_(Ok)_"
-		});
-		return false;
-	}
+  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
+  if (pools.includes(share)) {
+    swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    return false;
+  }
 
-	/* Update settings. */
-	form.shareName.value = share;
-	form.shareUseCache.value = z(4);
-	form.shareFloor.value = setFloor(form.shareFloor.value);
-	switch (form.shareUseCache.value) {
-		case 'no':
-			form.shareAllocator.value = form.shareAllocator1.value;
-			form.shareSplitLevel.value = form.shareSplitLevel1.value;
-			break;
-		case 'yes':
-		case 'prefer':
-			form.shareAllocator.value = form.shareAllocator2.value;
-			form.shareSplitLevel.value = form.shareSplitLevel2.value;
-			form.shareInclude.value = unite(form.shareInclude2);
-			form.shareExclude.value = unite(form.shareExclude2);
-			break;
-	}
-	return true;
+  if (share.match('[:\\\/*<>|"?]')) {
+    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+'<b> \\ / : * < > | " ?</b>',type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    return false;
+  }
+
+  /* Update settings. */
+  form.shareName.value = share;
+  form.shareUseCache.value = z(4);
+  form.shareFloor.value = setFloor(form.shareFloor.value);
+  switch (form.shareUseCache.value) {
+  case 'no':
+    form.shareAllocator.value = form.shareAllocator1.value;
+    form.shareSplitLevel.value = form.shareSplitLevel1.value;
+    form.shareInclude.value = unite(form.shareInclude1);
+    form.shareExclude.value = unite(form.shareExclude1);
+    break;
+  case 'yes':
+  case 'prefer':
+    form.shareAllocator.value = form.shareAllocator2.value;
+    form.shareSplitLevel.value = form.shareSplitLevel2.value;
+    form.shareInclude.value = unite(form.shareInclude2);
+    form.shareExclude.value = unite(form.shareExclude2);
+    break;
+  }
+  return true;
 }
 
 function readShare() {
@@ -799,6 +781,30 @@ function writeShare(data,n,i) {
     $('div.spinner.fixed').show('slow');
     writeShare(data,0,i);
   }
+}
+
+function safeName(name) {
+	/* Define the allowed characters regex */
+	var validChars = /^[A-Za-z0-9-_.: ]*$/;
+	
+	/* Check if the name contains only valid characters */
+	var isValidName = validChars.test(name);
+	
+	/* If valid, return the name as it is */
+	if (isValidName) {
+		return name;
+	}
+	
+	/* If not valid, sanitize the name by removing invalid characters */
+	var sanitizedString = '';
+	for (var i = 0; i < name.length; i++) {
+		if (validChars.test(name[i])) {
+			sanitizedString += name[i];
+		}
+	}
+	
+	/* Return the sanitized string */
+	return sanitizedString;
 }
 
 function checkName(name) {
