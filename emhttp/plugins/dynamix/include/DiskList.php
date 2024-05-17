@@ -38,12 +38,12 @@ $nodisks = "<tr><td class='empty' colspan='7'><i class='fa fa-folder-open-o icon
 // GUI settings
 extract(parse_plugin_cfg('dynamix',true));
 
-// Function to filter out unwanted disks and check if any valid disks exist.
+// Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device.
 function checkDisks($disks) {
   foreach ($disks as $disk) {
-    // Check the disk type and fsStatus.
-    if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && $disk['fsStatus'] !== "Unmountable: unsupported or no file system") {
-      // A valid disk is found, return true.
+    // Check the disk type, fsStatus, and ensure the device is not blank.
+    if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && $disk['fsStatus'] !== "Unmountable: unsupported or no file system" && !empty($disk['device'])) {
+      // A valid disk with a non-blank device is found, return true.
       return true;
     }
   }

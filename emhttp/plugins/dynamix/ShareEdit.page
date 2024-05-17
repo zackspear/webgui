@@ -18,7 +18,7 @@ Tag="share-alt-square"
 $width = [123,300];
 
 if ($name == "") {
-  // default values when adding new share
+  /* default values when adding new share. */
   $share = ["nameOrig"   => "",
             "name"       => "",
             "comment"    => "",
@@ -32,70 +32,194 @@ if ($name == "") {
             "cow"        => "auto"
            ];
 } elseif (array_key_exists($name, $shares)) {
-  // edit existing share
+  /* edit existing share. */
   $share = $shares[$name];
 } else {
-  // handle share deleted case
+  /* handle share deleted case. */
   echo "<p class='notice'>"._('Share')." '".htmlspecialchars($name)."' "._('has been deleted').".</p><input type='button' value=\""._('Done')."\" onclick='done()'>";
   return;
 }
-// Check for non existent pool device
+
+/* Check for non existent pool device. */
 if ($share['cachePool'] && !in_array($share['cachePool'],$pools)) $share['useCache'] = "no";
 
 function globalInclude($name) {
   global $var;
   return substr($name,0,4)=='disk' && (!$var['shareUserInclude'] || in_array($name,explode(',',$var['shareUserInclude'])));
 }
+
 function sanitize(&$val) {
   $data = explode('.',str_replace([' ',','],['','.'],$val));
   $last = array_pop($data);
   $val = count($data) ? implode($data).".$last" : $last;
 }
+
+/**
+ * Preset space calculation and formatting.
+ *
+ * @param float|string $val Value to calculate preset space for.
+ * @return string|null Formatted space string or null.
+ */
 function presetSpace($val) {
-  global $disks,$shares,$name,$pools,$display;
-  if (!$val or strcasecmp($val,'NaN')==0) return;
-  sanitize($val);
-  $small = [];
-  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
-  $fsSize[""] = min(array_filter($small));
-  foreach ($pools as $pool) $fsSize[$pool] = _var($disks[$pool],'fsSize',0);
-  $pool = _var($shares[$name],'cachePool');
-  $size = _var($fsSize,$pool,0);
-  $size = $size>0 ? round(100*$val/$size,1) : 0;
-  $units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
-  $base = $val>0 ? floor(log($val,1000)) : 0;
-  $size = round($val/pow(1000,$base),1);
-  $unit = _var($units,$base);
-  [$dot,$comma] = str_split(_var($display,'number','.,'));
-  return $size>0 ? number_format($size,$size-floor($size)?1:0,$dot,$comma).' '.$unit : '';
+	global $disks, $shares, $name, $pools, $display;
+
+	/* Return if the value is invalid or NaN */
+	if (!$val || strcasecmp($val, 'NaN') == 0) return null;
+
+	/* Sanitize the value */
+	sanitize($val);
+
+	/* Prepare the largest array disk */
+	$large = [];
+	foreach (data_filter($disks) as $disk) {
+		$large[] = _var($disk, 'fsSize');
+	}
+
+	/* Get the maximum value from the large array, filtering out non-numeric values */
+	$fsSize[""] = max(array_filter($large, 'is_numeric'));
+
+	/* Prepare the fsSize array for each pool */
+	foreach ($pools as $pool) {
+		$fsSize[$pool] = _var($disks[$pool], 'fsSize', 0);
+	}
+
+	/* Get the cache pool size */
+	$pool = _var($shares[$name], 'cachePool');
+	$size = _var($fsSize, $pool, 0);
+
+	/* Calculate the size */
+	$size = $size > 0 ? round(100 * $val / $size, 1) : 0;
+
+	/* Units for size formatting */
+	$units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	$base = $val > 0 ? floor(log($val, 1000)) : 0;
+	$formattedSize = round($val / pow(1000, $base), 1);
+	$unit = _var($units, $base);
+
+	/* Get number format settings */
+	[$dot, $comma] = str_split(_var($display, 'number', '.,'));
+
+	/* Return the formatted size */
+	return $formattedSize > 0 ? number_format($formattedSize, $formattedSize - floor($formattedSize) ? 1 : 0, $dot, $comma) . ' ' . $unit : '';
 }
+
+/**
+ * Function to get enabled disks based on include and exclude rules.
+ *
+ * @global array $disks Array of disk names to check.
+ * @global array $share Array containing include and exclude rules.
+ *
+ * @return array Array of keys for enabled disk names.
+ */
+function enabledDisks() {
+	global $disks, $share;
+
+	/* Prepare the resultant array */
+	$trueKeys = [];
+
+	/* Process each disk in the array */
+	foreach ($disks as $key => $disk) {
+		$include = true; /* Default to true */
+
+		/* Check the include field */
+		if (!empty($share['include'])) {
+			$includedDisks = explode(',', $share['include']);
+			if (!in_array($key, $includedDisks)) {
+				$include = false;
+			}
+		}
+
+		/* Check the exclude field */
+		if (!empty($share['exclude'])) {
+			$excludedDisks = explode(',', $share['exclude']);
+			if (in_array($key, $excludedDisks)) {
+				$include = false;
+			}
+		}
+
+		/* Add to trueKeys array if the disk should be included */
+		if ($include) {
+			$trueKeys[] = $key;
+		}
+	}
+
+	return $trueKeys;
+}
+
 function fsSize() {
-  global $disks,$pools;
-  $fsSize = $small = [];
-  foreach (data_filter($disks) as $disk) $small[] = _var($disk,'fsSize');
-  $fsSize[] = '"":"'.min(array_filter($small)).'"';
-  foreach ($pools as $pool) $fsSize[] = '"'.$pool.'":"'._var($disks[$pool],'fsSize',0).'"';
-  return implode(',',$fsSize);
+	global $disks, $pools, $share;
+	
+	$fsSize = [];
+	$small = [];
+
+	$enabledDisks	= enabledDisks();
+
+	foreach (data_filter($disks) as $key => $disk) {
+		if (in_array($key, $enabledDisks)) {
+			$small[] = _var($disk, 'fsSize');
+		}
+	}
+
+	$fsSize[''] = min(array_filter($small));
+
+	foreach ($pools as $pool) {
+		$fsSize[$pool] = _var($disks[$pool], 'fsSize', 0);
+	}
+
+	return json_encode($fsSize);
 }
+
+function fsFree() {
+	global $disks, $pools;
+
+	$fsFree = [];
+	$large = [];
+
+	$enabledDisks	= enabledDisks();
+
+	foreach (data_filter($disks) as $key => $disk) {
+		if (in_array($key, $enabledDisks)) {
+			$large[] = _var($disk, 'fsFree');
+		}
+	}
+
+	$fsFree[''] = max(array_filter($large));
+
+	foreach ($pools as $pool) {
+		$fsFree[$pool] = _var($disks[$pool], 'fsFree', 0);
+	}
+
+	return json_encode($fsFree);
+}
+
 function fsType() {
   global $disks,$pools;
+
   $fsType = [];
-  foreach ($pools as $pool) $fsType[] = '"'.$pool.'":"'.str_replace('luks:','',_var($disks[$pool],'fsType')).'"';
+
+  foreach ($pools as $pool) {
+    $fsType[] = '"'.$pool.'":"'.str_replace('luks:','',_var($disks[$pool],'fsType')).'"';
+  }
+
   return implode(',',$fsType);
 }
+
 function primary() {
   global $share;
   return $share['useCache']=='no' ? '' : $share['cachePool'];
 }
+
 function secondary() {
   global $share;
   return in_array($share['useCache'],['no','only']) ? '0' : '1';
 }
+
 function direction() {
   global $share;
   return $share['useCache']=='prefer' ? '1' : '0';
 }
-// global shares include/exclude
+
+/* global shares include/exclude. */
 $myDisks = array_filter(array_diff(array_keys(array_filter($disks,'my_disks')), explode(',',$var['shareUserExclude'])), 'globalInclude');
 ?>
 :share_edit_global1_help:
@@ -334,6 +458,7 @@ _(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.f
 </div>
 <?endif;?>
 </form>
+
 <script>
 var form = document.share_edit;
 
@@ -351,6 +476,7 @@ $(function() {
   if ($.cookie('autosize-'+$('#shareName').val())) $('#autosize').show();
   checkName($('#shareName').val());
 });
+
 function initDropdown(remove,create) {
   if (remove) {
     $('#s1').dropdownchecklist('destroy');
@@ -371,6 +497,7 @@ function initDropdown(remove,create) {
 <?endif;?>
   }
 }
+
 function z(i) {
   switch (i) {
     case 0: return $('#primary').prop('selectedIndex');
@@ -380,10 +507,18 @@ function z(i) {
     case 4: return z(0)==0 ? 'no' : (z(1)==0 ? 'only' : z(3));
   }
 }
-function updateCOW(i,slow) {
-  const fsType = {<?=fsType()?>};
-  if (fsType[i]=='btrfs') $('#cow-setting').show(slow); else $('#cow-setting').hide(slow);
+
+
+/* Update the Copy-on-Write (COW) setting visibility based on the filesystem type */
+function updateCOW(i, slow) {
+	const fsType = {<?=fsType()?>};
+	if (fsType[i] === 'btrfs') {
+		$('#cow-setting').show(slow);
+	} else {
+		$('#cow-setting').hide(slow);
+	}
 }
+
 function updateScreen(cache,slow) {
   switch (cache) {
   case 'no':
@@ -452,78 +587,181 @@ function updateScreen(cache,slow) {
     break;
   }
 }
+
+/* Unite selected options into a comma-separated string */
 function unite(field) {
-  var list = [];
-  for (var i=0,item; item=field.options[i]; i++) if (item.selected) list.push(item.value);
-  return list.join(',');
+	const list = [];
+	for (let i = 0; i < field.options.length; i++) {
+		const item = field.options[i];
+		if (item.selected) {
+			list.push(item.value);
+		}
+	}
+	return list.join(',');
 }
+
+/* Set the share floor by trying to set the floor at 10% of a pool, or 10% of the largest disk in the array. */
 function setFloor(val) {
-  const fsSize = {<?=fsSize()?>};
-  const units = ['K','M','G','T','P','E','Z','Y'];
-  var full = fsSize[$('#primary').val()];
-  var size = parseInt(full * 0.1); // 10% of available size
-  var number = val.replace(/[A-Z%\s]/gi,'').replace(',','.').split('.');
-  var last = number.pop();
-  number = number.length ? number.join('')+'.'+last : last;
-  if (number==0 && size>0) {
-    size = size.toString()
-    $.cookie('autosize-'+$('#shareName').val(),'1',{expires:365});
-  } else {
-    size = val;
-    $.removeCookie('autosize-'+$('#shareName').val());
-  }
-  var unit = size.replace(/[0-9.,\s]/g,'');
-  if (unit=='%') {
-    number = (number > 0 && number <= 100) ? parseInt(full * number / 100) : '';
-  } else {
-    var base = unit.length==2 ? 1000 : (unit.length==1 ? 1024 : 0);
-    number = base>0 ? number * Math.pow(base,(units.indexOf(unit.toUpperCase().replace('B',''))||0)) : size;
-  }
-  return isNaN(number) ? '' : number;
+	const fsSize = JSON.parse('<?= fsSize() ?>');
+	const fsFree = JSON.parse('<?= fsFree() ?>');
+
+	/* Retrieve size and free space based on selected primary value */
+	const primaryValue = $('#primary').val();
+	const full = fsSize[primaryValue];
+	const free = fsFree[primaryValue];
+
+	/* This is the disk with the largest free space. */
+	const arrayFree = fsFree[''];
+
+	/* Calculate 10% of available size as default */
+	let size = parseInt(full * 0.1);
+
+	/* Parse the input string to get numeric bytes */
+	const parsedVal = parseDiskSize(val);
+
+	/* Check if parsedVal is a valid number and less than free */
+	if (parsedVal && parsedVal < free) {
+		size = parsedVal;
+		$.removeCookie('autosize-' + $('#shareName').val());
+	} else {
+		/* If parsedVal is not set or invalid */
+		if (!parsedVal && size < free) {
+			$.cookie('autosize-' + $('#shareName').val(), '1', { expires: 365 });
+		} else {
+			/* If parsedVal is greater than or equal to free, set size to 90% of free */
+			size = free * 0.9;
+			$.removeCookie('autosize-' + $('#shareName').val());
+		}
+	}
+
+	/* Is the secondary device array. */
+	const primarySelectElement = document.getElementById('primary');
+	const primarySelectedOption = primarySelectElement.options[primarySelectElement.selectedIndex];
+	const primaryText = primarySelectedOption.text;
+
+	/* Is the secondary device array. */
+	const secondarySelectElement = document.getElementById('secondary');
+	const secondarySelectedOption = secondarySelectElement.options[secondarySelectElement.selectedIndex];
+	const secondaryText = secondarySelectedOption.text;
+
+	/* See if either primary or secondary is an array device. */
+	if (primaryText === "Array" || secondaryText === "Array") {
+		/* Check that after all calculations to set the size it is still less than the largest array free. */
+		if (size > arrayFree) {
+			size = arrayFree * 0.9;
+		}
+	}
+
+	/* Return the possibly adjusted size as a string */
+	return size.toString();
 }
-// Compose input fields
+
+/* Converts human readable size strings to numeric bytes */
+function parseDiskSize(sizeStr) {
+	const units = {
+		B: 1 / 1000,
+		KB: 1,
+		MB: 1000,
+		GB: 1000 * 1000,
+		TB: 1000 * 1000 * 1000,
+		PB: 1000 * 1000 * 1000 * 1000,
+		EB: 1000 * 1000 * 1000 * 1000 * 1000,
+		ZB: 1000 * 1000 * 1000 * 1000 * 1000 * 1000,
+		YB: 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+	};
+
+	/* Check if the input is numeric only (assumed to be kilobytes). */
+	if (/^\d+$/.test(sizeStr)) {
+		return parseInt(sizeStr, 10);
+	}
+
+	/* Extract the numeric part and the unit. */
+	const result = sizeStr.match(/(\d+(\.\d+)?)\s*(B|KB|MB|GB|TB|PB|EB|ZB|YB)?/i);
+	if (!result) {
+		return null;
+	}
+
+	/* The numeric part. */
+	const value = parseFloat(result[1]);
+
+	/* The unit part, default to KB. */
+	const unit = (result[3] || "KB").toUpperCase();
+
+	/* Calculate total kilobytes. */
+	if (unit in units) {
+		return Math.round(value * units[unit]);
+	} else {
+		return null;
+	}
+}
+
+/* Compose input fields. */
 function prepareEdit() {
-// Test share name validity
-  var share = form.shareName.value.trim();
-  if (share.length==0) {
-    swal({title:"_(Missing share name)_",text:"_(Enter a name for the share)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
-    return false;
-  }
-  var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
-  if (reserved.includes(share)) {
-    swal({title:"_(Invalid share name)_",text:"_(Do not use reserved names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
-    return false;
-  }
-  var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
-  if (pools.includes(share)) {
-    swal({title:"_(Invalid share name)_",text:"_(Do not use pool names)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
-    return false;
-  }
-  if (share.match('[:\\\/*<>|"?]')) {
-    swal({title:"_(Invalid Characters)_",text:"_(You cannot use the following within share names)_"+'<b> \\ / : * < > | " ?</b>',type:'error',html:true,confirmButtonText:"_(Ok)_"});
-    return false;
-  }
-// Update settings
-  form.shareName.value = share;
-  form.shareUseCache.value = z(4);
-  form.shareFloor.value = setFloor(form.shareFloor.value);
-  switch (form.shareUseCache.value) {
-  case 'no':
-    form.shareAllocator.value = form.shareAllocator1.value;
-    form.shareSplitLevel.value = form.shareSplitLevel1.value;
-    form.shareInclude.value = unite(form.shareInclude1);
-    form.shareExclude.value = unite(form.shareExclude1);
-    break;
-  case 'yes':
-  case 'prefer':
-    form.shareAllocator.value = form.shareAllocator2.value;
-    form.shareSplitLevel.value = form.shareSplitLevel2.value;
-    form.shareInclude.value = unite(form.shareInclude2);
-    form.shareExclude.value = unite(form.shareExclude2);
-    break;
-  }
-  return true;
+	/* Test share name validity. */
+	var share = form.shareName.value.trim();
+
+	if (share.length == 0) {
+		swal({
+			title: "Missing share name",
+			text: "Enter a name for the share",
+			type: 'error',
+			html: true,
+			confirmButtonText: "Ok"
+		});
+		return false;
+	}
+
+	var reserved = [<?=implode(',',array_map('escapestring',explode(',',$var['reservedNames'])))?>];
+	if (reserved.includes(share)) {
+		swal({
+			title: "Invalid share name",
+			text: "Do not use reserved names",
+			type: 'error',
+			html: true,
+			confirmButtonText: "Ok"
+		});
+		return false;
+	}
+
+	var pools = [<?=implode(',',array_map('escapestring',$pools))?>];
+	if (pools.includes(share)) {
+		swal({
+			title: "Invalid share name",
+			text: "Do not use pool names",
+			type: 'error',
+			html: true,
+			confirmButtonText: "Ok"
+		});
+		return false;
+	}
+
+	/* Clean up the share name. */
+	share = safeName(share);
+
+	/* Update settings. */
+	form.shareName.value = share;
+	form.shareUseCache.value = z(4);
+	form.shareFloor.value = setFloor(form.shareFloor.value);
+
+	switch (form.shareUseCache.value) {
+		case 'no':
+			form.shareAllocator.value = form.shareAllocator1.value;
+			form.shareSplitLevel.value = form.shareSplitLevel1.value;
+			form.shareInclude.value = unite(form.shareInclude1);
+			form.shareExclude.value = unite(form.shareExclude1);
+			break;
+		case 'yes':
+		case 'prefer':
+			form.shareAllocator.value = form.shareAllocator2.value;
+			form.shareSplitLevel.value = form.shareSplitLevel2.value;
+			form.shareInclude.value = unite(form.shareInclude2);
+			form.shareExclude.value = unite(form.shareExclude2);
+			break;
+	}
+
+	return true;
 }
+
 function readShare() {
   var name = $('select[name="readshare"]').val();
   initDropdown(true,false);
@@ -542,6 +780,7 @@ function readShare() {
   });
   $(form).find('select').trigger('change');
 }
+
 function writeShare(data,n,i) {
   if (data) {
     if (n<i) {
@@ -572,7 +811,38 @@ function writeShare(data,n,i) {
     writeShare(data,0,i);
   }
 }
+
+/* Clean up the share name by removing invalid characters. */
+function safeName(name) {
+	/* Define the allowed characters regex */
+	const validChars = /^[A-Za-z0-9-_.: ]*$/;
+	
+	/* Check if the name contains only valid characters */
+	const isValidName = validChars.test(name);
+	
+	/* If valid, return the name as it is */
+	if (isValidName) {
+		return name;
+	}
+	
+	/* If not valid, sanitize the name by removing invalid characters */
+	let sanitizedString = '';
+	for (let i = 0; i < name.length; i++) {
+		if (validChars.test(name[i])) {
+			sanitizedString += name[i];
+		}
+	}
+	
+	/* Return the sanitized string */
+	return sanitizedString;
+}
+
 function checkName(name) {
-  if (/^[A-Za-z0-9-_.: ]*$/.test(name)) $('#zfs-name').hide(); else $('#zfs-name').show();
+	var isValidName = /^[A-Za-z0-9-_.: ]*$/.test(name);
+	if (isValidName) {
+		$('#zfs-name').hide();
+	} else {
+		$('#zfs-name').show();
+	}
 }
 </script>
