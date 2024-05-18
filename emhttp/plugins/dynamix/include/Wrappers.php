@@ -29,12 +29,10 @@ function file_put_contents_atomic($filename,$data, $flags = 0, $context = null) 
       break;
   }
   $renResult = false;
-  $copyResult = @copy($filename,"$filename$suffix");
-  if ( $copyResult ) {
-    if (file_put_contents("$filename$suffix",$data,$flags,$context) === strlen($data))
-      $renResult = @rename("$filename$suffix",$filename);
-  }
-  if ( (! $copyResult || ! $renResult) ) {
+  $writeResult = @file_put_contents("$filename$suffix",$data,$flags,$context) === strlen($data);
+  if ( $writeResult )
+    $renResult = @rename("$filename$suffix",$filename);
+  if ( ! $writeResult || ! $renResult ) {
     my_logger("File_put_contents_atomic failed to write / rename $filename");
     @unlink("$filename$suffix");
     return false;
