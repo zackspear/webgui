@@ -1673,7 +1673,7 @@ private static $encoding = 'UTF-8';
 		write("addLog\0".htmlspecialchars("Checking for free space"));
 		$dirfree = disk_free_space($pathinfo["dirname"]) ;
 		$sourcedir = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($pathinfo["dirname"])." 2>/dev/null"));
-		$repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]);
+		if (!empty($sourcedir)) $repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]); else $repdir = $pathinfo["dirname"];
 		$repdirfree = disk_free_space($repdir) ;
 		$reflink = true ;
 		$capacity *=  1 ;
@@ -1722,13 +1722,14 @@ private static $encoding = 'UTF-8';
 
 		#Create duplicate files.
 		foreach($file_clone as $diskid => $disk)  {
-			$target = $disk['target'] ;
-			$source = $disk['source'] ;
+			$reptgt = $target = $disk['target'] ;
+			$repsrc = $source = $disk['source'] ;
 			if ($target == $source) { write("addLog\0".htmlspecialchars(_("New image file is same as old")));  return( false) ; }
 			if ($storage == "default") $sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null")); else $sourcerealdisk = $storage;
+			if (!empty($sourcerealdisk)) {
 			$reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
 			$repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
-
+			}
 			$cmdstr = "cp --reflink=always '$repsrc' '$reptgt'" ;
         	if ($reflink == true) { $refcmd = $cmdstr ; } else {$refcmd = false; }
 			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$repsrc' '$reptgt'" ;
