@@ -22,6 +22,23 @@ $_proxy_ = '__';
 $_arrow_ = '&#187;';
 
 // Wrapper functions
+function file_put_contents_atomic($filename,$data, $flags = 0, $context = null) {
+  while (true) {
+    $suffix = rand();
+    if ( ! is_file("$filename$suffix") )
+      break;
+  }
+  $renResult = false;
+  $writeResult = @file_put_contents("$filename$suffix",$data,$flags,$context) === strlen($data);
+  if ( $writeResult )
+    $renResult = @rename("$filename$suffix",$filename);
+  if ( ! $writeResult || ! $renResult ) {
+    my_logger("File_put_contents_atomic failed to write / rename $filename");
+    @unlink("$filename$suffix");
+    return false;
+  }
+  return strlen($data);
+}
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
   global $docroot;
   $ram = "$docroot/plugins/$plugin/default.cfg";
