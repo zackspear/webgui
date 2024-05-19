@@ -28,6 +28,13 @@ $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 
+/* Get the pools from the disks.ini. */
+$pools_check = pools_filter(cache_filter($disks));
+$pools = implode(',', $pools_check);
+
+/* If the configuration is pools only, then no array disks are available. */
+$poolsOnly	= ((int)$var['sbNumDisks'] == 2) ? true : false;
+
 // exit when no mountable array disks
 $nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
 if (!checkDisks($disks)) die($nodisks);
@@ -38,18 +45,28 @@ $nodisks = "<tr><td class='empty' colspan='7'><i class='fa fa-folder-open-o icon
 // GUI settings
 extract(parse_plugin_cfg('dynamix',true));
 
-// Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device.
+/* Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device. */
 function checkDisks($disks) {
-  foreach ($disks as $disk) {
-    // Check the disk type, fsStatus, and ensure the device is not blank.
-    if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && $disk['fsStatus'] !== "Unmountable: unsupported or no file system" && !empty($disk['device'])) {
-      // A valid disk with a non-blank device is found, return true.
-      return true;
-    }
-  }
+	global $pools, $poolsOnly;
 
-  // No valid disks found, return false.
-  return false;
+	$rc		= false;
+
+	if (!$poolsOnly) {
+		foreach ($disks as $disk) {
+			/* Check the disk type, fsStatus, and ensure the device is not blank. */
+			if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
+				/* A valid disk with a non-blank device is found. */
+				$rc	= true;
+
+				break;
+			}
+		}
+	} else {
+		/* See if there are any pools. */
+		$rc = !empty($pools);
+	}
+
+	return $rc;
 }
 
 // Display export settings
