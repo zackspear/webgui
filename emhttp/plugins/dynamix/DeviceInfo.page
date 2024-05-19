@@ -651,7 +651,7 @@ _(File system type)_:
   </select>
   <select id="diskFsProfileZFS" name="diskFsProfile.<?=_var($disk,'idx',0)?>" style="display:none" onchange="selectDiskFsWidth()" <?=disabled_if($fsTypeImmutable)?>>
   <?if (_var($disk,'slots',0)==1) echo mk_option(_var($disk,'fsProfile'),"", _('single'))?>
-  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('raid0'))?>
+  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('stripe'))?>
   <?if ((_var($disk,'slots',0)%2)==0 || (_var($disk,'slots',0)%3)==0 || (_var($disk,'slots',0)%4)==0) echo mk_option(_var($disk,'fsProfile'),"mirror", _('mirror'))?>
   <?if (_var($disk,'slots',0)>=3) echo mk_option(_var($disk,'fsProfile'),"raidz1", _('raidz'))?>
   <?if (_var($disk,'slots',0)>=3) echo mk_option(_var($disk,'fsProfile'),"raidz2", _('raidz2'))?>
@@ -666,7 +666,7 @@ _(File system type)_:
   </select>
   <select id="diskFsProfileZFS" name="diskFsProfile.<?=_var($disk,'idx',0)?>" onchange="selectDiskFsWidth()" <?=disabled_if($fsTypeImmutable)?>>
   <?if (_var($disk,'slots',0)==1) echo mk_option(_var($disk,'fsProfile'),"", _('single'))?>
-  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('raid0'))?>
+  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('stripe'))?>
   <?if ((_var($disk,'slots',0)%2)==0 || (_var($disk,'slots',0)%3)==0 || (_var($disk,'slots',0)%4)==0) echo mk_option(_var($disk,'fsProfile'),"mirror", _('mirror'))?>
   </select>
   <select id="diskFsWidthZFS" name="diskFsWidth.<?=_var($disk,'idx',0)?>" style="display:none" <?=disabled_if($fsTypeImmutable)?>>
@@ -678,7 +678,7 @@ _(File system type)_:
   </select>
   <select id="diskFsProfileZFS" name="diskFsProfile.<?=_var($disk,'idx',0)?>" onchange="selectDiskFsWidth()" <?=disabled_if($fsTypeImmutable)?>>
   <?if (_var($disk,'slots',0)==1) echo mk_option(_var($disk,'fsProfile'),"", _('single'))?>
-  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('raid0'))?>
+  <?if (_var($disk,'slots',0)>=2) echo mk_option(_var($disk,'fsProfile'),"", _('stripe'))?>
   </select>
   <select id="diskFsWidthZFS" name="diskFsWidth.<?=_var($disk,'idx',0)?>" style="display:none" <?=disabled_if($fsTypeImmutable)?>>
   </select>
