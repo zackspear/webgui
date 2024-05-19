@@ -20,25 +20,7 @@ require_once "$docroot/webGui/include/Translations.php";
 
 /* Check for any files in the share. */
 if (isset($_POST['scan'])) {
-	$dirPath = "/mnt/user/{$_POST['scan']}";
-
-	/* Check if the directory exists. */
-	if (!is_dir($dirPath)) {
-		die('1'); // Directory does not exist
-	}
-
-	$iterator = new FilesystemIterator($dirPath);
-	$hasNonDSStoreFiles = false;
-
-	/* Iterate over the directory contents. */
-	foreach ($iterator as $fileinfo) {
-		if ($fileinfo->isFile() && $fileinfo->getFilename() !== '.DS_Store') {
-			$hasNonDSStoreFiles = true;
-			break;
-		}
-	}
-
-	die($hasNonDSStoreFiles ? '0' : '1');
+  die((new FilesystemIterator("/mnt/user/{$_POST['scan']}"))->valid() ? '0' : '1');
 }
 
 if (isset($_POST['cleanup'])) {
