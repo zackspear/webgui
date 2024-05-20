@@ -37,7 +37,7 @@ _(Description)_:
 :id_description_help:
 
 _(Model)_:
-: <input type="text" name="SYS_MODEL" value="<?=htmlspecialchars(_var($var,'SYS_MODEL'))?>" <?=$disabled?>>
+: <input type="text" name="SYS_MODEL" id="SYS_MODEL" value="<?=htmlspecialchars(_var($var,'SYS_MODEL'))?>" <?=$disabled?>>
 
 :id_model_help:
 
@@ -58,9 +58,12 @@ $("#NAME").on("input change", function() {
   }
 });
 
-/* Sanitize the COMMENT field on form submission */
+/* Sanitize the COMMENT and SYS_MODEL fields on form submission */
 document.forms['NameSettings'].addEventListener('submit', function(event) {
-    var commentField = document.getElementById('COMMENT');
-    commentField.value = commentField.value.replace(/["\\]/g, '');
+	const commentField = document.getElementById('COMMENT');
+	commentField.value = commentField.value.replace(/["\\]/g, '');
+
+	const sysModelField = document.getElementById('SYS_MODEL');
+	sysModelField.value = sysModelField.value.replace(/["\\]/g, '');
 });
 </script>
