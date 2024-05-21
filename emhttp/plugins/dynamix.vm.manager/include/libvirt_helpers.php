@@ -1628,6 +1628,7 @@ private static $encoding = 'UTF-8';
 
 			Get new VM Name
 			Extract XML for VM to be cloned.
+			Check if snapshots.
 			Check if directory exists.
 			Check for disk space
 
@@ -1645,6 +1646,10 @@ private static $encoding = 'UTF-8';
 
 			If option to edit, show VMUpdate
 		*/
+		$snaps = getvmsnapshots($vm);
+		if (is_array($snaps)) {
+			if (count($snaps) ) {write("addLog\0".htmlspecialchars(_("Clone of VM not currently supported if it has snapshots"))); $arrResponse =  ['error' => _("Clone of VM not currently supported if it has snapshots")]; return false ;}
+		}
 		$uuid = $lv->domain_get_uuid($clone) ;
 		write("addLog\0".htmlspecialchars(_("Checking if clone exists")));
 		if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return false ;}
@@ -2248,7 +2253,7 @@ private static $encoding = 'UTF-8';
 	  foreach($disks as $disk)   {
 		  $file = $disk["file"] ;
 		  $output = array() ;
-		  exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+		  exec("qemu-img info --backing-chain -U \"$file\"  | grep image:",$output) ;
 		  foreach($output as $key => $line) {
 			  $line=str_replace("image: ","",$line) ;
 			  $output[$key] = $line ;

@@ -96,7 +96,7 @@
 				'protocol' => 'vnc',
 				'autoport' => 'yes',
 				'model' => 'qxl',
-				'keymap' => 'en-us',
+				'keymap' => 'none',
 				'port' => -1 ,
 				'wsport' => -1,
 				'copypaste' => 'no'
