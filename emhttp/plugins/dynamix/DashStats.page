@@ -61,6 +61,7 @@ $conf  = glob('/etc/wireguard/wg*.conf');
 $wireguard = is_executable('/usr/bin/wg') && count($conf);
 $started = _var($var,'fsState')=='Started';
 $sleep = isset($display['sleep']);
+$poolsOnly  = (_var($var,'SYS_ARRAY_SLOTS') == 0 ) ? true : false;
 $array_size = $array_used = 0;
 $extra_size = $extra_used = 0;
 $cache_size = $cache_used = [];
@@ -573,6 +574,7 @@ if (!$group) {
 
 <div class='tile' id='tile3'>
 <table id='db-box3' class='dashboard'>
+<?if (!$poolsOnly):?>
 <tbody title="_(Parity Information)_">
 <tr><td><i class='icon-health f32'></i><div class='section'>_(Parity)_<br>
 <span class='parity'></span><br></div>
@@ -592,6 +594,7 @@ if (!$group) {
 <tr><td id='array_info'></td></tr>
 <tr class='header'><td><span class='w26'>_(Device)_</span><span class='w18'>_(Status)_</span><span class='w18'>_(Temp)_<?=$power?></span><span class='w18'>_(SMART)_</span><span class='w18'>_(Utilization)_</span></td></tr>
 </tbody>
+<?endif;?>
 
 <?$i=0?>
 <?foreach ($pools as $pool):
@@ -1605,21 +1608,25 @@ dashboard.on('message',function(msg,meta) {
   case 2:
     if (!update2) break;
     var get  = JSON.parse(msg);
-    var info = moreInfo(get.disk,"_(Array)_");
-    // array devices
-    $('#array_list tr.updated').remove();
-    $('#array_list').append(get.disk[0]).hideMe();
-    $('#array_info').parent().css({'display':info?'':'none'});
-    $('#array_info').html(info);
-    smartMenu('#array_list');
+    if(document.getElementById('array_list') != null) {
+      var info = moreInfo(get.disk,"_(Array)_");
+      // array devices
+      $('#array_list tr.updated').remove();
+      $('#array_list').append(get.disk[0]).hideMe();
+      $('#array_info').parent().css({'display':info?'':'none'});
+      $('#array_info').html(info);
+      smartMenu('#array_list');
+    }
     // pool devices
-    for (let i=0; i < get.pool.length; i++) {
-      var info = moreInfo(get.pool[i],"_(Pool)_");
-      $('#pool_list'+i+' tr.updated').remove();
-      $('#pool_list'+i).append(get.pool[i][0]).hideMe();
-      $('#pool_info'+i).parent().css({'display':info?'':'none'});
-      $('#pool_info'+i).html(info);
-      smartMenu('#pool_list'+i);
+    if(get.pool) {
+      for (let i=0; i < get.pool.length; i++) {
+        var info = moreInfo(get.pool[i],"_(Pool)_");
+        $('#pool_list'+i+' tr.updated').remove();
+        $('#pool_list'+i).append(get.pool[i][0]).hideMe();
+        $('#pool_info'+i).parent().css({'display':info?'':'none'});
+        $('#pool_info'+i).html(info);
+        smartMenu('#pool_list'+i);
+      }
     }
 <?if ($devs):?>
     // unassigned devices
