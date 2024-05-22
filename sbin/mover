@@ -67,7 +67,7 @@ start() {
     for SHAREPATH in /mnt/$(basename "$POOL" .cfg)/*/ ; do
       SHARE=$(basename "$SHAREPATH")
       if grep -qs 'shareUseCache="yes"' "/boot/config/shares/${SHARE}.cfg" ; then
-        find "${SHAREPATH%/}" -depth | /usr/local/bin/move $DEBUGGING
+        find "${SHAREPATH%/}" -depth | /usr/libexec/unraid/move $DEBUGGING
       fi
     done
   done
@@ -81,7 +81,7 @@ start() {
         shareCachePool="cache"
       fi
       if [[ -d "/mnt/$shareCachePool" ]]; then
-        find "${SHAREPATH%/}" -depth | /usr/local/bin/move $DEBUGGING
+        find "${SHAREPATH%/}" -depth | /usr/libexec/unraid/move $DEBUGGING
       fi
     fi
   done

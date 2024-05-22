@@ -22,6 +22,23 @@ $_proxy_ = '__';
 $_arrow_ = '&#187;';
 
 // Wrapper functions
+function file_put_contents_atomic($filename,$data, $flags = 0, $context = null) {
+  while (true) {
+    $suffix = rand();
+    if ( ! is_file("$filename$suffix") )
+      break;
+  }
+  $renResult = false;
+  $writeResult = @file_put_contents("$filename$suffix",$data,$flags,$context) === strlen($data);
+  if ( $writeResult )
+    $renResult = @rename("$filename$suffix",$filename);
+  if ( ! $writeResult || ! $renResult ) {
+    my_logger("File_put_contents_atomic failed to write / rename $filename");
+    @unlink("$filename$suffix");
+    return false;
+  }
+  return strlen($data);
+}
 function parse_plugin_cfg($plugin, $sections=false, $scanner=INI_SCANNER_NORMAL) {
   global $docroot;
   $ram = "$docroot/plugins/$plugin/default.cfg";
@@ -174,22 +191,29 @@ function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_REFERER, "");
   curl_setopt($ch, CURLOPT_FAILONERROR, true);
+  curl_setopt($ch, CURLOPT_USERAGENT, 'Unraid');
   if(is_array($opts) && $opts) {
     foreach($opts as $key => $val) {
       curl_setopt($ch, $key, $val);
     }
   }
   $out = curl_exec($ch);
-  if(isset($getinfo)) {
+  if (curl_errno($ch) == 23) {
+    // error 23 detected, try CURLOPT_ENCODING = "deflate"
+    curl_setopt($ch, CURLOPT_ENCODING, "deflate");
+    $out = curl_exec($ch);
+  }
+  if (isset($getinfo)) {
     $getinfo = curl_getinfo($ch);
   }
-  if (curl_errno($ch)) {
-    $msg = curl_error($ch) . " {$url}";
+  if ($errno = curl_errno($ch)) {
+    $msg = "Curl error $errno: " . (curl_error($ch) ?: curl_strerror($errno)) . ". Requested url: '$url'";
     if(isset($getinfo)) {
       $getinfo['error'] = $msg;
     }
     my_logger($msg, "http_get_contents");
   }
+  curl_close($ch);
   return $out;
 }
 /**

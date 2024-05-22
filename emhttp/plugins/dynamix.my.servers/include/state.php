@@ -93,7 +93,7 @@ class ServerState
         $this->osVersionBranch = trim(@exec('plugin category /var/log/plugins/unRAIDServer.plg') ?? 'stable');
 
         $caseModelFile = '/boot/config/plugins/dynamix/case-model.cfg';
-        $this->caseModel = file_exists($caseModelFile) ? file_get_contents($caseModelFile) : '';
+        $this->caseModel = file_exists($caseModelFile) ? htmlspecialchars(@file_get_contents($caseModelFile), ENT_HTML5, 'UTF-8') : '';
 
         $this->rebootDetails = new RebootDetails();
 
@@ -236,6 +236,10 @@ class ServerState
     public function getServerState()
     {
         $serverState = [
+            "array" => [
+                "state" => @$this->getWebguiGlobal('var', 'fsState'),
+                "progress" => @$this->getWebguiGlobal('var', 'fsProgress'),
+            ],
             "apiKey" => $this->apiKey,
             "apiVersion" => $this->apiVersion,
             "avatar" => $this->avatar,
@@ -270,7 +274,8 @@ class ServerState
             "osVersion" => $this->osVersion,
             "osVersionBranch" => $this->osVersionBranch,
             "protocol" => _var($_SERVER, 'REQUEST_SCHEME'),
-            "rebootType" => $this->rebootDetails->getRebootType(),
+            "rebootType" => $this->rebootDetails->rebootType,
+            "rebootVersion" => $this->rebootDetails->rebootVersion,
             "regDevs" => @(int)$this->var['regDevs'] ?? 0,
             "regGen" => @(int)$this->var['regGen'],
             "regGuid" => @$this->var['regGUID'] ?? '',

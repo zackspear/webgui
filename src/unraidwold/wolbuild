@@ -7,4 +7,4 @@ git checkout main
 PATH="$PATH:/usr/local/go/bin"
 go mod tidy
 go build
-cp /tmp/unraidwol/unraidwold /usr/local/bin
+cp /tmp/unraidwol/unraidwold /usr/libexec/unraid

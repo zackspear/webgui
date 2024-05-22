@@ -29,7 +29,7 @@ proxy_url_1="${proxy}:${port}"
 proxy_name_1="Imported from CA"
 EOF
   fi
-  mv "${CAProxy}" "${CAProxy}.bak"
+  mv "${CAProxy}" "${CAProxy}~"
 fi
 
 # load proxy environment vars so it is used for plugin updates and the go script

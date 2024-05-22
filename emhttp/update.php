@@ -40,7 +40,9 @@ function write_log($string) {
 readfile('update.htm');
 flush();
 
-$docroot = $_SERVER['DOCUMENT_ROOT'];
+$docroot = $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
+require_once "$docroot/plugins/dynamix/include/Wrappers.php";
+
 if (isset($_POST['#file'])) {
   $file = $_POST['#file'];
   $raw_file = isset($_POST['#raw_file']) ? ($_POST['#raw_file'] === 'true') : false;
@@ -75,7 +77,7 @@ if (isset($_POST['#file'])) {
       foreach ($keys as $key => $value) if (strlen($value) || !$cleanup) $text .= "$key=\"$value\"\n";
     }
     @mkdir(dirname($file));
-    file_put_contents($file, $text);
+    file_put_contents_atomic($file,$text);
   }
 }
 if (isset($_POST['#command'])) {

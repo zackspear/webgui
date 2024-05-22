@@ -931,6 +931,19 @@ private static $encoding = 'UTF-8';
 		return $arrValidOtherStubbedDevices;
 	}
 
+	function getValidevDev() {
+		$inputevdev = array_merge(glob("/dev/input/by-id/*event-kbd"),glob("/dev/input/by-id/*event-mouse"));
+		return $inputevdev;
+	}
+
+	function getevDev($res) {
+		global $lv ;
+		$xml = $lv->domain_get_xml($res) ;
+		$xmldoc = new SimpleXMLElement($xml);
+		$xmlpath = $xmldoc->xpath('//devices/input[@type="evdev"] ');
+		return $xmlpath;
+	}
+
 	$cacheValidUSBDevices = null;
 	function getValidUSBDevices() {
 		global $cacheValidUSBDevices;
@@ -1331,6 +1344,12 @@ private static $encoding = 'UTF-8';
 
 		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
 		$vmname = $lv->domain_get_name($res);
+		$cmdline = null;
+		$QEMUCmdline = getQEMUCmdLine($strDOMXML);
+		$QEMUOverride = getQEMUOverride($strDOMXML);
+		if (isset($QEMUCmdline)) $cmdline = $QEMUCmdline;
+		if (isset($QEMUOverride) && isset($QEMUCmdline)) $cmdline .= "\n".$QEMUOverride;
+		if (isset($QEMUOverride) && !isset($QEMUCmdline)) $cmdline = $QEMUOverride;
 		return [
 			'template' => $arrTemplateValues,
 			'domain' => [
@@ -1370,7 +1389,8 @@ private static $encoding = 'UTF-8';
 			'nic' => $arrNICs,
 			'usb' => $arrUSBDevs,
 			'shares' => $lv->domain_get_mount_filesystems($res),
-			'qemucmdline' => getQEMUCmdLine($strDOMXML)."\n".getQEMUOverride($strDOMXML),
+			'evdev' => getevDev($res),
+			'qemucmdline' => $cmdline,
 			'clocks' => getClocks($strDOMXML),
 			'xml' => [
 				'machine' => $lv->domain_get_xml($vmname, "//domain/os/*"),
@@ -1426,6 +1446,7 @@ private static $encoding = 'UTF-8';
 		}
 		// settings not in the GUI, but maybe customized
 		unset($old['clock']);
+		unset($old['devices']['input']);
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
 		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
@@ -1580,6 +1601,18 @@ private static $encoding = 'UTF-8';
 		return substr($xml,$x, ($z + 16) -$x) ;
 	}
 
+	function getQEMUOverride($xml) {
+		$x = strpos($xml,"<qemu:override>", 0) ;
+		if ($x === false) return null ;
+		$y = strpos($xml,"</qemu:override>", 0)  ;
+		$z=$y ;
+		while ($y!=false) {
+			$y = strpos($xml,"<qemu:override>", $z +16)  ;
+			if ($y != false) $z =$y  ;
+		}
+		return substr($xml,$x, ($z + 16) -$x) ;
+	}
+
 	function getchannels($res) {
 		global $lv ;
         $xml = $lv->domain_get_xml($res) ;
@@ -1612,6 +1645,7 @@ private static $encoding = 'UTF-8';
 
 			Get new VM Name
 			Extract XML for VM to be cloned.
+			Check if snapshots.
 			Check if directory exists.
 			Check for disk space
 
@@ -1629,6 +1663,10 @@ private static $encoding = 'UTF-8';
 
 			If option to edit, show VMUpdate
 		*/
+		$snaps = getvmsnapshots($vm);
+		if (is_array($snaps)) {
+			if (count($snaps) ) {write("addLog\0".htmlspecialchars(_("Clone of VM not currently supported if it has snapshots"))); $arrResponse =  ['error' => _("Clone of VM not currently supported if it has snapshots")]; return false ;}
+		}
 		$uuid = $lv->domain_get_uuid($clone) ;
 		write("addLog\0".htmlspecialchars(_("Checking if clone exists")));
 		if ($uuid) { $arrResponse =  ['error' => _("Clone VM name already inuse")]; return false ;}
@@ -1657,7 +1695,7 @@ private static $encoding = 'UTF-8';
 		write("addLog\0".htmlspecialchars("Checking for free space"));
 		$dirfree = disk_free_space($pathinfo["dirname"]) ;
 		$sourcedir = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($pathinfo["dirname"])." 2>/dev/null"));
-		$repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]);
+		if (!empty($sourcedir)) $repdir = str_replace('/mnt/user/', "/mnt/$sourcedir/", $pathinfo["dirname"]); else $repdir = $pathinfo["dirname"];
 		$repdirfree = disk_free_space($repdir) ;
 		$reflink = true ;
 		$capacity *=  1 ;
@@ -1706,13 +1744,14 @@ private static $encoding = 'UTF-8';
 
 		#Create duplicate files.
 		foreach($file_clone as $diskid => $disk)  {
-			$target = $disk['target'] ;
-			$source = $disk['source'] ;
+			$reptgt = $target = $disk['target'] ;
+			$repsrc = $source = $disk['source'] ;
 			if ($target == $source) { write("addLog\0".htmlspecialchars(_("New image file is same as old")));  return( false) ; }
 			if ($storage == "default") $sourcerealdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($source)." 2>/dev/null")); else $sourcerealdisk = $storage;
+			if (!empty($sourcerealdisk)) {
 			$reptgt = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $target);
 			$repsrc = str_replace('/mnt/user/', "/mnt/$sourcerealdisk/", $source);
-
+			}
 			$cmdstr = "cp --reflink=always '$repsrc' '$reptgt'" ;
         	if ($reflink == true) { $refcmd = $cmdstr ; } else {$refcmd = false; }
 			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$repsrc' '$reptgt'" ;
@@ -1884,7 +1923,7 @@ private static $encoding = 'UTF-8';
 
   function vm_snapshot($vm,$snapshotname, $snapshotdescinput, $free = "yes", $method = "QEMU",  $memorysnap = "yes") {
 	  global $lv ;
-
+	  $logging = true;
 	  #Get State
 	  $res = $lv->get_domain_by_name($vm);
 	  $dom = $lv->domain_get_info($res);
@@ -1945,19 +1984,22 @@ private static $encoding = 'UTF-8';
 	  if ($free == "yes" && $dirfree < $capacity) { $arrResponse =  ['error' => _("Insufficent Storage for Snapshot")]; return $arrResponse ;}
 
 	  #Copy nvram
+	  if ($logging) qemu_log($vm,"Copy NVRAM");
 	  if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_create_snapshot($lv->domain_get_uuid($vm),$name) ;
 
 	  $xmlfile = $dirpath."/".$name.".running" ;
+	  if ($logging) qemu_log($vm,"Save XML if state is running current $state");
 	  if ($state == "running") exec("virsh dumpxml '$vm' > ".escapeshellarg($xmlfile),$outxml,$rtnxml) ;
 
 	  $output= [] ;
-
+	  if ($logging) qemu_log($vm,"snap method $method");
 	  switch ($method) {
 		case "ZFS":
 			# Create ZFS Snapshot
 			if ($state == "running") exec($cmdstr." 2>&1",$output,$return);
 			$zfsdataset = trim(shell_exec("zfs list -H -o name -r $dirpath")) ;
 			$fssnapcmd = " zfs snapshot $zfsdataset@$name";
+			if ($logging) qemu_log($vm,"zfs snap: $fssnapcmd");
 			shell_exec($fssnapcmd);
 			# if running resume.
 			if ($state == "running") $lv->domain_resume($vm);
@@ -1967,13 +2009,16 @@ private static $encoding = 'UTF-8';
 			break;
 		default:
 			# No Action
+			if ($logging) qemu_log($vm,"Cmd: $cmdstr");
 			exec($cmdstr." 2>&1",$output,$return);
 	  }
 
 	  if (strpos(" ".$output[0],"error") ) {
 		  $arrResponse =  ['error' => substr($output[0],6) ] ;
+		  if ($logging) qemu_log($vm,"Error");
 	  } else {
 		$arrResponse = ['success' => true] ;
+		if ($logging) qemu_log($vm,"Success write snap db");
 		$ret = write_snapshots_database("$vm","$name",$state,$snapshotdescinput,$method) ;
 		#remove meta data
 		if ($ret != "noxml") $ret = $lv->domain_snapshot_delete($vm, "$name" ,2) ;
@@ -1984,6 +2029,7 @@ private static $encoding = 'UTF-8';
 
 	  function vm_revert($vm, $snap="--current",$action="no",$actionmeta = 'yes',$dryrun = false) {
 		global $lv ;
+		$logging = true;
 		$snapslist= getvmsnapshots($vm) ;
 		#$disks =$lv->get_disk_stats($vm) ;
 		$snapstate = $snapslist[$snap]['state'];
@@ -2031,6 +2077,7 @@ private static $encoding = 'UTF-8';
 			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
 			if (!$dryrun) $new = $lv->domain_define($xml);
 			if ($new) $arrResponse  = ['success' => true] ; else $arrResponse = ['error' => $lv->get_last_error()] ;
+			if ($logging) qemu_log($vm,"Create XML $new");
 		}
 
 		# remove snapshot meta data, images, memory, runxml and NVRAM. for all snapshots.
@@ -2040,6 +2087,7 @@ private static $encoding = 'UTF-8';
 			if ($diskname == "hda" || $diskname == "hdb") continue ;
 			$path = $disk["source"]["@attributes"]["file"] ;
 			if (is_file($path) && $action == "yes") if (!$dryrun)  unlink("$path") ;else echo "unlink $path\n";
+			if ($logging) qemu_log($vm,"unlink $path");
 			$item = array_search($path,$snapslist[$snap]['backing']["r".$diskname]) ;
 			$item++ ;
 			while($item > 0)
@@ -2047,6 +2095,7 @@ private static $encoding = 'UTF-8';
 			if (!isset($snapslist[$snap]['backing']["r".$diskname][$item])) break ;
 			$newpath =  $snapslist[$snap]['backing']["r".$diskname][$item] ;
 			if (is_file($newpath) && $action == "yes") if (!$dryrun) unlink("$newpath"); else echo "unlink $newpath\n";
+			if ($logging) qemu_log($vm,"unlink $newpath");
 			$item++ ;
 			}
 		}
@@ -2059,6 +2108,7 @@ private static $encoding = 'UTF-8';
 			$name = $s['name'] ;
 			$oldmethod = $s['method'];
 			if ($dryrun) echo "$name $oldmethod\n";
+			if ($logging) qemu_log($vm,"$name $oldmethod");
 			if (!isset($primarypath)) $primarypath = $s['primarypath'];
 			$xmlfile = $primarypath."/$name.running" ;
 			$memoryfile = $primarypath."/memory$name.mem" ;
@@ -2070,6 +2120,7 @@ private static $encoding = 'UTF-8';
 				if ($olddiskname == "hda" || $olddiskname == "hdb") continue ;
 				$oldpath = $olddisk["source"]["@attributes"]["file"] ;
 				if (is_file($oldpath) && $action == "yes") if (!$dryrun) unlink("$oldpath"); else echo "$oldpath\n";
+				if ($logging) qemu_log($vm,"unlink $oldpath");
 				}
 			}
 			if ($oldmethod == "ZFS") {
@@ -2077,6 +2128,7 @@ private static $encoding = 'UTF-8';
 			$zfsdataset = trim(shell_exec("zfs list -H -o name -r ".transpose_user_path($primarypath))) ;
 			$fssnapcmd = " zfs destroy $zfsdataset@$name";
 			if (!$dryrun) shell_exec($fssnapcmd); else echo "old $fssnapcmd\n";
+			if ($logging) qemu_log($vm,"old $fssnapcmd");
 			}
 
 			#Delete Metadata
@@ -2084,10 +2136,12 @@ private static $encoding = 'UTF-8';
 		
 			if (is_file($memoryfile) && $action == "yes") if (!$dryrun) unlink($memoryfile); else echo ("$memoryfile \n") ;
 			if (is_file($xmlfile) && $action == "yes") if (!$dryrun) unlink($xmlfile); else echo ("$xmlfile \n") ;
+			if ($logging) qemu_log($vm,"mem $memoryfile xml $xmlfile");
 			# Delete NVRAM
 			if (!empty($lv->domain_get_ovmf($res)) && $action == "yes")  if (!$dryrun) if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$name) ; else echo "Remove old NV\n";
 			if ($actionmeta == "yes") {
 				if (!$dryrun)  $ret = delete_snapshots_database("$vm","$name"); else echo "Old Delete snapshot meta\n";
+				if ($logging) qemu_log($vm,"Old Delete snapshot meta");
 			}
 		}
 
@@ -2100,8 +2154,10 @@ private static $encoding = 'UTF-8';
 			}
 			$fssnapcmd = " zfs rollback $zfsdataset@$snap";
 			if (!$dryrun) shell_exec($fssnapcmd); else echo "$fssnapcmd\n";
+			if ($logging) qemu_log($vm,"$fssnapcmd");
 			$fssnapcmd = " zfs destroy $zfsdataset@$snap";
 			if (!$dryrun) shell_exec($fssnapcmd); else echo "$fssnapcmd\n";
+			if ($logging) qemu_log($vm,"$fssnapcmd");
 		}
 
 		if ($snapslist[$snap]['state'] == "running" || $snapslist[$snap]['state'] == "disk-snapshot") {
@@ -2113,13 +2169,17 @@ private static $encoding = 'UTF-8';
 			$xml = custom::createXML('domain',$xmlobj)->saveXML();
 			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
 			if (!$dryrun) $rtn = $lv->domain_define($xml) ;
+			if ($logging) qemu_log($vm,"Define XML");
 
 
 			# Restore Memory.
 			if ($snapslist[$snap]['state'] == "running") {
 				if (!$dryrun) $cmdrtn = exec("virsh restore --running ".escapeshellarg($memoryfile)) ;
+				if ($logging) qemu_log($vm,"Restore");
 				if (!$dryrun && !$cmdrtn) unlink($xmlfile);
+				if ($logging) qemu_log($vm,"Unlink XML");
 				if (!$dryrun && !$cmdrtn) unlink($memoryfile);
+				if ($logging) qemu_log($vm,"Unlink memoryfile");
 			}
 			if ($snapslist[$snap]['state'] == "disk-snapshot") if (!$dryrun) unlink($xmlfile);
 		}
@@ -2132,12 +2192,14 @@ private static $encoding = 'UTF-8';
 
 		if ($actionmeta == "yes") {
 			if (!$dryrun)  $ret = delete_snapshots_database("$vm","$snap"); else echo "Delete snapshot meta\n";
+			if ($logging) qemu_log($vm,"Delete Snapshot DB entry");
 		}
   
 		if (!$dryrun) if (!empty($lv->domain_get_ovmf($res))) $nvram = $lv->nvram_revert_snapshot($lv->domain_get_uuid($vm),$snap) ; else echo "Delete NV $vm,$snap\n";
 
 		$arrResponse  = ['success' => true] ;
 		if ($dryrun) var_dump($arrResponse);
+		if ($logging) qemu_log($vm, "Success");
 		return($arrResponse) ;
 		}
   
@@ -2208,7 +2270,7 @@ private static $encoding = 'UTF-8';
 	  foreach($disks as $disk)   {
 		  $file = $disk["file"] ;
 		  $output = array() ;
-		  exec("qemu-img info --backing-chain -U $file  | grep image:",$output) ;
+		  exec("qemu-img info --backing-chain -U \"$file\"  | grep image:",$output) ;
 		  foreach($output as $key => $line) {
 			  $line=str_replace("image: ","",$line) ;
 			  $output[$key] = $line ;
@@ -2694,6 +2756,14 @@ function build_xml_templates($strXML) {
 	  }
 
 	return $xml2;
+}
+
+function qemu_log($vm,$m) {
+	$m		= print_r($m,true);
+	$m      = date("YmdHis")." ".$m;
+	$m		= str_replace("\n", " ", $m);
+	$m		= str_replace('"', "'", $m);
+	file_put_contents("/var/log/libvirt/qemu/$vm.log",$m."\n",FILE_APPEND);
 }
 
 ?>

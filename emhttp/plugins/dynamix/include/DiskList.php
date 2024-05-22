@@ -28,12 +28,29 @@ $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 
-// exit when no disks
+// exit when no mountable array disks
+$nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
+if (!checkDisks($disks)) die($nodisks);
+
+// No shared disks
 $nodisks = "<tr><td class='empty' colspan='7'><i class='fa fa-folder-open-o icon'></i>"._('There are no exportable disk shares')."</td></tr>";
-if (!$disks) die($nodisks);
 
 // GUI settings
 extract(parse_plugin_cfg('dynamix',true));
+
+// Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device.
+function checkDisks($disks) {
+  foreach ($disks as $disk) {
+    // Check the disk type, fsStatus, and ensure the device is not blank.
+    if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && $disk['fsStatus'] !== "Unmountable: unsupported or no file system" && !empty($disk['device'])) {
+      // A valid disk with a non-blank device is found, return true.
+      return true;
+    }
+  }
+
+  // No valid disks found, return false.
+  return false;
+}
 
 // Display export settings
 function disk_share_settings($protocol,$share) {
