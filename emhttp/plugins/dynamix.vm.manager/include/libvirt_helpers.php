@@ -2620,26 +2620,21 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 
 function build_xml_templates($strXML) {
 	global $arrValidPCIDevices,$arrValidUSBDevices;
-	$xmlsections = [
-		"name",
-		"uuid",
-		"description",
-		"metadata",
-		"memory",
-		"currentMemory",
-		"memoryBacking",
-		"vcpu",
-		"cputune",
-		"os",
-		"features",
-		"cpu",
-		"clock",
-		"on_poweroff",
-		"on_reboot",
-		"on_crash",
-		"devices",
+
+	$xmldevsections = $xmlsections = [];
+	$xml = new SimpleXMLElement($strXML) ;
+	$x = $xml->children();
+	foreach($x as $key=>$y) {
+		$xmlsections[] = $key;
+	}
 	  
-	  ];
+	$ns= $xml->getNamespaces(true);
+	foreach($ns as $namekey=>$namespace) foreach($xml->children($namespace) as $key=>$y)	$xmlsections[] = "$namekey:$key";
+	
+	$v = $xml->devices->children();
+	$keys = [];
+	foreach($v as $key=>$y) $keys[] = $key;
+	foreach(array_count_values($keys) as $key=>$number) $xmldevsections[]= $key;
 	  
 	$endpos = 0;
 	foreach($xmlsections as $xmlsection) {
@@ -2649,52 +2644,32 @@ function build_xml_templates($strXML) {
 		$endpos = strpos($strXML,$endcheck,$strpos);
 		$xml2[$xmlsection] = trim(substr($strXML,$strpos,$endpos-$strpos+strlen($endcheck)),'/0') ;
 	}
-
-	$xmldevsections = [
-		"emulator" => "yes",
-		"disk"=> "yes",
-		"controller"=> "yes",
-		"interface"=> "yes",
-		"serial"=> "yes",
-		"channel"=> "yes",
-		"console"=> "yes",
-		"input"=> "yes",
-		"audio"=> "yes",
-		"video"=> "yes",
-		"watchdog"=> "yes",
-		"memballoon"=> "yes",
-		"graphics"=> "yes",
-		"hostdev"=> "yes",
-		"filesystem"=>"yes",
-		];
 	  
 	$xml = $xml2['devices'];
 	$endpos = 0;
-	foreach($xmldevsections as $xmlsection => $mult) {
-		if ($mult == "yes") {
-			$endpos = $strpos = $count = 0;
-			while (true) {
-				
-				$strpos = strpos($xml,"<$xmlsection",$endpos);
-				if ($strpos === false) continue  2;
-				$endcheck = "</$xmlsection>";
+	foreach($xmldevsections as $xmlsection ) {
+		 $strpos = $count = 0;
+		while (true) {
+			
+			$strpos = strpos($xml,"<$xmlsection",$endpos);
+			if ($strpos === false) continue  2;
+			$endcheck = "</$xmlsection>";
+			$endpos = strpos($xml,$endcheck,$strpos);
+			#echo $xmlsection." ".$strpos." ".$endpos."\n";
+			if ($endpos === false) {
+				$endcheck = "/>";
 				$endpos = strpos($xml,$endcheck,$strpos);
-				#echo $xmlsection." ".$strpos." ".$endpos."\n";
-				if ($endpos === false) {
-					$endcheck = "/>";
-					$endpos = strpos($xml,$endcheck,$strpos);
-				}
-				# echo substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
-				if ($xmlsection == "disk") {
-					$disk = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck));
-					$xmldiskdoc = new SimpleXMLElement($disk);
-					$devxml[$xmlsection][$xmldiskdoc->target->attributes()->dev->__toString()] = $disk;
-
-				} else {
-					$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
-				}
-				$count++;
 			}
+			# echo substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+			if ($xmlsection == "disk") {
+				$disk = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck));
+				$xmldiskdoc = new SimpleXMLElement($disk);
+				$devxml[$xmlsection][$xmldiskdoc->target->attributes()->dev->__toString()] = $disk;
+
+			} else {
+				$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+			}
+			$count++;
 		}
 	}
 	$xml2["devices"] = $devxml;
