@@ -33,7 +33,7 @@ $pools_check = pools_filter(cache_filter($disks));
 $pools = implode(',', $pools_check);
 
 /* If the configuration is pools only, then no array disks are available. */
-$poolsOnly	= ((int)$var['sbNumDisks'] == 2) ? true : false;
+$poolsOnly	= ((int)$var['SYS_ARRAY_SLOTS'] <= 2) ? true : false;
 
 // exit when no mountable array disks
 $nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
