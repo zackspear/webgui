@@ -189,6 +189,8 @@ function fsSize() {
 		$fsSize[$pool] = _var($disks[$pool], 'fsSize', 0);
 	}
 
+@file_put_contents("/tmp/fsSize", json_encode($fsSize, JSON_PRETTY_PRINT));
+
 	/* Return the filesystem sizes as a JSON encoded string */
 	return json_encode($fsSize);
 }
@@ -747,8 +749,20 @@ function setFloor(val) {
 
 	/* Retrieve size and free space based on selected primary value */
 	const primaryValue = $('#primary').val();
-	const full = fsSize[primaryValue];
-	const free = fsFree[primaryValue];
+	const secondaryValue = $('#secondary').val();
+
+	/* Secondary selection is array and array disks are accounted for. */
+	let full;
+	let free;
+	if (secondaryValue === "0" || secondaryValue === "1") {
+		/* Size of the primary pool, or smallest array disk. */
+		full = fsSize[primaryValue];
+		free = fsFree[primaryValue];
+	} else {
+		/* Size of the secondary pool. */
+		full = fsSize[secondaryValue];
+		free = fsFree[secondaryValue];
+	}
 
 	/* This is the disk with the largest free space or current pool. */
 	const arrayFree = fsFree[''];
@@ -774,18 +788,8 @@ function setFloor(val) {
 		}
 	}
 
-	/* Is the secondary device array. */
-	const primarySelectElement = document.getElementById('primary');
-	const primarySelectedOption = primarySelectElement.options[primarySelectElement.selectedIndex];
-	const primaryText = primarySelectedOption.text;
-
-	/* Is the secondary device array. */
-	const secondarySelectElement = document.getElementById('secondary');
-	const secondarySelectedOption = secondarySelectElement.options[secondarySelectElement.selectedIndex];
-	const secondaryText = secondarySelectedOption.text;
-
 	/* See if either primary or secondary is an array device. */
-	if (primaryText === "Array" || secondaryText === "Array") {
+	if (primaryValue === "0" || secondaryValue === "1") {
 		/* Check that after all calculations to set the size it is still less than the largest array free. */
 		if (size > arrayFree) {
 			size = arrayFree * 0.9;
@@ -1000,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	/* Select the correct pool or the first one if no pool is defined. */
 	if (primaryDefaultValue === "") {
-		/* Set the default to the first selection - "Array" or first pool. */
+		/* Set the default to the first selection - Array or first pool. */
 		if (poolsOnly) {
 			primaryDropdown.selectedIndex = 1;
 		} else {
