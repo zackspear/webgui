@@ -270,26 +270,41 @@ function my_preg_split($split, $text, $count=2) {
 function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
-function my_mkdir($dirname,$permissions = 0777,$recursive = false) {
-  $dirname = transpose_user_path($dirname);
-	$pathinfo = pathinfo($dirname);
-	$parent = $pathinfo["dirname"];
+function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody",$grp = "users") {
+  if (is_dir($dirname)) return(false);
+  $parent = $dirname;
+  while (!is_dir($parent)){
+    if (!$recursive) return(false);
+    $pathinfo2 = pathinfo($parent);
+    $parent = $pathinfo2["dirname"];
+  }
+  if (strpos($dirname,'/mnt/user/')===0) {
+    $realdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($parent)." 2>/dev/null"));
+    if (!empty($realdisk)) {
+      $dirname = str_replace('/mnt/user/', "/mnt/$realdisk/", $dirname);
+      $parent = str_replace('/mnt/user/', "/mnt/$realdisk/", $parent);
+    }
+  }
 	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
   $rtncode = false;
-	switch ($fstype) {
-		case "zfs":
+  switch ($fstype) {
+    case "zfs":
       $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
-      $rtncode=exec("zfs create $zfsdataset/{$pathinfo['filename']}");
-      if (!$rtncode) mkdir($dirname, $permissions, $recursive);
-			break;
+      $zfsdataset .= str_replace($parent,"",$dirname);
+      if ($recursive) $rtncode=exec("zfs create -p $zfsdataset");else $rtncode=exec("zfs create $zfsdataset");
+      if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($zfsdataset,$permissions);
+      break;
     case "btrfs":
-      $rtncode=exec("btrfs subvolume create $dirname");
-      if (!$rtncode) mkdir($dirname, $permissions, $recursive);
+      if ($recursive) $rtncode=exec("btrfs subvolume create --parents $dirname"); else $rtncode=exec("btrfs subvolume create $dirname");
+      if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($dirname,$permissions);
       break;
     default:
       mkdir($dirname, $permissions, $recursive);
       break;
-	}
+  }
+  chown($dirname, $own);
+  chgrp($dirname, $grp);
+  return($rtncode);
 }
 function get_realvolume($path) {
   if (strpos($path,"/mnt/user/",0) === 0) 
