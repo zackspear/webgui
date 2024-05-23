@@ -676,7 +676,12 @@ function updateScreen(cache, slow) {
 			$('#secondary option:eq(1)').prop('disabled', poolsOnly);
 			$('#moverDirection1 option:eq(0)').text($('#primary option:eq(' + z(0) + ')').text() + ' → ' + $('#secondary option:eq(' + z(1) + ')').text());
 			$('#moverDirection1 option:eq(1)').text($('#secondary option:eq(' + z(1) + ')').text() + ' → ' + $('#primary option:eq(' + z(0) + ')').text());
-			$('#moverDirection1').val('1').show();
+			if (!poolsOnly) {
+				$('#moverDirection1').val('1').show();
+			} else {
+				secondaryDropdown.selectedIndex = 0;
+				$('#moverDirection1').val('1').hide();
+			}
 			$('#moverDirection2').hide();
 			$('#moreSettings1').hide(slow);
 			$('#cow-setting').hide(slow);
