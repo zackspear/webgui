@@ -182,9 +182,13 @@ foreach ($shares as $name => $share) {
 	/* Check if poolsOnly is true */
 	$array	= $share['cachePool2'] ? ucfirst($share['cachePool2']) : "<i class='fa fa-database fa-fw'></i>"._('Array');
 	if ($poolsOnly) {
-		/* If useCache is set to 'yes', change it to 'only' */
-		if ((($share['useCache'] == 'yes') || ($share['useCache'] == 'prefer')) && (!$share['cachePool2'])) {
+		/* If useCache is set to 'yes', change it to 'no'. */
+		if (($share['useCache'] == 'yes') && (!$share['cachePool2'])) {
 			$share['useCache'] = 'no';
+		}
+		/* If useCache is set to 'yes', change it to 'prefer'. */
+		if (($share['useCache'] == 'prefer') && (!$share['cachePool2'])) {
+			$share['useCache'] = 'only';
 		}
 	}
 
