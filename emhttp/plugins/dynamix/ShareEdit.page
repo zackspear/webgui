@@ -676,13 +676,12 @@ function updateScreen(cache, slow) {
 			$('#secondary option:eq(1)').prop('disabled', poolsOnly);
 			$('#moverDirection1 option:eq(0)').text($('#primary option:eq(' + z(0) + ')').text() + ' → ' + $('#secondary option:eq(' + z(1) + ')').text());
 			$('#moverDirection1 option:eq(1)').text($('#secondary option:eq(' + z(1) + ')').text() + ' → ' + $('#primary option:eq(' + z(0) + ')').text());
-			if (!poolsOnly) {
+			if (secondaryValue !== "0") {
 				$('#moverDirection1').val('1').show();
+				$('#moverDirection2').hide();
 			} else {
-				secondaryDropdown.selectedIndex = 0;
-				$('#moverDirection1').val('1').hide();
+				$('#moverDirection2').show();
 			}
-			$('#moverDirection2').hide();
 			$('#moreSettings1').hide(slow);
 			$('#cow-setting').hide(slow);
 			form.shareAllocator.disabled = false;
@@ -690,6 +689,7 @@ function updateScreen(cache, slow) {
 			enableDropdownIfExists('#s3');
 			enableDropdownIfExists('#s4');
 			$('#moverAction1').html("<i class='fa fa-info i'></i>_(Mover transfers files from Secondary storage to Primary storage)_");
+				$('#moverAction2').html("<i class='fa fa-info i'></i>_(Mover takes no action)_");
 			break;
 	}
 
@@ -1067,7 +1067,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		/* Select the first enabled option in the secondary dropdown */
 		if (matchFound || primaryValue === secondaryDefaultValue) {
-			if (secodaryDropdown.selectedIndex !== 1) {
+			if (secondaryDropdown.selectedIndex !== 1) {
+				secondaryDropdown.selectedIndex = 0;
+			} else if (poolsOnly) {
 				secondaryDropdown.selectedIndex = 0;
 			}
 		} else if (firstEnabledOption !== null) {
