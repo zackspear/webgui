@@ -41,7 +41,7 @@ function checkDisks($disks) {
 }
 
 /* If the configuration is pools only, then no array disks are available. */
-$poolsOnly	= ((int)$var['sbNumDisks'] == 2) ? true : false;
+$poolsOnly	= ((int)$var['SYS_ARRAY_SLOTS'] <= 2) ? true : false;
 
 /* Are there any array disks? */
 $disks		= parse_ini_file('state/disks.ini',true) ?? [];
