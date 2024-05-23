@@ -341,8 +341,9 @@ function array_slots() {
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
   $echo[] = "<select class='narrow' name='SYS_ARRAY_SLOTS' onChange='devices.start();this.form.submit()'>";
-  for ($n=0; $n<=$max; $n++) {
-    if ($n>0 && $n<$min) continue; // allow 0, but skip parity drives
+  if (_var($var,'mdNumDisks')=='0')
+    $echo[] = "<option value='0'>none</option>";
+  for ($n=$min; $n<=$max; $n++) {
     $selected = $n==_var($var,'SYS_ARRAY_SLOTS') ? ' selected' : '';
     $echo[] = "<option value='$n'{$selected}>$n</option>";
   }
@@ -434,9 +435,11 @@ while (true) {
   $echo[$a] = [];
   $poolsOnly = (_var($var,'SYS_ARRAY_SLOTS') == 0) ? true : false;
   if (_var($var,'fsState')=='Stopped') {
-    if (!$poolsOnly) foreach ($Parity as $disk) $echo[$a][] = array_offline($disk);
-    $echo[$a][] = "<tr class='tr_last'><td colspan='10'></td></tr>";
-    if (!$poolsOnly) foreach ($Data as $disk) $echo[$a][] = array_offline($disk);
+    if (!$poolsOnly) {
+      foreach ($Parity as $disk) $echo[$a][] = array_offline($disk);
+      $echo[$a][] = "<tr class='tr_last'><td colspan='10'></td></tr>";
+      foreach ($Data as $disk) $echo[$a][] = array_offline($disk);
+    }
     $echo[$a][] = "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'>".array_slots()."</td><td></td></tr>";
   } else {
     if (!$poolsOnly) {
