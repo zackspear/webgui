@@ -1627,15 +1627,7 @@
 		</p>
 	</blockquote>
 	<?
-	 if ( $arrConfig['evdev'] == false) {
-
-			$evdevxml = "<input type='evdev'>
-			<source dev=''/>
-			</input>";
-			$evdevdoc = new SimpleXMLElement($evdevxml);
-			$arrConfig['evdev']= $evdevdoc->xpath('//input[@type="evdev"] ');
-		}
-		
+	if (!isset($arrConfig['evdev'])) $arrConfig['evdev'][0] = ['dev'=>"",'grab'=>"",'repeat'=>"",'grabToggle'=>""];
 	foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 		$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
 		?>
@@ -1645,8 +1637,8 @@
 				<td>
 					<select name="evdev[<?=$i?>][dev]" class="dev narrow">
 					<?
-						echo mk_option($arrEvdev->source->attributes()->dev, '', _('None'));
-						foreach(getValidevDev() as $line) echo mk_option($arrEvdev->source->attributes()->dev, $line , $line);
+						echo mk_option($arrEvdev['dev'], '', _('None'));
+						foreach(getValidevDev() as $line) echo mk_option($arrEvdev['dev'], $line , $line);
 					?>
 					</select>
 				</td>
@@ -1655,8 +1647,8 @@
 			<td>_(Grab)_:</td>
 			<td>
 				<select name="evdev[<?=$i?>][grab]" class="evdev_grab"  title="_(grab options)_">
-				<?echo mk_option($arrEvdev->source->attributes()->grab, '', _('None'));
-				foreach(["all"] as $line) echo mk_option($arrEvdev->source->attributes()->grab,$line,ucfirst($line));?>
+				<?echo mk_option($arrEvdev['grab'], '', _('None'));
+				foreach(["all"] as $line) echo mk_option($arrEvdev['grab'],$line,ucfirst($line));?>
 				</select>
 			</td>
 		</tr>
@@ -1665,8 +1657,8 @@
 			<td>_(Repeat)_:</td>
 			<td>
 				<select name="evdev[<?=$i?>][repeat]" class="evdev_repeat narrow" title="_(grab options)_">
-				<?echo mk_option($arrEvdev->source->attributes()->repeat, '', _('None'));
-				foreach(["on","off"] as $line) echo mk_option($arrEvdev->source->attributes()->repeat,$line,ucfirst($line));?>
+				<?echo mk_option($arrEvdev['repeat'], '', _('None'));
+				foreach(["on","off"] as $line) echo mk_option($arrEvdev['repeat'],$line,ucfirst($line));?>
 				</select>
 			</td>
 		</tr>
@@ -1675,8 +1667,8 @@
 			<td>_(Grab Toggle)_:</td>
 			<td>
 				<select name="evdev[<?=$i?>][grabToggle]" class="evdev_grabtoggle narrow" title="_(grab options)_">
-				<?echo mk_option($arrEvdev->source->attributes()->grabToggle, '', _('None'));
-				foreach(["ctrl-ctrl", "alt-alt", "shift-shift", "meta-meta", "scrolllock" , "ctrl-scrolllock"] as $line) echo mk_option($arrEvdev->source->attributes()->grabToggle,$line,$line);?>
+				<?echo mk_option($arrEvdev['grabToggle'], '', _('None'));
+				foreach(["ctrl-ctrl", "alt-alt", "shift-shift", "meta-meta", "scrolllock" , "ctrl-scrolllock"] as $line) echo mk_option($arrEvdev['grabToggle'],$line,$line);?>
 				</select>
 			</td>
 		</tr>

@@ -941,7 +941,17 @@ private static $encoding = 'UTF-8';
 		$xml = $lv->domain_get_xml($res) ;
 		$xmldoc = new SimpleXMLElement($xml);
 		$xmlpath = $xmldoc->xpath('//devices/input[@type="evdev"] ');
-		return $xmlpath;
+		$evdevs = [];
+		foreach ($xmlpath as $i => $evDev) {
+		$evdevs[$i] = [
+			'dev' => $evDev->source->attributes()->dev,
+			'grab' => $evDev->source->attributes()->grab,
+			'repeat' => $evDev->source->attributes()->repeat,
+			'grabToggle' => $evDev->source->attributes()->grabToggle
+			];
+		}
+		if (empty($evdevs)) $evdevs[0] = ['dev'=>"",'grab'=>"",'repeat'=>"",'grabToggle'=>""];
+		return $evdevs; 
 	}
 
 	$cacheValidUSBDevices = null;
