@@ -93,8 +93,12 @@ if (isset($_GET['uuid'])) {
 	}
 	$arrLoad['form'] = $arrAllTemplates[$strSelectedTemplate]['form'];
 }
+$usertemplate = false;
 $strSelectedTemplateUT = $strSelectedTemplate;
-if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
+if (strpos($strSelectedTemplate,"User-") !== false) { 
+	$strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT); 
+	$usertemplate = true;
+}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
