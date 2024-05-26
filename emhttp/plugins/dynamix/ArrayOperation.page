@@ -699,7 +699,11 @@ window.onunload = function(){
         <tr><td><?status_indicator()?>**_(Stopped)_**. _(No data disks)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
         <td>_(No array data disks have been assigned)_!</td></tr>
 <?      break;
-      endswitch;
+      case "ERROR:NO_DEVICES":?>
+        <tr><td><?status_indicator()?>**_(Stopped)_**. _(No devices)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
+        <td>_(No array devices have been assigned)_!</td></tr>
+<?      break;
+endswitch;
     endif;
   endswitch;?>
   <tr><td></td><td class="line" colspan="2"></td></tr>
