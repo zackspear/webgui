@@ -302,7 +302,11 @@
 		} else $arrClocks = $arrDefaultClocks['other'] ;
 	}
 
-	if (strpos($arrConfig['template']['name'],"User-") !== false) $arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
+	if (strpos($arrConfig['template']['name'],"User-") !== false) {
+		$arrConfig['template']['name'] = str_replace("User-","",$arrConfig['template']['name']);
+		unset($arrConfig['domain']['uuid']);
+	}
+	if ($usertemplate == 1) unset($arrConfig['domain']['uuid']);
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -2550,7 +2554,8 @@ $(function() {
 		$('#vmform #domain_clock').val('localtime');
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('i440fx') != -1) {
-				if (!<?=$usertemplate?>) $('#vmform #domain_machine').val($(this).val()).change();
+				var usertemplate = <?=$usertemplate?>;
+				if (usertemplate = 0) $('#vmform #domain_machine').val($(this).val()).change();
 				return false;
 			}
 		});
@@ -2559,7 +2564,8 @@ $(function() {
 		$('#vmform #clockoffset').val('utc');
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('q35') != -1) {
-				$('#vmform #domain_machine').val($(this).val()).change();
+				var usertemplate = <?=$usertemplate?>;
+				if (usertemplate = 0) $('#vmform #domain_machine').val($(this).val()).change();
 				return false;
 			}
 		});
