@@ -730,7 +730,7 @@ function updateScreen(cache, slow) {
 				$('#moverDirection1 option:eq(1)').text($('#secondary option:eq(' + z(1) + ')').text() + ' → ' + $('#primary option:eq(' + z(0) + ')').text());
 				$('#moverDirection1').val('0').show();
 				$('#moverDirection2').hide();
-				$('#moverAction1').html("<i class='fa fa-info i'></i>_(Mover transfers files from Primary storage to Secondary storage)_");
+				$('#moverAction1').html("<i class='fa fa-info i'></i>_(Mover transfers files from Secondary storage to Primary storage)_");
 			} else {
 				$('#moverAction2').html("<i class='fa fa-info i'></i>_(Mover takes no action)_");
 				$('#moverDirection1').hide();
@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		let cachePoolOption = document.getElementById('cachePoolOption');
 		let messageSpan = document.getElementById('cachePoolMessage');
-		messageSpan.textContent = `Warning: Configured Pool '${cachePoolCapitalized}' is missing.`;
+		messageSpan.textContent = `${_('Warning: Configured Pool')} '${cachePoolCapitalized}' ${_('is missing')}.`;
 		messageSpan.style.display = 'inline';
 		cachePoolOption.selected = true;
 
@@ -1177,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		let cachePoolOption2 = document.getElementById('cachePoolOption2');
 		let messageSpan2 = document.getElementById('cachePoolMessage2');
-		messageSpan2.textContent = `Warning: Configured Pool '${cachePoolCapitalized2}' is missing.`;
+		messageSpan2.textContent = `${_('Warning: Configured Pool')} '${cachePoolCapitalized2}' ${_('is missing')}.`;
 		messageSpan2.style.display = 'inline';
 		cachePoolOption2.selected = true;
 		cachePoolOption2.disabled = true;
