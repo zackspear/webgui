@@ -175,10 +175,10 @@
 
 					// create folder if needed
 					if (!is_dir($strImgFolder)) {
-						mkdir($strImgFolder, 0777, true);
-						#my_mkdir($strImgFolder, 0777, true);
-						chown($strImgFolder, 'nobody');
-						chgrp($strImgFolder, 'users');
+						#mkdir($strImgFolder, 0777, true);
+						my_mkdir($strImgFolder, 0777, true);
+						#chown($strImgFolder, 'nobody');
+						#chgrp($strImgFolder, 'users');
 					}
 
 					$this->set_folder_nodatacow($strImgFolder);
@@ -192,10 +192,10 @@
 
 					// create parent folder if needed
 					if (!is_dir($path_parts['dirname'])) {
-						mkdir($path_parts['dirname'], 0777, true);
-						#my_mkdir($path_parts['dirname'], 0777, true);
-						chown($path_parts['dirname'], 'nobody');
-						chgrp($path_parts['dirname'], 'users');
+						#mkdir($path_parts['dirname'], 0777, true);
+						my_mkdir($path_parts['dirname'], 0777, true);
+						#chown($path_parts['dirname'], 'nobody');
+						#chgrp($path_parts['dirname'], 'users');
 					}
 
 					$this->set_folder_nodatacow($path_parts['dirname']);
@@ -219,10 +219,10 @@
 						// create folder if needed
 						$strImgRawLocationParent = dirname($strImgRawLocationPath);
 						if (!is_dir($strImgRawLocationParent)) {
-							mkdir($strImgRawLocationParent, 0777, true);
-							#my_mkdir($strImgRawLocationParent, 0777, true);
-							chown($strImgRawLocationParent, 'nobody');
-							chgrp($strImgRawLocationParent, 'users');
+							#mkdir($strImgRawLocationParent, 0777, true);
+							my_mkdir($strImgRawLocationParent, 0777, true);
+							#chown($strImgRawLocationParent, 'nobody');
+							#chgrp($strImgRawLocationParent, 'users');
 						}
 
 						$this->set_folder_nodatacow($strImgRawLocationParent);

@@ -18,13 +18,70 @@ require_once "$docroot/webGui/include/Helpers.php";
 $_SERVER['REQUEST_URI'] = 'shares';
 require_once "$docroot/webGui/include/Translations.php";
 
+/* If the configuration is pools only, then no array disks are available. */
+$poolsOnly	= ((int)$var['SYS_ARRAY_SLOTS'] <= 2) ? true : false;
+
+/* Check for any files in the share. */
 if (isset($_POST['scan'])) {
-  die((new FilesystemIterator("/mnt/user/{$_POST['scan']}"))->valid() ? '0' : '1');
+	$dirPath = "/mnt/user/{$_POST['scan']}";
+
+	/* Check if the directory exists. */
+	if (!is_dir($dirPath)) {
+		die('1'); // Directory does not exist
+	}
+
+	$iterator = new FilesystemIterator($dirPath);
+	$hasNonDSStoreFiles = false;
+
+	/* Iterate over the directory contents. */
+	foreach ($iterator as $fileinfo) {
+		if ($fileinfo->isFile() && $fileinfo->getFilename() !== '.DS_Store') {
+			$hasNonDSStoreFiles = true;
+			break;
+		}
+	}
+
+	die($hasNonDSStoreFiles ? '0' : '1');
 }
+
+/* Remove all '.DS_Store' files from a directory recursively and delete empty directories. */
+if (isset($_POST['delete'])) {
+	$nameToDelete = $_POST['delete'];
+	$dirPath = "/mnt/user/{$nameToDelete}";
+
+	if (is_dir($dirPath)) {
+		removeDSStoreFilesAndEmptyDirs($dirPath);
+	}
+
+	die("success");
+}
+
+/* Function to remove '.DS_Store' files and empty directories from a share. */
+function removeDSStoreFilesAndEmptyDirs($dir) {
+	$iterator = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+		RecursiveIteratorIterator::CHILD_FIRST
+	);
+
+	foreach ($iterator as $file) {
+		if ($file->isFile() && $file->getFilename() === '.DS_Store') {
+			unlink($file->getRealPath());
+		}
+	}
+
+	/* Second pass to remove empty directories */
+	foreach ($iterator as $file) {
+		if ($file->isDir() && !(new \FilesystemIterator($file->getRealPath()))->valid()) {
+			rmdir($file->getRealPath());
+		}
+	}
+}
+
 if (isset($_POST['cleanup'])) {
   $n = 0;
   // active shares
   $shares = array_map('strtolower',array_keys(parse_ini_file('state/shares.ini',true)));
+
   // stored shares
   foreach (glob("/boot/config/shares/*.cfg",GLOB_NOSORT) as $name) {
     if (!in_array(strtolower(basename($name,'.cfg')),$shares)) {
@@ -46,6 +103,11 @@ $var     = parse_ini_file('state/var.ini');
 $sec     = parse_ini_file('state/sec.ini',true);
 $sec_nfs = parse_ini_file('state/sec_nfs.ini',true);
 
+
+/* Get the pools from the disks.ini. */
+$pools_check = pools_filter(cache_filter($disks));
+$pools = implode(',', $pools_check);
+
 // exit when no mountable array disks
 $nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
 if (!checkDisks($disks)) die($nodisks);
@@ -57,24 +119,31 @@ if (!$shares) die($noshares);
 // GUI settings
 extract(parse_plugin_cfg('dynamix',true));
 
-$pools_check = pools_filter(cache_filter($disks));
-$pools = implode(',', $pools_check);
-
 // Natural sorting of share names
 uksort($shares,'strnatcasecmp');
 
-// Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device.
+/* Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device. */
 function checkDisks($disks) {
-  foreach ($disks as $disk) {
-    // Check the disk type, fsStatus, and ensure the device is not blank.
-    if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && $disk['fsStatus'] !== "Unmountable: unsupported or no file system" && !empty($disk['device'])) {
-      // A valid disk with a non-blank device is found, return true.
-      return true;
-    }
-  }
+	global $pools, $poolsOnly;
 
-  // No valid disks found, return false.
-  return false;
+	$rc		= false;
+
+	if (!$poolsOnly) {
+		foreach ($disks as $disk) {
+			/* Check the disk type, fsStatus, and ensure the device is not blank. */
+			if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
+				/* A valid disk with a non-blank device is found. */
+				$rc	= true;
+
+				break;
+			}
+		}
+	} else {
+		/* See if there are any pools. */
+		$rc = !empty($pools);
+	}
+
+	return $rc;
 }
 
 // Display export settings
@@ -110,6 +179,19 @@ else
 // Build table
 $row = 0;
 foreach ($shares as $name => $share) {
+	/* Check if poolsOnly is true */
+	$array	= $share['cachePool2'] ? ucfirst($share['cachePool2']) : "<i class='fa fa-database fa-fw'></i>"._('Array');
+	if ($poolsOnly) {
+		/* If useCache is set to 'yes', change it to 'no'. */
+		if (($share['useCache'] == 'yes') && (!$share['cachePool2'])) {
+			$share['useCache'] = 'no';
+		}
+		/* If useCache is set to 'yes', change it to 'prefer'. */
+		if (($share['useCache'] == 'prefer') && (!$share['cachePool2'])) {
+			$share['useCache'] = 'only';
+		}
+	}
+
   $row++;
   $color = $share['color'];
   switch ($color) {
@@ -137,10 +219,10 @@ foreach ($shares as $name => $share) {
     $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-database fa-fw'></i>"._('Array')."<span>".sprintf(_('Primary storage %s'),_('Array'))."</span></a>";
     break;
   case 'yes':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-right fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Primary storage to Secondary storage')."</span></a>";
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-right fa-fw'></i>".$array."<span>"._('Primary storage to Secondary storage')."</span></a>";
     break;
   case 'prefer':
-    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i><i class='fa fa-database fa-fw'></i>"._('Array')."<span>"._('Secondary storage to Primary storage')."</span></a>";
+    $cache = "<a class='hand info none' onclick='return false'><i class='fa fa-bullseye fa-fw'></i>".compress(my_disk($share['cachePool'],$display['raw']))." <i class='fa fa-long-arrow-left fa-fw'></i>".$array."<span>"._('Secondary storage to Primary storage')."</span></a>";
     break;
   case 'only':
     $exclusive = isset($share['exclusive']) && $share['exclusive']=='yes' ? "<i class='fa fa-caret-right '></i> " : "";

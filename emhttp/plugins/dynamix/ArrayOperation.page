@@ -20,6 +20,7 @@ $keyfile = file_exists(_var($var,'luksKeyfile'));
 $missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
 $spot    = _var($var,'mdResyncPos',0)>0;
+$poolsOnly  = (_var($var,'SYS_ARRAY_SLOTS') == 0 ) ? true : false;
 
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $wrong = false;
@@ -86,6 +87,52 @@ var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:poin
 var recall = null;
 var recover = null;
 
+String.prototype.no_tilde = function(){return this.replace('<?=$_tilde_?>','<?=$_proxy_?>');}
+String.prototype.master = function(){return this.split('<?=$_tilde_?>')[0];}
+
+function toggle_state(device,name,action) {
+  var button = null;
+  if (name) {
+    var group = name.replace(/(\d+|\*)$/,'');
+    if (name.slice(-1)!='*') {
+      // single device
+      $('#dev-'+name.no_tilde()).removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+    } else {
+      if (group=='disk') {
+        // array devices
+        $('[id^="dev-parity"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+        $('[id^="dev-disk"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      } else {
+        // pool devices
+        $('[id^="dev-'+group.master()+'"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+      }
+    }
+  } else if (device!='Clear') {
+    // all devices
+    $('[id^="dev-"]').removeClass('fa-circle fa-square fa-warning fa-times').addClass('fa-refresh fa-spin');
+    button = '[id^=button-]';
+  }
+  devices.stop();
+  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action},function(){setTimeout(function(){devices.start();},1000);if (button) $(button).prop('disabled',false);});
+}
+function display_diskio() {
+  if ($.cookie('diskio')===undefined) {
+    $('span.number').show(); $('span.diskio').hide();
+  } else {
+    $('span.diskio').show(); $('span.number').hide();
+  }
+}
+function toggle_diskio(init) {
+  if (!init) {
+    if ($.cookie('diskio')===undefined) $.cookie('diskio','diskio',{expires:3650}); else $.removeCookie('diskio');
+  }
+  if ($.cookie('diskio')===undefined) {
+    $('i.toggle').removeClass('fa-tachometer').addClass('fa-list');
+  } else {
+    $('i.toggle').removeClass('fa-list').addClass('fa-tachometer');
+  }
+  display_diskio();
+}
 function base64(str) {
   return window.btoa(unescape(encodeURIComponent(str)));
 }
@@ -441,6 +488,7 @@ window.onunload = function(){
 <?      elseif ($action[0]=="check"):?>
           <tr><td></td><td><input type="submit" name="cmdCheck" value="_(Check)_"></td><td>**_(Check)_** _(will start **Read-Check** of all array disks)_.</td></tr>
 <?      endif;?>
+<?      if (!$poolsOnly):?>
         <tr><td></td><td><input type="button" value="_(History)_" onclick="parityHistory()"></td>
 <?      [$date,$duration,$speed,$status,$error,$action,$size] = last_parity_log();
         if (_var($var,'sbSyncExit',0)!=0):?>
@@ -472,6 +520,7 @@ window.onunload = function(){
           <br><i class="fa fa-fw fa-clock-o"></i> _(Duration)_: <?=my_check($duration,$speed)?>
           <br><i class="fa fa-fw fa-search"></i> <?=print_error(_var($var,'sbSyncErrs',0))?></td></tr>
 <?      endif;
+        endif; // end check for poolsOnly
       endif;
     else:
       if ($action[0]=="recon"):
@@ -650,7 +699,11 @@ window.onunload = function(){
         <tr><td><?status_indicator()?>**_(Stopped)_**. _(No data disks)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
         <td>_(No array data disks have been assigned)_!</td></tr>
 <?      break;
-      endswitch;
+      case "ERROR:NO_DEVICES":?>
+        <tr><td><?status_indicator()?>**_(Stopped)_**. _(No devices)_.</td><td><input type="submit" name="cmdStart" value="_(Start)_" disabled></td>
+        <td>_(No array devices have been assigned)_!</td></tr>
+<?      break;
+endswitch;
     endif;
   endswitch;?>
   <tr><td></td><td class="line" colspan="2"></td></tr>

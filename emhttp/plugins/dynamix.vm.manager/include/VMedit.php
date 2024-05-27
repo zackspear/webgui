@@ -93,10 +93,15 @@ if (isset($_GET['uuid'])) {
 	}
 	$arrLoad['form'] = $arrAllTemplates[$strSelectedTemplate]['form'];
 }
+$usertemplate = 0;
 $strSelectedTemplateUT = $strSelectedTemplate;
 if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
+if (strpos($strSelectedTemplate,"User-") !== false) { 
+	$strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT); 
+	$usertemplate = 1;
+}
 $newmodel = is_file("/etc/libvirt/qemu/newmodel");
-if ($newmodel && $arrLoad['form'] == "Custom.form.php") { $arrLoad['form'] = "Custom.formXML.php"; $inlineswt = '<input type="checkbox" class="inlineview">'; } else $inlineswt = ""
+if ($newmodel && $arrLoad['form'] == "Custom.form.php") { $arrLoad['form'] = "Custom.formXML.php"; $inlineswt = '<input type="checkbox" class="inlineview">'; } else $inlineswt = "";
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">

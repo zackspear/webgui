@@ -941,7 +941,17 @@ private static $encoding = 'UTF-8';
 		$xml = $lv->domain_get_xml($res) ;
 		$xmldoc = new SimpleXMLElement($xml);
 		$xmlpath = $xmldoc->xpath('//devices/input[@type="evdev"] ');
-		return $xmlpath;
+		$evdevs = [];
+		foreach ($xmlpath as $i => $evDev) {
+		$evdevs[$i] = [
+			'dev' => $evDev->source->attributes()->dev,
+			'grab' => $evDev->source->attributes()->grab,
+			'repeat' => $evDev->source->attributes()->repeat,
+			'grabToggle' => $evDev->source->attributes()->grabToggle
+			];
+		}
+		if (empty($evdevs)) $evdevs[0] = ['dev'=>"",'grab'=>"",'repeat'=>"",'grabToggle'=>""];
+		return $evdevs; 
 	}
 
 	$cacheValidUSBDevices = null;
@@ -1722,10 +1732,10 @@ private static $encoding = 'UTF-8';
 
 		if ($storage == "default") $clonedir = $domain_cfg['DOMAINDIR'].$clone ; else $clonedir = str_replace('/mnt/user/', "/mnt/$storage/", $domain_cfg['DOMAINDIR']).$clone;
 		if (!is_dir($clonedir)) {
-			mkdir($clonedir,0777,true);
-			#my_mkdir($clonedir,0777,true);
-			chown($clonedir, 'nobody');
-			chgrp($clonedir, 'users');
+			#mkdir($clonedir,0777,true);
+			my_mkdir($clonedir,0777,true);
+			#chown($clonedir, 'nobody');
+			#chgrp($clonedir, 'users');
 		}
 		write("addLog\0".htmlspecialchars("Checking for image files"));
 		if ($file_exists && $overwrite != "yes") { write("addLog\0".htmlspecialchars(_("New image file names exist and Overwrite is not allowed")));  return( false) ; }
