@@ -1267,6 +1267,7 @@ function checkName(name) {
 /* Remove hidden '.DS_Store' files from share before deleting the share. */
 function handleDeleteClick(button) {
 	const deleteLabel = "<?= _('Delete') ?>";
+
 	if (button.value === deleteLabel) {
 		$.post('/webGui/include/ShareList.php', { delete: "<?=$name?>" }, function(response) {
 			if (response === 'success') {
