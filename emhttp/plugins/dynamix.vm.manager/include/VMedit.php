@@ -95,7 +95,6 @@ if (isset($_GET['uuid'])) {
 }
 $usertemplate = 0;
 $strSelectedTemplateUT = $strSelectedTemplate;
-if (strpos($strSelectedTemplate,"User-") !== false) $strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT);
 if (strpos($strSelectedTemplate,"User-") !== false) { 
 	$strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT); 
 	$usertemplate = 1;
