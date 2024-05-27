@@ -1924,6 +1924,8 @@ private static $encoding = 'UTF-8';
 	  $storage =  $lv->_get_single_xpath_result($vm, '//domain/metadata/*[local-name()=\'vmtemplate\']/@storage');
 	  if (empty($storage)) $storage = "default" ;
 
+	  if ($method == "ZFS" && $state == "running" && $memorysnap == "no") {$arrResponse =  ['error' => _("ZFS snapshot without memory dump not supported at this time.") ] ;return $arrResponse ;}
+
 	  #Get disks for --diskspec
 	  $disks =$lv->get_disk_stats($vm) ;
 	  $diskspec = "" ;
