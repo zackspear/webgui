@@ -22,19 +22,14 @@ function checkDisks($disks) {
 
 	$rc		= false;
 
-	if (!$poolsOnly) {
-		foreach ($disks as $disk) {
-			/* Check the disk type, fsStatus, and ensure the device is not blank. */
-			if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
-				/* A valid disk with a non-blank device is found. */
-				$rc	= true;
+	foreach ($disks as $disk) {
+		/* Check the disk type, fsStatus, and ensure the device is not blank. */
+		if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
+			/* A valid disk with a non-blank device is found. */
+			$rc	= true;
 
-				break;
-			}
+			break;
 		}
-	} else {
-		/* See if there are any pools. */
-		$rc = !empty($pools);
 	}
 
 	return $rc;
