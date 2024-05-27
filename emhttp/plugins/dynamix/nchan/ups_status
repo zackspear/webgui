@@ -69,12 +69,14 @@ while (true) {
     update_translation($locale_init);
   }
   unset($echo,$rows,$power,$load,$freq,$output,$volt);
-  $echo = array_fill(0,7,"<span>-</span>");
+  $defaultCell = "<span>-</span>";
+  $echo = array_fill(0,7,$defaultCell);
   if (file_exists("/var/run/apcupsd.pid")) {
     // get battery-level and runtime settings
     $cfg = parse_plugin_cfg('dynamix.apcupsd');
     $level = $cfg['BATTERYLEVEL'] ?: 10;
     $runtime = $cfg['MINUTES'] ?: 5;
+    $overrideUpsCapacity = (int) htmlspecialchars($cfg['OVERRIDE_UPS_CAPACITY'] ?: 0);
     exec("/sbin/apcaccess -u 2>/dev/null", $rows);
     foreach ($rows as $row) {
       [$key, $val] = array_map('trim', explode(':', $row, 2));
@@ -120,6 +122,11 @@ while (true) {
     if (isset($power) && isset($load)) $echo[5] = ($load<90 ? "<span $green>" : "<span $red>").round($power*$load/100)." W (".$echo[5].")</span>";
     elseif (isset($load)) $echo[5] = ($load<90 ? "<span>" : "<span $red>").$echo[5]."</span>";
     $echo[6] = isset($output) ? ((empty($volt) || ($minv<$output && $output<$maxv) ? "<span $green>" : "<span $red>").$echo[6].(isset($freq) ? " ~ $freq Hz" : "")."</span>") : $echo[6];
+
+    if ($echo[4] == $defaultCell && $overrideUpsCapacity > 0 && isset($load) && $load > 0) {
+      $nominalPower = round($load * 0.01 * $overrideUpsCapacity);
+      $echo[4] = ($nominalPower > 0 ? "<span $green>" : "<span $red>") . "≈ $nominalPower W</span>";
+    }
   }
   $echo = json_encode($echo);
   $md5_new = md5($echo,true);
