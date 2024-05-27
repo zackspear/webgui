@@ -100,14 +100,12 @@ if (strpos($strSelectedTemplate,"User-") !== false) {
 	$strSelectedTemplateUT = str_replace("User-","",$strSelectedTemplateUT); 
 	$usertemplate = 1;
 }
-$newmodel = is_file("/etc/libvirt/qemu/newmodel");
-if ($newmodel && $arrLoad['form'] == "Custom.form.php") { $arrLoad['form'] = "Custom.formXML.php"; $inlineswt = '<input type="checkbox" class="inlineview">'; } else $inlineswt = "";
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 
-<span class="status advancedview_panel" style="margin-top:<?=$top?>px;"><?=$inlineswt?><input type="checkbox" class="advancedview"></span>
+<span class="status advancedview_panel" style="margin-top:<?=$top?>px;"><input type="checkbox" class="inlineview"><input type="checkbox" class="advancedview"></span>
 <div class="domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
@@ -167,14 +165,14 @@ function isVMXMLMode() {
 }
 
 function isinlineXMLMode() {
-	return ($.cookie('vmmanager_inline_mode') == 'hide');
+	return ($.cookie('vmmanager_inline_mode') == 'show');
 }
 
 function hidexml(checked)
 {
 	var form = document.getElementById("vmform"); // Replace "yourFormId" with the actual ID of your form
 		var xmlElements = form.getElementsByClassName("xml");
-		if (checked == 1) xmldisplay = "none"; else xmldisplay = "";
+		if (checked == 0) xmldisplay = "none"; else xmldisplay = "";
 		// Unhide each element
 		for (var i = 0; i < xmlElements.length; i++) {
 			xmlElements[i].style.display = xmldisplay; // Setting to empty string will revert to default style
@@ -199,8 +197,8 @@ $(function() {
 	});
 	$('.inlineview').switchButton({
 		labels_placement: "left",
-		on_label: "_(Hide inline xml)_",
-		off_label: "_(Show Inline XML)_",
+		off_label: "_(Hide inline xml)_",
+		on_label: "_(Show Inline XML)_",
 		checked: isinlineXMLMode()
 	});
 	$('.advancedview').change(function () {
@@ -209,7 +207,7 @@ $(function() {
 	});
 	$('.inlineview').change(function () {
 		hidexml($(this).is(':checked'));
-		$.cookie('vmmanager_inline_mode', $(this).is(':checked') ? 'hide' : 'show', { expires: 3650 });
+		$.cookie('vmmanager_inline_mode', $(this).is(':checked') ? 'show' : 'hide', { expires: 3650 });
 	});
 
 	$('#template_img').click(function (){

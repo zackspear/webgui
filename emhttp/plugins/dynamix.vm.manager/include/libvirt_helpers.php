@@ -2748,10 +2748,9 @@ function build_xml_templates($strXML) {
 				$xml2["devices"]["usb"][$usbaddr] = $xmlhostdev; 
 				$xml2["devices"]["allusb"] .= $xmlhostdev; 
 				break;
-		}
-	  
-	  
-	  }
+		} 
+	}
+	foreach($xml2["devices"]["input"] as $input) $xml2["devices"]["allinput"] .= "$input\n";  
 
 	return $xml2;
 }
