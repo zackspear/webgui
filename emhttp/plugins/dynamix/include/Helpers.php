@@ -291,11 +291,11 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody
     case "zfs":
       $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
       $zfsdataset .= str_replace($parent,"",$dirname);
-      if ($recursive) $rtncode=exec("zfs create -p $zfsdataset");else $rtncode=exec("zfs create $zfsdataset");
+      if ($recursive) $rtncode=exec("zfs create -p \"$zfsdataset\"");else $rtncode=exec("zfs create \"$zfsdataset\"");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($zfsdataset,$permissions);
       break;
     case "btrfs":
-      if ($recursive) $rtncode=exec("btrfs subvolume create --parents $dirname"); else $rtncode=exec("btrfs subvolume create $dirname");
+      if ($recursive) $rtncode=exec("btrfs subvolume create --parents \"$dirname\""); else $rtncode=exec("btrfs subvolume create \"$dirname\"");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($dirname,$permissions);
       break;
     default:
