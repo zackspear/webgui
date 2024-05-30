@@ -7,7 +7,8 @@
     --link-text-color: var(--blue-800);
 
     --background-color: var(--gray-100);
-    --mild-background-color: var(--gray-300);
+    --opac-background-color: var(--gray-800-opacity-95);
+    --mild-background-color: var(--gray-150);
     --usage-bar-background-color: var(--gray-500);
     --usage-disk-background-color: var(--gray-200);
     --inverse-background-color: var(--gray-900);
@@ -18,7 +19,8 @@
     --input-border-color: var(--gray-900);
     --disabled-input-border-color: var(--gray-400);
     --inverse-border-color: var(--gray-000);
-    --table-border-color: var(--gray-300);
+    --table-border-color: var(--gray-150);
+    --table-background-color: var(--gray-200);
 
     --small-shadow: 0 0 3px var(--gray-700);
     --hr-color: var(--gray-300);
@@ -29,10 +31,11 @@
     --brand-orange: var(--orange-500);
     --brand-red: var(--red-800);
 
-    --button-text-color: var(--gray-500);
-
     --header-color: var(--gray-900);
 
     --scrollbar-color: var(--gray-400);
     --scrollbar-hover-color: var(--gray-500);
+
+    --bg-opacity-10: var(--white-opacity-10);
+    --bg-opacity-30: var(--white-opacity-30);
 }
