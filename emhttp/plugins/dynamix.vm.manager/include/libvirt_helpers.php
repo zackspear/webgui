@@ -870,7 +870,7 @@ private static $encoding = 'UTF-8';
 				$arrMatch['vendorname'] = sanitizeVendor($arrMatch['vendorname']);
 				$arrMatch['productname'] = sanitizeProduct($arrMatch['productname']);
 
-				$arrValidPCIDevices[] = [
+				$arrValidPCIDevices[$arrMatch['id']] = [
 					'id' => $arrMatch['id'],
 					'type' => $arrMatch['type'],
 					'typeid' => $arrMatch['typeid'],
@@ -997,7 +997,7 @@ private static $encoding = 'UTF-8';
 				// Clean up the name
 				$arrMatch['name'] = sanitizeVendor($arrMatch['name']);
 
-				$arrValidUSBDevices[] = [
+				$arrValidUSBDevices[$arrMatch['id']] = [
 					'id' => $arrMatch['id'],
 					'name' => $arrMatch['name'],
 				];
@@ -1353,6 +1353,7 @@ private static $encoding = 'UTF-8';
   	}
 
 		if ($lv->domain_get_boot_devices($res)[0] == "fd") $osbootdev = "Yes" ; else $osbootdev = "No" ;
+		$vmname = $lv->domain_get_name($res);
 		$cmdline = null;
 		$QEMUCmdline = getQEMUCmdLine($strDOMXML);
 		$QEMUOverride = getQEMUOverride($strDOMXML);
@@ -1400,7 +1401,11 @@ private static $encoding = 'UTF-8';
 			'shares' => $lv->domain_get_mount_filesystems($res),
 			'evdev' => getevDev($res),
 			'qemucmdline' => $cmdline,
-			'clocks' => getClocks($strDOMXML)
+			'clocks' => getClocks($strDOMXML),
+			'xml' => [
+				'machine' => $lv->domain_get_xml($vmname, "//domain/os/*"),
+				'devices' => $lv->get_xpath($vmname, "//domain/os/*"),
+			],
 		];
 	}
 
@@ -1591,7 +1596,7 @@ private static $encoding = 'UTF-8';
 			$y = strpos($xml,"<qemu:commandline>", $z +19)  ;
 			if ($y != false) $z =$y  ;
 		}
-		return substr($xml,$x, ($z + 19) -$x) ;
+		return substr($xml,$x, ($z + 19) -$x);
 	}
 
 	function getQEMUOverride($xml) {
@@ -2673,6 +2678,83 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 				"state" => $state,
 			];
 	}
+}
+
+function build_xml_templates($strXML) {
+	global $arrValidPCIDevices,$arrValidUSBDevices;
+
+	$xmldevsections = $xmlsections = [];
+	$xml = new SimpleXMLElement($strXML) ;
+	$x = $xml->children();
+	foreach($x as $key=>$y) {
+		$xmlsections[] = $key;
+	}
+	  
+	$ns= $xml->getNamespaces(true);
+	foreach($ns as $namekey=>$namespace) foreach($xml->children($namespace) as $key=>$y)	$xmlsections[] = "$namekey:$key";
+	
+	$v = $xml->devices->children();
+	$keys = [];
+	foreach($v as $key=>$y) $keys[] = $key;
+	foreach(array_count_values($keys) as $key=>$number) $xmldevsections[]= $key;
+	  
+	$endpos = 0;
+	foreach($xmlsections as $xmlsection) {
+		$strpos = strpos($strXML,"<$xmlsection",$endpos);
+		if ($strpos === false) continue  ;
+		$endcheck = "</$xmlsection>";
+		$endpos = strpos($strXML,$endcheck,$strpos);
+		$xml2[$xmlsection] = trim(substr($strXML,$strpos,$endpos-$strpos+strlen($endcheck)),'/0') ;
+	}
+	  
+	$xml = $xml2['devices'];
+	$endpos = 0;
+	foreach($xmldevsections as $xmlsection ) {
+		 $strpos = $count = 0;
+		while (true) {
+			
+			$strpos = strpos($xml,"<$xmlsection",$endpos);
+			if ($strpos === false) continue  2;
+			$endcheck = "</$xmlsection>";
+			$endpos = strpos($xml,$endcheck,$strpos);
+			#echo $xmlsection." ".$strpos." ".$endpos."\n";
+			if ($endpos === false) {
+				$endcheck = "/>";
+				$endpos = strpos($xml,$endcheck,$strpos);
+			}
+			# echo substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+			if ($xmlsection == "disk") {
+				$disk = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck));
+				$xmldiskdoc = new SimpleXMLElement($disk);
+				$devxml[$xmlsection][$xmldiskdoc->target->attributes()->dev->__toString()] = $disk;
+
+			} else {
+				$devxml[$xmlsection][$count] = substr($xml,$strpos,$endpos-$strpos+strlen($endcheck)) ;
+			}
+			$count++;
+		}
+	}
+	$xml2["devices"] = $devxml;
+	$xml2["devices"]["allusb"] = "";
+	foreach ($xml2['devices']["hostdev"] as $xmlhostdev) {
+		$xmlhostdevdoc = new SimpleXMLElement($xmlhostdev);
+		switch ($xmlhostdevdoc->attributes()->type) {
+			case 'pci' :
+				$pciaddr = $xmlhostdevdoc->source->address->attributes()->bus.":".$xmlhostdevdoc->source->address->attributes()->slot.".".$xmlhostdevdoc->source->address->attributes()->function;
+				$pciaddr = str_replace("0x","",$pciaddr);
+				$xml2["devices"][$arrValidPCIDevices[$pciaddr]["class"]][$pciaddr] = $xmlhostdev; 
+				break;
+			case "usb":  
+				$usbaddr = $xmlhostdevdoc->source->vendor->attributes()->id.":".$xmlhostdevdoc->source->product->attributes()->id;
+				$usbaddr = str_replace("0x","",$usbaddr);
+				$xml2["devices"]["usb"][$usbaddr] = $xmlhostdev; 
+				$xml2["devices"]["allusb"] .= $xmlhostdev; 
+				break;
+		} 
+	}
+	foreach($xml2["devices"]["input"] as $input) $xml2["devices"]["allinput"] .= "$input\n";  
+
+	return $xml2;
 }
 
 function qemu_log($vm,$m) {
