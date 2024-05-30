@@ -808,9 +808,9 @@ function setFloor(val) {
 	let full;
 	let free;
 	if (secondaryValue === "0" || secondaryValue === "1") {
-		/* Size of the primary pool, or smallest array disk. */
-		full = fsSize[''];
-		free = fsFree[''];
+		/* Size of the primary pool, or smallest array disk if there are any. */
+		full = fsSize[primaryValue];
+		free = fsFree[primaryValue];
 	} else {
 		/* Size of the secondary pool. */
 		full = fsSize[secondaryValue];
@@ -1267,6 +1267,7 @@ function checkName(name) {
 /* Remove hidden '.DS_Store' files from share before deleting the share. */
 function handleDeleteClick(button) {
 	const deleteLabel = "<?= _('Delete') ?>";
+
 	if (button.value === deleteLabel) {
 		$.post('/webGui/include/ShareList.php', { delete: "<?=$name?>" }, function(response) {
 			if (response === 'success') {

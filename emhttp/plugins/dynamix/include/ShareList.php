@@ -23,25 +23,31 @@ $poolsOnly	= ((int)$var['SYS_ARRAY_SLOTS'] <= 2) ? true : false;
 
 /* Check for any files in the share. */
 if (isset($_POST['scan'])) {
-	$dirPath = "/mnt/user/{$_POST['scan']}";
+	$directory = "/mnt/user/{$_POST['scan']}";
+	$hasFiles = false;
 
-	/* Check if the directory exists. */
-	if (!is_dir($dirPath)) {
-		die('1'); // Directory does not exist
-	}
+	/* Check if the directory exists */
+	if (is_dir($directory)) {
+		/* Create a new RecursiveDirectoryIterator instance with SKIP_DOTS to skip . and .. entries */
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
 
-	$iterator = new FilesystemIterator($dirPath);
-	$hasNonDSStoreFiles = false;
-
-	/* Iterate over the directory contents. */
-	foreach ($iterator as $fileinfo) {
-		if ($fileinfo->isFile() && $fileinfo->getFilename() !== '.DS_Store') {
-			$hasNonDSStoreFiles = true;
-			break;
+		/* Iterate over each item in the directory and its subdirectories */
+		foreach ($iterator as $fileinfo) {
+			/* Check if the current item is a file and not a .DS_Store file */
+			if ($fileinfo->isFile() && $fileinfo->getFilename() !== '.DS_Store') {
+				$hasFiles = true;
+				break;
+			}
 		}
+		/* Output 0 if files are found, 1 if no files are found */
+		die($hasFiles ? '0' : '1');
+	} else {
+		/* Output 1 if the directory does not exist */
+		die('1');
 	}
-
-	die($hasNonDSStoreFiles ? '0' : '1');
 }
 
 /* Remove all '.DS_Store' files from a directory recursively and delete empty directories. */
@@ -128,19 +134,14 @@ function checkDisks($disks) {
 
 	$rc		= false;
 
-	if (!$poolsOnly) {
-		foreach ($disks as $disk) {
-			/* Check the disk type, fsStatus, and ensure the device is not blank. */
-			if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
-				/* A valid disk with a non-blank device is found. */
-				$rc	= true;
+	foreach ($disks as $disk) {
+		/* Check the disk type, fsStatus, and ensure the device is not blank. */
+		if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
+			/* A valid disk with a non-blank device is found. */
+			$rc	= true;
 
-				break;
-			}
+			break;
 		}
-	} else {
-		/* See if there are any pools. */
-		$rc = !empty($pools);
 	}
 
 	return $rc;
@@ -186,7 +187,7 @@ foreach ($shares as $name => $share) {
 		if (($share['useCache'] == 'yes') && (!$share['cachePool2'])) {
 			$share['useCache'] = 'no';
 		}
-		/* If useCache is set to 'yes', change it to 'prefer'. */
+		/* If useCache is set to 'prefer', change it to 'only'. */
 		if (($share['useCache'] == 'prefer') && (!$share['cachePool2'])) {
 			$share['useCache'] = 'only';
 		}
