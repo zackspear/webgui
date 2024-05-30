@@ -17,6 +17,10 @@ $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
+$themeHtmlClass = "Theme--$theme";
+if ($themes2) {
+  $themeHtmlClass .= " Theme--sidebar";
+}
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
@@ -28,7 +32,7 @@ exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themes2 ? 'Theme--sidebar' : ''; ?>">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHtmlClass ?>">
 <head>
 <title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
