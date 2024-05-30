@@ -1821,7 +1821,7 @@
 				if ($arrConfig['qemucmdline'] == "") $qemurows = 2 ; else $qemurows = 15 ;
 				?>
 			<td>
-			<textarea id="xmlother" name="xmlother" class="xml" rows=10 style="width: 780px"> <?=htmlspecialchars($xml2['devices']['emulator'][0])."\n".htmlspecialchars($xml2['devices']['console'][0])."\n".htmlspecialchars($xml2['devices']['serial'][0])."\n".htmlspecialchars($xml2['devices']['channel'][0])."\n"?> </textarea></td></tr>
+			<textarea id="xmlother" name="xmlother" disabled class="xml" rows=10 style="width: 780px"> <?=htmlspecialchars($xml2['devices']['emulator'][0])."\n".htmlspecialchars($xml2['devices']['console'][0])."\n".htmlspecialchars($xml2['devices']['serial'][0])."\n".htmlspecialchars($xml2['devices']['channel'][0])."\n"?> </textarea></td></tr>
 			</td>
 		</tr>
 	</table>
