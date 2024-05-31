@@ -1,3 +1,11 @@
-div.basic{display:block}
-div.advanced{display:none}
-textarea.raw{resize:none;font-family:bitstream;width:65.5%}
+div.basic {
+    display: block;
+}
+div.advanced {
+    display: none;
+}
+textarea.raw {
+    resize: none;
+    font-family: bitstream;
+    width: 65.5%;
+}
