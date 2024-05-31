@@ -1,3 +1,16 @@
+:root {
+    --dashstats-pie-after-bg-color: #262626;
+}
+.Theme--gray:root {
+    --dashstats-pie-after-bg-color: #212f3d;
+}
+.Theme--azure:root {
+    --dashstats-pie-after-bg-color: #d7dbdd;
+}
+.Theme--white:root {
+    --dashstats-pie-after-bg-color: #f7f9f9;
+}
+
 div.frame {
     padding-top: 14px;
     padding-bottom: 160px;
@@ -351,6 +364,11 @@ table.snapshot {
 .switch-button-background {
     margin-top: 4px !important;
 }
+div.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(610px, 1fr));
+    column-gap: 20px;
+}
 div.pie {
     height: 92px;
     width: 92px;
@@ -365,6 +383,7 @@ div.pie::after {
     height: 68px;
     width: 68px;
     border-radius: 50%;
+    background-color: var(--dashstats-pie-after-bg-color);
 }
 div.pie span {
     z-index: 2;
