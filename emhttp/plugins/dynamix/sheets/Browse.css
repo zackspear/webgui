@@ -1,16 +1,30 @@
+:root {
+    --browse-icon-color: gray; /* @todo use existing color palette */
+    --browse-select-border-color: var(--black);
+    --browse-select-option-bg-color: var(--gray-150);
+    --browse-table-controls-bg-color: var(--gray-100);
+    --browse-table-tbody-tr-hover-td-bg-color: var(--white-opacity-10);
+    --browse-text-color: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --browse-table-tbody-tr-hover-td-bg-color: var(--black-opacity-10);
+}
+
 div#ace_settingsmenu,
 table#controls,
 table#more-controls {
     margin-top: 0;
-    background-color: #f2f2f2;
+    background-color: --browse-table-controls-bg-color;
 }
 tr.ace_optionsMenuEntry td {
     padding: 4px;
-    color: #1c1b1b;
+    color: var(--browse-text-color);
 }
 tr.ace_optionsMenuEntry td select option {
-    color: #1c1b1b;
-    background-color: #e8e8e8;
+    color: var(--browse-text-color);
+    background-color: var(--browse-select-option-bg-color);
 }
 tr.ace_optionsMenuEntry td input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: auto;
@@ -67,7 +81,7 @@ i[id^="row_"],
 i[id^="check_"] {
     cursor: pointer;
     font-size: 1.8rem;
-    color: gray;
+    color: var(--browse-icon-color);
 }
 td[id^="name_"] {
     cursor: pointer;
@@ -84,4 +98,32 @@ div#buttons {
 }
 .dropdown-menu {
     z-index: 10001;
+}
+
+div.autoheight {
+    width: 100%;
+    overflow-y: auto;
+    margin-top: -30px;
+}
+
+table.tablesorter.indexer tbody tr:hover td {
+    background-color: var(--browse-table-tbody-tr-hover-td-bg-color);
+}
+
+.Theme--black {
+    tr.ace_optionsMenuEntry td select {
+        color: var(--browse-text-color);
+        border-bottom: 1px solid var(--browse-select-border-color);
+        background-image: linear-gradient(66.6deg, transparent 60%, var(--browse-select-border-color) 40%),
+            linear-gradient(113.4deg, var(--browse-select-border-color) 40%, transparent 60%);
+    }
+    tr.ace_optionsMenuEntry td input[type="number"] {
+        color: var(--browse-text-color);
+    }
+}
+
+.Theme--sidebar {
+    div.autoheight {
+        margin-top: 0;
+    }
 }
