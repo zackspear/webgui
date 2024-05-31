@@ -32,3 +32,10 @@ div.shade-gray {
 i.fa-info.i {
     margin-right: 10px;
 }
+
+.Theme--black,
+.Theme--white {
+    form[name="share_edit"] {
+        margin-top: -20px;
+    }
+}
