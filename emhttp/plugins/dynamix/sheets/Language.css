@@ -77,3 +77,13 @@ label.button:hover {
 input#install {
     margin: 0;
 }
+
+select.wide {
+    min-width: 300px;
+}
+
+.Theme--sidebar {
+    select.wide {
+        min-width: 314px;
+    }
+}
