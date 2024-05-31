@@ -16,3 +16,21 @@ span.clone,
 i.clone {
     margin-right: 4px;
 }
+
+span.wrap {
+    display: inline-block;
+    width: 128px;
+}
+select.clone {
+    min-width: 123px;
+    margin-right: 0;
+}
+
+.Theme--sidebar {
+    span.wrap {
+        width: 150px;
+    }
+    select.clone {
+        min-width: 145px;
+    }
+}
