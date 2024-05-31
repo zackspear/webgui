@@ -973,9 +973,8 @@ table.dashboard i.control {
     font-size: 1.4rem !important;
     margin: 0 3px 0 0;
     cursor: pointer;
-    /* @todo css var */
-    color: #262626;
-    background-color: rgba(255, 255, 255, 0.3);
+    color: var(--dashboard-background-color);
+    background-color: var(--dashboard-alt-background-color);
     padding: 2px;
     border-radius: 5px;
 }
@@ -1559,12 +1558,6 @@ pre#swalbody p {
         display: none;
     }
 
-    i.control {
-        cursor: pointer;
-        color: #909090;
-        font-size: 1.8rem;
-    }
-
     i.favo {
         margin-left: 0;
     }
@@ -1919,6 +1912,7 @@ pre#swalbody p {
 
     .nav-user a {
         color: var(--text-color);
+        padding: 0;
     }
 
     .LanguageButton {
@@ -1966,7 +1960,7 @@ pre#swalbody p {
         height: 2.2rem;
         line-height: 2.2rem;
         width: 11rem;
-        background-color: var(--gray-500);
+        /* background-color: var(--gray-500); */
     }
 
     .usage-disk {
@@ -2009,7 +2003,6 @@ pre#swalbody p {
         background-color: transparent;
     }
 
-    table thead td,
     table tbody td {
         line-height: 3rem;
         height: 3rem;
@@ -2065,21 +2058,10 @@ pre#swalbody p {
         border: none !important;
     }
 
-    table.dashboard td.stopgap {
-        background-color: var(--background-color);
-    }
-
-    table.dashboard i.control {
-        color: var(--dashboard-background-color);
-        /* background-color: var(--dashboard-alt-background-color); */
-    }
-
     tr.alert {
-        color: var(--red-600);
         background-color: var(--red-300);
     }
     tr.warn {
-        color: var(--orange-300);
         background-color: var(--yellow-200);
     }
     tr.past {
@@ -2106,11 +2088,6 @@ pre#swalbody p {
 
     span.small {
         font-size: 1.1rem;
-    }
-    span#dropbox {
-        background: none;
-        line-height: 6rem;
-        margin-right: 20px;
     }
 
     span.outer.solid {
@@ -2167,7 +2144,7 @@ pre#swalbody p {
     }
 
     div.Panel:hover {
-        background-color: var(--opac-background-color);
+        background-color: var(--mild-background-color);
     }
 
     div.Panel a {
@@ -2175,13 +2152,6 @@ pre#swalbody p {
         justify-content: start;
         align-items: center;
         gap: 32px;
-        text-decoration: underline;
-        color: var(--text-color)
-    }
-
-    div.Panel a:hover,
-    div.Panel a:focus {
-        text-decoration: none;
     }
 
     div.Panel span {
@@ -2253,10 +2223,6 @@ pre#swalbody p {
         left: 60px;
         color: #808080;
         z-index: -2;
-    }
-
-    dl {
-        margin-top: 0;
     }
 
     blockquote {

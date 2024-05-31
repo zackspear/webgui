@@ -19,7 +19,7 @@
     --disabled-input-background-color: var(--alt-background-color);
     --table-background-color: transparent;
     --dashboard-background-color: #212f3d;
-    --dashboard-alt-background-color: --white-opacity-30;
+    --dashboard-alt-background-color: var(--white-opacity-30);
 
     --border-color: #606e7f;
     --alt-border-color: #004e86;

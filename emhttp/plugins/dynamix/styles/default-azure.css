@@ -3,7 +3,7 @@
 
     --text-color: #606e7f;
     --blockquote-text-color: var(--gray-800); 
-    --alt-text-color: #606e7f;
+    --alt-text-color: #909090;
     --disabled-text-color: var(--gray-500); 
     --inverse-text-color: var(--gray-900); 
     --link-text-color: var(--blue-800); 
@@ -12,14 +12,14 @@
     --alt-background-color: #383a34;
     --opac-background-color: var(--gray-800-opacity-95);
     --mild-background-color: #edeaef; 
-    --usage-bar-background-color: var(--gray-700); 
-    --usage-disk-background-color: var(--gray-700); 
+    --usage-bar-background-color: #606e7f;
+    --usage-disk-background-color: #eceaec;
     --inverse-background-color: var(--gray-100);
     --radio-background-color: var(--gray-700); 
     --disabled-input-background-color: var(--gray-300);
     --table-background-color: transparent;
     --dashboard-background-color: #d7dbdd;
-    --dashboard-alt-background-color: --black-opacity-30;
+    --dashboard-alt-background-color: var(--black-opacity-30);
 
     --border-color: #606e7f;
     --alt-border-color: #004e86;
@@ -27,7 +27,7 @@
     --input-border-color: var(--gray-200); 
     --disabled-input-border-color: var(--gray-500); 
     --inverse-border-color: #42453e;
-    --table-border-color: var(--gray-700);
+    --table-border-color: #606e7f;
     --table-alt-border-color: #f3f0f4;
     --dashboard-border-color: #cacfd2;
 

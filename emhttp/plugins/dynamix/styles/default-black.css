@@ -13,6 +13,8 @@
     --usage-disk-background-color: var(--gray-700); 
     --inverse-background-color: var(--gray-100);
     --radio-background-color: var(--gray-700); 
+    --dashboard-background-color: var(--gray-700);
+    --dashboard-alt-background-color: var(--black-opacity-30);
 
     --border-color: var(--gray-600);
     --disabled-border-color: var(--gray-500); 
