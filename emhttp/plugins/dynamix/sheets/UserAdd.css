@@ -1,2 +1,8 @@
-i.top{position:absolute;padding-top:4px;cursor:pointer}
-i#showPass.checked{opacity:0.5}
+i.top {
+    position: absolute;
+    padding-top: 4px;
+    cursor: pointer;
+}
+i#showPass.checked {
+    opacity: 0.5;
+}
