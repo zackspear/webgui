@@ -1,3 +1,13 @@
+:root {
+    --wg0-span-hshift-margin-right: -7px;
+    --wg0-span-label-margin-left: -12px;
+}
+
+.Theme--sidebar:root {
+    --wg0-span-hshift-margin-right: 11px;
+    --wg0-span-label-margin-left: -4px;
+}
+
 dt {
     width: 22%;
 }
@@ -43,6 +53,16 @@ span.block {
     width: 48%;
     white-space: normal;
 }
+span.hshift {
+    margin-right: var(--wg0-span-hshift-margin-right) !important;
+}
+span.label {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: var(--wg0-span-label-margin-left);
+}
+
 div.shade-white {
     background-color: #ededed;
     margin-top: 10px;
