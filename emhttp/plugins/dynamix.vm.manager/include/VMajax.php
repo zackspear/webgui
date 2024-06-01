@@ -146,6 +146,46 @@ case 'domain-consoleRV':
 	file_put_contents($vvfile,$vvarray) ;
 	$arrResponse['vvfile'] = $vvfile;
 	break;
+
+case 'domain-openWebUI':
+	requireLibvirt();
+	$dom = $lv->get_domain_by_name($domName);
+	$WebUI = unscript(_var($_REQUEST,'vmrcurl'));
+	$gastate = getgastate($dom);
+	if ($gastate == "connected") {
+	$ip  = $lv->domain_interface_addresses($dom, 1);
+	#$arrResponse['other'] = "Connected $WebUI"; 
+	$gastate = getgastate($dom);
+	if ($gastate == "connected") {
+	  $myIP=null;
+	$ip  = $lv->domain_interface_addresses($dom, 1);
+	  if ($ip != false) {
+		$duplicates = []; // hide duplicate interface names
+		foreach ($ip as $arrIP) {
+		  $ipname = $arrIP["name"];
+		  if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
+		  $iplist = $arrIP["addrs"];
+		  foreach ($iplist as $arraddr) {
+			$myIP= $arraddr["addr"];
+			if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
+			if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
+		  break 2;
+		  }           
+		}
+	  }
+	}
+	}
+	if (strpos($WebUI,"[IP]") && $myIP == NULL)  $arrResponse['error'] = "No IP, guest agent not installed?"; 
+	$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI);
+	$WebUI = preg_replace("%\[VMNAME\]%", $domName, $WebUI);
+	if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
+		$ConfigPort = $matches[1] ?? '';
+		$WebUI = preg_replace("%\[PORT:\d+\]%", $ConfigPort, $WebUI);	
+	}
+
+	$arrResponse['vmrcurl'] = $WebUI;
+	break;
+
 	
 case 'domain-pause':
 	requireLibvirt();

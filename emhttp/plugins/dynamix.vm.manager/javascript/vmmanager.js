@@ -2,6 +2,10 @@ function displayconsole(url) {
   window.open(url, '_blank', 'scrollbars=yes,resizable=yes');
 }
 
+function displayWebUI(url) {
+  window.open(url, '', 'scrollbars=yes,resizable=yes');
+}
+
 function downloadFile(source) {
   var a = document.createElement('a');
   a.setAttribute('href',source);
@@ -62,7 +66,24 @@ function ajaxVMDispatchconsoleRV(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",console="web",usage=false){  
+function ajaxVMDispatchWebUI(params, spin){
+  if (spin) $('#vm-'+params['uuid']).parent().find('i').removeClass('fa-play fa-square fa-pause').addClass('fa-refresh fa-spin');
+  $.post("/plugins/dynamix.vm.manager/include/VMajax.php", params, function(data) {
+    if (data.error) {
+      swal({
+        title:_("Execution error"), html:true,
+        text:data.error, type:"error",
+        confirmButtonText:_('Ok')
+      },function(){
+        if (spin) setTimeout(spin+'()',500); else location=window.location.href;
+      });
+    } else {
+      if (spin) setTimeout(spin+'()',500); else location=window.location.href;
+      setTimeout('displayWebUI("'+data.vmrcurl+'")',500) ;
+    }
+  },'json');
+}
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",console="web",usage=false,webui=""){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
@@ -81,7 +102,12 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
         ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});
     }
-  
+    if (webui != "") {
+      opts.push({text:_("Open WebUI") , icon:"fa-globe", action:function(e) {
+        e.preventDefault();
+        ajaxVMDispatchWebUI({action:"domain-openWebUI", uuid:uuid, vmrcurl:webui}, "loadlist") ;  
+      }});
+    }
     opts.push({divider:true});
   }
   context.settings({right:false,above:false});
