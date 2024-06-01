@@ -177,7 +177,8 @@ case 'domain-openWebUI':
 	}
 	if (strpos($WebUI,"[IP]") && $myIP == NULL)  $arrResponse['error'] = "No IP, guest agent not installed?"; 
 	$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI);
-	$WebUI = preg_replace("%\[VMNAME\]%", $domName, $WebUI);
+	$vmnamehypen = str_replace(" ","-",$domName);
+	$WebUI = preg_replace("%\[VMNAME\]%", $vmnamehypen, $WebUI);
 	if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
 		$ConfigPort = $matches[1] ?? '';
 		$WebUI = preg_replace("%\[PORT:\d+\]%", $ConfigPort, $WebUI);	
