@@ -128,6 +128,20 @@ case 'domain-start-consoleRV':
 	$arrResponse['vvfile'] = $vvfile;
 	break;
 
+case 'domain-consoleRDP':
+	requireLibvirt();
+	$dom = $lv->get_domain_by_name($domName);
+	$rdpvarray = array() ;
+	$myIP=get_vm_ip($dom);
+	if ($myIP == NULL)  {$arrResponse['error'] = "No IP, guest agent not installed?"; break; } 
+	$rdparray[] = "full address:s: $myIP\n";
+	#$rdparray[] = "administrative session:1\n";
+	if (!is_dir("/mnt/user/system/remoteviewer")) mkdir("/mnt/user/system/remoteviewer") ;
+	$rdpfile = "/mnt/user/system/remoteviewer/rv"._var($_SERVER,'HTTP_HOST').".$port.rdp" ;
+	file_put_contents($rdpfile,$rdparray) ;
+	$arrResponse['vvfile'] = $rdpfile;
+	break;
+
 case 'domain-consoleRV':
 	requireLibvirt();
 	$dom = $lv->get_domain_by_name($domName);
@@ -151,30 +165,7 @@ case 'domain-openWebUI':
 	requireLibvirt();
 	$dom = $lv->get_domain_by_name($domName);
 	$WebUI = unscript(_var($_REQUEST,'vmrcurl'));
-	$gastate = getgastate($dom);
-	if ($gastate == "connected") {
-	$ip  = $lv->domain_interface_addresses($dom, 1);
-	#$arrResponse['other'] = "Connected $WebUI"; 
-	$gastate = getgastate($dom);
-	if ($gastate == "connected") {
-	  $myIP=null;
-	$ip  = $lv->domain_interface_addresses($dom, 1);
-	  if ($ip != false) {
-		$duplicates = []; // hide duplicate interface names
-		foreach ($ip as $arrIP) {
-		  $ipname = $arrIP["name"];
-		  if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
-		  $iplist = $arrIP["addrs"];
-		  foreach ($iplist as $arraddr) {
-			$myIP= $arraddr["addr"];
-			if (preg_match('/^f[c-f]/',$ipaddrval)) continue; // omit ipv6 private addresses
-			if (!in_array($ipnamemac,$duplicates)) $duplicates[] = $ipnamemac; else $ipnamemac = "";
-		  break 2;
-		  }           
-		}
-	  }
-	}
-	}
+	$myIP = get_vm_ip($dom);
 	if (strpos($WebUI,"[IP]") && $myIP == NULL)  $arrResponse['error'] = "No IP, guest agent not installed?"; 
 	$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI);
 	$vmnamehypen = str_replace(" ","-",$domName);
@@ -183,7 +174,6 @@ case 'domain-openWebUI':
 		$ConfigPort = $matches[1] ?? '';
 		$WebUI = preg_replace("%\[PORT:\d+\]%", $ConfigPort, $WebUI);	
 	}
-
 	$arrResponse['vmrcurl'] = $WebUI;
 	break;
 
