@@ -83,10 +83,13 @@ function ajaxVMDispatchWebUI(params, spin){
     }
   },'json');
 }
-function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",console="web",usage=false,webui=""){  
+function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, fstype="QEMU",consolein="web;no",usage=false,webui=""){  
   var opts = [];
   var path = location.pathname;
   var x = path.indexOf("?");
+  var consolesplit = consolein.split(";");
+  var console = consolesplit[0];
+  var rdpopt = consolesplit[1];
   if (x!=-1) path = path.substring(0,x);
   if (vmrcurl !== "" && state == "running")  {
     if (console == "web" || console == "both") {
@@ -106,6 +109,12 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
       opts.push({text:_("Open WebUI") , icon:"fa-globe", action:function(e) {
         e.preventDefault();
         ajaxVMDispatchWebUI({action:"domain-openWebUI", uuid:uuid, vmrcurl:webui}, "loadlist") ;  
+      }});
+    }
+    if (rdpopt == "yes") {
+      opts.push({text:_("VM Windows RDP"), icon:"fa-desktop", action:function(e) {
+        e.preventDefault();
+        ajaxVMDispatchconsoleRV({action:"domain-consoleRDP", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});
     }
     opts.push({divider:true});
