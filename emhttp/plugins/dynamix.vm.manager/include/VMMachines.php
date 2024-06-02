@@ -72,7 +72,7 @@ foreach ($vms as $vm) {
     $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type: $fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
-  $WebUI =  $webGui = html_entity_decode($arrConfig['template']['webui']);
+  $WebUI = html_entity_decode($arrConfig['template']['webui']);
   $vmrcport = $lv->domain_get_vnc_port($res);
   $autoport = $lv->domain_get_vmrc_autoport($res);
   $vmrcurl = '';
