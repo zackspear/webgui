@@ -112,7 +112,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
       }});
     }
     if (rdpopt == "yes") {
-      opts.push({text:_("VM Windows RDP"), icon:"fa-desktop", action:function(e) {
+      opts.push({text:_("VM Remote Desktop Protocol(RDP)"), icon:"fa-desktop", action:function(e) {
         e.preventDefault();
         ajaxVMDispatchconsoleRV({action:"domain-consoleRDP", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});

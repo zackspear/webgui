@@ -1680,7 +1680,7 @@ For setting the console options to show on context menus. Web will show only inb
 Virtual Manager Remote Viewer will only show the Remote Viewer option. Both will show both Web and Remote Viewer.
 :end
 
-:vms_rdp_help:
+:vms_rdpopt_help:
 Adds option to menu to start RDP. RDP file is downloaded. You need to set browser to open when ready.
 :end
 
