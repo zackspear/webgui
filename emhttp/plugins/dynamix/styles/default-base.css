@@ -172,9 +172,9 @@ a.button,
     cursor: pointer;
     outline: none;
     border-radius: 4px;
-    border: none;
-    color: var(--brand-orange);
-    background: -webkit-gradient(
+    border: var(--button-border);
+    color: var(--button-text-color);
+    /* background: -webkit-gradient(
                 linear,
                 left top,
                 right top,
@@ -202,12 +202,9 @@ a.button,
                 left top,
                 from(var(--brand-orange)),
                 to(var(--brand-orange))
-            ) 100% 100% no-repeat;
-    background: linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 0 no-repeat,
-        linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 100% no-repeat,
-        linear-gradient(0deg, var(--brand-red) 0, var(--brand-red)) 0 100% no-repeat,
-        linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
-    background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+            ) 100% 100% no-repeat; */
+    background: var(--button-background);
+    background-size: var(--button-background-size);
 }
 input[type="checkbox"] {
     vertical-align: middle;
@@ -1605,11 +1602,10 @@ pre#swalbody p {
         font-weight: normal;
         text-transform: none;
         letter-spacing: normal;
-        /* @todo css var */
-        border: 1px solid #9f9180;
-        color: #9f9180;
+        border: 1px solid var(--button-border);
+        color: var(--button-text-color);
         background: none;
-        background-color: var(--mild-background-color);
+        background-color: var(--button-background);
     }
 
     input:focus[type="text"],
@@ -1622,7 +1618,7 @@ pre#swalbody p {
     .sweet-alert button:focus {
         background: none;
         background-color: var(--mild-background-color);
-        border-color: #0072c6;
+        border-color: var(--input-border-color);
     }
 
     input:hover[type="button"],
@@ -1632,10 +1628,10 @@ pre#swalbody p {
     button:hover[type="button"],
     a.button:hover,
     .sweet-alert button:hover {
-        border-color: #0072c6;
-        color: #4f4f4f;
+        border-color: var(--hover-button-border);
+        color: var(--hover-button-color);
         background: none;
-        background-color: var(--mild-background-color) !important;
+        background-color: var(--hover-button-background) !important;
     }
 
     input:active[type="button"],
@@ -1645,7 +1641,7 @@ pre#swalbody p {
     button:active[type="button"],
     a.button:active,
     .sweet-alert button:active {
-        border-color: #0072c6;
+        border-color: var(--hover-button-border);
         box-shadow: none;
     }
 
