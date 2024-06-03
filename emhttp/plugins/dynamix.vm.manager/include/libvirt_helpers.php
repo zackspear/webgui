@@ -2765,4 +2765,30 @@ function qemu_log($vm,$m) {
 	file_put_contents("/var/log/libvirt/qemu/$vm.log",$m."\n",FILE_APPEND);
 }
 
+function get_vm_ip($dom) {
+	global $lv;
+	$myIP=null;
+	$gastate = getgastate($dom);
+	if ($gastate == "connected") {
+		$ip  = $lv->domain_interface_addresses($dom, 1);
+		$gastate = getgastate($dom);
+		if ($gastate == "connected") {
+			$ip  = $lv->domain_interface_addresses($dom, 1);
+			if ($ip != false) {
+				foreach ($ip as $arrIP) {
+					$ipname = $arrIP["name"];
+					if (preg_match('/^(lo|Loopback)/',$ipname)) continue; // omit loopback interface
+					$iplist = $arrIP["addrs"];
+						foreach ($iplist as $arraddr) {
+							$myIP= $arraddr["addr"];
+							if (preg_match('/^f[c-f]/',$myIP)) continue; // omit ipv6 private addresses
+						break 2;
+					}           
+				}
+			}
+		}
+	}
+	return $myIP;
+}
+
 ?>

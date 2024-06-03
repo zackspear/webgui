@@ -1680,6 +1680,10 @@ For setting the console options to show on context menus. Web will show only inb
 Virtual Manager Remote Viewer will only show the Remote Viewer option. Both will show both Web and Remote Viewer.
 :end
 
+:vms_rdpopt_help:
+Adds option to menu to start RDP. RDP file is downloaded. You need to set browser to open when ready.
+:end
+
 :vms_usage_help:
 Show metrics for CPU both guest and host percentage, memory, disk io and network io.
 :end

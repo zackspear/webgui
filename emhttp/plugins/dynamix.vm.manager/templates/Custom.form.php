@@ -358,6 +358,22 @@
 	</div>
 
 	<table>
+		<tr class="advanced">
+			<td>_(WebUI)_:</td>
+			<td><input type="url" name="template[webui]" title="_(Web UI to start)_" placeholder="_(Web UI to start from menu)_ (_(optional)_)" value="<?=htmlspecialchars($arrConfig['template']['webui'])?>" /></td>
+		</tr>
+	</table>
+	<div class="advanced">
+		<blockquote class="inline_help">
+			<p>Specify a URL that for menu to start. Substution variables are
+				<br>[IP] IP address, this will take the first IP on the VM. Guest Agent must be installed for this to work.
+				<br>[PORT:XX] Port Number in XX.
+				<br>[VMNAME] VM Name will have spaces replaced with -
+			</p>
+		</blockquote>
+	</div>
+
+	<table>
 		<tr>
 			<?if (!$boolNew) $disablestorage = " disabled "; else $disablestorage = "";?>
 			<td>_(Override Storage Location)_:</td><td>

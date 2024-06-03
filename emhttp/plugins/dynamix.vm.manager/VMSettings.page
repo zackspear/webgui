@@ -183,6 +183,14 @@ _(Console Options)_:
 
 :vms_console_help:
 
+_(Show RDP menu option)_:
+: <select id="vmsrdpopt" name="RDPOPT">
+  <?=mk_option($domain_cfg['RDPOPT'], 'no', _('Dont show RDP option'))?>
+  <?=mk_option($domain_cfg['RDPOPT'], 'yes', _('Show RDP option'))?>
+  </select>
+
+:vms_rdpopt_help:
+
 _(Show VM Usage)_:
 : <select id="vmusage" name="USAGE">
   <?=mk_option($domain_cfg['USAGE'], 'N', _('Disabled'))?>

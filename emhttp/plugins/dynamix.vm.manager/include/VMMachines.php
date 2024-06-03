@@ -72,6 +72,7 @@ foreach ($vms as $vm) {
     $diskdesc = 'Current physical size: '.$lv->get_disk_capacity($res, true)."\nDefault snapshot type: $fstype";
   }
   $arrValidDiskBuses = getValidDiskBuses();
+  $WebUI = html_entity_decode($arrConfig['template']['webui']);
   $vmrcport = $lv->domain_get_vnc_port($res);
   $autoport = $lv->domain_get_vmrc_autoport($res);
   $vmrcurl = '';
@@ -109,7 +110,8 @@ foreach ($vms as $vm) {
   }
   unset($dom);
   if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,false);
+  if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no" ; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"] ;
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':
