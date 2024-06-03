@@ -419,6 +419,7 @@ div.sb-message {
 .sweet-alert h2,
 .sweet-alert p {
     color: var(--dynamix-sweet-alert-text-color);
+    text-align: inherit;
 }
 table.tablesorter {
     margin: 0 0 15px 0;
