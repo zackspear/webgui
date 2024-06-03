@@ -40,4 +40,19 @@
 
     --bg-opacity-10: var(--black-opacity-10);
     --bg-opacity-30: var(--black-opacity-30);
+
+    --button-text-color: var(--brand-orange);
+    --button-border: none;
+    --button-background: linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-red) 0, var(--brand-red)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
+    --button-background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
+
+    --hover-button-border: #0072c6;
+    --hover-button-text-color: var(--white);
+    --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
+
+    --input-border-color: #e5e5e5;
+    --input-bg-color: transparent;
 }

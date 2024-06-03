@@ -49,4 +49,16 @@
 
     --bg-opacity-10: var(--black-opacity-10);
     --bg-opacity-30: var(--black-opacity-30);
+
+    --button-border: #606e7f;
+    --button-text-color: #606e7f;
+    --button-background: transparent; /* or #121510 ?? */
+    --button-background-size: cover;
+
+    --hover-button-border: #0072c6;
+    --hover-button-text-color: #b0b0b0;
+    --hover-button-background: #121510;
+
+    --input-border-color: #0072c6;
+    --input-bg-color: #121510;
 }
