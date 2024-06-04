@@ -1958,6 +1958,10 @@ Enter the *device* which corresponds to your situation, only applicable when *UP
 + **modbus** - /dev/tty**
 :end
 
+:apc_ups_override_ups_capacity_help:
+If your device doesn't natively report Nominal Power (`NOMPOWER`) from `apcupsd`, but does report the Load Percentage (`LOADPCT`), you can manually define the UPS capacity rating in Watts (W) (this is the 'real power' value in Watts (W), not the 'apparent power' in Volt Amps (VA), and should be detailed on your UPS manual or product listing) and the plugin will dynamically calculate a virtual Nominal Power estimate (`≈`) by comparing the Override UPS Capacity (W) and the current Load Percentage. It is only an estimate, as it doesn't factor in things like the UPS' efficiency.
+:end
+
 :apc_battery_level_help:
 If during a power failure, the remaining battery percentage (as reported by the UPS) is below or equal to *Battery level*, apcupsd will initiate a system shutdown.
 :end
