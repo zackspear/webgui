@@ -94,6 +94,7 @@ foreach ($vms as $vm) {
   if (!empty($arrConfig['gpu'])) {
     $arrValidGPUDevices = getValidGPUDevices();
     foreach ($arrConfig['gpu'] as $arrGPU) {
+      if ($arrGPU['id'] == "nogpu") {$graphics .= "No GPU"."\n";continue;}
       foreach ($arrValidGPUDevices as $arrDev) {
         if ($arrGPU['id'] == $arrDev['id']) {
           if (count(array_filter($arrValidGPUDevices, function($v) use ($arrDev) { return $v['name'] == $arrDev['name']; })) > 1) {

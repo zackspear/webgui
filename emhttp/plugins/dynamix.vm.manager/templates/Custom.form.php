@@ -1140,14 +1140,14 @@
 						} else {
 							echo mk_option($arrGPU['id'], '', _('None'));
 						}
-
+						echo mk_option($arrGPU['id'], 'nogpu', _('No GPU'));
 						foreach($arrValidGPUDevices as $arrDev) {
 							echo mk_option($arrGPU['id'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
 						}
 					?>
 					</select>
 					<?
-					if ($arrGPU['id'] != 'virtual') $multifunction = "" ; else $multifunction =  " disabled " ;
+					if ($arrGPU['id'] != 'virtual' && $arrGPU['id'] != 'nogpu') $multifunction = "" ; else $multifunction =  " disabled " ;
 					?>
 					<span id="GPUMulti<?=$i?>" name="gpu[<?=$i?>][multi]" class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced gpumultiline<?=$i?>"   >_(Multifunction)_:</span>
 
@@ -1234,7 +1234,7 @@
 				</td>
 			</tr>
 			<?}?>
-			<tr class="<?if ($arrGPU['id'] == 'virtual') echo 'was';?>advanced romfile">
+			<tr class="<?if ($arrGPU['id'] == 'virtual' || $arrGPU['id'] == 'nogpu') echo 'was';?>advanced romfile">
 				<td>_(Graphics ROM BIOS)_:</td>
 				<td>
 					<input type="text" name="gpu[<?=$i?>][rom]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="<?=htmlspecialchars($arrGPU['rom'])?>" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
@@ -2341,12 +2341,12 @@ $(function() {
 				slideUpRows($vnc_sections);
 				$vnc_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 				var MultiSel = document.getElementById("GPUMultiSel0") ;
-				MultiSel.disabled = false ;
+				if (myvalue=="nogpu") MultiSel.disabled = true ; else MultiSel.disabled = false ;
 			}
 		}
 
 		$romfile = $(this).closest('table').find('.romfile');
-		if (myvalue == 'virtual' || myvalue == '') {
+		if (myvalue == 'virtual' || myvalue == '' || myvalue =="nogpu") {
 			slideUpRows($romfile.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			$romfile.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 		} else {
@@ -2396,7 +2396,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if ((gpu != 'virtual' && gpu != 'nogpu') && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
@@ -2471,7 +2471,7 @@ $(function() {
 		} while (gpu);
 		form.find('select[name="gpu[0][id]"] option').each(function(){
 			var gpu = $(this).val();
-			if (gpu != 'virtual' && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
+			if ((gpu != 'virtual' && gpu != 'nogpu') && !gpus.includes(gpu)) form.append('<input type="hidden" name="pci[]" value="'+gpu+'#remove">');
 		});
 		// remove unused sound cards
 		var sound = [], i = 0;
