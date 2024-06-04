@@ -7,14 +7,14 @@
     --link-text-color: var(--blue-800); 
 
     --background-color: var(--gray-900); 
-    --opac-background-color: var(--gray-800-opacity-95);
+    --opac-background-color: var(--gray-895);
     --mild-background-color: var(--gray-700); 
     --usage-bar-background-color: var(--gray-700); 
     --usage-disk-background-color: var(--gray-700); 
     --inverse-background-color: var(--gray-100);
     --radio-background-color: var(--gray-700); 
     --dashboard-background-color: var(--gray-700);
-    --dashboard-alt-background-color: var(--black-opacity-30);
+    --dashboard-title-action-color: var(--black-opacity-30);
 
     --border-color: var(--gray-600);
     --disabled-border-color: var(--gray-500); 
@@ -49,10 +49,10 @@
         linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
     --button-background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
 
-    --hover-button-border: #0072c6;
+    --hover-button-border: var(--blue-700);
     --hover-button-text-color: var(--white);
     --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
 
-    --input-border-color: #e5e5e5;
+    --input-border-color: var(--gray-200);
     --input-bg-color: transparent;
 }

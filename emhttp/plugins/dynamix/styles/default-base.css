@@ -135,11 +135,14 @@ input[type="date"],
 input[type="file"],
 textarea,
 .textarea {
+    color: var(--text-color);
     font-family: clear-sans;
     font-size: 1.3rem;
     background-color: transparent;
-    border: none;
-    border-bottom: 1px solid var(--input-border-color);
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--input-border-color);
+    border-bottom-width: 1px;
     padding: 4px 0;
     text-indent: 0;
     min-height: 2rem;
@@ -149,7 +152,6 @@ textarea,
     margin: 0 20px 0 0;
     box-shadow: none;
     border-radius: 0;
-    color: var(--text-color);
 }
 input[type="button"],
 input[type="reset"],
@@ -174,35 +176,6 @@ a.button,
     border-radius: 4px;
     border: var(--button-border);
     color: var(--button-text-color);
-    /* background: -webkit-gradient(
-                linear,
-                left top,
-                right top,
-                from(var(--brand-red)),
-                to(var(--brand-orange))
-            )
-            0 0 no-repeat,
-        -webkit-gradient(
-                linear,
-                left top,
-                right top,
-                from(var(--brand-red)),
-                to(var(--brand-orange))
-            ) 0 100% no-repeat,
-        -webkit-gradient(
-                linear,
-                left bottom,
-                left top,
-                from(var(--brand-red)),
-                to(var(--brand-red))
-            ) 0 100% no-repeat,
-        -webkit-gradient(
-                linear,
-                left bottom,
-                left top,
-                from(var(--brand-orange)),
-                to(var(--brand-orange))
-            ) 100% 100% no-repeat; */
     background: var(--button-background);
     background-size: var(--button-background-size);
 }
@@ -235,15 +208,8 @@ button:hover,
 button:hover[type="button"],
 a.button:hover,
 .sweet-alert button:hover {
-    color: var(--gray-000);
-    background: -webkit-gradient(
-        linear,
-        left top,
-        right top,
-        from(var(--brand-red)),
-        to(var(--brand-orange))
-    );
-    background: linear-gradient(90deg, var(--brand-red) 0, var(--brand-orange));
+    color: var(--hover-button-text-color);
+    background: var(--hover-button-background);
 }
 input[disabled],
 textarea[disabled] {
@@ -416,8 +382,7 @@ textarea {
     margin: 0;
     float: right;
     text-align: right;
-    /* @todo css var */
-    background-color: rgba(242, 242, 242, 0.2);
+    background-color: var(--gray-120);
     padding: 10px 12px;
 }
 #header .text-left {
@@ -971,7 +936,7 @@ table.dashboard i.control {
     margin: 0 3px 0 0;
     cursor: pointer;
     color: var(--dashboard-background-color);
-    background-color: var(--dashboard-alt-background-color);
+    background-color: var(--dashboard-title-action-color);
     padding: 2px;
     border-radius: 5px;
 }
@@ -991,7 +956,7 @@ span.warn {
     width: 100%;
 }
 span.system {
-    color: #0099ff;
+    color: var(--blue-700);
     background-color: var(--blue-300);
     display: block;
     width: 100%;
@@ -1003,7 +968,7 @@ span.array {
     width: 100%;
 }
 span.login {
-    color: #d63301;
+    color: var(--orange-900);
     background-color: var(--red-100);
     display: block;
     width: 100%;
@@ -1194,7 +1159,7 @@ div.tab [type="radio"]:checked + label ~ .content {
 }
 div.tab [type="radio"] + label {
     position: relative;
-    font-size: 1.4rem;
+    /* font-size: 1.4rem; */
     letter-spacing: 1.8px;
     padding: 4px 10px;
     margin-right: 2px;
@@ -1400,7 +1365,7 @@ blockquote a {
 }
 blockquote a:hover,
 blockquote a:focus {
-    color: #f15a2c;
+    color: var(--orange-800);
 }
 label.checkbox {
     display: block;
@@ -1586,8 +1551,7 @@ pre#swalbody p {
     textarea,
     .textarea {
         padding: 5px 6px;
-        border: 1px solid var(--text-color);
-        color: var(--text-color);
+        border-width: 1px;
     }
 
     input[type="button"],
@@ -1617,8 +1581,8 @@ pre#swalbody p {
     textarea:focus,
     .sweet-alert button:focus {
         background: none;
-        background-color: var(--mild-background-color);
-        border-color: var(--input-border-color);
+        background-color: var(--focus-input-background-color);
+        border-color: var(--focus-input-border-color);
     }
 
     input:hover[type="button"],
@@ -1629,7 +1593,7 @@ pre#swalbody p {
     a.button:hover,
     .sweet-alert button:hover {
         border-color: var(--hover-button-border);
-        color: var(--hover-button-color);
+        color: var(--hover-button-text-color);
         background: none;
         background-color: var(--hover-button-background) !important;
     }
@@ -1724,7 +1688,7 @@ pre#swalbody p {
         height: 90px;
         z-index: 100;
         background-color: var(--mild-background-color);
-        border-bottom: 1px solid var(--gray-400);
+        border-bottom: 1px solid var(--gray-600);
         box-sizing: border-box;
         padding-left: 80px;
     }
@@ -1735,7 +1699,7 @@ pre#swalbody p {
     }
 
     #header .block {
-        background-color: rgba(237, 234, 239, 0.2);
+        background-color: var(--gray-120);
     }
 
     #header .text-left {
@@ -1797,7 +1761,7 @@ pre#swalbody p {
         width: 64px;
         text-align: left;
         padding: 0;
-        border-bottom: 1px solid #42453e;
+        border-bottom: 1px solid var(--gray-600);
         font-size: 18px !important;
         overflow: hidden;
         transition: 0.2s background-color ease;
@@ -1817,13 +1781,13 @@ pre#swalbody p {
             linear,
             left top,
             right top,
-            from(#e22828),
+            from(var(--red-800)),
             to(var(--brand-orange))
         );
-        background: linear-gradient(90deg, #e22828 0, var(--brand-orange));
+        background: linear-gradient(90deg, var(--red-800) 0, var(--brand-orange));
         -webkit-transition: all 0.2s ease-in-out;
         transition: all 0.2s ease-in-out;
-        border-bottom-color: #e22828;
+        border-bottom-color: var(--red-800);
     }
     .nav-item:hover a {
         color: var(--orange-100);
@@ -1831,11 +1795,11 @@ pre#swalbody p {
             linear,
             left top,
             right top,
-            from(#e22828),
+            from(var(--red-800)),
             to(var(--brand-orange))
         );
-        background: linear-gradient(90deg, #e22828 0, var(--brand-orange));
-        border-bottom-color: #e22828;
+        background: linear-gradient(90deg, var(--red-800) 0, var(--brand-orange));
+        border-bottom-color: var(--red-800);
         font-size: 18px;
     }
     .nav-item img {
@@ -1843,7 +1807,7 @@ pre#swalbody p {
     }
     .nav-item a {
         display: inline-flex;
-        color: #a6a7a7;
+        color: var(--gray-400);
         text-decoration: none;
         padding: 16px 18px;
         gap: 25px;
@@ -1870,10 +1834,10 @@ pre#swalbody p {
             linear,
             left top,
             right top,
-            from(#e22828),
+            from(var(--red-800)),
             to(var(--brand-orange))
         );
-        background: linear-gradient(90deg, #e22828 0, var(--brand-orange));
+        background: linear-gradient(90deg, var(--red-800) 0, var(--brand-orange));
     }
     .nav-item.HelpButton.active:hover,
     .nav-item.HelpButton.active a:hover {
@@ -1881,10 +1845,10 @@ pre#swalbody p {
             linear,
             left top,
             right top,
-            from(#e22828),
+            from(var(--red-800)),
             to(var(--brand-orange))
         );
-        background: linear-gradient(90deg, #e22828 0, var(--brand-orange));
+        background: linear-gradient(90deg, var(--red-800) 0, var(--brand-orange));
         font-size: 18px;
     }
     .nav-item.HelpButton.active,
@@ -1916,7 +1880,7 @@ pre#swalbody p {
     } /* Fix Switch Language Being Cut-Off */
 
     div.title {
-        color: #39587f;
+        color: var(--text-color);
         margin: 20px 0 10px 0;
         padding: 10px 0;
         clear: both;
@@ -1946,7 +1910,7 @@ pre#swalbody p {
 
     #footer {
         color: var(--footer-text);
-        background-color: #121510;
+        background-color: var(--black);
     }
 
     .usage-bar {
@@ -1956,7 +1920,6 @@ pre#swalbody p {
         height: 2.2rem;
         line-height: 2.2rem;
         width: 11rem;
-        /* background-color: var(--gray-500); */
     }
 
     .usage-disk {
@@ -2103,25 +2066,25 @@ pre#swalbody p {
         margin-top: 23px;
     }
 
-    div.tab [type="radio"] + label:hover {
-        border-color: var(--alt-border-color);
-    }
-
     div.tab [type="radio"] + label {
-        padding: 8px 10px;
+        padding: 10px;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         background-color: var(--border-color);
-        color: #b0b0b0;
-        border: #8b98a7 1px solid;
+        color: var(--gray-300);
+        border: 1px solid var(--gray-500);
+        border-bottom: none;
+    }
+
+    div.tab [type="radio"] + label:hover {
+        border-color: var(--alt-border-color);
     }
 
     div.tab [type="radio"]:checked + label {
         cursor: default;
         background-color: transparent;
-        color: #606e7f;
-        border-color: var(--alt-border-color);
         border-bottom: none;
+        border-color: var(--alt-border-color);
         opacity: 1;
     }
 
@@ -2217,7 +2180,7 @@ pre#swalbody p {
 
     iframe#progressFrame {
         left: 60px;
-        color: #808080;
+        color: var(--gray-500);
         z-index: -2;
     }
 
