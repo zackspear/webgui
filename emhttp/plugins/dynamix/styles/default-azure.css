@@ -3,13 +3,13 @@
 
     --text-color: #606e7f;
     --blockquote-text-color: var(--gray-800); 
-    --alt-text-color: #909090;
+    --alt-text-color: var(--gray-400);
     --disabled-text-color: var(--gray-500); 
     --inverse-text-color: var(--gray-900); 
     --link-text-color: var(--blue-800); 
 
-    --background-color: #e4e2e4;
-    --alt-background-color: #383a34;
+    --background-color: var(--gray-150); /* Originally #e4e2e4 */
+    --alt-background-color: var(--gray-700); /* Originally #383a34 */
     --opac-background-color: var(--gray-895);
     --mild-background-color: #edeaef; 
     --usage-bar-background-color: #606e7f;
@@ -26,7 +26,7 @@
     --disabled-border-color: var(--gray-500); 
     --input-border-color: var(--gray-200); 
     --disabled-input-border-color: var(--gray-500); 
-    --inverse-border-color: #42453e;
+    --inverse-border-color: var(--gray-600); /* Originally #42453e */
     --table-border-color: #606e7f;
     --table-alt-border-color: #f3f0f4;
     --dashboard-border-color: #cacfd2;
