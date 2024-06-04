@@ -1281,6 +1281,11 @@ private static $encoding = 'UTF-8';
 				continue;
 			}
 		}
+		if (empty($arrGPUDevices)) {
+			$arrGPUDevices[] = [
+				'id' => 'nogpu',
+			];
+		}
 
 		// Add claimed USB devices by this VM to the available USB devices
 		/*

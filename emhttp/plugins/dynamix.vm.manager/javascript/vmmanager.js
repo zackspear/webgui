@@ -90,6 +90,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
   var consolesplit = consolein.split(";");
   var console = consolesplit[0];
   var rdpopt = consolesplit[1];
+  var rundivider = false;
   if (x!=-1) path = path.substring(0,x);
   if (vmrcurl !== "" && state == "running")  {
     if (console == "web" || console == "both") {
@@ -104,21 +105,26 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, f
         e.preventDefault();
         ajaxVMDispatchconsoleRV({action:"domain-consoleRV", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});
-    }
+    }  
+    rundivider = true;
+  }
+  if (state == "running") {
     if (webui != "") {
       opts.push({text:_("Open WebUI") , icon:"fa-globe", action:function(e) {
         e.preventDefault();
         ajaxVMDispatchWebUI({action:"domain-openWebUI", uuid:uuid, vmrcurl:webui}, "loadlist") ;  
       }});
+      rundivider = true;
     }
     if (rdpopt == "yes") {
       opts.push({text:_("VM Remote Desktop Protocol(RDP)"), icon:"fa-desktop", action:function(e) {
         e.preventDefault();
         ajaxVMDispatchconsoleRV({action:"domain-consoleRDP", uuid:uuid, vmrcurl:vmrcurl}, "loadlist") ;  
       }});
+      rundivider = true;
     }
-    opts.push({divider:true});
   }
+  if (rundivider) opts.push({divider:true});
   context.settings({right:false,above:false});
   if (state == "running") {
     opts.push({text:_("Stop"), icon:"fa-stop", action:function(e) {

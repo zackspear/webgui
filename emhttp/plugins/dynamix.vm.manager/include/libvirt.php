@@ -799,7 +799,7 @@
 					if (empty($gpu['id']) || in_array($gpu['id'], $gpudevs_used)) {
 						continue;
 					}
-
+					if ($gpu['id'] == 'nogpu') break;
 					if ($gpu['id'] == 'virtual') {
 						$strKeyMap = '';
 						if (!empty($gpu['keymap'])) {
