@@ -10,7 +10,7 @@
 
     --background-color: #e4e2e4;
     --alt-background-color: #383a34;
-    --opac-background-color: var(--gray-800-opacity-95);
+    --opac-background-color: var(--gray-895);
     --mild-background-color: #edeaef; 
     --usage-bar-background-color: #606e7f;
     --usage-disk-background-color: #eceaec;
@@ -19,7 +19,7 @@
     --disabled-input-background-color: var(--gray-300);
     --table-background-color: transparent;
     --dashboard-background-color: #d7dbdd;
-    --dashboard-alt-background-color: var(--black-opacity-30);
+    --dashboard-title-action-color: var(--black-opacity-30);
 
     --border-color: #606e7f;
     --alt-border-color: #004e86;
