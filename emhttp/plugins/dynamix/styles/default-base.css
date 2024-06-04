@@ -1502,6 +1502,8 @@ pre#swalbody p {
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables
  *
+ * @todo check version of included Firefox in Unraid OS gui
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Nesting_selector
  * @see https://caniuse.com/?search=nesting
