@@ -1,5 +1,5 @@
 :root {
-    --text-color: var(--gray-100); 
+    --text-color: var(--gray-100);
     --blockquote-text-color: var(--gray-800); 
     --alt-text-color: var(--gray-500); 
     --disabled-text-color: var(--gray-500); 
