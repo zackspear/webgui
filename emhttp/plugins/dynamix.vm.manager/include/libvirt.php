@@ -1359,7 +1359,7 @@
 					$this->_set_last_error();
 
 					$ret[] = [
-						'device' => $disk->target->attributes()->dev,
+						'device' => $disk->target->attributes()->dev->__toString(),
 						'file'   => $disk->source->attributes()->file,
 						'type'   => '-',
 						'capacity' => '-',
