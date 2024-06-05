@@ -756,14 +756,30 @@ _(Critical disk utilization threshold)_ (%):
 </form>
 
 <?if (fsType('btrfs')):?>
+<?if (!maintenance_mode()):?>
+<div class="title nocontrol"><span class="left"><i class="title fa fa-hdd-o"></i>_(Pool Device Status)_</span></div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+
+_(pool device stats)_:
+: <?echo "<pre>".shell_exec("/sbin/btrfs dev stats -T /mnt/$tag")."</pre>"?>
+
+<input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
+<input type="hidden" name="#arg[1]" value="reset">
+<input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
+
+&nbsp;
+: <input type="submit" value="_(Reset)_">
+</form>
+<?endif;?>
+
 <div class="title nocontrol"><span class="left"><i class="title fa fa-balance-scale"></i>_(Balance Status)_</span></div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'btrfs-balance-<?=$tag?>','/mnt/<?=$tag?>')">
 <?if (_var($disk,'fsStatus')=="Mounted"):?>
 <?exec("$docroot/webGui/scripts/btrfs_balance status /mnt/$tag", $balance_status, $retval)?>
 <?$usage = exec("/sbin/btrfs fi usage /mnt/$tag|grep -Pom1 '^Data,.+ \\(\\K[^%]+'");?>
 
-_(btrfs filesystem df)_:
-: <?echo "<pre>".shell_exec("/sbin/btrfs filesystem df /mnt/$tag")."</pre>"?>
+_(btrfs filesystem usage)_:
+: <?echo "<pre>".shell_exec("/sbin/btrfs fi usage -T /mnt/$tag")."</pre>"?>
 
 _(btrfs balance status)_:
 : <?echo "<pre id='btrfs-balance'>".implode("\n", $balance_status)."</pre>"?>
@@ -803,7 +819,7 @@ _(btrfs balance status)_:
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="_(Cancel)_">
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
 :info_balance_cancel_help:
 
@@ -811,7 +827,7 @@ _(btrfs balance status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Balance)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Balance')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
+: <input type="submit" value="_(Balance)_" disabled><b>_(Balance)_</b> _(is only available when the filesyestem is mounted)_
 
 <?endif;?>
 </form>
@@ -885,10 +901,10 @@ _(btrfs scrub status)_:
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_scrub">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
-<input type="hidden" name="#arg[3]" value="-r">
+<input type="hidden" name="#arg[3]" value="">
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_"><label><input type="checkbox" name="#arg[3]" value=""> _(Repair corrupted blocks)_</label>
+: <input type="submit" value="_(Scrub)_">
 
 :info_btrfs_scrub_help:
 
@@ -898,7 +914,7 @@ _(btrfs scrub status)_:
 <input type="hidden" name="#arg[2]" value="/mnt/<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="_(Cancel)_">
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
 :info_scrub_cancel_help:
 
@@ -906,7 +922,7 @@ _(btrfs scrub status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
+: <input type="submit" value="_(Scrub)_" disabled><b>_(Scrub)_</b> _(is only available when the filesyestem is mounted)_
 
 <?endif;?>
 </form>
@@ -973,7 +989,7 @@ _(Time of the day)_:
 _(btrfs check status)_:
 : <?echo "<pre id='btrfs-check'>".implode("\n", $check_status)."</pre>"?>
 
-<?if ($retval != 0):?>
+<?if ($retval == 0):?>
 <input type="hidden" name="#command" value="/webGui/scripts/btrfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
@@ -998,14 +1014,8 @@ _(btrfs check status)_:
 <?endif;?>
 <?else:?>
 
-<?if ($tag==prefix($tag)):?>
 &nbsp;
 : <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
-
-<?else:?>
-&nbsp;
-: <input type="submit" value="_(Check)_" disabled> <?=sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>.
-<?endif;?>
 
 <?endif;?>
 </form>
@@ -1036,7 +1046,7 @@ _(zfs pool status)_:
 <input type="hidden" name="#arg[2]" value="<?=$tag?>">
 
 &nbsp;
-: <input type="submit" value="_(Cancel)_">
+: <input type="submit" value="_(Cancel)_"> *_(Running)_*
 
 :info_scrub_cancel_help:
 
@@ -1044,7 +1054,7 @@ _(zfs pool status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Scrub)_" disabled><?=$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when array is Started') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
+: <input type="submit" value="_(Scrub)_" disabled><?=!$tag||$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when the filesyestem is mounted') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
 </form>
@@ -1152,18 +1162,57 @@ _(reiserfsck status)_:
 _(xfs_repair status)_:
 : <?echo "<pre id='xfs-check'>".implode("\n", $check_status)."</pre>"?>
 
-<?if ($retval != 0):?>
+<?if ($retval == 0 || $retval == 8):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="start">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
 <input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
+<input type="hidden" name="#arg[4]" value="-n">
 
 &nbsp;
-: <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value="-n"> _(Options (see Help))_
+: <input type="submit" value="_(Check)_"><?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
 
 :info_xfs_check_help:
 
-<?else:?>
+<?elseif ($retval == 1):?>
+<input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
+<input type="hidden" name="#arg[4]" value="-e">
+
+&nbsp;
+: <input type="submit" value="_(Fix)_"><span style="color: red;">_(File system corruption detected)_.</span>
+
+:info_xfs_check_help:
+
+<?elseif ($retval == 2):?>
+<input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
+<input type="hidden" name="#arg[4]" value="-eL">
+
+&nbsp;
+: <input type="submit" value="_(Zero Log)_"><span style="color: red;">_(Dirty log detected)_.</span>
+
+<p>_(Note)_: _(While there is some risk, if it is not possible to first mount the filesystem to clear the log, zeroing it is the only option to try and repair the filesystem, and in most cases it results in little or no data loss)_.</p>
+
+:info_xfs_check_help:
+
+<?elseif ($retval == 4):?>
+<input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
+<input type="hidden" name="#arg[4]" value="-n">
+
+&nbsp;
+: <input type="submit" value="_(Check)_">_(File system corruption fixed)_
+
+:info_xfs_check_help:
+
+<?elseif ($retval == 9):?>
 <input type="hidden" name="#command" value="/webGui/scripts/xfs_check">
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk,'deviceSb')?>">
