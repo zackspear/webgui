@@ -629,7 +629,6 @@ if (!$group) {
 </div>
 
 <form name='boot' method='POST' action='/webGui/include/Boot.php'>
-<input type='hidden' name='csrf_token' value='<?=_var($var,'csrf_token')?>'>
 <input type='hidden' name='cmd' value=''>
 </form>
 
@@ -1138,7 +1137,7 @@ function StopArray() {
 }
 function StopArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
-  $.post('/update.htm',{cmdStop:'Stop'},function(){refresh();});
+  $.post('/update.htm',{startState:'<?=htmlspecialchars(_var($var,'mdState'))?>', cmdStop:'Stop'},function(){refresh();});
 }
 function StartArray() {
 <?if ($confirm['stop']):?>
@@ -1149,7 +1148,7 @@ function StartArray() {
 }
 function StartArrayNow() {
   $('span.hand').prop('onclick',null).off('click').addClass('busy').css({'cursor':'default'});
-  $.post('/update.htm',{cmdStart:'Start'},function(){refresh();});
+  $.post('/update.htm',{startState:'<?=htmlspecialchars(_var($var,'mdState'))?>', cmdStart:'Start'},function(){refresh();});
 }
 function Reboot() {
 <?if ($confirm['down']):?>

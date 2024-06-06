@@ -285,12 +285,14 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody
       $parent = str_replace('/mnt/user/', "/mnt/$realdisk/", $parent);
     }
   }
-	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+  $fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
   $rtncode = false;
   switch ($fstype) {
     case "zfs":
       $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
-      $zfsdataset .= str_replace($parent,"",$dirname);
+      if (strpos($zfsdataset,'/') !== false) $zfsdataset .= str_replace($parent,"",$dirname); else {
+        $zfsdataset .= str_replace("/mnt/$zfsdataset","",$dirname);
+      }
       if ($recursive) $rtncode=exec("zfs create -p \"$zfsdataset\"");else $rtncode=exec("zfs create \"$zfsdataset\"");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($zfsdataset,$permissions);
       break;

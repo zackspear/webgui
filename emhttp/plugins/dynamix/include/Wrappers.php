@@ -22,14 +22,14 @@ $_proxy_ = '__';
 $_arrow_ = '&#187;';
 
 // Wrapper functions
-function file_put_contents_atomic($filename,$data, $flags = 0, $context = null) {
+function file_put_contents_atomic($filename,$data) {
   while (true) {
     $suffix = rand();
     if ( ! is_file("$filename$suffix") )
       break;
   }
   $renResult = false;
-  $writeResult = @file_put_contents("$filename$suffix",$data,$flags,$context) === strlen($data);
+  $writeResult = @file_put_contents("$filename$suffix",$data) === strlen($data);
   if ( $writeResult )
     $renResult = @rename("$filename$suffix",$filename);
   if ( ! $writeResult || ! $renResult ) {
