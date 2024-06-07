@@ -152,7 +152,7 @@ function fs_info(&$disk) {
   global $display, $pools;
   $echo = [];
   if (empty($disk['fsStatus']) || $disk['fsStatus']=='-') {
-    return (_var($disk,'type')=='Cache' && !in_array(_var($disk,'name'),$pools)) ? "<td>".vfs_type($disk,true)."</td><td colspan='3'>"._('Device is part of a pool')."</td>" : "<td colspan='4'></td>";
+    return (_var($disk,'type')=='Cache') ? "<td>".vfs_type($disk,true)."</td><td colspan='3'>"._('Device is part of a pool')."</td>" : "<td colspan='4'></td>";
   } elseif (_var($disk,'fsStatus')=='Mounted') {
     $echo[] = "<td>".vfs_type($disk)."</td>";
     $echo[] = "<td>".my_scale(_var($disk,'fsSize',0)*1024,$unit,-1)." $unit</td>";
@@ -513,7 +513,7 @@ while (true) {
       if (strcmp($root,$pool)!=0) $Cache[$root]['devices'] += $Cache[$pool]['devices'];
       if (strcmp($pool,$print)==0) {
         delete_file($pool_log);
-        if (_var($display,'total') && _var($Cache[$root],'devices',0)>1) $echo[$a][] = show_totals(sprintf(_('Pool of %s devices'),my_word($Cache[$root]['devices'])),str_contains($pool,$_tilde_),"$root*");
+        if (_var($display,'total') && _var($Cache[$root],'devices',0)>1) $echo[$a][] = show_totals(sprintf(_('Pool of %s devices'),my_word($Cache[$root]['devices'])),false,"$root*");
         $sum = initSum();
       }
     }
