@@ -51,7 +51,7 @@ switch ($data['id']) {
 			if ($cpus != $cpuset || strlen($cpus) != strlen($cpuset)) {
 				$changes[] = $name;
 				/* used by UpdateTwo.php to read new assignments */
-				file_put_contents("/var/tmp/$name.tmp", $cpuset);
+				file_put_contents_atomic("/var/tmp/$name.tmp", $cpuset);
 			}
 		}
 		$reply = ['success' => (count($changes) ? implode(';', $changes) : '')];
@@ -78,7 +78,7 @@ switch ($data['id']) {
 			if ($ct['CPUset'] != $cpuset || strlen($ct['CPUset']) != strlen($cpuset)) {
 				$changes[] = $name;
 				/* used by UpdateTwo.php to read new assignments */
-				file_put_contents($file, $xml->saveXML());
+				file_put_contents_atomic($file, $xml->saveXML());
 				exec("sed -ri 's/^(<CPUset)/  \\1/;s/><(\\/Container)/>\\n  <\\1/' \"$file\""); /* aftercare */
 			}
 		}
@@ -87,7 +87,7 @@ switch ($data['id']) {
 	case 'is':
 		/* report changed isolcpus in temporary file */
 		foreach ($map as $name => $isolcpu) {
-			file_put_contents("/var/tmp/$name.tmp", $isolcpu);
+			file_put_contents_atomic("/var/tmp/$name.tmp", $isolcpu);
 			$changes[] = $name;
 		}
 		$reply = ['success' => (count($changes) ? implode(';', $changes) : '')];
