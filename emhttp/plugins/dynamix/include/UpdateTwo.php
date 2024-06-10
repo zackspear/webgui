@@ -13,16 +13,14 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
+require_once "$docroot/webGui/include/Wrappers.php";
+
 /* add translations */
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
 function scan($line, $text) {
 	return stripos($line ?? '', $text) !== false;
-}
-
-function safe_get($array, $key, $default = null) {
-	return $array[$key] ?? $default;
 }
 
 $reply = [];
@@ -80,7 +78,7 @@ case 'vm':
 	for ($i = 0; $i < $vcpus; $i++) {
 		$vcpu = $xml->cputune->addChild('vcpupin');
 		$vcpu['vcpu'] = $i;
-		$vcpu['cpuset'] = safe_get($cpuset, $i);
+		$vcpu['cpuset'] = _var($cpuset, $i);
 	}
 	if ($pin) {
 		$attr = $xml->cputune->addChild('emulatorpin');
@@ -254,7 +252,7 @@ case 'is':
 
 	/* Write the updated syslinux configuration back to the file if changes were made */
 	if ($make) {
-		file_put_contents($cfg, implode("\n", $syslinux) . "\n");
+		file_put_contents_atomic($cfg, implode("\n", $syslinux) . "\n");
 	}
 
 	$reply = ['success' => $name];
