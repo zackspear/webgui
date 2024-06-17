@@ -1067,11 +1067,13 @@ _(zfs pool status)_:
 : <input type="submit" value="_(Scrub)_" disabled><?=!$tag||$tag==prefix($tag) ? "<b>"._('Scrub')."</b> "._('is only available when the filesyestem is mounted') : sprintf(_('See %s Settings'),ucfirst(prefix($tag)))?>
 
 <?endif;?>
+<?if (_var($disk,'fsStatus')=="Mounted"):?>
 <div class="title nocontrol"><span class="left"><i class="title fa fa-info"></i>_(Pool Information)_</span></div>
 <?exec("/usr/sbin/zpool list -v ".escapeshellarg($tag), $zfs_info_status, $info_retval); $zfs_info_status = implode("\n",$zfs_info_status)?>
 
 _(zfs pool information)_:
 : <pre id='zfs-info'><?=$zfs_info_status?></pre>
+<?endif;?>
 
 </form>
 <hr>
