@@ -365,7 +365,7 @@
 	</table>
 	<div class="advanced">
 		<blockquote class="inline_help">
-			<p>Specify a URL that for menu to start. Substution variables are
+			<p>Specify a URL that for menu to start. Substitution variables are
 				<br>[IP] IP address, this will take the first IP on the VM. Guest Agent must be installed for this to work.
 				<br>[PORT:XX] Port Number in XX.
 				<br>[VMNAME] VM Name will have spaces replaced with -
