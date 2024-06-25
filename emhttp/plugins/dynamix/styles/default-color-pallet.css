@@ -28,8 +28,8 @@
     --gray-500: #808080; /* Condensed from: #606060 #585858 #6c6c6c #82857e #888888 #8b98a7 #707070 #565656 */
     --gray-600: #404040; /* Condensed from: #42453e #5b5b5b */
     --gray-700: #303030; /* Condensed from: #383a34 #333333 #262626 #202020 */
-    --gray-800: #191919; /* Condensed from: #222222 #212121 #2b2a29 #2b2b2b */
-    --gray-895: rgba(25, 25, 25, 0.95);
+    --gray-800: #212121; /* Condensed from: #222222 #212121 #2b2a29 #2b2b2b */
+    --gray-895: rgba(25, 25, 25, 0.95); /* #191919 */
     --gray-900: var(--black); /* Condensed from: #1c1b1b #121510 */
 
     --orange-100: #ffdfb9;
