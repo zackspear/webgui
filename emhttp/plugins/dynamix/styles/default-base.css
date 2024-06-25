@@ -2088,6 +2088,7 @@ pre#swalbody p {
         border-bottom: none;
         border-color: var(--alt-border-color);
         opacity: 1;
+        color: var(--text-color);
     }
 
     div.tab [type="radio"] + label img {
