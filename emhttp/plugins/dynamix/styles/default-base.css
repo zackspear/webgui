@@ -753,7 +753,7 @@ table.unraid tbody tr:nth-child(even) {
 }
 table.unraid tbody tr:not(.tr_last):hover > td {
     /* @todo css var – ensure it works with white theme */
-    background-color: var(--white-opacity-10);
+    background-color: var(--hover-table-row-background-color);
 }
 table.unraid tr > td {
     overflow: hidden;
@@ -806,7 +806,7 @@ table.disk_status tbody tr.tr_last {
     line-height: 3rem;
     height: 3rem;
     background-color: var(--table-background-color);
-    border-top: 1px solid var(--table-background-color);
+    border-top: 1px solid var(--table-border-color);
 }
 table.array_status {
     table-layout: fixed;
@@ -1985,7 +1985,8 @@ pre#swalbody p {
     }
 
     table.unraid tbody tr:not(.tr_last):hover > td {
-        background-color: var(--black-opacity-05);
+        /* background-color: var(--black-opacity-05); */
+        background-color: var(--hover-table-row-background-color);
     }
 
     table.disk_status tbody tr {
