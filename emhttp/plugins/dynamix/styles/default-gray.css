@@ -28,6 +28,7 @@
     --hover-table-row-background-color: var(--white-opacity-05);
     --dashboard-background-color: var(--theme-gray--cyan-900);
     --dashboard-title-action-color: var(--white-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
 
     --border-color: var(--theme-gray--cyan-400);
     --alt-border-color: var(--theme-gray--cyan-600);
