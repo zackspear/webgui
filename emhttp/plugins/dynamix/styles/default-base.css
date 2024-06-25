@@ -743,7 +743,7 @@ table.unraid thead tr:first-child > td {
     font-size: 1.1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background-color: var(--mild-background-color);
+    background-color: var(--table-header-background-color);
 }
 table.unraid thead tr:last-child {
     border-bottom: 1px solid var(--table-border-color);
@@ -935,7 +935,7 @@ table.dashboard i.control {
     font-size: 1.4rem !important;
     margin: 0 3px 0 0;
     cursor: pointer;
-    color: var(--dashboard-background-color);
+    color: var(--dashboard-icon-color);
     background-color: var(--dashboard-title-action-color);
     padding: 2px;
     border-radius: 5px;

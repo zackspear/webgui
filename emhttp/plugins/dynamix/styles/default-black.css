@@ -8,13 +8,14 @@
 
     --background-color: var(--gray-900); 
     --opac-background-color: var(--gray-895);
-    --mild-background-color: var(--gray-700); 
+    --mild-background-color: #262626; /* var(--gray-700); */
     --usage-bar-background-color: var(--gray-700); 
     --usage-disk-background-color: var(--gray-700); 
     --inverse-background-color: var(--gray-100);
     --radio-background-color: var(--gray-700); 
     --dashboard-background-color: var(--gray-700);
-    --dashboard-title-action-color: var(--black-opacity-30);
+    --dashboard-title-action-color: var(--white-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
 
     --border-color: var(--gray-600);
     --disabled-border-color: var(--gray-500); 
@@ -23,6 +24,7 @@
     --inverse-border-color: var(--white-opacity-25); 
     --table-border-color: var(--gray-700); 
     --table-background-color: var(--gray-800);
+    --table-header-background-color: var(--gray-800);
     --hover-table-row-background-color: var(--white-opacity-05);
 
     --small-shadow: 0 0 3px var(--gray-700); 

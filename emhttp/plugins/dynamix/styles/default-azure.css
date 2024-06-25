@@ -18,9 +18,13 @@
     --radio-background-color: var(--gray-700); 
     --disabled-input-background-color: var(--gray-300);
     --table-background-color: transparent;
+    --table-header-background-color: var(--gray-150);
+
     --hover-table-row-background-color: var(--black-opacity-05);
+
     --dashboard-background-color: #d7dbdd;
     --dashboard-title-action-color: var(--black-opacity-30);
+    --dashboard-icon-color: var(--mild-background-color);
 
     --border-color: #606e7f;
     --alt-border-color: #004e86;
