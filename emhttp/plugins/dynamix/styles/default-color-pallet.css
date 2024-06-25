@@ -22,7 +22,7 @@
     --gray-100: #f2f2f2;
     --gray-120: rgba(242, 242, 242, 0.2); /* Condensed from rgba(237, 234, 239, 0.2). && 242, 242, 242 == --gray-100 */
     --gray-150: #e8e8e8; /* Condensed from: #e4e2e4 */
-    --gray-200: #d3d3d3; /* Condensed from: #d9d9d9 #dcdcdc #d4d5d6 #e2e2e2 #e5e5e5 */
+    --gray-200: #d3d3d3; /* Condensed from: #d9d9d9 #dcdcdc #d4d5d6 #e2e2e2 #e3e3e3 #e5e5e5 */
     --gray-300: #cccccc; /* Condensed from: gray #c0c0c0 #a8a8a8 #c7c5cb #b0b0b0 */
     --gray-400: #909090; /* Condensed from: #989898 #a2a2a2 #949494 #a6a7a7 */
     --gray-500: #808080; /* Condensed from: #606060 #585858 #6c6c6c #82857e #888888 #8b98a7 #707070 #565656 */

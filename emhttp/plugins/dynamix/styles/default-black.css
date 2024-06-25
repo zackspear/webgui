@@ -23,6 +23,7 @@
     --inverse-border-color: var(--white-opacity-25); 
     --table-border-color: var(--gray-700); 
     --table-background-color: var(--gray-800);
+    --hover-table-row-background-color: var(--white-opacity-05);
 
     --small-shadow: 0 0 3px var(--gray-700); 
     --hr-color: var(--gray-800); 

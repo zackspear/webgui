@@ -21,8 +21,10 @@
     --input-border-color: var(--gray-900);
     --disabled-input-border-color: var(--gray-400);
     --inverse-border-color: var(--gray-000);
-    --table-border-color: var(--gray-150);
-    --table-background-color: var(--gray-200);
+    --table-border-color: var(--gray-200);
+    --table-background-color: var(--gray-150);
+
+    --hover-table-row-background-color: var(--black-opacity-05);
 
     --small-shadow: 0 0 3px var(--gray-700);
     --hr-color: var(--gray-300);

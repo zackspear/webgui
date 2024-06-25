@@ -25,6 +25,7 @@
     --radio-background-color: var(--gray-700); 
     --disabled-input-background-color: var(--alt-background-color);
     --table-background-color: transparent;
+    --hover-table-row-background-color: var(--white-opacity-05);
     --dashboard-background-color: var(--theme-gray--cyan-900);
     --dashboard-title-action-color: var(--white-opacity-30);
 
