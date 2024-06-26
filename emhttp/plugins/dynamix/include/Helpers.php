@@ -212,15 +212,53 @@ function tail($file, $rows=1) {
   }
   return implode($echo);
 }
+
+/* Get the last parity check from the parity history. */
 function last_parity_log() {
-  $log = '/boot/config/parity-checks.log';
-  [$date,$duration,$speed,$status,$error,$action,$size] = file_exists($log) ? my_explode('|',tail($log),7) : array_fill(0,7,0);
-  if ($date) {
-    [$y,$m,$d,$t] = my_preg_split('/ +/',$date,4);
-    $date = strtotime("$d-$m-$y $t");
-  }
-  return [$date,$duration,$speed,$status,$error,$action,$size];
+	$log = '/boot/config/parity-checks.log';
+
+	if (file_exists($log)) {
+		list($date, $duration, $speed, $status, $error, $action, $size) = my_explode('|', tail($log), 7);
+	} else {
+		list($date, $duration, $speed, $status, $error, $action, $size) = array_fill(0, 7, 0);
+	}
+
+	if ($date) {
+		list($y, $m, $d, $t) = my_preg_split('/ +/', $date, 4);
+		$date = strtotime("$d-$m-$y $t");
+	}
+
+	return [$date, $duration, $speed, $status, $error, $action, $size];
 }
+
+/* Get the last parity check from Unraid. */
+function last_parity_check() {
+	global $var;
+
+	/* Files for the latest parity check. */
+	$stamps	= '/var/tmp/stamps.ini';
+	$resync	= '/var/tmp/resync.ini';
+
+	/* Get the latest parity information from Unraid. */
+	$synced		= file_exists($stamps) ? explode(',',file_get_contents($stamps)) : [];
+	$sbSynced	= array_shift($synced) ?: _var($var,'sbSynced',0);
+	$idle		= [];
+	while (count($synced) > 1) {
+		$idle[] = array_pop($synced) - array_pop($synced);
+	}
+	$action		= _var($var, 'mdResyncAction');
+	$size		= _var($var, 'mdResyncSize', 0);
+	if (file_exists($resync)) {
+		list($action, $size) = my_explode(',', file_get_contents($resync));
+	}
+	$duration	= $var['sbSynced2']-$sbSynced-array_sum($idle);
+	$status		= _var($var,'sbSyncExit');
+	$speed		= $status==0 ? round($size*1024/$duration) : 0;
+	$error		= _var($var,'sbSyncErrs',0);
+
+	return [$duration, $speed, $status, $error, $action, $size];
+}
+
 function urlencode_path($path) {
   return str_replace("%2F", "/", urlencode($path));
 }
@@ -285,14 +323,12 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody
       $parent = str_replace('/mnt/user/', "/mnt/$realdisk/", $parent);
     }
   }
-  $fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
+	$fstype = trim(shell_exec(" stat -f -c '%T' $parent"));
   $rtncode = false;
   switch ($fstype) {
     case "zfs":
       $zfsdataset = trim(shell_exec("zfs list -H -o name  $parent")) ;
-      if (strpos($zfsdataset,'/') !== false) $zfsdataset .= str_replace($parent,"",$dirname); else {
-        $zfsdataset .= str_replace("/mnt/$zfsdataset","",$dirname);
-      }
+      $zfsdataset .= str_replace($parent,"",$dirname);
       if ($recursive) $rtncode=exec("zfs create -p \"$zfsdataset\"");else $rtncode=exec("zfs create \"$zfsdataset\"");
       if (!$rtncode) mkdir($dirname, $permissions, $recursive); else chmod($zfsdataset,$permissions);
       break;
