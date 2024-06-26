@@ -10,6 +10,7 @@
     --opac-background-color: var(--gray-895);
     --mild-background-color: #f7f9f9;
     --usage-bar-background-color: var(--gray-500);
+    --usage-bar-used-background-color: var(--gray-300);
     --usage-disk-background-color: var(--gray-200);
     --inverse-background-color: var(--gray-900);
     --radio-background-color: var(--gray-200);
