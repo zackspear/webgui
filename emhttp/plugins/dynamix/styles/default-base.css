@@ -620,8 +620,8 @@ div.title.shift {
     height: 100%;
     text-align: right;
     border-radius: 2px;
-    color: var(--text-color);
-    background-color: var(--usage-bar-background-color);
+    color: var(--gray-100);
+    background-color: var(--usage-bar-used-background-color);
     /* @todo css var for white theme, ensure it works */
     box-shadow: inset 0 1px 0 var(--white-opacity-50);
 }
@@ -752,7 +752,6 @@ table.unraid tbody tr:nth-child(even) {
     background-color: var(--table-background-color);
 }
 table.unraid tbody tr:not(.tr_last):hover > td {
-    /* @todo css var – ensure it works with white theme */
     background-color: var(--hover-table-row-background-color);
 }
 table.unraid tr > td {
@@ -1159,7 +1158,7 @@ div.tab [type="radio"]:checked + label ~ .content {
 }
 div.tab [type="radio"] + label {
     position: relative;
-    /* font-size: 1.4rem; */
+    font-size: 1.4rem;
     letter-spacing: 1.8px;
     padding: 4px 10px;
     margin-right: 2px;
@@ -1916,12 +1915,15 @@ pre#swalbody p {
     }
 
     .usage-bar {
+        float: unset;
         position: fixed;
         top: 64px;
         left: 300px;
         height: 2.2rem;
         line-height: 2.2rem;
         width: 11rem;
+        margin: 0;
+        padding: 0;
     }
 
     .usage-disk {

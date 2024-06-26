@@ -19,7 +19,8 @@
     --disabled-input-background-color: var(--gray-300);
     --table-background-color: transparent;
     --table-header-background-color: var(--gray-150);
-
+    --usage-bar-background-color: var(--gray-500);
+    --usage-bar-used-background-color: var(--gray-300);
     --hover-table-row-background-color: var(--black-opacity-05);
 
     --dashboard-background-color: #d7dbdd;
