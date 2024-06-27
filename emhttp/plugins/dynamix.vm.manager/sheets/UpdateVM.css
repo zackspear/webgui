@@ -1,3 +1,12 @@
+:root {
+    --update-vm-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --update-vm-background: var(--gray-100);
+}
+
 body {
     -webkit-overflow-scrolling: touch;
 }
@@ -72,7 +81,7 @@ body {
     left: 0;
     width: 6px;
     border-radius: 3px;
-    background-color: #dddddd;
+    background-color: var(--gray-200); /* Condensed from: #dddddd */
     transition-property: background, width;
     transition-duration: 0.1s;
     transition-timing-function: linear;
@@ -85,7 +94,7 @@ body {
     opacity: 0.6;
 }
 #vmform .multiple:hover .sectiontab {
-    background-color: #cccccc;
+    background-color: var(--gray-300);
     width: 8px;
 }
 #vmform table.multiple:hover {
@@ -139,7 +148,7 @@ span.advancedview_panel {
     position: relative;
 }
 #template_img_chooser div:hover {
-    background-color: #eee;
+    background-color: var(--gray-150); /* Condensed from: #eee */
     cursor: pointer;
 }
 #form_content {
@@ -168,7 +177,7 @@ span.advancedview_panel {
 #vmform .mac_generate {
     cursor: pointer;
     margin-left: -5px;
-    color: #08c;
+    color: var(--blue-700); /* Condensed from: #08c */
     font-size: 1.3rem;
     transform: translate(0px, 2px);
 }
@@ -177,7 +186,7 @@ span.advancedview_panel {
 }
 #vmform .disk_preview {
     display: inline-block;
-    color: #bbb;
+    color: var(--gray-300); /* Condensed from: #bbb */
     transform: translate(0px, 1px);
 }
 i.fa-plus-circle,
@@ -189,4 +198,39 @@ input[type="checkbox"] {
 }
 #vmform table.timers td.present {
     width: 150px;
+}
+
+.fileTree {
+    background: var(--update-vm-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 100;
+    display: none;
+}
+#vmform table.multiple {
+    margin: 10px 0;
+    background: var(--update-vm-background);
+    background-size: 800px 100%;
+    background-position: -800px;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    transition: background 0.3s linear;
+}
+#template_img_chooser_outer {
+    position: absolute;
+    display: none;
+    border-radius: 5px;
+    border: 1px solid <?=$border?>;
+    background: var(--update-vm-background);
+    z-index: 10;
+}
+span#dropbox {
+    border: 1px solid <?=$border?>;
+    background: var(--update-vm-background);
+    padding: 28px 12px;
+    line-height: 72px;
+    margin-right: 16px;
 }
