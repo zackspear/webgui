@@ -1,5 +1,16 @@
+:root {
+    --docker-settings-file-tree-background: var(--black);
+    --docker-settings-span-disabled-color: var(--gray-600);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --docker-settings-file-tree-background: var(--gray-100);
+    --docker-settings-span-disabled-color: var(--gray-300); /* Condensed from: #b0b0b0 */
+}
+
 .errortext {
-    color: #ef3d47;
+    color: var(--red-800); /* Condensed from: #ef3d47 */
     display: none;
     margin-left: 20px;
 }
@@ -62,18 +73,6 @@ span.gw6 {
 }
 span.nonexist {
     margin-left: 20px;
-}
-
-
-:root {
-    --docker-settings-file-tree-background: var(--black);
-    --docker-settings-span-disabled-color: var(--gray-600);
-}
-
-.Theme--azure:root,
-.Theme--white:root {
-    --docker-settings-file-tree-background: var(--gray-100);
-    --docker-settings-span-disabled-color: var(--gray-300); /* Condensed from: #b0b0b0 */
 }
 
 .fileTree {
