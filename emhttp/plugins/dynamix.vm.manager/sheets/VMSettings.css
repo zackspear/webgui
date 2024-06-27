@@ -1,10 +1,10 @@
 :root {
-    --add-container-file-tree-background: var(--black);
+    --vm-machines-file-tree-background: var(--black);
 }
 
 .Theme--azure:root,
 .Theme--white:root {
-    --add-container-file-tree-background: var(--gray-100);
+    --vm-machines-file-tree-background: var(--gray-100);
 }
 
 body {
@@ -58,7 +58,7 @@ body {
 }
 
 .fileTree {
-    background: var(--add-container-file-tree-background);
+    background: var(--vm-machines-file-tree-background);
     width: 300px;
     max-height: 150px;
     overflow-y: scroll;
