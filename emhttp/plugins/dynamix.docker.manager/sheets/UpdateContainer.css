@@ -1,10 +1,19 @@
+:root {
+    --update-container-file-tree-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --update-container-file-tree-background: var(--gray-100);
+}
+
 .noshow,
 .advanced {
     display: none;
 }
 .required:after {
     content: " *";
-    color: #e80000;
+    color: var(--red-800);
 }
 span.boxed {
     display: inline-block;
@@ -55,4 +64,14 @@ div#configLocation dl {
 }
 div#configLocation dt {
     margin-top: -0.18rem !important;
+}
+
+.fileTree {
+    width: 240px;
+    max-height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    display: none;
+    background: var(--update-container-file-tree-background);
 }
