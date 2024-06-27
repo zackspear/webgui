@@ -43,3 +43,10 @@ input[value="_(Update)_"],
 input[value="_(Restore)_"] {
     margin: 0;
 }
+
+.Theme--black,
+.Theme--white {
+    span.vhshift {
+        margin-top: 13px !important;
+    }
+}
