@@ -1,3 +1,12 @@
+:root {
+    --add-container-file-tree-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --add-container-file-tree-background: var(--gray-100);
+}
+
 body {
     -webkit-overflow-scrolling: touch;
 }
@@ -46,4 +55,15 @@ body {
 }
 #remove_button span {
     font-family: clear-sans;
+}
+
+.fileTree {
+    background: var(--add-container-file-tree-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
 }
