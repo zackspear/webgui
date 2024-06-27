@@ -63,3 +63,29 @@ span.gw6 {
 span.nonexist {
     margin-left: 20px;
 }
+
+
+:root {
+    --docker-settings-file-tree-background: var(--black);
+    --docker-settings-span-disabled-color: var(--gray-600);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --docker-settings-file-tree-background: var(--gray-100);
+    --docker-settings-span-disabled-color: var(--gray-300); /* Condensed from: #b0b0b0 */
+}
+
+.fileTree {
+    background: var(--docker-settings-file-tree-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
+}
+span.disabled {
+    color: var(--docker-settings-span-disabled-color);
+}
