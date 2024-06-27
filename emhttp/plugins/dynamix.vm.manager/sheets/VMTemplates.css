@@ -2,7 +2,7 @@
     padding: 10px;
     font-size: 1.4rem;
     text-align: left;
-    color: #888;
+    color: var(--gray-500); /* Condensed from: #888 */
 }
 .vmtemplate {
     display: inline-block;
