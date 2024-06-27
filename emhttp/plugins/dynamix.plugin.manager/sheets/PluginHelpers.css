@@ -3,9 +3,9 @@
     width: 100%;
     height: 40px;
     line-height: 40px;
-    color: #e68a00;
-    background: #feefb3;
-    border-bottom: #e68a00 1px solid;
+    color: var(--orange-300);
+    background: var(--yellow-200);
+    border-bottom: var(--orange-300) 1px solid;
     text-align: center;
     font-size: 1.4rem;
     z-index: 900;
@@ -26,5 +26,5 @@ span.bannerInfo {
 span.bannerInfo::before {
     content: "\f05a";
     font-family: fontAwesome;
-    color: #e68a00;
+    color: var(--orange-300);
 }
