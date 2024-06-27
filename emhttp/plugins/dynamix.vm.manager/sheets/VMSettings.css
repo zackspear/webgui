@@ -2,7 +2,7 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 .errortext {
-    color: #ef3d47;
+    color: var(--red-800); /* Condensed from: #ef3d47 */
     display: none;
 }
 .basic {
@@ -16,19 +16,19 @@ body {
 }
 #download_status {
     margin-left: 5px;
-    color: #777;
+    color: var(--gray-500); /* Condensed from: #777 */
     display: none;
 }
 #download_button {
     cursor: pointer;
     margin-left: -2px;
-    color: #08c;
+    color: var(--blue-700); /* Condensed from: #08c */
     display: none;
     transform: translate(0px, 2px);
 }
 #download_button.fa-spin {
     cursor: default;
-    color: #777;
+    color: var(--gray-500); /* Condensed from: #777 */
 }
 #download_button span {
     font-family: clear-sans;
@@ -40,7 +40,7 @@ body {
 #remove_button {
     cursor: pointer;
     margin-left: -2px;
-    color: #ef3d47;
+    color: var(--red-800); /* Condensed from: #ef3d47 */
     display: none;
     transform: translate(0px, 2px);
 }
