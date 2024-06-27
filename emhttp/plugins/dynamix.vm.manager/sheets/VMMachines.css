@@ -1,3 +1,12 @@
+:root {
+    --vm-machines-file-tree-background: var(--black);
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --vm-machines-file-tree-background: var(--gray-100);
+}
+
 th.th1 {
     width: 25%;
 }
@@ -69,42 +78,42 @@ i.fa-dot-circle-o {
 }
 .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button[disabled] {
     cursor: default;
-    color: #808080;
+    color: var(--gray-500);
     background:
         -webkit-gradient(
                 linear,
                 left top,
                 right top,
-                from(#404040),
-                to(#808080)
+                from(var(--gray-600)),
+                to(var(--gray-500))
             )
             0 0 no-repeat,
         -webkit-gradient(
                 linear,
                 left top,
                 right top,
-                from(#404040),
-                to(#808080)
+                from(var(--gray-600)),
+                to(var(--gray-500))
             ) 0 100% no-repeat,
         -webkit-gradient(
                 linear,
                 left bottom,
                 left top,
-                from(#404040),
-                to(#404040)
+                from(var(--gray-600)),
+                to(var(--gray-600))
             ) 0 100% no-repeat,
         -webkit-gradient(
                 linear,
                 left bottom,
                 left top,
-                from(#808080),
-                to(#808080)
+                from(var(--gray-500)),
+                to(var(--gray-500))
             ) 100% 100% no-repeat;
     background:
-        linear-gradient(90deg, #404040 0, #808080) 0 0 no-repeat,
-        linear-gradient(90deg, #404040 0, #808080) 0 100% no-repeat,
-        linear-gradient(0deg, #404040 0, #404040) 0 100% no-repeat,
-        linear-gradient(0deg, #808080 0, #808080) 100% 100% no-repeat;
+        linear-gradient(90deg, var(--gray-600) 0, var(--gray-500)) 0 0 no-repeat,
+        linear-gradient(90deg, var(--gray-600) 0, var(--gray-500)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--gray-600) 0, var(--gray-600)) 0 100% no-repeat,
+        linear-gradient(0deg, var(--gray-500) 0, var(--gray-500)) 100% 100% no-repeat;
     background-size:
         100% 2px,
         100% 2px,
@@ -117,4 +126,15 @@ i.fa-dot-circle-o {
 span.vmgraphics {
     font-size: 1.1rem;
     text-align: left;
+}
+
+.fileTree {
+    background: var(--vm-machines-file-tree-background);
+    width: 500px;
+    max-height: 320px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
 }
