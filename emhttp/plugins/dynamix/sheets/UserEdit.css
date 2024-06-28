@@ -1,18 +1,18 @@
 :root {
-    --useradd-dropbox-border-color: #f2f2f2;
-    --useradd-dropbox-bg-color: #262626;
+    --useredit-dropbox-border-color: var(--gray-100);
+    --useredit-dropbox-bg-color: var(--gray-700); /* Condensed from: #262626*/
 }
 .Theme--azure:root {
-    --useradd-dropbox-border-color: #606e7f;
-    --useradd-dropbox-bg-color: #edeaef;
+    --useredit-dropbox-border-color: var(--border-color);
+    --useredit-dropbox-bg-color: var(--mild-background-color);
 }
 .Theme--gray:root {
-    --useradd-dropbox-border-color: #606e7f;
-    --useradd-dropbox-bg-color: #121510;
+    --useredit-dropbox-border-color: var(--border-color);
+    --useredit-dropbox-bg-color: var(--mild-background-color);
 }
 .Theme--white:root {
-    --useradd-dropbox-border-color: #1c1c1c;
-    --useradd-dropbox-bg-color: #e8e8e8;
+    --useredit-dropbox-border-color: var(--black); /* Condensed from: #1c1c1c #1c1b1b #1c1c1c */
+    --useredit-dropbox-bg-color: var(--gray-150);
 }
 
 i.top {
@@ -28,9 +28,9 @@ table.unraid {
 }
 
 span#dropbox {
-    border: 1px solid var(--useradd-dropbox-border-color);
+    border: 1px solid var(--useredit-dropbox-border-color);
     border-radius: 5px;
-    background: var(--useradd-dropbox-bg-color);
+    background: var(--useredit-dropbox-bg-color);
     padding: 28px 12px;
     line-height: 72px;
     margin-right: 16px;
