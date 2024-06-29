@@ -1636,7 +1636,7 @@
 		}
 
 		function get_domain_by_name($name) {
-			$tmp = libvirt_domain_lookup_by_name($this->conn, $name);
+			$tmp = @libvirt_domain_lookup_by_name($this->conn, $name);
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 

@@ -3,7 +3,7 @@ function displayconsole(url) {
 }
 
 function displayWebUI(url) {
-  window.open(url, '', 'scrollbars=yes,resizable=yes');
+  window.open(url, '_blank').focus();
 }
 
 function downloadFile(source) {

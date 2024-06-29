@@ -2616,6 +2616,7 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 	$allstats=$lv->domain_get_all_domain_stats();
 
 	foreach ($allstats as $vm => $data) {
+		$rd=$wr=$tx=$rx=null;
 		$state = $data["state.state"];
 		# CPU Metrics
 		$cpuTime = 0;
