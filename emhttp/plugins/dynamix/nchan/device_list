@@ -349,7 +349,7 @@ function array_slots() {
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
   $echo[] = "<select class='narrow' name='SYS_ARRAY_SLOTS' onChange='devices.start();this.form.submit()'>";
-  if (_var($var,'mdState')=='ERROR:NO_DEVICES' || (_var($var,'mdState')=='STOPPED' && _var($var,'mdNumDisks')=='0'))
+  if (_var($var,'mdNumDisks')=='0')
     $echo[] = "<option value='0'>none</option>";
   for ($n=$min; $n<=$max; $n++) {
     $selected = $n==_var($var,'SYS_ARRAY_SLOTS') ? ' selected' : '';
