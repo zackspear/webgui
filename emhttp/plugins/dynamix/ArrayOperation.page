@@ -19,7 +19,11 @@ Nchan="device_list,disk_load,parity_list"
 $keyfile = file_exists(_var($var,'luksKeyfile'));
 $missing = file_exists('/var/tmp/missing.tmp');
 $encrypt = false;
-$spot    = _var($var,'mdResyncPos',0)>0;
+
+/* File for the latest parity check. */
+$resync	= '/var/tmp/resync.ini';
+$spot    = _var($var,'mdResyncPos',0)>0 && file_exists($resync);
+
 $poolsOnly  = (_var($var,'SYS_ARRAY_SLOTS') == 0 ) ? true : false;
 
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
