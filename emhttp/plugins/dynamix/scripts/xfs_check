@@ -21,11 +21,13 @@ case "$1" in
 	/sbin/xfs_repair $4 $2 &> /var/lib/xfs/check.status.$3 &
 	pid=$!
 	echo $pid > /var/lib/xfs/check.pid.$3
-	# Capture the exit code once xfs_repair completes
-	{
-		wait $pid
-		echo $? > /var/lib/xfs/check.status.$3.exit
-	} &
+
+    # Wait for xfs_repair to complete synchronously
+    wait "$pid"
+
+    # Capture the exit code of xfs_repair
+	echo $? > /var/lib/xfs/check.status.$3.exit
+
 	exit 0
 ;;
 'status')
