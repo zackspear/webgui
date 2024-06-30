@@ -50,9 +50,6 @@ $pools = array_filter($pools, function($pool) {
 	return !isSubpool($pool);
 });
 
-@file_put_contents("/tmp/pools", json_encode($pools, JSON_PRETTY_PRINT));
-
-
 /* Check for non existent pool device. */
 if ($share['cachePool'] && !in_array($share['cachePool'], $pools)) {
 	$poolDefined = false;
