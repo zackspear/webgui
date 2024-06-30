@@ -45,6 +45,14 @@ if ($name == "") {
 /* If the configuration is pools only, then no array disks are available. */
 $poolsOnly	= ((int)$var['SYS_ARRAY_SLOTS'] <= 2) ? true : false;
 
+/* Remove subpools from the array of pools. */
+$pools = array_filter($pools, function($pool) {
+	return !isSubpool($pool);
+});
+
+@file_put_contents("/tmp/pools", json_encode($pools, JSON_PRETTY_PRINT));
+
+
 /* Check for non existent pool device. */
 if ($share['cachePool'] && !in_array($share['cachePool'], $pools)) {
 	$poolDefined = false;
