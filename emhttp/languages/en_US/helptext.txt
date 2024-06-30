@@ -1606,6 +1606,9 @@ Image will be scaled to 1920x90 pixels. The maximum image file upload size is 51
 :display_temperature_unit_help:
 Selects the temperature unit for the disk temperature thresholds. Changing the unit will adjust the existing value in the disk temperature thresholds as appropriate.
 
+:display_favorites_disabled_help:
+Sets favorites adding to disabled. Stops heart icon showing. favorties tab and pre-saved options will still continue to function.
+
 Make sure any newly entered values represent the selected temperature unit.
 :end
 
