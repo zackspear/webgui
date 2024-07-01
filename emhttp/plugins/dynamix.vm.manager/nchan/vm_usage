@@ -67,7 +67,6 @@ while (true) {
   get_vm_usage_stats();
   $echo = [];
   $echo = [];
-  $ts = $time1 - $time0;
   $echodata = "";
   $running = 0;
   ksort($vmusagestats);
@@ -90,7 +89,6 @@ while (true) {
   $md5_new = md5($echo,true);
   if ($md5_new !== $md5_old) {
     $md5_old = publish('vm_usage',$echo)!==false ? $md5_new : -1;
-    $time0 = $time1;
   }
 
   sleep($timer);
