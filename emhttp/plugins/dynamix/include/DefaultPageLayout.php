@@ -810,7 +810,9 @@ default:
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/category/manual' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
-echo "</span></div>";
+echo "</span>";
+echo "<unraid-theme-switcher current='$theme'></unraid-theme-switcher>";
+echo "</div>";
 ?>
 <script>
 // Firefox specific workaround, not needed anymore in firefox version 100 and higher
