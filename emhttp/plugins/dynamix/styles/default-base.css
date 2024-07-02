@@ -409,7 +409,7 @@ div.title {
     padding: 8px 10px;
     clear: both;
     border-bottom: 1px solid var(--table-border-color);
-    background-color: var(--mild-background-color);
+    background-color: var(--title-header-background-color);
     letter-spacing: 1.8px;
 }
 div.title span.left {
