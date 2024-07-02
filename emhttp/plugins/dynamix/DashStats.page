@@ -665,11 +665,11 @@ table.find('tbody').not('.system').each(function(){
   sort.push($(this).attr('sort'));
   checked.push($(this).is(':visible') ? 'checked' : '');
 });
-for (var n=0,x; x=index[n]; n++) {
+for (let n=0,x; x=index[n]; n++) {
   $('div#list').append("<span class='item'><input class='checker' type='checkbox' "+checked[n]+">"+x+"</span>");
 }
 function hideShow() {
-  var n = 0, inactive = [];
+  let n = 0, inactive = [];
   var count = {'db-box1':0, 'db-box2':0, 'db-box3':0};
   $('input.checker').each(function(){
     var tbody = $('table.dashboard').find('tbody[sort="'+sort[n]+'"]');
@@ -764,7 +764,7 @@ jQuery.prototype.mixedView = function(s) {
     select = parseInt(select.val())+1;
     this.find('tr:gt(0)').each(function(){
       var names = ($(this).attr('class')||'').split(' ');
-      for (var n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide();
+      for (let n=0,name; name=names[n]; n++) if (/[0-9]/.test(name.slice(-1)) && name.slice(-1)!=select) $(this).hide();
     });
   }
 }
@@ -1184,7 +1184,7 @@ function showContent() {
   var inactive = $.cookie('inactive_content');
   if (inactive) {
     inactive = inactive.split(';');
-    for (var n=0,md5; md5=inactive[n]; n++) {
+    for (let n=0,md5; md5=inactive[n]; n++) {
       var tbody = $('table.dashboard tbody[sort="'+md5+'"]');
       var id = tbody.parent().prop('id');
       count[id]--;
@@ -1194,7 +1194,7 @@ function showContent() {
   var hidden = $.cookie('hidden_content');
   if (hidden) {
     hidden = hidden.split(';');
-    for (var n=0,md5; md5=hidden[n]; n++) {
+    for (let n=0,md5; md5=hidden[n]; n++) {
       var tbody = $('div.frame tbody[sort="'+md5+'"]');
       tbody.find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-down');
       tbody.find('tr:gt(0)').hide();
@@ -1434,7 +1434,7 @@ dashboard.on('message',function(msg,meta) {
     break;
   case 4:
     // wireguard tunnels
-    var n = {};
+    let n = {};
     var rows = msg.split('\0');
     for (var i=0,row; row=rows[i]; i++) {
       var info = row.split(';');
