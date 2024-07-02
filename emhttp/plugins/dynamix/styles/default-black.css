@@ -1,4 +1,9 @@
 :root {
+    /* Theme specific vars */
+    --theme-black--mild-gray-700: #262626;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
     --text-color: var(--gray-100);
     --blockquote-text-color: var(--gray-800); 
     --alt-text-color: var(--gray-500); 
@@ -8,7 +13,7 @@
 
     --background-color: var(--gray-900); 
     --opac-background-color: var(--gray-895);
-    --mild-background-color: #262626; /* var(--gray-700); */
+    --mild-background-color: var(--theme-black--mild-gray-700);
     --usage-bar-background-color: var(--gray-600);
     --usage-bar-used-background-color: var(--gray-500);
     --usage-disk-background-color: var(--gray-700); 
