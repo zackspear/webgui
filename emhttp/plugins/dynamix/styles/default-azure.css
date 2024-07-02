@@ -50,6 +50,8 @@
 
     --header-color: var(--gray-100);
 
+    --title-header-background-color: var(--mild-background-color);
+
     --scrollbar-color: var(--gray-300);
     --scrollbar-hover-color: var(--gray-200);
 
