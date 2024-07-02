@@ -1,4 +1,9 @@
 :root {
+    /* Theme specific vars */
+    --theme-white--mild-gray-100: #f7f9f9;
+    /* /Theme specific vars */
+
+    /* Begin setting vars used in default-base */
     --text-color: var(--gray-900);
     --blockquote-text-color: var(--gray-800);
     --alt-text-color: var(--gray-400);
@@ -8,7 +13,7 @@
 
     --background-color: var(--gray-100);
     --opac-background-color: var(--gray-895);
-    --mild-background-color: #f7f9f9;
+    --mild-background-color: var(--theme-white--mild-gray-100);
     --usage-bar-background-color: var(--gray-500);
     --usage-bar-used-background-color: var(--gray-400);
     --usage-disk-background-color: var(--gray-200);
@@ -56,10 +61,10 @@
         linear-gradient(0deg, var(--brand-orange) 0, var(--brand-orange)) 100% 100% no-repeat;
     --button-background-size: 100% 2px, 100% 2px, 2px 100%, 2px 100%;
 
-    --hover-button-border: #0072c6;
+    --hover-button-border: var(--blue-700);
     --hover-button-text-color: var(--white);
     --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
 
-    --input-border-color: #1c1b1b;
+    --input-border-color: var(--black);
     --input-bg-color: transparent;
 }

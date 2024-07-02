@@ -1,16 +1,20 @@
 :root {
+    /* Theme specific vars */
     --theme-gray--black-alt: #121510;
-    --theme-gray--cyan-400: #606e7f;
+    --theme-gray--cyan-300: #606e7f;
+    --theme-gray--cyan-400: #566573;
     --theme-gray--cyan-500: #42453e;
     --theme-gray--cyan-600: #004e86;
     --theme-gray--cyan-700: #39587f;
     --theme-gray--cyan-900: #212f3d;
 
     --theme-gray--green-900: #232523;
+    /* /Theme specific vars */
 
-    --text-color: var(--theme-gray--cyan-400);
+    /* Begin setting vars used in default-base */
+    --text-color: var(--theme-gray--cyan-300);
     --blockquote-text-color: var(--gray-800); 
-    --alt-text-color: var(--theme-gray--cyan-400);
+    --alt-text-color: var(--theme-gray--cyan-300);
     --disabled-text-color: var(--gray-500); 
     --inverse-text-color: var(--gray-900); 
     --link-text-color: var(--blue-800); 
@@ -31,20 +35,20 @@
     --dashboard-title-action-color: var(--white-opacity-30);
     --dashboard-icon-color: var(--mild-background-color);
 
-    --border-color: var(--theme-gray--cyan-400);
+    --border-color: var(--theme-gray--cyan-300);
     --alt-border-color: var(--theme-gray--cyan-600);
     --disabled-border-color: var(--gray-500); 
-    --input-border-color: var(--theme-gray--cyan-400); 
+    --input-border-color: var(--theme-gray--cyan-300); 
     --disabled-input-border-color: var(--gray-500); 
     --inverse-border-color: var(--theme-gray--cyan-500);
     --table-border-color: var(--gray-700);
     --table-alt-border-color: var(--theme-gray--black-alt);
-    --dashboard-border-color: #566573;
+    --dashboard-border-color: var(--theme-gray--cyan-400);
 
     --footer-text: var(--gray-500);
 
     --small-shadow: 0 0 0 0 transparent;
-    --hr-color: var(--theme-gray--cyan-400); 
+    --hr-color: var(--theme-gray--cyan-300); 
 
     --checkbox-color: var(--gray-800); 
     --checkbox-hover-color: var(--gray-600); 
@@ -62,8 +66,8 @@
     --bg-opacity-10: var(--black-opacity-10);
     --bg-opacity-30: var(--black-opacity-30);
 
-    --button-border: var(--theme-gray--cyan-400);
-    --button-text-color: var(--theme-gray--cyan-400);
+    --button-border: var(--theme-gray--cyan-300);
+    --button-text-color: var(--theme-gray--cyan-300);
     --button-background: var(--theme-gray--black-alt);
     --button-background-size: cover;
 
