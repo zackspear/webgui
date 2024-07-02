@@ -66,4 +66,7 @@
 
     --input-border-color: var(--gray-200);
     --input-bg-color: transparent;
+    /* /End vars used in default-base */
+
+    /* dynamix CSS var values set in base-dynamix.css */
 }
