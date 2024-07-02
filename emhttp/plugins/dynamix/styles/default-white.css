@@ -8,7 +8,7 @@
 
     --background-color: var(--gray-100);
     --opac-background-color: var(--gray-895);
-    --mild-background-color: #f7f9f9; /* Condensed from: #f7f9f9 (table header?) */
+    --mild-background-color: #f7f9f9;
     --usage-bar-background-color: var(--gray-500);
     --usage-bar-used-background-color: var(--gray-400);
     --usage-disk-background-color: var(--gray-200);
