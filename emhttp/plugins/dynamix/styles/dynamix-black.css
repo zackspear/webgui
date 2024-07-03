@@ -33,6 +33,9 @@
     --table-header-background-color: var(--gray-800);
     --hover-table-row-background-color: var(--white-opacity-05);
 
+    --footer-text: var(--text-color);
+    --footer-background-color: var(--mild-background-color);
+
     --small-shadow: 0 0 3px var(--gray-700); 
     --hr-color: var(--gray-800); 
 
