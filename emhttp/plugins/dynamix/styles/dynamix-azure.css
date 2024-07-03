@@ -51,6 +51,7 @@
     --table-alt-border-color: var(--theme-azure--gray-100);
     --dashboard-border-color: var(--theme-azure--gray-300);
 
+    --footer-background-color: var(--black);
     --footer-text: var(--gray-500);
 
     --small-shadow: 0 0 0 0 transparent;

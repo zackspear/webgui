@@ -46,6 +46,7 @@
     --dashboard-border-color: var(--theme-gray--cyan-400);
 
     --footer-text: var(--gray-500);
+    --footer-background-color: var(--black);
 
     --small-shadow: 0 0 0 0 transparent;
     --hr-color: var(--theme-gray--cyan-300); 
