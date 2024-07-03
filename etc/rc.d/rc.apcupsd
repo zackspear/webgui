@@ -14,13 +14,10 @@
 DAEMON="APC-UPS Power Management"
 APCPID="/var/run/apcupsd.pid"
 LOCK="/var/lock/apcupsd"
-APCUPS_SETTINGS="/boot/config/plugins/dynamix.apcupsd/dynamix.apcupsd.cfg"
 
 # run & log functions
 . /etc/rc.d/rc.runlog
 
-# Read Unraid configuration
-[[ -f $APCUPS_SETTINGS ]] && . $APCUPS_SETTINGS
 
 apcupsd_running(){
   sleep 0.1
@@ -28,10 +25,6 @@ apcupsd_running(){
 }
 apcupsd_start(){
   log "Starting $DAEMON..."
-  if [ "$SERVICE" != "enabled" ]; then 
-    log "Start disabled by comfig.";
-    exit;
-  fi
   local REPLY
   rm -f /etc/apcupsd/powerfail /etc/nologin
   if apcupsd_running; then
@@ -64,6 +57,7 @@ apcupsd_stop(){
 
 apcupsd_restart(){
   log "Restarting $DAEMON..."
+  local REPLY
   if apcupsd_running; then
     apcupsd_stop
     sleep 1
