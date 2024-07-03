@@ -1,3 +1,6 @@
+/**
+ * This CSS is specifically for overwriting CSS libraries that dynamix.js uses
+ */
 :root {
     --dynamix-jgrowl-bg-color: var(--gray-500);
     --dynamix-jgrowl-border-color: var(--gray-600);
