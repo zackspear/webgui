@@ -18,11 +18,11 @@ LOCK="/var/lock/apcupsd"
 # run & log functions
 . /etc/rc.d/rc.runlog
 
-
 apcupsd_running(){
   sleep 0.1
   [[ -f $APCPID ]]
 }
+
 apcupsd_start(){
   log "Starting $DAEMON..."
   local REPLY
