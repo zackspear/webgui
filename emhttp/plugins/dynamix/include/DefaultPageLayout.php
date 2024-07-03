@@ -52,7 +52,8 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-palette.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$display['theme']}.css")?>">
+
 <style>
 <?if (empty($display['width'])):?>
 @media (max-width:1280px){#displaybox{min-width:1280px;max-width:1280px;margin:0}}
@@ -63,23 +64,27 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 @media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'10px':'auto'?>}}
 @media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'20px':'auto'?>}}
 <?endif;?>
+
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
 <?endif;?>
+
 <?if ($header):?>
 #header,#header .logo,#header .text-right a{color:#<?=$header?>}
 #header .block{background-color:transparent}
 <?endif;?>
+
 <?if ($backgnd):?>
-#header{background-color:#<?=$backgnd?>}
-<?if ($themes1):?>
-.nav-tile{background-color:#<?=$backgnd?>}
-<?if ($header):?>
-.nav-item a,.nav-user a{color:#<?=$header?>}
-.nav-item.active:after{background-color:#<?=$header?>}
+  #header{background-color:#<?=$backgnd?>}
+  <?if ($themes1):?>
+    .nav-tile{background-color:#<?=$backgnd?>}
+    <?if ($header):?>
+      .nav-item a,.nav-user a{color:#<?=$header?>}
+      .nav-item.active:after{background-color:#<?=$header?>}
+    <?endif;?>
+  <?endif;?>
 <?endif;?>
-<?endif;?>
-<?endif;?>
+
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 $safemode = _var($var,'safeMode')=='yes';
@@ -810,7 +815,7 @@ echo "</span></span><span id='countdown'></span><span id='user-notice' class='re
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/category/manual' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span>";
-// echo "<unraid-theme-switcher current='$theme'></unraid-theme-switcher>";
+// echo "<unraid-theme-switcher current='" . $display['theme'] . "'></unraid-theme-switcher>";
 echo "</div>";
 ?>
 <script>
