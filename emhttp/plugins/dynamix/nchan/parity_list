@@ -126,7 +126,7 @@ while (true) {
 		$process = -1;
 	} elseif ($spot > 0 && $bytes > 0) {
 		$process = 1;
-	} elseif (file_exists('/var/run/mover.pid')) {
+	} elseif (_var($var, 'shareMoverActive') == "yes") {
 		$process = 2;
 	} elseif (exec('ps -C btrfs -o cmd=|grep -cv show') > 0) {
 		$process = 3;
