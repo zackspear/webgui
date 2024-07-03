@@ -533,7 +533,7 @@ div.title.shift {
 } */
 
 #displaybox {
-    margin: 0 auto;
+    margin: 130px auto 0;
 }
 @media (min-width: 1280px){
     .Theme--limited-width #displaybox {
@@ -1157,7 +1157,6 @@ label + .content {
 }
 div.tabs {
     position: relative;
-    margin: 130px 0 0 0;
 }
 div.tab {
     float: left;
