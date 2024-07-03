@@ -525,6 +525,37 @@ div.title.shift {
 #clear {
     clear: both;
 }
+/* @todo might need #clear:after clear fix */
+/* #clear:after {
+    content: "";
+    display: table;
+    clear: both;
+} */
+
+#displaybox {
+    margin: 0 auto;
+}
+@media (min-width: 1280px){
+    .Theme--limited-width #displaybox {
+        max-width: 1280px;
+    }
+
+    #displaybox {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+}
+@media (min-width: 1920px) {
+    .Theme--limited-width #displaybox {
+        max-width: 1920px;
+    }
+
+    #displaybox {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+}
+
 #footer {
     position: fixed;
     bottom: 0;

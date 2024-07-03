@@ -17,10 +17,17 @@ $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
-$themeHtmlClass = "Theme--$theme";
-if ($themes2) {
-  $themeHtmlClass .= " Theme--sidebar";
-}
+
+$topNavTheme = $themes1; /* don't want to rename $themes1, in case it's used globally */
+$sidebarTheme = $themes2; /* don't want to rename $themes2, in case it's used globally */
+$displayUnlimitedWidth = $display['width']; // 1 = no max with or '' = max width
+
+/* CSS theme classes */
+$themeTypeClass = $topNavTheme ? 'Theme--topnav' : 'Theme--sidebar';
+$themeWidthClass = $displayUnlimitedWidth ? 'Theme--unlimited-width' : 'Theme--limited-width';
+
+$themeHtmlClass = "Theme--$theme $themeTypeClass $themeWidthClass";
+
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
@@ -55,15 +62,6 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$display['theme']}.css")?>">
 
 <style>
-<?if (empty($display['width'])):?>
-@media (max-width:1280px){#displaybox{min-width:1280px;max-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;max-width:1920px;margin:0 <?=$themes1?'10px':'auto'?>}}
-@media (min-width:1921px){#displaybox{min-width:1280px;max-width:1920px;margin:0 auto}}
-<?else:?>
-@media (max-width:1280px){#displaybox{min-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'10px':'auto'?>}}
-@media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'20px':'auto'?>}}
-<?endif;?>
 
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
@@ -75,14 +73,14 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 
 <?if ($backgnd):?>
-  #header{background-color:#<?=$backgnd?>}
-  <?if ($themes1):?>
-    .nav-tile{background-color:#<?=$backgnd?>}
-    <?if ($header):?>
-      .nav-item a,.nav-user a{color:#<?=$header?>}
-      .nav-item.active:after{background-color:#<?=$header?>}
-    <?endif;?>
-  <?endif;?>
+#header{background-color:#<?=$backgnd?>}
+<?if ($topNavTheme):?>
+.nav-tile{background-color:#<?=$backgnd?>}
+<?if ($header):?>
+.nav-item a,.nav-user a{color:#<?=$header?>}
+.nav-item.active:after{background-color:#<?=$header?>}
+<?endif;?>
+<?endif;?>
 <?endif;?>
 
 <?
@@ -94,7 +92,7 @@ $banner = "$config/plugins/dynamix/banner.png";
 echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
-if ($themes2) {
+if ($sidebarTheme) {
   foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
@@ -650,7 +648,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 <?
 // Build page menus
 echo "<div id='menu'>";
-if ($themes2) echo "<div id='nav-block'>";
+if ($sidebarTheme) echo "<div id='nav-block'>";
 echo "<div class='nav-tile'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
@@ -664,7 +662,7 @@ unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
 if (isset($myPage['Lock'])) {
-  $title = $themes2 ?  "" : _('Unlock sortable items');
+  $title = $sidebarTheme ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
@@ -680,7 +678,7 @@ foreach ($buttons as $button) {
       if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
       $icon = "<b class='fa $icon system'></b>";
     }
-    $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
+    $title = $sidebarTheme ? "" : " title=\""._($button['Title'])."\"";
     echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
     echo "<div class='{$button['Link']}'></div>";
@@ -691,7 +689,7 @@ foreach ($buttons as $button) {
 
 echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
-if ($themes2) echo "</div>";
+if ($sidebarTheme) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
   annotate($button['file']);
@@ -709,6 +707,7 @@ unset($buttons,$button);
 // Build page content
 // Reload page every X minutes during extended viewing?
 if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setTimeout(function(){location.reload();},".($myPage['Load']*60000).");</script>\n";
+
 echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
@@ -1036,7 +1035,7 @@ $(window).scroll(function() {
   } else {
     $('.back_to_top').fadeOut(backtotopduration);
   }
-<?if ($themes1):?>
+<?if ($topNavTheme):?>
   var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
   $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
   // banner
