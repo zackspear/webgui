@@ -112,7 +112,7 @@ function my_usage() {
   }
   if (_var($var,'fsNumMounted',0)>0) {
     $used = $arraysize ? 100-round(100*$arrayfree/$arraysize) : 0;
-    echo "<div class='usage-bar'><span style='width:{$used}%' class='".usage_color($display,$used,false)."'>{$used}%</span></div>";
+    echo "<div class='usage-bar' title='" . _('Array utilization') . " – {$used}%'><span style='width:{$used}%' class='".usage_color($display,$used,false)."'>{$used}%</span></div>";
   } else {
     echo "<div class='usage-bar'><span style='text-align:center'>".($var['fsState']=='Started'?'Maintenance':'off-line')."</span></div>";
   }
