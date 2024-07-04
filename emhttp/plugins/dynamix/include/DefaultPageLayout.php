@@ -649,7 +649,8 @@ $.ajaxPrefilter(function(s, orig, xhr){
 // Build page menus
 echo "<div id='menu'>";
 if ($sidebarTheme) echo "<div id='nav-block'>";
-echo "<div class='nav-tile'>";
+echo "<div class='js-priority-nav nav-tile'>";
+echo "<div class='js-priority-nav-links PriorityNav--links'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
   $play = $task==$page ? " active" : "";
@@ -658,14 +659,22 @@ foreach ($tasks as $button) {
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
+echo "</div>"; // /end .links
 unset($tasks);
+echo "<div class='nav-item'>";
+// add `PriorityNav--button-counter` to the button to show the number of hidden items
+echo "<button class='js-priority-nav-button PriorityNav--button' title='More Links'>More</button>";
 echo "</div>";
-echo "<div class='nav-tile right'>";
+echo "<div class='js-priority-nav-hidden-links PriorityNav--hiddenLinks hidden'></div>";
+echo "</div>";
+echo "<div class='js-priority-nav nav-tile right'>";
+
 if (isset($myPage['Lock'])) {
   $title = $sidebarTheme ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 
+echo "<div class='js-priority-nav-links PriorityNav--links'>";
 foreach ($buttons as $button) {
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
@@ -688,8 +697,15 @@ foreach ($buttons as $button) {
 
 echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
+echo "</div>"; // /end .links
+echo "<div class='nav-item'>";
+echo "<button class='js-priority-nav-button PriorityNav--button' title='More Links'>More</button>";
+echo "</div>";
+echo "<div class='PriorityNav--hiddenLinks hidden'></div>";
+
 if ($sidebarTheme) echo "</div>";
 echo "</div></div>";
+annotate('🫠 HERE WE ARE 🫠');
 foreach ($buttons as $button) {
   annotate($button['file']);
   // include page specific stylesheets (if existing)
@@ -1166,5 +1182,7 @@ $(function() {
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
 });
 </script>
+
+<script src="<?autov('/webGui/javascript/priority-nav.js')?>"></script>
 </body>
 </html>

@@ -156,7 +156,7 @@ textarea,
 input[type="button"],
 input[type="reset"],
 input[type="submit"],
-button,
+button:not(.PriorityNav--button),
 button[type="button"],
 a.button,
 .sweet-alert button {
@@ -204,7 +204,7 @@ textarea:focus,
 input:hover[type="button"],
 input:hover[type="reset"],
 input:hover[type="submit"],
-button:hover,
+button:not(.PriorityNav--button):hover,
 button:hover[type="button"],
 a.button:hover,
 .sweet-alert button:hover {
@@ -226,12 +226,12 @@ button[type="button"][disabled],
 a.button[disabled] input:hover[type="button"][disabled],
 input:hover[type="reset"][disabled],
 input:hover[type="submit"][disabled],
-button:hover[disabled],
+button:not(.PriorityNav--button):hover[disabled],
 button:hover[type="button"][disabled],
 a.button:hover[disabled] input:active[type="button"][disabled],
 input:active[type="reset"][disabled],
 input:active[type="submit"][disabled],
-button:active[disabled],
+button:not(.PriorityNav--button):active[disabled],
 button:active[type="button"][disabled],
 a.button:active[disabled],
 .sweet-alert button[disabled] {
@@ -437,18 +437,20 @@ div.title.shift {
     z-index: 101;
 }
 .nav-tile {
-    height: 4rem;
-    line-height: 4rem;
-    display: block;
+    /* height: 4rem;
+    line-height: 4rem; */
+    /* display: block; */
     padding: 0;
     margin: 0;
     font-size: 1.2rem;
     letter-spacing: 1.8px;
     background-color: var(--header-color);
     white-space: nowrap;
-    overflow-x: auto;
+    /* overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: thin;
+    scrollbar-width: thin; */
+    display: flex;
+    position: relative;
 }
 .nav-tile::-webkit-scrollbar {
     height: 5px;
@@ -459,34 +461,34 @@ div.title.shift {
 .nav-item,
 .nav-user {
     position: relative;
-    display: inline-block;
+    display: flex;
     text-align: center;
     margin: 0;
-}
-.nav-item a {
-    min-width: 0;
-}
-.nav-item a span {
-    display: none;
 }
 .nav-item .system {
     vertical-align: middle;
     padding-bottom: 2px;
 }
-.nav-item a {
+.nav-item a,
+.nav-item button {
     color: var(--inverse-text-color);
     background-color: transparent;
     text-transform: uppercase;
     font-weight: bold;
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 0 10px;
-}
-.nav-item a {
+    min-width: 0;
+
     text-decoration: none;
     text-decoration-skip-ink: auto;
     -webkit-text-decoration-skip: objects;
     -webkit-transition: all 0.25s ease-out;
     transition: all 0.25s ease-out;
+}
+.nav-item a span,
+.nav-item button span {
+    display: none;
 }
 .nav-item:after,
 .nav-user.show:after {
@@ -499,7 +501,8 @@ div.title.shift {
     bottom: 8px;
     position: absolute;
     left: 50%;
-    margin-left: -16px;
+    margin-left: -32px;
+    transform: translateX(50%);
     -webkit-transition: all 0.25s ease-in-out;
     transition: all 0.25s ease-in-out;
     pointer-events: none;
@@ -1539,6 +1542,85 @@ pre#swalbody p {
     margin-block-end: 1em;
 }
 
+.PriorityNav--button {
+    font-family: clear-sans, sans-serif;
+    align-self: stretch;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 1.5rem !important; /* necessary evil for now */
+    padding-left: 2rem !important;
+    outline: 0;
+    border: 0;
+    overflow: visible;
+    line-height: 4rem;
+    font-size: 1.2rem;
+    letter-spacing: 1.8px;
+    white-space: nowrap;
+}
+
+.PriorityNav--button.hidden {
+    transition: none;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    display: none;
+}
+
+.PriorityNav--button-counter::before {
+    content: attr(count);
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    background: var(--mild-background-color);
+    color: var(--text-color);
+    border-radius: 50%;
+    line-height: 14px;
+    position: absolute;
+    left: -4px;
+    text-align: center;
+    font-family: bitstream;
+}
+
+.PriorityNav--links {
+    display: flex;
+    /* justify-content: flex-end; */
+    flex: 1;
+    overflow: hidden;
+}
+
+/* .PriorityNav--links li {
+    flex: none;
+    padding: 1rem;
+}
+
+.PriorityNav--links li a {
+    color: #404040;
+} */
+
+.PriorityNav--hiddenLinks {
+    position: absolute;
+    background: var(--header-color);
+    right: 0;
+    top: 100%;
+    display: flex;
+    flex-flow: column;
+
+    .nav-item {
+        display: flex;
+        justify-content: center;
+    }
+
+    .nav-item a {
+        padding: 1rem 1rem;
+    }
+}
+
+.PriorityNav--hiddenLinks.hidden {
+    display: none;
+}
+
 /*
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables
@@ -1600,7 +1682,7 @@ pre#swalbody p {
     input[type="button"],
     input[type="reset"],
     input[type="submit"],
-    button,
+    button:not(.PriorityNav--button),
     button[type="button"],
     a.button,
     .sweet-alert button {
