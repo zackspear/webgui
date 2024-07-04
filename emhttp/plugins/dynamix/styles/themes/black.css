@@ -16,7 +16,8 @@
     --mild-background-color: var(--theme-black--mild-gray-700);
     --usage-bar-background-color: var(--gray-600);
     --usage-bar-used-background-color: var(--gray-500);
-    --usage-disk-background-color: var(--gray-700); 
+    --usage-bar-used-text-color: var(--gray-100);
+    --usage-disk-background-color: var(--gray-700);
     --inverse-background-color: var(--gray-100);
     --radio-background-color: var(--gray-700); 
     --dashboard-background-color: var(--gray-700);

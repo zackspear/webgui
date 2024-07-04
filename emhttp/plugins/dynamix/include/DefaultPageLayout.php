@@ -665,7 +665,6 @@ if (isset($myPage['Lock'])) {
   $title = $sidebarTheme ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a 'href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
-if ($display['usage']) my_usage();
 
 foreach ($buttons as $button) {
   if (empty($button['Link'])) {
@@ -798,25 +797,69 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 <?
 // Build footer
 annotate('Footer');
-echo '<div id="footer"><span id="statusraid"><span id="statusbar">';
-$progress = (_var($var,'fsProgress')!='') ? "&bullet;<span class='blue strong tour'>{$var['fsProgress']}</span>" : "";
+
+$progressState = [];
 switch (_var($var,'fsState')) {
-case 'Stopped':
-  echo "<span class='red strong'><i class='fa fa-stop-circle'></i> ",_('Array Stopped'),"</span>$progress"; break;
-case 'Starting':
-  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> ",_('Array Starting'),"</span>$progress"; break;
-case 'Stopping':
-  echo "<span class='orange strong'><i class='fa fa-pause-circle'></i> ",_('Array Stopping'),"</span>$progress"; break;
-default:
-  echo "<span class='green strong'><i class='fa fa-play-circle'></i> ",_('Array Started'),"</span>$progress"; break;
+  case 'Stopped':
+    $progressState['color'] = 'red';
+    $progressState['icon'] = 'fa-stop-circle';
+    $progressState['text'] = _('Array Stopped');
+    break;
+  case 'Starting':
+    $progressState['color'] = 'orange';
+    $progressState['icon'] = 'fa-pause-circle';
+    $progressState['text'] = _('Array Starting');
+    break;
+  case 'Stopping':
+    $progressState['color'] = 'orange';
+    $progressState['icon'] = 'fa-pause-circle';
+    $progressState['text'] = _('Array Stopping');
+    break;
+  default:
+    $progressState['color'] = 'green';
+    $progressState['icon'] = 'fa-play-circle';
+    $progressState['text'] = _('Array Started');
+    break;
 }
-echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
-echo " <a href='https://docs.unraid.net/category/manual' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
-echo "</span>";
-// echo "<unraid-theme-switcher current='" . $display['theme'] . "'></unraid-theme-switcher>";
-echo "</div>";
 ?>
+<div id="footer">
+  <div class="footer-half footer-left">
+    <span id="statusraid">
+      <span id="statusbar">
+        <span class="<?= _var($progressState, 'color') ?> strong">
+          <i class='fa <?= _var($progressState, 'icon') ?>'></i>
+          <?= _var($progressState, 'text') ?>
+        </span>
+        <? if (_var($var,'fsProgress') !== ''): ?>
+          &bullet;
+          <span class='blue strong tour'>
+            <?= $var['fsProgress'] ?>
+          </span>
+        <? endif; ?>
+      </span>
+    </span>
+    <!-- Visibility automatically toggled by jquery during various user based actions -->
+    <span id="countdown" style="display: none;"></span>
+    <span id="user-notice" class='red-text' style="display: none;"></span>
+    <?
+      if ($display['usage']) {
+        my_usage();
+      }
+    ?>
+    <unraid-theme-switcher current="<?=$display['theme']?>"></unraid-theme-switcher>
+  </div>
+
+  <div class="footer-half footer-right">
+    <span id='copyright'>
+      Unraid&reg; webGui &copy;<?= date("Y"); ?>, Lime Technology, Inc.
+      <a href='https://docs.unraid.net/category/manual' target='_blank' title="<?=_('Online manual')?>">
+        <i class='fa fa-book'></i>
+        <?=_('manual')?>
+      </a>
+    </span>
+  </div>
+</div> <!-- /footer -->
+
 <script>
 // Firefox specific workaround, not needed anymore in firefox version 100 and higher
 //if (typeof InstallTrigger!=='undefined') $('#nav-block').addClass('mozilla');

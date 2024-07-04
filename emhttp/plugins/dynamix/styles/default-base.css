@@ -557,30 +557,40 @@ div.title.shift {
 }
 
 #footer {
+    box-sizing: border-box;
     position: fixed;
     bottom: 0;
     left: 0;
     color: var(--footer-text);
     background-color: var(--footer-background-color);
-    padding: 5px 0;
+    padding: .5rem 1rem;
     width: 100%;
-    height: 1.6rem;
+    height: 3rem;
     line-height: 1.6rem;
     text-align: center;
     z-index: 10000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-#statusraid {
-    float: left;
-    padding-left: 10px;
+
+.footer-half {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
-#countdown {
-    margin: 0 auto;
+
+.footer-left {
+    justify-content: flex-start;
 }
+
+.footer-right {
+    justify-content: flex-end;
+}
+
 #copyright {
     font-family: bitstream;
     font-size: 1.1rem;
-    float: right;
-    padding-right: 10px;
 }
 .green {
     color: var(--green-800);
@@ -636,30 +646,33 @@ div.title.shift {
     color: var(--red-500);
 }
 .usage-bar {
-    float: left;
-    height: 2rem;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    height: 100%;
     line-height: 2rem;
     width: 14rem;
-    padding: 1px 1px 1px 2px;
-    margin: 8px 12px;
     border-radius: 3px;
     background-color: var(--usage-bar-background-color);
-    box-shadow: 0 1px 0 var(--gray-400), inset 0 1px 0 var(--gray-700);
 }
 .usage-bar > span {
-    display: block;
-    height: 100%;
     text-align: right;
+    font-size: 1.3rem;
+    font-weight: bold;
     border-radius: 2px;
-    color: var(--gray-100);
+    padding: 0 .5rem;
+    box-sizing: border-box;
+    color: var(--usage-bar-used-text-color);
     background-color: var(--usage-bar-used-background-color);
     box-shadow: inset 0 1px 0 var(--white-opacity-50);
+    width: 100%; /* intentially overwritten by inline width added via template when array is started */
 }
 .usage-disk {
     position: relative;
     height: 1.8rem;
-    background-color: var(--usage-disk-background-color);
     margin: 0;
+    background-color: var(--usage-disk-background-color);
 }
 .usage-disk > span:first-child {
     position: absolute;
@@ -1936,18 +1949,6 @@ pre#swalbody p {
     }
     div.title.shift {
         margin-top: -12px;
-    }
-
-    .usage-bar {
-        float: unset;
-        position: fixed;
-        top: 64px;
-        left: 300px;
-        height: 2.2rem;
-        line-height: 2.2rem;
-        width: 11rem;
-        margin: 0;
-        padding: 0;
     }
 
     .usage-disk {

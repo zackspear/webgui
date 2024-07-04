@@ -16,13 +16,13 @@
     --input-dfm-target-filetree-bg-color: #f2f2f2;
 }
 
-#countdown {
+/* #countdown {
     float: left;
     margin-left: 100px;
 }
 #user-notice {
     float: left;
-}
+} */
 div.dfm_info {
     position: absolute;
     bottom: 4px;
