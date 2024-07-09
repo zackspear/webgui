@@ -107,6 +107,9 @@ while (true) {
 			file_put_contents($log, "$timestamp|$duration|$speed|$status|$error|$action|$size\n", FILE_APPEND);
 
 			delete_file($stamps, $resync);
+
+			/* Parity check is completed. */
+			$echo = "";
 		}
 	}
 
@@ -130,7 +133,7 @@ while (true) {
 		$process = 2;
 	} elseif (exec('ps -C btrfs -o cmd=|grep -cv show') > 0) {
 		$process = 3;
-	} elseif (exec("zpool status|grep -c 'scrub in progress'") > 0) {
+	} elseif (exec("zpool status 2>/dev/null | grep -c 'scrub in progress'") > 0) {
 		$process = 4;
 	} else {
 		$process = 0;
