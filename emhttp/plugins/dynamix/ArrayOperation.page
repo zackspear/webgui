@@ -383,7 +383,7 @@ devices.on('message', function(msg,meta) {
     $.each(get,function(k,v) {if ($('#line'+k).length>0) $('#line'+k).html(v);});
     // button control
     if ($('#pauseButton').length>0 && $('#pauseButton').prop('disabled')==false) {
-      if (!msg && $('#cancelButton').length>0 && $('#cancelButton').val()=="_(Cancel)_") {
+      if ((get === "") && $('#cancelButton').val()=="_(Cancel)_") {
         $('#cancelButton').val("_(Done)_").prop('onclick',null).off('click').click(function(){refresh();});
         $('#pauseButton').prop('disabled',true);
         $('#cancelText').html('');
