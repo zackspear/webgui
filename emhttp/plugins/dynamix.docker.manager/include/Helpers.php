@@ -12,11 +12,6 @@
  */
 ?>
 <?
-/* Read the docker configuration file. */
-$cfgfile	= "/boot/config/docker.cfg";
-$config_ini	= @parse_ini_file($cfgfile, true, INI_SCANNER_RAW);
-$cfg		= ($config_ini !== false) ? $config_ini : [];
-
 function addRoute($ct) {
   // add static route(s) for remote WireGuard access
   [$pid,$net] = array_pad(explode(' ',exec("docker inspect --format='{{.State.Pid}} {{.NetworkSettings.Networks}}' $ct")),2,'');
@@ -242,7 +237,7 @@ function xmlSecurity(&$template) {
 }
 
 function xmlToCommand($xml, $create_paths=false) {
-  global $docroot, $var, $cfg, $driver;
+  global $docroot, $var, $driver;
   $xml           = xmlToVar($xml);
   $cmdName       = strlen($xml['Name']) ? '--name='.escapeshellarg($xml['Name']) : '';
   $cmdPrivileged = strtolower($xml['Privileged'])=='true' ? '--privileged=true' : '';
@@ -307,12 +302,17 @@ function xmlToCommand($xml, $create_paths=false) {
     }
   }
 
+  /* Read the docker configuration file. */
+  $cfgfile		= "/boot/config/docker.cfg";
+  $config_ini	= @parse_ini_file($cfgfile, true, INI_SCANNER_RAW);
+  $docker_cfg	= ($config_ini !== false) ? $config_ini : [];
+
   // Add pid limit if user has not specified it as an extra parameter
   $pidsLimit = preg_match('/--pids-limit (\d+)/', $xml['ExtraParams'], $matches) ? $matches[1] : null;
   if ($pidsLimit === null) {
     $pid_limit = "--pids-limit ";
-    if (($cfg['DOCKER_PID_LIMIT']??'') != "") {
-      $pid_limit .= $cfg['DOCKER_PID_LIMIT'];
+    if (($docker_cfg['DOCKER_PID_LIMIT']??'') != "") {
+      $pid_limit .= $docker_cfg['DOCKER_PID_LIMIT'];
     } else {
       $pid_limit .= "2048";
     }
