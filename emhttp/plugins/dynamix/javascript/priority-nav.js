@@ -1,6 +1,40 @@
+/**
+ * 
+ * @returns https://codepen.io/lukejacksonn/pen/BowbWE
+ */
+
 var now = function() {
   return Date.now();
 };
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+// function isObject(value) {
+//   var type = typeof value;
+//   return value != null && (type == 'object' || type == 'function');
+// }
 /**
  * Creates a debounced function that delays invoking `func` until after `wait`
  * milliseconds have elapsed since the last time the debounced function was
@@ -180,49 +214,49 @@ function debounce(func, wait, options) {
 }
 
 /**
-     * Creates a throttled function that only invokes `func` at most once per
-     * every `wait` milliseconds. The throttled function comes with a `cancel`
-     * method to cancel delayed `func` invocations and a `flush` method to
-     * immediately invoke them. Provide `options` to indicate whether `func`
-     * should be invoked on the leading and/or trailing edge of the `wait`
-     * timeout. The `func` is invoked with the last arguments provided to the
-     * throttled function. Subsequent calls to the throttled function return the
-     * result of the last `func` invocation.
-     *
-     * **Note:** If `leading` and `trailing` options are `true`, `func` is
-     * invoked on the trailing edge of the timeout only if the throttled function
-     * is invoked more than once during the `wait` timeout.
-     *
-     * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-     * until to the next tick, similar to `setTimeout` with a timeout of `0`.
-     *
-     * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-     * for details over the differences between `_.throttle` and `_.debounce`.
-     *
-     * @static
-     * @memberOf _
-     * @since 0.1.0
-     * @category Function
-     * @param {Function} func The function to throttle.
-     * @param {number} [wait=0] The number of milliseconds to throttle invocations to.
-     * @param {Object} [options={}] The options object.
-     * @param {boolean} [options.leading=true]
-     *  Specify invoking on the leading edge of the timeout.
-     * @param {boolean} [options.trailing=true]
-     *  Specify invoking on the trailing edge of the timeout.
-     * @returns {Function} Returns the new throttled function.
-     * @example
-     *
-     * // Avoid excessively updating the position while scrolling.
-     * jQuery(window).on('scroll', _.throttle(updatePosition, 100));
-     *
-     * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
-     * var throttled = _.throttle(renewToken, 300000, { 'trailing': false });
-     * jQuery(element).on('click', throttled);
-     *
-     * // Cancel the trailing throttled invocation.
-     * jQuery(window).on('popstate', throttled.cancel);
-     */
+ * Creates a throttled function that only invokes `func` at most once per
+ * every `wait` milliseconds. The throttled function comes with a `cancel`
+ * method to cancel delayed `func` invocations and a `flush` method to
+ * immediately invoke them. Provide `options` to indicate whether `func`
+ * should be invoked on the leading and/or trailing edge of the `wait`
+ * timeout. The `func` is invoked with the last arguments provided to the
+ * throttled function. Subsequent calls to the throttled function return the
+ * result of the last `func` invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the throttled function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `_.throttle` and `_.debounce`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to throttle.
+ * @param {number} [wait=0] The number of milliseconds to throttle invocations to.
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=true]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new throttled function.
+ * @example
+ *
+ * // Avoid excessively updating the position while scrolling.
+ * jQuery(window).on('scroll', _.throttle(updatePosition, 100));
+ *
+ * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
+ * var throttled = _.throttle(renewToken, 300000, { 'trailing': false });
+ * jQuery(element).on('click', throttled);
+ *
+ * // Cancel the trailing throttled invocation.
+ * jQuery(window).on('popstate', throttled.cancel);
+ */
 function throttle(func, wait, options) {
   var leading = true,
       trailing = true;
@@ -241,12 +275,14 @@ function throttle(func, wait, options) {
   });
 }
 
-const initPriorityNav = ($el) => {
-  console.debug('[🏎️ initPriorityNav]', $el);
+const initPriorityNav = ($el, idx) => {
+  console.debug(`[🏎️ initPriorityNav] ${idx}`, $el);
   const $parent = $(document).find($el);
   const $btn = $parent.find('.js-priority-nav-button');
-  const $vlinks = $parent.find('.js-priority-nav-links');
-  const $hlinks = $parent.find('.js-priority-nav-hidden-links');
+  const $visibleLinks = $parent.find('.js-priority-nav-links');
+  const $hiddenLinks = $parent.find('.js-priority-nav-hidden-links');
+
+  console.debug(`[🏎️ initPriorityNav] ${idx}`, { $parent, $btn, $visibleLinks, $hiddenLinks, });
 
   const closingTime = 1000;
   let numOfItems = 0;
@@ -255,91 +291,70 @@ const initPriorityNav = ($el) => {
   let timer;
 
   // Get initial state
-  $vlinks.children().outerWidth(function(i, w) {
+  $visibleLinks.children().outerWidth(function(i, w) {
     totalSpace += w;
     numOfItems += 1;
     breakWidths.push(totalSpace);
   });
 
+  console.debug(`[🏎️ initPriorityNav] ${idx}: check`, { numOfItems, totalSpace, breakWidths });
+
   function check() {
-    console.debug('[🏎️ initPriorityNav.check]', $el);
+    console.debug(`[🏎️ initPriorityNav] ${idx}: check`, $el);
     let availableSpace, numOfVisibleItems, requiredSpace;
 
     // Get instant state
-    availableSpace = $vlinks.width() - 10;
-    numOfVisibleItems = $vlinks.children().length;
+    availableSpace = $visibleLinks.width() - 10;
+    numOfVisibleItems = $visibleLinks.children().length;
     requiredSpace = breakWidths[numOfVisibleItems - 1];
 
-    // There is not enough space
-    if (requiredSpace > availableSpace) {
-      $vlinks.children().last().prependTo($hlinks);
+    console.debug(`[🏎️ initPriorityNav] ${idx}: check`, { availableSpace, numOfVisibleItems, requiredSpace });
+
+    if (requiredSpace > availableSpace) { // There is not enough space
+      console.debug(`[🏎️ initPriorityNav] ${idx}: check`, 'not enough space', $visibleLinks.children(), $visibleLinks.children().last());
+      $visibleLinks.children().last().prependTo($hiddenLinks);
       numOfVisibleItems -= 1;
-      // throttle(check, 350);
-      // might be required to check again to speed this up
-      // There is more than enough space
-    } else if (availableSpace > breakWidths[numOfVisibleItems]) {
-      $hlinks.children().first().appendTo($vlinks);
+      check();
+    } else if (availableSpace > breakWidths[numOfVisibleItems]) { // There is more than enough space
+      console.debug(`[🏎️ initPriorityNav] ${idx}: check`, 'more than enough space');
+      $hiddenLinks.children().first().appendTo($visibleLinks);
       numOfVisibleItems += 1;
-      // throttle(check, 350);
-      // might be required to check again to speed this up
+      check();
     }
+
     // Update the button accordingly
     $btn.attr("count", numOfItems - numOfVisibleItems);
+    console.debug(`[🏎️ initPriorityNav] ${idx}: check`, { numOfItems, numOfVisibleItems, $btn });
     if (numOfVisibleItems === numOfItems) {
-      $btn.addClass('hidden');
-    } else $btn.removeClass('hidden');
+      $btn.parent().addClass('hidden');
+    } else {
+      $btn.parent().removeClass('hidden');
+    }
   }
 
   // Window listeners
   $(window).resize(throttle(check, 350));
 
   $btn.on('click', function() {
-    $hlinks.toggleClass('hidden');
+    console.debug(`[🏎️ initPriorityNav] ${idx}: click`, this);
+    $hiddenLinks.toggleClass('hidden');
     clearTimeout(timer);
   });
 
-  $hlinks.on('mouseleave', function() {
-    // Mouse has left, start the timer
+  $hiddenLinks.on('mouseleave', function() { // Mouse has left, start the timer
     timer = setTimeout(function() {
-      $hlinks.addClass('hidden');
+      $hiddenLinks.addClass('hidden');
     }, closingTime);
-  }).on('mouseenter', function() {
-    // Mouse is back, cancel the timer
+  }).on('mouseenter', function() { // Mouse is back, cancel the timer
     clearTimeout(timer);
   });
-
-  // function waitForElm(selector) {
-  //   return new Promise(resolve => {
-  //       if (document.querySelector(selector)) {
-  //           return resolve(document.querySelector(selector));
-  //       }
-
-  //       const observer = new MutationObserver(mutations => {
-  //           if (document.querySelector(selector)) {
-  //               observer.disconnect();
-  //               resolve(document.querySelector(selector));
-  //           }
-  //       });
-
-  //       // If you get "parameter 1 is not of type 'Node'" error, see https://stackoverflow.com/a/77855838/492336
-  //       observer.observe(document.body, {
-  //           childList: true,
-  //           subtree: true
-  //       });
-  //   });
-  // }
-
-//   waitForElm($el).then((_elm) => {
-//     check();
-//   });
 
     check();
 }
 
-let $priorityNavs = document.querySelectorAll('.js-priority-nav');
+const $priorityNavs = document.querySelectorAll('.js-priority-nav');
 if ($priorityNavs.length) {
-  // initPriorityNav($priorityNavs[0]);
-  $priorityNavs.forEach((el) => {
-    initPriorityNav(el);
+  $priorityNavs.forEach((el, key) => {
+    initPriorityNav(el, key);
   });
 }

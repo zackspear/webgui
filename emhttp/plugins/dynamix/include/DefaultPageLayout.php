@@ -661,7 +661,7 @@ foreach ($tasks as $button) {
 }
 echo "</div>"; // /end .links
 unset($tasks);
-echo "<div class='nav-item'>";
+echo "<div class='nav-item hidden'>";
 // add `PriorityNav--button-counter` to the button to show the number of hidden items
 echo "<button class='js-priority-nav-button PriorityNav--button' title='More Links'>More</button>";
 echo "</div>";
@@ -698,10 +698,10 @@ foreach ($buttons as $button) {
 echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
 echo "</div>"; // /end .links
-echo "<div class='nav-item'>";
+echo "<div class='nav-item  hidden'>";
 echo "<button class='js-priority-nav-button PriorityNav--button' title='More Links'>More</button>";
 echo "</div>";
-echo "<div class='PriorityNav--hiddenLinks hidden'></div>";
+echo "<div class='js-priority-nav-hidden-links PriorityNav--hiddenLinks hidden'></div>";
 
 if ($sidebarTheme) echo "</div>";
 echo "</div></div>";
@@ -1183,6 +1183,7 @@ $(function() {
 });
 </script>
 
-<script src="<?autov('/webGui/javascript/priority-nav.js')?>"></script>
+<script src="<?autov('/webGui/javascript/priority-plus.js')?>"></script>
+<script src="<?autov('/webGui/javascript/nav.js')?>"></script>
 </body>
 </html>

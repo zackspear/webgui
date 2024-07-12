@@ -1,3 +1,50 @@
+/**
+ * Variables used without default values in this file.
+ * Set these variables in your theme file to customize the theme.
+ * To create a new Theme, create a new CSS file at webgui/emhttp/plugins/dynamix/styles/themes
+ * The name of the file is ideal one word & title case
+ * --text-color
+ * --background-color
+ * --inverse-border-color
+ * --opac-background-color
+ * --small-shadow
+ * --alt-text-color
+ * --hr-color
+ * --input-border-color
+ * --button-border
+ * --button-text-color
+ * --button-background
+ * --button-background-size
+ * --hover-button-text-color
+ * --hover-button-background
+ * --mild-background-color
+ * --disabled-input-border-color
+ * --disabled-text-color
+ * --link-text-color
+ * --table-border-color
+ * --title-header-background-color
+ * --footer-text
+ * --footer-background-color
+ * --alt-text-color
+ * --usage-bar-background-color
+ * --usage-bar-used-text-color
+ *
+ * Variables used in this file with default values • webgui/emhttp/plugins/dynamix/styles/default-color-palette.css
+ * --blue-700
+ * --blue-800
+ * --blue-800
+ * --gray-120
+ * --gray-300
+ * --gray-500
+ * --gray-600
+ * --green-200
+ * --green-800
+ * --orange-200
+ * --orange-300
+ * --orange-800
+ * --red-500
+ * --red-600
+ */
 html {
     font-family: clear-sans, sans-serif;
     font-size: 62.5%;
@@ -433,9 +480,23 @@ div.title.shift {
     left: 0;
     right: 0;
     display: grid;
-    grid-template-columns: auto max-content;
+    /* grid-template-columns: auto max-content; */
+    grid-template-columns: minmax(150px, 65%) minmax(100px, 35%);
     z-index: 101;
 }
+
+@media (min-width: 800px) {
+    #menu {
+        grid-template-columns: minmax(150px, 70%) minmax(100px, 30%);
+    }
+}
+/* 
+@media (min-width: 1280px) {
+    #menu {
+        grid-template-columns: minmax(150px, 65%) minmax(100px, 35%);
+    }
+} */
+
 .nav-tile {
     /* height: 4rem;
     line-height: 4rem; */
@@ -451,9 +512,6 @@ div.title.shift {
     scrollbar-width: thin; */
     display: flex;
     position: relative;
-}
-.nav-tile::-webkit-scrollbar {
-    height: 5px;
 }
 .nav-tile.right {
     text-align: right;
@@ -477,7 +535,7 @@ div.title.shift {
     font-weight: bold;
     display: flex;
     align-items: center;
-    padding: 0 10px;
+    padding: 10px;
     min-width: 0;
 
     text-decoration: none;
@@ -518,7 +576,9 @@ div.title.shift {
 .nav-user a {
     color: var(--inverse-text-color);
     background-color: transparent;
-    display: block;
+    /* display: block; */
+    display: inline-flex;
+    align-items: center;
     padding: 0 10px;
 }
 .nav-user .system {
@@ -1552,7 +1612,7 @@ pre#swalbody p {
     outline: 0;
     border: 0;
     overflow: visible;
-    line-height: 4rem;
+    /* line-height: 4rem; */
     font-size: 1.2rem;
     letter-spacing: 1.8px;
     white-space: nowrap;
@@ -1585,9 +1645,15 @@ pre#swalbody p {
 
 .PriorityNav--links {
     display: flex;
-    /* justify-content: flex-end; */
+    justify-content: flex-start;
     flex: 1;
     overflow: hidden;
+}
+
+.nav-tile.right {
+    .PriorityNav--links {
+        justify-content: flex-end;
+    }
 }
 
 /* .PriorityNav--links li {
@@ -1617,8 +1683,70 @@ pre#swalbody p {
     }
 }
 
+.nav-item.hidden,
 .PriorityNav--hiddenLinks.hidden {
     display: none;
+}
+
+/**
+ * Priority Plus Nav
+ * @see https://github.com/jayfreestone/priority-plus
+ * @source https://cdn.jsdelivr.net/npm/priority-plus/dist/priority-plus.css
+ */
+.p-plus-container {
+  position: relative;
+}
+.p-plus {
+  display: flex;
+  position: relative;
+  z-index: 0;
+}
+.p-plus--clone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 5px);
+  pointer-events: none;
+  visibility: hidden;
+}
+.p-plus--clone,
+.p-plus--clone .p-plus__primary-wrapper {
+  overflow: hidden;
+}
+.p-plus--is-showing-overflow .p-plus__overflow {
+  display: block;
+}
+.p-plus:not(.p-plus--is-showing-toggle) .p-plus__toggle-btn {
+  display: none;
+}
+.p-plus--is-hiding-primary .p-plus__toggle-btn {
+  flex-grow: 1;
+}
+.p-plus--is-hiding-primary .p-plus__primary-wrapper {
+  display: none;
+}
+.p-plus__primary-wrapper {
+  display: flex;
+  flex-grow: 1;
+}
+.p-plus__primary {
+  display: flex;
+  flex: 1 0 auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.p-plus__primary > li {
+  flex: 1 0 auto;
+}
+.p-plus__overflow {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+}
+.p-plus__toggle-btn {
+  flex-shrink: 0;
 }
 
 /*
