@@ -113,7 +113,7 @@ if (strpos($strSelectedTemplate,"User-") !== false) {
 	<table>
 		<tr>
 			<td>_(Icon)_:</td>
-			<td>
+			<td class="template_img_parent">
 				<input type="hidden" name="template[icon]" id="template_icon" value="<?=htmlspecialchars($arrLoad['icon'])?>" />
 				<img id="template_img" src="<?=htmlspecialchars($strIconURL)?>" width="48" height="48" title="_(Change Icon)_..."/>
 				<div id="template_img_chooser_outer">
