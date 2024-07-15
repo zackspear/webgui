@@ -86,6 +86,7 @@ MTU=$(ip link show $PORT | grep -Po 'mtu \K\d+')
 if [[ -n $(ip -6 route show default dev $PORT) ]]; then
   DOCKER0='fd17::/64'
   DOCKER_OPTS="--ipv6 --fixed-cidr-v6=$DOCKER0 $DOCKER_OPTS"
+  IPV6_FORWARD=${IPV6_FORWARD:=accept}
   # create IPv6 NAT rule for docker0
   [[ -z $(ip6tables -t nat -S | grep -o "$DOCKER0") ]] && run ip6tables -t nat -A POSTROUTING -s $DOCKER0 ! -o docker0 -j MASQUERADE
 else
@@ -453,6 +454,11 @@ docker_network_start(){
       fi
     fi
   done
+  # create IPv6 forward accept rule
+  if [[ $IPV6_FORWARD == accept ]]; then
+    log "creating forward accept rule for IPv6 network"
+    ip6tables -P FORWARD ACCEPT
+  fi
   log "Network started."
 }
 
