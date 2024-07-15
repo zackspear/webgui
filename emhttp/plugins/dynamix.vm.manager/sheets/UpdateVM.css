@@ -30,7 +30,7 @@ span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
 .template_img_chooser_inner{display:inline-block;width:80px;margin-bottom:15px;margin-right:10px;text-align:center;}
 .template_img_chooser_inner img{width:48px;height:48px}
 .template_img_chooser_inner p{text-align:center;line-height:8px;}
-#template_img_chooser{width:560px;height:300px;overflow-y:scroll;position:relative}
+#template_img_chooser{width:560px;height:300px;overflow-y:scroll;position:relative;display:grid;grid-template-columns: repeat(6, minmax(0, 1fr));}
 #template_img_chooser div:hover{color:#ff8c2f;cursor:pointer;}
 #form_content{display:none}
 #vmform .four{overflow:hidden}
