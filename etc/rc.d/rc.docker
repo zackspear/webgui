@@ -58,14 +58,18 @@ if [[ -f $DOCKER_CFG ]]; then
   . $DOCKER_CFG
 fi
 
-# Set storage driver appropriate for backing filesystem, override user setting
-BACKINGFS=$(findmnt --output FSTYPE --noheadings $DOCKER_ROOT)
-if [[ $BACKINGFS == btrfs ]]; then
-  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=btrfs"
-elif [[ $BACKINGFS == xfs ]]; then
+# set storage driver to overlay2 if config value is found, otherwise fall back to native FS driver
+if [[ $(awk -F'"' '/^DOCKER_BACKINGFS=/{print $2}' $DOCKER_CFG 2>/dev/null) == overlay2 ]]; then
   DOCKER_OPTS="$DOCKER_OPTS --storage-driver=overlay2"
-elif [[ $BACKINGFS == zfs ]]; then
-  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=zfs"
+else
+  BACKINGFS=$(findmnt --output FSTYPE --noheadings $DOCKER_ROOT)
+  if [[ $BACKINGFS == btrfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=btrfs"
+  elif [[ $BACKINGFS == xfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=overlay2"
+  elif [[ $BACKINGFS == zfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=zfs"
+  fi
 fi
 
 # Less verbose logging by default
