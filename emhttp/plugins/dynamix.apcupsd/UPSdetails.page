@@ -17,7 +17,10 @@ Tag="battery-3"
 ?>
 <script>
 function getUPSstatus() {
-  $.post('/plugins/dynamix.apcupsd/include/UPSstatus.php',{level:<?=$cfg['BATTERYLEVEL']?>,runtime:<?=$cfg['MINUTES']?>},function(data) {
+  var batteryLevel = "<?= !empty($cfg['BATTERYLEVEL']) ? $cfg['BATTERYLEVEL'] : 0 ?>";
+  var batteryRuntime = "<?= !empty($cfg['MINUTES']) ? $cfg['MINUTES'] : 0 ?>";
+
+  $.post('/plugins/dynamix.apcupsd/include/UPSstatus.php',{level:batteryLevel,runtime:batteryRuntime},function(data) {
     data = data.split('\n');
     $('#ups_summary').html(data[0]);
     $('#ups_status').html(data[1]);
