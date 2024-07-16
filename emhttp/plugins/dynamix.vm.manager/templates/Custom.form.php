@@ -1533,7 +1533,6 @@
 	<tr><td></td>
 		<td>_(Select)_&nbsp&nbsp_(Boot Order)_</td></tr></div>
 		<tr>
-		<tr>
 			<td>_(Other PCI Devices)_:</td>
 			<td>
 				<div class="textarea" style="width: 780px">
@@ -1557,7 +1556,6 @@
 						<label for="pci<?=$i?>">&nbsp&nbsp&nbsp&nbsp<input type="checkbox" name="pci[]" id="pci<?=$i?>" value="<?=htmlspecialchars($arrDev['id'])?>" <?=$extra?>/> &nbsp
 						<input type="number" size="5" maxlength="5" id="pciboot<?=$i?>" class="narrow pcibootorder" <?=$bootdisable?>  style="width: 50px;" name="pciboot[<?=htmlspecialchars($arrDev['id'])?>]"   title="_(Boot order)_"  value="<?=$pciboot?>" >
 						<?=htmlspecialchars($arrDev['name'])?> | <?=htmlspecialchars($arrDev['type'])?> (<?=htmlspecialchars($arrDev['id'])?>)</label><br/>
-						<td><textarea class="xml" id="xmlpci<?=$i?>" rows=5  disabled ><?=htmlspecialchars($xml2['devices']['other'][$arrDev['id']])?></textarea></td>
 					<?
 						}
 					}
@@ -1567,6 +1565,7 @@
 					}
 				?>
 				</div>
+				<td><textarea class="xml" id="xmlpci<?=$i?>" rows=2  disabled ><?=htmlspecialchars($xml2['devices']['other']["allotherpci"])?></textarea></td>
 			</td>
 
 		</tr>

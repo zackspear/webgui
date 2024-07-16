@@ -189,13 +189,13 @@ $(function() {
 	});
 
 	$('.advancedview').switchButton({
-		labels_placement: "left",
+		labels_placement: "right",
 		on_label: "_(XML View)_",
 		off_label: "_(Form View)_",
 		checked: isVMXMLMode()
 	});
 	$('.inlineview').switchButton({
-		labels_placement: "left",
+		labels_placement: "right",
 		off_label: "_(Hide inline xml)_",
 		on_label: "_(Show Inline XML)_",
 		checked: isinlineXMLMode()
