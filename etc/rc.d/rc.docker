@@ -58,14 +58,18 @@ if [[ -f $DOCKER_CFG ]]; then
   . $DOCKER_CFG
 fi
 
-# Set storage driver appropriate for backing filesystem, override user setting
-BACKINGFS=$(findmnt --output FSTYPE --noheadings $DOCKER_ROOT)
-if [[ $BACKINGFS == btrfs ]]; then
-  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=btrfs"
-elif [[ $BACKINGFS == xfs ]]; then
+# set storage driver to overlay2 if config value is found, otherwise fall back to native FS driver
+if [[ $(awk -F'"' '/^DOCKER_BACKINGFS=/{print $2}' $DOCKER_CFG 2>/dev/null) == overlay2 ]]; then
   DOCKER_OPTS="$DOCKER_OPTS --storage-driver=overlay2"
-elif [[ $BACKINGFS == zfs ]]; then
-  DOCKER_OPTS="$DOCKER_OPTS --storage-driver=zfs"
+else
+  BACKINGFS=$(findmnt --output FSTYPE --noheadings $DOCKER_ROOT)
+  if [[ $BACKINGFS == btrfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=btrfs"
+  elif [[ $BACKINGFS == xfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=overlay2"
+  elif [[ $BACKINGFS == zfs ]]; then
+    DOCKER_OPTS="$DOCKER_OPTS --storage-driver=zfs"
+  fi
 fi
 
 # Less verbose logging by default
@@ -86,6 +90,7 @@ MTU=$(ip link show $PORT | grep -Po 'mtu \K\d+')
 if [[ -n $(ip -6 route show default dev $PORT) ]]; then
   DOCKER0='fd17::/64'
   DOCKER_OPTS="--ipv6 --fixed-cidr-v6=$DOCKER0 $DOCKER_OPTS"
+  IPV6_FORWARD=${IPV6_FORWARD:=accept}
   # create IPv6 NAT rule for docker0
   [[ -z $(ip6tables -t nat -S | grep -o "$DOCKER0") ]] && run ip6tables -t nat -A POSTROUTING -s $DOCKER0 ! -o docker0 -j MASQUERADE
 else
@@ -453,6 +458,11 @@ docker_network_start(){
       fi
     fi
   done
+  # create IPv6 forward accept rule
+  if [[ $IPV6_FORWARD == accept ]]; then
+    log "creating forward accept rule for IPv6 network"
+    ip6tables -P FORWARD ACCEPT
+  fi
   log "Network started."
 }
 
