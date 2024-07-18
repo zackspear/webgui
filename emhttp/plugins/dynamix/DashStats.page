@@ -1188,6 +1188,7 @@ function SleepNow() {
 function sortTables() {
   $('table.dashboard').each(function(){
     var table = $(this);
+    sanitizeMultiCookie(table.prop('id'), ';', true);
     var index = $.cookie(table.prop('id'));
     // sorting list exists
     if (index != null) {
