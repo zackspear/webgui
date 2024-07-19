@@ -152,7 +152,7 @@ function fs_info(&$disk) {
   global $display;
   $echo = [];
   if (empty(_var($disk, 'fsStatus')) || _var($disk, 'fsStatus') == '-')
-    return "<td>".$disk['fsStatus']."</td><td colspan='3'></td>";
+    return "<td>"._var($disk, 'fsStatus')."</td><td colspan='3'></td>";
   if (_var($disk,'fsStatus')=='Mounted') {
     $echo[] = "<td>".vfs_type($disk)."</td>";
     $echo[] = "<td>".my_scale(_var($disk,'fsSize',0)*1024,$unit,-1)." $unit</td>";
