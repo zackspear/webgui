@@ -543,7 +543,7 @@ $theme_dark = in_array($display['theme'], ['black', 'gray']);
             </div>
 
             <? if (($twoFactorRequired && !empty($token)) || !$twoFactorRequired) { ?>
-                <p class="js-removeTimeout"><a href="https://docs.unraid.net/go/lost-root-password" target="_blank"><?=_('Password recovery')?></a></p>
+                <p class="js-removeTimeout"><a href="https://docs.unraid.net/go/lost-root-password/" target="_blank"><?=_('Password recovery')?></a></p>
             <? } ?>
 
         </div>

@@ -582,7 +582,7 @@ function viewHistory() {
 }
 function flashReport() {
   $.post('/webGui/include/Report.php',{cmd:'config'},function(check){
-    if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://docs.unraid.net/go/changing-the-flash-device'><?=_('See also here')?></a>");
+    if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://docs.unraid.net/go/changing-the-flash-device/'><?=_('See also here')?></a>");
   });
 }
 $(function() {
