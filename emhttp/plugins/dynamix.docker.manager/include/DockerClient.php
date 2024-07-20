@@ -307,9 +307,8 @@ class DockerTemplates {
 			$tmp['paused'] = $ct['Paused'];
 			$tmp['autostart'] = in_array($name,$autoStart);
 			$tmp['cpuset'] = $ct['CPUset'];
-			$tmp['url'] = $tmp['url'] ?? '';
+			$tmp['url'] = $ct['Url'] ?? $tmp['url'] ?? '';
 			// read docker label for WebUI & Icon
-			if (isset($ct['Url']) && !$tmp['url']) $tmp['url'] = $ct['Url'];
 			if (isset($ct['Icon'])) $tmp['icon'] = $ct['Icon'];
 			if (isset($ct['Shell'])) $tmp['shell'] = $ct['Shell'];
 			if (!$communityApplications) {
@@ -322,7 +321,7 @@ class DockerTemplates {
 					// non-templated webui, user specified
 					$tmp['url'] = $webui;
 				} else {
-					$ip = ($ct['NetworkMode']=='host'||_var($port,'NAT')) ? $host : _var($port,'IP');
+					$ip = ($ct['NetworkMode']=='host'||!is_null(_var($port,'PublicPort'))) ? $host : _var($port,'IP');
 					$tmp['url'] = $ip ? (strpos($tmp['url'],$ip)!==false ? $tmp['url'] : $this->getControlURL($ct, $ip, $tmp['url'])) : $tmp['url'];
 				}
 				if ( ($tmp['shell'] ?? false) == false )
