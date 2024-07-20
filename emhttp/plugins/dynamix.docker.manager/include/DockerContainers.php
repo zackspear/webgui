@@ -88,13 +88,18 @@ foreach ($containers as $ct) {
   $image = substr($icon,-4)=='.png' ? "<img src='$icon?".filemtime("$docroot{$info['icon']}")."' class='img' onerror=this.src='/plugins/dynamix.docker.manager/images/question.png';>" : (substr($icon,0,5)=='icon-' ? "<i class='$icon img'></i>" : "<i class='fa fa-$icon img'></i>");
   $wait = var_split($autostart[array_search($name,$names)]??'',1);
   $networks = [];
+  $network_ips = [];
   foreach($ct['Networks'] as $netName => $netVals) {
-    $networks[] = "<span>{$netName}</span><span>{$netVals['IPAddress']}</span>";
+    $networks[] = $netName;
+    $network_ips[] = $netVals['IPAddress'];
   }
   $ports = [];
   foreach ($ct['Ports'] as $port) {
       $arrow_style = _var($port,'PublicPort') ? "\"fa fa-arrows-h\"" : "";
-      $ports[] = sprintf('%s:%s<i class=%s style="margin:0 6px"></i>%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , _var($port,'PublicPort'));
+      if (_var($port,'PublicPort'))
+        $ports[] = sprintf('%s:%s<i class=%s style="margin:0 6px"></i>%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , _var($port,'PublicPort'));
+      else
+      $ports[] = sprintf('<span class="advanced">%s:%s<i class=%s style="margin:0 6px"></i>%s</span>', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , " &nbsp; <small style='text-align:right;'>(internal)</small>");
  
   }
   $paths = [];
@@ -140,7 +145,8 @@ foreach ($containers as $ct) {
     break;
   }
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> ".compress(_($version),12,0)."</div></td>";
-  echo "<td style='white-space:nowrap'><span class='docker_readmore' style='display: grid; grid-template-columns: repeat(2, 1fr);'> ".implode(' ',$networks)."</span></td>";
+  echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$networks)."</span></td>";
+  echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$network_ips)."</span></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports)."</span></td>";
   echo "<td style='word-break:break-all'><span class='docker_readmore'>".implode('<br>',$paths)."</span></td>";
   echo "<td class='advanced'><span class='cpu-$id'>0%</span><div class='usage-disk mm'><span id='cpu-$id' style='width:0'></span><span></span></div>";
