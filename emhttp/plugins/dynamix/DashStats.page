@@ -79,7 +79,7 @@ $domain_cfg = parse_ini_file($domain_cfgfile);
 if (!isset($domain_cfg['USAGE'])) $vmusage = "N" ; else $vmusage = $domain_cfg['USAGE'];
 
 // enable/disable graph elements by making hook script executable or not
-chmod("$docroot/webGui/system/VM_usage",$libvirtd ? 0755 : 0644);
+chmod("$docroot/webGui/system/VM",$libvirtd ? 0755 : 0644);
 chmod("$docroot/webGui/system/ZFS_cache",$zfs ? 0755 : 0644);
 
 foreach ($disks as $disk) {
