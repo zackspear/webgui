@@ -24,7 +24,7 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 $hardware = !empty(shell_exec("/etc/rc.d/rc.libvirt test"));
 if (!$hardware) {
   echo "<p class='notice'>"._('Your hardware does not have Intel VT-x or AMD-V capability').". "._('This is required to create VMs in KVM').". "._('Please disable the VM function').". ";
-  echo "<a href='https://docs.unraid.net/unraid-os/manual/vm-management#determining-hvmiommu-hardware-support' target='_blank'> "._('Click here to see the Unraid Wiki for more information')."</a></p>";
+  echo "<a href='https://docs.unraid.net/go/determining-hvmiommu-hardware-support/' target='_blank'> "._('View the Docs for more information')."</a></p>";
 }
 
 function scan($area, $text) {
