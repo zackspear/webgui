@@ -207,6 +207,12 @@ function selectDiskFsWidth() {
       value: 0,
       text: "<?=_('no devices')?>"
     }));
+  } else if (($('#diskFsType').val()||'').indexOf('zfs') == -1) {
+    var label = (num_slots == 1) ? "device" : "devices";
+    $('#diskFsWidthZFS').append($('<option>', {
+      value: num_slots,
+      text: _(sprintf('%s '+label,num_slots))
+    }));
   } else if ($('#diskFsProfileZFS').val() == '') {
     var label = (num_slots == 1) ? "device" : "devices";
     $('#diskFsWidthZFS').append($('<option>', {
@@ -250,14 +256,14 @@ function selectDiskFsProfile(init) {
   if (($('#diskFsType').val()||'').indexOf('auto') != -1) {
     $('#diskFsProfileBTRFS').prop('disabled',true).hide();
     $('#diskFsProfileZFS').prop('disabled',true).hide();
-    $('#diskFsWidthZFS').prop('disabled',true).hide();;
+    $('#diskFsWidthZFS').hide();;
     $('#compression').hide(t);
     $('#autotrim').hide(t);
   } else if (($('#diskFsType').val()||'').indexOf('btrfs') != -1) {
     if (!init) $('#diskFsProfileBTRFS').prop('disabled',false);
     $('#diskFsProfileBTRFS').show();
     $('#diskFsProfileZFS').prop('disabled',true).hide();
-    $('#diskFsWidthZFS').prop('disabled',true).hide();
+    $('#diskFsWidthZFS').hide();;
     $('#compression').show(t);
 <?if (diskType('Cache')):?>
     $('#autotrim').show(t);
@@ -274,7 +280,6 @@ function selectDiskFsProfile(init) {
     }
     if (!init) {
       $('#diskFsProfileZFS').prop('disabled',false);
-      $('#diskFsWidthZFS').prop('disabled',false);
     }
     $('#diskFsProfileZFS').show();
     $('#diskFsWidthZFS').show();
@@ -283,7 +288,6 @@ function selectDiskFsProfile(init) {
       if (num_slots == 2) $('#diskFsProfileZFS').val('mirror');
       if (num_slots > 2) $('#diskFsProfileZFS').val('raidz1');
     }
-    selectDiskFsWidth();
     $('#compression').show(t);
 <?if (diskType('Cache')):?>
     $('#autotrim').show(t);
@@ -291,6 +295,8 @@ function selectDiskFsProfile(init) {
     $('#autotrim').show(t);
 <?endif;?>
   }
+  selectDiskFsWidth();
+  $('#diskFsGroups').val(0);
 }
 function changeFsType() {
   var fstype = ($('#diskFsType').val()||'').replace('luks:','');
@@ -626,7 +632,7 @@ _(Spin down delay)_:
 
 <?endif;?>
 <?if (diskType('Data') || isPool($tag)):?>
-<?$fsTypeImmutable = (_var($var,'fsState')=="Stopped" && !empty(_var($disk,'uuid'))) || (_var($var,'fsState')=="Started" &&  _var($disk,'fsType')!='auto')?>
+<?$fsTypeImmutable = _var($var,'fsState')=="Started" || (isPool($tag) && _var($disk,'state')!="NEW_ARRAY")?>
 <?if (diskType('Data') || (!isSubpool($name) && _var($disk,'slots',0)==1)):?>
 _(File system status)_:
 : <?=_(_var($disk,'fsStatus'))?>&nbsp;
@@ -679,6 +685,7 @@ _(Allocation profile)_:
   <?if (_var($disk,'slots',0)>=4) echo mk_option(_var($disk,'fsProfile'),"raidz3", _('raidz3'))?>
   </select>
   <select id="diskFsWidthZFS" name="diskFsWidth.<?=_var($disk,'idx',0)?>" style="display:none" <?=disabled_if($fsTypeImmutable)?>>
+  <input  id="diskFsGroups" name="diskFsGroups.<?=_var($disk,'idx',0)?>" style="display:none" <?=disabled_if($fsTypeImmutable)?>>
   </select>
 <?elseif (isSubpool($name)=="special" || isSubpool($name)=="logs" || isSubpool($name)=="dedup"):?>
 _(Allocation profile)_:
@@ -764,11 +771,10 @@ _(Critical disk utilization threshold)_ (%):
   <?endif;?>
   <?if (isPool($name) && strpos($name,$_tilde_)===false):?>
     <?if (_var($var,'fsState')=="Stopped" || (_var($var,'fsState')=="Started" && _var($var,'startMode')!="Normal")): $erasable=true; endif;?>
-    <input type="button" id="eraseButton" value="_(Erase)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
+    <input type="button" id="eraseButton" value="_(Erase Pool)_" onclick="eraseDisk('<?=$name?>')"<?=$erasable?'':' disabled'?>>
   <?endif;?>
   <?if (_var($var,'fsState')=="Stopped" && isPool($name)):?>
-    <?$empty = _var($disk,'devices',0)==0?>
-    <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=$empty?'':' disabled'?>><?if (!$empty):?>_(Unassign **ALL** devices to delete this pool)_<?endif;?>
+    <input type="button" value="_(Delete Pool)_" onclick="deletePool()"<?=isSubpool($name)?' disabled':''?>>
   <?endif;?>
 </form>
 
