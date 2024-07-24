@@ -2661,8 +2661,8 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 		# Memory Metrics
 		if ($state == 1 && $collectmemstats) {
 		$currentmem = $data["balloon.current"];
-		$unusedmem = $data["balloon.unused"];
-		$meminuse = $currentmem - $unusedmem;
+		$maximummem = $data["balloon.maximum"];
+		$meminuse = min($data["balloon.rss"],$data["balloon.current"]);
 		} else $currentmem = $meminuse = 0;
 
 		# Disk
@@ -2697,7 +2697,8 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 				"cpuguest" => $cpuGuestPercent,
 				"timestamp" => $timestamp,
 				"mem" => $meminuse,
-				"maxmem" => $currentmem,
+				"curmem" => $currentmem,
+				"maxmem" => $maximummem,
 				"rxrate" => $rxrate,
 				"rxp" => $rx,
 				"txrate" => $txrate,
