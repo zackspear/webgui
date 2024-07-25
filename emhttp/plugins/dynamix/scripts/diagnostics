@@ -18,20 +18,22 @@
 // if called from cli:
 //   anonymous: diagnostics
 //   all data:  diagnostics -a
+
 $opt = getopt('a',['all']);
 $all = isset($opt['a']) || isset($opt['all']);
 $zip = $all ? ($argv[2]??'') : ($argv[1]??'');
 $cli = empty($zip);
 
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
-
+$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
+
+$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 // global variables
 $path  = "/var/local/emhttp";
-$var   = @parse_ini_file("$path/var.ini") ?: [];
-$disks = @parse_ini_file("$path/disks.ini",true) ?: [];
+$var   = (array)@parse_ini_file("$path/var.ini");
+$disks = (array)@parse_ini_file("$path/disks.ini",true);
 $pools = pools_filter($disks);
 
 require_once "$docroot/webGui/include/CustomMerge.php";
@@ -50,12 +52,12 @@ function write(...$messages){
   }
   curl_close($com);
 }
-function run($cmd, &$save=null) {
+function run($cmd, &$save=null, $timeout=30) {
   global $cli,$diag;
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("timeout -s9 30 $cmd", $save);
+  exec("timeout -s9 $timeout $cmd", $save);
   return implode("\n",$save);
 }
 
@@ -111,21 +113,18 @@ function maskIP($file) {
   // anonymize public IPv4 addresses
   $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
   run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
-  // anonymize full IPv6 addresses
-  run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
-}
 
-function prefix($key) {
-  return preg_replace('/\d+$/','',$key);
-}
-function cache_only($disk) {
-  return _var($disk,'type')=='Cache';
-}
-function cache_filter($disks) {
-  return array_filter($disks,'cache_only');
-}
-function pools_filter($disks) {
-  return array_unique(array_map('prefix',array_keys(cache_filter($disks))));
+  // anonymize full IPv6 addresses
+  $file_escaped = escapeshellarg($file);
+
+  // Anonymize IPv6 addresses without brackets
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+
+  // Anonymize IPv6 addresses with brackets
+  run("sed -ri 's/(\[([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\])([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+
+  // Handle any remaining edge cases, e.g., addresses with subnet masks
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\/[0-9]{1,3})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\7/g' $file_escaped 2>/dev/null");
 }
 function download_url($url, $path="", $bg=false, $timeout=15) {
   $ch = curl_init();
@@ -353,9 +352,15 @@ if ($cli) {
   $date = "{$split[2]}-{$split[3]}";
 }
 
+// Run Fix Common Problems if present and results are old / not present
+if ( is_file("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php") ) {
+  if ( ! is_file("/tmp/fix.common.problems/errors.json") || (time() - filemtime("/tmp/fix.common.problems/errors.json")) > 86400) {
+    run("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php diagnostics",$ignore,60);
+  }
+}
 // don't anonymize system share names
-$vardomain    = @parse_ini_file('/boot/config/domain.cfg') ?: [];
-$vardocker    = @parse_ini_file('/boot/config/docker.cfg') ?: [];
+$vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
+$vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
 $showshares   = [];
 $customShares = '';
 if (!empty($vardomain['IMAGE_FILE']))             $showshares[] = current(array_slice(explode('/',$vardomain['IMAGE_FILE']),3,1));
@@ -495,7 +500,7 @@ foreach ($files as $file) {
 file_put_contents("/$diag/shares/shareDisks.txt",implode($shareDisk));
 
 // create default user shares information
-$shares = @parse_ini_file("$path/shares.ini", true) ?: [];
+$shares = (array)@parse_ini_file("$path/shares.ini", true);
 foreach ($shares as $share) {
   $name = _var($share,'name');
   if ($name && !in_array("/boot/config/shares/$name.cfg",$files)) {
@@ -727,6 +732,9 @@ if (is_dir("/dev/dvb/")) run("ls -lA /sys/class/dvb/*/device/driver 2>/dev/null|
 // generate nvidia diagnostics
 if (is_file("/usr/bin/nvidia-smi")) run("/usr/bin/nvidia-smi --query 2>/dev/null|todos >>".escapeshellarg("/$diag/system/nvidia-smi.txt")); else null;
 
+// add gpu_statistics gpujson
+if (is_file("/boot/config/plugins/gpustat.plg")) run("cat /tmp/gpujson 2>/dev/null|todos >>".escapeshellarg("/$diag/system/gpujson.txt")); else null;
+
 // generate lxc diagnostics
 if (is_dir("/boot/config/plugins/lxc")) {
   run("mkdir -p ".escapeshellarg("/$diag/lxc"));
@@ -736,6 +744,8 @@ if (is_dir("/boot/config/plugins/lxc")) {
   run("cat /boot/config/plugins/lxc/lxc.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/lxc.conf"));
   run("cat /boot/config/plugins/lxc/default.conf 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/default.conf"));
   run("lxc-checkconfig 2>/dev/null|todos >>".escapeshellarg("/$diag/lxc/checkconfig.txt"));
+  // remove username and token
+  run("sed -i -e '/LXC_GITHUB_USER/c ***line removed***' -e '/LXC_GITHUB_TOKEN/c ***line removed***' ".escapeshellarg("/$diag/lxc/plugin.cfg"));
 } else {
     null;
 }
