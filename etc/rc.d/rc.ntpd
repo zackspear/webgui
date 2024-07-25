@@ -26,7 +26,7 @@ ntpd_running(){
 }
 
 ntpd_build(){
-  cp $CONF- $CONF
+  [[ -f $CONF.orig ]] && cp $CONF.orig $CONF || cp $CONF $CONF.orig
   echo "# Generated entries follow:" >>$CONF
   echo "interface ignore wildcard" >>$CONF
   if check && [[ -n $BIND ]]; then

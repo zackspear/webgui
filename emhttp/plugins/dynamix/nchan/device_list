@@ -151,8 +151,8 @@ function vfs_type(&$disk) {
 function fs_info(&$disk) {
   global $display;
   $echo = [];
-  if (empty(_var($disk, 'fsStatus')) || _var($disk, 'fsStatus') == '-')
-    return "<td>"._var($disk, 'fsStatus')."</td><td colspan='3'></td>";
+  if (empty(_var($disk,'fsStatus','')))
+    return "<td colspan='4'></td>";
   if (_var($disk,'fsStatus')=='Mounted') {
     $echo[] = "<td>".vfs_type($disk)."</td>";
     $echo[] = "<td>".my_scale(_var($disk,'fsSize',0)*1024,$unit,-1)." $unit</td>";
@@ -361,8 +361,9 @@ function array_slots() {
   return implode($echo);
 }
 function cache_slots($off,$pool,$min,$slots) {
-  global $var;
+  global $var, $disks;
   $off  = $off && $min ? ' disabled' : '';
+$off = '';
   $max  = _var($var,'MAX_CACHESZ');
   $echo = [];
   $echo[] = "<form method='POST' action='/update.htm' target='progressFrame'>";
@@ -370,10 +371,13 @@ function cache_slots($off,$pool,$min,$slots) {
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
   $echo[] = "<input type='hidden' name='poolName' value='$pool'>";
   $echo[] = "<select class='narrow' name='poolSlots' onChange='devices.start();this.form.submit()'{$off}>";
+  if (_var($disks[$pool],'state')=='NEW_ARRAY' || str_contains(_var($diks[$pool],'state'),'NO_DEVICES')) {
+    $option = _('none');
+    $echo[] = "<option value='0'>$option</option>";
+  }
   for ($n=$min; $n<=$max; $n++) {
-    $option = $n ?: _('none');
     $selected = ($n==$slots) ? ' selected' : '';
-    $echo[] = "<option value='$n'{$selected}>$option</option>";
+    $echo[] = "<option value='$n'{$selected}>$n</option>";
   }
   $echo[] = "</select></form>";
   return implode($echo);
@@ -509,7 +513,6 @@ while (true) {
     } else {
       foreach ($Cache as $disk) if (prefix($disk['name'])==$pool) {
         $fstype = str_replace('luks:','',_var($disk,'fsType'));
-        if (substr(_var($Cache[$pool],'fsStatus'),0,11)=='Unmountable' && empty($disk['fsStatus'])) $disk['fsStatus'] = _var($Cache[$pool],'fsStatus');
         $echo[$a][] = array_online($disk,$fstype);
       }
       if (strcmp($root,$pool)!=0) $Cache[$root]['devices'] += $Cache[$pool]['devices'];
