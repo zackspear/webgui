@@ -77,6 +77,9 @@ done
 # this serves to synchronize this script with USB subsystem
 abort() {
   read -p "$1 - press ENTER key to reboot..."
+  if /bin/mountpoint -q /boot; then
+    /bin/umount -v /boot
+  fi
   /bin/echo
   /sbin/reboot
 }
@@ -161,6 +164,7 @@ else
   /sbin/mount -w -v -n -o remount /
   RETVAL=$?
   [[ $RETVAL -gt 0 ]] && abort "failed to remount $UNRAIDROOT r/w with return value $RETVAL"
+  [[ ! -f /etc/rc.d/rc.S.cont ]] && abort "unable to boot - you must remove 'root=$UNRAIDROOT' from syslinux.cfg"
 fi
 
 # set permissions for non vfat boot on /boot
