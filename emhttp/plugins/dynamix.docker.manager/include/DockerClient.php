@@ -948,7 +948,10 @@ class DockerClient {
 			foreach ($ports as $port => $value) {
 				[$PrivatePort, $Type] = array_pad(explode('/', $port),2,'');
 				$PublicPort = $info['HostConfig']['PortBindings']["$port"][0]['HostPort'] ?: null;
-				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $PublicPort, 'Type' => $Type];
+				$nat = ($driver[$c['NetworkMode']]=='bridge');
+				if (array_key_exists($PrivatePort, $c['Ports']) && $Type != $c['Ports'][$PrivatePort]['Type'])
+					$Type = $c['Ports'][$PrivatePort]['Type'] . '/' . $Type;
+				$c['Ports'][$PrivatePort] = ['IP' => $ip, 'PrivatePort' => $PrivatePort, 'PublicPort' => $PublicPort, 'NAT' => $nat, 'Type' => $Type, 'Driver' => $driver[$c['NetworkMode']]];
 			}
 			ksort($c['Ports']);
 			$this::$containersCache[] = $c;

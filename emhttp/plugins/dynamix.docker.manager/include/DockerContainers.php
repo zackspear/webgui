@@ -93,14 +93,14 @@ foreach ($containers as $ct) {
     $networks[] = $netName;
     $network_ips[] = $netVals['IPAddress'];
   }
-  $ports = [];
+  $ports_internal = [];
+  $ports_external = [];
   foreach ($ct['Ports'] as $port) {
-      $arrow_style = _var($port,'PublicPort') ? "\"fa fa-arrows-h\"" : "";
-      if (_var($port,'PublicPort'))
-        $ports[] = sprintf('%s:%s<i class=%s style="margin:0 6px"></i>%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , _var($port,'PublicPort'));
-      else
-      $ports[] = sprintf('<span class="advanced">%s:%s<i class=%s style="margin:0 6px"></i>%s</span>', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')),$arrow_style , " &nbsp; <small style='text-align:right;'>(internal)</small>");
- 
+    if (_var($port,'PublicPort') && _var($port,'Driver') == 'bridge')
+      $ports_external[] = sprintf('%s:%s', $host, strtoupper(_var($port,'PublicPort')));
+    if (_var($port,'Driver') == 'ipvlan' || _var($port,'Driver') == 'host')
+      $ports_external[] = sprintf('%s:%s', _var($port,'IP'), strtoupper(_var($port,'PrivatePort')));
+    $ports_internal[] = sprintf('%s:%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')));
   }
   $paths = [];
   $ct['Volumes'] = is_array($ct['Volumes']) ? $ct['Volumes'] : [];
@@ -147,7 +147,8 @@ foreach ($containers as $ct) {
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> ".compress(_($version),12,0)."</div></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$networks)."</span></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$network_ips)."</span></td>";
-  echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports)."</span></td>";
+  echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports_internal)."</span></td>";
+  echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports_external)."</span></td>";
   echo "<td style='word-break:break-all'><span class='docker_readmore'>".implode('<br>',$paths)."</span></td>";
   echo "<td class='advanced'><span class='cpu-$id'>0%</span><div class='usage-disk mm'><span id='cpu-$id' style='width:0'></span><span></span></div>";
   echo "<br><span class='mem-$id'>0 / 0</span></td>";
