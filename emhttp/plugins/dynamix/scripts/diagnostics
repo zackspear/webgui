@@ -479,7 +479,7 @@ if (!$all) {
   maskIP("/$diag/config/network.cfg");
 }
 // include listening interfaces
-run("$docroot/webGui/scripts/show_interfaces ip|tr -d ' '|tr '#' ' '|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
+run("$docroot/webGui/scripts/show_interfaces ip|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
 run("$docroot/webGui/scripts/error_interfaces|sed 's/<i.*i>//' >>".escapeshellarg("/$diag/config/listen.txt"));
 if (!$all) maskIP("/$diag/config/listen.txt");
 
