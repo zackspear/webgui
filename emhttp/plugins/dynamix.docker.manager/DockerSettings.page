@@ -446,6 +446,9 @@ _(Docker vDisk location)_:
 <?else:?>
 _(Docker directory)_:
 : <?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>
+
+_(Docker storage driver)_:
+: <?=_var($dockercfg,'DOCKER_BACKINGFS')?>
 <?endif;?>
 
 :docker_vdisk_location_active_help:
