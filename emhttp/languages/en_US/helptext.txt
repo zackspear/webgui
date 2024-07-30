@@ -1128,6 +1128,10 @@ This is the active Docker version.
 This is the location of the Docker image.
 :end
 
+:docker_storage_driver_active_help:
+This is the storage driver for Docker.
+:end
+
 :docker_appdata_location_active_help:
 This is the storage location for Docker containers.
 :end
