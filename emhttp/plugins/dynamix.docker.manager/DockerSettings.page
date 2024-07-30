@@ -447,11 +447,13 @@ _(Docker vDisk location)_:
 _(Docker directory)_:
 : <?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>
 
+:docker_vdisk_location_active_help:
+
 _(Docker storage driver)_:
 : <?=_var($dockercfg,'DOCKER_BACKINGFS')?>
-<?endif;?>
 
-:docker_vdisk_location_active_help:
+:docker_storage_driver_active_help:
+<?endif;?>
 
 _(Default appdata storage location)_:
 : <?=_var($dockercfg,'DOCKER_APP_CONFIG_PATH')?>
