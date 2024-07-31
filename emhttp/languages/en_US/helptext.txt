@@ -1039,9 +1039,9 @@ It is recommended to create this folder under a share which resides on the Cache
 :end
 
 :docker_storage_driver_help:
-native (default): The native storage driver for your underlying filesystem will be used (XFS: overlay2 | ZFS: zfs | BTRFS: btrfs).
+overlay2 (default): Will use overlay2 as the storage driver for Docker, regardless of the underlying filesystem.
 
-overlay2 (recommended): Will force the usage from overlay2 regardless of the underlying filesystem.
+native: The native storage driver for your underlying filesystem will be used (XFS: overlay2 | ZFS: zfs | BTRFS: btrfs).
 
 ATTENTION: Changing the storage type from an existing Docker installation is not possible, you have to delete your Docker directory first, change the storage type and then reinstall your containers.
 It is recommended to take a screenshot from your Docker containers before changing the storage type. After deleting and changing the storage type, reinstall the containers by clicking Add Container on the Docker page and select one by one from the drop down to reinstall them with your previous settings).
