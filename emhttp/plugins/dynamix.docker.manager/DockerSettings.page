@@ -438,6 +438,7 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 </div>
 <?else: /* DOCKER STARTED */?>
 
+
 _(Docker version)_:
 : <?$arrInfo = $DockerClient->getInfo(); echo $arrInfo['Version']?>
 
@@ -449,6 +450,7 @@ _(Docker vDisk location)_:
 <?else:?>
 _(Docker directory)_:
 : <?=_var($dockercfg,'DOCKER_IMAGE_FILE')?>
+<?endif;?>
 
 :docker_vdisk_location_active_help:
 
@@ -456,7 +458,6 @@ _(Docker storage driver)_:
 : <?=_var($dockercfg,'DOCKER_BACKINGFS')?>
 
 :docker_storage_driver_active_help:
-<?endif;?>
 
 _(Default appdata storage location)_:
 : <?=_var($dockercfg,'DOCKER_APP_CONFIG_PATH')?>
