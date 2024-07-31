@@ -928,7 +928,7 @@ function updateLocation(val) {
 function updateBackingFS(val) {
   var backingfs = "<?= _var($dockercfg,'DOCKER_BACKINGFS') ?>";
   var warning = document.getElementById("WARNING_BACKINGFS");
-  var checkbox = $(".deleteCheckbox"); // Auswahl der Checkbox über die Klasse
+  var checkbox = $(".deleteCheckbox");
   if (val !== backingfs) {
     warning.style.display = "inline";
   } else {
