@@ -103,6 +103,9 @@ function base_net($route) {
   return substr(explode('/',$route)[0],0,-2);
 }
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
+
+//Check if docker.cfg not exists
+$no_dockercfg = !is_file('/boot/config/docker.cfg');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
@@ -614,6 +617,9 @@ function prepareDocker(form) {
   $(form).find('input[name="DOCKER_IMAGE_FILE"]').val($('#DOCKER_IMAGE_TYPE').val()=='folder' ? $("#DOCKER_IMAGE_FILE2").val() : $("#DOCKER_IMAGE_FILE1").val());
   $("#DOCKER_IMAGE_FILE1").prop('disabled',true);
   $("#DOCKER_IMAGE_FILE2").prop('disabled',true);
+  <?if ($no_dockercfg):?>
+    $(form).find('input[name="DOCKER_BACKINGFS"]').val($('#DOCKER_IMAGE_TYPE').val()=='folder' ? $("#DOCKER_BACKINGFS").val() : $("#DOCKER_BACKINGFS").val('native'));
+  <?endif;?>
 <?endif;?>
   $(form).find('input:hidden[name^="DOCKER_DHCP_"]').each(function(){
     var id = '#'+$(this).attr('name')+'_';
