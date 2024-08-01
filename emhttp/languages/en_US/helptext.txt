@@ -1038,6 +1038,15 @@ You must specify a folder for Docker. The system will automatically create this 
 It is recommended to create this folder under a share which resides on the Cache pool (setting: cache=Only). For best performance SSD devices are preferred.
 :end
 
+:docker_storage_driver_help:
+overlay2 (default): Will use overlay2 as the storage driver for Docker, regardless of the underlying filesystem.
+
+native: The native storage driver for your underlying filesystem will be used (XFS: overlay2 | ZFS: zfs | BTRFS: btrfs).
+
+ATTENTION: Changing the storage type from an existing Docker installation is not possible, you have to delete your Docker directory first, change the storage type and then reinstall your containers.
+It is recommended to take a screenshot from your Docker containers before changing the storage type. After deleting and changing the storage type, reinstall the containers by clicking Add Container on the Docker page and select one by one from the drop down to reinstall them with your previous settings).
+:end
+
 :docker_appdata_location_help:
 You can specify a folder to automatically generate and store subfolders containing configuration files for each Docker app (via the /config mapped volume).
 
@@ -1117,6 +1126,10 @@ This is the active Docker version.
 
 :docker_vdisk_location_active_help:
 This is the location of the Docker image.
+:end
+
+:docker_storage_driver_active_help:
+This is the storage driver for Docker.
 :end
 
 :docker_appdata_location_active_help:
