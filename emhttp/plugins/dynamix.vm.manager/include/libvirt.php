@@ -926,9 +926,9 @@
 				}
 			}
 			$audiodevs_used=[];
-			$strSpecialAddressAudio = "" ;
 			if (!empty($audios)) {
 				foreach ($audios as $i => $audio) {
+					$strSpecialAddressAudio = "" ;
 					// Skip duplicate audio devices
 					if (empty($audio['id']) || in_array($audio['id'], $audiodevs_used)) {
 						continue;
@@ -956,9 +956,9 @@
 			}
 
 			$pcidevs_used=[];
-			$strSpecialAddressOther = "" ;
 			if (!empty($pcis)) {
 				foreach ($pcis as $i => $pci_id) {
+					$strSpecialAddressOther = "" ;
 					// Skip duplicate other pci devices
 					if (empty($pci_id) || in_array($pci_id, $pcidevs_used)) {
 						continue;
@@ -1989,7 +1989,8 @@
 				if (is_file($disk)) unlink($disk);
 				if (is_file($cfg)) unlink($cfg);
 				if (is_file($xml)) unlink($xml);
-				if (is_dir($dir) && $this->is_dir_empty($dir)) rmdir($dir);
+				#if (is_dir($dir) && $this->is_dir_empty($dir)) rmdir($dir);
+				if (is_dir($dir) && $this->is_dir_empty($dir)) my_rmdir($dir);
 			}
 
 			return true;
