@@ -185,7 +185,7 @@ function array_offline(&$disk, $pool='') {
   if (_var($disk,'type')=='Cache') {
     if (!str_contains(_var($diks[$pool],'state'),'ERROR:')) {
       if (_var($disks[$pool],'state')!='NEW_ARRAY') {
-        if (in_array(_var($disk,'status'),$status)) $warning = $text;
+        if (in_array(_var($disk,'status'),$status) || _var($disk['status'])=='DISK_NEW') $warning = $text;
       }
     }
   } else {
