@@ -97,6 +97,7 @@ if (isset($_POST['#command'])) {
     while (!feof($proc)) {
       write_log(fgets($proc));
     }
+    @pclose($proc);
   }
 }
 ?>
