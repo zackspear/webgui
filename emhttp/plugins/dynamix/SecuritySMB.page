@@ -19,6 +19,8 @@ Cond="(($var['shareSMBEnabled']!='no') && (isset($name)?array_key_exists($name,$
 require_once "$docroot/webGui/include/InputSecurity.php";
 
 $width = [123,300];
+/* Sort user array by keys in natural order */
+uksort($users, 'strnatcmp');
 ?>
 :smb_security_help:
 
