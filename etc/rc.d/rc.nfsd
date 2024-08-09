@@ -114,7 +114,16 @@ nfsd_update() {
   fi
 }
 
-case "$1" in
+nfsd_status(){
+  if ps axc | grep -q rpc.mountd; then
+    echo "$DAEMON is currently running."
+  else
+    echo "$DAEMON is not running."
+    exit 1
+  fi
+}
+
+ase "$1" in
 'start')
   nfsd_start
   ;;
@@ -130,6 +139,9 @@ case "$1" in
 'update')
   nfsd_update
   ;;
+'status')
+  nfsd_status
+  ;;
 *)
-  echo "usage $0 start|stop|restart|reload|update"
+  echo "usage $0 start|stop|restart|reload|update|status"
 esac
