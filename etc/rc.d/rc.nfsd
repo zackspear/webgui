@@ -115,15 +115,16 @@ nfsd_update() {
 }
 
 nfsd_status(){
+  echo -n "NFS server is "
   if ps axc | grep -q rpc.mountd; then
-    echo "$DAEMON is currently running."
+    echo "currently running."
   else
-    echo "$DAEMON is not running."
+    echo "not running."
     exit 1
   fi
 }
 
-ase "$1" in
+case "$1" in
 'start')
   nfsd_start
   ;;
