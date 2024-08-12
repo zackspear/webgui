@@ -350,7 +350,7 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
         if (!cookieEnabled) {
             const errorElement = document.createElement('p');
             errorElement.classList.add('error');
-            errorElement.textContent = "<?=_('Browser cookie support required for Unraid OS webgui')?>";
+            errorElement.textContent = "<?=_('Please enable cookies to use the Unraid webGUI')?>";
 
             document.body.textContent = '';
             document.body.appendChild(errorElement);
