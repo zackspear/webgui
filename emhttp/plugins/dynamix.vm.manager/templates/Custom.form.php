@@ -334,9 +334,10 @@
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 	<table>
+	<tr><td></td><td><span hidden id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location<br>Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span></td></tr>
 		<tr>
 			<td>_(Name)_:</td>
-			<td><input type="text" name="domain[name]" id="domain_name" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
+			<td><input type="text" name="domain[name]" id="domain_name" oninput="checkName(this.value)" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 			<td><textarea class="xml" id="xmlname" rows=1 disabled ><?=htmlspecialchars($xml2['name'])."\n".htmlspecialchars($xml2['uuid'])."\n".htmlspecialchars($xml2['metadata'])?></textarea></td>
 		</tr>
 	</table>
@@ -377,7 +378,7 @@
 		<tr>
 			<?if (!$boolNew) $disablestorage = " disabled "; else $disablestorage = "";?>
 			<td>_(Override Storage Location)_:</td><td>
-			<select <?=$disablestorage?> name="template[storage]" class="disk_select narrow" id="storage_location" title="_(Location of virtual machine files)_">
+			<select <?=$disablestorage?> name="template[storage]" onchange="get_storage_fstype(this)" class="disk_select narrow" id="storage_location" title="_(Location of virtual machine files)_">
 			<?
 			$default_storage=htmlspecialchars($arrConfig['template']['storage']);
 			echo mk_option($default_storage, 'default', _('Default'));
@@ -1880,6 +1881,8 @@
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/addon/hint/libvirt-schema.js')?>"></script>
 <script src="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/mode/xml/xml.js')?>"></script>
 <script type="text/javascript">
+var storageType = "<?=get_storage_fstype($arrConfig['template']['storage']);?>";
+var storageLoc = "<?=$arrConfig['template']['storage']?>";
 
 function ShareChange(share) {
 		var value = share.value;
@@ -1989,6 +1992,36 @@ function SetBootorderfields(usbbootvalue) {
 			if (bootpcidevs[bootpciid] === "Y") 	bootelements[i].removeAttribute("disabled");
 		}
 	}
+}
+
+
+/* Remove characters not allowed in share name. */
+function checkName(name) {
+	/* Declare variables at the function scope */
+	var isValidName
+	$('#zfs-name').hide();
+	isValidName = /^[A-Za-z0-9][A-Za-z0-9\-_.:]*$/.test(name);
+	if (isValidName) {
+		$('#btnSubmit').prop("disabled", false);
+	} else {
+		if (storageType == "zfs")
+		{ $('#btnSubmit').prop("disabled", true); $('#zfs-name').show(); }
+		else $('#btnSubmit').prop("disabled", false);
+	}
+}
+
+function get_storage_fstype(item) {
+	storageLoc = item.value;
+	$.post("/plugins/dynamix.vm.manager/include/VMajax.php", {action:"get_storage_fstype", storage:item.value}, function( data ) {
+		if (data.success) {
+			if (data.fstype) {
+				storageType=data.fstype;
+				checkName(document.getElementById("domain_name").value);
+			}}
+
+		if (data.error) {
+		}
+	}, "json");
 }
 
 function USBBootChange(usbboot) {

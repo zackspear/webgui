@@ -2823,4 +2823,26 @@ function get_vm_ip($dom) {
 	return $myIP;
 }
 
+function check_zfs_name($zfsname, $storage="default") {
+	global $lv,$domain_cfg;
+	if ($storage == "default") $storage = $domain_cfg['DOMAINDIR']; else $storage = "/mnt/$storage/";
+	$storage=transpose_user_path($storage);
+	$fstype = trim(shell_exec(" stat -f -c '%T' $storage"));
+	#Check if ZFS.
+	$allowed_chars = "/^[A-Za-z0-9\-_.:]+$/";
+	if ($fstype == "zfs" && !preg_match($allowed_chars, $zfsname)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function get_storage_fstype($storage="default") {
+	global $domain_cfg;
+	if ($storage == "default") $storage = $domain_cfg['DOMAINDIR']; else $storage = "/mnt/$storage/";
+	$storage=transpose_user_path($storage);
+	$fstype = trim(shell_exec(" stat -f -c '%T' $storage"));
+	return $fstype;
+}
+
 ?>

@@ -452,6 +452,61 @@ case 'snap-desc':
 	: ['error' => $lv->get_last_error()];
 	break;
 
+case 'get_storage_fstype':
+	$fstype = get_storage_fstype(unscript(_var($_REQUEST,'storage')));
+	$arrResponse = ['fstype' => $fstype , 'success' => true] ;
+	break;
+
+case 'vm-removal':
+	requireLibvirt();
+	$arrResponse = ($data = getvmsnapshots($domName)) 
+	? ['success' => true]
+	: ['error' => $lv->get_last_error()];
+	$datartn = $disksrtn = "";
+	foreach($data as $snap=>$snapdetail) {
+		$snapshotdatetime = date("Y-m-d H:i:s",$snapdetail["creationtime"]) ;
+		$datartn  .= "$snap  $snapshotdatetime\n" ;
+	}
+	$disks = $lv->get_disk_stats($domName);
+
+	foreach($disks as $diskid=>$diskdetail) {
+	if ($diskid == 0) $pathinfo = pathinfo($diskdetail['file']);
+	}
+
+	$list = glob($pathinfo['dirname']."/*");
+	$uuid = $lv->domain_get_uuid($domName);
+
+	$list2 = glob("/etc/libvirt/qemu/nvram/*$uuid*");
+	$listnew = array();
+	$list=array_merge($list,$list2);
+	foreach($list as $key => $listent)
+	{
+		$pathinfo = pathinfo($listent);
+		$listnew[] = "{$pathinfo['basename']} ({$pathinfo['dirname']})";
+	}
+	sort($listnew,SORT_NATURAL);
+	$listcount = count($listnew);
+	$snapcount = count($data);
+	$disksrtn=implode("\n",$listnew);
+
+
+
+	if (strpos($dirname,'/mnt/user/')===0) {
+		$realdisk = trim(shell_exec("getfattr --absolute-names --only-values -n system.LOCATION ".escapeshellarg($dirname)." 2>/dev/null"));
+		if (!empty($realdisk)) {
+			$dirname = str_replace('/mnt/user/', "/mnt/$realdisk/", $dirname);
+		}
+	}
+	$fstype = trim(shell_exec(" stat -f -c '%T' $dirname"));
+	$html = '<table class="snapshot">
+	<tr><td>'._('VM Being removed').':</td><td><span id="VMBeingRemoved">'.$domName.'</span></td></tr>
+	<tr><td>'._('Remove all files').':</td><td><input type="checkbox" id="All" checked value="" ></td></tr>
+	<tr><td>'._('Files being removed').':</td><td><textarea id="textfiles" class="xml" rows="'.$listcount.'" style="white-space: pre; overflow: auto; width:600px" disabled>'.$disksrtn.'</textarea></td></tr>
+	<tr><td>'._('Snapshots being removed').':</td><td><textarea id="textsnaps" rows="'.$snapsount.'" cols="80" disabled>'.$datartn.'</textarea></td></tr>
+	</table>';
+	$arrResponse = ['html' => $html , 'success' => true] ;
+	break;
+
 case 'disk-create':
 	$disk = $_REQUEST['disk'];
 	$driver = $_REQUEST['driver'];
