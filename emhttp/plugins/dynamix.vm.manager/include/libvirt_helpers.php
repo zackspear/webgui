@@ -1457,7 +1457,12 @@ private static $encoding = 'UTF-8';
 		// preserve existing disk driver settings
 		foreach ($new['devices']['disk'] as $key => $disk) {
 			$source = $disk['source']['@attributes']['file'];
-			foreach ($old['devices']['disk'] as $k => $d) if ($source==$d['source']['@attributes']['file']) $new['devices']['disk'][$key]['driver']['@attributes'] = $d['driver']['@attributes'];
+			if (isset($disk['driver']['@attributes']['discard'])) $discard = $disk['driver']['@attributes']['discard']; else $discard = null;
+			foreach ($old['devices']['disk'] as $k => $d) 
+				if ($source==$d['source']['@attributes']['file']) { 
+					if (isset($discard)) $d['driver']['@attributes']['discard'] = $discard;
+					$new['devices']['disk'][$key]['driver']['@attributes'] = $d['driver']['@attributes'];
+				}
 		}
 		// settings not in the GUI, but maybe customized
 		unset($old['clock']);
