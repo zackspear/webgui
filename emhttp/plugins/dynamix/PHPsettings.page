@@ -47,11 +47,11 @@ under normal running conditions.
 _(Error reporting level)_:
 : <select name="error_reporting" onchange="toggleScreen(this.selectedIndex)">
   <?=mk_option(_var($conf,'error_reporting'), strval(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED), "_(Default)_");?>
-  <?=mk_option(_var($conf,'error_reporting'), "32767", "_(All Categories)_");?>
-  <?=mk_option(_var($conf,'error_reporting'), "1", "_(Errors Only)_");?>
-  <?=mk_option(_var($conf,'error_reporting'), "2", "_(Warnings Only)_");?>
-  <?=mk_option(_var($conf,'error_reporting'), "8", "_(Notices Only)_");?>
-  <?=mk_option(_var($conf,'error_reporting'), "8192", "_(Deprecated Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), strval(E_ALL), "_(All Categories)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), strval(E_ERROR), "_(Errors Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), strval(E_WARNING), "_(Warnings Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), strval(E_NOTICE), "_(Notices Only)_");?>
+  <?=mk_option(_var($conf,'error_reporting'), strval(E_DEPRECATED), "_(Deprecated Only)_");?>
   </select>
 
 &nbsp;
