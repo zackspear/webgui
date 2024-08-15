@@ -699,8 +699,10 @@
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
+							if ($strDevType == "file" && ($disk['bus'] == "virtio" || $disk['bus'] == "scsi" || $disk['bus'] == "sata")) $strDevUnmap = ' discard="unmap" '; else $strDevUnmap ="";
+
 							$diskstr .= "<disk type='" . $strDevType . "' device='disk'>
-											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'/>
+											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'".$strDevUnmap."/>
 											<source " . $strSourceType . "='" . htmlspecialchars($disk['image'], ENT_QUOTES | ENT_XML1) . "'/>
 											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "' $rotation_rate />
 											$bootorder
