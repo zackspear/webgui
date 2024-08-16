@@ -952,6 +952,8 @@ class DockerClient {
 				$c['NetworkMode'] = DockerUtil::ctMap($c['NetworkMode']);
 				$ports = &$info['Config']['ExposedPorts'];
 			}
+			$ip = $c['NetworkMode']=='host' ? $host : $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'] ?? null;
+			$c['Networks'][$c['NetworkMode']] = [ 'IPAddress' => $ip ];
 			foreach($ct['NetworkSettings']['Networks'] as $netName => $netVals) {
 				$i = $c['NetworkMode']=='host' ? $host : $netVals['IPAddress'];
 				$c['Networks'][$netName] = [ 'IPAddress' => $i ];
