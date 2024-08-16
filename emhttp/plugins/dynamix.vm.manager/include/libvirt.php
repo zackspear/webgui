@@ -699,7 +699,7 @@
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
-							if ($strDevType == "file" && ($disk['bus'] == "virtio" || $disk['bus'] == "scsi" || $disk['bus'] == "sata")) $strDevUnmap = ' discard="unmap" '; else $strDevUnmap ="";
+							if (isset($disk['discard'])) $strDevUnmap = " discard=\"{$disk['discard']}\" "; else $strDevUnmap = " discard=\"ignore\" ";
 
 							$diskstr .= "<disk type='" . $strDevType . "' device='disk'>
 											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'".$strDevUnmap."/>
@@ -1341,6 +1341,7 @@
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
+					$tmp["discard"] = $disk->driver->attributes()->discard ?? "ignore";
 					$tmp["rotation"] = $disk->target->attributes()->rotation_rate ?? "0";
 					$tmp['serial'] = $disk->serial ;
 
@@ -1371,7 +1372,8 @@
 						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
 						'rotation' => $disk->target->attributes()->rotation_rate ?? "0",
-						'serial' => $disk->serial
+						'serial' => $disk->serial,
+						'discard' => $disk->driver->attributes()->discard ?? "ignore"
 					];
 				}
 			}

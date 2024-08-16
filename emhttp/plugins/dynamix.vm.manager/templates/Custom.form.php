@@ -31,6 +31,7 @@
 	$arrValidUSBDevices = getValidUSBDevices();
 	$arrValidDiskDrivers = getValidDiskDrivers();
 	$arrValidDiskBuses = getValidDiskBuses();
+	$arrValidDiskDiscard = getValidDiskDiscard();
 	$arrValidCdromBuses = getValidCdromBuses();
 	$arrValidVNCModels = getValidVNCModels();
 	$arrValidProtocols = getValidVMRCProtocols();
@@ -88,7 +89,8 @@
 				'select' => $domain_cfg['VMSTORAGEMODE'],
 				'bus' => 'virtio' ,
 				'boot' => 1,
-				'serial' => 'vdisk1'
+				'serial' => 'vdisk1',
+				'discard' => 'ignore'
 			]
 		],
 		'gpu' => [
@@ -848,6 +850,10 @@
 					</select>
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[<?=$i?>][boot]" class="narrow bootorder" style="width: 50px;" name="disk[<?=$i?>][boot]"   title="_(Boot order)_"  value="<?=$arrDisk['boot']?>" >
+				_(Discard)_:
+					<select name="disk[<?=$i?>][discard]" class="disk_driver narrow" title="_(Set discard option)_">
+					<?mk_dropdown_options($arrValidDiskDiscard, $arrDisk['discard']);?>
+					</select>
 				<? if ($arrDisk['bus'] == "virtio" || $arrDisk['bus'] == "usb") $ssddisabled = "hidden "; else $ssddisabled = " ";?>
 				<span id="disk[<?=$i?>][rotatetext]" <?=$ssddisabled?>>_(SSD)_:</span>
 				<input type="checkbox"  id="disk[<?=$i?>][rotation]" class="narrow rotation" onchange="updateSSDCheck(this)"style="width: 50px;" name="disk[<?=$i?>][rotation]"  <?=$ssddisabled ?> <?=$arrDisk['rotation'] ? "checked ":"";?>  title="_(Set SDD flag)_"  value="<?=$arrDisk['rotation']?>" >
@@ -896,6 +902,11 @@
 			<p class="advanced">
 				<b>vDisk Boot Order</b><br>
 				Specify the order the devices are used for booting.
+			</p>
+
+			<p class="advanced">
+				<b>vDisk Discard</b><br>
+				Specify if unmap(Trim) requests are sent to underlaying filesystem.
 			</p>
 
 			<p class="advanced">
@@ -1002,6 +1013,10 @@
 
 				_(Boot Order)_:
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
+				_(Discard)_:
+					<select name="disk[{{INDEX}}][discard]" class="disk_driver narrow" title="_(Set discard option)_">
+					<?mk_dropdown_options($arrValidDiskDiscard, "ignore");?>
+					</select>
 				<span id="disk[{{INDEX}}][rotatetext]" hidden>_(SSD)_:</span>
 				<input type="checkbox"  id="disk[{{INDEX}}][rotation]" class="narrow rotation" onchange="updateSSDCheck(this)"style="width: 50px;" name="disk[{{INDEX}}[rotation]" hidden title="_(Set SSD flag)_" value='0' >
 				</td>

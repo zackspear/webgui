@@ -1091,6 +1091,15 @@ private static $encoding = 'UTF-8';
 		return $arrValidDiskBuses;
 	}
 
+	function getValidDiskDiscard() {
+		$arrValidDiskDiscard = [
+			'ignore' => 'Ignore(No Trim)',
+			'unmap' => 'Unmap(Trim)',
+		];
+
+		return $arrValidDiskDiscard;
+	}
+
 	function getValidCdromBuses() {
 		$arrValidCdromBuses = [
 			'scsi' => 'SCSI',
@@ -1316,6 +1325,7 @@ private static $encoding = 'UTF-8';
 				'driver' => $disk['type'],
 				'dev' => $disk['device'],
 				'bus' => $disk['bus'],
+				'discard' => $disk['discard'],
 				'boot' => $disk['boot order'],
 				'rotation' => $disk['rotation'],
 				'serial' => $disk['serial'],
@@ -1330,6 +1340,7 @@ private static $encoding = 'UTF-8';
 				'dev' => 'hda',
 				'select' => '',
 				'bus' => 'virtio',
+				'discard' => 'ignore',
 				'rotation' => "0"
 			];
 		}
