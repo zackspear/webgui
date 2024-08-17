@@ -89,29 +89,27 @@ foreach ($containers as $ct) {
   $wait = var_split($autostart[array_search($name,$names)]??'',1);
   $networks = [];
   $network_ips = [];
+  $ports_internal = [];
+  $ports_external = [];
+  if (isset($ct['Ports']['vlan'])) {
+    foreach ($ct['Ports']['vlan'] as $i)
+      $ports_external[] = sprintf('%s', $i);
+    $ports_internal[0] = sprintf('%s', 'all');
+  }
   foreach($ct['Networks'] as $netName => $netVals) {
     $networks[] = $netName;
     $network_ips[] = $netVals['IPAddress'];
-  }
-  $ports_internal = [];
-  $ports_external = [];
-  foreach ($ct['Ports'] as $port) {
-    if (strpos($ct['NetworkMode'], 'container:') === 0)
-      break;
-    if (_var($port,'PublicPort') && _var($port,'Driver') == 'bridge')
-      $ports_external[] = sprintf('%s:%s', $host, strtoupper(_var($port,'PublicPort')));
+
     if (isset($ct['Networks']['host'])) {
       $ports_external[] = sprintf('%s', $netVals['IPAddress']);
-      $ports_internal[] = sprintf('%s', 'all');
-      break;
-    }
-    if (isset($ct['Ports']['vlan'])) {
-      $ports_external[] = sprintf('%s', $netVals['IPAddress']);
-      $ports_internal[] = sprintf('%s', 'all');
-      break;
-    }
-    if ((!isset($ct['Networks']['host'])) || (!isset($ct['Networks']['vlan']))) {
-      $ports_internal[] = sprintf('%s:%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')));
+      $ports_internal[0] = sprintf('%s', 'all');
+    } else if (!isset($ct['Ports']['vlan']) || strpos($ct['NetworkMode'], 'container:') != 0) {
+      foreach ($ct['Ports'] as $port) {
+        if (_var($port,'PublicPort') && _var($port,'Driver') == 'bridge')
+          $ports_external[] = sprintf('%s:%s', $host, strtoupper(_var($port,'PublicPort')));
+        if ((!isset($ct['Networks']['host'])) || (!isset($ct['Networks']['vlan'])))
+          $ports_internal[] = sprintf('%s:%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')));
+      }
     }
   }
   $paths = [];

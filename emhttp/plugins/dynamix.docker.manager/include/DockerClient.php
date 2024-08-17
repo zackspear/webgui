@@ -945,16 +945,21 @@ class DockerClient {
 				} elseif ($driver[$c['NetworkMode']]=='host') {
 					$c['Ports']['host'] = ['host' => ''];
 				} elseif ($driver[$c['NetworkMode']]=='ipvlan' || $driver[$c['NetworkMode']]=='macvlan') {
-					$c['Ports']['vlan'] = ['vlan' => ''];
+					$i = $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'];
+					$c['Ports']['vlan'] = ["$i" => $i];
 				} else {
 					$ports = &$info['Config']['ExposedPorts'];
 				}
 			} else if (!$id) {
 				$c['NetworkMode'] = DockerUtil::ctMap($c['NetworkMode']);
 				$ports = &$info['Config']['ExposedPorts'];
-				foreach($ct['NetworkSettings']['Networks'] as $netName => $netVals) {
-					$i = $c['NetworkMode']=='host' ? $host : $netVals['IPAddress'];
-					$c['Networks'][$netName] = [ 'IPAddress' => $i ];
+			}
+			foreach($ct['NetworkSettings']['Networks'] as $netName => $netVals) {
+				$i = $c['NetworkMode']=='host' ? $host : $netVals['IPAddress'];
+				$c['Networks'][$netName] = [ 'IPAddress' => $i ];
+				if ($driver[$netName]=='ipvlan' || $driver[$netName]=='macvlan') {
+					if (!isset($c['Ports']['vlan'])) $c['Ports']['vlan'] = [];
+					$c['Ports']['vlan']["$i"] = $i;
 				}
 			}
 			$ip = $c['NetworkMode']=='host' ? $host : $ct['NetworkSettings']['Networks'][$c['NetworkMode']]['IPAddress'] ?? null;
