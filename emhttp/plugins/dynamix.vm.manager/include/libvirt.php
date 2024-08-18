@@ -699,8 +699,10 @@
 						if ($strDevType == 'file' || $strDevType == 'block') {
 							$strSourceType = ($strDevType == 'file' ? 'file' : 'dev');
 
+							if (isset($disk['discard'])) $strDevUnmap = " discard=\"{$disk['discard']}\" "; else $strDevUnmap = " discard=\"ignore\" ";
+
 							$diskstr .= "<disk type='" . $strDevType . "' device='disk'>
-											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'/>
+											<driver name='qemu' type='" . $disk['driver'] . "' cache='writeback'".$strDevUnmap."/>
 											<source " . $strSourceType . "='" . htmlspecialchars($disk['image'], ENT_QUOTES | ENT_XML1) . "'/>
 											<target bus='" . $disk['bus'] . "' dev='" . $disk['dev'] . "' $rotation_rate />
 											$bootorder
@@ -1339,6 +1341,7 @@
 				if ($tmp) {
 					$tmp['bus'] = $disk->target->attributes()->bus->__toString();
 					$tmp["boot order"] = $disk->boot->attributes()->order ?? "";
+					$tmp["discard"] = $disk->driver->attributes()->discard ?? "ignore";
 					$tmp["rotation"] = $disk->target->attributes()->rotation_rate ?? "0";
 					$tmp['serial'] = $disk->serial ;
 
@@ -1369,7 +1372,8 @@
 						'bus' =>  $disk->target->attributes()->bus->__toString(),
 						'boot order' => $disk->boot->attributes()->order ,
 						'rotation' => $disk->target->attributes()->rotation_rate ?? "0",
-						'serial' => $disk->serial
+						'serial' => $disk->serial,
+						'discard' => $disk->driver->attributes()->discard ?? "ignore"
 					];
 				}
 			}
