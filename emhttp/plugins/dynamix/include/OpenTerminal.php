@@ -30,26 +30,25 @@ $run  = "$docroot/webGui/scripts/run_cmd";
 if (!empty($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
 
 function getUserShell() {
-  $shell = 'bash';
+  $defaultShell = 'bash';
+  
   try {
     $username = posix_getpwuid(posix_geteuid())['name'];
     $passwd = file_get_contents('/etc/passwd');
     $lines = explode("\n", $passwd);
     foreach ($lines as $line) {
-        $parts = explode(':', $line);
-        if ($parts[0] === $username) {
-            $fullShellPath = end($parts);
-            $shell = basename(trim($fullShellPath));
-            break;
-        }
+      $parts = explode(':', $line);
+      if ($parts[0] === $username) {
+          $fullShellPath = end($parts);
+          return basename(trim($fullShellPath));
+      }
     }
-  } catch (Exception $e) {
-      syslog(LOG_ERR, "Error determining user shell: " . $e->getMessage());
+  } catch (Throwable $t) {
+    syslog(LOG_ERR, 'Error determining user shell: ' . $t->getMessage());
+    return defaultShell;
   }
   
-  syslog(LOG_INFO, sprintf("User shell determined: %s %s", $username, $shell));
-  
-  return $shell;
+  return defaultShell;
 }
 
 function wait($name,$cmd) {
