@@ -45,10 +45,10 @@ function getUserShell() {
     }
   } catch (Throwable $t) {
     syslog(LOG_ERR, 'Error determining user shell: ' . $t->getMessage());
-    return defaultShell;
+    return $defaultShell;
   }
   
-  return defaultShell;
+  return $defaultShell;
 }
 
 function wait($name,$cmd) {
