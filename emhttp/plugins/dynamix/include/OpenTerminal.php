@@ -29,6 +29,26 @@ $run  = "$docroot/webGui/scripts/run_cmd";
 // set tty window font size
 if (!empty($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display['tty']}/' /etc/default/ttyd");
 
+function getUserShell() {
+  $shell = 'bash';
+  try {
+      $username = posix_getpwuid(posix_geteuid())['name'];
+      $passwd = file_get_contents('/etc/passwd');
+      $lines = explode("\n", $passwd);
+      foreach ($lines as $line) {
+          if (strpos($line, $username) === 0) {
+              $parts = explode(':', $line);
+              $fullShellPath = end($parts);
+              $shell = basename(trim($fullShellPath));
+              break;
+          }
+      }
+  } catch (Exception $e) {
+      syslog(LOG_ERR, "Fehler beim Ermitteln der User-Shell: " . $e->getMessage());
+  }
+  return $shell;
+}
+
 function wait($name,$cmd) {
   global $run,$wait;
   $exec = "/var/tmp/$name.run.sh";
@@ -51,7 +71,7 @@ case 'ttyd':
     // no child processes, restart ttyd to pick up possible font size change
     if ($retval != 0) exec("kill ".$ttyd_pid[0]);
   }
-  if ($retval != 0) exec("ttyd-exec -i '$sock' bash --login");
+  if ($retval != 0) exec("ttyd-exec -i '$sock' " . getUserShell() . " --login");
   break;
 case 'syslog':
   // read syslog file
