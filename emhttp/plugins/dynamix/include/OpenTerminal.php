@@ -32,20 +32,23 @@ if (!empty($display['tty'])) exec("sed -ri 's/fontSize=[0-9]+/fontSize={$display
 function getUserShell() {
   $shell = 'bash';
   try {
-      $username = posix_getpwuid(posix_geteuid())['name'];
-      $passwd = file_get_contents('/etc/passwd');
-      $lines = explode("\n", $passwd);
-      foreach ($lines as $line) {
-          if (strpos($line, $username) === 0) {
-              $parts = explode(':', $line);
-              $fullShellPath = end($parts);
-              $shell = basename(trim($fullShellPath));
-              break;
-          }
-      }
+    $username = posix_getpwuid(posix_geteuid())['name'];
+    $passwd = file_get_contents('/etc/passwd');
+    $lines = explode("\n", $passwd);
+    foreach ($lines as $line) {
+        $parts = explode(':', $line);
+        if ($parts[0] === $username) {
+            $fullShellPath = end($parts);
+            $shell = basename(trim($fullShellPath));
+            break;
+        }
+    }
   } catch (Exception $e) {
-      syslog(LOG_ERR, "Fehler beim Ermitteln der User-Shell: " . $e->getMessage());
+      syslog(LOG_ERR, "Error determining user shell: " . $e->getMessage());
   }
+  
+  syslog(LOG_INFO, sprintf("User shell determined: %s %s", $username, $shell));
+  
   return $shell;
 }
 
