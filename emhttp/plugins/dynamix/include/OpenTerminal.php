@@ -73,7 +73,7 @@ case 'ttyd':
     // no child processes, restart ttyd to pick up possible font size change
     if ($retval != 0) exec("kill ".$ttyd_pid[0]);
   }
-  if ($retval != 0) exec("ttyd-exec -i '$sock' " . getUserShell() . " --login");
+  if ($retval != 0) exec("ttyd-exec -i '$sock' " . escapeshellarg(getUserShell()) . " --login");
   break;
 case 'syslog':
   // read syslog file
