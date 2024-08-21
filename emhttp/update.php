@@ -16,18 +16,23 @@
  * The $_POST variable contains a list of key/value parameters to be updated in the file.
  * There are a number of special parameters prefixed with a hash '#' character:
  *
- * #file    : the pathname of the file to be updated. It does not need to previously exist.
- *            If pathname is relative (no leading '/'), the configuration file will placed
- *            placed under '/boot/config/plugins'.
- *            This parameter may be omitted to perform a command execution only (see #command).
- * #section : if present, then the ini file consists of a set of named sections, and all of the
- *            configuration parameters apply to this one particular section.
- *            if omitted, then it's just a flat ini file without sections.
- * #default : if present, then the default values will be restored instead.
- * #include : specifies name of an include file to read and execute in before saving the file contents
- * #cleanup : if present then parameters with empty strings are omitted from being written to the file
- * #command : a shell command to execute after updating the configuration file
- * #arg     : an array of arguments for the shell command
+ * #file        : The pathname of the file to be updated. It does not need to previously exist.
+ *                If pathname is relative (no leading '/'), the configuration file will placed
+ *                placed under '/boot/config/plugins'.
+ *                This parameter may be omitted to perform a command execution only (see #command).
+ * 
+ * #section     : If present, then the ini file consists of a set of named sections, and all of the
+ *                configuration parameters apply to this one particular section.
+ *                If omitted, then it's just a flat ini file without sections.
+ * 
+ * #default     : If present, then the default values will be restored instead (from 'default.cfg').
+ * #defaultfile : If present in combination with #default, a custom defaults file
+ *                relative to the document root is read (instead of 'default.cfg').
+ * 
+ * #include     : Specifies name of an include file to read and execute in before saving the file contents.
+ * #cleanup     : If present then parameters with empty strings are omitted from being written to the file.
+ * #command     : A shell command to execute after updating the configuration file.
+ * #arg         : An array of arguments for the shell command.
  */
 function write_log($string) {
   if (empty($string)) return;
@@ -50,7 +55,15 @@ if (isset($_POST['#file'])) {
   if ($file && $file[0]!='/') $file = "/boot/config/plugins/$file";
   $section = $_POST['#section'] ?? false;
   $cleanup = isset($_POST['#cleanup']);
-  $default = ($file && isset($_POST['#default'])) ? @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) : [];
+
+  $default = [];
+  if($file && isset($_POST['#default'])) {
+    if(isset($_POST['#defaultfile'])) {
+      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/".$_POST['#defaultfile'], $section) ?? [];
+    } else {
+      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?? [];
+    }
+  }
 
   // if the file is not a raw file, it can be parsed 
   $keys = (is_file($file) && !$raw_file) ? (parse_ini_file($file, $section) ?: []) : [];
