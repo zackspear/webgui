@@ -18,7 +18,7 @@
  *
  * #file        : The pathname of the file to be updated. It does not need to previously exist.
  *                If pathname is relative (no leading '/'), the configuration file will placed
- *                placed under '/boot/config/plugins'.
+ *                placed under '/boot/config/plugins/'.
  *                This parameter may be omitted to perform a command execution only (see #command).
  * 
  * #section     : If present, then the ini file consists of a set of named sections, and all of the
@@ -29,7 +29,7 @@
  * 
  * #defaultfile : If present in combination with #default, a custom defaults file will be restored
  *                instead of the regular 'default.cfg' file. If pathname is relative (no leading '/'),
- *                the given configuration file will be searched for under '/usr/local/emhttp/plugins'.
+ *                the given configuration file will be searched for under '/usr/local/emhttp/plugins/'.
  * 
  * #include     : Specifies name of an include file to read and execute in before saving the file contents.
  * #cleanup     : If present then parameters with empty strings are omitted from being written to the file.
