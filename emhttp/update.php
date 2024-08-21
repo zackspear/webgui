@@ -59,9 +59,9 @@ if (isset($_POST['#file'])) {
   $default = [];
   if($file && isset($_POST['#default'])) {
     if(isset($_POST['#defaultfile'])) {
-      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/".$_POST['#defaultfile'], $section) ?? [];
+      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/".$_POST['#defaultfile'], $section) ?: [];
     } else {
-      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?? [];
+      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
     }
   }
 
