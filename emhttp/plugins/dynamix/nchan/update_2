@@ -137,6 +137,17 @@ function device_name(&$disk) {
   $name = _($p1).($p2?" $p2":"");
   return "<i class='icon-$type f14'></i> <a href=\"".htmlspecialchars("/Dashboard/Main/Settings/Device?name="._var($disk,'name'))."\" title=\"$name settings\">$name</a>";
 }
+function yellow_text($disk) {
+  global $var;
+  if (_var($disk, 'type')=='Parity') {
+    $text = _var($var,'mdResync')==0 ? 'invalid' : 'syncing';
+  } elseif (_var($disk, 'type')=='Data') {
+    $text = _var($var,'mdResync')==0 ? 'emulated' : 'rebuilding';
+  } else {
+    $text = 'invalid';
+  }
+  return $text;
+}
 function device_status(&$disk, &$error, &$warning) {
   global $var;
   if (_var($disk,'type')!='Extra' && _var($var,'fsState')=='Stopped') {
@@ -146,8 +157,8 @@ function device_status(&$disk, &$error, &$warning) {
     case 'green-blink' : $color = 'grey';   $text = 'standby';    break;
     case 'blue-on'     : $color = 'blue';   $text = 'unassigned'; break;
     case 'blue-blink'  : $color = 'grey';   $text = 'unassigned'; break;
-    case 'yellow-on'   : $color = 'yellow'; $text =  _var($disk,'type')=='Parity' ? 'invalid' : 'emulated';   $warning++; break;
-    case 'yellow-blink': $color = 'grey';   $text =  _var($disk,'type')=='Parity' ? 'invalid' : 'emulated';   $warning++; break;
+    case 'yellow-on'   : $color = 'yellow'; $text =  yellow_text($disk); $warning++; break;
+    case 'yellow-blink': $color = 'grey';   $text =  yellow_text($disk); $warning++; break;
     case 'red-on'      : $color = 'red';    $text = 'disabled';   $error++; break;
     case 'red-blink'   : $color = 'grey';   $text = 'disabled';   $error++; break;
     case 'red-off'     : $color = 'red';    $text = 'faulty';     $error++; break;
@@ -223,8 +234,9 @@ function device_usage(&$disk, &$full, &$high) {
 }
 function array_group($type,$pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
+  $status_np = $type=='Parity' ? 'DISK_NP_DSBL' : 'DISK_NP';
   $echo = [];
-  foreach ($disks as $disk) if (_var($disk,'type')==$type && strpos(_var($disk,'status'),'DISK_NP')===false && (!$pool||$pool==prefix(_var($disk,'name')))) {
+  foreach ($disks as $disk) if (_var($disk,'type')==$type && _var($disk,'status')!=$status_np && (!$pool||$pool==prefix(_var($disk,'name')))) {
     $echo[] = "<tr class='updated'><td>";
     $echo[] = "<span class='w26'>".device_name($disk)."</span>";
     $echo[] = "<span class='w18'>".device_status($disk,$error,$warning)."</span>";
