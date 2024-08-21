@@ -26,8 +26,10 @@
  *                If omitted, then it's just a flat ini file without sections.
  * 
  * #default     : If present, then the default values will be restored instead (from 'default.cfg').
- * #defaultfile : If present in combination with #default, a custom defaults file relative to the
- *                plugin's document root will be restored instead (and not that 'default.cfg' file).
+ * 
+ * #defaultfile : If present in combination with #default, a custom defaults file will be restored
+ *                instead of the regular 'default.cfg' file. If pathname is relative (no leading '/'),
+ *                the given configuration file will be searched for under '/usr/local/emhttp/plugins'.
  * 
  * #include     : Specifies name of an include file to read and execute in before saving the file contents.
  * #cleanup     : If present then parameters with empty strings are omitted from being written to the file.
@@ -59,7 +61,9 @@ if (isset($_POST['#file'])) {
   $default = [];
   if($file && isset($_POST['#default'])) {
     if(isset($_POST['#defaultfile'])) {
-      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/".$_POST['#defaultfile'], $section) ?: [];
+      $defaultfile = $_POST['#defaultfile'];
+      if ($defaultfile && $defaultfile[0]!='/') $defaultfile = "$docroot/plugins/$defaultfile";
+      $default = @parse_ini_file($defaultfile, $section) ?: [];
     } else {
       $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
     }
