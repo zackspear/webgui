@@ -26,8 +26,8 @@
  *                If omitted, then it's just a flat ini file without sections.
  * 
  * #default     : If present, then the default values will be restored instead (from 'default.cfg').
- * #defaultfile : If present in combination with #default, a custom defaults file
- *                relative to the document root is read (instead of 'default.cfg').
+ * #defaultfile : If present in combination with #default, a custom defaults file relative to the
+ *                plugin's document root will be restored instead (and not that 'default.cfg' file).
  * 
  * #include     : Specifies name of an include file to read and execute in before saving the file contents.
  * #cleanup     : If present then parameters with empty strings are omitted from being written to the file.
