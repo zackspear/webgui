@@ -90,7 +90,7 @@
 				'bus' => 'virtio' ,
 				'boot' => 1,
 				'serial' => 'vdisk1',
-				'discard' => 'ignore'
+				'discard' => 'unmap'
 			]
 		],
 		'gpu' => [

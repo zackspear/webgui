@@ -267,6 +267,9 @@
 					if (!empty($disk['serial'])) {
 						$arrReturn['serial'] = $disk['serial'];
 					}
+					if (!empty($disk['discard'])) {
+						$arrReturn['discard'] = $disk['discard'];
+					}
 
 				}
 			}
@@ -907,10 +910,17 @@
 					}
 
 					if ($gpu['multi'] == "on"){
-						$newgpu_bus = dechex(hexdec($gpu_bus) + 0x20) ;
+						$newgpu_bus= 0x10;
+						if (!isset($multibus[$newgpu_bus])) {
+							$multibus[$newgpu_bus] = 0x10;
+						} else {
+							#Get next bus
+							$newgpu_bus = end($multibus) + 0x01;
+							$multibus[$newgpu_bus] = $newgpu_bus;
+						}
 						if ($machine_type == "pc") $newgpu_slot = "0x01" ; else $newgpu_slot = "0x00" ; 
-						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='0x$newgpu_bus' slot='$newgpu_slot' function='0x".$gpu_function."' multifunction='on' />" ;
-						$multidevices[$gpu_bus] = "0x$gpu_bus" ;
+						$strSpecialAddress = "<address type='pci' domain='0x0000' bus='$newgpu_bus' slot='$newgpu_slot' function='0x".$gpu_function."' multifunction='on' />" ;
+						$multidevices[$gpu_bus] = $newgpu_bus ;
 					}
 
 					
@@ -939,9 +949,9 @@
 					[$audio_bus, $audio_slot, $audio_function] = my_explode(":", str_replace('.', ':', $audio['id']), 3);
 					if ($audio_function != 0) {
 						if (isset($multidevices[$audio_bus]))	{
-							$newaudio_bus = dechex(hexdec($audio_bus) + 0x20) ;
+							$newaudio_bus = $multidevices[$audio_bus] ;
 							if ($machine_type == "pc") $newaudio_slot = "0x01" ; else $newaudio_slot = "0x00" ; 
-							$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='0x$newaudio_bus' slot='$newaudio_slot'  function='0x".$audio_function."' />" ;
+							$strSpecialAddressAudio = "<address type='pci' domain='0x0000' bus='$newaudio_bus' slot='$newaudio_slot'  function='0x".$audio_function."' />" ;
 						}
 					}
 
@@ -970,9 +980,9 @@
 					
 					if ($pci_function != 0) {
 						if (isset($multidevices[$pci_bus]))	{
-							$newpci_bus = dechex(hexdec($pci_bus) + 0x20) ;
+							$newpci_bus = $multidevices[$pci_bus];
 							if ($machine_type == "pc") $newpci_slot = "0x01" ; else $newpci_slot = "0x00" ; 
-							$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='0x$newpci_bus' slot='$newpci_slot' function='0x".$pci_function."' />" ;
+							$strSpecialAddressOther = "<address type='pci' domain='0x0000' bus='$newpci_bus' slot='$newpci_slot' function='0x".$pci_function."' />" ;
 						}
 					}
 
