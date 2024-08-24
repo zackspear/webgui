@@ -90,7 +90,7 @@
 				'bus' => 'virtio' ,
 				'boot' => 1,
 				'serial' => 'vdisk1',
-				'discard' => 'ignore'
+				'discard' => 'unmap'
 			]
 		],
 		'gpu' => [
@@ -1015,7 +1015,7 @@
 				<input type="number" size="5" maxlength="5" id="disk[{{INDEX}}][boot]" class="narrow bootorder" style="width: 50px;" name="disk[{{INDEX}}][boot]"   title="_(Boot order)_"  value="" >
 				_(Discard)_:
 					<select name="disk[{{INDEX}}][discard]" class="disk_driver narrow" title="_(Set discard option)_">
-					<?mk_dropdown_options($arrValidDiskDiscard, "ignore");?>
+					<?mk_dropdown_options($arrValidDiskDiscard, "unmap");?>
 					</select>
 				<span id="disk[{{INDEX}}][rotatetext]" hidden>_(SSD)_:</span>
 				<input type="checkbox"  id="disk[{{INDEX}}][rotation]" class="narrow rotation" onchange="updateSSDCheck(this)"style="width: 50px;" name="disk[{{INDEX}}[rotation]" hidden title="_(Set SSD flag)_" value='0' >

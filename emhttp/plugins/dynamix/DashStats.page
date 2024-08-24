@@ -1,5 +1,5 @@
 Menu="Dashboard"
-Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop,vm_dashusage:stop"
+Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop,vm_dashusage"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology * Copyright 2012-2023, Bergware International.
