@@ -28,7 +28,13 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
+if (is_file('/boot/syslinux/syslinux.cfg')) {
+  $bootenv = '/boot/syslinux';
+} elseif (is_file('/boot/grub/grub.cfg')) {
+  $bootenv = '/boot/grub';
+}
+
+$folders = ['/boot','/boot/config','/boot/config/plugins',$bootenv,'/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 // global variables
 $path  = "/var/local/emhttp";
