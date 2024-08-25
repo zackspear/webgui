@@ -16,25 +16,30 @@
  * The $_POST variable contains a list of key/value parameters to be updated in the file.
  * There are a number of special parameters prefixed with a hash '#' character:
  *
- * #file        : The pathname of the file to be updated. It does not need to previously exist.
- *                If pathname is relative (no leading '/'), the configuration file will placed
- *                placed under '/boot/config/plugins/'.
- *                This parameter may be omitted to perform a command execution only (see #command).
+ * #file          : The pathname of the file to be updated. It does not need to previously exist.
+ *                  If pathname is relative (no leading '/'), the configuration file will placed
+ *                  placed under '/boot/config/plugins/'.
+ *                  This parameter may be omitted to perform a command execution only (see #command).
  * 
- * #section     : If present, then the ini file consists of a set of named sections, and all of the
- *                configuration parameters apply to this one particular section.
- *                If omitted, then it's just a flat ini file without sections.
+ * #section       : If present, then the ini file consists of a set of named sections, and all of the
+ *                  configuration parameters apply to this one particular section.
+ *                  If omitted, then it's just a flat ini file without sections.
  * 
- * #default     : If present, then the default values will be restored instead (from 'default.cfg').
+ * #default       : If present, then the default values will be restored instead (from 'default.cfg').
  * 
- * #defaultfile : If present in combination with #default, a custom defaults file will be restored
- *                instead of the regular 'default.cfg' file. If pathname is relative (no leading '/'),
- *                the given configuration file will be searched for under '/usr/local/emhttp/plugins/'.
+ * #defaultfile   : If present in combination with #default, a custom defaults file will be restored
+ *                  instead of the regular 'default.cfg' file. If pathname is relative (no leading '/'),
+ *                  the given configuration file will be searched for under '/usr/local/emhttp/plugins/'.
  * 
- * #include     : Specifies name of an include file to read and execute in before saving the file contents.
- * #cleanup     : If present then parameters with empty strings are omitted from being written to the file.
- * #command     : A shell command to execute after updating the configuration file.
- * #arg         : An array of arguments for the shell command.
+ * #defaultvalues : If present in combination with #default, no defaults file but an associative array
+ *                  passed through POST in format of 'defaultvalues[key]=value' will be restored instead.
+ *                  e.g. <input type="hidden" name="#defaultvalues[SERVICE]" value="enable">
+ *                  e.g. <input type="hidden" name="#defaultvalues[INTERVAL]" value="25">
+ * 
+ * #include       : Specifies name of an include file to read and execute in before saving the file contents.
+ * #cleanup       : If present then parameters with empty strings are omitted from being written to the file.
+ * #command       : A shell command to execute after updating the configuration file.
+ * #arg           : An array of arguments for the shell command.
  */
 function write_log($string) {
   if (empty($string)) return;
@@ -64,6 +69,8 @@ if (isset($_POST['#file'])) {
       $defaultfile = $_POST['#defaultfile'];
       if ($defaultfile && $defaultfile[0]!='/') $defaultfile = "$docroot/plugins/$defaultfile";
       $default = @parse_ini_file($defaultfile, $section) ?: [];
+    } elseif(isset($_POST['#defaultvalues'])) {
+        $default = $_POST['#defaultvalues'] ?: [];
     } else {
       $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
     }
