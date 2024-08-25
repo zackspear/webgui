@@ -31,10 +31,12 @@
  *                  instead of the regular 'default.cfg' file. If pathname is relative (no leading '/'),
  *                  the given configuration file will be searched for under '/usr/local/emhttp/plugins/'.
  * 
- * #defaultvalues : If present in combination with #default, no defaults file but an associative array
- *                  passed through POST in format of 'defaultvalues[key]=value' will be restored instead.
- *                  e.g. <input type="hidden" name="#defaultvalues[SERVICE]" value="enable">
- *                  e.g. <input type="hidden" name="#defaultvalues[INTERVAL]" value="25">
+ * #defaults      : If present in combination with #default, no defaults file but an associative array
+ *                  passed through POST in format of '#defaults[key]=value' will be restored instead.
+ *                  e.g. <input type="hidden" name="#defaults[SERVICE]" value="enable">
+ *                  e.g. <input type="hidden" name="#defaults[INTERVAL]" value="25">
+ *                  Beware: Browsers generally do not send empty values, if your default values include
+ *                  any empty strings, you should preferably use a default configuration file instead.
  * 
  * #include       : Specifies name of an include file to read and execute in before saving the file contents.
  * #cleanup       : If present then parameters with empty strings are omitted from being written to the file.
@@ -69,8 +71,8 @@ if (isset($_POST['#file'])) {
       $defaultfile = $_POST['#defaultfile'];
       if ($defaultfile && $defaultfile[0]!='/') $defaultfile = "$docroot/plugins/$defaultfile";
       $default = @parse_ini_file($defaultfile, $section) ?: [];
-    } elseif(isset($_POST['#defaultvalues'])) {
-      $default = is_array($_POST['#defaultvalues']) ? ($_POST['#defaultvalues'] ?: []) : [];
+    } elseif(isset($_POST['#defaults'])) {
+      $default = is_array($_POST['#defaults']) ? ($_POST['#defaults'] ?: []) : [];
     } else {
       $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
     }
