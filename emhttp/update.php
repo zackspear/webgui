@@ -70,11 +70,11 @@ if (isset($_POST['#file'])) {
     if(isset($_POST['#defaultfile'])) {
       $defaultfile = $_POST['#defaultfile'];
       if ($defaultfile && $defaultfile[0]!='/') $defaultfile = "$docroot/plugins/$defaultfile";
-      $default = @parse_ini_file($defaultfile, $section) ?: [];
+      $default = parse_ini_file($defaultfile, $section) ?: [];
     } elseif(isset($_POST['#defaults'])) {
       $default = is_array($_POST['#defaults']) ? ($_POST['#defaults'] ?: []) : [];
     } else {
-      $default = @parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
+      $default = parse_ini_file("$docroot/plugins/".basename(dirname($file))."/default.cfg", $section) ?: [];
     }
   }
 
