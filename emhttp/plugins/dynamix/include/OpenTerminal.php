@@ -51,8 +51,7 @@ case 'ttyd':
     // no child processes, restart ttyd to pick up possible font size change
     if ($retval != 0) exec("kill ".$ttyd_pid[0]);
   }
-  $shell = posix_getpwuid(0)['shell'] === '/bin/zsh' ? 'zsh' : 'bash';
-  if ($retval != 0) exec("ttyd-exec -i '$sock' '$shell' --login");
+  if ($retval != 0) exec("ttyd-exec -i '$sock' '" . posix_getpwuid(0)['shell'] . "' --login");
   break;
 case 'syslog':
   // read syslog file
