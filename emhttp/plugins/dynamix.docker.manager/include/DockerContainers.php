@@ -98,7 +98,7 @@ foreach ($containers as $ct) {
   }
   foreach($ct['Networks'] as $netName => $netVals) {
     $networks[] = $netName;
-    $network_ips[] = $netVals['IPAddress'];
+    $network_ips[] = $running ? $netVals['IPAddress'] : null;
 
     if (isset($ct['Networks']['host'])) {
       $ports_external[] = sprintf('%s', $netVals['IPAddress']);
