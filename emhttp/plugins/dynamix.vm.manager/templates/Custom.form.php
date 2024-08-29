@@ -2015,7 +2015,7 @@ function checkName(name) {
 	/* Declare variables at the function scope */
 	var isValidName
 	$('#zfs-name').hide();
-	isValidName = /^[A-Za-z0-9][A-Za-z0-9\-_.:]*$/.test(name);
+	isValidName = /^[A-Za-z0-9][A-Za-z0-9\-_.: ]*$/.test(name);
 	if (isValidName) {
 		$('#btnSubmit').prop("disabled", false);
 	} else {

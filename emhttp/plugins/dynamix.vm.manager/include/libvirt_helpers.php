@@ -2845,7 +2845,7 @@ function check_zfs_name($zfsname, $storage="default") {
 	$storage=transpose_user_path($storage);
 	$fstype = trim(shell_exec(" stat -f -c '%T' $storage"));
 	#Check if ZFS.
-	$allowed_chars = "/^[A-Za-z0-9\-_.:]+$/";
+	$allowed_chars = "/^[A-Za-z0-9][A-Za-z0-9\-_.: ]*$/";
 	if ($fstype == "zfs" && !preg_match($allowed_chars, $zfsname)) {
 		return false;
 	} else {
