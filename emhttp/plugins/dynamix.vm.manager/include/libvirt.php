@@ -2003,8 +2003,10 @@
 				if (is_file($disk)) unlink($disk);
 				if (is_file($cfg)) unlink($cfg);
 				if (is_file($xml)) unlink($xml);
-				#if (is_dir($dir) && $this->is_dir_empty($dir)) rmdir($dir);
-				if (is_dir($dir) && $this->is_dir_empty($dir)) my_rmdir($dir);
+				if (is_dir($dir) && $this->is_dir_empty($dir)) {
+					$error = my_rmdir($dir);
+					qemu_log("$domain","delete empty $dir $error");
+				} 
 			}
 
 			return true;
