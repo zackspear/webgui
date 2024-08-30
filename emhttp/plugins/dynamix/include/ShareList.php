@@ -214,12 +214,9 @@ foreach ($shares as $name => $share) {
 		$share_valid	= true;
 	}
 
-	/* Check if poolsOnly is true. */
-	if ($poolsOnly) {
-		/* If useCache is set to 'yes' or 'prefer', change it to 'only'. */
-		if ((($share['useCache'] == 'yes') || ($share['useCache'] == 'prefer')) && (!$share['cachePool2'])) {
-			$share['useCache'] = 'only';
-		}
+	/* When there is no array, all pools are treated as 'only' cache. */
+	if (($poolsOnly) && (! $share['cachePool2'])) {
+		$share['useCache'] = 'only';
 	}
 
 	$row++;
