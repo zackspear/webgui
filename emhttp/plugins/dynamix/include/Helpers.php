@@ -358,7 +358,7 @@ function my_rmdir($dirname) {
     case "zfs":
       $zfsoutput = array();
       $zfsdataset = trim(shell_exec("zfs list -H -o name  \"$dirname\"")) ;
-      exec("zfs destroy \"$zfsdataset\"",$zfsoutput,$rtncode);
+      #exec("zfs destroy \"$zfsdataset\"",$zfsoutput,$rtncode);
       break;
     case "btrfs":
     default:
