@@ -51,13 +51,13 @@ function update_translation($locale) {
     $text = "$docroot/languages/$locale/translations.txt";
     if (file_exists($text)) {
       $store = "$docroot/languages/$locale/translations.dot";
-      if (!file_exists($store)) file_put_contents_atomic($store,serialize(parse_lang_file($text)));
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
       $language = unserialize(file_get_contents($store));
     }
     $text = "$docroot/languages/$locale/main.txt";
     if (file_exists($text)) {
       $store = "$docroot/languages/$locale/main.dot";
-      if (!file_exists($store)) file_put_contents_atomic($store,serialize(parse_lang_file($text)));
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
       $language = array_merge($language,unserialize(file_get_contents($store)));
     }
   }
@@ -66,7 +66,7 @@ function create_sync($file) {
   return file_exists($file) ? explode(',',file_get_contents($file)) : [];
 }
 function create_file($file,...$data) {
-  if (!file_exists($file)) file_put_contents_atomic($file,implode(',',$data));
+  if (!file_exists($file)) file_put_contents($file,implode(',',$data));
 }
 
 while (true) {
