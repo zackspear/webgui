@@ -910,9 +910,9 @@
 					}
 
 					if ($gpu['multi'] == "on"){
-						$newgpu_bus= 0x10;
+						$newgpu_bus= 0x07;
 						if (!isset($multibus[$newgpu_bus])) {
-							$multibus[$newgpu_bus] = 0x10;
+							$multibus[$newgpu_bus] = 0x07;
 						} else {
 							#Get next bus
 							$newgpu_bus = end($multibus) + 0x01;
