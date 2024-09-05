@@ -386,7 +386,9 @@ build_locations(){
 	#
 	# pass PHP scripts to FastCGI server listening on unix:/var/run/php-fpm.sock
 	#
-	location ~ \.php$ {
+	location ~ ^(.+\.php)(.*)$ {
+	    fastcgi_split_path_info  ^(.+\.php)(.*)$;
+	    fastcgi_param PATH_INFO  $fastcgi_path_info;
 	    include fastcgi_params;
 	}
 	#
