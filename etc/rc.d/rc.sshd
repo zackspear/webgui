@@ -27,10 +27,10 @@ sshd_running(){
   for pid in $(pgrep -f $SSHD); do
     # check if a sshd is running on host system
     if ! grep -qE '/docker/|/lxc/' /proc/$pid/cgroup; then
-      return 1
+      return 0
     fi
   done
-  return 0
+  return 1
 }
 
 sshd_build(){
@@ -48,7 +48,7 @@ sshd_build(){
 sshd_start(){
   log "Starting $DAEMON..."
   local REPLY
-  if ! sshd_running; then
+  if sshd_running; then
     REPLY="Already started"
   else
     # make sure ssh dir exists on flash
@@ -63,14 +63,14 @@ sshd_start(){
     sshd_build
     # start daemon
     run $SSHD
-    if ! sshd_running; then REPLY="Started"; else REPLY="Failed"; fi
+    if sshd_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
   log "$DAEMON...  $REPLY."
 }
 
 sshd_stop(){
   local REPLY
-  if sshd_running; then
+  if ! sshd_running; then
     REPLY="Already stopped"
   else
     log "Stopping $DAEMON..."
@@ -81,7 +81,7 @@ sshd_stop(){
         kill $pid
       fi
     done
-    if sshd_running; then
+    if ! sshd_running; then
       REPLY="Stopped"
     else
       REPLY="Failed"
@@ -125,7 +125,7 @@ sshd_update(){
 }
 
 sshd_status(){
-  if ! sshd_running; then
+  if sshd_running; then
     echo "$DAEMON is currently running."
   else
     echo "$DAEMON is not running."
