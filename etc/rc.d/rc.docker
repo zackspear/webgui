@@ -266,7 +266,7 @@ docker_network_start(){
       ROW=(${ROW/;/ })
       USER_NETWORK=${ROW[0]}
       USER_IP=${ROW[1]/,/;}
-      if [[ -n $MY_NETWORK && $MY_NETWORK != $MY_NETWORK ]]; then
+      if [[ -n $USER_NETWORK && $USER_NETWORK != $MY_NETWORK ]]; then
         LABEL=${USER_NETWORK//[0-9.]/}
         IF_NO_PARTS=${USER_NETWORK#"$LABEL"}
         IF_NO=${IF_NO_PARTS%%.*}
