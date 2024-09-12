@@ -264,15 +264,19 @@ docker_network_start(){
     USER_NETWORKS=$(docker inspect --format='{{range $key,$value:=.NetworkSettings.Networks}}{{$key}};{{if $value.IPAMConfig}}{{if $value.IPAMConfig.IPv4Address}}{{$value.IPAMConfig.IPv4Address}}{{end}}{{if $value.IPAMConfig.IPv6Address}},{{$value.IPAMConfig.IPv6Address}}{{end}}{{end}} {{end}}' $CONTAINER)
     for ROW in $USER_NETWORKS; do
       ROW=(${ROW/;/ })
-      MY_NETWORK=${ROW[0]}
-      MY_IP=${ROW[1]/,/;}
+      USER_NETWORK=${ROW[0]}
+      USER_IP=${ROW[1]/,/;}
       if [[ -n $MY_NETWORK && $MY_NETWORK != $MY_NETWORK ]]; then
-        LABEL=${MY_NETWORK//[0-9.]/}
-        if [[ $STOCK =~ $LABEL && $LABEL != ${PORT:0:-1} ]]; then
-          MY_NETWORK=${MY_NETWORK/$LABEL/${PORT:0:-1}}
+        LABEL=${USER_NETWORK//[0-9.]/}
+        IF_NO_PARTS=${USER_NETWORK#"$LABEL"}
+        IF_NO=${IF_NO_PARTS%%.*}
+        if [[ $STOCK =~ $LABEL && $IF_NO -gt 0 ]]; then
+          USER_NETWORK=$USER_NETWORK
+        elif [[ $STOCK =~ $LABEL && $LABEL != ${PORT:0:-1} ]]; then
+          USER_NETWORK=${USER_NETWORK/$LABEL/${PORT:0:-1}}
         fi
-        log "container $CONTAINER has an additional network that will be restored: $MY_NETWORK"
-        NETRESTORE[$MY_NETWORK]="$CONTAINER,$MY_IP ${NETRESTORE[$MY_NETWORK]}"
+        log "container $CONTAINER has an additional network that will be restored: $USER_NETWORK"
+        NETRESTORE[$USER_NETWORK]="$CONTAINER,$USER_IP ${NETRESTORE[$USER_NETWORK]}"
       fi
     done
   done
