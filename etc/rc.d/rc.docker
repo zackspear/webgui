@@ -127,7 +127,7 @@ all_containers(){
 
 # Running containers
 running_containers(){
-  docker ps --format '{{.ID}} {{.Names}} {{.Labels}}' 2>/dev/null | grep 'net.unraid.docker.managed=' | awk '{print $2}'
+  docker ps --format='{{.Names}} {{.Labels}}' 2>/dev/null | grep 'net.unraid.docker.managed=' | awk '{print $1}'
 }
 
 # Network driver
