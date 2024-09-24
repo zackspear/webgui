@@ -127,7 +127,7 @@ all_containers(){
 
 # Running containers
 running_containers(){
-  docker ps --filter "label=net.unraid.docker.managed=dockerman" --format='{{.Names}}' 2>/dev/null
+  docker ps --format '{{.ID}} {{.Names}} {{.Labels}}' 2>/dev/null | grep 'net.unraid.docker.managed=' | awk '{print $2}'
 }
 
 # Network driver
@@ -567,7 +567,7 @@ docker_service_stop(){
     # Try to stop dockerd gracefully
     kill $(docker_pid) 2>/dev/null
     # show waiting message
-    echo "Waiting 30 seconds for $DAEMON daemon to die."
+    echo "Waiting 30 seconds for $DAEMON to die."
     TIMER=30
     # must ensure daemon has exited
     while [[ $TIMER -gt 0 ]]; do
