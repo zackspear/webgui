@@ -127,7 +127,7 @@ all_containers(){
 
 # Running containers
 running_containers(){
-  docker ps --format='{{.Names}}' 2>/dev/null
+  docker ps --format='{{.Names}} {{.Labels}}' 2>/dev/null | grep 'net.unraid.docker.managed=' | awk '{print $1}'
 }
 
 # Network driver
@@ -531,9 +531,7 @@ docker_container_stop(){
   log "Stopping containers..."
   if ! docker_running; then return 1; fi
   [[ -n $(running_containers) ]] && docker stop --time=${DOCKER_TIMEOUT:-10} $(running_containers) >/dev/null
-  # Kill containers if still running
-  docker kill $(docker ps -q) 2>/dev/null
-  log "Containers stopped."
+  log "Unraid managed containers stopped."
 }
 
 docker_service_start(){
@@ -568,7 +566,9 @@ docker_service_stop(){
   if [[ -r $DOCKER_PIDFILE ]]; then
     # Try to stop dockerd gracefully
     kill $(docker_pid) 2>/dev/null
-    TIMER=15
+    # show waiting message
+    echo "Waiting 30 seconds for $DAEMON to die."
+    TIMER=30
     # must ensure daemon has exited
     while [[ $TIMER -gt 0 ]]; do
       sleep 1
@@ -583,8 +583,6 @@ docker_service_stop(){
         # signal successful stop
         TIMER=-1
       else
-        # show waiting message
-        echo "$DAEMON... Waiting to die."
         ((TIMER--))
       fi
     done
