@@ -423,6 +423,9 @@ function addConfigPopup() {
           Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button>";
         }
         Opts.Number = confNum;
+        if (Opts.Type == "Device") {
+          Opts.Target = Opts.Value;
+        }
         newConf = makeConfig(Opts);
         $("#configLocation").append(newConf);
         reloadTriggers();
@@ -491,6 +494,9 @@ function editConfigPopup(num,disabled) {
         }
 
         Opts.Number = num;
+        if (Opts.Type == "Device") {
+          Opts.Target = Opts.Value;
+        }
         newConf = makeConfig(Opts);
         if (config.hasClass("config_"+Opts.Display)) {
           config.html(newConf);
@@ -1111,6 +1117,9 @@ $(function() {
         Opts.Buttons += "<button type='button' onclick='removeConfig("+confNum+")'>_(Remove)_</button>";
       }
       Opts.Number = confNum;
+      if (Opts.Type == "Device") {
+        Opts.Target = Opts.Value;
+      }
       newConf = makeConfig(Opts);
       if (Opts.Display == 'advanced' || Opts.Display == 'advanced-hide') {
         $("#configLocationAdvanced").append(newConf);
