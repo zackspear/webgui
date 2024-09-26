@@ -29,11 +29,11 @@ INI="/var/local/emhttp/nginx.ini.new"
 CERTPATH="$SSL/certs/certificate_bundle.pem"
 TSCERTPATH="$SSL/certs/ts_bundle.pem"
 MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
+DEFAULTS="/etc/default/nginx"
 
-# If you need a custom Content-Security-Policy frame-ancestors url, specify it here.  Include the port if applicable.
-# Only modify this you know what you are doing, support is limited
-# ex: https://organizr.mycustomdomain.com:8084/
-CUSTOMFA=""
+# Load defaults
+# Defines CUSTOMFA for custom Content-Security-Policy frame-ancestors url
+[[ -r $DEFAULTS ]] && . $DEFAULTS
 
 # hold server names
 SERVER_NAMES=()
