@@ -303,6 +303,15 @@ build_servers(){
   if [[ -n $TSFQDN ]]; then
     cat <<- EOF >>$SERVERS
 	#
+	# Redirect Tailscale http requests to https
+	# ex: http://tower.magicDNS.ts.net -> https://tower.magicDNS.ts.net
+	#
+	server {
+	$(listen $PORT)
+	    server_name $TSFQDN;
+	    return 302 https://$TSFQDN$PORTSSL_URL$request_uri;
+	}
+	#
 	# Port settings for https using Tailscale cert
 	# ex: https://tower.magicDNS.ts.net
 	#
