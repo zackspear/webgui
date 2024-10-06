@@ -13,6 +13,13 @@ table.domdisk thead tr th:nth-child(1){padding-left:72px}
 table.domdisk tbody tr td:nth-child(1){padding-left:72px}
 table.domdisk tbody tr:nth-child(even){background-color:transparent!important}
 table.domdisk tbody tr:nth-child(4n-1){background-color:transparent!important}
+table.snap thead tr th:nth-child(1){width:56%!important}
+table.snap thead tr th:nth-child(1){width:20%!important}
+table.snap thead tr th:nth-child(n+2){width:8%!important}
+table.snap thead tr th:nth-child(1){padding-left:72px}
+table.snap tbody tr td:nth-child(1){padding-left:72px}
+table.snap tbody tr:nth-child(even){background-color:transparent!important}
+table.snap tbody tr:nth-child(4n-1){background-color:transparent!important}
 table.snapshot{margin-top:0}
 table tbody td{line-height:normal}
 i.mover{margin-right:8px;display:none}

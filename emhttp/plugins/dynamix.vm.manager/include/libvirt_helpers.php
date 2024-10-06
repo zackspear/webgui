@@ -1115,7 +1115,8 @@ private static $encoding = 'UTF-8';
 		$arrValidVNCModels = [
 			'cirrus' => 'Cirrus',
 			'qxl' => 'QXL (best)',
-			'vmvga' => 'vmvga'
+			'vmvga' => 'vmvga',
+			'virtio' => 'Virtio(2d)'
 		];
 
 		return $arrValidVNCModels;
