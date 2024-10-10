@@ -74,8 +74,12 @@ rsyslogd_restart(){
 rsyslogd_reload(){
   log "Reloading $DAEMON..."
   local REPLY
-  REPLY="Reloaded"
-  run killall -HUP --ns $$ rsyslogd || REPLY="Failed"
+  if ! rsyslogd_running; then
+    REPLY="Not running"
+  else
+    REPLY="Reloaded"
+    run killall -HUP --ns $$ rsyslogd || REPLY="Failed"
+  fi
   log "$DAEMON...  $REPLY."
 }
 
