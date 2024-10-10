@@ -24,7 +24,7 @@ SSH_ETC="/etc/ssh"
 sshd_running(){
   sleep 0.1
   # get all pids from sshd
-  [[ $(pgrep -ns $$ -cf $SSHD) -gt 0 ]]
+  [[ $(pgrep --ns $$ -cf $SSHD) -gt 0 ]]
 }
 
 sshd_build(){
