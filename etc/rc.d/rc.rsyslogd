@@ -29,15 +29,12 @@ create_xconsole(){
 
 rsyslogd_running(){
   sleep 0.1
-  [[ ! -f $PIDFILE ]] && return 1
-  local RSPID
-  RSPID=$(cat "$PIDFILE")
-  if kill -0 "$RSPID" &>/dev/null; then
-    # PID is alive
+  if pgrep --ns $$ -x rsyslogd &>/dev/null; then
+    # Daemon is alive
     return 0
   else
-    # PID is dead (remove stale PID file)
-    rm -f "$PIDFILE"
+    # Daemon is dead (remove stale PID file)
+    [[ -f $PIDFILE ]] && rm -f "$PIDFILE"
     return 1
   fi
 }
@@ -60,7 +57,7 @@ rsyslogd_stop(){
   if ! rsyslogd_running; then
     REPLY="Already stopped"
   else
-    run kill "$(cat "$PIDFILE")"
+    run killall --ns $$ rsyslogd
     sleep 2
     if ! rsyslogd_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   fi
@@ -78,7 +75,7 @@ rsyslogd_reload(){
   log "Reloading $DAEMON..."
   local REPLY
   REPLY="Reloaded"
-  [[ -f $PIDFILE ]] && run kill -HUP "$(cat "$PIDFILE")" || REPLY="Failed"
+  run killall -HUP --ns $$ rsyslogd || REPLY="Failed"
   log "$DAEMON...  $REPLY."
 }
 
