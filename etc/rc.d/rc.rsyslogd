@@ -30,9 +30,9 @@ rsyslogd_start() {
 }
 
 rsyslogd_stop() {
-  [ -f "$pidfile1" ] && /bin/kill "$(cat "$pidfile1")"
-  /usr/bin/rm -f "$pidfile1" 2> /dev/null
-  /usr/bin/rm -f "$pidfile2" 2> /dev/null
+  /bin/killall --ns $$ rsyslogd 2>/dev/null
+  /usr/bin/rm -f "$pidfile1" 2>/dev/null
+  /usr/bin/rm -f "$pidfile2" 2>/dev/null
 }
 
 rsyslogd_restart() {
@@ -43,7 +43,7 @@ rsyslogd_restart() {
 
 rsyslogd_reload() {
   echo "Reloading rsyslogd daemon: "
-  [ -f "$pidfile1" ] && /bin/kill -HUP "$(cat "$pidfile1")"
+  /bin/killall -HUP --ns $$ rsyslogd 2>/dev/null
 }
 
 case "$1" in
