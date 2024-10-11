@@ -372,7 +372,7 @@ function my_rmdir($dirname) {
         'dataset' => $zfsdataset,
         'type' => $fstype,
         'cmd' => $cmdstr,
-        'error' =>
+        'error' => $error,
       ];
       break;
     case "btrfs":
