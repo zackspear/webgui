@@ -133,7 +133,7 @@ case 'domain-start-console':
 		$vmrcurl  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
 		if ($protocol == "spice") $vmrcurl  .= '&vmname='. urlencode($domName) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/'.$wsport.'/';
 	}
-	if ($protocol == "vnc") $vmrcscale = "&scale=auto"; else $vmrcscale = "";
+	if ($protocol == "vnc") $vmrcscale = "&resize=scale"; else $vmrcscale = "";
 	$arrResponse['vmrcurl'] = $vmrcurl.$vmrcscale;
 	break;
 
