@@ -181,7 +181,7 @@ if (isset($_GET['updateContainer'])){
     }
     $xml = file_get_contents($tmpl);
     [$cmd, $Name, $Repository] = xmlToCommand($tmpl);
-    $Network = getXmlVal($xml, "Network");
+    $Registry = getXmlVal($xml, "Registry");
     $TS_Enabled = getXmlVal($xml, "TailscaleEnabled");
     $oldImageID = $DockerClient->getImageID($Repository);
     // pull image
