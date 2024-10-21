@@ -271,6 +271,7 @@ devices and verify checksums.
 
 *btrfs scrub* will repair corrupted blocks if there is a correct copy available.
 :end
+
 :info_zfs_scrub_help:
 **Scrub** runs the *zfs scrub* program which will read all data and metadata blocks from all
 devices and verify checksums.
