@@ -348,7 +348,7 @@ class DockerTemplates {
 				$tmp['TSurl'] = '';
 				if (!empty($webui) && !empty($ct['TSUrl'])) {
 					$TS_no_peers = $this->getTailscaleJson($name);
-					if (!empty($TS_no_peers) && (!empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']) || $TS_no_peers['CurrentTailnet']['MagicDNSEnabled'])) {
+					if (!empty($TS_no_peers['CurrentTailnet']) && !empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled'])) {
 						$TS_container = $TS_no_peers['Self'];
 						$TS_DNSName = _var($TS_container,'DNSName','');
 						$TS_HostNameActual = substr($TS_DNSName, 0, strpos($TS_DNSName, '.'));

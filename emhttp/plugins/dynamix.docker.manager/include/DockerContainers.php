@@ -308,14 +308,14 @@ foreach ($containers as $ct) {
             }
           }
         }
-      // Display message to refresh page if Tailscale in the container wasn't maybe ready to get the data
+        // Display TSinfo if data was fetched correctly
+        echo "<div title='" . $TSinfo . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
       } else {
+        // Display message to refresh page if Tailscale in the container wasn't maybe ready to get the data
         echo "<div title='Error gathering Tailscale information from container.\nPlease check the logs and refresh the page.'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div></td>";
       }
-      // Display TSinfo if data was fetched correctly
-      echo "<div title='" . $TSinfo . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
-    // Display message that container isn't running
     } else {
+      // Display message that container isn't running
       echo "<div title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div></td>";
     }
   }
