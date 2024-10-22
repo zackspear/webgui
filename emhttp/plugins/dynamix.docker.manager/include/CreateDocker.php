@@ -377,7 +377,7 @@ $TS_not_approved = "";
 exec("docker exec -i ".$xml['Name']." /bin/sh -c \"tailscale status --peers=false --json\"", $TS_raw);
 $TS_no_peers = json_decode(implode('', $TS_raw),true);
 $TS_container = json_decode(implode('', $TS_raw),true);
-$TS_container = $TS_container['Self'];
+$TS_container = $TS_container['Self']??'';
 if (!empty($TS_no_peers) && !empty($TS_container)) {
   // define the direct link to this machine on the Tailscale website
   if (!empty($TS_container['TailscaleIPs']) && !empty($TS_container['TailscaleIPs'][0])) {
