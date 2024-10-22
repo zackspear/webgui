@@ -322,10 +322,12 @@ $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 
 # Search for existing TAILSCALE_ entries in the Docker template
 $TS_existing_vars = false;
-foreach ($xml["Config"] as $config) {
-  if (isset($config["Target"]) && strpos($config["Target"], "TAILSCALE_") === 0) {
-    $TS_existing_vars = true;
-    break;
+if (isset($xml["Config"]) && is_array($xml["Config"])) {
+  foreach ($xml["Config"] as $config) {
+    if (isset($config["Target"]) && strpos($config["Target"], "TAILSCALE_") === 0) {
+      $TS_existing_vars = true;
+      break;
+    }
   }
 }
 
@@ -374,7 +376,7 @@ $TS_DirectMachineLink = $TS_MachinesLink;
 $TS_HostNameActual = "";
 $TS_not_approved = "";
 // Get Tailscale information and create arrays/variables
-exec("docker exec -i ".$xml['Name']." /bin/sh -c \"tailscale status --peers=false --json\"", $TS_raw);
+!empty($xml) && exec("docker exec -i " . escapeshellarg($xml['Name']) . " /bin/sh -c \"tailscale status --peers=false --json\"", $TS_raw);
 $TS_no_peers = json_decode(implode('', $TS_raw),true);
 $TS_container = json_decode(implode('', $TS_raw),true);
 $TS_container = $TS_container['Self']??'';
@@ -871,10 +873,12 @@ $(function() {
 </script>
 
 <?php
-foreach ($xml["Config"] as $config) {
-  if (isset($config["Target"]) && strpos($config["Target"], "TAILSCALE_") === 0) {
-    $tailscaleTargetFound = true;
-    break;
+if (isset($xml["Config"])) {
+  foreach ($xml["Config"] as $config) {
+    if (isset($config["Target"]) && is_array($config) && strpos($config["Target"], "TAILSCALE_") === 0) {
+      $tailscaleTargetFound = true;
+      break;
+    }
   }
 }
 ?>
@@ -1100,8 +1104,9 @@ _(Fixed IP address)_ (_(optional)_):
 _(Container Network)_:
 : <select name="netCONT" id="netCONT">
   <?php
+  $container_name = !empty($xml['Name']) ? $xml['Name'] : '';
   foreach ($DockerClient->getDockerContainers() as $ct) {
-    if ($ct['Name'] !== $xml['Name']) {
+    if ($ct['Name'] !== $container_name) {
       $list[] = $ct['Name'];
       echo mk_option($ct['Name'], $ct['Name'], $ct['Name']);
     }
@@ -1500,7 +1505,7 @@ function showSubnet(bridge) {
     $('#netCONT').val('');
   } else if (bridge.match(/^(container)$/i) !== null) {
     $('.netCONT').show();
-    $('#netCONT').val('<?php echo $xml['Network'][1]; ?>');
+    $('#netCONT').val('<?php echo (isset($xml) && isset($xml['Network'][1])) ? $xml['Network'][1] : ''; ?>');
     $('.myIP').hide();
     $('input[name="contMyIP"]').val('');
   } else {
@@ -1688,11 +1693,11 @@ function showTailscale(source) {
     $('.TSroutes').hide();
   } else {
     // reset these vals back to what they were in the XML
-    $('#TSssh').val('<?php echo !empty($xml['TailscaleSSH']) ? $xml['TailscaleSSH'] : 'false' ?>');
-    $('#TSallowlanaccess').val('<?php echo $xml['TailscaleLANAccess']; ?>');
-    $('#TSserve').val('<?php echo $xml['TailscaleServe']; ?>');
-    $('#TSexitnodeip').val('<?php echo $xml['TailscaleExitNodeIP']; ?>');
-    $('#TSuserspacenetworking').val('<?php echo !empty($xml['TailscaleUserspaceNetworking']) ? $xml['TailscaleUserspaceNetworking'] : 'false' ?>');
+    $('#TSssh').val('<?php echo (!empty($xml) && !empty($xml['TailscaleSSH'])) ? $xml['TailscaleSSH'] : 'false'; ?>');
+    $('#TSallowlanaccess').val('<?php echo (!empty($xml) && !empty($xml['TailscaleLANAccess'])) ? $xml['TailscaleLANAccess'] : 'false'; ?>');
+    $('#TSserve').val('<?php echo (!empty($xml) && !empty($xml['TailscaleServe'])) ? $xml['TailscaleServe'] : 'false'; ?>');
+    $('#TSexitnodeip').val('<?php echo (!empty($xml) && !empty($xml['TailscaleExitNodeIP'])) ? $xml['TailscaleExitNodeIP'] : 'false'; ?>');
+    $('#TSuserspacenetworking').val('<?php echo (!empty($xml) && !empty($xml['TailscaleUserspaceNetworking'])) ? $xml['TailscaleUserspaceNetworking'] : 'false'; ?>');
     <?if (empty($xml['TailscaleServe']) && !empty($TSwebuiport) && empty($xml['TailscaleServePort'])):?>
       $('#TSserve').val('serve');
     <?elseif (empty($xml['TailscaleServe']) && empty($TSwebuiport) && empty($xml['TailscaleServePort'])):?>
@@ -1839,3 +1844,4 @@ if (window.location.href.indexOf("/Apps/") > 0  && <? if (is_file($xmlTemplate))
 }
 </script>
 <?END:?>
+
