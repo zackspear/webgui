@@ -100,9 +100,10 @@ ntpd_reload(){
 }
 
 ntpd_update(){
-  # 0 = update needed, 1 = no action
-  if ! ntpd_running; then exit 1; fi
-  if check && [[ "$(this 'interface listen')" == "$BIND" ]]; then exit 1; else exit 0; fi
+  if ntpd_running && check && [[ "$(this 'interface listen')" != "$BIND" ]]; then
+    log "Updating $DAEMON..."
+    ntpd_reload
+  fi
 }
 
 ntpd_status(){

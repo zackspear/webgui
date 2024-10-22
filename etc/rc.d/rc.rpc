@@ -105,9 +105,10 @@ rpc_reload(){
 }
 
 rpc_update(){
-  # 0 = update needed, 1 = no action
-  if ! rpc_running; then exit 1; fi
-  if check && [[ "$(this)" == "-h ${BIND// / -h }" ]]; then exit 1; else exit 0; fi
+  if rpc_running && check && [[ "$(this)" != "-h ${BIND// / -h }" ]]; then
+    log "Updating $DAEMON..."
+    rpc_reload
+  fi
 }
 
 rpc_status(){
