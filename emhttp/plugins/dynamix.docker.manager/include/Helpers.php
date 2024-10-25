@@ -632,7 +632,7 @@ function execCommand($command, $echo=true) {
 
 function getXmlVal($xml, $element, $attr=null, $pos=0) {
   $xml = (is_file($xml)) ? simplexml_load_file($xml) : simplexml_load_string($xml);
-  $element = $xml->xpath("//$element")[$pos];
+  $element = $xml->xpath("//$element")[$pos] ?? null;
   return isset($element) ? (isset($element[$attr]) ? strval($element[$attr]) : strval($element)) : "";
 }
 
