@@ -33,7 +33,7 @@ if (!isset($var)){
 }
 
 # Check if array started
-if ($var['fsState'] == "Started" ) {
+if ($var['fsState'] == "Started" || $var['fsState'] == "Starting") {
   if (!get_libvird_status() && $domain_cfg['SERVICE'] == "enable") {
     while(!get_libvird_status()) {
       sleep(10);
