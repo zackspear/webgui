@@ -48,6 +48,8 @@ if ($var['fsState'] == "Started" ) {
   return;
 }
 
+require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+
 extract(parse_plugin_cfg('dynamix',true));
 get_vm_usage_stats();
 sleep(1);
