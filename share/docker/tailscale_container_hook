@@ -224,8 +224,8 @@ if [ "${EXIT_STATUS}" != "0" ]; then
 fi
 unset EXIT_STATUS
 
-if [ ! -z "${TAILSCALE_SERVE_PORT}" ] && [ "$(tailscale status --json | jq -r '.CurrentTailnet.MagicDNSEnabled')" = "false" ] ; then
-  echo "ERROR: Enable HTTPS on your Tailscale account to use Tailscale Serve/Funnel."
+if [ ! -z "${TAILSCALE_SERVE_PORT}" ] && [ "$(tailscale status --json | jq -r '.CurrentTailnet.MagicDNSEnabled')" != "false" ] && [ -z "$(tailscale status --json | jq -r '.Self.Capabilities[] | select(. == "https")')" ]; then
+  echo "ERROR: Enable MagicDNS and HTTPS on your Tailscale account to use Tailscale Serve/Funnel."
   echo "See: https://tailscale.com/kb/1153/enabling-https"
   error_handler
 fi

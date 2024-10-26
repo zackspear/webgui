@@ -375,6 +375,7 @@ $TS_MachinesLink = "https://login.tailscale.com/admin/machines/";
 $TS_DirectMachineLink = $TS_MachinesLink;
 $TS_HostNameActual = "";
 $TS_not_approved = "";
+$TS_https_enabled = false;
 // Get Tailscale information and create arrays/variables
 !empty($xml) && exec("docker exec -i " . escapeshellarg($xml['Name']) . " /bin/sh -c \"tailscale status --peers=false --json\"", $TS_raw);
 $TS_no_peers = json_decode(implode('', $TS_raw),true);
@@ -386,7 +387,10 @@ if (!empty($TS_no_peers) && !empty($TS_container)) {
     $TS_DirectMachineLink = $TS_MachinesLink.$TS_container['TailscaleIPs'][0];
   }
   // warn if MagicDNS or HTTPS is disabled
-  if (empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']) || !$TS_no_peers['CurrentTailnet']['MagicDNSEnabled'] || empty($TS_no_peers['CertDomains']) || empty($TS_no_peers['CertDomains'][0])) {
+  if (isset($TS_no_peers['Self']['Capabilities']) && is_array($TS_no_peers['Self']['Capabilities'])) {
+    $TS_https_enabled = in_array("https", $TS_no_peers['Self']['Capabilities'], true) ? true : false;
+  }
+  if (empty($TS_no_peers['CurrentTailnet']['MagicDNSEnabled']) || !$TS_no_peers['CurrentTailnet']['MagicDNSEnabled'] || $TS_https_enabled !== true) {
     $TS_HTTPSDisabledWarning = "<span><b><a href='https://tailscale.com/kb/1153/enabling-https' target='_blank'>Enable HTTPS</a> on your Tailscale account to use Tailscale Serve/Funnel.</b></span>";
   }
   // In $TS_container, 'HostName' is what the user requested, need to parse 'DNSName' to find the actual HostName in use
@@ -1226,7 +1230,6 @@ _(Tailscale Allow LAN Access)_:
     <?=mk_option(1,'false',_('No'))?>
     <?=mk_option(1,'true',_('Yes'))?>
   </select>
-<?=$TS_HTTPSDisabledWarning?>
 
 :docker_tailscale_lanaccess_help:
 
@@ -1262,7 +1265,7 @@ _(Tailscale Serve)_:
     <?=mk_option(1,'serve',_('Serve'))?>
     <?=mk_option(1,'funnel',_('Funnel'))?>
   </select>
-<?php if (!empty($TS_webui_url)) echo '<label for="TSserve"><a href="' . $TS_webui_url . '" target="_blank">' . $TS_webui_url . '</a></label>'; ?>
+<?=$TS_HTTPSDisabledWarning?><?php if (!empty($TS_webui_url)) echo '<label for="TSserve"><a href="' . $TS_webui_url . '" target="_blank">' . $TS_webui_url . '</a></label>'; ?>
 
 :docker_tailscale_serve_mode_help:
 
