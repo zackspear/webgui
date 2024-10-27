@@ -175,6 +175,11 @@ if [ ! -z "${TAILSCALE_ADVERTISE_ROUTES}" ]; then
   TS_PARAMS="${TS_PARAMS} --advertise-routes=${TAILSCALE_ADVERTISE_ROUTES}"
 fi
 
+if [ "${TAILSCALE_ACCEPT_ROUTES}" = "true" ]; then
+  echo "Accepting subnet routes! See https://tailscale.com/kb/1019/subnets#use-your-subnet-routes-from-other-devices"
+  TS_PARAMS="${TS_PARAMS} --accept-routes"
+fi
+
 if [ "${TAILSCALE_USE_SSH}" = "true" ]; then
   echo "Enabling SSH! See https://tailscale.com/kb/1193/tailscale-ssh"
   TS_PARAMS="${TS_PARAMS} --ssh"
