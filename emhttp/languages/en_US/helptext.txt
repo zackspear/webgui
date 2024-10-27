@@ -2432,6 +2432,11 @@ If desired, specify any routes that should be passed to the **`--advertise-route
 For more details see the <a href="https://tailscale.com/kb/1019/subnets#connect-to-tailscale-as-a-subnet-router" target="_blank">Subnet routers</a> documentation.
 :end
 
+:docker_tailscale_accept_routes_help:
+When enabled, this will accept your subnet routes from other devices, adding the **`--accept-routes`** parameter when running **`tailscale up`**.
+For more details see the <a href="https://tailscale.com/kb/1019/subnets?q=allow+routes#use-your-subnet-routes-from-other-devices" target="_blank">Use your subnet routes from other devices</a> documentation.
+:end
+
 :docker_tailscale_daemon_extra_params_help:
 Specify any extra parameters to pass when starting **`tailscaled`**.
 For more details see the <a href="https://tailscale.com/kb/1278/tailscaled" target="_blank">tailscaled</a> documentation.
