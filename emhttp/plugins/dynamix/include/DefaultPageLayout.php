@@ -1111,6 +1111,38 @@ $(function() {
   }
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
 });
+
+$('body').on("click","a", function(e) {
+  href = $(this).attr("href").trim();
+  target = $(this).attr("target");
+
+  if ( href ) {
+    if ( href.indexOf("/") == 0 ) {   // all internal links start with "/"
+      return;
+    }
+    if ( href.match('https://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" ) {
+      return;
+    } else {
+      if (href !== "#" && href.indexOf("javascript") !== 0) {
+        e.preventDefault();
+        swal({
+          title: "<?=_('External Link')?>",
+          text: "<?=_('Clicking OK will take you to a 3rd party website not associated with Limetech')?><br><br><b>"+href,
+          html: true,
+          type: 'warning',
+          showCancelButton: true,
+          showConfirmButton: true,
+          cancelButtonText: "<?=_('Cancel')?>",
+          confirmButtonText: "<?=_('OK')?>"
+        },function(isConfirm) {
+          if (isConfirm) {
+            window.open(href,target);
+          }
+        });
+      }
+    }
+  }
+});
 </script>
 </body>
 </html>
