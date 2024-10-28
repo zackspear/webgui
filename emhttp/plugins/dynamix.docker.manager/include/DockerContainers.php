@@ -204,7 +204,7 @@ foreach ($containers as $ct) {
     case 1:
       echo "<div class='advanced'><span class='orange-text' style='white-space:nowrap;'><i class='fa fa-flash fa-fw'></i> "._('update ready')."</span></div>";
       if ($ct['Manager'] == "dockerman") {
-        echo "<a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('apply update')."</span></a>";      
+        echo "<a class='exec' onclick=\"updateContainer('".addslashes(htmlspecialchars($name))."');\"><span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('apply update')."</span></a>";
       } elseif (!empty($composestack)) {
         echo "<div><span><i class='fa fa-docker fa-fw'/></i> Compose</span></a></div>";
         echo "<span style='white-space:nowrap;'><i class='fa fa-cloud-download fa-fw'></i> "._('update available')."</span>";
@@ -231,6 +231,7 @@ foreach ($containers as $ct) {
       break;
     }
   // Check if Tailscale for container is enabled by checking if TShostname is set
+  $TS_status = '';
   if (!empty($TShostname)) {
     if ($running) {
       // Get stats from container and check if they are not empty
@@ -309,18 +310,18 @@ foreach ($containers as $ct) {
           }
         }
         // Display TSinfo if data was fetched correctly
-        echo "<div title='" . $TSinfo . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
+        $TS_status = "<br/><div title='" . $TSinfo . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
       } else {
         // Display message to refresh page if Tailscale in the container wasn't maybe ready to get the data
-        echo "<div title='Error gathering Tailscale information from container.\nPlease check the logs and refresh the page.'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div></td>";
+        $TS_status = "<br/><div title='Error gathering Tailscale information from container.\nPlease check the logs and refresh the page.'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
       }
     } else {
       // Display message that container isn't running
-      echo "<div title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div></td>";
+      $TS_status = "<br/><div title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
     }
   }
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> ".compress(_($version),12,0)."</div></td>";
-  echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$networks)."</span></td>";
+  echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$networks).$TS_status."</span></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$network_ips)."</span></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports_internal)."</span></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'>".implode('<br>',$ports_external)."</span></td>";
