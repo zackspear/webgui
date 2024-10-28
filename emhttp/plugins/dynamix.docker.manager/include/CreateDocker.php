@@ -1336,6 +1336,17 @@ _(Tailscale Advertise Routes)_:
 
 </div>
 
+<div markdown="1" class="TSacceptroutes noshow">
+_(Tailscale Accept Routes)_:
+: <select name="TSacceptroutes" id="TSacceptroutes">
+    <?=mk_option(1,'false',_('No'))?>
+    <?=mk_option(1,'true',_('Yes'))?>
+  </select>
+
+:docker_tailscale_accept_routes_help:
+
+</div>
+
 <div markdown="1" class="TSdaemonparams noshow">
 _(Tailscale Daemon Parameters)_:
 : <input type="text" name="TSdaemonparams" <?php if (!empty($xml['TailscaleDParams'])) echo 'value="' . $xml['TailscaleDParams'] . '"'; ?> placeholder="_(Leave empty if unsure)_">
@@ -1649,6 +1660,7 @@ function showTSAdvanced(checked) {
     $('.TSwebui').hide();
     $('.TStroubleshooting').hide();
     $('.TSroutes').hide();
+    $('.TSacceptroutes').hide();
   } else {
     $('.TSdaemonparams').show();
     $('.TSextraparams').show();
@@ -1661,6 +1673,7 @@ function showTSAdvanced(checked) {
     $('.TSwebui').show();
     $('.TStroubleshooting').show();
     $('.TSroutes').show();
+    $('.TSacceptroutes').show();
   }
 }
 
@@ -1694,6 +1707,7 @@ function showTailscale(source) {
     $('.TSserveport').hide();
     $('.TSadvanced').hide();
     $('.TSroutes').hide();
+    $('.TSacceptroutes').hide();
   } else {
     // reset these vals back to what they were in the XML
     $('#TSssh').val('<?php echo (!empty($xml) && !empty($xml['TailscaleSSH'])) ? $xml['TailscaleSSH'] : 'false'; ?>');
@@ -1701,6 +1715,7 @@ function showTailscale(source) {
     $('#TSserve').val('<?php echo (!empty($xml) && !empty($xml['TailscaleServe'])) ? $xml['TailscaleServe'] : 'false'; ?>');
     $('#TSexitnodeip').val('<?php echo (!empty($xml) && !empty($xml['TailscaleExitNodeIP'])) ? $xml['TailscaleExitNodeIP'] : ''; ?>');
     $('#TSuserspacenetworking').val('<?php echo (!empty($xml) && !empty($xml['TailscaleUserspaceNetworking'])) ? $xml['TailscaleUserspaceNetworking'] : 'false'; ?>');
+    $('#TSacceptroutes').val('<?php echo (!empty($xml) && !empty($xml['TailscaleAcceptRoutes'])) ? $xml['TailscaleAcceptRoutes'] : 'false'; ?>');
     <?if (empty($xml['TailscaleServe']) && !empty($TSwebuiport) && empty($xml['TailscaleServePort'])):?>
       $('#TSserve').val('serve');
     <?elseif (empty($xml['TailscaleServe']) && empty($TSwebuiport) && empty($xml['TailscaleServePort'])):?>
