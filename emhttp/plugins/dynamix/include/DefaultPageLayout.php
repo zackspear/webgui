@@ -1136,7 +1136,13 @@ $('body').on("click","a", function(e) {
           confirmButtonText: "<?=_('OK')?>"
         },function(isConfirm) {
           if (isConfirm) {
-            window.open(href,target);
+            var popupOpen = window.open(href,target);
+            if ( !popupOpen || popupOpen.closed || typeof popupOpen == "undefined" ) {
+              var popupWarning = addBannerWarning("<?=_('Popup Blocked.');?>");
+              setTimeout(function() {
+                removeBannerWarning(popupWarning);}
+              ,10000);
+            }
           }
         });
       }
