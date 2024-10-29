@@ -1120,7 +1120,7 @@ $('body').on("click","a", function(e) {
     if ( href.indexOf("/") == 0 ) {   // all internal links start with "/"
       return;
     }
-    if ( href.match('https://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" ) {
+    if ( href.match('https://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" || href.indexOf("http://lime-technology.com/") == 0) {
       return;
     } else {
       if (href !== "#" && href.indexOf("javascript") !== 0) {
