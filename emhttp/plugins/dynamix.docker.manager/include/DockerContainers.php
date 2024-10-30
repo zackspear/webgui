@@ -246,12 +246,12 @@ foreach ($containers as $ct) {
           if (!empty($TS_version)) {
             if (!empty($TS_latest_version)) {
               if ($TS_version !== $TS_latest_version) {
-                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Version:</span><span class='ui-tailscale-value'>" . $TS_version . " &#10132; " . $TS_latest_version . " available!</span></div>";
+                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Tailscale:</span><span class='ui-tailscale-value'>v" . $TS_version . " &#10132; v" . $TS_latest_version . " available!</span></div>";
               } else {
-                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Version:</span><span class='ui-tailscale-value'>" . $TS_version . "</span></div>";
+                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Tailscale:</span><span class='ui-tailscale-value'>v" . $TS_version . "</span></div>";
               }
             } else {
-              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Version:</span><span class='ui-tailscale-value'>" . $TS_version . "</span></div>";
+              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Tailscale:</span><span class='ui-tailscale-value'>v" . $TS_version . "</span></div>";
             }
           }
           $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Online:</span><span class='ui-tailscale-value'>&#9989;</span></div>";
