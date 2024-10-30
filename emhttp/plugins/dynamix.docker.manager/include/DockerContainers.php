@@ -271,12 +271,12 @@ foreach ($containers as $ct) {
               }
             }
             if (!empty($TSregion)) {
-              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Main Relay:</span><span class='ui-tailscale-value'>" . $TSregion . "</span></div>";
+              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>DERP Relay:</span><span class='ui-tailscale-value'>" . $TSregion . "</span></div>";
             } else {
-              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Main Relay:</span><span class='ui-tailscale-value'>" . $TSstats["Self"]["Relay"] . "</span></div>";
+              $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>DERP Relay:</span><span class='ui-tailscale-value'>" . $TSstats["Self"]["Relay"] . "</span></div>";
             }
           } else {
-            $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Main Relay:</span><span class='ui-tailscale-value'>" . $TSstats["Self"]["Relay"] . "</span></div>";
+            $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>DERP Relay:</span><span class='ui-tailscale-value'>" . $TSstats["Self"]["Relay"] . "</span></div>";
           }
           if (!empty($TSstats["Self"]["TailscaleIPs"])) {
             $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>Addresses:</span><span class='ui-tailscale-value'>" . implode("<br/>", $TSstats["Self"]["TailscaleIPs"]) . "</span></div>";
