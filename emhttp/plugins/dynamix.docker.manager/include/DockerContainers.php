@@ -311,14 +311,14 @@ foreach ($containers as $ct) {
           }
         }
         // Display TSinfo if data was fetched correctly
-        $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='" . htmlspecialchars($TSinfo) . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
+        $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='" . htmlspecialchars($TSinfo) . "'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 1.23em;'> Tailscale</div>";
       } else {
         // Display message to refresh page if Tailscale in the container wasn't maybe ready to get the data
-        $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='Error gathering Tailscale information from container.<br/>Please check the logs and refresh the page.'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
+        $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='Error gathering Tailscale information from container.<br/>Please check the logs and refresh the page.'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 1.23em;'> Tailscale</div>";
       }
     } else {
       // Display message that container isn't running
-      $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 16px;'> Tailscale</div>";
+      $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 1.23em;'> Tailscale</div>";
     }
     echo "</div>";
   }
