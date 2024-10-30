@@ -233,7 +233,6 @@ foreach ($containers as $ct) {
   // Check if Tailscale for container is enabled by checking if TShostname is set
   $TS_status = '';
   if (!empty($TShostname)) {
-    echo "<div class='ui-tailscale-container'>";
     if ($running) {
       // Get stats from container and check if they are not empty
       $TSstats = tailscale_stats($name);
@@ -320,7 +319,6 @@ foreach ($containers as $ct) {
       // Display message that container isn't running
       $TS_status = "<br/><div class='TS_tooltip' style='display: inline-block;' title='Container not runnig'><img src='/plugins/dynamix.docker.manager/images/tailscale.png' style='height: 1.23em;'> Tailscale</div>";
     }
-    echo "</div>";
   }
   echo "<div class='advanced'><i class='fa fa-info-circle fa-fw'></i> ".compress(_($version),12,0)."</div></td>";
   echo "<td style='white-space:nowrap'><span class='docker_readmore'> ".implode('<br>',$networks).$TS_status."</span></td>";
