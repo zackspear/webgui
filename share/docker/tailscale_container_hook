@@ -135,6 +135,9 @@ if [ ! -z "${SERVER_DIR}" ]; then
 elif [ ! -z "${DATA_DIR}" ]; then
   TSD_STATE_DIR="${DATA_DIR}/.tailscale_state"
   echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
+elif [ ! -z "${USER_HOME}" ]; then
+  TSD_STATE_DIR="${USER_HOME}/.tailscale_state"
+  echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
 else
   if [ -z "${TAILSCALE_STATE_DIR}" ]; then
     TAILSCALE_STATE_DIR="/config/.tailscale_state"
