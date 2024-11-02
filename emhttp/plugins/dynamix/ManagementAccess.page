@@ -442,7 +442,7 @@ _(Certificate URL)_:
 
 <?elseif ($cert1URLvalid):?>
 _(Certificate URL)_:
-: <?=$cert1URL?>123
+: <?=$cert1URL?>
 
 <?else:?>
 _(Certificate URL)_:
