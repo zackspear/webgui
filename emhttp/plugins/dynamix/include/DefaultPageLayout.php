@@ -1133,7 +1133,7 @@ $('body').on("click","a", function(e) {
   href = $(this).attr("href").trim();
   target = $(this).attr("target");
   if ( href ) {
-    if ( href.match('https://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" || href.indexOf("http://lime-technology.com") == 0) {
+    if ( href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" || href.indexOf("http://lime-technology.com") == 0) {
       return;
     } 
 
