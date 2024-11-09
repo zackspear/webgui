@@ -21,7 +21,7 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 if (isset($_POST['ntp'])) {
-  $ntp = exec("ntpq -pn|awk '{if (NR>3 && $2!~/\.(DENY|INIT|RATE|TIME|STEP|DNS[46]?|NTS[46]?)\./) c++} END {print c}'");
+  $ntp = exec("ntpq -pn|awk '{if (NR>3 && $2!~/\.(POOL|DENY|INIT|RATE|TIME|STEP|DNS[46]?|NTS[46]?)\./) c++} END {print c}'");
   die($ntp ? sprintf(_('Clock synchronized with %s NTP server'.($ntp==1?'':'s')),$ntp) : _('Clock is unsynchronized with no NTP servers'));
 }
 
