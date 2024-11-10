@@ -164,12 +164,10 @@ if ($_POST['vms']) {
 
   echo "\0";
   echo "<tr title='' class='useupdated'><td>";
-  if ($vmusage == "Y") {
-    foreach ($vmusagehtml as $vmhtml) {
-      echo $vmhtml;
-     }
-    if (!count($vmusagehtml))  echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
-    if ($running < 1 && count($vmusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
+  if ($vmusage=='Y') {
+    foreach ($vmusagehtml as $vmhtml) echo $vmhtml;
+    if (!count($vmusagehtml)) echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
+    if ($running<1 && count($vmusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
     echo "</td></tr>";
   }
 }
