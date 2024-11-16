@@ -58,11 +58,11 @@ if [ ! -f /usr/bin/tailscale ] || [ ! -f /usr/bin/tailscaled ]; then
 
   if [ "${TAILSCALE_TROUBLESHOOTING}" = "true" ]; then
     if which apt-get >/dev/null 2>&1; then
-      PACKAGES_TROUBLESHOOTING="curl dnsutils iputils-ping "
+      PACKAGES_TROUBLESHOOTING="curl dnsutils iputils-ping speedtest-cli "
     elif which apk >/dev/null 2>&1; then
-      PACKAGES_TROUBLESHOOTING="curl bind-tools iputils-ping "
+      PACKAGES_TROUBLESHOOTING="curl bind-tools iputils-ping speedtest-cli "
     elif which pacman >/dev/null 2>&1; then
-      PACKAGES_TROUBLESHOOTING="curl dnsutils iputils "
+      PACKAGES_TROUBLESHOOTING="curl dnsutils iputils speedtest-cli "
     fi
     echo "Tailscale Troubleshooting enabled!"
     echo "Installing additional packages: $(echo "${PACKAGES_TROUBLESHOOTING}" | sed 's/[[:blank:]]*$//' | sed 's/ /, /g')"
