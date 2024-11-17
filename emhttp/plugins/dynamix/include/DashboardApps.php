@@ -25,7 +25,7 @@ if (isset($_POST['ntp'])) {
     $ntp = exec("ntpq -pn|awk '$1~/^\*/{print $9;exit}'");
     die($ntp ? sprintf(_('Clock is synchronized using NTP, time offset: %s ms'),abs($ntp)) : _('Clock is unsynchronized with no NTP servers'));
   }
-  die(_('Clock is unsynchronized, manual time setting'));
+  die(_('Clock is unsynchronized, free-running clock'));
 }
 
 if ($_POST['docker']) {
