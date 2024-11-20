@@ -50,7 +50,7 @@ if [ ! -f /usr/bin/tailscale ] || [ ! -f /usr/bin/tailscaled ]; then
     PACKAGES_INSTALL="apk add"
   elif which pacman >/dev/null 2>&1; then
     echo "Detected pacman Package Manager!"
-    PACKAGES_INSTALL="pacman -Syu --noconfirm"
+    PACKAGES_INSTALL="pacman -Sy --noconfirm"
   else
     echo "ERROR: Detection from Package Manager failed!"
     error_handler
