@@ -25,7 +25,7 @@ fi
 UDEVRULES="/boot/config/udev"
 if [[ -d $UDEVRULES ]]; then
   log "Installing custom udev rules..."
-  find $UDEVRULES -type f -exec install -p -m 0644 "{}" /etc/udev/rules.d \;
+  /usr/bin/find $UDEVRULES -type f -exec /usr/bin/install -p -m 0644 "{}" /etc/udev/rules.d \;
 fi
 
 # Initialize udev to manage /dev entries and hotplugging.
