@@ -1129,12 +1129,22 @@ function isValidURL(url) {
   }
 }
 
-$('body').on("click","a", function(e) {
-  var href = $(this).attr("href");
-  var target = $(this).attr("target");
+$('body').on("click","a,.ca_href", function(e) {
+  if ($(this).hasClass("ca_href") ) {
+    var ca_href = true;
+    var href=$(this).attr("data-href");
+    var target=$(this).attr("data-target");
+  } else {
+    var ca_href = false;
+    var href = $(this).attr("href");
+    var target = $(this).attr("target");
+  }
   if ( href ) {
     href = href.trim();
     if ( href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf("https://unraid.net/") == 0 || href == "https://unraid.net" || href.indexOf("http://lime-technology.com") == 0) {
+      if ( ca_href ) {
+        window.open(href,target);
+      }
       return;
     } 
 
