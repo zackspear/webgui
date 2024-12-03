@@ -131,20 +131,20 @@ unset TS_PARAMS
 
 if [ ! -z "${SERVER_DIR}" ]; then
   TSD_STATE_DIR="${SERVER_DIR}/.tailscale_state"
-  echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
 elif [ ! -z "${DATA_DIR}" ]; then
   TSD_STATE_DIR="${DATA_DIR}/.tailscale_state"
-  echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
 elif [ ! -z "${USER_HOME}" ]; then
   TSD_STATE_DIR="${USER_HOME}/.tailscale_state"
-  echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
+elif [ -d "/config" ]; then
+  TSD_STATE_DIR="/config/.tailscale_state"
 else
   if [ -z "${TAILSCALE_STATE_DIR}" ]; then
     TAILSCALE_STATE_DIR="/config/.tailscale_state"
+    echo "WARNING: Couldn't detect persistent directory for .tailscale_state files! Enable Tailscale Advanced Settings and set the Tailscale State Directory!"
   fi
   TSD_STATE_DIR="${TAILSCALE_STATE_DIR}"
-  echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
 fi
+echo "Settings Tailscale state dir to: ${TSD_STATE_DIR}"
 
 if [ ! -d "${TSD_STATE_DIR}" ]; then
   mkdir -p ${TSD_STATE_DIR}
