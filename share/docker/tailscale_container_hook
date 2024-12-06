@@ -29,6 +29,11 @@ echo
 echo "Executing Unraid Docker Hook for Tailscale"
 echo
 
+if [ "$(id -u)" != "0" ]; then
+  echo "ERROR: No root privileges!"
+  error_handler
+fi
+
 if [ ! -f /usr/bin/tailscale ] || [ ! -f /usr/bin/tailscaled ]; then
   if [ ! -z "${TAILSCALE_EXIT_NODE_IP}" ]; then
     if [ ! -c /dev/net/tun ]; then
