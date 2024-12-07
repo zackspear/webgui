@@ -128,7 +128,7 @@ function loadlist(init) {
       contentAsHTML: true,
       functionBefore: function(instance,helper) {
         var origin = $(helper.origin);
-        var TScontent = $(origin).attr("data-TStitle");
+        var TScontent = $(origin).attr("data-tstitle");
         instance.content(TScontent);
       }
     });
