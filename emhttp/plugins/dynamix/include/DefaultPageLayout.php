@@ -588,13 +588,13 @@ function flashReport() {
 $(function() {
 <?switch ($myPage['name']):?>
 <?case'Main':?>
-  const tab = $.cookie('tab')||'tab1';
+  let tab = $.cookie('tab')||'tab1';
 <?break;?>
 <?case'Cache':case'Data':case'Device':case'Flash':case'Parity':?>
-  const tab = $.cookie('one')||'tab1';
+  let tab = $.cookie('one')||'tab1';
 <?break;?>
 <?default:?>
-  const tab = $.cookie('one')||'tab1';
+  let tab = $.cookie('one')||'tab1';
 <?endswitch;?>
   if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
   $('#'+tab).attr('checked', true);
