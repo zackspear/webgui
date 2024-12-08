@@ -586,17 +586,26 @@ function flashReport() {
   });
 }
 $(function() {
+  let tab;
 <?switch ($myPage['name']):?>
 <?case'Main':?>
-  let tab = $.cookie('tab')||'tab1';
+  tab = $.cookie('tab')||'tab1';
 <?break;?>
 <?case'Cache':case'Data':case'Device':case'Flash':case'Parity':?>
-  let tab = $.cookie('one')||'tab1';
+  tab = $.cookie('one')||'tab1';
 <?break;?>
 <?default:?>
-  let tab = $.cookie('one')||'tab1';
+  tab = $.cookie('one')||'tab1';
 <?endswitch;?>
-  if (tab=='tab0') tab = 'tab'+$('input[name$="tabs"]').length; else if ($('#'+tab).length==0) {initab(); tab = 'tab1';}
+  /* Check if the tab is 'tab0' */
+  if (tab === 'tab0') {
+    /* Set tab to the last available tab based on input[name$="tabs"] length */
+    tab = 'tab' + $('input[name$="tabs"]').length;
+  } else if ($('#' + tab).length === 0) {
+    /* If the tab element does not exist, initialize a tab and set to 'tab1' */
+    initab();
+    tab = 'tab1';
+  }
   $('#'+tab).attr('checked', true);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
