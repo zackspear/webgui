@@ -145,7 +145,8 @@ elif [ -d "/config" ]; then
 else
   if [ -z "${TAILSCALE_STATE_DIR}" ]; then
     TAILSCALE_STATE_DIR="/config/.tailscale_state"
-    echo "ERROR: Couldn't detect persistent Docker directory for .tailscale_state! Enable Tailscale Advanced Settings in the Docker template and set the Tailscale State Directory!"
+    echo "ERROR: Couldn't detect persistent Docker directory for .tailscale_state!"
+    echo "       Please enable Tailscale Advanced Settings in the Docker template and set the Tailscale State Directory manually!"
     sleep infinity
   fi
   TSD_STATE_DIR="${TAILSCALE_STATE_DIR}"
