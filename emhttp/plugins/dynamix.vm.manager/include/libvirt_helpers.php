@@ -712,7 +712,7 @@ private static $encoding = 'UTF-8';
 	$domain_cfgfile = "/boot/config/domain.cfg";
 	$domain_cfg = parse_ini_file($domain_cfgfile);
 
-	if ($domain_cfg['DEBUG'] != "yes") {
+	if ( ($domain_cfg['DEBUG'] ?? false) != "yes") {
 		error_reporting(0);
 	}
 
@@ -1115,6 +1115,7 @@ private static $encoding = 'UTF-8';
 		$arrValidVNCModels = [
 			'cirrus' => 'Cirrus',
 			'qxl' => 'QXL (best)',
+			'virtio' => 'Virtio(2d)',
 			'vmvga' => 'vmvga'
 		];
 
@@ -1749,6 +1750,9 @@ private static $encoding = 'UTF-8';
 			$pi = pathinfo($config["disk"][$diskid]["new"]) ;
 			$isdir = is_dir($pi['dirname']) ;
 			if (is_file($config["disk"][$diskid]["new"])) $file_exists = true ;
+			write("addLog\0".htmlspecialchars("Checking from file:".$file_clone[$diskid]["source"]));
+			write("addLog\0".htmlspecialchars("Checking to file:".$config["disk"][$diskid]["new"]));
+			write("addLog\0".htmlspecialchars("File exists value:". ($file_exists ? "True" : "False")));
 			$file_clone[$diskid]["target"] = $config["disk"][$diskid]["new"] ;
 			}
 
