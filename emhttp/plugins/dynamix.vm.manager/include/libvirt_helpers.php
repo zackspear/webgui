@@ -866,6 +866,15 @@ private static $encoding = 'UTF-8';
 					}
 				}
 
+				// Attempt to get the boot_vga driver for this pci device
+				$strBootVGA = '';
+				if (is_file('/sys/bus/pci/devices/0000:' . $arrMatch['id'] . '/boot_vga') && $strClass == 'vga') {
+					$strFileVal = file_get_contents('/sys/bus/pci/devices/0000:' . $arrMatch['id'] . '/boot_vga');
+					if (!empty($strFileVal)) {
+						$strBootVGA = trim($strFileVal);
+					}
+				}
+
 				// Clean up the vendor and product name
 				$arrMatch['vendorname'] = sanitizeVendor($arrMatch['vendorname']);
 				$arrMatch['productname'] = sanitizeProduct($arrMatch['productname']);
@@ -880,6 +889,7 @@ private static $encoding = 'UTF-8';
 					'productname' => $arrMatch['productname'],
 					'class' => $strClass,
 					'driver' => $strDriver,
+					'bootvga' => $strBootVGA,
 					'name' => $arrMatch['vendorname'] . ' ' . $arrMatch['productname'],
 					'blacklisted' => $boolBlacklisted
 				];
@@ -1116,6 +1126,7 @@ private static $encoding = 'UTF-8';
 			'cirrus' => 'Cirrus',
 			'qxl' => 'QXL (best)',
 			'virtio' => 'Virtio(2d)',
+			'virtio3d' => 'Virtio(3d)',
 			'vmvga' => 'vmvga'
 		];
 
@@ -1269,6 +1280,7 @@ private static $encoding = 'UTF-8';
 				'autoport' => $autoport,
 				'copypaste' => $getcopypaste,
 				'guest' => ['multi' => 'off' ],
+				'render' => $lv->domain_get_vnc_render($res),
 			];
 		}
 
@@ -1481,7 +1493,7 @@ private static $encoding = 'UTF-8';
 		unset($old['devices']['input']);
 		// preserve vnc/spice port settings
 		// unset($new['devices']['graphics']['@attributes']['port'],$new['devices']['graphics']['@attributes']['autoport']);
-		if (!$new['devices']['graphics']) unset($old['devices']['graphics']);
+		unset($old['devices']['graphics']);
 		if (!isset($new['devices']['graphics']['@attributes']['keymap']) && isset($old['devices']['graphics']['@attributes']['keymap'])) unset($old['devices']['graphics']['@attributes']['keymap']) ;
 		// update parent arrays
 		if (!$old['devices']['hostdev']) unset($old['devices']['hostdev']);

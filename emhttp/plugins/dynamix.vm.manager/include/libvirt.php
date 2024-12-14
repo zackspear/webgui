@@ -847,6 +847,19 @@
 						if (($gpu['copypaste'] == "yes") && ($strProtocol == "spice")) $vmrcmousemode = "<mouse mode='server'/>" ; else $vmrcmousemode = ""  ;
 						if ($strProtocol == "spice")  $virtualaudio = "spice" ; else  $virtualaudio = "none" ;
 
+						$strEGLHeadless = "";
+						$strAccel3d ="";
+						if ($strModelType == "virtio3d") {
+							$strModelType = "virtio";
+							if (!isset($gpu['render'])) $gpu['render'] = "auto";
+							if ($gpu['render'] == "auto") {
+								$strEGLHeadless = '<graphics type="egl-headless"><gl enable="yes"/></graphics>';
+								$strAccel3d = "<acceleration accel3d='yes'/>";
+							} else {
+								$strEGLHeadless = '<graphics type="egl-headless"><gl enable="yes" rendernode="/dev/dri/by-path/pci-0000:'.$gpu['render'].'-render"/></graphics>';
+								$strAccel3d ="<acceleration accel3d='yes'/>";
+						}}
+
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
@@ -854,8 +867,11 @@
 									<listen type='address' address='0.0.0.0'/>
 									$vmrcmousemode
 								</graphics>
+								$strEGLHeadless
 								<video>
-									<model type='$strModelType'/>
+									<model type='$strModelType'>
+      									$strAccel3d
+    								</model>
 									<address type='pci' domain='0x0000' bus='0x00' slot='0x1e' function='0x0'/>
 								</video>
 								<audio id='1' type='$virtualaudio'/>";
@@ -2158,7 +2174,7 @@
 		}
 
 		function domain_get_vnc_port($domain) {
-			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@port', false);
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics[@type="spice" or @type="vnc"]/@port', false);
 			$var = (int)$tmp[0];
 			unset($tmp);
 
@@ -2166,7 +2182,7 @@
 		}
 
 		function domain_get_vmrc_autoport($domain) {
-			$tmp = $this->get_xpath($domain, '//domain/devices/graphics/@autoport', false);
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics[@type="spice" or @type="vnc"]/@autoport', false);
 			$var = $tmp[0];
 			unset($tmp);
 
@@ -2189,6 +2205,23 @@
 			$var = $tmp[0];
 			unset($tmp);
 
+			if ($var=="virtio") {
+				$tmp = $this->get_xpath($domain, '//domain/devices/video/model/acceleration/@accel3d', false);
+			if ($tmp[0] == "yes") $var = "virtio3d";
+				unset($tmp);
+			}
+
+			return $var;
+		}
+
+		function domain_get_vnc_render($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/graphics[@type="egl-headless"]/gl/@rendernode', false);
+			if (!$tmp)
+				return 'auto';
+
+			$var = $tmp[0];
+			unset($tmp);
+			$var = str_replace(['/dev/dri/by-path/pci-0000:','-render'],['',''],$var);
 			return $var;
 		}
 
