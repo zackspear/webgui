@@ -2221,6 +2221,8 @@
 
 			$var = $tmp[0];
 			unset($tmp);
+			
+			if (!str_contains($var,"pci")) $var = trim(shell_exec("udevadm info -q symlink  -r $var"));
 			$var = str_replace(['/dev/dri/by-path/pci-0000:','-render'],['',''],$var);
 			return $var;
 		}
