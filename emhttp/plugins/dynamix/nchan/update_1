@@ -98,12 +98,19 @@ while (true) {
 
   // add streams information
   /* Extract keys from both ini files */
-  $paths = array_merge(array_keys($shares), array_keys($disks));
+  $paths = array_keys($disks);
+
+  /* Validate and filter accessible mount points */
+  $valid_paths = array_filter($paths, function($key) {
+    $mnt_path = '/mnt/' . $key;
+    /* Check if the directory exists and is a valid mount point */
+    return is_dir($mnt_path) && trim(shell_exec("mountpoint -q " . escapeshellarg($mnt_path) . " && echo 1")) === '1';
+  });
 
   /* Construct the list of paths */
   $mnt_paths = array_map(function($key) {
     return '/mnt/'.escapeshellarg($key);
-  }, $paths);
+  }, $valid_paths);
 
   /* Combine paths into the command */
   $mnt_list = implode(' ', $mnt_paths);
