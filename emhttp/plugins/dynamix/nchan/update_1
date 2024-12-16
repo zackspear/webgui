@@ -29,7 +29,7 @@ require_once "$docroot/webGui/include/Translations.php";
 $locale_init = $locale;
 
 /* Parse the ini files */
-$shares = parse_ini_file('state/shares.ini', true);
+$shares = parse_ini_file($varroot.'/shares.ini', true);
 $disks = parse_ini_file('state/disks.ini', true);
 
 function update_translation($locale) {
@@ -97,7 +97,6 @@ while (true) {
   if (count($fans)) $echo['fan'] = array_map(function($fan){return "$fan RPM";},$fans);
 
   // add streams information
-  /* Extract keys from both ini files */
   $paths = array_keys($disks);
 
   /* Validate and filter accessible mount points */
