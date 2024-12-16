@@ -128,7 +128,7 @@ nfsd_reload(){
 nfsd_update(){
   if nfsd_running && check && [[ "$(this)" != "-H ${BIND// / -H }" ]]; then
     log "Updating $DAEMON..."
-    nfsd_reload
+    nfsd_restart
   fi
 }
 
