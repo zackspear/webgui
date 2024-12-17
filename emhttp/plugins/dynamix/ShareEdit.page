@@ -57,7 +57,7 @@ if ((! $share['cachePool']) && ($share['cachePool2'])) {
 }
 
 /* Check for non existent pool device. */
-if ($share['cachePool'] && !in_array($share['cachePool'], $pools)) {
+if (($share['cachePool'] && !in_array($share['cachePool'], $pools)) || ($poolsOnly && !$share['cachePool'])) {
 	$poolDefined = false;
 	$share['useCache'] = $share['cachePool2'] ? "yes" : ($poolsOnly ? "no" : "yes");
 } else {
@@ -457,7 +457,7 @@ _(Excluded disk(s))_:
 </div>
 
 </div>
-<div markdown="1" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="secondaryStorage" class="shade-<?=$display['theme']?>">
 _(Secondary storage)_:
 : <select id="secondary" onchange="updateScreen(z(4),'slow')">
   <?=mk_option(secondary(),'0',_('None'))?>
@@ -516,7 +516,7 @@ _(Excluded disk(s))_:
 </div>
 
 </div>
-<div markdown="1" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="moverAction" class="shade-<?=$display['theme']?>">
 <div markdown="1" id="moverDirection1">
 _(Mover action)_:
 : <span class="input"><select id="direction" onchange="updateScreen(z(3),'slow')">
@@ -541,13 +541,9 @@ _(Mover action)_:
 &nbsp;
 : <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'"><input type="button" value="_(Done)_" onclick="done()">
 <?else:?>
-<div markdown="1" class="empty">
-_(Delete)_<input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));">
+<div markdown="1">
+<label id="deleteLabel" title="">_(Delete)_</label><input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));" title="" disabled>
 : <input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled><input type="button" value="_(Done)_" onclick="done()">
-</div>
-<div markdown="1" class="full">
-&nbsp;
-: <input type="submit" name="cmdEditShare" value="_(Apply)_" onclick="this.value='Apply'" disabled><input type="button" value="_(Done)_" onclick="done()">
 </div>
 <?endif;?>
 </form>
@@ -633,7 +629,7 @@ function updateScreen(cache, slow) {
 	const moverNoActionText = "<?= addslashes(_('Mover takes no action')) ?>";
 	const moverAction1Text = "<?= addslashes(_('Mover transfers files from Primary storage to Secondary storage')) ?>";
 	const moverAction2Text = "<?= addslashes(_('Mover transfers files from Secondary storage to Primary storage')) ?>";
-	
+
 	switch (cache) {
 		case 'no':
 			$('#primary option:eq(' + z(0) + ')').prop('selected', true);
@@ -762,9 +758,18 @@ function updateScreen(cache, slow) {
 			break;
 	}
 
+	/* If primary is "Array", remove secondary storage selection as it does not apply when primary is array. */
+	if (primaryDropdown.selectedIndex === 0) {
+		$('#secondaryStorage').hide(slow);
+		$('#moverAction').hide(slow);
+	} else {
+		$('#secondaryStorage').show(slow);
+		$('#moverAction').show(slow);
+	}
+
 	/* Check secondary dropdown index and show/hide moreSettings2 */
 	if (secondaryDropdown.selectedIndex === 1) {
-		$('#moreSettings2').show('slow');
+		$('#moreSettings2').show(slow);
 	} else {
 		$('#moreSettings2').hide(slow);
 	}
@@ -1078,7 +1083,7 @@ function writeShare(data, n, i) {
 			}
 		});
 		toggleButton('writeshare', true);
-		$('div.spinner.fixed').show('slow');
+		$('div.spinner.fixed').show(slow);
 		writeShare(newData, 0, i);
 	}
 }
@@ -1131,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		let cachePoolOption = document.getElementById('cachePoolOption');
 		let messageSpan = document.getElementById('cachePoolMessage');
-		messageSpan.textContent = `${_('Warning: Configured Pool')} '${cachePoolCapitalized}' ${_('is missing')}.`;
+		messageSpan.textContent = `${_('Warning: Configured Pool')} '${cachePoolCapitalized || _('Array')}' ${_('is missing')}.`;
 		messageSpan.style.display = 'inline';
 		cachePoolOption.selected = true;
 
@@ -1297,13 +1302,24 @@ function handleDeleteClick(button) {
 
 $(function() {
 	<?if ($name):?>
+		<?
+			$tooltip_enabled	= _('Share is empty and is safe to delete');
+			$tooltip_disabled	= _('Share must be empty to be deleted');
+		?>
+
 		$.post('/webGui/include/ShareList.php', { scan: "<?=$name?>" }, function(e) {
 			if (e == 1) {
 				$('.empty').show();
 				$('.full').hide();
+				/* Enable delete checkbox and update tooltip. */
+				$('input[name="confirmDelete"]').prop('disabled', false).attr('title', '<?= $tooltip_enabled ?>');
+				$('#deleteLabel').attr('title', '<?= $tooltip_enabled ?>');
 			} else {
 				$('.full1').hide();
 				$('.full2').show();
+				/* Disable delete checkbox and update tooltip. */
+				$('input[name="confirmDelete"]').prop('disabled', true).attr('title', '<?= $tooltip_disabled ?>');
+				$('#deleteLabel').attr('title', '<?= $tooltip_disabled ?>');
 			}
 		});
 	<?endif;?>
