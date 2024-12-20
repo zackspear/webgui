@@ -103,7 +103,8 @@
 				'port' => -1 ,
 				'wsport' => -1,
 				'copypaste' => 'no',
-				'render' => 'auto'
+				'render' => 'auto',
+				'DisplayOptions' => ""
 			]
 		],
 		'audio' => [
@@ -1263,6 +1264,15 @@
 						}
 					?>
 					</select>
+					<?$arrGPU['DisplayOptions'] = htmlentities($arrDisplayOptions[$arrGPU['DisplayOptions']]['qxlxml'],ENT_QUOTES);
+					if ($arrGPU['model'] == "qxl") $vncdspopt = "" ; else $vncdspopt = " hidden ";?>
+					<span id="vncdspopttext"  <?=$vncdspopt?>>_(Display(s) and RAM)_:</span>
+					<select id="vncdspopt" name="gpu[<?=$i?>][DisplayOptions]">
+					<?
+					foreach($arrDisplayOptions as $key => $value) {
+						echo mk_option($arrGPU['DisplayOptions'], htmlentities($value['qxlxml'],ENT_QUOTES), _($value['text']));
+					}?>
+					</select>
 				</td>
 			</tr>
 
@@ -2104,12 +2114,24 @@ function VMConsoleDriverChange(driver) {
 	if (driver.value != "virtio3d") {
 		document.getElementById("vncrender").style.visibility="hidden";
 		document.getElementById("vncrendertext").style.visibility="hidden";
+		document.getElementById("vncrender").style.display="none";
+		document.getElementById("vncrendertext").style.display="none";
 
 	} else {
 		document.getElementById("vncrender").style.display="inline";
 		document.getElementById("vncrender").style.visibility="visible";
 		document.getElementById("vncrendertext").style.display="inline";
 		document.getElementById("vncrendertext").style.visibility="visible";
+	}
+	if (driver.value != "qxl") {
+		document.getElementById("vncdspopt").style.visibility="hidden";
+		document.getElementById("vncdspopttext").style.visibility="hidden";
+
+	} else {
+		document.getElementById("vncdspopt").style.display="inline";
+		document.getElementById("vncdspopt").style.visibility="visible";
+		document.getElementById("vncdspopttext").style.display="inline";
+		document.getElementById("vncdspopttext").style.visibility="visible";
 	}
 }
 
@@ -2438,6 +2460,21 @@ $(function() {
 				 } else {
 					$("#vncrender").hide();
 					$("#vncrendertext").hide();
+					document.getElementById("vncrender").style.display="none";
+					document.getElementById("vncrendertext").style.display="none";
+				 }
+				 if (document.getElementById("vncmodel").value == "qxl")  {
+					$("#vncdspopt").show();
+					$("#vncdspopttext").show();
+					document.getElementById("vncdspopt").style.display="inline";
+					document.getElementById("vncdspopt").style.visibility="visible";
+					document.getElementById("vncdspopttext").style.display="inline";
+					document.getElementById("vncdspopttext").style.visibility="visible";
+				 } else {
+					$("#vncdspopt").hide();
+					$("#vncdspopttext").hide();
+					document.getElementById("vncdspopt").style.display="none";
+					document.getElementById("vncdspopttext").style.display="none";				
 				 }
 			} else {
 				slideUpRows($vnc_sections);
