@@ -860,6 +860,12 @@
 								$strAccel3d ="<acceleration accel3d='yes'/>";
 						}}
 
+						$strDisplayOptions = "";
+						if ($strModelType == "qxl") {
+							if (empty($gpu['DisplayOptions'])) $gpu['DisplayOptions'] ="ram='65536' vram='16384' vgamem='16384' heads='1' primary='yes'";
+							$strDisplayOptions = $gpu['DisplayOptions'];
+						}
+
 						$vmrc = "<input type='tablet' bus='usb'/>
 								<input type='mouse' bus='ps2'/>
 								<input type='keyboard' bus='ps2'/>
@@ -869,7 +875,7 @@
 								</graphics>
 								$strEGLHeadless
 								<video>
-									<model type='$strModelType'>
+									<model type='$strModelType' $strDisplayOptions>
       									$strAccel3d
     								</model>
 									<address type='pci' domain='0x0000' bus='0x00' slot='0x1e' function='0x0'/>
@@ -2224,6 +2230,25 @@
 			
 			if (!str_contains($var,"pci")) $var = trim(shell_exec("udevadm info -q symlink  -r $var"));
 			$var = str_replace(['/dev/dri/by-path/pci-0000:','-render'],['',''],$var);
+			return $var;
+		}
+
+		function domain_get_vnc_display_options($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/devices/video/model/@heads', false);
+			if (!$tmp)
+				$heads=1;
+
+			$heads = $tmp[0];
+			unset($tmp);
+
+			$tmp = $this->get_xpath($domain, '//domain/devices/video/model/@vram', false);
+			if (!$tmp)
+				$vram=16384/1024;
+
+			$vram = $tmp[0]/1024;
+			unset($tmp);
+
+			$var = "H$heads.{$vram}M";
 			return $var;
 		}
 

@@ -708,6 +708,55 @@ private static $encoding = 'UTF-8';
 	] ;
 
 
+	#<model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1' primary='yes'/>
+
+	$arrDisplayOptions = [
+		"H1.16M" => [ 
+			"text" => "1 Screen 16Mb Memory",
+			"qxlxml" => "ram='65536' vram='16384' vgamem='16384' heads='1' primary='yes'",
+		],
+		"H1.32M" => [ 
+			"text" => "1 Screen 32Mb Memory",
+			"qxlxml" => "ram='65536' vram='32768' vgamem='32768' heads='1' primary='yes'",
+		],
+		"H1.64M" => [ 
+			"text" => "1 Screen 64Mb Memory",
+			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='1' primary='yes'",
+		],
+		"H1.128M" => [ 
+			"text" => "1 Screen 128Mb Memory",
+			"qxlxml"=> "ram='65536' vram='131072' vram64='131072' vgamem='65536' heads='1' primary='yes'",
+		],
+		"H1.256M" => [ 
+			"text" => "1 Screen 256Mb Memory",
+			"qxlxml" => "ram='65536' vram='262144' vram64='262144' vgamem='65536' heads='1' primary='yes'",
+		],
+		"H2.64M" => [ 
+			"text" => "2 Screens 64Mb Memory",
+			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='2' primary='yes'",
+		],
+		"H2.128M" => [ 
+			"text" => "2 Screens 128Mb Memory",
+			"qxlxml" => "ram='65536' vram='131072'vram64='131072' vgamem='65536' heads='2' primary='yes'",
+		],
+		"H2.256M" => [ 
+			"text" => "2 Screens 256Mb Memory",
+			"qxlxml" => "ram='65536' vram='262144'vram64='262144' vgamem='65536' heads='2' primary='yes'",
+		],
+		"H4.64M" => [ 
+			"text" => "4 Screens 64Mb Memory",
+			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='4' primary='yes'",
+		],
+		"H4.128M" => [ 
+			"text" => "4 Screens 128Mb Memory",
+			"qxlxml" => "ram='65536' vram='131072'vram64='131072' vgamem='65536' heads='4' primary='yes'",
+		],
+		"H4.256M" => [ 
+			"text" => "4 Screens 256Mb Memory",
+			"qxlxml"=> "ram='65536' vram='262144' vram64='262144' vgamem='65536' heads='4' primary='yes'",
+		],
+		];
+
 	// Read configuration file (guaranteed to exist)
 	$domain_cfgfile = "/boot/config/domain.cfg";
 	$domain_cfg = parse_ini_file($domain_cfgfile);
@@ -1281,6 +1330,7 @@ private static $encoding = 'UTF-8';
 				'copypaste' => $getcopypaste,
 				'guest' => ['multi' => 'off' ],
 				'render' => $lv->domain_get_vnc_render($res),
+				'DisplayOptions' => $lv->domain_get_vnc_display_options($res),
 			];
 		}
 
