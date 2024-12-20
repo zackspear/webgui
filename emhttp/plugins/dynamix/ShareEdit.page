@@ -63,6 +63,7 @@ if ((!$poolsOnly) && ($share['useCache'] == "no")) {
 
 /* Check for non existent pool device. */
 if (($share['cachePool'] && !in_array($share['cachePool'], $pools))) {
+
 	$share['useCache'] = $share['cachePool2'] ? "yes" : ($poolsOnly ? "no" : "yes");
 	$poolDefined = false;
 } else {

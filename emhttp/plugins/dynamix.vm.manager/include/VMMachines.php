@@ -81,7 +81,8 @@ foreach ($vms as $vm) {
   if ($vmrcport > 0) {
     $wsport = $lv->domain_get_ws_port($res);
     $vmrcprotocol = $lv->domain_get_vmrc_protocol($res);
-    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
+    if ($vmrcprotocol == "vnc") $vmrcscale = "&resize=scale"; else $vmrcscale = "";
+    $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).$vmrcscale.'&autoconnect=true&host='._var($_SERVER,'HTTP_HOST');
     if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) .'&port=/wsproxy/'.$vmrcport.'/'; else $vmrcurl .= '&port=&path=/wsproxy/'.$wsport.'/';
     $graphics = strtoupper($vmrcprotocol).":".$vmrcport."\n";
     $virtual = true ;
@@ -112,7 +113,7 @@ foreach ($vms as $vm) {
   unset($dom);
   if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
   if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no" ; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"] ;
-  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s')\"", addslashes($vm),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
+  $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s', '%s')\"", htmlentities($vm, ENT_QUOTES),addslashes($uuid),addslashes($template),$state,addslashes($vmrcurl),strtoupper($vmrcprotocol),htmlentities($log,ENT_QUOTES),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
   $kvm[] = "kvm.push({id:'$uuid',state:'$state'});";
   switch ($state) {
   case 'running':
