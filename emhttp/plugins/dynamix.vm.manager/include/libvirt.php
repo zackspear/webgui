@@ -55,6 +55,22 @@
 			return ($tmp) ? $tmp : $this->_set_last_error();
 		}
 
+		function get_domain_capabilities($emulatorbin, $arch, $machine, $virttype, $xpath) {
+			
+			#@conn [resource]:	resource for connection
+			#@emulatorbin [string]:	optional path to emulator
+			#@arch [string]:	optional domain architecture
+			#@machine [string]:	optional machine type
+			#@virttype [string]:	optional virtualization type
+			#@flags [int] :	extra flags; not used yet, so callers should always pass 0
+			#@xpath [string]:	optional xPath query to be applied on the result
+			#Returns:	: domain capabilities XML from the connection or FALSE for error
+
+			$tmp = libvirt_connect_get_domain_capabilities($this->conn, $emulatorbin, $arch, $machine, $virttype, 0, $xpath);
+			return ($tmp) ? $tmp : $this->_set_last_error();
+		}
+
+
 		function get_machine_types($arch = 'x86_64' /* or 'i686' */) {
 			$tmp = libvirt_connect_get_machine_types($this->conn);
 
@@ -383,6 +399,10 @@
 			$cpucache = '';
 			$cpufeatures = '';
 			$cpumigrate = '';
+			$cpucheck = '';
+			$cpumatch = '' ;
+			$cpucustom = '' ;
+			$cpufallback = '' ;
 			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'host-passthrough') {
 				$cpumode .= "mode='host-passthrough'";
 				$cpucache = "<cache mode='passthrough'/>";
@@ -406,8 +426,17 @@
 
 				if (!empty($domain['cpumigrate'])) $cpumigrate = " migratable='".$domain['cpumigrate']."'" ;
 			}
+			#<cpu mode='custom' match='exact' check='partial'>
+			#<model fallback='allow'>Skylake-Client-noTSX-IBRS</model>
+			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'custom') {
+				if (!empty($domain['cpucustom']['match'])) $cpumatch = " match='".$domain['cpucustom']['match'].'"';
+				if (!empty($domain['cpucustom']['check'])) $cpucheck = " check='".$domain['cpucustom']['check'].'"';
+				if (!empty($domain['cpucustom']['fallback'])) $cpufallback = " fallback='".$domain['cpucustom']['fallback'].'"';
+				if (!empty($domain['cpucustom']['model'])) $cpucustom = "<model $cpufallback>".$domain['cpucustom']['model']."</model>";
+			}
 
-			$cpustr = "<cpu $cpumode $cpumigrate>
+			$cpustr = "<cpu $cpumode $cpumigrate $cpumatch $cpucheck>
+							$cpucustom
 							<topology sockets='1' cores='{$intCores}' threads='{$intThreads}'/>
 							$cpucache
 							$cpufeatures
@@ -2323,6 +2352,40 @@
 				return 'emulated';
 
 			$var = $tmp[0];
+			unset($tmp);
+
+			return $var;
+		}
+		#  <cpu mode='custom' match='exact' check='partial'>
+		#   <model fallback='allow'>Skylake-Client-noTSX-IBRS</model>
+
+		function domain_get_cpu_custom($domain) {
+			$tmp = $this->get_xpath($domain, '//domain/cpu/@match', false);
+			if (!$tmp)
+				$tmp[0] = '';
+
+			$var['match'] = trim($tmp[0]);
+			unset($tmp);
+
+			$tmp = $this->get_xpath($domain, '//domain/cpu/@check', false);
+			if (!$tmp)
+				$tmp[0] = '';
+
+			$var['check'] = trim($tmp[0]);
+			unset($tmp);
+
+			$tmp = $this->get_xpath($domain, '//domain/cpu/model/@fallback', false);
+			if (!$tmp)
+				$tmp[0] = '';
+
+			$var['fallback'] = trim($tmp[0]);
+			unset($tmp);
+
+			$tmp = $this->get_xpath($domain, '//domain/cpu/model', false);
+			if (!$tmp)
+				$tmp[0] = '';
+
+			$var['model'] = trim($tmp[0]);
 			unset($tmp);
 
 			return $var;

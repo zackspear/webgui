@@ -712,47 +712,47 @@ private static $encoding = 'UTF-8';
 
 	$arrDisplayOptions = [
 		"H1.16M" => [ 
-			"text" => "1 Screen 16Mb Memory",
+			"text" => "1 Display 16Mb Memory",
 			"qxlxml" => "ram='65536' vram='16384' vgamem='16384' heads='1' primary='yes'",
 		],
 		"H1.32M" => [ 
-			"text" => "1 Screen 32Mb Memory",
+			"text" => "1 Display 32Mb Memory",
 			"qxlxml" => "ram='65536' vram='32768' vgamem='32768' heads='1' primary='yes'",
 		],
 		"H1.64M" => [ 
-			"text" => "1 Screen 64Mb Memory",
+			"text" => "1 Display 64Mb Memory",
 			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='1' primary='yes'",
 		],
 		"H1.128M" => [ 
-			"text" => "1 Screen 128Mb Memory",
+			"text" => "1 Display 128Mb Memory",
 			"qxlxml"=> "ram='65536' vram='131072' vram64='131072' vgamem='65536' heads='1' primary='yes'",
 		],
 		"H1.256M" => [ 
-			"text" => "1 Screen 256Mb Memory",
+			"text" => "1 Display 256Mb Memory",
 			"qxlxml" => "ram='65536' vram='262144' vram64='262144' vgamem='65536' heads='1' primary='yes'",
 		],
 		"H2.64M" => [ 
-			"text" => "2 Screens 64Mb Memory",
+			"text" => "2 Displays 64Mb Memory",
 			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='2' primary='yes'",
 		],
 		"H2.128M" => [ 
-			"text" => "2 Screens 128Mb Memory",
+			"text" => "2 Displays 128Mb Memory",
 			"qxlxml" => "ram='65536' vram='131072'vram64='131072' vgamem='65536' heads='2' primary='yes'",
 		],
 		"H2.256M" => [ 
-			"text" => "2 Screens 256Mb Memory",
+			"text" => "2 Displays 256Mb Memory",
 			"qxlxml" => "ram='65536' vram='262144'vram64='262144' vgamem='65536' heads='2' primary='yes'",
 		],
 		"H4.64M" => [ 
-			"text" => "4 Screens 64Mb Memory",
+			"text" => "4 Displays 64Mb Memory",
 			"qxlxml" => "ram='65536' vram='65536' vram64='65535' vgamem='65536' heads='4' primary='yes'",
 		],
 		"H4.128M" => [ 
-			"text" => "4 Screens 128Mb Memory",
+			"text" => "4 Displays 128Mb Memory",
 			"qxlxml" => "ram='65536' vram='131072'vram64='131072' vgamem='65536' heads='4' primary='yes'",
 		],
 		"H4.256M" => [ 
-			"text" => "4 Screens 256Mb Memory",
+			"text" => "4 Displays 256Mb Memory",
 			"qxlxml"=> "ram='65536' vram='262144' vram64='262144' vgamem='65536' heads='4' primary='yes'",
 		],
 		];
@@ -1453,6 +1453,7 @@ private static $encoding = 'UTF-8';
 				'maxmem' => $lv->domain_get_memory($res),
 				'password' => '', //TODO?
 				'cpumode' => $lv->domain_get_cpu_type($res),
+				'cpucustom' => $lv->domain_get_cpu_custom($res),
 				'cpumigrate' => $lv->domain_get_cpu_migrate($res),
 				'vcpus' => $dom['nrVirtCpu'],
 				'vcpu' => $lv->domain_get_vcpu_pins($res),

@@ -464,11 +464,11 @@
 			<td><span class="advanced">_(CPU)_ </span>_(Mode)_:</td>
 			<td>
 				<select id="cpu" name="domain[cpumode]" class="cpu" title="_(define type of cpu presented to this vm)_">
-				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'custom' => _('Emulated').' ('._('QEMU64').')'], $arrConfig['domain']['cpumode']);?>
+				<?mk_dropdown_options(['host-passthrough' => _('Host Passthrough').' (' . $strCPUModel . ')', 'custom' => _('Custom')], $arrConfig['domain']['cpumode']);?>
 				</select>
-				<span class="advanced" id="domain_cpumigrate_text"<?=$migratehidden?>>_(Migratable)_:</span>
+				<span class="advanced" id="domain_cpumigrate_text" <?=$migratehidden?>>_(Migratable)_:</span>
 
-				<select name="domain[cpumigrate]" id="domain_cpumigrate"  <?=$migratehidden?> class="narrow" title="_(define if migratable)_">
+				<select name="domain[cpumigrate]" id="domain_cpumigrate" <?=$migratehidden?> hidden class="narrow" title="_(define if migratable)_">
 				<?
 				echo mk_option($arrConfig['domain']['cpumigrate'], 'on', 'On');
 				echo mk_option($arrConfig['domain']['cpumigrate'], 'off', 'Off') ;
@@ -476,6 +476,50 @@
 				</select>
 			</td>
 			<td><textarea class="xml" id="xmlcpu" rows=1 disabled ><?=htmlspecialchars($xml2['cpu'])?></textarea></td>
+		</tr>
+		<?
+				$customhidden =  "disabled hidden" ;
+				if ($arrConfig['domain']['cpumode'] == 'custom') $customhidden = "" ;
+		?>
+	</table>
+	<table $customhidden id="domain_cpucustom" >
+		<tr  class="advanced">
+			<td><span class="advanced" id="domain_cpucustom_model_text">_(CPU Custom)_ </span>_(Model)_:</td>
+			<td>
+			<?
+			$new = simplexml_load_string($lv->get_domain_capabilities(null,"x86_64",null,null,null))->xpath("//domainCapabilities/cpu/mode[@name='custom']")  ;
+			$arrValidCustomTypes = json_decode(json_encode($new[0]), true)['model']; ?>
+				<select id="domain_cpucustom_model" name="domain[cpucustom][model]" class="cpucustom" title="_(define type of cpu presented to this vm)_">
+				<?		
+				foreach($arrValidCustomTypes as $customtype) {
+					echo mk_option($arrConfig['domain']['cpucustom']["model"],$customtype,$customtype);
+				}?>
+
+				</select>
+				<span class="advanced" id="domain_cpucustom_match_text"<?=$customhidden?>>_(Match)_:</span>
+				<select name="domain[cpucustom][match]" id="domain_cpucustom_match"  <?=$customhidden?> class="narrow" title="_(define if migratable)_">
+				<?
+				echo mk_option($arrConfig['domain']['cpucustom']['match'], 'minimum', 'minimum');
+				echo mk_option($arrConfig['domain']['cpucustom']['match'], 'exact', 'exact') ;
+				echo mk_option($arrConfig['domain']['cpucustom']['match'], 'strict', 'strict') ;
+				?>
+				</select>
+				<span class="advanced" id="domain_cpucustom_check_text"<?=$customhidden?>>_(Check)_:</span>
+				<select name="domain[cpucustom][check]" id="domain_cpucustom_check"  <?=$customhidden?> class="narrow" title="_(define if migratable)_">
+				<?
+				echo mk_option($arrConfig['domain']['cpucustom']['check'], 'full', 'full');
+				echo mk_option($arrConfig['domain']['cpucustom']['check'], 'partial', 'partial') ;
+				echo mk_option($arrConfig['domain']['cpucustom']['check'], 'none', 'none') ;
+				?>
+				</select>
+				<span class="advanced" id="domain_cpucustom_fallbacktext"<?=$customhidden?>>_(Fallback)_:</span>
+				<select name="domain[cpucustom][fallback]" id="domain_cpucustom_fallback"  <?=$customhidden?> class="narrow" title="_(define if migratable)_">
+				<?
+				echo mk_option($arrConfig['domain']['cpucustom']['fallback'], 'allow', 'allow');
+				echo mk_option($arrConfig['domain']['cpucustom']['fallback'], 'forbid', 'forbid') ;
+				?>
+				</select>
+			</td>
 		</tr>
 	</table>
 	<div class="advanced">
@@ -2432,11 +2476,14 @@ $(function() {
 		if (myvalue == "custom") {
 			document.getElementById("domain_cpumigrate_text").style.visibility="hidden";
 			document.getElementById("domain_cpumigrate").style.visibility="hidden";
+			document.getElementById("domain_cpucustom").style.display="inline";
+			document.getElementById("domain_cpucustom").style.visibility="visible";
 		} else {
 			document.getElementById("domain_cpumigrate_text").style.display="inline";
 			document.getElementById("domain_cpumigrate_text").style.visibility="visible";
 			document.getElementById("domain_cpumigrate").style.display="inline";
 			document.getElementById("domain_cpumigrate").style.visibility="visible";
+			document.getElementById("domain_cpucustom").style.visibility="hidden";
 		}
 
 	}) ;
