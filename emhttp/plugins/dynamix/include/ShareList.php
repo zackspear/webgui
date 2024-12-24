@@ -187,10 +187,15 @@ define('LUKS_STATUS_UNENCRYPTED', 2);
 
 // Build table
 $row = 0;
+
+/* Get the first pool if needed. */
+$firstPool = $pools_check[0] ?? "";
 foreach ($shares as $name => $share) {
 	/* Correct a situation in previous Unraid versions where an array only share has a useCache defined. */
 	if ((!$poolsOnly) && ($share['useCache'] == "no")) {
 		$share['cachePool'] = "";
+	} else if (($poolsOnly) && (!$share['cachePool'])) {
+		$share['cachePool']	= $firstPool;
 	}
 
 	/* Is cachePool2 defined? If it is we need to show the cache pool 2 device name instead of 'Array'. */
@@ -219,8 +224,8 @@ foreach ($shares as $name => $share) {
 		$share_valid	= true;
 	}
 
-	/* When there is no array, all pools are treated as 'only' cache. If useCache is "no" with an array, this is invalid and useCache has to be 'only'. */
-	if ((($poolsOnly) && (! $share['cachePool2'])) || ((! $poolsOnly) && ($share['cachePool']) && ($share['useCache'] == "no"))) {
+	/* When there is no array, all pools are treated as 'only' cache. */
+	if (($poolsOnly) && (! $share['cachePool2'])) {
 		$share['useCache'] = 'only';
 	}
 
