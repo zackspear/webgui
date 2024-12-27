@@ -20,9 +20,12 @@ $validIP4 = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]
 $validIP6 = "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)$";
 $validMAC = "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$";
 $tmzones  = file("$docroot/webGui/include/timezones.key",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
-$hwclock  = [];
+$hwclock  = $members = [];
 
-exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[0-9]*$'",$ports);
+exec("ls --indicator-style=none /sys/class/net|grep -P '^bond[0-9]*$'",$ports);
+foreach ($ports as $bond) $members = array_merge($members,explode(' ',exec("cat /sys/class/net/$bond/bonding/slaves")));
+exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[0-9]*$'",$eth);
+foreach ($eth as $port) if (empty($members) || !in_array($port,$members)) $ports[] = $port;
 foreach ($ports as $port) $hwclock[$port] = exec("ethtool -T $port|grep -Pom1 '^PTP Hardware Clock: \K.+'")=='none' ? 'disabled' : '';
 ?>
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onchange="signal(this)">
