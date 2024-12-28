@@ -20,12 +20,24 @@ $validIP4 = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]
 $validIP6 = "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)$";
 $validMAC = "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$";
 $tmzones  = file("$docroot/webGui/include/timezones.key",FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES);
-$hwclock  = $members = [];
+$system   = "/sys/class/net";
+$hwclock  = $ports = $member = [];
 
-exec("ls --indicator-style=none /sys/class/net|grep -P '^bond[0-9]*$'",$ports);
-exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[0-9]*$'",$eth);
-foreach ($ports as $bond) $members = array_merge($members,explode(' ',exec("cat /sys/class/net/$bond/bonding/slaves")));
-foreach ($eth as $port) if (empty($members) || !in_array($port,$members)) $ports[] = $port;
+exec("ls --indicator-style=none $system|grep -P '^(br|bond|eth)[0-9]*$'",$net);
+foreach ($net as $port) {
+  switch (preg_replace('/[0-9]+$/','',$port)) {
+  case 'br':
+    $member = array_merge($member,explode(' ',exec("ls --indicator-style=none $system/$port/brif")));
+    break;
+  case 'bond':
+    if (!file_exists($system.'/'.str_replace('bond','br',$port))) $ports[] = $port;
+    $member = array_merge($member,explode(' ',exec("cat $system/$port/bonding/slaves")));
+    break;
+  case 'eth':
+    if (!in_array($port,$member)) $ports[] = $port;
+    break;
+  }
+}
 foreach ($ports as $port) $hwclock[$port] = exec("ethtool -T $port|grep -Pom1 '^PTP Hardware Clock: \K.+'")=='none' ? 'disabled' : '';
 ?>
 <form markdown="1" name="datetime_settings" method="POST" action="/update.htm" target="progressFrame" onchange="signal(this)">
@@ -64,7 +76,7 @@ _(Time zone)_:
 _(Time sync)_:
 : <select name="USE_NTP" onchange="updatePage(this.form,'slow')">
   <?=mk_option($var['USE_NTP'], "yes", _('NTP'))?>
-  <?=mk_option($var['USE_NTP'], "yes", _('PTP'))?>
+  <?=mk_option($var['USE_NTP'], "yes", _('PTP'), empty($ports) ? 'disabled' : '')?>
   <?=mk_option($var['USE_NTP'], "no", _('Manual'))?>
   </select>
 
@@ -126,6 +138,7 @@ _(PTP server)_ 4:
 </div>
 _(PTP interface)_:
 : <select name="PTP_PORT" onchange="hwclock(this.form,this.value)">
+  <?if (empty($ports)) echo mk_option(0, '', '---');?>
   <?foreach($ports as $port):?>
   <?=mk_option(_var($PTP,'PORT','eth0'), $port, $port)?>
   <?endforeach;?>
@@ -133,7 +146,7 @@ _(PTP interface)_:
 
 _(PTP clock)_:
 : <select name="PTP_CLOCK">
-  <?=mk_option(_var($PTP,'CLOCK'), "hardware", _('Hardware'), _var($hwclock,_var($PTP,'PORT','eth0')))?>
+  <?=mk_option(_var($PTP,'CLOCK'), "hardware", _('Hardware'), _var($hwclock,_var($PTP,'PORT')))?>
   <?=mk_option(_var($PTP,'CLOCK'), "software", _('Software'))?>
   </select>
 
@@ -282,7 +295,7 @@ $(function() {
   oldDate = form.display_date.selectedIndex;
   oldTime = form.display_time.selectedIndex;
   oldZone = form.timeZone.selectedIndex;
-  form.USE_NTP.selectedIndex = <?=_var($PTP,'SYNC')=='yes' ? 1 : ($var['USE_NTP']=='yes' ? 0 : 2)?>;
+  form.USE_NTP.selectedIndex = <?=_var($PTP,'SYNC')=='yes' && !empty($ports) ? 1 : ($var['USE_NTP']=='yes' ? 0 : 2)?>;
   updatePage(form);
 });
 </script>
