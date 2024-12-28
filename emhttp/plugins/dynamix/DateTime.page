@@ -74,7 +74,7 @@ _(Time zone)_:
 :timezone_help:
 
 _(Time state)_:
-: <span id="timeState">-</span>
+: <span id="timeState"><i class="fa fa-spin fa-spinner"></i></span>
 
 _(Time sync)_:
 : <select name="USE_NTP" onchange="updatePage(this.form,'slow')">
@@ -219,6 +219,8 @@ function dispatch(form) {
     $('input[name^="PTP_SERVER"]').val('');
   }
   if (valid) {
+    clearTimeout(timers.timeState);
+    $('#timeState').html('<i class="fa fa-spin fa-spinner"></i>');
     let index = form.USE_NTP.selectedIndex;
     let cmd = index==1 ? (ptpd ? 'restart' : 'start') : 'stop';
     save['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
@@ -300,6 +302,11 @@ function updatePage(form,step) {
   }
 }
 
+function timeState() {
+  $.post('/webGui/include/DashboardApps.php',{ntp:'ntp'},function(ntp){$('#timeState').html(ntp);});
+  timers.timeState = setTimeout(timeState,2000);
+}
+
 $(function() {
   var form = document.datetime_settings;
   presetTime(form);
@@ -311,6 +318,6 @@ $(function() {
   if (form.USE_NTP.selectedIndex==1) $('#noports').show();
 <?endif;?>
   updatePage(form);
-  setInterval(function(){$.post('/webGui/include/DashboardApps.php',{ntp:'ntp'},function(ntp){$('#timeState').html(ntp);});},2000);
+  timeState();
 });
 </script>
