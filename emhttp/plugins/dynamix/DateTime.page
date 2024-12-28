@@ -23,15 +23,15 @@ $tmzones  = file("$docroot/webGui/include/timezones.key",FILE_IGNORE_NEW_LINES|F
 $system   = "/sys/class/net";
 $hwclock  = $ports = $member = [];
 
-exec("ls --indicator-style=none $system|grep -P '^(br|bond|eth)[0-9]*$'",$net);
+exec("ls --indicator-style=none $system|grep -P '^(bond|br|eth)[0-9]*$'",$net);
 foreach ($net as $port) {
   switch (preg_replace('/[0-9]+$/','',$port)) {
-  case 'br':
-    $member = array_merge($member,explode(' ',exec("ls --indicator-style=none $system/$port/brif")));
-    break;
   case 'bond':
     if (!file_exists($system.'/'.str_replace('bond','br',$port))) $ports[] = $port;
     $member = array_merge($member,explode(' ',exec("cat $system/$port/bonding/slaves")));
+    break;
+  case 'br':
+    $member = array_merge($member,explode(' ',exec("ls --indicator-style=none $system/$port/brif")));
     break;
   case 'eth':
     if (!in_array($port,$member)) $ports[] = $port;
@@ -76,9 +76,10 @@ _(Time zone)_:
 _(Time sync)_:
 : <select name="USE_NTP" onchange="updatePage(this.form,'slow')">
   <?=mk_option($var['USE_NTP'], "yes", _('NTP'))?>
-  <?=mk_option($var['USE_NTP'], "yes", _('PTP'), empty($ports) ? 'disabled' : '')?>
+  <?=mk_option($var['USE_NTP'], "yes", _('PTP'))?>
   <?=mk_option($var['USE_NTP'], "no", _('Manual'))?>
   </select>
+  <span id="noports" class="red-text"><i class="fa fa-warning"></i> _(No suitable interfaces found for PTP)_</span>
 
 <div markdown="1" id="ntp-setup" class="extra">
 _(NTP interval)_:
@@ -146,7 +147,7 @@ _(PTP interface)_:
 
 _(PTP clock)_:
 : <select name="PTP_CLOCK">
-  <?=mk_option(_var($PTP,'CLOCK'), "hardware", _('Hardware'), _var($hwclock,_var($PTP,'PORT')))?>
+  <?=mk_option(_var($PTP,'CLOCK'), "hardware", _('Hardware'), empty($ports) ? 'disabled' : _var($hwclock,_var($PTP,'PORT')))?>
   <?=mk_option(_var($PTP,'CLOCK'), "software", _('Software'))?>
   </select>
 
@@ -218,7 +219,7 @@ function dispatch(form) {
     let index = form.USE_NTP.selectedIndex;
     let cmd = index==1 ? (ptpd ? 'restart' : 'start') : 'stop';
     save['#cfg'] = "/boot/config/plugins/dynamix/dynamix.cfg";
-    save.PTP_SYNC = index==1 ? 'yes' : 'no'; 
+    save.PTP_SYNC = index==1 ? 'yes' : 'no';
     $(form).find('select[name^="display_"],select[name="NTP_POLL"],select[name^="PTP_"],input[name^="display_"],input[name^="PTP_"]').each(function(){
       save[$(this).attr('name')] = $(this).val();
       // exclude setting for emhttpd
@@ -256,6 +257,7 @@ function updatePage(form,step) {
     // ntp
     $('#ptp-setup,#manual-setup').hide(step);
     $('#ntp-setup').show(step);
+    $('#noports').hide();
     form.newDateTime.disabled=true;
     form.NTP_SERVER1.disabled=false;
     form.NTP_SERVER2.disabled=false;
@@ -265,6 +267,11 @@ function updatePage(form,step) {
     // ptp
     $('#ntp-setup,#manual-setup').hide(step);
     $('#ptp-setup').show(step);
+<?if (empty($ports)):?>
+    $('#noports').show();
+<?else:?>
+    $('#noports').hide();
+<?endif;?>
     if (form.PTP_MODE.selectedIndex==0) $('#unicast').hide(step); else $('#unicast').show(step);
     form.newDateTime.disabled=true;
     form.NTP_SERVER1.disabled=true;
@@ -281,6 +288,7 @@ function updatePage(form,step) {
     // manual
     $('#ntp-setup,#ptp-setup').hide(step);
     $('#manual-setup').show(step);
+    $('#noports').hide();
     form.newDateTime.disabled=false;
     form.NTP_SERVER1.disabled=true;
     form.NTP_SERVER2.disabled=true;
@@ -295,7 +303,10 @@ $(function() {
   oldDate = form.display_date.selectedIndex;
   oldTime = form.display_time.selectedIndex;
   oldZone = form.timeZone.selectedIndex;
-  form.USE_NTP.selectedIndex = <?=_var($PTP,'SYNC')=='yes' && !empty($ports) ? 1 : ($var['USE_NTP']=='yes' ? 0 : 2)?>;
+  form.USE_NTP.selectedIndex = <?=_var($PTP,'SYNC')=='yes' ? 1 : ($var['USE_NTP']=='yes' ? 0 : 2)?>;
+<?if (empty($ports)):?>
+  if (form.USE_NTP.selectedIndex==1) $('#noports').show();
+<?endif;?>
   updatePage(form);
 });
 </script>
