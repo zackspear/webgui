@@ -73,6 +73,9 @@ _(Time zone)_:
 
 :timezone_help:
 
+_(Time state)_:
+: <span id="timeState"><i class="fa fa-spin fa-refresh"></i></span>
+
 _(Time sync)_:
 : <select name="USE_NTP" onchange="updatePage(this.form,'slow')">
   <?=mk_option($var['USE_NTP'], "yes", _('NTP'))?>
@@ -308,5 +311,6 @@ $(function() {
   if (form.USE_NTP.selectedIndex==1) $('#noports').show();
 <?endif;?>
   updatePage(form);
+  setInterval(function(){$.post('/webGui/include/DashboardApps.php',{ntp:'ntp'},function(ntp){$('#timeState').html('<i class="fa fa-spin fa-refresh"></i>&nbsp;'+ntp);});},2000);
 });
 </script>
