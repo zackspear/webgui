@@ -23,8 +23,8 @@ $tmzones  = file("$docroot/webGui/include/timezones.key",FILE_IGNORE_NEW_LINES|F
 $hwclock  = $members = [];
 
 exec("ls --indicator-style=none /sys/class/net|grep -P '^bond[0-9]*$'",$ports);
-foreach ($ports as $bond) $members = array_merge($members,explode(' ',exec("cat /sys/class/net/$bond/bonding/slaves")));
 exec("ls --indicator-style=none /sys/class/net|grep -P '^eth[0-9]*$'",$eth);
+foreach ($ports as $bond) $members = array_merge($members,explode(' ',exec("cat /sys/class/net/$bond/bonding/slaves")));
 foreach ($eth as $port) if (empty($members) || !in_array($port,$members)) $ports[] = $port;
 foreach ($ports as $port) $hwclock[$port] = exec("ethtool -T $port|grep -Pom1 '^PTP Hardware Clock: \K.+'")=='none' ? 'disabled' : '';
 ?>
