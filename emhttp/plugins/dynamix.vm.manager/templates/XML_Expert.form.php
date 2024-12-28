@@ -26,7 +26,7 @@
 
 	if (is_file($templateslocation)){
 		$arrAllTemplates["User-templates"] = "";
-		$ut = json_decode(file_get_contents($templateslocation),true) ;
+		$ut = json_decode(file_get_contents($templateslocation),true);
 		$arrAllTemplates = array_merge($arrAllTemplates, $ut);
 	}
 
@@ -45,14 +45,12 @@
 		exit;
 	}
 
-	
 		// create new VM template
 		if (isset($_POST['createvmtemplate'])) {
 			$reply = addtemplatexml($_POST);
 			echo json_encode($reply);
 			exit;
 		}
-
 
 	// update existing VM
 	if (isset($_POST['updatevm'])) {
@@ -116,7 +114,7 @@
 		<input type="button" value="_(Create)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnSubmit" />
 	<? } ?>
 	<input type="button" value="_(Cancel)_" id="btnCancel" />
-	
+
 	<input type="button" value=" _(Create/Modify Template)_" busyvalue="_(Creating)_..." readyvalue="_(Create)_" id="btnTemplateSubmit" />
 
 <? } else { ?>
@@ -222,7 +220,7 @@ $(function() {
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name)_."
 			},
 			function(inputValue){
 				postdata=postdata+"&templatename="+inputValue;
