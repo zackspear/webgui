@@ -216,8 +216,8 @@ $(function() {
 		$form.find('input').prop('disabled', true);
 		$button.val($button.attr('busyvalue'));
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: "_(Template Name)_",
+			text: "_(Enter name)_:\n_(If name already exists it will be replaced)_.",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
