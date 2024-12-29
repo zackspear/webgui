@@ -350,7 +350,7 @@
 
 	<table>
 	<tr><td></td><td>
-		<span <?=$snaprenamehidden?> id="snap-rename" class="orange-text"><i class="fa fa-warning"></i> _(Rename disabled, <?=$snapcount?> snapshot(s) exists.)_</span>
+		<span <?=$snaprenamehidden?> id="snap-rename" class="orange-text"><i class="fa fa-warning"></i> <?=sprintf(_('Rename disabled, %s snapshot(s) exists'),$snapcount)?>.</span>
 		<span hidden id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location<br>Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span></td></tr>
 		<tr>
 			<td>_(Name)_:</td>
