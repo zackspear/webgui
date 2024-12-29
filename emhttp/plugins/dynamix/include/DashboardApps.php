@@ -23,7 +23,7 @@ require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 if (isset($_POST['ntp'])) {
   if (exec("pgrep -cf /usr/sbin/ptp4l")) {
     // ptp sync
-    if (exec("pmc -ub0 'GET TIME_STATUS'|awk '$1==\"gmPresent\"{print $2;exit}'")=='true') {
+    if (exec("pmc -ub0 'GET TIME_STATUS'|awk '$1==\"gmPresent\"{print $2;exit}'")) {
       $ptp = abs(exec("pmc -ub0 'GET CURRENT'|awk '$1==\"offsetFromMaster\"{print $2;exit}'"));
       switch (true) {
         case ($ptp == 0)   : $unit = 'ns'; $ptp = '???'; break;
@@ -32,7 +32,8 @@ if (isset($_POST['ntp'])) {
         case ($ptp  < 1E+9): $unit = 'ms'; $ptp = round($ptp/1E+6); break;
         default            : $unit = 's' ; $ptp = round($ptp/1E+9); break;
       }
-      die(sprintf(_('Clock is synchronized using PTP, time offset is %s %s'),$ptp,$unit));
+      $gm = exec("pmc -ub0 'GET CURRENT'|awk '$1==\"stepsRemoved\"{print $2;exit}'")==1 ? _('grandmaster') : _('master');
+      die(sprintf(_('Clock is synchronized using %s PTP server, time offset is %s %s'),$gm,$ptp,$unit));
     } else {
       die(_('Clock is unsynchronized with no PTP servers'));
     }
@@ -47,7 +48,8 @@ if (isset($_POST['ntp'])) {
         case ($ntp  < 1E+3): $unit = 'ms'; $ntp = round($ntp); break;
         default            : $unit = 's' ; $ntp = round($ntp/1E+3); break;
       }
-      die(sprintf(_('Clock is synchronized using NTP, time offset is %s %s'),$ntp,$unit));
+      $count = exec("ntpq -pn|grep -Pc '^[*+]'");
+      die(sprintf(_('Clock is synchronized using %s NTP servers, time offset is %s %s'),$count,$ntp,$unit));
     } else {
       die(_('Clock is unsynchronized with no NTP servers'));
     }
