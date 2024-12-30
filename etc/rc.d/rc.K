@@ -39,7 +39,7 @@ fi
 if grep -q quota /etc/fstab ; then
   if [[ -x /sbin/quotaoff ]]; then
     log "Turning off filesystem quotas."
-    run quotaoff -a
+    run /sbin/quotaoff -a
   fi
 fi
 
