@@ -309,7 +309,7 @@ function delete_file(...$file) {
   array_map('unlink',array_filter($file,'file_exists'));
 }
 function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody",$grp = "users") {
-  write_logging("Check if direct exists\n");
+  write_logging("Check if dir exists\n");
   if (is_dir($dirname)) {write_logging("Dir exists\n"); return(false);}
   write_logging("Dir does not exist\n");
   $parent = $dirname;
@@ -344,7 +344,7 @@ function my_mkdir($dirname,$permissions = 0777,$recursive = false,$own = "nobody
         if ($recursive) exec("zfs create -p \"$zfsdataset\"",$zfsoutput,$rtncode);else exec("zfs create \"$zfsdataset\"",$zfsoutput,$rtncode);
         write_logging("Output: {$zfsoutput[0]} $rtncode"); 
         if ($rtncode == 0)  write_logging( " ZFS Command OK\n"); else  write_logging( "ZFS Command Fail\n");
-      } else {write_logging("Not ZFS dataset\n");$rtncode = false;}
+      } else {write_logging("Not ZFS dataset\n");$rtncode = 1;}
       if ($rtncode > 0) { mkdir($dirname, $permissions, $recursive); write_logging( "created dir:$dirname\n");} else chmod($zfsdataset,$permissions);
       break;
     case "btrfs":
