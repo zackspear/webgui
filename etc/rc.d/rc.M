@@ -194,7 +194,7 @@ fi
 # because the log file can get VERY large.
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
   chmod 640 /var/log/pacct
-  accton /var/log/pacct
+  /sbin/accton /var/log/pacct
 fi
 
 # Start crond (Dillon's crond):
