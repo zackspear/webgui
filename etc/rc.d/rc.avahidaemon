@@ -53,17 +53,15 @@ disable(){
 
 # when starting avahidaemon, add name.local to the hosts file
 add_local_to_hosts(){
-  local OLD NEW
-  OLD="^127\.0\.0\.1.*"
-  NEW="127.0.0.1      $NAME $NAME.local localhost"
+  local OLD="^127\.0\.0\.1.*"
+  local NEW="127.0.0.1      $NAME $NAME.local localhost"
   sed -i "s/$OLD/$NEW/gm;t" $HOSTS
 }
 
 # when stopping avahidaemon, remove name.local from the hosts file
 remove_local_from_hosts(){
-  local OLD NEW
-  OLD="^127\.0\.0\.1.*"
-  NEW="127.0.0.1      $NAME localhost"
+  local OLD="^127\.0\.0\.1.*"
+  local NEW="127.0.0.1      $NAME localhost"
   sed -i "s/$OLD/$NEW/gm;t" $HOSTS
 }
 
