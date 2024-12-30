@@ -45,7 +45,7 @@ fi
 
 # Try to turn off accounting:
 if [[ -x /sbin/accton && -r /var/log/pacct ]]; then
-  accton off
+  /sbin/accton off
 fi
 
 # Run any local shutdown scripts:
