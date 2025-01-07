@@ -123,6 +123,11 @@ _(Tunable (enable Direct IO))_:
 
 :shares_tunable_direct_io_help:
 
+_(Number of fuse File Descriptors)_:
+: <input type="text" name="fuse_file_descriptors" maxlength="10" value="<?=(($var['shareNOFILE'] === '(null)') ? "" : $var['shareNOFILE']);?>" class="narrow" placeholder="40960" <?=$disabled?>>
+
+:shares_fuse_file_descriptors_io_help:
+
 &nbsp;
 : <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>
