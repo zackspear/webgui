@@ -2562,13 +2562,13 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: '_(Template Name)_',
+			text: "_(Enter name:\nIf name already exists it will be replaced.)_",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name.)_"
 			},
 			function(inputValue){
 
@@ -2643,13 +2643,13 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: "_(Template Name)_",
+			text: "_(Enter name:\nIf name already exists it will be replaced.)_",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name.)_"
 			},
 			function(inputValue){
 
