@@ -67,6 +67,8 @@ _(Number of Threads)_:
   <?=mk_option($rpc_nfsd_count, "8", "8");?>
   <?=mk_option($rpc_nfsd_count, "16", "16");?>
   <?=mk_option($rpc_nfsd_count, "32", "32");?>
+  <?=mk_option($rpc_nfsd_count, "64", "64");?>
+  <?=mk_option($rpc_nfsd_count, "128", "128");?>
   </select>
 
 :nfs_threads_help:
