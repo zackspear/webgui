@@ -1102,7 +1102,7 @@ function writeShare(data, n, i) {
 			}
 		});
 		toggleButton('writeshare', true);
-		$('div.spinner.fixed').show(slow);
+		$('div.spinner.fixed').show('slow');
 		writeShare(newData, 0, i);
 	}
 }
