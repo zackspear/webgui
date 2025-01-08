@@ -1,0 +1,39 @@
+#!/bin/bash
+# Usage:
+# apply|nfs_version|nfs_count
+#
+
+apply() {
+  echo "RPC_NFSD_VERS=\"$RPC_NFSD_VERS\"" > $CONFIG
+  echo "RPC_NFSD_COUNT=\"$RPC_NFSD_COUNT\"" >> $CONFIG
+}
+
+nfs_version() {
+	echo $RPC_NFSD_VERS
+}
+
+nfs_count() {
+	echo $RPC_NFSD_COUNT
+}
+
+# Path to the configuration file
+CONFIG="/boot/config/default/nfs"
+
+# Get the values from the file
+source "$CONFIG"
+
+case "$1" in
+	'apply')
+		RPC_NFSD_VERS="$2"
+		RPC_NFSD_COUNT="$3"
+		apply
+	;;
+	'nfs_version')
+		nfs_version
+	;;
+	'nfs_count')
+		nfs_count
+	;;
+	*)
+	echo "usage $0 apply|nfs_version|nfs_count"
+esac
