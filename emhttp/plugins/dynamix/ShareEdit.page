@@ -15,6 +15,10 @@ Tag="share-alt-square"
  */
 ?>
 <?
+if (!empty($name) && !array_key_exists($name, $shares)) {
+  echo "<script>done()</script>";
+  return;
+}
 $width = [123,300];
 
 if ($name == "") {
@@ -33,13 +37,9 @@ if ($name == "") {
 		"cachePool2"	=> "",
 		"cow"			=> "auto"
 	];
-} elseif (array_key_exists($name, $shares)) {
+} else {
 	/* edit existing share. */
 	$share = $shares[$name];
-} else {
-  /* handle share deleted case. */
-  echo "<p class='notice'>"._('Share')." '".htmlspecialchars($name)."' "._('has been deleted').".</p><input type='button' value=\""._('Done')."\" onclick='done()'>";
-  return;
 }
 
 /* If the configuration is pools only, then no array disks are available. */
@@ -575,6 +575,7 @@ function initDropdown(forceInit) {
 			destroyDropdownIfExists('#s5');
 		<?endif;?>
 	}
+
 	initializeDropdown('#s1', "_(All)_", <?=$width[1]?>);
 	initializeDropdown('#s2', "_(None)_", <?=$width[1]?>);
 	initializeDropdown('#s3', "_(All)_", <?=$width[1]?>);
@@ -586,26 +587,42 @@ function initDropdown(forceInit) {
 
 function initializeDropdown(selector, emptyText, width, firstItemChecksAll = false) {
 	try {
-		$(selector).dropdownchecklist({
-			emptyText: emptyText,
-			width: width,
-			explicitClose: "..._(close)_",
-			firstItemChecksAll: firstItemChecksAll
-		});
+		if ($(selector).length) {
+			$(selector).dropdownchecklist({
+				emptyText: emptyText,
+				width: width,
+				explicitClose: "..._(close)_",
+				firstItemChecksAll: firstItemChecksAll
+			});
+		}
 	} catch (e) {
-		console.error(`Error initializing ${selector}: ` + e.message);
 	}
 }
 
 function destroyDropdownIfExists(selector) {
 	try {
-		$(selector).dropdownchecklist('destroy');
-	} catch (e) {
-		if (e.message.includes('prior to initialization')) {
-			console.log(`${selector} not initialized, skipping destroy.`);
-		} else {
-			console.error(`Error destroying ${selector}: ` + e.message);
+		if ($(selector).length) {
+			$(selector).dropdownchecklist('destroy');
 		}
+	} catch (e) {
+	}
+}
+
+function enableDropdownIfExists(selector) {
+	try {
+		if ($(selector).length) {
+			$(selector).dropdownchecklist('enable');
+		}
+	} catch (e) {
+	}
+}
+
+function disableDropdownIfExists(selector) {
+	try {
+		if ($(selector).length) {
+			$(selector).dropdownchecklist('disable');
+		}
+	} catch (e) {
 	}
 }
 
@@ -789,22 +806,6 @@ function updateCOW(pool, slow) {
 		$('#cow-setting').show(slow);
 	} else {
 		$('#cow-setting').hide(slow);
-	}
-}
-
-function enableDropdownIfExists(selector) {
-	try {
-		$(selector).dropdownchecklist('enable');
-	} catch (e) {
-		console.log(`${selector} not initialized, cannot enable.`);
-	}
-}
-
-function disableDropdownIfExists(selector) {
-	try {
-		$(selector).dropdownchecklist('disable');
-	} catch (e) {
-		console.log(`${selector} not initialized, cannot disable.`);
 	}
 }
 
