@@ -52,6 +52,7 @@ rm -rf /kernel
 # Ensure required config directories exist
 # these will all have permissions 0700
 CONFIG="/boot/config"
+mkdir -p $CONFIG/default
 mkdir -p $CONFIG/modprobe.d
 mkdir -p $CONFIG/plugins/dockerMan
 mkdir -p $CONFIG/plugins/dynamix/users
