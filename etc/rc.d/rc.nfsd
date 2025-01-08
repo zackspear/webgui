@@ -29,12 +29,16 @@ NFS_CFG="/boot/config/default/nfs"
 # library functions
 . /etc/rc.d/rc.library.source
 
-# source default settings:
-[[ -r $NFS ]] && . $NFS
-[[ -r $NFS_CFG ]] && . $NFS_CFG
-
+# source default settings
 [[ -r $RPC ]] && . $RPC
 [[ -r $RPC_CFG ]] && . $RPC_CFG
+
+[[ -r $NFS ]] && . $NFS
+[[ -r $NFS_CFG ]] && . $NFS_CFG
+sed -ri "s/^(RPC_NFSD_VERS)=.*/\1=\"$RPC_NFSD_VERS\"/" $NFS 2>/dev/null
+sed -ri "s/^(RPC_NFSD_XPORT)=.*/\1=\"$RPC_NFSD_XPORT\"/" $NFS 2>/dev/null
+sed -ri "s/^(RPC_NFSD_OPTS)=.*/\1=\"$RPC_NFSD_OPTS\"/" $NFS 2>/dev/null
+sed -ri "s/^(RPC_NFSD_COUNT)=.*/\1=\"$RPC_NFSD_COUNT\"/" $NFS 2>/dev/null
 
 # get bind addresses
 if check && [[ -n $BIND ]]; then
