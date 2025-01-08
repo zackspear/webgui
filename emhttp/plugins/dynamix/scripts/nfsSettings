@@ -4,8 +4,8 @@
 #
 
 apply() {
-  echo "RPC_NFSD_VERS=\"$RPC_NFSD_VERS\"" > $CONFIG
-  echo "RPC_NFSD_COUNT=\"$RPC_NFSD_COUNT\"" >> $CONFIG
+  echo "RPC_NFSD_VERS=\"$RPC_NFSD_VERS\"" > $CONFIG_RAM
+  echo "RPC_NFSD_COUNT=\"$RPC_NFSD_COUNT\"" >> $CONFIG_RAM
 }
 
 nfs_version() {
@@ -16,16 +16,17 @@ nfs_count() {
 	echo $RPC_NFSD_COUNT
 }
 
-# Path to the configuration file
-CONFIG="/boot/config/default/nfs"
+# Path to the configuration files
+CONFIG_ROM="/etc/default/nfs"
+CONFIG_RAM="/boot/config/default/nfs"
 
-# Get the values from the file
-source "$CONFIG"
+# Get current settings
+source "$CONFIG_ROM"
 
 case "$1" in
 	'apply')
-		RPC_NFSD_VERS="$2"
-		RPC_NFSD_COUNT="$3"
+		[[ -n $2 ]] && RPC_NFSD_VERS="$2"
+		[[ -n $3 ]] && RPC_NFSD_COUNT="$3"
 		apply
 	;;
 	'nfs_version')
