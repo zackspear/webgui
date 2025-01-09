@@ -1007,6 +1007,7 @@ function smartMenu(table) {
       opts.push({text:"_(Acknowledge)_",icon:'fa-check-square-o',action:function(e){e.preventDefault();acknowledge(id,disk);}});
     }
     $(id).bind('click',function(){update2=false;}).bind('mouseout',function(){setTimeout(function(){update2=true;},15000);});
+    context.destroy(id);
     context.attach(id,opts);
   });
 }
