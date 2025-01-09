@@ -17,13 +17,14 @@ nfs_version() {
 
 nfs_count() {
         echo $RPC_NFSD_COUNT
+}
 
 # Path to the configuration files
 CONFIG_ROM="/etc/default/nfs"
 CONFIG_RAM="/boot/config/default/nfs"
 
 # Get current settings
-source "$CONFIG_RAM"
+source "$CONFIG_ROM"
 
 case "$1" in
         'apply')
@@ -38,5 +39,7 @@ case "$1" in
                 nfs_count
         ;;
         *)
-        echo "usage $0 apply|nfs_version|nfs_count"
+        	echo "usage $0 apply|nfs_version|nfs_count"
+		exit 1
+        ;;
 esac
