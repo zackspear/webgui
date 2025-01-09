@@ -438,9 +438,9 @@ file_put_contents("/$diag/system/loads.txt",$cpuload.implode("\r\n",$loadTxt));
 run("lscpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/lscpu.txt"));
 run("lsscsi -vgl 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsscsi.txt"));
 run("lspci -knn 2>/dev/null|todos >".escapeshellarg("/$diag/system/lspci.txt"));
+run("lspci -vv 2>/dev/null| awk '/ASPM/{print $0}' RS=|grep -P '(^[a-z0-9:.]+|ASPM |Disabled;|Enabled;)'|todos >".escapeshellarg("/$diag/system/aspm-status.txt"));
 run("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
 run("free -mth 2>/dev/null|todos >".escapeshellarg("/$diag/system/memory.txt"));
-run("ps -auxf --sort=-pcpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/ps.txt"));
 run("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
 run("lsmod|sort 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsmod.txt"));
 run("df -h 2>/dev/null|todos >".escapeshellarg("/$diag/system/df.txt"));
@@ -532,6 +532,16 @@ if ($files) {
   @mkdir("/$diag/config/modprobe.d");
   foreach ($files as $file) {
     $dest = "/$diag/config/modprobe.d/".basename($file);
+    @copy($file,$dest);
+  }
+}
+
+// copy cutom udev rules information
+$files = glob("/boot/config/udev/*");
+if ($files) {
+  @mkdir("/$diag/config/udev");
+  foreach ($files as $file) {
+    $dest = "/$diag/config/udev/".basename($file);
     @copy($file,$dest);
   }
 }
@@ -723,6 +733,7 @@ newline("/$diag/system/sshd.txt");
 copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
 maskIP("/$diag/system/servers.conf.txt");
 run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
+run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
 newline("/$diag/system/servers.conf.txt");
 
 // BEGIN - third party plugins diagnostics

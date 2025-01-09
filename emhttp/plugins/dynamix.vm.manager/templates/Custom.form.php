@@ -154,7 +154,8 @@
 				$protocol = $lv->domain_get_vmrc_protocol($dom);
 				$reply = ['success' => true];
 				if ($vmrcport > 0) {
-					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+					if ($protocol == "vnc") $vmrcscale = "&resize=scale"; else $vmrcscale = "";
+					$reply['vmrcurl']  = autov('/plugins/dynamix.vm.manager/'.$protocol.'.html',true).'&autoconnect=true'.$vmrcscale.'&host=' . $_SERVER['HTTP_HOST'] ;
 					if ($protocol == "spice") $reply['vmrcurl']  .= '&port=/wsproxy/'.$vmrcport.'/'; else $reply['vmrcurl'] .= '&port=&path=/wsproxy/' . $wsport . '/';
 				}
 			} else {
@@ -317,6 +318,18 @@
 	}
 	if ($usertemplate == 1) unset($arrConfig['domain']['uuid']);
 	$xml2 = build_xml_templates($strXML);
+	#disable rename  if snapshots exist
+	$snapshots = getvmsnapshots($arrConfig['domain']['name']) ;
+	if ($snapshots != null && count($snapshots) && !$boolNew)  
+	{
+		$snaprenamehidden = "";
+		$namedisable = "disabled";
+		$snapcount = count($snapshots);
+	} else {
+		$snaprenamehidden = "hidden";
+		$namedisable = "";
+		$snapcount = "0";
+	};
 ?>
 
 <link rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/scripts/codemirror/lib/codemirror.css')?>">
@@ -336,10 +349,12 @@
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 	<table>
-	<tr><td></td><td><span hidden id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location<br>Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span></td></tr>
+	<tr><td></td><td>
+		<span <?=$snaprenamehidden?> id="snap-rename" class="orange-text"><i class="fa fa-warning"></i> _(Rename disabled, <?=$snapcount?> snapshot(s) exists.)_</span>
+		<span hidden id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location<br>Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span></td></tr>
 		<tr>
 			<td>_(Name)_:</td>
-			<td><input type="text" name="domain[name]" id="domain_name" oninput="checkName(this.value)" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
+			<td><input <?=$namedisable?> type="text" name="domain[name]" id="domain_name" oninput="checkName(this.value)" class="textTemplate" title="_(Name of virtual machine)_" placeholder="_(e.g.)_ _(My Workstation)_" value="<?=htmlspecialchars($arrConfig['domain']['name'])?>" required /></td>
 			<td><textarea class="xml" id="xmlname" rows=1 disabled ><?=htmlspecialchars($xml2['name'])."\n".htmlspecialchars($xml2['uuid'])."\n".htmlspecialchars($xml2['metadata'])?></textarea></td>
 		</tr>
 	</table>
@@ -2202,6 +2217,7 @@ $(function() {
 						$disk_file_sections.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 
 						$disk_input.attr('name', $disk_input.attr('name').replace('new', 'image'));
+						if (info.isfile) $table.find('.disk_driver').val(info.format);
 					} else {
 						$disk_file_sections.filter('.wasadvanced').removeClass('wasadvanced').addClass('advanced');
 						slideDownRows($disk_file_sections.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
@@ -2546,13 +2562,13 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: '_(Template Name)_',
+			text: "_(Enter name:\nIf name already exists it will be replaced.)_",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name.)_"
 			},
 			function(inputValue){
 
@@ -2627,13 +2643,13 @@ $(function() {
 		$button.val($button.attr('busyvalue'));
 
 		swal({
-			title: _("Template Name")_,
-			text: _("Enter name:\nIf name already exists it will be replaced.")_,
+			title: "_(Template Name)_",
+			text: "_(Enter name:\nIf name already exists it will be replaced.)_",
 			type: "input",
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: _("Leaving blank will use OS name.")_
+			inputPlaceholder: "_(Leaving blank will use OS name.)_"
 			},
 			function(inputValue){
 

@@ -21,8 +21,11 @@ require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
 
 if (isset($_POST['ntp'])) {
-  $ntp = exec("ntpq -pn|awk '{if (NR>3 && $2!=\".INIT.\") c++} END {print c}'");
-  die($ntp ? sprintf(_('Clock synchronized with %s NTP server'.($ntp==1?'':'s')),$ntp) : _('Clock is unsynchronized with no NTP servers'));
+  if (exec("pgrep -cf /usr/sbin/ntpd")) {
+    $ntp = exec("ntpq -pn|awk '$1~/^\*/{print $9;exit}'");
+    die($ntp ? sprintf(_('Clock is synchronized using NTP, time offset: %s ms'),abs($ntp)) : _('Clock is unsynchronized with no NTP servers'));
+  }
+  die(_('Clock is unsynchronized, free-running clock'));
 }
 
 if ($_POST['docker']) {
@@ -48,12 +51,13 @@ if ($_POST['docker']) {
     $template = $info['template'];
     $shell = $info['shell'];
     $webGui = html_entity_decode($info['url']);
+    $TSwebGui = html_entity_decode($info['TSurl']);
     $support = html_entity_decode($info['Support']);
     $project = html_entity_decode($info['Project']);
     $registry = html_entity_decode($info['registry']);
     $donateLink = html_entity_decode($info['DonateLink']);
     $readme = html_entity_decode($info['ReadMe']);
-    $menu = sprintf("onclick=\"addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry), addslashes($donateLink), addslashes($readme));
+    $menu = sprintf("onclick=\"addDockerContainerContext('%s','%s','%s',%s,%s,%s,%s,'%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($name), addslashes($ct['ImageId']), addslashes($template), $running, $paused, $updateStatus, $is_autostart, addslashes($webGui), addslashes($TSwebGui), $shell, $id, addslashes($support), addslashes($project), addslashes($registry), addslashes($donateLink), addslashes($readme));
     $shape = $running ? ($paused ? 'pause' : 'play') : 'square';
     $status = $running ? ($paused ? 'paused' : 'started') : 'stopped';
     $color = $status=='started' ? 'green-text' : ($status=='paused' ? 'orange-text' : 'red-text');
@@ -96,7 +100,8 @@ if ($_POST['vms']) {
     if ($vmrcport > 0) {
       $wsport = $lv->domain_get_ws_port($res);
       $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
-      $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
+      if ($vmrcprotocol == "vnc") $vmrcscale = "&resize=scale"; else $vmrcscale = "";
+      $vmrcurl = autov('/plugins/dynamix.vm.manager/'.$vmrcprotocol.'.html',true).$vmrcscale.'&autoconnect=true&host=' . $_SERVER['HTTP_HOST'] ;
       if ($vmrcprotocol == "spice") $vmrcurl .= '&vmname='. urlencode($vm) . '&port=/wsproxy/'.$vmrcport.'/' ; else $vmrcurl .= '&port=&path=/wsproxy/' . $wsport . '/';
     } elseif ($vmrcport == -1 || $autoport) {
       $vmrcprotocol = $lv->domain_get_vmrc_protocol($res) ;
@@ -121,7 +126,7 @@ if ($_POST['vms']) {
     if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web" ; else $vmrcconsole = $domain_cfg["CONSOLE"] ;
     if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no" ; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"] ;
     $WebUI = html_entity_decode($arrConfig["template"]["webui"]);
-    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", htmlentities($vm,ENT_QUOTES), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), htmlentities($log,ENT_QUOTES),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
@@ -162,12 +167,10 @@ if ($_POST['vms']) {
 
   echo "\0";
   echo "<tr title='' class='useupdated'><td>";
-  if ($vmusage == "Y") {
-    foreach ($vmusagehtml as $vmhtml) {
-      echo $vmhtml;
-     }
-    if (!count($vmusagehtml))  echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
-    if ($running < 1 && count($vmusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
+  if ($vmusage=='Y') {
+    foreach ($vmusagehtml as $vmhtml) echo $vmhtml;
+    if (!count($vmusagehtml)) echo "<span id='no_usagevms'><br> "._('No running virtual machines')."<br></span>";
+    if ($running<1 && count($vmusagehtml)) echo "<span id='no_usagevms'><br>". _('No running virtual machines')."<br></span>";
     echo "</td></tr>";
   }
 }

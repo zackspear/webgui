@@ -17,7 +17,6 @@ nfs_version() {
 
 nfs_count() {
         echo $RPC_NFSD_COUNT
-}
 
 # Path to the configuration files
 CONFIG_ROM="/etc/default/nfs"

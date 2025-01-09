@@ -19,7 +19,7 @@ Tag="linux"
 <?
 /* Get the current nfs server version and threads count. */
 $rpc_nfsd_vers	= trim(exec( "plugins/dynamix/scripts/nfsSettings nfs_version" ));
-$rpc_nfsd_count	= trim(exec( "plugins/dynamix/scripts/nfsSettings nfs_count" ));
+$rpc_nfsd_count	= trim(exec( "plugins/dynamix/scripts/nfsSettings nfs_count" ))
 ?>
 
 <script>
