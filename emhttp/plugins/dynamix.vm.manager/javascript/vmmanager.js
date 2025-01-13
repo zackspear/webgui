@@ -180,6 +180,7 @@ function addVMContext(name, uuid, template, state, vmrcurl, vmrcprotocol, log, c
       }});
     }
   }
+  context.destroy('#vm-'+uuid);
   context.attach('#vm-'+uuid, opts);
 }
 function startAll() {
