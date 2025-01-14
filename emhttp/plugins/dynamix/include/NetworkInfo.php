@@ -44,7 +44,7 @@ if ($v6on) {
 
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
-echo "<tr><td>"._('Link detected').":</td><td>$link</td></tr>";
+echo "<tr><td>"._('Interface detected').":</td><td>$link</td></tr>";
 echo "<tr><td>"._('Interface speed').":</td><td>$speed</td></tr>";
 echo "<tr><td>"._('IPv4 address').":</td><td>$ipv4</td></tr>";
 echo "<tr><td>"._('IPv4 default gateway').":</td><td>$gw4</td></tr>";
