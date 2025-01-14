@@ -233,8 +233,8 @@ function selectProtocol(form,index,step) {
       more4.hide();
       more6.hide();
 <?else:?>
-      if ($(form).find('select[name="USE_DHCP:'+i+'"]').val()!='yes') more4.show(); else more4.hide();
-      if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()!='yes') more6.show(); else more6.hide();
+      if ($(form).find('select[name="USE_DHCP:'+i+'"]').val()=='no') more4.show(); else more4.hide();
+      if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()=='no') more6.show(); else more6.hide();
 <?endif;?>
       checkNetworkSettings(form,i);
     });
@@ -249,8 +249,8 @@ function selectProtocol(form,index,step) {
       case 'ipv6': net4.hide(step); net6.show(step); if (port=='eth0') {$('#dns4').hide(step); $('#dns6').show(step);} break;
       case 'ipv4+ipv6': net4.show(step); net6.show(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').show(step);} break;
     }
-    if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()!='yes') more4.show(step); else more4.hide(step);
-    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()!='yes') more6.show(step); else more6.hide(step);
+    if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()=='no') more4.show(step); else more4.hide(step);
+    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()=='no') more6.show(step); else more6.hide(step);
     checkNetworkSettings(form,index);
   }
 }
