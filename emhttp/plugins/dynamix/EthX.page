@@ -256,6 +256,7 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?> hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:$i"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($ethX,"VLANID:$i")?>)">
 
 :eth_interface_description_help:
 

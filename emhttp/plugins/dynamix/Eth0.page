@@ -430,8 +430,8 @@ $(function() {
   });});
 });
 
-function networkInfo(port) {
-  $.post('/webGui/include/NetworkInfo.php',{port:port},function(text) {
+function networkInfo(port,vlan) {
+  $.post('/webGui/include/NetworkInfo.php',{port:port,vlan:vlan},function(text) {
     swal({title:"_(Network Info)_",text:text,animation:'none',html:true,confirmButtonText:"_(Ok)_"});
   });
 }
@@ -682,6 +682,7 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>">
+  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0,"VLANID:$i")?>)">
 
 :eth_interface_description_help:
 
