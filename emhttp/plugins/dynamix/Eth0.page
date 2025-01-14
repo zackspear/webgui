@@ -168,7 +168,7 @@ function prepareSettings(form) {
   }
   $(form).find('select[name^="PROTOCOL:"]').each(function() {
     var protocol = $(this).val() || 'ipv4';
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     if (protocol == 'ipv6') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
       $(form).find('select[name="NETMASK:'+i+'"]').prop('disabled',false).val('');
@@ -184,7 +184,7 @@ function prepareSettings(form) {
     }
   });
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
     if (protocol != 'ipv6' && $(this).val()=='yes') {
@@ -193,7 +193,7 @@ function prepareSettings(form) {
     }
   });
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
-    var i = $(this).attr('name').split(':')[1];
+    var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
     if (protocol != 'ipv4' && $(this).val()=='yes') {
@@ -240,12 +240,12 @@ function selectProtocol(form,index,step) {
     var more4 = $('.'+'more-ipv4-'+port+'-'+index);
     var more6 = $('.'+'more-ipv6-'+port+'-'+index);
     switch (protocol) {
-      case 'ipv4': net4.show(step); net6.hide(step); $('#dns4').show(step); $('#dns6').hide(step); break;
-      case 'ipv6': net4.hide(step); net6.show(step); $('#dns4').hide(step); $('#dns6').show(step); break;
-      case 'ipv4+ipv6': net4.show(step); net6.show(step); $('#dns4').show(step); $('#dns6').show(step); break;
+      case 'ipv4': net4.show(step); net6.hide(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').hide(step);} break;
+      case 'ipv6': net4.hide(step); net6.show(step); if (port=='eth0') {$('#dns4').hide(step); $('#dns6').show(step);} break;
+      case 'ipv4+ipv6': net4.show(step); net6.show(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').show(step);} break;
     }
-    if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()=='no') more4.show(step); else more4.hide(step);
-    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()=='no') more6.show(step); else more6.hide(step);
+    if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()) more4.show(step); else more4.hide(step);
+    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()) more6.show(step); else more6.hide(step);
     checkNetworkSettings(form,index);
   }
 }
@@ -355,11 +355,11 @@ function addVLAN(port) {
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
   var element = $('[id^="index-'+port+'-"]').last();
   $(element).after(template);
-  $('form[name="'+$(element).parent().attr('name')+'"]').find('select').first().trigger('change');
+  $('form[name="'+$(element).parent().parent().prop('name')+'"]').find('select').first().trigger('change');
 }
 
 function removeVLAN(element) {
-  var id = $(element).attr('id').split('-');
+  var id = $(element).prop('id').split('-');
   $(element).remove();
   $('#view-'+id[1]).find('select').first().trigger('change');
 }
@@ -677,7 +677,7 @@ _(Enable VLANs)_:
 :eth_enable_vlans_help:
 
 <div id="index-eth0-0"></div>
-<div markdown="1" id="vlan-list-eth0" class="hide">
+<div id="vlan-list-eth0" class="hide">
 <?foreach ($vlan_eth0 as $i):?>
 <div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
 _(Interface description)_:
@@ -705,9 +705,7 @@ _(IPv4 address assignment)_:
 : <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'no', _('Static'))?>
-<?if ($i>0):?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), '', _('None'))?>
-<?endif;?>
   </select>
 
 :eth_ipv4_address_assignment_help:
@@ -804,7 +802,7 @@ _(Network protocol)_:
   <?=mk_option(_var($eth0,"PROTOCOL:INDEX"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
   </select>
 
-<div markdown="1" class="ipv4-eth0-INDEX hide">
+<div markdown="1" class="ipv4-eth0-INDEX">
 _(IPv4 address assignment)_:
 : <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), 'yes', _('Automatic'))?>

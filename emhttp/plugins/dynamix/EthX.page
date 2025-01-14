@@ -251,7 +251,7 @@ _(Enable VLANs)_:
 
 </div>
 <div id='index-ethX-0'></div>
-<div markdown="1" id="vlan-list-ethX" class="hide">
+<div id="vlan-list-ethX" class="hide">
 <?foreach ($vlan_ethX as $i):?>
 <div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?> hide">
 _(Interface description)_:
@@ -375,7 +375,7 @@ _(Network protocol)_:
   <?=mk_option(_var($ethX,"PROTOCOL:INDEX"), 'ipv4+ipv6', _('IPv4 + IPv6'))?>
   </select>
 
-<div markdown="1" class="ipv4-ethX-INDEX hide">
+<div markdown="1" class="ipv4-ethX-INDEX">
 _(IPv4 address assignment)_:
 : <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), 'yes', _('Automatic'))?>
