@@ -29,7 +29,7 @@ $v6on   = @file_get_contents("/proc/sys/net/ipv6/conf/$port/disable_ipv6")!=1;
 $none   = _('None');
 $error  = "<span class='red-text'>"._('Missing')."</span>";
 $note   = $eth=='eth0' && !$vlan ? $error : $none;
-$link   = _(ucfirst(exec("ethtool $eth | awk '$1==\"Link\" {print $3;exit}'")))." (".exec("ethtool $eth | grep -Pom1 '^\s+Port: \K.*'").")";
+$link   = _(ucfirst(exec("ethtool $eth | awk '$1==\"Link\" {print $3;exit}'")))." ("._(exec("ethtool $eth | grep -Pom1 '^\s+Port: \K.*'")).")";
 $speed  = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool $eth | awk '$1==\"Speed:\" {print $2;exit}'")));
 $ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show scope global $port | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
 $gw4    = exec("ip -4 route show default dev $port | awk '{print \$3;exit}'") ?: $note;
