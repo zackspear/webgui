@@ -59,7 +59,7 @@ $(function(){
 });
 </script>
 
-<div class="title nocontrol shift"><span class="left"><i class="title icon-custom"></i>_(Interface Extra)_</span></div>
+<div class="title nocontrol shift">&nbsp;</div>
 <form markdown="1" name="network_extra" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareText(this)">
 <input type="hidden" name="#file" value="<?=$cfg?>">
 <input type="hidden" name="#command" value="/webGui/scripts/reload_services">

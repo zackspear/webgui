@@ -141,7 +141,7 @@ function prepareSettings(form) {
   $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
   $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
   if (metrics.same() || metrics6.same()) {
-    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',type:'error',html:true,confirmButtonText:"_(Ok)_"});
+    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',animation:'none',type:'error',html:true,confirmButtonText:"_(Ok)_"});
     return false;
   }
   if (form.TYPE.value == 'access') {
@@ -162,7 +162,7 @@ function prepareSettings(form) {
     var vlans = [];
     $(form).find('input[name^="VLANID:"]').each(function(){vlans.push($(this).val());});
     if (vlans.same()) {
-      swal({title:"_(VLAN assignment mismatch)_",text:"_(List of VLANs contains duplicate VLAN numbers)_",type:'error',html:true,confirmButtonText:"_(Ok)_"});
+      swal({title:"_(VLAN assignment mismatch)_",text:"_(List of VLANs contains duplicate VLAN numbers)_",animation:'none',type:'error',html:true,confirmButtonText:"_(Ok)_"});
       return false;
     }
   }
@@ -432,13 +432,12 @@ $(function() {
 
 function networkInfo(port) {
   $.post('/webGui/include/NetworkInfo.php',{port:port},function(text) {
-    swal({title:"_(Network Info)_", text:text, html:true, confirmButtonText:"_(Ok)_"});
+    swal({title:"_(Network Info)_",text:text,animation:'none',html:true,confirmButtonText:"_(Ok)_"});
   });
 }
 </script>
 
-<div class="title nocontrol shift"><span class="left"><i class="title icon-ethernet"></i>_(Interface)_ eth0</span></div>
-
+<div class="title nocontrol shift">&nbsp;</div>
 <div class="shade-<?=$display['theme']?> uplift">
 <form name="dns_settings" onchange="signalRun(this,1)">
 <div markdown="1" id="dns4" class="hide">
@@ -509,14 +508,14 @@ _(IPv6 DNS server)_ 3:
 <input type="hidden" name="BRNAME" value="br0">
 <input type="hidden" name="BRSTP" value="no">
 <input type="hidden" name="BRFD" value="0">
-<input type="hidden" name="DHCP_KEEPRESOLV" value="<?=_var($eth0,'DHCP_KEEPRESOLV')?>">
-<input type="hidden" name="DNS_SERVER1" value="<?=_var($eth0,'DNS_SERVER1')?>">
-<input type="hidden" name="DNS_SERVER2" value="<?=_var($eth0,'DNS_SERVER2')?>">
-<input type="hidden" name="DNS_SERVER3" value="<?=_var($eth0,'DNS_SERVER3')?>">
-<input type="hidden" name="DHCP6_KEEPRESOLV" value="<?=_var($eth0,'DHCP6_KEEPRESOLV')?>">
-<input type="hidden" name="DNS6_SERVER1" value="<?=_var($eth0,'DNS6_SERVER1')?>">
-<input type="hidden" name="DNS6_SERVER2" value="<?=_var($eth0,'DNS6_SERVER2')?>">
-<input type="hidden" name="DNS6_SERVER3" value="<?=_var($eth0,'DNS6_SERVER3')?>">
+<input type="hidden" name="DHCP_KEEPRESOLV" value="">
+<input type="hidden" name="DNS_SERVER1" value="">
+<input type="hidden" name="DNS_SERVER2" value="">
+<input type="hidden" name="DNS_SERVER3" value="">
+<input type="hidden" name="DHCP6_KEEPRESOLV" value="">
+<input type="hidden" name="DNS6_SERVER1" value="">
+<input type="hidden" name="DNS6_SERVER2" value="">
+<input type="hidden" name="DNS6_SERVER3" value="">
 
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:0" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:0"))?>">

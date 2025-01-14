@@ -52,7 +52,7 @@ $(function(){
   routeTable();
 });
 </script>
-<div class="title nocontrol shift"><span class="left"><i class="title fa fa-cog"></i>_(Routing Table)_</span></div>
+<div class="title nocontrol shift">&nbsp;</div>
 <table class="unraid">
 <thead><tr><td>_(Protocol)_</td><td>_(Route)_</td><td>_(Gateway)_</td><td>_(Metric)_</td><td style="width:8%;text-align:center">_(Delete)_</td></tr></thead>
 <tbody id="route_list"></tbody>
