@@ -360,7 +360,7 @@
 				$metadata .= "</metadata>";
 			}
 
-			$vcpus = 1;
+			$vcpus = $domain['vcpus'];
 			$vcpupinstr = '';
 
 			if (!empty($domain['vcpu']) && is_array($domain['vcpu'])) {
