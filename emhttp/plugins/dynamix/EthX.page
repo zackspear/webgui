@@ -225,6 +225,8 @@ _(IPv6 default gateway)_:
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-ethX-0 hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:0">
   <?=mk_option(_var($ethX,"PRIVACY6:0"), "0", _("Disabled"))?>

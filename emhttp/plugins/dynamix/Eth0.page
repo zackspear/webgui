@@ -224,6 +224,7 @@ function selectProtocol(form,index,step) {
       var net6 = $('.'+'ipv6-'+port+'-'+i);
       var more4 = $('.'+'more-ipv4-'+port+'-'+i);
       var more6 = $('.'+'more-ipv6-'+port+'-'+i);
+      var priv6 = $('.'+'priv-ipv6-'+port+'-'+i);
       switch (protocol) {
         case 'ipv4': net4.show(); net6.hide(); break;
         case 'ipv6': net4.hide(); net6.show(); break;
@@ -232,9 +233,10 @@ function selectProtocol(form,index,step) {
 <?if ($service):?>
       more4.hide();
       more6.hide();
+      priv6.hide();
 <?else:?>
       if ($(form).find('select[name="USE_DHCP:'+i+'"]').val()=='no') more4.show(); else more4.hide();
-      if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()=='no') more6.show(); else more6.hide();
+      if ($(form).find('select[name="USE_DHCP6:'+i+'"]').val()=='no') {more6.show(); priv6.hide();} else {more6.hide(); priv6.show();}
 <?endif;?>
       checkNetworkSettings(form,i);
     });
@@ -244,13 +246,14 @@ function selectProtocol(form,index,step) {
     var net6 = $('.'+'ipv6-'+port+'-'+index);
     var more4 = $('.'+'more-ipv4-'+port+'-'+index);
     var more6 = $('.'+'more-ipv6-'+port+'-'+index);
+    var priv6 = $('.'+'priv-ipv6-'+port+'-'+index);
     switch (protocol) {
       case 'ipv4': net4.show(step); net6.hide(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').hide(step);} break;
       case 'ipv6': net4.hide(step); net6.show(step); if (port=='eth0') {$('#dns4').hide(step); $('#dns6').show(step);} break;
       case 'ipv4+ipv6': net4.show(step); net6.show(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').show(step);} break;
     }
     if ($(form).find('select[name="USE_DHCP:'+index+'"]').val()=='no') more4.show(step); else more4.hide(step);
-    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()=='no') more6.show(step); else more6.hide(step);
+    if ($(form).find('select[name="USE_DHCP6:'+index+'"]').val()=='no') {more6.show(step); priv6.hide(step);} else {more6.hide(step); priv6.show(step);}
     checkNetworkSettings(form,index);
   }
 }
@@ -657,6 +660,8 @@ _(IPv6 default gateway)_:
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-0 hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:0">
   <?=mk_option(_var($eth0,"PRIVACY6:0"), "0", _("Disabled"))?>
