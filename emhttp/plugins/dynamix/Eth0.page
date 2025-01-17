@@ -776,6 +776,8 @@ _(IPv6 default gateway)_:
 
 :eth_ipv6_default_gateway_help:
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-<?=$i?> hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:<?=$i?>">
   <?=mk_option(_var($eth0,"PRIVACY6:$i"), "0", _("Disabled"))?>
@@ -864,6 +866,8 @@ _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
   <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
 
+</div>
+<div markdown="1" class="priv-ipv6-eth0-INDEX hide">
 _(IPv6 privacy extensions)_:
 : <select name="PRIVACY6:INDEX">
   <?=mk_option(_var($eth0,'PRIVACY6:INDEX'), "0", _("Disabled"))?>
