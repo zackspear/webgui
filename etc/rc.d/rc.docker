@@ -314,7 +314,7 @@ docker_network_start(){
       fi
       # add auto defined networks
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
-      IPV4=$(ip -4 -br addr show $NETWORK | awk '{print $3;exit}')
+      IPV4=$(ip -4 -br addr show $NETWORK scope global | awk '{print $3;exit}')
       if [[ -n $IPV4 ]]; then
         SUBNET=$(ip -4 route show $IPV4 dev $NETWORK | awk '{print $1;exit}')
         SERVER=${IPV4%/*}
