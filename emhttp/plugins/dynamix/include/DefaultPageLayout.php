@@ -1035,10 +1035,9 @@ nchan_vmaction.on('message', function(data) {
   box.scrollTop(box[0].scrollHeight);
 });
 
-const scrollOffset = 250;
 const scrollDuration = 500;
 $(window).scroll(function() {
-  if ($(this).scrollTop() > scrollOffset) {
+  if ($(this).scrollTop() > 0) {
     $('.back_to_top').fadeIn(scrollDuration);
   } else {
     $('.back_to_top').fadeOut(scrollDuration);
