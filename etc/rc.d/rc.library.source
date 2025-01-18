@@ -159,7 +159,7 @@ check(){
       fi
       [[ $(ipv $ADDR) == 4 ]] && IPV4=yes || IPV6=yes
     done
-  done <<< $(ip -br addr show scope global -temporary | awk '$1~"^(br|bond|eth|wg)[0-9]+(.[0-9]+)?" && $3!="" {gsub("@.+","",$1);$2="";print}' | sed -r 's/ metric [0-9]+//g' | sort)
+  done <<< $(ip -br addr show scope global -temporary -deprecated | awk '$1~"^(br|bond|eth|wg)[0-9]+(.[0-9]+)?" && $3!="" {gsub("@.+","",$1);$2="";print}' | sed -r 's/ metric [0-9]+//g' | sort)
   # add loopback interface
   if [[ "smb nfs" =~ "$CALLER" ]]; then
     [[ $IPV4 == yes ]] && BIND+=(127.0.0.1)
