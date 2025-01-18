@@ -10,7 +10,7 @@
 # VMs, bare metal, OpenStack clusters, public clouds and more.
 #
 # LimeTech - modified for Unraid OS
-# Bergware - modified for Unraid OS, October 2023
+# Bergware - modified for Unraid OS, January 2025
 
 DAEMON="Docker daemon"
 UNSHARE="/usr/bin/unshare"
@@ -314,7 +314,7 @@ docker_network_start(){
       fi
       # add auto defined networks
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
-      IPV4=$(ip -br -4 addr show $NETWORK | awk '{print $3;exit}')
+      IPV4=$(ip -4 -br addr show $NETWORK | awk '{print $3;exit}')
       if [[ -n $IPV4 ]]; then
         SUBNET=$(ip -4 route show $IPV4 dev $NETWORK | awk '{print $1;exit}')
         SERVER=${IPV4%/*}
@@ -324,8 +324,8 @@ docker_network_start(){
         GATEWAY=$(ip -4 route show default dev $NETWORK | awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=; RANGE6=;
-      IPV6=$(ip -br -6 addr show $NETWORK scope global mngtmpaddr|awk '{print $3;exit}')
-      [[ -z $IPV6 ]] && IPV6=$(ip -br -6 addr show $NETWORK scope global permanent|awk '{print $3;exit}')
+      IPV6=$(ip -6 -br addr show $NETWORK scope global nodad | awk '{print $3;exit}')
+      [[ -z $IPV6 ]] && IPV6=$(ip -6 -br addr show $NETWORK scope global dynamic | awk '{print $3;exit}')
       if [[ -n $IPV6 ]]; then
         # get IPV6 subnet, preset to /64 if single host address is given
         [[ ${IPV6#*/} == 128 ]] && SUBNET6=$(echo $IPV6 | sed -r 's/^([^:]+):([^:]+):([^:]+):([^:]+).*$/\1:\2:\3:\4::\/64/') || SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK | awk '{print $1;exit}')
