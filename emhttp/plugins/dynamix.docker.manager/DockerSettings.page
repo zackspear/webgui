@@ -52,7 +52,7 @@ $include = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $p
 $wide = false;
 foreach ($custom as $network) {
   if (in_array($network,$slaves)) continue;
-  $ip4    = exec("ip -4 -br addr show $network | awk '{print $3;exit}'");
+  $ip4    = exec("ip -4 -br addr show $network scope global | awk '{print $3;exit}'");
   $ip6    = exec("ip -6 -br addr show $network scope global -temporary -deprecated | awk '{print $3;exit}'");
   $gw4    = $ip4 ? exec("ip -4 route show dev $network default | awk '{print $3;exit}'") : '';
   $gw6    = $ip6 ? exec("ip -6 route show dev $network default | awk '{print $3;exit}'") : '';
