@@ -1135,7 +1135,7 @@ $(function() {
     });
   }
   $('form').append($('<input>').attr({type:'hidden', name:'csrf_token', value:csrf_token}));
-  setTimeout(function(){if ($(document).height() > $(window).height()) $('.move_to_end').fadeIn(scrollDuration);},2000);
+  setInterval(function(){if ($(document).height() > $(window).height()) $('.move_to_end').fadeIn(scrollDuration);},250);
 });
 
 var gui_pages_available = [];
