@@ -22,8 +22,8 @@ if (!empty($name) && !array_key_exists($name, $shares)) {
 $width = [123,300];
 
 if ($name == "") {
-  /* default values when adding new share. */
-  $share = [
+	/* default values when adding new share. */
+	$share = [
 		"nameOrig"		=> "",
 		"name"			=> "",
 		"comment"		=> "",
