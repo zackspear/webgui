@@ -1335,7 +1335,7 @@ _(Tailscale WebUI)_:
 
 <div markdown="1" class="TSroutes noshow">
 _(Tailscale Advertise Routes)_:
-: <input type="text" pattern="[0-9:., ]*" name="TSroutes" <?php if (!empty($xml['TailscaleRoutes'])) echo 'value="' . $xml['TailscaleRoutes'] . '"'?> placeholder="_(Leave empty if unsure)_">
+: <input type="text" pattern="[0-9:., \/]*" name="TSroutes" <?php if (!empty($xml['TailscaleRoutes'])) echo 'value="' . $xml['TailscaleRoutes'] . '"'?> placeholder="_(Leave empty if unsure)_">
 
 :docker_tailscale_advertise_routes_help:
 
