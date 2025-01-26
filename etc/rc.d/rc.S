@@ -130,11 +130,10 @@ bzcheck(){
 }
 
 bzmount(){
-  local BZFILE=$1
-  local MNTDIR=$2
-  bzcheck $BZFILE
-  /bin/mkdir -p /$MNTDIR
-  /sbin/mount -v -r -t squashfs /boot/$BZFILE /$MNTDIR || abort "cannot mount $BZFILE"
+  local BZDIR=$1
+  local BZFILE=$2
+  local MNTDIR=$3
+  /sbin/mount -v -r -t squashfs /$BZDIR/$BZFILE /$MNTDIR || abort "cannot mount /$BZDIR/$BZFILE"
   # setup an overlayfs
   /bin/mkdir -p /var/local/overlay/$MNTDIR
   /bin/mkdir -p /var/local/overlay-work/$MNTDIR
@@ -145,9 +144,15 @@ if [[ $UNRAIDROOT == "" ]]; then
   bzcheck "bzimage"
   bzcheck "bzroot"
   bzcheck "bzroot-gui"
-
-  bzmount "bzmodules" "lib"
-  bzmount "bzfirmware" "usr"
+  bzcheck "bzmodules"
+  bzcheck "bzfirmware"
+  if [[ -f /boot/config/fastusr ]]; then
+    /bin/cp /boot/bzfirmware /usr
+    bzmount "usr" "bzfirmware" "usr"
+  else
+    bzmount "boot" "bzfirmware" "usr"
+  fi
+  bzmount "boot" "bzmodules" "lib"
 
   # now that /usr is mounted make /etc/rc.d a symlink
   /bin/rm -rf /etc/rc.d

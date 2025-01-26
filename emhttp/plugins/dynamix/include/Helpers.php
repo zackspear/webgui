@@ -288,13 +288,6 @@ function transpose_user_path($path) {
   }
   return $path;
 }
-// custom parse_ini_file/string functions to deal with '#' comment lines
-function my_parse_ini_string($text, $sections=false, $scanner=INI_SCANNER_NORMAL) {
-  return parse_ini_string(preg_replace('/^#/m',';',$text),$sections,$scanner);
-}
-function my_parse_ini_file($file, $sections=false, $scanner=INI_SCANNER_NORMAL) {
-  return my_parse_ini_string(file_get_contents($file),$sections,$scanner);
-}
 function cpu_list() {
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
   return $cpus;
@@ -416,5 +409,11 @@ function write_logging($value) {
   $debug = is_file("/tmp/my_mkdir_debug");
   if (!$debug) return;
   file_put_contents('/tmp/my_mkdir_output', $value, FILE_APPEND);
+}
+
+function device_exists($name)
+{
+  global $disks,$devs;
+  return (array_key_exists($name, $disks) && !str_contains(_var($disks[$name],'status'),'_NP')) || (array_key_exists($name, $devs));
 }
 ?>

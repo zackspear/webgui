@@ -307,11 +307,9 @@ function xmlSecurity(&$template) {
       xmlSecurity($element);
     } else {
       if (is_string($element)) {
-        $tempElement = htmlspecialchars_decode($element);
-        $tempElement = str_replace("[","<",$tempElement);
-        $tempElement = str_replace("]",">",$tempElement);
-        if (preg_match('#<script(.*?)>(.*?)</script>#is',$tempElement) || preg_match('#<iframe(.*?)>(.*?)</iframe>#is',$tempElement) || (stripos($tempElement,"<link") !== false) ) {
-          $element = "REMOVED";
+        $tempElement = htmlspecialchars_decode($element??"");
+        if ( trim(strip_tags($tempElement)) !== trim($tempElement) ) {
+          $element = str_replace(["<",">"],["",""],$tempElement);
         }
       }
     }
@@ -408,8 +406,14 @@ function xmlToCommand($xml, $create_paths=false) {
     $TS_routes = !empty($xml['TailscaleRoutes']) ? '-e TAILSCALE_ADVERTISE_ROUTES=' . escapeshellarg($xml['TailscaleRoutes']) : '';
     $TS_accept_routes = !empty($xml['TailscaleAcceptRoutes']) && $xml['TailscaleAcceptRoutes'] === 'true' ? '-e TAILSCALE_ACCEPT_ROUTES=true' : '';
     if (!empty($xml['PostArgs'])) {
-      $TS_postargs = '-e ORG_POSTARGS=' . escapeshellarg($xml['PostArgs']);
-      $xml['PostArgs'] = '';
+      $split_PostArgs = strpos($xml['PostArgs'], ';');
+      if ($split_PostArgs !== false) {
+        $TS_postargs = !empty(substr($xml['PostArgs'], 0, $split_PostArgs)) ? '-e ORG_POSTARGS=' . escapeshellarg(substr($xml['PostArgs'], 0, $split_PostArgs)) : '';
+        $xml['PostArgs'] = ';' . substr($xml['PostArgs'], $split_PostArgs + 1);
+      } else {
+        $TS_postargs = '-e ORG_POSTARGS=' . escapeshellarg($xml['PostArgs']);
+        $xml['PostArgs'] = '';
+      }
     }
   }
 

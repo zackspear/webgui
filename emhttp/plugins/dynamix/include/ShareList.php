@@ -187,7 +187,17 @@ define('LUKS_STATUS_UNENCRYPTED', 2);
 
 // Build table
 $row = 0;
+
+/* Get the first pool if needed. */
+$firstPool = $pools_check[0] ?? "";
 foreach ($shares as $name => $share) {
+	/* Correct a situation in previous Unraid versions where an array only share has a useCache defined. */
+	if ((!$poolsOnly) && ($share['useCache'] == "no")) {
+		$share['cachePool'] = "";
+	} else if (($poolsOnly) && (!$share['cachePool'])) {
+		$share['cachePool']	= $firstPool;
+	}
+
 	/* Is cachePool2 defined? If it is we need to show the cache pool 2 device name instead of 'Array'. */
 	if ($share['cachePool2']) {
 		$array		= compress(my_disk($share['cachePool2'],$display['raw']));
@@ -214,8 +224,8 @@ foreach ($shares as $name => $share) {
 		$share_valid	= true;
 	}
 
-	/* When there is no array, all pools are treated as 'only' cache. If useCache is "no" with an array, this is invalid and useCache has to be 'only'. */
-	if ((($poolsOnly) && (! $share['cachePool2'])) || ((! $poolsOnly) && ($share['cachePool']) && ($share['useCache'] == "no"))) {
+	/* When there is no array, all pools are treated as 'only' cache. */
+	if (($poolsOnly) && (! $share['cachePool2'])) {
 		$share['useCache'] = 'only';
 	}
 
@@ -261,10 +271,10 @@ foreach ($shares as $name => $share) {
 		}
 	}
 
-	echo "<tr><td><a class='view' href=\"/$path/Browse?dir=/mnt/user/", rawurlencode($name), "\"><i class=\"icon-u-tab\" title=\"", _('Browse'), " /mnt/user/" . rawurlencode($name), "\"></i></a>";
+	echo "<tr><td><a class='view' href=\"/$path/Browse?dir=/mnt/user/", htmlspecialchars($name), "\"><i class=\"icon-u-tab\" title=\"", _('Browse'), " /mnt/user/" . htmlspecialchars($name), "\"></i></a>";
 	echo "<a class='info nohand' onclick='return false'><i class='fa fa-$orb orb $color-orb'></i><span style='left:18px'>$help</span></a>$luks<a href=\"/$path/Share?name=";
 	echo rawurlencode($name), "\" onclick=\"$.cookie('one','tab1')\">$name</a></td>";
-	echo "<td>{$share['comment']}</td>";
+        echo "<td>", htmlspecialchars(_var($share,'comment')), "</td>";
 	echo "<td>", user_share_settings($var['shareSMBEnabled'], $sec[$name]), "</td>";
 	echo "<td>", user_share_settings($var['shareNFSEnabled'], $sec_nfs[$name]), "</td>";
 
