@@ -28,7 +28,7 @@ if (file_exists($cfg)) {
 ?>
 <script>
 function prepareText(form) {
-  var mgmt = ['br0','bond0','eth0'];
+  var mgmt = ['br0','bond0','eth0','wlan0'];
   form.include_interfaces.value = form.include.value.replace(/[\n,]/g,' ').replace(/  +/g,' ').trim();
   form.exclude_interfaces.value = form.exclude.value.replace(/[\n,]/g,' ').replace(/  +/g,' ').trim();
   form.include.disabled = true;
