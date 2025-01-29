@@ -125,7 +125,7 @@ function presetSpace($val) {
 	} else if (!empty($fsSize)) {
 		$fsSize[''] = $fsSize[$pool];
 	} else {
-		$fsSize['']	= "0";
+		$fsSize[''] = 0;
 	}
 
 	/* Get the cache pool size */
@@ -265,7 +265,7 @@ function fsFree() {
 		$fsFree[''] = min(array_filter($fsFree));
 	} else {
 		/* The minimum free space cannot be determined from the array or pools so it is set to zero */
-		$fsFree['']	= "0";
+		$fsFree[''] = 0;
 	}
 
 	/* Return the free filesystem space as a JSON encoded string */
