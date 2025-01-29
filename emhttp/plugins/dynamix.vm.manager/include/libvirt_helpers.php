@@ -1453,7 +1453,6 @@ private static $encoding = 'UTF-8';
 				'maxmem' => $lv->domain_get_memory($res),
 				'password' => '', //TODO?
 				'cpumode' => $lv->domain_get_cpu_type($res),
-				'cpucustom' => $lv->domain_get_cpu_custom($res),
 				'cpumigrate' => $lv->domain_get_cpu_migrate($res),
 				'vcpus' => $dom['nrVirtCpu'],
 				'vcpu' => $lv->domain_get_vcpu_pins($res),

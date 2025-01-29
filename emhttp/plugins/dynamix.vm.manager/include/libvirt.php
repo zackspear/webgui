@@ -428,15 +428,8 @@
 			}
 			#<cpu mode='custom' match='exact' check='partial'>
 			#<model fallback='allow'>Skylake-Client-noTSX-IBRS</model>
-			if (!empty($domain['cpumode']) && $domain['cpumode'] == 'custom') {
-				if (!empty($domain['cpucustom']['match'])) $cpumatch = " match='".$domain['cpucustom']['match'].'"';
-				if (!empty($domain['cpucustom']['check'])) $cpucheck = " check='".$domain['cpucustom']['check'].'"';
-				if (!empty($domain['cpucustom']['fallback'])) $cpufallback = " fallback='".$domain['cpucustom']['fallback'].'"';
-				if (!empty($domain['cpucustom']['model'])) $cpucustom = "<model $cpufallback>".$domain['cpucustom']['model']."</model>";
-			}
 
-			$cpustr = "<cpu $cpumode $cpumigrate $cpumatch $cpucheck>
-							$cpucustom
+			$cpustr = "<cpu $cpumode $cpumigrate>
 							<topology sockets='1' cores='{$intCores}' threads='{$intThreads}'/>
 							$cpucache
 							$cpufeatures
