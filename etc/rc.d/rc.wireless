@@ -1,0 +1,263 @@
+#!/bin/bash
+#
+# script: rc.wireless
+#
+# This script is used to bring up the wireless network interface.
+#
+# Bergware - created for Unraid OS, January 2025
+
+DAEMON="WiFi network"
+CALLER="wifi"
+INI="/var/local/emhttp/wireless.ini"
+CFG="/boot/config/wireless.cfg"
+SSL="/usr/local/emhttp/webGui/include/OpenSSL.php"
+STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
+WPA="/etc/wpa_supplicant.conf"
+
+# system network references
+SYSTEM=/sys/class/net
+CONF6=/proc/sys/net/ipv6/conf
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+# library functions
+. /etc/rc.d/rc.library.source
+
+# get settings
+[[ -r $INI ]] && . $INI
+PORT=${PORT:-wlan0}
+
+# function to get openSSL settings
+get(){
+  local KEY=$1
+  [[ -r $SSL ]] && awk "\$1==\"\$$KEY\" {print \$3}" $SSL | sed -r "s/[';]//g"
+}
+
+# function to convert text to hex
+hex(){
+  echo -n $(get $1) | od -An -tx1 | tr -d ' \n'
+}
+
+# function to wait for carrier of interface
+carrier_up(){
+  local n
+  for n in {1..10}; do
+    [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
+  done
+  return 1
+}
+
+# function to enable/disable ipv6 protocol per interface
+ipv6_up(){
+  [[ -d $CONF6/${PORT/$1/$2} ]] && echo $4 >$CONF6/${PORT/$1/$2}/disable_ipv6
+  [[ -d $CONF6/${PORT/$1/$3} ]] && echo $4 >$CONF6/${PORT/$1/$3}/disable_ipv6
+}
+
+# function to enable/disable ipv6 assignment per interface
+ipv6_addr(){
+  if [[ -d $CONF6/$1 ]]; then
+    echo $2 >$CONF6/$1/accept_ra
+    echo $2 >$CONF6/$1/accept_ra_defrtr
+    echo $3 >$CONF6/$1/autoconf
+  fi
+}
+
+# function to assign IP address
+ipaddr_up(){
+  if [[ $DHCP == yes ]]; then
+    # bring up interface using DHCP/SLAAC
+    ipv6_addr 1 1
+    OPTIONS="-q -n -p -t 10"
+    [[ -n $HOSTNAME ]] && OPTIONS="$OPTIONS -h $HOSTNAME"
+    [[ $DNS == yes ]] && OPTIONS="$OPTIONS -C resolv.conf"
+    [[ $IP == ipv4 ]] && OPTIONS="$OPTIONS -4"
+    [[ $IP == ipv6 ]] && OPTIONS="$OPTIONS -6"
+    if carrier_up $PORT; then
+      # interface is UP
+      log "interface $PORT is UP, polling up to 60 sec for DHCP $IP server"
+      if ! run timeout 60 dhcpcd -w $OPTIONS $PORT; then
+        log "can't obtain IP address, continue polling in background on interface $PORT"
+        run dhcpcd -b $OPTIONS $PORT
+      fi
+    else
+      # interface is DOWN
+      log "interface $PORT is DOWN, polling DHCP $IP server in background"
+      run dhcpcd -b $OPTIONS $PORT
+    fi
+  elif [[ $DHCP == no ]]; then
+    # bring up interface using static IP address
+    if carrier_up $PORT; then STATE="UP"; else STATE="DOWN"; fi
+    log "interface $PORT is $STATE, setting static $IP address"
+    ipv6_addr $PORT 0 1
+    if [[ $IP != ipv6 ]]; then
+      if [[ -n $IP4 ]]; then
+        [[ -n $MASK4 ]] && run ip -4 addr add $(unzero $IP4)/$MASK4 dev $PORT metric 1
+      fi
+    fi
+    if [[ $IP != ipv4 ]]; then
+      if [[ -n $IP6 ]]; then
+        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $IP6)/$MASK6 dev $PORT metric 1
+      fi
+    fi
+  fi
+  if [[ $DNS == yes ]]; then
+    [[ $IP == ipv4 ]] && echo "nameserver $SERVER4  # $PORT:v4" >>/etc/resolv.conf
+    [[ $IP == ipv6 ]] && echo "nameserver $SERVER6  # $PORT:v6" >>/etc/resolv.conf
+  else
+    [[ $IP == ipv4 ]] && sed -ri '/^nameserver .+# $PORT:v4/d' /etc/resolv.conf
+    [[ $IP == ipv6 ]] && sed -ri '/^nameserver .+# $PORT:v6/d' /etc/resolv.conf
+  fi
+}
+
+# function to release IP address
+ipaddr_down(){
+  if [[ $DHCP == yes ]]; then
+    OPTIONS="-q -k"
+    [[ $DNS == yes ]] && OPTIONS="$OPTIONS -C resolv.conf"
+    [[ $IP == ipv4 ]] && OPTIONS="$OPTIONS -4"
+    [[ $IP == ipv6 ]] && OPTIONS="$OPTIONS -6"
+    # release DHCP assigned address
+    run dhcpcd $OPTIONS $PORT
+  fi
+}
+
+wifi_running(){
+  sleep 0.1
+  [[ $(cat $SYSTEM/$PORT/carrier 2>/dev/null) == 1 ]]
+}
+
+wifi_start(){
+  log "Starting $DAEMON..."
+  local REPLY
+  if [[ -e $SYSTEM/$PORT ]]; then
+    ip link set $PORT up
+    # start active SSID
+    $STARTWIFI
+    if ! carrier_up $PORT; then
+      # try the saved SSIDs
+      for SSID in $(grep -P '^\[.+\]$' $CFG 2>/dev/null | sed 1d | sed -r 's/\[|\]/"/g'); do
+        [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
+        if carrier_up $PORT; then break; fi
+      done
+    fi
+    if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
+  else
+    REPLY="No Wifi present"
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+wifi_stop(){
+  log "Stopping $DAEMON..."
+  local REPLY
+  if [[ -e $SYSTEM/$PORT ]]; then
+    IP=ipv4
+    DHCP=$DHCP4
+    DNS=$DNS4
+    ipaddr_down
+    if [[ -n $DHCP6 ]]; then
+      IP=ipv6
+      DHCP=$DHCP6
+      DNS=$DNS6
+      ipaddr_down
+    fi
+    pkill wpa_supplicant
+    iw dev $PORT disconnect
+    rm -f $INI
+    if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
+  else
+    REPLY="No Wifi present"
+  fi
+  log "$DAEMON...  $REPLY."
+}
+
+wifi_join(){
+  log "Joining $DAEMON..."
+  local REPLY
+  if [[ ! -r $CFG ]]; then
+    log "$DAEMON...  No configuration."
+    return
+  fi
+  [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
+  [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
+  if [[ -z $ATTR3 || $ATTR3 =~ "Open" ]]; then
+    # open network
+    iw dev $PORT connect "$SSID" auth open
+  elif [[ $ATTR3 =~ "WEP" || $ATTR3 =~ "TKIP" ]]; then
+    # WEP encryption
+    iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD")
+  elif [[ $ATTR3 =~ "IEEE" ]]; then
+    # WPA2/WPA3 enterprise
+    echo "network={" >$WPA
+    echo "  ssid=\"$SSID\"" >>$WPA
+    echo "  key_mgmt=WPA-EAP" >>$WPA
+    echo "  eap=PEAP" >>$WPA
+    echo "  identity=\"$USERNAME\"" >>$WPA
+    echo "  password=\"$PASSWORD\"" >>$WPA
+    echo "  phase1=\"peaplabel=0\"" >>$WPA
+    echo "  phase2=\"autheap=MSCHAPV2\"" >>$WPA
+    echo "}" >>$WPA
+    wpa_supplicant -B -i $PORT -c $WPA
+  else
+    # assume WPA2/WPA3 personal is used
+    wpa_passphrase "$SSID" "$PASSWORD" >$WPA
+    wpa_supplicant -B -i $PORT -c $WPA
+    sed -i '3d' $WPA
+  fi
+  # IPv4 address assignment
+  IP=ipv4
+  DHCP=$DHCP4
+  DNS=$DNS4
+  ipaddr_up
+  # IPv6 address assignment (if enabled)
+  if [[ -n $DHCP6 ]]; then
+    echo 0 >$CONF6/$PORT/disable_ipv6
+    IP=ipv6
+    DHCP=$DHCP6
+    DNS=$DNS6
+    ipaddr_up
+  else
+    echo 1 >$CONF6/$PORT/disable_ipv6
+  fi
+  if wifi_running; then REPLY="Joined"; else REPLY="Failed"; fi
+  log "$DAEMON...  $REPLY."
+}
+
+wifi_restart(){
+  log "Restarting $DAEMON..."
+  wifi_stop
+  sleep 1
+  wifi_start
+}
+
+wifi_status(){
+  if wifi_running; then
+    echo "$DAEMON is currently connected."
+  else
+    echo "$DAEMON is not connected."
+    exit 1
+  fi
+}
+
+case "$1" in
+'start')
+  wifi_start
+  ;;
+'stop')
+  wifi_stop
+  ;;
+'join')
+  wifi_join
+  ;;
+'restart')
+  wifi_restart
+  ;;
+'status')
+  wifi_status
+  ;;
+*)
+  echo "Usage: $BASENAME start|stop|join|restart|status"
+  exit 1
+esac
+exit 0
