@@ -54,7 +54,7 @@ _(Other networks)_:
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Add network)_:
-: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="20" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="info(encodeURIComponent($('input[name=CUSTOM]').val(),0))" title="<?=$title?>"></i>
+: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="20" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
 
 </div>
 </div>
@@ -76,8 +76,8 @@ function update_wifi() {
   timers.wifi = setTimeout(update_wifi,5000);
 }
 
-function manage_wifi(ssid,drop) {
-  if (drop==2) {
+function manage_wifi(ssid,task) {
+  if (task==2) {
     $.post('/webGui/include/Wireless.php',{cmd:'forget',ssid:ssid},function(){
       clearTimeout(timers.wifi);
       swal.close();
@@ -86,7 +86,7 @@ function manage_wifi(ssid,drop) {
     return;
   }
   if (ssid) {
-    $.post('/webGui/include/Wireless.php',{cmd:'join',ssid:ssid,drop:drop},function(text) {
+    $.post('/webGui/include/Wireless.php',{cmd:'join',ssid:ssid,task:task},function(text) {
       swal({title:decodeURIComponent(ssid),text:text,animation:'none',html:true,confirmButtonText:"_(Join this network)_",showCancelButton:true,cancelButtonText:"_(Cancel)_"},function(join){
         if (join) $('form[name=wifi]').submit();
       });
@@ -130,6 +130,17 @@ function showPassword() {
     var view = 'text';
   }
   $('input[name="PASSWORD"]').attr('type',view);
+}
+
+function showSecurity(val) {
+  if (val=='none') {
+    $('#username,#password').hide();
+  } else if (val.slice(-1)=='e') {
+    $('#username,#password').show();
+  } else {
+    $('#username').hide();
+    $('#password').show();
+  }
 }
 
 <?if (_var($wlan0,'WIFI')=='yes'):?>

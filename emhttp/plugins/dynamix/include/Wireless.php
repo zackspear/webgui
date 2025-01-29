@@ -117,7 +117,8 @@ case 'join':
   require_once "$docroot/webGui/include/OpenSSL.php";
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
-  $drop    = $_POST['drop']==1;
+  $drop    = $_POST['task']==1;
+  $manual  = $_POST['task']==3;
   $user    = _var($wifi[$ssid],'USERNAME') ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : '';
   $passwd  = _var($wifi[$ssid],'PASSWORD') ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : '';
   $join    = _var($wifi[$ssid],'AUTOJOIN','no');
@@ -133,6 +134,8 @@ case 'join':
   $mask6   = _var($wifi[$ssid],'MASK6','64');
   $gwv6    = _var($wifi[$ssid],'GATEWAY6');
   $server6 = _var($wifi[$ssid],'SERVER6');
+  $wlan    = _var($wifi[$ssid],'SECURITY','wpa2');
+  $b2b     = substr($wlan,-1)=='e';
   $hide1   = $dhcp4=='no' ? '': 'hide';
   $hide2   = $dns4=='no' ? 'hide' : '';
   $hide3   = $dhcp6=='no' ? '' : 'hide';
@@ -156,8 +159,20 @@ case 'join':
     echo "<tr><td colspan=\"2\"><center><input type=\"button\" class=\"form\" value=\""._('Forget this network')."\" onclick=\"manage_wifi(encodeURIComponent('$ssid'),2)\"></center></td></tr>";
     echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
   }
-  if (strpos($attr3,'IEEE')!==false) echo "<tr><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
-  if ($attr3) echo "<tr><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
+  if ($manual) {
+    echo "<tr><td>"._('Security')."</td><td><select name=\"SECURITY\" onclick=\"showSecurity(this.value)\">";
+    echo mk_option($wlan, 'none',   _('None'));
+    echo mk_option($wlan, 'wep',    _('WEP'));
+    echo mk_option($wlan, 'wpa2',   _('WPA2'));
+    echo mk_option($wlan, 'wpa23',  _('WPA2/WPA3'), 'selected');
+    echo mk_option($wlan, 'wpa3',   _('WPA3'));
+    echo mk_option($wlan, 'wpa2e',  _('WPA2 Enterprise'));
+    echo mk_option($wlan, 'wpa23e', _('WPA2/WPA3 Enterprise'));
+    echo mk_option($wlan, 'wpa3e',  _('WPA3 Enterprise'));
+    echo "</select></td></tr>";
+  }
+  if (strpos($attr3,'IEEE')!==false || $manual) echo "<tr id=\"username\"".(($manual && !$b2b)?" class=\"hide\"":"")."><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
+  if ($attr3 || $manual) echo "<tr id=\"password\"".(($manual && $wlan=='none')?" class=\"hide\"":"")."><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
   echo "<tr><td>"._('IPv4 address assignment').":</td><td><select name=\"DHCP4\" onclick=\"showDHCP(this.value,4)\">";
   echo mk_option($dhcp4, 'yes', _('Automatic'));
