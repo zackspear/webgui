@@ -114,6 +114,7 @@ function presetSpace($val) {
 	}
 
 	/* Prepare the fsSize array for each pool */
+	$fsSize	= [];
 	foreach ($pools as $pool) {
 		$fsSize[$pool] = _var($disks[$pool], 'fsSize', 0);
 	}
@@ -121,8 +122,10 @@ function presetSpace($val) {
 	/* Get the maximum value from the large array, filtering out non-numeric values */
 	if (!empty($large)) {
 		$fsSize[''] = max(array_filter($large, 'is_numeric'));
-	} else {
+	} else if (!empty($fsSize)) {
 		$fsSize[''] = $fsSize[$pool];
+	} else {
+		$fsSize['']	= "0";
 	}
 
 	/* Get the cache pool size */
@@ -253,13 +256,16 @@ function fsFree() {
 		$fsFree[$pool] = _var($disks[$pool], 'fsFree', 0);
 	}
 
-	/* Determine the free filesystem space based on the poolsOnly flag */
+	/* Determine the free filesystem space */
 	if (!empty($large)) {
 		/* Set the maximum free filesystem space from the array of enabled disks */
 		$fsFree[''] = max(array_filter($large));
-	} else {
+	} else if (!empty($fsFree)) {
 		/* Set the minimum free filesystem space from the pool array */
 		$fsFree[''] = min(array_filter($fsFree));
+	} else {
+		/* The minimum free space cannot be determined from the array or pools so it is set to zero */
+		$fsFree['']	= "0";
 	}
 
 	/* Return the free filesystem space as a JSON encoded string */
