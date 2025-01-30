@@ -49,6 +49,6 @@ if ($arg == 'yes') {
 } elseif (count($text)>2) {
   file_put_contents_atomic($ini,implode("\n",$text)."\n");
   exec("/etc/rc.d/rc.wireless join &>/dev/null &");
-  if ($renew) exec("/usr/local/emhttp/webGui/scripts/update_services 5");
+  if ($renew) exec("/usr/local/emhttp/webGui/scripts/update_services 25");
 }
 ?>
