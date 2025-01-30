@@ -736,6 +736,9 @@ run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escape
 run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
 newline("/$diag/system/servers.conf.txt");
 
+// show installed patches
+@copy("/tmp/unraid.patch/installedUpdates.json","/$diag/system/installed_patches.txt");
+
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/
 run("ls -lA /boot/config/plugins/*/packages/*/ 2>/dev/null|todos >>".escapeshellarg("/$diag/system/thirdparty_packages.txt"));

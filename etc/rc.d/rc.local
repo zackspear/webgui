@@ -161,11 +161,23 @@ else
     log "Installing /boot/extra packages"
     ( export -f log; find /boot/extra -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
   fi
-  # Install plugins
-  log "Installing plugins"
+  PRIORITY_PLUGINS=("unraid.patch.plg" "dynamix.unraid.net.plg" "dynamix.unraid.net.staging.plg")
+  # Install priority plugins first
+  for PRIORITY_PLUGIN in "${PRIORITY_PLUGINS[@]}"; do
+    PRIORITY_PLUGIN_PATH="$CONFIG/plugins/$PRIORITY_PLUGIN"
+    if [[ -f "$PRIORITY_PLUGIN_PATH" ]]; then
+      /usr/local/sbin/plugin install "$PRIORITY_PLUGIN_PATH" | log
+    fi
+  done  
+  # Install remaining plugins
   shopt -s nullglob
   for PLUGIN in $CONFIG/plugins/*.plg; do
-    /usr/local/sbin/plugin install $PLUGIN | log
+    PLUGIN_NAME=$(basename "$PLUGIN")
+    # Skip already installed priority plugins
+    if [[ " ${PRIORITY_PLUGINS[*]} " == *" $PLUGIN_NAME "* ]]; then
+      continue
+    fi
+    /usr/local/sbin/plugin install "$PLUGIN" | log
   done
   shopt -u nullglob
 fi
