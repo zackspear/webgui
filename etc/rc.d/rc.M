@@ -85,7 +85,7 @@ fi
 
 # Initialize the wireless networking.
 if [[ -x /etc/rc.d/rc.wireless ]]; then
-  /etc/rc.d/rc.wireless
+  /etc/rc.d/rc.wireless start
 fi
 
 # Start D-Bus:
