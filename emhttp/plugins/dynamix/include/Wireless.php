@@ -91,7 +91,7 @@ case 'list':
       $attr[$network]['ATTR3'] = $wlan[$index]['security'];
       $index++;
       if (isset($wifi[$network]['GROUP'])) {
-        if ($network == $alive) {
+        if ($network == $alive || $wifi[$network]['GROUP'] == 'active') {
           $echo['active'][] = "<dl><dt>$state:</dt>";
           $echo['active'][] = "<dd><span class=\"wifi\">$network</span><i class=\"fa fa-fw fa-wifi hand $color-text\" onclick=\"manage_wifi(encodeURIComponent('$network'),1)\" title=\"$title\"></i><input type=\"button\" class=\"form\" value=\""._('Info')."\" onclick=\"networkInfo('$port')\"></dd>";
         } else {
