@@ -55,8 +55,8 @@ good(){
 
 show(){
   case $# in
-    1) ip -br addr show scope global to $1 2>/dev/null | awk '{gsub("@.+","",$1);print $1;exit}' ;;
-    2) ip -br addr show scope global $1 $2 2>/dev/null | awk '{$1=$2="";print;exit}' | sed -r 's/ metric [0-9]+//g' ;;
+    1) ip -br addr show scope global -temporary -deprecated to $1 2>/dev/null | awk '{gsub("@.+","",$1);print $1;exit}' ;;
+    2) ip -br addr show scope global -temporary -deprecated $1 $2 2>/dev/null | awk '{$1=$2="";print;exit}' | sed -r 's/ metric [0-9]+//g' ;;
   esac
 }
 
