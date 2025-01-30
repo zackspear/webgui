@@ -15,12 +15,13 @@
 $docroot = $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
 require_once "$docroot/plugins/dynamix/include/Wrappers.php";
 
-$arg  = $argv[1] ?? '';
-$ini  = '/var/local/emhttp/wireless.ini';
-$cfg  = '/boot/config/wireless.cfg';
-$wifi = (array)@parse_ini_file($cfg,true);
-$port = array_key_first($wifi);
-$text = ["PORT=\"$port\""];
+$arg   = $argv[1] ?? '';
+$ini   = '/var/local/emhttp/wireless.ini';
+$cfg   = '/boot/config/wireless.cfg';
+$wifi  = (array)@parse_ini_file($cfg,true);
+$port  = array_key_first($wifi);
+$text  = ["PORT=\"$port\""];
+$renew = false;
 if (!$arg) {
   foreach ($wifi as $network => $block) {
     if ($network == $port) continue;
@@ -28,6 +29,7 @@ if (!$arg) {
       $text[] = "SSID=\"$network\"";
       unset($block['GROUP']);
       foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
+      if ($block['DHCP4']=='no' || $block['DHCP6']=='no') $renew = true;
     }
   }
 } elseif (!in_array($arg,['no','yes'])) {
@@ -37,6 +39,7 @@ if (!$arg) {
       $text[] = "SSID=\"$network\"";
       unset($block['GROUP']);
       foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
+      if ($block['DHCP4']=='no' || $block['DHCP6']=='no') $renew = true;
     }
   }
 }
@@ -46,5 +49,6 @@ if ($arg == 'yes') {
 } elseif (count($text)>2) {
   file_put_contents_atomic($ini,implode("\n",$text)."\n");
   exec("/etc/rc.d/rc.wireless join &>/dev/null &");
+  if ($renew) exec("/usr/local/emhttp/webGui/scripts/update_services 5");
 }
 ?>

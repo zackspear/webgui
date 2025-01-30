@@ -28,6 +28,19 @@ CONF6=/proc/sys/net/ipv6/conf
 [[ -r $INI ]] && . $INI
 PORT=${PORT:-wlan0}
 
+# function to remove leading zeros in IPv4 address
+unzero(){
+  local M Q
+  echo -n $(for Q in ${1//./ }; do printf "$M%x" "0x$Q"; M=.; done)
+}
+
+# function to remove leading zeros in IPv6 address
+unzero6(){
+  local A M Q
+  A=${1/::/:-:}
+  echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
+}
+
 # function to get openSSL settings
 get(){
   local KEY=$1
@@ -90,15 +103,13 @@ ipaddr_up(){
     if carrier_up $PORT; then STATE="UP"; else STATE="DOWN"; fi
     log "interface $PORT is $STATE, setting static $IP address"
     ipv6_addr $PORT 0 1
-    if [[ $IP != ipv6 ]]; then
-      if [[ -n $IP4 ]]; then
-        [[ -n $MASK4 ]] && run ip -4 addr add $(unzero $IP4)/$MASK4 dev $PORT metric 1
-      fi
+    if [[ $IP == ipv4 ]]; then
+      [[ -n $IP4 && -n $MASK4 ]] && run ip -4 addr add $(unzero $IP4)/$MASK4 dev $PORT metric 3004
+      [[ -n $GATEWAY4 ]] && run ip -4 route add default via $GATEWAY4 dev $PORT metric 3004
     fi
-    if [[ $IP != ipv4 ]]; then
-      if [[ -n $IP6 ]]; then
-        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $IP6)/$MASK6 dev $PORT metric 1
-      fi
+    if [[ $IP == ipv6 ]]; then
+      [[ -n $IP6 && -n $MASK6 ]] && run ip -6 addr add $(unzero6 $IP6)/$MASK6 dev $PORT metric 3004
+      [[ -n $GATEWAY6 ]] && run ip -6 route add default via $GATEWAY6 dev $PORT metric 3004
     fi
   fi
   if [[ $DNS == yes ]]; then
@@ -113,13 +124,49 @@ ipaddr_up(){
 # function to release IP address
 ipaddr_down(){
   if [[ $DHCP == yes ]]; then
+    # release DHCP assigned address and default route
     OPTIONS="-q -k"
     [[ $DNS == yes ]] && OPTIONS="$OPTIONS -C resolv.conf"
     [[ $IP == ipv4 ]] && OPTIONS="$OPTIONS -4"
     [[ $IP == ipv6 ]] && OPTIONS="$OPTIONS -6"
-    # release DHCP assigned address
     run dhcpcd $OPTIONS $PORT
+  elif [[ $DHCP == no ]]; then
+    # release static assigned address and default route
+    [[ $IP == ipv4 ]] && run ip -4 addr flush dev $PORT
+    [[ $IP == ipv4 ]] && run ip -4 route flush default dev $PORT
+    [[ $IP == ipv6 ]] && run ip -6 addr flush dev $PORT
+    [[ $IP == ipv4 ]] && run ip -6 route flush default dev $PORT
   fi
+}
+
+# Security protocols      Test Result
+# Open                    OK
+# WEP (deprecated)        --
+# WPA2                    OK
+# WPA2/WPA3               OK
+# WPA3                    OK
+# WPA2 Enterprise         OK
+# WPA2/WPA3 Enterprise    OK
+# WPA3 Enterprise         --
+
+wpa_configuration(){
+  PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
+  [[ -z $PSK ]] && PSK="\"$PASSWORD\""
+  echo "network={" >$WPA
+  echo "ssid=\"$SSID\"" >>$WPA
+  [[ $1 == "PSK" ]] && echo "key_mgmt=WPA-PSK" >>$WPA
+  [[ $1 == "SAE" ]] && echo "key_mgmt=SAE" >>$WPA
+  [[ $1 =~ "IEEE" && $1 != "IEEE 802.1X/SHA-256" ]] && echo "key_mgmt=WPA-EAP" >>$WPA
+  [[ $1 == "IEEE 802.1X/SHA-256" ]] && echo "key_mgmt=WPA-EAP-SHA256" >>$WPA
+  [[ $1 =~ "IEEE 802.1X" ]] && echo "eap=PEAP" >>$WPA
+  [[ $1 != "SAE" && ! $1 =~ "IEEE" ]] && echo "psk=$PSK" >>$WPA
+  [[ $1 =~ "IEEE" ]] && echo "identity=\"$USERNAME\"" >>$WPA
+  [[ $1 =~ "IEEE" && $1 != "IEEE 802.1X/SHA-256" ]] && echo "password=\"$PASSWORD\"" >>$WPA
+  [[ $1 == "SAE" || $1 == "IEEE 802.1X/SHA-256" ]] && echo "sae_password=\"$PASSWORD\"" >>$WPA
+  [[ $1 == "SAE" || $1 == "IEEE 802.1X/SHA-256" ]] && echo "ieee80211w=2" >>$WPA
+  [[ $1 =~ "IEEE" ]] && echo "phase1=\"peaplabel=0\"" >>$WPA
+  [[ $1 =~ "IEEE" ]] && echo "phase2=\"auth=MSCHAPV2\"" >>$WPA
+  echo "}" >>$WPA
 }
 
 wifi_running(){
@@ -181,29 +228,17 @@ wifi_join(){
   fi
   [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
   [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
-  if [[ -z $ATTR3 || $ATTR3 =~ "Open" ]]; then
+  SECURITY=${SECURITY:-$ATTR3}
+  if [[ -z $SECURITY || ${SECURITY^^} == "OPEN" ]]; then
     # open network
     iw dev $PORT connect "$SSID" auth open
-  elif [[ $ATTR3 =~ "WEP" || $ATTR3 =~ "TKIP" ]]; then
+  elif [[ $SECURITY =~ "WEP" ]]; then
     # WEP encryption
     iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD")
-  elif [[ $ATTR3 =~ "IEEE" ]]; then
-    # WPA2/WPA3 enterprise
-    echo "network={" >$WPA
-    echo "  ssid=\"$SSID\"" >>$WPA
-    echo "  key_mgmt=WPA-EAP" >>$WPA
-    echo "  eap=PEAP" >>$WPA
-    echo "  identity=\"$USERNAME\"" >>$WPA
-    echo "  password=\"$PASSWORD\"" >>$WPA
-    echo "  phase1=\"peaplabel=0\"" >>$WPA
-    echo "  phase2=\"autheap=MSCHAPV2\"" >>$WPA
-    echo "}" >>$WPA
-    wpa_supplicant -B -i $PORT -c $WPA
   else
-    # assume WPA2/WPA3 personal is used
-    wpa_passphrase "$SSID" "$PASSWORD" >$WPA
+    # WPA encryption
+    wpa_configuration "$SECURITY"
     wpa_supplicant -B -i $PORT -c $WPA
-    sed -i '3d' $WPA
   fi
   # IPv4 address assignment
   IP=ipv4
