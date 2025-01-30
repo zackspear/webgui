@@ -83,6 +83,11 @@ if [[ -x /etc/rc.d/rc.inet1 ]]; then
   /etc/rc.d/rc.inet1
 fi
 
+# Initialize the wireless networking.
+if [[ -x /etc/rc.d/rc.wireless ]]; then
+  /etc/rc.d/rc.wireless
+fi
+
 # Start D-Bus:
 if [[ -x /etc/rc.d/rc.messagebus ]]; then
   /etc/rc.d/rc.messagebus start
