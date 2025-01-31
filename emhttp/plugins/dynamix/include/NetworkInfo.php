@@ -16,6 +16,10 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 
+if (isset($_POST['listen'])) {
+  die(exec("$docroot/webGui/scripts/show_interfaces")?:_('Any'));
+}
+
 function port($eth) {
   $sys = "/sys/class/net";
   if (substr($eth,0,4)=='wlan') return $eth;

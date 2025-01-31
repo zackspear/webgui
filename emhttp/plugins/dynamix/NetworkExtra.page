@@ -56,6 +56,7 @@ $(function(){
   $('form textarea').on('input',function(){
     $(this).prop('rows',($(this).val().match(/\n/g)||[]).length+1);
   });
+  setInterval(function(){$.post('/webGui/include/NetworkInfo.php',{listen:'listen'},function(text) {$('#listen').html(text);});},5000);
 });
 </script>
 
@@ -67,7 +68,7 @@ $(function(){
 <input type="hidden" name="exclude_interfaces" value="">
 
 _(Current listening interfaces)_:
-: <?=exec("$docroot/webGui/scripts/show_interfaces")?:_('Any')?><span class="red-text" style="margin-left:30px"><?=exec("$docroot/webGui/scripts/error_interfaces")?></span>
+: <span id="listen"><?=exec("$docroot/webGui/scripts/show_interfaces")?:_('Any')?></span><span class="red-text" style="margin-left:30px"><?=exec("$docroot/webGui/scripts/error_interfaces")?></span>
 <hr>
 
 _(Include listening interfaces)_:
