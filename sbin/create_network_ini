@@ -235,7 +235,7 @@ if [[ -n $DATA && -e /var/run/nginx.socket ]]; then
 fi
 
 # generate our welcome text (management interface only)
-if [[ -z $interface || "eth0 br0 bond0" =~ $interface ]]; then
+if [[ -z $interface || "eth0 br0 bond0 wlan0" =~ $interface ]]; then
   . /etc/unraid-version
   echo -e "Unraid Server OS version: $version" >/etc/issue
   # find management interface
