@@ -20,6 +20,7 @@ $themes2 = in_array($theme,['gray','azure']);
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
+$wlan0   = file_exists('/sys/class/net/wlan0');
 
 // adjust the text color in docker log window
 $fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
@@ -77,6 +78,7 @@ html{font-size:<?=$display['font']?>%}
 <?endif;?>
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
+if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
 $safemode = _var($var,'safeMode')=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
@@ -821,6 +823,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> ",_('Array Started'),"</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
+if ($wlan0) echo "<span id='wlan0' class='grey-text'><i class='fa fa-wifi fa-fw'></i></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/go/manual/' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
@@ -923,6 +926,14 @@ defaultPage.on('message', function(msg,meta) {
     break;
   }
 });
+
+<?if ($wlan0):?>
+var nchan_wlan0 = new NchanSubscriber('/sub/wlan0',{subscriber:'websocket'});
+nchan_wlan0.on('message', function(color) {
+  $('#wlan0').removeClass().addClass(color);
+});
+nchan_wlan0.start();
+<?endif;?>
 
 var nchan_plugins = new NchanSubscriber('/sub/plugins',{subscriber:'websocket'});
 nchan_plugins.on('message', function(data) {
