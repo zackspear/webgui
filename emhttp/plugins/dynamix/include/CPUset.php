@@ -80,7 +80,7 @@ case 'vm':
         $vcpuselect .= mk_option($cfg['domain']['vcpus'], $i, $i);
       }
     $vcpuselect .= '</select>';
-    if ($disabled == "disabled") $buttontext = ("Deselect All"); else $buttontext = htmlspecialchars("Select All");
+    if ($disabled == "disabled") $buttontext = htmlspecialchars("Deselect All"); else $buttontext = htmlspecialchars("Select All");
     echo "<td>$vcpuselect<input type=\"button\" value=\""._("$buttontext")."\" id=\"vmbtnvCPUSelect;$vmenc\" name=\"vmbtnvCPUSelect$vmenc\" onclick=\"vcpupins(this)\" /></td>";
     create('vm', $vm, $cfg['domain']['vcpu']);
     echo "</tr>";
