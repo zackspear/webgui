@@ -1178,6 +1178,8 @@ $('body').on('click','a,.ca_href', function(e) {
   }
   if (href) {
     href = href.trim();
+    // Sanitize href to prevent XSS
+    href = href.replace(/[<>"]/g, '');
     if (href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf('https://unraid.net/') == 0 || href == 'https://unraid.net' || href.indexOf('http://lime-technology.com') == 0) {
       if (ca_href) window.open(href,target);
       return;

@@ -135,7 +135,7 @@ ipaddr_down(){
     [[ $IP == ipv4 ]] && run ip -4 addr flush dev $PORT
     [[ $IP == ipv4 ]] && run ip -4 route flush default dev $PORT
     [[ $IP == ipv6 ]] && run ip -6 addr flush dev $PORT
-    [[ $IP == ipv4 ]] && run ip -6 route flush default dev $PORT
+    [[ $IP == ipv6 ]] && run ip -6 route flush default dev $PORT
   fi
 }
 
@@ -147,7 +147,7 @@ ipaddr_down(){
 # WPA3                    OK
 # WPA2 Enterprise         OK
 # WPA2/WPA3 Enterprise    OK
-# WPA3 Enterprise         --
+# WPA3 Enterprise         dynamic IP NOK, static IP OK
 
 wpa_configuration(){
   PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')

@@ -18,7 +18,7 @@ require_once "$docroot/plugins/dynamix/include/Wrappers.php";
 $arg   = $argv[1] ?? '';
 $ini   = '/var/local/emhttp/wireless.ini';
 $cfg   = '/boot/config/wireless.cfg';
-$wifi  = (array)@parse_ini_file($cfg,true);
+$wifi  = is_file($cfg) ? (array)parse_ini_file($cfg,true) : [];
 $port  = array_key_first($wifi);
 $text  = ["PORT=\"$port\""];
 $renew = false;

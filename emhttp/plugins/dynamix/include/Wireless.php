@@ -35,7 +35,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function scanWifi($port) {
   $wlan = [];
-  exec("iw $port scan | grep -P '^BSS|signal:|SSID:|Authentication'",$scan);
+  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication'",$scan);
   $n = -1;
   for ($i=0; $i<count($scan); $i++) {
     if (substr($scan[$i],0,3)=='BSS') {
@@ -81,7 +81,7 @@ case 'list':
   $index = 0;
   if (count(array_column($wlan,'ssid'))) {
     $up    = file_get_contents("/sys/class/net/$port/carrier") == 1;
-    $alive = $up ? exec("iw $port link | grep -Pom1 'SSID: \K.+'") : '';
+    $alive = $up ? exec("iw ".escapeshellarg($port)." link | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
 
