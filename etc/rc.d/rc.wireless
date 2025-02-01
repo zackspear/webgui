@@ -46,7 +46,7 @@ ssl_init(){
   KEY="$(dmidecode -qt1 | grep -Pom1 'Manufacturer: \K.+')ABCDEFGH"
   IV="$(dmidecode -qt1 | grep -Pom1 'Product Name: \K.+')1234567890123456"
   echo "cipher=aes-256-cbc" >$SSLINPUT
-  echo "key=$KEY" >>$SSLINPUT
+  echo "key=${KEY:0:63}" >>$SSLINPUT
   echo "iv=${IV:0:16}" >>$SSLINPUT
 }
 
