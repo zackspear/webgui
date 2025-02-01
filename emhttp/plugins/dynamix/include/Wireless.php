@@ -15,9 +15,10 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 $var   = '/var/local/emhttp/var.ini';
 $cfg   = '/boot/config/wireless.cfg';
+$ssl   = '/etc/rc.d/rc.ssl.input';
 $tmp   = '/var/tmp/attr';
-$wifi  = (array)@parse_ini_file($cfg,true);
-$attr  = (array)@parse_ini_file($tmp,true);
+$wifi  = is_readable($cfg) ? (array)parse_ini_file($cfg,true) : [];
+$attr  = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
 $md5   = md5(json_encode($attr),true);
 $cmd   = $_POST['cmd'];
 $masks = [
@@ -114,13 +115,13 @@ case 'list':
   echo json_encode($echo);
   break;
 case 'join':
-  extract((array)@parse_ini_file("/etc/rc.d/rc.ssl.input"));
+  if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
   $drop    = $_POST['task']==1;
   $manual  = $_POST['task']==3;
-  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher) ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : '';
-  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher) ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : '';
+  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'USERNAME');
+  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'PASSWORD');
   $join    = _var($wifi[$ssid],'AUTOJOIN','no');
   $dhcp4   = _var($wifi[$ssid],'DHCP4','yes');
   $dns4    = _var($wifi[$ssid],'DNS4','no');

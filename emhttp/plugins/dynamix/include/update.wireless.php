@@ -11,11 +11,12 @@
  */
 ?>
 <?
-extract(parse_ini_file("/etc/rc.d/rc.ssl.input"));
+$ssl = '/etc/rc.d/rc.ssl.input';
+if (is_readable($ssl)) extract(parse_ini_file($ssl));
 
 // encrypt username and password before saving (if existing)
-if (!empty($_POST['USERNAME'])) $_POST['USERNAME'] = openssl_encrypt($_POST['USERNAME'],$cipher,$key,0,$iv);
-if (!empty($_POST['PASSWORD'])) $_POST['PASSWORD'] = openssl_encrypt($_POST['PASSWORD'],$cipher,$key,0,$iv);
+if (!empty($_POST['USERNAME']) && isset($cipher,$key,$iv)) $_POST['USERNAME'] = openssl_encrypt($_POST['USERNAME'],$cipher,$key,0,$iv);
+if (!empty($_POST['PASSWORD']) && isset($cipher,$key,$iv)) $_POST['PASSWORD'] = openssl_encrypt($_POST['PASSWORD'],$cipher,$key,0,$iv);
 
 // update active wifi selection
 foreach ($keys as $key => $val) if (isset($val['GROUP'])) $keys[$key]['GROUP'] = 'saved';
