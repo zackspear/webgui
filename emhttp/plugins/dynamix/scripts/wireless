@@ -21,7 +21,7 @@ $cfg   = '/boot/config/wireless.cfg';
 $wifi  = is_file($cfg) ? (array)parse_ini_file($cfg,true) : [];
 $port  = array_key_first($wifi);
 $text  = ["PORT=\"$port\""];
-$renew = false;
+
 if (!$arg) {
   foreach ($wifi as $network => $block) {
     if ($network == $port) continue;
@@ -29,7 +29,6 @@ if (!$arg) {
       $text[] = "SSID=\"$network\"";
       unset($block['GROUP']);
       foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
-      if ($block['DHCP4']=='no' || $block['DHCP6']=='no') $renew = true;
     }
   }
 } elseif (!in_array($arg,['no','yes'])) {
@@ -39,16 +38,18 @@ if (!$arg) {
       $text[] = "SSID=\"$network\"";
       unset($block['GROUP']);
       foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
-      if ($block['DHCP4']=='no' || $block['DHCP6']=='no') $renew = true;
     }
   }
 }
-exec("/etc/rc.d/rc.wireless stop");
 if ($arg == 'yes') {
   exec("/etc/rc.d/rc.wireless start &>/dev/null &");
+} elseif ($arg == 'no') {
+  exec("/etc/rc.d/rc.wireless stop");
+  exec("$docroot/webGui/scripts/update_services 5");
 } elseif (count($text)>2) {
+  exec("/etc/rc.d/rc.wireless stop");
   file_put_contents_atomic($ini,implode("\n",$text)."\n");
   exec("/etc/rc.d/rc.wireless join &>/dev/null &");
-  if ($renew) exec("/usr/local/emhttp/webGui/scripts/update_services 25");
+  exec("$docroot/webGui/scripts/update_services 20");
 }
 ?>
