@@ -10,7 +10,7 @@ DAEMON="WiFi network"
 CALLER="wifi"
 INI="/var/local/emhttp/wireless.ini"
 CFG="/boot/config/wireless.cfg"
-SSL="/usr/local/emhttp/webGui/include/OpenSSL.php"
+SSLINPUT="/etc/rc.d/rc.ssl.input"
 STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
 WPA="/etc/wpa_supplicant.conf"
 
@@ -41,15 +41,9 @@ unzero6(){
   echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
 }
 
-# function to get openSSL settings
-get(){
-  local KEY=$1
-  [[ -r $SSL ]] && awk "\$1==\"\$$KEY\" {print \$3}" $SSL | sed -r "s/[';]//g"
-}
-
 # function to convert text to hex
 hex(){
-  echo -n $(get $1) | od -An -tx1 | tr -d ' \n'
+  echo -n $1 | od -An -tx1 | tr -d ' \n'
 }
 
 # function to wait for carrier of interface
@@ -226,8 +220,10 @@ wifi_join(){
     log "$DAEMON...  No configuration."
     return
   fi
-  [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
-  [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $(get cipher) -a -d -K $(hex key) -iv $(hex iv) 2>/dev/null)
+# get SSL keys
+  . $SSLINPUT
+  [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
+  [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
   SECURITY=${SECURITY:-$ATTR3}
   if [[ -z $SECURITY || ${SECURITY^^} == "OPEN" ]]; then
     # open network

@@ -114,7 +114,7 @@ case 'list':
   echo json_encode($echo);
   break;
 case 'join':
-  require_once "$docroot/webGui/include/OpenSSL.php";
+  extract(parse_ini_file("/etc/rc.d/rc.ssl.input"));
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
   $drop    = $_POST['task']==1;

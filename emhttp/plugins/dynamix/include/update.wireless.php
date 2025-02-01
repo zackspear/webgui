@@ -11,8 +11,7 @@
  */
 ?>
 <?
-$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/webGui/include/OpenSSL.php";
+extract(parse_ini_file("/etc/rc.d/rc.ssl.input"));
 
 // encrypt username and password before saving (if existing)
 if (!empty($_POST['USERNAME'])) $_POST['USERNAME'] = openssl_encrypt($_POST['USERNAME'],$cipher,$key,0,$iv);
