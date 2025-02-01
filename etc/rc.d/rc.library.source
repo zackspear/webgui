@@ -4,7 +4,8 @@
 #
 # Library used by nfsd, ntpd, rpc, samba, nginx, sshd, avahidaemon, show_interfaces
 #
-# Bergware - created for Unraid OS, December 2024
+# Bergware - created for Unraid OS, December 2023
+# Bergware - updated January 2025
 
 WIREGUARD="/etc/wireguard"
 NETWORK_INI="/var/local/emhttp/network.ini"
