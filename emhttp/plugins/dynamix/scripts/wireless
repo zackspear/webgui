@@ -16,31 +16,22 @@ $docroot = $_SERVER['DOCUMENT_ROOT'] ?: "/usr/local/emhttp";
 require_once "$docroot/plugins/dynamix/include/Wrappers.php";
 
 $arg   = $argv[1] ?? '';
+$state = $arg ? 'saved' : 'active';
 $ini   = '/var/local/emhttp/wireless.ini';
 $cfg   = '/boot/config/wireless.cfg';
 $wifi  = is_file($cfg) ? (array)parse_ini_file($cfg,true) : [];
 $port  = array_key_first($wifi);
 $text  = ["PORT=\"$port\""];
 
-if (!$arg) {
-  foreach ($wifi as $network => $block) {
-    if ($network == $port) continue;
-    if ($block['GROUP'] == 'active') {
-      $text[] = "SSID=\"$network\"";
-      unset($block['GROUP']);
-      foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
-    }
-  }
-} elseif (!in_array($arg,['no','yes'])) {
-  foreach ($wifi as $network => $block) {
-    if ($network == $port) continue;
-    if ($block['GROUP'] == 'saved' && $network == $arg) {
-      $text[] = "SSID=\"$network\"";
-      unset($block['GROUP']);
-      foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
-    }
+if (!in_array($arg,['no','yes'])) foreach ($wifi as $network => $block) {
+  if ($network == $port) continue;
+  if ($block['GROUP'] == $state && (!$arg || $arg == $network)) {
+    $text[] = "SSID=\"$network\"";
+    unset($block['GROUP']);
+    foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
   }
 }
+
 if ($arg == 'yes') {
   exec("/etc/rc.d/rc.wireless start &>/dev/null &");
 } elseif ($arg == 'no') {
