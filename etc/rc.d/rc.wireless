@@ -10,7 +10,6 @@ DAEMON="WiFi network"
 CALLER="wifi"
 INI="/var/local/emhttp/wireless.ini"
 CFG="/boot/config/wireless.cfg"
-IDENT="/boot/config/ident.cfg"
 SSLINPUT="/etc/rc.d/rc.ssl.input"
 STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
 WPA="/etc/wpa_supplicant.conf"
@@ -44,10 +43,8 @@ unzero6(){
 
 # function to initialize openSSL variables
 ssl_init(){
-  [[ -e $IDENT ]] && KEY=$(grep -Pom1 '^NAME="\K[^"]+' $IDENT)
-  [[ -e $IDENT ]] && IV=$(grep -Pom1 '^timeZone="\K[^"]+' $IDENT)
-  KEY="${KEY}ABCDEFGH"
-  IV="${IV}1234567890123456"
+  KEY="$(dmidecode -qt1 | grep -Pom1 'Manufacturer: \K.+')ABCDEFGH"
+  IV="$(dmidecode -qt1 | grep -Pom1 'Product Name: \K.+')1234567890123456"
   echo "cipher=aes-256-cbc" >$SSLINPUT
   echo "key=$KEY" >>$SSLINPUT
   echo "iv=${IV:0:16}" >>$SSLINPUT
