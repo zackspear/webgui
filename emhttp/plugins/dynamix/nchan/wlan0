@@ -41,15 +41,17 @@ function update_translation($locale) {
   }
 }
 
-$echo = [];
+$echo  = [];
+$wlan0 = '/sys/class/net/wlan0/carrier'
+$ini   = '/var/local/emhttp/wireless.ini';
 while (true) {
   extract(parse_plugin_cfg('dynamix',true));
   if (_var($display,'locale') != $locale_init) {
     $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
-  if (file_exists('/var/local/emhttp/wireless.ini')) {
-    $up = file_get_contents('/sys/class/net/wlan0/carrier')==1;
+  if (file_exists($ini) && file_exists($wlan0)) {
+    $up = file_get_contents($wlan0)==1;
     $echo['color'] = $up ? 'blue-text' : 'red-text';
     $echo['title'] = $up ? _('WiFi connected') : _('WiFi disconnected');
   } else {
