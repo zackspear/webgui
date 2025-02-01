@@ -39,6 +39,7 @@ function create($id, $name, $vcpu) {
   $unit = urlencode(str_replace([' ','(',')','[',']'],'',$name));
   $name = urlencode($name);
   echo "<td><span id='$id-$unit' style='color:#267CA8;display:none'><i class='fa fa-refresh fa-spin'></i> "._('updating')."</span></td>";
+  if ($id == "vm") $checkclass = "class=\"vcpu-".htmlspecialchars($name)."\""; else $checkclass = "";
   for ($c = 0; $c < $loop; $c++) {
     $max = ($c == $loop-1 ? ($total%32?:32) : 32);
     for ($n = 0; $n < $max; $n++) {
@@ -47,8 +48,8 @@ function create($id, $name, $vcpu) {
       $check1 = ($vcpu && in_array($cpu1, $vcpu)) ? 'checked':'';
       $check2 = $cpu2 ? ($vcpu && (in_array($cpu2, $vcpu)) ? 'checked':''):'';
       if (empty($text[$n])) $text[$n] = '';
-      $text[$n] .="<label class='checkbox'><input type='checkbox' name='$name:$cpu1' $check1><span class='checkmark'></span></label><br>";
-      if ($cpu2) $text[$n] .= "<label class='checkbox'><input type='checkbox' name='$name:$cpu2' $check2><span class='checkmark'></span></label><br>";
+      $text[$n] .="<label class='checkbox'><input type='checkbox' $checkclass name='$name:$cpu1' $check1><span class='checkmark'></span></label><br>";
+      if ($cpu2) $text[$n] .= "<label class='checkbox'><input type='checkbox' $checkclass name='$name:$cpu2' $check2><span class='checkmark'></span></label><br>";
     }
   }
   echo implode(array_map(function($t){return "<td>$t</td>";},$text));
@@ -74,12 +75,13 @@ case 'vm':
     echo "<tr><td>$vm</td>";
     if ($cfg['domain']['vcpu'] >0 ) $disabled = "disabled"; else $disabled = "";
     $vmenc = urlencode($vm);
-    $vcpuselect="<select id='vm-$vmenc-vcpu' name='$vmenc' class='narrow' title='"._("vcpu allocated to vm")."' $disabled>";
+    $vcpuselect="<select id='vm-$vmenc-vcpu' name='$vmenc' class='narrow vcpus-$vmenc' title='"._("vcpu allocated to vm")."' $disabled>";
     for ($i = 1; $i <= ($corecount); $i++) {
         $vcpuselect .= mk_option($cfg['domain']['vcpus'], $i, $i);
       }
     $vcpuselect .= '</select>';
-    echo "<td>$vcpuselect</td>";
+    if ($disabled == "disabled") $buttontext = ("Deselect All"); else $buttontext = htmlspecialchars("Select All");
+    echo "<td>$vcpuselect<input type=\"button\" value=\""._("$buttontext")."\" id=\"vmbtnvCPUSelect;$vmenc\" name=\"vmbtnvCPUSelect$vmenc\" onclick=\"vcpupins(this)\" /></td>";
     create('vm', $vm, $cfg['domain']['vcpu']);
     echo "</tr>";
   }

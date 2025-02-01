@@ -225,6 +225,23 @@ function reset(form) {
 	}
 }
 
+function vcpupins($button) {
+
+	var $name = $button.id.split(";")[1];
+	var $value = $button.value;
+
+	if ($value == "_(Select All)_") {
+		$("[class='vcpu-" + $name + "']").prop('checked', true);
+		var $cores = $("[class='vcpu-" + $name + "']:checked");
+		$("[class~='vcpus-" + $name + "']").prop("disabled", true).prop("value", $cores.length);
+		$button.value = "_(Deselect All)_";
+	} else {	
+		$("[class='vcpu-" + $name + "']").prop('checked', false);
+		$("[class~='vcpus-" + $name + "']").prop("disabled", true).prop("value", 1);
+		$button.value = "_(Select All)_";
+	}
+}
+
 /* Function to handle checkbox interactions and enable/disable form buttons */
 function buttons(form) {
 	$(form).find('input[type=checkbox]').each(function() {
@@ -236,10 +253,15 @@ function buttons(form) {
 			/* Ensure VMs have at least one core selected */
 			if ($(form).prop('name') == 'vm' ) {
 				value = $(this).prop('name').split(':')[0];
+				var testname = "vmbtnvCPUSelect" + value ;
 				if (cores < 1)
-				$(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', false).prop("value",1);
-				else $(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', true).prop("value",cores);
-
+				{
+					$(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', false).prop("value",1);
+					$(form).find('input[name="vmbtnvCPUSelect' + $(this).prop('name').split(':')[0] + '"]').prop("value","_(Select All)_");
+				} else {
+					$(form).find('select[name="' + $(this).prop('name').split(':')[0] + '"]').prop('disabled', true).prop("value",cores);
+					$(form).find('input[name="vmbtnvCPUSelect' + $(this).prop('name').split(':')[0] + '"]').prop("value","_(Deselect All)_");
+				}
 			}
 			/* Ensure isolation does not have all cores selected */
 			if ($(form).prop('name') == 'is' && $(this).prop('checked')) $(this).prop('checked', cores < total);
