@@ -239,7 +239,7 @@ function vcpupins($button) {
 		$($form).find('input[value="_(Apply)_"]').prop('disabled', false);
 	} else {	
 		$("[class='vcpu-" + $name + "']").prop('checked', false);
-		$("[class~='vcpus-" + $name + "']").prop("disabled", true).prop("value", 1);
+		$("[class~='vcpus-" + $name + "']").prop("disabled", false).prop("value", 1);
 		$button.value = "_(Select All)_";
 		$($form).find('input[value="_(Apply)_"]').prop('disabled', false);
 	}
