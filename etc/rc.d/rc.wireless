@@ -233,7 +233,7 @@ wifi_join(){
     log "$DAEMON...  No configuration."
     return
   fi
-  ssl_init
+  [[ -e $SSLINPUT ]] || ssl_init
 # get SSL keys
   . $SSLINPUT
   [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
