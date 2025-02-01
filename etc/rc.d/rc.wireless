@@ -172,6 +172,15 @@ wifi_start(){
   log "Starting $DAEMON..."
   local REPLY
   if [[ -e $SYSTEM/$PORT ]]; then
+    if [[ ! -e $SSLINPUT ]]; then
+      [[ -e /boot/config/ident.cfg ]] && KEY=$(grep -Pom1 '^NAME="\K[^"]+' /boot/config/ident.cfg)
+      [[ -e /boot/config/ident.cfg ]] && IV=$(grep -Pom1 '^timeZone="\K[^"]+' /boot/config/ident.cfg)
+      KEY="${KEY}ABCDEFGH"
+      IV="${IV}1234567890123456"
+      echo "cipher=aes-256-cbc" >$SSLINPUT
+      echo "key=$KEY" >>$SSLINPUT
+      echo "iv=${IV:0:16}" >>$SSLINPUT
+    fi
     ip link set $PORT up
     # start active SSID
     $STARTWIFI
@@ -222,6 +231,9 @@ wifi_join(){
   fi
 # get SSL keys
   . $SSLINPUT
+  echo $cipher
+  echo $key
+  echo $iv
   [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
   [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
   SECURITY=${SECURITY:-$ATTR3}

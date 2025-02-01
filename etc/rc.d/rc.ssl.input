@@ -1,3 +1,0 @@
-cipher=aes-256-cbc
-key=UnraidEncryptionKey
-iv=12345678910111213

@@ -42,7 +42,7 @@ function update_translation($locale) {
 }
 
 $echo  = [];
-$wlan0 = '/sys/class/net/wlan0/carrier'
+$wlan0 = '/sys/class/net/wlan0/carrier';
 $ini   = '/var/local/emhttp/wireless.ini';
 while (true) {
   extract(parse_plugin_cfg('dynamix',true));

@@ -114,13 +114,13 @@ case 'list':
   echo json_encode($echo);
   break;
 case 'join':
-  extract(parse_ini_file("/etc/rc.d/rc.ssl.input"));
+  extract((array)@parse_ini_file("/etc/rc.d/rc.ssl.input"));
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
   $drop    = $_POST['task']==1;
   $manual  = $_POST['task']==3;
-  $user    = _var($wifi[$ssid],'USERNAME') ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : '';
-  $passwd  = _var($wifi[$ssid],'PASSWORD') ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : '';
+  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher) ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : '';
+  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher) ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : '';
   $join    = _var($wifi[$ssid],'AUTOJOIN','no');
   $dhcp4   = _var($wifi[$ssid],'DHCP4','yes');
   $dns4    = _var($wifi[$ssid],'DNS4','no');
