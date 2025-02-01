@@ -245,6 +245,7 @@ wifi_join(){
   else
     # WPA encryption
     wpa_configuration "$SECURITY"
+    [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
     wpa_supplicant -B -i $PORT -c $WPA
   fi
   # IPv4 address assignment
