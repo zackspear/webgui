@@ -35,7 +35,7 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function scanWifi($port) {
   $wlan = [];
-  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication'",$scan);
+  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
   $n = -1;
   for ($i=0; $i<count($scan); $i++) {
     if (substr($scan[$i],0,3)=='BSS') {
@@ -44,7 +44,7 @@ function scanWifi($port) {
       $wlan[$n]['signal'] = trim(explode(': ',$scan[$i])[1]);
     } elseif (strpos($scan[$i],'SSID:')!==false) {
       $wlan[$n]['ssid'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'suites:')!==false) {
+    } elseif (strpos($scan[$i],'Authentication suites:')!==false) {
       $wlan[$n]['security'] = trim(explode(': ',$scan[$i])[1]);
     }
   }
@@ -199,8 +199,8 @@ case 'join':
   echo "<tr class=\"static6 $hide4\"><td>"._('IPv6 address').":</td><td><input type=\"text\" name=\"IP6\" class=\"narrow\" maxlength=\"39\" autocomplete=\"off\" spellcheck=\"false\" value=\"$ip6\">/<input type=\"number\" min=\"1\" max=\"128\" maxlength=\"3\" name=\"MASK6\" class=\"slim\" value=\"$mask6\"></td></tr>";
   echo "<tr class=\"static6 $hide4\"><td>"._('IPv6 default gateway').":</td><td><input type=\"text\" name=\"GATEWAY6\" class=\"narrow\" maxlength=\"39\" autocomplete=\"off\" spellcheck=\"false\" value=\"$gw6\"></td></tr>";
   echo "<tr class=\"dns6 $hide5\"><td>"._('IPv6 DNS assignment').":</td><td><select name=\"DNS6\" onclick=\"showDNS(this.value,6)\">";
-  echo mk_option($dns4, "no", _("Automatic"));
-  echo mk_option($dns4, "yes", _("Static"));
+  echo mk_option($dns6, "no", _("Automatic"));
+  echo mk_option($dns6, "yes", _("Static"));
   echo "</select></td></tr>";
   echo "<tr class=\"server6 $hide6\"><td>"._('DNSv6 server').":</td><td><input type=\"text\" name=\"SERVER6\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$server6\"></td></tr>";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
