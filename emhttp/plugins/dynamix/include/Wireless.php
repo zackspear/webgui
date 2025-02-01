@@ -76,11 +76,12 @@ switch ($cmd) {
 case 'list':
   $title = _('Connect to WiFi network');
   $port  = array_key_first($wifi);
+  $carrier = "/sys/class/net/$port/carrier";
   $wlan  = scanWifi($port);
   $echo  = [];
   $index = 0;
   if (count(array_column($wlan,'ssid'))) {
-    $up    = file_get_contents("/sys/class/net/$port/carrier") == 1;
+    $up    = file_exists($carrier) && file_get_contents($carrier)==1;
     $alive = $up ? exec("iw ".escapeshellarg($port)." link | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
