@@ -10,6 +10,7 @@ DAEMON="WiFi network"
 CALLER="wifi"
 INI="/var/local/emhttp/wireless.ini"
 CFG="/boot/config/wireless.cfg"
+IDENT="/boot/config/ident.cfg"
 SSLINPUT="/etc/rc.d/rc.ssl.input"
 STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
 WPA="/etc/wpa_supplicant.conf"
@@ -39,6 +40,17 @@ unzero6(){
   local A M Q
   A=${1/::/:-:}
   echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
+}
+
+# function to initialize openSSL variables
+ssl_init(){
+  [[ -e $IDENT ]] && KEY=$(grep -Pom1 '^NAME="\K[^"]+' $IDENT)
+  [[ -e $IDENT ]] && IV=$(grep -Pom1 '^timeZone="\K[^"]+' $IDENT)
+  KEY="${KEY}ABCDEFGH"
+  IV="${IV}1234567890123456"
+  echo "cipher=aes-256-cbc" >$SSLINPUT
+  echo "key=$KEY" >>$SSLINPUT
+  echo "iv=${IV:0:16}" >>$SSLINPUT
 }
 
 # function to convert text to hex
@@ -172,16 +184,8 @@ wifi_start(){
   log "Starting $DAEMON..."
   local REPLY
   if [[ -e $SYSTEM/$PORT ]]; then
-    if [[ ! -e $SSLINPUT ]]; then
-      [[ -e /boot/config/ident.cfg ]] && KEY=$(grep -Pom1 '^NAME="\K[^"]+' /boot/config/ident.cfg)
-      [[ -e /boot/config/ident.cfg ]] && IV=$(grep -Pom1 '^timeZone="\K[^"]+' /boot/config/ident.cfg)
-      KEY="${KEY}ABCDEFGH"
-      IV="${IV}1234567890123456"
-      echo "cipher=aes-256-cbc" >$SSLINPUT
-      echo "key=$KEY" >>$SSLINPUT
-      echo "iv=${IV:0:16}" >>$SSLINPUT
-    fi
     ip link set $PORT up
+    ssl_init
     # start active SSID
     $STARTWIFI
     if ! carrier_up $PORT; then
@@ -229,11 +233,9 @@ wifi_join(){
     log "$DAEMON...  No configuration."
     return
   fi
+  [[ -e $SSLINPUT ]] || ssl_init
 # get SSL keys
   . $SSLINPUT
-  echo $cipher
-  echo $key
-  echo $iv
   [[ -n $USERNAME ]] && USERNAME=$(echo $USERNAME | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
   [[ -n $PASSWORD ]] && PASSWORD=$(echo $PASSWORD | openssl $cipher -a -d -K $(hex $key) -iv $(hex $iv) 2>/dev/null)
   SECURITY=${SECURITY:-$ATTR3}
