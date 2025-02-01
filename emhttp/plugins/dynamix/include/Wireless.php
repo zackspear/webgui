@@ -15,7 +15,6 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 $var   = '/var/local/emhttp/var.ini';
 $cfg   = '/boot/config/wireless.cfg';
-$ini   = '/var/local/emhttp/wireless.ini';
 $tmp   = '/var/tmp/attr';
 $wifi  = (array)@parse_ini_file($cfg,true);
 $attr  = (array)@parse_ini_file($tmp,true);
