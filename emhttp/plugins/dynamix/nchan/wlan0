@@ -13,17 +13,50 @@
 ?>
 <?
 $docroot = '/usr/local/emhttp';
+require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
-require_once "$docroot/webGui/include/Wrappers.php";
+extract(parse_plugin_cfg('dynamix',true));
 
+// add translations
+$_SERVER['REQUEST_URI'] = '';
+$login_locale = _var($display,'locale');
+require_once "$docroot/webGui/include/Translations.php";
+
+function update_translation($locale) {
+  global $docroot,$language;
+  $language = [];
+  if ($locale) {
+    $text = "$docroot/languages/$locale/translations.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/translations.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = unserialize(file_get_contents($store));
+    }
+    $text = "$docroot/languages/$locale/dashboard.txt";
+    if (file_exists($text)) {
+      $store = "$docroot/languages/$locale/dashboard.dot";
+      if (!file_exists($store)) file_put_contents($store,serialize(parse_lang_file($text)));
+      $language = array_merge($language,unserialize(file_get_contents($store)));
+    }
+  }
+}
+
+$echo = [];
 while (true) {
+  extract(parse_plugin_cfg('dynamix',true));
+  if (_var($display,'locale') != $locale_init) {
+    $locale_init = _var($display,'locale');
+    update_translation($locale_init);
+  }
   if (file_exists('/var/local/emhttp/wireless.ini')) {
     $up = file_get_contents('/sys/class/net/wlan0/carrier')==1;
-    $color = $up ? 'blue-text' : 'red-text';
+    $echo['color'] = $up ? 'blue-text' : 'red-text';
+    $echo['title'] = $up ? _('WiFi connected') : _('WiFi disconnected');
   } else {
-    $color = 'grey-text';
+    $echo['color'] = 'grey-text';
+    $echo['title'] = _('No active WiFi');
   }
-  publish('wlan0',$color);
+  publish('wlan0',json_encode($echo));
   sleep(5);
 }
 ?>

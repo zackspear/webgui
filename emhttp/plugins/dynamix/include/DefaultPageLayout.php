@@ -823,7 +823,7 @@ default:
   echo "<span class='green strong'><i class='fa fa-play-circle'></i> ",_('Array Started'),"</span>$progress"; break;
 }
 echo "</span></span><span id='countdown'></span><span id='user-notice' class='red-text'></span>";
-if ($wlan0) echo "<span id='wlan0' class='grey-text'><i class='fa fa-wifi fa-fw'></i></span>";
+if ($wlan0) echo "<span id='wlan0' class='grey-text' onclick='wlanSettings()'><i class='fa fa-wifi fa-fw'></i></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/go/manual/' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
 echo "</span></div>";
@@ -928,9 +928,15 @@ defaultPage.on('message', function(msg,meta) {
 });
 
 <?if ($wlan0):?>
+function wlanSettings() {
+  $.cookie('one','tab<?=count(glob("$docroot/webGui/Eth*.page"))?>');
+  window.location = '/Settings/NetworkSettings';
+}
+
 var nchan_wlan0 = new NchanSubscriber('/sub/wlan0',{subscriber:'websocket'});
-nchan_wlan0.on('message', function(color) {
-  $('#wlan0').removeClass().addClass(color);
+nchan_wlan0.on('message', function(msg) {
+  var wlan = JSON.parse(msg);
+  $('#wlan0').removeClass().addClass(wlan.color).attr('title',wlan.title);
 });
 nchan_wlan0.start();
 <?endif;?>
