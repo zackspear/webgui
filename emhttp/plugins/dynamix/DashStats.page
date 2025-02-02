@@ -198,7 +198,7 @@ switch ($theme) {
 <div class='frame'>
 <div class='grid'>
 <div class='tile' id='tile1'>
-<table id='db-box1' class='dashboard'>
+<table id='db_box1' class='dashboard'>
 <tbody class='system'>
 <tr><td><i class='icon-performance f32'></i><div class='section'><?=_var($var,'NAME')?><br>
 <span><?=htmlspecialchars(_var($var,'COMMENT'))?></span><span id="current_time_" class="switch head_time"></span><br></div>
@@ -412,7 +412,7 @@ echo "</td></tr>";
 </div>
 
 <div class='tile' id='tile2'>
-<table id='db-box2' class='dashboard'>
+<table id='db_box2' class='dashboard'>
 <?if ($dockerd):?>
 <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
 <tr><td><i class='icon-docker f32'></i><div class='section'>_(Docker Containers)_<br>
@@ -574,7 +574,7 @@ if (!$group) {
 </div>
 
 <div class='tile' id='tile3'>
-<table id='db-box3' class='dashboard'>
+<table id='db_box3' class='dashboard'>
 <?if (!$poolsOnly):?>
 <tbody title="_(Parity Information)_">
 <tr><td><i class='icon-health f32'></i><div class='section'>_(Parity)_<br>
@@ -653,7 +653,7 @@ for (let n=0,x; x=index[n]; n++) {
 }
 function hideShow() {
   let n = 0, inactive = [];
-  var count = {'db-box1':0, 'db-box2':0, 'db-box3':0};
+  var count = {'db_box1':0, 'db_box2':0, 'db_box3':0};
   $('input.checker').each(function(){
     var tbody = $('table.dashboard').find('tbody[sort="'+sort[n]+'"]');
     var id = tbody.parent().prop('id');
@@ -669,9 +669,9 @@ function hideShow() {
     n++;
   });
   count[table.find('tbody.system').parent().prop('id')]++;
-  if (count['db-box1']>0) $('div#tile1').show(); else $('div#tile1').hide();
-  if (count['db-box2']>0) $('div#tile2').show(); else $('div#tile2').hide();
-  if (count['db-box3']>0) $('div#tile3').show(); else $('div#tile3').hide();
+  if (count['db_box1']>0) $('div#tile1').show(); else $('div#tile1').hide();
+  if (count['db_box2']>0) $('div#tile2').show(); else $('div#tile2').hide();
+  if (count['db_box3']>0) $('div#tile3').show(); else $('div#tile3').hide();
   if (inactive.length>0) {
     cookie.inactive_content = inactive.join(';');
   } else {
@@ -1294,7 +1294,7 @@ function addProperties() {
 }
 
 function showContent() {
-  var count = {'db-box1':$('table#db-box1 tbody').length, 'db-box2':$('table#db-box2 tbody').length, 'db-box3':$('table#db-box3 tbody').length}
+  var count = {'db_box1':$('table#db_box1 tbody').length, 'db_box2':$('table#db_box2 tbody').length, 'db_box3':$('table#db_box3 tbody').length}
   var inactive = cookie.inactive_content;
   if (inactive) {
     inactive = inactive.split(';');
@@ -1317,9 +1317,9 @@ function showContent() {
       tbody.find('span.button').hide();
     }
   }
-  if (count['db-box1']>0) $('div#tile1').show();
-  if (count['db-box2']>0) $('div#tile2').show();
-  if (count['db-box3']>0) $('div#tile3').show();
+  if (count['db_box1']>0) $('div#tile1').show();
+  if (count['db_box2']>0) $('div#tile2').show();
+  if (count['db_box3']>0) $('div#tile3').show();
 }
 
 function setColor(l, t1, t2) {
@@ -1406,9 +1406,9 @@ function contentMgmt() {
     modal: true,
     buttons: {
       "_(Reset)_": function(){
-        delete cookie['db-box1'];
-        delete cookie['db-box2'];
-        delete cookie['db-box3'];
+        delete cookie.db_box1;
+        delete cookie.db_box2;
+        delete cookie.db_box3;
         delete cookie.inactive_content;
         delete cookie.hidden_content;
         saveCookie();
@@ -1557,7 +1557,7 @@ function LockButton() {
     $('i.tile').show();
     $('tbody.sortable').css({'cursor':'move'});
     $('div.nav-item.LockButton span').text("_(Lock sortable items)_");
-    $('#db-box1,#db-box2,#db-box3').sortable({connectWith:'#db-box1,#db-box2,#db-box3'});
+    $('#db_box1,#db_box2,#db_box3').sortable({connectWith:'#db_box1,#db_box2,#db_box3'});
     $('table.dashboard').sortable({helper:sortableHelper,items:'.sortable',cursor:'grab',opacity:0.6,placeholder:'dashboard-sortable',zIndex:9999,forceHelperSize:true,forcePlaceholderSize:true,
     receive:function(e,ui){
       var table = ui.sender, index = [];
