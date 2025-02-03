@@ -1325,6 +1325,8 @@
 			<p class="<?if ($arrGPU['id'] != 'virtual') echo 'was';?>advanced vncmodel">
 				<b>Virtual Video Driver</b><br>
 				If you wish to assign a different video driver to use for a VM Console connection, specify one here.
+				QXL has an option of setting number of screens and vram.
+				Virtio3d allows render device to be specified or auto.(This allow GPU to be used in a VM without passthru for 3D acceleration no screen output)
 			</p>
 
 			<p class="vncpassword">
