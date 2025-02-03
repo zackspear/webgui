@@ -833,7 +833,7 @@ var options_net = {
 var cpuchart = new ApexCharts(document.querySelector('#cpuchart'), options_cpu);
 var netchart = new ApexCharts(document.querySelector('#netchart'), options_net);
 
-if (cookie.port_select!=null && !ports.includes(cookie.port_select)) {
+if (cookie.port_select && !ports.includes(cookie.port_select)) {
   delete cookie.port_select;
   saveCookie();
 }
@@ -1028,11 +1028,11 @@ function changeMode(item) {
 
 function changeView(item) {
   if (item==0) delete cookie.enter_view; else cookie.enter_view = item;
+  saveCookie();
   if (item==0) $('.view1').show(); else $('.view1').hide();
   if (item==1) $('.view2').show(); else $('.view2').hide();
   if (item==2) $('.view3').show(); else $('.view3').hide();
   if (item==3) $('.view4').show(); else $('.view4').hide();
-  saveCookie();
 }
 
 function changeCPUline(val) {
@@ -1356,7 +1356,6 @@ function openClose(button) {
       hidden.splice(hidden.indexOf(tbody.attr('sort')),1);
     }
     cookie.hidden_content = hidden.join(';');
-    saveCookie();
   } else {
     // show/hide all tiles content
     if (hidden.length==0) {
@@ -1366,16 +1365,15 @@ function openClose(button) {
         hidden.push($(this).attr('sort'));
       });
       cookie.hidden_content = hidden.join(';');
-      saveCookie();
     } else {
       $('div.frame tbody').each(function(){
         $(this).find('.openclose').removeClass('fa-chevron-up fa-chevron-down').addClass('fa-chevron-up');
         $(this).mixedView(1);
       });
       delete cookie.hidden_content;
-      saveCookie();
     }
   }
+  saveCookie();
 }
 
 function dismiss(button) {
