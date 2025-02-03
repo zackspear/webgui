@@ -2,8 +2,8 @@ Menu="Dashboard"
 Nchan="wg_poller,update_1,update_2,update_3,ups_status:stop,vm_dashusage"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -77,7 +77,7 @@ $zfs        = count(array_filter(array_column($disks,'fsType'),function($fs){ret
 
 $domain_cfgfile = "/boot/config/domain.cfg";
 $domain_cfg = parse_ini_file($domain_cfgfile);
-if (!isset($domain_cfg['USAGE'])) $vmusage = "N" ; else $vmusage = $domain_cfg['USAGE'];
+$vmusage = isset($domain_cfg['USAGE']) ? $domain_cfg['USAGE'] : 'N';
 
 // enable/disable graph elements by making hook script executable or not
 chmod("$docroot/webGui/system/VM",$libvirtd ? 0755 : 0644);
@@ -103,40 +103,44 @@ foreach ($disks as $disk) {
     break;
   }
 }
+
 foreach ($devs as $disk) {
   $extra_size += _var($disk,'sectors',0)*_var($disk,'sector_size',0);
 }
+
 $array_percent = number_format(100*$array_used/($array_size ?: 1),1,$dot,'');
 exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
-$wg_up = $wireguard ? exec("wg show interfaces") : '';
-$wg_up = $wg_up ? explode(' ',$wg_up) : [];
-$up    = count($wg_up);
-$down  = max(count($conf)-$up,0);
-$fans  = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
-$autofan = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
-$group = _var($var,'shareSMBEnabled')=='yes' | _var($var,'shareNFSEnabled')=='yes';
-$names = [];
+$wg_up      = $wireguard ? exec("wg show interfaces") : '';
+$wg_up      = $wg_up ? explode(' ',$wg_up) : [];
+$up         = count($wg_up);
+$down       = max(count($conf)-$up,0);
+$fans       = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
+$autofan    = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
+$group      = _var($var,'shareSMBEnabled')=='yes' | _var($var,'shareNFSEnabled')=='yes';
+$names      = [];
 $cache_only = $encrypted = 0;
+
 foreach ($shares as $share) {
   if ($share['useCache']=='only') $cache_only++;
   if ($share['luksStatus']>0) $encrypted++;
 }
+
 $passwd = $nopass = 0;
 foreach ($users as $user) if ($user['passwd']=='yes') $passwd++; else $nopass++;
 
-$boot   = "/boot/config/plugins/dynamix";
-$myfile = "case-model.cfg";
-$mycase = file_exists("$boot/$myfile") ? file_get_contents("$boot/$myfile") : false;
+$boot     = "/boot/config/plugins/dynamix";
+$myfile   = "case-model.cfg";
+$mycase   = file_exists("$boot/$myfile") ? file_get_contents("$boot/$myfile") : false;
 
-$board  = dmidecode('Base Board Information','2',0);
-$serial = _("s/n").": ".($board['Serial Number'] ?? "--");
-$board  = ($board['Manufacturer'] ?? "").' '.($board['Product Name'] ?? "").' '.(isset($board['Version']) ? ", "._("Version")." ".$board['Version'] : "");
+$board    = dmidecode('Base Board Information','2',0);
+$serial   = _("s/n").": ".($board['Serial Number'] ?? "--");
+$board    = ($board['Manufacturer'] ?? "").' '.($board['Product Name'] ?? "").' '.(isset($board['Version']) ? ", "._("Version")." ".$board['Version'] : "");
 
-$bios = dmidecode('BIOS Information','0',0);
+$bios     = dmidecode('BIOS Information','0',0);
 $biosdate = _("BIOS dated").": "._(my_time(strtotime($bios['Release Date'] ?? ""),$display['date']),0);
-$bios = $bios['Vendor'].(isset($bios['Version']) ? ", "._("Version")." ".$bios['Version'] : "");
+$bios     = $bios['Vendor'].(isset($bios['Version']) ? ", "._("Version")." ".$bios['Version'] : "");
 
-$cpu = dmidecode('Processor Information','4',0);
+$cpu      = dmidecode('Processor Information','4',0);
 $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;","&#8482;"],exec("grep -Pom1 '^model name\s+:\s*\K.+' /proc/cpuinfo") ?: $cpu['Version']);
 $cpumodel .= (strpos($cpumodel,'@')===false && !empty($cpu['Current Speed']) ? " @ {$cpu['Current Speed']}" : "");
 
