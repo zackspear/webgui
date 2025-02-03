@@ -1145,8 +1145,10 @@ function dropdown(menu) {
 }
 
 function toggleCPU(init) {
-  if (!init) {if (!cookie.cpu) cookie.cpu = 'close'; else delete cookie.cpu;}
-  saveCookie();
+  if (!init) {
+    if (!cookie.cpu) cookie.cpu = 'close'; else delete cookie.cpu;
+    saveCookie();
+  }
   if (!cookie.cpu) {
     $('.cpu_open').show();
     $('.cpu_close').text("_(Hide details)_");
@@ -1158,8 +1160,10 @@ function toggleCPU(init) {
 }
 
 function toggleChart(init) {
-  if (!init) {if (!cookie.cpu_chart) cookie.cpu_chart = 'close'; else delete cookie.cpu_chart;}
-  saveCookie();
+  if (!init) {
+    if (!cookie.cpu_chart) cookie.cpu_chart = 'close'; else delete cookie.cpu_chart;
+    saveCookie();
+  }
   $('#cpu_main').removeClass('last');
   $('.cpu_open:last').removeClass('last');
   if (!cookie.cpu_chart) {
