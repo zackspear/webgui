@@ -145,7 +145,8 @@ $cpumodel = str_ireplace(["Processor","(C)","(R)","(TM)"],["","&#169;","&#174;",
 $cpumodel .= (strpos($cpumodel,'@')===false && !empty($cpu['Current Speed']) ? " @ {$cpu['Current Speed']}" : "");
 
 $total = exec("awk '/^MemTotal/{print $2*1024}' /proc/meminfo");
-unset($ports); exec("ls /sys/class/net|grep -Po '^(lo|(bond|eth)\d+)$'",$ports);
+unset($ports); exec("ls --indicator-style=none /sys/class/net|grep -Po '^(bond|eth|wlan)\d+$'",$ports);
+$ports[] = 'lo';
 
 $sizes = ['MB','GB','TB'];
 $memory_type = $ecc = '';
