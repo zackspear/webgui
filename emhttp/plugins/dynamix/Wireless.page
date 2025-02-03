@@ -73,7 +73,7 @@ function update_wifi() {
       $('#other_networks').html(wifi.other);
     }
   });
-  timers.wifi = setTimeout(update_wifi,5000);
+  timers.wifi = setTimeout(update_wifi,10000);
 }
 
 function manage_wifi(ssid,task) {

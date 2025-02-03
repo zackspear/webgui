@@ -82,7 +82,7 @@ case 'list':
   $index = 0;
   if (count(array_column($wlan,'ssid'))) {
     $up    = file_exists($carrier) && file_get_contents($carrier)==1;
-    $alive = $up ? exec("iw ".escapeshellarg($port)." link | grep -Pom1 'SSID: \K.+'") : '';
+    $alive = $up ? exec("iw ".escapeshellarg($port)." link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
 

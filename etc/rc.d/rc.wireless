@@ -155,7 +155,8 @@ ipaddr_down(){
 wpa_configuration(){
   PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
   [[ -z $PSK ]] && PSK="\"$PASSWORD\""
-  echo "network={" >$WPA
+  echo "bgscan=\"\"" >$WPA
+  echo "network={" >>$WPA
   echo "ssid=\"$SSID\"" >>$WPA
   [[ $1 == "PSK" ]] && echo "key_mgmt=WPA-PSK" >>$WPA
   [[ $1 == "SAE" ]] && echo "key_mgmt=SAE" >>$WPA
@@ -214,7 +215,7 @@ wifi_stop(){
       ipaddr_down
     fi
     pkill wpa_supplicant
-    iw dev $PORT disconnect
+    iw dev $PORT disconnect 2>/dev/null
     rm -f $INI
     if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   else
@@ -238,15 +239,15 @@ wifi_join(){
   SECURITY=${SECURITY:-$ATTR3}
   if [[ -z $SECURITY || ${SECURITY^^} == "OPEN" ]]; then
     # open network
-    iw dev $PORT connect "$SSID" auth open
+    iw dev $PORT connect "$SSID" auth open 2>/dev/null
   elif [[ $SECURITY =~ "WEP" ]]; then
     # WEP encryption
-    iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD")
+    iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD") 2>/dev/null
   else
     # WPA encryption
     wpa_configuration "$SECURITY"
     [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
-    wpa_supplicant -B -i $PORT -c $WPA
+    wpa_supplicant -B -i $PORT -c $WPA 2>/dev/null
   fi
   # IPv4 address assignment
   IP=ipv4
