@@ -1011,7 +1011,7 @@ function getCase() {
 
 function changeMode(item) {
   if (item==0) delete cookie.enter_share; else cookie.enter_share = item;
-  saveCookie();
+  if (!startup) saveCookie();
 <?if (_var($var,'shareSMBEnabled')=='yes'):?>
   if (startup || $('.smb.share1').parent().find('tr:eq(1)').is(':visible')) {
     if (item==0) $('.smb.share1').show(); else $('.smb.share1').hide();
@@ -1033,7 +1033,7 @@ function changeMode(item) {
 
 function changeView(item) {
   if (item==0) delete cookie.enter_view; else cookie.enter_view = item;
-  saveCookie();
+  if (!startup) saveCookie();
   if (item==0) $('.view1').show(); else $('.view1').hide();
   if (item==1) $('.view2').show(); else $('.view2').hide();
   if (item==2) $('.view3').show(); else $('.view3').hide();

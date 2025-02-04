@@ -64,12 +64,6 @@ carrier_up(){
   return 1
 }
 
-# function to enable/disable ipv6 protocol per interface
-ipv6_up(){
-  [[ -d $CONF6/${PORT/$1/$2} ]] && echo $4 >$CONF6/${PORT/$1/$2}/disable_ipv6
-  [[ -d $CONF6/${PORT/$1/$3} ]] && echo $4 >$CONF6/${PORT/$1/$3}/disable_ipv6
-}
-
 # function to enable/disable ipv6 assignment per interface
 ipv6_addr(){
   if [[ -d $CONF6/$1 ]]; then
@@ -81,6 +75,9 @@ ipv6_addr(){
 
 # function to assign IP address
 ipaddr_up(){
+  # disable IPv6 per interface when IPv4 only
+  [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
+  [[ -d $CONF6/$PORT ]] && echo $DISABLE6 >$CONF6/$PORT/disable_ipv6
   if [[ $DHCP == yes ]]; then
     # bring up interface using DHCP/SLAAC
     ipv6_addr 1 1
@@ -182,7 +179,7 @@ wifi_start(){
   log "Starting $DAEMON..."
   local REPLY
   if [[ -e $SYSTEM/$PORT ]]; then
-    ip link set $PORT up
+    run ip link set $PORT up
     ssl_init
     # start active SSID
     $STARTWIFI
