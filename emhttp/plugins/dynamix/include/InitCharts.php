@@ -14,7 +14,7 @@
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 
 $charts = '/var/tmp/charts_data.tmp';
-$cookie = '/boot/config/cookie.json';
+$cookie = '/boot/config/dashboard_settings.json';
 
 switch ($_POST['cmd']) {
 case 'get':

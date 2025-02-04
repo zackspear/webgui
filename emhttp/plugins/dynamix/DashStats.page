@@ -58,7 +58,7 @@ exec("/etc/rc.d/rc.libvirt status >/dev/null",$dummy,$libvirtd);
 $dockerd    = $dockerd==0;
 $libvirtd   = $libvirtd==0;
 $apcupsd    = file_exists('/var/run/apcupsd.pid');
-$cookie     = '/boot/config/cookie.json';
+$cookie     = '/boot/config/dashboard_settings.json';
 $conf       = glob('/etc/wireguard/wg*.conf');
 $wireguard  = is_executable('/usr/bin/wg') && count($conf);
 $started    = _var($var,'fsState')=='Started';
