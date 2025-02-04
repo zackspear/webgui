@@ -890,7 +890,7 @@ case 'vm-template-import':
 	$replace = $_REQUEST['replace'];	
 	$templateslocation = "/boot/config/plugins/dynamix.vm.manager/savedtemplates.json";
 
-	if ($template="*file") {
+	if ($template==="*file") {
 		$template=json_decode(file_get_contents($name));
 	}
 
