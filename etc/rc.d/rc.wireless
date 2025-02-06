@@ -44,10 +44,10 @@ unzero6(){
 # function to initialize openSSL variables
 ssl_init(){
   KEY="$(dmidecode -qt1 | grep -Pom1 'Manufacturer: \K.+' | sed 's/ /_/g')ABCDEFGH"
-  IV="$(dmidecode -qt1 | grep -Pom1 'Product Name: \K.+' | sed 's/ /_/g')1234567890123456"
+  IV="12$(cat $SYSTEM/$PORT/address | sed 's/://g')34"
   echo "cipher=aes-256-cbc" >$SSLINPUT
   echo "key=${KEY:0:63}" >>$SSLINPUT
-  echo "iv=${IV:0:16}" >>$SSLINPUT
+  echo "iv=$IV" >>$SSLINPUT
 }
 
 # function to convert text to hex
