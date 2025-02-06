@@ -36,9 +36,11 @@ $dockerManPaths = [
 ];
 
 // load network variables if needed.
-$ethX = 'eth0';
-if (!isset($$ethX)) extract(parse_ini_file("$docroot/state/network.ini",true));
-$host = ipaddr($ethX);
+$system = '/sys/class/net';
+$port = file_exists("$system/br0") ? 'br0' : (file_exists("$system/bond0") ? 'bond0' : 'eth0');
+$host = exec ("ip -br -4 addr show $port scope global | sed -r 's/\/[0-9]+//g' | awk '{print $3;exit}'");
+
+if (empty($host) && file_exists("$system/wlan0")) $host = exec ("ip -br -4 addr show wlan0 scope global | sed -r 's/\/[0-9]+//g' | awk '{print $3;exit}'");
 
 // get network drivers
 $driver = DockerUtil::driver();
