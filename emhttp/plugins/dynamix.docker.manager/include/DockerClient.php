@@ -268,7 +268,7 @@ class DockerTemplates {
 
 	private function getControlURL(&$ct, $myIP, $WebUI) {
 		$port = &$ct['Ports'][0];
-		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'],'MyIP') ?: (_var($ct,'NetworkMode')=='host'||_var($port,'NAT') ? DockerUtils::host() : (_var($port,'IP') ?: DockerUtil::myIP($ct['Name'])));
+		$myIP = $myIP ?: $this->getTemplateValue($ct['Image'],'MyIP') ?: (_var($ct,'NetworkMode')=='host'||_var($port,'NAT') ? DockerUtil::host() : (_var($port,'IP') ?: DockerUtil::myIP($ct['Name'])));
 		// Get the WebUI address from the templates as a fallback
 		$WebUI = preg_replace("%\[IP\]%", $myIP, $WebUI ?? $this->getTemplateValue($ct['Image'], 'WebUI'));
 		if (preg_match("%\[PORT:(\d+)\]%", $WebUI, $matches)) {
