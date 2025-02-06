@@ -13,8 +13,8 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
