@@ -1377,7 +1377,7 @@
 					<input type="text" name="gpu[{{INDEX}}][rom]" autocomplete="off" spellcheck="false" data-pickcloseonfile="true" data-pickfilter="rom,bin" data-pickmatch="^[^.].*" data-pickroot="/mnt/" value="" placeholder="_(Path to ROM BIOS file)_ (_(optional)_)" title="_(Path to ROM BIOS file)_ (_(optional)_)" />
 				</td>
 			</tr>
-			<tr id="gpubootvga{{INDEX}}"><td>_(Graphics ROM Needed?)_:</td><td><span   class="orange-text"><i class="fa fa-warning"></i> _(GPU is primary adapater, vbios may be required.)_</span></td></tr>
+			<tr id="gpubootvga{{INDEX}}" hidden><td>_(Graphics ROM Needed?)_:</td><td><span   class="orange-text"><i class="fa fa-warning"></i> _(GPU is primary adapater, vbios may be required.)_</span></td></tr>
 		</table>
 	</script>
 
@@ -2486,13 +2486,13 @@ $(function() {
 			}
 		}
 
-		if (mylabel == "None") $("#gpubootvga"+myindex).hide();
-		if (myvalue != 'virtual' && myvalue != '' && myvalue !="nogpu") {
+		if (mylabel == "_(None)_") $("#gpubootvga"+myindex).hide();
+		if (myvalue != "_(virtual)_" && myvalue != '' && myvalue != "_(nogpu)_") {
 			if (ValidGPUs[myvalue].bootvga == "1") $("#gpubootvga"+myindex).show(); else $("#gpubootvga"+myindex).hide();
 		}
 
 		$romfile = $(this).closest('table').find('.romfile');
-		if (myvalue == 'virtual' || myvalue == '' || myvalue =="nogpu") {
+		if (myvalue == '_(virtual)_' || myvalue == '' || myvalue =="_(nogpu)_") {
 			slideUpRows($romfile.not(isVMAdvancedMode() ? '.basic' : '.advanced'));
 			$romfile.filter('.advanced').removeClass('advanced').addClass('wasadvanced');
 		} else {
