@@ -1163,6 +1163,7 @@ class DockerUtil {
 		exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu', $cpus);
 		return $cpus;
 	}
+
 	public static function ctMap($ct, $type='Name') {
 		return static::docker("inspect --format='{{.$type}}' $ct");
 	}
