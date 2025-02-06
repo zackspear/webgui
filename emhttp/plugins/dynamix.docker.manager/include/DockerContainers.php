@@ -1,6 +1,6 @@
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  * Copyright 2014-2021, Guilherme Jardim, Eric Schultz, Jon Panozzo.
  *
  * This program is free software; you can redistribute it and/or
@@ -13,8 +13,8 @@
 ?>
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
-require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+require_once "$docroot/webGui/include/Helpers.php";
 
 // add translations
 $_SERVER['REQUEST_URI'] = 'docker';
@@ -39,6 +39,9 @@ if (file_exists($user_prefs)) {
   array_multisort($sort,SORT_NUMERIC,$containers);
   unset($sort);
 }
+
+// get host interface IP address
+$host = DockerUtil::host();
 
 // Read container info
 $allInfo = $DockerTemplates->getAllInfo();
@@ -144,23 +147,25 @@ foreach ($containers as $ct) {
   $ports_internal = [];
   $ports_external = [];
   if (isset($ct['Ports']['vlan'])) {
-    foreach ($ct['Ports']['vlan'] as $i)
+    foreach ($ct['Ports']['vlan'] as $i) {
       $ports_external[] = sprintf('%s', $i);
+    }
     $ports_internal[0] = sprintf('%s', 'all');
   }
   foreach($ct['Networks'] as $netName => $netVals) {
     $networks[] = $netName;
     $network_ips[] = $running ? $netVals['IPAddress'] : null;
-
     if (isset($ct['Networks']['host'])) {
       $ports_external[] = sprintf('%s', $netVals['IPAddress']);
       $ports_internal[0] = sprintf('%s', 'all');
-    } else if (!isset($ct['Ports']['vlan']) || strpos($ct['NetworkMode'], 'container:') != 0) {
+    } elseif (!isset($ct['Ports']['vlan']) || strpos($ct['NetworkMode'],'container:')!==false) {
       foreach ($ct['Ports'] as $port) {
-        if (_var($port,'PublicPort') && _var($port,'Driver') == 'bridge')
+        if (_var($port,'PublicPort') && _var($port,'Driver') == 'bridge') {
           $ports_external[] = sprintf('%s:%s', $host, strtoupper(_var($port,'PublicPort')));
-        if ((!isset($ct['Networks']['host'])) || (!isset($ct['Networks']['vlan'])))
+        }
+        if ((!isset($ct['Networks']['host'])) || (!isset($ct['Networks']['vlan']))) {
           $ports_internal[] = sprintf('%s:%s', _var($port,'PrivatePort'), strtoupper(_var($port,'Type')));
+        }
       }
     }
   }
@@ -246,7 +251,7 @@ foreach ($containers as $ct) {
           if (!empty($TS_version)) {
             if (!empty($TS_latest_version)) {
               if (version_compare($TS_version, $TS_latest_version, '<')) {
-                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>"._("Tailscale:")."</span><span class='ui-tailscale-value'>v" . $TS_version . " &#10132; v" . $TS_latest_version . " "._("available!")."</span></div>";
+                $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>"._("Tailscale:")."</span><span class='ui-tailscale-value'>v".$TS_version." &#10132; v".$TS_latest_version." "._("available!")."</span></div>";
               } else {
                 $TSinfo .= "<div class='ui-tailscale-row'><span class='ui-tailscale-label'>"._("Tailscale").":</span><span class='ui-tailscale-value'>v".$TS_version."</span></div>";
               }
