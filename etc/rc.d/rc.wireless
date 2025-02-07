@@ -179,7 +179,10 @@ wifi_start(){
   log "Starting $DAEMON..."
   local REPLY
   if [[ -e $SYSTEM/$PORT ]]; then
+    LINK=shim-$PORT
+    [[ -e $SYSTEM/$LINK ]] || run ip link add link $PORT name $LINK type ipvlan mode l2 bridge
     run ip link set $PORT up
+    run ip link set $LINK up
     ssl_init
     # start active SSID
     $STARTWIFI
@@ -211,9 +214,9 @@ wifi_stop(){
       DNS=$DNS6
       ipaddr_down
     fi
-    pkill wpa_supplicant
-    iw dev $PORT disconnect 2>/dev/null
-    rm -f $INI
+    run pkill wpa_supplicant
+    run iw dev $PORT disconnect
+    run rm -f $INI
     if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   else
     REPLY="No Wifi present"
@@ -236,15 +239,15 @@ wifi_join(){
   SECURITY=${SECURITY:-$ATTR3}
   if [[ -z $SECURITY || ${SECURITY^^} == "OPEN" ]]; then
     # open network
-    iw dev $PORT connect "$SSID" auth open 2>/dev/null
+    run iw dev $PORT connect "$SSID" auth open
   elif [[ $SECURITY =~ "WEP" ]]; then
     # WEP encryption
-    iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD") 2>/dev/null
+    run iw dev $PORT connect "$SSID" auth shared key 0:$(hex "$PASSWORD")
   else
     # WPA encryption
-    wpa_configuration "$SECURITY"
+    run wpa_configuration "$SECURITY"
     [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
-    wpa_supplicant -B -i $PORT -c $WPA 2>/dev/null
+    run wpa_supplicant -B -i $PORT -c $WPA
   fi
   # IPv4 address assignment
   IP=ipv4

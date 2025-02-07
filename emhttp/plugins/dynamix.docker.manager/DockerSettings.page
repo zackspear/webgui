@@ -20,11 +20,8 @@ Tag="icon-docker"
 // Add the Docker JSON client
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 
-$DockerClient  = new DockerClient();
+$DockerClient = new DockerClient();
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$DockerStopped);
-
-exec("ls --indicator-style=none /sys/class/net|awk '/^br[0-9]+$/'",$nics);
-$bridge = count($nics)>0;
 
 function strposX($s, $c, $n=1) {
   $p = 0;
@@ -34,22 +31,29 @@ function strposX($s, $c, $n=1) {
 
 unset($custom,$other);
 exec("ls --indicator-style=none /sys/class/net|grep -P '^br[0-9]'",$custom);
-exec("ls --indicator-style=none /sys/class/net|grep -P '^(bond|eth)[0-9]'",$other);
+exec("ls --indicator-style=none /sys/class/net|grep -P '^(bond|eth|wlan)[0-9]'",$other);
+$bridge = count($custom)>0;
 $slaves = [];
+
 foreach ($other as $network) {
   if (substr($network,0,4)=='bond') {
     $br = str_replace('bond','br',$network);
     $bond = "/sys/class/net/$network/bonding/slaves";
     if (file_exists($bond)) $slaves = array_merge($slaves,explode(' ',str_replace("\n","",file_get_contents($bond))));
     if (!in_array($br,$custom)) $custom[] = $network;
-  } else {
+  } elseif (substr($network,0,3)=='eth') {
     $br = str_replace('eth','br',$network);
     $bond = str_replace('eth','bond',$network);
     if (!in_array($br,$custom) && !in_array($bond,$custom)) $custom[] = $network;
+  } else {
+    $custom[] = $network;
   }
 }
-$include = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $protocol = [];
-$wide = false;
+
+$include   = $include6 = $address = $address6 = $gateway = $gateway6 = $unset = $protocol = [];
+$wide      = false;
+$wlan      = (array)@parse_ini_file('/var/local/emhttp/wireless.ini');
+
 foreach ($custom as $network) {
   if (in_array($network,$slaves)) continue;
   $ip4    = exec("ip -4 -br addr show $network scope global | awk '{print $3;exit}'");
@@ -58,12 +62,16 @@ foreach ($custom as $network) {
   $gw6    = $ip6 ? exec("ip -6 route show dev $network default | awk '{print $3;exit}'") : '';
   $route4 = $ip4 ? exec("ip -4 route show dev $network $ip4 | awk '{print $1;exit}'") : '';
   $route6 = $ip6 ? exec("ip -6 route show dev $network | awk '/^".substr($ip6,0,strposX($ip6,':',4))."/{print $1;exit}'") : '';
-  [$eth,$vlan] = my_explode('.',$network);
-  $eth = str_replace(['bond','br'],'eth',$eth);
-  if (!$vlan) {
-    $protocol[$network] = _var($$eth,'PROTOCOL:0','ipv4');
+  if (substr($network,0,4) != 'wlan') {
+    [$eth,$vlan] = my_explode('.',$network);
+    $eth = str_replace(['bond','br'],'eth',$eth);
+    if (!$vlan) {
+      $protocol[$network] = _var($$eth,'PROTOCOL:0','ipv4');
+    } else {
+      foreach ($$eth as $key => $value) if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol[$network] = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+    }
   } else {
-    foreach ($$eth as $key => $value) if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol[$network] = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+    $protocol[$network] = empty($wlan['IP6']) ? 'ipv4' : 'ipv4+ipv6';
   }
   if ($ip4 && $route4) {
     $include[$network] = $route4;
@@ -89,22 +97,34 @@ $unset = array_unique($unset);
 function normalize($network) {
   return strtoupper(str_replace('.','_',$network));
 }
+
 function base_min($route) {
   [$net,$mask] = my_explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip((ip2long($net)>>$mask)<<$mask));
 }
+
 function base_max($route) {
   [$net,$mask] = my_explode('/',$route);
   $mask = 32-$mask;
   return explode('.',long2ip(((ip2long($net)>>$mask)<<$mask)+pow(2,$mask)-1));
 }
+
 function base_net($route) {
   return substr(explode('/',$route)[0],0,-2);
 }
+function hide_wlan($network) {
+  return $network=='wlan0' && lan_port(DockerUtil::port(),true)==1;
+}
+
+function hide_eth($network) {
+  $mgmt_port = ['br0','bond0','eth0'];
+  return in_array($network,$mgmt_port) && lan_port('wlan0',true)==1;
+}
+
 $bgcolor = strstr('white,azure',$display['theme']) ? '#f2f2f2' : '#1c1c1c';
 
-//Check if docker.cfg not exists
+//Check if docker.cfg does exist
 $no_dockercfg = !is_file('/boot/config/docker.cfg');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
@@ -285,16 +305,20 @@ _(Preserve user defined networks)_:
 $net = normalize($network);
 $docker_auto = "DOCKER_AUTO_$net";
 $docker_dhcp = "DOCKER_DHCP_$net";
+$hide_wlan   = hide_wlan($network);
 ?>
-
 <input type="hidden" name="<?=$docker_auto?>" value="<?=_var($dockercfg,$docker_auto)?>">
+
+<?if ($hide_wlan):?>
+<div markdown="1" style="display:none">
+<?endif;?>
 
 _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
   $auto = _var($dockercfg,$docker_auto)!='no';
-  $autoDisabled = $auto ? '':'disabled';
+  $autoDisabled = $auto ? '' : 'disabled';
   $dhcp = _var($dockercfg,$docker_dhcp);
-  $dhcpDisabled = ($auto && $dhcp) ? '':'disabled';
+  $dhcpDisabled = ($auto && $dhcp) ? '' : 'disabled';
   $net = base_min($route);
   $max = base_max($route);
   $mask = explode('/',$route)[1];
@@ -333,7 +357,11 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
   echo "<input type=\"hidden\" name=\"$docker_dhcp\" value=\"\">";
 ?>
 
+<?if ($hide_wlan):?>
+</div>
+<?endif;?>
 <?endforeach;?>
+
 <?if ($include):?>
 :docker_include_interface_vlan_ipv4_help:
 
@@ -342,11 +370,15 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
 $port = normalize($network);
 [$subnet,$mask] = my_explode('/',_var($dockercfg,"DOCKER_SUBNET_$port"));
-[$range,$size] = my_explode('/',_var($dockercfg,"DOCKER_RANGE_$port"));
-$disabled = $subnet ? '':'disabled';
-$dhcpDisabled = $range ? '':'disabled';
+[$range,$size]  = my_explode('/',_var($dockercfg,"DOCKER_RANGE_$port"));
+$disabled       = $subnet ? '':'disabled';
+$dhcpDisabled   = $range ? '':'disabled';
+$hide_eth       = hide_eth($network);
 ?>
 <?if ($protocol[$network] != 'ipv6'):?>
+<?if ($hide_eth):?>
+<div markdown="1" style="display:none">
+<?endif;?>
 
 _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 : <input type="checkbox" id="DOCKER_CUSTOM_<?=$port?>_edit" onchange="changeCustom(this.id,4)"<?=$subnet?'checked':''?>><span id="DOCKER_CUSTOM_<?=$port?>_line" class="<?=$subnet?'':'disabled'?>">
@@ -362,6 +394,9 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
   <span id="DOCKER_CUSTOM_<?=$port?>_hosts" style="<?=$subnet?'':'display:none'?>">(<?=pow(2,32-($size?:25))?> _(hosts)_)</span></span>
 
 <?endif;?>
+<?if ($hide_eth):?>
+</div>
+<?endif;?>
 <?endforeach;?>
 <?if ($unset && $protocol[$network] != 'ipv6'):?>
 :docker_exclude_interface_vlan_ipv4_help:
@@ -373,9 +408,13 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 <?foreach ($include6 as $network => $route):?>
 <?
 $net = normalize($network);
-$docker_auto = "DOCKER_AUTO_$net";
+$docker_auto  = "DOCKER_AUTO_$net";
 $docker_dhcp6 = "DOCKER_DHCP6_$net";
+$hide_wlan    = hide_wlan($network);
 ?>
+<?if ($hide_wlan):?>
+<div markdown="1" style="display:none">
+<?endif;?>
 
 _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
@@ -393,6 +432,9 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
   <span class="ip6">**_(Subnet)_:** <?=$route?></span>
   <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
 
+<?if ($hide_wlan):?>
+</div>
+<?endif;?>
 <?endforeach;?>
 <?if ($include6):?>
 :docker_include_interface_vlan_ipv6_help:
@@ -402,11 +444,15 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?
 $port = normalize($network);
 [$subnet6,$mask6] = my_explode('/',_var($dockercfg,"DOCKER_SUBNET6_$port"));
-[$range6,$size6] = my_explode('/',_var($dockercfg,"DOCKER_RANGE6_$port"));
-$disabled = $subnet6 ? '':'disabled';
-$dhcpDisabled = $range6 ? '':'disabled';
+[$range6,$size6]  = my_explode('/',_var($dockercfg,"DOCKER_RANGE6_$port"));
+$disabled         = $subnet6 ? '':'disabled';
+$dhcpDisabled     = $range6 ? '':'disabled';
+$hide_eth         = hide_eth($network);
 ?>
 <?if ($protocol[$network] != 'ipv4'):?>
+<?if ($hide_eth):?>
+<div markdown="1" style="display:none">
+<?endif;?>
 
 _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 : <input type="checkbox" id="DOCKER_CUSTOM6_<?=$port?>_edit" onchange="changeCustom(this.id,6)"<?=$subnet6?'checked':''?>><span id="DOCKER_CUSTOM6_<?=$port?>_line" class="<?=$subnet6?'':'disabled'?>">
@@ -415,6 +461,9 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
   <?for ($m=64; $m<=120; $m+=8) echo mk_option($mask6?:64,$m,$m)?></select></span>
   <span class="gw6">**_(Gateway)_:**<input type="text" id="DOCKER_CUSTOM6_<?=$port?>_gw" name="DOCKER_GATEWAY6_<?=$port?>" class="gw6" value="<?=_var($dockercfg,"DOCKER_GATEWAY6_$port")?>" title="_(IPv6 address nnnn:xxxx::yyyy)_"<?=$disabled?>></span>
 
+<?if ($hide_eth):?>
+</div>
+<?endif;?>
 <?endif;?>
 <?endforeach;?>
 <?if ($unset && $protocol[$network] != 'ipv4'):?>
@@ -423,7 +472,6 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
 <?endif;?>
 </div>
 <?else: /* DOCKER STARTED */?>
-
 
 _(Docker version)_:
 : <?$arrInfo = $DockerClient->getInfo(); echo $arrInfo['Version']?>
@@ -473,72 +521,117 @@ _(Preserve user defined networks)_:
 
 <?foreach ($include as $network => $route):?>
 <?
-$net = normalize($network);
+$net         = normalize($network);
 $docker_dhcp = "DOCKER_DHCP_$net";
+$hide_wlan   = hide_wlan($network);
 ?>
 <?if (isset($dockercfg[$docker_dhcp]) || empty($dockercfg["DOCKER_AUTO_$net"])):?>
+<?if ($hide_wlan):?>
+<div markdown="1" style="display:none">
+<?endif;?>
+
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
   **_(DHCP pool)_:** <?=_var($dockercfg,$docker_dhcp) ?: "_(not set)_"?><?if (isset($dockercfg[$docker_dhcp])):?>&nbsp;&nbsp;(<?=pow(2,32-my_explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
 
+<?if ($hide_wlan):?>
+</div>
+<?endif;?>
 <?endif;?>
 <?endforeach;?>
 <?foreach ($unset as $network):?>
 <?
-$port = normalize($network);
-[$eth,$vlan] = my_explode('.',$network);
-$eth = str_replace(['bond','br'],'eth',$eth);
-if (!$vlan) {
-  $protocol = _var($$eth,'PROTOCOL:0','ipv4');
-} else {
-  foreach ($$eth as $key => $value) {
-    if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+$port     = normalize($network);
+$hide_eth = hide_eth($network);
+
+if (substr($network,0,4) != 'wlan') {
+  [$eth,$vlan] = my_explode('.',$network);
+  $eth = str_replace(['bond','br'],'eth',$eth);
+  if (!$vlan) {
+    $protocol = _var($$eth,'PROTOCOL:0','ipv4');
+  } else {
+    foreach ($$eth as $key => $value) {
+      if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+    }
   }
+} else {
+  $protocol = empty($wlan['IP6']) ? 'ipv4' : 'ipv4+ipv6';
 }
+
 [$subnet,$mask] = my_explode('/',_var($dockercfg,"DOCKER_SUBNET_$port"));
 [$range,$size] = my_explode('/',_var($dockercfg,"DOCKER_RANGE_$port"));
 ?>
 <?if ($protocol != 'ipv6' && $subnet):?>
+<?if ($hide_eth):?>
+<div markdown="1" style="display:none">
+<?endif;?>
+
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$subnet?>/<?=$mask?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=_var($dockercfg,"DOCKER_GATEWAY_$port")?></span>
   **_(DHCP pool)_:** <?=$range ? "$range/$size" : "_(not set)_"?><?if ($range):?>&nbsp;&nbsp;(<?=pow(2,32-($size?:25))?> _(hosts)_)<?endif;?>
 
+<?if ($hide_eth):?>
+</div>
+<?endif;?>
 <?endif;?>
 <?endforeach;?>
 <?foreach ($include6 as $network => $route):?>
 <?
-$net = normalize($network);
+$net          = normalize($network);
 $docker_dhcp6 = "DOCKER_DHCP6_$net";
+$hide_wlan    = hide_wlan($network);
+
 if (isset($dockercfg[$docker_dhcp6]) || empty($dockercfg["DOCKER_AUTO_$net"])):?>
 <?$wide = true;?>
+<?if ($hide_wlan):?>
+<div markdown="1" style="display:none">
+<?endif;?>
+
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="gw6">**_(Subnet)_:** <?=$route?></span>
   <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
 
+<?if ($hide_wlan):?>
+</div>
+<?endif;?>
 <?endif;?>
 <?endforeach;?>
 <?foreach ($unset as $network):?>
 <?
-$port = normalize($network);
-[$eth,$vlan] = my_explode('.',$network);
-$eth = str_replace(['bond','br'],'eth',$eth);
-if (!$vlan) {
-  $protocol = _var($$eth,'PROTOCOL:0','ipv4');
-} else {
-  foreach ($$eth as $key => $value) {
-    if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+$port     = normalize($network);
+$hide_eth = hide_eth($network);
+
+if (substr($network,0,4) != 'wlan') {
+  [$eth,$vlan] = my_explode('.',$network);
+  $eth = str_replace(['bond','br'],'eth',$eth);
+  if (!$vlan) {
+    $protocol = _var($$eth,'PROTOCOL:0','ipv4');
+  } else {
+    foreach ($$eth as $key => $value) {
+      if (strpos($key,'VLANID')!==false && $value==$vlan) {$protocol = _var($$eth,str_replace('VLANID','PROTOCOL',$key),'ipv4'); break;}
+    }
   }
+} else {
+  $protocol = empty($wlan['IP6']) ? 'ipv4' : 'ipv4+ipv6';
 }
+
 [$subnet6,$mask6] = my_explode('/',_var($dockercfg,"DOCKER_SUBNET6_$port"));
 [$range6,$size6] = my_explode('/',_var($dockercfg,"DOCKER_RANGE6_$port"));
 ?>
 <?if ($protocol != 'ipv4' && $subnet6):?>
+<?if ($hide_eth):?>
+<div markdown="1" style="display:none">
+<?endif;?>
+
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="gw6">**_(Subnet)_:** <?=$subnet6?>/<?=$mask6?></span>
   <span class="gw6">**_(Gateway)_:** <?=_var($dockercfg,"DOCKER_GATEWAY6_$port")?></span>
 
+<?if ($hide_eth):?>
+</div>
+<?endif;?>
 <?endif;?>
 <?endforeach;?>
 </div>
@@ -910,7 +1003,7 @@ function updateLocation(val) {
   }
 }
 function updateBackingFS(val) {
-  var backingfs = "<?= _var($dockercfg,'DOCKER_BACKINGFS') ?>";
+  var backingfs = "<?=_var($dockercfg,'DOCKER_BACKINGFS')?>";
   var warning = document.getElementById("WARNING_BACKINGFS");
   var checkbox = $(".deleteCheckbox");
   if (val !== backingfs) {

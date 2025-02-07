@@ -1092,10 +1092,12 @@ _(Network Type)_:
     [$eth,$x] = my_explode('.',$network);
     $eth = str_replace(['br','bond'],'eth',$eth);
     $n = $x ? 1 : 0; while (isset($$eth["VLANID:$n"]) && $$eth["VLANID:$n"] != $x) $n++;
-    if ($$eth["DESCRIPTION:$n"]) $name .= ' -- '.compress(trim($$eth["DESCRIPTION:$n"]));
+    if (!empty($$eth["DESCRIPTION:$n"])) $name .= ' -- '.compress(trim($$eth["DESCRIPTION:$n"]));
   } elseif (preg_match('/^wg[0-9]+$/',$network)) {
     $conf = file("/etc/wireguard/$network.conf");
     if ($conf[1][0]=='#') $name .= ' -- '.compress(trim(substr($conf[1],1)));
+  } elseif (substr($network,0,4)=='wlan') {
+    $name .= '  -- '._('Wireless interface');
   }
   ?>
   <?=mk_option(1,$network,_('Custom')." : $name")?>
