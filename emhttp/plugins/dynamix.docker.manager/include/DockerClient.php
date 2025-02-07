@@ -40,8 +40,11 @@ $driver = DockerUtil::driver();
 
 // Docker configuration file - guaranteed to exist
 $docker_cfgfile = '/boot/config/docker.cfg';
+$mgmt_port = ['br0','bond0','eth0'];
+
 if (file_exists($docker_cfgfile)) {
-	$port = strtoupper(DockerUtil::port());
+	$port = DockerUtil::port();
+	$port = strtoupper((in_array($port,$mgmt_port) && lan_port($port,true)==0) ? 'wlan0' : $port);
 	exec("grep -Pom2 '_SUBNET_|_{$port}(_[0-9]+)?=' $docker_cfgfile",$cfg);
 	if (isset($cfg[0]) && $cfg[0]=='_SUBNET_' && empty($cfg[1])) {
 		# interface has changed, update configuration
@@ -49,7 +52,7 @@ if (file_exists($docker_cfgfile)) {
 	}
 }
 
-$defaults = (array)@parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg");
+$defaults  = (array)@parse_ini_file("$docroot/plugins/dynamix.docker.manager/default.cfg");
 $dockercfg = array_replace_recursive($defaults, (array)@parse_ini_file($docker_cfgfile));
 
 function var_split($item, $i=0) {
@@ -1078,15 +1081,12 @@ class DockerClient {
 ##################################
 
 class DockerUtil {
-	public static function ensureImageTag($image): string
-	{
+	public static function ensureImageTag($image): string {
 		extract(static::parseImageTag($image));
-
 		return "$strRepo:$strTag";
 	}
 
-	public static function parseImageTag($image): array
-	{
+	public static function parseImageTag($image): array {
 		if (strpos($image, 'sha256:') === 0) {
 			// sha256 was provided instead of actual repo name so truncate it for display:
 			$strRepo = substr($image, 7, 12);
@@ -1102,21 +1102,17 @@ class DockerUtil {
 				$strRepo = $image;
 			}
 		}
-
 		// Add :latest tag to image if it's absent
 		if (empty($strTag)) $strTag = 'latest';
-
 		return array_map('trim', ['strRepo' => $strRepo, 'strTag' => $strTag]);
 	}
 
-	private static function splitImage($image): ?array
-	{
+	private static function splitImage($image): ?array {
 		if (false === preg_match('@^(.+/)*([^/:]+)(:[^:/]*)*$@', $image, $newSections) || count($newSections) < 3) {
 			return null;
 		} else {
 			[, $strRepo, $image, $strTag] = array_merge($newSections, ['']);
 			$strTag = str_replace(':','',$strTag??'');
-
 			return [
 				'strRepo' => $strRepo . $image,
 				'strTag' => $strTag,

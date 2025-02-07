@@ -1484,9 +1484,7 @@
 					<select name="nic[<?=$i?>][network]">
 					<?
 					foreach (array_keys($arrValidNetworks) as $key) {
-
 						echo mk_option("", $key, "- "._($key)." -", "disabled");
-
 						foreach ($arrValidNetworks[$key] as $strNetwork) {
 							echo mk_option($arrNic['network'], $strNetwork, $strNetwork);
 						}

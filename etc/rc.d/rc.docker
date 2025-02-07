@@ -16,9 +16,9 @@ DAEMON="Docker daemon"
 UNSHARE="/usr/bin/unshare"
 SYSTEM="/sys/class/net"
 CONF6="/proc/sys/net/ipv6/conf"
-STOCK="bond br eth"
+STOCK="bond br eth wlan"
 ACTIVE=$(ls --indicator-style=none $SYSTEM | awk "/^(${STOCK// /|})[0-9]/" ORS=' ')
-NICS=$(ls --indicator-style=none $SYSTEM | awk '/^eth[0-9]+$/')
+NICS=$(ls --indicator-style=none $SYSTEM | awk '/^(eth|wlan)[0-9]+$/')
 
 DOCKERD="dockerd"
 DOCKER="/usr/bin/$DOCKERD"
@@ -38,20 +38,23 @@ TMP=/var/tmp/network.tmp
 # determine active port name
 [[ -e $SYSTEM/bond0 ]] && PORT=bond0 || PORT=eth0
 [[ -e $SYSTEM/br0 ]] && PORT=br0
+[[ $(cat $SYSTEM/$PORT/carrier) == 0 && -e $SYSTEM/wlan0 && $(cat $SYSTEM/wlan0/carrier) == 1 ]] && PORT=wlan0
 
 # Set defaults used by the docker daemon
 if [[ -f $DOCKER_CFG ]]; then
   for NIC in $NICS; do
-    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-      NIC=${NIC/eth/br}
-    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-      NIC=${NIC/eth/bond}
+    if [[ ${NIC:0:3} == eth ]]; then
+      if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+        NIC=${NIC/eth/br}
+      elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+        NIC=${NIC/eth/bond}
+      fi
     fi
     CFG=($(grep -Pom2 "_SUBNET_|_${NIC^^}(_[0-9]+)?=" $DOCKER_CFG))
     if [[ ${CFG[0]} == _SUBNET_ && -z ${CFG[1]} ]]; then
       # interface has changed, update configuration
       X=${NIC//[^0-9]/}
-      sed -ri "s/_(BR|BOND|ETH)$X(_[0-9]+)?=/_${NIC^^}\2=/; s/(br|bond|eth)$X(\.[0-9]+)? /$NIC\2 /g" $DOCKER_CFG
+      sed -ri "s/_(BR|BOND|ETH|WLAN)$X(_[0-9]+)?=/_${NIC^^}\2=/; s/(br|bond|eth|wlan)$X(\.[0-9]+)? /$NIC\2 /g" $DOCKER_CFG
     fi
   done
   # Read (updated) Unraid docker configuration file
@@ -195,11 +198,11 @@ container_add_route(){
   local PID=${CT[0]}
   local NET=${CT[1]#*[}
   local LAN=${NET%:*}
-  if [[ $PID -gt 0 && "eth0 br0 bond0" =~ $LAN ]]; then
-    local THISIP=$(sed -n '/^\[eth0\]$/,/^TYPE/p' $INI | grep -Pom1 '^IPADDR:0="\K[^"]+')
+  if [[ $PID -gt 0 && "eth0 br0 bond0 wlan0" =~ $LAN ]]; then
+    local THISIP=$(ip -4 -br addr show dev $LAN scope global | awk '{print $3;exit}')
     for CFG in /etc/wireguard/wg*.cfg ; do
-      local NETWORK=$(grep -Pom1 '^Network:0="\K[^"]+' $CFG)
-      [[ -n $NETWORK ]] && nsenter -n -t $PID ip -4 route add $NETWORK via $THISIP dev $LAN 2>/dev/null
+      local NETWORK=$(ip -4 show route dev $LAN $THISIP | awk '{print $1;exit}')
+      [[ -n $NETWORK ]] && nsenter -n -t $PID ip -4 route add $NETWORK via ${THISIP%/*} dev $LAN 2>/dev/null
     done
   fi
 }
@@ -216,14 +219,16 @@ docker_network_start(){
         INCLUDE="${INCLUDE}${NETWORK} "
         EXCLUDE="${EXCLUDE}${NETWORK/bond/eth} "
       fi
-    else
+    elif [[ ${NETWORK:0:3} == eth ]]; then
       if [[ $INCLUDE =~ "${NETWORK/eth/br} " || $INCLUDE =~ "${NETWORK/eth/bond} " ]]; then
         [[ $EXCLUDE =~ "$NETWORK " ]] || EXCLUDE="${EXCLUDE}${NETWORK} "
       else
         INCLUDE="${INCLUDE}${NETWORK} "
       fi
+    else
+      INCLUDE="${INCLUDE}${NETWORK} "
     fi
-  done <<< $(ls --indicator-style=none $SYSTEM | grep -P '^(bond|eth)[0-9]+')
+  done <<< $(ls --indicator-style=none $SYSTEM | grep -P '^(bond|eth|wlan)[0-9]+')
   if ! docker_running; then return 1; fi
   # get container settings for custom networks to reconnect later
   declare -A NETRESTORE CTRESTORE
@@ -233,17 +238,23 @@ docker_network_start(){
     XMLFILE=$(find /boot/config/plugins/dockerMan/templates-user -maxdepth 1 -iname my-${CONTAINER}.xml)
     if [[ -n $XMLFILE ]]; then
       REBUILD=
+      MAIN=
       # update custom network reference (if changed)
       for NIC in $NICS; do
-        if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-          NIC=${NIC/eth/br}
-        elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-          NIC=${NIC/eth/bond}
+        if [[ ${NIC:0:3} == eth ]]; then
+          if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+            NIC=${NIC/eth/br}
+          elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+            NIC=${NIC/eth/bond}
+          fi
         fi
         X=${NIC//[^0-9]/}
-        REF=$(grep -Pom1 "<Network>\K(br|bond|eth)$X" $XMLFILE)
+        REF=$(grep -Pom1 "<Network>\K(br|bond|eth|wlan)$X" $XMLFILE)
+        [[ $X == 0 && $(cat $SYSTEM/$NIC/carrier) == 0 ]] && continue
+        [[ $X == 0 && $NIC != wlan0 ]] && MAIN=$NIC
+        [[ $NIC == wlan0 && -n $MAIN ]] && continue
         if [[ -n $REF && $REF != $NIC ]]; then
-          sed -ri "s/<Network>(br|bond|eth)$X(\.[0-9]+)?<\/Network>/<Network>$NIC\2<\/Network>/" $XMLFILE
+          sed -ri "s/<Network>(br|bond|eth|wlan)$X(\.[0-9]+)?<\/Network>/<Network>$NIC\2<\/Network>/" $XMLFILE
           # flag container for later rebuild
           REBUILD=1
         fi
@@ -282,10 +293,12 @@ docker_network_start(){
   done
   # detach custom networks
   for NIC in $NICS; do
-    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-      NIC=${NIC/eth/br}
-    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-      NIC=${NIC/eth/bond}
+    if [[ ${NIC:0:3} == eth ]]; then
+      if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+        NIC=${NIC/eth/br}
+      elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+        NIC=${NIC/eth/bond}
+      fi
     fi
     X=${NIC//[^0-9]/}
     driver ${NIC//[0-9]/}
@@ -393,7 +406,14 @@ docker_network_start(){
     if [[ -n $SUBNET || -n $SUBNET6 ]]; then
       TYPE=${NETWORK//[0-9.]/}
       driver $TYPE
-      [[ $TYPE == br ]] && VHOST=$NETWORK || VHOST=vhost${NETWORK//[^0-9.]/}
+      if [[ $TYPE == br ]]; then
+        VHOST=$NETWORK
+      elif [[ $TYPE == wlan ]]; then
+        VHOST=shim-$NETWORK
+        ATTACH=ipvlan
+      else
+        VHOST=vhost${NETWORK//[^0-9.]/}
+      fi
       docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
       # connect containers to this new network
       for CONNECT in ${NETRESTORE[$NETWORK]}; do
@@ -417,7 +437,7 @@ docker_network_start(){
         GW=($(ip -4 route show default dev $NETWORK | awk '{print $3,$5;exit}'))
         if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
           # create shim interface and copy parent IPv4 address to shim interface
-          [[ -e $SYSTEM/$LINK ]] || run ip link add $LINK link $NETWORK type $ATTACH mode $MODE
+          [[ -e $SYSTEM/$LINK ]] || run ip link add link $NETWORK name $LINK type $ATTACH mode $MODE
           run ip addr flush dev $LINK
           run ip -4 addr add $IPV4 dev $LINK metric 0
           # disable IPv6 on shim interface
@@ -442,7 +462,7 @@ docker_network_start(){
           run ip link set $LINK down
           run ip link del $LINK
         fi
-      else
+      elif [[ $TYPE != wlan ]]; then
         if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
           run ip addr flush dev $VHOST
           # copy IPv4 address to vhost interface
@@ -467,10 +487,12 @@ docker_network_stop(){
   log "Stopping network..."
   if ! docker_running; then return 1; fi
   for NIC in $NICS; do
-    if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-      NIC=${NIC/eth/br}
-    elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-      NIC=${NIC/eth/bond}
+    if [[ ${NIC:0:3} == eth ]]; then
+      if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
+        NIC=${NIC/eth/br}
+      elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
+        NIC=${NIC/eth/bond}
+      fi
     fi
     driver ${NIC//[0-9]/}
     for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
@@ -485,6 +507,8 @@ docker_network_stop(){
           run ip link set $LINK down
           run ip link del $LINK
         fi
+      elif [[ $TYPE == wlan ]]; then
+        [[ -e $SYSTEM/$NETWORK ]] && run ip addr flush dev $NETWORK
       else
         VHOST=vhost${NETWORK//[^0-9.]/}
         [[ -e $SYSTEM/$VHOST ]] && run ip addr flush dev $VHOST
