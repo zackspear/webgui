@@ -35,6 +35,9 @@ $dockerManPaths = [
 	'webui-info'     => "$docroot/state/plugins/dynamix.docker.manager/docker.json"
 ];
 
+// get network drivers
+$driver = DockerUtil::driver();
+
 // Docker configuration file - guaranteed to exist
 $docker_cfgfile = '/boot/config/docker.cfg';
 if (file_exists($docker_cfgfile)) {
@@ -292,10 +295,9 @@ class DockerTemplates {
 	}
 
 	public function getAllInfo($reload=false,$com=true,$communityApplications=false) {
-		global $dockerManPaths;
+		global $driver, $dockerManPaths;
 		$DockerClient = new DockerClient();
 		$DockerUpdate = new DockerUpdate();
-		$driver = DockerUtil::driver();
 		$host = DockerUtil::host();
 		//$DockerUpdate->verbose = $this->verbose;
 		$info = DockerUtil::loadJSON($dockerManPaths['webui-info']);
@@ -948,7 +950,7 @@ class DockerClient {
 	}
 
 	public function getDockerContainers() {
-		$driver = DockerUtil::driver();
+		global $driver;
 		$host = DockerUtil::host();
 		// Return cached values
 		if (is_array($this::$containersCache)) return $this::$containersCache;

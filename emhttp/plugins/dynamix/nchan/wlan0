@@ -22,6 +22,9 @@ $_SERVER['REQUEST_URI'] = '';
 $login_locale = _var($display,'locale');
 require_once "$docroot/webGui/include/Translations.php";
 
+// remember current language
+$locale_init = $locale;
+
 function update_translation($locale) {
   global $docroot,$language;
   $language = [];
