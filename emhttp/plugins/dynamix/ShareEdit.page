@@ -121,9 +121,17 @@ function presetSpace($val) {
 
 	/* Get the maximum value from the large array, filtering out non-numeric values */
 	if (!empty($large)) {
-		$fsSize[''] = max(array_filter($large, 'is_numeric'));
+		/* Filter non-numeric values */
+		$numericLarge = array_filter($large, 'is_numeric');
+
+		/* Set the maximum value */
+		$fsSize[''] = !empty($numericLarge) ? max($numericLarge) : 0;
 	} else if (!empty($fsSize)) {
-		$fsSize[''] = min(array_filter($fsSize));
+		/* Filter non-numeric values */
+		$numericFsSize = array_filter($fsSize, 'is_numeric');
+
+		/* Set the minimum value */
+		$fsSize[''] = !empty($numericFsSize) ? min($numericFsSize) : 0;
 	} else {
 		$fsSize[''] = 0;
 	}
@@ -214,7 +222,13 @@ function fsSize() {
 
 	/* Set the minimum filesystem size from the array of enabled disks */
 	if (!empty($small)) {
-		$fsSize[''] = min(array_filter($small));
+		/* Filter out non-numeric values and zeros */
+		$numericSmall = array_filter($small, function($value) {
+			return is_numeric($value) && (float)$value > 0;
+		});
+
+		/* Set the minimum value */
+		$fsSize['']	= !empty($numericSmall) ? min($numericSmall) : 0;
 	} else {
 		$fsSize['']	= 0;
 	}
@@ -258,13 +272,19 @@ function fsFree() {
 
 	/* Determine the free filesystem space */
 	if (!empty($large)) {
+		/* Filter non-numeric values */
+		$numericLarge = array_filter($large, 'is_numeric');
+
 		/* Set the maximum free filesystem space from the array of enabled disks */
-		$fsFree[''] = max(array_filter($large));
-	} else if (!empty($fsFree)) {
+		$fsFree[''] = !empty($numericLarge) ? max($numericLarge) : 0;
+	} elseif (!empty($fsFree)) {
+		/* Filter non-numeric values */
+		$numericFsFree = array_filter($fsFree, 'is_numeric');
+
 		/* Set the minimum free filesystem space from the pool array */
-		$fsFree[''] = min(array_filter($fsFree));
+		$fsFree[''] = !empty($numericFsFree) ? min($numericFsFree) : 0;
 	} else {
-		/* The minimum free space cannot be determined from the array or pools so it is set to zero */
+		/* The minimum free space cannot be determined from the array or pools, so it is set to zero */
 		$fsFree[''] = 0;
 	}
 
