@@ -2812,7 +2812,7 @@ $(function() {
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('i440fx') != -1) {
 				var usertemplate = <?=$usertemplate?>;
-				if (usertemplate = 0) $('#vmform #domain_machine').val($(this).val()).change();
+				if (usertemplate == 0) $('#vmform #domain_machine').val($(this).val()).change();
 				return false;
 			}
 		});
@@ -2822,7 +2822,7 @@ $(function() {
 		$("#vmform #domain_machine option").each(function(){
 			if ($(this).val().indexOf('q35') != -1) {
 				var usertemplate = <?=$usertemplate?>;
-				if (usertemplate = 0) $('#vmform #domain_machine').val($(this).val()).change();
+				if (usertemplate == 0) $('#vmform #domain_machine').val($(this).val()).change();
 				return false;
 			}
 		});
