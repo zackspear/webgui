@@ -541,8 +541,6 @@ build_ssl(){
   [[ -z $LANIP && -e $SYSTEM/wlan0 ]] && LANIP=$(ip -4 -br addr show wlan0 scope global | sed -r 's/\/[0-9]+//g' | awk '{print $3;exit}')
   [[ -z $LANIP6 && -e $SYSTEM/wlan0 ]] && LANIP6=$(ip -6 -br addr show wlan0 scope global -temporary -deprecated | sed -r 's/\/[0-9]+//g' | awk '{print $3;exit}')
 
-  rm -f $NETWORK_INI.eth0
-
   # regenerate self-signed cert if local TLD changes */
   SELFCERTPATH=$SSL/certs/${LANNAME}_unraid_bundle.pem
   [[ -f $SELFCERTPATH ]] && ! acceptable_selfcert && rm -f $SELFCERTPATH
