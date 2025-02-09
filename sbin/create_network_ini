@@ -7,10 +7,10 @@
 #
 # create initial network.ini file on system start
 # create system welcome message
-# update files on DHCP events 'BOUND[6] IPV4LL'
+# update files on DHCP events 'BOUND[6] IPV4LL EXPIRE'
 # update services listening interfaces / addresses
 
-[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL" =~ $reason) ]] && exit 0
+[[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL EXPIRE" =~ $reason) ]] && exit 0
 
 INI=/var/local/emhttp/network.ini.new
 CFG=/boot/config/network.cfg
@@ -227,7 +227,8 @@ mv $INI ${INI%.*}
 
 log "interface=${interface:-$1}, reason=$reason, protocol=$protocol"
 # delayed execution
-/usr/local/emhttp/webGui/scripts/update_services 45
+[[ $reason == EXPIRE ]] && DELAY=15 || DELAY=45
+/usr/local/emhttp/webGui/scripts/update_services $DELAY
 
 # send update information
 if [[ -n $DATA && -e /var/run/nginx.socket ]]; then
