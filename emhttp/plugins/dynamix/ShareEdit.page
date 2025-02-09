@@ -123,7 +123,7 @@ function presetSpace($val) {
 	if (!empty($large)) {
 		$fsSize[''] = max(array_filter($large, 'is_numeric'));
 	} else if (!empty($fsSize)) {
-		$fsSize[''] = $fsSize[$pool];
+		$fsSize[''] = min(array_filter($fsSize));
 	} else {
 		$fsSize[''] = 0;
 	}
