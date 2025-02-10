@@ -1,11 +1,13 @@
 body{-webkit-overflow-scrolling:touch}
-#vmform table{margin-top:0}
+#vmform table{margin-top:0;table-layout:fixed}
 #vmform div.title + table{margin-top:0}
 #vmform table tr{vertical-align:top;line-height:4rem;height:4rem}
 @media (max-width:1280px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
 @media (min-width:1281px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
 @media (min-width:1921px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
-#vmform table tr td:last-child{width:inherit}
+#vmform table tr td:nth-child(2){width:800px}
+#vmform textarea{max-width:500px;scrollbar-width:4px}
+#vmform textarea::-webkit-scrollbar{height:4px;width:4px}
 #vmform .multiple{position:relative}
 #vmform .sectionbutton{position:absolute;left:2px;cursor:pointer;opacity:0.4;font-size:1.4rem;line-height:17px;z-index:10;transition-property:opacity,left;transition-duration:0.1s;transition-timing-function:linear}
 #vmform .sectionbutton.remove{top:0;opacity:0.3}
@@ -41,12 +43,12 @@ span.advancedview_panel{display:none;line-height:16px;margin-top:1px}
 #vmform .disk_preview{display:inline-block;color:#BBB;transform:translate(0px, 1px)}
 i.fa-plus-circle,i.fa-minus-circle{margin-left:8px}
 input[type=checkbox]{margin-left:0}
-span.width{display:inline-block;width:340px}
+span.width{display:inline-block;width:250px}
 span.column1{display:inline-block;width:140px}
 span.column2{display:inline-block;width:220px}
 input#btnvCPUSelect{font-size:1rem;padding:5px 10px;margin:0 0 0 10px}
 span.space{display:inline-block;width:60px}
-span.label{display:inline-block;width:150px;text-align:right}
+span.label{display:inline-block;width:110px;text-align:right}
 select.narrow{min-width:90px!important}
 select.second{margin-left:12px;max-width:90px;margin-right:0}
 input.trim{width:98px;min-width:98px}

@@ -1931,6 +1931,18 @@ foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 </script>
 
 <table>
+	<tr class="xml">
+		<td>_(Other XML)_:</td>
+		<?$qemurows = $arrConfig['qemucmdline']=="" ? 2 : 15;?>
+		<td></td>
+		<td>
+			<textarea id="xmlother" name="xmlother" disabled class="xml" rows="10"><?=htmlspecialchars($xml2['devices']['emulator'][0])."\n".htmlspecialchars($xml2['devices']['console'][0])."\n".htmlspecialchars($xml2['devices']['serial'][0])."\n".htmlspecialchars($xml2['devices']['channel'][0])."\n"?></textarea>
+		</td>
+	</tr>
+</table>
+</div>
+
+<table>
 	<tr>
 		<td></td>
 		<td>
@@ -1953,18 +1965,6 @@ foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 	<p>Click Create to generate the vDisks and return to the Virtual Machines page where your new VM will be created.</p>
 </blockquote>
 <?}?>
-
-<table>
-	<tr>
-		<td class="xml">_(Other XML)_:</td>
-		<?$qemurows = $arrConfig['qemucmdline']=="" ? 2 : 15;?>
-		<td>
-			<textarea id="xmlother" name="xmlother" disabled class="xml" rows="10"><?=htmlspecialchars($xml2['devices']['emulator'][0])."\n".htmlspecialchars($xml2['devices']['console'][0])."\n".htmlspecialchars($xml2['devices']['serial'][0])."\n".htmlspecialchars($xml2['devices']['channel'][0])."\n"?></textarea>
-		</td>
-		<td></td>
-	</tr>
-</table>
-</div>
 
 <div class="xmlview">
 <textarea id="addcode" name="xmldesc" placeholder="_(Copy &amp; Paste Domain XML Configuration Here)_." autofocus><?=htmlspecialchars($hdrXML).htmlspecialchars($strXML)?></textarea>
