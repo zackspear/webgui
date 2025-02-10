@@ -212,7 +212,7 @@ function my_logger($message, $logger='webgui') {
  * @param array $getinfo Empty array passed by reference, will contain results of curl_getinfo and curl_error
  * @return string|false $out The fetched content
  */
-function http_get_contents(string $url, array $opts = [], array &$getinfo = NULL) {
+function http_get_contents(string $url, array $opts = [], ?array &$getinfo = NULL) {
   $ch = curl_init();
   if(isset($getinfo)) {
     curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
