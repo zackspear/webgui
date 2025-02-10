@@ -142,10 +142,10 @@ $dnsserver = _var($$ethX,'DNS_SERVER1');
 
 $link      = iflink($ethX);
 $vhost     = str_replace(['eth','br','bond'],'vhost',$link);
-$wlanUp4   = "iptables -t nat -A POSTROUTING -s <source> -o shim-wlan0 -j MASQUERADE";
-$wlanUp6   = "ip6tables -t nat -A POSTROUTING -s <source> -o shim-wlan0 -j MASQUERADE";
-$wlanDown4 = "iptables -t nat -D POSTROUTING -s <source> -o shim-wlan0 -j MASQUERADE";
-$wlanDown6 = "ip6tables -t nat -D POSTROUTING -s <source> -o shim-wlan0 -j MASQUERADE";
+$wlanUp4   = "iptables -t nat -A POSTROUTING -s <source> -o wlan0 -j MASQUERADE";
+$wlanUp6   = "ip6tables -t nat -A POSTROUTING -s <source> -o wlan0 -j MASQUERADE";
+$wlanDown4 = "iptables -t nat -D POSTROUTING -s <source> -o wlan0 -j MASQUERADE";
+$wlanDown6 = "ip6tables -t nat -D POSTROUTING -s <source> -o wlan0 -j MASQUERADE";
 $postUp0   = "$script add $link WireGuard-<wg> $server <port> <port> udp";
 $postUp1   = "logger -t wireguard -- 'Tunnel WireGuard-<wg> started'; $services";
 $postUp2   = "iptables -t nat -A POSTROUTING -s <source> -o $link -j MASQUERADE; iptables -t nat -A POSTROUTING -s <source> -o $vhost -j MASQUERADE; $wlanUp4";
