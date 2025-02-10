@@ -2,9 +2,7 @@ body{-webkit-overflow-scrolling:touch}
 #vmform table{margin-top:0;table-layout:fixed}
 #vmform div.title + table{margin-top:0}
 #vmform table tr{vertical-align:top;line-height:4rem;height:4rem}
-@media (max-width:1280px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
-@media (min-width:1281px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
-@media (min-width:1921px){#vmform table tr td:first-child{width:25%;text-align:right;padding-right:4rem}}
+#vmform table tr td:nth-child(1){width:25%;text-align:right;padding-right:4rem}}
 #vmform table tr td:nth-child(2){width:800px}
 #vmform textarea{max-width:500px;scrollbar-width:4px}
 #vmform textarea::-webkit-scrollbar{height:4px;width:4px}
