@@ -624,6 +624,8 @@ function renamePoolPopup() {
   dialogStyle();
 }
 function eraseDisk() {
+  // Add CSS rule to show the input field
+  var styleElement = $('<style>.sweet-alert fieldset input { display: inline-block !important; }</style>').appendTo('head');
   swal({
     title:"_(Erase Device Content)_?",
     text:"<?=$textErase?><p style='font-weight:bold;color:red;margin:8px 0'>_(Existing content is permanently lost)_</p>",
@@ -649,9 +651,12 @@ function eraseDisk() {
     } else {
       if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
+    styleElement.remove();
   });
 }
 function removePool() {
+  // Add CSS rule to show the input field
+  var styleElement = $('<style>.sweet-alert fieldset input { display: inline-block !important; }</style>').appendTo('head');
   swal({
     title:"_(Remove pool)_?",
     text:"<?=$textDelete?>",
@@ -677,9 +682,12 @@ function removePool() {
     } else {
       if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
+    styleElement.remove();
   });
 }
 function upgradeZpool() {
+  // Add CSS rule to show the input field
+  var styleElement = $('<style>.sweet-alert fieldset input { display: inline-block !important; }</style>').appendTo('head');
   swal({
     title:"_(Upgrade ZFS Pool)_?",
     text:"_(This operation cannot be reversed)_. _(After upgrading the volume may not be mountable in previous versions of Unraid)_.<p style='font-weight:bold;color:red;margin:8px 0'>_(The ZFS volume will be upgraded)_</p>",
@@ -705,6 +713,7 @@ function upgradeZpool() {
     } else {
       if (confirm.length) swal({title:"_(Incorrect confirmation)_",text:"_(Please try again)_!",type:'error',html:true,confirmButtonText:"_(Ok)_"});
     }
+    styleElement.remove();
   });
 }
 </script>
