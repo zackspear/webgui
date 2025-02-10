@@ -183,7 +183,7 @@ fi
 
 . /etc/unraid-version
 # log all PHP warnings (for beta|rc releases)
-if [[ $version =~ -(beta|rc) ]]; then
+if [[ -f /etc/php.d/errors-php.ini && $version =~ -(beta|rc) ]]; then
   sed -i 's/^error_reporting=.*/error_reporting=E_ALL/' /etc/php.d/errors-php.ini
 fi
 # invoke testing hook (for -(beta|rc).x.y releases)
