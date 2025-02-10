@@ -252,7 +252,7 @@ if (!HTMLInputElement.prototype.reportValidity || (navigator.userAgent.indexOf("
         labelText = $(this).closest('dl').children().first()[0].textContent;
       } catch (err) { }
       // the browser generates the validationMessage, we cannot translate it
-      swal({title:labelText,text:this.validationMessage,html:true,type:'error',confirmButtonText:"_(Ok)_"});
+      swal({title:labelText,text:this.validationMessage,animation:'none',html:true,type:'error',confirmButtonText:"_(Ok)_"});
       return false;
     }
   };
@@ -507,12 +507,12 @@ function addTunnel() {
 }
 
 function delTunnel(vtun) {
-  swal({title:"_(Delete Tunnel)_ "+vtun,text:"_(This removes any connections running over this tunnel)_",type:'warning',confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_",showCancelButton:true},function(){
+  swal({title:"_(Delete Tunnel)_ "+vtun,text:"_(This removes any connections running over this tunnel)_",type:'warning',animation:'none',html:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_",showCancelButton:true},function(){
     $.post('/webGui/include/update.wireguard.php',{'#cmd':'deltunnel','#vtun':vtun,'#name':'<?=$tower?>'},function(ok){
       if (ok==0) {
         clearTunnel(vtun);
       } else {
-        setTimeout(function(){swal({title:"_(Delete tunnel failed)_",text:"_(Tunnel has running containers attached)_<br>_(Stop corresponding docker containers)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});},250);
+        setTimeout(function(){swal({title:"_(Delete tunnel failed)_",text:"_(Tunnel has running containers attached)_<br>_(Stop corresponding docker containers)_",animation:'none',html:true,type:'error',confirmButtonText:"_(Ok)_"});},250);
       }
     });
   });
@@ -1135,7 +1135,7 @@ $(function(){
     });
     if (xml.desc() != url.desc()) {
       xml = url;
-      swal({title:"_(UPnP state changed to)_ "+upnp,text:"_(Please consider re-applying all configurations)_<br>(_(enable advanced settings view)_)",type:'warning',html:true});
+      swal({title:"_(UPnP state changed to)_ "+upnp,text:"_(Please consider re-applying all configurations)_<br>(_(enable advanced settings view)_)",type:'warning',animation:'none',html:true});
     }
   });
   $('#start-wg0').switchButton({labels_placement:'left',off_label:"_(Off)_",on_label:"_(On)_",clear:false});
@@ -1241,7 +1241,7 @@ $(function(){
   else if (form.find('select[name="NAT:0"]').val()=='no' && lan) $('span#my-static1-wg0').show();
   else if (lan) $('span#my-static2-wg0').show();
 <?if (file_exists($tmp)):?>
-  setTimeout(function(){swal({title:"_(Peer update required)_",text:"<b><u>_(List of peers)_</u></b><br><span style='display:inline-block;text-align:left'><?=file_get_contents($tmp)?></span>",type:'warning',html:true});},200);
+  setTimeout(function(){swal({title:"_(Peer update required)_",text:"<b><u>_(List of peers)_</u></b><br><span style='display:inline-block;text-align:left'><?=file_get_contents($tmp)?></span>",type:'warning',animation:'none',html:true});},200);
 <?delete_file($tmp);?>
 <?endif;?>
 });
