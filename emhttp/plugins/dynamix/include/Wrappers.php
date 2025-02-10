@@ -209,7 +209,7 @@ function my_logger($message, $logger='webgui') {
  * Fetches URL and returns content
  * @param string $url The URL to fetch
  * @param array $opts Array of options to pass to curl_setopt()
- * @param array $getinfo Empty array passed by reference, will contain results of curl_getinfo and curl_error
+ * @param ?array $getinfo Empty array passed by reference, will contain results of curl_getinfo and curl_error, or null if not needed
  * @return string|false $out The fetched content
  */
 function http_get_contents(string $url, array $opts = [], ?array &$getinfo = NULL) {
