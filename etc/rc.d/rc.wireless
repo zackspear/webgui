@@ -216,7 +216,7 @@ wifi_stop(){
     fi
     run pkill wpa_supplicant
     run iw dev $PORT disconnect
-    run ip addr flush dev wlan0
+    run ip addr flush dev $PORT
     run rm -f $INI
     if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   else
