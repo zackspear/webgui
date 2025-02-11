@@ -649,8 +649,9 @@ class Libvirt {
 							$nicboot
 						</interface>";
 					} elseif ($nic['network'] == 'wlan0') {
+						$mac = file_get_contents('/sys/class/net/wlan0/address');
 						$netstr .= "<interface type='ethernet'>
-							<mac address='{$nic['mac']}'/>
+							<mac address='$mac'/>
 							<target dev='shim-wlan0' managed='no'/>
 							<model type='$netmodel'/>
 							$nicboot
