@@ -409,10 +409,10 @@ docker_network_start(){
       if [[ $TYPE == br ]]; then
         VHOST=$NETWORK
       elif [[ $TYPE == wlan ]]; then
-        VHOST=shim-$NETWORK
+        VHOST=$NETWORK
         ATTACH=ipvlan
       else
-        VHOST=vhost${NETWORK//[^0-9.]/}
+        [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
       fi
       docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
       # connect containers to this new network
