@@ -1230,11 +1230,19 @@ class Array2XML {
 	function getValidNetworks() {
 		global $lv;
 		$arrValidNetworks = [];
-		exec("ls --indicator-style=none /sys/class/net | grep -Po '^(br|vhost|wlan)[0-9]+(\.[0-9]+)?'",$arrBridges);
+		exec("ls --indicator-style=none /sys/class/net | grep -Po '^(br|bond|eth|wlan)[0-9]+(\.[0-9]+)?'",$arrBridges);
 		// add 'virbr0' as default first choice
 		array_unshift($arrBridges, 'virbr0');
-
-		$arrValidNetworks['bridges'] = array_values($arrBridges);
+		// remove redundant references of bridge and bond interfaces
+		$remove = [];
+		foreach ($arrBridges as $name) {
+			if (substr($name,0,4) == 'bond') {
+				$remove = array_merge($remove, (array)@file("/sys/class/net/$name/bonding/slaves",FILE_IGNORE_NEW_LINES));
+			} elseif (substr($name,0,2) == 'br') {
+				$remove = array_merge($remove, array_map(function($n){return end(explode('/',$n));}, glob("/sys/class/net/$name/brif/*")));
+			} 
+		}
+		$arrValidNetworks['bridges'] = array_diff($arrBridges, $remove);
 
 		// This breaks VMSettings.page if libvirt is not running
 		/*	if ($libvirt_running == "yes") {

@@ -1474,12 +1474,13 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 }
 foreach ($arrConfig['nic'] as $i => $arrNic) {
 	$strLabel = ($i > 0) ? appendOrdinalSuffix($i + 1) : '';
+	$disabled = $arrNic['network']=='wlan0' ? 'disabled' : '';
 ?>
 <table data-category="Network" data-multiple="true" data-minimum="1" data-index="<?=$i?>" data-prefix="<?=$strLabel?>">
 	<tr class="advanced">
 		<td>_(Network MAC)_:</td>
 		<td>
-			<span class="width"><input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>"><i class="fa fa-refresh mac_generate"></i></span>
+			<span class="width"><input type="text" name="nic[<?=$i?>][mac]" class="narrow" value="<?=htmlspecialchars($arrNic['mac'])?>" <?=$disabled?>><i class="fa fa-refresh mac_generate <?=$i?>" <?=$disabled?>></i></span>
 		</td>
 		<td>
 			<textarea class="xml" id="xmlnet<?=$i?>" rows="5" disabled ><?=htmlspecialchars($xml2['devices']['interface'][$i])?></textarea>
@@ -1488,7 +1489,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 	<tr class="advanced">
 		<td>_(Network Source)_:</td>
 		<td>
-			<span class="width"><select name="nic[<?=$i?>][network]" class="narrow">
+			<span class="width"><select name="nic[<?=$i?>][network]" class="narrow" onchange="updateMAC(<?=$i?>,this.value)">
 			<?
 			foreach (array_keys($arrValidNetworks) as $key) {
 				echo mk_option("", $key, "- "._($key)." -", "disabled");
@@ -1554,13 +1555,13 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 	<tr class="advanced">
 		<td>_(Network MAC)_:</td>
 		<td>
-			<span class="width"><input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value=""> <i class="fa fa-refresh mac_generate"></i></span>
+			<span class="width"><input type="text" name="nic[{{INDEX}}][mac]" class="narrow" value=""> <i class="fa fa-refresh mac_generate INDEX"></i></span>
 		</td>
 	</tr>
 	<tr class="advanced">
 		<td>_(Network Source)_:</td>
 		<td>
-			<span class="width"><select name="nic[{{INDEX}}][network]" class="narrow">
+			<span class="width"><select name="nic[{{INDEX}}][network]" class="narrow" onchange="updateMAC(INDEX,this.value)">
 			<?
 			foreach (array_keys($arrValidNetworks) as $key) {
 				echo mk_option("", $key, "- "._($key)." -", "disabled");
@@ -2003,6 +2004,12 @@ foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 <script type="text/javascript">
 var storageType = "<?=get_storage_fstype($arrConfig['template']['storage']);?>";
 var storageLoc  = "<?=$arrConfig['template']['storage']?>";
+
+function updateMAC(index,port) {
+	$('input[name="nic['+index+'][mac]"').prop('disabled',port=='wlan0');
+	$('i.mac_generate.'+index).prop('disabled',port=='wlan0');
+	if (port != 'wlan0') $('i.mac_generate.'+index).click();
+}
 
 function ShareChange(share) {
 	var value = share.value;

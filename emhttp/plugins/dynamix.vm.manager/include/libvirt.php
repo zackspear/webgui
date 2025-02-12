@@ -631,7 +631,7 @@ class Libvirt {
 				if (empty($nic['mac']) || empty($nic['network'])) continue;
 				$netmodel = $nic['model'] ?: 'virtio-net';
 				$net_res = $this->libvirt_get_net_res($this->conn, $nic['network']);
-				exec("ls --indicator-style=none /sys/class/net | grep -Po '^((vir)?br|vhost|wlan)[0-9]+(\.[0-9]+)?'", $host);
+				exec("ls --indicator-style=none /sys/class/net | grep -Po '^((vir)?br|bond|eth|wlan)[0-9]+(\.[0-9]+)?'", $host);
 				$nicboot = $nic["boot"] != null ? "<boot order='".$nic["boot"]."'/>" : "";
 				if ($net_res) {
 					$netstr .= "<interface type='network'>
