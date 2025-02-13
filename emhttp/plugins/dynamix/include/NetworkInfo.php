@@ -28,8 +28,8 @@ function port($eth) {
 }
 
 exec("grep -Po 'nameserver \K\S+' /etc/resolv.conf 2>/dev/null",$ns);
-$eth    = $_POST['port'];
-$vlan   = $_POST['vlan'];
+$eth    = $_POST['port'] ?? '';
+$vlan   = $_POST['vlan'] ?? '';
 $port   = port($eth).($vlan ? ".$vlan" : "");
 $v6on   = trim(file_get_contents("/proc/sys/net/ipv6/conf/$port/disable_ipv6"))==='0';
 $none   = _('None');
