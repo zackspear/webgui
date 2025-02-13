@@ -1942,7 +1942,6 @@ foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 		</td>
 	</tr>
 </table>
-</div>
 
 <table>
 	<tr>
