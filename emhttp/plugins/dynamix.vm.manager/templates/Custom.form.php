@@ -352,7 +352,7 @@ if ($snapshots != null && count($snapshots) && !$boolNew) {
 		<td>
 			<span class="orange-text"><i class="fa fa-fw fa-warning"></i> _(Rename disabled, <?=$snapcount?> snapshot(s) exists)_.</span><br>
 			<span class="orange-text"><i class="fa fa-fw fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location)_</span><br>
-			<span class="green-text"><i class="fa fa-fw fa-info-circle"></i> _(Only these special characters are valid Underscore '_' Hyphen '-' Colon ':' Period '.')_</span>
+			<span class="green-text"><i class="fa fa-fw fa-info-circle"></i> _(Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span>
 		</td>
 		<td></td>
 	</tr>
