@@ -24,7 +24,7 @@ function port($eth) {
   $sys = "/sys/class/net";
   if (substr($eth,0,4)=='wlan') return $eth;
   $x = preg_replace('/[^0-9]/','',$eth);
-  return file_exists("$sys/br{$x}") ? "br${x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
+  return file_exists("$sys/br{$x}") ? "br{$x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
 }
 
 exec("grep -Po 'nameserver \K\S+' /etc/resolv.conf 2>/dev/null",$ns);
