@@ -392,7 +392,7 @@ class DockerTemplates {
 			} else if (empty($tmp['template']) || $reload) {
 				$tmp['template'] = $this->getUserTemplate($name);
 				if ($reload) $DockerUpdate->updateUserTemplate($name);
-  			if (empty($tmp['updated']) || $reload) {
+  				if (empty($tmp['updated']) || $reload) {
 					if ($reload) $DockerUpdate->reloadUpdateStatus($image);
 					$tmp['updated'] = var_export($DockerUpdate->getUpdateStatus($image),true);
 				}
