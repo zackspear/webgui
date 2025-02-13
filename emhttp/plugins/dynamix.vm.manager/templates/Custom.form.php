@@ -924,7 +924,7 @@ if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']])) {
 			</select>
 			<?if ($arrDisk['bus'] == "virtio" || $arrDisk['bus'] == "usb") $ssddisabled = "hidden"; else $ssddisabled = "";?>
 			<span id="disk[<?=$i?>][rotatetext]" class="label <?=$ssddisabled?>">_(SSD)_:</span>
-			<input type="checkbox" id="disk[<?=$i?>][rotation]" class="rotation <?=$ssddisabled?>" onchange="updateSSDCheck(this,<?=$i?>)" name="disk[<?=$i?>][rotation]" <?=$arrDisk['rotation'] ? "checked ":"";?> value="<?=$arrDisk['rotation']?>">
+			<input type="checkbox" id="disk[<?=$i?>][rotation]" class="rotation <?=$ssddisabled?>" onchange="updateSSDCheck(this)" name="disk[<?=$i?>][rotation]" <?=$arrDisk['rotation'] ? "checked ":"";?> value="<?=$arrDisk['rotation']?>">
 		</td>
 		<td></td>
 	</tr>
@@ -1076,7 +1076,7 @@ if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']])) {
 			<?mk_dropdown_options($arrValidDiskDiscard, "unmap");?>
 			</select>
 			<span id="disk[{{INDEX}}][rotatetext]" class="label hidden">_(SSD)_:</span>
-			<input type="checkbox" id="disk[{{INDEX}}][rotation]" class="rotation hidden" onchange="updateSSDCheck(this,{{INDEX}})" name="disk[{{INDEX}}[rotation]" value='0'>
+			<input type="checkbox" id="disk[{{INDEX}}][rotation]" class="rotation hidden" onchange="updateSSDCheck(this)" name="disk[{{INDEX}}[rotation]" value='0'>
 		</td>
 		<td></td>
 	<tr class="advanced disk_bus_options">
@@ -2042,8 +2042,8 @@ function BusChange(value, index) {
 	}
 }
 
-function updateSSDCheck(ssd, index) {
-	ssd.value = $('input[id="disk['+index+'][rotation]"]').prop('checked') ? "1" : "0";
+function updateSSDCheck(ssd) {
+	ssd.value = $(ssd).prop('checked') ? "1" : "0";
 }
 
 function BIOSChange(value) {
