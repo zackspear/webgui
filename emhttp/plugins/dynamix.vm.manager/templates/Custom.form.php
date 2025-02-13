@@ -1961,6 +1961,7 @@ foreach ($arrConfig['evdev'] as $i => $arrEvdev) {
 		<td></td>
 	</tr>
 </table>
+</div>
 
 <?if ($boolNew) {?>
 <blockquote class="inline_help">
