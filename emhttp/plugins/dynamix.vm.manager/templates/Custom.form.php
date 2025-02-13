@@ -2043,7 +2043,7 @@ function BusChange(value, index) {
 }
 
 function updateSSDCheck(ssd, index) {
-	ssd.value = $('#'+index+"[rotation]").prop('checked') ? "1" : "0";
+	ssd.value = $('input[id="disk['+index+'][rotation]"]').prop('checked') ? "1" : "0";
 }
 
 function BIOSChange(value) {
