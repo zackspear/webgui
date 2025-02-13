@@ -2108,18 +2108,18 @@ function SetBootorderfields(usbbootvalue) {
 
 /* Remove characters not allowed in share name. */
 function checkName(name) {
-	/* Declare variables at the function scope */
 	var isValidName
-	$('#zfs-name').removeClass().addClass('hidden');
 	isValidName = /^[A-Za-z0-9][A-Za-z0-9\-_.: ]*$/.test(name);
+	$('#zfs-name').removeClass();
 	if (isValidName) {
 		$('#btnSubmit').prop("disabled",false);
+		$('#zfs-name').addClass('hidden')
 	} else {
 		if (storageType == "zfs") {
 			$('#btnSubmit').prop("disabled",true);
-			$('#zfs-name').removeClass();
 		} else {
 			$('#btnSubmit').prop("disabled",false);
+			$('#zfs-name').addClass('hidden')
 		}
 	}
 }
