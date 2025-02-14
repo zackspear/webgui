@@ -119,7 +119,7 @@ case 'list':
     }
     if (empty($echo['active'])) $echo['active'][] = "<dl><dt>"._('Connected').":</dt><dd>"._('None')."</dd>";
     if (empty($echo['saved'])) $echo['saved'][] = "<dl><dt>"._('My networks').":</dt><dd>"._('None')."</dd>";
-    if (empty($echo['other'])) $echo['other'][] = "<dl><dt>"._('Other networks').":</dt><dd>"._('None')."</dd>";
+    if (empty($echo['other'])) $echo['other'][] = $load ? "" : "<dl><dt>"._('Other networks').":</dt><dd>"._('None')."</dd>";
     $echo['active'] = implode($echo['active']);
     $echo['saved'] = implode($echo['saved']);
     $echo['other'] = implode($echo['other']);

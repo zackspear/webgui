@@ -70,7 +70,7 @@ function update_wifi(load) {
       var wifi = JSON.parse(text);
       $('#connected').html(wifi.active);
       $('#my_networks').html(wifi.saved);
-      $('#other_networks').html(wifi.other);
+      if (wifi.other.length) $('#other_networks').html(wifi.other);
     }
   });
   timers.wifi = setTimeout(update_wifi,5000);
