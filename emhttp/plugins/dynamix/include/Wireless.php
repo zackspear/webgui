@@ -146,7 +146,7 @@ case 'join':
   $dns6    = _var($wifi[$ssid],'DNS6','no');
   $ip6     = _var($wifi[$ssid],'IP6');
   $mask6   = _var($wifi[$ssid],'MASK6','64');
-  $gwv6    = _var($wifi[$ssid],'GATEWAY6');
+  $gw6     = _var($wifi[$ssid],'GATEWAY6');
   $server6 = _var($wifi[$ssid],'SERVER6');
   $safe    = _var($wifi[$ssid],'SECURITY');
   $attr1   = $attr[$ssid]['ATTR1'];
