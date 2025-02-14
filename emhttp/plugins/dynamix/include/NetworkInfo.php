@@ -50,19 +50,21 @@ if ($v6on) {
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
 if ($wlan0) {
-  $ini   = '/var/local/emhttp/wireless.ini';
-  $wifi  = (array)@parse_ini_file($ini);
-  $attr1 = $wifi['SSID'] ?? _('Unknown');
-  $attr2 = $wifi['ATTR2'] ?? _('Unknown');
-  exec("iw wlan0 link | awk '/[rt]x bitrate:/{print $1,$2,$3,$4}'",$speed);
-  [$name0, $rate0] = isset($speed[0]) ? explode(': ',$speed[0]) : ['rx bitrate', _('Unknown')];
-  [$name1, $rate1] = isset($speed[1]) ? explode(': ',$speed[1]) : ['tx bitrate', _('Unknown')];
-  echo "<tr><td>"._('Network').":</td><td>$attr1</td></tr>";
-  echo "<tr><td>"._('Health').":</td><td>$attr2</td></tr>";
-  echo "<tr><td>"._(ucfirst($name0)).":</td><td>$rate0</td></tr>";
-  echo "<tr><td>"._(ucfirst($name1)).":</td><td>$rate1</td></tr>";
+  exec("iw wlan0 link | awk '/^\s+(SSID|signal|[rt]x bitrate): /{print $1,$2,$3,$4}'",$speed);
+  if (count($speed)==4) {
+    $network = explode(': ',$speed[0])[1];
+    $signal  = explode(': ',$speed[1])[1];
+    $rxrate  = explode(': ',$speed[2])[1];
+    $txrate  = explode(': ',$speed[3])[1];
+  } else {
+    $network = $signal = $rxrate = $txrate = _('Unknown');
+  }
+  echo "<tr><td>"._('Network name').":</td><td>$network</td></tr>";
+  echo "<tr><td>"._('Signal level').":</td><td>$signal</td></tr>";
+  echo "<tr><td>"._('Receive bitrate').":</td><td>$rxrate</td></tr>";
+  echo "<tr><td>"._('Transmit bitrate').":</td><td>$txrate</td></tr>";
 } else {
-  $link  = _(ucfirst(exec("ethtool $eth 2>/dev/null | awk '$1==\"Link\" {print $3;exit}'")) ?: 'Unknown')." ("._(exec("ethtool $eth 2>/dev/null | grep -Pom1 '^\s+Port: \K.*'") ?: ($eth=='wlan0' ? 'wifi' :'not present')).")";
+  $link  = _(ucfirst(exec("ethtool $eth 2>/dev/null | awk '$1==\"Link\" {print $3;exit}'")) ?: 'Unknown')." ("._(exec("ethtool $eth 2>/dev/null | grep -Pom1 '^\s+Port: \K.*'") ?: 'not present').")";
   $speed = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool $eth 2>/dev/null | awk '$1==\"Speed:\" {print $2;exit}'")) ?: 'Unknown');
   echo "<tr><td>"._('Interface link').":</td><td>$link</td></tr>";
   echo "<tr><td>"._('Interface speed').":</td><td>$speed</td></tr>";
