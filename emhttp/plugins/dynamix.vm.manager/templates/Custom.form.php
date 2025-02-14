@@ -325,10 +325,12 @@ $xml2 = build_xml_templates($strXML);
 #disable rename if snapshots exist
 $snapshots = getvmsnapshots($arrConfig['domain']['name']);
 
-if ($snapshots != null && count($snapshots) && !$boolNew) {
+if ($snapshots!=null && count($snapshots) && !$boolNew) {
+	$snaphidden = "";
 	$namedisable = "disabled";
 	$snapcount = count($snapshots);
 } else {
+	$snaphidden = "hidden";
 	$namedisable = "";
 	$snapcount = "0";
 }
@@ -347,10 +349,14 @@ if ($snapshots != null && count($snapshots) && !$boolNew) {
 <input type="hidden" name="domain[memoryBacking]" id="domain_memorybacking" value="<?=htmlspecialchars($arrConfig['domain']['memoryBacking'])?>">
 
 <table>
+	<tr class="<?=$snaphidden?>">
+		<td></td>
+		<td><span class="orange-text"><i class="fa fa-fw fa-warning"></i> _(Rename disabled, <?=$snapcount?> snapshot(s) exists)_.</span></td>
+		<td></td>
+	</tr>
 	<tr id="zfs-name" class="hidden">
 		<td></td>
 		<td>
-			<span class="orange-text"><i class="fa fa-fw fa-warning"></i> _(Rename disabled, <?=$snapcount?> snapshot(s) exists)_.</span><br>
 			<span class="orange-text"><i class="fa fa-fw fa-warning"></i> _(Name contains invalid characters or does not start with an alphanumberic for a ZFS storage location)_</span><br>
 			<span class="green-text"><i class="fa fa-fw fa-info-circle"></i> _(Only these special characters are valid Underscore (_) Hyphen (-) Colon (:) Period (.))_</span>
 		</td>
@@ -1297,7 +1303,7 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 			</select></span>
 			<?if ($arrGPU['model'] == "virtio3d") $vmcrender = ""; else $vmcrender = "hidden";?>
 			<span id="vncrendertext" class="label <?=$vncrender?>">_(Render GPU)_:</span>
-			<select id="vncrender" name="gpu[<?=$i?>][render]" class="narrow second <?=$vncrender?>">
+			<select id="vncrender" name="gpu[<?=$i?>][render]" class="second <?=$vncrender?>">
 			<?
 			echo mk_option($arrGPU['render'], 'auto', _('Auto'));
 			foreach ($arrValidGPUDevices as $arrDev) echo mk_option($arrGPU['render'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
@@ -1308,7 +1314,7 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 			if ($arrGPU['model'] == "qxl") $vncdspopt = ""; else $vncdspopt = "hidden";
 			?>
 			<span id="vncdspopttext" class="label <?=$vncdspopt?>">_(Display(s) and RAM)_:</span>
-			<select id="vncdspopt" name="gpu[<?=$i?>][DisplayOptions]" class="narrow second <?=$vncdspopt?>">
+			<select id="vncdspopt" name="gpu[<?=$i?>][DisplayOptions]" class="second <?=$vncdspopt?>">
 			<?
 			foreach ($arrDisplayOptions as $key => $value) echo mk_option($arrGPU['DisplayOptions'], htmlentities($value['qxlxml'],ENT_QUOTES), _($value['text']));
 			?>
