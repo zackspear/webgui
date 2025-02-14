@@ -78,10 +78,10 @@ function update_wifi(load) {
 
 function manage_wifi(ssid,task) {
   if (task==2) {
+    clearTimeout(timers.wifi);
     $.post('/webGui/include/Wireless.php',{cmd:'forget',ssid:ssid},function(){
-      clearTimeout(timers.wifi);
       swal.close();
-      setTimeout(update_wifi);
+      setTimeout(function(){update_wifi(1);});
     });
     return;
   }
