@@ -30,13 +30,13 @@ function port($eth) {
 exec("grep -Po 'nameserver \K\S+' /etc/resolv.conf 2>/dev/null",$ns);
 $eth    = $_POST['port'] ?? '';
 $vlan   = $_POST['vlan'] ?? '';
+$wlan0  = $eth == 'wlan0';
 $port   = port($eth).($vlan ? ".$vlan" : "");
 $v6on   = trim(file_get_contents("/proc/sys/net/ipv6/conf/$port/disable_ipv6"))==='0';
 $none   = _('None');
 $error  = "<span class='red-text'>"._('Missing')."</span>";
 $note   = in_array($eth,['eth0','wlan0']) && !$vlan ? $error : $none;
 $link   = _(ucfirst(exec("ethtool $eth 2>/dev/null | awk '$1==\"Link\" {print $3;exit}'")) ?: 'Unknown')." ("._(exec("ethtool $eth 2>/dev/null | grep -Pom1 '^\s+Port: \K.*'") ?: ($eth=='wlan0' ? 'wifi' :'not present')).")";
-$speed  = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool $eth 2>/dev/null | awk '$1==\"Speed:\" {print $2;exit}'")) ?: 'Unknown');
 $ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show $port scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
 $gw4    = exec("ip -4 route show default dev $port 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
 $dns4   = array_filter($ns,function($ns){return strpos($ns,':')===false;});
@@ -50,23 +50,22 @@ if ($v6on) {
 
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
-echo "<tr><td>"._('Interface link').":</td><td>$link</td></tr>";
-echo "<tr><td>"._('Interface speed').":</td><td>$speed</td></tr>";
-if ($eth=='wlan0') {
-  $ini  = '/boot/config/wireless-networks.cfg';
-  $wifi = (array)@parse_ini_file($ini,true);
-  $att1 = $att2 = $att3 = '';
-  foreach ($wifi as $network => $option) {
-    if (isset($option['GROUP']) && $option['GROUP']=='active') {
-      $att1 = $network;
-      $att2 = $option['ATTR2'];
-      $att3 = $option['ATTR3'];
-      break;
-    }
-  }
-  if ($att1) echo "<tr><td>"._('Network').":</td><td>$att1</td></tr>";
-  if ($att2) echo "<tr><td>"._('Health').":</td><td>$att2</td></tr>";
-  if ($att3) echo "<tr><td>"._('Security').":</td><td>$att3</td></tr>";
+if ($wlan0) {
+  $ini   = '/var/local/emhttp/wireless.ini';
+  $wifi  = (array)@parse_ini_file($ini);
+  $attr1 = $wifi['SSID'] ?? _('Unknown');
+  $attr2 = $wifi['ATTR2'] ?? _('Unknown');
+  exec("iw wlan0 link | awk '/[rt]x bitrate:/{print $1,$2,$3,$4}'",$speed);
+  [$name0, $rate0] = isset($speed[0]) ? explode(': ',$speed[0]) : ['rx bitrate', _('Unknown')];
+  [$name1, $rate1] = isset($speed[1]) ? explode(': ',$speed[1]) : ['tx bitrate', _('Unknown')];
+  echo "<tr><td>"._('Network').":</td><td>$attr1</td></tr>";
+  echo "<tr><td>"._('Health').":</td><td>$attr2</td></tr>";
+  echo "<tr><td>"._(ucfirst($name0)).":</td><td>$rate0</td></tr>";
+  echo "<tr><td>"._(ucfirst($name1)).":</td><td>$rate1</td></tr>";
+} else {
+  $speed = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool $eth 2>/dev/null | awk '$1==\"Speed:\" {print $2;exit}'")) ?: 'Unknown');
+  echo "<tr><td>"._('Interface link').":</td><td>$link</td></tr>";
+  echo "<tr><td>"._('Interface speed').":</td><td>$speed</td></tr>";
 }
 if (count($ipv4)) foreach ($ipv4 as $ip) {
   echo "<tr><td>"._('IPv4 address').":</td><td>$ip</td></tr>";
