@@ -74,14 +74,27 @@ function saveAttr() {
 
 switch ($cmd) {
 case 'list':
+  $load  = $_POST['load'] ?? false;
   $title = _('Connect to WiFi network');
   $port  = array_key_first($wifi);
   $carrier = "/sys/class/net/$port/carrier";
-  $wlan  = scanWifi($port);
   $echo  = [];
   $index = 0;
+  if ($load && count(array_keys($wifi)) > 1) {
+    foreach ($wifi as $network => $block) {
+      if ($network == $port) continue;
+      $wlan[$index]['bss'] = $block['ATTR1'];
+      $wlan[$index]['signal'] = $block['ATTR2'];
+      $wlan[$index]['security'] = $block['ATTR3'] ?? $block['SECURITY'];
+      $wlan[$index]['ssid'] = $network;
+      $index++;
+    }
+    $index = 0;
+  } else {
+    $wlan  = scanWifi($port);
+  }
   if (count(array_column($wlan,'ssid'))) {
-    $up    = file_exists($carrier) && file_get_contents($carrier)==1;
+    $up    = is_readable($carrier) && file_get_contents($carrier)==1;
     $alive = $up ? exec("iw ".escapeshellarg($port)." link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
