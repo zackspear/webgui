@@ -28,10 +28,10 @@ if ($arg == 'yes') {
 } elseif ($arg == 'no') {
   exec("/etc/rc.d/rc.wireless stop");
   exec("$docroot/webGui/scripts/update_services 5");
-} else {
+} elseif (($wifi['wlan0']['WIFI']??'') == 'yes') {
   foreach ($wifi as $network => $block) {
     if ($network == $port) continue;
-    if ($block['GROUP'] == $state && (!$arg || $arg == $network)) {
+    if (($block['GROUP']??'') == $state && (!$arg || $arg == $network)) {
       $text[] = "SSID=\"$network\"";
       unset($block['GROUP']);
       foreach ($block as $key => $value) $text[] = "$key=\"$value\"";
