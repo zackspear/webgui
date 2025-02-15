@@ -2146,7 +2146,7 @@ class Array2XML {
 		# If Snapstate not running create new XML.
 		if ($snapstate != "running") {
 			if ($method == "ZFS") $xml = $snapslist[$snap]['xml']; else $xml = custom::createXML('domain',$xmlobj)->saveXML();
-			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
+			if (!strpos($xml,'<vmtemplate xmlns="unraid"') && !strpos($xml,'<vmtemplate xmlns="http://unraid"') ) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="http://unraid"',$xml);
 			if (!$dryrun) $new = $lv->domain_define($xml);
 			if ($new) $arrResponse  = ['success' => true]; else $arrResponse = ['error' => $lv->get_last_error()];
 			if ($logging) qemu_log($vm,"Create XML $new");
@@ -2239,7 +2239,7 @@ class Array2XML {
 			$xml = file_get_contents($xmlfile);
 			$xmlobj = custom::createArray('domain',$xml);
 			$xml = custom::createXML('domain',$xmlobj)->saveXML();
-			if (!strpos($xml,'<vmtemplate xmlns="unraid"')) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="unraid"',$xml);
+			if (!strpos($xml,'<vmtemplate xmlns="unraid"') && !strpos($xml,'<vmtemplate xmlns="http://unraid"') ) $xml=str_replace('<vmtemplate','<vmtemplate xmlns="http://unraid"',$xml);
 			if (!$dryrun) $rtn = $lv->domain_define($xml);
 			if ($logging) qemu_log($vm,"Define XML");
 
@@ -2719,7 +2719,7 @@ function get_vm_usage_stats($collectcpustats = true,$collectdiskstats = true,$co
 		$currentmem = $data["balloon.current"];
 		$maximummem = $data["balloon.maximum"];
 		$meminuse = min($data["balloon.rss"],$data["balloon.current"]);
-		} else $currentmem = $meminuse = 0;
+		} else $maximummem = $currentmem = $meminuse = 0;
 
 		# Disk
 		if ($state == 1 && $collectdiskstats) {
@@ -2823,20 +2823,22 @@ function build_xml_templates($strXML) {
 	}
 	$xml2["devices"] = $devxml;
 	$xml2["devices"]["allusb"] = "";
-	foreach ($xml2['devices']["hostdev"] as $xmlhostdev) {
-		$xmlhostdevdoc = new SimpleXMLElement($xmlhostdev);
-		switch ($xmlhostdevdoc->attributes()->type) {
-		case 'pci' :
-			$pciaddr = $xmlhostdevdoc->source->address->attributes()->bus.":".$xmlhostdevdoc->source->address->attributes()->slot.".".$xmlhostdevdoc->source->address->attributes()->function;
-			$pciaddr = str_replace("0x","",$pciaddr);
-			$xml2["devices"][$arrValidPCIDevices[$pciaddr]["class"]][$pciaddr] = $xmlhostdev;
-			break;
-		case "usb":
-			$usbaddr = $xmlhostdevdoc->source->vendor->attributes()->id.":".$xmlhostdevdoc->source->product->attributes()->id;
-			$usbaddr = str_replace("0x","",$usbaddr);
-			$xml2["devices"]["usb"][$usbaddr] = $xmlhostdev;
-			$xml2["devices"]["allusb"] .= $xmlhostdev;
-			break;
+	if(isset($xml2['devices']["hostdev"])) {
+		foreach ($xml2['devices']["hostdev"] as $xmlhostdev) {
+			$xmlhostdevdoc = new SimpleXMLElement($xmlhostdev);
+			switch ($xmlhostdevdoc->attributes()->type) {
+			case 'pci' :
+				$pciaddr = $xmlhostdevdoc->source->address->attributes()->bus.":".$xmlhostdevdoc->source->address->attributes()->slot.".".$xmlhostdevdoc->source->address->attributes()->function;
+				$pciaddr = str_replace("0x","",$pciaddr);
+				$xml2["devices"][$arrValidPCIDevices[$pciaddr]["class"]][$pciaddr] = $xmlhostdev;
+				break;
+			case "usb":
+				$usbaddr = $xmlhostdevdoc->source->vendor->attributes()->id.":".$xmlhostdevdoc->source->product->attributes()->id;
+				$usbaddr = str_replace("0x","",$usbaddr);
+				$xml2["devices"]["usb"][$usbaddr] = $xmlhostdev;
+				$xml2["devices"]["allusb"] .= $xmlhostdev;
+				break;
+			}
 		}
 	}
 	foreach($xml2["devices"]["input"] as $input) $xml2["devices"]["allinput"] .= "$input\n";
