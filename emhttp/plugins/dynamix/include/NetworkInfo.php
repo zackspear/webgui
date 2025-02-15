@@ -23,7 +23,7 @@ if (isset($_POST['listen'])) {
 function port($eth) {
   $sys = "/sys/class/net";
   if (substr($eth,0,4)=='wlan') return $eth;
-  $x = preg_replace('/[^0-9]/','',$eth);
+  $x = preg_replace('/[^0-9]/','',$eth) ?: '0';
   return file_exists("$sys/br{$x}") ? "br{$x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
 }
 
