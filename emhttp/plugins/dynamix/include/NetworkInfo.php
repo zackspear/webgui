@@ -36,14 +36,14 @@ $v6on   = trim(file_get_contents("/proc/sys/net/ipv6/conf/$port/disable_ipv6"))=
 $none   = _('None');
 $error  = "<span class='red-text'>"._('Missing')."</span>";
 $note   = in_array($eth,['eth0','wlan0']) && !$vlan ? $error : $none;
-$ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show $port scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
-$gw4    = exec("ip -4 route show default dev $port 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
+$ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show ".escapeshellarg($port)." scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
+$gw4    = exec("ip -4 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
 $dns4   = array_filter($ns,function($ns){return strpos($ns,':')===false;});
 $domain = exec("grep -Pom1 'domain \K.*' /etc/resolv.conf 2>/dev/null") ?: '---';
 
 if ($v6on) {
-  $ipv6 = array_filter(explode(' ',exec("ip -6 -br addr show $port scope global -temporary 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
-  $gw6  = exec("ip -6 route show default dev $port 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
+  $ipv6 = array_filter(explode(' ',exec("ip -6 -br addr show ".escapeshellarg($port)." scope global -temporary 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
+  $gw6  = exec("ip -6 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
   $dns6 = array_filter($ns,function($ns){return strpos($ns,':')!==false;});
 }
 
@@ -64,8 +64,8 @@ if ($wlan0) {
   echo "<tr><td>"._('Receive bitrate').":</td><td>$rxrate</td></tr>";
   echo "<tr><td>"._('Transmit bitrate').":</td><td>$txrate</td></tr>";
 } else {
-  $link  = _(ucfirst(exec("ethtool $eth 2>/dev/null | awk '$1==\"Link\" {print $3;exit}'")) ?: 'Unknown')." ("._(exec("ethtool $eth 2>/dev/null | grep -Pom1 '^\s+Port: \K.*'") ?: 'not present').")";
-  $speed = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool $eth 2>/dev/null | awk '$1==\"Speed:\" {print $2;exit}'")) ?: 'Unknown');
+  $link  = _(ucfirst(exec("ethtool ".escapeshellarg($eth)." 2>/dev/null | awk '$1==\"Link\" {print $3;exit}'")) ?: 'Unknown')." ("._(exec("ethtool ".escapeshellarg($eth)." 2>/dev/null | grep -Pom1 '^\s+Port: \K.*'") ?: 'not present').")";
+  $speed = _(preg_replace(['/^(\d+)/','/!/'],['$1 ',''],exec("ethtool ".escapeshellarg($eth)." 2>/dev/null | awk '$1==\"Speed:\" {print $2;exit}'")) ?: 'Unknown');
   echo "<tr><td>"._('Interface link').":</td><td>$link</td></tr>";
   echo "<tr><td>"._('Interface speed').":</td><td>$speed</td></tr>";
 }

@@ -20,7 +20,7 @@ $tmp   = '/var/tmp/attr';
 $wifi  = is_readable($cfg) ? (array)parse_ini_file($cfg,true) : [];
 $attr  = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
 $md5   = md5(json_encode($attr),true);
-$cmd   = $_POST['cmd'];
+$cmd   = $_POST['cmd'] ?? '';
 $masks = [
   '255.0.0.0' => '8',        '255.255.0.0' => '16',     '255.255.128.0' => '17',   '255.255.192.0' => '18',
   '255.255.224.0' => '19',   '255.255.240.0' => '20',   '255.255.248.0' => '21',   '255.255.252.0' => '22',
