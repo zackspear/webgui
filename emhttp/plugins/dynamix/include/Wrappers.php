@@ -270,6 +270,6 @@ function check_network_connectivity(): bool {
 function lan_port($port, $state=false) {
   $system = '/sys/class/net';
   $exist = file_exists("$system/$port");
-  return !$state ? $exist : ($exist ? file_get_contents("$system/$port/carrier") : false);
+  return !$state ? $exist : ($exist ? (@file_get_contents("$system/$port/carrier") ?: 0) : false);
 }
 ?>
