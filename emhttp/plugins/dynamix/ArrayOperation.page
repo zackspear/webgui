@@ -194,13 +194,13 @@ function getFileContent(event,form) {
   reader.readAsDataURL(input.files[0]);
 }
 
-function prepareInput(form,button) {
-  if (button) button.disabled = true;
+function prepareInput(form,button,parityWarn) {
+  button.disabled = true;
   $.post('/webGui/include/Report.php',{cmd:'state',pools:'<?=implode(',',$pools)?>'},function(state) {
     if (state.length==0) {
       $(form).append('<input type="hidden" name="cmdStart" value="Start">');
       if (form.input === undefined) {
-        form.submit();
+        parityWarn ? parityWarning(form,button) : form.submit();
         return;
       }
       form.input.disabled = true;
@@ -229,12 +229,12 @@ function prepareInput(form,button) {
       data['file'] = form.file.value;
       $.post('/update.php',data,function(){form.submit();});
     } else {
-      swal({title:"_(Wrong Pool State)_",text:state,type:'error',html:true,confirmButtonText:"_(Ok)_"});
+      swal({title:"_(Wrong Pool State)_",text:state,type:'error',html:true,confirmButtonText:"_(Ok)_"},function(){button.disabled=false;});
     }
   });
 }
 
-function parityWarning(form) {
+function parityWarning(form,button) {
   if (form.md_invalidslot.checked) {
 <?if (strpos(_var($disks['parity2'],'status'),'_NP')===false):?>
     var text = "_(*Dual parity* valid requires **ALL** disks in their original slots)_";
@@ -244,7 +244,9 @@ function parityWarning(form) {
   } else {
     var text = "_(*Parity* disk(s) content will be overwritten)_";
   }
-  swal({title:"_(Proceed to start)_",text:text,html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(){prepareInput(form);});
+  swal({title:"_(Proceed to start)_",text:text,html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(confirmed){
+    confirmed ? form.submit() : button.disabled=false;
+  });
 }
 
 function tab0() {
@@ -664,7 +666,7 @@ window.onunload = function(){
           <td>**_(Start)_** _(will record all disk information and bring the array on-line)_.
           <br>_(The array will be immediately available, but **unprotected** since *parity* has not been assigned)_.</td></tr>
 <?      else:?>
-          <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="parityWarning(this.form,this)"></td>
+          <tr><td><?status_indicator()?>**_(Stopped)_**. _(Configuration valid)_.</td><td><input type="button" id="cmdStart" value="_(Start)_" onclick="prepareInput(this.form,this,true)"></td>
           <td>**_(Start)_** _(will record all disk information, bring the array on-line, and start Parity-Sync)_.
           <br>_(The array will be immediately available, but **unprotected** until Parity-Sync completes)_.
           <br><input type="checkbox" name="md_invalidslot" value="99">_(Parity is already valid)_.</td></tr>
