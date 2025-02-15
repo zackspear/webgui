@@ -468,7 +468,7 @@ docker_network_start(){
           # copy IPv4 address to vhost interface
           run ip -4 addr add $IPV4 dev $VHOST metric 0
           log "prepared network $VHOST for host access"
-        elif [[ -e $SYSTEM/$VHOST ]]; then
+        elif [[ ${VHOST:0:5} == vhost && -e $SYSTEM/$VHOST ]]; then
           # remove IP addresses
           run ip addr flush dev $VHOST
         fi
