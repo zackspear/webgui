@@ -471,8 +471,11 @@ docker_network_start(){
         else
           VHOST=vhost${NETWORK//[^0-9.]/}
           if [[ -e $SYSTEM/$VHOST ]]; then
-            # remove IP addresses
+            # remove IP addresses of vhost
             run ip addr flush dev $VHOST
+            # remove routing of vhost
+            run ip -4 route flush dev $VHOST
+            run ip -6 route flush dev $VHOST
           fi
         fi
       fi
