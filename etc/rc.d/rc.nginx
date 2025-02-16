@@ -776,7 +776,7 @@ nginx_reload(){
       log "Reloading $DAEMON configuration..."
       kill -HUP $(cat $PID)
       sleep 1
-      if  tail -8 $SYSLOG | grep -qm1 'Address already in use'; then
+      if  tail -10 $SYSLOG | grep -qm1 'Address already in use'; then
         # unconditional restart when binding fails
         sleep 2
         log "Restarting $DAEMON..."
