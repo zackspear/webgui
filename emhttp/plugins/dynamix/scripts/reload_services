@@ -1,8 +1,18 @@
 #!/bin/bash
 SERVICES="rpc nfsd ntpd nginx sshd avahidaemon samba"
 
-if [[ -n $1 ]]; then
-  [[ ! -e $1 ]] && touch $1 || exit 0
+# delayed execution
+sleep ${1:-1}
+
+# run & log functions
+. /etc/rc.d/rc.runlog
+
+JOB=$(atq | grep -Pom1 '^\d+')
+if [[ -n $JOB ]]; then
+  atrm $JOB 2>/dev/null
+  log "execute queued job $JOB"
+else
+  exit 0
 fi
 
 for cmd in $SERVICES; do
