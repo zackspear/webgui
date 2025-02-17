@@ -2648,7 +2648,6 @@ $(function() {
 		});
 		<?endif?>
 		$panel.find('input').prop('disabled', true);
-		var styleElement = $('<style>.sweet-alert fieldset input { display: inline-block !important; }</style>').appendTo('head');
 		$button.val($button.attr('busyvalue'));
 		swal({
 			title: "_(Template Name)_",
@@ -2682,7 +2681,6 @@ $(function() {
 				}
 			}, "json");
 		});
-		styleElement.remove();
 	});
 
 	$("#vmform .xmlview #btnSubmit").click(function frmSubmit() {
@@ -2717,7 +2715,6 @@ $(function() {
 		createVmInput.remove();
 		var postdata = $panel.closest('form').serialize().replace(/'/g,"%27");
 		$panel.find('input').prop('disabled', true);
-		var styleElement = $('<style>.sweet-alert fieldset input { display: inline-block !important; }</style>').appendTo('head');
 		$button.val($button.attr('busyvalue'));
 		swal({
 			title: "_(Template Name)_",
@@ -2742,7 +2739,6 @@ $(function() {
 				}
 			}, "json");
 		});
-		styleElement.remove();
 	});
 
 	// Fire events below once upon showing page

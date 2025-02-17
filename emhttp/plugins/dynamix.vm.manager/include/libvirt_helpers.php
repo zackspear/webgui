@@ -1835,10 +1835,21 @@ class Array2XML {
 	}
 
 		write("<p class='logLine'></p>","addLog\0<fieldset class='docker'><legend>"._("Completing Clone").": </legend><p class='logLine'></p><span id='wait-$waitID'></span></fieldset>");
-		write("addLog\0".htmlspecialchars("Creating new XML $clone"));
+		write("addLog\0".htmlspecialchars(_("Creating new XML ").$clone));
 
 		$xml = $lv->config_to_xml($config, true);
 		$rtn = $lv->domain_define($xml);
+
+		if (is_resource($rtn)) {
+			$arrResponse  = ['success' => true]; 
+			write("addLog\0".htmlspecialchars(_("Creating XML successful")));
+		} else { 
+			$lastvmerror = $lv->get_last_error();
+			$arrResponse = ['xml' => $xml,'error' => $lastvmerror];
+			write("addLog\0".htmlspecialchars(_("Creating XML Error:$lastvmerror")));
+			file_put_contents("/tmp/vmclonertn.debug", json_encode($arrResponse,JSON_PRETTY_PRINT));
+		}
+	
 		return($rtn);
 
 	}
