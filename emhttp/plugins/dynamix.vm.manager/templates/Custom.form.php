@@ -1504,7 +1504,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 			}
 			$wlan0_hidden = $arrNic['network'] == 'wlan0' ? '' : 'hidden';
 			?>
-			</select><span class="wlan0 orange-text <?=$wlan0_hidden?>"><i class="fa fa-fw fa-warning"></i> _(Requires static IP assignment on the VM and manual configuration of the ipvtap interface)_</span></span>
+			</select><span class="wlan0 orange-text <?=$wlan0_hidden?>"><i class="fa fa-fw fa-warning"></i> _(Requires further manual configuration)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
 		</td>
 		<td></td>
 	</tr>
@@ -1576,7 +1576,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 				foreach ($arrValidNetworks[$key] as $strNetwork) echo mk_option($domain_bridge, $strNetwork, $strNetwork);
 			}
 			?>
-			</select><span class="wlan0 orange-text hidden"><i class="fa fa-fw fa-warning"></i> _(Requires static IP assignment on the VM and manual configuration of the ipvtap interface)_</span></span>
+			</select><span class="wlan0 orange-text hidden"><i class="fa fa-fw fa-warning"></i> _(Requires further manual configuration)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
 		</td>
 		<td></td>
 	</tr>
@@ -2203,6 +2203,17 @@ function ProtocolChange(protocol) {
 	}
 }
 
+function wlan0_info() {
+	swal({
+		title:"_(Manual Configuration Required)_",
+		text:"<div class='wlan0'><i class='fa fa-fw fa-hand-o-right'></i> _(Configure the VM with a static IP address)_<br><br><i class='fa fa-fw fa-hand-o-right'></i> _(Only one VM can be active at the time)_<br><br><i class='fa fa-fw fa-hand-o-right'></i> _(Configure the same IP address on the ipvtap interface)_<br><span class='ipvtap'><i class='fa fa-fw fa-long-arrow-right'></i> ip addr add IP-ADDRESS dev shim-wlan0</span></div>",
+		html:true,
+		animation:"none",
+		type:"info",
+		confirmButtonText:"_(Ok)_"
+	});
+}
+
 $(function() {
 	function completeAfter(cm, pred) {
 		var cur = cm.getCursor();
@@ -2576,7 +2587,7 @@ $(function() {
 					try {
 						vmrc_window.focus();
 					} catch (e) {
-						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){ done() });
+						swal({title:"_(Browser error)_",text:"_(Pop-up Blocker is enabled! Please add this site to your exception list)_",type:"warning",confirmButtonText:"_(Ok)_"},function(){done();});
 						return;
 					}
 				}
