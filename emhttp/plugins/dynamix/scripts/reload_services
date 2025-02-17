@@ -4,10 +4,14 @@ SERVICES="rpc nfsd ntpd nginx sshd avahidaemon samba"
 # run & log functions
 . /etc/rc.d/rc.runlog
 
+queue(){
+  atq | grep -Pom1 '^\d+'
+}
+
 # delayed execution
 sleep ${1:-1}
 
-JOB=$(atq | grep -Pom1 '^\d+')
+JOB=$(queue)
 if [[ -n $JOB ]]; then
   atrm $JOB 2>/dev/null
   log "execute queued job $JOB"

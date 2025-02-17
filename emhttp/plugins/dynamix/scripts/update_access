@@ -6,7 +6,7 @@ INET=/etc/inetd.conf
 SERV=/etc/services
 
 # read settings
-[[ -e /boot/config/ident.cfg ]] && . <(/usr/bin/fromdos </boot/config/ident.cfg)
+[[ -e /boot/config/ident.cfg ]] && . <(fromdos </boot/config/ident.cfg)
 
 # preset default values
 [[ -z $USE_TELNET ]] && USE_TELNET=no
