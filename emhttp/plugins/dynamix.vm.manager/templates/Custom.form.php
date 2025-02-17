@@ -1502,8 +1502,9 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 				echo mk_option("", $key, "- "._($key)." -", "disabled");
 				foreach ($arrValidNetworks[$key] as $strNetwork) echo mk_option($arrNic['network'], $strNetwork, $strNetwork);
 			}
+			$wlan0_hidden = $arrNic['network'] == 'wlan0' ? '' : 'hidden';
 			?>
-			</select></span>
+			</select><span class="wlan0 orange-text <?=$wlan0_hidden?>"><i class="fa fa-fw fa-warning"></i> _(Requires static IP assignment on the VM and manual configuration of the ipvtap interface)_</span></span>
 		</td>
 		<td></td>
 	</tr>
@@ -1575,7 +1576,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 				foreach ($arrValidNetworks[$key] as $strNetwork) echo mk_option($domain_bridge, $strNetwork, $strNetwork);
 			}
 			?>
-			</select></span>
+			</select><span class="wlan0 orange-text hidden"><i class="fa fa-fw fa-warning"></i> _(Requires static IP assignment on the VM and manual configuration of the ipvtap interface)_</span></span>
 		</td>
 		<td></td>
 	</tr>
@@ -2015,7 +2016,11 @@ var storageLoc  = "<?=$arrConfig['template']['storage']?>";
 function updateMAC(index,port) {
 	$('input[name="nic['+index+'][mac]"').prop('disabled',port=='wlan0');
 	$('i.mac_generate.'+index).prop('disabled',port=='wlan0');
-	if (port != 'wlan0') $('i.mac_generate.'+index).click();
+	$('span.wlan0').removeClass('hidden');
+	if (port != 'wlan0') {
+		$('span.wlan0').addClass('hidden');
+		$('i.mac_generate.'+index).click();
+	}
 }
 
 function ShareChange(share) {
