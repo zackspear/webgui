@@ -312,7 +312,7 @@ class Libvirt {
 			foreach ($template as $key => $value) {
 				$template_options .= $key."='".htmlspecialchars($value, ENT_QUOTES | ENT_XML1)."' ";
 			}
-			$metadata .= "<vmtemplate xmlns='unraid' ".$template_options."/>";
+			$metadata .= "<vmtemplate xmlns='http://unraid' ".$template_options."/>";
 			$metadata .= "</metadata>";
 		}
 		$vcpus = $domain['vcpus'];
@@ -2158,15 +2158,15 @@ class Libvirt {
 			foreach ($objNodes as $objNode) {
 				$dom  = $xpath->query('source/address/@domain', $objNode)->Item(0)->nodeValue;
 				$bus  = $xpath->query('source/address/@bus', $objNode)->Item(0)->nodeValue;
-				$rotation  = $xpath->query('target/address/@rotation_rate', $objNode)->Item(0)->nodeValue;
+				$rotation  = $xpath->query('target/address/@rotation_rate', $objNode)->Item(0)->nodeValue ?? "";
 				$slot = $xpath->query('source/address/@slot', $objNode)->Item(0)->nodeValue;
 				$func = $xpath->query('source/address/@function', $objNode)->Item(0)->nodeValue;
 				$rom = $xpath->query('rom/@file', $objNode);
 				$rom = ($rom->length > 0 ? $rom->Item(0)->nodeValue : '');
-				$boot =$xpath->query('boot/@order', $objNode)->Item(0)->nodeValue;
+				$boot =$xpath->query('boot/@order', $objNode)->Item(0)->nodeValue ?? "";
 				$devid = str_replace('0x', '', 'pci_'.$dom.'_'.$bus.'_'.$slot.'_'.$func);
 				$tmp2 = $this->get_node_device_information($devid);
-				$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->nodeValue ? "on" : "off";
+				$guest["multi"] = $xpath->query('address/@multifunction', $objNode)->Item(0)->nodeValue ?? "" ? "on" : "off";
 				$guest["dom"]  = $xpath->query('address/@domain', $objNode)->Item(0)->nodeValue;
 				$guest["bus"]  = $xpath->query('address/@bus', $objNode)->Item(0)->nodeValue;
 				$guest["slot"] = $xpath->query('address/@slot', $objNode)->Item(0)->nodeValue;
