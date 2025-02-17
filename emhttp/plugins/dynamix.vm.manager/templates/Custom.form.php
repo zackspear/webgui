@@ -1504,7 +1504,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 			}
 			$wlan0_hidden = $arrNic['network'] == 'wlan0' ? '' : 'hidden';
 			?>
-			</select><span class="wlan0 orange-text <?=$wlan0_hidden?>"><i class="fa fa-fw fa-warning"></i> _(Requires further manual configuration)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
+			</select><span class="wlan0 orange-text <?=$wlan0_hidden?>"><i class="fa fa-fw fa-warning"></i> _(Manual configuration required)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
 		</td>
 		<td></td>
 	</tr>
@@ -1576,7 +1576,7 @@ foreach ($arrConfig['nic'] as $i => $arrNic) {
 				foreach ($arrValidNetworks[$key] as $strNetwork) echo mk_option($domain_bridge, $strNetwork, $strNetwork);
 			}
 			?>
-			</select><span class="wlan0 orange-text hidden"><i class="fa fa-fw fa-warning"></i> _(Requires further manual configuration)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
+			</select><span class="wlan0 orange-text hidden"><i class="fa fa-fw fa-warning"></i> _(Manual configuration required)_ <input type="button" class="wlan0_info" value="_(Info)_" onclick="wlan0_info()"></span></span>
 		</td>
 		<td></td>
 	</tr>
