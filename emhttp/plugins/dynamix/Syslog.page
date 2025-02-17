@@ -90,20 +90,30 @@ function resize() {
   $('pre.up').height(Math.max(window.innerHeight-320,330));
 }
 <?endif;?>
+
 function showLog(log) {
-  logfile = log;
-  $('span.label input[type=checkbox]').prop('checked',true);
-  $('span.label').each(function(){
-    var type = $(this).attr('class').replace('label','').replace(/-/g,'');
-    $(this).removeClass().addClass(type+' label');
-  });
-  timers.syslog = setTimeout(function(){$('div.spinner.fixed').show('slow');},500);
-  $.post('/webGui/include/Syslog.php',{log:log,max:$('#max').val()||<?=$max?>},function(data){
-    clearTimeout(timers.syslog);
-    $('pre.up').html(data);
-    $('div.spinner.fixed').hide('slow');
-  });
+	logfile = log;
+	$('span.label input[type=checkbox]').prop('checked', true);
+	$('span.label').each(function() {
+		var type = $(this).attr('class').replace('label', '').replace(/-/g, '');
+		$(this).removeClass().addClass(type + ' label');
+	});
+	timers.syslog = setTimeout(function() { $('div.spinner.fixed').show('slow'); }, 500);
+
+	$.post('/webGui/include/Syslog.php', { log: log, max: $('#max').val() || <?=$max?> }, function(data) {
+		clearTimeout(timers.syslog);
+		$('pre.up').html(data);
+		$('div.spinner.fixed').hide('slow');
+
+		/* Scroll to bottom after the log is loaded */
+		const logContainer = document.querySelector("pre.up");
+		if (logContainer) {
+			logContainer.scrollTop = logContainer.scrollHeight;
+		}
+	});
 }
+
+
 $(function() {
   $('input#max').on('keydown',function(e) {
     if (e.keyCode === 13) {
