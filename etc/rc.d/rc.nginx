@@ -31,6 +31,7 @@ TSCERTPATH="$SSL/certs/ts_bundle.pem"
 MYSERVERS="/boot/config/plugins/dynamix.my.servers/myservers.cfg"
 DEFAULTS="/etc/default/nginx"
 SYSTEM="/sys/class/net"
+SYSLOG="/var/log/syslog"
 
 # Load defaults
 # Defines NGINX_CUSTOMFA for custom Content-Security-Policy frame-ancestors url
@@ -774,7 +775,13 @@ nginx_reload(){
     if nginx_check; then
       log "Reloading $DAEMON configuration..."
       kill -HUP $(cat $PID)
-      sleep 3
+      sleep 1
+      if  tail -10 $SYSLOG | grep -qm1 'Address already in use'; then
+        # unconditional restart when binding fails
+        sleep 2
+        log "Restarting $DAEMON..."
+        nginx_renew
+      fi
     else
       log "Invalid configuration, $DAEMON not reloaded"
       return 1

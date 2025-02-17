@@ -44,9 +44,11 @@ input[type=checkbox]{margin-left:0}
 span.width{display:inline-block;width:280px}
 span.column1{display:inline-block;width:140px}
 span.column2{display:inline-block;width:220px}
-input#btnvCPUSelect{font-size:1rem;padding:5px 10px;margin:0 0 0 10px}
+input#btnvCPUSelect,input.wlan0_info{font-size:1rem;padding:5px 10px;margin:0 0 0 10px}
 span.space{display:inline-block;width:60px}
 span.label{display:inline-block;width:110px;text-align:right}
+span.ipvtap{margin-left:25px;font-family:bitstream}
+div.wlan0{text-align:left}
 select.narrow{min-width:90px!important}
 select.second{margin-left:12px;max-width:90px;margin-right:0}
 input.trim{width:98px;min-width:98px}
