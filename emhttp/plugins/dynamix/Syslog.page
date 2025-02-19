@@ -110,6 +110,7 @@ function showLog(log) {
 
 		/* Ensuring reliable scroll behavior on Chrome */
 		function scrollToBottom() {
+			logContainer.style.scrollBehavior = 'smooth';
 			logContainer.scrollTop = logContainer.scrollHeight;
 		}
 
