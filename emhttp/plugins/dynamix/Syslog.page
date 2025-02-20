@@ -102,17 +102,36 @@ function showLog(log) {
 
 	$.post('/webGui/include/Syslog.php', { log: log, max: $('#max').val() || <?=$max?> }, function(data) {
 		clearTimeout(timers.syslog);
+		let logContainer = document.querySelector("pre.up");
+		if (!logContainer) return;  // Safety check
+
 		$('pre.up').html(data);
 		$('div.spinner.fixed').hide('slow');
 
-		/* Scroll to bottom after the log is loaded */
-		const logContainer = document.querySelector("pre.up");
-		if (logContainer) {
+		/* Ensuring reliable scroll behavior on Chrome */
+		function scrollToBottom() {
+			logContainer.style.scrollBehavior = 'smooth';
 			logContainer.scrollTop = logContainer.scrollHeight;
 		}
+
+		/* 1. Delay with setTimeout */
+		setTimeout(scrollToBottom, 50);
+
+		/* 2. Force Chrome to reflow/repaint */
+		logContainer.style.display = "none";
+		setTimeout(function() {
+			logContainer.style.display = "block";
+			scrollToBottom();
+		}, 10);
+
+		/* 3. Use requestAnimationFrame */
+		requestAnimationFrame(scrollToBottom);
+
+		/* 4. Repeat scroll a few times as a backup (Fixes rare cases in Chrome) */
+		setTimeout(scrollToBottom, 100);
+		setTimeout(scrollToBottom, 500);
 	});
 }
-
 
 $(function() {
   $('input#max').on('keydown',function(e) {
