@@ -1306,7 +1306,10 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 			<select id="vncrender" name="gpu[<?=$i?>][render]" class="second <?=$vncrender?>">
 			<?
 			echo mk_option($arrGPU['render'], 'auto', _('Auto'));
-			foreach ($arrValidGPUDevices as $arrDev) echo mk_option($arrGPU['render'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
+			foreach ($arrValidGPUDevices as $arrDev) {
+				if ($arrDev['vendorid'] == "10de" && !is_file("/etc/libvirt/virglnv")) continue;
+				echo mk_option($arrGPU['render'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
+			}
 			?>
 			</select>
 			<?
