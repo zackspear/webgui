@@ -145,6 +145,7 @@ table.share_status tr>td:nth-child(2){width:30%}
 table.share_status tr>td:nth-child(n+3){width:10%}
 table.share_status tr>td:nth-child(5){width:15%}
 table.dashboard{margin:0;border:none;background-color:#f7f9f9}
+table.dashboard thead.stopgap{border-left:1px solid #f2f2f2;border-right:1px solid #f2f2f2}
 table.dashboard tbody{border:1px solid #dfdfdf}
 table.dashboard tbody td{line-height:normal;height:auto;padding:3px 10px}
 table.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}
