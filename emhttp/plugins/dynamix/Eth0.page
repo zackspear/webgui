@@ -22,6 +22,7 @@ $ini      = '/var/local/emhttp/network.ini';
 $validIP4 = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}";
 $validIP6 = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $enable   = _('Enable default gateway');
+$metric   = _('metric value, a lower value is more preferred');
 
 $masks = [
   '255.0.0.0' => '8',        '255.255.0.0' => '16',     '255.255.128.0' => '17',   '255.255.192.0' => '18',
@@ -716,7 +717,7 @@ _(IPv4 address)_:
 
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:0")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:0")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv4_default_gateway_help:
 
@@ -739,7 +740,7 @@ _(IPv6 address)_:
 
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:0")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:0")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv6_default_gateway_help:
 
@@ -816,7 +817,7 @@ _(IPv4 address)_:
 <div markdown="1" class="more-gw4-eth0-<?=$i?> hide">
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:$i")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:$i")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv4_default_gateway_help:
 
@@ -845,7 +846,7 @@ _(IPv6 address)_:
 <div markdown="1" class="more-gw6-eth0-<?=$i?> hide">
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:$i")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:$i")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv6_default_gateway_help:
 
@@ -907,7 +908,7 @@ _(IPv4 address)_:
 <div markdown="1" class="more-gw4-eth0-INDEX> hide">
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:INDEX")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC:INDEX")?:metric('eth0',4)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 </div>
 </div>
@@ -928,7 +929,7 @@ _(IPv6 address)_:
 <div markdown="1" class="more-gw6-eth0-INDEX> hide">
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:INDEX")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(metric value, a lower value is more preferred)_*
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($eth0,"METRIC6:INDEX")?:metric('eth0',6)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 </div>
 </div>
