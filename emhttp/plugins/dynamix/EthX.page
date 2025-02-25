@@ -28,7 +28,7 @@ if (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
   [$master_ethX,$root] = my_explode(' ',$locked);
   $reason = _('member of')." $master_ethX ("._('see interface')." $root)";
   $class = 'green-text';
-} elseif (!exec("ip link show ethX|grep -om1 'UP>'")) {
+} elseif (exec("ip -br link show ethX | grep -om1 ' DOWN '")) {
   $reason = _("shutdown")." ("._("inactive").")";
   $class = 'blue-text';
   $cmd = 'Up';
@@ -57,6 +57,7 @@ $(function() {
   checkBridgingSettings(form,0);
   checkNetworkAccess(form);
   selectProtocol(form);
+  selectGW(form);
 <?if (isset($master_ethX)):?>
   $('div.slave-ethX').hide();
   disableForm(form);
@@ -169,6 +170,7 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:0"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-0 hide"><input type="checkbox" name="USE_GW4:0" onchange="selectGW(this.form,4,0,'slow')" <?=_var($ethX,"USE_GW:0")?'checked':''?>><?=$enable?></span>
 
 :eth_ipv4_address_assignment_help:
 
@@ -180,12 +182,14 @@ _(IPv4 address)_:
 
 :eth_ipv4_address_help:
 
+<div markdown="1" class="more-gw4-ethX-0 hide">
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:0" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:0")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+  <input type="text" name="METRIC:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:0")?:metric('ethX',4,0)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv4_default_gateway_help:
 
+</div>
 </div>
 </div>
 <div markdown="1" class="ipv6-ethX-0 hide">
@@ -195,21 +199,24 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-0 hide"><input type="checkbox" name="USE_GW6:0" onchange="selectGW(this.form,6,0,'slow')" <?=_var($ethX,"USE_GW6:0")?'checked':''?>><?=$enable?></span>
 
 :eth_ipv6_address_assignment_help:
 
 <div markdown="1" class="more-ipv6-ethX-0 hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:0")?>" class="slim">
+: <input type="text" name="IPADDR6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:0" min="7" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:0","64")?>" class="slim">
 
 :eth_ipv6_address_help:
 
+<div markdown="1" class="more-gw6-ethX-0 hide">
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:0" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:0")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:0")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+  <input type="text" name="METRIC6:0" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:0")?:metric('ethX',6,0)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
 </div>
 <div markdown="1" class="priv-ipv6-ethX-0 hide">
 _(IPv6 privacy extensions)_:
@@ -269,6 +276,7 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-<?=$i?> hide"><input type="checkbox" name="USE_GW4:<?=$i?>" onchange="selectGW(this.form,4,<?=$i?>,'slow')" <?=_var($ethX,"USE_GW:$i")?'checked':''?>><?=$enable?></span>
 
 :eth_ipv4_address_assignment_help:
 
@@ -280,12 +288,14 @@ _(IPv4 address)_:
 
 :eth_ipv4_address_help:
 
+<div markdown="1" class="more-gw4-ethX-<?=$i?> hide">
 _(IPv4 default gateway)_:
 : <input type="text" name="GATEWAY:<?=$i?>" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:$i")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+  <input type="text" name="METRIC:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:$i")?:metric('ethX.<?=_var($ethX,"VLANID:$i")?>',4,$i)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv4_default_gateway_help:
 
+</div>
 </div>
 </div>
 <div markdown="1" class="ipv6-ethX-<?=$i?> hide">
@@ -295,21 +305,24 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-<?=$i?> hide"><input type="checkbox" name="USE_GW6:<?=$i?>" onchange="selectGW(this.form,6,<?=$i?>,'slow')" <?=_var($ethX,"USE_GW6:$i")?'checked':''?>><?=$enable?></span>
 
 :eth_ipv6_address_assignment_help:
 
 <div markdown="1" class="more-ipv6-ethX-<?=$i?> hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:$i")?>" class="slim">
+: <input type="text" name="IPADDR6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:<?=$i?>" min="7" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:$i","64")?>" class="slim">
 
 :eth_ipv6_address_help:
 
+<div markdown="1" class="more-gw6-ethX-<?=$i?> hide">
 _(IPv6 default gateway)_:
 : <input type="text" name="GATEWAY6:<?=$i?>" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:$i")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:$i")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+  <input type="text" name="METRIC6:<?=$i?>" min="0" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:$i")?:metric('ethX.<?=_var($ethX,"VLANID:$i")?>',6,$i)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
 :eth_ipv6_default_gateway_help:
 
+</div>
 </div>
 <div markdown="1" class="priv-ipv6-ethX-<?=$i?> hide">
 _(IPv6 privacy extensions)_:
@@ -357,17 +370,20 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-INDEX hide"><input type="checkbox" name="USE_GW4:INDEX" onchange="selectGW(this.form,4,INDEX,'slow')"><?=$enable?></span>
 
 <div markdown="1" class="more-ipv4-ethX-INDEX hide">
 _(IPv4 address)_:
-: <input type="text" name="IPADDR:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
-  <?foreach ($masks as $mask => $prefix) echo mk_option(_var($ethX,"NETMASK:INDEX"), $mask, $prefix, $prefix=='24'?'selected':'');?>
+: <input type="text" name="IPADDR:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">/<select name="NETMASK:INDEX" class="slim">
+  <?foreach ($masks as $mask => $prefix) echo mk_option(0, $mask, $prefix, $prefix=='24'?'selected':'');?>
   </select>
 
+<div markdown="1" class="more-gw4-ethX-INDEX hide">
 _(IPv4 default gateway)_:
-: <input type="text" name="GATEWAY:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY:INDEX")?>" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
-  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY:INDEX" maxlength="15" autocomplete="off" spellcheck="false" value="" class="narrow" pattern="<?=$validIP4?>" title="_(IPv4 address A.B.C.D)_">
+  <input type="text" name="METRIC:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=metric('ethX.INDEX',4,$i+1)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
+</div>
 </div>
 </div>
 <div markdown="1" class="ipv6-ethX-INDEX hide">
@@ -377,15 +393,18 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-INDEX hide"><input type="checkbox" name="USE_GW6:INDEX" onchange="selectGW(this.form,6,INDEX,'slow')"><?=$enable?></span>
 
 <div markdown="1" class="more-ipv6-ethX-INDEX hide">
 _(IPv6 address)_:
-: <input type="text" name="IPADDR6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"IPADDR6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="1" max="128" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"NETMASK6:INDEX")?>" class="slim">
+: <input type="text" name="IPADDR6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">/<input type="number" name="NETMASK6:INDEX" min="7" max="128" autocomplete="off" spellcheck="false" value="64" class="slim">
 
+<div markdown="1" class="more-gw6-ethX-INDEX hide">
 _(IPv6 default gateway)_:
-: <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"GATEWAY6:INDEX")?>" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
-  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=_var($ethX,"METRIC6:INDEX")?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *_(optional metric (lowest is preferred, 0 is no default gateway))_*
+: <input type="text" name="GATEWAY6:INDEX" maxlength="39" autocomplete="off" spellcheck="false" value="" pattern="<?=$validIP6?>" title="_(IPv6 address nnnn:xxxx::yyyy)_">
+  <input type="text" name="METRIC6:INDEX" min="1" max="9999" autocomplete="off" spellcheck="false" value="<?=metric('ethX.INDEX',6,$i+1)?>" class="slim"><i class="fa fa-sort-numeric-asc"></i> *<?=$metric?>*
 
+</div>
 </div>
 <div markdown="1" class="priv-ipv6-ethX-INDEX hide">
 _(IPv6 privacy extensions)_:

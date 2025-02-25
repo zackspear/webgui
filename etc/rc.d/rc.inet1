@@ -7,7 +7,7 @@
 # @(#)/etc/rc.d/rc.inet1 10.2  Sun Jul 24 12:45:56 PDT 2005 (pjv)
 
 # LimeTech - modified for Unraid OS
-# Bergware - modified for Unraid OS, January 2025
+# Bergware - modified for Unraid OS, February 2025
 
 # Adapted by Bergware for use in Unraid OS - April 2016
 # - improved interface configuration
@@ -76,6 +76,9 @@
 # Adapted by Bergware for use in Unraid OS - January 2025
 # - added 'renew' command to restart interface without reconfiguring
 # - fixed dns assigment may be missing in some cases
+
+# Adapted by Bergware for use in Unraid OS - February 2025
+# - added metric value to interface IP assignment
 
 ###########
 # LOGGING #
@@ -388,14 +391,14 @@ ipaddr_up(){
       [[ $j -eq 0 ]] && ADDR=${IPADDR[$i]} || ADDR=${IPADDR[$i,$j]}
       if [[ -n $ADDR ]]; then
         [[ $j -eq 0 ]] && MASK=${NETMASK[$i]} || MASK=${NETMASK[$i,$j]}
-        [[ -n $MASK ]] && run ip -4 addr add $(unzero $ADDR)/$MASK dev $IFACE metric 1
+        [[ -n $MASK ]] && run ip -4 addr add $(unzero $ADDR)/$MASK dev $IFACE metric ${DHCP_METRIC:-1}
       fi
     fi
     if [[ $IP != ipv4 ]]; then
       [[ $j -eq 0 ]] && ADDR6=${IPADDR6[$i]} || ADDR6=${IPADDR6[$i,$j]}
       if [[ -n $ADDR6 ]]; then
         [[ $j -eq 0 ]] && MASK6=${NETMASK6[$i]} || MASK6=${NETMASK6[$i,$j]}
-        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $ADDR6)/$MASK6 dev $IFACE metric 1
+        [[ -n $MASK6 ]] && run ip -6 addr add $(unzero6 $ADDR6)/$MASK6 dev $IFACE metric ${DHCP_METRIC:-1}
         [[ -n $PRIV6 && -d $CONF6/$IFACE ]] && echo 0 >$CONF6/$IFACE/use_tempaddr
       fi
     fi
