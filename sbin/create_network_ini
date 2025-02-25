@@ -9,6 +9,7 @@
 # create system welcome message
 # update files on DHCP events 'BOUND[6] IPV4LL EXPIRE'
 # update services listening interfaces / addresses
+# exclude non-existing interfaces from config
 
 [[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL EXPIRE" =~ $reason) ]] && exit 0
 
@@ -54,6 +55,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
   IFACE=${IFNAME[$i]:-eth$i}
   ETH=${IFACE/#bond/eth}
   ETH=${ETH/#br/eth}
+  # don't store when non-existing
   [[ -e $SYS/$ETH ]] || continue
   echo "[$ETH]" >>$INI
   if [[ $i -eq 0 ]]; then
