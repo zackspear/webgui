@@ -90,7 +90,7 @@ if ($run) {
         if ($set=='eth0') $ifname = $old['BRIDGING']=='yes' ? ($old['BRNAME'] ?? 'br0') : ($old['BONDING']=='yes' ? ($old['BONDNAME'] ?? 'bond0') : $set);
       }
     }
-    if (port_exists($ifname)) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
+    exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop")." >/dev/null");
     if ($ini[$set]['BONDING']=='yes') {
       // release additional NICs in bond
       foreach (bond_nics($ini[$set],$set) as $nic) {
@@ -154,11 +154,9 @@ file_put_contents($cfg,implode("\r\n",$new)."\r\n");
 // start interface with updated (new) configuration
 // don't execute when only interface description has changed
 if ($run) {
-  if (port_exists($ifname)) {
-    exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_{$cmd}")." >/dev/null");
-    exec("/usr/local/sbin/create_network_ini ".escapeshellarg($ifname)." &>/dev/null &");
-    if (!$dns) update_wireguard($ifname);
-  }
+  exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_{$cmd}")." >/dev/null");
+  exec("/usr/local/sbin/create_network_ini ".escapeshellarg($ifname)." &>/dev/null &");
+  if (!$dns) update_wireguard($ifname);
 }
 exit(0);
 ?>
