@@ -28,7 +28,7 @@ if (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
   [$master_ethX,$root] = my_explode(' ',$locked);
   $reason = _('member of')." $master_ethX ("._('see interface')." $root)";
   $class = 'green-text';
-} elseif (!exec("ip link show ethX|grep -om1 'UP>'")) {
+} elseif (exec("ip -br link show ethX | grep -om1 ' DOWN '")) {
   $reason = _("shutdown")." ("._("inactive").")";
   $class = 'blue-text';
   $cmd = 'Up';
@@ -169,6 +169,7 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:0"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-0 hide"><input type="checkbox" name="USE_GW:0" <?=_var($ethX,"USE_GW:0")?'checked':''?>>_(Enable default gateway)_</span>
 
 :eth_ipv4_address_assignment_help:
 
@@ -195,6 +196,7 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:0"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-0 hide"><input type="checkbox" name="USE_GW6:0" <?=_var($ethX,"USE_GW6:0")?'checked':''?>>_(Enable default gateway)_</span>
 
 :eth_ipv6_address_assignment_help:
 
@@ -269,6 +271,7 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:$i"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-<?=$i?> hide"><input type="checkbox" name="USE_GW:<?=$i?>" <?=_var($ethX,"USE_GW:$i")?'checked':''?>>_(Enable default gateway)_</span>
 
 :eth_ipv4_address_assignment_help:
 
@@ -295,6 +298,7 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:$i"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-<?=$i?> hide"><input type="checkbox" name="USE_GW6:<?=$i?>" <?=_var($ethX,"USE_GW6:$i")?'checked':''?>>_(Enable default gateway)_</span>
 
 :eth_ipv6_address_assignment_help:
 
@@ -357,6 +361,7 @@ _(IPv4 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP:INDEX"), '', _('None'))?>
   </select>
+  <span class="gw4-ethX-INDEX hide"><input type="checkbox" name="USE_GW:INDEX">_(Enable default gateway)_</span>
 
 <div markdown="1" class="more-ipv4-ethX-INDEX hide">
 _(IPv4 address)_:
@@ -377,6 +382,7 @@ _(IPv6 address assignment)_:
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($ethX,"USE_DHCP6:INDEX"), '', _('None'))?>
   </select>
+  <span class="gw6-ethX-INDEX hide"><input type="checkbox" name="USE_GW6:INDEX">_(Enable default gateway)_</span>
 
 <div markdown="1" class="more-ipv6-ethX-INDEX hide">
 _(IPv6 address)_:

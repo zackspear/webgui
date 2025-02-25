@@ -70,7 +70,7 @@ $service = exec('pgrep --ns $$ libvirt') ? _('VM manager') : '';
 $service .= exec('pgrep --ns $$ docker') ? ($service ? ' '._('and').' ' : '')._('Docker service') : '';
 
 // eth0 port status
-$no_eth0 = exec("ip link show eth0|grep -Pom1 '(NO-CARRIER|state DOWN)'");
+$no_eth0 = exec("ip -br link show eth0 | grep -om1 ' DOWN '");
 
 // get VLAN interfaces
 $vlan_eth0 = $sort_eth0 = [];
@@ -194,18 +194,22 @@ function prepareSettings(form) {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
+    var gw4 = (port=='eth0') ? true : $(form).find('input[name="USE_GW:'+i+'"]').prop('checked');
     if (protocol != 'ipv6' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
+      $(form).find('input[name="METRIC:'+i+'"]').prop('disabled',false).val(gw4?'':'0');
     }
   });
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
+    var gw6 = (port=='eth0') ? true : $(form).find('input[name="USE_GW6:'+i+'"]').prop('checked');
     if (protocol != 'ipv4' && $(this).val()=='yes') {
       $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',false).val('');
+      $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',false).val(gw6?'':'0');
     }
     if ($(this).val()!='yes') $(form).find('input[name="PRIVACY6:'+i+'"]').prop('disabled',false).val('');
   });
@@ -232,6 +236,8 @@ function selectProtocol(form,index,step) {
       var more4 = $('.'+'more-ipv4-'+port+'-'+i);
       var more6 = $('.'+'more-ipv6-'+port+'-'+i);
       var priv6 = $('.'+'priv-ipv6-'+port+'-'+i);
+      var gw4 = $('.'+'gw4-'+port+'-'+i);
+      var gw6 = $('.'+'gw6-'+port+'-'+i);
       switch (protocol) {
         case 'ipv4': net4.show(); net6.hide(); break;
         case 'ipv6': net4.hide(); net6.show(); break;
@@ -244,8 +250,29 @@ function selectProtocol(form,index,step) {
 <?else:?>
       var dhcp4 = $(form).find('select[name="USE_DHCP:'+i+'"]').val();
       var dhcp6 = $(form).find('select[name="USE_DHCP6:'+i+'"]').val();
-      if (dhcp4=='no') more4.show(); else more4.hide();
-      if (dhcp6=='no') {more6.show(); priv6.hide();} else if (dhcp6=='yes') {more6.hide(); priv6.show();} else {more6.hide(); priv6.hide();}
+      if (dhcp4=='no') {
+        more4.show();
+        gw4.hide();
+      } else if (dhcp4=='yes') {
+        more4.hide();
+        gw4.show();
+      } else {
+        more4.hide();
+        gw4.hide();
+      }
+      if (dhcp6=='no') {
+        more6.show();
+        priv6.hide();
+        gw6.hide();
+      } else if (dhcp6=='yes') {
+        more6.hide();
+        priv6.show();
+        gw6.show();
+      } else {
+        more6.hide();
+        priv6.hide();
+        gw6.hide();
+      }
 <?endif;?>
       checkNetworkSettings(form,i);
     });
@@ -256,6 +283,8 @@ function selectProtocol(form,index,step) {
     var more4 = $('.'+'more-ipv4-'+port+'-'+index);
     var more6 = $('.'+'more-ipv6-'+port+'-'+index);
     var priv6 = $('.'+'priv-ipv6-'+port+'-'+index);
+    var gw4 = $('.'+'gw4-'+port+'-'+index);
+    var gw6 = $('.'+'gw6-'+port+'-'+index);
     switch (protocol) {
       case 'ipv4': net4.show(step); net6.hide(step); if (port=='eth0') {$('#dns4').show(step); $('#dns6').hide(step);} break;
       case 'ipv6': net4.hide(step); net6.show(step); if (port=='eth0') {$('#dns4').hide(step); $('#dns6').show(step);} break;
@@ -263,8 +292,29 @@ function selectProtocol(form,index,step) {
     }
     var dhcp4 = $(form).find('select[name="USE_DHCP:'+index+'"]').val();
     var dhcp6 = $(form).find('select[name="USE_DHCP6:'+index+'"]').val();
-    if (dhcp4=='no') more4.show(step); else more4.hide(step);
-    if (dhcp6=='no') {more6.show(step); priv6.hide(step);} else if (dhcp6=='yes') {more6.hide(step); priv6.show(step);} else {more6.hide(step); priv6.hide(step);}
+    if (dhcp4=='no') {
+      more4.show(step);
+      gw4.hide();
+    } else if (dhcp4=='yes') {
+      more4.hide(step);
+      gw4.show();
+    } else {
+      more4.hide(step);
+      gw4.hide();
+    }
+    if (dhcp6=='no') {
+      more6.show(step);
+      priv6.hide(step);
+      gw6.hide();
+    } else if (dhcp6=='yes') {
+      more6.hide(step);
+      priv6.show(step);
+      gw6.show();
+    } else {
+      more6.hide(step);
+      priv6.hide(step);
+      gw6.hide();
+    }
     checkNetworkSettings(form,index);
   }
 }
@@ -406,10 +456,10 @@ function disableForm(form) {
 }
 
 function portcheck(port) {
-  $.post('/webGui/include/CheckPort.php',{port:port},function(text) {
+  $.post('/webGui/include/CheckPort.php',{port:port},function(msg) {
     var html = $('#user-notice').html();
-    if (!html || html.indexOf(port)>0) showNotice(text);
-    setTimeout(function(){portcheck(port);},10000);
+    if (!html || html.indexOf(port)>0) showNotice(msg);
+    setTimeout(function(){portcheck(port);},5000);
   });
 }
 

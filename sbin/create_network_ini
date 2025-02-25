@@ -54,6 +54,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
   IFACE=${IFNAME[$i]:-eth$i}
   ETH=${IFACE/#bond/eth}
   ETH=${ETH/#br/eth}
+  [[ -e $SYS/$ETH ]] || continue
   echo "[$ETH]" >>$INI
   if [[ $i -eq 0 ]]; then
     # process legacy settings
@@ -120,6 +121,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
   echo "DESCRIPTION:0=\"${DESCRIPTION[$i]}\"" >>$INI
   echo "PROTOCOL:0=\"${PROTOCOL[$i]}\"" >>$INI
   echo "USE_DHCP:0=\"${USE_DHCP[$i]}\"" >>$INI
+  echo "USE_GW:0=\"${USE_GW[$i]}\"" >>$INI
   if [[ ${USE_DHCP[$i]} == yes ]]; then
     # get dhcp assigned ipv4 address & mask
     NET=($(ip -br -4 addr show $IFACE|awk '{sub("/"," ",$3);print $3;exit}'))
@@ -136,6 +138,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
     echo "METRIC:0=\"${METRIC[$i]}\"" >>$INI
   fi
   echo "USE_DHCP6:0=\"${USE_DHCP6[$i]}\"" >>$INI
+  echo "USE_GW6:0=\"${USE_GW6[$i]}\"" >>$INI
   if [[ ${USE_DHCP6[$i]} == yes ]]; then
     # get auto assigned ipv6 address & prefix
     NET6=($(ip -br -6 addr show $IFACE scope global|awk '{sub("/"," ",$NF);print $NF;exit}'))
@@ -162,6 +165,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
       echo "DESCRIPTION:$j=\"${DESCRIPTION[$i,$j]}\"" >>$INI
       echo "PROTOCOL:$j=\"${PROTOCOL[$i,$j]}\"" >>$INI
       echo "USE_DHCP:$j=\"${USE_DHCP[$i,$j]}\"" >>$INI
+      echo "USE_GW:$j=\"${USE_GW[$i,$j]}\"" >>$INI
       if [[ ${USE_DHCP[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get dhcp assigned ipv4 address & mask
@@ -179,6 +183,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
         echo "METRIC:$j=\"${METRIC[$i,$j]}\"" >>$INI
       fi
       echo "USE_DHCP6:$j=\"${USE_DHCP6[$i,$j]}\"" >>$INI
+      echo "USE_GW6:$j=\"${USE_GW6[$i,$j]}\"" >>$INI
       if [[ ${USE_DHCP6[$i,$j]} == yes ]]; then
         DEV=$IFACE.${VLANID[$i,$j]}
         # get auto assigned ipv6 address & prefix
