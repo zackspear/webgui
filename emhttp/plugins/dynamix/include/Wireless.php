@@ -100,9 +100,9 @@ case 'list':
     $color = $up ? 'blue' : 'red';
 
     foreach (array_column($wlan,'ssid') as $network) {
-      $attr[$network]['ATTR1'] = $wlan[$index]['bss'];
-      $attr[$network]['ATTR2'] = $wlan[$index]['signal'];
-      $attr[$network]['ATTR3'] = $wlan[$index]['security'];
+      $attr[$network]['ATTR1'] = $wlan[$index]['bss'] ?? '';
+      $attr[$network]['ATTR2'] = $wlan[$index]['signal'] ?? '';
+      $attr[$network]['ATTR3'] = $wlan[$index]['security'] ?? '';
       $index++;
       if (isset($wifi[$network]['GROUP'])) {
         if ($network == $alive || $wifi[$network]['GROUP'] == 'active') {
