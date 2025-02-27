@@ -85,7 +85,7 @@ $service = exec('pgrep --ns $$ libvirt') ? _('VM manager') : '';
 $service .= exec('pgrep --ns $$ docker') ? ($service ? ' '._('and').' ' : '')._('Docker service') : '';
 
 // eth0 port status
-$no_eth0 = exec("ip -br link show eth0 | grep -om1 ' DOWN '");
+$no_eth0 = exec("ip -br link show eth0 | awk '{print \$2;exit}'")=='DOWN';
 
 // get VLAN interfaces
 $vlan_eth0 = $sort_eth0 = [];

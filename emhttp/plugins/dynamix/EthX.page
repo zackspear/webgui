@@ -28,7 +28,7 @@ if (strpos($locked,'bond')===0 || strpos($locked,'br')===0) {
   [$master_ethX,$root] = my_explode(' ',$locked);
   $reason = _('member of')." $master_ethX ("._('see interface')." $root)";
   $class = 'green-text';
-} elseif (exec("ip -br link show ethX | grep -om1 ' DOWN '")) {
+} elseif (exec("ip -br link show ethX | awk '{print \$2;exit}'")=='DOWN') {
   $reason = _("shutdown")." ("._("inactive").")";
   $class = 'blue-text';
   $cmd = 'Up';
