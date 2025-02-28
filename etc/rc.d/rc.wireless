@@ -104,8 +104,8 @@ ipaddr_up(){
     fi
   fi
   if [[ $DNS == yes ]]; then
-    [[ $IP == ipv4 ]] && echo "nameserver $SERVER4  # $PORT:v4" >>/etc/resolv.conf
-    [[ $IP == ipv6 ]] && echo "nameserver $SERVER6  # $PORT:v6" >>/etc/resolv.conf
+    [[ $IP == ipv4 && -z $(grep -om1 "nameserver $SERVER4" /etc/resolv.conf) ]] && echo "nameserver $SERVER4  # $PORT:v4" >>/etc/resolv.conf
+    [[ $IP == ipv6 && -z $(grep -om1 "nameserver $SERVER6" /etc/resolv.conf) ]] && echo "nameserver $SERVER6  # $PORT:v6" >>/etc/resolv.conf
   else
     [[ $IP == ipv4 ]] && sed -ri '/^nameserver .+# $PORT:v4/d' /etc/resolv.conf
     [[ $IP == ipv6 ]] && sed -ri '/^nameserver .+# $PORT:v6/d' /etc/resolv.conf
