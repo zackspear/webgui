@@ -60,7 +60,7 @@ function metric($eth, $prot, $index) {
   $metric = exec("ip -$prot route show default dev $port 2>/dev/null | grep -Pom1 ' metric \K\d+'");
   if ($metric) return $metric + $index;
   exec("ip -$prot route show default 2>/dev/null | grep -Po ' metric \K\d+'",$metrics);
-  return max($metrics) + $index + 1;
+  return (count($metrics) ? max($metrics) : 0) + $index + 1;
 }
 
 // remove non-existing ethernet ports
