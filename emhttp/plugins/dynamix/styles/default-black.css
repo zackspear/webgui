@@ -45,7 +45,7 @@ select.auto{min-width:auto}
 select.slot{min-width:44rem;max-width:44rem}
 input.narrow{width:166px}
 input.trim{width:76px;min-width:76px}
-textarea{resize:none}
+textarea{resize:none;border:1px solid #6c6c6c;border-bottom:1px solid #e5e5e5;padding:4px 6px}
 #header{position:absolute;top:0;left:0;width:100%;height:91px;z-index:102;margin:0;color:#1c1b1b;background-color:#f2f2f2;background-size:100% 90px;background-repeat:no-repeat}
 #header .logo{float:left;margin-left:10px;color:#e22828;text-align:center}
 #header .logo svg{width:160px;display:block;margin:25px 0 8px 0}
@@ -145,6 +145,7 @@ table.share_status tr>td:nth-child(2){width:30%}
 table.share_status tr>td:nth-child(n+3){width:10%}
 table.share_status tr>td:nth-child(5){width:15%}
 table.dashboard{margin:0;border:none;background-color:#262626}
+table.dashboard thead.stopgap{border-left:1px solid #1c1b1b;border-right:1px solid #1c1b1b}
 table.dashboard tbody{border:1px solid #333333}
 table.dashboard tbody td{line-height:normal;height:auto;padding:3px 10px}
 table.dashboard tr:first-child>td{height:3.6rem;padding-top:12px;font-size:1.6rem;font-weight:bold;letter-spacing:1.8px;text-transform:none;vertical-align:top}

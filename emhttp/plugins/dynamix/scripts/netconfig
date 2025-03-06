@@ -24,15 +24,20 @@ $dns = $set === 'renew';
 $ini = parse_ini_file('/var/local/emhttp/network.ini',true); ksort($ini,SORT_NATURAL);
 $cfg = '/boot/config/network.cfg';
 
+function port_exists($port) {
+  $sys = '/sys/class/net';
+  return file_exists("$sys/$port");
+}
+
 function port($x) {
-  $sys = "/sys/class/net";
-  return file_exists("$sys/br{$x}") ? "br{$x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
+  $sys = '/sys/class/net';
+  return file_exists("$sys/br{$x}") ? "br{$x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : (file_exists("$sys/eth{$x}") ? "eth{$x}" : false));
 }
 
 function update_wireguard($ifname) {
-  if (!in_array($ifname,['br0','bond0','eth0'])) return;
   $nic = port(0);
-  exec("wg show interfaces|tr ' ' '\n'",$active);
+  if (!in_array($ifname,['br0','bond0','eth0']) || !$nic) return;
+  exec("wg show interfaces | tr ' ' '\n'",$active);
   foreach (glob("/etc/wireguard/*.conf",GLOB_NOSORT) as $wg) {
     $vtun = basename($wg,'.conf');
     // interface has changed?
@@ -71,7 +76,7 @@ if ($run) {
   if ($dns) {
     $cmd = 'start_renew';
     $ifname = port(0);
-    exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop_renew")." >/dev/null");
+    if ($ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$ifname}_stop_renew")." >/dev/null");
   } else {
     $cmd = 'start';
     $old = [];
@@ -90,13 +95,13 @@ if ($run) {
       // release additional NICs in bond
       foreach (bond_nics($ini[$set],$set) as $nic) {
         if (isset($old['SYSNICS'])) $nic = ifname($nic);
-        if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
+        if ($nic && $nic!=$ifname && port_exists($nic)) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
       }
     } elseif ($ini[$set]['BRIDGING']=='yes') {
       // release additional NICs in bridge
       foreach (bridge_nics($ini[$set],$set) as $nic) {
         if (isset($old['SYSNICS'])) $nic = ifname($nic);
-        if ($nic && $nic!=$ifname) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
+        if ($nic && $nic!=$ifname && port_exists($nic)) exec("/etc/rc.d/rc.inet1 ".escapeshellarg("{$nic}_stop")." >/dev/null");
       }
     }
   }
@@ -107,6 +112,7 @@ $i = 0; $new = ["# Generated settings:"];
 foreach ($ini as $name => $port) {
   $bonding = $port['BONDING']=='yes';
   $bridging = $port['BRIDGING']=='yes';
+  if (!port_exists($name)) continue;
   if ($bonding && in_array($name,bond_nics($port,$name))) continue;
   if ($bridging && in_array($name,bridge_nics($port,$name))) continue;
   $trunk = $port['TYPE']=='trunk';
