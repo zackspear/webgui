@@ -529,7 +529,7 @@ if ($snapshots!=null && count($snapshots) && !$boolNew) {
 		}
 		if (is_array($arrConfig['domain']['vcpu'])) {$coredisable = "disabled"; $vcpubuttontext = "Deselect all";} else {$coredisable = ""; $vcpubuttontext = "Select all";}
 		?>
-		<td><span class="advanced">_(CPU Cores)_:</span></td>
+		<td><span class="advanced">_(vCPUs)_:</span></td>
 		<td>
 			<span class="width"><select id="vcpus" <?=$coredisable?> name="domain[vcpus]" class="domain_vcpus narrow">
 			<?for ($i = 1; $i <= ($corecount); $i++) echo mk_option($arrConfig['domain']['vcpus'], $i, $i);?>
@@ -551,7 +551,7 @@ if ($snapshots!=null && count($snapshots) && !$boolNew) {
 
 <table>
 	<tr>
-		<td>_(Logical CPUs)_:</td>
+		<td>_(Pinned Cores)_:</td>
 		<td>
 			<div class="textarea four">
 			<?
