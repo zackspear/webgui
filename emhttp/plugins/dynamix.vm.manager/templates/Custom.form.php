@@ -577,8 +577,8 @@ if ($snapshots!=null && count($snapshots) && !$boolNew) {
 </table>
 
 <blockquote class="inline_help">
-	<p>The number of logical CPUs in your system is determined by multiplying the number of CPU cores on your processor(s) by the number of threads.</p>
-	<p>Select which logical CPUs you wish to allow your VM to use. (minimum 1).</p>
+	<p>The number of available cores in your system is determined by multiplying the number of CPU cores on your processor(s) by the number of threads. But this will only be for cores that support hyperthreding.</p>
+	<p>Select which pinned CPUs you wish to allow your VM to use. If no pinned cores are selected the vCPU value is used to determin the allocation within the VM.</p>
 </blockquote>
 
 <table>
