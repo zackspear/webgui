@@ -24,7 +24,9 @@ $validIP6 = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):((
 $enable   = _('Enable default gateway');
 $metric   = _('metric value, a lower value is more preferred');
 $jumbo    = _('Enable jumbo frames');
-
+$jumbo_1  = _('Allows the use of ethernet frames larger than 1500 bytes');
+$jumbo_2  = _('Connectivity issues may occur when other devices do not support this feature');
+$jumbo_3  = _('Or if they are improperly configured, use this feature with care');
 $masks = [
   '255.0.0.0' => '8',        '255.255.0.0' => '16',     '255.255.128.0' => '17',   '255.255.192.0' => '18',
   '255.255.224.0' => '19',   '255.255.240.0' => '20',   '255.255.248.0' => '21',   '255.255.252.0' => '22',
@@ -767,7 +769,7 @@ _(IPv6 privacy extensions)_:
 </div>
 _(Desired MTU)_:
 : <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500" <?=(_var($eth0,'MTU')!='' || _var($eth0,'USE_MTU'))?'':'disabled'?>>
-  <input type="checkbox" name="USE_MTU" onchange="selectMTU(this.form)" <?=_var($eth0,'USE_MTU')?'checked':''?>><?=$jumbo?>
+  <input type="checkbox" name="USE_MTU" title="<?=$jumbo_1?>.&#10;<?=$jumbo_2?>.&#10;<?=$jumbo_3?>!" onchange="selectMTU(this.form)" <?=_var($eth0,'USE_MTU')?'checked':''?>><?=$jumbo?>
 
 :eth_desired_mtu_help:
 
