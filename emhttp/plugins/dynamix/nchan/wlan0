@@ -53,7 +53,7 @@ while (true) {
     $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
-  if (is_readable($ini) && is_readable($wlan0)) {
+  if (is_readable($ini) && file_exists($wlan0)) {
     $wifi = parse_ini_file($ini);
     $up = file_get_contents($wlan0)==1;
     $alive = $up ? exec("iw wlan0 link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
