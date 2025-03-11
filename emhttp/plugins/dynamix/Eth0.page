@@ -769,7 +769,7 @@ _(IPv6 privacy extensions)_:
 </div>
 _(Desired MTU)_:
 : <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500" <?=(_var($eth0,'MTU')!='' || _var($eth0,'USE_MTU'))?'':'disabled'?>>
-  <input type="checkbox" name="USE_MTU" title="<?=$jumbo_1?>.&#10;<?=$jumbo_2?>.&#10;<?=$jumbo_3?>!" onchange="selectMTU(this.form)" <?=_var($eth0,'USE_MTU')?'checked':''?>><?=$jumbo?>
+  <input type="checkbox" name="USE_MTU" onchange="selectMTU(this.form)" <?=_var($eth0,'USE_MTU')?'checked':''?>><?=$jumbo?>&nbsp;<i class="fa fa-info-circle blue-text hand" title="<?=$jumbo_1?>.&#10;<?=$jumbo_2?>.&#10;<?=$jumbo_3?>!"></i>
 
 :eth_desired_mtu_help:
 
