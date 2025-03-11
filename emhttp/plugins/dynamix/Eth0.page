@@ -23,6 +23,7 @@ $validIP4 = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?
 $validIP6 = "(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(:|([0-9a-fA-F]{1,4}:)+):(([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4})?)";
 $enable   = _('Enable default gateway');
 $metric   = _('metric value, a lower value is more preferred');
+$jumbo    = _('Enable jumbo frames');
 
 $masks = [
   '255.0.0.0' => '8',        '255.255.0.0' => '16',     '255.255.128.0' => '17',   '255.255.192.0' => '18',
@@ -209,7 +210,7 @@ function prepareSettings(form) {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
     var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
-    var gw4 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW:'+i+'"]').prop('checked');
+    var gw4 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW4:'+i+'"]').prop('checked');
     if (protocol != 'ipv6' && $(this).val() != 'no') {
       $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
       $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
@@ -235,6 +236,8 @@ function prepareSettings(form) {
       $(form).find('input[name="'+name+'"]').val(data);
     });
   }
+  // force default MTU if jumbo frames are not enabled
+  if ($(form).find('input[name="USE_MTU"]').prop('checked') == false) $(form).find('input[name="MTU"]').val('');
   $(form).find('input[name="#arg[1]"]').val(arg1[port]);
   setTimeout(refresh, 25000);
   return true;
@@ -354,6 +357,11 @@ function selectGW(form, prot, index, step) {
     var gw = $('.more-gw'+prot+'-'+port+'-'+index);
     if (state) gw.show(step); else gw.hide(step);
   }
+}
+
+function selectMTU(form) {
+  let jumbo = $(form).find('input[name="USE_MTU"]').prop('checked');
+  $(form).find('input[name="MTU"]').prop('disabled',!jumbo);
 }
 
 function checkNetworkSettings(form, index) {
@@ -521,6 +529,7 @@ $(function() {
   checkNetworkAccess(form);
   selectProtocol(form);
   selectGW(form);
+  selectMTU(form);
 <?if ($service):?>
   disableForm(form);
   $('#bond-eth0').dropdownchecklist('disable');
@@ -757,7 +766,8 @@ _(IPv6 privacy extensions)_:
 </div>
 </div>
 _(Desired MTU)_:
-: <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500">
+: <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0,'MTU')?>" class="narrow" placeholder="1500" <?=(_var($eth0,'MTU')!='' || _var($eth0,'USE_MTU'))?'':'disabled'?>>
+  <input type="checkbox" name="USE_MTU" onchange="selectMTU(this.form)" <?=_var($eth0,'USE_MTU')?'checked':''?>><?=$jumbo?>
 
 :eth_desired_mtu_help:
 
@@ -797,7 +807,7 @@ _(Network protocol)_:
 
 <div markdown="1" class="ipv4-eth0-<?=$i?> hide">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
+: <select name="USE_DHCP:<?=$i?>" class="ctrl" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), 'no', _('Static'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:$i"), '', _('None'))?>
@@ -826,7 +836,7 @@ _(IPv4 default gateway)_:
 </div>
 <div markdown="1" class="ipv6-eth0-<?=$i?> hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:<?=$i?>" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
+: <select name="USE_DHCP6:<?=$i?>" class="ctrl" onchange="selectProtocol(this.form,<?=$i?>,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP6:$i"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:$i"), 'no', _('Static'))?>
 <?if ($i>0):?>
@@ -892,7 +902,7 @@ _(Network protocol)_:
 
 <div markdown="1" class="ipv4-eth0-INDEX">
 _(IPv4 address assignment)_:
-: <select name="USE_DHCP:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
+: <select name="USE_DHCP:INDEX" class="ctrl" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($eth0,"USE_DHCP:INDEX"), '', _('None'))?>
@@ -915,7 +925,7 @@ _(IPv4 default gateway)_:
 </div>
 <div markdown="1" class="ipv6-eth0-INDEX hide">
 _(IPv6 address assignment)_:
-: <select name="USE_DHCP6:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
+: <select name="USE_DHCP6:INDEX" class="ctrl" onchange="selectProtocol(this.form,INDEX,'slow')">
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), 'yes', _('Automatic'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), 'no', _('Static'))?>
   <?=mk_option(_var($eth0,"USE_DHCP6:INDEX"), '', _('None'))?>
