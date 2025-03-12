@@ -53,15 +53,17 @@ while (true) {
     $locale_init = _var($display,'locale');
     update_translation($locale_init);
   }
-  if (is_readable($ini) && is_readable($wlan0)) {
-    $wifi = parse_ini_file($ini);
-    $up = file_get_contents($wlan0)==1;
-    $alive = $up ? exec("iw wlan0 link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
-    $echo['color'] = $alive==$wifi['SSID'] ? 'blue-text' : 'red-text';
-    $echo['title'] = $alive==$wifi['SSID'] ? _('WiFi connected') : _('WiFi disconnected');
-  } else {
-    $echo['color'] = 'grey-text';
-    $echo['title'] = _('No active WiFi');
+  if (is_readable($ini) && file_exists($wlan0)) {
+    try {
+      $wifi = parse_ini_file($ini);
+      $up = @file_get_contents($wlan0) == 1;
+      $alive = $up ? exec("iw wlan0 link 2>/dev/null | grep -Pom1 'SSID: \\K.+'") : '';
+      $echo['color'] = $alive == $wifi['SSID'] ? 'blue-text' : 'red-text';
+      $echo['title'] = $alive == $wifi['SSID'] ? _('WiFi connected') : _('WiFi disconnected');
+    } catch (Exception $e) {
+      $echo['color'] = 'grey-text';
+      $echo['title'] = _('WiFi status unavailable');
+    }
   }
   publish('wlan0',json_encode($echo));
   sleep(3);

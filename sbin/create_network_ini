@@ -159,6 +159,7 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
     echo "METRIC6:0=\"${METRIC6[$i]}\"" >>$INI
     echo "PRIVACY6:0=\"\"" >>$INI
   fi
+  echo "USE_MTU=\"${USE_MTU[$i]}\"" >>$INI
   echo "MTU=\"${MTU[$i]}\"" >>$INI
   if [[ -n ${VLANS[$i]} ]]; then
     # process VLAN interfaces
