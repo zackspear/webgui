@@ -246,7 +246,7 @@ function array_group($type, $pool=false) {
   global $disks,$error,$warning,$red,$orange,$fail,$smart,$full,$high;
   if ($type != 'Data') {$error = $warning = $red = $orange = $fail = $smart = $full = $high = 0;}
   $echo = [];
-  foreach ($disks as $disk) if (_var($disk,'type')==$type && strpos(_var($disk,'status'),'DISK_NP')===false && (!$pool||$pool==prefix(_var($disk,'name')))) {
+  foreach ($disks as $disk) if (_var($disk,'type')==$type && ((_var($disk,'type')=='Parity') ? strpos(_var($disk,'status'),'DISK_NP')===false : strcmp(_var($disk,'status'),'DISK_NP')!=0) && (!$pool||$pool==prefix(_var($disk,'name')))) {
     $echo[] = "<tr class='updated'><td>";
     $echo[] = "<span class='w26'>".device_name($disk)."</span>";
     $echo[] = "<span class='w18'>".device_status($disk,$error,$warning)."</span>";
