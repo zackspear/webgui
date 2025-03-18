@@ -147,15 +147,10 @@ class ReplaceKey
         $KeyInstaller->installKey($key);
     }
 
-    private function writeJsonFile($file, $data, $append = false)
+    private function writeJsonFile($file, $data)
     {
         if (!is_dir(dirname($file))) {
             mkdir(dirname($file));
-        }
-
-        if ($append && file_exists($file)) {
-            $existing = json_decode(file_get_contents($file), true) ?: [];
-            $data = array_merge_recursive($existing, $data);
         }
 
         file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -195,8 +190,7 @@ class ReplaceKey
                 [
                     'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
                     'ts' => time(),
-                ],
-                true,
+                ]
             );
             return;
         }
