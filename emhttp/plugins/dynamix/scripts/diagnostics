@@ -92,6 +92,7 @@ function anonymize($text, $select) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
         $row = preg_replace("/^(\s*\[(cachePool|name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token|NGINX_DEFAULTURL|NGINX_CERTNAME|NGINX_LANFQDN|NGINX_WANFQDN|NGINX_WANIP)\] => \S).*(\S)$/","$1..$3",$row);
+        $row = preg_replace('/(\[(USERNAME|PASSWORD)\] =>).*/','$1 removed',$row);
       }
     }
     return implode("\n", $rows);
@@ -483,6 +484,10 @@ if (!$all) {
   run("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
   // anonymize IP addresses
   maskIP("/$diag/config/network.cfg");
+  // anonymize wireless credentials
+  if (file_exists("/$diag/config/wireless.cfg")) {
+    run("sed -ri 's/^((USERNAME|PASSWORD)=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/wireless.cfg")." 2>/dev/null");
+  }
 }
 // include listening interfaces
 run("$docroot/webGui/scripts/show_interfaces ip|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
