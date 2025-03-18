@@ -161,7 +161,7 @@ else
     log "Installing /boot/extra packages"
     ( export -f log; find /boot/extra -maxdepth 1 -type f -exec sh -c 'upgradepkg --terse --install-new "$1" | log' -- "{}" \; )
   fi
-  PRIORITY_PLUGINS=("dynamix.unraid.net.plg" "dynamix.unraid.net.staging.plg")
+  PRIORITY_PLUGINS=("dynamix.unraid.net.plg")
   # Install priority plugins first
   for PRIORITY_PLUGIN in "${PRIORITY_PLUGINS[@]}"; do
     PRIORITY_PLUGIN_PATH="$CONFIG/plugins/$PRIORITY_PLUGIN"
