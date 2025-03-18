@@ -175,7 +175,7 @@ class ReplaceKey
 
         $isWithinWindow = ($now >= $sevenDaysBefore && $now <= $sevenDaysAfter);
 
-        if ($forceCheck || $isWithinWindow) {
+        if (!$forceCheck && !$isWithinWindow) {
             return;
         }
 
