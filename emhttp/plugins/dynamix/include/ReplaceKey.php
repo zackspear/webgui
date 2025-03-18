@@ -147,28 +147,35 @@ class ReplaceKey
         $KeyInstaller->installKey($key);
     }
 
-    private function writeJsonFile($file, $data)
+    private function writeJsonFile($file, $data, $append = false)
     {
-        if (!is_dir(dirname($file))) { // prevents errors when directory doesn't exist
+        if (!is_dir(dirname($file))) {
             mkdir(dirname($file));
         }
+
+        if ($append && file_exists($file)) {
+            $existing = json_decode(file_get_contents($file), true) ?: [];
+            $data = array_merge_recursive($existing, $data);
+        }
+
         file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
-    public function check()
+    public function check(bool $forceCheck = false)
     {
         // we don't need to check
         if (empty($this->guid) || empty($this->keyfile) || empty($this->regExp)) {
             return;
         }
 
-        // set $isAlreadyExpired to true if regExp is in the past
-        $isAlreadyExpired = $this->regExp <= time();
-        // if regExp is seven days or less from now, we need to check
-        $isWithinSevenDays = $this->regExp <= strtotime('+7 days');
+        // Check if we're within the 7-day window before and after regExp
+        $now = time();
+        $sevenDaysBefore = strtotime('-7 days', $this->regExp);
+        $sevenDaysAfter = strtotime('+7 days', $this->regExp);
 
-        $shouldCheck = $isAlreadyExpired || $isWithinSevenDays;
-        if (!$shouldCheck) {
+        $isWithinWindow = ($now >= $sevenDaysBefore && $now <= $sevenDaysAfter);
+
+        if ($forceCheck || $isWithinWindow) {
             return;
         }
 
@@ -187,7 +194,9 @@ class ReplaceKey
                 '/tmp/ReplaceKey/error.json',
                 [
                     'error' => 'Failed to retrieve latest key after getting a `hasNewerKeyfile` in the validation response.',
-                ]
+                    'ts' => time(),
+                ],
+                true,
             );
             return;
         }
