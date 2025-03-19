@@ -145,6 +145,16 @@ class ReplaceKey
 
         $KeyInstaller = new KeyInstaller();
         $KeyInstaller->installKey($key);
+
+        // Set up notification for new key installation
+        $keyType = basename($key, '.key');
+        $output  = _var($notify,'plugin');
+        $script  = '/usr/local/emhttp/webGui/scripts/notify';
+        $event   = "Installed New $keyType License";
+        $subject = "Your new $keyType license key has been automatically installed";
+        $description = "";
+
+        exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Tools/Registration' -x");
     }
 
     private function writeJsonFile($file, $data)
