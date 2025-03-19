@@ -737,7 +737,7 @@ _(Comments)_:
 
 <?endif;?>
 _(Partition size)_:
-: <?=my_number(_var($disk,'sizeSb',0))?> KB (K=1024)
+: <?=my_number(_var($disk,'size',0))?> KB (K=1024)
 
 _(Partition format)_:
 : <?=_(_var($disk,'format'))?>

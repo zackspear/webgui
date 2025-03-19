@@ -115,7 +115,7 @@ $pools_check = pools_filter(cache_filter($disks));
 $pools = implode(',', $pools_check);
 
 // exit when no mountable array disks
-$nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mountable array or pool disks - cannot add shares').".</strong></td></tr>";
+$nodisks = "<tr><td class='empty' colspan='7'><strong>"._('There are no mounted array or pool disks - cannot add shares').".</strong></td></tr>";
 if (!checkDisks($disks)) die($nodisks);
 
 // exit when no shares
@@ -128,18 +128,13 @@ extract(parse_plugin_cfg('dynamix',true));
 // Natural sorting of share names
 uksort($shares,'strnatcasecmp');
 
-/* Function to filter out unwanted disks, check if any valid disks exist, and ignore disks with a blank device. */
-function checkDisks($disks) {
-	global $pools;
-
+/* Function to test if any Mouned volumes exist. */
+function checkDisks(&$disks) {
 	$rc		= false;
 
 	foreach ($disks as $disk) {
-		/* Check the disk type, fsStatus, and ensure the device is not blank. */
-		if (!in_array($disk['name'], ['flash', 'parity', 'parity2']) && strpos($disk['fsStatus'], 'Unmountable') === false && !empty($disk['device'])) {
-			/* A valid disk with a non-blank device is found. */
+		if ($disk['name']!=='flash' && _var($disk,'fsStatus',"")==='Mounted') {
 			$rc	= true;
-
 			break;
 		}
 	}

@@ -149,9 +149,9 @@ case 'join':
   $gw6     = _var($wifi[$ssid],'GATEWAY6');
   $server6 = _var($wifi[$ssid],'SERVER6');
   $safe    = _var($wifi[$ssid],'SECURITY');
-  $attr1   = $attr[$ssid]['ATTR1'];
-  $attr2   = $attr[$ssid]['ATTR2'];
-  $attr3   = $attr[$ssid]['ATTR3'];
+  $attr1   = $attr[$ssid]['ATTR1'] ?? '';
+  $attr2   = $attr[$ssid]['ATTR2'] ?? '';
+  $attr3   = $attr[$ssid]['ATTR3'] ?? '';
   $ieee1   = strpos($attr3,'IEEE')!==false;
   $ieee2   = strpos($safe,'IEEE')!==false;
   $hide0   = ($manual || !$ieee2) && !$ieee1 ? 'hide' : '';

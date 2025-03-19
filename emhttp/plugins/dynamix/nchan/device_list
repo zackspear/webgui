@@ -86,7 +86,7 @@ function device_info(&$disk,$online) {
 }
 function device_desc(&$disk) {
   global $var;
-  $size = my_scale(_var($disk,'size',0)*1024 ?: _var($disk,'sectors',0)*_var($disk,'sector_size',0),$unit,-1);
+  $size = my_scale(_var($disk,'sectors',0)*_var($disk,'sector_size',0),$unit,-1);
   if (_var($var,'fsState')=='Started') {
     switch (_var($disk,'type')) {
       case 'Flash':  $type = 'usb'; break;
@@ -212,7 +212,7 @@ function array_offline(&$disk, $pool='') {
     break;
   case 'DISK_NP_MISSING':
     $echo[] = "<td>".device_info($disk,false)."<br><span class='diskinfo'><em>"._('Missing')."</em></span></td>";
-    $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale(_var($disk,'sizeSb',0)*1024,$unit)." $unit</em></td>";
+    $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']}</em></td>";
     $echo[] = "<td colspan='4'></td>";
     $echo[] = "<td>".vfs_type($disk,false)."</td>";
     $echo[] = "<td colspan='3'></td>";
@@ -242,7 +242,7 @@ function array_offline(&$disk, $pool='') {
     break;
   case 'DISK_WRONG':
     $echo[] = "<td>".device_info($disk,false)."<br><span class='diskinfo'><em>"._('Wrong')."</em></span></td>";
-    $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']} - ".my_scale(_var($disk,'sizeSb',0)*1024,$unit)." $unit</em></td>";
+    $echo[] = "<td>".assignment($disk)."<em>{$disk['idSb']}</em></td>";
     $echo[] = "<td>".my_temp(_var($disk,'temp','*'))."</td>";
     if ($warning) {
       $echo[] = "<td colspan='7'>$warning</td>";
