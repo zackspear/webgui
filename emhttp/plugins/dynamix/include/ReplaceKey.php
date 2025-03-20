@@ -139,22 +139,51 @@ class ReplaceKey
         return null;
     }
 
-    private function installNewKey($key)
+    private function installNewKey($key): bool
     {
         require_once "$this->docroot/webGui/include/InstallKey.php";
 
         $KeyInstaller = new KeyInstaller();
-        $KeyInstaller->installKey($key);
+        $installResponse = $KeyInstaller->installKey($key);
 
-        // Set up notification for new key installation
+        $installSuccess = false;
+
+        if (!empty($installResponse)) {
+            $decodedResponse = json_decode($installResponse, true);
+            if (isset($decodedResponse['error'])) {
+                $this->writeJsonFile(
+                    '/tmp/ReplaceKey/error.json',
+                    [
+                        'error' => $decodedResponse['error'],
+                        'ts' => time(),
+                    ]
+                );
+                $installSuccess = false;
+            } else {
+                $installSuccess = true;
+            }
+        }
+
+        // Set up notification for key installation result
         $keyType = basename($key, '.key');
         $output  = _var($notify,'plugin');
         $script  = '/usr/local/emhttp/webGui/scripts/notify';
-        $event   = "Installed New $keyType License";
-        $subject = "Your new $keyType license key has been automatically installed";
-        $description = "";
 
-        exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg("normal $output")." -l '/Tools/Registration' -x");
+        if ($installSuccess) {
+            $event = "Installed New $keyType License";
+            $subject = "Your new $keyType license key has been automatically installed";
+            $description = "";
+            $importance = "normal $output";
+        } else {
+            $event = "Failed to Install New $keyType License";
+            $subject = "Failed to automatically install your new $keyType license key";
+            $description = isset($decodedResponse['error']) ? $decodedResponse['error'] : "Unknown error occurred";
+            $importance = "alert $output";
+        }
+
+        exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg($importance)." -l '/Tools/Registration' -x");
+
+        return $installSuccess;
     }
 
     private function writeJsonFile($file, $data)
@@ -166,11 +195,11 @@ class ReplaceKey
         file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
-    public function check(bool $forceCheck = false)
+    public function check(bool $forceCheck = false): ?bool
     {
         // we don't need to check
         if (empty($this->guid) || empty($this->keyfile) || empty($this->regExp)) {
-            return;
+            return null;
         }
 
         // Check if we're within the 7-day window before and after regExp
@@ -181,7 +210,7 @@ class ReplaceKey
         $isWithinWindow = ($now >= $sevenDaysBefore && $now <= $sevenDaysAfter);
 
         if (!$forceCheck && !$isWithinWindow) {
-            return;
+            return null;
         }
 
         // see if we have a new key
@@ -189,7 +218,7 @@ class ReplaceKey
 
         $hasNewerKeyfile = @$validateGuidResponse['hasNewerKeyfile'] ?? false;
         if (!$hasNewerKeyfile) {
-            return; // if there is no newer keyfile, we don't need to do anything
+            return null; // if there is no newer keyfile, we don't need to do anything
         }
 
         $latestKey = $this->getLatestKey();
@@ -202,8 +231,9 @@ class ReplaceKey
                     'ts' => time(),
                 ]
             );
-            return;
+            return null;
         }
-        $this->installNewKey($latestKey);
+
+        return $this->installNewKey($latestKey);
     }
 }
