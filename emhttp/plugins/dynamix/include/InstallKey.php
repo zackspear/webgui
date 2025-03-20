@@ -32,20 +32,20 @@ class KeyInstaller
      * @param int $httpcode https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
      * @param string|array $result - strings are assumed to be encoded JSON. Arrays will be encoded to JSON.
      */
-    private function responseComplete($httpcode, $result)
+    private function responseComplete($httpcode, $result): string
     {
         $mutatedResult = is_array($result) ? json_encode($result) : $result;
 
         if ($this->isGetRequest && $this->getHasUrlParam) { // return JSON to the caller
-          header('Content-Type: application/json');
-          http_response_code($httpcode);
-          exit((string)$mutatedResult);
+            header('Content-Type: application/json');
+            http_response_code($httpcode);
+            exit((string)$mutatedResult);
         } else { // return the result to the caller
-          return $mutatedResult;
+            return $mutatedResult;
         }
     }
 
-    public function installKey($keyUrl = null)
+    public function installKey($keyUrl = null): string
     {
         $url = unscript($keyUrl ?? _var($_GET, 'url'));
         $host = parse_url($url)['host'] ?? '';
