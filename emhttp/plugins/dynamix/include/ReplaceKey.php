@@ -1,5 +1,4 @@
 <?php
-$webguiGlobals = $GLOBALS;
 $docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
 
 class ReplaceKey
@@ -144,7 +143,45 @@ class ReplaceKey
         require_once "$this->docroot/webGui/include/InstallKey.php";
 
         $KeyInstaller = new KeyInstaller();
-        $KeyInstaller->installKey($key);
+        $installResponse = $KeyInstaller->installKey($key);
+
+        $installSuccess = false;
+
+        if (!empty($installResponse)) {
+            $decodedResponse = json_decode($installResponse, true);
+            if (isset($decodedResponse['error'])) {
+                $this->writeJsonFile(
+                    '/tmp/ReplaceKey/error.json',
+                    [
+                        'error' => $decodedResponse['error'],
+                        'ts' => time(),
+                    ]
+                );
+                $installSuccess = false;
+            } else {
+                $installSuccess = true;
+            }
+        }
+
+        $keyType = basename($key, '.key');
+        $output  = isset($GLOBALS['notify']) ? _var($GLOBALS['notify'],'plugin') : '';
+        $script  = '/usr/local/emhttp/webGui/scripts/notify';
+
+        if ($installSuccess) {
+            $event = "Installed New $keyType License";
+            $subject = "Your new $keyType license key has been automatically installed";
+            $description = "";
+            $importance = "normal $output";
+        } else {
+            $event = "Failed to Install New $keyType License";
+            $subject = "Failed to automatically install your new $keyType license key";
+            $description = isset($decodedResponse['error']) ? $decodedResponse['error'] : "Unknown error occurred";
+            $importance = "alert $output";
+        }
+
+        exec("$script -e ".escapeshellarg($event)." -s ".escapeshellarg($subject)." -d ".escapeshellarg($description)." -i ".escapeshellarg($importance)." -l '/Tools/Registration' -x");
+
+        return $installSuccess;
     }
 
     private function writeJsonFile($file, $data)
@@ -194,6 +231,7 @@ class ReplaceKey
             );
             return;
         }
+
         $this->installNewKey($latestKey);
     }
 }
