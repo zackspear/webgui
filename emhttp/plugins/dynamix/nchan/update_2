@@ -35,7 +35,8 @@ function my_power($device) {
   if (!_var($display,'power')) return '';
   $number = _var($display,'number','.,');
   [$power,$state] = my_explode('W ', get_nvme_info($device,'state'));
-  $state = strtr($state, ['non-operational' => 'green', 'operational' => 'orange']);
+  $power = $power ?: 0;
+  $state = $state ? strtr($state, ['non-operational' => 'green', 'operational' => 'orange']) : '';
   return " / <span class='$state'>".number_format($power, $power < 10 ? 2 : 1, $number[0]).' '._('W')."</span>";
 }
 
