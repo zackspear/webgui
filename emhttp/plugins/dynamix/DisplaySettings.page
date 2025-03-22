@@ -326,7 +326,7 @@ _(Favorites enabled)_:
 _(Allow realtime updates on inactive browsers)_:
 : <select name='liveUpdate'>
   <?=mk_option($display['liveUpdate'],"no",_('No'))?>
-  <?=mk_option($display['liveUpdate'],"",_('Yes'))?>
+  <?=mk_option($display['liveUpdate'],"yes",_('Yes'))?>
   </select>
 
 <input type="submit" name="#default" value="_(Default)_" onclick="filename='reset'">
