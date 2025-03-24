@@ -723,7 +723,7 @@ unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
+if (isset($myPage['Load']) && $myPage['Load']>0 && $display['liveUpdate'] !== "no") echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
@@ -1235,7 +1235,7 @@ $('body').on('click','a,.ca_href', function(e) {
     }
   }
 });
-
+  
 // Start & stop live updates when window loses focus
 var nchanPaused = false;
 <? if ( $display['liveUpdate'] == "no" ):?>
@@ -1251,9 +1251,9 @@ $(window).focus(function() {
  
 // Stop nchan on loss of focus
 $(window).blur(function() {
-  nchanFocusStop(true);
+  nchanFocusStop();
 });
-
+<?endif;?>
 // Include both beforeunload and unload as this may be unreliable in certain circumstances on mobile devices
 window.onbeforeunload = function() {
   nchanFocusStop(false);
@@ -1263,14 +1263,14 @@ window.onunload = function()  {
   nchanFocusStop(false);
 }
 
-function nchanFocusStop(banner) {
+function nchanFocusStop(banner=true) {
   if ( subscribers.length ) {
     if ( nchanPaused === false ) {
       var newsub = subscribers;
       subscribers.forEach(function(e) {
         try {
           e.stop();
-        } catch {
+        } catch(err) {
           newsub.splice(newsub.indexOf(e,1));
         }
       });
@@ -1281,7 +1281,6 @@ function nchanFocusStop(banner) {
     }
   }
 }
-<?endif;?>
 </script>
 </body>
 </html>
