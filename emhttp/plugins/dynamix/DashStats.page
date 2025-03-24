@@ -816,7 +816,7 @@ var options_cpu = {
   colors:['#ff8c2f'],
   markers:{size:0},
   xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
-  yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
+  yaxis:{max:100, min:0, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
