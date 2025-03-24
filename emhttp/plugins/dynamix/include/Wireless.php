@@ -34,9 +34,9 @@ require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
 function scanWifi($port) {
-  $wlan = $scan = [];
+  $wlan = $ssid = [];
   exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
-  $n = -1;
+  $n = $x = -1;
   for ($i=0; $i<count($scan); $i++) {
     if (substr($scan[$i],0,3) == 'BSS') {
       $wlan[++$n]['bss'] = substr($scan[$i],4,17);
@@ -48,9 +48,8 @@ function scanWifi($port) {
       $wlan[$n]['security'] = trim(explode(': ', $scan[$i])[1]);
     }
   }
-  $n = 0;
-  foreach ($wlan as $key) if (!in_array($key['ssid'], array_column($scan,'ssid')??[])) $scan[$n++] = $key;
-  return $scan;
+  foreach ($wlan as $key) if (key_exists('ssid',$key) && (empty($ssid) || !in_array($key['ssid'], array_column($ssid,'ssid')))) $ssid[++$x] = $key;
+  return $ssid;
 }
 
 function saveWifi() {
