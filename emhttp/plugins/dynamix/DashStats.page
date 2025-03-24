@@ -1813,13 +1813,6 @@ $(function() {
   $('#netline').val(netline);
   $.removeCookie('lockbutton');
   // remember latest graph values
-  $(window).on('beforeunload',function(e){
-    var data = {};
-    data.cpu = cpu.tail(cpuline);
-    data.rxd = rxd.tail(netline);
-    data.txd = txd.tail(netline);
-    // $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
-  });
 });
 
 // Start graphs over again when window back in focus
@@ -1830,13 +1823,5 @@ $(window).blur(function() {
   txd = [];
 });
 <?endif;?>
-window.onunload = function(){
-  dashboard.stop();
-<?if ($vmusage == "Y"):?>
-    vmdashusage.stop();
-<?endif;?>
-<?if ($apcupsd):?>
-  apcups.stop();
-<?endif;?>
-}
+
 </script>
