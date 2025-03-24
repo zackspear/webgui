@@ -1412,11 +1412,7 @@ function contentMgmt() {
     modal: true,
     buttons: {
       "_(Reset)_": function(){
-        delete cookie.db_box1;
-        delete cookie.db_box2;
-        delete cookie.db_box3;
-        delete cookie.inactive_content;
-        delete cookie.hidden_content;
+        cookie = {};
         saveCookie();
         box.dialog('close');
         location.reload();

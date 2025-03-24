@@ -24,7 +24,7 @@ case 'set':
   file_put_contents($charts,$_POST['data']);
   break;
 case 'cookie':
-  file_put_contents($cookie,$_POST['data']);
+  if ($_POST['data'] == '{}') @unlink($cookie); else file_put_contents($cookie,$_POST['data']);
   break;
 }
 ?>
