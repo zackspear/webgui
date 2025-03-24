@@ -33,6 +33,12 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+function array_ssid(&$key, &$ssid) {
+  if (!key_exists('ssid', $key)) return false;
+  $name = $key['ssid'];
+  return !str_starts_with($name,'\\x00') && (empty($ssid) || !in_array($name, array_column($ssid,'ssid')));
+}
+
 function scanWifi($port) {
   $wlan = $ssid = [];
   exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
@@ -48,7 +54,7 @@ function scanWifi($port) {
       $wlan[$n]['security'] = trim(explode(': ', $scan[$i])[1]);
     }
   }
-  foreach ($wlan as $key) if (key_exists('ssid',$key) && !str_contains($key['ssid'],'\\x00\\') && (empty($ssid) || !in_array($key['ssid'], array_column($ssid,'ssid')))) $ssid[++$x] = $key;
+  foreach ($wlan as $key) if (array_ssid($key, $ssid)) $ssid[++$x] = $key;
   return $ssid;
 }
 
