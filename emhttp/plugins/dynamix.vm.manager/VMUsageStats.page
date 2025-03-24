@@ -32,10 +32,7 @@ vmusage.on('message', function(msg){
   });
 
 $(function(){
-  vmusage.start();
+  vmusage.start().monitor();
 });
 
-window.onunload = function(){
-  vmusage.stop();
-}
 </script>
