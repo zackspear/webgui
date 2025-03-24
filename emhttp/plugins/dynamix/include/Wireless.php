@@ -38,17 +38,18 @@ function scanWifi($port) {
   exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
   $n = -1;
   for ($i=0; $i<count($scan); $i++) {
-    if (substr($scan[$i],0,3)=='BSS') {
+    if (substr($scan[$i],0,3) == 'BSS') {
       $wlan[++$n]['bss'] = substr($scan[$i],4,17);
-    } elseif (strpos($scan[$i],'signal:')!==false) {
+    } elseif (strpos($scan[$i],'signal:') !== false) {
       $wlan[$n]['signal'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'SSID:')!==false) {
-      $wlan[$n]['ssid'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'Authentication suites:')!==false) {
-      $wlan[$n]['security'] = trim(explode(': ',$scan[$i])[1]);
+    } elseif (strpos($scan[$i],'SSID:') !== false) {
+      $wlan[$n]['ssid'] = trim(explode(': ', $scan[$i])[1]);
+    } elseif (strpos($scan[$i],'Authentication suites:') !== false) {
+      $wlan[$n]['security'] = trim(explode(': ', $scan[$i])[1]);
     }
   }
-  foreach ($wlan as $key) if (!in_array($key['ssid'], array_column($scan, 'ssid'))) $scan[] = $key;
+  $n = 0;
+  foreach ($wlan as $key) if (!in_array($key['ssid'], array_column($scan,'ssid')??[])) $scan[$n++] = $key;
   return $scan;
 }
 

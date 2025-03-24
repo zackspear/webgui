@@ -50,16 +50,31 @@ if ($v6on) {
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
 if ($wlan0) {
-  exec("iw wlan0 link | awk '/^\s+(SSID|signal|[rt]x bitrate): /{print $1,$2,$3,$4}'",$speed);
-  if (count($speed)==4) {
+  exec("iw wlan0 link | awk '/^\s+(SSID|freq|signal|[rt]x bitrate): /{print \$1,\$2,\$3,\$4,\$5}'",$speed);
+  if (count($speed) == 5) {
     $network = explode(': ',$speed[0])[1];
-    $signal  = explode(': ',$speed[1])[1];
-    $rxrate  = explode(': ',$speed[2])[1];
-    $txrate  = explode(': ',$speed[3])[1];
+    $freq    = explode(': ',$speed[1])[1];
+    $signal  = explode(': ',$speed[2])[1];
+    $rxrate  = explode(': ',$speed[3])[1];
+    $txrate  = explode(': ',$speed[4])[1];
   } else {
     $network = $signal = $rxrate = $txrate = _('Unknown');
   }
-  echo "<tr><td>"._('Network name').":</td><td>$network</td></tr>";
+  switch (true) {
+  case ($freq >= 2400 && $freq < 2500):
+    $band = '(2.4G)';
+    break;
+  case ($freq >= 5000 && $freq < 6000):
+    $band = '(5G)';
+    break;
+  case ($freq >= 6000 && $freq < 7000):
+    $band = '(6G)';
+    break;
+  default:
+    $band = '';
+    break;
+  }
+  echo "<tr><td>"._('Network name').":</td><td>$network $band</td></tr>";
   echo "<tr><td>"._('Signal level').":</td><td>$signal</td></tr>";
   echo "<tr><td>"._('Receive bitrate').":</td><td>$rxrate</td></tr>";
   echo "<tr><td>"._('Transmit bitrate').":</td><td>$txrate</td></tr>";
