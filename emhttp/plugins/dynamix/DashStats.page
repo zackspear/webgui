@@ -1791,12 +1791,12 @@ $(function() {
 <?endif;?>
   dropdown('enter_view');
   startup = false;
-  dashboard.start();
+  dashboard.start().monitor();
 <?if ($vmusage == "Y"):?>
-  vmdashusage.start();
+  vmdashusage.start().monitor();
 <?endif;?>
 <?if ($apcupsd):?>
-  apcups.start();
+  apcups.start().monitor();
 <?endif;?>
   update900();
   toggleChart(true);
@@ -1809,22 +1809,15 @@ $(function() {
   $('#netline').val(netline);
   $.removeCookie('lockbutton');
   // remember latest graph values
-  $(window).on('beforeunload',function(e){
-    var data = {};
-    data.cpu = cpu.tail(cpuline);
-    data.rxd = rxd.tail(netline);
-    data.txd = txd.tail(netline);
-    $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
-  });
 });
 
-window.onunload = function(){
-  dashboard.stop();
-<?if ($vmusage == "Y"):?>
-    vmdashusage.stop();
+// Start graphs over again when window back in focus
+<? if ( $display['liveUpdate'] == "no" ):?>
+$(window).blur(function() {
+  cpu = [];
+  rxd = [];
+  txd = [];
+});
 <?endif;?>
-<?if ($apcupsd):?>
-  apcups.stop();
-<?endif;?>
-}
+
 </script>
