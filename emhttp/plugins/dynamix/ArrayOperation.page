@@ -114,7 +114,7 @@ function toggle_state(device,name,action) {
     button = '[id^=button-]';
   }
   devices.stop();
-  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action},function(){setTimeout(function(){devices.start();},1000);if (button) $(button).prop('disabled',false);});
+  $.post('/webGui/include/ToggleState.php',{device:device,name:name,action:action},function(){setTimeout(function(){devices.start().monitor();},1000);if (button) $(button).prop('disabled',false);});
 }
 
 function display_diskio() {
@@ -364,7 +364,7 @@ mymonitor.on('message', function(state) {
     break;
   }
 });
-mymonitor.start();
+mymonitor.start().monitor();
 <?endif;?>
 
 var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
@@ -420,7 +420,7 @@ devices.on('message', function(msg,meta) {
     break;
   }
 });
-devices.start();
+devices.start().monitor();
 
 <?if (substr(_var($var,'fsState'),-3)=='ing'):?>
 var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket'});
@@ -434,7 +434,7 @@ fsState.on('message', function(msg) {
     break;
   }
 });
-fsState.start();
+fsState.start().monitor();
 <?elseif ($spot):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
