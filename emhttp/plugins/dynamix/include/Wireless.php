@@ -48,7 +48,7 @@ function scanWifi($port) {
       $wlan[$n]['security'] = trim(explode(': ', $scan[$i])[1]);
     }
   }
-  foreach ($wlan as $key) if (key_exists('ssid',$key) && (empty($ssid) || !in_array($key['ssid'], array_column($ssid,'ssid')))) $ssid[++$x] = $key;
+  foreach ($wlan as $key) if (key_exists('ssid',$key) && !str_contains($key['ssid'],'\\x00\\') && (empty($ssid) || !in_array($key['ssid'], array_column($ssid,'ssid')))) $ssid[++$x] = $key;
   return $ssid;
 }
 
