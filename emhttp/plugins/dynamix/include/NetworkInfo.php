@@ -60,7 +60,7 @@ if ($wlan0) {
     $tmp     = '/var/tmp/attr';
     $band    = [];
     $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
-    $freq    = explode(' ', $attr[$network]['ATTR4'] ?? $freq);
+    $freq    = explode(' ', $attr[$network]['ATTR4'] ?: $freq);
     foreach ($freq as $number) {
       $number = intval($number);
       switch (true) {
