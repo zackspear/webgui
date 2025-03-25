@@ -64,15 +64,9 @@ if ($wlan0) {
     foreach ($freq as $number) {
       $number = intval($number);
       switch (true) {
-      case ($number >= 2400 && $number < 2500):
-        $id = '2.4G';
-        break;
-      case ($number >= 5000 && $number < 6000):
-        $id = '5G';
-        break;
-      case ($number >= 6000 && $number < 7000):
-        $id = '6G';
-        break;
+        case ($number >= 2400 && $number < 2500): $id = '2.4G'; break;
+        case ($number >= 5000 && $number < 6000): $id = '5G'; break;
+        case ($number >= 6000 && $number < 7000): $id = '6G'; break;
       }
       if (!in_array($id, $band)) $band[] = $id;
     }
