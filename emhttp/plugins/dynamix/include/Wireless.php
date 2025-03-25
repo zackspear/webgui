@@ -157,6 +157,7 @@ case 'join':
   $attr1   = $attr[$ssid]['ATTR1'] ?? '';
   $attr2   = $attr[$ssid]['ATTR2'] ?? '';
   $attr3   = $attr[$ssid]['ATTR3'] ?? '';
+  $attr4   = $attr[$ssid]['ATTR4'] ?? '';
   $ieee1   = strpos($attr3,'IEEE')!==false;
   $ieee2   = strpos($safe,'IEEE')!==false;
   $hide0   = ($manual || !$ieee2) && !$ieee1 ? 'hide' : '';
@@ -174,6 +175,7 @@ case 'join':
   echo "<input type=\"hidden\" name=\"ATTR1\" value=\"$attr1\">";
   echo "<input type=\"hidden\" name=\"ATTR2\" value=\"$attr2\">";
   echo "<input type=\"hidden\" name=\"ATTR3\" value=\"$attr3\">";
+  echo "<input type=\"hidden\" name=\"ATTR4\" value=\"$attr4\">";
   echo "<input type=\"hidden\" name=\"csrf_token\" value=\"$token\">";
   echo "<table class=\"swal\">";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
