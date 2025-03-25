@@ -87,7 +87,6 @@ case 'list':
       $wlan[$network][0] = $block['ATTR1'] ?? '';
       $wlan[$network][2] = $block['ATTR2'] ?? '';
       $wlan[$network][4] = $block['ATTR3'] ?? $block['SECURITY'] ?? '';
-      $wlan[$network][0] = $block['ATTR1'] ?? '';
       $wlan[$network][1] = $block['ATTR4'] ?? '';
       $wlan[$network][3] = $network;
     }
