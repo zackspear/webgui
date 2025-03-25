@@ -65,15 +65,16 @@ if ($wlan0) {
       $number = intval($number);
       switch (true) {
       case ($number >= 2400 && $number < 2500):
-        if (!in_array('2.4G', $band)) $band[] = '2.4G';
+        $id = '2.4G';
         break;
       case ($number >= 5000 && $number < 6000):
-        if (!in_array('5G', $band)) $band[] = '5G';
+        $id = '5G';
         break;
       case ($number >= 6000 && $number < 7000):
-        if (!in_array('6G', $band)) $band[] = '6G';
+        $id = '6G';
         break;
       }
+      if (!in_array($id, $band)) $band[] = $id;
     }
     $band = '('.implode(', ', $band).')';
   } else {
