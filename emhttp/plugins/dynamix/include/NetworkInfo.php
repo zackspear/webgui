@@ -50,16 +50,32 @@ if ($v6on) {
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
 if ($wlan0) {
-  exec("iw wlan0 link | awk '/^\s+(SSID|signal|[rt]x bitrate): /{print $1,$2,$3,$4}'",$speed);
-  if (count($speed)==4) {
+  exec("iw wlan0 link | awk '/^\s+(SSID|freq|signal|[rt]x bitrate): /{print \$1,\$2,\$3,\$4,\$5}'",$speed);
+  if (count($speed) == 5) {
     $network = explode(': ',$speed[0])[1];
-    $signal  = explode(': ',$speed[1])[1];
-    $rxrate  = explode(': ',$speed[2])[1];
-    $txrate  = explode(': ',$speed[3])[1];
+    $freq    = explode(': ',$speed[1])[1];
+    $signal  = explode(': ',$speed[2])[1];
+    $rxrate  = explode(': ',$speed[3])[1];
+    $txrate  = explode(': ',$speed[4])[1];
+    $tmp     = '/var/tmp/attr';
+    $band    = [];
+    $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
+    $freq    = explode(' ', $attr[$network]['ATTR4'] ?? $freq);
+    foreach ($freq as $number) {
+      $number = intval($number);
+      switch (true) {
+        case ($number >= 2400 && $number < 2500): $id = '2.4G'; break;
+        case ($number >= 5000 && $number < 6000): $id = '5G'; break;
+        case ($number >= 6000 && $number < 7000): $id = '6G'; break;
+      }
+      if (!in_array($id, $band)) $band[] = $id;
+    }
+    $band = '('.implode(', ', $band).')';
   } else {
     $network = $signal = $rxrate = $txrate = _('Unknown');
+    $band = '';
   }
-  echo "<tr><td>"._('Network name').":</td><td>$network</td></tr>";
+  echo "<tr><td>"._('Network name').":</td><td>$network $band</td></tr>";
   echo "<tr><td>"._('Signal level').":</td><td>$signal</td></tr>";
   echo "<tr><td>"._('Receive bitrate').":</td><td>$rxrate</td></tr>";
   echo "<tr><td>"._('Transmit bitrate').":</td><td>$txrate</td></tr>";
