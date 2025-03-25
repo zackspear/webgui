@@ -22,8 +22,8 @@ if (isset($_POST['listen'])) {
 
 function port($eth) {
   $sys = "/sys/class/net";
-  if (substr($eth,0,4)=='wlan') return $eth;
-  $x = preg_replace('/[^0-9]/','',$eth) ?: '0';
+  if (substr($eth,0,4) == 'wlan') return $eth;
+  $x = preg_replace('/[^0-9]/', '', $eth) ?: '0';
   return file_exists("$sys/br{$x}") ? "br{$x}" : (file_exists("$sys/bond{$x}") ? "bond{$x}" : "eth{$x}");
 }
 
@@ -38,25 +38,25 @@ $error  = "<span class='red-text'>"._('Missing')."</span>";
 $note   = in_array($eth,['eth0','wlan0']) && !$vlan ? $error : $none;
 $ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show ".escapeshellarg($port)." scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
 $gw4    = exec("ip -4 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
-$dns4   = array_filter($ns,function($ns){return strpos($ns,':')===false;});
+$dns4   = array_filter($ns,function($ns){return strpos($ns,':') === false;});
 $domain = exec("grep -Pom1 'domain \K.*' /etc/resolv.conf 2>/dev/null") ?: '---';
 
 if ($v6on) {
   $ipv6 = array_filter(explode(' ',exec("ip -6 -br addr show ".escapeshellarg($port)." scope global -temporary 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
   $gw6  = exec("ip -6 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
-  $dns6 = array_filter($ns,function($ns){return strpos($ns,':')!==false;});
+  $dns6 = array_filter($ns,function($ns){return strpos($ns,':') !== false;});
 }
 
 echo "<table style='text-align:left;font-size:1.2rem'>";
 echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
 if ($wlan0) {
-  exec("iw wlan0 link | awk '/^\s+(SSID|freq|signal|[rt]x bitrate): /{print \$1,\$2,\$3,\$4,\$5}'",$speed);
+  exec("iw wlan0 link | awk '/^\s+(SSID|freq|signal|[rt]x bitrate): /{print \$1,\$2,\$3,\$4}'", $speed);
   if (count($speed) == 5) {
-    $network = explode(': ',$speed[0])[1];
-    $freq    = explode(': ',$speed[1])[1];
-    $signal  = explode(': ',$speed[2])[1];
-    $rxrate  = explode(': ',$speed[3])[1];
-    $txrate  = explode(': ',$speed[4])[1];
+    $network = explode(': ', $speed[0])[1];
+    $freq    = explode(': ', $speed[1])[1];
+    $signal  = explode(': ', $speed[2])[1];
+    $rxrate  = explode(': ', $speed[3])[1];
+    $txrate  = explode(': ', $speed[4])[1];
     $tmp     = '/var/tmp/attr';
     $band    = [];
     $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
@@ -70,6 +70,7 @@ if ($wlan0) {
       }
       if (!in_array($id, $band)) $band[] = $id;
     }
+    sort($band);
     $band = '('.implode(', ', $band).')';
   } else {
     $network = $signal = $rxrate = $txrate = _('Unknown');
