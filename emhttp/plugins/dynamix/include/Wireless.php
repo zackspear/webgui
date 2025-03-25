@@ -33,29 +33,24 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-function array_ssid(&$key, &$ssid) {
-  if (!key_exists('ssid', $key)) return false;
-  $name = $key['ssid'];
-  return !str_starts_with($name,'\\x00') && (empty($ssid) || !in_array($name, array_column($ssid,'ssid')));
-}
-
 function scanWifi($port) {
-  $wlan = $ssid = [];
-  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
-  $n = $x = -1;
-  for ($i=0; $i<count($scan); $i++) {
-    if (substr($scan[$i],0,3) == 'BSS') {
-      $wlan[++$n]['bss'] = substr($scan[$i],4,17);
-    } elseif (strpos($scan[$i],'signal:') !== false) {
-      $wlan[$n]['signal'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'SSID:') !== false) {
-      $wlan[$n]['ssid'] = trim(explode(': ', $scan[$i])[1]);
-    } elseif (strpos($scan[$i],'Authentication suites:') !== false) {
-      $wlan[$n]['security'] = trim(explode(': ', $scan[$i])[1]);
+  $wlan = [];
+  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|freq:|signal:|SSID:|Authentication suites:' | sed -r ':a;N;\$!ba;s/\\n\\s+/ /g'", $scan);
+  foreach ($scan as $row) {
+    $attr = preg_split('/ (freq|signal|SSID|\* Authentication suites): /', $row);
+    // skip incomplete info
+    if (count($attr) != 5) continue;
+    $network = $attr[3];
+    // skip nullified networks
+    if (str_starts_with($network, '\\x00')) continue;
+    if (empty($wlan[$network])) {
+      $wlan[$network] = $attr;
+    } else {
+      // group radio frequencies
+      $wlan[$network][1] .= ' '.$attr[1];
     }
   }
-  foreach ($wlan as $key) if (array_ssid($key, $ssid)) $ssid[++$x] = $key;
-  return $ssid;
+  return $wlan;
 }
 
 function saveWifi() {
@@ -86,31 +81,34 @@ case 'list':
   $port  = array_key_first($wifi);
   $carrier = "/sys/class/net/$port/carrier";
   $echo  = [];
-  $index = 0;
   if ($load && count(array_keys($wifi)) > 1) {
     foreach ($wifi as $network => $block) {
       if ($network == $port) continue;
-      $wlan[$index]['bss'] = $block['ATTR1'];
-      $wlan[$index]['signal'] = $block['ATTR2'];
-      $wlan[$index]['security'] = $block['ATTR3'] ?? $block['SECURITY'];
-      $wlan[$index]['ssid'] = $network;
-      $index++;
+      $wlan[$network][0] = $block['ATTR1'] ?? '';
+      $wlan[$network][2] = $block['ATTR2'] ?? '';
+      $wlan[$network][4] = $block['ATTR3'] ?? $block['SECURITY'] ?? '';
+      $wlan[$network][0] = $block['ATTR1'] ?? '';
+      $wlan[$network][1] = $block['ATTR4'] ?? '';
+      $wlan[$network][3] = $network;
     }
-    $index = 0;
   } else {
     $wlan  = scanWifi($port);
   }
-  if (count(array_column($wlan,'ssid'))) {
-    $up    = is_readable($carrier) && file_get_contents($carrier)==1;
+  if (count($wlan)) {
+    try {
+      $up = @file_get_contents($carrier) == 1;
+    } catch (Exception $e) {
+      $up = false;
+    }
     $alive = $up ? exec("iw ".escapeshellarg($port)." link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
 
-    foreach (array_column($wlan,'ssid') as $network) {
-      $attr[$network]['ATTR1'] = $wlan[$index]['bss'] ?? '';
-      $attr[$network]['ATTR2'] = $wlan[$index]['signal'] ?? '';
-      $attr[$network]['ATTR3'] = $wlan[$index]['security'] ?? '';
-      $index++;
+    foreach ($wlan as $network => $block) {
+      $attr[$network]['ATTR1'] = $block[0] ?? '';
+      $attr[$network]['ATTR2'] = $block[2] ?? '';
+      $attr[$network]['ATTR3'] = $block[4] ?? '';
+      $attr[$network]['ATTR4'] = $block[1] ?? '';
       if (isset($wifi[$network]['GROUP'])) {
         if ($network == $alive || $wifi[$network]['GROUP'] == 'active') {
           $echo['active'][] = "<dl><dt>$state:</dt>";

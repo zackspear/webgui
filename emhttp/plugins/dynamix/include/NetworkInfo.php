@@ -57,22 +57,28 @@ if ($wlan0) {
     $signal  = explode(': ',$speed[2])[1];
     $rxrate  = explode(': ',$speed[3])[1];
     $txrate  = explode(': ',$speed[4])[1];
+    $tmp     = '/var/tmp/attr';
+    $band    = [];
+    $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
+    $freq    = explode(' ', $attr[$network]['ATTR4'] ?? $freq);
+    foreach ($freq as $number) {
+      $number = intval($number);
+      switch (true) {
+      case ($number >= 2400 && $number < 2500):
+        if (!in_array('2.4G', $band)) $band[] = '2.4G';
+        break;
+      case ($number >= 5000 && $number < 6000):
+        if (!in_array('5G', $band)) $band[] = '5G';
+        break;
+      case ($number >= 6000 && $number < 7000):
+        if (!in_array('6G', $band)) $band[] = '6G';
+        break;
+      }
+    }
+    $band = '('.implode(', ', $band).')';
   } else {
     $network = $signal = $rxrate = $txrate = _('Unknown');
-  }
-  switch (true) {
-  case ($freq >= 2400 && $freq < 2500):
-    $band = '(2.4G)';
-    break;
-  case ($freq >= 5000 && $freq < 6000):
-    $band = '(5G)';
-    break;
-  case ($freq >= 6000 && $freq < 7000):
-    $band = '(6G)';
-    break;
-  default:
     $band = '';
-    break;
   }
   echo "<tr><td>"._('Network name').":</td><td>$network $band</td></tr>";
   echo "<tr><td>"._('Signal level').":</td><td>$signal</td></tr>";
