@@ -45,6 +45,8 @@ function scanWifi($port) {
     if (str_starts_with($network, '\\x00')) continue;
     if (empty($wlan[$network])) {
       $wlan[$network] = $attr;
+      // store MAC address only
+      $wlan[$network][0] = substr($wlan[$network][0],4,17);
     } else {
       // group radio frequencies
       $wlan[$network][1] .= ' '.$attr[1];
@@ -135,10 +137,10 @@ case 'join':
   if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
-  $drop    = $_POST['task']==1;
-  $manual  = $_POST['task']==3;
-  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'USERNAME');
-  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'PASSWORD');
+  $drop    = $_POST['task'] == 1;
+  $manual  = $_POST['task'] == 3;
+  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'USERNAME');
+  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['PASSWORD'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'PASSWORD');
   $join    = _var($wifi[$ssid],'AUTOJOIN','no');
   $dhcp4   = _var($wifi[$ssid],'DHCP4','yes');
   $dns4    = _var($wifi[$ssid],'DNS4','no');
@@ -157,11 +159,11 @@ case 'join':
   $attr2   = $attr[$ssid]['ATTR2'] ?? '';
   $attr3   = $attr[$ssid]['ATTR3'] ?? '';
   $attr4   = $attr[$ssid]['ATTR4'] ?? '';
-  $ieee1   = strpos($attr3,'IEEE')!==false;
-  $ieee2   = strpos($safe,'IEEE')!==false;
+  $ieee1   = strpos($attr3,'IEEE') !== false;
+  $ieee2   = strpos($safe,'IEEE') !== false;
   $hide0   = ($manual || !$ieee2) && !$ieee1 ? 'hide' : '';
   $hide1   = $safe=='OPEN' || !$attr3 ? 'hide' : '';
-  $hide2   = $dhcp4=='no' ? '': 'hide';
+  $hide2   = $dhcp4=='no' ? '' : 'hide';
   $hide3   = $dns4=='no' ? 'hide' : '';
   $hide4   = $dhcp6=='no' ? '' : 'hide';
   $hide5   = $dhcp6=='' ? 'hide' : '';
