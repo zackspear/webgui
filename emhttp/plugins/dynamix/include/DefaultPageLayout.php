@@ -723,7 +723,7 @@ unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load']>0 && $display['liveUpdate'] !== "no") echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
+if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
