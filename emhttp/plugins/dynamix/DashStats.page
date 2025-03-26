@@ -120,11 +120,15 @@ $group      = _var($var,'shareSMBEnabled')=='yes' | _var($var,'shareNFSEnabled')
 $names      = [];
 $SMBpublic = $NFSpublic= 0;
 foreach ($sec as $share => $prop) {
+  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
   if ( $prop['export'] == "-") continue;
   if ( $prop['security'] == "public") $SMBpublic++;
    if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
 }
 foreach ($sec_nfs as $share => $prop) {
+  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
   if ( $prop['export'] == "-") continue;
   if ( $prop['security'] == "public") $NFSpublic++;
   if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
@@ -472,8 +476,6 @@ if (_var($var,'shareSMBEnabled')=='yes') {
   $i = 0;
   foreach ($shares as $name => $share) {
     $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ( ($share['luksStatus']??0)>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ( ($share['useCache']??"")=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = $share['comment'] ?: '-';
     $security = export_settings(_var($var,'shareSMBEnabled'), $sec[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
@@ -485,8 +487,6 @@ if (_var($var,'shareNFSEnabled')=='yes') {
   foreach ($shares as $name => $share) {
     if ( ! isset($sec_nfs[$name]) ) continue;
     $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ( ($share['luksStatus']??0)>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ( ($share['useCache']??"")=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = $share['comment'] ?: '-';
     $security = export_settings(_var($var,'shareNFSEnabled'), $sec_nfs[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
@@ -497,8 +497,6 @@ if (_var($var,'shareNFSEnabled')=='yes') {
 if (!$group) {
   foreach ($shares as $name => $share) {
     $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ( ($share['luksStatus']??0)>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ( ($share['useCache']??"")=='only') $list = str_replace('blue-text','orange-text',$list);
     $comment = $share['comment'] ?: '-';
     echo "<tr class='share'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>".htmlspecialchars($comment)."</span><span class='w18'>-</span><span>-</span></td></tr>";
   }
