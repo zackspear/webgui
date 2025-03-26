@@ -483,6 +483,7 @@ if (_var($var,'shareSMBEnabled')=='yes') {
 }
 if (_var($var,'shareNFSEnabled')=='yes') {
   foreach ($shares as $name => $share) {
+    if ( ! isset($sec_nfs[$name]) ) continue;
     $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
     if ( ($share['luksStatus']??0)>0) $list = str_replace('blue-text','green-text',$list);
     elseif ( ($share['useCache']??"")=='only') $list = str_replace('blue-text','orange-text',$list);
