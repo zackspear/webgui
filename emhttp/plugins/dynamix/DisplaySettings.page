@@ -329,6 +329,9 @@ _(Allow realtime updates on inactive browsers)_:
   <?=mk_option($display['liveUpdate'],"yes",_('Yes'))?>
   </select>
 
+_(Timeout in seconds before pausing realtime updates)_:
+: <input type="number" class="narrow" name="liveTime" value="<?=$display['liveTime']?>" maxlength="3">
+
 <input type="submit" name="#default" value="_(Default)_" onclick="filename='reset'">
 : <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>

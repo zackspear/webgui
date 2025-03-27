@@ -1238,29 +1238,53 @@ $('body').on('click','a,.ca_href', function(e) {
   
 // Start & stop live updates when window loses focus
 var nchanPaused = false;
-<? if ( $display['liveUpdate'] == "no" ):?>
+var blurTimer = false;
+
 $(window).focus(function() {
+  nchanFocusStart();
+});
+
+// Stop nchan on loss of focus
+<? if ( $display['liveUpdate'] == "no" ):?>
+$(window).blur(function() {
+  blurTimer = setTimeout(function(){
+    nchanFocusStop();
+  },<?=$display['liveTime']*1000?>);
+});
+<?endif;?>
+
+document.addEventListener("visibilitychange", (event) => {
+  <? if ( $display['liveUpdate'] == "no" ):?>
+  if (document.hidden) {
+    nchanFocusStop();
+  } 
+<?else:?>
+  if (document.hidden) {
+    nchanFocusStop();
+  } else {
+    nchanFocusStart();
+  }
+<?endif;?>
+});
+
+function nchanFocusStart() {
+  if ( blurTimer !== false ) {
+    clearTimeout(blurTimer);
+    blurTimer = false;
+  }
+
   if (nchanPaused !== false ) {
     removeBannerWarning(nchanPaused);
     nchanPaused = false;
+    
+    try {
+      pageFocusFunction();
+    } catch(error) {}
+    
     subscribers.forEach(function(e) {
       e.start();
     });
   }   
-});
- 
-// Stop nchan on loss of focus
-$(window).blur(function() {
-  nchanFocusStop();
-});
-<?endif;?>
-// Include both beforeunload and unload as this may be unreliable in certain circumstances on mobile devices
-window.onbeforeunload = function() {
-  nchanFocusStop(false);
-}
-
-window.onunload = function()  {
-  nchanFocusStop(false);
 }
 
 function nchanFocusStop(banner=true) {

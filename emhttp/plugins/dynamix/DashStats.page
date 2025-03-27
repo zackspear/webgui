@@ -1816,12 +1816,10 @@ $(function() {
 });
 
 // Start graphs over again when window back in focus
-<? if ( $display['liveUpdate'] == "no" ):?>
-$(window).blur(function() {
+function pageFocusFunction() {
   cpu = [];
   rxd = [];
   txd = [];
-});
-<?endif;?>
+}
 
 </script>
