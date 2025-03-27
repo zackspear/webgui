@@ -1,3 +1,5 @@
 div.basic{display:block}
 div.advanced{display:none}
-textarea.raw{resize:none;font-family:bitstream;width:65.5%}
+textarea.raw{resize:none;font-family:bitstream;width:63%}
+span.array,span.system,textarea.menu{width:63%!important}
+dd{padding-left:40px}
