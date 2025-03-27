@@ -39,7 +39,7 @@ function scanWifi($port) {
   foreach ($scan as $row) {
     $attr = preg_split('/ (freq|signal|SSID|\* Authentication suites): /', $row);
     // skip incomplete info
-    if (count($attr) != 5) continue;
+    if (count($attr) < 4 || (count($attr) == 4 && str_contains($row, 'Authentication suites:'))) continue;
     $network = $attr[3];
     // skip nullified networks
     if (str_starts_with($network, '\\x00')) continue;
@@ -47,6 +47,8 @@ function scanWifi($port) {
       $wlan[$network] = $attr;
       // store MAC address only
       $wlan[$network][0] = substr($wlan[$network][0],4,17);
+      // identify open network
+      $wlan[$network][4] = $wlan[$network][4] ?: 'open';
     } else {
       // group radio frequencies
       $wlan[$network][1] .= ' '.$attr[1];
@@ -161,13 +163,13 @@ case 'join':
   $attr4   = $attr[$ssid]['ATTR4'] ?? '';
   $ieee1   = strpos($attr3,'IEEE') !== false;
   $ieee2   = strpos($safe,'IEEE') !== false;
-  $hide0   = ($manual || !$ieee2) && !$ieee1 ? 'hide' : '';
-  $hide1   = $safe=='OPEN' || !$attr3 ? 'hide' : '';
-  $hide2   = $dhcp4=='no' ? '' : 'hide';
-  $hide3   = $dns4=='no' ? 'hide' : '';
-  $hide4   = $dhcp6=='no' ? '' : 'hide';
-  $hide5   = $dhcp6=='' ? 'hide' : '';
-  $hide6   = $dns6=='no' ? 'hide' : '';
+  $hide0   = ($manual || !$ieee2) && !$ieee1 && $safe != 'auto' ? 'hide' : '';
+  $hide1   = $safe == 'open' || $attr3 == 'open' || !$attr3 ? 'hide' : '';
+  $hide2   = $dhcp4 == 'no' ? '' : 'hide';
+  $hide3   = $dns4 == 'no' ? 'hide' : '';
+  $hide4   = $dhcp6 == 'no' ? '' : 'hide';
+  $hide5   = $dhcp6 == '' ? 'hide' : '';
+  $hide6   = $dns6 == 'no' ? 'hide' : '';
   echo "<form name=\"wifi\" method=\"POST\" action=\"/update.php\" target=\"progressFrame\">";
   echo "<input type=\"hidden\" name=\"#file\" value=\"$cfg\">";
   echo "<input type=\"hidden\" name=\"#include\" value=\"/webGui/include/update.wireless.php\">";
