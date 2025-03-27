@@ -364,7 +364,7 @@ mymonitor.on('message', function(state) {
     break;
   }
 });
-mymonitor.start().monitor();
+mymonitor.start();
 <?endif;?>
 
 var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
@@ -434,7 +434,7 @@ fsState.on('message', function(msg) {
     break;
   }
 });
-fsState.start().monitor();
+fsState.start();
 <?elseif ($spot):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
