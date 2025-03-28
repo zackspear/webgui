@@ -1249,7 +1249,7 @@ $(window).focus(function() {
 $(window).blur(function() {
   blurTimer = setTimeout(function(){
     nchanFocusStop();
-  },<?=$display['liveTime']*1000?>);
+  },30000);
 });
 <?endif;?>
 
