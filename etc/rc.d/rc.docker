@@ -513,8 +513,6 @@ docker_network_stop(){
           run ip link set $LINK down
           run ip link del $LINK
         fi
-      elif [[ $TYPE == wlan ]]; then
-        [[ -e $SYSTEM/$NETWORK ]] && run ip addr flush dev $NETWORK
       else
         VHOST=vhost${NETWORK//[^0-9.]/}
         [[ -e $SYSTEM/$VHOST ]] && run ip addr flush dev $VHOST
