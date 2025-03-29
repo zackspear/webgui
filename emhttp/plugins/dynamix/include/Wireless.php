@@ -85,18 +85,15 @@ case 'list':
   $port  = array_key_first($wifi);
   $carrier = "/sys/class/net/$port/carrier";
   $echo  = [];
-  if ($load && count(array_keys($wifi)) > 1) {
-    foreach ($wifi as $network => $block) {
-      if ($network == $port) continue;
-      $wlan[$network][0] = $block['ATTR1'] ?? '';
-      $wlan[$network][2] = $block['ATTR2'] ?? '';
-      $wlan[$network][4] = $block['ATTR3'] ?? $block['SECURITY'] ?? '';
-      $wlan[$network][1] = $block['ATTR4'] ?? '';
-      $wlan[$network][3] = $network;
-    }
-  } else {
-    $wlan  = scanWifi($port);
+  foreach ($wifi as $network => $block) {
+    if ($network == $port) continue;
+    $wlan[$network][0] = $block['ATTR1'] ?? '';
+    $wlan[$network][1] = $block['ATTR4'] ?? '';
+    $wlan[$network][2] = $block['ATTR2'] ?? '';
+    $wlan[$network][3] = $network;
+    $wlan[$network][4] = $block['ATTR3'] ?? $block['SECURITY'] ?? '';
   }
+  if (!$load) $wlan = array_replace_recursive($wlan, scanWifi($port));
   if (count($wlan)) {
     try {
       $up = @file_get_contents($carrier) == 1;
