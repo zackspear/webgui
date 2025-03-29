@@ -4,7 +4,6 @@ Tag="cubes"
 Cond="is_file('/var/run/dockerd.pid')"
 Markdown="false"
 Nchan="docker_load:stop"
-Load="30"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
