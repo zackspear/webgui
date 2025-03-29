@@ -150,37 +150,6 @@ function resumeEvents(id, delay) {
   });
 }
 
-<?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
-// list of nchan subscribers to pause/resume
-var nchanSubs = [];
-var nchanPaused = false;
-
-function nchanPause() {
-  if (nchanPaused === false && nchanSubs.length > 0) {
-    nchanSubs.forEach(function(nchan) {nchan.stop();});
-    nchanPaused = addBannerWarning("<?=_('Live Updates Paused')?>",false,true);
-  }
-}
-
-function nchanResume() {
-  clearTimeout(timers.reload);
-  if (nchanPaused !== false) {
-    removeBannerWarning(nchanPaused);
-    nchanSubs.forEach(function(nchan) {nchan.start();});
-    nchanPaused = false;
-  }
-  timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
-}
-
-// event handlers
-$(window).click(function(e) {nchanResume();});
-document.addEventListener('visibilitychange',function(e) {
-  if (document.hidden) nchanPause(); else nchanResume();
-});
-
-timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
-<?endif;?>
-
 function plus(value, single, plural, last) {
   return value > 0 ? (value+' '+(value==1?single:plural)+(last?'':', ')) : '';
 }
@@ -1297,6 +1266,37 @@ $('body').on('click','a,.ca_href', function(e) {
     }
   }
 });
+
+<?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
+// list of nchan subscribers to pause/resume
+var nchanSubs = [];
+var nchanPaused = false;
+
+function nchanPause() {
+  if (nchanPaused === false && nchanSubs.length > 0) {
+    nchanSubs.forEach(function(nchan) {nchan.stop();});
+    nchanPaused = addBannerWarning("<?=_('Live Updates Paused')?>",false,true);
+  }
+}
+
+function nchanResume() {
+  clearTimeout(timers.reload);
+  if (nchanPaused !== false) {
+    removeBannerWarning(nchanPaused);
+    nchanSubs.forEach(function(nchan) {nchan.start();});
+    nchanPaused = false;
+  }
+  timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
+}
+
+// event handlers
+$(window).click(function(e) {nchanResume();});
+document.addEventListener('visibilitychange',function(e) {
+  if (document.hidden) nchanPause(); else nchanResume();
+});
+
+timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
+<?endif;?>
 </script>
 </body>
 </html>
