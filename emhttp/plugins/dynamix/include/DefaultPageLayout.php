@@ -106,10 +106,13 @@ if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/
 String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
 String.prototype.channel = function(){return this.split(':')[1].split(',').findIndex((e)=>/\[\d\]/.test(e));}
 NchanSubscriber.prototype.monitor = function(){subscribers.push(this);}
-
+  
 Shadowbox.init({skipSetup:true});
 context.init();
 
+// list of nchan subscribers to start/stop at focus change
+var subscribers = [];
+ 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
 var expiretime = <?=_var($var,'regTy')=='Trial'||strstr(_var($var,'regTy'),'expired')?_var($var,'regTm2'):0?>;
@@ -134,13 +137,6 @@ var csrf_token = "<?=_var($var,'csrf_token')?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
-// list of nchan subscribers to start/stop at focus change
-var subscribers = [];
-
-// Start & stop live updates when window loses focus
-var nchanPaused = false;
-timers.blurTimer = false;
-
 // docker progess indicators
 var progress_dots = [], progress_span = [];
 function pauseEvents(id) {
@@ -148,7 +144,6 @@ function pauseEvents(id) {
     if (!id || i==id) clearTimeout(timer);
   });
 }
-
 function resumeEvents(id,delay) {
   var startDelay = delay||50;
   $.each(timers, function(i,timer) {
@@ -156,11 +151,9 @@ function resumeEvents(id,delay) {
     startDelay += 50;
   });
 }
-
 function plus(value,single,plural,last) {
   return value>0 ? (value+' '+(value==1?single:plural)+(last?'':', ')) : '';
 }
-
 function updateTime() {
   var now = new Date();
   var days = parseInt(uptime/86400);
@@ -190,7 +183,6 @@ function updateTime() {
   }
   setTimeout(updateTime,1000);
 }
-
 function refresh(top) {
   if (typeof top === 'undefined') {
     for (var i=0,element; element=document.querySelectorAll('input,button,select')[i]; i++) {element.disabled = true;}
@@ -201,13 +193,11 @@ function refresh(top) {
     location.reload();
   }
 }
-
 function initab(page) {
   $.removeCookie('one');
   $.removeCookie('tab');
   if (page != null) location.replace(page);
 }
-
 function settab(tab) {
 <?switch ($myPage['name']):?>
 <?case'Main':?>
@@ -223,7 +213,6 @@ function settab(tab) {
   $.cookie('one',tab);
 <?endswitch;?>
 }
-
 function done(key) {
   var url = location.pathname.split('/');
   var path = '/'+url[1];
@@ -231,12 +220,10 @@ function done(key) {
   $.removeCookie('one');
   location.replace(path);
 }
-
 function chkDelete(form, button) {
   button.value = form.confirmDelete.checked ? "<?=_('Delete')?>" : "<?=_('Apply')?>";
   button.disabled = false;
 }
-
 function makeWindow(name,height,width) {
   var top = (screen.height-height)/2;
   if (top < 0) {top = 0; height = screen.availHeight;}
@@ -244,7 +231,6 @@ function makeWindow(name,height,width) {
   if (left < 0) {left = 0; width = screen.availWidth;}
   return window.open('',name,'resizeable=yes,scrollbars=yes,height='+height+',width='+width+',top='+top+',left='+left);
 }
-
 function openBox(cmd,title,height,width,load,func,id) {
   // open shadowbox window (run in foreground)
   // included for legacy purposes, replaced by openPlugin
@@ -253,7 +239,6 @@ function openBox(cmd,title,height,width,load,func,id) {
   var options = load ? (func ? {modal:true,onClose:function(){setTimeout(func+'('+'"'+(id||'')+'")');}} : {modal:true,onClose:function(){location.reload();}}) : {modal:false};
   Shadowbox.open({content:run, player:'iframe', title:title, height:Math.min(screen.availHeight,800), width:Math.min(screen.availWidth,1200), options:options});
 }
-
 function openWindow(cmd,title,height,width) {
   // open regular window (run in background)
   // included for legacy purposes, replaced by openTerminal
@@ -271,7 +256,6 @@ function openWindow(cmd,title,height,width) {
   makeWindow(window_name,height,width);
   form.submit();
 }
-
 function openTerminal(tag,name,more) {
   if (/MSIE|Edge/.test(navigator.userAgent)) {
     swal({title:"_(Unsupported Feature)_",text:"_(Sorry, this feature is not supported by MSIE/Edge)_.<br>_(Please try a different browser)_",type:'error',html:true,animation:'none',confirmButtonText:"_(Ok)_"});
@@ -283,7 +267,6 @@ function openTerminal(tag,name,more) {
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},200);});
 }
-
 function bannerAlert(text,cmd,plg,func,start) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,pid:1},function(pid) {
     if (pid == 0) {
@@ -320,7 +303,6 @@ function bannerAlert(text,cmd,plg,func,start) {
     }
   });
 }
-
 function openPlugin(cmd,title,plg,func,start=0,button=0) {
   // start  = 0 : run command only when not already running (default)
   // start  = 1 : run command unconditionally
@@ -344,7 +326,6 @@ function openPlugin(cmd,title,plg,func,start=0,button=0) {
     $('button.confirm').prop('disabled',button!=0);
   });
 }
-
 function openDocker(cmd,title,plg,func,start=0,button=0) {
   // start  = 0 : run command only when not already running (default)
   // start  = 1 : run command unconditionally
@@ -368,7 +349,6 @@ function openDocker(cmd,title,plg,func,start=0,button=0) {
     $('button.confirm').prop('disabled',button==0);
   });
 }
-
 function openVMAction(cmd,title,plg,func,start=0,button=0) {
   // start  = 0 : run command only when not already running (default)
   // start  = 1 : run command unconditionally
@@ -392,7 +372,6 @@ function openVMAction(cmd,title,plg,func,start=0,button=0) {
     $('button.confirm').prop('disabled',button==0);
   });
 }
-
 function abortOperation(pid) {
   swal({title:"<?=_('Abort background operation')?>",text:"<?=_('This may leave an unknown state')?>",html:true,animation:'none',type:'warning',showCancelButton:true,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
     $.post('/webGui/include/StartCommand.php',{kill:pid},function() {
@@ -406,7 +385,6 @@ function abortOperation(pid) {
     });
   });
 }
-
 function openChanges(cmd,title,nchan,button=0) {
   $('div.spinner.fixed').show();
   // button = 0 : hide CLOSE button (default)
@@ -423,7 +401,6 @@ function openChanges(cmd,title,nchan,button=0) {
     $('button.confirm').text("<?=_('Done')?>").prop('disabled',false).show();
   });
 }
-
 function openAlert(cmd,title,func) {
   $.post('/webGui/include/StartCommand.php',{cmd:cmd,start:2},function(data) {
     $('div.spinner.fixed').hide();
@@ -434,7 +411,6 @@ function openAlert(cmd,title,func) {
     $('pre#swalbody').html(data);
   });
 }
-
 function openDone(data) {
   if (data == '_DONE_') {
     $('div.spinner.fixed').hide();
@@ -449,7 +425,6 @@ function openDone(data) {
   }
   return false;
 }
-
 function openError(data) {
   if (data == '_ERROR_') {
     $('div.spinner.fixed').hide();
@@ -458,20 +433,16 @@ function openError(data) {
   }
   return false;
 }
-
 function showStatus(name,plugin,job) {
   $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
 }
-
 function showFooter(data, id) {
   if (id !== undefined) $('#'+id).remove();
   $('#copyright').prepend(data);
 }
-
 function showNotice(data) {
   $('#user-notice').html(data.replace(/<a>(.*)<\/a>/,"<a href='/Plugins'>$1</a>"));
 }
-
 function escapeQuotes(form) {
   $(form).find('input[type=text]').each(function(){$(this).val($(this).val().replace(/"/g,'\\"'));});
 }
@@ -549,14 +520,12 @@ function removeRebootNotice(message="<?=_('You must reboot for changes to take e
 function showUpgradeChanges() { /** @note can likely be removed, not used in webgui or api repos */
   openChanges("showchanges /tmp/plugins/unRAIDServer.txt","<?=_('Release Notes')?>");
 }
-
 function showUpgrade(text,noDismiss=false) { /** @note can likely be removed, not used in webgui or api repos */
   if ($.cookie('os_upgrade')==null) {
     if (osUpgradeWarning) removeBannerWarning(osUpgradeWarning);
     osUpgradeWarning = addBannerWarning(text.replace(/<a>(.+?)<\/a>/,"<a href='#' onclick='openUpgrade()'>$1</a>").replace(/<b>(.*)<\/b>/,"<a href='#' onclick='document.rebootNow.submit()'>$1</a>"),false,noDismiss);
   }
 }
-
 function hideUpgrade(set) { /** @note can likely be removed, not used in webgui or api repos */
   removeBannerWarning(osUpgradeWarning);
   if (set)
@@ -564,7 +533,6 @@ function hideUpgrade(set) { /** @note can likely be removed, not used in webgui 
   else
     $.removeCookie('os_upgrade');
 }
-
 function confirmUpgrade(confirm) {
   if (confirm) {
     swal({title:"<?=_('Update')?> Unraid OS",text:"<?=_('Do you want to update to the new version')?>?",type:'warning',html:true,animation:'none',showCancelButton:true,closeOnConfirm:false,confirmButtonText:"<?=_('Proceed')?>",cancelButtonText:"<?=_('Cancel')?>"},function(){
@@ -574,7 +542,6 @@ function confirmUpgrade(confirm) {
     openPlugin("plugin update unRAIDServer.plg","<?=_('Update')?> Unraid OS");
   }
 }
-
 function openUpgrade() {
   hideUpgrade();
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
@@ -587,13 +554,11 @@ function openUpgrade() {
     }
   });
 }
-
 function digits(number) {
   if (number < 10) return 'one';
   if (number < 100) return 'two';
   return 'three';
 }
-
 function openNotifier() {
   $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
     $.each($.parseJSON(msg), function(i, notify){
@@ -610,7 +575,6 @@ function openNotifier() {
     });
   });
 }
-
 function closeNotifier() {
   $.post('/webGui/include/Notify.php',{cmd:'get',csrf_token:csrf_token},function(msg) {
     $.each($.parseJSON(msg), function(i, notify){
@@ -619,17 +583,14 @@ function closeNotifier() {
     $('div.jGrowl').find('div.jGrowl-close').trigger('click');
   });
 }
-
 function viewHistory() {
   location.replace('/Tools/NotificationsArchive');
 }
-
 function flashReport() {
   $.post('/webGui/include/Report.php',{cmd:'config'},function(check){
     if (check>0) addBannerWarning("<?=_('Your flash drive is corrupted or offline').'. '._('Post your diagnostics in the forum for help').'.'?> <a target='_blank' href='https://docs.unraid.net/go/changing-the-flash-device/'><?=_('See also here')?></a>");
   });
 }
-
 $(function() {
   let tab;
 <?switch ($myPage['name']):?>
@@ -762,7 +723,7 @@ unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false) location.reload();},".($myPage['Load']*60000).");</script>\n"; echo "<div class='tabs'>";
+if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
@@ -1274,23 +1235,29 @@ $('body').on('click','a,.ca_href', function(e) {
     }
   }
 });
+  
+// Start & stop live updates when window loses focus
+var nchanPaused = false;
+var blurTimer = false;
 
 $(window).focus(function() {
   nchanFocusStart();
 });
 
 // Stop nchan on loss of focus
-<?if ($display['liveUpdate'] == "no"):?>
+<? if ( $display['liveUpdate'] == "no" ):?>
 $(window).blur(function() {
-  timers.blurTimer = setTimeout(nchanFocusStop, 30000);
+  blurTimer = setTimeout(function(){
+    nchanFocusStop();
+  },30000);
 });
 <?endif;?>
 
 document.addEventListener("visibilitychange", (event) => {
-<?if ($display['liveUpdate'] == "no"):?>
+  <? if ( $display['liveUpdate'] == "no" ):?>
   if (document.hidden) {
     nchanFocusStop();
-  }
+  } 
 <?else:?>
   if (document.hidden) {
     nchanFocusStop();
@@ -1301,25 +1268,28 @@ document.addEventListener("visibilitychange", (event) => {
 });
 
 function nchanFocusStart() {
-  if (timers.blurTimer !== false) {
-    clearTimeout(timers.blurTimer);
-    timers.blurTimer = false;
+  if ( blurTimer !== false ) {
+    clearTimeout(blurTimer);
+    blurTimer = false;
   }
-  if (nchanPaused !== false) {
+
+  if (nchanPaused !== false ) {
     removeBannerWarning(nchanPaused);
     nchanPaused = false;
+    
     try {
       pageFocusFunction();
     } catch(error) {}
+    
     subscribers.forEach(function(e) {
       e.start();
     });
-  }
+  }   
 }
 
 function nchanFocusStop(banner=true) {
-  if (subscribers.length) {
-    if (nchanPaused === false) {
+  if ( subscribers.length ) {
+    if ( nchanPaused === false ) {
       var newsub = subscribers;
       subscribers.forEach(function(e) {
         try {
@@ -1329,8 +1299,8 @@ function nchanFocusStop(banner=true) {
         }
       });
       subscribers = newsub;
-      if (banner && subscribers.length) {
-        nchanPaused = addBannerWarning("<?=_('Live Updates Paused');?>",false,true);
+      if ( banner && subscribers.length ) {
+        nchanPaused = addBannerWarning("<?=_('Live Updates Paused');?>",false,true );
       }
     }
   }
