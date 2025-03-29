@@ -134,6 +134,10 @@ var csrf_token = "<?=_var($var,'csrf_token')?>";
 // form has unsaved changes indicator
 var formHasUnsavedChanges = false;
 
+// list of nchan subscribers to start/stop after inactivity
+var nchanSubs = [];
+var nchanPaused = false;
+
 // docker progess indicators
 var progress_dots = [], progress_span = [];
 function pauseEvents(id) {
@@ -151,34 +155,29 @@ function resumeEvents(id, delay) {
 }
 
 <?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
-// list of nchan subscribers to pause/resume
-var nchanSubs = [];
-var nchanPaused = false;
+function nchanStart() {
+  if (nchanPaused !== false) {
+    removeBannerWarning(nchanPaused);
+    nchanSubs.forEach(function(nchan) {nchan.start();});
+    timers.reload = setTimeout(nchanStop,<?=$myPage['Load']*60000?>);
+    nchanPaused = false;
+  }
+}
 
-function nchanPause() {
+function nchanStop() {
   if (nchanPaused === false && nchanSubs.length > 0) {
     nchanSubs.forEach(function(nchan) {nchan.stop();});
     nchanPaused = addBannerWarning("<?=_('Live Updates Paused')?>",false,true);
   }
 }
 
-function nchanResume() {
-  clearTimeout(timers.reload);
-  if (nchanPaused !== false) {
-    removeBannerWarning(nchanPaused);
-    nchanSubs.forEach(function(nchan) {nchan.start();});
-    nchanPaused = false;
-  }
-  timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
-}
-
-$(window).click(function() {nchanResume();});
+$(window).click(function() {nchanStart();});
 
 document.addEventListener('visibilitychange',function(e) {
-  if (document.hidden) nchanPause(); else nchanResume();
+  if (document.hidden) nchanStop(); else nchanStart();
 });
 
-timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
+timers.reload = setTimeout(nchanStop,<?=$myPage['Load']*60000?>);
 <?endif;?>
 
 function plus(value, single, plural, last) {
