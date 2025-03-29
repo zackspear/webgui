@@ -173,7 +173,7 @@ function nchanResume() {
 }
 
 // event handlers
-$(window).click(function(e) {nchanResume();});
+$(window).click(function() {nchanResume();});
 document.addEventListener('visibilitychange',function(e) {
   if (document.hidden) nchanPause(); else nchanResume();
 });
