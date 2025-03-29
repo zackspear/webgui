@@ -198,8 +198,8 @@ case 'join':
     echo mk_option($safe, 'IEEE 802.1X/SHA-256', _('WPA3 Enterprise'));
     echo "</select></td></tr>";
   }
-  if ($ieee1 || $manual || $safe) echo "<tr id=\"username\" class=\"$hide0\"><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
-  if ($attr3 || $manual || $safe) echo "<tr id=\"password\" class=\"$hide1\"><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
+  if ($ieee1 || $manual || $safe) echo "<tr id=\"username\" class=\"$hide0\"><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" maxlength=\"63\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
+  if ($attr3 || $manual || $safe) echo "<tr id=\"password\" class=\"$hide1\"><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" maxlength=\"63\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
   echo "<tr><td>"._('IPv4 address assignment').":</td><td><select name=\"DHCP4\" onclick=\"showDHCP(this.value,4)\">";
   echo mk_option($dhcp4, 'yes', _('Automatic'));

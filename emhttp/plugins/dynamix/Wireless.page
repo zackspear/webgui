@@ -67,7 +67,7 @@ _(Other networks)_:
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Add network)_:
-: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="20" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
+: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="32" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
 
 </div>
 </div>
