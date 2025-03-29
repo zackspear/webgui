@@ -172,8 +172,8 @@ function nchanResume() {
   timers.reload = setTimeout(nchanPause,<?=$myPage['Load']*60000?>);
 }
 
+// event handlers
 $(window).click(function() {nchanResume();});
-
 document.addEventListener('visibilitychange',function(e) {
   if (document.hidden) nchanPause(); else nchanResume();
 });
