@@ -118,6 +118,11 @@ var before = new Date();
 const timers = {};
 timers.bannerWarning = null;
 
+// Reload page every X minutes during extended viewing
+<?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
+timers.reload = setInterval(function(){location.reload();},<?=$myPage['Load']*60000?>);
+<?endif;?>
+
 // tty window
 var tty_window = null;
 
@@ -753,8 +758,7 @@ foreach ($buttons as $button) {
 unset($buttons,$button);
 
 // Build page content
-// Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load']>0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";echo "<div class='tabs'>";
+echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
