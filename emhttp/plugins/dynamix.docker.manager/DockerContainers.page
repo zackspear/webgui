@@ -192,7 +192,7 @@ $(function() {
   });
   $.removeCookie('lockbutton');
   loadlist(true);
-  dockerload.start().monitor();
+  dockerload.start();
 });
 
 </script>
