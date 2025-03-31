@@ -1293,7 +1293,7 @@ document.addEventListener("visibilitychange", (event) => {
   <? if ( $display['liveUpdate'] == "no" ):?>
   if (document.hidden) {
     nchanFocusStop();
-  } 
+  }
 <?else:?>
   if (document.hidden) {
     nchanFocusStop();
@@ -1312,15 +1312,15 @@ function nchanFocusStart() {
   if (nchanPaused !== false ) {
     removeBannerWarning(nchanPaused);
     nchanPaused = false;
-    
+
     try {
       pageFocusFunction();
     } catch(error) {}
-    
+
     subscribers.forEach(function(e) {
       e.start();
     });
-  }   
+  }
 }
 
 function nchanFocusStop(banner=true) {
