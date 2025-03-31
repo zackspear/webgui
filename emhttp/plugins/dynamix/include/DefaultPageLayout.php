@@ -105,9 +105,13 @@ if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/
 <script>
 String.prototype.actionName = function(){return this.split(/[\\/]/g).pop();}
 String.prototype.channel = function(){return this.split(':')[1].split(',').findIndex((e)=>/\[\d\]/.test(e));}
+NchanSubscriber.prototype.monitor = function(){subscribers.push(this);}
 
 Shadowbox.init({skipSetup:true});
 context.init();
+
+// list of nchan subscribers to start/stop at focus change
+var subscribers = [];
 
 // server uptime
 var uptime = <?=strtok(exec("cat /proc/uptime"),' ')?>;
@@ -117,11 +121,6 @@ var before = new Date();
 // page timer events
 const timers = {};
 timers.bannerWarning = null;
-
-// Reload page every X minutes during extended viewing
-<?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
-timers.reload = setInterval(function(){location.reload();},<?=$myPage['Load']*60000?>);
-<?endif;?>
 
 // tty window
 var tty_window = null;
@@ -758,6 +757,8 @@ foreach ($buttons as $button) {
 unset($buttons,$button);
 
 // Build page content
+// Reload page every X minutes during extended viewing?
+if (isset($myPage['Load']) && $myPage['Load'] > 0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";
 echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
@@ -1270,6 +1271,76 @@ $('body').on('click','a,.ca_href', function(e) {
     }
   }
 });
+
+// Start & stop live updates when window loses focus
+var nchanPaused = false;
+var blurTimer = false;
+
+$(window).focus(function() {
+  nchanFocusStart();
+});
+
+// Stop nchan on loss of focus
+<? if ( $display['liveUpdate'] == "no" ):?>
+$(window).blur(function() {
+  blurTimer = setTimeout(function(){
+    nchanFocusStop();
+  },30000);
+});
+<?endif;?>
+
+document.addEventListener("visibilitychange", (event) => {
+  <? if ( $display['liveUpdate'] == "no" ):?>
+  if (document.hidden) {
+    nchanFocusStop();
+  } 
+<?else:?>
+  if (document.hidden) {
+    nchanFocusStop();
+  } else {
+    nchanFocusStart();
+  }
+<?endif;?>
+});
+
+function nchanFocusStart() {
+  if ( blurTimer !== false ) {
+    clearTimeout(blurTimer);
+    blurTimer = false;
+  }
+
+  if (nchanPaused !== false ) {
+    removeBannerWarning(nchanPaused);
+    nchanPaused = false;
+    
+    try {
+      pageFocusFunction();
+    } catch(error) {}
+    
+    subscribers.forEach(function(e) {
+      e.start();
+    });
+  }   
+}
+
+function nchanFocusStop(banner=true) {
+  if ( subscribers.length ) {
+    if ( nchanPaused === false ) {
+      var newsub = subscribers;
+      subscribers.forEach(function(e) {
+        try {
+          e.stop();
+        } catch(err) {
+          newsub.splice(newsub.indexOf(e,1));
+        }
+      });
+      subscribers = newsub;
+      if ( banner && subscribers.length ) {
+        nchanPaused = addBannerWarning("<?=_('Live Updates Paused');?>",false,true );
+      }
+    }
+  }
+}
 </script>
 </body>
 </html>
