@@ -713,7 +713,7 @@ nginx_start(){
     # side-load unraid-api
     unraid_api_control start
     # resume nchan publishers
-    monitor_nchan start
+    /usr/local/sbin/monitor_nchan start
     if nginx_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
   log "$DAEMON...  $REPLY."
@@ -727,7 +727,7 @@ nginx_stop(){
   else
     unraid_api_control stop
     # pause nchan publishers
-    monitor_nchan stop
+    /usr/local/sbin/monitor_nchan stop
     kill -QUIT $(cat $PID)
     nginx_waitfor_shutdown
     # safety hammer
@@ -746,7 +746,7 @@ nginx_stop_forced(){
   else
     unraid_api_control stop
     # stop nchan publishers
-    monitor_nchan stop remove
+    /usr/local/sbin/monitor_nchan stop remove
     kill -TERM $(cat $PID)
     nginx_waitfor_shutdown
     if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi
@@ -778,7 +778,7 @@ nginx_reload(){
     if nginx_check; then
       log "Reloading $DAEMON configuration..."
       # pause nchan publishers
-      monitor_nchan stop
+      /usr/local/sbin/monitor_nchan stop
       kill -HUP $(cat $PID)
       sleep 1
       if  tail -10 $SYSLOG | grep -qm1 'Address already in use'; then
@@ -788,7 +788,7 @@ nginx_reload(){
         nginx_renew
       fi
       # resume nchan publishers
-      monitor_nchan start
+      /usr/local/sbin/monitor_nchan start
     else
       log "Invalid configuration, $DAEMON not reloaded"
       return 1
