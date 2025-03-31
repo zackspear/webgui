@@ -319,7 +319,7 @@ $('div[class=title]:not(":last, .disable_diskio")').each(function(){$(this).appe
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 
 <?if (_var($var,'fsState')=='Started'):?>
-var mymonitor = new NchanSubscriber('/sub/mymonitor',{subscriber:'websocket'});
+var mymonitor = new NchanSubscriber('/sub/mymonitor',{subscriber:'websocket', reconnectTimeout:5000});
 mymonitor.on('message', function(state) {
   switch (state) {
   case '0': // normal operation
@@ -367,12 +367,12 @@ mymonitor.on('message', function(state) {
 mymonitor.start();
 <?endif;?>
 
-var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket'});
+var arraymonitor = new NchanSubscriber('/sub/arraymonitor',{subscriber:'websocket', reconnectTimeout:5000});
 arraymonitor.on('message', function(state) {
   if (state==1 && !timers.arraymonitor) timers.arraymonitor = setTimeout(refresh,1250);
 });
 
-var devices = new NchanSubscriber('/sub/devices<?=$spot?",parity":""?>',{subscriber:'websocket'});
+var devices = new NchanSubscriber('/sub/devices<?=$spot?",parity":""?>',{subscriber:'websocket', reconnectTimeout:5000});
 devices.on('message', function(msg,meta) {
   switch (<?if($spot):?>meta.id.channel()<?else:?>0<?endif;?>) {
   case 0:
@@ -423,7 +423,7 @@ devices.on('message', function(msg,meta) {
 devices.start().monitor();
 
 <?if (substr(_var($var,'fsState'),-3)=='ing'):?>
-var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket'});
+var fsState = new NchanSubscriber('/sub/fsState',{subscriber:'websocket', reconnectTimeout:5000});
 fsState.on('message', function(msg) {
   switch (msg) {
   case 'stop':
@@ -438,7 +438,7 @@ fsState.start();
 <?elseif ($spot):?>
 setTimeout(function(){$('#pauseButton').prop('disabled',false);$('#cancelButton').prop('disabled',false);},250);
 <?else:?>
-var paritymonitor = new NchanSubscriber('/sub/paritymonitor',{subscriber:'websocket'});
+var paritymonitor = new NchanSubscriber('/sub/paritymonitor',{subscriber:'websocket', reconnectTimeout:5000});
 paritymonitor.on('message', function(busy){if (busy==1) refresh();});
 setTimeout(function(){paritymonitor.start();},5000);
 <?endif;?>
