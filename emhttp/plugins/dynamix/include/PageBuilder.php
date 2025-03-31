@@ -42,8 +42,16 @@ function build_pages($pattern) {
   }
 }
 
+function page_enabled(&$page)
+{
+  global $var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$name,$display,$pool_devices;
+  $enabled = true;
+  if (isset($page['Cond'])) eval("\$enabled={$page['Cond']};");
+  return $enabled;
+}
+
 function find_pages($item) {
-  global $docroot,$site,$var,$disks,$devs,$users,$shares,$sec,$sec_nfs,$name,$display,$pool_devices;
+  global $site;
   $pages = [];
   foreach ($site as $page) {
     if (empty($page['Menu'])) continue;
@@ -55,9 +63,7 @@ function find_pages($item) {
     while ($menu !== false) {
       [$menu,$rank] = my_explode(':',$menu);
       if ($menu == $item) {
-        $enabled = true;
-        if (isset($page['Cond'])) eval("\$enabled={$page['Cond']};");
-        if ($enabled) $pages["$rank{$page['name']}"] = $page;
+        if (page_enabled($page)) $pages["$rank{$page['name']}"] = $page;
         break;
       }
       $menu = strtok(' ');
@@ -69,6 +75,7 @@ function find_pages($item) {
 
 function tab_title($title,$path,$tag) {
   global $docroot,$pools;
+  $title=htmlspecialchars(html_entity_decode($title));
   $names = implode('|',array_merge(['disk','parity'],$pools));
   if (preg_match("/^($names)/",$title)) {
     $device = strtok($title,' ');
@@ -78,7 +85,7 @@ function tab_title($title,$path,$tag) {
   if (!$tag || substr($tag,-4)=='.png') {
     $file = "$path/icons/".($tag ?: strtolower(str_replace(' ','',$title)).".png");
     if (file_exists("$docroot/$file")) {
-      return "<img src='/$file' class='icon'>$title";
+      return "<img src='/$file' class='icon' style='max-width: 18px; max-height: 18px; width: auto; height: auto; object-fit: contain;'>$title";
     } else {
       return "<i class='fa fa-th title'></i>$title";
     }

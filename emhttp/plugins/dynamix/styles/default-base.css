@@ -1469,14 +1469,20 @@ a.bannerInfo {
     float: right;
     cursor: pointer;
 }
-.back_to_top {
+.back_to_top,
+.move_to_end {
     display: none;
     position: fixed;
-    bottom: 30px;
-    right: 12px;
+    bottom: 24px;
     color: var(--red-800);
     font-size: 2.5rem;
     z-index: 999;
+}
+.back_to_top {
+    right: 40px;
+}
+.move_to_end {
+    right:12px;
 }
 span.big.blue-text {
     cursor: pointer;
@@ -1494,6 +1500,11 @@ i.abortOps {
 }
 pre#swalbody p {
     margin-block-end: 1em;
+}
+span#wlan0 {
+    float: right;
+    margin-right: 10px;
+    cursor: pointer;
 }
 
 /*

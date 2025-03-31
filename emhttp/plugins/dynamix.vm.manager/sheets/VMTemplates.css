@@ -22,3 +22,9 @@
     margin-top: 8px;
     line-height: 12px;
 }
+
+div.template,
+div#dialogWindow,
+input#upload {
+    display:none;
+}

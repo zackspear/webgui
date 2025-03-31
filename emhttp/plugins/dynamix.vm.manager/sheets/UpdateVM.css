@@ -1,10 +1,10 @@
 :root {
-    --update-vm-background: var(--black);
+    --add-vm-background: var(--black);
 }
 
 .Theme--azure:root,
 .Theme--white:root {
-    --update-vm-background: var(--gray-100);
+    --add-vm-background: var(--gray-100);
 }
 
 body {
@@ -12,21 +12,23 @@ body {
 }
 #vmform table {
     margin-top: 0;
+    table-layout: fixed;
 }
 #vmform div.title + table {
     margin-top: 0;
 }
 #vmform table tr {
     vertical-align: top;
-    line-height: 40px;
+    line-height: 4rem;
+    height: 4rem;
 }
-#vmform table tr td:nth-child(odd) {
-    width: 300px;
+#vmform table tr td:nth-child(1) {
+    width: 25%;
     text-align: right;
     padding-right: 10px;
 }
-#vmform table tr td:nth-child(even) {
-    width: 110px;
+#vmform table tr td:nth-child(2) {
+    width: 800px;
 }
 @media (max-width: 1280px) {
     #vmform table tr td:first-child {
@@ -49,6 +51,17 @@ body {
 #vmform table tr td:last-child {
     width: inherit;
 }
+
+#vmform textarea{
+    max-width:500px;
+    scrollbar-width:4px;
+}
+
+#vmform textarea::-webkit-scrollbar{
+    height:4px;
+    width:4px;
+}
+
 #vmform .multiple {
     position: relative;
 }
@@ -146,6 +159,8 @@ span.advancedview_panel {
     height: 300px;
     overflow-y: scroll;
     position: relative;
+    display:grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 #template_img_chooser div:hover {
     background-color: var(--gray-150); /* Condensed from: #eee */
@@ -196,41 +211,86 @@ i.fa-minus-circle {
 input[type="checkbox"] {
     margin-left: 0;
 }
-#vmform table.timers td.present {
-    width: 150px;
+
+span.width {
+    display: inline-block;
+    width: 280px;
 }
 
-.fileTree {
-    background: var(--update-vm-background);
-    width: 300px;
-    max-height: 150px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: relative;
-    z-index: 100;
-    display: none;
+span.column1 {
+    display: inline-block;
+    width: 140px;
 }
-#vmform table.multiple {
-    margin: 10px 0;
-    background: var(--update-vm-background);
-    background-size: 800px 100%;
-    background-position: -800px;
-    background-repeat: no-repeat;
-    background-clip: content-box;
-    transition: background 0.3s linear;
+
+span.column2 {
+    display: inline-block;
+    width: 220px;
 }
-#template_img_chooser_outer {
-    position: absolute;
-    display: none;
-    border-radius: 5px;
-    border: 1px solid <?=$border?>;
-    background: var(--update-vm-background);
-    z-index: 10;
+
+input#btnvCPUSelect,
+input.wlan0_info {
+    font-size: 1rem;
+    padding: 5px 10px;
+    margin: 0 0 0 10px;
 }
-span#dropbox {
-    border: 1px solid <?=$border?>;
-    background: var(--update-vm-background);
-    padding: 28px 12px;
-    line-height: 72px;
-    margin-right: 16px;
+
+span.space {
+    display: inline-block;
+    width: 60px;
+}
+
+span.label {
+    display: inline-block;
+    width: 110px;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+span.ipvtap {
+    margin-left: 25px;
+    font-family: bitstream;
+}
+
+select.narrow {
+    min-width: 90px !important;
+}
+
+select.second {
+    margin-left: 12px;
+    max-width: 90px;
+    margin-right: 0;
+}
+
+div.wlan0 {
+    text-align: left;
+}
+
+input.trim {
+    width: 98px;
+    min-width: 98px;
+}
+
+input.second {
+    margin-left: 8px;
+}
+
+.autostart ~ .switch-button-background {
+    margin-top: 8px !important;
+    margin-left: 0 !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.CodeMirror {
+    border: 1px solid var(--gray-150);
+    cursor: text;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.CodeMirror pre.CodeMirror-placeholder {
+    color: var(--gray-400);
 }

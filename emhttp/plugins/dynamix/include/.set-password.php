@@ -306,8 +306,8 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
         </div>
         <div class="content">
             <header>
-                <h1><?=$var['NAME']?></h1>
-                <h2><?=$var['COMMENT']?></h2>
+                <h1><?=htmlspecialchars($var['NAME'])?></h1>
+                <h2><?=htmlspecialchars($var['COMMENT'])?></h2>
                 <p><?=_('Please set a password for the root user account')?>.</p>
                 <p><?=_('Max password length is 128 characters')?>.</p>
             </header>
@@ -347,7 +347,14 @@ $THEME_DARK = in_array($display['theme'],['black','gray']);
         document.cookie = "cookietest=1";
         cookieEnabled = document.cookie.indexOf("cookietest=")!=-1;
         document.cookie = "cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";
-        if (!cookieEnabled) document.write("<p class='error'><?=_('Browser cookie support required for Unraid OS webgui')?></p>");
+        if (!cookieEnabled) {
+            const errorElement = document.createElement('p');
+            errorElement.classList.add('error');
+            errorElement.textContent = "<?=_('Please enable cookies to use the Unraid webGUI')?>";
+
+            document.body.textContent = '';
+            document.body.appendChild(errorElement);
+        }
         // Password toggling
         const $passToggle = document.querySelector('.js-pass-toggle');
         const $passToggleHideSvg = $passToggle.querySelector('.js-pass-toggle-hide');

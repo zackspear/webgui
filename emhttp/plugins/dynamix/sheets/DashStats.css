@@ -2,10 +2,10 @@
     --dashstats-pie-after-bg-color: #262626;
 }
 .Theme--gray:root {
-    --dashstats-pie-after-bg-color: #212f3d;
+    --dashstats-pie-after-bg-color: #3d3c3a;
 }
 .Theme--azure:root {
-    --dashstats-pie-after-bg-color: #d7dbdd;
+    --dashstats-pie-after-bg-color: #dcdcdc;
 }
 .Theme--white:root {
     --dashstats-pie-after-bg-color: #f7f9f9;
@@ -366,7 +366,7 @@ table.snapshot {
 }
 div.grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(610px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
     column-gap: 20px;
 }
 div.pie {

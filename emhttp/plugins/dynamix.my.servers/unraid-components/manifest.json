@@ -1,12 +1,12 @@
 {
   ".nuxt/nuxt-custom-elements/entries/unraid-components.client.mjs": {
-    "file": "_nuxt/unraid-components.client-CNGeANhD.js",
+    "file": "_nuxt/unraid-components.client-CStFAWS0.js",
     "name": "unraid-components.client",
     "src": ".nuxt/nuxt-custom-elements/entries/unraid-components.client.mjs",
     "isEntry": true,
     "css": [
-      "_nuxt/unraid-components-p_3YF86n.css"
+      "_nuxt/unraid-components-BvEqdEb_.css"
     ]
   },
-  "ts": 1716926465
+  "ts": 1742943534
 }

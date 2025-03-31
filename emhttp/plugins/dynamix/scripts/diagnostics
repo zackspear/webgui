@@ -28,7 +28,13 @@ $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
 
-$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/syslinux','/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
+if (is_file('/boot/syslinux/syslinux.cfg')) {
+  $bootenv = '/boot/syslinux';
+} elseif (is_file('/boot/grub/grub.cfg')) {
+  $bootenv = '/boot/grub';
+}
+
+$folders = ['/boot','/boot/config','/boot/config/plugins',$bootenv,'/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 // global variables
 $path  = "/var/local/emhttp";
@@ -52,6 +58,7 @@ function write(...$messages){
   }
   curl_close($com);
 }
+
 function run($cmd, &$save=null, $timeout=30) {
   global $cli,$diag;
   // output command for display
@@ -71,6 +78,7 @@ function newline($file) {
 function shareDisks($share) {
   return str_replace(',',', ',exec("shopt -s dotglob; getfattr --no-dereference --absolute-names --only-values -n system.LOCATIONS ".escapeshellarg("/mnt/user/$share")." 2>/dev/null") ?: "");
 }
+
 function anonymize($text, $select) {
   global $all,$var,$pools,$customShares;
   if ($all) return $text;
@@ -86,6 +94,7 @@ function anonymize($text, $select) {
       if (!preg_match($regex, $row)) {
         $row = preg_replace("/^(\s*\[\S).*(\S\])( => Array)$/","$1..$2$3",$row);
         $row = preg_replace("/^(\s*\[(cachePool|name|nameOrig|comment|flashGUID|regGUID|regTo|readList|writeList|csrf_token|NGINX_DEFAULTURL|NGINX_CERTNAME|NGINX_LANFQDN|NGINX_WANFQDN|NGINX_WANIP)\] => \S).*(\S)$/","$1..$3",$row);
+        $row = preg_replace('/(\[(USERNAME|PASSWORD)\] =>).*/','$1 removed',$row);
       }
     }
     return implode("\n", $rows);
@@ -113,9 +122,20 @@ function maskIP($file) {
   // anonymize public IPv4 addresses
   $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
   run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
+
   // anonymize full IPv6 addresses
-  run("sed -ri 's/([\"\[ ]([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([/\" .]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' ".escapeshellarg($file)." 2>/dev/null");
+  $file_escaped = escapeshellarg($file);
+
+  // Anonymize IPv6 addresses without brackets
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+
+  // Anonymize IPv6 addresses with brackets
+  run("sed -ri 's/(\[([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\])([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+
+  // Handle any remaining edge cases, e.g., addresses with subnet masks
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\/[0-9]{1,3})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\7/g' $file_escaped 2>/dev/null");
 }
+
 function download_url($url, $path="", $bg=false, $timeout=15) {
   $ch = curl_init();
   curl_setopt_array($ch,[
@@ -133,6 +153,7 @@ function download_url($url, $path="", $bg=false, $timeout=15) {
   if ($path) file_put_contents($path,$out);
   return $out ?: false;
 }
+
 function geturls_certdetails($file, $hostname, $ip="") {
   // called by the geturls() function
   // best to ensure the file exists before calling this function
@@ -169,6 +190,7 @@ function geturls_certdetails($file, $hostname, $ip="") {
   }
   return [$cn, $cn_priv, $type];
 }
+
 function geturls_checkhost($host, $hostpriv, $expectedip, $dnsserver) {
   // called by the geturls() function
   // dns lookups will fail if there is no TLD or if it is ".local", so skip it
@@ -183,6 +205,7 @@ function geturls_checkhost($host, $hostpriv, $expectedip, $dnsserver) {
   }
   return '';
 }
+
 function geturls() {
   global $var,$path;
   extract(@parse_ini_file("$path/network.ini",true));
@@ -348,6 +371,7 @@ if ( is_file("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php") )
     run("/usr/local/emhttp/plugins/fix.common.problems/scripts/scan.php diagnostics",$ignore,60);
   }
 }
+
 // don't anonymize system share names
 $vardomain    = (array)@parse_ini_file('/boot/config/domain.cfg');
 $vardocker    = (array)@parse_ini_file('/boot/config/docker.cfg');
@@ -416,15 +440,16 @@ if (file_exists("$path/diskload.ini")){
     }
   }
 }
+
 file_put_contents("/$diag/system/loads.txt",$cpuload.implode("\r\n",$loadTxt));
 
 // individual commands execution (suppress errors)
 run("lscpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/lscpu.txt"));
 run("lsscsi -vgl 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsscsi.txt"));
 run("lspci -knn 2>/dev/null|todos >".escapeshellarg("/$diag/system/lspci.txt"));
+run("lspci -vv 2>/dev/null| awk '/ASPM/{print $0}' RS=|grep -P '(^[a-z0-9:.]+|ASPM |Disabled;|Enabled;)'|todos >".escapeshellarg("/$diag/system/aspm-status.txt"));
 run("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
 run("free -mth 2>/dev/null|todos >".escapeshellarg("/$diag/system/memory.txt"));
-run("ps -auxf --sort=-pcpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/ps.txt"));
 run("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
 run("lsmod|sort 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsmod.txt"));
 run("df -h 2>/dev/null|todos >".escapeshellarg("/$diag/system/df.txt"));
@@ -433,6 +458,9 @@ run("dmidecode -qt2|awk -F: '/^\tManufacturer:/{m=\$2};/^\tProduct Name:/{p=\$2}
 run("dmidecode -qt0 2>/dev/null|todos >>".escapeshellarg("/$diag/system/motherboard.txt"));
 run("cat /proc/meminfo 2>/dev/null|todos >".escapeshellarg("/$diag/system/meminfo.txt"));
 run("dmidecode --type 17 2>/dev/null|todos >>".escapeshellarg("/$diag/system/meminfo.txt"));
+
+// mask IP addresses in lsof.txt
+maskIP("/$diag/system/lsof.txt");
 
 // create ethernet information information (suppress errors)
 foreach ($ports as $port) {
@@ -467,9 +495,13 @@ if (!$all) {
   run("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
   // anonymize IP addresses
   maskIP("/$diag/config/network.cfg");
+  // anonymize wireless credentials
+  if (file_exists("/$diag/config/wireless.cfg")) {
+    run("sed -ri 's/^((USERNAME|PASSWORD)=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/wireless.cfg")." 2>/dev/null");
+  }
 }
 // include listening interfaces
-run("$docroot/webGui/scripts/show_interfaces ip|tr -d ' '|tr '#' ' '|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
+run("$docroot/webGui/scripts/show_interfaces ip|tr ',' '\n' >".escapeshellarg("/$diag/config/listen.txt"));
 run("$docroot/webGui/scripts/error_interfaces|sed 's/<i.*i>//' >>".escapeshellarg("/$diag/config/listen.txt"));
 if (!$all) maskIP("/$diag/config/listen.txt");
 
@@ -516,6 +548,16 @@ if ($files) {
   @mkdir("/$diag/config/modprobe.d");
   foreach ($files as $file) {
     $dest = "/$diag/config/modprobe.d/".basename($file);
+    @copy($file,$dest);
+  }
+}
+
+// copy cutom udev rules information
+$files = glob("/boot/config/udev/*");
+if ($files) {
+  @mkdir("/$diag/config/udev");
+  foreach ($files as $file) {
+    $dest = "/$diag/config/udev/".basename($file);
     @copy($file,$dest);
   }
 }
@@ -707,7 +749,11 @@ newline("/$diag/system/sshd.txt");
 copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
 maskIP("/$diag/system/servers.conf.txt");
 run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
+run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
 newline("/$diag/system/servers.conf.txt");
+
+// show installed patches
+@copy("/tmp/unraid.patch/installedUpdates.json","/$diag/system/installed_patches.txt");
 
 // BEGIN - third party plugins diagnostics
 // list third party packages in /boot/config/plugins/*/packages/

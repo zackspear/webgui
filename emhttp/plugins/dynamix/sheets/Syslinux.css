@@ -21,13 +21,13 @@ div.advanced {
 textarea.raw {
     resize: none;
     font-family: bitstream;
-    width: 65.5%;
+    width: 63%;
 }
 
 span.array,
 span.system {
     margin-left: 33.33%;
-    width: 65.5%;
+    width: 63% !important
     padding: 2px 10px;
     font-weight: bold;
     border: 1px solid var(--syslinux-span-array-border-color);
@@ -35,10 +35,14 @@ span.system {
 }
 textarea.menu {
     margin-left: 33.33%;
-    width: 65.5%;
+    width: 63% !important
     margin-bottom: 12px;
     padding: 4px 10px;
     font-family: bitstream;
+}
+
+dd {
+    padding-left: 40px;
 }
 
 .Theme--black,

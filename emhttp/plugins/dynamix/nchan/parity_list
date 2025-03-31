@@ -18,6 +18,7 @@ $log      = '/boot/config/parity-checks.log';
 $stamps   = '/var/tmp/stamps.ini';
 $resync   = '/var/tmp/resync.ini';
 $md5_old  = $spot_old = $fs_old = $proc_old = -1;
+$remove_resync_files = 0;
 
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/publish.php";
@@ -106,7 +107,17 @@ while (true) {
 			/* Save the result in the parity history log. */
 			file_put_contents($log, "$timestamp|$duration|$speed|$status|$error|$action|$size\n", FILE_APPEND);
 
+			/* Remove the resync files after the history file has been updated. */
+			$remove_resync_files = 1;
+
+			/* Parity check is completed. */
+			$echo = "";
+		} elseif ($remove_resync_files >= 3) {
 			delete_file($stamps, $resync);
+
+			$remove_resync_files = 0;
+		} elseif ($remove_resync_files != 0) {
+			$remove_resync_files++;
 		}
 	}
 
@@ -130,7 +141,7 @@ while (true) {
 		$process = 2;
 	} elseif (exec('ps -C btrfs -o cmd=|grep -cv show') > 0) {
 		$process = 3;
-	} elseif (exec("zpool status|grep -c 'scrub in progress'") > 0) {
+	} elseif (exec("zpool status 2>/dev/null | grep -c 'scrub in progress'") > 0) {
 		$process = 4;
 	} else {
 		$process = 0;
@@ -152,6 +163,6 @@ while (true) {
 		$proc_old = publish('mymonitor', $process) !== false ? $process : -1;
 	}
 
-	sleep(1);
+	sleep(3);
 }
 ?>
