@@ -714,6 +714,7 @@ nginx_start(){
     unraid_api_control start
     if nginx_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
+  rm -f /tmp/nginxStopped
   log "$DAEMON...  $REPLY."
 }
 
