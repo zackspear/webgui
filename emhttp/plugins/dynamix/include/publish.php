@@ -50,7 +50,7 @@ function publish($endpoint, $message, $len=1) {
       my_logger("Nchan out of shared memory.  Restarting nginx");
       // prevent multiple attempts at restarting
       touch("/tmp/nginxStopped");
-      exec("/etc/rc.d/rc.nginx stop");
+      exec("/etc/rc.d/rc.nginx reload");
     }
   }
   if ($reply===false) my_logger("curl to $endpoint failed", 'publish');
