@@ -1974,11 +1974,6 @@ span#wlan0 {
         background-color: transparent;
     }
 
-    table tbody td {
-        line-height: 3rem;
-        height: 3rem;
-    }
-
     table tbody tr.tr_last {
         border-bottom: 1px solid var(--border-color);
     }
