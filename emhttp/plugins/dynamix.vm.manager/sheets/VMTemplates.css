@@ -1,9 +1,20 @@
+.Theme--gray:root,
+.Theme--black:root {
+    --filetree-background: #1c1c1c;
+}
+
+.Theme--azure:root,
+.Theme--white:root {
+    --filetree-background: #f2f2f2;
+}
+
 .vmheader {
     padding: 10px;
     font-size: 1.4rem;
     text-align: left;
     color: var(--gray-500); /* Condensed from: #888 */
 }
+
 .vmtemplate {
     display: inline-block;
     width: 80px;
@@ -13,10 +24,12 @@
     text-align: center;
     vertical-align: top;
 }
+
 .vmtemplate img {
     width: 48px;
     height: 48px;
 }
+
 .vmtemplate p {
     text-align: center;
     margin-top: 8px;
@@ -26,5 +39,16 @@
 div.template,
 div#dialogWindow,
 input#upload {
-    display:none;
+    display: none;
+}
+
+.fileTree {
+    background: var(--filetree-background);
+    width: 300px;
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    z-index: 100;
+    display: none;
 }
