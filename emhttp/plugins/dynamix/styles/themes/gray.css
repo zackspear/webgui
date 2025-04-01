@@ -38,8 +38,9 @@
     --border-color: var(--theme-gray--cyan-300);
     --alt-border-color: var(--theme-gray--cyan-600);
     --disabled-border-color: var(--gray-500); 
-    --input-border-color: var(--theme-gray--cyan-300); 
+    --input-border-color: var(--border-color); 
     --disabled-input-border-color: var(--gray-500); 
+    --textarea-border-color: var(--border-color);
     --inverse-border-color: var(--theme-gray--cyan-500);
     --table-border-color: var(--gray-700);
     --table-alt-border-color: var(--theme-gray--black-alt);

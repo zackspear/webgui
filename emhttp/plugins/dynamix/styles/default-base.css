@@ -198,7 +198,7 @@ input:focus[type="email"],
 input:focus[type="file"],
 textarea:focus,
 .sweet-alert button:focus {
-    background-color: var(--mild-background-color);
+    background-color: var(--focus-input-bg-color);
     outline: 0;
 }
 input:hover[type="button"],
@@ -353,6 +353,9 @@ input.trim {
 }
 textarea {
     resize: none;
+    padding: 6px;
+    border: 1px solid var(--textarea-border-color);
+    border-bottom: 1px solid var(--input-border-color);
 }
 #header {
     position: absolute;

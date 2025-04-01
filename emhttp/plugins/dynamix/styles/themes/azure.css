@@ -44,8 +44,9 @@
     --border-color: var(--theme-azure--cyan-400);
     --alt-border-color: var(--theme-azure--cyan-700);
     --disabled-border-color: var(--gray-500);
-    --input-border-color: var(--gray-200);
+    --input-border-color: var(--border-color);
     --disabled-input-border-color: var(--gray-500);
+    --textarea-border-color: var(--input-border-color);
     --inverse-border-color: var(--gray-600); /* Originally #42453e */
     --table-border-color: var(--theme-azure--cyan-400);
     --table-alt-border-color: var(--theme-azure--gray-100);
@@ -82,8 +83,8 @@
     --hover-button-text-color: var(--theme-azure--gray-800);
     --hover-button-background: var(--mild-background-color);
 
-    --input-border-color: var(--blue-800); /* Condensed from: #0072c6 */
     --input-bg-color: var(--mild-background-color);
+    --focus-input-bg-color: var(--theme-azure--gray-150);
     /* /End vars used in default-base */
 
     /* Set vars for default-dynamix */

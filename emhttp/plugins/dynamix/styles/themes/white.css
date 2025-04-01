@@ -25,8 +25,9 @@
 
     --border-color: var(--gray-200);
     --disabled-border-color: var(--gray-500);
-    --input-border-color: var(--gray-900);
+    --input-border-color: var(--black);
     --disabled-input-border-color: var(--gray-400);
+    --textarea-border-color: var(--gray-400);
     --inverse-border-color: var(--gray-000);
     --table-border-color: var(--gray-200);
     --table-background-color: var(--gray-150);
@@ -68,8 +69,8 @@
     --hover-button-text-color: var(--white);
     --hover-button-background: linear-gradient(90deg,var(--brand-red) 0,var(--brand-orange));
 
-    --input-border-color: var(--black);
     --input-bg-color: transparent;
+    --focus-input-bg-color: var(--gray-150);
     /* /End vars used in default-base */
 
     /* Set vars for default-dynamix */
