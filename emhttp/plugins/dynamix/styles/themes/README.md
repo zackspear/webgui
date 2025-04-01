@@ -11,6 +11,7 @@ The Dynamix theme system uses CSS variables (custom properties) to create a flex
 - Defines fundamental color variables used throughout the system
 - Contains standardized color scales (e.g., `--gray-100` through `--gray-900`)
 - Includes opacity variants for common colors (e.g., `--white-opacity-10`)
+- Ideally should not be overridden by theme files but instead just used in theme files
 
 ### 2. Base Styles (`default-base.css`)
 
@@ -93,14 +94,7 @@ Files like `Browse.css`, `DashStats.css` that define styles for specific feature
 - Use theme variables for consistent styling
 - Include theme-specific overrides when needed
 
-### 2. Theme-Variant Sheets
-
-Files like `Eth0-azure.css`, `Wireless-black.css` that provide theme-specific styles:
-
-- Contain minimal overrides for specific components in specific themes
-- Usually consist of a few critical variable changes
-
-### 3. Utility Sheets
+### 2. Utility Sheets
 
 Files like `UserList.css`, `ShareList.css` that provide reusable styles:
 
@@ -211,10 +205,28 @@ input[type=text].narrow {
 /* ✅ Do this instead - single file with theme variables and nesting */
 /* Eth0.css */
 :root {
+    /* file specific variables */
     --eth0-narrow-input-width: 188px;
     --eth0-narrow-input-padding: 5px 6px;
     --eth0-narrow-input-border-color: var(--border-color);
     --eth0-narrow-input-text-color: var(--text-color);
+}
+
+/* theme file specific variables */
+.Theme--black,
+.Theme--white {
+    --eth0-narrow-input-width: 166px;
+    --eth0-narrow-input-padding: 4px 0;
+}
+
+.Theme--black {
+    --eth0-narrow-input-border-color: var(--gray-100);
+    --eth0-narrow-input-text-color: var(--gray-100);
+}
+
+.Theme--white {
+    --eth0-narrow-input-border-color: var(--gray-900);
+    --eth0-narrow-input-text-color: var(--gray-900);
 }
 
 input[type="text"].narrow {
@@ -224,12 +236,14 @@ input[type="text"].narrow {
     color: var(--eth0-narrow-input-text-color);
 }
 
-.Theme--black {
-    --eth0-narrow-input-width: 166px;
-    --eth0-narrow-input-padding: 4px 0;
-    --eth0-narrow-input-border-color: var(--gray-100);
-    --eth0-narrow-input-text-color: var(--gray-100);
-
+/*
+ * Theme specific overrides - 
+ * Notice that we are not repeating the all the input[type="text"].narrow styles in each theme file specific block.
+ * Instead, we are using the CSS nesting to override the styles for each theme only as needed.
+ * This is a much more efficient and maintainable approach. Preventing CSS duplication and reducing the chance of inconsistencies.
+ */
+.Theme--black,
+.Theme--white {
     input[type="text"].narrow {
         border: none;
         border-bottom: 1px solid var(--eth0-narrow-input-border-color);
