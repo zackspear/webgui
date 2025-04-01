@@ -75,7 +75,7 @@ a.info span {
     padding: 5px 8px;
     border: 1px solid var(--inverse-border-color);
     border-radius: 3px;
-    background-color: var(--opac-background-color);
+    background-color: var(--background-color);
     box-shadow: var(--small-shadow);
 }
 a.info:hover span {
