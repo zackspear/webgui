@@ -1,5 +1,5 @@
 :root {
-    --browse-icon-color: gray; /* @todo use existing color palette */
+    --browse-icon-color: var(--gray-300);
     --browse-select-border-color: var(--black);
     --browse-select-option-bg-color: var(--gray-150);
     --browse-table-controls-bg-color: var(--gray-100);
