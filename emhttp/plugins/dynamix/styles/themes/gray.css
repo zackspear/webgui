@@ -96,12 +96,12 @@
     --dynamix-tablesorter-thead-th-text-color: var(--gray-500);
     --dynamix-tablesorter-thead-th-bg-color: var(--black);
 
-    --dynamix-tablesorter-tbody-row-alt-bg-color: #121510;
+    --dynamix-tablesorter-tbody-row-alt-bg-color: var(--theme-gray--black-alt);
     --dynamix-tablesorter-tbody-row-bg-color: var(--black);
     --dynamix-tablesorter-tbody-row-border-color: var(--table-alt-border-color); /* #edeaef */
 
     --dynamix-select-bg-color: var(--black);
-    --dynamix-select-box-shadow: 0 2px 0 #1f1f1f, inset 0 -1px #000000;
+    --dynamix-select-box-shadow: 0 2px 0 var(--theme-gray--black-alt), inset 0 -1px var(--black);
     --dynamix-select-disabled-bg-color: var(--gray-700); /* Originally #383a34 */
     --dynamix-select-disabled-border-color: var(--gray-500);
     --dynamix-select-disabled-color: var(--gray-500);
