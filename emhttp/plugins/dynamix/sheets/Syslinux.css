@@ -27,7 +27,7 @@ textarea.raw {
 span.array,
 span.system {
     margin-left: 33.33%;
-    width: 63% !important
+    width: 63% !important;
     padding: 2px 10px;
     font-weight: bold;
     border: 1px solid var(--syslinux-span-array-border-color);
