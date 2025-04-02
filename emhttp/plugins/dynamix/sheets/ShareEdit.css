@@ -2,7 +2,7 @@
     --share-edit-shade-azure: #edeaef;
     --share-edit-shade-gray: #121510;
     --share-edit-shade-white: var(--gray-150);
-    --share-edit-shade-black: var(gray-800);
+    --share-edit-shade-black: var(--gray-800);
 }
 
 div.shade-white {
