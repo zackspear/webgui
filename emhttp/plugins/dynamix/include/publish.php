@@ -25,7 +25,7 @@ function curl_socket($socket, $url, $message='') {
 }
 
 function publish($endpoint, $message, $len=1) {
-  if ( is_file("/tmp/nginxStopped") )
+  if ( is_file("/tmp/publishPaused") )
     return false;
 
   $com = curl_init("http://localhost/pub/$endpoint?buffer_length=$len");
@@ -44,13 +44,13 @@ function publish($endpoint, $message, $len=1) {
     preg_match_all("/[0-9]+/",$err,$matches);
     // 500: out of shared memory when creating a channel
     // 507: out of shared memory publishing a message
-    // nginx automatically starts when OS detects its not running
 
     if ( ($matches[0][0] ?? "") == 507 || ($matches[0][0] ?? "") == 500 ) {
-      my_logger("Nchan out of shared memory.  Restarting nginx");
-      // prevent multiple attempts at restarting
-      touch("/tmp/nginxStopped");
+      my_logger("Nchan out of shared memory.  Reloading nginx");
+      // prevent multiple attempts at restarting from other scripts using publish.php
+      touch("/tmp/publishPaused");
       exec("/etc/rc.d/rc.nginx reload");
+      @unlink("/tmp/publishPaused");
     }
   }
   if ($reply===false) my_logger("curl to $endpoint failed", 'publish');
