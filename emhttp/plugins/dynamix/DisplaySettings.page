@@ -255,8 +255,6 @@ _(Dynamix color theme)_:
     <?$theme = basename($themes, '.css');?>
     <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
   <?endforeach;?>
-    <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
-  <?endforeach;?>
   </select>
 
 _(Used / Free columns)_:
