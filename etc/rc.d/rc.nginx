@@ -749,7 +749,7 @@ nginx_stop_forced(){
   else
     unraid_api_control stop
     # stop nchan publishers
-    /usr/local/sbin/monitor_nchan stop remove
+    /usr/local/sbin/monitor_nchan kill
     kill -TERM $(cat $PID)
     nginx_waitfor_shutdown
     if ! nginx_running; then REPLY="Stopped"; else REPLY="Failed"; fi

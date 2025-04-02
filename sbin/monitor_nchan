@@ -26,10 +26,16 @@ nchan_start() {
   rm -f $nchan_list
 }
 
+if [[ $1 == kill ]]; then
+  echo "Stopping nchan processes..."
+  nchan_stop
+  rm -f $nchan_pid $disk_load
+  exit
+fi
+
 if [[ $1 == stop ]]; then
   echo "Stopping nchan processes..."
   nchan_stop
-  [[ $2 == remove ]] && rm -f $nchan_pid $disk_load
   exit
 fi
 
