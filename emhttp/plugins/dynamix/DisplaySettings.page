@@ -252,8 +252,9 @@ _(Temperature unit)_:
 _(Dynamix color theme)_:
 : <select name="theme">
   <?foreach (glob("$docroot/webGui/styles/themes/*.css") as $themes):?>
-    <?= var_dump($themes);?>
     <?$theme = basename($themes, '.css');?>
+    <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
+  <?endforeach;?>
     <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
   <?endforeach;?>
   </select>
