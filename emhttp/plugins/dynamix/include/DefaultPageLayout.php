@@ -49,10 +49,12 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/context.standalone.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.sweetalert.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-palette.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix/styles/dynamix-jquery-ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$display['theme']}.css")?>">
 
 <style>
@@ -839,6 +841,7 @@ echo "</span></span><span id='countdown'></span><span id='user-notice' class='re
 if ($wlan0) echo "<span id='wlan0' class='grey-text' onclick='wlanSettings()'><i class='fa fa-wifi fa-fw'></i></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/go/manual/' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
+echo "<unraid-theme-switcher current='$theme' themes='".htmlspecialchars(json_encode(['azure', 'gray', 'black', 'white']), ENT_QUOTES, 'UTF-8')."'></unraid-theme-switcher>";
 echo "</span></div>";
 ?>
 <script>
