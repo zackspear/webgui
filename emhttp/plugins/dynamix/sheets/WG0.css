@@ -5,7 +5,7 @@
     --wg0-shade-azure: #edeaef;
     --wg0-shade-gray: #121510;
     --wg0-shade-white: var(--gray-150);
-    --wg0-shade-black: var(gray-800);
+    --wg0-shade-black: var(--gray-800);
 }
 
 .Theme--sidebar:root {
