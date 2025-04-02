@@ -17,6 +17,10 @@ $header  = $display['header'];
 $backgnd = $display['background'];
 $themes1 = in_array($theme,['black','white']);
 $themes2 = in_array($theme,['gray','azure']);
+$themeHtmlClass = "Theme--$theme";
+if ($themes2) {
+  $themeHtmlClass .= " Theme--sidebar";
+}
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
@@ -29,7 +33,7 @@ exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHtmlClass ?>">
 <head>
 <title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -45,9 +49,13 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/context.standalone.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.sweetalert.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-$theme.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-$theme.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/defaultpagelayout.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
+
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-palette.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix/styles/dynamix-jquery-ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$display['theme']}.css")?>">
 
 <style>
 <?if (empty($display['width'])):?>
@@ -59,23 +67,27 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 @media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'10px':'auto'?>}}
 @media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'20px':'auto'?>}}
 <?endif;?>
+
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
 <?endif;?>
+
 <?if ($header):?>
 #header,#header .logo,#header .text-right a{color:#<?=$header?>}
 #header .block{background-color:transparent}
 <?endif;?>
+
 <?if ($backgnd):?>
-#header{background-color:#<?=$backgnd?>}
-<?if ($themes1):?>
-.nav-tile{background-color:#<?=$backgnd?>}
-<?if ($header):?>
-.nav-item a,.nav-user a{color:#<?=$header?>}
-.nav-item.active:after{background-color:#<?=$header?>}
+  #header{background-color:#<?=$backgnd?>}
+  <?if ($themes1):?>
+    .nav-tile{background-color:#<?=$backgnd?>}
+    <?if ($header):?>
+      .nav-item a,.nav-user a{color:#<?=$header?>}
+      .nav-item.active:after{background-color:#<?=$header?>}
+    <?endif;?>
+  <?endif;?>
 <?endif;?>
-<?endif;?>
-<?endif;?>
+
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
@@ -865,6 +877,7 @@ echo "</span></span><span id='countdown'></span><span id='user-notice' class='re
 if ($wlan0) echo "<span id='wlan0' class='grey-text' onclick='wlanSettings()'><i class='fa fa-wifi fa-fw'></i></span>";
 echo "<span id='copyright'>Unraid&reg; webGui &copy;2024, Lime Technology, Inc.";
 echo " <a href='https://docs.unraid.net/go/manual/' target='_blank' title=\""._('Online manual')."\"><i class='fa fa-book'></i> "._('manual')."</a>";
+echo "<unraid-theme-switcher current='$theme' themes='".htmlspecialchars(json_encode(['azure', 'gray', 'black', 'white']), ENT_QUOTES, 'UTF-8')."'></unraid-theme-switcher>";
 echo "</span></div>";
 ?>
 <script>
