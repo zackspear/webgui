@@ -294,7 +294,8 @@ input[value="Edit"] {
 }
 .flat {
     height: 0;
-    lineheight: 0;
+    line-height: 0;
+}
 }
 .wrap {
     white-space: normal;
