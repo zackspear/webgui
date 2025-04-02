@@ -393,6 +393,9 @@ build_locations(){
 	    nchan_channel_id "$1";
 	    nchan_channel_id_split_delimiter ",";
 	}
+	location /nchan_stub_status {
+	    nchan_stub_status;
+	}
 	#
 	# my servers proxy
 	#
