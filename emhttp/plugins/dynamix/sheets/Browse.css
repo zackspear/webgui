@@ -16,7 +16,7 @@ div#ace_settingsmenu,
 table#controls,
 table#more-controls {
     margin-top: 0;
-    background-color: --browse-table-controls-bg-color;
+    background-color: var(--browse-table-controls-bg-color);
 }
 tr.ace_optionsMenuEntry td {
     padding: 4px;
