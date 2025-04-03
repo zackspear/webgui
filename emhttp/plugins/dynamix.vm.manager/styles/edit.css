@@ -53,14 +53,14 @@ body {
     width: inherit;
 }
 
-#vmform textarea{
-    max-width:500px;
-    scrollbar-width:4px;
+#vmform textarea {
+    max-width: 500px;
+    scrollbar-width: 4px;
 }
 
-#vmform textarea::-webkit-scrollbar{
-    height:4px;
-    width:4px;
+#vmform textarea::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
 }
 
 #vmform .multiple {
@@ -173,7 +173,7 @@ span.advancedview_panel {
     height: 300px;
     overflow-y: scroll;
     position: relative;
-    display:grid;
+    display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1rem;
 }
