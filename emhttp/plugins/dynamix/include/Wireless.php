@@ -185,8 +185,8 @@ case 'join':
   }
   if ($manual || $safe) {
     echo "<tr><td>"._('Security')."</td><td><select name=\"SECURITY\" onclick=\"showSecurity(this.value)\">";
-    echo mk_option($safe, 'open', _('None'));
     echo mk_option($safe, 'auto', _('Automatic'));
+    echo mk_option($safe, 'open', _('None'));
     echo mk_option($safe, 'PSK', _('WPA2'));
     echo mk_option($safe, 'PSK SAE', _('WPA2/WPA3'));
     echo mk_option($safe, 'SAE', _('WPA3'));
