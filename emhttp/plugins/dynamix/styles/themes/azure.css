@@ -24,7 +24,7 @@
 
     --background-color: var(--gray-150); /* Originally #e4e2e4 */
     --alt-background-color: var(--gray-700); /* Originally #383a34 */
-    --opac-background-color: var(--gray-895);
+    --opac-background-color: var(--white-opacity-80);
     --mild-background-color: var(--theme-azure--gray-150);
     --usage-bar-background-color: var(--theme-azure--cyan-400);
     --usage-disk-background-color: var(--theme-azure--gray-150);

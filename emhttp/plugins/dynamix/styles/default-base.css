@@ -2157,13 +2157,13 @@ span#wlan0 {
         display: block;
         clear: both;
     }
-    div.vmtemplate:hover {
-        background-color: var(--opac-background-color);
-    }
     div.vmtemplate {
         height: 12rem;
         width: 12rem;
         border: 1px solid var(--table-alt-border-color);
+    }
+    div.vmtemplate:hover {
+        background-color: var(--opac-background-color);
     }
     div.vmtemplate img {
         margin-top: 20px;
