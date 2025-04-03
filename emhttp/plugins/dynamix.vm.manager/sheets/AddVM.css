@@ -1,5 +1,6 @@
 :root {
     --add-vm-background: var(--black);
+    --add-vm-border: var(--gray-150);
 }
 
 .Theme--azure:root,
@@ -163,7 +164,7 @@ span.advancedview_panel {
     position: absolute;
     display: none;
     border-radius: 5px;
-    border: 1px solid var(--gray-150);
+    border: 1px solid var(--add-vm-border);
     background: var(--add-vm-background);
     z-index: 10;
 }
