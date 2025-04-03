@@ -716,7 +716,9 @@ nginx_start(){
     # side-load unraid-api
     unraid_api_control start
     # resume nchan publishers
-    /usr/local/sbin/monitor_nchan start
+    /usr/local/sbin/monitor_nchan start 
+    rm -f /tmp/publishPaused
+
     if nginx_running; then REPLY="Started"; else REPLY="Failed"; fi
   fi
   log "$DAEMON...  $REPLY."
@@ -792,6 +794,7 @@ nginx_reload(){
       fi
       # resume nchan publishers
       /usr/local/sbin/monitor_nchan start
+      rm -f /tmp/publishPaused
     else
       log "Invalid configuration, $DAEMON not reloaded"
       return 1
