@@ -23,7 +23,6 @@ require_once "$docroot/webGui/include/Translations.php";
 $var = parse_ini_file('state/var.ini');
 $unraid = parse_ini_file('/etc/unraid-version');
 $keyfile = !empty(_var($var, 'regFILE')) ? trim(base64_encode(@file_get_contents($var['regFILE']))) : '';
-// $width = in_array($display['theme'], ['azure','gray']) ? '98.8%' : '100%';
 $feedback = '/webGui/images/feedback_';
 
 $diagn = _('Unable to generate system diagnostics');
@@ -85,7 +84,7 @@ div.spinner.fixed {
 .note {
     font-size: 1.1rem !important;
 }
-img {
+.feedback-submission-img {
     display: inline-block;
     margin-bottom: 30px;
 }
@@ -238,7 +237,7 @@ function form_submit(url, params, tab, diagnostics) {
     }).fail(function(){
       $('div.spinner.fixed').hide();
       panel.fadeOut('fast').find('textarea').prop('disabled',false);
-      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$diagn. $again"?>.</p>";
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img class='feedback-submission-img' src='<?=$feedback?>error.png'><br><?="$diagn. $again"?>.</p>";
       $('#result_panel').html(reply).fadeIn('fast');
     });
     return;
@@ -252,18 +251,18 @@ function form_submit(url, params, tab, diagnostics) {
   $.post(url, params, function(data){
     $('div.spinner.fixed').hide();
     if (data.error) {
-      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
+      var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img class='feedback-submission-img' src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
       $('#result_panel').html(reply).fadeIn('fast');
     } else {
       var name = tab.substr(1).toLowerCase();
-      var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img src='<?=$feedback?>"+name+".png'><br>"+(data.message||'')+"</p>";
+      var reply = "<h2 class='center green-text'><?=_('Thank You')?></h2><p class='center'><img class='feedback-submission-img' src='<?=$feedback?>"+name+".png'><br>"+(data.message||'')+"</p>";
       $('#result_panel').html(reply).fadeIn('fast');
     }
   }).fail(function(jqXHR, textStatus, errorThrown){
     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
       errorThrown = jqXHR.responseJSON.error;
     }
-    var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
+    var reply = "<h2 class='center red-text'><?=_('Error')?></h2><p class='center'><img class='feedback-submission-img' src='<?=$feedback?>error.png'><br><?="$sorry. $again"?>.</p>";
     $('#result_panel').html(reply).fadeIn('fast');
   }).always(function(){
     $('#spinner_image').fadeOut('fast');
