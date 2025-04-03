@@ -1450,6 +1450,13 @@ div.icon-zip {
     border-left: 3px solid var(--dynamix-tooltipster-sidetip-box-border-color);
 }
 .fileTree {
+    display: none;
+    width: 300px;
+    max-height: 300px;
+    position: absolute;
+    z-index: 100;
+    overflow-y: scroll;
+    overflow-x: hidden;
     background-color: var(--dynamix-filetree-bg-color);
 }
 #guiSearchBox:placeholder-shown {

@@ -75,16 +75,10 @@ span.nonexist {
     margin-left: 20px;
 }
 
-.fileTree {
-    background: var(--docker-settings-file-tree-background);
+/* .fileTree {
     width: 300px;
     max-height: 150px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    z-index: 100;
-    display: none;
-}
+} */
 span.disabled {
     color: var(--docker-settings-span-disabled-color);
 }

@@ -305,3 +305,7 @@ input.second {
 .CodeMirror pre.CodeMirror-placeholder {
     color: var(--gray-400);
 }
+
+.fileTree {
+    position: relative;
+}

@@ -200,16 +200,10 @@ input#dfm_target {
     color: var(--input-dfm-target-text-color);
     width: 500px;
 }
-input#dfm_target + .fileTree {
-    background: var(--input-dfm-target-filetree-bg-color);
+/* .fileTree {
     width: 500px;
     max-height: 320px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    z-index: 100;
-    display: none;
-}
+} */
 i.dfm_filter {
     margin-top: -2px;
 }

@@ -41,13 +41,7 @@ input#upload {
     display: none;
 }
 
-.fileTree {
-    background: var(--filetree-background);
+/* .fileTree {
     width: 300px;
     max-height: 150px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    z-index: 100;
-    display: none;
-}
+} */
