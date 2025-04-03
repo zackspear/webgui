@@ -1260,9 +1260,6 @@ div .unraid_mark_8 {
 div.spinner .unraid_mark_7 {
     animation: mark_7 1.5s ease infinite;
 }
-div.domain {
-    margin-top: -20px;
-}
 @keyframes mark_2 {
     50% {
         transform: translateY(-40px);
