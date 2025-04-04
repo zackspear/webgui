@@ -11,24 +11,23 @@
  */
 ?>
 <?
+require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
+$themeHelper = new ThemeHelper($display['theme']);
+$theme   = $themeHelper->getThemeName(); // keep var name for backwards compatibility
+$themes1 = $themeHelper->isTopNavTheme(); // keep var name for backwards compatibility
+$themes2 = $themeHelper->isSidebarTheme(); // keep var name for backwards compatibility
+$themeHtmlClass = $themeHelper->getThemeHtmlClass();
+$themeHelper->updateDockerLogColor($docroot);
+
 $display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
-$theme   = strtok($display['theme'],'-');
+
 $header  = $display['header'];
 $backgnd = $display['background'];
-$themes1 = in_array($theme,['black','white']);
-$themes2 = in_array($theme,['gray','azure']);
-$themeHtmlClass = "Theme--$theme";
-if ($themes2) {
-  $themeHtmlClass .= " Theme--sidebar";
-}
+
 $config  = "/boot/config";
 $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
 $wlan0   = file_exists('/sys/class/net/wlan0');
-
-// adjust the text color in docker log window
-$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
-exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
 
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
@@ -55,7 +54,7 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix/styles/dynamix-jquery-ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$display['theme']}.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$theme}.css")?>">
 
 <style>
 <?if (empty($display['width'])):?>

@@ -249,11 +249,14 @@ _(Temperature unit)_:
 
 :display_temperature_unit_help:
 
+<?
+  $currentTheme = $themeHelper->getThemeName(); // $themeHelper set in DefaultPageLayout.php
+  $themes = $themeHelper->getThemesFromFileSystem($docroot);
+?>
 _(Dynamix color theme)_:
 : <select name="theme">
-  <?foreach (glob("$docroot/webGui/styles/themes/*.css") as $themes):?>
-    <?$theme = basename($themes, '.css');?>
-    <?=mk_option($display['theme'], $theme, _(ucfirst($theme)))?>
+  <?foreach ($themes as $theme):?>
+    <?=mk_option($currentTheme, $theme, _(ucfirst($theme)))?>
   <?endforeach;?>
   </select>
 
