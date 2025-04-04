@@ -8,7 +8,7 @@
     --dynamix-jquery-ui-button-background-start: var(--red-800);
     --dynamix-jquery-ui-button-background-end: var(--orange-500);
     --dynamix-jquery-ui-button-hover-color: var(--gray-100);
-    --dynamix-jquery-ui-default-background: var(--gray-100);
+    --dynamix-jquery-ui-default-background: transparent;
     --dynamix-jquery-ui-border-color: var(--black);
     --dynamix-jquery-ui-header-background: var(--gray-150); /* Condensed from: #e3e3e3 */
     --dynamix-jquery-ui-header-color: var(--black);
@@ -28,7 +28,7 @@
     --dynamix-jquery-ui-button-background-start: var(--red-800);
     --dynamix-jquery-ui-button-background-end: var(--orange-500);
     --dynamix-jquery-ui-button-hover-color: var(--gray-100);
-    --dynamix-jquery-ui-default-background: var(--black);
+    --dynamix-jquery-ui-default-background: transparent;
     --dynamix-jquery-ui-border-color: var(--gray-200); /* Condensed from: #e5e5e5 */
     --dynamix-jquery-ui-header-background: var(--gray-800); /* Condensed from: #2b2b2b */
     --dynamix-jquery-ui-header-color: var(--gray-100);
@@ -119,6 +119,7 @@
     cursor: pointer;
     height: 2.2rem;
     line-height: 2.2rem;
+    padding: 0;
 }
 
 .ui-dropdownchecklist-group {
