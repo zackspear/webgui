@@ -119,26 +119,6 @@
     margin-left: auto;
     margin-right: auto;
 }
-.jGrowl-notification.alert {
-    color: var(--dynamix-jgrowl-alert-text-color);
-    background-color: var(--dynamix-jgrowl-alert-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-alert-border-color);
-}
-.jGrowl-notification.warning {
-    color: var(--dynamix-jgrowl-warning-text-color);
-    background-color: var(--dynamix-jgrowl-warning-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-warning-border-color);
-}
-.jGrowl-notification.normal {
-    color: var(--dynamix-jgrowl-normal-text-color);
-    background-color: var(--dynamix-jgrowl-normal-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-normal-border-color);
-}
-.jGrowl-notification.default {
-    color: var(--dynamix-jgrowl-text-color);
-    background-color: var(--dynamix-jgrowl-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-border-color);
-}
 .jGrowl-notification {
     opacity: 0.96;
     min-height: 1.2rem;
@@ -147,7 +127,34 @@
     margin: 5px 0;
     text-align: left;
     border-radius: 6px;
-    box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+
+    &.alert {
+        color: var(--dynamix-jgrowl-alert-text-color);
+        background-color: var(--dynamix-jgrowl-alert-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-alert-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.warning {
+        color: var(--dynamix-jgrowl-warning-text-color);
+        background-color: var(--dynamix-jgrowl-warning-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-warning-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.normal {
+        color: var(--dynamix-jgrowl-normal-text-color);
+        background-color: var(--dynamix-jgrowl-normal-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-normal-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.default {
+        color: var(--dynamix-jgrowl-text-color);
+        background-color: var(--dynamix-jgrowl-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
 }
 .jGrowl-notification .jGrowl-header {
     font-weight: bold;
@@ -1450,6 +1457,13 @@ div.icon-zip {
     border-left: 3px solid var(--dynamix-tooltipster-sidetip-box-border-color);
 }
 .fileTree {
+    display: none;
+    width: 300px;
+    max-height: 300px;
+    position: absolute;
+    z-index: 100;
+    overflow-y: scroll;
+    overflow-x: hidden;
     background-color: var(--dynamix-filetree-bg-color);
 }
 #guiSearchBox:placeholder-shown {

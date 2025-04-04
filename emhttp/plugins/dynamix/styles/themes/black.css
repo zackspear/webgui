@@ -70,7 +70,10 @@
 
     --input-bg-color: transparent;
     --focus-input-bg-color: var(--mild-background-color);
+
+    --shade-bg-color: var(--gray-800);
     /* /End vars used in default-base */
 
-    /* dynamix CSS var values set in base-dynamix.css */
+    /* dynamix CSS var values set in default-dynamix.css */
+    --dynamix-filetree-bg-color: var(--gray-900);
 }

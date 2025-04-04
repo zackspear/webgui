@@ -1,10 +1,4 @@
 :root {
-    /* Theme-specific shades */
-    --eth0-shade-azure: var(--theme-azure--gray-150);
-    --eth0-shade-gray: var(--theme-gray--black-alt);
-    --eth0-shade-white: var(--gray-150);
-    --eth0-shade-black: var(--gray-800);
-
     /* Input styles - default values (for azure/gray themes) */
     --eth0-narrow-input-width: 188px;
     --eth0-narrow-input-padding: 5px 6px;
@@ -45,25 +39,6 @@ input.form {
     font-size: 1rem;
     padding: 5px 10px;
     margin-left: 10px;
-}
-
-/* Theme-specific background shades - consolidated margin/padding */
-div[class^="shade-"] {
-    margin-top: 10px;
-    padding: 8px 0 3px 0;
-}
-
-div.shade-white {
-    background-color: var(--eth0-shade-white);
-}
-div.shade-black {
-    background-color: var(--eth0-shade-black);
-}
-div.shade-azure {
-    background-color: var(--eth0-shade-azure);
-}
-div.shade-gray {
-    background-color: var(--eth0-shade-gray);
 }
 
 /* Utility classes */

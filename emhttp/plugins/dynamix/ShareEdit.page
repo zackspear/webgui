@@ -366,7 +366,7 @@ foreach ($rows as $row) echo $row;
 <input type="hidden" name="shareInclude" value="">
 <input type="hidden" name="shareExclude" value="">
 
-<div markdown="1" class="shade-<?=$display['theme']?>">
+<div markdown="1" class="shade">
 _(Share name)_:
 : <input type="text" id="shareName" name="shareName" maxlength="40" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars($name)?>" oninput="checkName(this.value)" title="_(Hidden share names are not allowed)_" pattern="^[^\.].*"><span id="zfs-name" class="orange-text"><i class="fa fa-warning"></i> _(Share name contains invalid characters for ZFS use)_</span>
 
@@ -417,7 +417,7 @@ _(Exclusive access)_:
 <?endif;?>
 </div>
 
-<div markdown="1" class="shade-<?=$display['theme']?>">
+<div markdown="1" class="shade">
 _(Primary storage (for new files and folders))_:
 : <select id="primary" name="shareCachePool" onchange="form.shareFloor.value='';updateScreen(z(4),'slow')">
   <?=mk_option(primary(), '', _('Array'),  $poolsOnly ? 'disabled' : '')?>
@@ -486,7 +486,7 @@ _(Excluded disk(s))_:
 </div>
 
 </div>
-<div markdown="1" id="secondaryStorage" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="secondaryStorage" class="shade">
 _(Secondary storage)_:
 : <select id="secondary" onchange="updateScreen(z(4),'slow')">
   <?=mk_option(secondary(),'0',_('None'))?>
@@ -545,7 +545,7 @@ _(Excluded disk(s))_:
 </div>
 
 </div>
-<div markdown="1" id="moverAction" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="moverAction" class="shade">
 <div markdown="1" id="moverDirection1">
 _(Mover action)_:
 : <span class="input"><select id="direction" onchange="updateScreen(z(3),'slow')">

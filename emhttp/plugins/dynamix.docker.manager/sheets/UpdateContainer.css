@@ -66,12 +66,7 @@ div#configLocation dt {
     margin-top: -0.18rem !important;
 }
 
-.fileTree {
+/* .fileTree {
     width: 240px;
     max-height: 200px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    display: none;
-    background: var(--update-container-file-tree-background);
-}
+} */

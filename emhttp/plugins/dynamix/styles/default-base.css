@@ -1260,9 +1260,6 @@ div .unraid_mark_8 {
 div.spinner .unraid_mark_7 {
     animation: mark_7 1.5s ease infinite;
 }
-div.domain {
-    margin-top: -20px;
-}
 @keyframes mark_2 {
     50% {
         transform: translateY(-40px);
@@ -1508,6 +1505,12 @@ span#wlan0 {
     float: right;
     margin-right: 10px;
     cursor: pointer;
+}
+
+.shade {
+    margin-top: 1rem;
+    padding: 1rem 0;
+    background-color: var(--shade-bg-color);
 }
 
 /*
@@ -2160,13 +2163,13 @@ span#wlan0 {
         display: block;
         clear: both;
     }
-    div.vmtemplate:hover {
-        background-color: var(--opac-background-color);
-    }
     div.vmtemplate {
         height: 12rem;
         width: 12rem;
         border: 1px solid var(--table-alt-border-color);
+    }
+    div.vmtemplate:hover {
+        background-color: var(--opac-background-color);
     }
     div.vmtemplate img {
         margin-top: 20px;

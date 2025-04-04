@@ -71,6 +71,8 @@
 
     --input-bg-color: transparent;
     --focus-input-bg-color: var(--gray-150);
+
+    --shade-bg-color: var(--gray-150);
     /* /End vars used in default-base */
 
     /* Set vars for default-dynamix */

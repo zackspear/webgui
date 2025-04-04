@@ -57,13 +57,7 @@ body {
     font-family: clear-sans;
 }
 
-.fileTree {
-    background: var(--vm-machines-file-tree-background);
+/* .fileTree {
     width: 300px;
     max-height: 150px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    z-index: 100;
-    display: none;
-}
+} */

@@ -558,7 +558,7 @@ function networkInfo(port, vlan) {
 </script>
 
 <div class="title nocontrol shift">&nbsp;</div>
-<div class="shade-<?=$display['theme']?> uplift">
+<div class="shade uplift">
 <form name="dns_settings" onchange="signalRun(this,1)">
 <div markdown="1" id="dns4" class="hide">
 _(IPv4 DNS server assignment)_:
@@ -787,7 +787,7 @@ _(Enable VLANs)_:
 <div id="index-eth0-0"></div>
 <div id="vlan-list-eth0" class="hide">
 <?foreach ($vlan_eth0 as $i):?>
-<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
+<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>">
   <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0,"VLANID:$i")?>)">
@@ -889,7 +889,7 @@ _(IPv6 privacy extensions)_:
 </form>
 
 <script markdown="1" type="text/html" id="network-template-eth0">
-<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
+<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>">
 

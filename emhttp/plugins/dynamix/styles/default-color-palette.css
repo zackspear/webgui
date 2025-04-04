@@ -1,3 +1,7 @@
+/*
+ * Naming convention inspired by Tailwind CSS
+ * @see https://tailwindcss.com/docs/customizing-colors
+ */
 :root {
     --font-sans: clear-sans, sans-serif;
     --font-bitstream: bitstream;
@@ -36,8 +40,8 @@
     --orange-200: #ff9900;
     --orange-300: #e68a00;
     --orange-400: #ce7c10;
-    --orange-500: #ff8c2f;
-    --orange-800: #f15a2c;
+    --orange-500: #ff8c2f; /* Unraid Brand Orange */
+    --orange-800: #f15a2c; /* Unraid Brand Orange Dark */
     --orange-900: #d63301;
 
     --red-100: #ffddd1;
@@ -45,7 +49,7 @@
     --red-500: #ff3300;
     --red-600: #f0000c; /* Condensed from: #ff0000 red */
     --red-700: #de1100;
-    --red-800: #e22828; /* Condensed from: #e80000 #ef3d47 */
+    --red-800: #e22828; /* Unraid Brand Red, Condensed from: #e80000 #ef3d47 */
     --red-900: #941c00;
 
     --green-100: #dff2bf;
