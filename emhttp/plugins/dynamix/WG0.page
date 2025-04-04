@@ -1385,7 +1385,7 @@ _(DNS servers)_:
 
 <div id="peers-list-wg0" style="display:none"></div>
 <?foreach ($peer_wg0 as $i):?>
-<div markdown="1" id="index-wg0-<?=$i?>" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="index-wg0-<?=$i?>" class="shade">
 _(Peer name)_:
 : <span class="input"><input type="text" name="Name:<?=$i?>" class="wide" maxlength="99" value="<?=_var($wg0,"Name:$i")?>" onchange="quickValidate(this);" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <input type="button" class="form" value="_(Delete Peer)_" onclick="delPeer($(document.wg0),'#index-wg0-<?=$i?>')">
@@ -1482,7 +1482,7 @@ _(Persistent keepalive)_:
 <small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld</small>
 
 <script markdown="1" type="text/html" id="peer-template-wg0">
-<div markdown="1" id="index-wg0-INDEX" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="index-wg0-INDEX" class="shade">
 _(Peer name)_:
 : <span class="input"><input type="text" name="Name:INDEX" class="wide" maxlength="99" value="" onchange="quickValidate(this);" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <span class="pin"><i class="fa fa-fw fa-eye eyeINDEX key-off" title="_(Show Peer Config)_"></i>

@@ -283,7 +283,7 @@ _(DNS servers)_:
 
 <div id="peers-list-wgX" style="display:none"></div>
 <?foreach ($peer_wgX as $i):?>
-<div markdown="1" id="index-wgX-<?=$i?>" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="index-wgX-<?=$i?>" class="shade">
 _(Peer name)_:
 : <span class="input"><input type="text" name="Name:<?=$i?>" class="wide" maxlength="99" value="<?=_var($wgX,"Name:$i")?>" onchange="quickValidate(this);" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <input type="button" class="form" value="_(Delete Peer)_" onclick="delPeer($(document.wgX),'#index-wgX-<?=$i?>')">
@@ -378,7 +378,7 @@ _(Persistent keepalive)_:
 </form>
 
 <script markdown="1" type="text/html" id="peer-template-wgX">
-<div markdown="1" id="index-wgX-INDEX" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="index-wgX-INDEX" class="shade">
 _(Peer name)_:
 : <span class="input"><input type="text" name="Name:INDEX" class="wide" maxlength="99" value="" onchange="quickValidate(this);" pattern="<?=$validname?>" title="_(Use only letters A-Z, digits or space,dash,underscore)_" placeholder="(_(optional)_)"></span>
   <span class="pin"><i class="fa fa-fw fa-eye eyeINDEX key-off" title="_(Show Peer Config)_"></i>

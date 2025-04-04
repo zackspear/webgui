@@ -1,11 +1,6 @@
 :root {
     --wg0-span-hshift-margin-right: -7px;
     --wg0-span-label-margin-left: -12px;
-
-    --wg0-shade-azure: #edeaef;
-    --wg0-shade-gray: #121510;
-    --wg0-shade-white: var(--gray-150);
-    --wg0-shade-black: var(--gray-800);
 }
 
 .Theme--sidebar:root {
@@ -66,27 +61,6 @@ span.label {
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-left: var(--wg0-span-label-margin-left);
-}
-
-div.shade-white {
-    background-color: var(--wg0-shade-white); /* Condensed from: #ededed */
-    margin-top: 10px;
-    padding: 8px 0 3px 0;
-}
-div.shade-black {
-    background-color: var(--wg0-shade-black);
-    margin-top: 10px;
-    padding: 8px 0 3px 0;
-}
-div.shade-azure {
-    background-color: var(--wg0-shade-azure);
-    margin-top: 10px;
-    padding: 8px 0 3px 0;
-}
-div.shade-gray {
-    background-color: var(--wg0-shade-gray);
-    margin-top: 10px;
-    padding: 8px 0 3px 0;
 }
 div.title {
     margin-bottom: 10px !important;
