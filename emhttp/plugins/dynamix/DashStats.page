@@ -50,8 +50,7 @@ function customTiles($column) {
 }
 
 // adjust the text color in log window
-$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
-exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:$fgcolor;/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
+$themeHelper->updateDockerLogColor($docroot); // $themeHelper set in DefaultPageLayout.php
 exec("/etc/rc.d/rc.docker status >/dev/null",$dummy,$dockerd);
 exec("/etc/rc.d/rc.libvirt status >/dev/null",$dummy,$libvirtd);
 

@@ -20,12 +20,13 @@ Markdown="false"
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
+$themeName = $themeHelper->getThemeName();
 
 $cpus = cpu_list();
-$hover   = in_array($theme,['white','azure']) ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
-$bgcolor = in_array($theme,['white','azure']) ? '#f2f2f2' : '#1c1c1c';
-$fgcolor = in_array($theme,['white','azure']) ? '#1c1c1c' : '#f2f2f2';
-$incolor = $theme!='gray' ? $bgcolor : '#121510';
+$hover   = $themeHelper->isLightTheme() ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+$bgcolor = $themeHelper->isLightTheme() ? '#f2f2f2' : '#1c1c1c';
+$fgcolor = $themeHelper->isLightTheme() ? '#1c1c1c' : '#f2f2f2';
+$incolor = $themeName !== 'gray' ? $bgcolor : '#121510';
 
 function showCPUs($uuid) {
   global $cpus;
