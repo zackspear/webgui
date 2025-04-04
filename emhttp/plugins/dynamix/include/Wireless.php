@@ -48,7 +48,7 @@ function scanWifi($port) {
       // store MAC address only
       $wlan[$network][0] = substr($wlan[$network][0],4,17);
       // identify open network
-      $wlan[$network][4] = $wlan[$network][4] ?: 'open';
+      $wlan[$network][4] = $wlan[$network][4] ?? 'open';
     } else {
       // group radio frequencies
       $wlan[$network][1] .= ' '.$attr[1];
@@ -84,7 +84,7 @@ case 'list':
   $title = _('Connect to WiFi network');
   $port  = array_key_first($wifi);
   $carrier = "/sys/class/net/$port/carrier";
-  $echo  = [];
+  $echo  = $wlan = [];
   foreach ($wifi as $network => $block) {
     if ($network == $port) continue;
     $wlan[$network][0] = $block['ATTR1'] ?? '';
@@ -185,8 +185,8 @@ case 'join':
   }
   if ($manual || $safe) {
     echo "<tr><td>"._('Security')."</td><td><select name=\"SECURITY\" onclick=\"showSecurity(this.value)\">";
-    echo mk_option($safe, 'open', _('None'));
     echo mk_option($safe, 'auto', _('Automatic'));
+    echo mk_option($safe, 'open', _('None'));
     echo mk_option($safe, 'PSK', _('WPA2'));
     echo mk_option($safe, 'PSK SAE', _('WPA2/WPA3'));
     echo mk_option($safe, 'SAE', _('WPA3'));

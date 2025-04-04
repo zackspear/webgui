@@ -147,6 +147,7 @@ wpa_configuration(){
   [[ -z $2 && -n $CC ]] && echo "country=${CC,,}" >>$WPA
   echo "network={" >>$WPA
   echo "ssid=\"$SSID\"" >>$WPA
+  echo "scan_ssid=1" >>$WPA
   [[ $1 == "PSK" ]] && echo "key_mgmt=WPA-PSK" >>$WPA
   [[ $1 == "SAE" ]] && echo "key_mgmt=SAE" >>$WPA
   [[ $1 =~ "IEEE" && $1 != "IEEE 802.1X/SHA-256" ]] && echo "key_mgmt=WPA-EAP" >>$WPA
