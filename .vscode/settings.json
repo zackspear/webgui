@@ -81,7 +81,7 @@
         "libvirt-php"
     ],
     "search.exclude": {
-        "emhttp/webGui/**/*": true,
+        "emhttp/webGui/**/*": true
     },
     "php-cs-fixer.executablePath": "${extensionPath}/php-cs-fixer.phar"
 }
