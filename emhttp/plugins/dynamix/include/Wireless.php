@@ -35,20 +35,26 @@ require_once "$docroot/webGui/include/Helpers.php";
 
 function scanWifi($port) {
   $wlan = [];
-  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|signal:|SSID:|Authentication suites:'",$scan);
-  $n = -1;
-  for ($i=0; $i<count($scan); $i++) {
-    if (substr($scan[$i],0,3)=='BSS') {
-      $wlan[++$n]['bss'] = substr($scan[$i],4,17);
-    } elseif (strpos($scan[$i],'signal:')!==false) {
-      $wlan[$n]['signal'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'SSID:')!==false) {
-      $wlan[$n]['ssid'] = trim(explode(': ',$scan[$i])[1]);
-    } elseif (strpos($scan[$i],'Authentication suites:')!==false) {
-      $wlan[$n]['security'] = trim(explode(': ',$scan[$i])[1]);
+  exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|freq:|signal:|SSID:|Authentication suites:' | sed -r ':a;N;\$!ba;s/\\n\\s+/ /g'", $scan);
+  foreach ($scan as $row) {
+    $attr = preg_split('/ (freq|signal|SSID|\* Authentication suites): /', $row);
+    // skip incomplete info
+    if (count($attr) < 4 || (count($attr) == 4 && str_contains($row, 'Authentication suites:'))) continue;
+    $network = $attr[3];
+    // skip nullified networks
+    if (str_starts_with($network, '\\x00')) continue;
+    if (empty($wlan[$network])) {
+      $wlan[$network] = $attr;
+      // store MAC address only
+      $wlan[$network][0] = substr($wlan[$network][0],4,17);
+      // identify open network
+      $wlan[$network][4] = $wlan[$network][4] ?: 'open';
+    } else {
+      // group radio frequencies
+      $wlan[$network][1] .= ' '.$attr[1];
     }
   }
-  return array_values(array_intersect_key($wlan,array_unique(array_column($wlan,'ssid'))));
+  return $wlan;
 }
 
 function saveWifi() {
@@ -79,31 +85,30 @@ case 'list':
   $port  = array_key_first($wifi);
   $carrier = "/sys/class/net/$port/carrier";
   $echo  = [];
-  $index = 0;
-  if ($load && count(array_keys($wifi)) > 1) {
-    foreach ($wifi as $network => $block) {
-      if ($network == $port) continue;
-      $wlan[$index]['bss'] = $block['ATTR1'];
-      $wlan[$index]['signal'] = $block['ATTR2'];
-      $wlan[$index]['security'] = $block['ATTR3'] ?? $block['SECURITY'];
-      $wlan[$index]['ssid'] = $network;
-      $index++;
-    }
-    $index = 0;
-  } else {
-    $wlan  = scanWifi($port);
+  foreach ($wifi as $network => $block) {
+    if ($network == $port) continue;
+    $wlan[$network][0] = $block['ATTR1'] ?? '';
+    $wlan[$network][1] = $block['ATTR4'] ?? '';
+    $wlan[$network][2] = $block['ATTR2'] ?? '';
+    $wlan[$network][3] = $network;
+    $wlan[$network][4] = $block['ATTR3'] ?? $block['SECURITY'] ?? '';
   }
-  if (count(array_column($wlan,'ssid'))) {
-    $up    = is_readable($carrier) && file_get_contents($carrier)==1;
+  if (!$load) $wlan = array_replace_recursive($wlan, scanWifi($port));
+  if (count($wlan)) {
+    try {
+      $up = @file_get_contents($carrier) == 1;
+    } catch (Exception $e) {
+      $up = false;
+    }
     $alive = $up ? exec("iw ".escapeshellarg($port)." link 2>/dev/null | grep -Pom1 'SSID: \K.+'") : '';
     $state = $up ? _('Connected') : _('Disconnected');
     $color = $up ? 'blue' : 'red';
 
-    foreach (array_column($wlan,'ssid') as $network) {
-      $attr[$network]['ATTR1'] = $wlan[$index]['bss'] ?? '';
-      $attr[$network]['ATTR2'] = $wlan[$index]['signal'] ?? '';
-      $attr[$network]['ATTR3'] = $wlan[$index]['security'] ?? '';
-      $index++;
+    foreach ($wlan as $network => $block) {
+      $attr[$network]['ATTR1'] = $block[0] ?? '';
+      $attr[$network]['ATTR2'] = $block[2] ?? '';
+      $attr[$network]['ATTR3'] = $block[4] ?? '';
+      $attr[$network]['ATTR4'] = $block[1] ?? '';
       if (isset($wifi[$network]['GROUP'])) {
         if ($network == $alive || $wifi[$network]['GROUP'] == 'active') {
           $echo['active'][] = "<dl><dt>$state:</dt>";
@@ -131,10 +136,10 @@ case 'join':
   if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
   $ssid    = rawurldecode($_POST['ssid']);
-  $drop    = $_POST['task']==1;
-  $manual  = $_POST['task']==3;
-  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'USERNAME');
-  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher,$key,$iv) ? openssl_decrypt($wifi[$ssid]['PASSWORD'],$cipher,$key,0,$iv) : _var($wifi[$ssid],'PASSWORD');
+  $drop    = $_POST['task'] == 1;
+  $manual  = $_POST['task'] == 3;
+  $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'USERNAME');
+  $passwd  = _var($wifi[$ssid],'PASSWORD') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['PASSWORD'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'PASSWORD');
   $join    = _var($wifi[$ssid],'AUTOJOIN','no');
   $dhcp4   = _var($wifi[$ssid],'DHCP4','yes');
   $dns4    = _var($wifi[$ssid],'DNS4','no');
@@ -152,15 +157,16 @@ case 'join':
   $attr1   = $attr[$ssid]['ATTR1'] ?? '';
   $attr2   = $attr[$ssid]['ATTR2'] ?? '';
   $attr3   = $attr[$ssid]['ATTR3'] ?? '';
-  $ieee1   = strpos($attr3,'IEEE')!==false;
-  $ieee2   = strpos($safe,'IEEE')!==false;
-  $hide0   = ($manual || !$ieee2) && !$ieee1 ? 'hide' : '';
-  $hide1   = $safe=='OPEN' || !$attr3 ? 'hide' : '';
-  $hide2   = $dhcp4=='no' ? '': 'hide';
-  $hide3   = $dns4=='no' ? 'hide' : '';
-  $hide4   = $dhcp6=='no' ? '' : 'hide';
-  $hide5   = $dhcp6=='' ? 'hide' : '';
-  $hide6   = $dns6=='no' ? 'hide' : '';
+  $attr4   = $attr[$ssid]['ATTR4'] ?? '';
+  $ieee1   = strpos($attr3,'IEEE') !== false;
+  $ieee2   = strpos($safe,'IEEE') !== false;
+  $hide0   = ($manual || !$ieee2) && !$ieee1 && $safe != 'auto' ? 'hide' : '';
+  $hide1   = $safe == 'open' || $attr3 == 'open' || !$attr3 ? 'hide' : '';
+  $hide2   = $dhcp4 == 'no' ? '' : 'hide';
+  $hide3   = $dns4 == 'no' ? 'hide' : '';
+  $hide4   = $dhcp6 == 'no' ? '' : 'hide';
+  $hide5   = $dhcp6 == '' ? 'hide' : '';
+  $hide6   = $dns6 == 'no' ? 'hide' : '';
   echo "<form name=\"wifi\" method=\"POST\" action=\"/update.php\" target=\"progressFrame\">";
   echo "<input type=\"hidden\" name=\"#file\" value=\"$cfg\">";
   echo "<input type=\"hidden\" name=\"#include\" value=\"/webGui/include/update.wireless.php\">";
@@ -169,6 +175,7 @@ case 'join':
   echo "<input type=\"hidden\" name=\"ATTR1\" value=\"$attr1\">";
   echo "<input type=\"hidden\" name=\"ATTR2\" value=\"$attr2\">";
   echo "<input type=\"hidden\" name=\"ATTR3\" value=\"$attr3\">";
+  echo "<input type=\"hidden\" name=\"ATTR4\" value=\"$attr4\">";
   echo "<input type=\"hidden\" name=\"csrf_token\" value=\"$token\">";
   echo "<table class=\"swal\">";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
@@ -178,8 +185,8 @@ case 'join':
   }
   if ($manual || $safe) {
     echo "<tr><td>"._('Security')."</td><td><select name=\"SECURITY\" onclick=\"showSecurity(this.value)\">";
-    echo mk_option($safe, 'OPEN', _('None'));
-    echo mk_option($safe, 'WEP', _('WEP (deprecated)'));
+    echo mk_option($safe, 'open', _('None'));
+    echo mk_option($safe, 'auto', _('Automatic'));
     echo mk_option($safe, 'PSK', _('WPA2'));
     echo mk_option($safe, 'PSK SAE', _('WPA2/WPA3'));
     echo mk_option($safe, 'SAE', _('WPA3'));
@@ -188,8 +195,8 @@ case 'join':
     echo mk_option($safe, 'IEEE 802.1X/SHA-256', _('WPA3 Enterprise'));
     echo "</select></td></tr>";
   }
-  if ($ieee1 || $manual || $safe) echo "<tr id=\"username\" class=\"$hide0\"><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
-  if ($attr3 || $manual || $safe) echo "<tr id=\"password\" class=\"$hide1\"><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
+  if ($ieee1 || $manual || $safe) echo "<tr id=\"username\" class=\"$hide0\"><td>"._('Username').":</td><td><input type=\"text\" name=\"USERNAME\" class=\"narrow\" maxlength=\"63\" autocomplete=\"off\" spellcheck=\"false\" value=\"$user\"></td></tr>";
+  if ($attr3 || $manual || $safe) echo "<tr id=\"password\" class=\"$hide1\"><td>"._('Password').":</td><td><input type=\"password\" name=\"PASSWORD\" class=\"narrow\" maxlength=\"63\" autocomplete=\"off\" spellcheck=\"false\" value=\"$passwd\"><i id=\"showPass\" class=\"fa fa-eye\" onclick=\"showPassword()\"></i></td></tr>";
   echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
   echo "<tr><td>"._('IPv4 address assignment').":</td><td><select name=\"DHCP4\" onclick=\"showDHCP(this.value,4)\">";
   echo mk_option($dhcp4, 'yes', _('Automatic'));

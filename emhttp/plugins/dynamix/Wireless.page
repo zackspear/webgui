@@ -16,8 +16,9 @@ Cond="file_exists('/sys/class/net/wlan0')"
  */
 ?>
 <?
-$title = _('Connect to WiFi network');
-$cfg   = '/boot/config/wireless.cfg';
+$title   = _('Connect to WiFi network');
+$cfg     = '/boot/config/wireless.cfg';
+$regions = file("$docroot/webGui/include/regions.key", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if (file_exists($cfg)) $wlan0 = parse_ini_file($cfg,true)['wlan0'];
 ?>
 <div class="title nocontrol shift">&nbsp;</div>
@@ -27,14 +28,26 @@ if (file_exists($cfg)) $wlan0 = parse_ini_file($cfg,true)['wlan0'];
 <input type="hidden" name="#command" value="/webGui/scripts/wireless">
 <input type="hidden" name="#arg[1]" value=""/>
 _(Wi-Fi)_:
-: <select name="WIFI">
+: <select name="WIFI" class="wifi">
   <?=mk_option(_var($wlan0,'WIFI'), "no", _("Disabled"))?>
   <?=mk_option(_var($wlan0,'WIFI'), "yes", _("Enabled"))?>
   </select>
 
+_(Regulatory region)_:
+: <select name="REGION" class="wifi" onchange="showManual(this.value)"><?
+  echo mk_option(_var($wlan0,'REGION'), "", _("Automatic"));
+  echo mk_option(_var($wlan0,'REGION'), "00", _("Manual"));
+  echo mk_option(_var($wlan0,'REGION'), "--", "--------", 'disabled');
+  foreach ($regions as $region) {
+    [$code, $country] = my_explode('|', $region);
+    echo mk_option(_var($wlan0,'REGION'), $code, _($country));
+  }
+?></select><span id="manual" class="hide">_(Manual input)_ [XX]: <input type="text" name="REGION_XX" class="wifi" value="<?=_var($wlan0,'REGION_XX')?>" minlength="2" maxlength="2" title="_(Two letter country code)_ (ISO 3166)"></span>
+
 &nbsp;
 : <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
 </form>
+
 <div id="wifi" class="hide">
 <div markdown="1" id="connected" class="shade-<?=$display['theme']?>">
 _(Connected)_:
@@ -54,7 +67,7 @@ _(Other networks)_:
 
 <div markdown="1" class="shade-<?=$display['theme']?>">
 _(Add network)_:
-: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="20" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
+: <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="32" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
 
 </div>
 </div>
@@ -77,7 +90,7 @@ function update_wifi(load) {
 }
 
 function manage_wifi(ssid,task) {
-  if (task==2) {
+  if (task == 2) {
     clearTimeout(timers.wifi);
     $.post('/webGui/include/Wireless.php',{cmd:'forget',ssid:ssid},function(){
       swal.close();
@@ -96,18 +109,22 @@ function manage_wifi(ssid,task) {
   }
 }
 
-function showDHCP(val,v) {
-  if (val=='no') {
+function showManual(val) {
+  if (val == '00') {$('#manual').show(); $('input[name="REGION_XX"]').focus()} else $('#manual').hide();
+}
+
+function showDHCP(val, v) {
+  if (val == 'no') {
     $('tr.static'+v).show();
     $('select[name=DNS'+v+']').val('yes');
     $('select[name=DNS'+v+'] option:eq(0)').prop('disabled',true);
-    if (v=='6') $('tr.dns6').show();
+    if (v == '6') $('tr.dns6').show();
     $('tr.server'+v).show();
-  } else if (val=='yes') {
+  } else if (val == 'yes') {
     $('tr.static'+v).hide();
     $('select[name=DNS'+v+']').val('no');
     $('select[name=DNS'+v+'] option:eq(0)').prop('disabled',false);
-    if (v=='6') $('tr.dns6').show();
+    if (v == '6') $('tr.dns6').show();
     $('tr.server'+v).hide();
   } else {
     $('tr.static'+v).hide();
@@ -116,9 +133,9 @@ function showDHCP(val,v) {
   }
 }
 
-function showDNS(val,v) {
-  if (val=='no') $('tr.server'+v).hide();
-  if (val=='yes') $('tr.server'+v).show();
+function showDNS(val, v) {
+  if (val == 'no') $('tr.server'+v).hide();
+  if (val == 'yes') $('tr.server'+v).show();
 }
 
 function showPassword() {
@@ -133,9 +150,9 @@ function showPassword() {
 }
 
 function showSecurity(val) {
-  if (val=='none') {
+  if (val == 'open') {
     $('#username,#password').hide();
-  } else if (val.slice(-1)=='e') {
+  } else if (val.substr(0,4) == 'IEEE' || val == 'auto') {
     $('#username,#password').show();
   } else {
     $('#username').hide();
