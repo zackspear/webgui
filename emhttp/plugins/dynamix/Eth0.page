@@ -468,6 +468,7 @@ function checkNetworkAccess(form) {
 }
 
 function addVLAN(port) {
+  $('input[value="<?=_("Apply")?>"],input[value="Apply"]').prop('disabled',false);
   var index = 1;
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
