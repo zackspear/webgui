@@ -1507,6 +1507,12 @@ span#wlan0 {
     cursor: pointer;
 }
 
+.shade {
+    margin-top: 1rem;
+    padding: 1rem 0;
+    background-color: var(--shade-bg-color);
+}
+
 /*
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables

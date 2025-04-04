@@ -49,23 +49,23 @@ _(Regulatory region)_:
 </form>
 
 <div id="wifi" class="hide">
-<div markdown="1" id="connected" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="connected" class="shade">
 _(Connected)_:
 : <i class="fa fa-spin fa-circle-o-notch"></i>
 
 </div>
-<div markdown="1" id="my_networks" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="my_networks" class="shade">
 _(My networks)_:
 : <i class="fa fa-spin fa-circle-o-notch"></i>
 
 </div>
-<div markdown="1" id="other_networks" class="shade-<?=$display['theme']?>">
+<div markdown="1" id="other_networks" class="shade">
 _(Other networks)_:
 : <i class="fa fa-spin fa-circle-o-notch"></i>
 
 </div>
 
-<div markdown="1" class="shade-<?=$display['theme']?>">
+<div markdown="1" class="shade">
 _(Add network)_:
 : <span class="wifi"><input name="CUSTOM" type="text" class="narrow" maxlength="32" autocomplete="off" spellcheck="false" value=""></span><i class="fa fa-wifi hand grey-text" onclick="manage_wifi(encodeURIComponent($('input[name=CUSTOM]').val()),3)" title="<?=$title?>"></i>
 

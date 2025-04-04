@@ -57,7 +57,7 @@ $(function(){
 <tbody id="route_list"></tbody>
 </table>
 
-<div class="shade-<?=$display['theme']?>" style="margin-top:12px;padding:12px 4px;">
+<div class="shade" style="margin-top:12px;padding:12px 4px;">
 <form markdown="1" name="add_routes" method="POST" action="/webGui/include/RoutingTable.php" target="progressFrame" onsubmit="setTimeout(resetTable,500)">
 _(Enter route + gateway + metric)_:
 : <input type="text" name="route" maxlength="39" value="" class="fixed" placeholder="_(IPv4/nn or IPv6/nn route)_" required>
