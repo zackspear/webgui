@@ -219,6 +219,8 @@
 
     .ui-dropdownchecklist-selector {
         padding: 4px 6px 1px 6px;
+        /* 1px 14px 1px 6px makes the dropdown wider for the share read / write dropdown but
+        IMO not needed because it makes the dropdown too wide when accompany other select inputs */
     }
 
     .ui-dropdownchecklist-group {
