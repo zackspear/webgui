@@ -366,7 +366,7 @@ textarea {
     z-index: 102;
     margin: 0;
     color: var(--inverse-text-color);
-    background-color: var(--header-color);
+    background-color: var(--header-background-color);
     background-size: 100% 90px;
     background-repeat: no-repeat;
 }
@@ -447,7 +447,7 @@ div.title.shift {
     margin: 0;
     font-size: 1.2rem;
     letter-spacing: 1.8px;
-    background-color: var(--header-color);
+    background-color: var(--header-background-color);
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -477,7 +477,7 @@ div.title.shift {
     padding-bottom: 2px;
 }
 .nav-item a {
-    color: var(--inverse-text-color);
+    color: var(--header-text-color);
     background-color: transparent;
     text-transform: uppercase;
     font-weight: bold;
@@ -1704,7 +1704,6 @@ span#wlan0 {
         position: fixed;
         height: 90px;
         z-index: 100;
-        background-color: var(--mild-background-color);
         border-bottom: 1px solid var(--gray-600);
         box-sizing: border-box;
         padding-left: 80px;
