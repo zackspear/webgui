@@ -29,6 +29,10 @@ $entity  = $notify['entity'] & 1 == 1;
 $alerts  = '/tmp/plugins/my_alerts.txt';
 $wlan0   = file_exists('/sys/class/net/wlan0');
 
+$nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
+if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
+$safemode = _var($var,'safeMode')=='yes';
+
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
@@ -70,9 +74,6 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 }
 
 <?
-$nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
-if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
-$safemode = _var($var,'safeMode')=='yes';
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
 $banner = "$config/plugins/dynamix/banner.png";
