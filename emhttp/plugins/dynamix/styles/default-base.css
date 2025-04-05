@@ -2218,3 +2218,63 @@ span#wlan0 {
         background-color: var(--brand-orange);
     }
 }
+
+/* Theme width styles */
+.Theme--boxed-width #displaybox {
+    min-width: 1280px;
+    max-width: 1280px;
+    margin: 0;
+}
+
+.Theme--unlimited-width #displaybox {
+    min-width: 1280px;
+    margin: 0;
+}
+
+/* Media queries for different screen sizes */
+@media (max-width: 1280px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1280px;
+        margin: 0;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0;
+    }
+}
+
+@media (min-width: 1281px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .Theme--nav-top.Theme--unlimited-width #displaybox {
+        margin: 0 10px;
+    }
+}
+
+@media (min-width: 1921px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .Theme--nav-top.Theme--unlimited-width #displaybox {
+        margin: 0 20px;
+    }
+}
