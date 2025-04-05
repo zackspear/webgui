@@ -97,7 +97,7 @@ $banner = "$config/plugins/dynamix/banner.png";
 echo "#header.image{background-image:url(";
 echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
 echo ")}\n";
-if ($themes2) {
+if ($themeHelper->isSidebarTheme()) {
   foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
   foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
@@ -711,7 +711,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 <?
 // Build page menus
 echo "<div id='menu'>";
-if ($themes2) echo "<div id='nav-block'>";
+if ($themeHelper->isSidebarTheme()) echo "<div id='nav-block'>";
 echo "<div class='nav-tile'>";
 foreach ($tasks as $button) {
   $page = $button['name'];
@@ -725,7 +725,7 @@ unset($tasks);
 echo "</div>";
 echo "<div class='nav-tile right'>";
 if (isset($myPage['Lock'])) {
-  $title = $themes2 ?  "" : _('Unlock sortable items');
+  $title = $themeHelper->isSidebarTheme() ?  "" : _('Unlock sortable items');
   echo "<div class='nav-item LockButton util'><a href='#' class='hand' onclick='LockButton();return false;' title=\"$title\"><b class='icon-u-lock system green-text'></b><span>"._('Unlock sortable items')."</span></a></div>";
 }
 if ($display['usage']) my_usage();
@@ -741,7 +741,7 @@ foreach ($buttons as $button) {
       if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
       $icon = "<b class='fa $icon system'></b>";
     }
-    $title = $themes2 ? "" : " title=\""._($button['Title'])."\"";
+    $title = $themeHelper->isSidebarTheme() ? "" : " title=\""._($button['Title'])."\"";
     echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
   } else {
     echo "<div class='{$button['Link']}'></div>";
@@ -752,7 +752,7 @@ foreach ($buttons as $button) {
 
 echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
 
-if ($themes2) echo "</div>";
+if ($themeHelper->isSidebarTheme()) echo "</div>";
 echo "</div></div>";
 foreach ($buttons as $button) {
   annotate($button['file']);
