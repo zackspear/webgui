@@ -1,4 +1,17 @@
 <?
+function releaseDateYear() {
+    global $var;
+
+    $timestamp = _var($var, 'regBuildTime', '');
+    if (!$timestamp) {
+        return '';
+    }
+
+    $date = new DateTime();
+    $date->setTimestamp($timestamp);
+    return $date->format('Y');
+}
+
 function getArrayStatus($var) {
     $progress = (_var($var,'fsProgress')!='') ? $var['fsProgress'] : "";
 
@@ -40,7 +53,7 @@ function getArrayStatus($var) {
         </span>
     <? endif; ?>
     <span id="copyright">
-        Unraid&reg; webGui &copy;<?=date('Y')?>, Lime Technology, Inc.
+        Unraid&reg; webGui &copy;<?=releaseDateYear()?>, Lime Technology, Inc.
         <a href="https://docs.unraid.net/go/manual/" target="_blank" title="<?=_('Online manual')?>">
             <i class="fa fa-book"></i> <?=_('manual')?>
         </a>
