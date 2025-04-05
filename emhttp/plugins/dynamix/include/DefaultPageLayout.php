@@ -863,40 +863,47 @@ unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt
 annotate('Footer');
 
 function getArrayStatus($var) {
-    $progress = (_var($var,'fsProgress')!='') ? "&bullet;<span class='blue strong tour'>{$var['fsProgress']}</span>" : "";
-    
+    $progress = (_var($var,'fsProgress')!='') ? $var['fsProgress'] : "";
+
     $statusMap = [
         'Stopped' => ['class' => 'red', 'icon' => 'stop-circle', 'text' => _('Array Stopped')],
         'Starting' => ['class' => 'orange', 'icon' => 'pause-circle', 'text' => _('Array Starting')],
         'Stopping' => ['class' => 'orange', 'icon' => 'pause-circle', 'text' => _('Array Stopping')],
         'default' => ['class' => 'green', 'icon' => 'play-circle', 'text' => _('Array Started')]
     ];
-    
+
     $state = _var($var,'fsState');
     $status = $statusMap[$state] ?? $statusMap['default'];
-    
-    return sprintf(
-        "<span class='%s strong'><i class='fa fa-%s'></i> %s</span>%s",
-        $status['class'],
-        $status['icon'],
-        $status['text'],
-        $progress
-    );
+
+    return [
+        'class' => $status['class'],
+        'icon' => $status['icon'],
+        'text' => $status['text'],
+        'progress' => $progress
+    ];
 }
 
 ?>
 <footer id="footer">
     <span id="statusraid">
-        <span id="statusbar"><?= getArrayStatus($var) ?></span>
+        <span id="statusbar">
+            <? $status = getArrayStatus($var); ?>
+            <span class="<?=$status['class']?> strong">
+                <i class="fa fa-<?=$status['icon']?>"></i> <?=$status['text']?>
+            </span>
+            <? if ($status['progress']): ?>
+                &bullet;<span class="blue strong tour"><?=$status['progress']?></span>
+            <? endif; ?>
+        </span>
     </span>
     <span id="user-notice" class="red-text"></span>
-    <?php if ($wlan0): ?>
+    <? if ($wlan0): ?>
         <span id="wlan0" class="grey-text" onclick="wlanSettings()">
             <i class="fa fa-wifi fa-fw"></i>
         </span>
-    <?php endif; ?>
+    <? endif; ?>
     <span id="copyright">
-        Unraid&reg; webGui &copy;2024, Lime Technology, Inc.
+        Unraid&reg; webGui &copy;<?=date('Y')?>, Lime Technology, Inc.
         <a href="https://docs.unraid.net/go/manual/" target="_blank" title="<?=_('Online manual')?>">
             <i class="fa fa-book"></i> <?=_('manual')?>
         </a>
