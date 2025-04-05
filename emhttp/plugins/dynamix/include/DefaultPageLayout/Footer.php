@@ -1,4 +1,8 @@
 <?
+/**
+ * Returns the release year based on regBuildTime or the current year if not available
+ * @return string Year in YYYY format
+ */
 function releaseDateYear() {
     global $var;
 
@@ -10,7 +14,11 @@ function releaseDateYear() {
 
     return $date->format('Y');
 }
-
+/**
+ * Returns array status information based on filesystem state
+ * @param array $var Global state variable containing filesystem information
+ * @return array Status with class, icon, text and progress information
+ */
 function getArrayStatus($var) {
     $progress = (_var($var,'fsProgress')!='') ? $var['fsProgress'] : "";
 
