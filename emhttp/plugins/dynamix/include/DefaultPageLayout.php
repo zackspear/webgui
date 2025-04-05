@@ -21,7 +21,7 @@ $themeHelper->updateDockerLogColor($docroot);
 
 $display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
 
-$header  = $display['header'];
+$header  = $display['header']; // keep $header, $backgnd vars for plugin backwards compatibility for the time being
 $backgnd = $display['background'];
 
 $config  = "/boot/config";
@@ -32,6 +32,7 @@ $wlan0   = file_exists('/sys/class/net/wlan0');
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
 if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
 $safemode = _var($var,'safeMode')=='yes';
+$banner = "$config/plugins/dynamix/banner.png";
 
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
@@ -71,15 +72,12 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
   <?if ($display['font']):?>
     --custom-font-size: <?=$display['font']?>%;
   <?endif;?>
+  --customer-header-background-image: url(<?= file_exists($banner) ? autov($banner) : autov('/webGui/images/banner.png') ?>);
 }
 
 <?
 $tasks = find_pages('Tasks');
 $buttons = find_pages('Buttons');
-$banner = "$config/plugins/dynamix/banner.png";
-echo "#header.image{background-image:url(";
-echo file_exists($banner) ? autov($banner) : '/webGui/images/banner.png';
-echo ")}\n";
 if ($themeHelper->isSidebarTheme()) {
   foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
   echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
