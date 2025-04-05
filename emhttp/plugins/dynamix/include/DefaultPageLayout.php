@@ -37,6 +37,9 @@ $banner = "$config/plugins/dynamix/banner.png";
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
 
+$taskPages = find_pages('Tasks');
+$buttonPages = find_pages('Buttons');
+
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
@@ -79,12 +82,9 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 }
 
 <?
-$tasks = find_pages('Tasks');
-$buttons = find_pages('Buttons');
+// Generate sidebar icon CSS if using sidebar theme
 if ($themeHelper->isSidebarTheme()) {
-  foreach ($tasks as $button) if (isset($button['Code'])) echo ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
-  echo ".nav-item.LockButton a:before{content:'\\e955'}\n";
-  foreach ($buttons as $button) if (isset($button['Code'])) echo ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
+  echo generate_sidebar_icon_css($taskPages, $buttonPages);
 }
 ?>
 </style>
@@ -695,7 +695,7 @@ $.ajaxPrefilter(function(s, orig, xhr){
 echo "<div id='menu'>";
 if ($themeHelper->isSidebarTheme()) echo "<div id='nav-block'>";
 echo "<div class='nav-tile'>";
-foreach ($tasks as $button) {
+foreach ($taskPages as $button) {
   $page = $button['name'];
   $play = $task==$page ? " active" : "";
   echo "<div class='nav-item{$play}'>";
@@ -703,7 +703,7 @@ foreach ($tasks as $button) {
   // create list of nchan scripts to be started
   if (isset($button['Nchan'])) nchan_merge($button['root'], $button['Nchan']);
 }
-unset($tasks);
+unset($taskPages);
 echo "</div>";
 echo "<div class='nav-tile right'>";
 if (isset($myPage['Lock'])) {
@@ -712,7 +712,7 @@ if (isset($myPage['Lock'])) {
 }
 if ($display['usage']) my_usage();
 
-foreach ($buttons as $button) {
+foreach ($buttonPages as $button) {
   if (empty($button['Link'])) {
     $icon = $button['Icon'];
     if (substr($icon,-4)=='.png') {
@@ -736,7 +736,7 @@ echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell
 
 if ($themeHelper->isSidebarTheme()) echo "</div>";
 echo "</div></div>";
-foreach ($buttons as $button) {
+foreach ($buttonPages as $button) {
   annotate($button['file']);
   // include page specific stylesheets (if existing)
   $css = "/{$button['root']}/sheets/{$button['name']}";
@@ -747,7 +747,7 @@ foreach ($buttons as $button) {
   // create page content
   eval('?>'.parse_text($button['text']));
 }
-unset($buttons,$button);
+unset($buttonPages,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
