@@ -31,19 +31,52 @@ class ThemeHelper {
     private bool $sidebarTheme;
     private bool $darkTheme;
     private bool $lightTheme;
-    private string $themeHtmlClass;
     private string $fgcolor;
     private bool $initialized = false;
+    private bool $unlimitedWidth = false;
 
     /**
      * Constructor for ThemeHelper
      * 
      * @param string|null $theme The theme name (optional)
+     * @param '1'|null $width The width of the theme (optional)
      */
-    public function __construct(?string $theme = null) {
+    public function __construct(?string $theme = null, ?string $width = null) {
         if ($theme !== null) {
             $this->initWithCurrentThemeSetting($theme);
         }
+        
+        if ($width !== null) {
+            $this->setWidth($width);
+        }
+    }
+
+    /**
+     * Set the width setting
+     * 
+     * @param string $width The width setting ('1' for unlimited, empty string for boxed)
+     * @return void
+     */
+    public function setWidth(string $width): void {
+        $this->unlimitedWidth = ($width === '1');
+    }
+
+    /**
+     * Check if unlimited width is enabled
+     * 
+     * @return bool
+     */
+    public function isUnlimitedWidth(): bool {
+        return $this->unlimitedWidth;
+    }
+
+    /**
+     * Get the width class for HTML
+     * 
+     * @return string
+     */
+    public function getWidthHtmlClass(): string {
+        return $this->unlimitedWidth ? 'Theme--unlimited-width' : 'Theme--boxed-width';
     }
 
     /**
@@ -59,11 +92,6 @@ class ThemeHelper {
         $this->sidebarTheme = in_array($this->themeName, self::SIDEBAR_THEMES);
         $this->darkTheme = in_array($this->themeName, self::DARK_THEMES);
         $this->lightTheme = in_array($this->themeName, self::LIGHT_THEMES);
-
-        $this->themeHtmlClass = "Theme--{$this->themeName}";
-        if ($this->sidebarTheme) {
-            $this->themeHtmlClass .= " Theme--sidebar";
-        }
 
         $this->fgcolor = self::FGCOLORS[$this->themeName] ?? self::COLOR_BLACK;
         $this->initialized = true;
@@ -113,11 +141,33 @@ class ThemeHelper {
         return $this->lightTheme;
     }
 
+    /**
+     * Get the theme HTML class string
+     * 
+     * @return string
+     */
     public function getThemeHtmlClass(): string {
         if (!$this->initialized) {
             throw new \RuntimeException(self::INIT_ERROR);
         }
-        return $this->themeHtmlClass;
+
+        $classes = ["Theme--{$this->themeName}"];
+
+        if ($this->sidebarTheme) {
+            $classes[] = "Theme--sidebar";
+        }
+
+        if ($this->topNavTheme) {
+            $classes[] = "Theme--nav-top";
+        }
+
+        if ($this->unlimitedWidth) {
+            $classes[] = "Theme--unlimited-width";
+        } else {
+            $classes[] = "Theme--boxed-width";
+        }
+
+        return implode(' ', $classes);
     }
 
     public function getFgColor(): string {
