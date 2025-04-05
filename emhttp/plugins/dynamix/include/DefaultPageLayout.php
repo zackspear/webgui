@@ -57,16 +57,6 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$theme}.css")?>">
 
 <style>
-<?if (empty($display['width'])):?>
-@media (max-width:1280px){#displaybox{min-width:1280px;max-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;max-width:1920px;margin:0 <?=$themeHelper->isTopNavTheme()?'10px':'auto'?>}}
-@media (min-width:1921px){#displaybox{min-width:1280px;max-width:1920px;margin:0 auto}}
-<?else:?>
-@media (max-width:1280px){#displaybox{min-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themeHelper->isTopNavTheme()?'10px':'auto'?>}}
-@media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themeHelper->isTopNavTheme()?'20px':'auto'?>}}
-<?endif;?>
-
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
 <?endif;?>
