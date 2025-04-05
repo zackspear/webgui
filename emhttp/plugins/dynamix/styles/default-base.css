@@ -1,6 +1,6 @@
 html {
     font-family: clear-sans, sans-serif;
-    font-size: 62.5%;
+    font-size: var(--custom-font-size, 62.5%);
     height: 100%;
 }
 body {
