@@ -69,6 +69,7 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 
 <style>
 :root {
+  --customer-header-background-image: url(<?= file_exists($banner) ? autov($banner) : autov('/webGui/images/banner.png') ?>);
   <?if ($header):?>
     --customer-header-text-color: #<?=$header?>;
   <?endif;?>
@@ -78,7 +79,6 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
   <?if ($display['font']):?>
     --custom-font-size: <?=$display['font']?>%;
   <?endif;?>
-  --customer-header-background-image: url(<?= file_exists($banner) ? autov($banner) : autov('/webGui/images/banner.png') ?>);
 }
 
 <?
