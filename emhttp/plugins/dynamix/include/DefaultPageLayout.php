@@ -64,10 +64,10 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
   <?if ($backgnd):?>
     --customer-header-background-color: #<?=$backgnd?>;
   <?endif;?>
+  <?if ($display['font']):?>
+    --custom-font-size: <?=$display['font']?>%;
+  <?endif;?>
 }
-<?if ($display['font']):?>
-html{font-size:<?=$display['font']?>%}
-<?endif;?>
 
 <?
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
