@@ -172,56 +172,57 @@ wifi_running(){
 wifi_start(){
   log "Starting $DAEMON..."
   local REPLY
-  if [[ -e $SYSTEM/$PORT ]]; then
-    LINK=shim-$PORT
-    [[ -e $SYSTEM/$LINK ]] || run ip link add link $PORT name $LINK type ipvtap mode l2 bridge
-    run ip link set $PORT up
-    run ip link set $LINK up
-    # set regulatory region (if set) upon start
-    REGION=$(grep -Pom1 '^REGION="\K[^"]+' $CFG)
-    REGION_XX=$(grep -Pom1 '^REGION_XX="\K[^"]+' $CFG)
-    [[ $REGION == '00' ]] && CC=$REGION_XX || CC=$REGION
-    [[ -n $CC ]] && run iw reg set $CC
-    # initialise openssl encryption parameters
-    $OPENSSL load
-    # start active SSID
-    $STARTWIFI
-    if ! carrier_up $PORT; then
-      # try the saved SSIDs
-      for SSID in $(grep -P '^\[.+\]$' $CFG 2>/dev/null | sed 1d | sed -r 's/\[|\]/"/g'); do
-        [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
-        if carrier_up $PORT; then break; fi
-      done
-    fi
-    if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
-  else
-    REPLY="No Wifi present"
+  if [[ ! -e $SYSTEM/$PORT ]]; then
+    log "$DAEMON...  No Wifi present."
+    return
   fi
+  if [[ $(var WIFI $CFG) != yes ]]; then
+    log "$DAEMON...  Wifi not enabled."
+    return
+  fi
+  LINK=shim-$PORT
+  [[ -e $SYSTEM/$LINK ]] || run ip link add link $PORT name $LINK type ipvtap mode l2 bridge
+  # set regulatory region (if set) upon start
+  REGION=$(var REGION $CFG)
+  REGION_XX=$(var REGION_XX $CFG)
+  [[ $REGION == '00' ]] && CC=$REGION_XX || CC=$REGION
+  [[ -n $CC ]] && run iw reg set $CC
+  # initialise openssl encryption parameters
+  $OPENSSL load
+  # start active SSID
+  $STARTWIFI
+  if ! carrier_up $PORT; then
+    # try the saved SSIDs
+    for SSID in $(grep -P '^\[.+\]$' $CFG | sed 1d | sed -r 's/\[|\]/"/g'); do
+      [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
+      if carrier_up $PORT; then break; fi
+    done
+  fi
+  if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
   log "$DAEMON...  $REPLY."
 }
 
 wifi_stop(){
   log "Stopping $DAEMON..."
   local REPLY
-  if [[ -e $SYSTEM/$PORT ]]; then
-    IP=ipv4
-    DHCP=$DHCP4
-    DNS=$DNS4
-    ipaddr_down
-    if [[ -n $DHCP6 ]]; then
-      IP=ipv6
-      DHCP=$DHCP6
-      DNS=$DNS6
-      ipaddr_down
-    fi
-    run pkill wpa_supplicant
-    run iw dev $PORT disconnect
-    run ip addr flush dev $PORT
-    run rm -f $INI
-    if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
-  else
-    REPLY="No Wifi present"
+  if [[ ! -e $SYSTEM/$PORT ]]; then
+    log "$DAEMON...  No Wifi present."
+    return
   fi
+  IP=ipv4
+  DHCP=$DHCP4
+  DNS=$DNS4
+  ipaddr_down
+  if [[ -n $DHCP6 ]]; then
+    IP=ipv6
+    DHCP=$DHCP6
+    DNS=$DNS6
+    ipaddr_down
+  fi
+  run pkill wpa_supplicant
+  run iw dev $PORT disconnect
+  run rm -f $INI
+  if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   log "$DAEMON...  $REPLY."
 }
 
