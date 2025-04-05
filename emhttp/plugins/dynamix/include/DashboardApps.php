@@ -115,6 +115,7 @@ if ($_POST['vms']) {
   }
   echo "<tr title='' class='updated'><td>";
   $running = 0;
+  $pci_device_changes = comparePCIData();
   foreach ($vms as $vm) {
     $res = $lv->get_domain_by_name($vm);
     $uuid = libvirt_domain_get_uuid_string($res);
@@ -156,7 +157,15 @@ if ($_POST['vms']) {
     if (!isset($domain_cfg["CONSOLE"])) $vmrcconsole = "web"; else $vmrcconsole = $domain_cfg["CONSOLE"];
     if (!isset($domain_cfg["RDPOPT"])) $vmrcconsole .= ";no"; else $vmrcconsole .= ";".$domain_cfg["RDPOPT"];
     $WebUI = html_entity_decode($arrConfig["template"]["webui"]);
-    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)));
+    $vmpciids = $lv->domain_get_vm_pciids($vm);
+    $pcierror = false;
+    foreach($vmpciids as $pciid => $pcidetail) {
+      if (isset($pci_device_changes["0000:".$pciid])) {
+        $pcierror = true;
+        $image = '<img src="/plugins/dynamix.vm.manager/templates/images/triangle.jpg" class="img">';
+      }
+    }
+    $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)),$pcierror);
     $icon = $lv->domain_get_icon_url($res);
     switch ($state) {
     case 'running':
