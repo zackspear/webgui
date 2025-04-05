@@ -13,9 +13,9 @@
 <?
 require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
 $themeHelper = new ThemeHelper($display['theme']);
-$theme   = $themeHelper->getThemeName(); // keep var name for backwards compatibility
-$themes1 = $themeHelper->isTopNavTheme(); // keep var name for backwards compatibility
-$themes2 = $themeHelper->isSidebarTheme(); // keep var name for backwards compatibility
+$theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
+$themes1 = $themeHelper->isTopNavTheme();
+$themes2 = $themeHelper->isSidebarTheme();
 $themeHtmlClass = $themeHelper->getThemeHtmlClass();
 $themeHelper->updateDockerLogColor($docroot);
 
