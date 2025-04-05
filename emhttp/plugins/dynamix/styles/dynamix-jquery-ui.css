@@ -8,7 +8,7 @@
     --dynamix-jquery-ui-button-background-start: var(--red-800);
     --dynamix-jquery-ui-button-background-end: var(--orange-500);
     --dynamix-jquery-ui-button-hover-color: var(--gray-100);
-    --dynamix-jquery-ui-default-background: var(--gray-100);
+    --dynamix-jquery-ui-default-background: transparent;
     --dynamix-jquery-ui-border-color: var(--black);
     --dynamix-jquery-ui-header-background: var(--gray-150); /* Condensed from: #e3e3e3 */
     --dynamix-jquery-ui-header-color: var(--black);
@@ -28,7 +28,7 @@
     --dynamix-jquery-ui-button-background-start: var(--red-800);
     --dynamix-jquery-ui-button-background-end: var(--orange-500);
     --dynamix-jquery-ui-button-hover-color: var(--gray-100);
-    --dynamix-jquery-ui-default-background: var(--black);
+    --dynamix-jquery-ui-default-background: transparent;
     --dynamix-jquery-ui-border-color: var(--gray-200); /* Condensed from: #e5e5e5 */
     --dynamix-jquery-ui-header-background: var(--gray-800); /* Condensed from: #2b2b2b */
     --dynamix-jquery-ui-header-color: var(--gray-100);
@@ -42,83 +42,118 @@
     --dynamix-jquery-ui-text-color: var(--gray-100);
 }
 
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button {
-    font-family: clear-sans;
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin: 10px 12px 10px 0;
-    padding: 9px 18px;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    outline: none;
-    border-radius: 4px;
-    border: 0;
-    color: var(--dynamix-jquery-ui-button-text-color);
-    background:
-        -webkit-gradient(
-                linear,
-                left top,
-                right top,
-                from(var(--dynamix-jquery-ui-button-background-start)),
-                to(var(--dynamix-jquery-ui-button-background-end))
-            )
-            0 0 no-repeat,
-        -webkit-gradient(
-                linear,
-                left top,
-                right top,
-                from(var(--dynamix-jquery-ui-button-background-start)),
-                to(var(--dynamix-jquery-ui-button-background-end))
-            ) 0 100% no-repeat,
-        -webkit-gradient(
-                linear,
-                left bottom,
-                left top,
-                from(var(--dynamix-jquery-ui-button-background-start)),
-                to(var(--dynamix-jquery-ui-button-background-start))
-            ) 0 100% no-repeat,
-        -webkit-gradient(
-                linear,
-                left bottom,
-                left top,
-                from(var(--dynamix-jquery-ui-button-background-end)),
-                to(var(--dynamix-jquery-ui-button-background-end))
-            ) 100% 100% no-repeat;
-    background:
-        linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end)) 0 0 no-repeat,
-        linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end)) 0 100% no-repeat,
-        linear-gradient(0deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-start)) 0 100% no-repeat,
-        linear-gradient(0deg, var(--dynamix-jquery-ui-button-background-end) 0, var(--dynamix-jquery-ui-button-background-end)) 100% 100% no-repeat;
+.ui-dialog {
+    .ui-dialog-buttonpane {
+        .ui-dialog-buttonset {
+            button {
+                font-family: clear-sans;
+                font-size: 1.1rem;
+                font-weight: bold;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                margin: 10px 12px 10px 0;
+                padding: 9px 18px;
+                text-decoration: none;
+                white-space: nowrap;
+                cursor: pointer;
+                outline: none;
+                border-radius: 4px;
+                border: 0;
+                color: var(--dynamix-jquery-ui-button-text-color);
+                background:
+                    -webkit-gradient(
+                            linear,
+                            left top,
+                            right top,
+                            from(var(--dynamix-jquery-ui-button-background-start)),
+                            to(var(--dynamix-jquery-ui-button-background-end))
+                        )
+                        0 0 no-repeat,
+                    -webkit-gradient(
+                            linear,
+                            left top,
+                            right top,
+                            from(var(--dynamix-jquery-ui-button-background-start)),
+                            to(var(--dynamix-jquery-ui-button-background-end))
+                        ) 0 100% no-repeat,
+                    -webkit-gradient(
+                            linear,
+                            left bottom,
+                            left top,
+                            from(var(--dynamix-jquery-ui-button-background-start)),
+                            to(var(--dynamix-jquery-ui-button-background-start))
+                        ) 0 100% no-repeat,
+                    -webkit-gradient(
+                            linear,
+                            left bottom,
+                            left top,
+                            from(var(--dynamix-jquery-ui-button-background-end)),
+                            to(var(--dynamix-jquery-ui-button-background-end))
+                        ) 100% 100% no-repeat;
+                background:
+                    linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end)) 0 0 no-repeat,
+                    linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end)) 0 100% no-repeat,
+                    linear-gradient(0deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-start)) 0 100% no-repeat,
+                    linear-gradient(0deg, var(--dynamix-jquery-ui-button-background-end) 0, var(--dynamix-jquery-ui-button-background-end)) 100% 100% no-repeat;
+                background-size:
+                    100% 2px,
+                    100% 2px,
+                    2px 100%,
+                    2px 100%;
+
+                &:hover {
+                    color: var(--dynamix-jquery-ui-button-hover-color);
+                    background: -webkit-gradient(
+                        linear,
+                        left top,
+                        right top,
+                        from(var(--dynamix-jquery-ui-button-background-start)),
+                        to(var(--dynamix-jquery-ui-button-background-end))
+                    );
+                    background: linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end));
+                }
+            }
+        }
+    }
+}
+
+/* Consolidated .ui-dropdownchecklist styles */
+.ui-dropdownchecklist {
+    background-color: transparent;
+    background-image: linear-gradient(66.6deg, transparent 60%, var(--input-border-color) 40%),
+        linear-gradient(113.4deg, var(--input-border-color) 40%, transparent 60%);
+    background-position: calc(100% - 4px), 100%;
     background-size:
-        100% 2px,
-        100% 2px,
-        2px 100%,
-        2px 100%;
-}
-
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset button:hover {
-    color: var(--dynamix-jquery-ui-button-hover-color);
-    background: -webkit-gradient(
-        linear,
-        left top,
-        right top,
-        from(var(--dynamix-jquery-ui-button-background-start)),
-        to(var(--dynamix-jquery-ui-button-background-end))
-    );
-    background: linear-gradient(90deg, var(--dynamix-jquery-ui-button-background-start) 0, var(--dynamix-jquery-ui-button-background-end));
-}
-
-.ui-dropdownchecklist .ui-state-default {
-    background: var(--dynamix-jquery-ui-default-background);
+        4px 6px,
+        4px 6px;
+    background-repeat: no-repeat;
     border: none;
-    box-shadow: none;
+    border-bottom: 1px solid var(--input-border-color);
     outline: none;
+    height: 2.5rem;
+    line-height: 2.5rem;
     cursor: pointer;
-    height: 2.2rem;
-    line-height: 2.2rem;
+
+    .ui-state-default {
+        background: var(--dynamix-jquery-ui-default-background);
+        border: none;
+        box-shadow: none;
+        outline: none;
+        cursor: pointer;
+        height: 2.2rem;
+        line-height: 2.2rem;
+        padding: 0;
+    }
+
+    .ui-widget-content {
+        .ui-state-default {
+            background: var(--dynamix-jquery-ui-default-background);
+        }
+    }
+}
+
+.ui-dropdownchecklist-dropcontainer-wrapper {
+    transform: translateY(-1px);
 }
 
 .ui-dropdownchecklist-group {
@@ -128,15 +163,81 @@
 }
 
 .ui-dropdownchecklist-selector {
-    border: 1px solid var(--dynamix-jquery-ui-border-color);
+    border: none;
+    border-bottom: 1px solid var(--dynamix-ui-dropdownchecklist-color);
+    outline: none;
     display: inline-block;
     cursor: pointer;
-    padding: 1px 9px 1px 8px;
+    padding: 1px 0;
 }
 
 .ui-dropdownchecklist-selector-wrapper {
     vertical-align: middle;
     font-size: 0;
+}
+
+.ui-dropdownchecklist-dropcontainer {
+    color: var(--dynamix-ui-dropdownchecklist-color);
+    background-color: var(--dynamix-ui-dropdownchecklist-color-alt1);
+    border: 1px solid var(--dynamix-jquery-ui-border-color);
+}
+
+.ui-state-disabled {
+    color: var(--dynamix-ui-dropdownchecklist-color);
+    border-bottom-color: var(--dynamix-ui-dropdownchecklist-color-alt2);
+    opacity: 0.5;
+    cursor: default;
+}
+
+.ui-dropdownchecklist-indent {
+    padding-left: 7px;
+}
+
+.ui-dropdownchecklist-text {
+    font-family: clear-sans;
+    font-size: 1.3rem;
+    color: var(--dynamix-ui-dropdownchecklist-color);
+}
+
+.ui-dropdownchecklist-item {
+    height: 2.2rem;
+    line-height: 2.2rem;
+
+    input {
+        vertical-align: top;
+    }
+}
+
+/* Theme-specific styles for sidebar */
+.Theme--sidebar {
+    .ui-dropdownchecklist {
+        height: 3rem;
+        line-height: 3rem;
+        border: 1px solid var(--border-color);
+        background-position: calc(100% - 8px), calc(100% - 4px);
+    }
+
+    .ui-dropdownchecklist-selector {
+        padding: 4px 6px 1px 6px;
+        /* 1px 14px 1px 6px makes the dropdown wider for the share read / write dropdown but
+        IMO not needed because it makes the dropdown too wide when accompany other select inputs */
+    }
+
+    .ui-dropdownchecklist-group {
+        padding: 1px 6px;
+    }
+
+    .ui-dropdownchecklist-dropcontainer {
+        border: 1px solid var(--dynamix-ui-dropdownchecklist-dropcontainer-border-color);
+    }
+
+    .ui-state-disabled {
+        opacity: 0.3;
+    }
+
+    .ui-dropdownchecklist-indent {
+        padding-left: 9px;
+    }
 }
 
 .ui-widget-header {
@@ -156,44 +257,21 @@
     background: var(--dynamix-jquery-ui-active-background);
 }
 
-.ui-dropdownchecklist-dropcontainer {
-    background: var(--dynamix-jquery-ui-dropcontainer-background);
-    border: 1px solid var(--dynamix-jquery-ui-border-color);
-}
+.ui-tailscale {
+    &-row {
+        display: flex;
+        justify-content: space-between;
+        min-width: 300px;
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
 
-.ui-state-disabled {
-    color: var(--dynamix-jquery-ui-disabled-color);
-    border-color: var(--dynamix-jquery-ui-disabled-border-color);
-    background: var(--dynamix-jquery-ui-disabled-background);
-    opacity: 0.5;
-}
+    &-label {
+        flex: 1;
+    }
 
-.ui-dropdownchecklist-indent {
-    padding-left: 7px;
-}
-
-.ui-dropdownchecklist-text {
-    color: var(--dynamix-jquery-ui-text-color);
-    font-size: 1.3rem;
-}
-
-.ui-dropdownchecklist .ui-widget-content .ui-state-default {
-    background: var(--dynamix-jquery-ui-default-background);
-}
-
-.ui-tailscale-row {
-    display: flex;
-    justify-content: space-between;
-    min-width: 300px;
-    width: 100%;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-}
-
-.ui-tailscale-label {
-    flex: 1;
-}
-
-.ui-tailscale-value {
-    flex: 3;
+    &-value {
+        flex: 3;
+    }
 }
