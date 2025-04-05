@@ -2,13 +2,12 @@
 function releaseDateYear() {
     global $var;
 
+    $date = new DateTime();
     $timestamp = _var($var, 'regBuildTime', '');
-    if (!$timestamp) {
-        return '';
+    if ($timestamp) {
+        $date->setTimestamp($timestamp);
     }
 
-    $date = new DateTime();
-    $date->setTimestamp($timestamp);
     return $date->format('Y');
 }
 
