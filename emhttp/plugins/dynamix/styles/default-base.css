@@ -1,6 +1,6 @@
 html {
     font-family: clear-sans, sans-serif;
-    font-size: 62.5%;
+    font-size: var(--custom-font-size, 62.5%);
     height: 100%;
 }
 body {
@@ -366,7 +366,7 @@ textarea {
     z-index: 102;
     margin: 0;
     color: var(--inverse-text-color);
-    background-color: var(--header-color);
+    background-color: var(--header-background-color);
     background-size: 100% 90px;
     background-repeat: no-repeat;
 }
@@ -447,7 +447,7 @@ div.title.shift {
     margin: 0;
     font-size: 1.2rem;
     letter-spacing: 1.8px;
-    background-color: var(--header-color);
+    background-color: var(--header-background-color);
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -477,7 +477,7 @@ div.title.shift {
     padding-bottom: 2px;
 }
 .nav-item a {
-    color: var(--inverse-text-color);
+    color: var(--header-text-color);
     background-color: transparent;
     text-transform: uppercase;
     font-weight: bold;
@@ -1704,7 +1704,6 @@ span#wlan0 {
         position: fixed;
         height: 90px;
         z-index: 100;
-        background-color: var(--mild-background-color);
         border-bottom: 1px solid var(--gray-600);
         box-sizing: border-box;
         padding-left: 80px;
@@ -2216,5 +2215,65 @@ span#wlan0 {
     }
     label.checkbox input:checked ~ .checkmark {
         background-color: var(--brand-orange);
+    }
+}
+
+/* Theme width styles */
+.Theme--boxed-width #displaybox {
+    min-width: 1280px;
+    max-width: 1280px;
+    margin: 0;
+}
+
+.Theme--unlimited-width #displaybox {
+    min-width: 1280px;
+    margin: 0;
+}
+
+/* Media queries for different screen sizes */
+@media (max-width: 1280px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1280px;
+        margin: 0;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0;
+    }
+}
+
+@media (min-width: 1281px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .Theme--nav-top.Theme--unlimited-width #displaybox {
+        margin: 0 10px;
+    }
+}
+
+@media (min-width: 1921px) {
+    .Theme--boxed-width #displaybox {
+        min-width: 1280px;
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    
+    .Theme--unlimited-width #displaybox {
+        min-width: 1280px;
+        margin: 0 auto;
+    }
+    
+    .Theme--nav-top.Theme--unlimited-width #displaybox {
+        margin: 0 20px;
     }
 }
