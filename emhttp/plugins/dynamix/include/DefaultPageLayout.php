@@ -57,24 +57,16 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$theme}.css")?>">
 
 <style>
+:root {
+  <?if ($header):?>
+    --customer-header-text-color: #<?=$header?>;
+  <?endif;?>
+  <?if ($backgnd):?>
+    --customer-header-background-color: #<?=$backgnd?>;
+  <?endif;?>
+}
 <?if ($display['font']):?>
 html{font-size:<?=$display['font']?>%}
-<?endif;?>
-
-<?if ($header):?>
-#header,#header .logo,#header .text-right a{color:#<?=$header?>}
-#header .block{background-color:transparent}
-<?endif;?>
-
-<?if ($backgnd):?>
-  #header{background-color:#<?=$backgnd?>}
-  <?if ($themeHelper->isTopNavTheme()):?>
-    .nav-tile{background-color:#<?=$backgnd?>}
-    <?if ($header):?>
-      .nav-item a,.nav-user a{color:#<?=$header?>}
-      .nav-item.active:after{background-color:#<?=$header?>}
-    <?endif;?>
-  <?endif;?>
 <?endif;?>
 
 <?
