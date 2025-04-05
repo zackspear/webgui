@@ -32,7 +32,7 @@ var browserName = (function(agent){
 })(window.navigator.userAgent.toLowerCase());
 
 $(function(){
-<?if ($themes2):?>
+<?if ($themeHelper->isSidebarTheme()):?>
 	$('.nav-item.gui_search').hover(function(){gui_search();},function(e){closeSearchBox(e);});
 <?endif;?>
 	$.post('/plugins/dynamix.gui.search/include/exec.php',function(data) {
