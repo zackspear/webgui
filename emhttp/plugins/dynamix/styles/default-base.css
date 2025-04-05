@@ -370,6 +370,11 @@ textarea {
     background-size: 100% 90px;
     background-repeat: no-repeat;
 }
+
+#header.image { /* .image is conditionally added by DefaultPageLayout.php */
+    background-image: var(--customer-header-background-image);
+}
+
 #header .logo {
     float: left;
     margin-left: 10px;
