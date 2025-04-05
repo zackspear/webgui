@@ -59,12 +59,12 @@ function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text
 <style>
 <?if (empty($display['width'])):?>
 @media (max-width:1280px){#displaybox{min-width:1280px;max-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;max-width:1920px;margin:0 <?=$themes1?'10px':'auto'?>}}
+@media (min-width:1281px){#displaybox{min-width:1280px;max-width:1920px;margin:0 <?=$themeHelper->isTopNavTheme()?'10px':'auto'?>}}
 @media (min-width:1921px){#displaybox{min-width:1280px;max-width:1920px;margin:0 auto}}
 <?else:?>
 @media (max-width:1280px){#displaybox{min-width:1280px;margin:0}}
-@media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'10px':'auto'?>}}
-@media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themes1?'20px':'auto'?>}}
+@media (min-width:1281px){#displaybox{min-width:1280px;margin:0 <?=$themeHelper->isTopNavTheme()?'10px':'auto'?>}}
+@media (min-width:1921px){#displaybox{min-width:1280px;margin:0 <?=$themeHelper->isTopNavTheme()?'20px':'auto'?>}}
 <?endif;?>
 
 <?if ($display['font']):?>
@@ -78,7 +78,7 @@ html{font-size:<?=$display['font']?>%}
 
 <?if ($backgnd):?>
   #header{background-color:#<?=$backgnd?>}
-  <?if ($themes1):?>
+  <?if ($themeHelper->isTopNavTheme()):?>
     .nav-tile{background-color:#<?=$backgnd?>}
     <?if ($header):?>
       .nav-item a,.nav-user a{color:#<?=$header?>}
@@ -759,7 +759,7 @@ foreach ($buttons as $button) {
   // include page specific stylesheets (if existing)
   $css = "/{$button['root']}/sheets/{$button['name']}";
   $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css";
+  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
   if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
   if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
   // create page content
@@ -1110,7 +1110,7 @@ $(window).scroll(function() {
   } else {
     $('.back_to_top').fadeOut(scrollDuration);
   }
-<?if ($themes1):?>
+<?if ($themeHelper->isTopNavTheme()):?>
   var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
   $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
   // banner
