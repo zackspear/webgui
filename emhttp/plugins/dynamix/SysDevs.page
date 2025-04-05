@@ -46,6 +46,27 @@ function applyCfg() {
     $("#applycfg").attr("disabled",true);
   });
 }
+function ackPCI(pcidevice,action) {
+  switch(action) {
+    case 'removed':
+      // Remove entry from saved.
+      swaltext = "_(Acknowledge removal of PCI Address)_: "+pcidevice;
+      break;
+    case 'changed':
+      // Update saved with current
+      swaltext = "_(Acknowledge update of PCI Address)_: "+pcidevice;
+      break;
+    case 'added': 
+      // Add to saved.
+      swaltext = "_(Acknowledge addition of PCI Address)_: "+pcidevice;
+      break;
+  }
+  swal({title:"Are you sure?",text:swaltext,type:"warning",html:true,showCancelButton:true},function(){
+        $.post('/webGui/include/PCIUpdate.php',{action:action,pciid:pcidevice})
+        $('#t1').load('/webGui/include/SysDevs.php',{table:'t1'});
+    });
+}
+
 </script>
 
 <?exec('ls /sys/kernel/iommu_groups/',$groups); ?>

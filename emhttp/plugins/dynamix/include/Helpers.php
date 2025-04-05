@@ -419,11 +419,11 @@ function device_exists($name)
 
 // Load saved PCI data
 function loadSavedData($filename) {
-  if (!file_exists($filename)) {
-      die("File not found: $filename\n");
-  }
+  if (file_exists($filename)) {
+    $saveddata = file_get_contents($filename);
+  } else $saveddata = "";
   
-  return json_decode(file_get_contents($filename), true);
+  return json_decode($saveddata, true);
 }
 
 // Run lspci -Dmn to get the current devices
@@ -436,10 +436,14 @@ function loadCurrentPCIData() {
 
       if (count($parts) < 6) continue; // Skip malformed lines
 
+      $description_str = shell_exec(("lspci -s ".$parts[0]));
+      $description = preg_replace('/^\S+\s+/', '', $description_str);
+
       $device = [
           'class'       => trim($parts[1], '"'),
           'vendor_id'   => trim($parts[2], '"'),
           'device_id'   => trim($parts[3], '"'),
+          'description' => trim($description,'"'),
       ];
 
       $devices[$parts[0]] = $device;
@@ -452,6 +456,7 @@ function comparePCIData() {
 
     $changes = [];
     $saved = loadSavedData("/boot/config/savedpcidata.json");
+    if (!$saved) return [];
     $current = loadCurrentPCIData();
     #$current = loadSavedData("/boot/config/current.json");
 
