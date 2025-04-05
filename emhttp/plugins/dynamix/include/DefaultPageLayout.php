@@ -12,7 +12,7 @@
 ?>
 <?
 require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
-$themeHelper = new ThemeHelper($display['theme']);
+$themeHelper = new ThemeHelper($display['theme'], $display['width']);
 $theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
 $themes1 = $themeHelper->isTopNavTheme();
 $themes2 = $themeHelper->isSidebarTheme();
