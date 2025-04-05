@@ -251,8 +251,8 @@ _(Temperature unit)_:
 
 _(Dynamix color theme)_:
 : <select name="theme">
-  <?foreach ($themeHelper->getThemesFromFileSystem($docroot) as $theme):?>
-    <?=mk_option($themeHelper->getThemeName(), $theme, _(ucfirst($theme)))?>
+  <?foreach ($themeHelper->getThemesFromFileSystem($docroot) as $guiTheme):?>
+    <?=mk_option($themeHelper->getThemeName(), $guiTheme, _(ucfirst($guiTheme)))?>
   <?endforeach; // $themeHelper set in DefaultPageLayout.php ?>
   </select>
 
