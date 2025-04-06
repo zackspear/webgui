@@ -14,20 +14,38 @@
 <?
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
+
+
+function process_action($pciaddr,$action)
+{
+  global $saved,$current;
+  switch ($action) {
+    case 'removed':
+      unset($saved[$pciaddr]);
+      break;
+    case 'changed':
+    case 'added':
+      $saved[$pciaddr] = $current[$pciaddr];
+      break;
+    }
+}
+
+
 $savedfile = "/boot/config/savedpcidata.json";
 $saved = loadSavedData($savedfile);
 if (!$saved) {echo "ERROR"; return;};
-
+$current = loadCurrentPCIData();
 $pciaddr = $_POST['pciid'];
-switch ($_POST['action']??'') {
-case 'removed':
-  unset($saved[$pciaddr]);
-  break;
-case 'changed':
-case 'added':
-  $current = loadCurrentPCIData();
-  $saved[$pciaddr] = $current[$pciaddr];
-  break;
+$action = $_POST['action']??'';
+
+if ($action == 'all') {
+  $pciaddrs = explode(";", $pciaddr);
+  foreach ($pciaddrs as $pciaddraction){
+    $values = explode(',',$pciaddraction);
+    process_action($values[0],$values[1]);
+  }
+} else {
+  process_action($pciaddr,$action);
 }
 file_put_contents($savedfile,json_encode($saved,JSON_PRETTY_PRINT));
 echo "OK";
