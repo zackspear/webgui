@@ -56,10 +56,7 @@ foreach ($vms as $vm) {
   $vmpciids = $lv->domain_get_vm_pciids($vm);
   $pcierror = false;
   foreach($vmpciids as $pciid => $pcidetail) {
-    if (isset($pci_device_changes["0000:".$pciid])) {
-      $pcierror = true;
-      $image = '<img src="/plugins/dynamix.vm.manager/templates/images/triangle.jpg" class="img">';
-    }
+    if (isset($pci_device_changes["0000:".$pciid])) $pcierror = true;
   }
   $cdroms = $lv->get_cdrom_stats($res,true,true) ;
   if ($state == 'running') {
@@ -207,8 +204,7 @@ foreach ($vms as $vm) {
   echo "<tr parent-id='$i' class='sortable'><td class='vm-name' style='width:220px;padding:8px'><i class='fa fa-arrows-v mover orange-text'></i>";
   echo "<span class='outer'><span id='vm-$uuid' $menu class='hand'>$image</span>";
   echo "<span class='inner'><a href='#' onclick='return toggle_id(\"name-$i\")' title='click for more VM info'>$vm</a>";
-  #var_dump($pcierror,$vmpciids);
-  if ($pcierror) echo "<i class=\"fa fa-warning fa-fw orange-text\" title=\""._('PCI Change')."\n"._('Start disabled')."\"></i>";
+  if ($pcierror) echo "<i class=\"fa fa-warning fa-fw orange-text\" title=\""._('PCI Changed')."\n"._('Start disabled')."\"></i>";
   echo "<br><i class='fa fa-$shape $status $color'></i><span class='state'>"._($status)." </span></span></span></td>";
   echo "<td>$desc</td>";
   echo "<td><a class='vcpu-$uuid' style='cursor:pointer'>$vcpu</a></td>";

@@ -2262,8 +2262,8 @@ class Libvirt {
 		$vmpcidevs=[];
 		foreach($hostdevs as $key => $dev) {
 			$vmpcidevs[$dev['id']] = [
-				'vendor_id' =>  ltrim($dev['vendor_id'], '0x'),
-				'device_id' =>  ltrim($dev['product_id'], '0x'),
+				'vendor_id' =>  ltrim($dev['vendor_id'] ?? "", '0x'),
+				'device_id' =>  ltrim($dev['product_id'] ?? "", '0x'),
 			];
 		}
 		return $vmpcidevs;

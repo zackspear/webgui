@@ -431,22 +431,26 @@ function loadCurrentPCIData() {
   $output = shell_exec('lspci -Dmn');
   $devices = [];
 
-  foreach (explode("\n", trim($output)) as $line) {
-      $parts = explode(" ", $line);
+  if (file_exists("/boot/config/current.json")){
+    $devices = loadSavedData("/boot/config/current.json");    
+  } else {
+    foreach (explode("\n", trim($output)) as $line) {
+        $parts = explode(" ", $line);
 
-      if (count($parts) < 6) continue; // Skip malformed lines
+        if (count($parts) < 6) continue; // Skip malformed lines
 
-      $description_str = shell_exec(("lspci -s ".$parts[0]));
-      $description = preg_replace('/^\S+\s+/', '', $description_str);
+        $description_str = shell_exec(("lspci -s ".$parts[0]));
+        $description = preg_replace('/^\S+\s+/', '', $description_str);
 
-      $device = [
-          'class'       => trim($parts[1], '"'),
-          'vendor_id'   => trim($parts[2], '"'),
-          'device_id'   => trim($parts[3], '"'),
-          'description' => trim($description,'"'),
-      ];
+        $device = [
+            'class'       => trim($parts[1], '"'),
+            'vendor_id'   => trim($parts[2], '"'),
+            'device_id'   => trim($parts[3], '"'),
+            'description' => trim($description,'"'),
+        ];
 
-      $devices[$parts[0]] = $device;
+        $devices[$parts[0]] = $device;
+    }
   }
   return $devices;
 }
@@ -458,8 +462,7 @@ function comparePCIData() {
     $saved = loadSavedData("/boot/config/savedpcidata.json");
     if (!$saved) return [];
     $current = loadCurrentPCIData();
-    #$current = loadSavedData("/boot/config/current.json");
-
+  
     // Compare saved devices with current devices
     foreach ($saved as $pci_id => $saved_device) {
         if (!isset($current[$pci_id])) {
