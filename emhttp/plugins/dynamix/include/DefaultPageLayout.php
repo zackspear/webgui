@@ -16,7 +16,6 @@ $themeHelper = new ThemeHelper($display['theme'], $display['width']);
 $theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
 $themes1 = $themeHelper->isTopNavTheme();
 $themes2 = $themeHelper->isSidebarTheme();
-$themeHtmlClass = $themeHelper->getThemeHtmlClass();
 $themeHelper->updateDockerLogColor($docroot);
 
 $display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
@@ -43,7 +42,7 @@ $buttonPages = find_pages('Buttons');
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHtmlClass ?>">
+<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
 <head>
 <title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
