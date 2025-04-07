@@ -41,9 +41,10 @@ class ThemeHelper {
      * @param string|null $theme The theme name (optional)
      */
     public function __construct(?string $theme = null) {
-        if ($theme !== null) {
-            $this->initWithCurrentThemeSetting($theme);
+        if ($theme === null) {
+            throw new \RuntimeException(self::INIT_ERROR);
         }
+        $this->initWithCurrentThemeSetting($theme);
     }
 
     /**
@@ -66,71 +67,37 @@ class ThemeHelper {
         }
 
         $this->fgcolor = self::FGCOLORS[$this->themeName] ?? self::COLOR_BLACK;
-        $this->initialized = true;
-    }
-
-    /**
-     * Check if the theme has been initialized
-     * 
-     * @return bool
-     */
-    public function isInitialized(): bool {
-        return $this->initialized;
     }
 
     public function getThemeName(): string {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->themeName;
     }
 
     public function isTopNavTheme(): bool {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->topNavTheme;
     }
 
     public function isSidebarTheme(): bool {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->sidebarTheme;
     }
 
     public function isDarkTheme(): bool {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->darkTheme;
     }
 
     public function isLightTheme(): bool {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->lightTheme;
     }
 
     public function getThemeHtmlClass(): string {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->themeHtmlClass;
     }
 
     public function getFgColor(): string {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         return $this->fgcolor;
     }
 
     public function updateDockerLogColor(string $docroot): void {
-        if (!$this->initialized) {
-            throw new \RuntimeException(self::INIT_ERROR);
-        }
         exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:{$this->fgcolor};/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
     }
 
