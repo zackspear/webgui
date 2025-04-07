@@ -114,7 +114,7 @@ class ThemeHelper {
             $classes[] = "Theme--nav-top";
         }
 
-        $classes[] = $this->unlimitedWidth ? "Theme--unlimited-width" : "Theme--boxed-width";
+        $classes[] = $this->unlimitedWidth ? "Theme--width-unlimited" : "Theme--width-boxed";
 
         return implode(' ', $classes);
     }

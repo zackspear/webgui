@@ -2224,61 +2224,61 @@ span#wlan0 {
 }
 
 /* Theme width styles */
-.Theme--boxed-width #displaybox {
+.Theme--width-boxed #displaybox {
     min-width: 1280px;
     max-width: 1280px;
     margin: 0;
 }
 
-.Theme--unlimited-width #displaybox {
+.Theme--width-unlimited #displaybox {
     min-width: 1280px;
     margin: 0;
 }
 
 /* Media queries for different screen sizes */
 @media (max-width: 1280px) {
-    .Theme--boxed-width #displaybox {
+    .Theme--width-boxed #displaybox {
         min-width: 1280px;
         max-width: 1280px;
         margin: 0;
     }
     
-    .Theme--unlimited-width #displaybox {
+    .Theme--width-unlimited #displaybox {
         min-width: 1280px;
         margin: 0;
     }
 }
 
 @media (min-width: 1281px) {
-    .Theme--boxed-width #displaybox {
+    .Theme--width-boxed #displaybox {
         min-width: 1280px;
         max-width: 1920px;
         margin: 0 auto;
     }
     
-    .Theme--unlimited-width #displaybox {
+    .Theme--width-unlimited #displaybox {
         min-width: 1280px;
         margin: 0 auto;
     }
     
-    .Theme--nav-top.Theme--unlimited-width #displaybox {
+    .Theme--nav-top.Theme--width-unlimited #displaybox {
         margin: 0 10px;
     }
 }
 
 @media (min-width: 1921px) {
-    .Theme--boxed-width #displaybox {
+    .Theme--width-boxed #displaybox {
         min-width: 1280px;
         max-width: 1920px;
         margin: 0 auto;
     }
     
-    .Theme--unlimited-width #displaybox {
+    .Theme--width-unlimited #displaybox {
         min-width: 1280px;
         margin: 0 auto;
     }
     
-    .Theme--nav-top.Theme--unlimited-width #displaybox {
+    .Theme--nav-top.Theme--width-unlimited #displaybox {
         margin: 0 20px;
     }
 }
