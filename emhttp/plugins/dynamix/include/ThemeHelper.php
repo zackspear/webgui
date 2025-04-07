@@ -33,7 +33,6 @@ class ThemeHelper {
     private bool $lightTheme;
     private string $themeHtmlClass;
     private string $fgcolor;
-    private bool $initialized = false;
 
     /**
      * Constructor for ThemeHelper
