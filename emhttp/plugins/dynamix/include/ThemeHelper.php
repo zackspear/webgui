@@ -41,15 +41,21 @@ class ThemeHelper {
      * @param '1'|null $width The width of the theme (optional)
      */
     public function __construct(?string $theme = null, ?string $width = null) {
-        if ($theme !== null) {
-            $this->initWithCurrentThemeSetting($theme);
+        if ($theme === null) {
+            throw new \RuntimeException(self::INIT_ERROR);
         }
-        
+
+        $this->themeName = strtok($theme, '-');
+
+        $this->topNavTheme = in_array($this->themeName, self::TOP_NAV_THEMES);
+        $this->sidebarTheme = in_array($this->themeName, self::SIDEBAR_THEMES);
+        $this->darkTheme = in_array($this->themeName, self::DARK_THEMES);
+        $this->lightTheme = in_array($this->themeName, self::LIGHT_THEMES);
+        $this->fgcolor = self::FGCOLORS[$this->themeName] ?? self::COLOR_BLACK;
+
         if ($width !== null) {
             $this->setWidth($width);
         }
-
-        throw new \RuntimeException(self::INIT_ERROR);
     }
 
     /**
@@ -69,23 +75,6 @@ class ThemeHelper {
      */
     public function isUnlimitedWidth(): bool {
         return $this->unlimitedWidth;
-    }
-
-    /**
-     * Initialize theme properties
-     * 
-     * @param string $theme The theme name
-     * @return void
-     */
-    public function initWithCurrentThemeSetting(string $theme): void {
-        $this->themeName = strtok($theme, '-');
-
-        $this->topNavTheme = in_array($this->themeName, self::TOP_NAV_THEMES);
-        $this->sidebarTheme = in_array($this->themeName, self::SIDEBAR_THEMES);
-        $this->darkTheme = in_array($this->themeName, self::DARK_THEMES);
-        $this->lightTheme = in_array($this->themeName, self::LIGHT_THEMES);
-
-        $this->fgcolor = self::FGCOLORS[$this->themeName] ?? self::COLOR_BLACK;
     }
 
     public function getThemeName(): string {
