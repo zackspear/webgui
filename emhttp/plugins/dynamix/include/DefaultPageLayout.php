@@ -675,6 +675,21 @@ $.ajaxPrefilter(function(s, orig, xhr){
   }
 });
 </script>
+
+<?
+foreach ($buttonPages as $button) {
+  annotate($button['file']);
+  // include page specific stylesheets (if existing)
+  $css = "/{$button['root']}/sheets/{$button['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+  // create page content
+  eval('?>'.parse_text($button['text']));
+}
+?>
+
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
@@ -735,17 +750,7 @@ echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell
 
 if ($themeHelper->isSidebarTheme()) echo "</div>";
 echo "</div></div>";
-foreach ($buttonPages as $button) {
-  annotate($button['file']);
-  // include page specific stylesheets (if existing)
-  $css = "/{$button['root']}/sheets/{$button['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
-  // create page content
-  eval('?>'.parse_text($button['text']));
-}
+
 unset($buttonPages,$button);
 
 // Build page content
