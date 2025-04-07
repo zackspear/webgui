@@ -24,7 +24,7 @@ class ThemeHelper {
         self::THEME_AZURE => self::COLOR_WHITE
     ];
 
-    private const INIT_ERROR = 'Theme not initialized. Call initWithCurrentThemeSetting() first.';
+    private const INIT_ERROR = 'ThemeHelper not initialized. Call initWithCurrentThemeSetting() first.';
 
     private string $themeName;
     private bool $topNavTheme;
