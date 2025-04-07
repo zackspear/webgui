@@ -135,7 +135,13 @@ class ThemeHelper {
      */
     public static function getThemesFromFileSystem(string $docroot): array {
         $themes = [];
-        $themeFiles = glob("$docroot/webGui/styles/themes/*.css");
+        $themePath = "$docroot/webGui/styles/themes";
+        if (!is_dir($themePath)) {
+            error_log("Theme directory not found: $themePath");
+            return $themes;
+        }
+
+        $themeFiles = glob("$themePath/*.css");
 
         foreach ($themeFiles as $themeFile) {
             $themeName = basename($themeFile, '.css');
