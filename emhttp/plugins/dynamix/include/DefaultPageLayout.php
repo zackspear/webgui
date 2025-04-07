@@ -40,6 +40,12 @@ $taskPages = find_pages('Tasks');
 $buttonPages = find_pages('Buttons');
 
 function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
+
+function generateReloadScript($loadMinutes) {
+    if ($loadMinutes <= 0) return '';
+    $interval = $loadMinutes * 60000;
+    return "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},{$interval});</script>\n";
+}
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
@@ -688,6 +694,11 @@ foreach ($buttonPages as $button) {
   // create page content
   eval('?>'.parse_text($button['text']));
 }
+
+// Reload page every X minutes during extended viewing?
+if (isset($myPage['Load'])) {
+    echo generateReloadScript($myPage['Load']);
+}
 ?>
 
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
@@ -754,8 +765,6 @@ echo "</div></div>";
 unset($buttonPages,$button);
 
 // Build page content
-// Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load'] > 0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";
 echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
