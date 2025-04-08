@@ -76,6 +76,10 @@ if [[ -x /sbin/hwclock ]]; then
   fi
 fi
 
+# Save PCI data to validate system changes at system start.
+log "Save PCI Configuration."
+/usr/local/sbin/savepcidata
+
 # Run any local shutdown scripts:
 if [[ -x /etc/rc.d/rc.local_shutdown ]]; then
   /etc/rc.d/rc.local_shutdown stop
@@ -218,10 +222,6 @@ if [[ ! -f /boot/logs/syslog && -z $MIRROR && -z $COPY ]]; then
     /bin/cp -f /var/log/syslog /boot/logs/syslog
   fi
 fi
-
-# Save PCI data to validate system changes at system start.
-
-/usr/sbin/savepcidata
 
 # Before unmounting file systems write a reboot or halt record to wtmp.
 /sbin/$SHUTDOWN_COMMAND -w
