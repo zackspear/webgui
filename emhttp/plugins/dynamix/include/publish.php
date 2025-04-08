@@ -49,7 +49,7 @@ function publish($endpoint, $message, $len=1) {
       my_logger("Nchan out of shared memory.  Reloading nginx");
       // prevent multiple attempts at restarting from other scripts using publish.php
       touch("/tmp/publishPaused");
-      exec("/etc/rc.d/rc.nginx reload");
+      exec("/etc/rc.d/rc.nginx restart");
       @unlink("/tmp/publishPaused");
     }
   }

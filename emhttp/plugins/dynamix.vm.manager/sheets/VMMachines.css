@@ -128,13 +128,7 @@ span.vmgraphics {
     text-align: left;
 }
 
-.fileTree {
-    background: var(--vm-machines-file-tree-background);
+/* .fileTree {
     width: 500px;
     max-height: 320px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    position: absolute;
-    z-index: 100;
-    display: none;
-}
+} */

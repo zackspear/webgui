@@ -119,26 +119,6 @@
     margin-left: auto;
     margin-right: auto;
 }
-.jGrowl-notification.alert {
-    color: var(--dynamix-jgrowl-alert-text-color);
-    background-color: var(--dynamix-jgrowl-alert-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-alert-border-color);
-}
-.jGrowl-notification.warning {
-    color: var(--dynamix-jgrowl-warning-text-color);
-    background-color: var(--dynamix-jgrowl-warning-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-warning-border-color);
-}
-.jGrowl-notification.normal {
-    color: var(--dynamix-jgrowl-normal-text-color);
-    background-color: var(--dynamix-jgrowl-normal-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-normal-border-color);
-}
-.jGrowl-notification.default {
-    color: var(--dynamix-jgrowl-text-color);
-    background-color: var(--dynamix-jgrowl-bg-color);
-    border: 1px solid var(--dynamix-jgrowl-border-color);
-}
 .jGrowl-notification {
     opacity: 0.96;
     min-height: 1.2rem;
@@ -147,7 +127,34 @@
     margin: 5px 0;
     text-align: left;
     border-radius: 6px;
-    box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+
+    &.alert {
+        color: var(--dynamix-jgrowl-alert-text-color);
+        background-color: var(--dynamix-jgrowl-alert-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-alert-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.warning {
+        color: var(--dynamix-jgrowl-warning-text-color);
+        background-color: var(--dynamix-jgrowl-warning-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-warning-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.normal {
+        color: var(--dynamix-jgrowl-normal-text-color);
+        background-color: var(--dynamix-jgrowl-normal-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-normal-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
+
+    &.default {
+        color: var(--dynamix-jgrowl-text-color);
+        background-color: var(--dynamix-jgrowl-bg-color);
+        border: 1px solid var(--dynamix-jgrowl-border-color);
+        box-shadow: 2px 2px 1px var(--dynamix-jgrowl-shadow-color);
+    }
 }
 .jGrowl-notification .jGrowl-header {
     font-weight: bold;
@@ -207,67 +214,7 @@
         display: none;
     }
 }
-.ui-dropdownchecklist {
-    background-color: transparent;
-    background-image: linear-gradient(66.6deg, transparent 60%, var(--dynamix-ui-dropdownchecklist-color) 40%),
-        linear-gradient(113.4deg, var(--dynamix-ui-dropdownchecklist-color) 40%, transparent 60%);
-    background-position: calc(100% - 4px), 100%;
-    background-size:
-        4px 6px,
-        4px 6px;
-    background-repeat: no-repeat;
-    border: none;
-    box-shadow: 0 1px 0 var(--dynamix-ui-dropdownchecklist-color);
-    outline: none;
-    height: 2.5rem;
-    line-height: 2.5rem;
-    cursor: pointer;
-}
-.ui-dropdownchecklist-selector {
-    border: none;
-    border-bottom: 1px solid var(--dynamix-ui-dropdownchecklist-color);
-    outline: none;
-    display: inline-block;
-    cursor: pointer;
-    padding: 1px 0;
-}
-.ui-dropdownchecklist-group {
-    font-weight: normal;
-    font-style: italic;
-    padding: 1px 0;
-}
-.ui-dropdownchecklist-selector-wrapper {
-    vertical-align: middle;
-    font-size: 0;
-}
-.ui-state-active {
-    background: transparent;
-}
-.ui-dropdownchecklist-dropcontainer {
-    color: var(--dynamix-ui-dropdownchecklist-color);
-    background-color: var(--dynamix-ui-dropdownchecklist-color-alt1);
-}
-.ui-state-disabled {
-    color: var(--dynamix-ui-dropdownchecklist-color);
-    border-bottom-color: var(--dynamix-ui-dropdownchecklist-color-alt2);
-    opacity: 0.5;
-    cursor: default;
-}
-.ui-dropdownchecklist-indent {
-    padding-left: 7px;
-}
-.ui-dropdownchecklist-text {
-    font-family: clear-sans;
-    font-size: 1.3rem;
-    color: var(--dynamix-ui-dropdownchecklist-color);
-}
-.ui-dropdownchecklist-item {
-    height: 2.2rem;
-    line-height: 2.2rem;
-}
-.ui-dropdownchecklist-item input {
-    vertical-align: top;
-}
+
 #sb-info-inner,
 #sb-loading-inner,
 div.sb-message {
@@ -1450,6 +1397,13 @@ div.icon-zip {
     border-left: 3px solid var(--dynamix-tooltipster-sidetip-box-border-color);
 }
 .fileTree {
+    display: none;
+    width: 300px;
+    max-height: 300px;
+    position: absolute;
+    z-index: 100;
+    overflow-y: scroll;
+    overflow-x: hidden;
     background-color: var(--dynamix-filetree-bg-color);
 }
 #guiSearchBox:placeholder-shown {
@@ -1552,7 +1506,7 @@ div.icon-zip {
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Nesting_selector
  * @see https://caniuse.com/?search=nesting
  */
- .Theme--sidebar {
+.Theme--sidebar {
     .jGrowl.top-left {
         top: 90px;
     }
@@ -1564,28 +1518,6 @@ div.icon-zip {
     }
     .jGrowl-notification {
         min-height: 4rem;
-    }
-    .ui-dropdownchecklist {
-        height: 3rem;
-        line-height: 3rem;
-    }
-    .ui-dropdownchecklist-selector {
-        padding: 1px 14px 1px 6px;
-    }
-    .ui-dropdownchecklist-group {
-        padding: 1px 14px 1px 6px;
-    }
-    .ui-dropdownchecklist-dropcontainer {
-        border: 1px solid var(--dynamix-ui-dropdownchecklist-dropcontainer-border-color);
-    }
-    .ui-state-disabled {
-        opacity: 0.3;
-    }
-    .ui-dropdownchecklist-indent {
-        padding-left: 9px;
-    }
-    .ui-dropdownchecklist-text {
-        font-size: 1.2rem;
     }
     table.tablesorter thead tr th {
         font-size: 1.3rem;

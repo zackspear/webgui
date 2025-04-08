@@ -81,9 +81,13 @@
     --input-bg-color: var(--theme-gray--black-alt);
     --focus-input-border-color: var(--blue-700);
     --focus-input-background-color: var(--mild-background-color);
+
+    --shade-bg-color: var(--theme-gray--black-alt);
     /* /End vars used in default-base */
 
     /* Set vars for default-dynamix */
+    --dynamix-filetree-bg-color: var(--gray-900);
+
     --dynamix-ui-dropdownchecklist-color: var(--theme-gray--cyan-300);
     --dynamix-ui-dropdownchecklist-color-alt1: var(--gray-900);
     --dynamix-ui-dropdownchecklist-dropcontainer-border-color: var(--blue-700);

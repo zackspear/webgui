@@ -162,13 +162,6 @@ function prepareSettings(form) {
   if (brnics.length > 1) form.BRSTP.value = 'yes';
   if ($(form).find('input[name="#arg[1]"]').val() == 'none') return true;
 
-  var metrics = [], metrics6 = [];
-  $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val() > 0) metrics.push($(this).val());});
-  $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val() > 0) metrics6.push($(this).val());});
-  if (metrics.same() || metrics6.same()) {
-    swal({title:'Duplicate metrics', text:'List of default gateways contains duplicate metric values', animation:'none', type:'error', html:true, confirmButtonText:"_(Ok)_"});
-    return false;
-  }
   // enable form items for submission
   $(form).find('input,select').prop('disabled',false);
   if (form.TYPE.value == 'access') {
@@ -213,7 +206,6 @@ function prepareSettings(form) {
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-    var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
     var gw4 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW4:'+i+'"]').prop('checked');
     if (protocol != 'ipv6' && $(this).val() != 'no') {
       $(form).find('input[name="IPADDR:'+i+'"]').val('');
@@ -224,7 +216,6 @@ function prepareSettings(form) {
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-    var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
     var gw6 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW6:'+i+'"]').prop('checked');
     if (protocol != 'ipv4' && $(this).val() != 'no') {
       $(form).find('input[name="IPADDR6:'+i+'"]').val('');
@@ -239,6 +230,13 @@ function prepareSettings(form) {
       var data = $(this).val();
       $(form).find('input[name="'+name+'"]').val(data);
     });
+  }
+  var metrics = [], metrics6 = [];
+  $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val() > 0) metrics.push($(this).val());});
+  $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val() > 0) metrics6.push($(this).val());});
+  if (metrics.same() || metrics6.same()) {
+    swal({title:"_(Duplicate metrics)_", text:"_(List of default gateways contains duplicate metric values)_", animation:'none', type:'error', html:true, confirmButtonText:"_(Ok)_"});
+    return false;
   }
   // force default MTU if jumbo frames are not enabled
   if ($(form).find('input[name="USE_MTU"]').prop('checked') == false) $(form).find('input[name="MTU"]').val('');
@@ -468,6 +466,7 @@ function checkNetworkAccess(form) {
 }
 
 function addVLAN(port) {
+  $('input[value="<?=_("Apply")?>"],input[value="Apply"]').prop('disabled',false);
   var index = 1;
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
@@ -558,7 +557,7 @@ function networkInfo(port, vlan) {
 </script>
 
 <div class="title nocontrol shift">&nbsp;</div>
-<div class="shade-<?=$display['theme']?> uplift">
+<div class="shade uplift">
 <form name="dns_settings" onchange="signalRun(this,1)">
 <div markdown="1" id="dns4" class="hide">
 _(IPv4 DNS server assignment)_:
@@ -787,7 +786,7 @@ _(Enable VLANs)_:
 <div id="index-eth0-0"></div>
 <div id="vlan-list-eth0" class="hide">
 <?foreach ($vlan_eth0 as $i):?>
-<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
+<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>">
   <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0,"VLANID:$i")?>)">
@@ -889,7 +888,7 @@ _(IPv6 privacy extensions)_:
 </form>
 
 <script markdown="1" type="text/html" id="network-template-eth0">
-<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
+<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>">
 
