@@ -36,7 +36,7 @@ $tabbed = $display['tabs'] == 0 && count($pages) > 1;
         <? foreach ($pages as $page):
             $close = false;
             if (isset($page['Title'])):
-                eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
+                $title = htmlspecialchars($page['Title']) ?? '';
                 if ($tabbed): ?>
                     <div class="tab">
                         <input type="radio" id="tab<?= $tab ?>" name="tabs" onclick="settab(this.id)">
@@ -64,7 +64,8 @@ $tabbed = $display['tabs'] == 0 && count($pages) > 1;
             if (isset($page['Type']) && $page['Type'] == 'menu'):
                 $pgs = find_pages($page['name']);
                 foreach ($pgs as $pg):
-                    @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
+                    // Set title variable with proper escaping (suppress errors)
+                    @$title = htmlspecialchars($pg['Title']);
                     $icon = _var($pg, 'Icon', $defaultIcon);
                     $icon = process_icon($icon, $docroot, $pg['root']); ?>
                     <div class="Panel">
