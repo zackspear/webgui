@@ -4,11 +4,6 @@
  * Handles the rendering of tabs and page content.
  */
 
-// Initialize variables
-$tab = 1;
-$display['tabs'] = isset($myPage['Tabs']) ? (strtolower($myPage['Tabs']) == 'true' ? 0 : 1) : 1;
-$tabbed = $display['tabs'] == 0 && count($pages) > 1;
-
 // Helper function to process icon
 function process_icon($icon, $docroot, $root) {
     if (substr($icon, -4) == '.png') {
@@ -28,6 +23,11 @@ function process_icon($icon, $docroot, $root) {
     }
     return $icon;
 }
+
+$tab = 1;
+// even if DisplaySettings is not enabled for tabs, pages with Tabs="true" will use tabs
+$display['tabs'] = isset($myPage['Tabs']) ? (strtolower($myPage['Tabs']) == 'true' ? 0 : 1) : 1;
+$tabbed = $display['tabs'] == 0 && count($pages) > 1;
 ?>
 <div id="displaybox">
     <div class="tabs">
@@ -74,7 +74,7 @@ function process_icon($icon, $docroot, $root) {
                 <? endforeach;
             endif;
 
-            // Annotate and create page content
+            // Annotate with HTML comment
             annotate($page['file']);
 
             // Create page content
