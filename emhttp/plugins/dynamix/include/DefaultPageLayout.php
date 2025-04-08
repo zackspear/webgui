@@ -164,12 +164,11 @@ if (isset($myPage['Load'])) {
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
 </head>
 <body>
-  <div id="displaybox">
-    <? include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
-    <? include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
-    <? include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
-    <? require_once "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
-    <? require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/MiscElements.php"; ?>
-    <? require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/BodyInlineJS.php"; ?>
-  </body>
+  <? include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
+  <? include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
+  <? include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
+  <? include "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
+  <? include "$docroot/plugins/dynamix/include/DefaultPageLayout/MiscElements.php"; ?>
+  <? include "$docroot/plugins/dynamix/include/DefaultPageLayout/BodyInlineJS.php"; ?>
+</body>
 </html>
