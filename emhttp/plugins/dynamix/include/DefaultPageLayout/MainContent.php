@@ -4,15 +4,17 @@
  * Handles the rendering of tabs and page content.
  */
 
+$defaultIcon = "<i class=\"icon-app PanelIcon\"></i>";
 // Helper function to process icon
 function process_icon($icon, $docroot, $root) {
+    global $defaultIcon;
     if (substr($icon, -4) == '.png') {
         if (file_exists("$docroot/$root/images/$icon")) {
             return "<img src=\"/$root/images/$icon\" class=\"PanelImg\">";
         } elseif (file_exists("$docroot/$root/$icon")) {
             return "<img src=\"/$root/$icon\" class=\"PanelImg\">";
         }
-        return "<i class=\"icon-app PanelIcon\"></i>";
+        return $defaultIcon;
     } elseif (substr($icon, 0, 5) == 'icon-') {
         return "<i class=\"$icon PanelIcon\"></i>";
     } elseif ($icon[0] != '<') {
@@ -63,7 +65,7 @@ $tabbed = $display['tabs'] == 0 && count($pages) > 1;
                 $pgs = find_pages($page['name']);
                 foreach ($pgs as $pg):
                     @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
-                    $icon = _var($pg, 'Icon', "<i class=\"icon-app PanelIcon\"></i>");
+                    $icon = _var($pg, 'Icon', $defaultIcon);
                     $icon = process_icon($icon, $docroot, $pg['root']); ?>
                     <div class="Panel">
                         <a href="/<?= $path ?>/<?= $pg['name'] ?>" onclick="$.cookie('one','tab1')">
