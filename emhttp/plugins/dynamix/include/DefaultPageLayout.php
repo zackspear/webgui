@@ -11,7 +11,7 @@
  */
 ?>
 <?
-require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
+require_once "$docroot/webGui/include/ThemeHelper.php";
 $themeHelper = new ThemeHelper($display['theme'], $display['width']);
 $theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
 $themes1 = $themeHelper->isTopNavTheme();
@@ -29,7 +29,7 @@ $alerts  = '/tmp/plugins/my_alerts.txt';
 $wlan0   = file_exists('/sys/class/net/wlan0');
 
 $safemode = _var($var,'safeMode')=='yes';
-$banner = "$config/plugins/dynamix/banner.png";
+$banner = "$config/webGui/banner.png";
 
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
@@ -100,7 +100,7 @@ function generateReloadScript($loadMinutes) {
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-palette.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix/styles/dynamix-jquery-ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-jquery-ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$theme}.css")?>">
 
 <style>
@@ -132,7 +132,7 @@ if ($themeHelper->isSidebarTheme()) {
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script src="<?autov('/webGui/javascript/translate.'.($locale?:'en_US').'.js')?>"></script>
 
-<? require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/HeadInlineJS.php"; ?>
+<? require_once "$docroot/webGui/include/DefaultPageLayout/HeadInlineJS.php"; ?>
 
 <?
 function includePageStylesheets($page) {
@@ -168,7 +168,7 @@ if (isset($myPage['Load'])) {
   <? include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
   <? include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
   <? include "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
-  <? include "$docroot/plugins/dynamix/include/DefaultPageLayout/MiscElements.php"; ?>
-  <? include "$docroot/plugins/dynamix/include/DefaultPageLayout/BodyInlineJS.php"; ?>
+  <? include "$docroot/webGui/include/DefaultPageLayout/MiscElements.php"; ?>
+  <? include "$docroot/webGui/include/DefaultPageLayout/BodyInlineJS.php"; ?>
 </body>
 </html>
