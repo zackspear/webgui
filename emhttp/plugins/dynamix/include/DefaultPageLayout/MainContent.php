@@ -46,12 +46,6 @@ foreach ($pages as $page) {
     }
   }
   annotate($page['file']);
-  // include page specific stylesheets (if existing)
-  $css = "/{$page['root']}/sheets/{$page['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css";
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
   // create page content
   empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
   if ($close) echo "</div></div>";
