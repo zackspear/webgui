@@ -88,12 +88,12 @@ $tabbed = $display['tabs'] == 0 && count($pages) > 1;
             endif;
 
             if ($close): ?>
-                </div>
-            </div>
+                </div><!-- /.content -->
+            </div><!-- /.tab -->
             <? endif;
         endforeach; ?>
-    </div>
-</div>
+    </div><!-- /.tabs -->
+</div><!-- /#displaybox -->
 <?
 // Clean up variables
 unset($pages, $page, $pgs, $pg, $icon, $nchan, $running, $start, $stop, $row, $script, $opt, $nchan_run);
