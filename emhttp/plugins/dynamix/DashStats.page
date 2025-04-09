@@ -873,31 +873,30 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 }
 
 function initCharts(clear) {
-  $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
-    data = JSON.parse(data);
-    // initialize graphs entries
-    var now = new Date().getTime();
-    if (!clear) {
-      var c = data.cpu.split(';');
-      var r = data.rxd.split(';');
-      var t = data.txd.split(';');
-      for (var i=0; i < cpuline; i++) {
-        var x = now + i;
-        var y = c[i]||0; cpu.push({x,y});
-      }
-      cputime = x + 1;
-    } else {
-      // clear network graph
-      var r = ''; var t = '';
-      rxd = []; txd = [];
-    }
-    for (var i=0; i < netline; i++) {
+  // initialize graphs entries
+  var data = [];
+  data.cpu = data.rxd = data.txd ="";
+  var now = new Date().getTime();
+  if (!clear) {
+    var c = data.cpu.split(';');
+    var r = data.rxd.split(';');
+    var t = data.txd.split(';');
+    for (var i=0; i < cpuline; i++) {
       var x = now + i;
-      var y = r[i]||0; rxd.push({x,y});
-      var y = t[i]||0; txd.push({x,y});
+      var y = c[i]||0; cpu.push({x,y});
     }
-    nettime = x + 1;
-  });
+    cputime = x + 1;
+  } else {
+    // clear network graph
+    var r = ''; var t = '';
+    rxd = []; txd = [];
+  }
+  for (var i=0; i < netline; i++) {
+    var x = now + i;
+    var y = r[i]||0; rxd.push({x,y});
+    var y = t[i]||0; txd.push({x,y});
+  }
+  nettime = x + 1;
 }
 
 function resetCharts() {
