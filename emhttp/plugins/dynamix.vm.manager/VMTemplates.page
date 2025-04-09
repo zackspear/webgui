@@ -16,6 +16,13 @@ Markdown="false"
  * all copies or substantial portions of the Software.
  */
 ?>
+<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
+
+<script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
+<script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
+<script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
+<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <?
 	$docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 	require_once "$docroot/plugins/dynamix.vm.manager/include/libvirt_helpers.php";
@@ -37,17 +44,6 @@ Markdown="false"
 	}
 	if (strpos($strName,"User-") === false) $user = ""; else $user = ' class="user"'; 
 ?>
-
-<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.filetree.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
-
-<script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
-<script src="<?autov('/plugins/dynamix.vm.manager/javascript/dynamix.vm.manager.js')?>"></script>
-<script src="<?autov('/plugins/dynamix.vm.manager/javascript/vmmanager.js')?>"></script>
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
-
 <div class="vmtemplate">
 	<a href="/VMs/AddVM?template=<?=htmlspecialchars(urlencode($strName))?>">
 		<span name="<?=htmlspecialchars($strName)?>" <?=$user?>><img src="/plugins/dynamix.vm.manager/templates/images/<?=htmlspecialchars($arrTemplate['icon'])?>" title="<?=htmlspecialchars($strName)?>"></span>

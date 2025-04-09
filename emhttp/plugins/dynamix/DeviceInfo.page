@@ -135,9 +135,6 @@ function is_upgraded_ZFS_pool($pool_name) {
 	return ($upgrade ? false : true);
 }
 ?>
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
-
 <script>
 <?if (empty($disk)):?>
   done();

@@ -54,7 +54,7 @@ vmlist(){
   for ARG in ${@: 1}; do
     [[ $ARG == all ]] && STATE="$STATE --all" || STATE="$STATE --state-$ARG"
   done
-  virsh list --uuid $STATE | tail -n +3 | grep -v '^$'
+  virsh list --uuid $STATE | tail -n +1 | grep -v '^$'
 }
 
 waitfor(){
@@ -347,6 +347,9 @@ case "$1" in
   ;;
 'status')
   libvirtd_status
+  ;;
+'stopvm')
+  stop_running_machines
   ;;
 *)
   echo "Usage: $BASENAME test|start|stop|restart|status"

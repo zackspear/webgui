@@ -48,17 +48,17 @@ function locked($source, $port) {
 }
 
 function vlanID($cfg) {
-  return array_filter($cfg,function($key){return strpos($key,'VLANID:')===0;},ARRAY_FILTER_USE_KEY);
+  return array_filter($cfg, function($key){return strpos($key, 'VLANID:')===0;}, ARRAY_FILTER_USE_KEY);
 }
 
 function index($key) {
-  return filter_var($key,FILTER_SANITIZE_NUMBER_INT);
+  return filter_var($key, FILTER_SANITIZE_NUMBER_INT);
 }
 
 function metric($eth, $prot, $index) {
   $system = '/sys/class/net';
-  $bridge = str_replace('eth','br',$eth);
-  $bond   = str_replace('eth','bond',$eth);
+  $bridge = str_replace('eth','br', $eth);
+  $bond   = str_replace('eth','bond', $eth);
   $port   = file_exists("$system/$bridge") ? $bridge : (file_exists("$system/$bond") ? $bond : $eth);
   $metric = exec("ip -$prot route show default dev $port 2>/dev/null | grep -Pom1 ' metric \K\d+'");
   if ($metric) return $metric + $index;
@@ -67,8 +67,8 @@ function metric($eth, $prot, $index) {
 }
 
 // remove non-existing ethernet ports
-foreach (glob("$docroot/webGui/Eth[1-9]*.page",GLOB_NOSORT) as $port) {
-  if (!in_array(strtolower(basename($port,'.page')), $ports)) {
+foreach (glob("$docroot/webGui/Eth[1-9]*.page", GLOB_NOSORT) as $port) {
+  if (!in_array(strtolower(basename($port, '.page')), $ports)) {
     @unlink($port);
     $build = true;
   }
@@ -78,8 +78,8 @@ foreach (glob("$docroot/webGui/Eth[1-9]*.page",GLOB_NOSORT) as $port) {
 foreach ($ports as $ethX) {
   $file = "$docroot/webGui/".ucfirst($ethX).".page";
   if (!file_exists($file)) {
-    $X = filter_var($ethX,FILTER_SANITIZE_NUMBER_INT);
-    file_put_contents($file,str_replace(['parentname:nnn','tabX','bondX','brX','ethX'],['NetworkSettings:'.($X+100),'tab'.($X+1),'bond'.$X,'br'.$X,$ethX],file_get_contents($template)));
+    $X = filter_var($ethX, FILTER_SANITIZE_NUMBER_INT);
+    file_put_contents($file, str_replace(['parentname:nnn','tabX','bondX','brX','ethX'],['NetworkSettings:'.($X+100),'tab'.($X+1),'bond'.$X,'br'.$X,$ethX], file_get_contents($template)));
     $build = true;
   }
 }
@@ -93,7 +93,7 @@ $no_eth0 = exec("ip -br link show eth0 | awk '{print \$2;exit}'")=='DOWN';
 // get VLAN interfaces
 $vlan_eth0 = $sort_eth0 = [];
 if (isset($eth0)) foreach (vlanID($eth0) as $key => $val) {$vlan_eth0[] = index($key); $sort_eth0[] = (int)$val;}
-array_multisort($sort_eth0,$vlan_eth0);
+array_multisort($sort_eth0, $vlan_eth0);
 ?>
 
 <script>
@@ -162,13 +162,8 @@ function prepareSettings(form) {
   if (brnics.length > 1) form.BRSTP.value = 'yes';
   if ($(form).find('input[name="#arg[1]"]').val() == 'none') return true;
 
-  var metrics = [], metrics6 = [];
-  $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val()>0) metrics.push($(this).val());});
-  $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val()>0) metrics6.push($(this).val());});
-  if (metrics.same() || metrics6.same()) {
-    swal({title:'Duplicate metrics',text:'List of default gateways contains duplicate metric values',animation:'none',type:'error',html:true,confirmButtonText:"_(Ok)_"});
-    return false;
-  }
+  // enable form items for submission
+  $(form).find('input,select').prop('disabled',false);
   if (form.TYPE.value == 'access') {
     $(form).find('input[name^="VLANID:"]').prop('disabled',false).val('');
     $(form).find('input[name^="DESCRIPTION:"]').not('input[name$=":0"]').prop('disabled',false).val('');
@@ -195,41 +190,39 @@ function prepareSettings(form) {
     var protocol = $(this).val() || 'ipv4';
     var i = $(this).prop('name').split(':')[1];
     if (protocol == 'ipv6') {
-      $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('select[name="NETMASK:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="METRIC:'+i+'"]').prop('disabled',false).val('');
+      $(form).find('input[name="IPADDR:'+i+'"]').val('');
+      $(form).find('select[name="NETMASK:'+i+'"]').val('');
+      $(form).find('input[name="GATEWAY:'+i+'"]').val('');
+      $(form).find('input[name="METRIC:'+i+'"]').val('');
     }
     if (protocol == 'ipv4') {
-      $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="NETMASK6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('select[name="PRIVACY6:'+i+'"]').prop('disabled',false).val('');
+      $(form).find('input[name="IPADDR6:'+i+'"]').val('');
+      $(form).find('input[name="NETMASK6:'+i+'"]').val('');
+      $(form).find('input[name="GATEWAY6:'+i+'"]').val('');
+      $(form).find('input[name="METRIC6:'+i+'"]').val('');
+      $(form).find('select[name="PRIVACY6:'+i+'"]').val('');
     }
   });
   $(form).find('select[name^="USE_DHCP:"]').each(function() {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-    var metric = $(form).find('input[name="METRIC:'+i+'"]').val();
     var gw4 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW4:'+i+'"]').prop('checked');
     if (protocol != 'ipv6' && $(this).val() != 'no') {
-      $(form).find('input[name="IPADDR:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="GATEWAY:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="METRIC:'+i+'"]').prop('disabled',false).val(gw4?'':'0');
+      $(form).find('input[name="IPADDR:'+i+'"]').val('');
+      $(form).find('input[name="GATEWAY:'+i+'"]').val('');
+      $(form).find('input[name="METRIC:'+i+'"]').val(gw4?'':'0');
     }
   });
   $(form).find('select[name^="USE_DHCP6:"]').each(function() {
     var i = $(this).prop('name').split(':')[1];
     var protocol = $(form).find('select[name="PROTOCOL:'+i+'"]').val() || 'ipv4';
-    var metric = $(form).find('input[name="METRIC6:'+i+'"]').val();
     var gw6 = (port == 'eth0') ? true : $(form).find('input[name="USE_GW6:'+i+'"]').prop('checked');
     if (protocol != 'ipv4' && $(this).val() != 'no') {
-      $(form).find('input[name="IPADDR6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="GATEWAY6:'+i+'"]').prop('disabled',false).val('');
-      $(form).find('input[name="METRIC6:'+i+'"]').prop('disabled',false).val(gw6?'':'0');
+      $(form).find('input[name="IPADDR6:'+i+'"]').val('');
+      $(form).find('input[name="GATEWAY6:'+i+'"]').val('');
+      $(form).find('input[name="METRIC6:'+i+'"]').val(gw6?'':'0');
     }
-    if ($(this).val() != 'yes') $(form).find('input[name="PRIVACY6:'+i+'"]').prop('disabled',false).val('');
+    if ($(this).val() != 'yes') $(form).find('input[name="PRIVACY6:'+i+'"]').val('');
   });
   if (port == 'eth0') {
     $(dns).find('select,input').each(function(){
@@ -237,6 +230,13 @@ function prepareSettings(form) {
       var data = $(this).val();
       $(form).find('input[name="'+name+'"]').val(data);
     });
+  }
+  var metrics = [], metrics6 = [];
+  $(form).find('input[name^="METRIC:"]').each(function(){if($(this).val() > 0) metrics.push($(this).val());});
+  $(form).find('input[name^="METRIC6:"]').each(function(){if($(this).val() > 0) metrics6.push($(this).val());});
+  if (metrics.same() || metrics6.same()) {
+    swal({title:"_(Duplicate metrics)_", text:"_(List of default gateways contains duplicate metric values)_", animation:'none', type:'error', html:true, confirmButtonText:"_(Ok)_"});
+    return false;
   }
   // force default MTU if jumbo frames are not enabled
   if ($(form).find('input[name="USE_MTU"]').prop('checked') == false) $(form).find('input[name="MTU"]').val('');
@@ -466,6 +466,7 @@ function checkNetworkAccess(form) {
 }
 
 function addVLAN(port) {
+  $('input[value="<?=_("Apply")?>"],input[value="Apply"]').prop('disabled',false);
   var index = 1;
   while ($('#index-'+port+'-'+index).length) index++;
   var template = $($('<div/>').loadTemplate($('#network-template-'+port)).html().replace(/INDEX/g,index));
@@ -556,7 +557,7 @@ function networkInfo(port, vlan) {
 </script>
 
 <div class="title nocontrol shift">&nbsp;</div>
-<div class="shade-<?=$display['theme']?> uplift">
+<div class="shade uplift">
 <form name="dns_settings" onchange="signalRun(this,1)">
 <div markdown="1" id="dns4" class="hide">
 _(IPv4 DNS server assignment)_:
@@ -785,7 +786,7 @@ _(Enable VLANs)_:
 <div id="index-eth0-0"></div>
 <div id="vlan-list-eth0" class="hide">
 <?foreach ($vlan_eth0 as $i):?>
-<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade-<?=$display['theme']?> hide">
+<div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:$i"))?>">
   <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0,"VLANID:$i")?>)">
@@ -887,7 +888,7 @@ _(IPv6 privacy extensions)_:
 </form>
 
 <script markdown="1" type="text/html" id="network-template-eth0">
-<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade-<?=$display['theme']?>">
+<div markdown="1" id="index-eth0-INDEX" class="access-eth0 shade">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0,"DESCRIPTION:INDEX"))?>">
 

@@ -105,11 +105,20 @@ $fans       = exec("sensors -uA 2>/dev/null|grep -c 'fan[0-9]_input'");
 $autofan    = is_executable("$docroot/plugins/dynamix.system.autofan/scripts/rc.autofan");
 $group      = _var($var,'shareSMBEnabled')=='yes' | _var($var,'shareNFSEnabled')=='yes';
 $names      = [];
-$cache_only = $encrypted = 0;
-
-foreach ($shares as $share) {
-  if ($share['useCache']=='only') $cache_only++;
-  if ($share['luksStatus']>0) $encrypted++;
+$SMBpublic = $NFSpublic= 0;
+foreach ($sec as $share => $prop) {
+  if ( $prop['export'] == "-") continue;
+  if ( $prop['security'] == "public") $SMBpublic++;
+  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
+  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+}
+foreach ($sec_nfs as $share => $prop) {
+  if ( $prop['export'] == "-") continue;
+  if ( $prop['security'] == "public") $NFSpublic++;
+  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
+  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
 }
 
 $passwd = $nopass = 0;
@@ -180,8 +189,6 @@ switch ($theme) {
 }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.ui.css')?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/plugins/dynamix.docker.manager/styles/style-$theme.css")?>">
 
 <script src="<?autov('/webGui/javascript/jquery.apexcharts.js')?>"></script>
 <script src="<?autov('/webGui/javascript/jquery.switchbutton.js')?>"></script>
@@ -451,7 +458,7 @@ echo "</td></tr>";
 </select></span>
 <?endif;?>
 <br><span>
-<?=sprintf(_("Share count: %s with %s cache only and %s encrypted"),count($shares),$cache_only,$encrypted)?>
+<?=sprintf(_("Share count: %s with %s public SMB and %s public NFS"),count($shares),$SMBpublic,$NFSpublic)?>
 </span><br></div>
 <a href='/Shares' title="_(Go to Share settings)_"><i class='fa fa-fw fa-cog control'></i></a>
 </td></tr>
@@ -460,9 +467,7 @@ echo "</td></tr>";
 if (_var($var,'shareSMBEnabled')=='yes') {
   $i = 0;
   foreach ($shares as $name => $share) {
-    $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
+    $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
     $comment = $share['comment'] ?: '-';
     $security = export_settings(_var($var,'shareSMBEnabled'), $sec[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
@@ -472,9 +477,8 @@ if (_var($var,'shareSMBEnabled')=='yes') {
 }
 if (_var($var,'shareNFSEnabled')=='yes') {
   foreach ($shares as $name => $share) {
-    $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
+    if ( ! isset($sec_nfs[$name]) ) continue;
+    $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
     $comment = $share['comment'] ?: '-';
     $security = export_settings(_var($var,'shareNFSEnabled'), $sec_nfs[$name]);
     $last = $name==array_key_last($shares) ? ' last' : '';
@@ -484,9 +488,7 @@ if (_var($var,'shareNFSEnabled')=='yes') {
 }
 if (!$group) {
   foreach ($shares as $name => $share) {
-    $list = "<a href=\"/Dashboard/Shares/Share?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
-    if ($share['luksStatus']>0) $list = str_replace('blue-text','green-text',$list);
-    elseif ($share['useCache']=='only') $list = str_replace('blue-text','orange-text',$list);
+    $list = "<a href=\"/Dashboard/Shares/".(isset($share['diskexport']) ? "Disk" : "Share")."?name=".urlencode($name)."\" class=\"blue-text\" title=\"$name settings\">$name</a>";
     $comment = $share['comment'] ?: '-';
     echo "<tr class='share'><td><span class='w26'><i class='icon-folder f14'></i>$list</span><span class='w44'>".htmlspecialchars($comment)."</span><span class='w18'>-</span><span>-</span></td></tr>";
   }
@@ -810,7 +812,7 @@ var options_cpu = {
   colors:['#ff8c2f'],
   markers:{size:0},
   xaxis:{type:'datetime', range:cpuline-1, labels:{show:false}, axisTicks:{show:false}, axisBorder:{show:false}},
-  yaxis:{max:100, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
+  yaxis:{max:100, min:0, tickAmount:4, labels:{formatter:function(v,i){return v.toFixed(0)+' %';}, style:{colors:'<?=$color?>'}}, axisBorder:{show:false}, axisTicks:{show:false}},
   grid:{show:true, borderColor:'<?=$grid?>'},
   legend:{show:false}
 };
@@ -865,31 +867,30 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 }
 
 function initCharts(clear) {
-  $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
-    data = JSON.parse(data);
-    // initialize graphs entries
-    var now = new Date().getTime();
-    if (!clear) {
-      var c = data.cpu.split(';');
-      var r = data.rxd.split(';');
-      var t = data.txd.split(';');
-      for (var i=0; i < cpuline; i++) {
-        var x = now + i;
-        var y = c[i]||0; cpu.push({x,y});
-      }
-      cputime = x + 1;
-    } else {
-      // clear network graph
-      var r = ''; var t = '';
-      rxd = []; txd = [];
-    }
-    for (var i=0; i < netline; i++) {
+  // initialize graphs entries
+  var data = [];
+  data.cpu = data.rxd = data.txd ="";
+  var now = new Date().getTime();
+  if (!clear) {
+    var c = data.cpu.split(';');
+    var r = data.rxd.split(';');
+    var t = data.txd.split(';');
+    for (var i=0; i < cpuline; i++) {
       var x = now + i;
-      var y = r[i]||0; rxd.push({x,y});
-      var y = t[i]||0; txd.push({x,y});
+      var y = c[i]||0; cpu.push({x,y});
     }
-    nettime = x + 1;
-  });
+    cputime = x + 1;
+  } else {
+    // clear network graph
+    var r = ''; var t = '';
+    rxd = []; txd = [];
+  }
+  for (var i=0; i < netline; i++) {
+    var x = now + i;
+    var y = r[i]||0; rxd.push({x,y});
+    var y = t[i]||0; txd.push({x,y});
+  }
+  nettime = x + 1;
 }
 
 function resetCharts() {
@@ -1406,11 +1407,7 @@ function contentMgmt() {
     modal: true,
     buttons: {
       "_(Reset)_": function(){
-        delete cookie.db_box1;
-        delete cookie.db_box2;
-        delete cookie.db_box3;
-        delete cookie.inactive_content;
-        delete cookie.hidden_content;
+        cookie = {};
         saveCookie();
         box.dialog('close');
         location.reload();
@@ -1608,7 +1605,7 @@ function cpu_parse(msg) {
 }
 
 <?if ($vmusage == "Y"):?>
-var vmdashusage = new NchanSubscriber('/sub/vm_dashusage',{subscriber:'websocket'});
+var vmdashusage = new NchanSubscriber('/sub/vm_dashusage',{subscriber:'websocket', reconnectTimeout:5000});
 vmdashusage.on('message', function(msg){
   var data = JSON.parse(msg);
   for (const [vm, vmdata] of Object.entries(data)) {
@@ -1619,7 +1616,7 @@ vmdashusage.on('message', function(msg){
   });
 <?endif;?>
 
-var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket'});
+var dashboard = new NchanSubscriber('/sub/cpuload,update1,update2,update3<?=$wireguard?",wireguard":""?>',{subscriber:'websocket', reconnectTimeout:5000});
 dashboard.on('message',function(msg,meta) {
   switch (meta.id.channel()) {
   case 0:
@@ -1764,7 +1761,7 @@ dashboard.on('message',function(msg,meta) {
 });
 
 <?if ($apcupsd):?>
-var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket'});
+var apcups = new NchanSubscriber('/sub/apcups',{subscriber:'websocket', reconnectTimeout:5000});
 apcups.on('message',function(msg) {
   var get = JSON.parse(msg);
   $('#ups_model').html(get[0]);
@@ -1789,12 +1786,12 @@ $(function() {
 <?endif;?>
   dropdown('enter_view');
   startup = false;
-  dashboard.start();
+  dashboard.start().monitor();
 <?if ($vmusage == "Y"):?>
-  vmdashusage.start();
+  vmdashusage.start().monitor();
 <?endif;?>
 <?if ($apcupsd):?>
-  apcups.start();
+  apcups.start().monitor();
 <?endif;?>
   update900();
   toggleChart(true);
@@ -1807,22 +1804,13 @@ $(function() {
   $('#netline').val(netline);
   $.removeCookie('lockbutton');
   // remember latest graph values
-  $(window).on('beforeunload',function(e){
-    var data = {};
-    data.cpu = cpu.tail(cpuline);
-    data.rxd = rxd.tail(netline);
-    data.txd = txd.tail(netline);
-    $.post('/webGui/include/InitCharts.php',{cmd:'set',data:JSON.stringify(data)});
-  });
 });
 
-window.onunload = function(){
-  dashboard.stop();
-<?if ($vmusage == "Y"):?>
-    vmdashusage.stop();
-<?endif;?>
-<?if ($apcupsd):?>
-  apcups.stop();
-<?endif;?>
+// Start graphs over again when window back in focus
+function pageFocusFunction() {
+  cpu = [];
+  rxd = [];
+  txd = [];
 }
+
 </script>

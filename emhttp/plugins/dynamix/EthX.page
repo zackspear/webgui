@@ -249,7 +249,7 @@ _(Enable VLANs)_:
 <div id='index-ethX-0'></div>
 <div id="vlan-list-ethX" class="hide">
 <?foreach ($vlan_ethX as $i):?>
-<div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade-<?=$display['theme']?> hide">
+<div markdown="1" id="index-ethX-<?=$i?>" class="access-ethX shade hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:$i"))?>">
   <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($ethX,"VLANID:$i")?>)">
@@ -350,7 +350,7 @@ _(IPv6 privacy extensions)_:
 </form>
 
 <script markdown="1" type="text/html" id="network-template-ethX">
-<div markdown="1" id="index-ethX-INDEX" class="access-ethX shade-<?=$display['theme']?>">
+<div markdown="1" id="index-ethX-INDEX" class="access-ethX shade">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:INDEX" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($ethX,"DESCRIPTION:INDEX"))?>">
 
