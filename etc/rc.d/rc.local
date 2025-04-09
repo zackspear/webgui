@@ -91,21 +91,37 @@ rm -f $CONFIG/plugins/unRAIDServer.plg
 
 # These plugins are now integrated in the OS or obsolete and may interfere
 OBSOLETE="vfio.pci dynamix.wireguard dynamix.ssd.trim dynamix.file.manager gui.search unlimited-width proxy.editor unraid.patch AAA-UnraidPatch-BootLoader-DO_NOT_DELETE"
+QUIET="unraid.patch AAA-UnraidPatch-BootLoader-DO_NOT_DELETE"
+
 for PLUGIN in $OBSOLETE; do
-  if [[ -e $CONFIG/plugins/$PLUGIN.plg ]]; then
-    log "moving obsolete plugin $PLUGIN.plg to $CONFIG/plugins-error"
+  if [[ -e "$CONFIG/plugins/$PLUGIN.plg" ]]; then
     # preserve ssd-trim config
     if [[ $PLUGIN == dynamix.ssd.trim ]]; then
-      if [[ -e $CONFIG/plugins/$PLUGIN/$PLUGIN.cfg ]]; then
-        echo "[ssd]" >> $CONFIG/plugins/dynamix/dynamix.cfg
-        cat $CONFIG/plugins/$PLUGIN/$PLUGIN.cfg >> $CONFIG/plugins/dynamix/dynamix.cfg
+      if [[ -e "$CONFIG/plugins/$PLUGIN/$PLUGIN.cfg" ]]; then
+        echo "[ssd]" >> "$CONFIG/plugins/dynamix/dynamix.cfg"
+        cat "$CONFIG/plugins/$PLUGIN/$PLUGIN.cfg" >> "$CONFIG/plugins/dynamix/dynamix.cfg"
       fi
-      if [[ -e $CONFIG/plugins/$PLUGIN/ssd-trim.cron ]]; then
-        mv $CONFIG/plugins/$PLUGIN/ssd-trim.cron $CONFIG/plugins/dynamix/ssd-trim.cron
+      if [[ -e "$CONFIG/plugins/$PLUGIN/ssd-trim.cron" ]]; then
+        mv "$CONFIG/plugins/$PLUGIN/ssd-trim.cron" "$CONFIG/plugins/dynamix/ssd-trim.cron"
       fi
     fi
-    mv $CONFIG/plugins/$PLUGIN.plg $CONFIG/plugins-error/
-    rm -rf $CONFIG/plugins/$PLUGIN
+
+    if [[ " $QUIET " == *" $PLUGIN "* ]]; then
+      rm "$CONFIG/plugins/$PLUGIN.plg"
+    else
+      log "moving obsolete plugin $PLUGIN.plg to $CONFIG/plugins-error"
+      mv "$CONFIG/plugins/$PLUGIN.plg" "$CONFIG/plugins-error/"
+    fi
+
+    # also remove $PLUGIN configuration directory
+    rm -rf "$CONFIG/plugins/$PLUGIN"
+  fi
+done
+
+# Clean up any quiet plugin plg files from previous runs
+for PLUGIN in $QUIET; do
+  if [[ -e "$CONFIG/plugins-error/$PLUGIN.plg" ]]; then
+    rm "$CONFIG/plugins-error/$PLUGIN.plg"
   fi
 done
 
