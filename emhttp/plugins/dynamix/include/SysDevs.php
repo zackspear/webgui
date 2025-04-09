@@ -213,7 +213,6 @@ EOT;
 case 't2':
   $is_intel_cpu = is_intel_cpu();
   $core_types = $is_intel_cpu ? get_intel_core_types() : [];
-  var_dump($is_intel_cpu,$core_types);
   exec('cat /sys/devices/system/cpu/*/topology/thread_siblings_list|sort -nu',$pairs);
   $i = 1;
   foreach ($pairs as $line) {
