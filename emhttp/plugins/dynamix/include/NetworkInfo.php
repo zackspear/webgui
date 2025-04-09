@@ -39,7 +39,6 @@ $note   = in_array($eth,['eth0','wlan0']) && !$vlan ? $error : $none;
 $ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show ".escapeshellarg($port)." scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
 $gw4    = exec("ip -4 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
 $dns4   = array_filter($ns,function($ns){return strpos($ns,':') === false;});
-$domain = exec("grep -Pom1 'domain \K.*' /etc/resolv.conf 2>/dev/null") ?: '---';
 
 if ($v6on) {
   $ipv6 = array_filter(explode(' ',exec("ip -6 -br addr show ".escapeshellarg($port)." scope global -temporary 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
@@ -110,6 +109,5 @@ if ($v6on) {
     echo "<tr><td>"._('IPv6 DNS server').":</td><td>$error</td></tr>";
   }
 }
-echo "<tr><td>"._('Domain name').":</td><td>$domain</td></tr>";
 echo "</table>";
 ?>
