@@ -34,7 +34,7 @@ if (is_file('/boot/syslinux/syslinux.cfg')) {
   $bootenv = '/boot/grub';
 }
 
-$folders = ['/boot','/boot/config','/boot/config/plugins',$bootenv,'/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
+$folders = ['/boot','/boot/config','/boot/config/plugins','/boot/config/firmware',$bootenv,'/var/log','/var/log/plugins','/boot/extra','/var/log/packages','/var/lib/pkgtools/packages','/tmp'];
 
 // global variables
 $path  = "/var/local/emhttp";

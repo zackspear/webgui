@@ -35,10 +35,14 @@ TMP=/var/tmp/network.tmp
 # run & log functions
 . /etc/rc.d/rc.runlog
 
+carrier(){
+  cat $SYSTEM/$1/carrier 2>/dev/null
+}
+
 # determine active port name
 [[ -e $SYSTEM/bond0 ]] && PORT=bond0 || PORT=eth0
 [[ -e $SYSTEM/br0 ]] && PORT=br0
-[[ $(cat $SYSTEM/$PORT/carrier) == 0 && -e $SYSTEM/wlan0 && $(cat $SYSTEM/wlan0/carrier) == 1 ]] && PORT=wlan0
+[[ $(carrier $PORT) != 1 && -e $SYSTEM/wlan0 && $(carrier wlan0) == 1 ]] && PORT=wlan0
 
 # Set defaults used by the docker daemon
 if [[ -f $DOCKER_CFG ]]; then
@@ -250,7 +254,7 @@ docker_network_start(){
         fi
         X=${NIC//[^0-9]/}
         REF=$(grep -Pom1 "<Network>\K(br|bond|eth|wlan)$X" $XMLFILE)
-        [[ $X == 0 && $(cat $SYSTEM/$NIC/carrier) == 0 ]] && continue
+        [[ $X == 0 && $(carrier $NIC) != 1 ]] && continue
         [[ $X == 0 && $NIC != wlan0 ]] && MAIN=$NIC
         [[ $NIC == wlan0 && -n $MAIN ]] && continue
         if [[ -n $REF && $REF != $NIC ]]; then
