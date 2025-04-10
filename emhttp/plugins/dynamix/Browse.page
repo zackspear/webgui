@@ -360,10 +360,10 @@ function doAction(action, title, id) {
   if (!access.includes(path[0])) return;
   var user   = /^(user0?|rootshare)$/.test(path[1]);
   var root   = '/'+path[0]+(user ? '/'+path[1] : '');
-  var share  = user||!path[2]||(link&&path.length==3) ? '' : path[2]+'/';
+  var share  = user || !path[2] || (link && path.length==3) ? '' : path[2]+'/';
   var ud     = ['disks','remotes'].includes(path[1]); // unassigned devices
-  var match  = ud||user ? '' : '^(?!\\/mnt\\/user0?\\/).*$';
-  var name   = path.pop()||path.pop();
+  var match  = ud || user ? '' : '^(?!\\/mnt\\/(user0?|rootshare)\\/).*$';
+  var name   = path.pop() || path.pop();
   var hdlink = "<?=$var['fuse_directio'] == 1 ? '1' : ''?>";
   dfm.window = $("#dfm_dialogWindow");
   switch (action) {
@@ -625,10 +625,10 @@ function doActions(action, title) {
     if (!access.includes(path[0])) return;
     var user   = /^(user0?|rootshare)$/.test(path[1]);
     var root   = '/'+path[0]+(user ? '/'+path[1] : '');
-    var share  = user||!path[2] ? '' : path[2]+'/';
+    var share  = user || !path[2] ? '' : path[2]+'/';
     var ud     = ['disks','remotes'].includes(path[1]); // unassigned devices
-    var match  = ud||user ? '' : '^(?!.*(user0?|rootshare)).*$';
-    var name   = path.pop()||path.pop();
+    var match  = ud || user ? '' : '^(?!\\/mnt\\/(user0?|rootshare)\\/).*$';
+    var name   = path.pop() || path.pop();
     var hdlink = "<?=$var['fuse_directio'] == 1 ? '1' : ''?>";
     var u      = false;
     var d      = false;
