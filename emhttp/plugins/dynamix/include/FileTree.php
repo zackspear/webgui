@@ -64,7 +64,7 @@ if (is_low($rootdir) && is_dir($rootdir)) {
   $names = array_filter(scandir($rootdir, SCANDIR_SORT_NONE), function($n){return $n != '.' && $n != '..';});
   if (is_top($rootdir)) {
     // add unassigned devices top level shares
-    foreach ($udShares as $name) if (is_dir($rootdir.$name) && !in_array($name, $names)) $names[] = $name;
+    foreach ($udShares as $name) if (is_dir($rootdir.$name) && !in_array($name, $names)) $names[] = $rootdir.$name;
   }
   natcasesort($names);
   foreach ($names as $name) {
