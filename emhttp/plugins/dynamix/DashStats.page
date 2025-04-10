@@ -121,17 +121,25 @@ $names      = [];
 $SMBpublic = $NFSpublic= 0;
 foreach ($sec as $share => $prop) {
   if ( $prop['export'] == "-") continue;
-  if ( $prop['security'] == "public") $SMBpublic++;
-  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( $prop['security'] == "public") {
+    if ( $share == "flash" || (! isset($disks[$share]) || (isset($disks[$share]) && ($var['shareDisk']??"") == "yes" && $share !=="flash") ) )
+     $SMBpublic++;
+  }
+  if ( ($var['shareDisk']??"") !== "yes"  && $share !=="flash" ) continue;
   if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
-  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+  if ( (! isset($shares[$share]) && isset($disks[$share]) && ($var['shareDisk']??"") == "yes" ) || $share == "flash" ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
 }
-foreach ($sec_nfs as $share => $prop) {
-  if ( $prop['export'] == "-") continue;
-  if ( $prop['security'] == "public") $NFSpublic++;
-  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
-  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
-  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+if ($var['shareNFSEnabled']=='yes') {
+  foreach ($sec_nfs as $share => $prop) {
+    if ( $prop['export'] == "-") continue;
+    if ( $prop['security'] == "public") {
+      if ( $share == "flash" || (! isset($disks[$share]) || (isset($disks[$share]) && ($var['shareDisk']??"") == "yes" && $share !== "flash" ) ) )
+        $NFSpublic++;
+    }
+    if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+    if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
+    if ( ( ! isset($shares[$share]) && isset($disks[$share]) && ($var['shareDisk']??"") == "yes") || $share == "flash" ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+  }
 }
 
 $passwd = $nopass = 0;
