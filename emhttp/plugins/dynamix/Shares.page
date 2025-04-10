@@ -1,7 +1,6 @@
 Menu="Tasks:2"
 Type="xmenu"
 Code="e92a"
-Cond="_var($var,'shareUser')=='e' || _var($var,'shareDisk') != 'no'"
 ---
 <?PHP
 if ($var['fsState']=="Stopped") {
