@@ -162,7 +162,6 @@ if ($_POST['vms']) {
     foreach($vmpciids as $pciid => $pcidetail) {
       if (isset($pci_device_changes["0000:".$pciid])) {
         $pcierror = true;
-        $image = '<img src="/plugins/dynamix.vm.manager/templates/images/triangle.jpg" class="img">';
       }
     }
     $menu = sprintf("onclick=\"addVMContext('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')\"", addslashes($vm), addslashes($uuid), addslashes($template), $state, addslashes($vmrcurl), strtoupper($vmrcprotocol), addslashes($log),addslashes($fstype), $vmrcconsole,false,addslashes(str_replace('"',"'",$WebUI)),$pcierror);
