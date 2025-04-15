@@ -28,6 +28,17 @@ CONF6=/proc/sys/net/ipv6/conf
 [[ -r $INI ]] && . $INI
 PORT=${PORT:-wlan0}
 
+# translate security to informational text
+trans(){
+  case "$1" in
+    "open") echo "Open network" ;;
+    "PSK") echo "WPA2 Personal" ;;
+    "SAE") echo "WPA3 Personal" ;;
+    "IEEE 802.1X") echo "WPA2 Enterprise" ;;
+    "IEEE 802.1X/SHA-256") echo "WPA3 Enterprise" ;;
+  esac
+}
+
 # function to remove leading zeros in IPv4 address
 unzero(){
   local M Q
@@ -264,22 +275,23 @@ wifi_join(){
   [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
   rm -f $WPA
   if [[ $SECURITY == "auto" ]]; then
-    log "wpa_configuration AUTO"
+    log "wpa_configuration: Automatic detection"
     wpa_configuration "IEEE 802.1X/SHA-256" 25
     wpa_configuration "IEEE 802.1X" 18
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
     wpa_configuration "open" 10
   elif [[ $SECURITY == "IEEE 802.1X IEEE 802.1X/SHA-256" ]]; then
-    log "wpa_configuration WPA2/WPA3 Enterprise"
+    log "wpa_configuration: WPA2/WPA3 Enterprise"
     wpa_configuration "IEEE 802.1X/SHA-256" 25
     wpa_configuration "IEEE 802.1X" 18
   elif [[ $SECURITY == "PSK SAE" ]]; then
-    log "wpa_configuration WPA2/WPA3 Personal"
+    log "wpa_configuration: WPA2/WPA3 Personal"
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
   else
-    run wpa_configuration "$SECURITY"
+    log "wpa_configuration: $(trans "$SECURITY")"
+    wpa_configuration "$SECURITY"
   fi
   run wpa_supplicant -B -q -i $PORT -c $WPA
   # IPv4 address assignment
