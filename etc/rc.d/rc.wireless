@@ -143,7 +143,7 @@ ipaddr_down(){
 wpa_configuration(){
   if [[ ! -e $WPA ]]; then
     echo "bgscan=\"\"" >$WPA
-    echo "country=${CC,,}" >>$WPA
+    [[ -n $CC ]] && echo "country=${CC,,}" >>$WPA
   fi
   if [[ $1 == "PSK" ]]; then
     PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
