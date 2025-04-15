@@ -141,11 +141,9 @@ ipaddr_down(){
 # WPA3 Enterprise         OK
 
 wpa_configuration(){
-  rm -f $WPA
-  [[ -z $2 ]] && FILE=$WPA || FILE=$WPA.s
-  if [[ ! -e $FILE ]]; then
-    echo "bgscan=\"\"" >$FILE
-    echo "country=${CC,,}" >>$FILE
+  if [[ ! -e $WPA ]]; then
+    echo "bgscan=\"\"" >$WPA
+    echo "country=${CC,,}" >>$WPA
   fi
   PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
   [[ -z $PSK ]] && PSK="\"$PASSWORD\""
@@ -168,7 +166,6 @@ wpa_configuration(){
   [[ $1 =~ "IEEE" ]] && echo "phase2=\"auth=MSCHAPV2\"" >>$WPA
   [[ -n $2 ]] && echo "priority=$2" >>$WPA
   echo "}" >>$WPA
-  [[ -n $2 ]] && cat $WPA >>$WPA.s
 }
 
 wifi_running(){
@@ -260,23 +257,22 @@ wifi_join(){
   REGION=$(grep -Pom1 '^REGION="\K[^"]+' $CFG)
   REGION_XX=$(grep -Pom1 '^REGION_XX="\K[^"]+' $CFG)
   [[ $REGION == '00' ]] && CC=$REGION_XX || CC=$REGION
+  rm -f $WPA
   if [[ $SECURITY == "auto" ]]; then
     log "wpa_configuration AUTO"
     wpa_configuration "IEEE 802.1X/SHA-256" 25
     wpa_configuration "IEEE 802.1X" 18
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
-    mv $WPA.s $WPA
+    wpa_configuration "open" 10
   elif [[ $SECURITY == "IEEE 802.1X IEEE 802.1X/SHA-256" ]]; then
     log "wpa_configuration WPA2/WPA3 Enterprise"
     wpa_configuration "IEEE 802.1X/SHA-256" 25
     wpa_configuration "IEEE 802.1X" 18
-    mv $WPA.s $WPA
   elif [[ $SECURITY == "PSK SAE" ]]; then
     log "wpa_configuration WPA2/WPA3 Personal"
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
-    mv $WPA.s $WPA
   else
     run wpa_configuration "$SECURITY"
   fi
