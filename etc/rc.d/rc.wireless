@@ -281,7 +281,7 @@ wifi_join(){
   else
     run wpa_configuration "$SECURITY"
   fi
-  run wpa_supplicant -B -i $PORT -c $WPA
+  run wpa_supplicant -B -q -i $PORT -c $WPA
   # IPv4 address assignment
   IP=ipv4
   DHCP=$DHCP4
