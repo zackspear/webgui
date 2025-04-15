@@ -145,8 +145,10 @@ wpa_configuration(){
     echo "bgscan=\"\"" >$WPA
     echo "country=${CC,,}" >>$WPA
   fi
-  PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
-  [[ -z $PSK ]] && PSK="\"$PASSWORD\""
+  if [[ $1 == "PSK" ]]; then
+    PSK=$(wpa_passphrase "$SSID" "$PASSWORD" 2>/dev/null | grep -Pom1 '^\s+psk=\K.+')
+    [[ -z $PSK ]] && PSK="\"$PASSWORD\""
+  fi
   [[ -z $2 && $1 == "SAE" ]] && echo "sae_pwe=1" >>$WPA
   echo "network={" >>$WPA
   echo "ssid=\"$SSID\"" >>$WPA
