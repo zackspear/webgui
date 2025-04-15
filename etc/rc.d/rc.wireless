@@ -257,6 +257,7 @@ wifi_join(){
   REGION=$(grep -Pom1 '^REGION="\K[^"]+' $CFG)
   REGION_XX=$(grep -Pom1 '^REGION_XX="\K[^"]+' $CFG)
   [[ $REGION == '00' ]] && CC=$REGION_XX || CC=$REGION
+  [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
   rm -f $WPA
   if [[ $SECURITY == "auto" ]]; then
     log "wpa_configuration AUTO"
@@ -276,7 +277,6 @@ wifi_join(){
   else
     run wpa_configuration "$SECURITY"
   fi
-  [[ -n $(pgrep wpa_supplicant) ]] && pkill wpa_supplicant
   run wpa_supplicant -B -i $PORT -c $WPA
   # IPv4 address assignment
   IP=ipv4
