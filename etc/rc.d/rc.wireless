@@ -36,6 +36,7 @@ trans(){
     "SAE") echo "WPA3 Personal" ;;
     "IEEE 802.1X") echo "WPA2 Enterprise" ;;
     "IEEE 802.1X/SHA-256") echo "WPA3 Enterprise" ;;
+    *) echo "$1" ;;
   esac
 }
 
