@@ -157,10 +157,10 @@ wpa_configuration(){
   [[ $1 == "IEEE 802.1X" ]] && echo "key_mgmt=WPA-EAP" >>$WPA
   [[ $1 == "IEEE 802.1X/SHA-256" ]] && echo "key_mgmt=WPA-EAP-SHA256" >>$WPA
   [[ $1 == "PSK" ]] && echo "psk=$PSK" >>$WPA
+  [[ $1 == "SAE" ]] && echo "sae_password=\"$PASSWORD\"" >>$WPA
   [[ $1 =~ "IEEE" ]] && echo "eap=PEAP" >>$WPA
   [[ $1 =~ "IEEE" ]] && echo "identity=\"$USERNAME\"" >>$WPA
   [[ $1 =~ "IEEE" ]] && echo "password=\"$PASSWORD\"" >>$WPA
-  [[ $1 == "SAE" ]] && echo "sae_password=\"$PASSWORD\"" >>$WPA
   [[ $1 == "IEEE 802.1X" ]] && echo "ieee80211w=1" >>$WPA
   [[ $1 == "SAE" || $1 == "IEEE 802.1X/SHA-256" ]] && echo "ieee80211w=2" >>$WPA
   [[ $1 =~ "IEEE" ]] && echo "phase2=\"auth=MSCHAPV2\"" >>$WPA
