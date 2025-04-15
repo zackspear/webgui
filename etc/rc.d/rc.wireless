@@ -188,6 +188,8 @@ wifi_start(){
   fi
   LINK=shim-$PORT
   [[ -e $SYSTEM/$LINK ]] || run ip link add link $PORT name $LINK type ipvtap mode l2 bridge
+  run ip link set $PORT up
+  run ip link set $LINK up
   # set regulatory region (if set) upon start
   REGION=$(var REGION $CFG)
   REGION_XX=$(var REGION_XX $CFG)
