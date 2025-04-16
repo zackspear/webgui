@@ -795,8 +795,8 @@ jQuery.prototype.mixedView = function(s) {
   }
 }
 
-<?if (file_exists($cookie)):?>
-var cookie  = JSON.parse('<?=file_get_contents($cookie)?>');
+<?if ( json_decode(@file_get_contents($cookie),true) ):?>
+var cookie  = JSON.parse('<?=trim(file_get_contents($cookie));?>');
 <?else:?>
 var cookie  = {};
 <?endif;?>
