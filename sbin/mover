@@ -106,8 +106,8 @@ empty() {
   # output list of files which could not be moved
   shopt -s dotglob ; FILES=(/mnt/"$DISK"/*) ; shopt -u dotglob
   if [ ${#FILES[@]} -gt 2 ]; then
-      echo "mover: not moved:"
-      ls -1 --almost-all --recursive /mnt/"$DISK"
+    echo "mover: not moved:"
+    ls -1 --almost-all --recursive /mnt/"$DISK"
   fi
 
   rm -f $PIDFILE
