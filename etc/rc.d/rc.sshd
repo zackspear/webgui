@@ -26,6 +26,7 @@ SSH_ETC="/etc/ssh"
 [[ -e /boot/config/ident.cfg ]] && . <(fromdos </boot/config/ident.cfg)
 
 # preset default values
+[[ -z $USE_SSH ]] && USE_SSH=no
 [[ -z $PORTSSH ]] && PORTSSH=22
 
 sshd_running(){
@@ -61,6 +62,8 @@ sshd_start(){
   local REPLY
   if sshd_running; then
     REPLY="Already started"
+  elif [[ $USE_SSH != yes ]]; then
+    REPLY="Disabled"
   else
     # make sure ssh dir exists on flash
     mkdir -p $SSH_BOOT
