@@ -57,6 +57,7 @@ switch($action) {
 case "all":
   $pciaddrs = explode(";", $pciaddr);
   foreach ($pciaddrs as $pciaddraction){
+    if ($pciaddraction == "") continue;
     $values = explode(',',$pciaddraction);
     process_action($values[0],$values[1]);
   }
