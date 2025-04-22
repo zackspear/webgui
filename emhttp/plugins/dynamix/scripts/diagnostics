@@ -129,19 +129,19 @@ function maskIP($file) {
 
   // anonymize public IPv4 addresses
   $rfc1918 = "(127|10|172\.1[6-9]|172\.2[0-9]|172\.3[0-1]|192\.168)((\.[0-9]{1,3}){2,3}([/\" .]|$))";
-  run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file)." 2>/dev/null");
+  run("sed -ri 's/([\"\[ ]){$rfc1918}/\\1@@@\\2\\3/g; s/([\"\[ ][0-9]{1,3}\.)([0-9]{1,3}\.){2}([0-9]{1,3})([/\" .]|$)/\\1XXX.XXX.\\3\\4/g; s/@@@//g' ".escapeshellarg($file));
 
   // anonymize full IPv6 addresses
   $file_escaped = escapeshellarg($file);
 
   // Anonymize IPv6 addresses without brackets
-  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped");
 
   // Anonymize IPv6 addresses with brackets
-  run("sed -ri 's/(\[([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\])([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped 2>/dev/null");
+  run("sed -ri 's/(\[([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\])([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\6/g' $file_escaped");
 
   // Handle any remaining edge cases, e.g., addresses with subnet masks
-  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\/[0-9]{1,3})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\7/g' $file_escaped 2>/dev/null");
+  run("sed -ri 's/(([0-9a-f]{1,4}:){4})(([0-9a-f]{1,4}:){3}|:)([0-9a-f]{1,4})(\/[0-9]{1,3})([ .:/]|$)/\\1XXXX:XXXX:XXXX:\\5\\7/g' $file_escaped");
 }
 
 function download_url($url, $path="", $bg=false, $timeout=15) {
@@ -341,11 +341,11 @@ function anonymize_syslog($file) {
     foreach ($titles as $mover) {
       if (!$mover) continue;
       $title = "/{$mover[0]}..".substr($mover,-1)."/...";
-      run("sed -i 's/".str_replace("/","\/",$mover)."/".str_replace("/","\/",$title)."/g' ".escapeshellarg("$log.txt")." 2>/dev/null");
-      //run("sed -ri 's|(file: [.>cr].*)[ /]$mover/.*$|\\1 file: $title|' ".escapeshellarg("$log.txt")." 2>/dev/null");
+      run("sed -i 's/".str_replace("/","\/",$mover)."/".str_replace("/","\/",$title)."/g' ".escapeshellarg("$log.txt"));
+      //run("sed -ri 's|(file: [.>cr].*)[ /]$mover/.*$|\\1 file: $title|' ".escapeshellarg("$log.txt"));
     }
     run("grep -n ' cache_dirs: -' ".escapeshellarg("$log.txt")." 2>/dev/null|cut -d: -f1", $rows);
-    for ($i = 0; $i < count($rows); $i += 2) for ($row = $rows[$i]+1; $row < $rows[$i+1]; $row++) run("sed -ri '$row s|(cache_dirs: \S).*(\S)|\\1..\\2|' ".escapeshellarg("$log.txt")." 2>/dev/null");
+    for ($i = 0; $i < count($rows); $i += 2) for ($row = $rows[$i]+1; $row < $rows[$i+1]; $row++) run("sed -ri '$row s|(cache_dirs: \S).*(\S)|\\1..\\2|' ".escapeshellarg("$log.txt"));
   }
   // replace consecutive repeated lines in syslog
   run("awk -i inplace '{if(s!=substr(\$0,17)){if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\\r\";print;x=0}else{x++}s=substr(\$0,17)}END{if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\\r\"}' ".escapeshellarg("$log.txt"));
@@ -491,8 +491,8 @@ foreach ($folders as $folder) {
 }
 
 // copy configuration files (suppress errors)
-run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config")." 2>/dev/null");
-run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt")." 2>/dev/null");
+run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config"));
+run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt"));
 
 // anonymize go file
 if (!$all) {
@@ -500,12 +500,12 @@ if (!$all) {
 }
 // anonymize configuration files
 if (!$all) {
-  run("find ".escapeshellarg("/$diag/config")." -name '*.cfg' -exec sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' {} \\; 2>/dev/null");
+  run("find ".escapeshellarg("/$diag/config")." -name '*.cfg' -exec sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' {} \\;");
   // anonymize IP addresses
   maskIP("/$diag/config/network.cfg");
   // anonymize wireless credentials
   if (file_exists("/$diag/config/wireless.cfg")) {
-    run("sed -ri 's/^((USERNAME|PASSWORD)=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/wireless.cfg")." 2>/dev/null");
+    run("sed -ri 's/^((USERNAME|PASSWORD)=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/wireless.cfg"));
   }
 }
 // include listening interfaces
@@ -521,7 +521,7 @@ foreach ($files as $file) {
   $share = basename($file,'.cfg');
   if (!in_array($share,$showshares)) $dest = anonymize($dest,2);
   @copy($file, $dest);
-  if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest)." 2>/dev/null");
+  if (!$all) run("sed -ri 's/^(share(Comment|ReadList|WriteList)=\")[^\"]+/\\1.../' ".escapeshellarg($dest));
   $home = shareDisks($share);
   $home = $home ? "# Share exists on $home\r\n" : "# Share does not exist\r\n";
   $shareDisk[] = str_pad(basename($dest,'.cfg'),34).str_pad(exec("grep -m1 'shareUseCache' ".escapeshellarg($file)),24).$home;
@@ -677,13 +677,13 @@ if ($qemu) {
 }
 
 // copy VM XML config files
-run("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml")." 2>/dev/null");
+run("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml"));
 
 // anonymize MAC OSK info
 $all_xml = glob("/$diag/xml/*.xml");
 foreach ($all_xml as $xml) {
-  run("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
-  run("sed -ri 's/(passwd=).+/\\1.../' ".escapeshellarg("$xml")." 2>/dev/null");
+  run("sed -ri 's/(,osk=).+/\\1.../' ".escapeshellarg("$xml"));
+  run("sed -ri 's/(passwd=).+/\\1.../' ".escapeshellarg("$xml"));
 }
 
 // copy syslog information (anonymize if applicable)
@@ -750,8 +750,8 @@ newline("/$diag/system/sshd.txt");
 // copy servers.conf
 copy("/etc/nginx/conf.d/servers.conf", "/$diag/system/servers.conf.txt");
 maskIP("/$diag/system/servers.conf.txt");
-run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
-run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt")." 2>/dev/null");
+run("sed -Ei 's/[01234567890abcdef]+\.((my)?unraid\.net)/hash.\\1/gm;t' ".escapeshellarg("/$diag/system/servers.conf.txt"));
+run("sed -Ei 's/\.[^\.]*\.ts\.net/\.magicdns\.ts\.net/gm' ".escapeshellarg("/$diag/system/servers.conf.txt"));
 newline("/$diag/system/servers.conf.txt");
 
 // show installed patches
