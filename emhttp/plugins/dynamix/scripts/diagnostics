@@ -27,6 +27,7 @@ $cli = empty($zip);
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
 require_once "$docroot/webGui/include/Wrappers.php";
+require_once "$docroot/webGui/include/publish.php";
 
 if (is_file('/boot/syslinux/syslinux.cfg')) {
   $bootenv = '/boot/syslinux';
@@ -45,18 +46,9 @@ $pools = pools_filter($disks);
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
-  $com = curl_init();
-  curl_setopt_array($com,[
-    CURLOPT_URL => 'http://localhost/pub/diagnostics?buffer_length=1',
-    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
-    CURLOPT_POST => 1,
-    CURLOPT_RETURNTRANSFER => true
-  ]);
   foreach ($messages as $message) {
-    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
-    curl_exec($com);
+    publish('diagnostics', $message);
   }
-  curl_close($com);
 }
 
 // Add error logging function
