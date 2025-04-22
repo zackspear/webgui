@@ -500,7 +500,7 @@ if (!$all) {
 }
 // anonymize configuration files
 if (!$all) {
-  run("sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' ".escapeshellarg("/$diag/config/*.cfg")." 2>/dev/null");
+  run("find ".escapeshellarg("/$diag/config")." -name '*.cfg' -exec sed -ri 's/^((disk|flash)(Read|Write)List.*=\")[^\"]+/\\1.../' {} \\; 2>/dev/null");
   // anonymize IP addresses
   maskIP("/$diag/config/network.cfg");
   // anonymize wireless credentials
