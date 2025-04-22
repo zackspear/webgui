@@ -59,12 +59,28 @@ function write(...$messages){
   curl_close($com);
 }
 
+// Add error logging function
+function log_error($message, $command = '') {
+  global $diag;
+  $error_log = "/$diag/logs/diagnostics.error.log";
+  $timestamp = date('Y-m-d H:i:s');
+  $log_message = "[$timestamp] $message";
+  if ($command) {
+    $log_message .= " (Command: $command)";
+  }
+  file_put_contents($error_log, $log_message . "\n", FILE_APPEND);
+}
+
+// Modify run function to include error logging
 function run($cmd, &$save=null, $timeout=30) {
   global $cli,$diag;
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("timeout -s9 $timeout $cmd", $save);
+  exec("timeout -s9 $timeout $cmd 2>&1", $save, $return_code);
+  if ($return_code !== 0) {
+    log_error("Command failed with return code $return_code", $cmd);
+  }
   return implode("\n",$save);
 }
 
