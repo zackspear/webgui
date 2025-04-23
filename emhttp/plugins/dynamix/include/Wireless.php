@@ -135,7 +135,7 @@ case 'list':
 case 'join':
   if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
-  $ssid    = rawurldecode($_POST['ssid']);
+  $ssid    = str_replace('"', '\"', rawurldecode($_POST['ssid']));
   $drop    = $_POST['task'] == 1;
   $manual  = $_POST['task'] == 3;
   $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'USERNAME');
@@ -229,7 +229,7 @@ case 'join':
   echo "</form>";
   break;
 case 'forget':
-  $ssid = rawurldecode($_POST['ssid']);
+  $ssid = str_replace('"', '\"', rawurldecode($_POST['ssid']));
   if ($wifi[$ssid]['GROUP'] == 'active') exec("/etc/rc.d/rc.wireless stop &>/dev/null &");
   unset($wifi[$ssid]);
   saveWifi();
