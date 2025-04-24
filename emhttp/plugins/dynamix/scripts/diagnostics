@@ -26,7 +26,7 @@ $cli = empty($zip);
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
-require_once "$docroot/webGui/include/publish.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 
 if (is_file('/boot/syslinux/syslinux.cfg')) {
   $bootenv = '/boot/syslinux';
@@ -45,7 +45,18 @@ $pools = pools_filter($disks);
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
-  foreach ($messages as $message) publish('diagnostics', $message);
+  $com = curl_init();
+  curl_setopt_array($com,[
+    CURLOPT_URL => 'http://localhost/pub/diagnostics?buffer_length=1',
+    CURLOPT_UNIX_SOCKET_PATH => '/var/run/nginx.socket',
+    CURLOPT_POST => 1,
+    CURLOPT_RETURNTRANSFER => true
+  ]);
+  foreach ($messages as $message) {
+    curl_setopt($com, CURLOPT_POSTFIELDS, $message);
+    curl_exec($com);
+  }
+  curl_close($com);
 }
 
 // Modify run function to include error logging
@@ -54,7 +65,7 @@ function run($cmd, &$save=null, $timeout=30) {
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("LC_ALL=en_US.UTF-8 timeout -s9 $timeout $cmd", $save);
+  exec("timeout -s9 $timeout $cmd", $save);
   return implode("\n",$save);
 }
 
@@ -457,7 +468,7 @@ foreach ($ports as $port) {
   file_put_contents("/$diag/system/ethtool.txt", "--------------------------------\r\n", FILE_APPEND);
 }
 run("ip -br a|todos >".escapeshellarg("/$diag/system/ifconfig.txt"));
-maskIP("/$diag/system/ifconfig.txt");
+if (!$all) maskIP("/$diag/system/ifconfig.txt");
 
 // create system information (suppress errors)
 run("find /sys/kernel/iommu_groups/ -type l 2>/dev/null|sort -V|todos >".escapeshellarg("/$diag/system/iommu_groups.txt"));
