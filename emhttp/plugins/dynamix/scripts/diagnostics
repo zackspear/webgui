@@ -48,7 +48,6 @@ function write(...$messages){
   foreach ($messages as $message) publish('diagnostics', $message);
 }
 
-// Modify run function to include error logging
 function run($cmd, &$save=null, $timeout=30) {
   // output command for display
   write($cmd);
