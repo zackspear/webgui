@@ -345,7 +345,7 @@ function anonymize_syslog($file) {
     for ($i = 0; $i < count($rows); $i += 2) for ($row = $rows[$i]+1; $row < $rows[$i+1]; $row++) run("sed -ri '$row s|(cache_dirs: \S).*(\S)|\\1..\\2|' ".escapeshellarg("$log.txt"));
   }
   // replace consecutive repeated lines in syslog
-  run("awk -i inplace '{if(s!=substr(\$0,17)){if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\\r\";print;x=0}else{x++}s=substr(\$0,17)}END{if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\\r\"}' ".escapeshellarg("$log.txt"));
+  run("awk -b -i inplace '{if(s!=substr($0,17)){if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\r\";print;x=0}else{x++}s=substr($0,17)}END{if(x>0)print\"### [PREVIOUS LINE REPEATED \"x\" TIMES] ###\r\"}' ".escapeshellarg("$log.txt"));
   // remove SHA256 hashes
   run("sed -ri 's/(SHA256:).+[^\s\b]/SHA256:***REMOVED***/gm' ".escapeshellarg("$log.txt"));
   // truncate syslog if too big
@@ -452,7 +452,7 @@ file_put_contents("/$diag/system/loads.txt",$cpuload.implode("\r\n",$loadTxt));
 run("lscpu 2>/dev/null|todos >".escapeshellarg("/$diag/system/lscpu.txt"));
 run("lsscsi -vgl 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsscsi.txt"));
 run("lspci -knn 2>/dev/null|todos >".escapeshellarg("/$diag/system/lspci.txt"));
-run("lspci -vv 2>/dev/null| awk '/ASPM/{print $0}' RS=|grep -P '(^[a-z0-9:.]+|ASPM |Disabled;|Enabled;)'|todos >".escapeshellarg("/$diag/system/aspm-status.txt"));
+run("lspci -vv 2>/dev/null| awk -b '/ASPM/{print $0}' RS=|grep -P '(^[a-z0-9:.]+|ASPM |Disabled;|Enabled;)'|todos >".escapeshellarg("/$diag/system/aspm-status.txt"));
 run("lsusb 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsusb.txt"));
 run("free -mth 2>/dev/null|todos >".escapeshellarg("/$diag/system/memory.txt"));
 run("lsof -Pni 2>/dev/null|todos >".escapeshellarg("/$diag/system/lsof.txt"));
