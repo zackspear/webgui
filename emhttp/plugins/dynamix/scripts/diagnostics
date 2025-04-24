@@ -50,11 +50,12 @@ function write(...$messages){
 
 // Modify run function to include error logging
 function run($cmd, &$save=null, $timeout=30) {
+  global $cli,$diag;
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
   exec("LC_ALL=en_US.UTF-8 timeout -s9 $timeout $cmd", $save);
-  return implode("\n", $save);
+  return implode("\n",$save);
 }
 
 function newline($file) {
