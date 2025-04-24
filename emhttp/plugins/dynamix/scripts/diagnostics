@@ -69,7 +69,7 @@ function run($cmd, &$save=null, $timeout=30) {
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("timeout -s9 $timeout $cmd 2>&1", $save, $return_code);
+  exec("LC_ALL=en_US.UTF-8 timeout -s9 $timeout $cmd 2>&1", $save, $return_code);
   if ($return_code !== 0) {
     log_error("Command failed with return code $return_code", $cmd);
   }
