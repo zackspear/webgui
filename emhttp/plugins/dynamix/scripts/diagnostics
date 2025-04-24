@@ -26,6 +26,7 @@ $cli = empty($zip);
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Helpers.php";
+require_once "$docroot/webGui/include/Wrappers.php";
 require_once "$docroot/webGui/include/publish.php";
 
 if (is_file('/boot/syslinux/syslinux.cfg')) {
@@ -45,15 +46,34 @@ $pools = pools_filter($disks);
 require_once "$docroot/webGui/include/CustomMerge.php";
 
 function write(...$messages){
-  foreach ($messages as $message) publish('diagnostics', $message);
+  foreach ($messages as $message) {
+    publish('diagnostics', $message);
+  }
 }
 
+// Add error logging function
+function log_error($message, $command = '') {
+  global $diag;
+  $error_log = "/$diag/logs/diagnostics.error.log";
+  $timestamp = date('Y-m-d H:i:s');
+  $log_message = "[$timestamp] $message";
+  if ($command) {
+    $log_message .= " (Command: $command)";
+  }
+  file_put_contents($error_log, $log_message . "\n", FILE_APPEND);
+}
+
+// Modify run function to include error logging
 function run($cmd, &$save=null, $timeout=30) {
+  global $cli,$diag;
   // output command for display
   write($cmd);
   // execute command with timeout of 30s
-  exec("LC_ALL=en_US.UTF-8 timeout -s9 $timeout $cmd", $save);
-  return implode("\n", $save);
+  exec("LC_ALL=en_US.UTF-8 timeout -s9 $timeout $cmd 2>&1", $save, $return_code);
+  if ($return_code !== 0) {
+    log_error("Command failed with return code $return_code", $cmd);
+  }
+  return implode("\n",$save);
 }
 
 function newline($file) {
