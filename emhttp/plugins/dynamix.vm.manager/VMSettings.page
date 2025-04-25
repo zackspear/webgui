@@ -112,13 +112,11 @@ _(Enable VMs)_:
   <?= mk_option($libvirt_service, 'disable', _('No'))?>
   <?= mk_option($libvirt_service, 'enable', _('Yes'))?>
   </select>
-  <?if ($hardware):?>
-  <?if (!$started):?>
+<?if ($hardware):?>
+<?if (!$started):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=($libvirt_service=='enable')?'_(VMs will be available after Array is Started)_':'_(Apply to activate VMs after Array is Started)_'?></span>
-  <?elseif (!is_dir(dirname($domain_cfg['IMAGE_FILE'])) || !is_dir($domain_cfg['DOMAINDIR']) || !is_dir($domain_cfg['MEDIADIR'])):?>
-  <span class="basic" style="display:inline"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
-  <?endif;?>
-  <?endif;?>
+<?endif;?>
+<?endif;?>
 
 :vms_enable_help:
 

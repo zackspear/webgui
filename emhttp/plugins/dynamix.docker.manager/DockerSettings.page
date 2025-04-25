@@ -146,11 +146,9 @@ _(Enable Docker)_:
   <?=mk_option(_var($dockercfg,'DOCKER_ENABLED'), 'no', _('No'))?>
   <?=mk_option(_var($dockercfg,'DOCKER_ENABLED'), 'yes', _('Yes'))?>
   </select>
-  <?if (_var($var,'fsState')!="Started"):?>
+<?if (_var($var,'fsState')!="Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=(_var($dockercfg,'DOCKER_ENABLED')=='yes') ? '_(Docker will be available after Array is Started)_' : '_(Apply to activate Docker after Array is Started)_'?></span>
-  <?elseif (!is_dir(dirname(_var($dockercfg,'DOCKER_IMAGE_FILE'))) || !is_dir(_var($dockercfg,'DOCKER_APP_CONFIG_PATH'))):?>
-  <span class="basic"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
-  <?endif;?>
+<?endif;?>
 
 :docker_enable_help:
 
