@@ -769,7 +769,30 @@ unset($buttons,$button);
 
 // Build page content
 // Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load'] > 0) echo "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},".($myPage['Load']*60000).");</script>\n";
+if (isset($myPage['Load']) && $myPage['Load'] > 0) {
+  ?>
+    <script>
+      function setTimerReload() {
+        timers.reload = setInterval(function(){
+          if (nchanPaused === false && ! dialogOpen() ) {
+            location.reload();
+          }
+        },<?=$myPage['Load']*60000?>);
+      }
+
+      $(document).click(function(e) {
+        clearInterval(timers.reload);
+        setTimerReload();
+      });
+
+      function dialogOpen() {
+          return ($('.sweet-alert').is(':visible') || $('.swal-overlay--show-modal').is(':visible') );
+      }
+      setTimerReload();
+
+    </script>
+  <?    
+}  
 echo "<div class='tabs'>";
 $tab = 1;
 $pages = [];
@@ -1292,7 +1315,13 @@ document.addEventListener("visibilitychange", (event) => {
     nchanFocusStop();
   } else {
     <? if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
-      window.location.reload();
+      if ( dialogOpen() ) {
+        clearInterval(timers.reload);
+        setTimerReload();
+        nchanFocusStart();
+      } else {
+        window.location.reload();
+      }
     <?else:?>
       nchanFocusStart();
     <?endif;?>
