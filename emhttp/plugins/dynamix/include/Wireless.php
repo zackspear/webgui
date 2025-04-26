@@ -161,7 +161,7 @@ case 'join':
   $ieee1   = strpos($attr3,'IEEE') !== false;
   $ieee2   = strpos($safe,'IEEE') !== false;
   $hide0   = ($manual || !$ieee2) && !$ieee1 && $safe != 'auto' ? 'hide' : '';
-  $hide1   = $safe == 'open' || $attr3 == 'open' || !$attr3 ? 'hide' : '';
+  $hide1   = !$manual && ($safe == 'open' || $attr3 == 'open' || !$attr3) ? 'hide' : '';
   $hide2   = $dhcp4 == 'no' ? '' : 'hide';
   $hide3   = $dns4 == 'no' ? 'hide' : '';
   $hide4   = $dhcp6 == 'no' ? '' : 'hide';
