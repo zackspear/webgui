@@ -282,11 +282,11 @@ wifi_join(){
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
     wpa_configuration "open" 10
-  elif [[ $SECURITY == "IEEE 802.1X IEEE 802.1X/SHA-256" ]]; then
+  elif [[ $SECURITY =~ "IEEE 802.1X " && $SECURITY =~ "IEEE 802.1X/SHA-256" ]]; then
     log "wpa_configuration: WPA2/WPA3 Enterprise"
     wpa_configuration "IEEE 802.1X/SHA-256" 25
     wpa_configuration "IEEE 802.1X" 18
-  elif [[ $SECURITY == "PSK SAE" ]]; then
+  elif [[ $SECURITY =~ "PSK" && $SECURITY =~ "SAE" ]]; then
     log "wpa_configuration: WPA2/WPA3 Personal"
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
