@@ -291,6 +291,12 @@ wifi_join(){
     log "wpa_configuration: WPA2/WPA3 Personal"
     wpa_configuration "SAE" 15
     wpa_configuration "PSK" 12
+  elif [[ $SECURITY =~ "SAE" ]]; then
+    log "wpa_configuration: WPA3 Personal"
+    wpa_configuration "SAE"
+  elif [[ $SECURITY =~ "PSK" ]]; then
+    log "wpa_configuration: WPA2 Personal"
+    wpa_configuration "PSK"
   else
     log "wpa_configuration: $(trans "$SECURITY")"
     wpa_configuration "$SECURITY"
