@@ -15,8 +15,8 @@ STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
 WPA="/etc/wpa_supplicant.conf"
 
 # system network references
-SYSTEM=/sys/class/net
-CONF6=/proc/sys/net/ipv6/conf
+SYSTEM="/sys/class/net"
+CONF6="/proc/sys/net/ipv6/conf"
 
 # run & log functions
 . /etc/rc.d/rc.runlog
@@ -59,8 +59,9 @@ hex(){
 }
 
 # function to wait for carrier of interface
-carrier_up(){
+carrier(){
   local n
+  [[ -e $SYSTEM/$1 ]] || return 1
   for n in {1..10}; do
     [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
   done
@@ -89,7 +90,7 @@ ipaddr_up(){
     [[ $DNS == yes ]] && OPTIONS="$OPTIONS -C resolv.conf"
     [[ $IP == ipv4 ]] && OPTIONS="$OPTIONS -4"
     [[ $IP == ipv6 ]] && OPTIONS="$OPTIONS -6"
-    if carrier_up $PORT; then
+    if carrier $PORT; then
       # interface is UP
       log "interface $PORT is UP, polling up to 60 sec for DHCP $IP server"
       if ! run timeout 60 dhcpcd -w $OPTIONS $PORT; then
@@ -103,7 +104,7 @@ ipaddr_up(){
     fi
   elif [[ $DHCP == no ]]; then
     # bring up interface using static IP address
-    if carrier_up $PORT; then STATE="UP"; else STATE="DOWN"; fi
+    if carrier $PORT; then STATE="UP"; else STATE="DOWN"; fi
     log "interface $PORT is $STATE, setting static $IP address"
     ipv6_addr $PORT 0 1
     if [[ $IP == ipv4 ]]; then
@@ -184,7 +185,7 @@ wpa_configuration(){
 
 wifi_running(){
   sleep 0.1
-  [[ $(cat $SYSTEM/$PORT/carrier 2>/dev/null) == 1 ]]
+  [[ -e $SYSTEM/$PORT && $(cat $SYSTEM/$PORT/carrier 2>/dev/null) == 1 ]]
 }
 
 wifi_start(){
@@ -211,11 +212,11 @@ wifi_start(){
   $OPENSSL load
   # start active SSID
   $STARTWIFI
-  if ! carrier_up $PORT; then
+  if ! carrier $PORT; then
     # try the saved SSIDs
     for SSID in $(grep -P '^\[.+\]$' $CFG | sed 1d | sed -r 's/\[|\]/"/g'); do
       [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
-      if carrier_up $PORT; then break; fi
+      if carrier $PORT; then break; fi
     done
   fi
   if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
