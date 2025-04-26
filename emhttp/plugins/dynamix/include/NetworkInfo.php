@@ -20,6 +20,12 @@ if (isset($_POST['listen'])) {
   die(exec("$docroot/webGui/scripts/show_interfaces")?:_('Any'));
 }
 
+// Helper function to normalize bitrate values
+function normalizeBitrate($rate) {
+  $parts = explode(' ', $rate);
+  return intval($parts[0] ?? 0).' '.($parts[1] ?? 'Bit/s');
+}
+
 function port($eth) {
   $sys = "/sys/class/net";
   if (substr($eth,0,4) == 'wlan') return $eth;
@@ -55,11 +61,9 @@ if ($wlan0) {
     $freq    = explode(': ', $speed[1])[1];
     $signal  = explode(': ', $speed[2])[1];
     $rxrate  = explode(': ', $speed[3])[1];
-    $tmprate = explode(' ', $rxrate);
-    $rxrate  = intval($tmprate[0] ?? 0).' '.($tmprate[1] ?? 'Bit/s');
+    $rxrate  = normalizeBitrate($rxrate);
     $txrate  = explode(': ', $speed[4])[1];
-    $tmprate = explode(' ', $txrate);
-    $txrate  = intval($tmprate[0] ?? 0).' '.($tmprate[1] ?? 'Bit/s');
+    $txrate  = normalizeBitrate($txrate);
     $tmp     = '/var/tmp/attr';
     $band    = [];
     $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
