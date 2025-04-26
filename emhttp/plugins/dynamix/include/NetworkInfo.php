@@ -55,7 +55,11 @@ if ($wlan0) {
     $freq    = explode(': ', $speed[1])[1];
     $signal  = explode(': ', $speed[2])[1];
     $rxrate  = explode(': ', $speed[3])[1];
+    $tmprate = explode(' ', $rxrate);
+    $rxrate  = intval($tmprate[0] ?? 0).' '.($tmprate[1] ?? 'Bit/s');
     $txrate  = explode(': ', $speed[4])[1];
+    $tmprate = explode(' ', $txrate);
+    $txrate  = intval($tmprate[0] ?? 0).' '.($tmprate[1] ?? 'Bit/s');
     $tmp     = '/var/tmp/attr';
     $band    = [];
     $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
