@@ -61,8 +61,8 @@ if ($wlan0) {
     $freq    = explode(': ', $speed[1])[1];
     $signal  = explode(': ', $speed[2])[1];
     $rxrate  = explode(': ', $speed[3])[1];
-    $rxrate  = normalizeBitrate($rxrate);
     $txrate  = explode(': ', $speed[4])[1];
+    $rxrate  = normalizeBitrate($rxrate);
     $txrate  = normalizeBitrate($txrate);
     $tmp     = '/var/tmp/attr';
     $band    = [];
