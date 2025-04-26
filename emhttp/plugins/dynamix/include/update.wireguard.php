@@ -41,7 +41,7 @@ function carrier($dev) {
   try {
     for ($n = 0; $n < 10; $n++) {
       if (@file_get_contents("/sys/class/net/$dev/carrier") == 1) return true;
-      sleep 1
+      sleep(1);
     }
   } catch (Exception $e) {
     return false;
