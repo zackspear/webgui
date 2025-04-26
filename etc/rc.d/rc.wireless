@@ -201,7 +201,7 @@ wpa_configuration(){
   [[ $1 == "IEEE-802.1X" || $1 == "FT/IEEE-802.1X" ]] && echo "ieee80211w=1" >>$WPA
   [[ $1 =~ "SAE" || $1 == "IEEE-802.1X/SHA-256" ]] && echo "ieee80211w=2" >>$WPA
   [[ $1 =~ "IEEE" ]] && echo "phase2=\"auth=MSCHAPV2\"" >>$WPA
-  echo "priority=$(priority $1)" >>$WPA
+  echo "priority=$(priority "$1")" >>$WPA
   echo "}" >>$WPA
 }
 
