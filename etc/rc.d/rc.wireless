@@ -270,8 +270,6 @@ wifi_join(){
     sed -ri "s/^(PASSWORD=\").+$/\1$ENCRYPT2\"/" $CFG
   fi
   SECURITY=${SECURITY:-$ATTR3}
-  # remove FT indicator
-  SECURITY=${SECURITY//FT\//}
   # regulatory region
   REGION=$(grep -Pom1 '^REGION="\K[^"]+' $CFG)
   REGION_XX=$(grep -Pom1 '^REGION_XX="\K[^"]+' $CFG)
