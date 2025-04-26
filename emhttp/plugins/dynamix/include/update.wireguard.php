@@ -32,9 +32,26 @@ $dockernet = "172.31";
 $t1 = '10'; // 10 sec timeout
 $t2 = '15'; // 15 sec timeout
 
+function port($dev) {
+  return file_exists("/sys/class/net/$dev");
+}
+
+function carrier($dev) {
+  if (!port($dev)) return false;
+  try {
+    for ($n = 0; $n < 10; $n++) {
+      if (@file_get_contents("/sys/class/net/$dev/carrier") == 1) return true;
+      sleep 1
+    }
+  } catch (Exception $e) {
+    return false;
+  }
+  return false;
+}
+
 function thisNet() {
-  $sys = '/sys/class/net';
-  $dev = file_exists("$sys/br0") ? 'br0' : (file_exists("$sys/bond0") ? 'bond0' : 'eth0');
+  $dev = port('br0') ? 'br0' : (port('bond0') ? 'bond0' : 'eth0');
+  if (!carrier($dev) && carrier('wlan0')) $dev = 'wlan0';
   $ip4 = exec("ip -4 -br addr show dev $dev | awk '{print \$3;exit}'");
   $net = exec("ip -4 route show $ip4 dev $dev | awk '{print \$1;exit}'");
   $gw  = exec("ip -4 route show default dev $dev | awk '{print \$3;exit}'");
