@@ -80,7 +80,7 @@ hex(){
 carrier(){
   local n e
   [[ -e $SYSTEM/$1 ]] && e=${2:-10} || return 1
-  for n in {1..$e}; do
+  for ((n=1; n<=$e; n++)); do
     [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
   done
   return 1
