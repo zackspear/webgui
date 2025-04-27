@@ -78,9 +78,9 @@ hex(){
 
 # function to wait for carrier of interface
 carrier(){
-  local n
-  [[ -e $SYSTEM/$1 ]] || return 1
-  for n in {1..10}; do
+  local n e
+  [[ -e $SYSTEM/$1 ]] && e=${2:-10} || return 1
+  for n in {1..$e}; do
     [[ $(cat $SYSTEM/$1/carrier 2>/dev/null) == 1 ]] && return 0 || sleep 1
   done
   return 1
@@ -234,11 +234,11 @@ wifi_start(){
   $OPENSSL load
   # start active SSID
   $STARTWIFI
-  if ! carrier $PORT; then
+  if ! carrier $PORT 1; then
     # try the saved SSIDs
     for SSID in $(grep -P '^\[.+\]$' $CFG | sed 1d | sed -r 's/\[|\]/"/g'); do
       [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
-      if carrier $PORT; then break; fi
+      if carrier $PORT 1; then break; fi
     done
   fi
   if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
