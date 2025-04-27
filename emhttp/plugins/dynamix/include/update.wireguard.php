@@ -36,7 +36,7 @@ function port($dev) {
   return file_exists("/sys/class/net/$dev");
 }
 
-function carrier($dev, $loop=10) {
+function carrier($dev, $loop=3) {
   if (!port($dev)) return false;
   try {
     for ($n=0; $n<$loop; $n++) {
