@@ -33,7 +33,7 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
-function escapeQuotes($text) {
+function escapeSSID($text) {
   return str_replace('"', '\"', $text);
 }
 
@@ -139,7 +139,7 @@ case 'list':
 case 'join':
   if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
-  $ssid    = escapeQuotes(rawurldecode($_POST['ssid']));
+  $ssid    = escapeSSID(rawurldecode($_POST['ssid']));
   $drop    = $_POST['task'] == 1;
   $manual  = $_POST['task'] == 3;
   $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'USERNAME');
@@ -233,7 +233,7 @@ case 'join':
   echo "</form>";
   break;
 case 'forget':
-  $ssid = escapeQuotes(rawurldecode($_POST['ssid']));
+  $ssid = escapeSSID(rawurldecode($_POST['ssid']));
   if ($wifi[$ssid]['GROUP'] == 'active') exec("/etc/rc.d/rc.wireless stop &>/dev/null &");
   unset($wifi[$ssid]);
   saveWifi();
