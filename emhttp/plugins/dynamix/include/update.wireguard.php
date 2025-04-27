@@ -32,12 +32,12 @@ $dockernet = "172.31";
 $t1 = '10'; // 10 sec timeout
 $t2 = '15'; // 15 sec timeout
 
-function port($dev) {
+function isPort($dev) {
   return file_exists("/sys/class/net/$dev");
 }
 
 function carrier($dev, $loop=3) {
-  if (!port($dev)) return false;
+  if (!isPort($dev)) return false;
   try {
     for ($n=0; $n<$loop; $n++) {
       if (@file_get_contents("/sys/class/net/$dev/carrier") == 1) return true;
@@ -50,7 +50,7 @@ function carrier($dev, $loop=3) {
 }
 
 function thisNet() {
-  $dev = port('br0') ? 'br0' : (port('bond0') ? 'bond0' : 'eth0');
+  $dev = isPort('br0') ? 'br0' : (isPort('bond0') ? 'bond0' : 'eth0');
   if (!carrier($dev) && carrier('wlan0', 1)) $dev = 'wlan0';
   $ip4 = exec("ip -4 -br addr show dev $dev | awk '{print \$3;exit}'");
   $net = exec("ip -4 route show $ip4 dev $dev | awk '{print \$1;exit}'");
@@ -328,9 +328,9 @@ function parseInput($vtun, &$input, &$x) {
       $protocol = $value;
       $user[] = "$id:0=\"$value\"";
       switch ($protocol) {
-        case '46': $var['default']  = "AllowedIPs=$default4, $default6"; break;
-        case '6' : $var['default']  = "AllowedIPs=$default6"; break;
-        default  : $var['default']  = "AllowedIPs=$default4"; break;
+        case '46': $var['default'] = "AllowedIPs=$default4, $default6"; break;
+        case '6' : $var['default'] = "AllowedIPs=$default6"; break;
+        default  : $var['default'] = "AllowedIPs=$default4"; break;
       }
       break;
     case 'TYPE':

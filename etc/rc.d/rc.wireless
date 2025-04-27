@@ -58,25 +58,25 @@ priority(){
   esac
 }
 
-# function to remove leading zeros in IPv4 address
+# remove leading zeros in IPv4 address
 unzero(){
   local M Q
   echo -n $(for Q in ${1//./ }; do printf "$M%x" "0x$Q"; M=.; done)
 }
 
-# function to remove leading zeros in IPv6 address
+# remove leading zeros in IPv6 address
 unzero6(){
   local A M Q
   A=${1/::/:-:}
   echo -n $(for Q in ${A//:/ }; do [[ $Q != - ]] && printf "$M%x" "0x$Q" || printf ":"; M=:; done)
 }
 
-# function to convert text to hex
+# convert text to hex
 hex(){
   echo -n $1 | od -An -tx1 | tr -d ' \n'
 }
 
-# function to wait for carrier of interface
+# wait for interface to go up
 carrier(){
   local n e
   [[ -e $SYSTEM/$1 ]] && e=${2:-10} || return 1
@@ -87,7 +87,7 @@ carrier(){
   return 1
 }
 
-# function to enable/disable ipv6 assignment per interface
+# enable/disable ipv6 assignment per interface
 ipv6_addr(){
   if [[ -d $CONF6/$1 ]]; then
     echo $2 >$CONF6/$1/accept_ra
@@ -96,7 +96,7 @@ ipv6_addr(){
   fi
 }
 
-# function to assign IP address
+# assign IP address
 ipaddr_up(){
   # disable IPv6 per interface when IPv4 only
   [[ $IP == ipv4 ]] && DISABLE6=1 || DISABLE6=0
@@ -144,7 +144,7 @@ ipaddr_up(){
   fi
 }
 
-# function to release IP address
+# release IP address
 ipaddr_down(){
   if [[ $DHCP == yes ]]; then
     # release DHCP assigned address and default route
@@ -208,7 +208,7 @@ wpa_configuration(){
 
 wifi_running(){
   sleep 0.1
-  [[ -e $SYSTEM/$PORT && $(cat $SYSTEM/$PORT/carrier 2>/dev/null) == 1 ]]
+  carrier $PORT 1
 }
 
 wifi_start(){
@@ -235,11 +235,11 @@ wifi_start(){
   $OPENSSL load
   # start active SSID
   $STARTWIFI
-  if ! carrier $PORT 1; then
+  if ! wifi_running; then
     # try the saved SSIDs
     for SSID in $(grep -P '^\[.+\]$' $CFG | sed 1d | sed -r 's/\[|\]/"/g'); do
       [[ -n $SSID ]] && $STARTWIFI "$SSID" || break
-      if carrier $PORT 1; then break; fi
+      if wifi_running; then break; fi
     done
   fi
   if wifi_running; then REPLY="Started"; else REPLY="Failed"; fi
