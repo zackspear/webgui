@@ -41,7 +41,7 @@ function carrier($dev, $loop=10) {
   try {
     for ($n=0; $n<$loop; $n++) {
       if (@file_get_contents("/sys/class/net/$dev/carrier") == 1) return true;
-      if ($loop > 0) sleep(1);
+      if ($loop > 1) sleep(1);
     }
   } catch (Exception $e) {
     return false;
@@ -51,7 +51,7 @@ function carrier($dev, $loop=10) {
 
 function thisNet() {
   $dev = port('br0') ? 'br0' : (port('bond0') ? 'bond0' : 'eth0');
-  if (!carrier($dev) && carrier('wlan0', 0)) $dev = 'wlan0';
+  if (!carrier($dev) && carrier('wlan0', 1)) $dev = 'wlan0';
   $ip4 = exec("ip -4 -br addr show dev $dev | awk '{print \$3;exit}'");
   $net = exec("ip -4 route show $ip4 dev $dev | awk '{print \$1;exit}'");
   $gw  = exec("ip -4 route show default dev $dev | awk '{print \$3;exit}'");
