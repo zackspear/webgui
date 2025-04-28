@@ -60,7 +60,7 @@ function log_error($message, $command = '') {
   if ($command) {
     $log_message .= " (Command: $command)";
   }
-  file_put_contents($error_log, $log_message . "\n", FILE_APPEND);
+  file_put_contents($error_log, $log_message . "\r\n", FILE_APPEND);
 }
 
 // Modify run function to include error logging
@@ -487,8 +487,10 @@ foreach ($folders as $folder) {
   if (is_dir($folder)) run("echo -ne ".escapeshellarg("\r\n$folder\r\n")." >>".escapeshellarg($dest).";ls -l ".escapeshellarg($folder)."|todos >>".escapeshellarg("$dest")); else run("echo -ne ".escapeshellarg("\r\n$folder\r\nfolder does not exist\r\n")." >>".escapeshellarg("$dest"));
 }
 
-// copy configuration files (suppress errors)
-run("cp /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config"));
+// copy configuration files
+if (glob("/boot/config/*.{cfg,conf,dat}", GLOB_BRACE)) {
+  run("cp -- /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config"));
+}
 run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt"));
 
 // anonymize go file
@@ -674,7 +676,9 @@ if ($qemu) {
 }
 
 // copy VM XML config files
-run("cp /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml"));
+if (glob("/etc/libvirt/qemu/*.xml")) {
+  run("cp -- /etc/libvirt/qemu/*.xml ".escapeshellarg("/$diag/xml"));
+}
 
 // anonymize MAC OSK info
 $all_xml = glob("/$diag/xml/*.xml");
