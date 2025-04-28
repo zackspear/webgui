@@ -26,7 +26,8 @@ function installPlugin(file) {
   file = file.trim();
   if (!file) return;
   $.get('/plugins/dynamix.plugin.manager/include/ShowPlugins.php',{cmd:'alert'},function(data) {
-    my.cmd = 'plugin install '+file;
+    const forceInstall = $('#force_install').prop('checked');
+    my.cmd = 'plugin install ' + file + (forceInstall ? ' force' : '');
     my.title = "_(Install Plugin)_";
     my.plg = file.replace(/^.*(\\|\/|\:)/,'').replace('.plg','')+':install';
     if (data==0) {
@@ -45,6 +46,7 @@ function installPlugin(file) {
 <form name="plugin_install" method="POST" target="progressFrame">
 <input type="text" name="file" id="plugin_file" maxlength="1024" value="" style="width:33%">
 <input type="button" value="_(Install)_" onclick="installPlugin(this.form.file.value)">
+<label style="margin-left: 10px;"><input type="checkbox" id="force_install" name="force_install"> _(Force Install)_</label>
 </form>
 
 :plugin_install_help:
