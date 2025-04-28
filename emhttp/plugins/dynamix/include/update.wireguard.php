@@ -32,9 +32,26 @@ $dockernet = "172.31";
 $t1 = '10'; // 10 sec timeout
 $t2 = '15'; // 15 sec timeout
 
+function isPort($dev) {
+  return file_exists("/sys/class/net/$dev");
+}
+
+function carrier($dev, $loop=3) {
+  if (!isPort($dev)) return false;
+  try {
+    for ($n=0; $n<$loop; $n++) {
+      if (@file_get_contents("/sys/class/net/$dev/carrier") == 1) return true;
+      if ($loop > 1) sleep(1);
+    }
+  } catch (Exception $e) {
+    return false;
+  }
+  return false;
+}
+
 function thisNet() {
-  $sys = '/sys/class/net';
-  $dev = file_exists("$sys/br0") ? 'br0' : (file_exists("$sys/bond0") ? 'bond0' : 'eth0');
+  $dev = isPort('br0') ? 'br0' : (isPort('bond0') ? 'bond0' : 'eth0');
+  if (!carrier($dev) && carrier('wlan0', 1)) $dev = 'wlan0';
   $ip4 = exec("ip -4 -br addr show dev $dev | awk '{print \$3;exit}'");
   $net = exec("ip -4 route show $ip4 dev $dev | awk '{print \$1;exit}'");
   $gw  = exec("ip -4 route show default dev $dev | awk '{print \$3;exit}'");
@@ -131,10 +148,12 @@ function addDocker($vtun) {
     $error = dockerNet($vtun);
   }
   if (!$error && !isNet($network)) {
-    [$device,$thisnet,$gateway] = thisNet();
-    exec("ip -4 rule add from $network table $index");
-    exec("ip -4 route add unreachable default table $index");
-    exec("ip -4 route add $thisnet via $gateway dev $device table $index");
+    [$device, $thisnet, $gateway] = thisNet();
+    if (!empty($device) && !empty($thisnet) && !empty($gateway)) {
+      exec("ip -4 rule add from $network table $index");
+      exec("ip -4 route add unreachable default table $index");
+      exec("ip -4 route add $thisnet via $gateway dev $device table $index");
+    }
   }
   return $error;
 }
@@ -260,12 +279,14 @@ function parseInput($vtun, &$input, &$x) {
         // add WG routing for docker containers. Only IPv4 supported
         [$index, $network] = newNet($vtun);
         [$device, $thisnet, $gateway] = thisNet();
-        $conf[]  = "PostUp=ip -4 route flush table $index";
-        $conf[]  = "PostUp=ip -4 route add default via $tunip dev $vtun table $index";
-        $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway dev $device table $index";
-        $conf[]  = "PostDown=ip -4 route flush table $index";
-        $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
-        $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway dev $device table $index";
+        if (!empty($device) && !empty($thisnet) && !empty($gateway)) {
+          $conf[]  = "PostUp=ip -4 route flush table $index";
+          $conf[]  = "PostUp=ip -4 route add default via $tunip dev $vtun table $index";
+          $conf[]  = "PostUp=ip -4 route add $thisnet via $gateway dev $device table $index";
+          $conf[]  = "PostDown=ip -4 route flush table $index";
+          $conf[]  = "PostDown=ip -4 route add unreachable default table $index";
+          $conf[]  = "PostDown=ip -4 route add $thisnet via $gateway dev $device table $index";
+        }
       }
       $conf[] = "\n[Peer]";
       // add peers, this is only used for peer sections
@@ -307,9 +328,9 @@ function parseInput($vtun, &$input, &$x) {
       $protocol = $value;
       $user[] = "$id:0=\"$value\"";
       switch ($protocol) {
-        case '46': $var['default']  = "AllowedIPs=$default4, $default6"; break;
-        case '6' : $var['default']  = "AllowedIPs=$default6"; break;
-        default  : $var['default']  = "AllowedIPs=$default4"; break;
+        case '46': $var['default'] = "AllowedIPs=$default4, $default6"; break;
+        case '6' : $var['default'] = "AllowedIPs=$default6"; break;
+        default  : $var['default'] = "AllowedIPs=$default4"; break;
       }
       break;
     case 'TYPE':

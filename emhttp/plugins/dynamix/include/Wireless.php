@@ -33,6 +33,10 @@ $_SERVER['REQUEST_URI'] = 'settings';
 require_once "$docroot/webGui/include/Translations.php";
 require_once "$docroot/webGui/include/Helpers.php";
 
+function escapeSSID($text) {
+  return str_replace('"', '\"', $text);
+}
+
 function scanWifi($port) {
   $wlan = [];
   exec("iw ".escapeshellarg($port)." scan | grep -P '^BSS|freq:|signal:|SSID:|Authentication suites:' | sed -r ':a;N;\$!ba;s/\\n\\s+/ /g'", $scan);
@@ -135,7 +139,7 @@ case 'list':
 case 'join':
   if (is_readable($ssl)) extract(parse_ini_file($ssl));
   $token   = parse_ini_file($var)['csrf_token'];
-  $ssid    = str_replace('"', '\"', rawurldecode($_POST['ssid']));
+  $ssid    = escapeSSID(rawurldecode($_POST['ssid']));
   $drop    = $_POST['task'] == 1;
   $manual  = $_POST['task'] == 3;
   $user    = _var($wifi[$ssid],'USERNAME') && isset($cipher, $key, $iv) ? openssl_decrypt($wifi[$ssid]['USERNAME'], $cipher, $key, 0, $iv) : _var($wifi[$ssid],'USERNAME');
@@ -161,7 +165,7 @@ case 'join':
   $ieee1   = strpos($attr3,'IEEE') !== false;
   $ieee2   = strpos($safe,'IEEE') !== false;
   $hide0   = ($manual || !$ieee2) && !$ieee1 && $safe != 'auto' ? 'hide' : '';
-  $hide1   = $safe == 'open' || $attr3 == 'open' || !$attr3 ? 'hide' : '';
+  $hide1   = !$manual && ($safe == 'open' || $attr3 == 'open' || !$attr3) ? 'hide' : '';
   $hide2   = $dhcp4 == 'no' ? '' : 'hide';
   $hide3   = $dns4 == 'no' ? 'hide' : '';
   $hide4   = $dhcp6 == 'no' ? '' : 'hide';
@@ -229,7 +233,7 @@ case 'join':
   echo "</form>";
   break;
 case 'forget':
-  $ssid = str_replace('"', '\"', rawurldecode($_POST['ssid']));
+  $ssid = escapeSSID(rawurldecode($_POST['ssid']));
   if ($wifi[$ssid]['GROUP'] == 'active') exec("/etc/rc.d/rc.wireless stop &>/dev/null &");
   unset($wifi[$ssid]);
   saveWifi();
