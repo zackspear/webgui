@@ -488,8 +488,14 @@ foreach ($folders as $folder) {
 }
 
 // copy configuration files
-if (glob("/boot/config/*.{cfg,conf,dat}", GLOB_BRACE)) {
-  run("cp -- /boot/config/*.{cfg,conf,dat} ".escapeshellarg("/$diag/config"));
+if (glob("/boot/config/*.cfg")) {
+  run("cp -- /boot/config/*.cfg ".escapeshellarg("/$diag/config"));
+}
+if (glob("/boot/config/*.conf")) {
+  run("cp -- /boot/config/*.conf ".escapeshellarg("/$diag/config"));
+}
+if (glob("/boot/config/*.dat")) {
+  run("cp -- /boot/config/*.dat ".escapeshellarg("/$diag/config"));
 }
 run("cp /boot/config/go ".escapeshellarg("/$diag/config/go.txt"));
 
