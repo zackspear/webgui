@@ -1288,7 +1288,10 @@ $('body').on('click','a,.ca_href', function(e) {
   }
 });
 
-// Start & stop live updates when window loses focus
+// Only include window focus/blur event handlers when live updates are disabled
+// to prevent unnecessary page reloads when live updates are already handling data refreshes
+// nchanPaused / blurTimer used elsewhere so need to always be defined
+
 var nchanPaused = false;
 var blurTimer = false;
 
