@@ -1288,29 +1288,26 @@ $('body').on('click','a,.ca_href', function(e) {
   }
 });
 
-// Start & stop live updates when window loses focus
+// Only include window focus/blur event handlers when live updates are disabled
+// to prevent unnecessary page reloads when live updates are already handling data refreshes
+// nchanPaused / blurTimer used elsewhere so need to always be defined
+
 var nchanPaused = false;
 var blurTimer = false;
 
+<? if ( $display['liveUpdate'] == "no" ):?>
 $(window).focus(function() {
   nchanFocusStart();
 });
 
 // Stop nchan on loss of focus
-<? if ( $display['liveUpdate'] == "no" ):?>
 $(window).blur(function() {
   blurTimer = setTimeout(function(){
     nchanFocusStop();
   },30000);
 });
-<?endif;?>
 
 document.addEventListener("visibilitychange", (event) => {
-  <? if ( $display['liveUpdate'] == "no" ):?>
-  if (document.hidden) {
-    nchanFocusStop();
-  }
-<?else:?>
   if (document.hidden) {
     nchanFocusStop();
   } else {
@@ -1326,7 +1323,6 @@ document.addEventListener("visibilitychange", (event) => {
       nchanFocusStart();
     <?endif;?>
   }
-<?endif;?>
 });
 
 function nchanFocusStart() {
@@ -1367,6 +1363,7 @@ function nchanFocusStop(banner=true) {
     }
   }
 }
+<?endif;?>
 </script>
 </body>
 </html>
