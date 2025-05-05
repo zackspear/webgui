@@ -129,29 +129,6 @@ foreach ($buttonPages as $button) {
     // create page content
     eval('?>'.parse_text($button['text']));
 }
-
-// Reload page every X minutes during extended viewing?
-if (isset($myPage['Load']) && $myPage['Load'] > 0) {
-    ?>
-    <script>
-      function setTimerReload() {
-        timers.reload = setInterval(function(){
-          if (nchanPaused === false && ! dialogOpen() ) {
-            location.reload();
-          }
-        },<?=$myPage['Load'] * 60000?>);
-      }
-      $(document).click(function(e) {
-        clearInterval(timers.reload);
-        setTimerReload();
-      });
-      function dialogOpen() {
-          return ($('.sweet-alert').is(':visible') || $('.swal-overlay--show-modal').is(':visible') );
-      }
-      setTimerReload();
-    </script>
-  <?php
-}
 ?>
 
 <?include "$docroot/plugins/dynamix.my.servers/include/myservers1.php"?>
