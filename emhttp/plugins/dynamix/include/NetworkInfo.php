@@ -20,7 +20,13 @@ if (isset($_POST['listen'])) {
   die(exec("$docroot/webGui/scripts/show_interfaces")?:_('Any'));
 }
 
-function port($eth) {
+// Helper function to normalize bitrate values
+function normalizeBitrate($rate) {
+  $parts = explode(' ', $rate);
+  return intval($parts[0] ?? 0).' '.($parts[1] ?? 'Bit/s');
+}
+
+function isPort($eth) {
   $sys = "/sys/class/net";
   if (substr($eth,0,4) == 'wlan') return $eth;
   $x = preg_replace('/[^0-9]/', '', $eth) ?: '0';
@@ -31,7 +37,7 @@ exec("grep -Po 'nameserver \K\S+' /etc/resolv.conf 2>/dev/null",$ns);
 $eth    = $_POST['port'] ?? '';
 $vlan   = $_POST['vlan'] ?? '';
 $wlan0  = $eth == 'wlan0';
-$port   = port($eth).($vlan ? ".$vlan" : "");
+$port   = isPort($eth).($vlan ? ".$vlan" : "");
 $v6on   = trim(file_get_contents("/proc/sys/net/ipv6/conf/$port/disable_ipv6"))==='0';
 $none   = _('None');
 $error  = "<span class='red-text'>"._('Missing')."</span>";
@@ -39,7 +45,6 @@ $note   = in_array($eth,['eth0','wlan0']) && !$vlan ? $error : $none;
 $ipv4   = array_filter(explode(' ',exec("ip -4 -br addr show ".escapeshellarg($port)." scope global 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
 $gw4    = exec("ip -4 route show default dev ".escapeshellarg($port)." 2>/dev/null | awk '{print \$3;exit}'") ?: $note;
 $dns4   = array_filter($ns,function($ns){return strpos($ns,':') === false;});
-$domain = exec("grep -Pom1 'domain \K.*' /etc/resolv.conf 2>/dev/null") ?: '---';
 
 if ($v6on) {
   $ipv6 = array_filter(explode(' ',exec("ip -6 -br addr show ".escapeshellarg($port)." scope global -temporary 2>/dev/null | awk '{\$1=\$2=\"\";print;exit}' | sed -r 's/ metric [0-9]+//g; s/\/[0-9]+//g'")));
@@ -57,6 +62,8 @@ if ($wlan0) {
     $signal  = explode(': ', $speed[2])[1];
     $rxrate  = explode(': ', $speed[3])[1];
     $txrate  = explode(': ', $speed[4])[1];
+    $rxrate  = normalizeBitrate($rxrate);
+    $txrate  = normalizeBitrate($txrate);
     $tmp     = '/var/tmp/attr';
     $band    = [];
     $attr    = is_readable($tmp) ? (array)parse_ini_file($tmp,true) : [];
@@ -110,6 +117,5 @@ if ($v6on) {
     echo "<tr><td>"._('IPv6 DNS server').":</td><td>$error</td></tr>";
   }
 }
-echo "<tr><td>"._('Domain name').":</td><td>$domain</td></tr>";
 echo "</table>";
 ?>
