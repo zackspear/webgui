@@ -69,17 +69,6 @@ if (count($pages)) {
   }
   if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)."\n"); else @unlink($nchan_pid);
 }
-
-function includePageStylesheets($page) {
-  global $docroot, $theme;
-  $css = "/{$page['root']}/sheets/{$page['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
-}
-
-function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
 ?>
 <!DOCTYPE html>
 <html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">

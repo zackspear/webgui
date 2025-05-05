@@ -127,6 +127,19 @@ function generate_sidebar_icon_css($tasks, $buttons) {
   return $css;
 }
 
+function includePageStylesheets($page) {
+  global $docroot, $theme;
+  $css = "/{$page['root']}/sheets/{$page['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+}
+
+function annotate($text) {
+  echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";
+}
+
 // hack to embed function output in a quoted string (e.g., in a page Title)
 // see: http://stackoverflow.com/questions/6219972/why-embedding-functions-inside-of-strings-is-different-than-variables
 function _func($x) {return $x;}
