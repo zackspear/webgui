@@ -146,11 +146,9 @@ _(Enable Docker)_:
   <?=mk_option(_var($dockercfg,'DOCKER_ENABLED'), 'no', _('No'))?>
   <?=mk_option(_var($dockercfg,'DOCKER_ENABLED'), 'yes', _('Yes'))?>
   </select>
-  <?if (_var($var,'fsState')!="Started"):?>
+<?if (_var($var,'fsState')!="Started"):?>
   <span id="arraystopped"><i class="fa fa-warning icon warning"></i> <?=(_var($dockercfg,'DOCKER_ENABLED')=='yes') ? '_(Docker will be available after Array is Started)_' : '_(Apply to activate Docker after Array is Started)_'?></span>
-  <?elseif (!is_dir(dirname(_var($dockercfg,'DOCKER_IMAGE_FILE'))) || !is_dir(_var($dockercfg,'DOCKER_APP_CONFIG_PATH'))):?>
-  <span class="basic"><i class="fa fa-warning icon warning"></i> _(One or more paths do not exist)_ (<a href="#" onclick="$('.advancedview').switchButton('option','checked',true); return false">_(view)_</a>)</span>
-  <?endif;?>
+<?endif;?>
 
 :docker_enable_help:
 
@@ -192,9 +190,10 @@ _(Docker vDisk size)_:
 _(Docker vDisk location)_:
 : <input type="text" id="DOCKER_IMAGE_FILE1" name="DOCKER_IMAGE_FILE1" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_FILE'))?>" placeholder="_(e.g.)_ /mnt/user/system/docker.img" data-pickcloseonfile="true" data-pickfilter="img" data-pickroot="/mnt" data-pickfolders="true" disabled required pattern="^[^\\]*(docker-xfs\.img|docker\.img)$">
   <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete vDisk file)_</label></span>
-  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
-  <?elseif (!is_dir(dirname(htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_FILE'))))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
-  <?endif;?><span id="IMAGE_ERROR1" class="errortext"></span>
+<?if ($var['fsState'] != "Started"):?>
+  <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+<?endif;?>
+  <span id="IMAGE_ERROR1" class="errortext"></span>
 
 :docker_vdisk_location_help:
 
@@ -203,9 +202,10 @@ _(Docker vDisk location)_:
 _(Docker directory)_:
 : <input type="text" id="DOCKER_IMAGE_FILE2" name="DOCKER_IMAGE_FILE2" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_FILE'))?>" placeholder="_(e.g.)_ /mnt/user/system/docker" data-pickcloseonfile="true" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" disabled required pattern="^[^\\]*/$">
   <span class="deleteLabel"><label><input type="checkbox" class="deleteCheckbox"> _(Delete directory)_</label></span>
-  <?if ($var['fsState'] != "Started"):?><span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
-  <?elseif (!is_dir(dirname(_var($dockercfg,'DOCKER_IMAGE_FILE')))):?><span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
-  <?endif;?><span id="IMAGE_ERROR2" class="errortext"></span>
+<?if ($var['fsState'] != "Started"):?>
+  <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
+<?endif;?>
+  <span id="IMAGE_ERROR2" class="errortext"></span>
 
 :docker_vdisk_directory_help:
 
@@ -217,11 +217,9 @@ _(Docker storage driver)_:
   <?=mk_option(_var($dockercfg,'DOCKER_BACKINGFS'), 'overlay2', _('overlay2'))?>
   <?=mk_option(_var($dockercfg,'DOCKER_BACKINGFS'), 'native', _('native'))?>
   </select>
-  <?if ($var['fsState'] != "Started"):?>
+<?if ($var['fsState'] != "Started"):?>
   <span id="WARNING_BACKINGFS" style="display:none;"><i class="fa fa-warning icon warning"></i>_(Only modify if this is a new installation since this can lead to unwanted behaviour!)_</span>
-  <?elseif (is_dir(_var($dockercfg,'DOCKER_IMAGE_FILE'))):?>
-  <span id="WARNING_BACKINGFS" style="display:none;"><i class="fa fa-warning icon warning"></i>_(Switching the Storage Driver requires to delete and rebuild the Docker directory manually!)_</span>
-  <?endif;?>
+<?endif;?>
 
 :docker_storage_driver_help:
 
@@ -229,11 +227,9 @@ _(Docker storage driver)_:
 
 _(Default appdata storage location)_:
 : <input type="text" id="DOCKER_APP_CONFIG_PATH" name="DOCKER_APP_CONFIG_PATH" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_APP_CONFIG_PATH'))?>" placeholder="_(e.g.)_ /mnt/user/appdata/" data-pickfilter="HIDE_FILES_FILTER" data-pickroot="/mnt" data-pickfolders="true" pattern="^[^\\]*/$">
-  <?if ($var['fsState'] != "Started"):?>
+<?if ($var['fsState'] != "Started"):?>
   <span><i class="fa fa-warning icon warning"></i> _(Modify with caution: unable to validate path until Array is Started)_</span>
-  <?elseif (!is_dir(_var($dockercfg,'DOCKER_APP_CONFIG_PATH'))):?>
-  <span class="nonexist"><i class="fa fa-warning icon warning"></i> _(Path does not exist)_</span>
-  <?endif;?>
+<?endif;?>
 
 :docker_appdata_location_help:
 

@@ -466,11 +466,11 @@ function formatWarning(val) {
 
 window.onunload = function(){
 <?if (_var($var,'fsState')=='Started'):?>
-  mymonitor.stop();
-  devices.stop();
+  try {mymonitor.stop();} catch(e) {}
+  try {devices.stop();} catch(e) {}
 <?endif;?>
 <?if ($spot==0):?>
-  paritymonitor.stop();
+  try {paritymonitor.stop();} catch(e) {}
 <?endif;?>
 }
 </script>

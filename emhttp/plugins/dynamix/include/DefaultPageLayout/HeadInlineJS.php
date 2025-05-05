@@ -585,4 +585,23 @@ $.ajaxPrefilter(function(s, orig, xhr){
     s.data += "csrf_token="+csrf_token;
   }
 });
+
+<?if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
+  // Reload page every X minutes during extended viewing?
+  function setTimerReload() {
+      timers.reload = setInterval(function(){
+        if (nchanPaused === false && ! dialogOpen() ) {
+          location.reload();
+        }
+      },<?=$myPage['Load'] * 60000?>);
+    }
+    $(document).click(function(e) {
+      clearInterval(timers.reload);
+      setTimerReload();
+    });
+    function dialogOpen() {
+        return ($('.sweet-alert').is(':visible') || $('.swal-overlay--show-modal').is(':visible') );
+    }
+    setTimerReload();
+<?endif;?>
 </script>
