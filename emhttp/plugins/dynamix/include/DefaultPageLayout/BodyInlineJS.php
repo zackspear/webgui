@@ -434,9 +434,7 @@ document.addEventListener("visibilitychange", (event) => {
     nchanFocusStop();
   } else {
     <? if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
-      $(function(){
-        setTimeout(function(){window.location.reload();},1000);
-      });
+      window.location.reload();
     <?else:?>
       nchanFocusStart();
     <?endif;?>
