@@ -183,7 +183,7 @@ function array_offline(&$disk, $pool='') {
   global $var, $disks, $display;
   $disk['power'] ??= (_var($display,'power') && _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'power') : 0);
   $echo = []; $warning = '';
-  $status = ['DISK_DSBL','DISK_INVALID','DISK_DSBL_NEW','DISK_WRONG'];
+  $status = ['DISK_INVALID','DISK_DSBL_NEW','DISK_WRONG'];
   $text = "<span class='red-text'><em>"._('All existing data on this device will be OVERWRITTEN when array is Started')."</em></span>";
   if (_var($disk,'type')=='Cache') {
     if (!str_contains(_var($disks[$pool],'state'),'ERROR:')) {

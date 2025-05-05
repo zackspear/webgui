@@ -110,6 +110,7 @@ if (strpos($strSelectedTemplate,"User-") !== false) {
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
 	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplateUT)?>" />
+	<input type="hidden" name="template[iconold]" value="<?=htmlspecialchars($arrLoad['icon'])?>" />
 
 	<table>
 		<tr>

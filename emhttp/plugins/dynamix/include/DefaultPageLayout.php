@@ -1,4 +1,4 @@
-<?PHP
+<?php
 /* Copyright 2005-2024, Lime Technology
  * Copyright 2012-2024, Bergware International.
  *
@@ -10,15 +10,15 @@
  * all copies or substantial portions of the Software.
  */
 ?>
-<?
-require_once "$docroot/webGui/include/ThemeHelper.php";
+<?php
+require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
 $themeHelper = new ThemeHelper($display['theme'], $display['width']);
 $theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
 $themes1 = $themeHelper->isTopNavTheme();
 $themes2 = $themeHelper->isSidebarTheme();
 $themeHelper->updateDockerLogColor($docroot);
 
-$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
 $header  = $display['header']; // keep $header, $backgnd vars for plugin backwards compatibility for the time being
 $backgnd = $display['background'];
@@ -32,7 +32,9 @@ $safemode = _var($var,'safeMode')=='yes';
 $banner = "$config/webGui/banner.png";
 
 $notes = '/var/tmp/unRAIDServer.txt';
-if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+if (!file_exists($notes)) {
+    file_put_contents($notes, shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+}
 
 $taskPages = find_pages('Tasks');
 $buttonPages = find_pages('Buttons');
@@ -71,9 +73,9 @@ if (count($pages)) {
 }
 ?>
 <!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
+<html <?=$display['rtl']?>lang="<?=strtok($locale, '_') ?: 'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
 <head>
-<title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
+<title><?=_var($var, 'NAME')?>/<?=_var($myPage, 'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
@@ -81,7 +83,7 @@ if (count($pages)) {
 <meta name="viewport" content="width=1300">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
-<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
+<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var, 'mdColor', 'red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
@@ -109,10 +111,10 @@ if (count($pages)) {
   <?endif;?>
 }
 
-<?
+<?php
 // Generate sidebar icon CSS if using sidebar theme
 if ($themeHelper->isSidebarTheme()) {
-  echo generate_sidebar_icon_css($taskPages, $buttonPages);
+    echo generate_sidebar_icon_css($taskPages, $buttonPages);
 }
 ?>
 </style>
@@ -126,7 +128,7 @@ if ($themeHelper->isSidebarTheme()) {
 
 <? require_once "$docroot/webGui/include/DefaultPageLayout/HeadInlineJS.php"; ?>
 
-<?
+<?php
 foreach ($buttonPages as $button) {
   annotate($button['file']);
   includePageStylesheets($button);
