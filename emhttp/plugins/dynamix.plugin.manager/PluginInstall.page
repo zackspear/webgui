@@ -54,7 +54,10 @@ Tag="download"
 
 <form name="plugin_install" method="POST" target="progressFrame">
   <input type="text" name="file" id="plugin_file" maxlength="1024" value="" style="width:33%">
-  <label style="margin-right: 10px;" title="_(Allows you to install the same or older version of a plugin)_"><input type="checkbox" id="force_install" name="force_install"> _(Force Install)_</label>
+  <label style="margin-right: 10px;" title="_(Allows you to install the same or older version of a plugin)_">
+    <input type="checkbox" id="force_install" name="force_install">
+    _(Force Install)_
+  </label>
   <input type="submit" value="_(Install)_">
 </form>
 
