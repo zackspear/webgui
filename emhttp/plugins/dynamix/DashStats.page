@@ -120,17 +120,25 @@ $names      = [];
 $SMBpublic = $NFSpublic= 0;
 foreach ($sec as $share => $prop) {
   if ( $prop['export'] == "-") continue;
-  if ( $prop['security'] == "public") $SMBpublic++;
-  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+  if ( $prop['security'] == "public") {
+    if ( $share == "flash" || (! isset($disks[$share]) || (isset($disks[$share]) && ($var['shareDisk']??"") == "yes" && $share !=="flash") ) )
+     $SMBpublic++;
+  }
+  if ( ($var['shareDisk']??"") !== "yes"  && $share !=="flash" ) continue;
   if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
-  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+  if ( (! isset($shares[$share]) && isset($disks[$share]) && ($var['shareDisk']??"") == "yes" ) || $share == "flash" ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
 }
-foreach ($sec_nfs as $share => $prop) {
-  if ( $prop['export'] == "-") continue;
-  if ( $prop['security'] == "public") $NFSpublic++;
-  if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
-  if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
-  if ( ! isset($shares[$share]) && isset($disks[$share]) ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+if ($var['shareNFSEnabled']=='yes') {
+  foreach ($sec_nfs as $share => $prop) {
+    if ( $prop['export'] == "-") continue;
+    if ( $prop['security'] == "public") {
+      if ( $share == "flash" || (! isset($disks[$share]) || (isset($disks[$share]) && ($var['shareDisk']??"") == "yes" && $share !== "flash" ) ) )
+        $NFSpublic++;
+    }
+    if ( ($var['shareDisk']??"") == "no"  && $share !=="flash" ) continue;
+    if ( ! $started && isset($disks[$share]) && $share !=="flash" ) continue;
+    if ( ( ! isset($shares[$share]) && isset($disks[$share]) && ($var['shareDisk']??"") == "yes") || $share == "flash" ) {$shares[$share]=$disks[$share]; $shares[$share]['diskexport'] = true;}
+  }
 }
 
 $passwd = $nopass = 0;
@@ -786,8 +794,10 @@ jQuery.prototype.mixedView = function(s) {
   }
 }
 
-<?if (file_exists($cookie)):?>
-var cookie  = JSON.parse('<?=file_get_contents($cookie)?>');
+<?
+$cookie_content = @file_get_contents($cookie);
+if ( @json_decode($cookie_content,true) ):?>
+var cookie  = JSON.parse('<?=trim($cookie_content);?>');
 <?else:?>
 var cookie  = {};
 <?endif;?>
@@ -872,31 +882,30 @@ function sanitizeMultiCookie(cookieName, delimiter, removeDuplicates=false) {
 }
 
 function initCharts(clear) {
-  $.post('/webGui/include/InitCharts.php',{cmd:'get'},function(data) {
-    data = JSON.parse(data);
-    // initialize graphs entries
-    var now = new Date().getTime();
-    if (!clear) {
-      var c = data.cpu.split(';');
-      var r = data.rxd.split(';');
-      var t = data.txd.split(';');
-      for (var i=0; i < cpuline; i++) {
-        var x = now + i;
-        var y = c[i]||0; cpu.push({x,y});
-      }
-      cputime = x + 1;
-    } else {
-      // clear network graph
-      var r = ''; var t = '';
-      rxd = []; txd = [];
-    }
-    for (var i=0; i < netline; i++) {
+  // initialize graphs entries
+  var data = [];
+  data.cpu = data.rxd = data.txd ="";
+  var now = new Date().getTime();
+  if (!clear) {
+    var c = data.cpu.split(';');
+    var r = data.rxd.split(';');
+    var t = data.txd.split(';');
+    for (var i=0; i < cpuline; i++) {
       var x = now + i;
-      var y = r[i]||0; rxd.push({x,y});
-      var y = t[i]||0; txd.push({x,y});
+      var y = c[i]||0; cpu.push({x,y});
     }
-    nettime = x + 1;
-  });
+    cputime = x + 1;
+  } else {
+    // clear network graph
+    var r = ''; var t = '';
+    rxd = []; txd = [];
+  }
+  for (var i=0; i < netline; i++) {
+    var x = now + i;
+    var y = r[i]||0; rxd.push({x,y});
+    var y = t[i]||0; txd.push({x,y});
+  }
+  nettime = x + 1;
 }
 
 function resetCharts() {

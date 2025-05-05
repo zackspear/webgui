@@ -1,4 +1,4 @@
-<?PHP
+<?php
 /* Copyright 2005-2024, Lime Technology
  * Copyright 2012-2024, Bergware International.
  *
@@ -10,7 +10,7 @@
  * all copies or substantial portions of the Software.
  */
 ?>
-<?
+<?php
 require_once "$docroot/plugins/dynamix/include/ThemeHelper.php";
 $themeHelper = new ThemeHelper($display['theme'], $display['width']);
 $theme   = $themeHelper->getThemeName(); // keep $theme, $themes1, $themes2 vars for plugin backwards compatibility for the time being
@@ -18,7 +18,7 @@ $themes1 = $themeHelper->isTopNavTheme();
 $themes2 = $themeHelper->isSidebarTheme();
 $themeHelper->updateDockerLogColor($docroot);
 
-$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '',FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+$display['font'] = filter_var($_COOKIE['fontSize'] ?? $display['font'] ?? '', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
 $header  = $display['header']; // keep $header, $backgnd vars for plugin backwards compatibility for the time being
 $backgnd = $display['background'];
@@ -32,7 +32,9 @@ $safemode = _var($var,'safeMode')=='yes';
 $banner = "$config/plugins/dynamix/banner.png";
 
 $notes = '/var/tmp/unRAIDServer.txt';
-if (!file_exists($notes)) file_put_contents($notes,shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+if (!file_exists($notes)) {
+    file_put_contents($notes, shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+}
 
 $taskPages = find_pages('Tasks');
 $buttonPages = find_pages('Buttons');
@@ -70,18 +72,24 @@ if (count($pages)) {
   if (count($running)) file_put_contents($nchan_pid,implode("\n",$running)."\n"); else @unlink($nchan_pid);
 }
 
-function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
+function annotate($text)
+{
+    echo "\n<!--\n",str_repeat("#", strlen($text)),"\n$text\n",str_repeat("#", strlen($text)),"\n-->\n";
+}
 
-function generateReloadScript($loadMinutes) {
-    if ($loadMinutes <= 0) return '';
+function generateReloadScript($loadMinutes)
+{
+    if ($loadMinutes <= 0) {
+        return '';
+    }
     $interval = $loadMinutes * 60000;
     return "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},{$interval});</script>\n";
 }
 ?>
 <!DOCTYPE html>
-<html <?=$display['rtl']?>lang="<?=strtok($locale,'_')?:'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
+<html <?=$display['rtl']?>lang="<?=strtok($locale, '_') ?: 'en'?>" class="<?= $themeHelper->getThemeHtmlClass() ?>">
 <head>
-<title><?=_var($var,'NAME')?>/<?=_var($myPage,'name')?></title>
+<title><?=_var($var, 'NAME')?>/<?=_var($myPage, 'name')?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
@@ -89,7 +97,7 @@ function generateReloadScript($loadMinutes) {
 <meta name="viewport" content="width=1300">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
-<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var,'mdColor','red-on')?>.png">
+<link type="image/png" rel="shortcut icon" href="/webGui/images/<?=_var($var, 'mdColor', 'red-on')?>.png">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-fonts.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-cases.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/font-awesome.css")?>">
@@ -117,10 +125,10 @@ function generateReloadScript($loadMinutes) {
   <?endif;?>
 }
 
-<?
+<?php
 // Generate sidebar icon CSS if using sidebar theme
 if ($themeHelper->isSidebarTheme()) {
-  echo generate_sidebar_icon_css($taskPages, $buttonPages);
+    echo generate_sidebar_icon_css($taskPages, $buttonPages);
 }
 ?>
 </style>
@@ -132,24 +140,23 @@ if ($themeHelper->isSidebarTheme()) {
 <script src="<?autov('/webGui/javascript/dynamix.js')?>"></script>
 <script src="<?autov('/webGui/javascript/translate.'.($locale?:'en_US').'.js')?>"></script>
 
-<? require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/HeadInlineJS.php"; ?>
+<?php require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/HeadInlineJS.php"; ?>
 
-<?
+<?php
 foreach ($buttonPages as $button) {
-  annotate($button['file']);
-  // include page specific stylesheets (if existing)
-  $css = "/{$button['root']}/sheets/{$button['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
-  // create page content
-  eval('?>'.parse_text($button['text']));
-}
-
-// Reload page every X minutes during extended viewing?
-if (isset($myPage['Load'])) {
-    echo generateReloadScript($myPage['Load']);
+    annotate($button['file']);
+    // include page specific stylesheets (if existing)
+    $css = "/{$button['root']}/sheets/{$button['name']}";
+    $css_stock = "$css.css";
+    $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
+    if (is_file($docroot.$css_stock)) {
+        echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+    }
+    if (is_file($docroot.$css_theme)) {
+        echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+    }
+    // create page content
+    eval('?>'.parse_text($button['text']));
 }
 ?>
 
@@ -170,55 +177,59 @@ if (isset($myPage['Tabs'])) $display['tabs'] = strtolower($myPage['Tabs'])=='tru
 $tabbed = $display['tabs']==0 && count($pages)>1;
 
 foreach ($pages as $page) {
-  $close = false;
-  if (isset($page['Title'])) {
-    eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
-    if ($tabbed) {
-      echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
-      echo tab_title($title,$page['root'],_var($page,'Tag',false));
-      echo "</label><div class='content'>";
-      $close = true;
-    } else {
-      if ($tab==1) echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
-      echo "<div class='title'><span class='left'>";
-      echo tab_title($title,$page['root'],_var($page,'Tag',false));
-      echo "</span></div>";
-    }
-    $tab++;
-  }
-  if (isset($page['Type']) && $page['Type']=='menu') {
-    $pgs = find_pages($page['name']);
-    foreach ($pgs as $pg) {
-      @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
-      $icon = _var($pg,'Icon',"<i class='icon-app PanelIcon'></i>");
-      if (substr($icon,-4)=='.png') {
-        $root = $pg['root'];
-        if (file_exists("$docroot/$root/images/$icon")) {
-          $icon = "<img src='/$root/images/$icon' class='PanelImg'>";
-        } elseif (file_exists("$docroot/$root/$icon")) {
-          $icon = "<img src='/$root/$icon' class='PanelImg'>";
+    $close = false;
+    if (isset($page['Title'])) {
+        eval("\$title=\"".htmlspecialchars($page['Title'])."\";");
+        if ($tabbed) {
+            echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs' onclick='settab(this.id)'><label for='tab{$tab}'>";
+            echo tab_title($title, $page['root'], _var($page, 'Tag', false));
+            echo "</label><div class='content'>";
+            $close = true;
         } else {
-          $icon = "<i class='icon-app PanelIcon'></i>";
+            if ($tab == 1) {
+                echo "<div class='tab'><input type='radio' id='tab{$tab}' name='tabs'><div class='content shift'>";
+            }
+            echo "<div class='title'><span class='left'>";
+            echo tab_title($title, $page['root'], _var($page, 'Tag', false));
+            echo "</span></div>";
         }
-      } elseif (substr($icon,0,5)=='icon-') {
-        $icon = "<i class='$icon PanelIcon'></i>";
-      } elseif ($icon[0]!='<') {
-        if (substr($icon,0,3)!='fa-') $icon = "fa-$icon";
-        $icon = "<i class='fa $icon PanelIcon'></i>";
-      }
-      echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1')\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
+        $tab++;
     }
-  }
-  annotate($page['file']);
-  // include page specific stylesheets (if existing)
-  $css = "/{$page['root']}/sheets/{$page['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css";
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
-  // create page content
-  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
-  if ($close) echo "</div></div>";
+    if (isset($page['Type']) && $page['Type'] == 'menu') {
+        $pgs = find_pages($page['name']);
+        foreach ($pgs as $pg) {
+            @eval("\$title=\"".htmlspecialchars($pg['Title'])."\";");
+            $icon = _var($pg, 'Icon', "<i class='icon-app PanelIcon'></i>");
+            if (substr($icon, -4) == '.png') {
+                $root = $pg['root'];
+                if (file_exists("$docroot/$root/images/$icon")) {
+                    $icon = "<img src='/$root/images/$icon' class='PanelImg'>";
+                } elseif (file_exists("$docroot/$root/$icon")) {
+                    $icon = "<img src='/$root/$icon' class='PanelImg'>";
+                } else {
+                    $icon = "<i class='icon-app PanelIcon'></i>";
+                }
+            } elseif (substr($icon, 0, 5) == 'icon-') {
+                $icon = "<i class='$icon PanelIcon'></i>";
+            } elseif ($icon[0] != '<') {
+                if (substr($icon, 0, 3) != 'fa-') {
+                    $icon = "fa-$icon";
+                }
+                $icon = "<i class='fa $icon PanelIcon'></i>";
+            }
+            echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1')\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
+        }
+    }
+    annotate($page['file']);
+    // include page specific stylesheets (if existing)
+    $css = "/{$page['root']}/sheets/{$page['name']}";
+    $css_stock = "$css.css";
+    $css_theme = "$css-$theme.css";
+    if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+    if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+    // create page content
+    empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
+    if ($close) echo "</div></div>";
 }
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt,$nchan_run);
 ?>
