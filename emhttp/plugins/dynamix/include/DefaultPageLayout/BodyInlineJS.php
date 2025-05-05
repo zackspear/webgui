@@ -433,7 +433,13 @@ document.addEventListener("visibilitychange", (event) => {
   if (document.hidden) {
     nchanFocusStop();
   } else {
-    nchanFocusStart();
+    <? if (isset($myPage['Load']) && $myPage['Load'] > 0):?>
+      $(function(){
+        setTimeout(function(){window.location.reload();},1000);
+      });
+    <?else:?>
+      nchanFocusStart();
+    <?endif;?>
   }
 <?endif;?>
 });
