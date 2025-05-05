@@ -585,4 +585,15 @@ $.ajaxPrefilter(function(s, orig, xhr){
     s.data += "csrf_token="+csrf_token;
   }
 });
+
+<? if (isset($myPage['Load']) && $myPage['Load'] > 0): ?>
+  timers.reload = setInterval(
+    function(){
+      if (nchanPaused === false) {
+        location.reload();
+      }
+    },
+    <?=$myPage['Load'] * 60000?>
+  );
+<? endif; ?>
 </script>
