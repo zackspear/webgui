@@ -212,7 +212,7 @@ foreach ($buttonPages as $button) {
             $icon = "<b class='fa $icon system'></b>";
         }
         $title = $themeHelper->isSidebarTheme() ? "" : " title=\""._($button['Title'])."\"";
-        echo "<div class='nav-item {$button['name']} util'><a href='"._var($button, 'Href', '#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
+        echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
     } else {
         echo "<div class='{$button['Link']}'></div>";
     }
@@ -222,9 +222,6 @@ foreach ($buttonPages as $button) {
     }
     $title = $themeHelper->isSidebarTheme() ? "" : " title=\""._($button['Title'])."\"";
     echo "<div class='nav-item {$button['name']} util'><a href='"._var($button,'Href','#')."' onclick='{$button['name']}();return false;'{$title}>$icon<span>"._($button['Title'])."</span></a></div>";
-  } else {
-    echo "<div class='{$button['Link']}'></div>";
-  }
 }
 
 echo "<div class='nav-user show'><a id='board' href='#' class='hand'><b id='bell' class='icon-u-bell system'></b></a></div>";
@@ -286,17 +283,16 @@ foreach ($pages as $page) {
             echo "<div class=\"Panel\"><a href=\"/$path/{$pg['name']}\" onclick=\"$.cookie('one','tab1')\"><span>$icon</span><div class=\"PanelText\">"._($title)."</div></a></div>";
         }
     }
-  }
-  annotate($page['file']);
-  // include page specific stylesheets (if existing)
-  $css = "/{$page['root']}/sheets/{$page['name']}";
-  $css_stock = "$css.css";
-  $css_theme = "$css-$theme.css";
-  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
-  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
-  // create page content
-  empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
-  if ($close) echo "</div></div>";
+    annotate($page['file']);
+    // include page specific stylesheets (if existing)
+    $css = "/{$page['root']}/sheets/{$page['name']}";
+    $css_stock = "$css.css";
+    $css_theme = "$css-$theme.css";
+    if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+    if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+    // create page content
+    empty($page['Markdown']) || $page['Markdown']=='true' ? eval('?>'.Markdown(parse_text($page['text']))) : eval('?>'.parse_text($page['text']));
+    if ($close) echo "</div></div>";
 }
 unset($pages,$page,$pgs,$pg,$icon,$nchan,$running,$start,$stop,$row,$script,$opt,$nchan_run);
 ?>
