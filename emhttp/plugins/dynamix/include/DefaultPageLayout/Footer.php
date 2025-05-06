@@ -54,19 +54,26 @@ function getArrayStatus($var) {
         </span>
     </span>
     <span id="user-notice" class="red-text"></span>
-    <? if ($wlan0): ?>
-        <span id="wlan0" class="grey-text" onclick="wlanSettings()">
-            <i class="fa fa-wifi fa-fw"></i>
+    <div class="footer-right">
+        <span id="copyright">
+            <unraid-theme-switcher
+                current="<?=$theme?>"
+                themes='<?=htmlspecialchars(json_encode(['azure', 'gray', 'black', 'white']), ENT_QUOTES, 'UTF-8')?>'>
+            </unraid-theme-switcher>
+            Unraid&reg; webGui &copy;<?=releaseDateYear()?>, Lime Technology, Inc.
+            <a
+                class="footer-link"
+                href="https://docs.unraid.net/go/manual/"
+                target="_blank"
+                title="<?=_('Online manual')?>"
+            >
+                <i class="fa fa-book"></i> <?=_('manual')?>
+            </a>
         </span>
-    <? endif; ?>
-    <span id="copyright">
-        Unraid&reg; webGui &copy;<?=releaseDateYear()?>, Lime Technology, Inc.
-        <a href="https://docs.unraid.net/go/manual/" target="_blank" title="<?=_('Online manual')?>">
-            <i class="fa fa-book"></i> <?=_('manual')?>
-        </a>
-        <unraid-theme-switcher 
-            current="<?=$theme?>"
-            themes='<?=htmlspecialchars(json_encode(['azure', 'gray', 'black', 'white']), ENT_QUOTES, 'UTF-8')?>'>
-        </unraid-theme-switcher>
-    </span>
+        <? if ($wlan0): ?>
+            <span id="wlan0" class="grey-text" onclick="wlanSettings()">
+                <i class="fa fa-wifi fa-fw"></i>
+            </span>
+        <? endif; ?>
+    </div>
 </footer>

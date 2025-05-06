@@ -90,6 +90,10 @@ $pageroot = $docroot.'/'._var($myPage,'root');
 $nchan_pid = "/var/run/nchan.pid";
 $nchan_run = "";
 
+// even if DisplaySettings is not enabled for tabs, pages with Tabs="true" will use tabs
+$display['tabs'] = isset($myPage['Tabs']) ? (strtolower($myPage['Tabs']) == 'true' ? 0 : 1) : 1;
+$tabbed = $display['tabs'] == 0 && count($pages ?? []) > 1;
+
 // Giddyup
 require_once "$docroot/webGui/include/DefaultPageLayout.php";
 ?>

@@ -40,7 +40,8 @@ $taskPages = find_pages('Tasks');
 $buttonPages = find_pages('Buttons');
 $pages = []; // finds subpages
 if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
-if (_var($myPage,'Type')=='xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
+$isPageXMenu = _var($myPage,'Type') === 'xmenu';
+if ($isPageXMenu) $pages = array_merge($pages, find_pages($myPage['name']));
 
 // nchan related actions
 $nchan = ['webGui/nchan/notify_poller','webGui/nchan/session_check'];
@@ -132,6 +133,7 @@ if ($themeHelper->isSidebarTheme()) {
 foreach ($buttonPages as $button) {
   annotate($button['file']);
   includePageStylesheets($button);
+  includePageJavascript($button);
   eval('?>'.parse_text($button['text']));
 }
 

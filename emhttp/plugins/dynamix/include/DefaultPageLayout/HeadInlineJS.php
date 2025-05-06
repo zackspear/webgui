@@ -107,7 +107,16 @@ function initab(page) {
   if (page != null) location.replace(page);
 }
 
+function showContentForTab(tab) {
+  if (<?= !$isPageXMenu ?>) {
+      $('.content').hide(); // hide all content
+      contentIdToShow = `#content-${tab.replace('tab','')}`;
+      $(contentIdToShow).show(); // show the selected content
+  }
+}
+
 function settab(tab) {
+  console.log('settab', tab);
 <?switch ($myPage['name']):?>
 <?case'Main':?>
   $.cookie('tab',tab);
@@ -121,6 +130,8 @@ function settab(tab) {
 <?default:?>
   $.cookie('one',tab);
 <?endswitch;?>
+
+  showContentForTab(tab);
 }
 
 function done(key) {
@@ -551,6 +562,7 @@ $(function() {
     tab = 'tab1';
   }
   $('#'+tab).attr('checked', true);
+  showContentForTab(tab);
   updateTime();
   $.jGrowl.defaults.closeTemplate = '<i class="fa fa-close"></i>';
   $.jGrowl.defaults.closerTemplate = '<?=$notify['position'][0]=='b' ? '<div class="bottom">':'<div class="top">'?>[ <?=_("close all notifications")?> ]</div>';

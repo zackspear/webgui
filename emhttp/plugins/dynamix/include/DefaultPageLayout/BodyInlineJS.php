@@ -234,8 +234,6 @@ $(window).scroll(function() {
     $('.back_to_top').fadeOut(scrollDuration);
   }
 <?if ($themeHelper->isTopNavTheme()):?>
-  var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
-  $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
   // banner
   $('div.upgrade_notice').css($(this).scrollTop() > 24 ? {position:'fixed',top:'0'} : {position:'absolute',top:'24px'});
 <?endif;?>
@@ -285,7 +283,7 @@ $(function() {
       $(this).attr('onsubmit','clearTimeout(timers.flashReport);escapeQuotes(this);'+onsubmit);
     }
   });
-  var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
+  var top = ($.cookie('top')||0) - $('.tabs').top - 75;
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top');
   if ($.cookie('addAlert') != null) bannerAlert(addAlert.text,addAlert.cmd,addAlert.plg,addAlert.func);

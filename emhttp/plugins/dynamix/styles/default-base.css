@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 html {
     font-family: clear-sans, sans-serif;
     font-size: var(--custom-font-size, 62.5%);
@@ -358,9 +362,17 @@ textarea {
     border-bottom: 1px solid var(--input-border-color);
 }
 #header {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relaitve;
+    z-index: 102 !important;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
     width: 100%;
     height: 91px;
     z-index: 102;
@@ -369,6 +381,27 @@ textarea {
     background-color: var(--header-background-color);
     background-size: 100% 90px;
     background-repeat: no-repeat;
+}
+
+#header unraid-i18n-host {
+    font-size: 16px;
+    margin-left: auto;
+    height: 100%;
+}
+
+/**
+ * Tools page, rotate the Downgrade icon to prevent needing to add a new icon to the icon font.
+ * The pseudo element is targeted here otherwise the rotation of the span would mess up spacing with the text.
+ */
+a[href="/Tools/Downgrade"] .icon-update:before {
+    display: inline-block; /* required otherwise the rotation won't work */
+    rotate: 180deg;
+}
+/* overriding #header .logo svg */
+#header .logo .partner-logo svg {
+    fill: var(--header-text-primary);
+    width: auto;
+    height: 28px;
 }
 
 #header.image { /* .image is conditionally added by DefaultPageLayout.php */
@@ -413,7 +446,9 @@ textarea {
     margin-right: 4px;
 }
 div.title {
-    margin: 20px 0 32px 0;
+    display: block;
+    width: 100%;
+    margin: 0;
     padding: 8px 10px;
     clear: both;
     border-bottom: 1px solid var(--table-border-color);
@@ -436,13 +471,12 @@ div.title.shift {
     margin-top: -30px;
 }
 #menu {
-    position: absolute;
-    top: 90px;
-    left: 0;
-    right: 0;
+    position: sticky;
+    top: 0;
     display: grid;
     grid-template-columns: auto max-content;
     z-index: 101;
+    width: 100%;
 }
 .nav-tile {
     height: 4rem;
@@ -541,25 +575,36 @@ div.title.shift {
     left: 0;
     color: var(--footer-text);
     background-color: var(--footer-background-color);
-    padding: 5px 0;
+    padding: .5rem 1rem;
     width: 100%;
-    height: 1.6rem;
-    line-height: 1.6rem;
     text-align: center;
     z-index: 10000;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
 }
 #statusraid {
     float: left;
-    padding-left: 10px;
 }
 #countdown {
     margin: 0 auto;
 }
+.footer-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 #copyright {
     font-family: bitstream;
     font-size: 1.1rem;
-    float: right;
-    padding-right: 10px;
 }
 .green {
     color: var(--green-800);
@@ -1120,28 +1165,49 @@ a.list {
     color: inherit;
 }
 div.content {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
+    float: left;
     width: 100%;
-    padding-bottom: 30px;
-    z-index: -1;
     clear: both;
-}
-div.content.shift {
-    margin-top: 1px;
+    overflow-x: scroll;
 }
 label + .content {
     margin-top: 86px;
 }
 div.tabs {
     position: relative;
-    margin: 120px 0 0 0;
-}
-div.tab {
     float: left;
-    margin-top: 30px;
+    width: 100%;
+    padding: 1rem 0 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    align-content: flex-start;
 }
+.tabs-inner,
+.tabs-inner--spaced {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+.tabs-inner--spaced {
+    position: absolute;
+    top: 0;
+    right: 0;
+    gap: .5rem;
+}
+
+.tabs-inner--spaced > input[type="button"],
+.tabs-inner--spaced > span > input[type="button"] {
+    margin: 0;
+}
+
 div.tab input[id^="tab"] {
     display: none;
 }
@@ -1166,6 +1232,7 @@ div.tab [type="radio"]:checked + label ~ .content {
     display: inline;
 }
 div.tab [type="radio"] + label {
+    display: block;
     position: relative;
     font-size: 1.4rem;
     letter-spacing: 1.8px;
@@ -1508,9 +1575,7 @@ i.abortOps {
 pre#swalbody p {
     margin-block-end: 1em;
 }
-span#wlan0 {
-    float: right;
-    margin-right: 10px;
+#wlan0 {
     cursor: pointer;
 }
 
@@ -1708,8 +1773,7 @@ span#wlan0 {
     }
 
     #header {
-        position: fixed;
-        height: 90px;
+        position: relative;
         z-index: 100;
         border-bottom: 1px solid var(--gray-600);
         box-sizing: border-box;
@@ -2075,12 +2139,8 @@ span#wlan0 {
     }
 
     div.tabs {
-        margin: 110px 20px 30px 90px;
-        background-color: var(--background-color);
-    }
-
-    div.tab {
-        margin-top: 23px;
+        padding: 0 20px 30px 90px;
+        /* background-color: var(--background-color); */
     }
 
     div.tab [type="radio"] + label {
@@ -2154,7 +2214,7 @@ span#wlan0 {
     div.Panel .PanelText {
         font-size: 1.4rem;
         padding-top: 0;
-        text-align: center;
+        text-align: left;
     }
 
     div.user-list {
@@ -2226,61 +2286,57 @@ span#wlan0 {
 }
 
 /* Theme width styles */
+#displaybox {
+    position: relative;
+    float: left;
+    width: 100%;
+    padding: 10px 10px 50px;
+}
+
 .Theme--width-boxed #displaybox {
-    min-width: 1280px;
     max-width: 1280px;
     margin: 0;
 }
 
 .Theme--width-unlimited #displaybox {
-    min-width: 1280px;
     margin: 0;
 }
 
 /* Media queries for different screen sizes */
 @media (max-width: 1280px) {
     .Theme--width-boxed #displaybox {
-        min-width: 1280px;
         max-width: 1280px;
         margin: 0;
     }
-    
+
     .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
         margin: 0;
     }
 }
 
 @media (min-width: 1281px) {
     .Theme--width-boxed #displaybox {
-        min-width: 1280px;
         max-width: 1920px;
         margin: 0 auto;
     }
-    
+
     .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
         margin: 0 auto;
-    }
-    
-    .Theme--nav-top.Theme--width-unlimited #displaybox {
-        margin: 0 10px;
     }
 }
 
 @media (min-width: 1921px) {
     .Theme--width-boxed #displaybox {
-        min-width: 1280px;
         max-width: 1920px;
         margin: 0 auto;
     }
-    
+
     .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
         margin: 0 auto;
     }
-    
+
     .Theme--nav-top.Theme--width-unlimited #displaybox {
-        margin: 0 20px;
+        padding-right: 20px;
+        padding-left: 20px;
     }
 }

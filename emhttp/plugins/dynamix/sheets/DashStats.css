@@ -11,10 +11,6 @@
     --dashstats-pie-after-bg-color: #f7f9f9;
 }
 
-div.frame {
-    padding-top: 14px;
-    padding-bottom: 160px;
-}
 div.tile,
 i.tile {
     display: none;

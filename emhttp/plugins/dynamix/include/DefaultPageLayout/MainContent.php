@@ -2,6 +2,7 @@
 /**
  * Main content template for the Unraid web interface.
  * Handles the rendering of tabs and page content.
+ * @todo - tabs and content need to be split from each other. And not nested any longer.
  */
 
 $defaultIcon = "<i class=\"icon-app PanelIcon\"></i>";
@@ -18,7 +19,7 @@ function process_icon($icon, $docroot, $root) {
     } elseif (substr($icon, 0, 5) == 'icon-') {
         return "<i class=\"$icon PanelIcon\"></i>";
     } elseif ($icon[0] != '<') {
-        if (substr($icon, 0, 3) != 'fa-') {
+        if (substr($icon, 0, 3) != 'fa-') { 
             $icon = "fa-$icon";
         }
         return "<i class=\"fa $icon PanelIcon\"></i>";
@@ -27,72 +28,63 @@ function process_icon($icon, $docroot, $root) {
 }
 
 $tab = 1;
-// even if DisplaySettings is not enabled for tabs, pages with Tabs="true" will use tabs
-$display['tabs'] = isset($myPage['Tabs']) ? (strtolower($myPage['Tabs']) == 'true' ? 0 : 1) : 1;
-$tabbed = $display['tabs'] == 0 && count($pages) > 1;
+$content = 1;
 ?>
 <div id="displaybox">
-    <div class="tabs">
-        <? foreach ($pages as $page):
-            $close = false;
-            if (isset($page['Title'])):
-                $title = htmlspecialchars($page['Title']) ?? '';
-                if ($tabbed): ?>
-                    <div class="tab">
-                        <input type="radio" id="tab<?= $tab ?>" name="tabs" onclick="settab(this.id)">
-                        <label for="tab<?= $tab ?>">
-                            <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
-                        </label>
-                        <div class="content">
-                    <? $close = true;
-                else:
-                    if ($tab == 1): ?>
+    <? if ($tabbed): ?>
+        <div class="tabs">
+            <div class="tabs-inner">
+                <? foreach ($pages as $page): ?>
+                    <? if (isset($page['Title']) && $title = htmlspecialchars($page['Title']) ?? ''): ?>
                         <div class="tab">
-                            <input type="radio" id="tab<?= $tab ?>" name="tabs">
-                            <div class="content shift">
-                    <? endif; ?>
-                        <div class="title">
-                            <span class="left">
+                            <input type="radio" id="tab<?= $tab ?>" name="tabs" onclick="settab(this.id)">
+                            <label for="tab<?= $tab ?>">
                                 <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
-                            </span>
+                            </label>
                         </div>
-                <? endif;
-                $tab++;
-            endif;
 
-            // Handle menu type pages
-            if (isset($page['Type']) && $page['Type'] == 'menu'):
-                $pgs = find_pages($page['name']);
-                foreach ($pgs as $pg):
-                    // Set title variable with proper escaping (suppress errors)
-                    @$title = htmlspecialchars($pg['Title']);
-                    $icon = _var($pg, 'Icon', $defaultIcon);
-                    $icon = process_icon($icon, $docroot, $pg['root']); ?>
+                        <? $tab++; ?>
+                    <? endif; ?>
+                <? endforeach; ?>
+            </div>
+        </div> <!-- /.tabs -->
+    <? endif; ?>
+
+    <? foreach ($pages as $page): ?>
+        <div id="content-<?= $content ?>" class="content">
+            <? if (!$tabbed && isset($page['Title']) && $title = htmlspecialchars($page['Title']) ?? ''): ?>
+                <div class="title">
+                    <span class="left">
+                        <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
+                    </span>
+                </div>
+            <? endif; ?>
+
+            <? if (isset($page['Type']) && $page['Type'] == 'menu'): ?>
+                <? foreach (find_pages($page['name']) as $pg): ?>
+                    <? $title = htmlspecialchars($pg['Title']); ?>
+                    <? $icon = _var($pg, 'Icon', $defaultIcon); ?>
+                    <? $icon = process_icon($icon, $docroot, $pg['root']); ?>
                     <div class="Panel">
                         <a href="/<?= $path ?>/<?= $pg['name'] ?>" onclick="$.cookie('one','tab1')">
                             <span><?= $icon ?></span>
                             <div class="PanelText"><?= _($title) ?></div>
                         </a>
                     </div>
-                <? endforeach;
-            endif;
+                <? endforeach; ?>
+            <? endif; ?>
 
-            // Annotate with HTML comment
-            annotate($page['file']);
+            <? // Create page content ?>
+            <? annotate($page['file']); ?>
+            <? if (empty($page['Markdown']) || $page['Markdown'] == 'true'): ?>
+                <? eval('?>'.Markdown(parse_text($page['text']))); ?>
+            <? else: ?>
+                <? eval('?>'.parse_text($page['text'])); ?>
+            <? endif; ?>
 
-            // Create page content
-            if (empty($page['Markdown']) || $page['Markdown'] == 'true'):
-                eval('?>'.Markdown(parse_text($page['text'])));
-            else:
-                eval('?>'.parse_text($page['text']));
-            endif;
-
-            if ($close): ?>
-                </div><!-- /.content -->
-            </div><!-- /.tab -->
-            <? endif;
-        endforeach; ?>
-    </div><!-- /.tabs -->
+            <? $content++; ?>
+        </div><!-- /.content -->
+    <? endforeach; ?>
 </div><!-- /#displaybox -->
 <?
 // Clean up variables
