@@ -1172,7 +1172,6 @@ label + .content {
 }
 div.tabs {
     position: relative;
-    margin: 120px 0 0 0;
 }
 div.tab {
     float: left;
@@ -2108,7 +2107,6 @@ span#wlan0 {
     }
 
     div.tabs {
-        margin: 110px 20px 30px 90px;
         background-color: var(--background-color);
     }
 
