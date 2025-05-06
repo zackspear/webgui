@@ -134,10 +134,39 @@ function includePageStylesheets($page) {
   $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
   if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
   if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+
+  if (isset($page['cssFilesToInclude'])) {
+    // convert string to array if it's not already
+    if (is_string($page['cssFilesToInclude'])) {
+      $page['cssFilesToInclude'] = array_map('trim', explode(',', $page['cssFilesToInclude']));
+    }
+    
+    foreach ($page['cssFilesToInclude'] as $style) {
+      if (is_file($docroot.$style)) echo '<link type="text/css" rel="stylesheet" href="',autov($style),'">',"\n";
+    }
+  }
 }
 
-function annotate($text) {
-  echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";
+function includePageJavascript($page) {
+  global $docroot;
+
+  if (isset($page['jsFilesToInclude'])) {
+    // convert string representation of array to actual $arrayName = array();
+    if (is_string($page['jsFilesToInclude'])) {
+      $page['jsFilesToInclude'] = array_map('trim', explode(',', $page['jsFilesToInclude']));
+    }
+    foreach ($page['jsFilesToInclude'] as $script) {
+      if (is_file($docroot.$script)) echo '<script src="',autov($script),'"></script>',"\n";
+    }
+  }
+}
+
+function annotate($text) {echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";}
+
+function generateReloadScript($loadMinutes) {
+    if ($loadMinutes <= 0) return '';
+    $interval = $loadMinutes * 60000;
+    return "\n<script>timers.reload = setInterval(function(){if (nchanPaused === false)location.reload();},{$interval});</script>\n";
 }
 
 // hack to embed function output in a quoted string (e.g., in a page Title)

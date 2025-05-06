@@ -4,6 +4,8 @@ Title="Installed Plugins"
 Tag="icon-plugins"
 Tabs="true"
 Code="e944"
+cssFilesToInclude="/webGui/styles/jquery.filetree.css"
+jsFilesToInclude="/webGui/javascript/jquery.filetree.js"
 ---
 <?PHP
 /* Copyright 2005-2023, Lime Technology
@@ -24,9 +26,6 @@ if (!exec('pgrep --ns $$ -f '."$docroot/plugins/dynamix.plugin.manager/scripts/p
 }
 $check = $notify['version'] ? 0 : 1;
 ?>
-<link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
-
-<script src="<?autov('/webGui/javascript/jquery.filetree.js')?>" charset="utf-8"></script>
 <script>
 const args = {};
 
@@ -146,12 +145,30 @@ function loadlist(id,check) {
 $(function() {
   initlist();
   $('#plugin_tree').fileTree({root:'/boot/',top:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
-  $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value=\"_(Check For Updates)_\" onclick='openPlugin(\"checkall\",\"_(Plugin Update Check)_\",\":return\")' disabled></span>");
-  $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
-  $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
+
+  $tabsElement = $('.tabs');
+  // create new tab inner element using jQuery
+  $newTabInnerElement = $('<div class="tabs-inner--spaced"></div>');
+  // appended it to the tabs element
+  $tabsElement.append($newTabInnerElement);
+  // add checkall button to the new tab inner element
+  $newTabInnerElement.append("<span id='checkall'><input type='button' value=\"_(Check For Updates)_\" onclick='openPlugin(\"checkall\",\"_(Plugin Update Check)_\",\":return\")' disabled></span>");
+  $newTabInnerElement.append("<span id='updateall' style='display:none;><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
+  $newTabInnerElement.append("<span id='removeall' style='display:none;><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
 });
 </script>
 <table class='unraid tablesorter plugins shift' id='plugin_table'>
-<thead><tr><th></th><th>_(Plugin)_</th><th>_(Author)_</th><th>_(Version)_</th><th>_(Status)_</th><th>_(Uninstall)_</th></tr></thead>
-<tbody id="plugin_list"><tr><td colspan="6"></td><tr></tbody>
+<thead>
+  <tr>
+    <th></th>
+    <th>_(Plugin)_</th>
+    <th>_(Author)_</th>
+    <th>_(Version)_</th>
+    <th>_(Status)_</th>
+    <th>_(Uninstall)_</th>
+  </tr>
+</thead>
+<tbody id="plugin_list">
+  <tr><td colspan="6"></td></tr>
+</tbody>
 </table>
