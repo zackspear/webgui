@@ -234,8 +234,6 @@ $(window).scroll(function() {
     $('.back_to_top').fadeOut(scrollDuration);
   }
 <?if ($themeHelper->isTopNavTheme()):?>
-  var top = $('div#header').height()-1; // header height has 1 extra pixel to cover overlap
-  $('div#menu').css($(this).scrollTop() > top ? {position:'fixed',top:'0'} : {position:'absolute',top:top+'px'});
   // banner
   $('div.upgrade_notice').css($(this).scrollTop() > 24 ? {position:'fixed',top:'0'} : {position:'absolute',top:'24px'});
 <?endif;?>
