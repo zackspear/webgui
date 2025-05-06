@@ -246,6 +246,7 @@ if (isset($_POST['updatevm'])) {
 		$xml = $_POST['xmldesc'];
 		$arrExistingConfig = custom::createArray('domain',$xml);
 		$newuuid = $arrExistingConfig['uuid'];
+		if ($_POST['template']['iconold'] != $_POST['template']['icon']) $xml = preg_replace('/icon="[^"]*"/','icon="' . $_POST['template']['icon'] . '"',$xml);
 		$xml = str_replace($olduuid,$newuuid,$xml);
 	} else {
 		// form view
