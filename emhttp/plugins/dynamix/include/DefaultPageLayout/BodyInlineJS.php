@@ -283,7 +283,7 @@ $(function() {
       $(this).attr('onsubmit','clearTimeout(timers.flashReport);escapeQuotes(this);'+onsubmit);
     }
   });
-  var top = ($.cookie('top')||0) - $('.tabs').offset().top - 75;
+  var top = ($.cookie('top')||0);
   if (top>0) {$('html,body').scrollTop(top);}
   $.removeCookie('top');
   if ($.cookie('addAlert') != null) bannerAlert(addAlert.text,addAlert.cmd,addAlert.plg,addAlert.func);
