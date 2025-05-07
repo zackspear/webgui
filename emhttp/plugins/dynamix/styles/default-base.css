@@ -764,7 +764,6 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
     border-style: hidden;
-    /* margin: -30px 0 0 0; */
     margin: 0;
     width: 100%;
     background-color: var(--background-color);
