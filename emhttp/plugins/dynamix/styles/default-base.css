@@ -448,10 +448,11 @@ div.title {
     border-bottom: 1px solid var(--table-border-color);
     background-color: var(--title-header-background-color);
     letter-spacing: 1.8px;
-}
-div.title span.left {
     font-size: 1.4rem;
 }
+/* div.title span.left {
+    font-size: 1.4rem;
+} */
 div.title span.right {
     font-size: 1.4rem;
     padding-top: 2px;
@@ -1936,6 +1937,7 @@ span#wlan0 {
 
     div.title {
         color: var(--text-color);
+        font-size: 1.6rem;
         margin: 20px 0 10px 0;
         padding: 10px 0;
         clear: both;
@@ -1943,10 +1945,10 @@ span#wlan0 {
         border-bottom: 1px solid var(--border-color);
         letter-spacing: 1.8px;
     }
-    div.title span.left {
+    /* div.title span.left {
         font-size: 1.6rem;
         text-transform: uppercase;
-    }
+    } */
     div.title span.right {
         font-size: 1.6rem;
         padding-right: 10px;
