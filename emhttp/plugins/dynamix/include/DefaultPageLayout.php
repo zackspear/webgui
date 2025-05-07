@@ -94,7 +94,7 @@ if (count($pages)) {
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-color-palette.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-base.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/default-dynamix.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/dynamix-jquery-ui.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/jquery.ui.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("/webGui/styles/themes/{$theme}.css")?>">
 
 <style>
