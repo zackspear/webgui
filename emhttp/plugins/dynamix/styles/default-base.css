@@ -358,7 +358,7 @@ textarea {
     border-bottom: 1px solid var(--input-border-color);
 }
 #header {
-    position: relaitve;
+    position: relative;
     z-index: 102 !important;
     display: -webkit-box;
     display: -ms-flexbox;
