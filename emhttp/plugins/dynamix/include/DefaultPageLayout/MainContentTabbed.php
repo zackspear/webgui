@@ -53,15 +53,6 @@
 </div>
 
 <script>
-// Cookie helpers
-function getCookie(name) {
-    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-    return v ? v[2] : null;
-}
-function setCookie(name, value) {
-    document.cookie = name + '=' + value + '; path=/';
-}
-
 const tabs = document.querySelectorAll('.tabs [role="tab"]');
 const panels = document.querySelectorAll('[role="tabpanel"]');
 
@@ -91,11 +82,16 @@ switch ($myPage['name']) {
 
 // On load: select correct tab from cookie, or default to first
 let activeIdx = 0;
-const cookieVal = getCookie(cookieName);
+const cookieVal = $.cookie(cookieName);
 if (cookieVal) {
     const idx = Array.from(tabs).findIndex(tab => tab.id === cookieVal);
     if (idx !== -1) activeIdx = idx;
+} else {
+    // If no cookie exists, clear both cookies to match the origial initab function behavior
+    $.removeCookie('one');
+    $.removeCookie('tab');
 }
+
 tabs.forEach((tab, i) => {
     if (i === activeIdx) {
         tab.setAttribute('aria-selected', 'true');
@@ -111,6 +107,7 @@ tabs.forEach((tab, i) => {
 // On tab click: update cookie and show correct panel
 // Also update ARIA
 // No content flash
+
 tabs.forEach((tab, i) => {
     tab.addEventListener('click', () => {
             tabs.forEach((t, j) => {
@@ -118,7 +115,7 @@ tabs.forEach((tab, i) => {
             t.setAttribute('tabindex', j === i ? '0' : '-1');
             panels[j].style.display = j === i ? 'block' : 'none';
         });
-        setCookie(cookieName, tab.id);
+        $.cookie(cookieName, tab.id);
         tab.focus();
     });
     tab.addEventListener('keydown', e => {
