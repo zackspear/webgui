@@ -67,6 +67,7 @@ function getArrayStatus($var) {
                 class="footer-link"
                 href="https://docs.unraid.net/go/manual/"
                 target="_blank"
+                rel="noopener noreferrer"
                 title="<?=_('Online manual')?>"
             >
                 <i class="fa fa-book"></i> <?=_('manual')?>
