@@ -10,7 +10,7 @@ $display['tabs'] = isset($myPage['Tabs'])
     ? (strtolower($myPage['Tabs']) == 'true' ? 0 : 1)
     : $display['tabs'];
 $tabbed = $display['tabs'] == 0 && count($pages) > 1;
-$contentInclude = $tabbed ? 'MainContentTabbed.php' : 'MainContentNoTab.php';
+$contentInclude = $tabbed ? 'MainContentTabbed.php' : 'MainContentTabless.php';
 
 $defaultIcon = "<i class=\"icon-app PanelIcon\"></i>";
 function process_icon($icon, $docroot, $root) {
