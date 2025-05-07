@@ -44,7 +44,7 @@ function getArrayStatus($var) {
 <footer id="footer">
     <div class="footer-left">
         <span id="statusraid">
-            <span id="statusbar">
+            <span id="statusbar" aria-live="polite">
                 <? $status = getArrayStatus($var); ?>
                 <span class="<?=$status['class']?> strong">
                     <i class="fa fa-<?=$status['icon']?>"></i> <?=$status['text']?>
