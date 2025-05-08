@@ -1860,7 +1860,8 @@ span#wlan0 {
     .nav-tile {
         height: auto;
         line-height: 1;
-        display: block;
+        display: flex;
+        flex-direction: column;
         padding: 0;
         margin: 0;
         font-size: 1.2rem;
@@ -2025,13 +2026,8 @@ span#wlan0 {
     }
 
     .usage-bar {
-        float: unset;
-        position: fixed;
-        top: 64px;
-        left: 300px;
-        height: 2.2rem;
-        line-height: 2.2rem;
-        width: 11rem;
+        position: relative;
+        width: 6.4rem;
         margin: 0;
         padding: 0;
     }
