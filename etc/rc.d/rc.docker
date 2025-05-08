@@ -356,10 +356,10 @@ docker_network_start(){
         GATEWAY=$(ip -4 route show default dev $NETWORK | awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=;
-      [[ -z ${!AUTO} || ${!AUTO} =~ "6" ]] && IPV6=$(ip -6 -br addr show scope global primary -deprecated dev $NETWORK | awk '{print $3;exit}') || IPV6=
+      # get IPv6 address - ignore any /128 networks
+      [[ -z ${!AUTO} || ${!AUTO} =~ "6" ]] && IPV6=$(ip -6 -br addr show scope global primary -deprecated dev $NETWORK | awk -v RS='[[:space:]]+' '(NR>2){print}' | grep -Pvm1 '^.+/128|^$') || IPV6=
       if [[ -n $IPV6 ]]; then
-        # get IPV6 subnet, preset to /64 if single host address is given
-        [[ ${IPV6#*/} == 128 ]] && SUBNET6=$(echo $IPV6 | sed -r 's/^([^:]+):([^:]+):([^:]+):([^:]+).*$/\1:\2:\3:\4::\/64/') || SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK | awk '{print $1;exit}')
+        SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK | awk '{print $1;exit}')
         SERVER6=${IPV6%/*}
         GATEWAY6=$(ip -6 route show default dev $NETWORK | awk '{print $3;exit}')
         # replace link local address for first address in subnet
