@@ -257,7 +257,8 @@ wifi_stop(){
     log "$DAEMON...  No Wifi present."
     return
   fi
-  IPV4=$(ip -4 -br addr show scope global primary dev $PORT | awk '{print $3,$4,$5;exit}')
+  IPV4=$(ip -4 -br addr show scope global primary dev $PORT | awk '{print $3;exit}')
+  INDEX=$((3000 - 1 + $(index $PORT)))
   DHCP=$DHCP4
   DNS=$DNS4
   SRV4=$DNS
@@ -269,7 +270,7 @@ wifi_stop(){
     SRV6=$DNS
     ipaddr_down 6
   fi
-  run ip addr del $IPV4 dev $PORT
+  run ip addr del $IPV4 metric $INDEX dev $PORT
   run pkill wpa_supplicant
   run iw dev $PORT disconnect
   run rm -f $INI
