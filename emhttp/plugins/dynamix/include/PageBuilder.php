@@ -97,6 +97,49 @@ function tab_title($title,$path,$tag) {
   }
 }
 
+/**
+ * Generate CSS for sidebar icons
+ * 
+ * @param array $tasks Array of task pages
+ * @param array $buttons Array of button pages
+ * @return string CSS for sidebar icons
+ */
+function generate_sidebar_icon_css($tasks, $buttons) {
+  $css = '';
+
+  // Generate CSS for task icons
+  foreach ($tasks as $button) {
+    if (isset($button['Code'])) {
+      $css .= ".nav-item a[href='/{$button['name']}']:before{content:'\\{$button['Code']}'}\n";
+    }
+  }
+
+  // Add lock button icon
+  $css .= ".nav-item.LockButton a:before{content:'\\e955'}\n";
+
+  // Generate CSS for utility button icons
+  foreach ($buttons as $button) {
+    if (isset($button['Code'])) {
+      $css .= ".nav-item.{$button['name']} a:before{content:'\\{$button['Code']}'}\n";
+    }
+  }
+
+  return $css;
+}
+
+function includePageStylesheets($page) {
+  global $docroot, $theme;
+  $css = "/{$page['root']}/sheets/{$page['name']}";
+  $css_stock = "$css.css";
+  $css_theme = "$css-$theme.css"; // @todo add syslog for deprecation notice
+  if (is_file($docroot.$css_stock)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_stock),'">',"\n";
+  if (is_file($docroot.$css_theme)) echo '<link type="text/css" rel="stylesheet" href="',autov($css_theme),'">',"\n";
+}
+
+function annotate($text) {
+  echo "\n<!--\n",str_repeat("#",strlen($text)),"\n$text\n",str_repeat("#",strlen($text)),"\n-->\n";
+}
+
 // hack to embed function output in a quoted string (e.g., in a page Title)
 // see: http://stackoverflow.com/questions/6219972/why-embedding-functions-inside-of-strings-is-different-than-variables
 function _func($x) {return $x;}
