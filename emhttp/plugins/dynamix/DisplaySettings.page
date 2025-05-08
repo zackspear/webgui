@@ -51,7 +51,11 @@ function upload(lang) {
   }
 }
 function presetBanner(form) {
-  if (form.banner.selectedIndex == 0) $('.js-bannerSettings').hide(); else $('.js-bannerSettings').show();
+  if (form.banner && form.banner.selectedIndex == 0) {
+    $('.js-bannerSettings').hide();
+  } else {
+    $('.js-bannerSettings').show()
+  }
 }
 function presetRefresh(form) {
   for (var i=0,item; item=form.refresh.options[i]; i++) item.value *= -1;

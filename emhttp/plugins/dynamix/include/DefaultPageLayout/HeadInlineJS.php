@@ -101,26 +101,10 @@ function refresh(top) {
   }
 }
 
-function initab(page) {
+function initab(page) { // @todo remove in the future
   $.removeCookie('one');
   $.removeCookie('tab');
   if (page != null) location.replace(page);
-}
-
-function settab(tab) {
-<?switch ($myPage['name']):?>
-<?case'Main':?>
-  $.cookie('tab',tab);
-<?if (_var($var,'fsState')=='Started'):?>
-  $.cookie('one','tab1');
-<?endif;?>
-<?break;?>
-<?case'Cache':case'Data':case'Device':case'Flash':case'Parity':?>
-  $.cookie('one',tab);
-<?break;?>
-<?default:?>
-  $.cookie('one',tab);
-<?endswitch;?>
 }
 
 function done(key) {
