@@ -8,7 +8,6 @@
     <div class="content">
         <? foreach ($pages as $page): ?>
             <? annotate($page['file']); ?>
-            <? includePageStylesheets($page); ?>
 
             <? if (isset($page['Title'])): ?>
                 <div class="title">
