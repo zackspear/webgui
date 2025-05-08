@@ -1,3 +1,4 @@
+
 html {
     font-family: clear-sans, sans-serif;
     font-size: var(--custom-font-size, 62.5%);
@@ -12,7 +13,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-@media (max-width: 1280px) {
+/* @media (max-width: 1280px) {
     #template {
         min-width: 1260px;
         max-width: 1260px;
@@ -31,7 +32,7 @@ body {
         max-width: 1920px;
         margin: 0 auto;
     }
-}
+} */
 img {
     border: none;
     text-decoration: none;
@@ -566,6 +567,27 @@ div.title.shift {
     vertical-align: middle;
     padding-bottom: 2px;
 }
+#displaybox {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem 4rem;
+    box-sizing: border-box;
+}
+
+.Theme--sidebar #displaybox {
+    padding-left: 8rem;
+}
+
+.Theme--width-boxed #displaybox {
+    max-width: 1920px;
+}
+
+@media (min-width: 1281px) {
+    .Theme--nav-top.Theme--width-unlimited #displaybox {
+        padding: 0 2rem;
+    }
+}
+
 #clear {
     clear: both;
 }
@@ -2210,73 +2232,5 @@ span#wlan0 {
     }
     label.checkbox input:checked ~ .checkmark {
         background-color: var(--brand-orange);
-    }
-}
-
-#displaybox {
-    padding: 0 1rem 4rem;
-}
-
-.Theme--sidebar #displaybox {
-    padding-left: 8rem;
-}
-
-/* Theme width styles */
-.Theme--width-boxed #displaybox {
-    min-width: 1280px;
-    max-width: 1280px;
-    margin: 0;
-}
-
-.Theme--width-unlimited #displaybox {
-    min-width: 1280px;
-    margin: 0;
-}
-
-/* Media queries for different screen sizes */
-@media (max-width: 1280px) {
-    .Theme--width-boxed #displaybox {
-        min-width: 1280px;
-        max-width: 1280px;
-        margin: 0;
-    }
-    
-    .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
-        margin: 0;
-    }
-}
-
-@media (min-width: 1281px) {
-    .Theme--width-boxed #displaybox {
-        min-width: 1280px;
-        max-width: 1920px;
-        margin: 0 auto;
-    }
-    
-    .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
-        margin: 0 auto;
-    }
-    
-    .Theme--nav-top.Theme--width-unlimited #displaybox {
-        margin: 0 10px;
-    }
-}
-
-@media (min-width: 1921px) {
-    .Theme--width-boxed #displaybox {
-        min-width: 1280px;
-        max-width: 1920px;
-        margin: 0 auto;
-    }
-    
-    .Theme--width-unlimited #displaybox {
-        min-width: 1280px;
-        margin: 0 auto;
-    }
-    
-    .Theme--nav-top.Theme--width-unlimited #displaybox {
-        margin: 0 20px;
     }
 }
