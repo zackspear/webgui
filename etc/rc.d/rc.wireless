@@ -10,6 +10,7 @@ DAEMON="WiFi network"
 CALLER="wifi"
 INI="/var/local/emhttp/wireless.ini"
 CFG="/boot/config/wireless.cfg"
+DOCKER="/boot/config/docker.cfg"
 OPENSSL="/usr/local/emhttp/webGui/scripts/open_ssl"
 STARTWIFI="/usr/local/emhttp/webGui/scripts/wireless"
 SERVICES="/usr/local/emhttp/webGui/scripts/update_services"
@@ -28,6 +29,11 @@ CONF6="/proc/sys/net/ipv6/conf"
 # get settings
 [[ -r $INI ]] && . $INI
 PORT=${PORT:-wlan0}
+
+# return variable value from file
+var(){
+  [[ -r "$2" ]] && grep -Pom1 "^$1=\"\K[^\"]+" "$2"
+}
 
 # return interface index
 index(){
@@ -135,7 +141,13 @@ ipaddr_up(){
     INDEX=$(index $PORT)
     INDEX=$((3000 + ${INDEX:-$(($(index * | sort -n | tail -1) + 1))}))
     if [[ $IP == ipv4 ]]; then
-      [[ -n $IP4 && -n $MASK4 ]] && run ip -4 addr add $(unzero $IP4)/$MASK4 metric $INDEX dev $PORT
+      if [[ -n $IP4 && -n $MASK4 ]]; then
+        run ip -4 addr add $(unzero $IP4)/$MASK4 metric $INDEX dev $PORT
+        # re-add IPv4 address of parent (if docker is running)
+        if [[ $(var DOCKER_ALLOW_ACCESS $DOCKER) == yes && -S /var/run/docker.sock ]]; then
+          ip addr add $(unzero $IP4)/$MASK4 metric $(($INDEX - 1)) dev shim-$PORT
+        fi
+      fi
       [[ -n $GATEWAY4 ]] && run ip -4 route add default via $GATEWAY4 metric $INDEX dev $PORT
     fi
     if [[ $IP == ipv6 ]]; then
