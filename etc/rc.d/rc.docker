@@ -220,7 +220,7 @@ container_add_route(){
   if [[ $PID -gt 0 && "eth0 br0 bond0 wlan0" =~ $LAN ]]; then
     local THISIP=$(ip -4 -br addr show scope global primary dev $LAN | awk '{print $3;exit}')
     for CFG in /etc/wireguard/wg*.cfg ; do
-      local NETWORK=$(ip -4 show route $THISIP dev $LAN | awk '{print $1;exit}')
+      local NETWORK=$(ip -4 route show $THISIP dev $LAN | awk '{print $1;exit}')
       [[ -n $NETWORK ]] && nsenter -n -t $PID ip -4 route add $NETWORK via ${THISIP%/*} dev $LAN 2>/dev/null
     done
   fi
