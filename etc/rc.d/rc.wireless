@@ -270,7 +270,7 @@ wifi_stop(){
     SRV6=$DNS
     ipaddr_down 6
   fi
-  run ip addr del $IPV4 metric $INDEX dev $PORT
+  run ip addr del $IPV4 metric $INDEX dev shim-$PORT
   run pkill wpa_supplicant
   run iw dev $PORT disconnect
   run rm -f $INI
