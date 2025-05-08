@@ -13,11 +13,11 @@
 
 [[ (-z $reason && -z $1) || (-n $reason && ! "BOUND6 IPV4LL EXPIRE" =~ $reason) ]] && exit 0
 
-INI=/var/local/emhttp/network.ini.new
-STA=/var/local/emhttp/statics.ini.new
-CFG=/boot/config/network.cfg
-DOCKER=/boot/config/docker.cfg
-SYSTEM=/sys/class/net
+INI="/var/local/emhttp/network.ini.new"
+STA="/var/local/emhttp/statics.ini.new"
+CFG="/boot/config/network.cfg"
+DOCKER="/boot/config/docker.cfg"
+SYSTEM="/sys/class/net"
 
 declare -A VLANID USE_DHCP IPADDR NETMASK GATEWAY METRIC USE_DHCP6 IPADDR6 NETMASK6 GATEWAY6 PRIVACY6 METRIC6 DESCRIPTION PROTOCOL
 
