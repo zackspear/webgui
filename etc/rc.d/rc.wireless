@@ -287,7 +287,7 @@ wifi_stop(){
   run iw dev $PORT disconnect
   run rm -f $INI
   # restart services when static assignments
-  [[ $SRV4 == no && (-z $SRV6 || $SRV6 == no) ]] && $SERVICE 5
+  [[ $SRV4 == no && (-z $SRV6 || $SRV6 == no) ]] && $SERVICES 5
   if ! wifi_running; then REPLY="Stopped"; else REPLY="Failed"; fi
   log "$DAEMON...  $REPLY."
 }
@@ -346,7 +346,7 @@ wifi_join(){
     echo 1 >$CONF6/$PORT/disable_ipv6
   fi
   # restart services when static assignments
-  [[ $SRV4 == no && (-z $SRV6 || $SRV6 == no) ]] && $SERVICE 5
+  [[ $SRV4 == no && (-z $SRV6 || $SRV6 == no) ]] && $SERVICES 5
   if wifi_running; then
     if [[ -z $CC ]]; then
       CC=($(iw reg get | grep -Po '^country \K..'))
