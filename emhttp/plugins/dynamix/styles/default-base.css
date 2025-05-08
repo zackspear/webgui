@@ -582,7 +582,7 @@ div.title.shift {
     max-width: 1920px;
 }
 
-@media (min-width: 1281px) {
+@media (min-width: 1921px) {
     .Theme--nav-top.Theme--width-unlimited #displaybox {
         padding: 0 2rem;
     }
