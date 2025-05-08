@@ -442,6 +442,9 @@ a[href="/Tools/Downgrade"] .icon-update:before {
     margin-right: 4px;
 }
 div.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     margin: 20px 0 0 0;
     padding: 8px 10px;
     clear: both;
@@ -1089,6 +1092,8 @@ span.cpu-speed {
 }
 span.status {
     font-size: 1.4rem;
+    display: inline-block;
+    margin-left: auto;
 }
 span.status.vhshift {
     margin-top: 0;
