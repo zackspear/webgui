@@ -27,6 +27,7 @@ $arrValidMachineTypes = getValidMachineTypes();
 $arrValidPCIDevices   = getValidPCIDevices();
 $arrValidGPUDevices   = getValidGPUDevices();
 $arrValidAudioDevices = getValidAudioDevices();
+$arrValidSoundCards   = getValidSoundCards();
 $arrValidOtherDevices = getValidOtherDevices();
 $arrValidUSBDevices   = getValidUSBDevices();
 $arrValidDiskDrivers  = getValidDiskDrivers();
@@ -556,16 +557,19 @@ if ($snapshots!=null && count($snapshots) && !$boolNew) {
 		<td>
 			<div class="textarea four">
 			<?
+			$is_intel_cpu = is_intel_cpu();
+			$core_types = $is_intel_cpu ? get_intel_core_types() : [];
 			foreach ($cpus as $pair) {
 				unset($cpu1,$cpu2);
 				[$cpu1, $cpu2] = my_preg_split('/[,-]/',$pair);
 				$extra = ($arrConfig['domain']['vcpu'] && in_array($cpu1, $arrConfig['domain']['vcpu'])) ? ($arrConfig['domain']['vcpus'] > 1 ? 'checked' : 'checked disabled') : '';
+				if ($is_intel_cpu && count($core_types) > 0) $core_type = "{$core_types[$cpu1]}"; else $core_type = "";
 				if (!$cpu2) {
-					echo "<label for='vcpu$cpu1' class='checkbox'>cpu $cpu1<input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra><span class='checkmark'></span></label>";
+					echo "<label for='vcpu$cpu1' title='$core_type' class='checkbox'>cpu $cpu1<input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra><span class='checkmark'></span></label>";
 				} else {
-					echo "<label for='vcpu$cpu1' class='cpu1 checkbox'>cpu $cpu1 / $cpu2<input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra><span class='checkmark'></span></label>";
+					echo "<label for='vcpu$cpu1' title='$core_type'  class='cpu1 checkbox'>cpu $cpu1 / $cpu2<input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu1' value='$cpu1' $extra><span class='checkmark'></span></label>";
 					$extra = ($arrConfig['domain']['vcpu'] && in_array($cpu2, $arrConfig['domain']['vcpu'])) ? ($arrConfig['domain']['vcpus'] > 1 ? 'checked' : 'checked disabled') : '';
-					echo "<label for='vcpu$cpu2' class='cpu2 checkbox'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu2' value='$cpu2' $extra><span class='checkmark'></span></label>";
+					echo "<label for='vcpu$cpu2' title='$core_type' class='cpu2 checkbox'><input type='checkbox' name='domain[vcpu][]' class='domain_vcpu' id='vcpu$cpu2' value='$cpu2' $extra><span class='checkmark'></span></label>";
 				}
 			}
 			?>
@@ -1442,6 +1446,7 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 			<?
 			echo mk_option($arrAudio['id'], '', _('None'));
 			foreach ($arrValidAudioDevices as $arrDev) echo mk_option($arrAudio['id'], $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
+			foreach ($arrValidSoundCards as $arrSound) echo mk_option($arrAudio['id'], $arrSound['id'], $arrSound['name'].' ('._("Virtual").')');
 			?>
 			</select></span>
 		</td>
@@ -1467,6 +1472,7 @@ foreach ($arrConfig['shares'] as $i => $arrShare) {
 			<span class="width"><select name="audio[{{INDEX}}][id]" class="audio narrow">
 			<?
 			foreach ($arrValidAudioDevices as $arrDev) echo mk_option('', $arrDev['id'], $arrDev['name'].' ('.$arrDev['id'].')');
+			foreach ($arrValidSoundCards as $arrSound) echo mk_option($arrAudio['id'], $arrSound['id'], $arrSound['name'].' ('._("Virtual").')');
 			?>
 			</select></span>
 		</td>
