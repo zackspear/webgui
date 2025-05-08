@@ -1,4 +1,3 @@
-
 html {
     font-family: clear-sans, sans-serif;
     font-size: var(--custom-font-size, 62.5%);
@@ -472,15 +471,26 @@ div.title.shift {
     margin-top: -30px;
 }
 #menu {
-    position: sticky;
-    top: 0;
     width: 100%;
     display: grid;
-    grid-template-columns: auto max-content;
+    grid-template-columns: 1fr; /* Single column for mobile */
+    grid-template-rows: auto auto; /* Two rows stacked */
     z-index: 101;
 }
+
+/* For larger screens (desktop/tablet) switch to current horizontal layout */
+@media (min-width: 768px) {
+    #menu {
+        position: sticky;
+        top: 0;
+        grid-template-columns: auto max-content; /* Original layout */
+        grid-template-rows: auto; /* Single row */
+    }
+}
+
 .nav-tile {
-    height: 4rem;
+    height: auto; /* Allow height to adjust */
+    min-height: 4rem;
     line-height: 4rem;
     display: flex;
     padding: 0;
@@ -493,12 +503,23 @@ div.title.shift {
     overflow-y: hidden;
     scrollbar-width: thin;
 }
+
+/* For larger screens, maintain original behavior */
+@media (min-width: 768px) {
+    .nav-tile {
+        flex-wrap: nowrap;
+        height: 4rem;
+    }
+}
+
 .nav-tile::-webkit-scrollbar {
     height: 5px;
 }
-.nav-tile.right {
-    text-align: right;
-    justify-content: flex-end;
+@media (min-width: 768px) {
+    .nav-tile.right {
+        text-align: right;
+        justify-content: flex-end;
+    }
 }
 .nav-item,
 .nav-user {
@@ -593,9 +614,7 @@ div.title.shift {
 }
 #footer {
     box-sizing: border-box;
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    position: relative;
     color: var(--footer-text);
     background-color: var(--footer-background-color);
     padding: .5rem 1rem;
@@ -606,6 +625,13 @@ div.title.shift {
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+}
+@media (min-width: 768px) {
+    #footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
 }
 #countdown {
     margin: 0 auto;
