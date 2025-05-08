@@ -1097,7 +1097,7 @@ span.status {
 }
 span.status.vhshift {
     margin-top: 0;
-    margin-right: -9px;
+    /* margin-right: -9px; */
 }
 span.status.vshift {
     margin-top: -16px;
