@@ -40,6 +40,17 @@ index(){
   cat $SYSTEM/$1/ifindex 2>/dev/null
 }
 
+# return active interface
+active(){
+  if [[ -e $SYSTEM/${1/eth/br} ]]; then
+    echo ${1/eth/br}
+  elif [[ -e $SYSTEM/${1/eth/bond} ]]; then
+    echo ${1/eth/bond}
+  else
+    echo $1
+  fi
+}
+
 # wait for interface to go up
 carrier(){
   local n e
@@ -61,13 +72,7 @@ docker_read_options(){
   # Set defaults used by the docker daemon
   if [[ -f $DOCKER_CFG ]]; then
     for NIC in $NICS; do
-      if [[ ${NIC:0:3} == eth ]]; then
-        if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-          NIC=${NIC/eth/br}
-        elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-          NIC=${NIC/eth/bond}
-        fi
-      fi
+      [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
       CFG=($(grep -Pom2 "_SUBNET_|_${NIC^^}(_[0-9]+)?=" $DOCKER_CFG))
       if [[ ${CFG[0]} == _SUBNET_ && -z ${CFG[1]} ]]; then
         # interface has changed, update configuration
@@ -259,13 +264,7 @@ docker_network_start(){
       MAIN=
       # update custom network reference (if changed)
       for NIC in $NICS; do
-        if [[ ${NIC:0:3} == eth ]]; then
-          if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-            NIC=${NIC/eth/br}
-          elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-            NIC=${NIC/eth/bond}
-          fi
-        fi
+        [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
         X=${NIC//[^0-9]/}
         REF=$(grep -Pom1 "<Network>\K(br|bond|eth|wlan)$X" $XMLFILE)
         [[ $X == 0 && ! $(carrier $NIC 1) ]] && continue
@@ -311,13 +310,7 @@ docker_network_start(){
   done
   # detach custom networks
   for NIC in $NICS; do
-    if [[ ${NIC:0:3} == eth ]]; then
-      if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-        NIC=${NIC/eth/br}
-      elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-        NIC=${NIC/eth/bond}
-      fi
-    fi
+    [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
     X=${NIC//[^0-9]/}
     driver ${NIC//[0-9]/}
     for NETWORK in $(network $DETACH $X); do
@@ -478,13 +471,7 @@ docker_network_stop(){
   log "Stopping network..."
   if ! docker_running; then return 1; fi
   for NIC in $NICS; do
-    if [[ ${NIC:0:3} == eth ]]; then
-      if [[ -e $SYSTEM/${NIC/eth/br} ]]; then
-        NIC=${NIC/eth/br}
-      elif [[ -e $SYSTEM/${NIC/eth/bond} ]]; then
-        NIC=${NIC/eth/bond}
-      fi
-    fi
+    [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
     driver ${NIC//[0-9]/}
     for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK &>/dev/null
