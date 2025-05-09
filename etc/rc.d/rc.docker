@@ -509,7 +509,7 @@ docker_container_start(){
         if  [[ $OUT =~ "Error:" ]]; then
           log "$CONTAINER: $OUT" &
         else
-          run container_add_route $CONTAINER
+          container_add_route $CONTAINER
           log "$CONTAINER: started successfully!" &
           if [[ $WAIT -gt 0 ]]; then
             log "$CONTAINER: wait $WAIT seconds" &
