@@ -22,7 +22,7 @@ ksort($users);
 </div>
 <div class="Panels">
     <?$img = "/boot/config/plugins/dynamix/users/root.png"?>
-    <div class="user-list" style="text-align:center">
+    <div class="user-list">
         <a class="<?=(!empty($users['root']['desc']) ? 'info' : '')?>" href="/<?=$path?>/UserEdit?name=root">
             <img src="<?=(file_exists($img) ? autov($img) : '/webGui/images/user.png')?>" class="picture" border="0" width="48" height="48">
             <br>
@@ -43,7 +43,7 @@ ksort($users);
     <?foreach ($users as $user):?>
         <?if ($user['name'] == 'root') continue;?>
         <?$img = "/boot/config/plugins/dynamix/users/{$user['name']}.png"?>
-        <div class="user-list" style="text-align:center">
+        <div class="user-list">
             <a class="<?=(!empty($user['desc']) ? 'info' : '')?>" href="/<?=$path?>/UserEdit?name=<?=htmlspecialchars(urlencode($user['name']))?>">
                 <img src="<?=(file_exists($img) ? autov($img) : '/webGui/images/user.png')?>" class="picture" border="0" width="48" height="48">
                 <br>
