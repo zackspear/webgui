@@ -1111,6 +1111,7 @@ span.status {
 }
 span.status.vhshift {
     margin-top: 0;
+    /* leaving for reference, but should likely not be needed anymore */
     /* margin-right: -9px; */
 }
 span.status.vshift {
