@@ -10,10 +10,7 @@
             <? $i = 0; ?>
             <? foreach ($pages as $page): ?>
                 <? if (!isset($page['Title'])) continue; ?>
-                <?
-                    /** ensures variables in any .page title are used */
-                    eval("\$title=\"".htmlspecialchars((string)$page['Title'])."\";");
-                ?>
+                <? $title = processTitle($page['Title']); ?>
                 <? $tabId = "tab" . ($i+1); ?>
                 <button
                     role="tab"
@@ -35,6 +32,7 @@
             if (!isset($page['Title'])) {
                 continue;
             }
+            $title = processTitle($page['Title']);
             $tabId = "tab" . ($i+1);
             annotate($page['file']);
         ?>
