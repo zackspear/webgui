@@ -362,7 +362,7 @@ table.snapshot {
 div.grid {
     display: grid;
     grid-template-columns: 1fr; /* 1 column by default (mobile) */
-    column-gap: 20px;
+    gap: 20px;
 }
 @media (min-width: 768px) {
     div.grid {
