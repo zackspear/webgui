@@ -17,26 +17,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-/* @media (max-width: 1280px) {
-    #template {
-        min-width: 1260px;
-        max-width: 1260px;
-        margin: 0;
-    }
-}
-@media (min-width: 1281px) {
-    #template {
-        min-width: 1260px;
-        margin: 0 10px;
-    }
-}
-@media (min-width: 1921px) {
-    #template {
-        min-width: 1260px;
-        max-width: 1920px;
-        margin: 0 auto;
-    }
-} */
 img {
     border: none;
     text-decoration: none;
@@ -44,6 +24,15 @@ img {
 }
 p {
     text-align: justify;
+}
+/**
+ * The markdown parser will often add <p> around links, scripts, and styles.
+ * Without this, spacing is off with essentially empty paragraphs.
+ */
+p:has(> link),
+p:has(> script),
+p:has(> style) {
+    margin: 0;
 }
 p.centered {
     text-align: left;
