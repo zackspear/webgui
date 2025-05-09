@@ -445,7 +445,7 @@ docker_network_start(){
           VHOST=shim-$NETWORK
           INDEX=3000
         else
-          VHOST=vhost${NETWORK//[^0-9.]/}         
+          VHOST=vhost${NETWORK//[^0-9.]/}
           INDEX=1000
         fi
         INDEX=$(($INDEX - 1 + $(index $NETWORK)))
