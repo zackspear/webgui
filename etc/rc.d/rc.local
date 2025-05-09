@@ -189,7 +189,7 @@ else
     if [[ -f "$PRIORITY_PLUGIN_PATH" ]]; then
       /usr/local/sbin/plugin install "$PRIORITY_PLUGIN_PATH" | log
     fi
-  done  
+  done
   # Install remaining plugins
   shopt -s nullglob
   for PLUGIN in $CONFIG/plugins/*.plg; do
