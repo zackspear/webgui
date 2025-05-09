@@ -339,6 +339,9 @@ select.slot {
     min-width: 44rem !important;
     max-width: 44rem !important;
 }
+select.slots-amount {
+    width: 7rem;
+}
 input.narrow {
     max-width: 166px;
 }
