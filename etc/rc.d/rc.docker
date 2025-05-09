@@ -321,14 +321,14 @@ docker_network_start(){
     X=${NIC//[^0-9]/}
     driver ${NIC//[0-9]/}
     for NETWORK in $(network $DETACH $X); do
-      [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+      [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK &>/dev/null
     done
     # get existing custom networks
     for NETWORK in $(network $ATTACH $X); do
       if [[ $STOCK =~ ${NETWORK%%[0-9]*} ]]; then
-        [[ $EXCLUDE =~ "$NETWORK " || ! $ACTIVE =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
+        [[ $EXCLUDE =~ "$NETWORK " || ! $ACTIVE =~ "$NETWORK " ]] && docker network rm $NETWORK &>/dev/null
       else
-        [[ $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK >/dev/null
+        [[ $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK &>/dev/null
       fi
     done
     NETWORKS=$(network $ATTACH $X)
@@ -340,7 +340,7 @@ docker_network_start(){
       AUTO=${NETWORK/./_}
       AUTO=DOCKER_AUTO_${AUTO^^}
       if [[ ${!AUTO} == no ]]; then
-        [[ $NETWORKS =~ "$NETWORK " ]] && docker network rm $NETWORK >/dev/null
+        [[ $NETWORKS =~ "$NETWORK " ]] && docker network rm $NETWORK &>/dev/null
         continue
       fi
       # add auto defined networks
