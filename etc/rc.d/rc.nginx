@@ -716,7 +716,7 @@ nginx_start(){
     # side-load unraid-api
     unraid_api_control start
     # resume nchan publishers
-    /usr/local/sbin/monitor_nchan start 
+    /usr/local/sbin/monitor_nchan start
     rm -f /tmp/publishPaused
 
     if nginx_running; then REPLY="Started"; else REPLY="Failed"; fi
