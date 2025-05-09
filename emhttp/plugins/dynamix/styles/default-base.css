@@ -1242,6 +1242,11 @@ a.list {
     justify-content: space-between;
 }
 
+.tabs-container {
+    overflow-x: scroll;
+    width: 100%;
+}
+
 .tabs button[role="tab"] {
     appearance: none;
     -webkit-appearance: none;
@@ -1265,6 +1270,7 @@ a.list {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     vertical-align: middle;
     line-height: 1.0;
     cursor: pointer;
@@ -1282,6 +1288,14 @@ a.list {
     border-color: var(--brand-orange);
     border-bottom: 1px solid transparent;
     opacity: 1;
+}
+
+.tab-content {
+    display: none;
+
+    form {
+        padding-top: 1rem;
+    }
 }
 
 .Panels {
@@ -1432,7 +1446,7 @@ iframe#progressFrame {
 }
 dl {
     margin: 0;
-    padding-left: 12px;
+    padding: 0;
     line-height: 2.6rem;
 }
 dt {
@@ -1445,6 +1459,7 @@ dt {
 }
 dd {
     margin-bottom: 12px;
+    margin-left: 0;
     white-space: nowrap;
 }
 dd p {
