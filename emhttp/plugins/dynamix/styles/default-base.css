@@ -7,6 +7,9 @@ body {
     font-size: 1.3rem;
     color: var(--text-color);
     background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     padding: 0;
     margin: 0;
     -webkit-font-smoothing: antialiased;
@@ -478,7 +481,7 @@ div.title.shift {
     display: grid;
     grid-template-columns: 1fr; /* Single column for mobile */
     grid-template-rows: auto auto; /* Two rows stacked */
-    z-index: 101;
+    /* z-index: 101; */
 }
 
 /* For larger screens (desktop/tablet) switch to current horizontal layout */
@@ -623,17 +626,18 @@ div.title.shift {
     padding: .5rem 1rem;
     width: 100%;
     text-align: center;
-    z-index: 10000;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    margin-top: auto;
 }
 @media (min-width: 768px) {
     #footer {
         position: fixed;
         bottom: 0;
         left: 0;
+        z-index: 10000;
     }
 }
 #countdown {
@@ -1220,6 +1224,7 @@ a.list {
     display: flex;
     flex-direction: row;
     align-items: center;
+    gap: .5rem;
 }
 
 .tabs {
@@ -1236,13 +1241,12 @@ a.list {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     border-bottom: 1px solid transparent;
-    color: var(--gray-300);
+    color: var(--text-color);
     font-weight: normal;
     font-family: inherit;
     font-size: 1.4rem;
     letter-spacing: 1.8px;
-    margin-right: 4px;
-    margin-bottom: 0;
+    margin: 0;
     padding: .75rem 1rem;
     min-width: 0;
     box-shadow: none;
@@ -1258,11 +1262,7 @@ a.list {
     background-image: none;
     opacity: .75;
 }
-.tabs button[role="tab"] > .tab-icon {
-    margin-right: 8px;
-    display: inline-flex;
-    align-items: center;
-}
+
 .tabs button[role="tab"]:focus,
 .tabs button[role="tab"]:hover,
 .tabs button[role="tab"][aria-selected="true"] {
@@ -1271,9 +1271,6 @@ a.list {
     border-color: var(--brand-orange);
     border-bottom: 1px solid transparent;
     opacity: 1;
-}
-.tabs button[role="tab"]:last-child {
-    margin-right: 0;
 }
 
 .Panels {
