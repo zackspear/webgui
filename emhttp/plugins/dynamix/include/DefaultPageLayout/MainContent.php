@@ -44,7 +44,8 @@ function process_icon($icon, $docroot, $root) {
  * @return string HTML for the Panel element
  */
 function generatePanel($pg, $path, $defaultIcon, $docroot, $useTabCookie = false) {
-    $panelTitle = htmlspecialchars($pg['Title']);
+    $panelTitle = ''; // to appease the linter because eval is used below
+    eval("\$panelTitle=\"".htmlspecialchars((string)$pg['Title'])."\";"); // ensures variables in any .page title are used
     $icon = _var($pg, 'Icon', $defaultIcon);
     $icon = process_icon($icon, $docroot, $pg['root']);
 

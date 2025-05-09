@@ -11,7 +11,11 @@
 
             <? if (isset($page['Title'])): ?>
                 <div class="title">
-                    <?= tab_title($page['Title'], $page['root'], _var($page, 'Tag', false)) ?>
+                    <?
+                        /** ensures variables in any .page title are used */
+                        eval("\$title=\"".htmlspecialchars((string)$page['Title'])."\";");
+                    ?>
+                    <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
                 </div>
             <? endif; ?>
 
