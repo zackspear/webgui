@@ -10,15 +10,20 @@ function findJsFiles($directory) {
     new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS)
   );
   
-  foreach ($iterator as $file) {
-    if ($file->isFile() && $file->getExtension() === 'js') {
-      $path = $file->getPathname();
-      $baseDir = '/usr/local/emhttp';
-      if (strpos($path, $baseDir) === 0) {
-        $path = substr($path, strlen($baseDir));
+  try {
+    foreach ($iterator as $file) {
+      if ($file->isFile() && $file->getExtension() === 'js') {
+        $path = $file->getPathname();
+        $baseDir = '/usr/local/emhttp';
+        if (strpos($path, $baseDir) === 0) {
+          $path = substr($path, strlen($baseDir));
+        }
+        $jsFiles[] = $path;
       }
-      $jsFiles[] = $path;
     }
+  } catch (Exception $e) {
+    my_logger("Error scanning for JS files: " . $e->getMessage());
+    return [];
   }
   
   return $jsFiles;
