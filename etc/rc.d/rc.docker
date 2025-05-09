@@ -458,7 +458,7 @@ docker_network_start(){
           [[ ! $IPS =~ $IPV4 ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
           log "prepared network $VHOST for host access"
         else
-          if [[ -e $SYSTEM/$VHOST ]]; then
+          if [[ -n $IPV4 && -e $SYSTEM/$VHOST ]]; then
             # remove parent IPv4 address from vhost interface
             run ip addr del $IPV4 metric $INDEX dev $VHOST
           fi
