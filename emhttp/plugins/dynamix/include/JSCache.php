@@ -30,29 +30,57 @@ function findJsFiles($directory) {
 }
 
 // Function to get JS files with caching
-function getCachedJSFiles($directory) {
-  $cacheFile = '/tmp/js_files_cache.php';
-  $cacheLifetime = 300; // Cache lifetime in seconds (5 minutes)
+function getCachedJSFiles(string $directory, int $cacheLifetime = 300): array {
+  $cacheDir   = sys_get_temp_dir();
+  $cacheFile  = "$cacheDir/js_files_cache_" . md5($directory) . ".json";
+  $lockFile   = "$cacheFile.lock";
 
   // Check if cache exists and is still valid
   $useCache = false;
-  if (file_exists($cacheFile)) {
-    $cacheTime = filemtime($cacheFile);
-    if (time() - $cacheTime < $cacheLifetime) {
-      $useCache = true;
-    }
+  if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
+    $useCache = true;
   }
 
   if ($useCache) {
-    // Use cached JS files list
-    return include $cacheFile;
-  } else {
-    // Generate new JS files list
-    $jsFiles = findJsFiles($directory);
-    
-    // Store in cache file
-    file_put_contents($cacheFile, '<?php return ' . var_export($jsFiles, true) . ';');
-    
-    return $jsFiles;
+    $data = @file_get_contents($cacheFile);
+    if ($data === false) {
+      my_logger("Warning: Unable to read JS cache at $cacheFile");
+      $useCache = false;
+    } else {
+      $jsFiles = json_decode($data, true);
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        my_logger("Warning: Corrupt JSON cache at $cacheFile");
+        $useCache = false;
+      } else {
+        return $jsFiles;
+      }
+    }
   }
+
+  // Acquire lock to rebuild cache safely
+  $lockFp = @fopen($lockFile, 'w');
+  if ($lockFp && flock($lockFp, LOCK_EX | LOCK_NB)) {
+    try {
+      $jsFiles = findJsFiles($directory);
+      if (file_put_contents($cacheFile, json_encode($jsFiles)) === false) {
+        my_logger("Warning: Could not write JS cache to $cacheFile");
+      }
+      flock($lockFp, LOCK_UN);
+      fclose($lockFp);
+      @unlink($lockFile);
+      return $jsFiles;
+    } catch (Exception $e) {
+      my_logger("Error rebuilding JS cache: " . $e->getMessage());
+      flock($lockFp, LOCK_UN);
+      fclose($lockFp);
+      @unlink($lockFile);
+      return findJsFiles($directory);
+    }
+  }
+
+  // Fallback: unable to lock, generate without caching
+  if ($lockFp) {
+    fclose($lockFp);
+  }
+  return findJsFiles($directory);
 } 
