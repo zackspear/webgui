@@ -361,13 +361,17 @@ table.snapshot {
 }
 div.grid {
     display: grid;
-    --dashboard-grid-min-column-width: auto;
-    grid-template-columns: repeat(auto-fit, minmax(var(--dashboard-grid-min-column-width), 1fr));
+    grid-template-columns: 1fr; /* 1 column by default (mobile) */
     column-gap: 20px;
 }
 @media (min-width: 768px) {
     div.grid {
-        --dashboard-grid-min-column-width: 580px;
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+    }
+}
+@media (min-width: 1600px) {
+    div.grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns for big screens */
     }
 }
 div.pie {
