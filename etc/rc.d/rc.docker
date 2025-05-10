@@ -65,8 +65,7 @@ carrier(){
 # initialize docker settings
 docker_read_options(){
   # determine active port name
-  [[ -e $SYSTEM/bond0 ]] && PORT=bond0 || PORT=eth0
-  [[ -e $SYSTEM/br0 ]] && PORT=br0
+  PORT=$(active eth0)
   [[ ! $(carrier $PORT) && $(carrier wlan0 1) ]] && PORT=wlan0
 
   # Set defaults used by the docker daemon
@@ -184,8 +183,8 @@ network(){
   docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null | grep -P "^[a-z]+$2(\$|\.)" | tr '\n' ' '
 }
 
-# check if given ipv4 address exists
-ipv4_exists(){
+# Does the ipv4 address exist?
+ipv4_exist(){
   ip -4 -br addr show to $2 dev $1 | awk '{print $3;exit}'
 }
 
@@ -452,9 +451,9 @@ docker_network_start(){
           echo 1 >$CONF6/$VHOST/disable_ipv6
           run ip -6 addr flush dev $VHOST
           # copy parent IPv4 address to vhost interface
-          [[ -z $(ipv4_exists $VHOST ${IPV4%/*}) ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
+          [[ -z $(ipv4_exist $VHOST ${IPV4%/*}) ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
           log "created network $VHOST for host access"
-        elif [[ -n $IPV4 && -e $SYSTEM/$VHOST && -n $(ipv4_exists $VHOST ${IPV4%/*}) ]]; then
+        elif [[ -n $IPV4 && -e $SYSTEM/$VHOST && -n $(ipv4_exist $VHOST ${IPV4%/*}) ]]; then
           # remove parent IPv4 address from vhost interface
           run ip addr del $IPV4 metric $INDEX dev $VHOST
         fi
@@ -472,8 +471,8 @@ docker_network_start(){
 docker_network_stop(){
   log "Stopping network..."
   if ! docker_running; then return 1; fi
-  # read configuration settings
-  . $DOCKER_CFG
+  # Read docker configuration file
+  [[ -f $DOCKER_CFG ]] && . $DOCKER_CFG
   for NIC in $NICS; do
     [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
     driver ${NIC//[0-9]/} forced
