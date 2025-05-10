@@ -184,6 +184,7 @@ network(){
   docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null | grep -P "^[a-z]+$2(\$|\.)" | tr '\n' ' '
 }
 
+# check if given ipv4 address exists
 ipv4_exists(){
   ip -4 -br addr show to $2 dev $1 | awk '{print $3;exit}'
 }
@@ -451,8 +452,7 @@ docker_network_start(){
           echo 1 >$CONF6/$VHOST/disable_ipv6
           run ip -6 addr flush dev $VHOST
           # copy parent IPv4 address to vhost interface
-          IPS="$(ip -4 -br addr show scope global dev $VHOST | awk '{$1="";$2="";print;exit}' | sed -r 's/ metric [0-9]+//g')"
-          [[ ! $IPS =~ $IPV4 ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
+          [[ -z $(ipv4_exists $VHOST ${IPV4%/*}) ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
           log "created network $VHOST for host access"
         elif [[ -n $IPV4 && -e $SYSTEM/$VHOST && -n $(ipv4_exists $VHOST ${IPV4%/*}) ]]; then
           # remove parent IPv4 address from vhost interface
