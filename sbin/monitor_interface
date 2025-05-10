@@ -67,3 +67,4 @@ while :; do
   # check every 3 seconds
   sleep 3
 done &
+disown %%
