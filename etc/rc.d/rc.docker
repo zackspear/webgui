@@ -185,7 +185,7 @@ network(){
 }
 
 ipv4_exists(){
-  ip -4 -br addr show to $2 dev $1 | awk '{print $3;exit}'
+  ip -4 -br addr show $2 dev $1 | awk '{print $3;exit}'
 }
 
 # Is container running?
