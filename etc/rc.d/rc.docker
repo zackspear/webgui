@@ -175,6 +175,8 @@ driver(){
     ATTACH='macvlan'
     MODE='bridge'
   fi
+  # wlan0 has forced ipvlan
+  [[ $1 == wlan && $2 == forced ]] && ATTACH=ipvlan
 }
 
 # Custom networks
@@ -389,14 +391,11 @@ docker_network_start(){
     [[ -n $SUBNET6 ]] && SUBNET6="--ipv6 --subnet=$SUBNET6"
     if [[ -n $SUBNET || -n $SUBNET6 ]]; then
       TYPE=${NETWORK//[0-9.]/}
-      driver $TYPE
-      if [[ $TYPE == br ]]; then
+      driver $TYPE forced
+      if [[ $TYPE == br || $TYPE == wlan ]]; then
         VHOST=$NETWORK
-      elif [[ $TYPE == wlan ]]; then
-        VHOST=$NETWORK
-        ATTACH=ipvlan
       else
-        [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
+        [[ -n $IPV4 && $DOCKER_ALLOW_ACCESS == yes  ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
       fi
       # delete and recreate unconditionally
       log "Processing... $NETWORK"
@@ -473,9 +472,11 @@ docker_network_start(){
 docker_network_stop(){
   log "Stopping network..."
   if ! docker_running; then return 1; fi
+  # read configuration settings
+  . $DOCKER_CFG
   for NIC in $NICS; do
     [[ ${NIC:0:3} == eth ]] && NIC=$(active $NIC)
-    driver ${NIC//[0-9]/}
+    driver ${NIC//[0-9]/} forced
     for NETWORK in $(network $ATTACH ${NIC//[^0-9]/}); do
       [[ $STOCK =~ ${NETWORK%%[0-9]*} || $DOCKER_USER_NETWORKS != preserve ]] && docker network rm $NETWORK &>/dev/null
       TYPE=${NETWORK//[0-9.]/}
