@@ -235,8 +235,6 @@ for ((i=0; i<${SYSNICS:-1}; i++)); do
         # store static ipv6 assignment
         echo "$(ip -6 -br addr show scope global primary -deprecated dev $DEV | awk '{$2="";print;exit}')" >>$STA
       fi
-      # static IP assignments handled by rc.monitor
-      [[ -n $DATA ]] && echo "$DATA" >>$STA
     done
   else
     # interface without VLANs
