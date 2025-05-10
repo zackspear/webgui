@@ -453,7 +453,7 @@ docker_network_start(){
           # copy parent IPv4 address to vhost interface
           IPS="$(ip -4 -br addr show scope global dev $VHOST | awk '{$1="";$2="";print;exit}' | sed -r 's/ metric [0-9]+//g')"
           [[ ! $IPS =~ $IPV4 ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
-          log "prepared network $VHOST for host access"
+          log "created network $VHOST for host access"
         elif [[ -n $IPV4 && -e $SYSTEM/$VHOST && -n $(ipv4_exists $VHOST ${IPV4%/*}) ]]; then
           # remove parent IPv4 address from vhost interface
           run ip addr del $IPV4 metric $INDEX dev $VHOST
