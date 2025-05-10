@@ -128,12 +128,8 @@ done
 # bring up loopback interface
 lo_up(){
   if [[ -e $SYSTEM/lo ]]; then
-    if ! ip -4 addr show lo | grep -qw 'inet'; then
-      run ip -4 addr add 127.0.0.1/8 dev lo
-    fi
-    if ! ip -6 addr show lo | grep -qw 'inet6'; then
-      run ip -6 addr add ::1/128 dev lo
-    fi
+    [[ -z $(ip -4 -br addr show lo | awk '{print $3;exit}') ]] && run ip -4 addr add 127.0.0.1/8 dev lo
+    [[ -z $(ip -6 -br addr show lo | awk '{print $3;exit}') ]] && run ip -6 addr add ::1/128 dev lo
     run ip link set lo up
   else
     [[ $DEBUG_ETH_UP == yes ]] && log "interface lo not present, can't bring up"
@@ -635,7 +631,7 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD=${METRIC[$x]}
     [[ -n $AD ]] && AD="metric $AD"
-    EXIST=$(ip -4 route show default via $(unzero $GW) dev $DEV | grep "$AD ")
+    EXIST=$(ip -4 route show to default via $(unzero $GW) dev $DEV | grep "$AD ")
     [[ $IP != ipv6 && -z $EXIST ]] && run ip -4 route add default via $(unzero $GW) dev $DEV $AD
   done
   for GW6 in ${GATEWAY6[@]}; do
@@ -647,7 +643,7 @@ gateway_up(){
     IP=${PROTOCOL[$x]:-ipv4}
     AD6=${METRIC6[$x]}
     [[ -n $AD6 ]] && AD6="metric $AD6"
-    EXIST=$(ip -6 route show default via $(unzero6 $GW6) dev $DEV | grep "$AD6 ")
+    EXIST=$(ip -6 route show to default via $(unzero6 $GW6) dev $DEV | grep "$AD6 ")
     [[ $IP != ipv4 && -z $EXIST ]] && run ip -6 route add default via $(unzero6 $GW6) dev $DEV $AD6
   done
 }
@@ -661,7 +657,7 @@ gateway_down(){
     i=(${x/,/ })
     [[ -z ${i[1]} ]] && DEV=${IFNAME[$i]} || DEV=${IFNAME[$i]}.${VLANID[$x]}
     IP=${PROTOCOL[$x]:-ipv4}
-    EXIST=$(ip -4 route show default dev $DEV)
+    EXIST=$(ip -4 route show to default dev $DEV)
     [[ $IP != ipv6 && -n $EXIST ]] && run ip -4 route flush default dev $DEV
   done
   for GW6 in ${GATEWAY6[@]}; do
@@ -671,7 +667,7 @@ gateway_down(){
     i=(${x/,/ })
     [[ -z ${i[1]} ]] && DEV=${IFNAME[$i]} || DEV=${IFNAME[$i]}.${VLANID[$x]}
     IP=${PROTOCOL[$x]:-ipv4}
-    EXIST=$(ip -6 route show default dev $DEV)
+    EXIST=$(ip -6 route show to default dev $DEV)
     [[ $IP != ipv4 && -n $EXIST ]] && run ip -6 route flush default dev $DEV
   done
 }
@@ -712,13 +708,13 @@ route_up(){
     # determine IP protocol & optional device
     [[ -n ${1##*:*} ]] && IP=-4 || IP=-6
     [[ -z ${1##*-*} ]] && DEV="dev ${1#*-}" || DEV=
-    EXIST=$(ip $IP route show default via ${1%-*} $DEV | grep "$METRIC ")
+    EXIST=$(ip $IP route show to default via ${1%-*} $DEV | grep "$METRIC ")
     [[ -z $EXIST ]] && run ip $IP route add default via ${1%-*} $DEV $METRIC
   elif [[ -n $2 ]]; then
     # determine IP protocol & gateway syntax
     [[ -n ${2##*:*} ]] && IP=-4 || IP=-6
     [[ -e $SYSTEM/$1 ]] && GW="dev $1" || GW="via $1"
-    EXIST=$(ip $IP route show $2 $GW | grep "$METRIC ")
+    EXIST=$(ip $IP route show to $2 $GW | grep "$METRIC ")
     [[ -z $EXIST ]] && run ip $IP route add $2 $GW $METRIC
   fi
 }
@@ -730,13 +726,13 @@ route_down(){
     # determine IP protocol & optional device
     [[ -n ${1##*:*} ]] && IP=-4 || IP=-6
     [[ -z ${1##*-*} ]] && DEV="dev ${1#*-}" || DEV=
-    EXIST=$(ip $IP route show default via ${1%-*} $DEV)
+    EXIST=$(ip $IP route show to default via ${1%-*} $DEV)
     [[ -n $EXIST ]] && run ip $IP route del default via ${1%-*} $DEV $METRIC
   elif [[ -n $2 ]]; then
     # determine IP protocol & gateway syntax
     [[ -n ${2##*:*} ]] && IP=-4 || IP=-6
     [[ -e $SYSTEM/$1 ]] && GW="dev $1" || GW="via $1"
-    EXIST=$(ip $IP route show $2 $GW)
+    EXIST=$(ip $IP route show to $2 $GW)
     [[ -n $EXIST ]] && run ip $IP route del $2 $GW $METRIC
   fi
 }

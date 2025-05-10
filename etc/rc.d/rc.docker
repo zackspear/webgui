@@ -113,7 +113,7 @@ docker_read_options(){
   [[ -n $MTU && $MTU -ne 1500 ]] && DOCKER_OPTS="--mtu=$MTU $DOCKER_OPTS"
 
   # Enable IPv6 for docker bridge network
-  if [[ -n $(ip -6 route show default dev $PORT) ]]; then
+  if [[ -n $(ip -6 route show to default dev $PORT) ]]; then
     DOCKER0='fd17::/64'
     DOCKER_OPTS="--ipv6 --fixed-cidr-v6=$DOCKER0 $DOCKER_OPTS"
     IPV6_FORWARD=${IPV6_FORWARD:=accept}
@@ -231,7 +231,7 @@ container_add_route(){
   if [[ $PID -gt 0 && "eth0 br0 bond0 wlan0" =~ $LAN ]]; then
     local THISIP=$(ip -4 -br addr show scope global primary dev $LAN | awk '{print $3;exit}')
     for CFG in /etc/wireguard/wg*.cfg ; do
-      local NETWORK=$(ip -4 route show $THISIP dev $LAN | awk '{print $1;exit}')
+      local NETWORK=$(ip -4 route show to $THISIP dev $LAN | awk '{print $1;exit}')
       [[ -n $NETWORK ]] && nsenter -n -t $PID ip -4 route add $NETWORK via ${THISIP%/*} dev $LAN 2>/dev/null
     done
   fi
@@ -346,20 +346,20 @@ docker_network_start(){
       SUBNET=; GATEWAY=; SERVER=; RANGE=;
       [[ -z ${!AUTO} || ${!AUTO} =~ "4" ]] && IPV4=$(ip -4 -br addr show scope global primary dev $NETWORK | awk '{print $3;exit}') || IPV4=
       if [[ -n $IPV4 ]]; then
-        SUBNET=$(ip -4 route show $IPV4 dev $NETWORK | awk '{print $1;exit}')
+        SUBNET=$(ip -4 route show to $IPV4 dev $NETWORK | awk '{print $1;exit}')
         SERVER=${IPV4%/*}
         DHCP=${NETWORK/./_}
         DHCP=DOCKER_DHCP_${DHCP^^}
         RANGE=${!DHCP}
-        GATEWAY=$(ip -4 route show default dev $NETWORK | awk '{print $3;exit}')
+        GATEWAY=$(ip -4 route show to default dev $NETWORK | awk '{print $3;exit}')
       fi
       SUBNET6=; GATEWAY6=; SERVER6=;
       # get IPv6 address - ignore any /128 networks
       [[ -z ${!AUTO} || ${!AUTO} =~ "6" ]] && IPV6=$(ip -6 -br addr show scope global primary -deprecated dev $NETWORK | awk -v RS='[[:space:]]+' '(NR>2){print}' | grep -Pvm1 '^.+/128|^$') || IPV6=
       if [[ -n $IPV6 ]]; then
-        SUBNET6=$(ip -6 route show $IPV6 dev $NETWORK | awk '{print $1;exit}')
+        SUBNET6=$(ip -6 route show to $IPV6 dev $NETWORK | awk '{print $1;exit}')
         SERVER6=${IPV6%/*}
-        GATEWAY6=$(ip -6 route show default dev $NETWORK | awk '{print $3;exit}')
+        GATEWAY6=$(ip -6 route show to default dev $NETWORK | awk '{print $3;exit}')
         # replace link local address for first address in subnet
         [[ ${GATEWAY6:0:4} == fe80 ]] && GATEWAY6=${SUBNET6%/*}1
       fi
