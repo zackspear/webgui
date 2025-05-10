@@ -463,8 +463,8 @@ docker_network_start(){
   done
   # create IPv6 forward accept rule
   if [[ $IPV6_FORWARD == accept ]]; then
-    log "creating forward accept rule for IPv6 network"
     ip6tables -P FORWARD ACCEPT
+    log "created forward accept rule for IPv6 network"
   fi
   log "Network started."
 }
