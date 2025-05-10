@@ -182,6 +182,10 @@ network(){
   docker network ls --filter driver="$1" --format='{{.Name}}' 2>/dev/null | grep -P "^[a-z]+$2(\$|\.)" | tr '\n' ' '
 }
 
+ipv4_exists(){
+  ip -4 -br addr show to $2 dev $1 | awk '{print $3;exit}'
+}
+
 # Is container running?
 container_running(){
   local CONTAINER
@@ -395,6 +399,7 @@ docker_network_start(){
         [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]] && VHOST=vhost${NETWORK//[^0-9.]/} || VHOST=$NETWORK
       fi
       # delete and recreate unconditionally
+      log "Processing... $NETWORK"
       docker network rm $NETWORK &>/dev/null
       docker network create -d $ATTACH $SUBNET $GATEWAY $SERVER $RANGE $SUBNET6 $GATEWAY6 $SERVER6 -o parent=$VHOST $NETWORK | xargs docker network inspect -f "created network $ATTACH {{.Name}} with subnets: {{range .IPAM.Config}}{{.Subnet}}; {{end}}" 2>/dev/null | log
       # connect containers to this new network
@@ -417,14 +422,14 @@ docker_network_start(){
       if [[ $TYPE == br ]]; then
         LINK=shim-$NETWORK
         if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
-          NET="$IPV4 metric $((1000 - 1 + $(index $NETWORK)))"
+          IPV4="$IPV4 metric $((1000 - 1 + $(index $NETWORK)))"
           # create shim interface
           [[ -e $SYSTEM/$LINK ]] || run ip link add link $NETWORK name $LINK type $ATTACH mode $MODE
           # disable IPv6 on shim interface
           echo 1 >$CONF6/$LINK/disable_ipv6
           run ip -6 addr flush dev $LINK
           # copy parent IPv4 address to shim interface
-          run ip addr add $NET dev $LINK
+          run ip addr add $IPV4 dev $LINK
           run ip link set $LINK up
           log "created network $LINK for host access"
         elif [[ -e $SYSTEM/$LINK ]]; then
@@ -442,7 +447,7 @@ docker_network_start(){
           INDEX=1000
         fi
         INDEX=$(($INDEX - 1 + $(index $NETWORK)))
-        if [[ $DOCKER_ALLOW_ACCESS == yes && -n $IPV4 ]]; then
+        if [[ -n $IPV4 && $DOCKER_ALLOW_ACCESS == yes ]]; then
           # disable IPv6 on vhost interface
           echo 1 >$CONF6/$VHOST/disable_ipv6
           run ip -6 addr flush dev $VHOST
@@ -450,11 +455,9 @@ docker_network_start(){
           IPS="$(ip -4 -br addr show scope global dev $VHOST | awk '{$1="";$2="";print;exit}' | sed -r 's/ metric [0-9]+//g')"
           [[ ! $IPS =~ $IPV4 ]] && run ip addr add $IPV4 metric $INDEX dev $VHOST
           log "prepared network $VHOST for host access"
-        else
-          if [[ -n $IPV4 && -e $SYSTEM/$VHOST ]]; then
-            # remove parent IPv4 address from vhost interface
-            run ip addr del $IPV4 metric $INDEX dev $VHOST
-          fi
+        elif [[ -n $IPV4 && -e $SYSTEM/$VHOST && -n $(ipv4_exists $VHOST ${IPV4%/*}) ]]; then
+          # remove parent IPv4 address from vhost interface
+          run ip addr del $IPV4 metric $INDEX dev $VHOST
         fi
       fi
     fi
@@ -490,8 +493,8 @@ docker_network_stop(){
     done
   done
   if [[ -e $SYSTEM/shim-wlan0 ]]; then
-    NET=$(ip -4 -br addr show scope global primary dev shim-wlan0 | awk '{print $3,$4,$5;exit}')
-    [[ -n $NET ]] && run ip addr del $NET dev shim-wlan0
+    IPV4=$(ip -4 -br addr show scope global primary dev shim-wlan0 | awk '{print $3,$4,$5;exit}')
+    [[ -n $IPV4 ]] && run ip addr del $IPV4 dev shim-wlan0
   fi
   log "Network stopped."
 }
