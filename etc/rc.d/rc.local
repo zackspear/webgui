@@ -252,8 +252,7 @@ if [[ -f $CONFIG/$GO ]]; then
   fromdos <$CONFIG/$GO >/var/tmp/$GO
   chmod +x /var/tmp/$GO
   /var/tmp/$GO
-fi
-if [[ ! -f /var/run/emhttpd.socket ]]; then
+else
   log "Starting emhttp"
   /usr/local/sbin/emhttp
 fi
