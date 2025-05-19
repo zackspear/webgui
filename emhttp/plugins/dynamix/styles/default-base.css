@@ -1385,7 +1385,6 @@ a.list {
 }
 
 div.up {
-    margin-top: -30px;
     border: 1px solid var(--border-color);
     padding: 4px 6px;
     overflow: auto;
@@ -1457,9 +1456,6 @@ div.spinner .unraid_mark_7 {
     100% {
         transform: translateY(0px);
     }
-}
-pre.up {
-    margin-top: -30px;
 }
 pre {
     border: 1px solid var(--border-color);
@@ -2287,7 +2283,6 @@ span#wlan0 {
     }
 
     div.up {
-        margin-top: -20px;
         border: 1px solid var(--table-alt-border-color);
     }
 
