@@ -123,6 +123,9 @@ hr {
     color: var(--hr-color);
     background-color: var(--hr-color);
 }
+.resize-none {
+    resize: none;
+}
 input[type="text"],
 input[type="password"],
 input[type="number"],

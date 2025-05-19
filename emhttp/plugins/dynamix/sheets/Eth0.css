@@ -87,8 +87,4 @@ input[type="text"].narrow {
     input[type="text"].narrow {
         border-bottom: 1px solid var(--eth0-narrow-input-border-color);
     }
-
-    .uplift {
-        margin-top: -30px !important;
-    }
 }
