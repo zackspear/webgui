@@ -1251,6 +1251,20 @@ a.list {
     position: relative;
     width: 100%;
     box-sizing: border-box;
+
+    /**
+    * Force remove any small empty space elements.
+    * Necessary evil to prevent needing to rewrite .page file parsing and allow for a more responsive page.
+    */
+    dt, dd, p, div, span {
+        &:empty {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            min-height: 0 !important;
+        }
+    }
 }
 .tabs,
 .tabs-container {
@@ -1533,20 +1547,6 @@ dd {
         select {
             max-width: 500px;
         }
-    }
-}
-
-/**
- * Force remove any small empty space elements.
- * Necessary evil to prevent needing to rewrite .page file parsing and allow for a more responsive page.
- */
-dt, dd, p, div:not([class*="sweet-overlay"]), span {
-    &:empty {
-        display: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 0 !important;
-        min-height: 0 !important;
     }
 }
 
