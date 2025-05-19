@@ -28,10 +28,13 @@ p {
 /**
  * The markdown parser will often add <p> around links, scripts, and styles.
  * Without this, spacing is off with essentially empty paragraphs.
+ * re. - hidden inputs. If the only child is a hidden input or inputs, remove the margin.
  */
 p:has(> link),
 p:has(> script),
-p:has(> style) {
+p:has(> style),
+p:has(> input[type="hidden"]:only-child),
+p:has(> input[type="hidden"]):not(:has(> :not(input[type="hidden"]))) {
     margin: 0;
 }
 p.centered {
@@ -330,10 +333,10 @@ select[name="port_select"] {
     padding-bottom: 0;
 }
 select.narrow {
-    min-width: 76px;
+    width: 76px;
 }
 select.auto {
-    min-width: auto;
+    width: auto;
 }
 select.slot {
     min-width: 44rem !important;
@@ -602,12 +605,6 @@ div.title.shift {
 
 .Theme--width-boxed #displaybox {
     max-width: 1920px;
-}
-
-@media (min-width: 1921px) {
-    .Theme--nav-top.Theme--width-unlimited #displaybox {
-        padding: 0 2rem;
-    }
 }
 
 #clear {
@@ -1265,7 +1262,7 @@ a.list {
 }
 
 .tabs-container {
-    overflow-x: scroll;
+    overflow-x: auto;
     width: 100%;
 }
 
