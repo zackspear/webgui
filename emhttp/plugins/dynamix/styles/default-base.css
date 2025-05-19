@@ -836,16 +836,16 @@ div.title.shift {
 }
 
 .TableContainer {
-    overflow-x: scroll;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 
     table {
-        min-width: 900px;
+        min-width: 1280px;
     }
 }
 
 .TableContainer--widest {
-    overflow-x: scroll;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 
     table {
