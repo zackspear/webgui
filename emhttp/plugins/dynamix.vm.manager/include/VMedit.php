@@ -105,7 +105,7 @@ if (strpos($strSelectedTemplate,"User-") !== false) {
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/edit.css')?>">
 
-<span class="status advancedview_panel" style="margin-top:<?=$top?>px;"><input type="checkbox" class="inlineview"><input type="checkbox" class="advancedview"></span>
+<span class="status advancedview_panel"><input type="checkbox" class="inlineview"><input type="checkbox" class="advancedview"></span>
 <div class="domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
