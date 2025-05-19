@@ -621,10 +621,9 @@ div.title.shift {
     padding: .5rem 1rem;
     width: 100%;
     text-align: center;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1rem;
     margin-top: auto;
 }
 @media (min-width: 768px) {
@@ -633,16 +632,35 @@ div.title.shift {
         bottom: 0;
         left: 0;
         z-index: 10000;
+        grid-template-columns: minmax(0, auto) minmax(0, auto);
+        justify-content: space-between;
     }
 }
 #countdown {
     margin: 0 auto;
 }
-.footer-right {
+.footer-left {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     gap: 1rem;
+}
+.footer-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+@media (min-width: 768px) {
+    .footer-left, 
+    .footer-right {
+        justify-content: flex-start;
+    }
+    .footer-right {
+        justify-content: flex-end;
+    }
 }
 .footer-link {
     display: inline-flex;
