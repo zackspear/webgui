@@ -430,6 +430,11 @@ foreach (glob("$path/*.ini") as $file) {
   if ($all || $ini != "users") file_put_contents("/$diag/system/vars.txt",preg_replace(["/\n/","/^Array/"],["\r\n",$ini],anonymize(print_r(parse_ini_file($file,true),true),1)),FILE_APPEND);
 }
 
+// check for safe mode
+if (_var($var,'safeMode') == 'yes') {
+  file_put_contents("/$diag/system/safemode.txt", "Unraid safe mode enabled\r\n");
+}
+
 // Create loads.txt
 $cpuload = run("uptime")."  Cores: ".run("nproc")."\r\n".(string)@file_get_contents("$path/cpuload.ini")."\r\n";
 $loadTxt = [];
