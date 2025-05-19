@@ -1493,12 +1493,14 @@ dd {
     gap: 0.5rem; */
     margin: 0 0 1.5rem 0;
     white-space: normal;
-}
-dd p {
-    margin: 0 0 4px 0;
-}
-dd blockquote {
-    padding-left: 0;
+
+    p {
+        margin: 0 0 4px 0;
+    }
+
+    blockquote {
+        padding-left: 0;
+    }
 }
 
 /* Responsive styles for definition lists */
@@ -1513,6 +1515,24 @@ dd blockquote {
     dd {
         margin: 0;
         white-space: nowrap;
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="url"],
+        input[type="email"],
+        input[type="date"],
+        input[type="file"],
+        input:not([type="submit"]),
+        input:not([type="button"]),
+        input:not([type="checkbox"]),
+        input:not([type="radio"]),
+        input:not([class*="narrow"]),
+        textarea,
+        .textarea,
+        select {
+            max-width: 500px;
+        }
     }
 }
 
