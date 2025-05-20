@@ -288,7 +288,10 @@ _(VFIO allow unsafe interrupts)_:
 <?else:?>
 &nbsp;
 <?endif;?>
-: <input type="button" id="applyBtn" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="button" id="applyBtn" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 <?if ($libvirt_log):?>
 
