@@ -786,7 +786,7 @@ _(IPv6 privacy extensions)_:
 </div>
 _(Desired MTU)_:
 : <input type="number" name="MTU" min="68" max="9198" autocomplete="off" spellcheck="false" value="<?=_var($eth0, 'MTU')?>" class="narrow" placeholder="1500" <?=(_var($eth0, 'MTU') != '' || _var($eth0, 'USE_MTU')) ? '' : 'disabled'?>>
-  <input type="checkbox" name="USE_MTU" onchange="selectMTU(this.form)" <?=_var($eth0, 'USE_MTU') ? 'checked' : ''?>><?=$jumbo?>&nbsp;<i class="fa fa-info-circle blue-text hand" title="<?=$jumbo_1?>.&#10;<?=$jumbo_2?>.&#10;<?=$jumbo_3?>!"></i>
+<span><input type="checkbox" name="USE_MTU" onchange="selectMTU(this.form)" <?=_var($eth0, 'USE_MTU') ? 'checked' : ''?>><?=$jumbo?>&nbsp;<i class="fa fa-info-circle blue-text hand" title="<?=$jumbo_1?>.&#10;<?=$jumbo_2?>.&#10;<?=$jumbo_3?>!"></i></span>
 
 :eth_desired_mtu_help:
 
@@ -900,7 +900,7 @@ _(IPv6 privacy extensions)_:
 : <input type="submit" value="_(Apply)_" onclick="$('#wait_eth0').show()" disabled><input type="button" value="_(Done)_" onclick="done()">
 <?if (!$service):?>
 <input type="button" id="button-add-eth0" class="hide" value="_(Add VLAN)_" onclick="addVLAN('eth0')">
-<?else:?><?=sprintf(_('Stop **%s** to make changes, see'), $service).' (<a href="/Settings">'._('Settings').'</a>)'?><?endif;?>
+<?else:?><span><?=sprintf(_('Stop **%s** to make changes, see'), $service).' (<a href="/Settings">'._('Settings').'</a>)'?></span><?endif;?>
 </form>
 
 <script markdown="1" type="text/html" id="network-template-eth0">
