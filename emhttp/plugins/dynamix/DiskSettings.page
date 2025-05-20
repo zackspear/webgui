@@ -376,11 +376,11 @@ _(Default SMART controller type)_:
 :disk_default_smart_controller_help:
 
 _(Default SMART attribute notifications)_:
-: <input type="text" name="smCustom" value="<?=htmlspecialchars(_var($var,'smCustom'))?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
+: <input type="text" name="smCustom" value="<?=htmlspecialchars(_var($var,'smCustom'))?>" class="narrow"><span class="input-instructions">_(Custom attributes (use comma to separate numbers))_</span>
 
 <?for ($x = 0; $x < count($preselect); $x++):?>
 &nbsp;
-: <input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>"<?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=_var($preselect[$x],'code')?></span><?=_var($preselect[$x],'text')?>
+: <span><input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>"<?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=_var($preselect[$x],'code')?></span><?=_var($preselect[$x],'text')?></span>
 <?endfor;?>
 
 :disk_default_smart_attribute_help:
