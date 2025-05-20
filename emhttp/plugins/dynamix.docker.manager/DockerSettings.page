@@ -130,7 +130,9 @@ $no_dockercfg = !is_file('/boot/config/docker.cfg');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<span class="status vhshift"><input type="checkbox" class="advancedview"></span>
+
+&nbsp;
+: <span><input type="checkbox" class="advancedview"></span>
 
 <form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareDocker(this)">
 <input type="hidden" name="#file" value="<?=$docker_cfgfile?>">
@@ -635,7 +637,10 @@ _(IPv6 custom network on interface)_ <?=$network?>:
 <?endif;?>
 
 &nbsp;
-: <input id="applyBtn" type="button" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input id="applyBtn" type="button" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
