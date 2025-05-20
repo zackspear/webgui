@@ -2,7 +2,7 @@ Menu="NetworkSettings"
 Title="Routing Table"
 Tag="icon-share"
 ---
-<?PHP
+<?php
 /* Copyright 2005-2025, Lime Technology
  * Copyright 2012-2025, Bergware International.
  *
@@ -14,19 +14,23 @@ Tag="icon-share"
  * all copies or substantial portions of the Software.
  */
 ?>
-<?
+<?php
 unset($list,$other);
-exec("ls /sys/class/net|grep -P '^br[0-9]'",$list);
-exec("ls /sys/class/net|grep -P '^(bond|eth)[0-9]'",$other);
+exec("ls /sys/class/net|grep -P '^br[0-9]'", $list);
+exec("ls /sys/class/net|grep -P '^(bond|eth)[0-9]'", $other);
 foreach ($other as $port) {
-  if (substr($port,0,4)=='bond') {
-    $br = str_replace('bond','br',$port);
-    if (!in_array($br,$list)) $list[] = $port;
-  } else {
-    $br = str_replace('eth','br',$port);
-    $bond = str_replace('eth','bond',$port);
-    if (!in_array($br,$list) && !in_array($bond,$list)) $list[] = $port;
-  }
+    if (substr($port, 0, 4) == 'bond') {
+        $br = str_replace('bond', 'br', $port);
+        if (!in_array($br, $list)) {
+            $list[] = $port;
+        }
+    } else {
+        $br = str_replace('eth', 'br', $port);
+        $bond = str_replace('eth', 'bond', $port);
+        if (!in_array($br, $list) && !in_array($bond, $list)) {
+            $list[] = $port;
+        }
+    }
 }
 ?>
 <script>
@@ -52,10 +56,20 @@ $(function(){
   routeTable();
 });
 </script>
-<table class="unraid">
-<thead><tr><td>_(Protocol)_</td><td>_(Route)_</td><td>_(Gateway)_</td><td>_(Metric)_</td><td style="width:8%;text-align:center">_(Delete)_</td></tr></thead>
-<tbody id="route_list"></tbody>
-</table>
+<div class="TableContainer">
+  <table class="unraid">
+    <thead>
+      <tr>
+        <td>_(Protocol)_</td>
+        <td>_(Route)_</td>
+        <td>_(Gateway)_</td>
+        <td>_(Metric)_</td>
+        <td style="width:8%;text-align:center">_(Delete)_</td>
+      </tr>
+    </thead>
+    <tbody id="route_list"></tbody>
+  </table>
+</div>
 
 <div class="shade" style="margin-top:12px;padding:12px 4px;">
 <form markdown="1" name="add_routes" method="POST" action="/webGui/include/RoutingTable.php" target="progressFrame" onsubmit="setTimeout(resetTable,500)">
