@@ -333,6 +333,9 @@ echo "</table>";
 ?>
 
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="updateAccess(this.form)" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="button" value="_(Apply)_" onclick="updateAccess(this.form)" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 <?endif;?>

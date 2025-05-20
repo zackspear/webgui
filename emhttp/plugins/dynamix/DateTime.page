@@ -171,7 +171,10 @@ _(New date and time)_:
 
 </div>
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="dispatch(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="button" value="_(Apply)_" onclick="dispatch(this.form)" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <script>
