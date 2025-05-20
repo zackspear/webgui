@@ -99,11 +99,11 @@ _(NTP interval)_:
   <?=mk_option(_var($NTP, 'POLL'), "5", _('Medium'))?>
   <?=mk_option(_var($NTP, 'POLL'), "3", _('Fast'))?>
   </select>
-  <span class="orange-text">_(Use DEFAULT setting when public NTP servers are defined)_</span>
+  <span class="input-instructions orange-text">_(Use DEFAULT setting when public NTP servers are defined)_</span>
 
 _(NTP server)_ 1:
 : <input type="text" name="NTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
-  <span class="orange-text">_(Input a NTP server name, NTP pool name or IP address)_</span>
+  <span class="input-instructions orange-text">_(Input a NTP server name, NTP pool name or IP address)_</span>
 
 _(NTP server)_ 2:
 : <input type="text" name="NTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
