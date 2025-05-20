@@ -126,6 +126,7 @@ hr {
 .resize-none {
     resize: none;
 }
+
 input[type="text"],
 input[type="password"],
 input[type="number"],
@@ -155,6 +156,20 @@ textarea,
     border-radius: 0;
     box-sizing: border-box;
 }
+
+.input-instructions {
+    font-style: italic;
+    opacity: .75;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    + .input-instructions {
+        opacity: 1;
+    }
+}
+
 input[type="button"],
 input[type="reset"],
 input[type="submit"],
@@ -306,6 +321,7 @@ select option {
     background-color: var(--mild-background-color);
 }
 select:focus {
+    background-color: var(--focus-input-bg-color);
     outline: 0;
 }
 select[disabled] {
@@ -1526,6 +1542,9 @@ dd {
         text-align: right;
     }
     dd {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
         /* white-space: nowrap; */
 
         input[type="text"],
@@ -1716,6 +1735,14 @@ span#wlan0 {
     margin-top: 1rem;
     padding: 1rem 0;
     background-color: var(--shade-bg-color);
+}
+
+.hidden {
+    display: none;
+}
+
+.inline-block {
+    display: inline-block;
 }
 
 /*
