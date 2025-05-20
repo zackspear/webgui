@@ -116,7 +116,8 @@ $libvirt_log       = file_exists("/var/log/libvirt/libvirtd.log");
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
 
 <?if ($hardware):?>
-<span class="status vhshift"><input type="checkbox" class="advancedview"></span>
+&nbsp;
+: <span><input type="checkbox" class="advancedview"></span>
 <?endif;?>
 <form markdown="1" id="settingsForm" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="<?=htmlspecialchars($domain_cfgfile)?>">
