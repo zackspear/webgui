@@ -160,5 +160,9 @@ _(Number of fuse File Descriptors)_:
 :shares_fuse_file_descriptors_io_help:
 
 &nbsp;
-: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
+: <span class="inline-block">
+    <input type="submit" name="changeShare" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
+<?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>

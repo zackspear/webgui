@@ -197,7 +197,10 @@ _(Custom image)_:
 <?else:?>
 _(Delete)_<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form, this.form.cmdUserEdit)">
 <?endif;?>
-: <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 <br><br>
 <form markdown="1" method="POST" action="/update.htm" onsubmit="return checkPassword(this)" target="progressFrame">
@@ -215,7 +218,10 @@ _(Retype password)_:
   <input type="password" name="userPasswordConfGUI" maxlength="129" autocomplete="new-password" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
 
 &nbsp;
-: <input type="submit" name="cmdUserEdit" value="_(Change)_" onclick="this.value='Change'" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="submit" name="cmdUserEdit" value="_(Change)_" onclick="this.value='Change'" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 
 <?if ($name == 'root'):?>
@@ -227,7 +233,10 @@ _(SSH authorized keys)_:
 : <textarea spellcheck="false" cols="80" rows="<?=max(substr_count($text,"\n")+1,10)?>" maxlength="16384" name="text" style="resize:none;white-space:normal;font-family:bitstream;width:65.5%"><?=htmlspecialchars($text)?></textarea>
 
 &nbsp;
-: <input type="submit" value="_(Save)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Save)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 
 </form>
 <?endif;?>

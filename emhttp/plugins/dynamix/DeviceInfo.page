@@ -841,7 +841,9 @@ _(Critical disk utilization threshold)_ (%):
 
 <?endif;?>
 &nbsp;
-: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" id="doneButton" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeDisk" value="_(Apply)_" disabled>
+    <input type="button" id="doneButton" value="_(Done)_" onclick="done()">
   <?$erasable=false?>
   <?$removeable=false?>
   <?if (diskType('Parity','Data')):?>
@@ -855,6 +857,7 @@ _(Critical disk utilization threshold)_ (%):
     <?if (_var($var,'fsState')=="Stopped"): $removeable=true; endif;?>
     <input type="button" id="removeButton" value="_(Remove Pool)_" onclick="removePool()"<?=$removeable?'':' disabled'?>>
   <?endif;?>
+  </span>
 </form>
 
 <?if (fsType('btrfs')):?>
@@ -929,7 +932,10 @@ _(btrfs balance status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Balance)_" disabled><b>_(Balance)_</b> _(is only available when the filesyestem is mounted)_
+: <span class="inline-block">
+    <input type="submit" value="_(Balance)_" disabled>
+    <span class="inline-block"><b>_(Balance)_</b> _(is only available when the filesyestem is mounted)_</span>
+  </span>
 
 <?endif;?>
 </form>
@@ -1118,7 +1124,10 @@ _(btrfs check status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_" disabled>
+    <span class="inline-block">**_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+  </span>
 
 <?endif;?>
 </form>
@@ -1245,7 +1254,11 @@ _(reiserfsck status)_:
 <input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
 
 &nbsp;
-: <input type="submit" value="_(Check)_"><input type="text" name="#arg[4]" class="narrow" maxlength="256" value=""> _(Options (see Help))_
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_">
+    <input type="text" name="#arg[4]" class="narrow" maxlength="256" value="">
+    <span class="inline-block">_(Options (see Help))_</span>
+  </span>
 
 :info_reiserfs_check_help:
 
@@ -1256,7 +1269,10 @@ _(reiserfsck status)_:
 <input type="hidden" name="#arg[3]" value="<?=_var($disk,'id')?>">
 
 &nbsp;
-: <input type="submit" value="_(Cancel)_"> *_(Running)_*
+: <span class="inline-block">
+    <input type="submit" value="_(Cancel)_">
+    <span class="inline-block">*_(Running)_*</span>
+  </span>
 
 :info_reiserfs_cancel_help:
 
@@ -1264,7 +1280,10 @@ _(reiserfsck status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_" disabled>
+    <span class="inline-block">**_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+  </span>
 
 <?endif;?>
 </form>
@@ -1342,7 +1361,10 @@ _(xfs_repair status)_:
 <?else:?>
 
 &nbsp;
-: <input type="submit" value="_(Check)_" disabled> **_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_" disabled>
+    <span class="inline-block">**_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+  </span>
 
 <?endif;?>
 </form>
@@ -1434,17 +1456,27 @@ _(SMART controller type)_:
 :info_controller_type_help:
 
 _(SMART attribute notifications)_:
-: <input type="text" name="smCustom" value="<?=$disk['smCustom']??$var['smCustom']??''?>" class="narrow">_(Custom attributes (use comma to separate numbers))_
+: <input type="text" name="smCustom" value="<?=$disk['smCustom']??$var['smCustom']??''?>">
+  <span class="input-instructions">_(Custom attributes (use comma to separate numbers))_</span>
 
 <?for ($x=0; $x<count($preselect); $x++):?>
 &nbsp;
-: <input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>"<?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=_var($preselect[$x],'code')?></span><?=_var($preselect[$x],'text')?>
+: <span class="inline-block">
+    <label class="inline-block">
+      <input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>"<?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>>
+      <span class="code">_(Attribute)_ = <?=_var($preselect[$x],'code')?></span>
+    </label>
+    <span class="inline-block"><?=_var($preselect[$x],'text')?></span>
+  </span>
 <?endfor;?>
 
 :info_attribute_notifications_help:
 
 <input type="submit" name="#default" value="_(Default)_">
-: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="#apply" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 <?endif?>
 

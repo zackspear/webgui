@@ -82,6 +82,9 @@ _(Enter route + gateway + metric)_:
 :eth_routing_table_help:
 
 &nbsp;
-: <input type="submit" value="_(Add Route)_"><input type="button" value="_(Done)_" class="lock" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Add Route)_">
+    <input type="button" value="_(Done)_" class="lock" onclick="done()">
+  </span>
 </form>
 </div>

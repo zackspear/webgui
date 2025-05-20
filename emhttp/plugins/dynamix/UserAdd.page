@@ -172,5 +172,8 @@ _(Retype password)_:
 : <input type="password" name="userPasswordConfGUI" maxlength="129" autocomplete="new-password" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userName.value=='' || this.form.userPasswordGUI.value!=this.form.userPasswordConfGUI.value)">
 
 &nbsp;
-: <input type="submit" name="cmdUserEdit" value="_(Add)_" onclick="this.value='Add'" disabled><input type="button" value="_(Done)_" onclick="done('UserAdd')">
+: <span class="inline-block">
+    <input type="submit" name="cmdUserEdit" value="_(Add)_" onclick="this.value='Add'" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserAdd')">
+  </span>
 </form>

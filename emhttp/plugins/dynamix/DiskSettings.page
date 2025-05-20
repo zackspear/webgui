@@ -263,7 +263,10 @@ _(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C'
 :ssd_default_critical_temperature_help:
 
 &nbsp;
-: <input type="submit" name="changeDisk" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeDisk" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <?if ($encrypt && $var['fsState']=='Started'):?>
@@ -317,7 +320,10 @@ _(Select new keyfile)_:
 
 </div>
 &nbsp;
-: <input type="submit" name="newkey" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="newkey" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 <?endif;?>
 
@@ -386,5 +392,8 @@ _(Default SMART attribute notifications)_:
 :disk_default_smart_attribute_help:
 
 <input type="submit" name="#default" value="_(Default)_">
-: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="#apply" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>

@@ -1476,8 +1476,12 @@ _(Persistent keepalive)_:
 <?endforeach;?>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" id="addpeer-wg0" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
-  <input type="button" class="advanced wg0" value="_(Delete Tunnel)_" style="float:right;display:none" onclick="delTunnel('wg0')"<?=file_exists($conf_wg0)?'':' disabled'?>>
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wg0),'wg0'))" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+    <input type="button" id="addpeer-wg0" value="_(Add Peer)_" onclick="addPeer($(document.wg0),'wg0')">
+    <input type="button" class="advanced wg0" value="_(Delete Tunnel)_" style="display:none" onclick="delTunnel('wg0')"<?=file_exists($conf_wg0)?'':' disabled'?>>
+  </span>
 </form>
 <small style="position:absolute;left:10px;top:30px">"WireGuard" and the "WireGuard" logo are registered trademarks of Jason A. Donenfeld</small>
 

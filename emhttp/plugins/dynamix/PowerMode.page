@@ -68,7 +68,10 @@ _(Change power mode)_:
   </span>
 
 &nbsp;
-: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="#apply" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <div id="vm" class="notice">_(When running Unraid virtualized, there are no available power modes)_</div>

@@ -897,7 +897,10 @@ _(IPv6 privacy extensions)_:
 </div>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" onclick="$('#wait_eth0').show()" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" onclick="$('#wait_eth0').show()" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 <?if (!$service):?>
 <input type="button" id="button-add-eth0" class="hide" value="_(Add VLAN)_" onclick="addVLAN('eth0')">
 <?else:?><span><?=sprintf(_('Stop **%s** to make changes, see'), $service).' (<a href="/Settings">'._('Settings').'</a>)'?></span><?endif;?>

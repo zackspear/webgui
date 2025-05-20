@@ -56,7 +56,10 @@ _(Error reporting level)_:
 : <input type="checkbox" id="screenlog" onclick="screenLog()" <?=_var($conf,'display_errors',0)?'checked':''?> disabled><span id="screentext" class="dim">_(Show errors on screen)_</span>
 
 <input type="button" value="_(PHP Info)_" onclick="PHPinfo()"><input type="button" id="clearlog" value="_(Clear Log)_" onclick="clearLog()"<?=filesize($log)>0?'':' disabled'?>><input type="button" id="viewlog" value="_(View Log)_" onclick="viewLog()" disabled>_(LOG size)_:&nbsp;<span id="logsize"></span>
-: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <div id="dialogWindow"></div>

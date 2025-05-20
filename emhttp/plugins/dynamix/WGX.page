@@ -374,7 +374,12 @@ _(Persistent keepalive)_:
 <?endforeach;?>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wgX),'wgX'))" disabled><input type="button" value="_(Done)_" onclick="done()"><input type="button" id="addpeer-wgX" value="_(Add Peer)_" onclick="addPeer($(document.wgX),'wgX')"><input type="button" class="advanced wgX" value="_(Delete Tunnel)_" style="float:right;display:none" onclick="delTunnel('wgX')">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" onclick="return(validateForm($(document.wgX),'wgX'))" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+    <input type="button" id="addpeer-wgX" value="_(Add Peer)_" onclick="addPeer($(document.wgX),'wgX')">
+    <input type="button" class="advanced wgX" value="_(Delete Tunnel)_" style="display:none" onclick="delTunnel('wgX')">
+  </span>
 </form>
 
 <script markdown="1" type="text/html" id="peer-template-wgX">

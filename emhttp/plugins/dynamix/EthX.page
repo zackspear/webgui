@@ -342,7 +342,10 @@ _(IPv6 privacy extensions)_:
 </div>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" onclick="$('#wait_<?=$tabbed?'eth0':'ethX'?>').show()" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" onclick="$('#wait_<?=$tabbed?'eth0':'ethX'?>').show()" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 <input type="button" name="#shut_ethX" value="<?=_('Port '.$cmd)?>" onclick="portToggle('ethX','<?=$cmd?>')">
 <?if (!$service):?>
 <input type="button" id="button-add-ethX" class="hide" value="_(Add VLAN)_" onclick="addVLAN('ethX')">

@@ -119,7 +119,10 @@ _(Mover logging)_:
 
 <?endif;?>
 &nbsp;
-: <input type="submit" name="changeMover" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeMover" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 <?if ($setup):?>
 <?if ($pool_devices):?>
 <?if (file_exists('/var/run/mover.pid')):?>
