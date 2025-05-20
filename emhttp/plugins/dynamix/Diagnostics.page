@@ -17,6 +17,7 @@ Tag="tv"
 ?>
 <?
 $zip = htmlspecialchars(str_replace(' ','_',strtolower($var['NAME'])));
+$zip .= (_var($var,'safeMode') == 'yes') ? '-safemode' : '';
 ?>
 <script>
 var diagnosticsFile = "";
