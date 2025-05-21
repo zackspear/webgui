@@ -268,13 +268,14 @@ function show_urls(array $interfaces)
     $first = true;
     foreach ($urls as $url) {
         if (in_array($url[0], $interfaces)) {
-            $msg  = "<a class='localURL' href='$url[1]'>$url[1]</a>";
+            $msg  = "<span class='inline-block'><a class='localURL' href='$url[1]'>$url[1]</a>";
             if ($url[2]) {
                 $msg .= " "._("redirects to")." <a class='localURL' href='$url[2]'>$url[2]</a>";
             }
             if ($url[3]) {
                 $msg .= " "._("uses")." ".$url[3];
             }
+            $msg .= "</span>";
             if ($url[4]) {
                 $msg .= "<span class='warning'> <i class='fa fa-warning fa-fw'></i> "._("is a self-signed certificate, ignore the browser's warning and proceed to the GUI")."</span>";
             }
