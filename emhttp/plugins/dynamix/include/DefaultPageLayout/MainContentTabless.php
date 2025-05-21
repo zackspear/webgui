@@ -13,6 +13,7 @@
                 <div class="title">
                     <? $title = processTitle($page['Title']); ?>
                     <?= tab_title($title, $page['root'], _var($page, 'Tag', false)) ?>
+                    <span class="right inline-flex flex-row items-center gap-1"></span>
                 </div>
             <? endif; ?>
 
