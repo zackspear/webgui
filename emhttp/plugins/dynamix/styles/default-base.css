@@ -1745,6 +1745,38 @@ span#wlan0 {
     display: inline-block;
 }
 
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.justify-start {
+    justify-content: flex-start;
+}
+
+.justify-end {
+    justify-content: flex-end;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
 /*
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables
