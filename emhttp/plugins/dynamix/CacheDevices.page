@@ -167,6 +167,7 @@ $root  = explode($_tilde_,$pool)[0];
 <div id="templatePopupPool" class="template">
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="return validate(this.poolName.value)">
 <input type="hidden" name="changeSlots" value="apply">
+
 _(Name)_:
 : <input type="text" name="poolName" maxlength="40" value="<?=count($pools)==0?'cache':''?>">
 
@@ -184,6 +185,7 @@ _(Slots)_:
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame">
 <input type="hidden" name="changeSlots" value="apply">
 <input type="hidden" name="poolName" value="">
+
 _(Name)_:
 : <select name="subpool">
   <?=mk_option("","special",_("special - Metadata storage"))?>
