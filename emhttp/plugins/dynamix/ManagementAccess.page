@@ -566,8 +566,11 @@ _(CA-signed certificate file)_:
 
 <?endif;?>
 &nbsp;
-: <button type="submit" name="changePorts" value="Provision" <?=$disabled_provision?>><?=$provisionlabel?></button><button type="submit" name="changePorts" value="Delete" <?=$disabled_delete?> >_(Delete)_</button><?=$disabled_provision_msg?>
-
+: <span class="inline-block">
+    <button type="submit" name="changePorts" value="Provision" <?=$disabled_provision?>><?=$provisionlabel?></button>
+    <button type="submit" name="changePorts" value="Delete" <?=$disabled_delete?> >_(Delete)_</button>
+  </span>
+  <span class="inline-block"><?=$disabled_provision_msg?></span>
 
 <?if ($cert3Present):?>
 
