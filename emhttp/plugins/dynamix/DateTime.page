@@ -102,17 +102,17 @@ _(NTP interval)_:
   <span class="input-instructions orange-text">_(Use DEFAULT setting when public NTP servers are defined)_</span>
 
 _(NTP server)_ 1:
-: <input type="text" name="NTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
+: <input type="text" name="NTP_SERVER1" maxlength="40" value="<?=htmlspecialchars($var['NTP_SERVER1'])?>">
   <span class="input-instructions orange-text">_(Input a NTP server name, NTP pool name or IP address)_</span>
 
 _(NTP server)_ 2:
-: <input type="text" name="NTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
+: <input type="text" name="NTP_SERVER2" maxlength="40" value="<?=htmlspecialchars($var['NTP_SERVER2'])?>">
 
 _(NTP server)_ 3:
-: <input type="text" name="NTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
+: <input type="text" name="NTP_SERVER3" maxlength="40" value="<?=htmlspecialchars($var['NTP_SERVER3'])?>">
 
 _(NTP server)_ 4:
-: <input type="text" name="NTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
+: <input type="text" name="NTP_SERVER4" maxlength="40" value="<?=htmlspecialchars($var['NTP_SERVER4'])?>">
 
 </div>
 <div markdown="1" id="ptp-setup" class="extra">
@@ -134,17 +134,17 @@ _(PTP mode)_:
 
 <div markdown="1" id="unicast" class="extra">
 _(PTP server)_ 1:
-: <input type="text" name="PTP_SERVER1" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP, 'SERVER1'))?>">
+: <input type="text" name="PTP_SERVER1" maxlength="40" value="<?=htmlspecialchars(_var($PTP, 'SERVER1'))?>">
   <span class="ipv4 orange-text">_(Input a IPv4 address)_</span><span class="ipv6 orange-text">_(Input a IPv6 address)_</span><span class="mac orange-text">_(Input a MAC address)_</span>
 
 _(PTP server)_ 2:
-: <input type="text" name="PTP_SERVER2" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP, 'SERVER2'))?>">
+: <input type="text" name="PTP_SERVER2" maxlength="40" value="<?=htmlspecialchars(_var($PTP, 'SERVER2'))?>">
 
 _(PTP server)_ 3:
-: <input type="text" name="PTP_SERVER3" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP, 'SERVER3'))?>">
+: <input type="text" name="PTP_SERVER3" maxlength="40" value="<?=htmlspecialchars(_var($PTP, 'SERVER3'))?>">
 
 _(PTP server)_ 4:
-: <input type="text" name="PTP_SERVER4" maxlength="40" class="narrow" value="<?=htmlspecialchars(_var($PTP, 'SERVER4'))?>">
+: <input type="text" name="PTP_SERVER4" maxlength="40" value="<?=htmlspecialchars(_var($PTP, 'SERVER4'))?>">
 
 </div>
 _(PTP interface)_:
@@ -164,7 +164,7 @@ _(PTP clock)_:
 </div>
 <div markdown="1" id="manual-setup" class="extra">
 _(New date and time)_:
-: <input type="text" name="newDateTime" maxlength="20" class="narrow" value="<?=my_time(time(), "%F %T")?>">
+: <input type="text" name="newDateTime" maxlength="20" value="<?=my_time(time(), "%F %T")?>">
   <span class="orange-text">_(Input the correct date and time manually)_</span>
 
 :current_time_help:
