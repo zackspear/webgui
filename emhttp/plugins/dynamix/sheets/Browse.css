@@ -104,7 +104,6 @@ div#buttons {
 div.autoheight {
     width: 100%;
     overflow-y: auto;
-    margin-top: -30px;
 }
 
 table.tablesorter.indexer tbody tr:hover td {
@@ -120,11 +119,5 @@ table.tablesorter.indexer tbody tr:hover td {
     }
     tr.ace_optionsMenuEntry td input[type="number"] {
         color: var(--browse-text-color);
-    }
-}
-
-.Theme--sidebar {
-    div.autoheight {
-        margin-top: 0;
     }
 }

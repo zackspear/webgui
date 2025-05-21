@@ -210,7 +210,6 @@ i.dfm_filter {
 div.autoheight {
     width: 100%;
     overflow-y: auto;
-    margin-top: -30px;
 }
 
 .Theme--sidebar {
@@ -223,8 +222,5 @@ div.autoheight {
     }
     i.dfm_filter {
         margin-top: -4px;
-    }
-    div.autoheight {
-        margin-top: 0;
     }
 }
