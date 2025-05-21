@@ -809,13 +809,19 @@ _(Enable VLANs)_:
 <div markdown="1" id="index-eth0-<?=$i?>" class="access-eth0 shade hide">
 _(Interface description)_:
 : <input type="text" name="DESCRIPTION:<?=$i?>" maxlength="80" autocomplete="off" spellcheck="false" value="<?=htmlspecialchars(_var($eth0, "DESCRIPTION:$i"))?>">
-  <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0, "VLANID:$i")?>)">
+  <span class="inline-block">
+    <input type="button" class="form" value="_(Info)_" onclick="networkInfo('eth0',<?=_var($eth0, "VLANID:$i")?>)">
+  </span>
 
 :eth_interface_description_help:
 
 _(VLAN number)_:
 : <input type="number" name="VLANID:<?=$i?>" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($eth0, "VLANID:$i")?>" class="narrow gap" required>
-  <?if (!$service):?><input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-<?=$i?>'))"><?endif;?>
+  <?if (!$service):?>
+    <span class="inline-block">
+      <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-<?=$i?>'))">
+    </span>
+  <?endif;?>
 
 :eth_vlan_number_help:
 
@@ -906,7 +912,9 @@ _(IPv6 privacy extensions)_:
     <input type="button" value="_(Done)_" onclick="done()">
   </span>
 <?if (!$service):?>
-<input type="button" id="button-add-eth0" class="hide" value="_(Add VLAN)_" onclick="addVLAN('eth0')">
+<span class="inline-block">
+  <input type="button" id="button-add-eth0" class="hide" value="_(Add VLAN)_" onclick="addVLAN('eth0')">
+</span>
 <?else:?><span><?=sprintf(_('Stop **%s** to make changes, see'), $service).' (<a href="/Settings">'._('Settings').'</a>)'?></span><?endif;?>
 </form>
 
@@ -917,7 +925,9 @@ _(Interface description)_:
 
 _(VLAN number)_:
 : <input type="number" name="VLANID:INDEX" min="1" max="4095" autocomplete="off" spellcheck="false" value="<?=_var($eth0, "VLANID:INDEX")?>" class="narrow gap" required>
-  <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-INDEX'))">
+  <span class="inline-block">
+    <input type="button" class="form" value="_(Delete VLAN)_" onclick="removeVLAN($('#index-eth0-INDEX'))">
+  </span>
 
 _(Network protocol)_:
 : <select name="PROTOCOL:INDEX" onchange="selectProtocol(this.form,INDEX,'slow')">
