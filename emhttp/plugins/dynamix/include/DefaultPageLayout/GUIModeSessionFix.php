@@ -4,16 +4,16 @@
  * This can be deleted if GUI mode authentication is enabled.
  */
 
-function is_localhost()
+function is_localhost_gui()
 {
     // Use the peer IP, not the Host header which can be spoofed
     return $_SERVER['REMOTE_ADDR'] === '127.0.0.1' || $_SERVER['REMOTE_ADDR'] === '::1';
 }
-function is_good_session()
+function is_good_session_gui()
 {
     return isset($_SESSION) && isset($_SESSION['unraid_user']) && isset($_SESSION['unraid_login']);
 }
-if (is_localhost() && !is_good_session()) {
+if (is_localhost_gui() && !is_good_session_gui()) {
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_destroy();
     }
