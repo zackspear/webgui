@@ -1448,10 +1448,16 @@ _(SMART controller type)_:
   <?=mk_option(_var($disk,'smType'), "-d sntjmicron", "JMicron NVMe pass-through")?>
   <?=mk_option(_var($disk,'smType'), "-d sntrealtek", "Realtek NVMe pass-through")?>
   </select>
-  <input type="text" name="smPort1" value="<?=_var($disk,'smPort1')?>" class="option"><select name="smPort1" class="narrow option" disabled></select>
-  <input type="text" name="smPort2" value="<?=_var($disk,'smPort2')?>" class="option"><select name="smPort2" class="narrow option" disabled></select>
-  <input type="text" name="smPort3" value="<?=_var($disk,'smPort3')?>" class="option"><select name="smPort3" class="narrow option" disabled></select><span id="devtext">/dev/</span>
-  <input type="text" name="smDevice" value="<?=_var($disk,'smDevice')?>" class="option" placeholder="<?=$dev?>"><span id="helptext">_(enter disk index and device name as applicable to your controller)_</span>
+  <span class="inline-block">
+    <input type="text" name="smPort1" value="<?=_var($disk,'smPort1')?>" class="option">
+    <select name="smPort1" class="narrow option" disabled></select>
+    <input type="text" name="smPort2" value="<?=_var($disk,'smPort2')?>" class="option">
+    <select name="smPort2" class="narrow option" disabled></select>
+    <input type="text" name="smPort3" value="<?=_var($disk,'smPort3')?>" class="option">
+    <select name="smPort3" class="narrow option" disabled></select><span id="devtext">/dev/</span>
+    <input type="text" name="smDevice" value="<?=_var($disk,'smDevice')?>" class="option" placeholder="<?=$dev?>">
+  </span>
+  <span id="helptext">_(enter disk index and device name as applicable to your controller)_</span>
 
 :info_controller_type_help:
 
