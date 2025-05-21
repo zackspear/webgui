@@ -465,6 +465,7 @@ div.title {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     margin: 2rem 0;
     padding: 8px 10px;
     clear: both;
@@ -483,15 +484,6 @@ div.title {
     margin-top: 0;
 }
 
-/* div.title span.left {
-    font-size: 1.4rem;
-} */
-div.title span.right {
-    font-size: 1.4rem;
-    padding-top: 2px;
-    padding-right: 10px;
-    float: right;
-}
 div.title span img {
     padding-right: 4px;
 }
@@ -1749,12 +1741,24 @@ span#wlan0 {
     display: flex;
 }
 
+.inline-flex {
+    display: inline-flex;
+}
+
 .flex-col {
     flex-direction: column;
 }
 
+.flex-col-reverse {
+    flex-direction: column-reverse;
+}
+
 .flex-row {
     flex-direction: row;
+}
+
+.flex-row-reverse {
+    flex-direction: row-reverse;
 }
 
 .justify-start {
@@ -1777,6 +1781,95 @@ span#wlan0 {
     justify-content: space-around;
 }
 
+.items-center {
+    align-items: center;
+}
+
+.items-start {
+    align-items: flex-start;
+}
+
+.items-end {
+    align-items: flex-end;
+}
+
+.items-stretch {
+    align-items: stretch;
+}
+
+.items-baseline {
+    align-items: baseline;
+}
+
+.gap-1 {
+    gap: .25rem;
+}
+
+.gap-2 {
+    gap: .5rem;
+}
+
+.gap-3 {
+    gap: .75rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-x-1 {
+    column-gap: .25rem;
+}
+
+.gap-x-2 {
+    column-gap: .5rem;
+}
+
+.gap-x-3 {
+    column-gap: .75rem;
+}
+
+.gap-x-4 {
+    column-gap: 1rem;
+}
+
+.gap-y-1 {
+    row-gap: .25rem;
+}
+
+.gap-y-2 {
+    row-gap: .5rem;
+}
+
+.gap-y-3 {
+    row-gap: .75rem;
+}
+
+.gap-y-4 {
+    row-gap: 1rem;
+}
+
+.justify-self-auto {
+    justify-self: auto;
+}
+.justify-self-start {
+    justify-self: start;
+}
+.justify-self-center {
+    justify-self: center;
+}
+.justify-self-center-safe {
+    justify-self: safe center;
+}
+.justify-self-end {
+    justify-self: end;
+}
+.justify-self-end-safe {
+    justify-self: safe end;
+}
+.justify-self-stretch {
+    justify-self: stretch;
+}
 /*
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables
@@ -2176,7 +2269,6 @@ span#wlan0 {
     div.title span.right {
         font-size: 1.6rem;
         padding-right: 10px;
-        float: right;
     }
     div.title span img,
     .title p {
