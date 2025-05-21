@@ -185,7 +185,11 @@ _(Docker data-root)_:
 
 <div markdown="1" id="vdisk_file" style="display:none">
 _(Docker vDisk size)_:
-: <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_SIZE'))?>" class="narrow" required>GB<span id="SIZE_ERROR" class="errortext"></span>
+: <span>
+    <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_SIZE'))?>" class="narrow" required>
+    <span>GB</span>
+    <span id="SIZE_ERROR" class="errortext"></span>
+  </span>
 
 :docker_vdisk_size_help:
 
