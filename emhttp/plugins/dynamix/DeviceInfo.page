@@ -1509,7 +1509,7 @@ $(function() {
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
-  $('div[class=title]:first').append(ctrl);
+  $('div[class=title]:first .right').append(ctrl);
 <?endif;?>
 <?endif;?>
 <?if (!diskStatus('_NP')):?>
