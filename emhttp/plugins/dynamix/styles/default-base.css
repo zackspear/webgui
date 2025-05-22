@@ -1357,19 +1357,19 @@ a.list {
 }
 
 .Panels {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    column-gap: 3rem;
-    row-gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 100px));
+    gap: 2rem 3rem;
     margin-top: 2rem;
     box-sizing: border-box;
+    justify-content: start;
 }
 .Panel {
     position: relative;
     text-align: center;
     box-sizing: border-box;
     background-color: transparent;
+    max-width: 100px;
 
     a {
         position: relative;
