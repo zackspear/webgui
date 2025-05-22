@@ -335,14 +335,14 @@ $('body').on('click','a,.ca_href', function(e) {
     href = href.trim();
     // Sanitize href to prevent XSS
     href = href.replace(/[<>"]/g, '');
-    if (href.match('https?://[^\.]*.(my)?unraid.net/') || href.indexOf('https://unraid.net/') == 0 || href == 'https://unraid.net' || href.indexOf('http://lime-technology.com') == 0) {
+    if (href.match('https?://[^\.]*.(my)?unraid.net/') || href.startsWith('https://unraid.net/') || href == 'https://unraid.net' || href.startsWith('http://lime-technology.com')) {
       if (ca_href) window.open(href,target);
       return;
     }
-    if (href !== '#' && href.indexOf('javascript') !== 0) {
+    if (href !== '#' && !href.startsWith('javascript') && !href.startsWith('blob:')) {
       var dom = isValidURL(href);
       if (dom == false) {
-        if (href.indexOf('/') == 0) return;  // all internal links start with "/"
+        if (href.startsWith('/')) return;  // all internal links start with "/"
       var baseURLpage = href.split('/');
         if (gui_pages_available.includes(baseURLpage[0])) return;
       }
