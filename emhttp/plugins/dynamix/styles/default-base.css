@@ -473,8 +473,7 @@ div.title {
     letter-spacing: 1.8px;
     font-size: 1.4rem;
 
-    /* target first title */
-    &:first-child {
+    &:first-of-type {
         margin-top: 0;
     }
 }
@@ -2333,7 +2332,7 @@ span#wlan0 {
     .title p {
         display: none;
     }
-    div.title:first-child {
+    div.title:first-of-type {
         margin-top: 0;
     }
     div.title.shift {
