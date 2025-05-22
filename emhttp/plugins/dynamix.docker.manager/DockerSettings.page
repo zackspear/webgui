@@ -130,7 +130,9 @@ $no_dockercfg = !is_file('/boot/config/docker.cfg');
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.filetree.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/webGui/styles/jquery.switchbutton.css')?>">
-<span class="status vhshift"><input type="checkbox" class="advancedview"></span>
+
+&nbsp;
+: <span><input type="checkbox" class="advancedview"></span>
 
 <form markdown="1" id="settingsForm" name="settingsForm" method="POST" action="/update.php" target="progressFrame" onsubmit="return prepareDocker(this)">
 <input type="hidden" name="#file" value="<?=$docker_cfgfile?>">
@@ -183,7 +185,11 @@ _(Docker data-root)_:
 
 <div markdown="1" id="vdisk_file" style="display:none">
 _(Docker vDisk size)_:
-: <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_SIZE'))?>" class="narrow" required>GB<span id="SIZE_ERROR" class="errortext"></span>
+: <span>
+    <input id="DOCKER_IMAGE_SIZE" type="number" name="DOCKER_IMAGE_SIZE" value="<?=htmlspecialchars(_var($dockercfg,'DOCKER_IMAGE_SIZE'))?>" class="narrow" required>
+    <span>GB</span>
+    <span id="SIZE_ERROR" class="errortext"></span>
+  </span>
 
 :docker_vdisk_size_help:
 
@@ -530,7 +536,7 @@ $hide_wlan   = hide_wlan($network);
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
   <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
-  **_(DHCP pool)_:** <?=_var($dockercfg,$docker_dhcp) ?: "_(not set)_"?><?if (isset($dockercfg[$docker_dhcp])):?>&nbsp;&nbsp;(<?=pow(2,32-my_explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?>
+  <span>**_(DHCP pool)_:** <?=_var($dockercfg,$docker_dhcp) ?: "_(not set)_"?><?if (isset($dockercfg[$docker_dhcp])):?>&nbsp;&nbsp;(<?=pow(2,32-my_explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?></span>
 
 <?if ($hide_wlan):?>
 </div>
@@ -635,7 +641,10 @@ _(IPv6 custom network on interface)_ <?=$network?>:
 <?endif;?>
 
 &nbsp;
-: <input id="applyBtn" type="button" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input id="applyBtn" type="button" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <form id="removeForm" method="POST" action="/update.php" target="progressFrame">
@@ -659,7 +668,10 @@ _(btrfs scrub status)_:
 <input type="hidden" name="#arg[2]" value="/var/lib/docker">
 <input type="hidden" name="#arg[3]" value="-r">
 &nbsp;
-: <input type="submit" value="_(Scrub)_"><label><input type="checkbox" name="#arg[3]" value=""> _(Correct file system errors)_</label>
+: <span class="inline-block">
+    <input type="submit" value="_(Scrub)_">
+    <label><input type="checkbox" name="#arg[3]" value=""> _(Correct file system errors)_</label>
+  </span>
 
 :docker_scrub_help:
 
@@ -668,7 +680,9 @@ _(btrfs scrub status)_:
 <input type="hidden" name="#arg[1]" value="cancel">
 <input type="hidden" name="#arg[2]" value="/var/lib/docker">
 &nbsp;
-: <input type="submit" value="_(Cancel)_">
+: <span class="inline-block">
+    <input type="submit" value="_(Cancel)_">
+  </span>
 
 :docker_cancel_help:
 

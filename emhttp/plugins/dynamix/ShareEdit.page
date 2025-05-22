@@ -568,11 +568,17 @@ _(Mover action)_:
 </div>
 <?if (!$name):?>
 &nbsp;
-: <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'"><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="cmdEditShare" value="_(Add Share)_" onclick="this.value='Add Share'">
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 <?else:?>
 <div markdown="1">
 <label id="deleteLabel" title="">_(Delete)_</label><input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));" title="" disabled>
-: <input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+	<input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled>
+	<input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </div>
 <?endif;?>
 </form>

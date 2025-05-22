@@ -84,7 +84,7 @@ function print_error($error) {
 }
 ?>
 <script>
-var ctrl = '<span class="status <?=$tabbed?"":"vhshift"?>"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
+var ctrl = '<span class="status"><a style="cursor:pointer" class="tooltip_diskio" title="_(Toggle reads/writes display)_" onclick="toggle_diskio();return false"><i class="toggle fa"></i></a></span>';
 var recall = null;
 var recover = null;
 
@@ -314,7 +314,7 @@ $('.tabs').append(ctrl);
 if ($.cookie('tab')=='tab0') $('i.toggle').hide();
 $('#tab'+$('input[name$="tabs"]').length).click(function(){tab0(); $('i.toggle').hide('slow');});
 <?else:?>
-$('div[class=title]:not(":last, .disable_diskio")').each(function(){$(this).append(ctrl);});
+$('div[class=title]:not(":last, .disable_diskio") .right').each(function(){$(this).append(ctrl);});
 <?endif;?>
 $('.tooltip_diskio').tooltipster({delay:100,trigger:'custom',triggerOpen:{mouseenter:true},triggerClose:{click:false,scroll:true,mouseleave:true}});
 

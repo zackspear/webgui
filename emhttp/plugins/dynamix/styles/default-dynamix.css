@@ -317,9 +317,9 @@ table.tablesorter.left td:last-child {
     text-align: right;
     width: 4%;
 }
-table.tablesorter.shift {
+/* table.tablesorter.shift {
     margin-top: -30px;
-}
+} */
 table.tablesorter.kvm {
     display: block;
     padding-top: 24px;
@@ -1376,9 +1376,9 @@ div.icon-zip {
     table.tablesorter tbody.tablesorter-infoOnly {
         border-bottom: 1px solid var(--dynamix-tablesorter-tbody-row-border-color);
     }
-    table.tablesorter.shift {
+    /* table.tablesorter.shift {
         margin-top: 10px;
-    }
+    } */
     table.tablesorter.indexer tfoot tr {
         border-bottom: none;
     }

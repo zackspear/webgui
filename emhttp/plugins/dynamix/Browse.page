@@ -1017,7 +1017,23 @@ $(function(){
 </script>
 
 <div class="autoheight">
-<table class="indexer tablesorter shift"><thead><tr><th><?if($dir){?><i id="check_0" class="fa fa-fw fa-square-o" onclick="selectAll()"></i><?}?></th><th>_(Type)_</th><th class='sorter-text'>_(Name)_</th><th>_(Owner)_</th><th>_(Permission)_</th><th>_(Size)_</th><th>_(Last Modified)_</th><th style="width:200px">_(Location)_</th><th>_(Action)_</th></tr></thead></table>
+  <div class="TableContainer">
+    <table class="indexer tablesorter">
+      <thead>
+        <tr>
+          <th><?if($dir){?><i id="check_0" class="fa fa-fw fa-square-o" onclick="selectAll()"></i><?}?></th>
+          <th>_(Type)_</th>
+          <th class='sorter-text'>_(Name)_</th>
+          <th>_(Owner)_</th>
+          <th>_(Permission)_</th>
+          <th>_(Size)_</th>
+          <th>_(Last Modified)_</th>
+          <th style="width:200px">_(Location)_</th>
+          <th>_(Action)_</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
 </div>
 <div id="buttons">
 <input type="button" value="_(Done)_" onclick="done('Browse')">

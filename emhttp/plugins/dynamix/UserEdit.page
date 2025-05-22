@@ -169,6 +169,7 @@ $(function(){
 <div class="spinner fixed"></div>
 <form markdown="1" method="POST" action="/update.htm" target="progressFrame" onsubmit="upload(<?=$name=="root" ? 'false' : 'this.confirmDelete.checked'?>)">
 <input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
+
 _(User name)_:
 : <?=htmlspecialchars($name)?>
 
@@ -178,13 +179,16 @@ _(Description)_:
 :user_edit_description_help:
 
 _(Custom image)_:
-: <span id="dropbox">
+: <span>
+    <span id="dropbox">
 <?if (file_exists($user)):?>
   <img src="<?=autov($user)?>" id="image" width="48" height="48" onclick="$('#drop').click()" style="cursor:pointer" title="_(Click to select PNG file)_"><?=$icon?>
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept="image/png" style="display:none">
+    </span>
+  </span>
+  <em>_(Drag-n-drop a PNG file or click the image at the left)_</em><input type="file" id="drop" accept="image/png" style="display:none">
 
 :user_edit_custom_image_help:
 
@@ -193,35 +197,46 @@ _(Custom image)_:
 <?else:?>
 _(Delete)_<input type="checkbox" name="confirmDelete" onChange="chkDelete(this.form, this.form.cmdUserEdit)">
 <?endif;?>
-: <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="submit" name="cmdUserEdit" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply';" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 <br><br>
 <form markdown="1" method="POST" action="/update.htm" onsubmit="return checkPassword(this)" target="progressFrame">
 <input type="hidden" name="userName" value="<?=htmlspecialchars($name)?>">
+
 _(Password)_:
-<input type="hidden" name="userPassword" value="">
-: <input type="password" name="userPasswordGUI" maxlength="129" autocomplete="new-password" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
+: <input type="hidden" name="userPassword" value="">
+  <input type="password" name="userPasswordGUI" maxlength="129" autocomplete="new-password" onKeyUp="validatePassword(this.value);this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
   <i id="showPass" class="fa fa-eye" style="cursor:pointer" title="_(Show / Hide password)_" onclick="showPassword()"></i><span><span class="usage-disk sys none"><span id="strength-bar" style="width:0"></span><span></span></span><span id="strength-text"></span></span>
 
 :user_password_help:
 
 _(Retype password)_:
-<input type="hidden" name="userPasswordConf" value="">
-: <input type="password" name="userPasswordConfGUI" maxlength="129" autocomplete="new-password" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
+: <input type="hidden" name="userPasswordConf" value="">
+  <input type="password" name="userPasswordConfGUI" maxlength="129" autocomplete="new-password" onKeyUp="this.form.cmdUserEdit.disabled=(this.form.userPasswordGUI.value != this.form.userPasswordConfGUI.value);">
 
 &nbsp;
-: <input type="submit" name="cmdUserEdit" value="_(Change)_" onclick="this.value='Change'" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="submit" name="cmdUserEdit" value="_(Change)_" onclick="this.value='Change'" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 
 <?if ($name == 'root'):?>
 <form markdown="1" method="POST" action="/update.php" onsubmit="return checkKey(this)" target="progressFrame">
 <input type="hidden" name="#include" value="/webGui/include/update.file.php">
 <input type="hidden" name="#file" value="<?=$file;?>">
+
 _(SSH authorized keys)_:
 : <textarea spellcheck="false" cols="80" rows="<?=max(substr_count($text,"\n")+1,10)?>" maxlength="16384" name="text" style="resize:none;white-space:normal;font-family:bitstream;width:65.5%"><?=htmlspecialchars($text)?></textarea>
 
 &nbsp;
-: <input type="submit" value="_(Save)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Save)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 
 </form>
 <?endif;?>
@@ -318,6 +333,9 @@ echo "</table>";
 ?>
 
 &nbsp;
-: <input type="button" value="_(Apply)_" onclick="updateAccess(this.form)" disabled><input type="button" value="_(Done)_" onclick="done('UserEdit')">
+: <span class="inline-block">
+    <input type="button" value="_(Apply)_" onclick="updateAccess(this.form)" disabled>
+    <input type="button" value="_(Done)_" onclick="done('UserEdit')">
+  </span>
 </form>
 <?endif;?>

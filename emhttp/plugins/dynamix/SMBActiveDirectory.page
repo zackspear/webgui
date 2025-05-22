@@ -48,5 +48,8 @@ _(AD initial group)_:
 : <input type="text" name="shareInitialGroup" maxlength="40" value="<?=htmlspecialchars($var['shareInitialGroup'])?>">
 
 &nbsp;
-: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeShare" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
