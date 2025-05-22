@@ -281,6 +281,7 @@ _(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C'
 <input type="hidden" name="olddata" value="">
 <input type="hidden" name="oldluks" value="">
 <?endif;?>
+
 _(Existing encryption key)_:
 : <select name="oldinput" class="lock" onchange='selectInput(this.value,true)' <?=$keyfile?'disabled':''?>>
   <?=mk_option(1,'text',_('Passphrase'))?>
@@ -335,6 +336,7 @@ _(Select new keyfile)_:
 <input type="hidden" name="#top" value="1">
 <input type="hidden" name="smEvents" value="">
 <input type="hidden" name="smIndex" value="0">
+
 _(Default SMART notification value)_:
 : <select name="smSelect">
   <?=mk_option(_var($var,'smSelect'), "0", _('Raw'))?>
