@@ -1476,6 +1476,8 @@ pre {
     line-height: 1.8rem;
     padding: 4px 6px;
     overflow: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 iframe#progressFrame {
     position: fixed;
@@ -1513,7 +1515,7 @@ dt {
 dd {
     margin: 0;
     white-space: normal;
-    overflow-x: auto;
+    box-sizing: border-box;
 
     p {
         margin: 0 0 4px 0;
