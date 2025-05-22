@@ -312,15 +312,17 @@ $(function() {
 <form name="vm">
 	<input type="hidden" name="names" id="names-vm" value="">
 
-	<table class='tablesorter shift' style='width:auto'>
-		<thead>
-			<tr>
-				<th><i class="fa fa-list"></i> _(VM)_</th>
-				<?create("vm")?>
-			</tr>
-		</thead>
-		<tbody id="table-vm"><?=$spinner?></tbody>
-	</table>
+	<div class="TableContainer--no-min-width">
+		<table class="tablesorter shift" style="width: auto">
+			<thead>
+				<tr>
+					<th><i class="fa fa-list"></i> _(VM)_</th>
+					<?create("vm")?>
+				</tr>
+			</thead>
+			<tbody id="table-vm"><?=$spinner?></tbody>
+		</table>
+	</div>
 
 	<div class="flex flex-row items-center gap-2">
 		<input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled>

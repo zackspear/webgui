@@ -18,17 +18,19 @@ Tag="icon-cpu"
 <form name="ct">
     <input type="hidden" name="names" id="names-ct" value="">
 
-    <table class='tablesorter shift' style='width:auto'>
-        <thead>
-            <tr>
-                <th><i class="fa fa-list"></i> _(Container)_</th>
-                <?create()?>
-            </tr>
-        </thead>
-        <tbody id="table-ct">
-            <?=$spinner?>
-        </tbody>
-    </table>
+    <div class="TableContainer--no-min-width">
+        <table class="tablesorter shift" style="width: auto">
+            <thead>
+                <tr>
+                    <th><i class="fa fa-list"></i> _(Container)_</th>
+                    <?create()?>
+                </tr>
+            </thead>
+            <tbody id="table-ct">
+                <?=$spinner?>
+            </tbody>
+        </table>
+    </div>
 
     <div class="flex flex-row items-center gap-2">
         <input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled>

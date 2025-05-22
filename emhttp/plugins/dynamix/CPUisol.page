@@ -17,15 +17,17 @@ Tag="icon-cpu"
 <form name="is">
     <input type="hidden" name="names" value="isolcpus">
 
-    <table class='tablesorter shift' style='width:auto'>
+    <div class="TableContainer--no-min-width">
+    <table class="tablesorter shift" style="width: auto">
         <thead>
             <tr>
                 <th><i class="fa fa-list"></i> _(Isolation)_</th>
                 <?create()?>
             </tr>
         </thead>
-        <tbody id="table-is"><?=$spinner?></tbody>
-    </table>
+            <tbody id="table-is"><?=$spinner?></tbody>
+        </table>
+    </div>
 
     <div class="flex flex-row items-center gap-2">
         <input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled>
