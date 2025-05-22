@@ -15,9 +15,8 @@ Tag="icon-cpu"
 */
 ?>
 <form name="is">
-<input type="hidden" name="names" value="isolcpus">
+    <input type="hidden" name="names" value="isolcpus">
 
-<div class="TableContainer">
     <table class='tablesorter shift' style='width:auto'>
         <thead>
             <tr>
@@ -25,10 +24,17 @@ Tag="icon-cpu"
                 <?create()?>
             </tr>
         </thead>
-    <tbody id="table-is"><?=$spinner?></tbody>
+        <tbody id="table-is"><?=$spinner?></tbody>
     </table>
-</div>
-<input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled><input type="button" value="_(Done)_" onclick="done()"><span id="wait-is" class="red-text" style="display:none"><i class="fa fa-spinner fa-spin"></i> _(Please wait)_...</span>
+
+    <div class="flex flex-row items-center gap-2">
+        <input type="button" value="_(Apply)_" onclick="apply(this.form)" disabled>
+        <input type="button" value="_(Done)_" onclick="done()">
+        <span id="wait-is" class="red-text" style="display:none">
+            <i class="fa fa-spinner fa-spin"></i>
+            <span>_(Please wait)_...</span>
+        </span>
+    </div>
 </form>
 <?if (!$safemode):?>
 <?else:?>
