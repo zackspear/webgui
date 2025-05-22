@@ -149,7 +149,6 @@ textarea,
     min-height: 2rem;
     line-height: 2rem;
     outline: none;
-    /* width: 300px; */
     width: 100%;
     margin: 0;
     box-shadow: none;
@@ -1728,6 +1727,12 @@ span#wlan0 {
     margin-top: 1rem;
     padding: 1rem 0;
     background-color: var(--shade-bg-color);
+}
+
+/* TailwindCSS inspired utility classes */
+
+.font-mono {
+    font-family: bitstream, monospace;
 }
 
 .hidden {
