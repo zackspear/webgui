@@ -1553,7 +1553,8 @@ dd {
         input:not([class*="narrow"]),
         textarea,
         .textarea,
-        select {
+        select,
+        .ui-dropdownchecklist-selector-wrapper {
             max-width: 400px;
         }
     }
