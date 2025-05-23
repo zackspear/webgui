@@ -21,7 +21,6 @@ $cfg     = '/boot/config/wireless.cfg';
 $regions = file("$docroot/webGui/include/regions.key", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 if (file_exists($cfg)) $wlan0 = parse_ini_file($cfg,true)['wlan0'];
 ?>
-<div class="title nocontrol">&nbsp;</div>
 <form markdown="1" name="wifi_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="enable_wifi(this.WIFI.value)">
 <input type="hidden" name="#file" value="<?=$cfg?>"/>
 <input type="hidden" name="#section" value="wlan0"/>
