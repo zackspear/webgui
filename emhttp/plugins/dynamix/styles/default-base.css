@@ -195,6 +195,24 @@ a.button,
     background: var(--button-background);
     background-size: var(--button-background-size);
 }
+
+/* necessary evil until we re-write button styles */
+.buttons-no-margin {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    input[type="button"],
+    input[type="reset"],
+    input[type="submit"],
+    button,
+    button[type="button"],
+    a.button,
+    .sweet-alert button {
+        margin: 0;
+    }
+}
+
 input[type="checkbox"] {
     vertical-align: middle;
     margin-right: 6px;
