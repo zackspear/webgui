@@ -16,10 +16,22 @@ Icon="terminal"
 <script>
 $(function(){
   var d = new Date();
-  openTerminal('ttyd','Web Terminal '+d.getTime(),'');
+  try {
+    openTerminal('ttyd', 'Web Terminal ' + d.getTime(), '');
+  } catch (e) {
+    console.error('Failed to open terminal:', e);
+    window.location.href = '/';
+    return;
+  }
   // Give time for terminal to open then go back to the previous page
+  var referer = '<?= htmlspecialchars($_SERVER['HTTP_REFERER'] ?? '', ENT_QUOTES) ?>';
   setTimeout(function(){
-    window.location.href = '<?=$_SERVER['HTTP_REFERER']?>';
-  },5000);
+    // Only redirect to same origin or fallback to home
+    if (referer && referer.indexOf(window.location.origin) === 0) {
+      window.location.href = referer;
+    } else {
+      window.location.href = '/';
+    }
+  }, 5000);
 });
 </script>
