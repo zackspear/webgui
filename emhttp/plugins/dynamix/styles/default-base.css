@@ -1362,6 +1362,14 @@ a.list {
 
 .tab-content {
     display: none;
+
+    form:first-of-type {
+        padding-top: 1rem;
+    }
+
+    .shade form {
+        padding-top: 0;
+    }
 }
 
 .Panels {
