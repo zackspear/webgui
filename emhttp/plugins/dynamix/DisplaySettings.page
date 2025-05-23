@@ -298,14 +298,15 @@ _(Show banner)_:
 
 <div class="js-bannerSettings" markdown="1" style="display:none">
 _(Custom banner)_:
-<input type="hidden" name="#custom" value="">
-: <span id="dropbox">
+: <input type="hidden" name="#custom" value="">
+  <span id="dropbox">
 <?if (file_exists($banner)):?>
   <img src="<?=autov($banner)?>" width="330" height="30" onclick="$('#drop').click()" style="cursor:pointer" title="_(Click to select PNG file)_"><?=$icon?>
 <?else:?>
   <?=$void?>
 <?endif;?>
-  </span><em>_(Drag-n-drop a PNG file or click the image at the left)_.</em><input type="file" id="drop" accept="image/*" style="display:none">
+  </span>
+  <em>_(Drag-n-drop a PNG file or click the image at the left)_.</em><input type="file" id="drop" accept="image/*" style="display:none">
 
 :display_custom_banner_help:
 </div>
@@ -333,5 +334,8 @@ _(Allow realtime updates on inactive browsers)_:
   </select>
 
 <input type="submit" name="#default" value="_(Default)_" onclick="filename='reset'">
-: <input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="#apply" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>

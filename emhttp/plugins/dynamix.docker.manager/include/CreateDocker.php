@@ -863,11 +863,11 @@ function prepareCategory() {
 }
 
 $(function() {
-  var ctrl = "<span class='status <?=$tabbed?'':'vhshift'?>'><input type='checkbox' class='advancedview'></span>";
+  var ctrl = "<span class='status'><input type='checkbox' class='advancedview'></span>";
 <?if ($tabbed):?>
   $('.tabs').append(ctrl);
 <?else:?>
-  $('div[class=title]').append(ctrl);
+  $('div[class=title] .right').append(ctrl);
 <?endif;?>
   $('.advancedview').switchButton({labels_placement:'left', on_label: "_(Advanced View)_", off_label: "_(Basic View)_"});
   $('.advancedview').change(function() {
@@ -1427,8 +1427,11 @@ _(Privileged)_:
 : <a href="javascript:addConfigPopup()"><i class="fa fa-fw fa-plus"></i> _(Add another Path, Port, Variable, Label or Device)_</a>
 
 &nbsp;
-: <input type="submit" value="<?=$xmlType=='edit' ? "_(Apply)_" : " _(Apply)_ "?>"><input type="button" value="_(Done)_" onclick="done()">
-  <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">_(Save)_</button><?endif;?>
+: <span class="inline-block">
+    <input type="submit" value="<?=$xmlType=='edit' ? "_(Apply)_" : " _(Apply)_ "?>">
+    <input type="button" value="_(Done)_" onclick="done()">
+    <?if ($authoringMode):?><button type="submit" name="dryRun" value="true" onclick="$('*[required]').prop('required', null);">_(Save)_</button><?endif;?>
+  </span>
 
 </form>
 </div>

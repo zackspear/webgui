@@ -55,6 +55,9 @@ foreach ($rows as $row) echo $row;
 
 <form markdown="1" name="smb_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writesmb',true);$('#smb1').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
+<?if (($name=='flash')||($var['enableFruit']!='yes')):?>
+  <input type="hidden" name="shareVolsizelimit" value="">
+<?endif;?>
 
 _(Share name)_:
 : <?=htmlspecialchars($name)?>
@@ -69,7 +72,6 @@ _(Export)_:
 
 :smb_export_help:
 
-<input type="hidden" name="shareVolsizelimit" value="">
 <?else:?>
 _(Export)_:
 : <select name="shareExport" onchange="checkShareSettingsSMB(this.form)">
@@ -104,12 +106,16 @@ _(Security)_:
   <?=mk_option($sec[$name]['security'], "public", _('Public'))?>
   <?=mk_option($sec[$name]['security'], "secure", _('Secure'))?>
   <?=mk_option($sec[$name]['security'], "private", _('Private'))?>
-  </select><span id="warningMessage" style="display:none; color: red;">_(Warning)_:  _(Windows may require a valid User to be defined even for Public shares)_.  _(See Help)_.</span>
+  </select>
+  <span id="warningMessage" style="display:none; color: red;">_(Warning)_:  _(Windows may require a valid User to be defined even for Public shares)_.  _(See Help)_.</span>
 
 :smb_security_modes_help:
 
 &nbsp;
-: <input type="submit" name="changeShareSecurity" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeShareSecurity" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <?if ($sec[$name]['security']=='secure'):?>
@@ -151,7 +157,10 @@ foreach ($rows as $row) echo $row;
 <?input_secure_users($sec)?>
 
 &nbsp;
-: <input type="submit" name="changeShareAccess" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeShareAccess" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <?elseif ($sec[$name]['security']=='private'):?>
@@ -190,10 +199,14 @@ foreach ($rows as $row) echo $row;
 
 <form markdown="1" name="smb_user_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writeusersmb',true);$('#smb2').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
+
 <?input_private_users($sec)?>
 
 &nbsp;
-: <input type="submit" name="changeShareAccess" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" name="changeShareAccess" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 <?endif;?>
 

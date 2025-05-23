@@ -73,7 +73,10 @@ _(Security)_:
   </select>
 
 &nbsp;
-: <input type="submit" name="changeShareSecurityNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+	<input type="submit" name="changeShareSecurityNFS" value="_(Apply)_" disabled>
+	<input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <?if ($sec_nfs[$name]['security']=='private'):?>
@@ -85,7 +88,10 @@ _(Rule)_:
 :nfs_security_rules_help:
 
 &nbsp;
-: <input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+	<input type="submit" name="changeShareAccessNFS" value="_(Apply)_" disabled>
+	<input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 <?endif;?>
 

@@ -41,12 +41,16 @@ _(Enable NFS)_:
 :nfs_enable_help:
 
 _(Tunable (fuse_remember))_:
-: <input type="number" name="fuse_remember" maxlength="10" value="<?=$var['fuse_remember']?>" class="narrow"><?=_($var['fuse_remember_status'])?>
+: <input type="number" name="fuse_remember" maxlength="10" value="<?=$var['fuse_remember']?>" class="narrow">
+  <span><?=_($var['fuse_remember_status'])?></span>
 
 :nfs_tunable_fuse_remember_help:
 
 &nbsp;
-: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+	<input type="submit" name="changeShare" value="_(Apply)_" disabled>
+	<input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <form markdown="1" name="nfs_settings" method="POST" action="/update.php" target="progressFrame">
@@ -75,7 +79,10 @@ _(Number of Threads)_:
 :nfs_threads_help:
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+	<input type="submit" value="_(Apply)_" disabled>
+	<input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <script>

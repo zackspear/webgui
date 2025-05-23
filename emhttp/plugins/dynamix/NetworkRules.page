@@ -71,7 +71,10 @@ _(Interface)_ <?=$eth?>:
 <?endforeach;?>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 :eth_network_rules_help:

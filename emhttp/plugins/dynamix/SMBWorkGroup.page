@@ -32,5 +32,9 @@ _(Local master)_:
 
 <?endif?>
 &nbsp;
-: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($var['fsState']=="Started"):?>*_(Array must be **Stopped** to change)_*<?endif;?>
+: <span class="inline-block">
+    <input type="submit" name="changeShare" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
+<?if ($var['fsState']=="Started"):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>

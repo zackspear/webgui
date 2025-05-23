@@ -45,7 +45,10 @@ _(Regulatory region)_:
 ?></select><span id="manual" class="hide">_(Manual input)_ [XX]: <input type="text" name="REGION_XX" class="wifi" value="<?=_var($wlan0,'REGION_XX')?>" minlength="2" maxlength="2" title="_(Two letter country code)_ (ISO 3166)"></span>
 
 &nbsp;
-: <input type="submit" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()">
+: <span class="inline-block">
+    <input type="submit" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
 </form>
 
 <div id="wifi" class="hide">

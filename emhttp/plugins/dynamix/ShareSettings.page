@@ -154,10 +154,15 @@ _(Tunable (enable Direct IO))_:
 :shares_tunable_direct_io_help:
 
 _(Number of fuse File Descriptors)_:
-: <input type="text" id="file_count" name="shareNOFILE" maxlength="10" value="<?=htmlspecialchars($var['shareNOFILE']);?>" class="narrow" placeholder="40960" <?=$disabled?>><span id="file_max_display">Maximum: <?=$fileMax;?></span>
+: <input type="text" id="file_count" name="shareNOFILE" maxlength="10" value="<?=htmlspecialchars($var['shareNOFILE']);?>" class="narrow" placeholder="40960" <?=$disabled?>>
+  <span id="file_max_display" class="input-instructions">Maximum: <?=$fileMax;?></span>
 
 :shares_fuse_file_descriptors_io_help:
 
 &nbsp;
-: <input type="submit" name="changeShare" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"><?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
+: <span class="inline-block">
+    <input type="submit" name="changeShare" value="_(Apply)_" disabled>
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
+<?if ($disabled):?>*_(Array must be **Stopped** to change)_*<?endif;?>
 </form>
