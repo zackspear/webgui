@@ -1,12 +1,9 @@
-Menu="Buttons:3"
-Title="Terminal"
-Icon="icon-u-terminal"
-Code="e93f"
-Cond="($display['terminalButton'] == 'yes')"
+Menu="UNRAID-OS"
+Title="Open Terminal"
+Icon="terminal"
 ---
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2025, Lime Technology
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -17,8 +14,12 @@ Cond="($display['terminalButton'] == 'yes')"
  */
 ?>
 <script>
-function TerminalButton() {
+$(function(){
   var d = new Date();
   openTerminal('ttyd','Web Terminal '+d.getTime(),'');
-}
+  // Give time for terminal to open then go back to the previous page
+  setTimeout(function(){
+    window.location.href = '<?=$_SERVER['HTTP_REFERER']?>';
+  },5000);
+});
 </script>
