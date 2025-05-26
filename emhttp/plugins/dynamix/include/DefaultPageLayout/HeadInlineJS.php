@@ -165,7 +165,6 @@ function openTerminal(tag,name,more) {
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.min(screen.availHeight,800),Math.min(screen.availWidth,1200));
   if ( tty_window === null ) {
     throw new Error('Failed to open terminal window');
-    return;
   }
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},200);});
