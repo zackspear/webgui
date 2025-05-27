@@ -197,10 +197,11 @@ a.button,
 }
 
 /* necessary evil until we re-write button styles */
-.buttons-no-margin {
+.buttons-no-margin,
+.button-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.2rem;
 
     input[type="button"],
     input[type="reset"],
