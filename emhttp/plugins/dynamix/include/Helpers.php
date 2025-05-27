@@ -566,6 +566,9 @@ function comparePCIData() {
     return $changes;
 }
 
-
+function clone_list($disk) {
+  global $pools;
+  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || in_array($disk['name'],$pools));
+}
 
 ?>

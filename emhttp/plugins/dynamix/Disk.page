@@ -13,10 +13,6 @@ Type="xmenu"
  */
 ?>
 <?
-function clone_list($disk) {
-  global $pools;
-  return strpos($disk['status'],'_NP')===false && ($disk['type']=='Data' || in_array($disk['name'],$pools));
-}
 if (count($pages)==2) $tabbed = false;
 $refs = []; $n = 0;
 
