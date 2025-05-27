@@ -1363,6 +1363,7 @@ a.list {
 
 .tab-content {
     display: none;
+    padding-top: 2rem;
 
     form:first-of-type {
         padding-top: 1rem;
@@ -1757,6 +1758,22 @@ span#wlan0 {
 
 .font-mono {
     font-family: bitstream, monospace;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-justify {
+    text-align: justify;
 }
 
 .hidden {
