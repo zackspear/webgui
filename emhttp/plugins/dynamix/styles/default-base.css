@@ -504,9 +504,6 @@ div.title {
 div.title span img {
     padding-right: 4px;
 }
-div.title.shift {
-    margin-top: -30px;
-}
 #menu {
     width: 100%;
     display: grid;
@@ -1169,17 +1166,6 @@ span.status {
     font-size: 1.4rem;
     display: inline-block;
     margin-left: auto;
-}
-span.status.vhshift {
-    margin-top: 0;
-    /* leaving for reference, but should likely not be needed anymore */
-    /* margin-right: -9px; */
-}
-span.status.vshift {
-    margin-top: -16px;
-}
-span.status.hshift {
-    margin-right: -20px;
 }
 span.diskinfo {
     float: left;
@@ -1966,6 +1952,14 @@ span#wlan0 {
 .scrollbar-thin {
     scrollbar-width: thin;
 }
+
+/* plugin overrides */
+/* fix UD title margin-top from overlapping tabs */
+div.title.ud,
+div#title.ud {
+    margin-top: 0 !important;
+}
+
 /*
  * Using CSS Nesting, to narrow down the scope of the styles to the .Theme--sidebar class.
  * This allows us to have default-azure & default-gray set css variables
@@ -2372,9 +2366,6 @@ span#wlan0 {
     }
     div.title:first-of-type {
         margin-top: 0;
-    }
-    div.title.shift {
-        margin-top: -12px;
     }
 
     .usage-bar {

@@ -8,10 +8,6 @@ span.blue {
 span.green {
     color: var(--green-800);
 }
-span.vshift {
-    margin-top: 0 !important;
-}
-
 /* Input styles */
 input.gap {
     margin-right: 6px;
