@@ -1262,9 +1262,6 @@ div.icon-zip {
 #guiSearchBox:placeholder-shown {
     caret-color: transparent;
 }
-.guiSearchBoxResults {
-    width: 450px;
-}
 .awesomplete [hidden] {
     display: none;
 }
@@ -1402,11 +1399,6 @@ div.icon-zip {
     }
     div.box {
         line-height: 2.4rem;
-    }
-    .guiSearchBoxResults {
-        position: fixed !important;
-        top: 90px !important;
-        left: 250px !important;
     }
     select[name="port_select"] {
         border: none;

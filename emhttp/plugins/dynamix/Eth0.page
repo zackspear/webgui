@@ -528,7 +528,7 @@ function portToggle(port, cmd) {
 }
 
 $(function() {
-  const ctrl = "<span id='wait_eth0' class='status red-text hide' style='font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
+  const ctrl = "<span id='wait_eth0' class='red-text hidden' style='font-size:1.2rem;font-style:italic'><i class='fa fa-spinner fa-spin'></i> _(Please wait)_... _(configuring interface)_</span>";
   const form = document.eth0_settings;
   const dns  = document.dns_settings;
 <?if (!$service):?>

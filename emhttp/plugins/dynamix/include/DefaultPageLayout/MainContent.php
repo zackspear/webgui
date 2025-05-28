@@ -107,7 +107,9 @@ function generatePanels($page, $path, $defaultIcon, $docroot, $useTabCookie = fa
     foreach ($pgs as $pg) {
         $output .= generatePanel($pg, $path, $defaultIcon, $docroot, $useTabCookie);
     }
-    return '<div class="Panels">'.$output.'</div>';
+    return !empty($output)
+        ? '<div class="Panels">'.$output.'</div>'
+        : '';
 }
 
 /**
