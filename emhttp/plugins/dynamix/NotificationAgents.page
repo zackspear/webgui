@@ -213,7 +213,7 @@ foreach ($xml_files as $xml_file) {
     <dl>
         <dt>&nbsp;</dt>
         <dd>
-            <div class="button-group">
+            <div class="buttons-spaced">
               <input type="submit" value="<?= _("Apply") ?>" onclick="prepareService(this, '<?= $name ?>')" disabled>
               <input type="button" value="<?= _("Done") ?>" onclick="done()">
 

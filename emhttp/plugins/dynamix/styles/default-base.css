@@ -198,7 +198,7 @@ a.button,
 
 /* necessary evil until we re-write button styles */
 .buttons-no-margin,
-.button-group {
+.buttons-spaced {
     display: flex;
     flex-wrap: wrap;
     gap: 1.2rem;
