@@ -658,12 +658,16 @@ div.title.shift {
 }
 @media (min-width: 768px) {
     #footer {
+        grid-template-columns: minmax(0, auto) minmax(0, auto);
+        justify-content: space-between;
+    }
+}
+@media (min-width: 768px) and (min-height: 768px) {
+    #footer {
         position: fixed;
         bottom: 0;
         left: 0;
         z-index: 10000;
-        grid-template-columns: minmax(0, auto) minmax(0, auto);
-        justify-content: space-between;
     }
 }
 #countdown {
