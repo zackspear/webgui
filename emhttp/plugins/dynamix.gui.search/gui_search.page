@@ -12,7 +12,7 @@ Code='e956'
 ###################################################
 
 $currentUnraidPage = str_replace('Browse','Main',basename(explode('?',$_SERVER['REQUEST_URI'])[0]));
-$guiSearchBoxSpan  = "<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' autocomplete='new-password'></input></span><span class='guiSearchBoxResults'></span>";
+$guiSearchBoxSpan  = "<span id='guiSearchBoxSpan'><input type='text' id='guiSearchBox' autocomplete='new-password'></input></span>";
 ?>
 <script>
 var languageVisible;
