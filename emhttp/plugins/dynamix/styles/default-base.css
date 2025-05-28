@@ -551,7 +551,6 @@ div.title span img {
 }
 @media (min-width: 768px) {
     .nav-tile.right {
-        text-align: right;
         justify-content: flex-end;
     }
 }
