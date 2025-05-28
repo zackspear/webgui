@@ -163,6 +163,9 @@ function openTerminal(tag,name,more) {
   // open terminal window (run in background)
   name = name.replace(/[ #]/g,"_");
   tty_window = makeWindow(name+(more=='.log'?more:''),Math.min(screen.availHeight,800),Math.min(screen.availWidth,1200));
+  if ( tty_window === null ) {
+    throw new Error('Failed to open terminal window');
+  }
   var socket = ['ttyd','syslog'].includes(tag) ? '/webterminal/'+tag+'/' : '/logterminal/'+name+(more=='.log'?more:'')+'/';
   $.get('/webGui/include/OpenTerminal.php',{tag:tag,name:name,more:more},function(){setTimeout(function(){tty_window.location=socket; tty_window.focus();},200);});
 }
@@ -342,8 +345,17 @@ function openError(data) {
   return false;
 }
 
-function showStatus(name,plugin,job) {
-  $.post('/webGui/include/ProcessStatus.php',{name:name,plugin:plugin,job:job},function(status){$(".tabs").append(status);});
+function showStatus(name, plugin, job) {
+  $.post('/webGui/include/ProcessStatus.php',
+    {
+      name,
+      plugin,
+      job,
+    },
+    function(status) {
+      $('.title .right').eq(0).append(status);
+    }
+  );
 }
 
 function showFooter(data, id) {
@@ -475,10 +487,6 @@ function digits(number) {
   if (number < 10) return 'one';
   if (number < 100) return 'two';
   return 'three';
-}
-
-function viewHistory() {
-  location.replace('/Tools/NotificationsArchive');
 }
 
 function flashReport() {
