@@ -1281,24 +1281,29 @@ _(Day of the month)_:
   </select>
 
 _(Time of the day)_:
-: <span id="scrub-hour1" style="display:none"><select name="hour1">
-  <?for ($d=0; $d<=23; $d++):?>
-  <?=mk_option(_var($$scrub,'hour'), strval($d), sprintf("%02d", $d))?>
-  <?endfor;?>
-  </select>
-  <select name="min">
-  <?for ($d=0; $d<=55; $d+=5):?>
-  <?=mk_option(_var($$scrub,'min'), strval($d), sprintf("%02d", $d))?>
-  <?endfor;?>
-  </select>&nbsp;&nbsp;_(HH:MM)_</span>
-: <span id="scrub-hour2" style="display:none"><select name="hour2">
-  <?=mk_option(_var($$scrub,'hour'), "*/1", _("Every hour"))?>
-  <?=mk_option(_var($$scrub,'hour'), "*/2", _("Every 2 hours"))?>
-  <?=mk_option(_var($$scrub,'hour'), "*/3", _("Every 3 hours"))?>
-  <?=mk_option(_var($$scrub,'hour'), "*/4", _("Every 4 hours"))?>
-  <?=mk_option(_var($$scrub,'hour'), "*/6", _("Every 6 hours"))?>
-  <?=mk_option(_var($$scrub,'hour'), "*/8", _("Every 8 hours"))?>
-  </select></span>
+: <span id="scrub-hour1" style="display:none">
+    <select name="hour1">
+    <?for ($d=0; $d<=23; $d++):?>
+    <?=mk_option(_var($$scrub,'hour'), strval($d), sprintf("%02d", $d))?>
+    <?endfor;?>
+    </select>
+    <select name="min">
+    <?for ($d=0; $d<=55; $d+=5):?>
+    <?=mk_option(_var($$scrub,'min'), strval($d), sprintf("%02d", $d))?>
+    <?endfor;?>
+    </select>
+    &nbsp;&nbsp;_(HH:MM)_
+  </span>
+  <span id="scrub-hour2" style="display:none">
+    <select name="hour2">
+    <?=mk_option(_var($$scrub,'hour'), "*/1", _("Every hour"))?>
+    <?=mk_option(_var($$scrub,'hour'), "*/2", _("Every 2 hours"))?>
+    <?=mk_option(_var($$scrub,'hour'), "*/3", _("Every 3 hours"))?>
+    <?=mk_option(_var($$scrub,'hour'), "*/4", _("Every 4 hours"))?>
+    <?=mk_option(_var($$scrub,'hour'), "*/6", _("Every 6 hours"))?>
+    <?=mk_option(_var($$scrub,'hour'), "*/8", _("Every 8 hours"))?>
+    </select>
+  </span>
 
 &nbsp;
 : <span class="buttons-spaced">
