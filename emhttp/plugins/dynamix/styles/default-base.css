@@ -1358,6 +1358,13 @@ a.list {
         padding-top: 1rem;
     }
 
+    /* Remove padding for forms inside TableContainer elements */
+    .TableContainer form:first-of-type,
+    .TableContainer--widest form:first-of-type,
+    .TableContainer--no-min-width form:first-of-type {
+        padding-top: 0;
+    }
+
     .shade form {
         padding-top: 0;
     }
