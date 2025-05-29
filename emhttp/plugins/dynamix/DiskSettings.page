@@ -29,7 +29,7 @@ foreach ($disks as $disk) if (isset($disk['fsType']) && strncmp($disk['fsType'],
 String.prototype.celsius = function(){return Math.round((parseInt(this)-32)*5/9).toString();}
 
 function base64(str) {
-  return window.btoa(unescape(encodeURIComponent(str)));
+  return window.btoa(decodeURIComponent(encodeURIComponent(str)));
 }
 function doDispatch(form) {
   var fields = {};

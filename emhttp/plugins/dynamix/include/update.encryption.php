@@ -88,7 +88,7 @@ if (isset($_POST['newinput'])) {
   case 'text':
     file_put_contents($newkey,base64_decode(_var($_POST,'newluks')));
     $luks = 'luksKey';
-    $data = _var($_POST,'newluks');
+    $data = rawurlencode(_var($_POST,'newluks'));
     break;
   case 'file':
     file_put_contents($newkey,base64_decode(explode(';base64,',_var($_POST,'newdata','x;base64,'))[1]));
@@ -104,7 +104,7 @@ if (isset($_POST['newinput'])) {
   if (count($bad)==0) {
     // all okay, remove the old key
     foreach ($good as $disk) removeKey($oldkey,$disk);
-    exec("emcmd 'changeDisk=apply&$luks=$data'");
+    exec("emcmd ".escapeshellarg("changeDisk=apply&$luks=$data"));
     reply(_('Key successfully changed'),'success');
   } else {
     // something went wrong, restore key
