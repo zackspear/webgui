@@ -211,7 +211,7 @@ function prepareInput(form,button,parityWarn) {
       if (form.text.value) {
         var valid = new RegExp('^[ -~]+$');
         if (valid.test(form.text.value)) {
-          $(form).append('<input type="hidden" name="luksKey" value="'+base64(form.text.value)+'">');
+          $(form).append('<input type="hidden" name="luksKey" value="'+encodeURIComponent(base64(form.text.value))+'">');
           form.submit();
         } else {
           form.input.disabled = false;
