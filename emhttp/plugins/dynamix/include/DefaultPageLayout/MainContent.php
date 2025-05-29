@@ -27,8 +27,8 @@ function processTitle($rawTitle) {
         '/\$([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)/',
         function($matches) {
             return isset($GLOBALS[$matches[1]]) ? 
-                   htmlspecialchars((string)$GLOBALS[$matches[1]]) : 
-                   '$'.$matches[1];
+                    htmlspecialchars((string)$GLOBALS[$matches[1]]) : 
+                    '$'.$matches[1];
         },
         $title
     );
