@@ -140,7 +140,7 @@ function toggle_diskio(init) {
 }
 
 function base64(str) {
-  return window.btoa(decodeURIComponent(encodeURIComponent(str)));
+  return window.btoa(unescape(encodeURIComponent(str)));
 }
 
 function selectInput(form) {
