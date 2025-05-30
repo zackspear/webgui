@@ -29,7 +29,7 @@ foreach (glob('/dev/disk/by-id/*CRYPT-LUKS*', GLOB_NOSORT) as $disk) {
   $disk = explode('-',$disk);
   $crypto[] = array_pop($disk);
 }
-if (count($crypto) == 0) die();
+if (count($crypto) == 0) reply(_('No encrypted disks found'),'warning');
 
 function delete_file(...$file) {
   array_map('unlink', array_filter($file,'is_file'));
