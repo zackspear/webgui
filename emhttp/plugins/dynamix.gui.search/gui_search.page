@@ -104,7 +104,10 @@ function guiSearch() {
 	closeSearchBox(event);
 	if (newPage == 'Dashboard/Settings/Tools') newPage = 'Settings';
 
-	// If a hook script is present in the current page execute it before navigating away
+	/**
+	 * Prevents Community Apps from crashing
+	 * Hook script provided by CA - https://github.com/unraid/community.applications/blob/master/source/community.applications/usr/local/emhttp/plugins/community.applications/javascript/helpers.js
+	 */
 	if ( typeof guiSearchOnUnload === "function" ) {
 		guiSearchOnUnload();
 	}
