@@ -80,7 +80,13 @@ function prepareForm(form) {
     form.newfile.disabled = true;
     return true;
   } else {
-    swal({title:"_(Printable Characters Only)_",text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+    swal({
+      title:"_(Printable Characters Only)_",
+      text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",
+      html:true,
+      type:'error',
+      confirmButtonText:"_(Ok)_"
+    });
     return false;
   }
 }
@@ -126,10 +132,17 @@ function showInput(show,old) {
 function checkInput(form) {
   $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value=='' || form.newtext.value!=form.newcopy.value);
 }
+
 <?if (is_file($reply)):?>
 <?[$text,$type] = explode("\0",file_get_contents($reply)); unlink($reply);?>
 $(function() {
-  swal({title:"_(Encryption Key Update)_",text:"<?=$text?>",html:true,type:"<?=$type?>",confirmButtonText:"_(Ok)_"});
+  swal({
+    title:"_(Encryption Key Update)_",
+    text:"<?=$text?>",
+    html:true,
+    type:"<?=$type?>",
+    confirmButtonText:"_(Ok)_"
+  });
 });
 <?endif;?>
 </script>

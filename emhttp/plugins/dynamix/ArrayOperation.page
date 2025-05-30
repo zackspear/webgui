@@ -228,7 +228,13 @@ function prepareInput(form, button, parityWarn) {
           form.file.disabled = false;
           form.text.disabled = false;
           form.copy.disabled = false;
-          swal({title:"_(Printable Characters Only)_",text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",html:true,type:'error',confirmButtonText:"_(Ok)_"});
+          swal({
+            title:"_(Printable Characters Only)_",
+            text:"_(Use **ASCII** characters from space ' ' to tilde '~')_<br>_(Otherwise use the **keyfile** method for UTF8 input)_",
+            html:true,
+            type:'error',
+            confirmButtonText:"_(Ok)_"
+          });
         }
         return;
       }
@@ -238,7 +244,15 @@ function prepareInput(form, button, parityWarn) {
       data['file'] = form.file.value;
       $.post('/update.php',data,function(){form.submit();});
     } else {
-      swal({title:"_(Wrong Pool State)_",text:state,type:'error',html:true,confirmButtonText:"_(Ok)_"},function(){button.disabled=false;});
+      swal({
+        title:"_(Wrong Pool State)_",
+        text:state,
+        type:'error',
+        html:true,
+        confirmButtonText:"_(Ok)_"
+      },function(){
+        button.disabled=false;
+      });
     }
   });
 }
@@ -253,7 +267,15 @@ function parityWarning(form, button) {
   } else {
     var text = "_(*Parity* disk(s) content will be overwritten)_";
   }
-  swal({title:"_(Proceed to start)_",text:text,html:true,type:'warning',showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(confirmed){
+  swal({
+    title:"_(Proceed to start)_",
+    text:text,
+    html:true,
+    type:'warning',
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"
+  },function(confirmed){
     confirmed ? form.submit() : button.disabled=false;
   });
 }
@@ -266,7 +288,17 @@ function tab0() {
 function stopArray(form) {
   $(form).append('<input type="hidden" name="cmdStop" value="Stop">');
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the array)_",type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdStop"]').remove();});
+  swal({
+    title:"_(Proceed)_?",
+    text:"_(This will stop the array)_",
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"
+  },function(p){
+    if (p) form.submit(); else $('input[name="cmdStop"]').remove();
+  });
 <?else:?>
   form.submit();
 <?endif;?>
@@ -275,7 +307,17 @@ function stopArray(form) {
 function stopParity(form, text) {
   $(form).append('<input type="hidden" name="cmdCheckCancel" value="">');
 <?if ($confirm['stop']):?>
-  swal({title:"_(Proceed)_?",text:"_(This will stop the running operation)_: "+text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmdCheckCancel"]').remove();});
+  swal({
+    title:"_(Proceed)_?",
+    text:"_(This will stop the running operation)_: "+text,
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"
+  },function(p){
+    if (p) form.submit(); else $('input[name="cmdCheckCancel"]').remove();
+  });
 <?else:?>
   form.submit();
 <?endif;?>
@@ -308,7 +350,17 @@ function shutdown_now(form, cmd) {
     case 'reboot': var text = "_(This will reboot the system)_"; break;
     case 'shutdown': var text = "_(This will shutdown the system)_"; break;
   }
-  swal({title:"_(Proceed)_?",text:text,type:'warning',html:true,showCancelButton:true,confirmButtonText:"_(Proceed)_",cancelButtonText:"_(Cancel)_"},function(p){if (p) form.submit(); else $('input[name="cmd"]').remove();});
+  swal({
+    title:"_(Proceed)_?",
+    text:text,
+    type:'warning',
+    html:true,
+    showCancelButton:true,
+    confirmButtonText:"_(Proceed)_",
+    cancelButtonText:"_(Cancel)_"
+  },function(p){
+    if (p) form.submit(); else $('input[name="cmd"]').remove();
+  });
 <?else:?>
   form.submit();
 <?endif;?>
