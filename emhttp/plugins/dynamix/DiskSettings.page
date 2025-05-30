@@ -67,14 +67,14 @@ function setIndex(form) {
 
 function prepareForm(form) {
 <?if (!$keyfile):?>
-  form.oldluks.value = base64(form.oldtext.value);
+  form.oldluks.value = base64(form.oldtext.value.replace(/\\"/g,'"'));
   form.oldtext.disabled = true;
   form.oldfile.disabled = true;
 <?endif;?>
   var valid = new RegExp('^[ -~]+$');
   if (form.newinput.value == 'file') return true;
   if (valid.test(form.newtext.value)) {
-    form.newluks.value = base64(form.newtext.value);
+    form.newluks.value = base64(form.newtext.value.replace(/\\"/g,'"'));
     form.newtext.disabled = true;
     form.newcopy.disabled = true;
     form.newfile.disabled = true;
@@ -106,7 +106,7 @@ function selectInput(val,old) {
     } else {
       $('div#newfile').hide('slow');
       $('div#newtext').show('slow');
-      $('input[name="newkey"]').prop('disabled',$('input[name="newtext"]').val()=='' || $('input[name="newtext"]').val()!=$('input[name="newcopy"]').val());
+      $('input[name="newkey"]').prop('disabled',$('input[name="newtext"]').val() == '' || $('input[name="newtext"]').val() != $('input[name="newcopy"]').val());
     }
   } else if (val=='file') {
     if (old==true) {
@@ -115,22 +115,22 @@ function selectInput(val,old) {
     } else {
       $('div#newtext').hide('slow');
       $('div#newfile').show('slow');
-      $('input[name="newkey"]').prop('disabled',$('input[name="newfile"]').val()=='');
+      $('input[name="newkey"]').prop('disabled',$('input[name="newfile"]').val() == '');
     }
   }
 }
 
-function showInput(show,old) {
+function showInput(show, old) {
   if (old==true) {
     var input = $('input[name="oldtext"]');
   } else {
     var input = $('input[name="newtext"],input[name="newcopy"]');
   }
-  input.attr('type',show ? 'text' : 'password');
+  input.attr('type', show ? 'text' : 'password');
 }
 
 function checkInput(form) {
-  $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value=='' || form.newtext.value!=form.newcopy.value);
+  $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value=='' || form.newtext.value != form.newcopy.value);
 }
 
 <?if (is_file($reply)):?>
