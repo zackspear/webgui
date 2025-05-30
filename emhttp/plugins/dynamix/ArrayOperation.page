@@ -23,11 +23,7 @@ $poolsOnly = (_var($var,'SYS_ARRAY_SLOTS') == 0 ) ? true : false;
 /* only one of $present, $missing, or $wrong will be true, or all will be false */
 $forced = $present = $missing = $wrong = false;
 
-function luks_only(&$disk) {
-  return _var($disk,'type') == 'Data' || _var($disk,'type') == 'Cache';
-}
-
-foreach (array_filter($disks,'luks_only') as $disk) {
+foreach (luks_filter($disks) as $disk) {
   $fsType = _var($disk,'fsType');
   $luks = str_starts_with($fsType,'luks:');
   if ($luks || ($fsType == 'auto' && str_starts_with(_var($var,'defaultFsType'),'luks:'))) $forced = true;
