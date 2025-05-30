@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?PHP
-/* Copyright 2005-2023, Lime Technology
- * Copyright 2012-2023, Bergware International.
+/* Copyright 2005-2025, Lime Technology
+ * Copyright 2012-2025, Bergware International.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version 2,
@@ -34,14 +34,17 @@ $locale_init = $locale;
 function initSum() {
   return ['count'=>0, 'temp'=>0, 'power'=>0, 'fsSize'=>0, 'fsUsed'=>0, 'fsFree'=>0, 'ioReads'=>0, 'ioWrites'=>0, 'numReads'=>0, 'numWrites'=>0, 'numErrors'=>0];
 }
+
 function get_model($id) {
   return substr($id,0,strrpos($id,'_'));
 }
+
 function my_power($power) {
   global $display;
   $number = _var($display,'number','.,');
   return _var($display,'power') && $power ? number_format($power,$power<10?2:1,$number[0]).' '._('W').' / ' : '';
 }
+
 function device_info(&$disk,$online) {
   global $pools, $var;
   if (!$online || _var($disk,'fsStatus')!='Mounted' || (in_array(_var($disk,'type'),['Parity','Cache']) && (!in_array(_var($disk,'name'),$pools) || isSubpool(_var($disk,'name'))))) {
@@ -84,6 +87,7 @@ function device_info(&$disk,$online) {
           : $fancy;
   return $view.$status.$link;
 }
+
 function device_desc(&$disk) {
   global $var;
   $size = my_scale(_var($disk,'sectors',0)*_var($disk,'sector_size',0),$unit,-1);
@@ -101,6 +105,7 @@ function device_desc(&$disk) {
     return my_id(_var($disk,'id'))." - $size $unit ("._var($disk,'device').")";
   }
 }
+
 function assignment(&$disk) {
   global $var, $devs;
   $echo = [];
@@ -119,18 +124,18 @@ function assignment(&$disk) {
   $echo[] = "</select></form>";
   return implode($echo);
 }
+
 function vfs_luks($fs) {
   return str_starts_with($fs,'luks:');
 }
+
 function vfs_type(&$disk,$online = false) {
   global $disks, $pools, $crypto;
   $fsType = _var($disk,'fsType','');
   $luks   = '';
-  if (empty($fsType))
-    return $fsType;
-  if ($crypto) switch (_var($disk,'luksState',0)) {
+  if (empty($fsType)) return;
+  if (vfs_luks($fsType) && $crypto) switch (_var($disk,'luksState',0)) {
     case 0:
-      if (vfs_luks($fsType))
       $luks = "<a class='info'><i class='padlock fa fa-unlock-alt orange-text'></i><span>"._('Device to be encrypted')."</span></a>";
       break;
     case 1:
@@ -151,6 +156,7 @@ function vfs_type(&$disk,$online = false) {
   }
   return $luks.str_replace('luks:','',$fsType);
 }
+
 function fs_info(&$disk,$online = false) {
   global $display;
   $echo = [];
@@ -176,9 +182,11 @@ function fs_info(&$disk,$online = false) {
   }
   return implode($echo);
 }
+
 function my_diskio($data) {
   return my_scale($data,$unit,1)." $unit/s";
 }
+
 function array_offline(&$disk, $pool='') {
   global $var, $disks, $display;
   $disk['power'] ??= (_var($display,'power') && _var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'power') : 0);
@@ -256,6 +264,7 @@ function array_offline(&$disk, $pool='') {
   $echo[] = "</tr>";
   return implode($echo);
 }
+
 function array_online(&$disk, $fstype='') {
   global $pools, $sum, $diskio;
   $disk['power'] ??= (_var($disk,'transport')=='nvme' ? get_nvme_info(_var($disk,'device'),'power') : 0);
@@ -310,6 +319,7 @@ function array_online(&$disk, $fstype='') {
   $echo[] = "</tr>";
   return implode($echo);
 }
+
 function show_totals($text,$array,$name) {
   global $var, $display, $sum, $locale;
   $number = _var($display,'number','.,');
@@ -346,6 +356,7 @@ function show_totals($text,$array,$name) {
   $echo[] = "</tr>";
   return implode($echo);
 }
+
 function array_slots() {
   global $var;
   $min  = max(_var($var,'sbNumDisks',0),3);
@@ -364,6 +375,7 @@ function array_slots() {
   $echo[] = "</select></form>";
   return implode($echo);
 }
+
 function cache_slots($off,$pool,$min,$slots) {
   global $var, $disks;
 //  $off  = $off && $min ? ' disabled' : '';
@@ -386,6 +398,7 @@ function cache_slots($off,$pool,$min,$slots) {
   $echo[] = "</select></form>";
   return implode($echo);
 }
+
 function update_translation($locale) {
   global $docroot,$language;
   $language = [];
@@ -404,6 +417,7 @@ function update_translation($locale) {
     }
   }
 }
+
 while (true) {
   $var    = (array)@parse_ini_file("$varroot/var.ini");
   $devs   = (array)@parse_ini_file("$varroot/devs.ini",true);
