@@ -1759,6 +1759,10 @@ span#wlan0 {
 
 /* TailwindCSS inspired utility classes */
 
+.relative {
+    position: relative;
+}
+
 .font-mono {
     font-family: bitstream, monospace;
 }
@@ -1980,6 +1984,10 @@ span#wlan0 {
             align-items: center;
             gap: 1.5rem 1rem;
         }
+    }
+
+    .clone-settings-less-padding {
+        padding-top: 1rem;
     }
 }
 
