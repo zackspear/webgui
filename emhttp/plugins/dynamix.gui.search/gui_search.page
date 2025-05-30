@@ -87,7 +87,7 @@ function guiSearch() {
 	closeSearchBox(event);
 	if (newPage == 'Dashboard/Settings/Tools') newPage = 'Settings';
   
-  /**
+	/**
 	 * Prevents Community Apps from crashing
 	 * Hook script provided by CA - https://github.com/unraid/community.applications/blob/master/source/community.applications/usr/local/emhttp/plugins/community.applications/javascript/helpers.js
 	 */
