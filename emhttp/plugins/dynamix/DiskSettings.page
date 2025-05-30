@@ -130,7 +130,7 @@ function showInput(show, old) {
 }
 
 function checkInput(form) {
-  $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value=='' || form.newtext.value != form.newcopy.value);
+  $(form).find('input[name="newkey"]').prop('disabled',form.newtext.value == '' || form.newtext.value != form.newcopy.value);
 }
 
 <?if (is_file($reply)):?>
