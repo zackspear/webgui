@@ -22,7 +22,6 @@ $save   = false;
 $disks  = parse_ini_file('state/disks.ini',true);
 $newkey = parse_ini_file('state/var.ini')['luksKeyfile'] ?: '/root/keyfile';
 $oldkey = dirname($newkey).'/oldfile';
-$delkey = !is_file($newkey);
 $crypto = [];
 
 foreach (glob('/dev/disk/by-id/*CRYPT-LUKS*', GLOB_NOSORT) as $disk) {
@@ -58,11 +57,11 @@ function diskname($name) {
 }
 
 function reply($text, $type) {
-  global $oldkey, $newkey, $delkey;
+  global $oldkey, $newkey;
   $reply = _var($_POST,'#reply');
   if (realpath(dirname($reply)) == '/var/tmp') file_put_contents($reply, $text."\0".$type);
   delete_file($oldkey);
-  if (_var($_POST,'newinput','text') == 'text' || $delkey) delete_file($newkey);
+  if (_var($_POST,'newinput','text') == 'text') delete_file($newkey);
   die();
 }
 
@@ -91,7 +90,7 @@ if (isset($_POST['newinput'])) {
   case 'text':
     file_put_contents($newkey, base64_decode(_var($_POST,'newluks')));
     $luks = 'luksKey';
-    $data = rawurlencode(_var($_POST,'newluks'));
+    $data = str_replace('+', '%2B', _var($_POST,'newluks'));
     break;
   case 'file':
     file_put_contents($newkey, base64_decode(explode(';base64,',_var($_POST,'newdata','x;base64,'))[1]));
