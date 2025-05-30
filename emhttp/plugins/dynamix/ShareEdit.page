@@ -584,8 +584,11 @@ _(Mover action)_:
   </span>
 <?else:?>
 <div markdown="1">
-<label id="deleteLabel" title="">_(Delete)_</label><input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));" title="" disabled>
-: <span class="inline-block">
+<label id="deleteLabel" title="" class="inline-flex flex-row items-center justify-end gap-2">
+	_(Delete)_
+    <input type="checkbox" name="confirmDelete" onchange="chkDelete(this.form, document.getElementById('cmdEditShare'));" title="" disabled>
+</label>
+: <span class="inline-flex flex-row items-center gap-2">
 	<input type="submit" id="cmdEditShare" name="cmdEditShare" value="_(Apply)_" onclick="if (this.value=='_(Delete)_') this.value='Delete'; else this.value='Apply'; return handleDeleteClick(this)" disabled>
 	<input type="button" value="_(Done)_" onclick="done()">
   </span>
