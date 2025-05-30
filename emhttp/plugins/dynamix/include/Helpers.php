@@ -296,7 +296,7 @@ function urlencode_path($path) {
 }
 
 function pgrep($process_name, $escape_arg=true) {
-  $pid = exec('pgrep --ns $$ '.($escape_arg?escapeshellarg($process_name):$process_name), $output, $retval);
+  $pid = exec('pgrep --ns $$ '.($escape_arg ? escapeshellarg($process_name) : $process_name), $output, $retval);
   return $retval == 0 ? $pid : false;
 }
 

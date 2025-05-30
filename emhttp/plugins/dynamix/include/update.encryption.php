@@ -47,7 +47,7 @@ function removeKey($key, $disk) {
     if ($match && preg_match($match, $row)) $slots++;
   }
   pclose($dump);
-  if ($slots > 1) exec("cryptsetup luksRemoveKey ".escapeshellarg("/dev/$disk")." ".escapeshellarg($key)." &>/dev/null");
+  if ($slots > 1) exec("cryptsetup luksRemoveKey ".shieldarg("/dev/$disk", $key)." &>/dev/null");
 }
 
 function diskname($name) {
@@ -80,7 +80,7 @@ if (isset($_POST['oldinput'])) {
 
 if (is_file($oldkey)) {
   $disk = $crypto[0]; // check first disk only (key is the same for all disks)
-  exec("cryptsetup luksOpen --test-passphrase --key-file ".escapeshellarg($oldkey)." ".escapeshellarg("/dev/$disk")." &>/dev/null", $null, $error);
+  exec("cryptsetup luksOpen --test-passphrase --key-file ".shieldarg($oldkey, "/dev/$disk")." &>/dev/null", $null, $error);
 } else $error = 1;
 
 if ($error > 0) reply(_('Incorrect existing key'),'warning');
@@ -100,7 +100,7 @@ if (isset($_POST['newinput'])) {
   }
   $good = $bad = [];
   foreach ($crypto as $disk) {
-    exec("cryptsetup luksAddKey --key-file ".escapeshellarg($oldkey)." ".escapeshellarg("/dev/$disk")." ".escapeshellarg($newkey)." &>/dev/null", $null, $error);
+    exec("cryptsetup luksAddKey --key-file ".shieldarg($oldkey, "/dev/$disk", $newkey)." &>/dev/null", $null, $error);
     if ($error == 0) $good[] = $disk; else $bad[] = diskname($disk);
   }
   if (count($bad) == 0) {

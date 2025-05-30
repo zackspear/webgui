@@ -25,8 +25,7 @@ $_arrow_ = '&#187;';
 function file_put_contents_atomic($filename,$data) {
   while (true) {
     $suffix = rand();
-    if ( ! is_file("$filename$suffix") )
-      break;
+    if (!is_file("$filename$suffix")) break;
   }
   $renResult = false;
   $writeResult = @file_put_contents("$filename$suffix",$data) === strlen($data);
@@ -217,7 +216,7 @@ function my_logger($message, $logger='webgui') {
  * @param ?array $getinfo Empty array passed by reference, will contain results of curl_getinfo and curl_error, or null if not needed
  * @return string|false $out The fetched content
  */
-function http_get_contents(string $url, array $opts = [], ?array &$getinfo = NULL) {
+function http_get_contents(string $url, array $opts=[], ?array &$getinfo=NULL) {
   $ch = curl_init();
   if(isset($getinfo)) {
     curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
@@ -271,5 +270,9 @@ function lan_port($port, $state=false) {
   $system = '/sys/class/net';
   $exist = file_exists("$system/$port");
   return !$state ? $exist : ($exist ? (@file_get_contents("$system/$port/carrier") ?: 0) : false);
+}
+
+function shieldarg(...$args) {
+  return implode(' ', array_map('escapeshellarg', $args));
 }
 ?>
