@@ -103,6 +103,11 @@ function guiSearch() {
 
 	closeSearchBox(event);
 	if (newPage == 'Dashboard/Settings/Tools') newPage = 'Settings';
+
+	// If a hook script is present in the current page execute it before navigating away
+	if ( typeof guiSearchOnUnload === "function" ) {
+		guiSearchOnUnload();
+	}
 	location.replace('/'+newPage+'/'+searchInfo[0]+scrollText);
 }
 
