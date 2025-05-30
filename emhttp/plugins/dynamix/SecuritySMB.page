@@ -62,7 +62,8 @@ _(Write settings to)_ <i class="fa fa-arrow-right fa-fw"></i>
 </span>
 </div>
 
-<form markdown="1" class="shade" name="smb_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writesmb',true);$('#smb1').dropdownchecklist('disable')">
+<div markdown="1" class="shade">
+<form markdown="1" name="smb_edit" method="POST" action="/update.htm" target="progressFrame" onchange="toggleButton('writesmb',true);$('#smb1').dropdownchecklist('disable')">
 <input type="hidden" name="shareName" value="<?=htmlspecialchars($name)?>">
 <?if (($name=='flash')||($var['enableFruit']!='yes')):?>
   <input type="hidden" name="shareVolsizelimit" value="">
@@ -128,6 +129,7 @@ _(Security)_:
     <input type="button" value="_(Done)_" onclick="done()">
   </span>
 </form>
+</div>
 
 <?if ($sec[$name]['security']=='secure'):?>
 
