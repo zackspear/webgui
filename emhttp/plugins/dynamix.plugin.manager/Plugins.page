@@ -145,7 +145,6 @@ function loadlist(id,check) {
 }
 $(function() {
   initlist();
-  $('#plugin_tree').fileTree({root:'/boot/',top:'/boot/',filter:'plg'}, function(file) {$('#plugin_file').val(file);});
   $('.tabs').append("<span id='checkall' class='status vhshift'><input type='button' value=\"_(Check For Updates)_\" onclick='openPlugin(\"checkall\",\"_(Plugin Update Check)_\",\":return\")' disabled></span>");
   $('.tabs').append("<span id='updateall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Update All Plugins)_\" onclick='updateList()'></span>");
   $('.tabs').append("<span id='removeall' class='status vhshift' style='display:none;margin-left:12px'><input type='button' value=\"_(Remove Selected Plugins)_\" onclick='removeList()'></span>");
