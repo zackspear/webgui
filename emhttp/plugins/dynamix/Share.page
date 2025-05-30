@@ -11,8 +11,6 @@ Type="xmenu"
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  */
-?>
-<?
 if ($name) {
   $refs = []; $n = $i = 0;
   // Natural sorting of share names
@@ -49,14 +47,20 @@ function toggleButton(button,id) {
 }
 
 <?if ($name):?>
-var ctrl = '<span class="ctrl1 status"><a href="/Shares/Share?name=<?=$prev?>" title="_(previous user share)_"><button type="button" style="margin-right:4px"><i class="fa fa-chevron-left fa-fw"></i></button></a><a href="/Shares/Share?name=<?=$next?>" title="_(next user share)_"><button type="button"><i class="fa fa-chevron-right fa-fw"></i></button></a></span>';
+const prevNextButtons = `
+<div class="buttons-spaced flex-shrink-0">
+  <a class="button" href="/Shares/Share?name=<?=$prev?>" title="_(previous user share)_">
+    <i class="fa fa-chevron-left fa-fw"></i>
+  </a>
+  <a class="button" href="/Shares/Share?name=<?=$next?>" title="_(next user share)_">
+    <i class="fa fa-chevron-right fa-fw"></i>
+  </a>
+</div>
+`;
 
 $(function() {
-<?if ($tabbed):?>
-  $('.tabs').append(ctrl);
-<?else:?>
-  $('div[class=title]:first .right').append(ctrl);
-<?endif;?>
+  const target = <?= $tabbed ? '".tabs"' : '".title:first .right"' ?>;
+  $(target).append(prevNextButtons);
 });
 <?endif;?>
 </script>
