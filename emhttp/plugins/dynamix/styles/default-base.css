@@ -1290,19 +1290,19 @@ a.list {
         }
     }
 }
-.tabs,
+
+.tabs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
 .tabs-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: .5rem;
-}
-
-.tabs {
-    justify-content: space-between;
-}
-
-.tabs-container {
     overflow-x: auto;
     width: 100%;
 }
@@ -1746,8 +1746,15 @@ span#wlan0 {
 
 .shade {
     margin-top: 1rem;
-    padding: 1rem 0;
+    padding: 1rem;
     background-color: var(--shade-bg-color);
+    border-radius: .25rem;
+}
+
+@media (min-width: 769px) {
+    .shade {
+        padding: 1rem 0;
+    }
 }
 
 /* TailwindCSS inspired utility classes */
@@ -1957,6 +1964,23 @@ span#wlan0 {
 
 .scrollbar-thin {
     scrollbar-width: thin;
+}
+
+@media (min-width: 1330px) {
+    .clone-settings {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 40rem;
+        margin: 0;
+        padding: 3rem 1rem 0 0;
+        background-color: transparent;
+
+        dl {
+            align-items: center;
+            gap: 1.5rem 1rem;
+        }
+    }
 }
 
 /* plugin overrides */

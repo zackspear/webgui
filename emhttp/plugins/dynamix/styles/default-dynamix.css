@@ -1585,12 +1585,27 @@ div.icon-zip {
     outline: none;
     display: inline-block;
     cursor: pointer;
+    width: 100%;
     padding: 1px 0;
 }
 
 .ui-dropdownchecklist-selector-wrapper {
     vertical-align: middle;
     font-size: 0;
+    width: 100%;
+
+    /**
+     * override the defined with set by the jquery library
+     *
+     * @note - commented out b/c it causes overflow issues if too many items are selected
+     */
+    /* .ui-dropdownchecklist-selector {
+        width: 100% !important;
+    } */
+
+    .ui-dropdownchecklist-text {
+        padding-left: .5rem;
+    }
 }
 
 .ui-dropdownchecklist-dropcontainer {
