@@ -7,7 +7,7 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 0;
+    padding: 0 1rem;
     text-align: left;
     height: auto;
     line-height: normal;
@@ -15,12 +15,12 @@
 }
 
 #guiSearchBox {
-    width: 50rem;
+    width: 40rem;
     border: none;
     border-radius: 20px;
     color: var(--gui-search-search-box-text-color);
     background-color: var(--gui-search-search-box-background-color);
-    padding-left: 4rem;
+    padding-left: 2.4rem;
 }
 
 .Theme--black,
@@ -31,6 +31,12 @@
         .awesomplete,
         #guiSearchBox {
             width: 100%;
+        }
+    }
+
+    @media (min-width: 768px) {
+        #guiSearchBoxSpan {
+            min-width: 40rem;
         }
     }
 
@@ -50,7 +56,8 @@
     --gui-search-search-box-background-color: var(--yellow-200);
 
     #guiSearchBoxSpan {
-        margin: 0 0 0 20px;
+        margin: 0;
+        padding: 0;
     }
     #guiSearchBox {
         position: relative;

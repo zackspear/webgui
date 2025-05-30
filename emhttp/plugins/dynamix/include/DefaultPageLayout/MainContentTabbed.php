@@ -4,6 +4,7 @@
  * Accessible, modern, and decoupled from non-tabbed logic.
  */
 ?>
+
 <div id="displaybox">
     <nav class="tabs" role="tablist" aria-label="Page Tabs">
         <div class="tabs-container">
@@ -26,10 +27,24 @@
         </div>
     </nav>
 
-    <? $i = 0; ?>
+    <?
+        $i = 0;
+        $skipIndexIncrement = false; // used if the page has no title but has text
+    ?>
     <? foreach ($pages as $page): ?>
         <? 
             if (!isset($page['Title'])) {
+                /**
+                 * If the page has no title but has text, we need to eval the content to ensure the page is "rendered".
+                 * For instance Share.page is a parent page that has no title but has text aka content.
+                 * The content consists of some PHP and JS code that needs to be evaluated to ensure it's rendered.
+                 * We'll use the $skipIndexIncrement to skip the index increment. To ensure the tabs are properly rendered.
+                 */
+                if (isset($page['text'])) {
+                    $skipIndexIncrement = true;
+                    annotate($page['file']);
+                    eval('?>'.generateContent($page));
+                }
                 continue;
             }
             $title = processTitle($page['Title']);
@@ -47,7 +62,13 @@
 
             <? eval('?>'.generateContent($page)); ?>
         </section>
-        <? $i++; ?>
+        <?
+            if ($skipIndexIncrement) {
+                $skipIndexIncrement = false;
+            } else {
+                $i++;
+            }
+        ?>
     <? endforeach; ?>
 </div>
 

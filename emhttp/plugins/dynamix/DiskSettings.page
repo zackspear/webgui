@@ -270,7 +270,11 @@ _(Default critical SSD temperature threshold)_ (&deg;<?=_var($display,'unit','C'
 </form>
 
 <?if ($encrypt && $var['fsState']=='Started'):?>
-<div class="title"><span class="left"><i class="title fa fa-key"></i>_(Change encryption key)_</span></div>
+<div class="title">
+  <span class="left">
+    <i class="title fa fa-key"></i>_(Change encryption key)_
+  </span>
+</div>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareForm(this)">
 <input type="hidden" name="#file" value="">
 <input type="hidden" name="#include" value="/webGui/include/update.encryption.php">
@@ -286,7 +290,7 @@ _(Existing encryption key)_:
 : <select name="oldinput" class="lock" onchange='selectInput(this.value,true)' <?=$keyfile?'disabled':''?>>
   <?=mk_option(1,'text',_('Passphrase'))?>
   <?=mk_option(1,'file',_('Keyfile'),$keyfile ? 'selected' : '')?>
-  </select><br>
+  </select>
 
 <?if (!$keyfile):?>
 <div markdown="1" id="oldtext">
@@ -299,6 +303,7 @@ _(Enter existing passphrase)_:
     </label>
   </div>
 
+</div>
 <div markdown="1" id="oldfile" style="display:none">
 _(Select existing keyfile)_:
 : <input type="file" name="oldfile" class="lock" onchange="getFileContent(event,this.form,'olddata')">
@@ -310,7 +315,7 @@ _(Change encryption key)_:
 : <select name="newinput" class="lock" onchange='selectInput(this.value,false)'>
   <?=mk_option(1,'text',_('Passphrase'))?>
   <?=mk_option(1,'file',_('Keyfile'))?>
-  </select><br>
+  </select>
 
 <div markdown="1" id="newtext">
 _(Type new passphrase)_:
@@ -339,7 +344,11 @@ _(Select new keyfile)_:
 </form>
 <?endif;?>
 
-<div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(Global SMART Settings)_</span></div>
+<div class="title">
+  <span class="left">
+    <i class="title fa fa-plus-square"></i>_(Global SMART Settings)_
+  </span>
+</div>
 <form markdown="1" name="smart_settings" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareDiskSettings(this)">
 <input type="hidden" name="#file" value="/boot/config/smart-all.cfg">
 <input type="hidden" name="#include" value="webGui/include/update.smart.php">
@@ -399,7 +408,13 @@ _(Default SMART attribute notifications)_:
 
 <?for ($x = 0; $x < count($preselect); $x++):?>
 &nbsp;
-: <span><input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>"<?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>><span class="code">_(Attribute)_ = <?=_var($preselect[$x],'code')?></span><?=_var($preselect[$x],'text')?></span>
+: <span>
+    <input type="checkbox" name="at<?=$x?>" value="<?=_var($preselect[$x],'code')?>" <?=in_array(_var($preselect[$x],'code'),$events)?' checked':''?>>
+    <span class="code">
+      _(Attribute)_ = <?=_var($preselect[$x],'code')?>
+    </span>
+    <?=_var($preselect[$x],'text')?>
+  </span>
 <?endfor;?>
 
 :disk_default_smart_attribute_help:
