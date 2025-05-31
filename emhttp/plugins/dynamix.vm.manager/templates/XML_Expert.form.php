@@ -222,7 +222,7 @@ $(function() {
 			showCancelButton: true,
 			closeOnConfirm: false,
 			//animation: "slide-from-top",
-			inputPlaceholder: "_(Leaving blank will use OS name.)_"
+			inputPlaceholder: "_(Leaving blank will use OS name)_."
 			},
 			function(inputValue){
 				postdata=postdata+"&templatename="+inputValue;
