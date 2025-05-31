@@ -25,9 +25,10 @@ $forced = $present = $missing = $wrong = false;
 
 foreach (luks_filter($disks) as $disk) {
   $fsType = _var($disk,'fsType');
-  $luks = str_starts_with($fsType,'luks:');
-  if ($luks || ($fsType == 'auto' && str_starts_with(_var($var,'defaultFsType'),'luks:'))) $forced = true;
-  if ($luks) switch (_var($disk,'luksState',0)) {
+  $luks   = str_starts_with($fsType,'luks:');
+  $auto   = $fsType == 'auto';
+  if ($luks || ($auto && str_starts_with(_var($var,'defaultFsType'),'luks:'))) $forced = true;
+  if ($luks || $auto) switch (_var($disk,'luksState',0)) {
     case 1: $present = true; break;
     case 2: $missing = true; break;
     case 3: $wrong = true; break;
