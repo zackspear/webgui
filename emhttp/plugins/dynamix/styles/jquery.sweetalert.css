@@ -499,61 +499,61 @@ pre#swaltext {
 /* Animations */
 @-webkit-keyframes showSweetAlert {
   0% {
-    transform: scale(0.7);
-    -webkit-transform: scale(0.7);
+    transform: translate(-50%, -50%) scale(0.7);
+    -webkit-transform: translate(-50%, -50%) scale(0.7);
   }
   45% {
-    transform: scale(1.05);
-    -webkit-transform: scale(1.05);
+    transform: translate(-50%, -50%) scale(1.05);
+    -webkit-transform: translate(-50%, -50%) scale(1.05);
   }
   80% {
-    transform: scale(0.95);
-    -webkit-transform: scale(0.95);
+    transform: translate(-50%, -50%) scale(0.95);
+    -webkit-transform: translate(-50%, -50%) scale(0.95);
   }
   100% {
-    transform: scale(1);
-    -webkit-transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    -webkit-transform: translate(-50%, -50%) scale(1);
   }
 }
 
 @keyframes showSweetAlert {
   0% {
-    transform: scale(0.7);
-    -webkit-transform: scale(0.7);
+    transform: translate(-50%, -50%) scale(0.7);
+    -webkit-transform: translate(-50%, -50%) scale(0.7);
   }
   45% {
-    transform: scale(1.05);
-    -webkit-transform: scale(1.05);
+    transform: translate(-50%, -50%) scale(1.05);
+    -webkit-transform: translate(-50%, -50%) scale(1.05);
   }
   80% {
-    transform: scale(0.95);
-    -webkit-transform: scale(0.95);
+    transform: translate(-50%, -50%) scale(0.95);
+    -webkit-transform: translate(-50%, -50%) scale(0.95);
   }
   100% {
-    transform: scale(1);
-    -webkit-transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    -webkit-transform: translate(-50%, -50%) scale(1);
   }
 }
 
 @-webkit-keyframes hideSweetAlert {
   0% {
-    transform: scale(1);
-    -webkit-transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    -webkit-transform: translate(-50%, -50%) scale(1);
   }
   100% {
-    transform: scale(0.5);
-    -webkit-transform: scale(0.5);
+    transform: translate(-50%, -50%) scale(0.5);
+    -webkit-transform: translate(-50%, -50%) scale(0.5);
   }
 }
 
 @keyframes hideSweetAlert {
   0% {
-    transform: scale(1);
-    -webkit-transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    -webkit-transform: translate(-50%, -50%) scale(1);
   }
   100% {
-    transform: scale(0.5);
-    -webkit-transform: scale(0.5);
+    transform: translate(-50%, -50%) scale(0.5);
+    -webkit-transform: translate(-50%, -50%) scale(0.5);
   }
 }
 
