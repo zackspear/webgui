@@ -411,7 +411,7 @@ pre#swaltext {
   display: flex !important; /* override the default display: block added by jquery swal show / hide */
   flex-direction: column;
   width: 95vw;
-  max-width: 1920px; /* 1920px is the max width of the main content area #displaybox */
+  max-width: 1200px;
   height: 95vh;
 
   h2 {
