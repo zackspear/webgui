@@ -673,7 +673,7 @@ pre#swaltext {
   border: 4px solid gray;
   border-radius: 40px;
   border-radius: 50%;
-  margin: 0 auto;
+  margin: 0 auto 1rem;
   padding: 0;
   position: relative;
   box-sizing: content-box;
