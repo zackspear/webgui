@@ -451,6 +451,18 @@ pre#swaltext {
     margin: 0;
     padding: 1rem 2rem;
     scrollbar-width: thin;
+
+    p {
+      margin: 0;
+    }
+
+    .logLine:empty {
+      display: none;
+    }
+
+    fieldset {
+      padding: 0 1rem;
+    }
   }
 }
 
