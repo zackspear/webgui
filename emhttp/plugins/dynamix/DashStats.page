@@ -698,7 +698,7 @@ function hideShow() {
 <tr><td>_(Overwrite)_:</td><td><input type="checkbox" id="Overwrite" value="" ></td></tr>
 <tr hidden><td>_(Start Cloned VM)_:</td><td><input type="checkbox" id="Start" value="" ></td></tr>
 <tr hidden><td>_(Edit VM after clone)_:</td><td><input type="checkbox" id="Edit" value="" ></td></tr>
-<tr><td>_(Regenerate MAC addresses)_:</td><td><input type="checkbox" id="Edit" value="" checked ></td></tr>
+<tr><td>_(Regenerate MAC addresses)_:</td><td><input type="checkbox" id="Regenmac" value="" checked ></td></tr>
 <tr><td>_(Check free space)_:</td><td><input type="checkbox" id="Free" value="" ></td></tr>
 </table>
 </div>
