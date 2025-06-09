@@ -1677,20 +1677,25 @@ a.bannerInfo {
     display: none;
 }
 .upgrade_notice {
-    position: fixed;
-    top: 24px;
-    left: 50%;
-    margin-left: -480px;
-    width: 900px;
-    height: 38px;
-    line-height: 38px;
-    color: var(--orange-300);
+    color: var(--black);
     background-color: var(--yellow-200);
     border: 1px solid var(--orange-300);
-    border-radius: 38px;
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 100ch;
+    padding: 1rem;
+    border-radius: 1rem;
     text-align: center;
     font-size: 1.4rem;
     z-index: 999;
+    box-sizing: border-box;
+}
+/* Add padding to the right so the icon can sit absolutely positioned in the padding */
+.upgrade_notice:has(i) {
+    padding-right: 3.5rem;
 }
 .upgrade_notice.done {
     color: var(--green-800);
@@ -1703,7 +1708,10 @@ a.bannerInfo {
     border-color: var(--red-600);
 }
 .upgrade_notice i {
-    float: right;
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
     cursor: pointer;
 }
 .back_to_top,
