@@ -89,8 +89,7 @@ while :; do
         1) # up
           if [[ ! -f /var/tmp/$PORT.down ]]; then
             # IP address not present? create it
-            IPA=$(ip -br addr show to ${ADDR[1]%/*} dev $PORT)
-            [[ -z $IPA ]] && ip addr add dev ${TASK[$i]}
+            [[ -z $(ip -br addr show to ${ADDR[1]%/*} dev $PORT) ]] && ip addr add dev ${TASK[$i]}
           fi
         esac
       esac
