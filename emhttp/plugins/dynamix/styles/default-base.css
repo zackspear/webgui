@@ -1636,26 +1636,6 @@ label.checkbox input:checked ~ .checkmark {
 label.checkbox input:disabled ~ .checkmark {
     opacity: 0.5;
 }
-a.bannerDismiss {
-    float: right;
-    cursor: pointer;
-    text-decoration: none;
-    margin-right: 1rem;
-}
-.bannerDismiss::before {
-    content: "\e92f";
-    font-family: Unraid;
-    color: var(--orange-300);
-}
-a.bannerInfo {
-    cursor: pointer;
-    text-decoration: none;
-}
-.bannerInfo::before {
-    content: "\f05a";
-    font-family: fontAwesome;
-    color: var(--orange-300);
-}
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -1693,10 +1673,6 @@ a.bannerInfo {
     z-index: 999;
     box-sizing: border-box;
 }
-/* Add padding to the right so the icon can sit absolutely positioned in the padding */
-.upgrade_notice:has(i) {
-    padding-right: 3.5rem;
-}
 .upgrade_notice.done {
     color: var(--green-800);
     background-color: var(--green-100);
@@ -1707,7 +1683,25 @@ a.bannerInfo {
     background-color: var(--red-300);
     border-color: var(--red-600);
 }
-.upgrade_notice i {
+.bannerDismiss::before {
+    content: "\e92f";
+    font-family: Unraid;
+    color: var(--orange-300);
+}
+.bannerInfo {
+    cursor: pointer;
+    text-decoration: none;
+}
+.bannerInfo::before {
+    content: "\f05a";
+    font-family: fontAwesome;
+    color: var(--orange-300);
+}
+/* Add padding to the right so the icon can sit absolutely positioned in the padding */
+.upgrade_notice:has(.bannerDismiss) {
+    padding-right: 3.5rem;
+}
+.upgrade_notice .bannerDismiss {
     position: absolute;
     top: 50%;
     right: 1rem;
