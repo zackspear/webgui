@@ -1656,7 +1656,8 @@ label.checkbox input:disabled ~ .checkmark {
 .inline_help {
     display: none;
 }
-.upgrade_notice {
+.upgrade_notice,
+.ca_element_notice {
     color: var(--black);
     background-color: var(--yellow-200);
     border: 1px solid var(--orange-300);
@@ -1688,9 +1689,11 @@ label.checkbox input:disabled ~ .checkmark {
     font-family: Unraid;
     color: var(--orange-300);
 }
+.ca_PluginUpdateInstall,
 .bannerInfo {
     cursor: pointer;
     text-decoration: none;
+    padding: 0 .5rem;
 }
 .bannerInfo::before {
     content: "\f05a";
@@ -1698,10 +1701,13 @@ label.checkbox input:disabled ~ .checkmark {
     color: var(--orange-300);
 }
 /* Add padding to the right so the icon can sit absolutely positioned in the padding */
-.upgrade_notice:has(.bannerDismiss) {
+.upgrade_notice:has(.bannerDismiss),
+.ca_element_notice:has(.ca_PluginUpdateDismiss) {
     padding-right: 3.5rem;
 }
-.upgrade_notice .bannerDismiss {
+.upgrade_notice .bannerDismiss,
+.ca_element_notice .bannerDismiss,
+.ca_PluginUpdateDismiss {
     position: absolute;
     top: 50%;
     right: 1rem;
