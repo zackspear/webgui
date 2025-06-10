@@ -1713,6 +1713,7 @@ label.checkbox input:disabled ~ .checkmark {
     right: 1rem;
     transform: translateY(-50%);
     cursor: pointer;
+    z-index: 1;
 }
 .back_to_top,
 .move_to_end {
