@@ -208,10 +208,6 @@ $(window).scroll(function() {
   } else {
     $('.back_to_top').fadeOut(scrollDuration);
   }
-<?if ($themeHelper->isTopNavTheme()):?>
-  // banner
-  $('div.upgrade_notice').css($(this).scrollTop() > 24 ? {position:'fixed',top:'0'} : {position:'absolute',top:'24px'});
-<?endif;?>
 });
 
 $('.move_to_end').click(function(event) {
