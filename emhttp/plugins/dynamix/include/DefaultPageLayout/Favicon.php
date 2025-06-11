@@ -1,9 +1,3 @@
-<?php
-$docroot = $docroot ?? $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
-
-$themeHelper->checkManifestFile();
-?>
-
 <link type="image/png" rel="shortcut icon" href="/webGui/images/<?= _var($var, 'mdColor', 'red-on') ?>.png">
 <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
