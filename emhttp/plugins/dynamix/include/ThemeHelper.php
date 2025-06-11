@@ -33,6 +33,7 @@ class ThemeHelper {
     private bool $lightTheme;
     private string $fgcolor;
     private bool $unlimitedWidth = false;
+    private string $manifestFile = '/usr/local/emhttp/manifest.json';
 
     /**
      * Constructor for ThemeHelper
@@ -125,6 +126,73 @@ class ThemeHelper {
 
     public function updateDockerLogColor(string $docroot): void {
         exec("sed -ri 's/^\.logLine\{color:#......;/.logLine{color:{$this->fgcolor};/' $docroot/plugins/dynamix.docker.manager/log.htm >/dev/null &");
+    }
+
+    /**
+     * @todo finalize and configure in createManifestFile
+     */
+    public function getManifestThemeColor(?array $display = null): string {
+        // check DisplaySettings "header custom background color"
+        if (!empty($display) && isset($display['background'])) {
+            return (!str_starts_with($display['background'], '#'))
+                ? "#{$display['background']}"
+                : $display['background'];
+        }
+        // matches the default background colors for the themes...@todo: make this dynamic
+        $colors = [
+            self::THEME_AZURE => '#e8e8e8',
+            self::THEME_WHITE => self::COLOR_WHITE,
+            self::THEME_BLACK => self::COLOR_BLACK,
+            self::THEME_GRAY => '#1d1b1b',
+        ];
+        return $colors[$this->themeName] ?? self::COLOR_BLACK;
+    }
+
+    /**
+     * @todo the api / emhttp should potentially write this / update this. So for now we'll create a simple version.
+     */
+    public function createManifestFile(string $name = 'Unraid'): void {
+        $manifest = [
+            'name' => $name,
+            'short_name' => $name,
+            'icons' => [
+                [
+                    'src' => "/web-app-manifest-192x192.png",
+                    'sizes' => '192x192',
+                    'type' => 'image/png',
+                    'purpose' => 'maskable'
+                ],
+                [
+                    'src' => "/web-app-manifest-512x512.png",
+                    'sizes' => '512x512',
+                    'type' => 'image/png',
+                    'purpose' => 'maskable'
+                ]
+            ],
+            // @todo: make colors dynamic based on theme and display settings via getManifestThemeColor. 
+            // Needs something to prevent overkill when checking.
+            'theme_color' => '#1c1c1c',
+            'background_color' => '#1c1c1c',
+            'display' => 'standalone',
+        ];
+        file_put_contents($this->manifestFile, json_encode($manifest, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * @todo finalize to check if the manifest file exists and if it does, check if the name matches the name of the webgui
+     * for now we'll just create the manifest file with "Unraid" as the name and not check it.
+     */
+    public function checkManifestFile(?string $name = ''): void {
+        if (file_exists($this->manifestFile) && !empty($name)) {
+            $manifest = json_decode(file_get_contents($this->manifestFile), true);
+            if ($manifest['name'] !== $name) {
+                $manifest['name'] = $name;
+                $manifest['short_name'] = $name;
+                file_put_contents($this->manifestFile, json_encode($manifest, JSON_PRETTY_PRINT));
+            }
+        } else {
+            $this->createManifestFile($name);
+        }
     }
 
     /**
