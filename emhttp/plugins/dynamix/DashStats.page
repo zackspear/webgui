@@ -209,27 +209,38 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody class='system'>
                     <tr>
                         <td>
-                            <i class='icon-performance f32'></i>
-                            <div class='section'>
-                                <?=_var($var,'NAME')?><br>
-                                <span><?=htmlspecialchars(_var($var,'COMMENT'))?></span>
-                                <span id="current_time_" class="switch head_time"></span><br>
-                            </div>
-                            <a href='/Dashboard/Settings/Identification'>
-                                <i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i>
-                            </a>
-                            <i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
-                            <span class='ctrl'>
-                                <?if ($parity||$mover||$btrfs):?>
-                                    <span class='fa fa-fw fa-<?=$started?'stop':'play'?>-circle busy' title="<?=$started?_("Stop the array"):_("Start the array")?>"></span>
-                                <?else:?>
-                                    <span class='fa fa-fw fa-<?=$started?'stop':'play'?>-circle hand' title="<?=$started?_("Stop the array"):_("Start the array")?>" onclick='<?=$started?'Stop':'Start'?>Array()'></span>
-                                <?endif;?>
-                                <?if ($sleep):?>
-                                    <span class='fa fa-fw fa-moon-o hand' title="_(Put system to sleep)_" onclick='Sleep()'></span>
-                                <?endif;?>
-                                <span class='fa fa-fw fa-refresh hand' title="_(Reboot the system)_" onclick='Reboot()'></span>
-                                <span class='fa fa-fw fa-power-off hand' title="_(Shutdown the system)_" onclick='Shutdown()'></span>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-performance f32'></i>
+
+                                    <div class='section'>
+                                        <?=_var($var,'NAME')?><br>
+                                        <span><?=htmlspecialchars(_var($var,'COMMENT'))?></span>
+                                        <span id="current_time_" class="switch head_time"></span><br>
+                                    </div>
+                                </span>
+
+                                <span class='tile-header-right'>
+                                    <span class='tile-ctrl flex flex-row items-center gap-4'>
+                                        <?if ($parity||$mover||$btrfs):?>
+                                            <span class='fa fa-fw fa-<?=$started?'stop':'play'?>-circle busy' title="<?=$started?_("Stop the array"):_("Start the array")?>"></span>
+                                        <?else:?>
+                                            <span class='fa fa-fw fa-<?=$started?'stop':'play'?>-circle hand' title="<?=$started?_("Stop the array"):_("Start the array")?>" onclick='<?=$started?'Stop':'Start'?>Array()'></span>
+                                        <?endif;?>
+                                        <?if ($sleep):?>
+                                            <span class='fa fa-fw fa-moon-o hand' title="_(Put system to sleep)_" onclick='Sleep()'></span>
+                                        <?endif;?>
+                                        <span class='fa fa-fw fa-refresh hand' title="_(Reboot the system)_" onclick='Reboot()'></span>
+                                        <span class='fa fa-fw fa-power-off hand' title="_(Shutdown the system)_" onclick='Shutdown()'></span>
+                                    </span>
+
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Settings/Identification'>
+                                            <i class='fa fa-fw fa-cog control' title="_(Go to identification settings)_"></i>
+                                        </a>
+                                        <i class='fa fa-fw fa-wrench control tile' onclick='contentMgmt()' title="_(Tile Management)_"></i>
+                                    </span>
+                                </span>
                             </span>
                         </td>
                     </tr>
@@ -274,14 +285,22 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Motherboard Information)_">
                     <tr>
                         <td>
-                            <i class='icon-motherboard f32'></i>
-                            <div class='section'>
-                                _(Motherboard)_<br>
-                                <span id='mb-temp'></span><br>
-                            </div>
-                            <a href='#' onclick='InfoButton();' title="_(Show Information)_">
-                                <i class='fa fa-fw fa-info-circle control'></i>
-                            </a>
+                            <span class='tile-header'>
+                              <span class='tile-header-left'>
+                                <i class='icon-motherboard f32'></i>
+                                <div class='section'>
+                                    _(Motherboard)_<br>
+                                    <span id='mb-temp'></span><br>
+                                </div>
+                              </span>
+                              <span class='tile-header-right'>
+                                <span class='tile-header-right-controls'>
+                                  <a href='#' onclick='InfoButton();' title="_(Show Information)_">
+                                      <i class='fa fa-fw fa-info-circle control'></i>
+                                  </a>
+                                </span>
+                              </span>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -301,25 +320,35 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Processor Information)_" data="toggleCPU(true)">
                     <tr>
                         <td>
-                            <i class='icon-cpu f32'></i>
-                            <div class='section'>
-                                _(Processor)_<br>
-                                <span class="head_info">
-                                    <span id='cpu-temp'></span>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                  <i class='icon-cpu f32'></i>
+                                  <div class='section'>
+                                      _(Processor)_<br>
+                                      <span class='flex flex-row flex-wrap items-center gap-8'>
+                                          <span class="head_info">
+                                              <span id='cpu-temp'></span>
+                                          </span>
+                                          <span class="switch">
+                                              _(Load)_:<span class="head_bar">
+                                              <span class='cpu_ load'>0%</span>
+                                              <div class='usage-disk sys'>
+                                                  <span id='cpu_'></span>
+                                                  <span></span>
+                                              </div>
+                                          </span>
+                                          <br>
+                                      </span>
+                                  </div>
                                 </span>
-                                <span class="switch">
-                                    _(Load)_:<span class="head_bar">
-                                        <span class='cpu_ load'>0%</span>
-                                        <div class='usage-disk sys'>
-                                            <span id='cpu_'></span>
-                                            <span></span>
-                                        </div>
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
                                     </span>
-                                </span><br>
-                            </div>
-                            <a href='/Dashboard/Settings/CPUset' title="_(Go to CPU pinning settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -339,20 +368,22 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     </tr>
                     <tr id='cpu_main'>
                         <td>
-                            <a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a>
-                            <span id='chart-toggle'>
-                                <span>
-                                    <select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
-                                        <?=mk_option("","10", _("10 s"));?>
-                                        <?=mk_option("","30", _("30 s"));?>
-                                        <?=mk_option("","60", _("1 m"));?>
-                                        <?=mk_option("","120", _("2 m"));?>
-                                        <?=mk_option("","300", _("5 m"));?>
-                                    </select>
+                            <span class='flex flex-row items-center justify-between gap-4'>
+                                <a onclick='toggleCPU()' title="_(Click to toggle details)_" class='cpu_close'>_(Show details)_</a>
+                                <span id='chart-toggle' class='flex flex-row items-center gap-4'>
+                                    <span>
+                                        <select id='cpuline' class='auto' title="_(Select time frame)_" onchange='changeCPUline(this.value)'>
+                                            <?=mk_option("","10", _("10 s"));?>
+                                            <?=mk_option("","30", _("30 s"));?>
+                                            <?=mk_option("","60", _("1 m"));?>
+                                            <?=mk_option("","120", _("2 m"));?>
+                                            <?=mk_option("","300", _("5 m"));?>
+                                        </select>
+                                    </span>
+                                    <a onclick='toggleChart()' title="_(Click to toggle CPU chart)_">
+                                        <span class="fa fa-fw fa-bar-chart hand"></span>
+                                    </a>
                                 </span>
-                                <a onclick='toggleChart()' title="_(Click to toggle CPU chart)_">
-                                    <span class="fa fa-fw fa-bar-chart hand"></span>
-                                </a>
                             </span>
                         </td>
                     </tr>
@@ -383,27 +414,37 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Memory Utilization)_">
                     <tr>
                         <td>
-                            <i class='icon-ram f32'></i>
-                            <div class='section'>
-                                _(System)_<br>
-                                <span class="head_info">
-                                    <span>
-                                        <i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-ram f32'></i>
+                                    <div class='section'>
+                                        _(System)_<br>
+                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                            <span class="head_info">
+                                                <span>
+                                                    <i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?>
+                                                </span>
+                                            </span>
+                                            <span class="switch">
+                                                _(RAM)_:<span class="head_bar">
+                                                    <span class='sys0_ load'>0%</span>
+                                                    <div class='usage-disk sys'>
+                                                        <span id='sys0_'></span>
+                                                        <span></span>
+                                                    </div>
+                                                </span>
+                                            </span><br>
+                                        </span>
+                                    </div>
+                                </span>
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_">
+                                            <i class='fa fa-fw fa-info-circle control'></i>
+                                        </a>
                                     </span>
                                 </span>
-                                <span class="switch">
-                                    _(RAM)_:<span class="head_bar">
-                                        <span class='sys0_ load'>0%</span>
-                                        <div class='usage-disk sys'>
-                                            <span id='sys0_'></span>
-                                            <span></span>
-                                        </div>
-                                    </span>
-                                </span><br>
-                            </div>
-                            <a href='/Dashboard/Tools/Processes' title="_(View Running Processes)_">
-                                <i class='fa fa-fw fa-info-circle control'></i>
-                            </a>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -451,27 +492,40 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Interface Information)_" class="mixed">
                     <tr>
                         <td>
-                            <i class='icon-ethernet f32'></i>
-                            <div class='section'>
-                                _(Interface)_
-                                <span class="head_gap">
-                                    <i class='ups fa fa-angle-double-right'></i>
-                                    <select name="port_select" onchange="portSelect(this.value)">
-                                        <?foreach ($ports as $port):?>
-                                            <?=mk_option("",$port,_($port))?>
-                                        <?endforeach;?>
-                                    </select>
-                                </span><br>
-                                <span class='head_info'>
-                                    <i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-ethernet f32'></i>
+                                    <div class='section'>
+                                        <span class='flex flex-row items-center gap-4'>
+                                          _(Interface)_
+                                          <span class="head_gap flex flex-row items-center gap-4">
+                                              <i class='ups fa fa-angle-double-right'></i>
+                                              <select name="port_select" onchange="portSelect(this.value)">
+                                                  <?foreach ($ports as $port):?>
+                                                      <?=mk_option("",$port,_($port))?>
+                                                  <?endforeach;?>
+                                              </select>
+                                          </span><br>
+                                        </span>
+                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                            <span class='head_info'>
+                                                <i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span>
+                                            </span>
+                                            <span>
+                                                <i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span>
+                                            </span><br>
+                                        </span>
+                                    </div>
                                 </span>
-                                <span>
-                                    <i class='ups fa fa-angle-double-up'></i>_(Outbound)_: <span id='outbound'>---</span>
-                                </span><br>
-                            </div>
-                            <a href='/Dashboard/Settings/NetworkSettings' title="_(Go to network settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+
+                                <span class="tile-header-right">
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Settings/NetworkSettings' title="_(Go to network settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
+                                    </span>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -539,19 +593,30 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(VPN Connections)_">
                     <tr>
                         <td>
-                            <i class='icon-vpn f32'></i>
-                            <div class='section'>
-                                _(VPN)_<br>
-                                <span>
-                                    <span class='head_info'>
-                                        <i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span>
+                            <span class='tile-header'>
+                                <span class='tile-header-left gap-2'>
+                                    <i class='icon-vpn f32'></i>
+                                    <div class='section'>
+                                        _(VPN)_<br>
+                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                            <span class='head_info'>
+                                                <i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span>
+                                            </span>
+                                            <span>
+                                              <i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span>
+                                            </span>
+                                        </span><br>
+                                    </div>
+                                </span>
+
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
                                     </span>
-                                    <i class='ups fa fa-pause-circle'></i>_(Inactive tunnels)_: <span id='vpn-inactive'><?=$down?></span>
-                                </span><br>
-                            </div>
-                            <a href='/Settings/VPNmanager' title="_(Go to VPN settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <?foreach ($conf as $wg):?>
@@ -583,23 +648,35 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Power Status)_">
                     <tr>
                         <td>
-                            <i class='icon-ups f32'></i>
-                            <div class='section'>
-                                _(Power)_<span class='switch head_gap' id='ups_status_'></span><br>
-                                <span class="head_info">
-                                    <span>
-                                        <i class='ups fa fa-bar-chart'></i>_(UPS Model)_: 
-                                    </span>
-                                    <span id='ups_model'></span>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-ups f32'></i>
+                                    <div class='section'>
+                                        _(Power)_
+                                        <span class="flex flex-row flex-wrap items-center gap-8">
+                                            <span class='switch head_gap' id='ups_status_'></span>
+                                            <br>
+                                            <span class="head_info">
+                                                <span>
+                                                    <i class='ups fa fa-bar-chart'></i>_(UPS Model)_: 
+                                                </span>
+                                                <span id='ups_model'></span>
+                                            </span>
+                                            <span class="switch">
+                                                <span>_(Load)_:</span>
+                                                <span class="head_gap" id='ups_loadpct_'></span>
+                                            </span><br>
+                                        </span>
+                                    </div>
                                 </span>
-                                <span class="switch">
-                                    <span>_(Load)_:</span>
-                                    <span class="head_gap" id='ups_loadpct_'></span>
-                                </span><br>
-                            </div>
-                            <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Settings/UPSsettings' title="_(Go to UPS settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
+                                    </span>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr>
@@ -657,18 +734,26 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Fan Information)_">
                     <tr>
                         <td>
-                            <i class='icon-fan f32'></i>
-                            <div class='section'>
-                                _(Airflow)_<br>
-                                <span>
-                                    <i class='ups fa fa-sort-amount-asc'></i>_(Fan count)_: <?=$fans?>
-                                </span><br>
-                            </div>
-                            <?if ($autofan):?>
-                                <a href='/Dashboard/Settings/FanSettings' title="_(Go to fan settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
-                            <?endif;?>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-fan f32'></i>
+                                    <div class='section'>
+                                        _(Airflow)_<br>
+                                        <span>
+                                            <i class='ups fa fa-sort-amount-asc'></i>_(Fan count)_: <?=$fans?>
+                                        </span><br>
+                                    </div>
+                                </span>
+                                <?if ($autofan):?>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/FanSettings' title="_(Go to fan settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                <?endif;?>
+                            </span>
                         </td>
                     </tr>
                     <?
@@ -708,17 +793,25 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody id='docker_view' title="_(Docker Containers)_" data="noApps()">
                         <tr>
                             <td>
-                                <i class='icon-docker f32'></i>
-                                <div class='section'>
-                                    _(Docker Containers)_<br>
-                                    <span class='apps button'>
-                                        <input type='checkbox' id='apps'>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-docker f32'></i>
+                                        <div class='section'>
+                                            _(Docker Containers)_<br>
+                                            <span class='apps button'>
+                                                <input type='checkbox' id='apps'>
+                                            </span>
+                                            <span class='apps switch'></span><br>
+                                        </div>
                                     </span>
-                                    <span class='apps switch'></span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/DockerSettings' title="_(Go to Docker settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/DockerSettings' title="_(Go to Docker settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -727,17 +820,26 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody id='vm_view' title="_(Virtual Machines)_" data="noVMs()">
                         <tr>
                             <td>
-                                <i class='icon-virtualization f32'></i>
-                                <div class='section'>
-                                    _(Virtual Machines)_<br>
-                                    <span class='vms button'>
-                                        <input type='checkbox' id='vms'>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-virtualization f32'></i>
+                                        <div class='section'>
+                                            _(Virtual Machines)_<br>
+                                            <span class='vms button'>
+                                                <input type='checkbox' id='vms'>
+                                            </span>
+                                            <span class='vms switch'></span><br>
+                                        </div>
                                     </span>
-                                    <span class='vms switch'></span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -745,12 +847,20 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <?if ($vmusage == "Y"):?>
                         <tbody id='vm_view_usage' title="_(Virtual Machines Usage)_" >
                             <tr>
-                                <td>
-                                    <i class='icon-virtualization f32'></i>
-                                    <div class='section'>_(Virtual Machines Usage)_</div>
-                                    <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_">
-                                        <i class='fa fa-fw fa-cog control'></i>
-                                    </a>
+                                <td></td>
+                                    <span class='tile-header'>
+                                        <span class='tile-header-left'>
+                                            <i class='icon-virtualization f32'></i>
+                                            <div class='section'>_(Virtual Machines Usage)_</div>
+                                        </span>
+                                        <span class='tile-header-right'>
+                                            <span class='tile-header-right-controls'>
+                                                <a href='/Dashboard/Settings/VMSettings' title="_(Go to VM settings)_">
+                                                    <i class='fa fa-fw fa-cog control'></i>
+                                                </a>
+                                            </span>
+                                        </span>
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -760,30 +870,41 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Shares Information)_"<?if ($group):?> class="mixed"<?endif;?>>
                     <tr>
                         <td>
-                            <i class='icon-folder f32'></i>
-                            <div class='section'>
-                                _(Shares)_
-                                <?if ($group):?>
-                                    <span class="head_gap">
-                                        <i class='ups fa fa-angle-double-right'></i>
-                                        <select name="enter_share" onchange="changeMode(this.value)">
-                                            <?if (_var($var,'shareSMBEnabled')=='yes'):?>
-                                                <?=mk_option("", "0", "SMB")?>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-folder f32'></i>
+                                    <div class='section'>
+                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                            <span>_(Shares)_</span>
+                                            <?if ($group):?>
+                                              <i class='ups fa fa-angle-double-right'></i>
+                                                <span class="head_gap flex flex-row flex-wrap items-center gap-4">
+                                                    <select name="enter_share" onchange="changeMode(this.value)">
+                                                        <?if (_var($var,'shareSMBEnabled')=='yes'):?>
+                                                            <?=mk_option("", "0", "SMB")?>
+                                                        <?endif;?>
+                                                        <?if (_var($var,'shareNFSEnabled')=='yes'):?>
+                                                            <?=mk_option("", "2", "NFS")?>
+                                                        <?endif;?>
+                                                    </select>
+                                                </span>
                                             <?endif;?>
-                                            <?if (_var($var,'shareNFSEnabled')=='yes'):?>
-                                                <?=mk_option("", "2", "NFS")?>
-                                            <?endif;?>
-                                        </select>
+                                        </span>
+                                        <br>
+                                        <span>
+                                            <?=sprintf(_("Share count: %s with %s public SMB and %s public NFS"),count($shares),$SMBpublic,$NFSpublic)?>
+                                        </span><br>
+                                    </div>
+                                </span>
+
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Shares' title="_(Go to Share settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
                                     </span>
-                                <?endif;?>
-                                <br>
-                                <span>
-                                    <?=sprintf(_("Share count: %s with %s public SMB and %s public NFS"),count($shares),$SMBpublic,$NFSpublic)?>
-                                </span><br>
-                            </div>
-                            <a href='/Shares' title="_(Go to Share settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr class='header'>
@@ -831,30 +952,38 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Users Information)_"<?if ($group):?> class="mixed"<?endif;?>>
                     <tr>
                         <td>
-                            <i class='icon-users f32'></i>
-                            <div class='section'>
-                                _(Users)_
-                                <?if ($group):?>
-                                    <span class="head_gap">
-                                        <i class='ups fa fa-angle-double-right unused'></i>
-                                        <select name="enter_user" class="unused">
-                                            <?if (_var($var,'shareSMBEnabled')=='yes'):?>
-                                                <?=mk_option("", "0", "SMB")?>
-                                            <?endif;?>
-                                            <?if (_var($var,'shareNFSEnabled')=='yes'):?>
-                                                <?=mk_option("", "2", "NFS")?>
-                                            <?endif;?>
-                                        </select>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-users f32'></i>
+                                    <div class='section'>
+                                        _(Users)_
+                                        <?if ($group):?>
+                                            <span class="head_gap">
+                                                <i class='ups fa fa-angle-double-right unused'></i>
+                                                <select name="enter_user" class="unused">
+                                                    <?if (_var($var,'shareSMBEnabled')=='yes'):?>
+                                                        <?=mk_option("", "0", "SMB")?>
+                                                    <?endif;?>
+                                                    <?if (_var($var,'shareNFSEnabled')=='yes'):?>
+                                                        <?=mk_option("", "2", "NFS")?>
+                                                    <?endif;?>
+                                                </select>
+                                            </span>
+                                        <?endif;?>
+                                        <br>
+                                        <span>
+                                            <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
+                                        </span><br>
+                                    </div>
+                                </span>
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Users' title="_(Go to User settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
                                     </span>
-                                <?endif;?>
-                                <br>
-                                <span>
-                                    <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
-                                </span><br>
-                            </div>
-                            <a href='/Users' title="_(Go to User settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr class='header'>
@@ -924,30 +1053,38 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                 <tbody title="_(Users Information)_"<?if ($group):?> class="mixed"<?endif;?>>
                     <tr>
                         <td>
-                            <i class='icon-users f32'></i>
-                            <div class='section'>
-                                _(Users)_
-                                <?if ($group):?>
-                                    <span class="head_gap">
-                                        <i class='ups fa fa-angle-double-right unused'></i>
-                                        <select name="enter_user" class="unused">
-                                            <?if (_var($var,'shareSMBEnabled')=='yes'):?>
-                                                <?=mk_option("", "0", "SMB")?>
-                                            <?endif;?>
-                                            <?if (_var($var,'shareNFSEnabled')=='yes'):?>
-                                                <?=mk_option("", "2", "NFS")?>
-                                            <?endif;?>
-                                        </select>
+                            <span class='tile-header'>
+                                <span class='tile-header-left'>
+                                    <i class='icon-users f32'></i>
+                                    <div class='section'>
+                                        _(Users)_
+                                        <?if ($group):?>
+                                            <span class="head_gap">
+                                                <i class='ups fa fa-angle-double-right unused'></i>
+                                                <select name="enter_user" class="unused">
+                                                    <?if (_var($var,'shareSMBEnabled')=='yes'):?>
+                                                        <?=mk_option("", "0", "SMB")?>
+                                                    <?endif;?>
+                                                    <?if (_var($var,'shareNFSEnabled')=='yes'):?>
+                                                        <?=mk_option("", "2", "NFS")?>
+                                                    <?endif;?>
+                                                </select>
+                                            </span>
+                                        <?endif;?>
+                                        <br>
+                                        <span>
+                                            <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
+                                        </span><br>
+                                    </div>
+                                </span>
+                                <span class='tile-header-right'>
+                                    <span class='tile-header-right-controls'>
+                                        <a href='/Users' title="_(Go to User settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
                                     </span>
-                                <?endif;?>
-                                <br>
-                                <span>
-                                    <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
-                                </span><br>
-                            </div>
-                            <a href='/Users' title="_(Go to User settings)_">
-                                <i class='fa fa-fw fa-cog control'></i>
-                            </a>
+                                </span>
+                            </span>
                         </td>
                     </tr>
                     <tr class='header'>
@@ -1024,14 +1161,21 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody title="_(Parity Information)_">
                         <tr>
                             <td>
-                                <i class='icon-health f32'></i>
-                                <div class='section'>
-                                    _(Parity)_<br>
-                                    <span class='parity'></span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/Scheduler' title="_(Go to scheduler settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-health f32'></i>
+                                        <div class='section'>
+                                            _(Parity)_<br>
+                                            <span class='parity'></span><br>
+                                        </div>
+                                    </span>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                        <a href='/Dashboard/Settings/Scheduler' title="_(Go to scheduler settings)_">
+                                            <i class='fa fa-fw fa-cog control'></i>
+                                        </a>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
@@ -1046,18 +1190,26 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody id='array_list' title="_(Array Information)_">
                         <tr>
                             <td>
-                                <i class='icon-disks f32'></i>
-                                <div class='section'>
-                                    _(Array)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
-                                    <span>
-                                        <?if ($started):?>
-                                            <?=sprintf(_("%s used of %s (%s %%)"),my_scale($array_used*1024,$unit)." $unit",my_scale($array_size*1024,$unit,-1,-1)." $unit",$array_percent)?>
-                                        <?endif;?>
-                                    </span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-disks f32'></i>
+                                        <div class='section'>
+                                            _(Array)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
+                                            <span>
+                                                <?if ($started):?>
+                                                    <?=sprintf(_("%s used of %s (%s %%)"),my_scale($array_used*1024,$unit)." $unit",my_scale($array_size*1024,$unit,-1,-1)." $unit",$array_percent)?>
+                                                <?endif;?>
+                                            </span><br>
+                                        </div>
+                                    </span>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
@@ -1083,19 +1235,27 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody id='pool_list<?=$i?>' title="_(<?=ucfirst($pool)?> Information)_">
                         <tr>
                             <td>
-                                <i class='icon-disk f32'></i>
-                                <div class='section'>
-                                    <?=_(native($pool),3).($started ? '' : ' ('._('stopped').')')?>
-                                    <br>
-                                    <span>
-                                        <?if ($started):?>
-                                            <?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?>
-                                        <?endif;?>
-                                    </span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-disk f32'></i>
+                                        <div class='section'>
+                                            <?=_(native($pool),3).($started ? '' : ' ('._('stopped').')')?>
+                                            <br>
+                                            <span>
+                                                <?if ($started):?>
+                                                    <?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?>
+                                                <?endif;?>
+                                          </span><br>
+                                        </div>
+                                    </span>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/Device?name=<?=$pool?>' title="_(Go to disk settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
@@ -1118,14 +1278,22 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <tbody id='devs_list' title="_(Unassigned Devices)_">
                         <tr>
                             <td>
-                                <i class='icon-disc f32'></i>
-                                <div class='section'>
-                                    _(Unassigned)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
-                                    <span></span><br>
-                                </div>
-                                <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_">
-                                    <i class='fa fa-fw fa-cog control'></i>
-                                </a>
+                                <span class='tile-header'>
+                                    <span class='tile-header-left'>
+                                        <i class='icon-disc f32'></i>
+                                        <div class='section'>
+                                            _(Unassigned)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
+                                            <span></span><br>
+                                        </div>
+                                    </span>
+                                    <span class='tile-header-right'>
+                                        <span class='tile-header-right-controls'>
+                                            <a href='/Dashboard/Settings/DiskSettings' title="_(Go to disk settings)_">
+                                                <i class='fa fa-fw fa-cog control'></i>
+                                            </a>
+                                        </span>
+                                    </span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
@@ -1837,14 +2005,14 @@ function sortTables() {
       }
     }
   });
-  $('table.dashboard tbody').before(stopgap);
+  // $('table.dashboard tbody').before(stopgap);
 }
 
 function addProperties() {
   $('div.frame tbody.system').addClass('sortable').attr('sort','_system_information_'.md5());
-  $('div.frame tbody.system').find('td:first').prepend("<i class='fa fa-fw fa-eject control' onclick='openClose()' title=\"_(Show/Hide All Content)_\"></i>");
+  $('div.frame tbody.system').find('td:first .tile-header-right .tile-header-right-controls').prepend("<i class='fa fa-fw fa-eject control' onclick='openClose()' title=\"_(Show/Hide All Content)_\"></i>");
   $('div.frame tbody').each(function(){
-    $(this).find('td:first').prepend("<i class='fa fa-fw fa-chevron-up control openclose' onclick='openClose($(this))' title=\"_(Show/Hide Content)_\"></i>");
+    $(this).find('td:first .tile-header-right .tile-header-right-controls').prepend("<i class='fa fa-fw fa-chevron-up control openclose' onclick='openClose($(this))' title=\"_(Show/Hide Content)_\"></i>");
   });
   $('div.frame tbody').not('.system').each(function(){
     $(this).addClass('sortable').attr('sort',$(this).attr('title').md5());
@@ -2140,7 +2308,7 @@ function LockButton() {
     },
     stop:function(e,ui){
       var table = ui.item.parent(), index = [];
-      if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
+      // if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       cookie[table.prop('id')] = index.join(';');
       saveCookie();
