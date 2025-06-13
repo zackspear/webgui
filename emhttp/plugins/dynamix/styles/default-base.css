@@ -1079,7 +1079,7 @@ table.dashboard td div.section {
     /* margin-left: 4px; */
     font-size: 1.2rem;
     font-weight: bold;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     letter-spacing: normal;
 }
 table.dashboard td div.section span {

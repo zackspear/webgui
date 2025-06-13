@@ -456,7 +456,7 @@ legend {
 
 @media (min-width: 768px) {
     .tile-system-memory-body {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
