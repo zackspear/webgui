@@ -214,7 +214,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-performance f32'></i>
 
                                     <div class='section'>
-                                        <?=_var($var,'NAME')?><br>
+                                        <h3 class='tile-header-main'><?=_var($var,'NAME')?></h3>
                                         <span><?=htmlspecialchars(_var($var,'COMMENT'))?></span>
                                         <span id="current_time_" class="switch head_time"></span><br>
                                     </div>
@@ -289,7 +289,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                               <span class='tile-header-left'>
                                 <i class='icon-motherboard f32'></i>
                                 <div class='section'>
-                                    _(Motherboard)_<br>
+                                    <h3 class='tile-header-main'>_(Motherboard)_</h3>
                                     <span id='mb-temp'></span><br>
                                 </div>
                               </span>
@@ -324,21 +324,8 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                   <i class='icon-cpu f32'></i>
                                   <div class='section'>
-                                      _(Processor)_<br>
-                                      <span class='flex flex-row flex-wrap items-center gap-8'>
-                                          <span class="head_info">
-                                              <span id='cpu-temp'></span>
-                                          </span>
-                                          <span class="switch">
-                                              _(Load)_:<span class="head_bar">
-                                              <span class='cpu_ load'>0%</span>
-                                              <div class='usage-disk sys'>
-                                                  <span id='cpu_'></span>
-                                                  <span></span>
-                                              </div>
-                                          </span>
-                                          <br>
-                                      </span>
+                                      <h3 class='tile-header-main'>_(Processor)_</h3>
+                                      <?=$cpumodel?>
                                   </div>
                                 </span>
                                 <span class='tile-header-right'>
@@ -352,7 +339,22 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                         </td>
                     </tr>
                     <tr>
-                        <td><?=$cpumodel?></td>
+                        <td>
+                            <span class='flex flex-row flex-wrap items-center gap-8'>
+                                <span class="head_info">
+                                    <span id='cpu-temp'></span>
+                                </span>
+                                <span class="switch">
+                                    _(Load)_:<span class="head_bar">
+                                    <span class='cpu_ load'>0%</span>
+                                    <div class='usage-disk sys'>
+                                        <span id='cpu_'></span>
+                                        <span></span>
+                                    </div>
+                                </span>
+                                <br>
+                            </span>
+                        </td>
                     </tr>
                     <tr>
                         <td>
@@ -418,7 +420,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-ram f32'></i>
                                     <div class='section'>
-                                        _(System)_<br>
+                                        <h3 class='tile-header-main'>_(System)_</h3>
                                         <span class='flex flex-row flex-wrap items-center gap-8'>
                                             <span class="head_info">
                                                 <span>
@@ -449,42 +451,36 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     </tr>
                     <tr>
                         <td>
-                            <span class='w26'>
-                                <i class='ups fa fa-compress'></i>_(Usable size)_: <?=$ramsize?><br>
-                                <i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?>
-                            </span>
-                            <span class='w18 center static'>
-                                <a class='info hand none'>_(RAM usage)_<span>_(Percent of total used memory)_ (<?=$ramsize?>)</span></a>
-                            </span>
-                            <span class='w18 center static'>
-                                <a class='info hand none'>_(Flash device)_<span>_(Percent usage of flash usb device)_ (<?=$flashsize?>)</span></a>
-                            </span>
-                            <span class='w18 center static'>
-                                <a class='info hand none'>_(Log filesystem)_<span>_(Percent usage of LOG file system)_ (<?=$logsize?>)</span></a>
-                            </span>
-                            <span class='w18 center static'>
-                                <a class='info hand none'><?=$vdisk?><span><?=_("Percent usage of $vdisk")?> (<?=$dockersize?>)</span></a>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span class='w26'>
-                                <legend>_(Legend)_</legend>
-                                <span id='dynamic'></span>
-                            </span>
-                            <span class='w18 center'>
-                                <div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div>
-                            </span>
-                            <span class='w18 center'>
-                                <div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div>
-                            </span>
-                            <span class='w18 center'>
-                                <div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div>
-                            </span>
-                            <span class='w18 center'>
-                                <div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div>
-                            </span>
+                            <div class="tile-system-memory-body">
+                                <div class="tile-system-memory-labels">
+                                    <div>
+                                        <i class='ups fa fa-compress'></i>_(Usable size)_: <?=$ramsize?><br>
+                                        <i class='ups fa fa-expand'></i>_(Maximum size)_: <?="$memory_maximum $unit"?><?=$low?'*':''?>
+                                    </div>
+                                    <div>
+                                        <legend>_(Legend)_</legend>
+                                        <span id='dynamic'></span>
+                                    </div>
+                                </div>
+                                <div class='tile-system-memory-charts'>
+                                  <span>
+                                      <a class='info hand none'>_(RAM usage)_<span>_(Percent of total used memory)_ (<?=$ramsize?>)</span></a>
+                                      <div class='pie' id='sys0'><span class='sys0'></span><span class='var0'></span></div>
+                                  </span>
+                                  <span>
+                                      <a class='info hand none'>_(Flash device)_<span>_(Percent usage of flash usb device)_ (<?=$flashsize?>)</span></a>
+                                      <div class='pie' id='sys1'><span class='sys1'></span><span class='var1'></span></div>
+                                  </span>
+                                  <span>
+                                      <a class='info hand none'>_(Log filesystem)_<span>_(Percent usage of LOG file system)_ (<?=$logsize?>)</span></a>
+                                      <div class='pie' id='sys2'><span class='sys2'></span><span class='var2'></span></div>
+                                  </span>
+                                  <span>
+                                      <a class='info hand none'><?=$vdisk?><span><?=_("Percent usage of $vdisk")?> (<?=$dockersize?>)</span></a>
+                                      <div class='pie' id='sys3'><span class='sys3'></span><span class='var3'></span></div>
+                                  </span>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -497,7 +493,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-ethernet f32'></i>
                                     <div class='section'>
                                         <span class='flex flex-row items-center gap-4'>
-                                          _(Interface)_
+                                          <h3 class='tile-header-main'>_(Interface)_</h3>
                                           <span class="head_gap flex flex-row items-center gap-4">
                                               <i class='ups fa fa-angle-double-right'></i>
                                               <select name="port_select" onchange="portSelect(this.value)">
@@ -597,7 +593,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left gap-2'>
                                     <i class='icon-vpn f32'></i>
                                     <div class='section'>
-                                        _(VPN)_<br>
+                                        <h3 class='tile-header-main'>_(VPN)_</h3>
                                         <span class='flex flex-row flex-wrap items-center gap-8'>
                                             <span class='head_info'>
                                                 <i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span>
@@ -652,7 +648,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-ups f32'></i>
                                     <div class='section'>
-                                        _(Power)_
+                                        <h3 class='tile-header-main'>_(Power)_</h3>
                                         <span class="flex flex-row flex-wrap items-center gap-8">
                                             <span class='switch head_gap' id='ups_status_'></span>
                                             <br>
@@ -738,7 +734,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-fan f32'></i>
                                     <div class='section'>
-                                        _(Airflow)_<br>
+                                        <h3 class='tile-header-main'>_(Airflow)_</h3>
                                         <span>
                                             <i class='ups fa fa-sort-amount-asc'></i>_(Fan count)_: <?=$fans?>
                                         </span><br>
@@ -797,7 +793,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-docker f32'></i>
                                         <div class='section'>
-                                            _(Docker Containers)_<br>
+                                            <h3 class='tile-header-main'>_(Docker Containers)_</h3>
                                             <span class='apps button'>
                                                 <input type='checkbox' id='apps'>
                                             </span>
@@ -824,7 +820,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-virtualization f32'></i>
                                         <div class='section'>
-                                            _(Virtual Machines)_<br>
+                                            <h3 class='tile-header-main'>_(Virtual Machines)_</h3>
                                             <span class='vms button'>
                                                 <input type='checkbox' id='vms'>
                                             </span>
@@ -847,11 +843,13 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     <?if ($vmusage == "Y"):?>
                         <tbody id='vm_view_usage' title="_(Virtual Machines Usage)_" >
                             <tr>
-                                <td></td>
+                                <td>
                                     <span class='tile-header'>
                                         <span class='tile-header-left'>
                                             <i class='icon-virtualization f32'></i>
-                                            <div class='section'>_(Virtual Machines Usage)_</div>
+                                            <div class='section'>
+                                              <h3 class='tile-header-main'>_(Virtual Machines Usage)_</h3>
+                                            </div>
                                         </span>
                                         <span class='tile-header-right'>
                                             <span class='tile-header-right-controls'>
@@ -875,7 +873,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-folder f32'></i>
                                     <div class='section'>
                                         <span class='flex flex-row flex-wrap items-center gap-8'>
-                                            <span>_(Shares)_</span>
+                                          <h3 class='tile-header-main'>_(Shares)_</h3>
                                             <?if ($group):?>
                                               <i class='ups fa fa-angle-double-right'></i>
                                                 <span class="head_gap flex flex-row flex-wrap items-center gap-4">
@@ -890,7 +888,6 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                                 </span>
                                             <?endif;?>
                                         </span>
-                                        <br>
                                         <span>
                                             <?=sprintf(_("Share count: %s with %s public SMB and %s public NFS"),count($shares),$SMBpublic,$NFSpublic)?>
                                         </span><br>
@@ -956,7 +953,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-users f32'></i>
                                     <div class='section'>
-                                        _(Users)_
+                                        <h3 class='tile-header-main'>_(Users)_</h3>
                                         <?if ($group):?>
                                             <span class="head_gap">
                                                 <i class='ups fa fa-angle-double-right unused'></i>
@@ -970,10 +967,9 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                                 </select>
                                             </span>
                                         <?endif;?>
-                                        <br>
                                         <span>
                                             <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
-                                        </span><br>
+                                        </span>
                                     </div>
                                 </span>
                                 <span class='tile-header-right'>
@@ -1057,7 +1053,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-users f32'></i>
                                     <div class='section'>
-                                        _(Users)_
+                                        <h3 class='tile-header-main'>_(Users)_</h3>
                                         <?if ($group):?>
                                             <span class="head_gap">
                                                 <i class='ups fa fa-angle-double-right unused'></i>
@@ -1071,10 +1067,9 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                                 </select>
                                             </span>
                                         <?endif;?>
-                                        <br>
                                         <span>
                                             <?=sprintf(_("User count: %s with %s unprotected"),count($users),$nopass)?>
-                                        </span><br>
+                                        </span>
                                     </div>
                                 </span>
                                 <span class='tile-header-right'>
@@ -1165,7 +1160,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-health f32'></i>
                                         <div class='section'>
-                                            _(Parity)_<br>
+                                            <h3 class='tile-header-main'>_(Parity)_</h3>
                                             <span class='parity'></span><br>
                                         </div>
                                     </span>
@@ -1194,7 +1189,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-disks f32'></i>
                                         <div class='section'>
-                                            _(Array)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
+                                            <h3 class='tile-header-main'>_(Array)_<?if (!$started):?> (_(stopped)_)<?endif;?></h3>
                                             <span>
                                                 <?if ($started):?>
                                                     <?=sprintf(_("%s used of %s (%s %%)"),my_scale($array_used*1024,$unit)." $unit",my_scale($array_size*1024,$unit,-1,-1)." $unit",$array_percent)?>
@@ -1239,8 +1234,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-disk f32'></i>
                                         <div class='section'>
-                                            <?=_(native($pool),3).($started ? '' : ' ('._('stopped').')')?>
-                                            <br>
+                                            <h3 class='tile-header-main'><?=_(native($pool),3).($started ? '' : ' ('._('stopped').')')?></h3>
                                             <span>
                                                 <?if ($started):?>
                                                     <?=sprintf(_("%s used of %s (%s %%)"),my_scale($cache_used[$pool]*1024,$unit)." $unit",my_scale($cache_size[$pool]*1024,$unit,-1,-1)." $unit",$cache_rate[$pool])?>
@@ -1282,7 +1276,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <span class='tile-header-left'>
                                         <i class='icon-disc f32'></i>
                                         <div class='section'>
-                                            _(Unassigned)_<?if (!$started):?> (_(stopped)_)<?endif;?><br>
+                                            <h3 class='tile-header-main'>_(Unassigned)_<?if (!$started):?> (_(stopped)_)<?endif;?></h3>
                                             <span></span><br>
                                         </div>
                                     </span>

@@ -1037,8 +1037,8 @@ table.dashboard tbody td {
     padding: 3px 10px;
 }
 table.dashboard tr:first-child > td {
-    /* height: 3.6rem; */
-    padding-top: 12px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     font-size: 1.6rem;
     font-weight: bold;
     letter-spacing: 1.8px;
