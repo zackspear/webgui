@@ -165,9 +165,6 @@ if (!empty($username) && !empty($password)) {
 
         // Check if we're limited
         if ($failCount >= $maxFails) {
-            if ($failCount == $maxFails) {
-                my_logger("Ignoring login attempts from {$remote_addr} for {$cooldown} seconds.");
-            }
             throw new Exception(_('Too many previous login attempts.').'<br>'.sprintf(_('Logins prevented for %s'),'<span id="countdown"></span>'));
         }
 
