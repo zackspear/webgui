@@ -743,6 +743,7 @@ class Libvirt {
 					$strEGLHeadless = "";
 					$strAccel3d ="";
 					$additionalqxlheads = "";
+					$qxlheads=1;
 					if ($strModelType == "virtio3d") {
 						$strModelType = "virtio";
 						if (!isset($gpu['render'])) $gpu['render'] = "auto";
