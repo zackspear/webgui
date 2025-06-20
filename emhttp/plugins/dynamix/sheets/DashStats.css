@@ -417,12 +417,11 @@ legend {
     align-items: start;
     gap: 1rem;
 }
-    
+
 .tile-header-main {
     font-size: 1.6rem;
     line-height: 1;
-    margin-top: 0;
-    margin-bottom: .5rem;
+    margin: 0;
 }
 
 .tile-header-left {
@@ -441,6 +440,20 @@ legend {
     align-items: start;
     justify-content: flex-end;
     gap: 1rem;
+}
+
+.tile-header-right-controls {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+
+    /* prevents random spacing above the nested `i` */
+    a {
+        display: inline-flex;
+    }
 }
 
 .tile-ctrl span {

@@ -340,7 +340,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                     </tr>
                     <tr>
                         <td>
-                            <span class='flex flex-row flex-wrap items-center gap-8'>
+                            <span class='flex flex-row flex-wrap items-center gap-4'>
                                 <span class="head_info">
                                     <span id='cpu-temp'></span>
                                 </span>
@@ -421,7 +421,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-ram f32'></i>
                                     <div class='section'>
                                         <h3 class='tile-header-main'>_(System)_</h3>
-                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                        <span class='flex flex-row flex-wrap items-center gap-4'>
                                             <span class="head_info">
                                                 <span>
                                                     <i class='ups fa fa-line-chart'></i>_(Memory)_: <?="$memory_installed $unit $memory_type $ecc"?>
@@ -503,7 +503,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                               </select>
                                           </span><br>
                                         </span>
-                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                        <span class='flex flex-row flex-wrap items-center gap-4'>
                                             <span class='head_info'>
                                                 <i class='ups fa fa-angle-double-down'></i>_(Inbound)_: <span id='inbound'>---</span>
                                             </span>
@@ -594,7 +594,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-vpn f32'></i>
                                     <div class='section'>
                                         <h3 class='tile-header-main'>_(VPN)_</h3>
-                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                        <span class='flex flex-row flex-wrap items-center gap-4'>
                                             <span class='head_info'>
                                                 <i class='ups fa fa-play-circle'></i>_(Active tunnels)_: <span id='vpn-active'><?=$up?></span>
                                             </span>
@@ -649,7 +649,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                     <i class='icon-ups f32'></i>
                                     <div class='section'>
                                         <h3 class='tile-header-main'>_(Power)_</h3>
-                                        <span class="flex flex-row flex-wrap items-center gap-8">
+                                        <span class="flex flex-row flex-wrap items-center gap-4">
                                             <span class='switch head_gap' id='ups_status_'></span>
                                             <br>
                                             <span class="head_info">
@@ -872,7 +872,7 @@ switch ($themeHelper->getThemeName()) { // $themeHelper set in DefaultPageLayout
                                 <span class='tile-header-left'>
                                     <i class='icon-folder f32'></i>
                                     <div class='section'>
-                                        <span class='flex flex-row flex-wrap items-center gap-8'>
+                                        <span class='flex flex-row flex-wrap items-center gap-4'>
                                           <h3 class='tile-header-main'>_(Shares)_</h3>
                                             <?if ($group):?>
                                               <i class='ups fa fa-angle-double-right'></i>
@@ -1899,14 +1899,14 @@ function sortTables() {
       }
     }
   });
-  // $('table.dashboard tbody').before(stopgap);
+  $('table.dashboard tbody').before(stopgap);
 }
 
 function addProperties() {
   $('div.frame tbody.system').addClass('sortable').attr('sort','_system_information_'.md5());
-  $('div.frame tbody.system').find('td:first .tile-header-right .tile-header-right-controls').prepend("<i class='fa fa-fw fa-eject control' onclick='openClose()' title=\"_(Show/Hide All Content)_\"></i>");
+  $('div.frame tbody.system').find('td:first .tile-header-right .tile-header-right-controls').append("<i class='fa fa-fw fa-eject control' onclick='openClose()' title=\"_(Show/Hide All Content)_\"></i>");
   $('div.frame tbody').each(function(){
-    $(this).find('td:first .tile-header-right .tile-header-right-controls').prepend("<i class='fa fa-fw fa-chevron-up control openclose' onclick='openClose($(this))' title=\"_(Show/Hide Content)_\"></i>");
+    $(this).find('td:first .tile-header-right .tile-header-right-controls').append("<i class='fa fa-fw fa-chevron-up control openclose' onclick='openClose($(this))' title=\"_(Show/Hide Content)_\"></i>");
   });
   $('div.frame tbody').not('.system').each(function(){
     $(this).addClass('sortable').attr('sort',$(this).attr('title').md5());
@@ -2202,7 +2202,7 @@ function LockButton() {
     },
     stop:function(e,ui){
       var table = ui.item.parent(), index = [];
-      // if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
+      if (ui.item.prev().html().search('stopgap')>0) ui.item.after(stopgap); else ui.item.before(stopgap);
       table.find('tbody').each(function(){index.push($(this).attr('sort'));});
       cookie[table.prop('id')] = index.join(';');
       saveCookie();
