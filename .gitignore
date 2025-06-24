@@ -73,3 +73,29 @@ emhttp/plugins/.prettierrc
 emhttp/plugins/package-lock.json
 emhttp/plugins/package.json
 emhttp/plugins/pnpm-lock.yaml
+
+# =========================
+# Unraid API artifacts
+# =========================
+
+# api source code
+unraid-api/
+
+# Node.js built-in's like npm & corepack
+lib/node_modules
+
+# unraid-api & node binaries
+bin/
+sbin/unraid-api
+
+# Unraid Connect plugin readme
+emhttp/plugins/dynamix.unraid.net
+
+# rc scripts
+etc/rc.d/rc.flash_backup
+etc/rc.d/rc.unraid-api/
+etc/rc.d/rc0.d
+etc/rc.d/rc6.d
+
+# API helper scripts
+share/dynamix.unraid.net/

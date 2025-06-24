@@ -1,0 +1,8 @@
+# Provided by Unraid API
+Connect.page
+include/UpdateFlashBackup.php
+include/sso-login.php
+include/unraid-api.php
+include/welcome-modal.php
+scripts/
+unraid-components/
