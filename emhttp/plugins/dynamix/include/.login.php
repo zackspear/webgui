@@ -191,15 +191,12 @@ if (!empty($username) && !empty($password)) {
         // Set error message
         $error = $exception->getMessage();
         appendToFile($failFile, $time . "\n");
-        $failCount = cleanupFails($failFile, $time);
         // Log error to syslog
         $coolReset = "";
-        if ($failCount >= $maxFails) {
+        if ($failCount > $maxFails) {
             $coolReset = "Ignoring login attempts for {$cooldown} seconds.";
         }
-        if ( $failCount == $maxFails ) {
-            $error .= '<br>'.sprintf(_('Logins prevented for %s'),'<span id="countdown"></span>');
-        }
+
         my_logger("Unsuccessful login user {$username} from {$remote_addr}. {$coolReset}");
     }
 }
@@ -615,8 +612,8 @@ $isDarkTheme = $themeHelper->isDarkTheme();
             document.body.appendChild(errorElement);
         }
 
-        var timeInSecs;
-        var ticker;
+        let timeInSecs;
+        let ticker;
 
         function startTimer(secs) {
             timeInSecs = parseInt(secs);
