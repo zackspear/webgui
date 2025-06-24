@@ -62,9 +62,6 @@ man/
 # Auto-generated when emhttpd/webGUI start
 emhttp/languages/en_US/helptext.dot
 
-# Auto-generated when web copmonents are built
-emhttp/plugins/dynamix.my.servers/unraid-components/index.html
-
 # development scripts
 .dev-scripts/
 emhttp/plugins/node_modules/
@@ -81,8 +78,11 @@ emhttp/plugins/pnpm-lock.yaml
 # api source code
 unraid-api/
 
+# Node.js version
+.node-version
+
 # Node.js built-in's like npm & corepack
-lib/node_modules
+lib/
 
 # unraid-api & node binaries
 bin/
@@ -93,7 +93,7 @@ emhttp/plugins/dynamix.unraid.net
 
 # rc scripts
 etc/rc.d/rc.flash_backup
-etc/rc.d/rc.unraid-api/
+etc/rc.d/rc.unraid-api
 etc/rc.d/rc0.d
 etc/rc.d/rc6.d
 
