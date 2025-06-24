@@ -88,7 +88,7 @@ lib/node_modules
 bin/
 sbin/unraid-api
 
-# Unraid Connect plugin readme
+# Unraid API readme/changelog
 emhttp/plugins/dynamix.unraid.net
 
 # rc scripts
