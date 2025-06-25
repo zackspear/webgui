@@ -139,7 +139,6 @@ if (count($pages)) {
   ?>
 
   <? include "$docroot/plugins/dynamix.my.servers/include/myservers1.php" ?>
-  <? require_once "$docroot/webGui/include/DefaultPageLayout/GUIModeSessionFix.php"; ?>
 </head>
 
 <body>
