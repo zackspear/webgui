@@ -358,7 +358,7 @@ case 'change-media-both':
 		$cmdstr = "virsh attach-disk ".escapeshellarg($domName)." ".escapeshellarg($file2)." hdb --type cdrom --targetbus sata --config" ; #PHPS - Changed
 	} else  {
 		if ($file2 == "") $cmdstr = "virsh change-media ".escapeshellarg($domName)." hdb --eject --current";#PHPS - Changed
-		else $cmdstr = "virsh change-media ".escapeshellarg($domName)." hdb '".escapeshellarg($file2)."' "; #PHPS - Changed
+		else $cmdstr = "virsh change-media ".escapeshellarg($domName)." hdb ".escapeshellarg($file2); #PHPS - Changed
 	}
 	$rtn=shell_exec($cmdstr)
 		? ['success' => true]
