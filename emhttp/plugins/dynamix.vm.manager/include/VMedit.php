@@ -105,12 +105,25 @@ if (strpos($strSelectedTemplate,"User-") !== false) {
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/dynamix.vm.manager.css')?>">
 <link type="text/css" rel="stylesheet" href="<?autov('/plugins/dynamix.vm.manager/styles/edit.css')?>">
 
-<span class="status advancedview_panel"><input type="checkbox" class="inlineview"><input type="checkbox" class="advancedview"></span>
-<div class="domain">
+<div class="Content--non-responsive domain">
 	<form id="vmform" method="POST">
 	<input type="hidden" name="domain[type]" value="kvm" />
 	<input type="hidden" name="template[name]" value="<?=htmlspecialchars($strSelectedTemplateUT)?>" />
 	<input type="hidden" name="template[iconold]" value="<?=htmlspecialchars($arrLoad['icon'])?>" />
+
+	<table>
+		<tbody>
+			<tr>
+				<td>&nbsp;</td>
+				<td>
+					<span class="status advancedview_panel">
+						<input type="checkbox" class="inlineview">
+						<input type="checkbox" class="advancedview">
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 
 	<table>
 		<tr>
