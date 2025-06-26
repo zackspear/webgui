@@ -454,46 +454,52 @@ function nchanFocusStop(banner=true) {
  * after accounting for other page elements like headers, footers, controls, and their
  * margins/padding. Useful for creating full-height scrollable content areas.
  * 
+ * The function includes default elements that are commonly present on pages:
+ * - elementsForHeight: '#header', '#menu', '#footer' (plus any additional provided)
+ * - elementsForSpacing: '.displaybox' (plus any additional provided)
+ * 
  * @param {Object} params - Configuration object for height calculation
- * @param {string} params.targetElementSelector - CSS selector for the element to resize
- * @param {string[]} params.elementSelectorsForHeight - Array of CSS selectors for elements 
- *   whose full height (including margins) should be subtracted from available space
- * @param {string[]} params.elementSelectorsForSpacing - Array of CSS selectors for elements 
- *   whose spacing (margins and padding only) should be subtracted from available space
- * @param {number} params.manualSpacingOffset - Additional pixels to subtract for manual spacing
+ * @param {string} [params.targetElementSelector='.js-fill-available-height'] - CSS selector for the element to resize
+ * @param {string[]} [params.elementSelectorsForHeight=[]] - Additional CSS selectors for elements 
+ *   whose full height (including margins) should be subtracted from available space.
+ *   These are added to the default selectors: '#header', '#menu', '#footer'
+ * @param {string[]} [params.elementSelectorsForSpacing=[]] - Additional CSS selectors for elements 
+ *   whose spacing (margins and padding only) should be subtracted from available space.
+ *   These are added to the default selector: '.displaybox'
+ * @param {number} [params.minHeight=330] - Minimum height in pixels for the target element
+ * @param {number} [params.manualSpacingOffset=10] - Additional pixels to subtract for manual spacing
  * 
  * @example
- * // Use with default parameters
+ * // Use with default parameters - targets '.js-fill-available-height'
  * fillAvailableHeight();
  * 
  * @example
- * // Custom configuration
+ * // Custom configuration with additional elements
  * fillAvailableHeight({
  *   targetElementSelector: '.my-content',
- *   elementSelectorsForHeight: ['#header', '#footer'],
+ *   elementSelectorsForHeight: ['.my-controls', '.my-actions'],
  *   elementSelectorsForSpacing: ['.my-content'],
+ *   minHeight: 500,
  *   manualSpacingOffset: 20
  * });
  */
 function fillAvailableHeight(params = { // default params
-  targetElementSelector: '.js-syslog-output',
-  elementSelectorsForHeight: [
-    '#header',
-    '#menu',
-    '.title',
-    '.js-syslog-controls',
-    '.js-syslog-actions',
-    '#footer',
-  ],
-  elementSelectorsForSpacing: [
-    '.js-syslog-output',
-    '.displaybox',
-  ],
+  targetElementSelector: '.js-fill-available-height',
+  elementSelectorsForHeight: [],
+  elementSelectorsForSpacing: [],
+  minHeight: 330,
   manualSpacingOffset: 10,
 }) {
-  const minHeight = 330;
+  const minHeight = params.minHeight || 330;
+  // default elementsForHeight
+  const elementsForHeight = [
+    '#header',
+    '#menu',
+    '#footer',
+  ];
+  elementsForHeight.push(...params.elementSelectorsForHeight || []);
   // elements with a height and margin we want to subtract from the target height
-  let targetHeight = window.innerHeight - params.elementSelectorsForHeight.reduce((acc, selector) => {
+  let targetHeight = window.innerHeight - elementsForHeight.reduce((acc, selector) => {
     const element = document.querySelector(selector);
     if (!element) return acc;
 
@@ -505,7 +511,11 @@ function fillAvailableHeight(params = { // default params
     return acc + height + marginTop + marginBottom;
   }, 0);
   // elements with spacing that we want to subtract from the target height
-  targetHeight -= params.elementSelectorsForSpacing.reduce((acc, selector) => {
+  const elementsForSpacing = [
+    '.displaybox',
+  ];
+  elementsForSpacing.push(...params.elementSelectorsForSpacing || []);
+  targetHeight -= elementsForSpacing.reduce((acc, selector) => {
     const element = document.querySelector(selector);
     if (!element) return acc;
 
@@ -519,7 +529,7 @@ function fillAvailableHeight(params = { // default params
   }, 0);
 
   // subtract 10px from the target height to provide spacing between the actions & the footer
-  targetHeight -= params.manualSpacingOffset || 0;
+  targetHeight -= params.manualSpacingOffset || 10;
 
   $(params.targetElementSelector).height(Math.max(targetHeight, minHeight));
 }

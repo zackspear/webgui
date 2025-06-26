@@ -139,8 +139,19 @@ $(function() {
     }
   });
 <?if (_var($display,'resize')):?>
-  fillAvailableHeight();
-  $(window).bind('resize',function(){fillAvailableHeight();});
+  const fillAvailableHeightParams = {
+    targetElementSelector: '.js-syslog-output',
+    elementSelectorsForHeight: [
+      '.title',
+      '.js-syslog-controls',
+      '.js-syslog-actions',
+    ],
+    elementSelectorsForSpacing: [
+      '.js-syslog-output',
+    ],
+  };
+  fillAvailableHeight(fillAvailableHeightParams);
+  $(window).bind('resize',function(){fillAvailableHeight(fillAvailableHeightParams);});
 <?endif;?>
   showLog(logfile);
 });
