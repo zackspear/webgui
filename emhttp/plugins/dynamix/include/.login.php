@@ -193,7 +193,10 @@ if (!empty($username) && !empty($password)) {
         appendToFile($failFile, $time . "\n");
         // Log error to syslog
         $coolReset = "";
-        if ($failCount > $maxFails) {
+        if ($failCount == ($maxFails - 1)) {
+            $error .= '<br>'.sprintf(_('Logins prevented for %s'),'<span id="countdown"></span>');
+        }
+        if ($failCount >= $maxFails) {
             $coolReset = "Ignoring login attempts for {$cooldown} seconds.";
         }
 
@@ -617,7 +620,7 @@ $isDarkTheme = $themeHelper->isDarkTheme();
 
         function startTimer(secs) {
             timeInSecs = parseInt(secs);
-            ticker = setInterval("tick()", 1000); 
+            ticker = setInterval(tick, 1000); 
         }
 
         function tick() {
