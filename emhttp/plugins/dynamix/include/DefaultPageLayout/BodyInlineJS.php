@@ -446,4 +446,81 @@ function nchanFocusStop(banner=true) {
   }
 }
 <?endif;?>
+
+/**
+ * Calculates and sets the height of a target element to fill the available viewport space.
+ * 
+ * This function dynamically resizes an element to occupy the remaining vertical space
+ * after accounting for other page elements like headers, footers, controls, and their
+ * margins/padding. Useful for creating full-height scrollable content areas.
+ * 
+ * @param {Object} params - Configuration object for height calculation
+ * @param {string} params.targetElementSelector - CSS selector for the element to resize
+ * @param {string[]} params.elementSelectorsForHeight - Array of CSS selectors for elements 
+ *   whose full height (including margins) should be subtracted from available space
+ * @param {string[]} params.elementSelectorsForSpacing - Array of CSS selectors for elements 
+ *   whose spacing (margins and padding only) should be subtracted from available space
+ * @param {number} params.manualSpacingOffset - Additional pixels to subtract for manual spacing
+ * 
+ * @example
+ * // Use with default parameters
+ * fillAvailableHeight();
+ * 
+ * @example
+ * // Custom configuration
+ * fillAvailableHeight({
+ *   targetElementSelector: '.my-content',
+ *   elementSelectorsForHeight: ['#header', '#footer'],
+ *   elementSelectorsForSpacing: ['.my-content'],
+ *   manualSpacingOffset: 20
+ * });
+ */
+function fillAvailableHeight(params = { // default params
+  targetElementSelector: '.js-syslog-output',
+  elementSelectorsForHeight: [
+    '#header',
+    '#menu',
+    '.title',
+    '.js-syslog-controls',
+    '.js-syslog-actions',
+    '#footer',
+  ],
+  elementSelectorsForSpacing: [
+    '.js-syslog-output',
+    '.displaybox',
+  ],
+  manualSpacingOffset: 10,
+}) {
+  const minHeight = 330;
+  // elements with a height and margin we want to subtract from the target height
+  let targetHeight = window.innerHeight - params.elementSelectorsForHeight.reduce((acc, selector) => {
+    const element = document.querySelector(selector);
+    if (!element) return acc;
+
+    const computedStyle = getComputedStyle(element);
+    const height = element.offsetHeight;
+    const marginTop = parseFloat(computedStyle.marginTop) || 0;
+    const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+
+    return acc + height + marginTop + marginBottom;
+  }, 0);
+  // elements with spacing that we want to subtract from the target height
+  targetHeight -= params.elementSelectorsForSpacing.reduce((acc, selector) => {
+    const element = document.querySelector(selector);
+    if (!element) return acc;
+
+    const computedStyle = getComputedStyle(element);
+    const marginTop = parseFloat(computedStyle.marginTop) || 0;
+    const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+    const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+    const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+
+    return acc + marginTop + marginBottom + paddingTop + paddingBottom;
+  }, 0);
+
+  // subtract 10px from the target height to provide spacing between the actions & the footer
+  targetHeight -= params.manualSpacingOffset || 0;
+
+  $(params.targetElementSelector).height(Math.max(targetHeight, minHeight));
+}
 </script>
