@@ -475,12 +475,15 @@ function nchanFocusStop(banner=true) {
  * 
  * @example
  * // Custom configuration with additional elements
- * fillAvailableHeight({
- *   targetElementSelector: '.my-content',
- *   elementSelectorsForHeight: ['.my-controls', '.my-actions'],
- *   elementSelectorsForSpacing: ['.my-content'],
- *   minHeight: 500,
- *   manualSpacingOffset: 20
+ * // MUST BE USED IN JQUERY ON READY
+ * $(function() { // or $(document).ready(function() {
+ *   fillAvailableHeight({
+ *     targetElementSelector: '.my-content',
+ *     elementSelectorsForHeight: ['.my-controls', '.my-actions'],
+ *     elementSelectorsForSpacing: ['.my-content'],
+ *     minHeight: 500,
+ *     manualSpacingOffset: 20
+ *   });
  * });
  */
 function fillAvailableHeight(params = { // default params
