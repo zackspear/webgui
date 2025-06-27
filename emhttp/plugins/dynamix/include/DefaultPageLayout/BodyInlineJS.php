@@ -492,52 +492,69 @@ function fillAvailableHeight(params = { // default params
   elementSelectorsForSpacing: [],
   minHeight: 330,
   manualSpacingOffset: 10,
-}) {
+}) {  
   const minHeight = params.minHeight || 330;
+
   // default elementsForHeight
   const elementsForHeight = [
     '#header',
     '#menu',
     '#footer',
     '.title',
-    ...(params.elementSelectorsForHeight ? [params.elementSelectorsForHeight] : []),
+    ...(params.elementSelectorsForHeight ? params.elementSelectorsForHeight : []),
   ];
+
   // elements with a height and margin we want to subtract from the target height
   let targetHeight = window.innerHeight - elementsForHeight.reduce((acc, selector) => {
     const element = document.querySelector(selector);
-    if (!element) return acc;
+
+    if (!element) {
+      return acc;
+    }
 
     const computedStyle = getComputedStyle(element);
     const height = element.offsetHeight;
     const marginTop = parseFloat(computedStyle.marginTop) || 0;
     const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
     // we don't need to calculate padding because it's already included in the height
+    const totalForElement = height + marginTop + marginBottom;
 
-    return acc + height + marginTop + marginBottom;
+    return acc + totalForElement;
   }, 0);
+  
   // elements with spacing that we want to subtract from the target height, but not their actual height.
   const elementsForSpacing = [
-    '.displaybox',
+    '#displaybox',
     ...(params.targetElementSelector ? [params.targetElementSelector] : []),
     ...(params.elementSelectorsForSpacing ? params.elementSelectorsForSpacing : []),
   ];
+  
   targetHeight -= elementsForSpacing.reduce((acc, selector) => {
     const element = document.querySelector(selector);
-    if (!element) return acc;
+
+    if (!element) {
+      return acc;
+    }
 
     const computedStyle = getComputedStyle(element);
     const marginTop = parseFloat(computedStyle.marginTop) || 0;
-    const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+    const marginBottom = selector !== '#displaybox' ? parseFloat(computedStyle.marginBottom) || 0 : 0;
     const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
-    const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+    const paddingBottom = selector !== '#displaybox' ? parseFloat(computedStyle.paddingBottom) || 0 : 0;
+    // we don't want to subtract paddingBottom or marginBottom for #displaybox b/c it adds unnecessary spacing in the calculations
+    // b/c the paddingBottom is accounting for the fixed footer.
 
-    return acc + marginTop + marginBottom + paddingTop + paddingBottom;
+    const totalForElement = marginTop + marginBottom + paddingTop + paddingBottom;
+
+    return acc + totalForElement;
   }, 0);
 
   // subtract addtional spacing from the target height to provide spacing between the actions & the footer
   targetHeight -= params.manualSpacingOffset || 10;
 
-  $(params.targetElementSelector).height(Math.max(targetHeight, minHeight));
+  const finalHeight = Math.max(targetHeight, minHeight);
+
+  $(params.targetElementSelector).height(finalHeight);
 
   // Set up resize listener to call itself with same params
   // Remove existing listener first to avoid duplicates
