@@ -17,17 +17,12 @@ Tag="map-o"
 ?>
 <?if (_var($display,'resize')):?>
 <script>
-const fillAvailableHeightParams = {
-  targetElementSelector: '.js-fill-available-height',
-  elementSelectorsForHeight: [
-    '.title',
-    '.js-actions',
-  ],
-};
 $(function() {
-  fillAvailableHeight(fillAvailableHeightParams);
-  $(window).bind('resize', function() {
-    fillAvailableHeight(fillAvailableHeightParams);
+  fillAvailableHeight({
+    targetElementSelector: '.js-fill-available-height',
+    elementSelectorsForHeight: [
+      '.js-actions',
+    ],
   });
 });
 </script>
