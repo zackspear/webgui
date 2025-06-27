@@ -499,8 +499,9 @@ function fillAvailableHeight(params = { // default params
     '#header',
     '#menu',
     '#footer',
+    '.title',
+    ...(params.elementSelectorsForHeight ? [params.elementSelectorsForHeight] : []),
   ];
-  elementsForHeight.push(...params.elementSelectorsForHeight || []);
   // elements with a height and margin we want to subtract from the target height
   let targetHeight = window.innerHeight - elementsForHeight.reduce((acc, selector) => {
     const element = document.querySelector(selector);
@@ -510,14 +511,16 @@ function fillAvailableHeight(params = { // default params
     const height = element.offsetHeight;
     const marginTop = parseFloat(computedStyle.marginTop) || 0;
     const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+    // we don't need to calculate padding because it's already included in the height
 
     return acc + height + marginTop + marginBottom;
   }, 0);
-  // elements with spacing that we want to subtract from the target height
+  // elements with spacing that we want to subtract from the target height, but not their actual height.
   const elementsForSpacing = [
     '.displaybox',
+    ...(params.targetElementSelector ? [params.targetElementSelector] : []),
+    ...(params.elementSelectorsForSpacing ? params.elementSelectorsForSpacing : []),
   ];
-  elementsForSpacing.push(...params.elementSelectorsForSpacing || []);
   targetHeight -= elementsForSpacing.reduce((acc, selector) => {
     const element = document.querySelector(selector);
     if (!element) return acc;
@@ -531,7 +534,7 @@ function fillAvailableHeight(params = { // default params
     return acc + marginTop + marginBottom + paddingTop + paddingBottom;
   }, 0);
 
-  // subtract 10px from the target height to provide spacing between the actions & the footer
+  // subtract addtional spacing from the target height to provide spacing between the actions & the footer
   targetHeight -= params.manualSpacingOffset || 10;
 
   $(params.targetElementSelector).height(Math.max(targetHeight, minHeight));
