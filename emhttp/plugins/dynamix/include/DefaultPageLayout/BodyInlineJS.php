@@ -538,5 +538,19 @@ function fillAvailableHeight(params = { // default params
   targetHeight -= params.manualSpacingOffset || 10;
 
   $(params.targetElementSelector).height(Math.max(targetHeight, minHeight));
+
+  // Set up resize listener to call itself with same params
+  // Remove existing listener first to avoid duplicates
+  if (window.fillAvailableHeightResizeHandler) {
+    window.removeEventListener('resize', window.fillAvailableHeightResizeHandler);
+  }
+  
+  // Create debounced handler that calls this function with same params
+  window.fillAvailableHeightResizeHandler = debounce(function() {
+    fillAvailableHeight(params);
+  }, 150);
+  
+  // Add the new listener
+  window.addEventListener('resize', window.fillAvailableHeightResizeHandler);
 }
 </script>
