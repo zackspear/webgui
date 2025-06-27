@@ -177,6 +177,7 @@ function loadlist(init) {
             '.js-actions',
             '#docker_containers thead',
           ],
+          manualSpacingOffset: 30, // without this, the main content will still be scrollable by like 20px
         });
         resizeTableColumns()
         if (init) {
