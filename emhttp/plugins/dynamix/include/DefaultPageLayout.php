@@ -29,7 +29,7 @@ $alerts  = '/tmp/plugins/my_alerts.txt';
 $wlan0   = file_exists('/sys/class/net/wlan0');
 
 $safemode = _var($var, 'safeMode') == 'yes';
-$banner = "$config/webGui/banner.png";
+$banner = "$config/plugins/dynamix/banner.png"; // this cannot use the webGui/banner.png file because it is not in the webGui directory but stored on the boot drive
 
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) {
