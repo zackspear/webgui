@@ -33,7 +33,8 @@ API_UTILS="/usr/local/share/dynamix.unraid.net/scripts/api_utils.sh"
 DEFAULTS="/etc/default/nginx"
 SYSTEM="/sys/class/net"
 SYSLOG="/var/log/syslog"
-
+# Disable IPv6 myunraid.net certs for now
+IPV6MYUNRAIDNET=0
 # Load defaults
 # Defines NGINX_CUSTOMFA for custom Content-Security-Policy frame-ancestors url
 [[ -r $DEFAULTS ]] && . $DEFAULTS
@@ -589,18 +590,18 @@ build_ssl(){
     if [[ -L /usr/local/sbin/unraid-api ]] && check_remote_access; then
       WANACCESS=yes
       WANIP=$(curl https://wanip4.unraid.net/ 2>/dev/null)
-      WANIP6=$(curl https://wanip6.unraid.net/ 2>/dev/null)
+      [[ $IPV6MYUNRAIDNET == 1 ]] && WANIP6=$(curl https://wanip6.unraid.net/ 2>/dev/null)
     fi
     if [[ $CERTNAME == *\.myunraid\.net ]]; then
       # wildcard LE certificate
       # add Unraid Connect to CSP frame-ancestors for a myunraid.net cert
       CERTFA+=" https://connect.myunraid.net/"
       [[ -n $LANIP ]] && LANFQDN=$(fqdn $LANIP) SERVER_NAMES+=($LANFQDN)
-      [[ -n $LANIP6 ]] && LANFQDN6=$(fqdn $LANIP6) SERVER_NAMES+=($LANFQDN6)
+      [[ $IPV6MYUNRAIDNET == 1 && -n $LANIP6 ]] && LANFQDN6=$(fqdn $LANIP6) SERVER_NAMES+=($LANFQDN6)
       # check if remote access enabled
       if [[ -n $WANACCESS ]]; then
         [[ -n $WANIP ]] && WANFQDN=$(fqdn $WANIP) SERVER_NAMES+=($WANFQDN)
-        [[ -n $WANIP6 ]] && WANFQDN6=$(fqdn $WANIP6) SERVER_NAMES+=($WANFQDN6)
+        [[ $IPV6MYUNRAIDNET == 1 && -n $WANIP6 ]] && WANFQDN6=$(fqdn $WANIP6) SERVER_NAMES+=($WANFQDN6)
       fi
       if check; then
         # add included interfaces
@@ -610,8 +611,13 @@ build_ssl(){
           NET=$(show $ADDR)
           # skip invalid interface, LAN interface and WG VPN tunneled interfaces
           [[ -z $NET || $(show $LANIP) == $NET || (${NET:0:2} == wg && $(scan TYPE:1 $WIREGUARD/$NET.cfg) -ge 7) ]] && continue
-          [[ $(ipv $ADDR) == 4 ]] && NET_FQDN[$NET]=$(fqdn $ADDR) || NET_FQDN6[$NET]=$(fqdn $ADDR)
-          SERVER_NAMES+=($(fqdn $ADDR))
+          if [[ $(ipv $ADDR) == 4 ]]; then
+            NET_FQDN[$NET]=$(fqdn $ADDR)
+            SERVER_NAMES+=($(fqdn $ADDR))
+          elif [[ $IPV6MYUNRAIDNET == 1 ]]; then
+            NET_FQDN6[$NET]=$(fqdn $ADDR)
+            SERVER_NAMES+=($(fqdn $ADDR))
+          fi
         done
       fi
     else
@@ -683,9 +689,11 @@ build_ssl(){
   for NET in "${!NET_FQDN[@]}"; do
     echo "NGINX_${NET^^}FQDN=\"${NET_FQDN[$NET]}\"" >>$INI
   done
-  for NET in "${!NET_FQDN6[@]}"; do
-    echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$INI
-  done
+  if [[ $IPV6MYUNRAIDNET == 1 ]]; then
+    for NET in "${!NET_FQDN6[@]}"; do
+      echo "NGINX_${NET^^}FQDN6=\"${NET_FQDN6[$NET]}\"" >>$INI
+    done
+  fi
   # atomically update file
   mv $INI ${INI%.*}
 }
