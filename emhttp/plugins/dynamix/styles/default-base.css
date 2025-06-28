@@ -1294,6 +1294,7 @@ a.list {
     position: relative;
     width: 100%;
     box-sizing: border-box;
+    overflow-x: auto; /* Allows unresponsive set width legacy content to scroll horizontally as needed. */
 
     /**
     * Force remove any small empty space elements.
