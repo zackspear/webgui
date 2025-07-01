@@ -86,7 +86,7 @@ If your markup doesn't follow the expected pattern, the CSS can't do its job. Th
 ### 1. Large Buttons
 **Bug:** Buttons stretch full width, look massive, or break the layout.
 
-![Example: Pool Device Status page with large, stretched Reset button](docs/assets/pool-device-status-bug.png)
+![Example: Pool Device Status page with large, stretched Reset button](assets/pool-device-status-bug.png)
 *Pool Device Status page before fix: The Reset button is stretched and not visually grouped.*
 
 **Why:**
@@ -113,7 +113,7 @@ If your markup doesn't follow the expected pattern, the CSS can't do its job. Th
 ### 2. Settings Label + Inputs Are Offset (Whitespace/Parsing Issue)
 **Bug:** Labels and inputs don't line up, or inputs appear on a new line, not next to their label.
 
-![Example: Scrub Status page with offset labels and controls](docs/assets/scrub-status-bug.png)
+![Example: Scrub Status page with offset labels and controls](assets/scrub-status-bug.png)
 *Scrub Status page before fix: Labels and controls are misaligned due to whitespace/structure issues.*
 
 **Why:**
