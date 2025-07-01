@@ -1313,7 +1313,7 @@ a.list {
 }
 
 /* Necessary evil to prevent rewrites of complex page templates for responsive layout - i.e. VMedit.php */
-.Content--non-responsive {
+.content--non-responsive {
     min-width: 1200px;
 }
 
