@@ -110,7 +110,7 @@ If your markup doesn't follow the expected pattern, the CSS can't do its job. Th
     </span>
   ```
 
-### 2. Settings Label + Inputs Are Offset (Whitespace/Parsing Issue)
+### 2. [Settings Label + Inputs Are Offset (Whitespace/Parsing Issue)]
 **Bug:** Labels and inputs don't line up, or inputs appear on a new line, not next to their label.
 
 ![Example: Scrub Status page with offset labels and controls](assets/scrub-status-bug.png)
@@ -132,6 +132,48 @@ If your markup doesn't follow the expected pattern, the CSS can't do its job. Th
   : <span class="buttons-spaced">...</span>
   ```
 - Remove rogue elements outside the definition structure.
+
+---
+
+## Making Wide Tables Responsive: Using the TableContainer Class
+
+When you have tables with **a lot of columns** (wide tables) in your plugin, you should wrap them in a special container to ensure they remain usable on all screen sizes. The `TableContainer` class sets a **minimum width** on the table, so it doesn't shrink too small on mobile or narrow windows. This allows users to scroll horizontally to view the entire table, especially when there are many columns.
+
+### How to Use
+- For tables with many columns (wide tables), wrap them in a `<div class="TableContainer">`.
+- For simple/narrow tables, this wrapper is usually not needed.
+
+### Why?
+- Without this wrapper, wide tables may become too small to read or interact with at smaller screen sizes.
+- The TableContainer class sets a `min-width` on the table and enables horizontal scrolling, so users can always access all columns, even on mobile.
+
+### Example: Before
+```html
+<table>
+  <thead>
+    <tr><th>Col1</th><th>Col2</th><th>Col3</th>...<th>ColN</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>...</td><td>...</td><td>...</td>...<td>...</td></tr>
+  </tbody>
+</table>
+```
+
+### Example: After
+```html
+<div class="TableContainer">
+  <table>
+    <thead>
+      <tr><th>Col1</th><th>Col2</th><th>Col3</th>...<th>ColN</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>...</td><td>...</td><td>...</td>...<td>...</td></tr>
+    </tbody>
+  </table>
+</div>
+```
+
+**Tip:** Only wrap the immediate table element—don't nest TableContainers or wrap unrelated content.
 
 ---
 
