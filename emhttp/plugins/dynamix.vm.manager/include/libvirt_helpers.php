@@ -343,17 +343,6 @@ class Array2XML {
 			]
 		],
 
-		' Pre-packaged ' => '', /* Pre-built Header */
-
-		'LibreELEC' => [
-			'form' => 'LibreELEC.form.php',
-			'icon' => 'libreelec.png'
-		],
-
-		'OpenELEC' => [
-			'form' => 'OpenELEC.form.php',
-			'icon' => 'openelec.png'
-		],
 
 		' Linux ' => '', /* Linux Header */
 
@@ -441,51 +430,6 @@ class Array2XML {
 		]
 	];
 
-	$arrOpenELECVersions = [
-		'6.0.3_1' => [
-			'name' => '6.0.3',
-			'url' => 'https://s3.amazonaws.com/dnld.lime-technology.com/images/OpenELEC/OpenELEC-unRAID.x86_64-6.0.3_1.tar.xz',
-			'size' => 178909136,
-			'md5' => 'c584312831d7cd93a40e61ac9f186d32',
-			'localpath' => '',
-			'valid' => '0'
-		],
-		'6.0.0_1' => [
-			'name' => '6.0.0',
-			'url' => 'https://s3.amazonaws.com/dnld.lime-technology.com/images/OpenELEC/OpenELEC-unRAID.x86_64-6.0.0_1.tar.xz',
-			'size' => 165658636,
-			'md5' => '66fb6c3f1b6db49c291753fb3ec7c15c',
-			'localpath' => '',
-			'valid' => '0'
-		],
-		'5.95.3_1' => [
-			'name' => '5.95.3 (6.0.0 Beta3)',
-			'url' => 'https://s3.amazonaws.com/dnld.lime-technology.com/images/OpenELEC/OpenELEC-unRAID.x86_64-5.95.3_1.tar.xz',
-			'size' => 153990180,
-			'md5' => '8936cda74c28ddcaa165cc49ff2a477a',
-			'localpath' => '',
-			'valid' => '0'
-		],
-		'5.95.2_1' => [
-			'name' => '5.95.2 (6.0.0 Beta2)',
-			'url' => 'https://s3.amazonaws.com/dnld.lime-technology.com/images/OpenELEC/OpenELEC-unRAID.x86_64-5.95.2_1.tar.xz',
-			'size' => 156250392,
-			'md5' => 'ac70048eecbda4772e386c6f271cb5e9',
-			'localpath' => '',
-			'valid' => '0'
-		]
-	];
-
-	$arrLibreELECVersions = [
-		'7.0.1_1' => [
-			'name' => '7.0.1',
-			'url' => 'https://s3.amazonaws.com/dnld.lime-technology.com/images/LibreELEC/LibreELEC-unRAID.x86_64-7.0.1_1.tar.xz',
-			'size' => 209748564,
-			'md5' => 'c1e8def2ffb26a355e7cc598311697f6',
-			'localpath' => '',
-			'valid' => '0'
-		]
-	];
 
 	$fedora = '/var/tmp/fedora-virtio-isos';
 	// set variable to obtained information
