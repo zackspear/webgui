@@ -1002,7 +1002,7 @@ class Array2XML {
 
 				if (empty($arrMatch['name'])) {
 					// Device name is blank, attempt to lookup usb details
-					exec("lsusb -d ".$arrMatch['id']." -v 2>/dev/null | grep -Po '^\s+(iManufacturer|iProduct)\s+[1-9]+ \K[^\\n]+'", $arrAltName);
+					exec("lsusb -d ".$arrMatch['id']." -v 2>/dev/null | grep -Po '^\s+(iManufacturer|iProduct)\s+[1-9]+ \K[^\\n]+'", $arrAltName); #PHPS
 					$arrMatch['name'] = trim(implode(' ', (array)$arrAltName));
 
 					if (empty($arrMatch['name'])) {
@@ -1405,6 +1405,7 @@ class Array2XML {
 				'maxmem' => $lv->domain_get_memory($res),
 				'password' => '', //TODO?
 				'cpumode' => $lv->domain_get_cpu_type($res),
+				'cpupmemlmt' => $lv->domain_get_cpu_pmem_limit($res),
 				'cpumigrate' => $lv->domain_get_cpu_migrate($res),
 				'vcpus' => $dom['nrVirtCpu'],
 				'vcpu' => $lv->domain_get_vcpu_pins($res),
@@ -1506,7 +1507,7 @@ class Array2XML {
 		// remove existing auto-generated settings
 		unset($old['cputune']['vcpupin'],$old['devices']['video'],$old['devices']['disk'],$old['devices']['interface'],$old['devices']['filesystem'],$old['cpu']['@attributes'],$old['os']['boot'],$old['os']['loader'],$old['os']['nvram']);
 		// Remove old CPU cache and features
-		unset($old['cpu']['cache'], $old['cpu']['feature']);
+		unset($old['cpu']['cache'], $old['cpu']['feature'], $old['cpu']['maxphysaddr']);
 		unset($old['features']['hyperv'],$old['devices']['channel']);
 		// set namespace
 		$new['metadata']['vmtemplate']['@attributes']['xmlns'] = 'unraid';
@@ -1803,7 +1804,7 @@ class Array2XML {
 			}
 
 			$cmdstr = "rsync -ahPIXS  --out-format=%f --info=flist0,misc0,stats0,name1,progress2 '$repsrc' '$reptgt'";
-			$error = execCommand_nchan_clone($cmdstr,$target,$refcmd);
+			$error = execCommand_nchan_clone($cmdstr,$target,$refcmd); #PHPS
 			if (!$error) { write("addLog\0".htmlspecialchars("Image copied failed."));  return( false); }
 		}
 	}
@@ -1895,7 +1896,7 @@ class Array2XML {
 				$file = $disk["file"];
 				if ($disk['device'] == "hdc" ) $primarypath = dirname(transpose_user_path($file));
 				$output = array();
-				exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output);
+				exec("qemu-img info --backing-chain -U '$file'  | grep image:",$output); #PHPS
 				foreach($output as $key => $line) {
 					$line=str_replace("image: ","",$line);
 					$output[$key] = $line;
