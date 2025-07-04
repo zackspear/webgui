@@ -2042,16 +2042,14 @@ class Libvirt {
 
 	function domain_get_cpu_pmem_limit($domain) {
 		$cpu_mode = $this->get_xpath($domain, '//domain/cpu/@mode', false);
-		if (!$cpu_mode) return null;
+		if (!$cpu_mode) return "None";
 
 		$cpu_mode = $cpu_mode[0];
 
 		if ($cpu_mode === 'host-passthrough') {
-			// In passthrough mode, limit is a bit count (e.g., limit="39")
 			$limit = $this->get_xpath($domain, '//domain/cpu/maxphysaddr/@limit', false);
 			return $limit ? intval($limit[0]) : "None";
-		} elseif ($cpu_mode === 'custom') {
-		// In custom mode, bits defines the max physical address width
+		} elseif (in_array($cpu_mode, ['custom', 'host-model'])) {
 			$bits = $this->get_xpath($domain, '//domain/cpu/maxphysaddr/@bits', false);
 			return $bits ? intval($bits[0]) : "None";
 		}
