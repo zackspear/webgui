@@ -33,44 +33,55 @@ $banner = "$config/plugins/dynamix/banner.png"; // this cannot use the webGui/ba
 
 $notes = '/var/tmp/unRAIDServer.txt';
 if (!file_exists($notes)) {
-  file_put_contents($notes, shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
+    file_put_contents($notes, shell_exec("$docroot/plugins/dynamix.plugin.manager/scripts/plugin changes $docroot/plugins/unRAIDServer/unRAIDServer.plg"));
 }
 
 $taskPages = find_pages('Tasks');
 $buttonPages = find_pages('Buttons');
 $pages = []; // finds subpages
-if (!empty($myPage['text'])) $pages[$myPage['name']] = $myPage;
-if (_var($myPage, 'Type') == 'xmenu') $pages = array_merge($pages, find_pages($myPage['name']));
+if (!empty($myPage['text'])) {
+    $pages[$myPage['name']] = $myPage;
+}
+if (_var($myPage, 'Type') == 'xmenu') {
+    $pages = array_merge($pages, find_pages($myPage['name']));
+}
 
 // nchan related actions
 $nchan = ['webGui/nchan/notify_poller', 'webGui/nchan/session_check'];
-if ($wlan0) $nchan[] = 'webGui/nchan/wlan0';
+if ($wlan0) {
+    $nchan[] = 'webGui/nchan/wlan0';
+}
 // build nchan scripts from found pages
 $allPages = array_merge($taskPages, $buttonPages, $pages);
 foreach ($allPages as $page) {
-  if (isset($page['Nchan'])) nchan_merge($page['root'], $page['Nchan']);
+    if (isset($page['Nchan'])) {
+        nchan_merge($page['root'], $page['Nchan']);
+    }
 }
 // act on nchan scripts
 if (count($pages)) {
-  $running = file_exists($nchan_pid) ? file($nchan_pid, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-  $start   = array_diff($nchan, $running);  // returns any new scripts to be started
-  $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
-  $running = array_merge($start, $running); // update list of current running nchan scripts
-  // start nchan scripts which are new
-  foreach ($start as $row) {
-    $script = explode(':', $row)[0];
-    exec("$docroot/$script &>/dev/null &");
-  }
-  // stop nchan scripts with the :stop option
-  foreach ($stop as $row) {
-    [$script, $opt] = my_explode(':', $row);
-    if ($opt == 'stop') {
-      exec('pkill --ns $$ -f '.escapeshellarg($docroot.'/'.$script).' &>/dev/null &');
-      array_splice($running, array_search($row, $running), 1);
+    $running = file_exists($nchan_pid) ? file($nchan_pid, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+    $start   = array_diff($nchan, $running);  // returns any new scripts to be started
+    $stop    = array_diff($running, $nchan);  // returns any old scripts to be stopped
+    $running = array_merge($start, $running); // update list of current running nchan scripts
+    // start nchan scripts which are new
+    foreach ($start as $row) {
+        $script = explode(':', $row)[0];
+        exec("$docroot/$script &>/dev/null &");
     }
-  }
-  if (count($running)) file_put_contents($nchan_pid, implode("\n", $running) . "\n");
-  else @unlink($nchan_pid);
+    // stop nchan scripts with the :stop option
+    foreach ($stop as $row) {
+        [$script, $opt] = my_explode(':', $row);
+        if ($opt == 'stop') {
+            exec('pkill --ns $$ -f '.escapeshellarg($docroot.'/'.$script).' &>/dev/null &');
+            array_splice($running, array_search($row, $running), 1);
+        }
+    }
+    if (count($running)) {
+        file_put_contents($nchan_pid, implode("\n", $running) . "\n");
+    } else {
+        @unlink($nchan_pid);
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -86,69 +97,69 @@ if (count($pages)) {
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="same-origin">
 
-  <? require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/Favicon.php"; ?>
+  <?php require_once "$docroot/plugins/dynamix/include/DefaultPageLayout/Favicon.php"; ?>
 
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/default-fonts.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/default-cases.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/font-awesome.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/context.standalone.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/jquery.sweetalert.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/jquery.ui.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/default-fonts.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/default-cases.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/font-awesome.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/context.standalone.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/jquery.sweetalert.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/jquery.ui.css") ?>">
 
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/default-color-palette.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/default-base.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/default-dynamix.css") ?>">
-  <link type="text/css" rel="stylesheet" href="<? autov("/webGui/styles/themes/{$theme}.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/default-color-palette.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/default-base.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/default-dynamix.css") ?>">
+  <link type="text/css" rel="stylesheet" href="<?php autov("/webGui/styles/themes/{$theme}.css") ?>">
 
   <style>
     :root {
       --customer-header-background-image: url(<?= file_exists($banner) ? autov($banner) : autov('/webGui/images/banner.png') ?>);
-      <? if ($header): ?>--customer-header-text-color: #<?= $header ?>;
-      <? endif; ?><? if ($backgnd): ?>--customer-header-background-color: #<?= $backgnd ?>;
-      <? endif; ?><? if ($display['font']): ?>--custom-font-size: <?= $display['font'] ?>%;
-      <? endif; ?>
+      <?php if ($header): ?>--customer-header-text-color: #<?= $header ?>;
+      <?php endif; ?><?php if ($backgnd): ?>--customer-header-background-color: #<?= $backgnd ?>;
+      <?php endif; ?><?php if ($display['font']): ?>--custom-font-size: <?= $display['font'] ?>%;
+      <?php endif; ?>
     }
 
     <?php
     // Generate sidebar icon CSS if using sidebar theme
     if ($themeHelper->isSidebarTheme()) {
-      echo generate_sidebar_icon_css($taskPages, $buttonPages);
+        echo generate_sidebar_icon_css($taskPages, $buttonPages);
     }
-    ?>
+?>
   </style>
 
   <noscript>
     <div class="upgrade_notice"><?= _("Your browser has JavaScript disabled") ?></div>
   </noscript>
 
-  <script src="<? autov('/webGui/javascript/dynamix.js') ?>"></script>
-  <script src="<? autov('/webGui/javascript/translate.' . ($locale ?: 'en_US') . '.js') ?>"></script>
+  <script src="<?php autov('/webGui/javascript/dynamix.js') ?>"></script>
+  <script src="<?php autov('/webGui/javascript/translate.' . ($locale ?: 'en_US') . '.js') ?>"></script>
 
-  <? require_once "$docroot/webGui/include/DefaultPageLayout/HeadInlineJS.php"; ?>
+  <?php require_once "$docroot/webGui/include/DefaultPageLayout/HeadInlineJS.php"; ?>
   <?php
   foreach ($buttonPages as $button) {
-    annotate($button['file']);
-    includePageStylesheets($button);
-    eval('?>' . parse_text($button['text']));
+      annotate($button['file']);
+      includePageStylesheets($button);
+      eval('?>' . parse_text($button['text']));
   }
 
-  foreach ($pages as $page) {
+foreach ($pages as $page) {
     annotate($page['file']);
     includePageStylesheets($page);
-  }
-  ?>
+}
+?>
 
-  <? include "$docroot/plugins/dynamix.my.servers/include/myservers1.php" ?>
+  <?php include "$docroot/plugins/dynamix.my.servers/include/myservers1.php" ?>
 </head>
 
 <body>
-  <? include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/MiscElements.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/BodyInlineJS.php"; ?>
-  <? include "$docroot/webGui/include/DefaultPageLayout/ToastSetup.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/MiscElements.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/BodyInlineJS.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/ToastSetup.php"; ?>
 </body>
 
 </html>
