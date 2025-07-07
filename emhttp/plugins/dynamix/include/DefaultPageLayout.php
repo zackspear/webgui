@@ -153,11 +153,12 @@ foreach ($pages as $page) {
 </head>
 
 <body>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/MiscElementsTop.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/Header.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/Navigation/Main.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/MainContent.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/Footer.php"; ?>
-  <?php include "$docroot/webGui/include/DefaultPageLayout/MiscElements.php"; ?>
+  <?php include "$docroot/webGui/include/DefaultPageLayout/MiscElementsBottom.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/BodyInlineJS.php"; ?>
   <?php include "$docroot/webGui/include/DefaultPageLayout/ToastSetup.php"; ?>
 </body>
