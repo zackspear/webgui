@@ -34,6 +34,7 @@ if (in_array($host,['keys.lime-technology.com','lime-technology.com'])) {
   write("Downloading $keyfile ...\n");
   exec("/usr/bin/wget -q -O ".escapeshellarg("/boot/config/$key_file")." ".escapeshellarg($url), $output, $return_var);
   if ($return_var === 0) {
+    exec("emcmd \"checkRegistration=Apply\"");
     if (parse_ini_file('/var/local/emhttp/var.ini')['mdState'] == 'STARTED') {
       write("Installing ... Please Stop array to complete key installation.\n");
     } else {
