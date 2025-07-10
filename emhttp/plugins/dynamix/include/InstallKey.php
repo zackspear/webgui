@@ -60,16 +60,11 @@ class KeyInstaller
                 exec("/usr/bin/wget -q -O " . escapeshellarg("/boot/config/$keyFile") . " " . escapeshellarg($url), $output, $returnVar);
 
                 if ($returnVar === 0) {
-                    exec("emcmd \"checkRegistration=Apply\"");
-                    $var = (array)@parse_ini_file('/var/local/emhttp/var.ini');
-                    if (_var($var, 'mdState') == "STARTED") {
-                        return $this->responseComplete(200, [
-                            'status' => 'success',
-                            'message' => _('Please Stop array to complete key installation'),
-                        ]);
-                    } else {
-                        return $this->responseComplete(200, ['status' => 'success']);
-                    }
+                    exec('emcmd '.escapeshellarg('checkRegistration=Apply'));
+                    return $this->responseComplete(200, [
+                        'status' => 'success',
+                        'message' => _('Key installed'),
+                    ]);
                 } else {
                     @unlink(escapeshellarg("/boot/config/$keyFile"));
                     return $this->responseComplete(406, ['error' => _('download error') . " $returnVar"]);
