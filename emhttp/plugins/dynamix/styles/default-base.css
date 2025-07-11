@@ -422,6 +422,7 @@ textarea {
     min-height: 91px; /* legacy carry over from before responsive webgui */
     z-index: 102;
     margin: 0;
+    padding-left: .8rem; /* matches the padding-right of the nested unraid-user-profile #UserProfile element */
     color: var(--inverse-text-color);
     background-color: var(--header-background-color);
     background-size: 100% 90px;
