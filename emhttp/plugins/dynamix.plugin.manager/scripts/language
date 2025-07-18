@@ -8,8 +8,6 @@
 
 $docroot ??= ($_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp');
 require_once "$docroot/webGui/include/Wrappers.php";
-require_once "$docroot/webGui/include/Translations.php";
-
 $logger = 'language-manager';
 
 $usage = <<<EOF
@@ -182,9 +180,10 @@ function language($method, $xml_file, &$error) {
         return false;
       }
     }
-    $path = "$docroot/locale/en_US/LC_MESSAGES";
+    $path = "$docroot/languages/$name";
     exec("mkdir -p $path");
     @unlink("$docroot/webGui/javascript/translate.$name.js");
+    foreach (glob("$path/*.dot",GLOB_NOSORT) as $dot_file) unlink($dot_file);
     exec("unzip -qqLjo -d $path $save", $dummy, $err);
     if ($err > 1) {
       @unlink($save);
@@ -196,11 +195,8 @@ function language($method, $xml_file, &$error) {
   case 'remove':
     $name = $xml->LanguagePack;
     if ($name) {
-      $path = "$docroot/locale/en_US/LC_MESSAGES";
-      @unlink("$path/$name.mo");
-      @unlink("$path/$name-helptext.txt");
-      @unlink("$path/$name-helptext.dot");
-      @unlink("$path/$name-javascript*.txt");
+      $path = "$docroot/languages/$name";
+      exec("rm -rf $path");
       @unlink("$docroot/webGui/javascript/translate.$name.js");
       @unlink("$boot/lang-$name.xml");
       @unlink("$plugins/lang-$name.xml");
@@ -398,19 +394,6 @@ if ($method == 'update') {
   copy($xml_file, $lang_file);
   symlink($lang_file, $link_file);
   write("language: $lang language pack updated\n");
-  
-  // if the language pack is the same as the current language, force gettext to drop the cache
-  $dynamixSettings = parse_ini_file("/boot/config/plugins/dynamix/dynamix.cfg",true);
-  if ( ($dynamixSettings['Display']['locale']??false) && ( ($dynamixSettings['Display']['locale']??false) == $lang ) ) {
-    my_logger("Flushing language cache for $lang", $logger);
-    bindtextdomain('en_US', '/usr/local/emhttp/locale');
-    bind_textdomain_codeset('en_US', 'UTF-8');
-    textdomain('en_US');
-    $flushCache = gettext("OK");
-    bindtextdomain($lang, '/usr/local/emhttp/locale');
-    bind_textdomain_codeset($lang, 'UTF-8');
-    textdomain($lang);
-  }
   my_logger("$lang language pack updated", $logger);
   // run hook scripts for post processing
   post_hooks();
