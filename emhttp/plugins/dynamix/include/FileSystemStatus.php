@@ -40,9 +40,10 @@ default:
   $file = "/var/lib/$dir/check.status.$id";
   if (file_exists($file)) {
     switch ($cmd) {
-      case 'btrfs-check': $pgrep = 'pgrep --ns $$ -f '."'/sbin/btrfs check .*$dev'"; break;
-      case 'rfs-check': $pgrep = 'pgrep --ns $$  -f '."'/sbin/reiserfsck $dev'"; break;
-      case 'xfs-check': $pgrep = 'pgrep --ns $$ -f '."'/sbin/xfs_repair.*$dev'"; break;
+      case 'btrfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/btrfs check .*$dev'"; break;
+      case 'rfs-check': $pgrep = 'pgrep --ns $$  -f '."'/scripts/reiserfsck $dev'"; break;
+      case 'xfs-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/xfs_repair.*$dev'"; break;
+      case 'ext-check': $pgrep = 'pgrep --ns $$ -f '."'/scripts/ext_check.*$dev'"; break;
     }
     echo file_get_contents($file);
     if (!exec($pgrep)) echo "\0";

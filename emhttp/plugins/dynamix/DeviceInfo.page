@@ -272,6 +272,12 @@ function selectDiskFsProfileXFS() {
   $('#diskFsProfile').val('');
   setDiskFsWidth(1);
 }
+function selectDiskFsProfileEXT() {
+  $('#diskFsProfile').empty();
+  $('#diskFsProfile').append($('<option>', {value: '', text:''}));
+  $('#diskFsProfile').val('');
+  setDiskFsWidth(1);
+}
 function selectDiskFsProfileBTRFS(slots,init) {
   $('#diskFsProfile').empty();
   $('#diskFsProfile').append($('<option>', {value: 'single', text:_('single')}));
@@ -399,9 +405,11 @@ function selectDiskFsProfile(init) {
     selectDiskFsProfileZFS(slots,init,subpool);
   } else if (fsType.indexOf('xfs') != -1) {
     selectDiskFsProfileXFS();
+  } else if (fsType.indexOf('ext') != -1) {
+    selectDiskFsProfileEXT();
   }
 
-  if (subpool != '' || fsType == 'auto' || fsType.indexOf('xfs') != -1) {
+  if (subpool != '' || fsType == 'auto' || fsType.indexOf('xfs') != -1 || fsType.indexOf('ext') != -1) {
     $('#compression').hide(t);
     $('#diskCompression').prop('disabled',true);
   } else {
@@ -595,6 +603,18 @@ function xfsCheck(path) {
       setTimeout(function(){xfsCheck(path);},1000);
     } else {
       $.removeCookie('xfs-check-<?=$tag?>');
+      refresh();
+    }
+  });
+  return false;
+}
+function extCheck(path) {
+  $.post('/webGui/include/FileSystemStatus.php',{cmd:'ext-check',path:path},function(data) {
+    $('#ext-check').text(data);
+    if (data.slice(-1)!='\0') {
+      setTimeout(function(){extCheck(path);},1000);
+    } else {
+      $.removeCookie('ext-check-<?=$tag?>');
       refresh();
     }
   });
@@ -804,19 +824,28 @@ _(Spin down delay)_:
 _(File system status)_:
 : <?=_(_var($disk, 'fsStatus'))?>&nbsp;
 
+<?if (_var($var, 'fsState') == "Started"):?>
+_(File system type)_:
+: <?=_(_var($disk, 'fsType'))?>&nbsp;
+<?else:?>
 _(File system type)_:
 : <select id="diskFsType" name="diskFsType.<?=_var($disk, 'idx')?>" onchange="selectDiskFsProfile(false)"  <?=disabled_if($fsTypeImmutable)?>>
   <?=mk_option(_var($disk, 'fsType'), "auto", _('auto'))?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "xfs", _('xfs'))?>
   <?=mk_option(_var($disk, 'fsType'), "zfs", _('zfs'))?>
   <?=mk_option(_var($disk, 'fsType'), "btrfs", _('btrfs'))?>
+  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext4", _('ext4'))?>
+  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext3", _('ext3'), "disabled")?>
+  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "ext2", _('ext2'), "disabled")?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "reiserfs", _('reiserfs'), "disabled")?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:xfs", _('xfs')." - "._('encrypted'))?>
   <?=mk_option(_var($disk, 'fsType'), "luks:zfs", _('zfs')." - "._('encrypted'))?>
   <?=mk_option(_var($disk, 'fsType'), "luks:btrfs", _('btrfs')." - "._('encrypted'))?>
+  <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:ext4", _('ext4')." - "._('encrypted'))?>
   <?if (_var($disk,'slots',1) == 1) echo mk_option(_var($disk,'fsType'), "luks:reiserfs", _('reiserfs')." - "._('encrypted'), "disabled")?>
   </select>
   <span id="reiserfs" class="warning"<?if (!fsType('reiserfs')):?> style="display:none"<?endif;?>><i class="fa fa-warning"></i>&nbsp;_(ReiserFS is deprecated, please use another file system)_!</span>
+<?endif;?>
 <?endif;?>
 
 <?if (diskType('Data') || isPool($tag)):?>
@@ -1510,6 +1539,90 @@ _(xfs_repair status)_:
 <?endif;?>
 </form>
 <?endif;?>
+<?if (fsType('ext')):?>
+<div class="title nocontrol">
+  <span class="left">
+    <i class="title fa fa-shield"></i>_(Check Filesystem Status)_
+  </span>
+</div>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame" onsubmit="prepareFS(this,'ext-check-<?=$tag?>','/dev/<?=_var($disk, 'deviceSb')?> <?=_var($disk, 'id')?>')">
+<?if (maintenance_mode()):?>
+<?exec("$docroot/webGui/scripts/ext_check status /dev/"._var($disk,'deviceSb')." "._var($disk,'id'), $check_status, $retval)?>
+
+_(check status)_:
+: <pre id='ext-check'><?=implode("\n", $check_status)?></pre>
+
+<?if ($retval == 0 || $retval == 8):?>
+<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -p">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Check)_">
+    <?if ($retval == 0): ?> _(No file system corruption detected)_.<?endif; ?>
+  </span>
+
+:info_ext_check_help:
+
+<?elseif ($retval == 1):?>
+<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -f -y">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Fix)_">
+    <span style="color: red;">_(File system corruption detected)_.</span>
+  </span>
+
+:info_ext_check_help:
+
+<?elseif ($retval == 4):?>
+<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
+<input type="hidden" name="#arg[1]" value="start">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+<input type="hidden" name="#arg[4]" value="-v -n">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Check)_">
+    _(File system corruption fixed)_
+  </span>
+
+:info_ext_check_help:
+
+<?elseif ($retval == 9):?>
+<input type="hidden" name="#command" value="/webGui/scripts/ext_check">
+<input type="hidden" name="#arg[1]" value="cancel">
+<input type="hidden" name="#arg[2]" value="/dev/<?=_var($disk, 'deviceSb')?>">
+<input type="hidden" name="#arg[3]" value="<?=_var($disk, 'id')?>">
+
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Cancel)_">
+    *_(Running)_*
+  </span>
+
+:info_ext_cancel_help:
+
+<?endif;?>
+<?else:?>
+
+&nbsp;
+: <span class="inline-block">
+    <input type="submit" value="_(Check)_" disabled>
+    <span>**_(Check)_** _(is only available when array is Started in **Maintenance** mode)_.
+  </span>
+
+<?endif;?>
+</form>
+<?endif;?>
 
 <?if (!diskStatus('_NP')):?>
 <div class="title"><span class="left"><i class="title fa fa-plus-square"></i>_(SMART Settings)_</span></div>
@@ -1670,6 +1783,7 @@ $(function() {
   if ($.cookie('zfs-resilver-<?=$tag?>')) status = zfsResilver($.cookie('zfs-resilver-<?=$tag?>'));
   if ($.cookie('rfs-check-<?=$tag?>')) status = rfsCheck($.cookie('rfs-check-<?=$tag?>'));
   if ($.cookie('xfs-check-<?=$tag?>')) status = xfsCheck($.cookie('xfs-check-<?=$tag?>'));
+  if ($.cookie('ext-check-<?=$tag?>')) status = extCheck($.cookie('ext-check-<?=$tag?>'));
   if (status) {
     $.post('/webGui/include/FileSystemStatus.php',{cmd:'status',path:'<?=$tag?>'},function(a){
       var action = a.split(',');

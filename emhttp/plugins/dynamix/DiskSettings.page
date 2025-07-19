@@ -188,10 +188,12 @@ _(Default file system for Array disks)_:
   <?=mk_option($var['defaultFsType'], "xfs", _('xfs'));?>
   <?=mk_option($var['defaultFsType'], "zfs", _('zfs'));?>
   <?=mk_option($var['defaultFsType'], "btrfs", _('btrfs'));?>
+  <?=mk_option($var['defaultFsType'], "ext4", _('ext4'));?>
   <?=mk_option($var['defaultFsType'], "reiserfs", _('reiserfs'), "disabled");?>
   <?=mk_option($var['defaultFsType'], "luks:xfs", _('xfs')." - "._('encrypted'));?>
   <?=mk_option($var['defaultFsType'], "luks:zfs", _('zfs')." - "._('encrypted'));?>
   <?=mk_option($var['defaultFsType'], "luks:btrfs", _('btrfs')." - "._('encrypted'));?>
+  <?=mk_option($var['defaultFsType'], "luks:ext4", _('ext4')." - "._('encrypted'));?>
   <?=mk_option($var['defaultFsType'], "luks:reiserfs", _('reiserfs')." - "._('encrypted'), "disabled");?>
   </select>
 

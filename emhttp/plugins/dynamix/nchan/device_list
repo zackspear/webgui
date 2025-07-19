@@ -378,19 +378,15 @@ function array_slots() {
 
 function cache_slots($off,$pool,$min,$slots) {
   global $var, $disks;
-//  $off  = $off && $min ? ' disabled' : '';
-  $off = _var($disks[$pool],'fsType','auto')!='auto' && empty(_var($disks[$pool],'uuid')) ? ' disabled' : '';
-  $max  = _var($var,'MAX_CACHESZ');
+  $off  = $off && $min ? ' disabled' : '';
+  $fsType = _var($disks[$pool],'fsType','auto');
+  $max  = ($fsType=='auto' || str_contains($fsType,'btrfs') || str_contains($fsType,'zfs')) ? _var($var,'MAX_CACHESZ') : 1;
   $echo = [];
   $echo[] = "<form method='POST' action='/update.htm' target='progressFrame'>";
   $echo[] = "<input type='hidden' name='csrf_token' value='"._var($var,'csrf_token')."'>";
   $echo[] = "<input type='hidden' name='changeSlots' value='apply'>";
   $echo[] = "<input type='hidden' name='poolName' value='$pool'>";
   $echo[] = "<select class='slots-amount' name='poolSlots' onChange='devices.start();this.form.submit()'{$off}>";
-//  if (_var($disks[$pool],'state')=='NEW_ARRAY' || str_contains(_var($diks[$pool],'state'),'NO_DEVICES')) {
-//    $option = _('none');
-//    $echo[] = "<option value='0'>$option</option>";
-//  }
   for ($n=$min; $n<=$max; $n++) {
     $selected = ($n==$slots) ? ' selected' : '';
     $echo[] = "<option value='$n'{$selected}>$n</option>";
@@ -508,7 +504,7 @@ while (true) {
     $print = array_filter(array_column($Cache,'name'),function($name) use ($pools,$root) {return in_array($name,$pools) && strncmp($root,$name,strlen($root))==0;});
     $print = end($print);
     if (_var($var,'fsState')=='Stopped') {
-      $log = @parse_ini_file($pool_log) ?: [];
+      $log = @parse_ini_file($pool_log) ?: []; // used to detect slot changes
       $off = false;
       foreach ($Cache as $disk) if (prefix(_var($disk,'name'))==$pool) {
         $echo[$a][] = array_offline($disk,$pool);
@@ -518,7 +514,7 @@ while (true) {
         if (isset($log[$named])) $off |= ($log[$named] != _var($disk,'id')); elseif ($named) $log[$named] = _var($disk,'id');
       }
       $data = []; foreach ($log as $key => $value) $data[] = "$key=\"$value\"";
-      $off &= !empty(_var($Cache[$pool],'uuid'));
+      $off &= !empty(_var($Cache[$root],'uuid'));
       file_put_contents($pool_log,implode("\n",$data));
       $echo[$a][] = "<tr class='tr_last'><td>"._('Slots').":</td><td colspan='8'><span class='slots'><span class='slots-left'>".cache_slots($off,$pool,_var($Cache[$pool],'devicesSb'),_var($Cache[$pool],'slots',0))."</span>";
       $zfsPool = strstr(_var($Cache[$pool],'fsType'),'zfs') && !isSubpool($pool);
