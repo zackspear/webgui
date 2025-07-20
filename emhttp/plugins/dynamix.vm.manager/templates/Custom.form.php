@@ -1108,7 +1108,7 @@ if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']])) {
 	<tr class="advanced disk_bus_options">
 		<td>_(Serial)_:</td>
 		<td>
-			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
+			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}][serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
 		</td>
 		<td></td>
 	</tr>
