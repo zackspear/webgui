@@ -1102,13 +1102,13 @@ if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']])) {
 			<?mk_dropdown_options($arrValidDiskDiscard, "unmap");?>
 			</select>
 			<span id="disk[{{INDEX}}][rotatetext]" class="label hidden">_(SSD)_:</span>
-			<input type="checkbox" id="disk[{{INDEX}}][rotation]" class="rotation hidden" onchange="updateSSDCheck(this)" name="disk[{{INDEX}}[rotation]" value='0'>
+			<input type="checkbox" id="disk[{{INDEX}}][rotation]" class="rotation hidden" onchange="updateSSDCheck(this)" name="disk[{{INDEX}}][rotation]" value='0'>
 		</td>
 		<td></td>
 	<tr class="advanced disk_bus_options">
 		<td>_(Serial)_:</td>
 		<td>
-			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
+			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}][serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
 		</td>
 		<td></td>
 	</tr>
