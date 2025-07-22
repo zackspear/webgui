@@ -152,6 +152,7 @@ if (isset($_POST['createvm'])) {
 		}
 	} else {
 		// form view
+		#file_put_contents("/tmp/createpost",json_encode($_POST));
 		if ($lv->domain_new($_POST)) {
 			// Fire off the vnc/spice popup if available
 			$dom = $lv->get_domain_by_name($_POST['domain']['name']);
@@ -1108,7 +1109,7 @@ if (!isset($arrValidMachineTypes[$arrConfig['domain']['machine']])) {
 	<tr class="advanced disk_bus_options">
 		<td>_(Serial)_:</td>
 		<td>
-			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}][serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
+			<span class="width"><input type="text" size="20" maxlength="20" id="disk[{{INDEX}}[serial]" class="trim disk_serial" name="disk[{{INDEX}}][serial]" value=""></span>
 		</td>
 		<td></td>
 	</tr>
