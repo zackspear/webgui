@@ -688,6 +688,7 @@ div.title span img {
         bottom: 0;
         left: 0;
         z-index: 10000;
+        max-height: 30px;
     }
 }
 #countdown {
