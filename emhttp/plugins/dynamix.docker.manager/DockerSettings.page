@@ -60,8 +60,8 @@ foreach ($custom as $network) {
   $ip6    = exec("ip -6 -br addr show scope global primary -deprecated dev $network | awk '{print $3;exit}'");
   $gw4    = $ip4 ? exec("ip -4 route show to default dev $network | awk '{print $3;exit}'") : '';
   $gw6    = $ip6 ? exec("ip -6 route show to default dev $network | awk '{print $3;exit}'") : '';
-  $route4 = $ip4 ? exec("ip -4 route show dev $network | awk '$1 !~ /^default/ {print $1;exit}'") : '';
-  $route6 = $ip6 ? exec("ip -6 route show dev $network | awk '$1 !~ /^(default|f[a-f])/ {print $1;exit}'") : '';
+  $route4 = $ip4 ? exec("ip -4 route show dev $network | sort | awk -v ORS=\" \" '\$1 !~ /^default/ {print \$1}' | sed 's/ \$//'") : '';
+  $route6 = $ip6 ? exec("ip -6 route show dev $network | sort | awk -v ORS=\" \" '\$1 !~ /^(default|fe80)/ {print \$1}' | sed 's/ \$//'") : '';
   if (substr($network,0,4) != 'wlan') {
     [$eth,$vlan] = my_explode('.',$network);
     $eth = str_replace(['bond','br'],'eth',$eth);
@@ -369,7 +369,7 @@ _(IPv4 custom network on interface)_ <?=$network?> (_(optional)_):
 
     <span id="<?=$docker_dhcp?>_line" class="flex flex-row items-center flex-wrap gap-4 <?=$autoDisabled?>">
       <span class="<?=$ip4class?>">
-        <strong><?=_('Subnet')?>:</strong> <?=$route?>
+        <strong><?=_('Subnet')?>:</strong> <?=str_replace(' ', '<br><b>'._('Subnet').': </b>', $route)?>
       </span>
       <span class="<?=$gw4class?>">
         <strong><?=_('Gateway')?>:</strong> <?=$gateway[$network]?>
@@ -500,7 +500,7 @@ _(IPv6 custom network on interface)_ <?=$network?> (_(optional)_):
       _(Edit)_
     </label>
     <span id="<?=$docker_dhcp6?>_line" class="<?=$auto6Disabled?>">
-      <span class="ip6">**_(Subnet)_:** <?=$route?></span>
+      <span class="ip6">**_(Subnet)_:** <?=str_replace(' ', '<br><b>'._('Subnet').': </b>', $route)?></span>
       <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
     </span>
   </span>
@@ -608,7 +608,7 @@ $docker_dhcp = "DOCKER_DHCP_$net";
 
 _(IPv4 custom network on interface)_ <?=$network?>:
 : <span class="flex flex-row flex-wrap items-center gap-4">
-    <span class="<?=$gw4class?>">**_(Subnet)_:** <?=$route?></span>
+    <span class="<?=$gw4class?>">**_(Subnet)_:** <?=str_replace(' ', '<br><b>'._('Subnet').': </b>', $route)?></span>
     <span class="<?=$gw4class?>">**_(Gateway)_:** <?=$gateway[$network]?></span>
     <span>**_(DHCP pool)_:** <?=_var($dockercfg,$docker_dhcp) ?: "_(not set)_"?><?if (isset($dockercfg[$docker_dhcp])):?>&nbsp;&nbsp;(<?=pow(2,32-my_explode('/',$dockercfg[$docker_dhcp])[1])?> _(hosts)_)<?endif;?></span>
   </span>
@@ -657,7 +657,7 @@ if (isset($dockercfg[$docker_dhcp6]) || empty($dockercfg["DOCKER_AUTO_$net"]) ||
 
 _(IPv6 custom network on interface)_ <?=$network?>:
 : <span class="flex flex-row flex-wrap items-center gap-4">
-    <span class="gw6">**_(Subnet)_:** <?=$route?></span>
+    <span class="gw6">**_(Subnet)_:** <?=str_replace(' ', '<br><b>'._('Subnet').': </b>', $route)?></span>
     <span class="gw6">**_(Gateway)_:** <?=$gateway6[$network]?></span>
   </span>
 
@@ -998,10 +998,6 @@ function checkIP() {
     if ($(this).val() && !validIP6.test($(this).val())) error = true;
   });
   if (error) {swal({title:"_(Invalid IPv6 gateway)_",text:"_(Please enter a valid gateway)_",type:'error',html:true,confirmButtonText:"_(Ok)_"}); return false;}
-  $('#settingsForm').find('input[name^="DOCKER_RANGE6_"]').each(function(){
-    if ($(this).val() && !validIP6.test($(this).val())) error = true;
-  });
-  if (error) {swal({title:"_(Invalid IPv6 range)_",text:"_(Please enter a valid range)_",type:'error',html:true,confirmButtonText:"_(Ok)_"}); return false;}
   return true;
 }
 
